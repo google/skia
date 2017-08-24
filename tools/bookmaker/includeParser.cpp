@@ -315,6 +315,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                 } break;
                 case MarkType::kComment:
                     break;
+                case MarkType::kEnumClass:
                 case MarkType::kEnum: {
                     if (!def) {
                         // work backwards from first word to deduce #Enum name
@@ -366,7 +367,9 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                        SkDebugf("enum differs from bmh: %s\n", def->fName.c_str());
                     }
                     for (auto& child : token.fChildren) {
-                        string constName = className + "::" + child->fName;
+                        string constName = MarkType::kEnumClass == token.fMarkType ?
+                                fullName : className;
+                        constName += "::" + child->fName;
                         def = root->find(constName);
                         if (!def) {
                             string innerName = classMapper.first + "::" + child->fName;

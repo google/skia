@@ -166,8 +166,11 @@ Valid parameters include:
 <a href="SkCanvas_Reference#MakeRasterDirect">pixels</a> is not nullptr;
 <a href="SkCanvas_Reference#MakeRasterDirect">rowBytes</a> is zero or large enough to contain <a href="SkCanvas_Reference#MakeRasterDirect">info</a> width <a href="SkCanvas_Reference#MakeRasterDirect">pixels</a> of <a href="undocumented#Color_Type">Image Color Type</a>.
 
-pixel buffer size should be <a href="SkCanvas_Reference#MakeRasterDirect">info</a> height times <a href="SkCanvas_Reference#MakeRasterDirect">rowBytes</a> times bytes required for
-<a href="undocumented#Color_Type">Image Color Type</a>.
+Pass zero for <a href="SkCanvas_Reference#MakeRasterDirect">rowBytes</a> to compute <a href="SkCanvas_Reference#MakeRasterDirect">rowBytes</a> from <a href="SkCanvas_Reference#MakeRasterDirect">info</a> width and size of pixel. 
+If <a href="SkCanvas_Reference#MakeRasterDirect">rowBytes</a> is greater than zero, it must be equal to or greater than
+<a href="SkCanvas_Reference#MakeRasterDirect">info</a> width times bytes required for <a href="undocumented#Color_Type">Image Color Type</a>.
+
+<a href="undocumented#Pixel">Pixel</a> buffer size should be <a href="SkCanvas_Reference#MakeRasterDirect">info</a> height times computed <a href="SkCanvas_Reference#MakeRasterDirect">rowBytes</a>.
 
 ### Parameters
 
@@ -175,11 +178,9 @@ pixel buffer size should be <a href="SkCanvas_Reference#MakeRasterDirect">info</
 width, height, <a href="undocumented#Color_Type">Image Color Type</a>, <a href="undocumented#Alpha_Type">Image Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, of <a href="undocumented#Raster_Surface">Raster Surface</a>;
 width, or height, or both, may be zero</td>
   </tr>  <tr>    <td><code><strong>pixels </strong></code></td> <td>
-pointer to destination <a href="SkCanvas_Reference#MakeRasterDirect">pixels</a> buffer; buffer size should be height
-times <a href="SkCanvas_Reference#MakeRasterDirect">rowBytes</a> times four</td>
+pointer to destination <a href="SkCanvas_Reference#MakeRasterDirect">pixels</a> buffer</td>
   </tr>  <tr>    <td><code><strong>rowBytes </strong></code></td> <td>
-interval from one <a href="undocumented#Surface">Surface</a> row to the next; equal to or greater than
-<a href="SkCanvas_Reference#MakeRasterDirect">info</a> width times bytes required for <a href="undocumented#Color_Type">Image Color Type</a></td>
+interval from one <a href="undocumented#Surface">Surface</a> row to the next, or zero</td>
   </tr>
 </table>
 
@@ -225,13 +226,15 @@ To access <a href="SkCanvas_Reference#MakeRasterDirectN32">pixels</a> after draw
 
 <a href="SkCanvas_Reference#Canvas">Canvas</a> is returned if all parameters are valid.
 Valid parameters include:
-info dimensions are zero or positive;
-info contains <a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a> supported by <a href="undocumented#Raster_Surface">Raster Surface</a>;
+<a href="SkCanvas_Reference#width">width</a> and <a href="SkCanvas_Reference#height">height</a> are zero or positive;
 <a href="SkCanvas_Reference#MakeRasterDirectN32">pixels</a> is not nullptr;
-<a href="SkCanvas_Reference#MakeRasterDirectN32">rowBytes</a> is zero or large enough to contain <a href="SkCanvas_Reference#width">width</a> <a href="SkCanvas_Reference#MakeRasterDirectN32">pixels</a> of <a href="undocumented#Color_Type">Image Color Type</a>.
+<a href="SkCanvas_Reference#MakeRasterDirectN32">rowBytes</a> is zero or large enough to contain <a href="SkCanvas_Reference#width">width</a> <a href="SkCanvas_Reference#MakeRasterDirectN32">pixels</a> of <a href="undocumented#SkColorType">kN32 SkColorType</a>.
 
-pixel buffer size should be info <a href="SkCanvas_Reference#height">height</a> times <a href="SkCanvas_Reference#MakeRasterDirectN32">rowBytes</a> times bytes required for
-<a href="undocumented#Color_Type">Image Color Type</a>.
+Pass zero for <a href="SkCanvas_Reference#MakeRasterDirectN32">rowBytes</a> to compute <a href="SkCanvas_Reference#MakeRasterDirectN32">rowBytes</a> from fo <a href="SkCanvas_Reference#width">width</a> and size of pixel. 
+If <a href="SkCanvas_Reference#MakeRasterDirectN32">rowBytes</a> is greater than zero, it must be equal to or greater than
+<a href="SkCanvas_Reference#width">width</a> times bytes required for <a href="undocumented#Color_Type">Image Color Type</a>.
+
+<a href="undocumented#Pixel">Pixel</a> buffer size should be <a href="SkCanvas_Reference#height">height</a> times <a href="SkCanvas_Reference#MakeRasterDirectN32">rowBytes</a>.
 
 ### Parameters
 
@@ -241,10 +244,9 @@ pixel column count on <a href="undocumented#Raster_Surface">Raster Surface</a> c
 pixel row count on <a href="undocumented#Raster_Surface">Raster Surface</a> created.; must be zero or greater</td>
   </tr>  <tr>    <td><code><strong>pixels </strong></code></td> <td>
 pointer to destination <a href="SkCanvas_Reference#MakeRasterDirectN32">pixels</a> buffer; buffer size should be <a href="SkCanvas_Reference#height">height</a>
-times <a href="SkCanvas_Reference#MakeRasterDirectN32">rowBytes</a> times four</td>
+times <a href="SkCanvas_Reference#MakeRasterDirectN32">rowBytes</a></td>
   </tr>  <tr>    <td><code><strong>rowBytes </strong></code></td> <td>
-interval from one <a href="undocumented#Surface">Surface</a> row to the next; equal to or greater than
-<a href="SkCanvas_Reference#width">width</a> times four</td>
+interval from one <a href="undocumented#Surface">Surface</a> row to the next, or zero</td>
   </tr>
 </table>
 
@@ -276,8 +278,8 @@ in the center.</div>
 SkCanvas()
 </pre>
 
-Creates an empty canvas with no backing device/pixels, and zero
-dimensions.
+Creates an empty canvas with no backing device or pixels, with 
+a width and height of zero.
 
 ### Return Value
 
@@ -547,7 +549,7 @@ transparent letters.</div></fiddle-embed></div>
 SkMetaData& getMetaData()
 </pre>
 
-Associates additional data with the canvas.
+Returns storage to associate additional data with the canvas.
 The storage is freed when <a href="SkCanvas_Reference#Canvas">Canvas</a> is deleted.
 
 ### Return Value
@@ -833,12 +835,12 @@ bool peekPixels(SkPixmap* pixmap)
 
 Returns true if <a href="SkCanvas_Reference#Canvas">Canvas</a> has direct access to its pixels.
 
-Pixels are readable when <a href="undocumented#Device">Device</a> is raster. Pixels are not readable when <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a>
+Pixels are readable when <a href="undocumented#Device">Device</a> is raster. Pixels are not readable when <a href="SkCanvas_Reference#Canvas">Canvas</a>
 is returned from <a href="undocumented#GPU_Surface">GPU Surface</a>, returned by <a href="undocumented#beginPage">SkDocument::beginPage</a>, returned by
-<a href="undocumented#beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a> is the base of a utility class
+<a href="undocumented#beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="SkCanvas_Reference#Canvas">Canvas</a> is the base of a utility class
 like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
-<a href="SkCanvas_Reference#peekPixels">pixmap</a> pixel address is only valid while <a href="SkCanvas_Reference#Canvas">Canvas</a> is in scope and unchanged. Any
+<a href="SkCanvas_Reference#peekPixels">pixmap</a> is valid only while <a href="SkCanvas_Reference#Canvas">Canvas</a> is in scope and unchanged. Any
 <a href="SkCanvas_Reference#Canvas">Canvas</a> or <a href="undocumented#Surface">Surface</a> call may invalidate the <a href="SkCanvas_Reference#peekPixels">pixmap</a> values.
 
 ### Parameters
@@ -875,57 +877,59 @@ bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                 int srcX, int srcY)
 </pre>
 
-Copies rectangle of pixels from <a href="SkCanvas_Reference#Canvas">Canvas</a> into <a href="SkCanvas_Reference#dstPixels">dstPixels</a>, converting their
-<a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a>. Pixels are readable when <a href="undocumented#Device">Device</a> is
-raster. Pixels are not readable when <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a> is returned from <a href="undocumented#GPU_Surface">GPU Surface</a>,
-returned by <a href="undocumented#beginPage">SkDocument::beginPage</a>, returned by <a href="undocumented#beginRecording">SkPictureRecorder::beginRecording</a>,
-or <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a> is the base of a utility class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
+Copies rectangle of pixels from <a href="SkCanvas_Reference#Canvas">Canvas</a> into <a href="SkCanvas_Reference#dstPixels">dstPixels</a>. <a href="SkCanvas_Reference#Matrix">Matrix</a> and <a href="SkCanvas_Reference#Clip">Clip</a> are
+ignored. Source rectangle corners are (<a href="SkCanvas_Reference#srcX">srcX</a>, <a href="SkCanvas_Reference#srcY">srcY</a>) and
+(this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.width(), this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.height()).
+Destination rectangle corners are (0, 0) and (<a href="SkCanvas_Reference#dstInfo">dstInfo</a>.width(), <a href="SkCanvas_Reference#dstInfo">dstInfo</a>.height()).
+Copies each readable pixel intersecting both rectangles, without scaling,
+converting to <a href="SkCanvas_Reference#dstInfo">dstInfo</a>.colorType() and <a href="SkCanvas_Reference#dstInfo">dstInfo</a>.alphaType() if required.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a>
-does not match <a href="SkCanvas_Reference#dstInfo">dstInfo</a>. Only pixels within the rectangle that intersect <a href="SkCanvas_Reference#Canvas">Canvas</a>
-pixels are copied. <a href="SkCanvas_Reference#dstPixels">dstPixels</a> outside the rectangle intersection are unchanged.
+Pixels are readable when <a href="undocumented#Device">Device</a> is raster, or backed by a <a href="undocumented#GPU">GPU</a>.
+Pixels are not readable when <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a> is returned by <a href="undocumented#beginPage">SkDocument::beginPage</a>,
+returned by <a href="undocumented#beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="SkCanvas_Reference#Canvas">Canvas</a> is the base of a utility
+class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
-| source rectangle | value |
-| --- | ---  |
-| left | <a href="SkCanvas_Reference#srcX">srcX</a> |
-| top | <a href="SkCanvas_Reference#srcY">srcY</a> |
-| width | <a href="SkCanvas_Reference#dstInfo">dstInfo</a>.width() |
-| height | <a href="SkCanvas_Reference#dstInfo">dstInfo</a>.height() |
+The destination pixel storage must be allocated by the caller.
 
-| canvas pixel bounds | value |
-| --- | ---  |
-| left | 0 |
-| top | 0 |
-| width | <a href="SkCanvas_Reference#imageInfo">imageInfo</a>.width() |
-| height | <a href="SkCanvas_Reference#imageInfo">imageInfo</a>.height() |
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a>
+do not match. Only pixels within both source and destination rectangles
+are copied. <a href="SkCanvas_Reference#dstPixels">dstPixels</a> contents outside the rectangle intersection are unchanged.
+
+Pass negative values for <a href="SkCanvas_Reference#srcX">srcX</a> or <a href="SkCanvas_Reference#srcY">srcY</a> to offset pixels across or down destination.
 
 Does not copy, and returns false if:
 
 <table>  <tr>
-    <td>Source rectangle and canvas pixel bounds do not intersect.</td>  </tr>  <tr>
-    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> pixels could not be converted to <a href="SkCanvas_Reference#dstInfo">dstInfo</a> <a href="undocumented#Color_Type">Image Color Type</a> or <a href="SkCanvas_Reference#dstInfo">dstInfo</a> <a href="undocumented#Alpha_Type">Image Alpha Type</a>.</td>  </tr>  <tr>
-    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> pixels are not readable; for instance, <a href="SkCanvas_Reference#Canvas">Canvas</a> is not raster, or is document-based.</td>  </tr>  <tr>
+    <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
+    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> pixels could not be converted to <a href="SkCanvas_Reference#dstInfo">dstInfo</a>.colorType() or <a href="SkCanvas_Reference#dstInfo">dstInfo</a>.alphaType().</td>  </tr>  <tr>
+    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> pixels are not readable; for instance, <a href="SkCanvas_Reference#Canvas">Canvas</a> is document-based.</td>  </tr>  <tr>
     <td><a href="SkCanvas_Reference#dstRowBytes">dstRowBytes</a> is too small to contain one row of pixels.</td>  </tr>
 </table>
 
 ### Parameters
 
 <table>  <tr>    <td><code><strong>dstInfo </strong></code></td> <td>
-dimensions, <a href="undocumented#Color_Type">Image Color Type</a>, and <a href="undocumented#Alpha_Type">Image Alpha Type</a> of <a href="SkCanvas_Reference#dstPixels">dstPixels</a></td>
+width, height, <a href="undocumented#Color_Type">Image Color Type</a>, and <a href="undocumented#Alpha_Type">Image Alpha Type</a> of <a href="SkCanvas_Reference#dstPixels">dstPixels</a></td>
   </tr>  <tr>    <td><code><strong>dstPixels </strong></code></td> <td>
-storage for pixels, of size <a href="SkCanvas_Reference#dstInfo">dstInfo</a>.height() times <a href="SkCanvas_Reference#dstRowBytes">dstRowBytes</a></td>
+storage for pixels; <a href="SkCanvas_Reference#dstInfo">dstInfo</a>.height() times <a href="SkCanvas_Reference#dstRowBytes">dstRowBytes</a>, or larger</td>
   </tr>  <tr>    <td><code><strong>dstRowBytes </strong></code></td> <td>
-size of one destination row, <a href="SkCanvas_Reference#dstInfo">dstInfo</a>.width() times pixel size</td>
+size of one destination row; <a href="SkCanvas_Reference#dstInfo">dstInfo</a>.width() times pixel size, or larger</td>
   </tr>  <tr>    <td><code><strong>srcX </strong></code></td> <td>
-offset into readable pixels in x</td>
+offset into readable pixels in x; may be negative</td>
   </tr>  <tr>    <td><code><strong>srcY </strong></code></td> <td>
-offset into readable pixels in y</td>
+offset into readable pixels in y; may be negative</td>
   </tr>
 </table>
 
 ### Return Value
 
 true if pixels were copied
+
+### Example
+
+<div><fiddle-embed name="2964297993747769b0760874c19e0168"><div>A black circle drawn on a blue background provides an image to copy.
+<a href="SkCanvas_Reference#readPixels">readPixels</a> copies one quarter of the canvas into each of the four corners.
+The offscreen draws over the image.</div></fiddle-embed></div>
 
 ### Example
 
@@ -944,45 +948,44 @@ pixel = 8056a9ff
 
 </fiddle-embed></div>
 
+### See Also
+
+<a href="SkCanvas_Reference#peekPixels">peekPixels</a> <a href="SkCanvas_Reference#writePixels">writePixels</a> <a href="SkCanvas_Reference#drawBitmap">drawBitmap</a> <a href="SkCanvas_Reference#drawImage">drawImage</a>
+
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 bool readPixels(const SkPixmap& pixmap, int srcX, int srcY)
 </pre>
 
-Copies rectangle of pixels from <a href="SkCanvas_Reference#Canvas">Canvas</a> into <a href="undocumented#Pixmap">Pixmap</a>, converting their
-<a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a>. Pixels are readable when <a href="undocumented#Device">Device</a> is raster.
-Pixels are not readable when <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a> is returned from <a href="undocumented#GPU_Surface">GPU Surface</a>, returned by
-<a href="undocumented#beginPage">SkDocument::beginPage</a>, returned by <a href="undocumented#beginRecording">SkPictureRecorder::beginRecording</a>,
-or <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a> is the base of a utility class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
+Copies rectangle of pixels from <a href="SkCanvas_Reference#Canvas">Canvas</a> into <a href="SkCanvas_Reference#pixmap">pixmap</a>. <a href="SkCanvas_Reference#Matrix">Matrix</a> and <a href="SkCanvas_Reference#Clip">Clip</a> are
+ignored. Source rectangle corners are (<a href="SkCanvas_Reference#srcX">srcX</a>, <a href="SkCanvas_Reference#srcY">srcY</a>) and
+(this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.width(), this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.height()).
+Destination rectangle are (0, 0) and (<a href="SkCanvas_Reference#pixmap">pixmap</a>.width(), <a href="SkCanvas_Reference#pixmap">pixmap</a>.height()).
+Copies each readable pixel intersecting both rectangles, without scaling,
+converting to <a href="SkCanvas_Reference#pixmap">pixmap</a>.colorType() and <a href="SkCanvas_Reference#pixmap">pixmap</a>.alphaType() if required.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a>
-does not match bitmap <a href="undocumented#Info">Image Info</a>. Only <a href="undocumented#Pixmap">Pixmap</a> pixels within the rectangle that
-intersect <a href="SkCanvas_Reference#Canvas">Canvas</a> pixels are copied. <a href="undocumented#Pixmap">Pixmap</a> pixels outside the rectangle
-intersection are unchanged.
+Pixels are readable when <a href="undocumented#Device">Device</a> is raster, or backed by a <a href="undocumented#GPU">GPU</a>.
+Pixels are not readable when <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a> is returned by <a href="undocumented#beginPage">SkDocument::beginPage</a>,
+returned by <a href="undocumented#beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="SkCanvas_Reference#Canvas">Canvas</a> is the base of a utility
+class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
-| source rectangle | value |
-| --- | ---  |
-| left | <a href="SkCanvas_Reference#srcX">srcX</a> |
-| top | <a href="SkCanvas_Reference#srcY">srcY</a> |
-| width | bitmap.width() |
-| height | bitmap.height() |
+Allocates pixel storage in <a href="SkCanvas_Reference#pixmap">pixmap</a> if needed.
 
-| canvas pixel bounds | value |
-| --- | ---  |
-| left | 0 |
-| top | 0 |
-| width | <a href="SkCanvas_Reference#imageInfo">imageInfo</a>.width() |
-| height | <a href="SkCanvas_Reference#imageInfo">imageInfo</a>.height() |
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a>
+do not match. Only pixels within both source and destination rectangles
+are copied. <a href="SkCanvas_Reference#pixmap">pixmap</a> pixels contents outside the rectangle intersection are unchanged.
+
+Pass negative values for <a href="SkCanvas_Reference#srcX">srcX</a> or <a href="SkCanvas_Reference#srcY">srcY</a> to offset pixels across or down <a href="SkCanvas_Reference#pixmap">pixmap</a>.
 
 Does not copy, and returns false if:
 
 <table>  <tr>
-    <td>Source rectangle and canvas pixel bounds do not intersect.</td>  </tr>  <tr>
-    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> pixels could not be converted to bitmap <a href="undocumented#Color_Type">Image Color Type</a> or bitmap <a href="undocumented#Alpha_Type">Image Alpha Type</a>.</td>  </tr>  <tr>
-    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> pixels are not readable; for instance, <a href="SkCanvas_Reference#Canvas">Canvas</a> is not raster, or is document-based.</td>  </tr>  <tr>
-    <td>bitmap pixels could not be allocated.</td>  </tr>  <tr>
-    <td><a href="undocumented#Row_Bytes">Bitmap Row Bytes</a> is too small to contain one row of pixels.</td>  </tr>
+    <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
+    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> pixels could not be converted to <a href="SkCanvas_Reference#pixmap">pixmap</a>.colorType() or <a href="SkCanvas_Reference#pixmap">pixmap</a>.alphaType().</td>  </tr>  <tr>
+    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> pixels are not readable; for instance, <a href="SkCanvas_Reference#Canvas">Canvas</a> is document-based.</td>  </tr>  <tr>
+    <td><a href="undocumented#Pixmap">Pixmap</a> pixels could not be allocated.</td>  </tr>  <tr>
+    <td><a href="SkCanvas_Reference#pixmap">pixmap</a>.rowBytes() is too small to contain one row of pixels.</td>  </tr>
 </table>
 
 ### Parameters
@@ -990,9 +993,9 @@ Does not copy, and returns false if:
 <table>  <tr>    <td><code><strong>pixmap </strong></code></td> <td>
 storage for pixels copied from <a href="SkCanvas_Reference#Canvas">Canvas</a></td>
   </tr>  <tr>    <td><code><strong>srcX </strong></code></td> <td>
-offset into readable pixels in x</td>
+offset into readable pixels in x; may be negative</td>
   </tr>  <tr>    <td><code><strong>srcY </strong></code></td> <td>
-offset into readable pixels in y</td>
+offset into readable pixels in y; may be negative</td>
   </tr>
 </table>
 
@@ -1002,7 +1005,9 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="85f199032943b6483722c34a91c4e20f">
+<div><fiddle-embed name="85f199032943b6483722c34a91c4e20f"><div><a href="SkCanvas_Reference#clear">clear</a> takes unpremultiplied input with <a href="undocumented#Alpha">Color Alpha</a> equal 0x80
+and <a href="undocumented#RGB">Color RGB</a> equal 0x55, 0xAA, 0xFF. <a href="undocumented#RGB">Color RGB</a> is multipled by <a href="undocumented#Alpha">Color Alpha</a>
+to generate premultipled value 0x802B5580.</div>
 
 #### Example Output
 
@@ -1011,6 +1016,10 @@ pixel = 802b5580
 ~~~~
 
 </fiddle-embed></div>
+
+### See Also
+
+<a href="SkCanvas_Reference#peekPixels">peekPixels</a> <a href="SkCanvas_Reference#writePixels">writePixels</a> <a href="SkCanvas_Reference#drawBitmap">drawBitmap</a> <a href="SkCanvas_Reference#drawImage">drawImage</a>
 
 ---
 
@@ -1018,33 +1027,34 @@ pixel = 802b5580
 bool readPixels(const SkBitmap& bitmap, int srcX, int srcY)
 </pre>
 
-Copies pixels enclosed by <a href="SkCanvas_Reference#bitmap">bitmap</a> offset to (x, y) from <a href="SkCanvas_Reference#Canvas">Canvas</a> into <a href="SkCanvas_Reference#bitmap">bitmap</a>,
-converting their <a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a>.
-Pixels are readable when <a href="undocumented#Device">Device</a> is raster. Pixels are not readable when <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a>
-is returned from <a href="undocumented#GPU_Surface">GPU Surface</a>, returned by <a href="undocumented#beginPage">SkDocument::beginPage</a>, returned by
-<a href="undocumented#beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a> is the base of a utility class
-like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>. Allocates pixel storage in <a href="SkCanvas_Reference#bitmap">bitmap</a> if needed.
+Copies rectangle of pixels from <a href="SkCanvas_Reference#Canvas">Canvas</a> into <a href="SkCanvas_Reference#bitmap">bitmap</a>. <a href="SkCanvas_Reference#Matrix">Matrix</a> and <a href="SkCanvas_Reference#Clip">Clip</a> are
+ignored. Source rectangle corners are (<a href="SkCanvas_Reference#srcX">srcX</a>, <a href="SkCanvas_Reference#srcY">srcY</a>) and
+(this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.width(), this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.height()).
+Destination rectangle corners are (0, 0) and (<a href="SkCanvas_Reference#bitmap">bitmap</a>.width(), <a href="SkCanvas_Reference#bitmap">bitmap</a>.height()).
+Copies each readable pixel intersecting both rectangles, without scaling,
+converting to <a href="SkCanvas_Reference#bitmap">bitmap</a>.colorType() and <a href="SkCanvas_Reference#bitmap">bitmap</a>.alphaType() if required.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a>
-does not match <a href="SkCanvas_Reference#bitmap">bitmap</a> <a href="undocumented#Info">Image Info</a>. Only pixels within the rectangle that intersect
-<a href="SkCanvas_Reference#Canvas">Canvas</a> pixels are copied. Bitamp pixels outside the rectangle intersection are
-unchanged.
+Pixels are readable when <a href="undocumented#Device">Device</a> is raster, or backed by a <a href="undocumented#GPU">GPU</a>.
+Pixels are not readable when <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a> is returned by <a href="undocumented#beginPage">SkDocument::beginPage</a>,
+returned by <a href="undocumented#beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="SkCanvas_Reference#Canvas">Canvas</a> is the base of a utility
+class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
-| canvas pixel bounds | value |
-| --- | ---  |
-| left | 0 |
-| top | 0 |
-| width | <a href="SkCanvas_Reference#imageInfo">imageInfo</a>.width() |
-| height | <a href="SkCanvas_Reference#imageInfo">imageInfo</a>.height() |
+Allocates pixel storage in <a href="SkCanvas_Reference#bitmap">bitmap</a> if needed.
+
+<a href="undocumented#Bitmap">Bitmap</a> values are converted only if <a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a>
+do not match. Only pixels within both source and destination rectangles
+are copied. <a href="undocumented#Bitmap">Bitmap</a> pixels outside the rectangle intersection are unchanged.
+
+Pass negative values for <a href="SkCanvas_Reference#srcX">srcX</a> or <a href="SkCanvas_Reference#srcY">srcY</a> to offset pixels across or down <a href="SkCanvas_Reference#bitmap">bitmap</a>.
 
 Does not copy, and returns false if:
 
 <table>  <tr>
-    <td>Bounds formed by (x, y) and <a href="SkCanvas_Reference#bitmap">bitmap</a> (width, height) and canvas pixel bounds do not intersect.</td>  </tr>  <tr>
-    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> pixels could not be converted to <a href="SkCanvas_Reference#bitmap">bitmap</a> <a href="undocumented#Color_Type">Image Color Type</a> or <a href="SkCanvas_Reference#bitmap">bitmap</a> <a href="undocumented#Alpha_Type">Image Alpha Type</a>.</td>  </tr>  <tr>
-    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> pixels are not readable; for instance, <a href="SkCanvas_Reference#Canvas">Canvas</a> is not raster, or is document-based.</td>  </tr>  <tr>
+    <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
+    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> pixels could not be converted to <a href="SkCanvas_Reference#bitmap">bitmap</a>.colorType() or <a href="SkCanvas_Reference#bitmap">bitmap</a>.alphaType().</td>  </tr>  <tr>
+    <td><a href="SkCanvas_Reference#Canvas">Canvas</a> pixels are not readable; for instance, <a href="SkCanvas_Reference#Canvas">Canvas</a> is document-based.</td>  </tr>  <tr>
     <td><a href="SkCanvas_Reference#bitmap">bitmap</a> pixels could not be allocated.</td>  </tr>  <tr>
-    <td><a href="undocumented#Row_Bytes">Bitmap Row Bytes</a> is too small to contain one row of pixels.</td>  </tr>
+    <td><a href="SkCanvas_Reference#bitmap">bitmap</a>.rowBytes() is too small to contain one row of pixels.</td>  </tr>
 </table>
 
 ### Parameters
@@ -1052,9 +1062,9 @@ Does not copy, and returns false if:
 <table>  <tr>    <td><code><strong>bitmap </strong></code></td> <td>
 storage for pixels copied from <a href="SkCanvas_Reference#Canvas">Canvas</a></td>
   </tr>  <tr>    <td><code><strong>srcX </strong></code></td> <td>
-offset into readable pixels in x</td>
+offset into readable pixels in x; may be negative</td>
   </tr>  <tr>    <td><code><strong>srcY </strong></code></td> <td>
-offset into readable pixels in y</td>
+offset into readable pixels in y; may be negative</td>
   </tr>
 </table>
 
@@ -1064,7 +1074,9 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="af6dec8ef974aa67bf102f29915bcd6a">
+<div><fiddle-embed name="af6dec8ef974aa67bf102f29915bcd6a"><div><a href="SkCanvas_Reference#clear">clear</a> takes unpremultiplied input with <a href="undocumented#Alpha">Color Alpha</a> equal 0x80
+and <a href="undocumented#RGB">Color RGB</a> equal 0x55, 0xAA, 0xFF. <a href="undocumented#RGB">Color RGB</a> is multipled by <a href="undocumented#Alpha">Color Alpha</a>
+to generate premultipled value 0x802B5580.</div>
 
 #### Example Output
 
@@ -1073,6 +1085,10 @@ pixel = 802b5580
 ~~~~
 
 </fiddle-embed></div>
+
+### See Also
+
+<a href="SkCanvas_Reference#peekPixels">peekPixels</a> <a href="SkCanvas_Reference#writePixels">writePixels</a> <a href="SkCanvas_Reference#drawBitmap">drawBitmap</a> <a href="SkCanvas_Reference#drawImage">drawImage</a>
 
 ---
 
@@ -1084,33 +1100,30 @@ bool writePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
                  int x, int y)
 </pre>
 
-Copies to <a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="SkCanvas_Reference#pixels">pixels</a>, ignoring the <a href="SkCanvas_Reference#Matrix">Matrix</a> and <a href="SkCanvas_Reference#Clip">Clip</a>, converting to match
-<a href="SkCanvas_Reference#info">info</a> <a href="undocumented#Color_Type">Image Color Type</a> and <a href="SkCanvas_Reference#info">info</a> <a href="undocumented#Alpha_Type">Image Alpha Type</a>.
+Copies rectangle from <a href="SkCanvas_Reference#pixels">pixels</a> to <a href="SkCanvas_Reference#Canvas">Canvas</a>. <a href="SkCanvas_Reference#Matrix">Matrix</a> and <a href="SkCanvas_Reference#Clip">Clip</a> are ignored.
+Source rectangle corners are (0, 0) and (<a href="SkCanvas_Reference#info">info</a>.width(), <a href="SkCanvas_Reference#info">info</a>.height()).
+Destination rectangle corners are (<a href="SkCanvas_Reference#x">x</a>, <a href="SkCanvas_Reference#y">y</a>) and
+(this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.width(), this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.height()). Copies each readable pixel
+intersecting both rectangles, without scaling, converting to
+this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.colorType() and this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.alphaType() if required.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a>
-does not match <a href="SkCanvas_Reference#info">info</a>. Only <a href="SkCanvas_Reference#pixels">pixels</a> within the source rectangle that intersect
-<a href="SkCanvas_Reference#Canvas">Canvas</a> pixel bounds are copied. <a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="SkCanvas_Reference#pixels">pixels</a> outside the rectangle intersection
-are unchanged.
+Pixels are writable when <a href="undocumented#Device">Device</a> is raster, or backed by a <a href="undocumented#GPU">GPU</a>.
+Pixels are not writable when <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a> is returned by <a href="undocumented#beginPage">SkDocument::beginPage</a>,
+returned by <a href="undocumented#beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="SkCanvas_Reference#Canvas">Canvas</a> is the base of a utility
+class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
-| source rectangle | value |
-| --- | ---  |
-| left | <a href="SkCanvas_Reference#x">x</a> |
-| top | <a href="SkCanvas_Reference#y">y</a> |
-| width | <a href="SkCanvas_Reference#info">info</a>.width() |
-| height | <a href="SkCanvas_Reference#info">info</a>.height() |
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a>
+do not match. Only <a href="SkCanvas_Reference#pixels">pixels</a> within both source and destination rectangles
+are copied. <a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="SkCanvas_Reference#pixels">pixels</a> outside the rectangle intersection are unchanged.
 
-| canvas pixel bounds | value |
-| --- | ---  |
-| left | 0 |
-| top | 0 |
-| width | <a href="SkCanvas_Reference#imageInfo">imageInfo</a>.width() |
-| height | <a href="SkCanvas_Reference#imageInfo">imageInfo</a>.height() |
+Pass negative values for <a href="SkCanvas_Reference#x">x</a> or <a href="SkCanvas_Reference#y">y</a> to offset <a href="SkCanvas_Reference#pixels">pixels</a> to the left or
+above <a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="SkCanvas_Reference#pixels">pixels</a>.
 
 Does not copy, and returns false if:
 
 <table>  <tr>
-    <td>Source rectangle and canvas pixel bounds do not intersect.</td>  </tr>  <tr>
-    <td><a href="SkCanvas_Reference#pixels">pixels</a> could not be converted to <a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="undocumented#Color_Type">Image Color Type</a> or <a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="undocumented#Alpha_Type">Image Alpha Type</a>.</td>  </tr>  <tr>
+    <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
+    <td><a href="SkCanvas_Reference#pixels">pixels</a> could not be converted to this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.colorType() or this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.alphaType().</td>  </tr>  <tr>
     <td><a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="SkCanvas_Reference#pixels">pixels</a> are not writable; for instance, <a href="SkCanvas_Reference#Canvas">Canvas</a> is document-based.</td>  </tr>  <tr>
     <td><a href="SkCanvas_Reference#rowBytes">rowBytes</a> is too small to contain one row of <a href="SkCanvas_Reference#pixels">pixels</a>.</td>  </tr>
 </table>
@@ -1118,15 +1131,15 @@ Does not copy, and returns false if:
 ### Parameters
 
 <table>  <tr>    <td><code><strong>info </strong></code></td> <td>
-dimensions, <a href="undocumented#Color_Type">Image Color Type</a>, and <a href="undocumented#Alpha_Type">Image Alpha Type</a> of <a href="SkCanvas_Reference#pixels">pixels</a></td>
+width, height, <a href="undocumented#Color_Type">Image Color Type</a>, and <a href="undocumented#Alpha_Type">Image Alpha Type</a> of <a href="SkCanvas_Reference#pixels">pixels</a></td>
   </tr>  <tr>    <td><code><strong>pixels </strong></code></td> <td>
-<a href="SkCanvas_Reference#pixels">pixels</a> to copy, of size <a href="SkCanvas_Reference#info">info</a>.height() times <a href="SkCanvas_Reference#rowBytes">rowBytes</a></td>
+<a href="SkCanvas_Reference#pixels">pixels</a> to copy, of size <a href="SkCanvas_Reference#info">info</a>.height() times <a href="SkCanvas_Reference#rowBytes">rowBytes</a>, or larger</td>
   </tr>  <tr>    <td><code><strong>rowBytes </strong></code></td> <td>
-offset from one row to the next, usually <a href="SkCanvas_Reference#info">info</a>.width() times pixel size</td>
+size of one <a href="SkCanvas_Reference#pixels">pixels</a> row; <a href="SkCanvas_Reference#info">info</a>.width() times pixel size, or larger</td>
   </tr>  <tr>    <td><code><strong>x </strong></code></td> <td>
-offset into <a href="SkCanvas_Reference#Canvas">Canvas</a> writable <a href="SkCanvas_Reference#pixels">pixels</a> in <a href="SkCanvas_Reference#x">x</a></td>
+offset into <a href="SkCanvas_Reference#Canvas">Canvas</a> writable <a href="SkCanvas_Reference#pixels">pixels</a> in <a href="SkCanvas_Reference#x">x</a>; may be negative</td>
   </tr>  <tr>    <td><code><strong>y </strong></code></td> <td>
-offset into <a href="SkCanvas_Reference#Canvas">Canvas</a> writable <a href="SkCanvas_Reference#pixels">pixels</a> in <a href="SkCanvas_Reference#y">y</a></td>
+offset into <a href="SkCanvas_Reference#Canvas">Canvas</a> writable <a href="SkCanvas_Reference#pixels">pixels</a> in <a href="SkCanvas_Reference#y">y</a>; may be negative</td>
   </tr>
 </table>
 
@@ -1138,40 +1151,41 @@ true if <a href="SkCanvas_Reference#pixels">pixels</a> were written to <a href="
 
 <div><fiddle-embed name="29b98ebf58aa9fd1edfaabf9f4490b3a"></fiddle-embed></div>
 
+### See Also
+
+<a href="SkCanvas_Reference#readPixels">readPixels</a> <a href="SkCanvas_Reference#drawBitmap">drawBitmap</a> <a href="SkCanvas_Reference#drawImage">drawImage</a>
+
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 bool writePixels(const SkBitmap& bitmap, int x, int y)
 </pre>
 
-Writes to <a href="SkCanvas_Reference#Canvas">Canvas</a> pixels, ignoring the <a href="SkCanvas_Reference#Matrix">Matrix</a> and <a href="SkCanvas_Reference#Clip">Clip</a>, converting to match
-<a href="SkCanvas_Reference#bitmap">bitmap</a> <a href="undocumented#Color_Type">Image Color Type</a> and <a href="SkCanvas_Reference#bitmap">bitmap</a> <a href="undocumented#Alpha_Type">Image Alpha Type</a>.
+Copies rectangle from pixels to <a href="SkCanvas_Reference#Canvas">Canvas</a>. <a href="SkCanvas_Reference#Matrix">Matrix</a> and <a href="SkCanvas_Reference#Clip">Clip</a> are ignored.
+Source rectangle corners are (0, 0) and (<a href="SkCanvas_Reference#bitmap">bitmap</a>.width(), <a href="SkCanvas_Reference#bitmap">bitmap</a>.height()).
+Destination rectangle corners are (<a href="SkCanvas_Reference#x">x</a>, <a href="SkCanvas_Reference#y">y</a>) and
+(this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.width(), this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.height()). Copies each readable pixel
+intersecting both rectangles, without scaling, converting to
+this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.colorType() and this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.alphaType() if required.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a>
-does not match <a href="SkCanvas_Reference#bitmap">bitmap</a>. Only pixels within the source rectangle that intersect
-<a href="SkCanvas_Reference#Canvas">Canvas</a> pixel bounds are copied. <a href="SkCanvas_Reference#Canvas">Canvas</a> pixels outside the rectangle intersection
-are unchanged.
+Pixels are writable when <a href="undocumented#Device">Device</a> is raster, or backed by a <a href="undocumented#GPU">GPU</a>.
+Pixels are not writable when <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a> is returned by <a href="undocumented#beginPage">SkDocument::beginPage</a>,
+returned by <a href="undocumented#beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="SkCanvas_Reference#Canvas">Canvas</a> is the base of a utility
+class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
-| source rectangle | value |
-| --- | ---  |
-| left | <a href="SkCanvas_Reference#x">x</a> |
-| top | <a href="SkCanvas_Reference#y">y</a> |
-| width | <a href="SkCanvas_Reference#bitmap">bitmap</a>.width() |
-| height | <a href="SkCanvas_Reference#bitmap">bitmap</a>.height() |
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="undocumented#Color_Type">Image Color Type</a> and <a href="undocumented#Alpha_Type">Image Alpha Type</a>
+do not match. Only pixels within both source and destination rectangles
+are copied. <a href="SkCanvas_Reference#Canvas">Canvas</a> pixels outside the rectangle intersection are unchanged.
 
-| canvas pixel bounds | value |
-| --- | ---  |
-| left | 0 |
-| top | 0 |
-| width | <a href="SkCanvas_Reference#imageInfo">imageInfo</a>.width() |
-| height | <a href="SkCanvas_Reference#imageInfo">imageInfo</a>.height() |
+Pass negative values for <a href="SkCanvas_Reference#x">x</a> or <a href="SkCanvas_Reference#y">y</a> to offset pixels to the left or
+above <a href="SkCanvas_Reference#Canvas">Canvas</a> pixels.
 
 Does not copy, and returns false if:
 
 <table>  <tr>
-    <td>Source rectangle and <a href="SkCanvas_Reference#Canvas">Canvas</a> pixel bounds do not intersect.</td>  </tr>  <tr>
+    <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
     <td><a href="SkCanvas_Reference#bitmap">bitmap</a> does not have allocated pixels.</td>  </tr>  <tr>
-    <td><a href="SkCanvas_Reference#bitmap">bitmap</a> pixels could not be converted to <a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="undocumented#Color_Type">Image Color Type</a> or <a href="SkCanvas_Reference#Canvas">Canvas</a> <a href="undocumented#Alpha_Type">Image Alpha Type</a>.</td>  </tr>  <tr>
+    <td><a href="SkCanvas_Reference#bitmap">bitmap</a> pixels could not be converted to this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.colorType() or this-><a href="SkCanvas_Reference#imageInfo">imageInfo</a>.alphaType().</td>  </tr>  <tr>
     <td><a href="SkCanvas_Reference#Canvas">Canvas</a> pixels are not writable; for instance, <a href="SkCanvas_Reference#Canvas">Canvas</a> is document-based.</td>  </tr>  <tr>
     <td><a href="SkCanvas_Reference#bitmap">bitmap</a> pixels are inaccessible; for instance, <a href="SkCanvas_Reference#bitmap">bitmap</a> wraps a texture.</td>  </tr>
 </table>
@@ -1181,9 +1195,9 @@ Does not copy, and returns false if:
 <table>  <tr>    <td><code><strong>bitmap </strong></code></td> <td>
 contains pixels copied to <a href="SkCanvas_Reference#Canvas">Canvas</a></td>
   </tr>  <tr>    <td><code><strong>x </strong></code></td> <td>
-offset into <a href="SkCanvas_Reference#Canvas">Canvas</a> writable pixels in <a href="SkCanvas_Reference#x">x</a></td>
+offset into <a href="SkCanvas_Reference#Canvas">Canvas</a> writable pixels in <a href="SkCanvas_Reference#x">x</a>; may be negative</td>
   </tr>  <tr>    <td><code><strong>y </strong></code></td> <td>
-offset into <a href="SkCanvas_Reference#Canvas">Canvas</a> writable pixels in <a href="SkCanvas_Reference#y">y</a></td>
+offset into <a href="SkCanvas_Reference#Canvas">Canvas</a> writable pixels in <a href="SkCanvas_Reference#y">y</a>; may be negative</td>
   </tr>
 </table>
 
@@ -1194,6 +1208,10 @@ true if pixels were written to <a href="SkCanvas_Reference#Canvas">Canvas</a>
 ### Example
 
 <div><fiddle-embed name="8b128e067881f9251357653692fa28da"></fiddle-embed></div>
+
+### See Also
+
+<a href="SkCanvas_Reference#readPixels">readPixels</a> <a href="SkCanvas_Reference#drawBitmap">drawBitmap</a> <a href="SkCanvas_Reference#drawImage">drawImage</a>
 
 ---
 
