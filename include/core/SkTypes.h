@@ -228,18 +228,6 @@ template <typename D, typename S> D SkTo(S s) {
 #define SK_MinU32   0
 #define SK_NaN32    ((int) (1U << 31))
 
-/** Returns true if the value can be represented with signed 16bits
- */
-static inline bool SkIsS16(long x) {
-    return (int16_t)x == x;
-}
-
-/** Returns true if the value can be represented with unsigned 16bits
- */
-static inline bool SkIsU16(long x) {
-    return (uint16_t)x == x;
-}
-
 static inline int32_t SkLeftShift(int32_t value, int32_t shift) {
     return (int32_t) ((uint32_t) value << shift);
 }
