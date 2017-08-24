@@ -131,6 +131,7 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**,K*);
     M(multiply)          \
     M(screen)            \
     M(xor_)              \
+    M(plus_)             \
     M(darken)            \
     M(lighten)           \
     M(difference)        \
