@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fb9bed1f_0f1776b3",
+        "filename": "src/gpu/GrGpuCommandBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-24T20:00:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5d3fbad_ba5ff60b",
+      "revId": "1c7000d0103d19d20d34421b34f5f7d66e30614e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fdb14722_63379c70",
         "filename": "src/gpu/GrGpuCommandBuffer.h",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "e5ecc1fc_45420dab",
+        "filename": "src/gpu/GrGpuCommandBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-24T20:00:07Z",
+      "side": 1,
+      "message": "Currently the base class GrGpuTextureCB never needs the gpu (or anyone that would just have GrGpuCommandBuffer). I\u0027m happy to have it shared but also think we should wait till there is a need for it since it is private on RTCommandBuffer.",
+      "parentUuid": "fdb14722_63379c70",
+      "revId": "1c7000d0103d19d20d34421b34f5f7d66e30614e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "22de650e_ff3c993b",
         "filename": "src/gpu/vk/GrVkGpuCommandBuffer.h",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-08-24T19:33:45Z",
       "side": 1,
       "message": "fPreCopies ?",
+      "revId": "1c7000d0103d19d20d34421b34f5f7d66e30614e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce366a9b_8eba16ac",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-24T20:00:07Z",
+      "side": 1,
+      "message": "add comment",
+      "parentUuid": "22de650e_ff3c993b",
       "revId": "1c7000d0103d19d20d34421b34f5f7d66e30614e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
