@@ -906,7 +906,11 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
         return true;
     }
     // ... unless the blend mode is complicated enough.
+#ifdef SK_SUPPORT_LEGACY_SEPARABLE_BLENDS
     if (paint.getBlendMode() > SkBlendMode::kLastSeparableMode) {
+#else
+    if (paint.getBlendMode() > SkBlendMode::kLastCoeffMode) {
+#endif
         return true;
     }
     if (matrix.hasPerspective()) {
