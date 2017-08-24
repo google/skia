@@ -199,7 +199,9 @@ bool GrContext::init(const GrContextOptions& options) {
     prcOptions.fGpuPathRenderers = options.fGpuPathRenderers;
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions, &fSingleOwner));
 
-    fAtlasGlyphCache = new GrAtlasGlyphCache(this, options.fGlyphCacheTextureMaximumBytes);
+    fAtlasGlyphCache = new GrAtlasGlyphCache(this,
+                                             options.fGlyphCacheTextureStartBytes,
+                                             options.fGlyphCacheTextureMaxBytes);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB, this));
 
