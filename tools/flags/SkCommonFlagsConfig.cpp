@@ -72,7 +72,6 @@ static const struct {
     { "glesnarrow",            "gpu", "api=gles,color=f16_narrow" },
     { "gldft",                 "gpu", "api=gl,dit=true" },
     { "glesdft",               "gpu", "api=gles,dit=true" },
-    { "gltestthreading",       "gpu", "api=gl,testThreading=true" },
     { "debuggl",               "gpu", "api=debuggl" },
     { "nullgl",                "gpu", "api=nullgl" },
     { "angle_d3d11_es2",       "gpu", "api=angle_d3d11_es2" },
@@ -171,8 +170,6 @@ static const char configExtendedHelp[] =
     "\t    Use multisampling with N samples.\n"
     "\tstencils\ttype: bool\tdefault: true.\n"
     "\t    Allow the use of stencil buffers.\n"
-    "\ttestThreading\ttype: bool\tdefault: false.\n"
-    "\t    Run config with and without worker threads, check that results match.\n"
     "\n"
     "Predefined configs:\n\n"
     // Help text for pre-defined configs is auto-generated from gPredefinedConfigs
@@ -203,7 +200,7 @@ SkCommandLineConfig::~SkCommandLineConfig() {
 SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     const SkString& tag, const SkTArray<SkString>& viaParts, ContextType contextType, bool useNVPR,
     bool useInstanced, bool useDIText, int samples, SkColorType colorType, SkAlphaType alphaType,
-    sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers, bool testThreading)
+    sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
         , fContextOverrides(ContextOverrides::kNone)
@@ -211,8 +208,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
         , fSamples(samples)
         , fColorType(colorType)
         , fAlphaType(alphaType)
-        , fColorSpace(std::move(colorSpace))
-        , fTestThreading(testThreading) {
+        , fColorSpace(std::move(colorSpace)) {
     if (useNVPR) {
         fContextOverrides |= ContextOverrides::kRequireNVPRSupport;
     } else if (!useInstanced) {
@@ -423,8 +419,6 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     sk_sp<SkColorSpace> colorSpace = nullptr;
     bool seenUseStencils = false;
     bool useStencils = true;
-    bool seenTestThreading = false;
-    bool testThreading = false;
 
     SkTArray<SkString> optionParts;
     SkStrSplit(options.c_str(), ",", kStrict_SkStrSplitMode, &optionParts);
@@ -458,9 +452,6 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
         } else if (key.equals("stencils") && !seenUseStencils) {
             valueOk = parse_option_bool(value, &useStencils);
             seenUseStencils = true;
-        } else if (key.equals("testThreading") && !seenTestThreading) {
-            valueOk = parse_option_bool(value, &testThreading);
-            seenTestThreading = true;
         }
         if (!valueOk) {
             return nullptr;
@@ -470,8 +461,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
         return nullptr;
     }
     return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useInstanced, useDIText,
-                                      samples, colorType, alphaType, colorSpace, useStencils,
-                                      testThreading);
+                                      samples, colorType, alphaType, colorSpace, useStencils);
 }
 #endif
 

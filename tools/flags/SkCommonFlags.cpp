@@ -6,8 +6,6 @@
  */
 
 #include "SkCommonFlags.h"
-#include "SkExecutor.h"
-#include "SkOnce.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
@@ -55,9 +53,6 @@ DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 
 DEFINE_int32_2(threads, j, -1, "Run threadsafe tests on a threadpool with this many extra threads, "
                                "defaulting to one extra thread per core.");
-
-DEFINE_int32(gpuThreads, 0, "Create this many extra threads to assist with GPU work, "
-                            "including software path rendering.");
 
 DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
 
@@ -127,10 +122,4 @@ bool CollectImages(SkCommandLineFlags::StringArray images, SkTArray<SkString>* o
         }
     }
     return true;
-}
-
-SkExecutor* GpuExecutorForTools() {
-    static std::unique_ptr<SkExecutor> gGpuExecutor = (0 != FLAGS_gpuThreads)
-        ? SkExecutor::MakeThreadPool(FLAGS_gpuThreads) : nullptr;
-    return gGpuExecutor.get();
 }

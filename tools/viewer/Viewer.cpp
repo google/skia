@@ -19,7 +19,6 @@
 #include "SkColorSpace_Base.h"
 #include "SkColorSpaceXformCanvas.h"
 #include "SkCommandLineFlags.h"
-#include "SkCommonFlagsGpuThreads.h"
 #include "SkCommonFlagsPathRenderer.h"
 #include "SkDashPathEffect.h"
 #include "SkEventTracingPriv.h"
@@ -304,7 +303,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     displayParams.fMSAASampleCount = FLAGS_msaa;
     displayParams.fGrContextOptions.fEnableInstancedRendering = FLAGS_instancedRendering;
     displayParams.fGrContextOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
-    displayParams.fGrContextOptions.fExecutor = GpuExecutorForTools();
     fWindow->setRequestedDisplayParams(displayParams);
 
     // register callbacks
