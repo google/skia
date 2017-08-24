@@ -19,14 +19,8 @@ static inline bool SkBlendMode_CaresAboutRBOrder(SkBlendMode mode) {
     return (mode > SkBlendMode::kLastSeparableMode);
 }
 
-void SkBlendMode_AppendStagesNoClamp(SkBlendMode, SkRasterPipeline*);
-void SkBlendMode_AppendClampIfNeeded(SkBlendMode, SkRasterPipeline*);
-
-static inline void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
-    // Only plus clamps, so maybe append a clamping plus here instead of a second stage?
-    SkBlendMode_AppendStagesNoClamp(mode, p);
-    SkBlendMode_AppendClampIfNeeded(mode, p);
-}
+bool SkBlendMode_ShouldPreScaleCoverage(SkBlendMode, bool rgb_coverage);
+void SkBlendMode_AppendStages(SkBlendMode, SkRasterPipeline*);
 
 enum class SkBlendModeCoeff {
     kZero, /** 0 */

@@ -57,8 +57,8 @@ struct SkJumper_Engine;
     M(load_u16_be) M(load_rgb_u16_be) M(store_u16_be)            \
     M(load_tables_u16_be) M(load_tables_rgb_u16_be)              \
     M(load_tables) M(load_rgba) M(store_rgba)                    \
-    M(scale_u8) M(scale_1_float)                                 \
-    M(lerp_u8) M(lerp_565) M(lerp_1_float)                       \
+    M(scale_u8) M(scale_565) M(scale_1_float)                    \
+    M( lerp_u8) M( lerp_565) M( lerp_1_float)                    \
     M(dstatop) M(dstin) M(dstout) M(dstover)                     \
     M(srcatop) M(srcin) M(srcout) M(srcover)                     \
     M(clear) M(modulate) M(multiply) M(plus_) M(screen) M(xor_)  \
