@@ -2301,7 +2301,8 @@ struct Convexicator {
     , fConvexity(SkPath::kConvex_Convexity)
     , fFirstDirection(SkPathPriv::kUnknown_FirstDirection)
     , fIsFinite(true)
-    , fIsCurve(false) {
+    , fIsCurve(false)
+    , fBackwards(false) {
         fExpectedDir = kInvalid_DirChange;
         // warnings
         fPriorPt.set(0,0);
@@ -2400,6 +2401,9 @@ struct Convexicator {
         return kStraight_DirChange;
     }
 
+    bool hasBackwards() const {
+        return fBackwards;
+    }
 
     bool isFinite() const {
         return fIsFinite;
@@ -2435,6 +2439,7 @@ private:
                     fExpectedDir = dir;
                 }
                 fLastVec = vec;
+                fBackwards = true;
                 break;
             case kInvalid_DirChange:
                 SK_ABORT("Use of invalid direction change flag");
@@ -2455,6 +2460,7 @@ private:
     int                 fDx, fDy, fSx, fSy;
     bool                fIsFinite;
     bool                fIsCurve;
+    bool                fBackwards;
 };
 
 SkPath::Convexity SkPath::internalGetConvexity() const {
@@ -2518,7 +2524,12 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
     }
     fConvexity = state.getConvexity();
     if (kConvex_Convexity == fConvexity && SkPathPriv::kUnknown_FirstDirection == fFirstDirection) {
-        fFirstDirection = state.getFirstDirection();
+        if (SkPathPriv::kUnknown_FirstDirection == state.getFirstDirection() &&
+                !this->getBounds().isEmpty() && !state.hasBackwards()) {
+            fConvexity = Convexity::kConcave_Convexity;
+        } else {
+            fFirstDirection = state.getFirstDirection();
+        }
     }
     return static_cast<Convexity>(fConvexity);
 }
