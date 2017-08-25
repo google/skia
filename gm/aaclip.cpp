@@ -11,6 +11,146 @@
 #include "SkPath.h"
 #include "SkMakeUnique.h"
 
+#include "SkGeometry.h"
+#include "SkNx.h"
+#include "SkPathOpsCubic.h"
+
+class SkCubicMap {
+public:
+    void setPts(SkPoint p1, SkPoint p2);
+    void setPts(float x1, float y1, float x2, float y2) {
+        this->setPts({x1, y1}, {x2, y2});
+    }
+
+    SkPoint computeFromT(float t) const;
+    float computeYFromX(float x, bool useHack) const;
+
+private:
+    SkPoint fCoeff[4];
+    // x->t lookup
+    enum { kTableCount = 16 };
+    struct Rec {
+        float   fT0;
+        float   fDT;
+
+        float fY0;
+        float fDY;
+    };
+    Rec fXTable[kTableCount];
+
+    void buildXTable();
+};
+
+void SkCubicMap::setPts(SkPoint p1, SkPoint p2) {
+    Sk2s s1 = Sk2s::Load(&p1) * 3;
+    Sk2s s2 = Sk2s::Load(&p2) * 3;
+
+    s1 = Sk2s::Min(Sk2s::Max(s1, 0), 3);
+    s2 = Sk2s::Min(Sk2s::Max(s2, 0), 3);
+
+    (Sk2s(1) + s1 - s2).store(&fCoeff[0]);
+         (s2 - s1 - s1).store(&fCoeff[1]);
+                     s1.store(&fCoeff[2]);
+
+    this->buildXTable();
+}
+
+SkPoint SkCubicMap::computeFromT(float t) const {
+    Sk2s a = Sk2s::Load(&fCoeff[0]);
+    Sk2s b = Sk2s::Load(&fCoeff[1]);
+    Sk2s c = Sk2s::Load(&fCoeff[2]);
+
+    SkPoint result;
+    (((a * t + b) * t + c) * t).store(&result);
+    return result;
+}
+
+float SkCubicMap::computeYFromX(float x, bool useHack) const {
+    x = SkTPin<float>(x, 0, 0.99999f) * kTableCount;
+    float ix = sk_float_floor(x);
+    int index = (int)ix;
+    SkASSERT((unsigned)index < SK_ARRAY_COUNT(fXTable));
+    float y = this->computeFromT(fXTable[index].fT0 + fXTable[index].fDT * (x - ix)).fY;
+    float hack = fXTable[index].fY0 + fXTable[index].fDY * (x - ix);
+    return useHack ? hack : y;
+}
+
+static float compute_t_from_x(float A, float B, float C, float x) {
+    double roots[3];
+    int count = SkDCubic::RootsValidT(A, B, C, -x, roots);
+    SkASSERT(count == 1);
+    return (float)roots[0];
+}
+
+void SkCubicMap::buildXTable() {
+    float prevT = 0;
+
+    const float dx = 1.0f / kTableCount;
+    float x = dx;
+
+    fXTable[0].fT0 = 0;
+    fXTable[0].fY0 = 0;
+    for (int i = 1; i < kTableCount; ++i) {
+        float t = compute_t_from_x(fCoeff[0].fX, fCoeff[1].fX, fCoeff[2].fX, x);
+        SkASSERT(t > prevT);
+
+        fXTable[i - 1].fDT = t - prevT;
+        fXTable[i].fT0 = t;
+
+        SkPoint p = this->computeFromT(t);
+        fXTable[i - 1].fDY = p.fY - fXTable[i - 1].fY0;
+        fXTable[i].fY0 = p.fY;
+
+        prevT = t;
+        x += dx;
+    }
+    fXTable[kTableCount - 1].fDT = 1 - prevT;
+    fXTable[kTableCount - 1].fDY = 1 - fXTable[kTableCount - 1].fY0;
+}
+
+static void test_cubic(SkCanvas* canvas) {
+    const SkPoint pts[] = {
+        { 0.333333f, 0.333333f }, { 0.666666f, 0.666666f },
+        { 1, 0 }, { 0, 1 },
+        { 0, 1 }, { 1, 0 },
+        { 0, 0 }, { 1, 1 },
+        { 1, 1 }, { 0, 0 },
+        { 0, 1 }, { 0, 1 },
+        { 1, 0 }, { 1, 0 },
+    };
+
+    SkPaint paint0, paint1;
+    paint0.setAntiAlias(true);  paint0.setStrokeWidth(3/256.0f); paint0.setColor(SK_ColorRED);
+    paint1.setAntiAlias(true);
+
+    SkCubicMap cmap;
+
+    canvas->translate(10, 266);
+    canvas->scale(256, -256);
+    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); i += 2) {
+        cmap.setPts(pts[i], pts[i+1]);
+
+        const int N = 128;
+        SkPoint tmp0[N+1], tmp1[N+1], tmp2[N+1];
+        for (int j = 0; j <= N; ++j) {
+            float p = j * 1.0f / N;
+            tmp0[j] = cmap.computeFromT(p);
+            tmp1[j].set(p, cmap.computeYFromX(p, false));
+            tmp2[j].set(p, cmap.computeYFromX(p, true));
+        }
+
+        canvas->save();
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp0, paint0);
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp1, paint1);
+        canvas->translate(0, -1.2f);
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp0, paint0);
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, N+1, tmp2, paint1);
+        canvas->restore();
+
+        canvas->translate(1.1f, 0);
+    }
+}
+
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
@@ -141,6 +281,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        test_cubic(canvas); return;
+
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 
