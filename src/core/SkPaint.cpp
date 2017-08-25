@@ -1776,19 +1776,23 @@ size_t SkScalerContext::GetGammaLUTSize(SkScalar contrast, SkScalar paintGamma,
     return size;
 }
 
-void SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
-                                      void* data) {
+bool SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
+                                      uint8_t* data) {
     SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
     const SkMaskGamma& maskGamma = cachedMaskGamma(contrast,
                                                    paintGamma,
                                                    deviceGamma);
+    const uint8_t* gammaTables = maskGamma.getGammaTables();
+    if (!gammaTables) {
+        return false;
+    }
+
     int width, height;
     maskGamma.getGammaTableDimensions(&width, &height);
-    size_t size = width*height*sizeof(uint8_t);
-    const uint8_t* gammaTables = maskGamma.getGammaTables();
+    size_t size = width*height * sizeof(uint8_t);
     memcpy(data, gammaTables, size);
+    return true;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 

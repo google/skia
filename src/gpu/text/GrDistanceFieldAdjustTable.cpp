@@ -63,7 +63,13 @@ SkScalar* build_distance_adjust_table(SkScalar paintGamma, SkScalar deviceGamma)
     SkScalar* table = new SkScalar[height];
 
     SkAutoTArray<uint8_t> data((int)size);
-    SkScalerContext::GetGammaLUTData(contrast, paintGamma, deviceGamma, data.get());
+    if (!SkScalerContext::GetGammaLUTData(contrast, paintGamma, deviceGamma, data.get())) {
+        // if no valid data is available simply do no adjustment
+        for (int row = 0; row < height; ++row) {
+            table[row] = 0;
+        }
+        return table;
+    }
 
     // find the inverse points where we cross 0.5
     // binsearch might be better, but we only need to do this once on creation

@@ -257,10 +257,12 @@ public:
                                   int* width, int* height);
 
     /** Get the associated gamma lookup table. The 'data' pointer must point to pre-allocated
-        memory, with size in bytes greater than or equal to the return value of getGammaLUTSize().
+     *  memory, with size in bytes greater than or equal to the return value of getGammaLUTSize().
+     *
+     *  If the lookup table hasn't been initialized (e.g., it's linear), this will return false.
      */
-    static void   GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
-                                  void* data);
+    static bool   GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
+                                  uint8_t* data);
 
     static void MakeRec(const SkPaint&, const SkSurfaceProps* surfaceProps,
                         const SkMatrix*, Rec* rec);
