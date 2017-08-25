@@ -111,13 +111,13 @@ bool equalsWithinTolerance(const SkPoint& p) const
 
 <table>
   <tr>
-    <td><a name="SkBlendMode::kSrc"></a> <code><strong>SkBlendMode::kSrc </strong></code></td><td>1</td><td></td>
+    <td><a name="SkBlendMode_kSrc"> <code><strong>SkBlendMode::kSrc </strong></code> </a></td><td>1</td><td></td>
   </tr>
   <tr>
-    <td><a name="SkBlendMode::kSrcOver"></a> <code><strong>SkBlendMode::kSrcOver </strong></code></td><td>3</td><td></td>
+    <td><a name="SkBlendMode_kSrcOver"> <code><strong>SkBlendMode::kSrcOver </strong></code> </a></td><td>3</td><td></td>
   </tr>
   <tr>
-    <td><a name="SkBlendMode::kPlus"></a> <code><strong>SkBlendMode::kPlus </strong></code></td><td>12</td><td></td>
+    <td><a name="SkBlendMode_kPlus"> <code><strong>SkBlendMode::kPlus </strong></code> </a></td><td>12</td><td></td>
   </tr>
 
 </table>
@@ -132,10 +132,10 @@ bool equalsWithinTolerance(const SkPoint& p) const
 
 <table>
   <tr>
-    <td><a name="SkClipOp::kDifference"></a> <code><strong>SkClipOp::kDifference </strong></code></td><td>0</td><td></td>
+    <td><a name="SkClipOp_kDifference"> <code><strong>SkClipOp::kDifference </strong></code> </a></td><td>0</td><td></td>
   </tr>
   <tr>
-    <td><a name="SkClipOp::kIntersect"></a> <code><strong>SkClipOp::kIntersect </strong></code></td><td>1</td><td></td>
+    <td><a name="SkClipOp_kIntersect"> <code><strong>SkClipOp::kIntersect </strong></code> </a></td><td>1</td><td></td>
   </tr>
 
 </table>
@@ -191,19 +191,19 @@ int SkColorSetARGB(a, r, g, b)
 
 <table>
   <tr>
-    <td><a name="SK_ColorBLACK"></a> <code><strong>SK_ColorBLACK </strong></code></td><td>0xFF000000 </td><td></td>
+    <td><a name="SK_ColorBLACK"> <code><strong>SK_ColorBLACK </strong></code> </a></td><td>0xFF000000 </td><td></td>
   </tr>
   <tr>
-    <td><a name="SK_ColorBLUE"></a> <code><strong>SK_ColorBLUE </strong></code></td><td>0xFF0000FF </td><td></td>
+    <td><a name="SK_ColorBLUE"> <code><strong>SK_ColorBLUE </strong></code> </a></td><td>0xFF0000FF </td><td></td>
   </tr>
   <tr>
-    <td><a name="SK_ColorGREEN"></a> <code><strong>SK_ColorGREEN </strong></code></td><td>0xFF00FF00 </td><td></td>
+    <td><a name="SK_ColorGREEN"> <code><strong>SK_ColorGREEN </strong></code> </a></td><td>0xFF00FF00 </td><td></td>
   </tr>
   <tr>
-    <td><a name="SK_ColorRED"></a> <code><strong>SK_ColorRED </strong></code></td><td>0xFFFF0000 </td><td></td>
+    <td><a name="SK_ColorRED"> <code><strong>SK_ColorRED </strong></code> </a></td><td>0xFFFF0000 </td><td></td>
   </tr>
   <tr>
-    <td><a name="SK_ColorWHITE"></a> <code><strong>SK_ColorWHITE </strong></code></td><td>0xFFFFFFFF </td><td></td>
+    <td><a name="SK_ColorWHITE"> <code><strong>SK_ColorWHITE </strong></code> </a></td><td>0xFFFFFFFF </td><td></td>
   </tr>
 </table>
 
@@ -256,7 +256,7 @@ void draw(SkCanvas*, const SkMatrix* = NULL)
 
 # <a name="SkRasterHandleAllocator"></a> Class SkRasterHandleAllocator
 
-# <a name="SkRasterHandleAllocator::Rec"></a> Struct SkRasterHandleAllocator::Rec
+# <a name="SkRasterHandleAllocator_Rec"></a> Struct SkRasterHandleAllocator::Rec
 
 <a name="MakeCanvas"></a>
 ## MakeCanvas
@@ -278,16 +278,16 @@ static std::unique_ptr<SkCanvas>
 
 <table>
   <tr>
-    <td><a name="kNone_SkFilterQuality"></a> <code><strong>kNone_SkFilterQuality </strong></code></td><td>0</td><td></td>
+    <td><a name="kNone_SkFilterQuality"> <code><strong>kNone_SkFilterQuality </strong></code> </a></td><td>0</td><td></td>
   </tr>
   <tr>
-    <td><a name="kLow_SkFilterQuality"></a> <code><strong>kLow_SkFilterQuality </strong></code></td><td>1</td><td></td>
+    <td><a name="kLow_SkFilterQuality"> <code><strong>kLow_SkFilterQuality </strong></code> </a></td><td>1</td><td></td>
   </tr>
   <tr>
-    <td><a name="kMedium_SkFilterQuality"></a> <code><strong>kMedium_SkFilterQuality </strong></code></td><td>2</td><td></td>
+    <td><a name="kMedium_SkFilterQuality"> <code><strong>kMedium_SkFilterQuality </strong></code> </a></td><td>2</td><td></td>
   </tr>
   <tr>
-    <td><a name="kHigh_SkFilterQuality"></a> <code><strong>kHigh_SkFilterQuality </strong></code></td><td>3</td><td></td>
+    <td><a name="kHigh_SkFilterQuality"> <code><strong>kHigh_SkFilterQuality </strong></code> </a></td><td>3</td><td></td>
   </tr>
 
 </table>
@@ -316,7 +316,7 @@ static std::unique_ptr<SkCanvas>
 
 <table>
   <tr>
-    <td><a name="kPremul_SkAlphaType"></a> <code><strong>kPremul_SkAlphaType </strong></code></td><td>2</td><td></td>
+    <td><a name="kPremul_SkAlphaType"> <code><strong>kPremul_SkAlphaType </strong></code> </a></td><td>2</td><td></td>
   </tr>
 
 </table>
@@ -329,31 +329,31 @@ static std::unique_ptr<SkCanvas>
 
 <table>
   <tr>
-    <td><a name="kUnknown_SkColorType"></a> <code><strong>kUnknown_SkColorType </strong></code></td><td>0</td><td></td>
+    <td><a name="kUnknown_SkColorType"> <code><strong>kUnknown_SkColorType </strong></code> </a></td><td>0</td><td></td>
   </tr>
   <tr>
-    <td><a name="kAlpha_8_SkColorType"></a> <code><strong>kAlpha_8_SkColorType </strong></code></td><td>1</td><td></td>
+    <td><a name="kAlpha_8_SkColorType"> <code><strong>kAlpha_8_SkColorType </strong></code> </a></td><td>1</td><td></td>
   </tr>
   <tr>
-    <td><a name="kRGB_565_SkColorType"></a> <code><strong>kRGB_565_SkColorType </strong></code></td><td>2</td><td></td>
+    <td><a name="kRGB_565_SkColorType"> <code><strong>kRGB_565_SkColorType </strong></code> </a></td><td>2</td><td></td>
   </tr>
   <tr>
-    <td><a name="kARGB_4444_SkColorType"></a> <code><strong>kARGB_4444_SkColorType </strong></code></td><td>3</td><td></td>
+    <td><a name="kARGB_4444_SkColorType"> <code><strong>kARGB_4444_SkColorType </strong></code> </a></td><td>3</td><td></td>
   </tr>
   <tr>
-    <td><a name="kRGBA_8888_SkColorType"></a> <code><strong>kRGBA_8888_SkColorType </strong></code></td><td>4</td><td></td>
+    <td><a name="kRGBA_8888_SkColorType"> <code><strong>kRGBA_8888_SkColorType </strong></code> </a></td><td>4</td><td></td>
   </tr>
   <tr>
-    <td><a name="kBGRA_8888_SkColorType"></a> <code><strong>kBGRA_8888_SkColorType </strong></code></td><td>5</td><td></td>
+    <td><a name="kBGRA_8888_SkColorType"> <code><strong>kBGRA_8888_SkColorType </strong></code> </a></td><td>5</td><td></td>
   </tr>
   <tr>
-    <td><a name="kIndex_8_SkColorType"></a> <code><strong>kIndex_8_SkColorType </strong></code></td><td>6</td><td></td>
+    <td><a name="kIndex_8_SkColorType"> <code><strong>kIndex_8_SkColorType </strong></code> </a></td><td>6</td><td></td>
   </tr>
   <tr>
-    <td><a name="kGray_8_SkColorType"></a> <code><strong>kGray_8_SkColorType </strong></code></td><td>7</td><td></td>
+    <td><a name="kGray_8_SkColorType"> <code><strong>kGray_8_SkColorType </strong></code> </a></td><td>7</td><td></td>
   </tr>
   <tr>
-    <td><a name="kRGBA_F16_SkColorType"></a> <code><strong>kRGBA_F16_SkColorType </strong></code></td><td>8</td><td></td>
+    <td><a name="kRGBA_F16_SkColorType"> <code><strong>kRGBA_F16_SkColorType </strong></code> </a></td><td>8</td><td></td>
   </tr>
 </table>
 
@@ -361,7 +361,7 @@ static std::unique_ptr<SkCanvas>
 
 <table>
   <tr>
-    <td><a name="kN32_SkColorType"></a> <code><strong>kN32_SkColorType </strong></code></td><td>4</td><td></td>
+    <td><a name="kN32_SkColorType"> <code><strong>kN32_SkColorType </strong></code> </a></td><td>4</td><td></td>
   </tr>
 
 </table>
@@ -423,16 +423,16 @@ sk_sp<SkShader> makeShader(SkShader::TileMode, SkShader::TileMode,
 
 <table>
   <tr>
-    <td><a name="SK_ScalarMax"></a> <code><strong>SK_ScalarMax </strong></code></td><td>to be written</td><td></td>
+    <td><a name="SK_ScalarMax"> <code><strong>SK_ScalarMax </strong></code> </a></td><td>to be written</td><td></td>
   </tr>
   <tr>
-    <td><a name="SK_ScalarInfinity"></a> <code><strong>SK_ScalarInfinity </strong></code></td><td>to be written</td><td></td>
+    <td><a name="SK_ScalarInfinity"> <code><strong>SK_ScalarInfinity </strong></code> </a></td><td>to be written</td><td></td>
   </tr>
   <tr>
-    <td><a name="SK_ScalarNegativeInfinity"></a> <code><strong>SK_ScalarNegativeInfinity </strong></code></td><td>to be written</td><td></td>
+    <td><a name="SK_ScalarNegativeInfinity"> <code><strong>SK_ScalarNegativeInfinity </strong></code> </a></td><td>to be written</td><td></td>
   </tr>
   <tr>
-    <td><a name="SK_ScalarNaN"></a> <code><strong>SK_ScalarNaN </strong></code></td><td>to be written</td><td></td>
+    <td><a name="SK_ScalarNaN"> <code><strong>SK_ScalarNaN </strong></code> </a></td><td>to be written</td><td></td>
   </tr>
 </table>
 
@@ -442,16 +442,16 @@ sk_sp<SkShader> makeShader(SkShader::TileMode, SkShader::TileMode,
 
 <table>
   <tr>
-    <td><a name="SkPaintDefaults_Flags"></a> <code><strong>SkPaintDefaults_Flags </strong></code></td><td>0</td><td></td>
+    <td><a name="SkPaintDefaults_Flags"> <code><strong>SkPaintDefaults_Flags </strong></code> </a></td><td>0</td><td></td>
   </tr>
   <tr>
-    <td><a name="SkPaintDefaults_Hinting"></a> <code><strong>SkPaintDefaults_Hinting </strong></code></td><td>2</td><td></td>
+    <td><a name="SkPaintDefaults_Hinting"> <code><strong>SkPaintDefaults_Hinting </strong></code> </a></td><td>2</td><td></td>
   </tr>
   <tr>
-    <td><a name="SkPaintDefaults_TextSize"></a> <code><strong>SkPaintDefaults_TextSize </strong></code></td><td>12</td><td></td>
+    <td><a name="SkPaintDefaults_TextSize"> <code><strong>SkPaintDefaults_TextSize </strong></code> </a></td><td>12</td><td></td>
   </tr>
   <tr>
-    <td><a name="SkPaintDefaults_MiterLimit"></a> <code><strong>SkPaintDefaults_MiterLimit </strong></code></td><td>4</td><td></td>
+    <td><a name="SkPaintDefaults_MiterLimit"> <code><strong>SkPaintDefaults_MiterLimit </strong></code> </a></td><td>4</td><td></td>
   </tr>
 </table>
 
@@ -549,13 +549,13 @@ void dumpHex() const
 
 # <a name="SkShader"></a> Class SkShader
 
-## <a name="SkShader::TileMode"></a> Enum SkShader::TileMode
+## <a name="SkShader_TileMode"></a> Enum SkShader::TileMode
 
 ### Constants
 
 <table>
   <tr>
-    <td><a name="SkShader::kClamp_TileMode"></a> <code><strong>SkShader::kClamp_TileMode </strong></code></td><td>0</td><td></td>
+    <td><a name="SkShader_kClamp_TileMode"> <code><strong>SkShader::kClamp_TileMode </strong></code> </a></td><td>0</td><td></td>
   </tr>
 
 </table>
@@ -604,13 +604,13 @@ static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo&, void* pixels,
 
 # <a name="Legacy_Font_Host"></a> Legacy Font Host
 
-## <a name="SkSurfaceProps::InitType"></a> Enum SkSurfaceProps::InitType
+## <a name="SkSurfaceProps_InitType"></a> Enum SkSurfaceProps::InitType
 
 ### Constants
 
 <table>
   <tr>
-    <td><a name="SkSurfaceProps::kLegacyFontHost_InitType"></a> <code><strong>SkSurfaceProps::kLegacyFontHost_InitType </strong></code></td><td>0</td><td></td>
+    <td><a name="SkSurfaceProps_kLegacyFontHost_InitType"> <code><strong>SkSurfaceProps::kLegacyFontHost_InitType </strong></code> </a></td><td>0</td><td></td>
   </tr>
 
 </table>
