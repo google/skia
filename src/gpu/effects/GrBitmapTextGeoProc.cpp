@@ -38,7 +38,8 @@ public:
 
         GrGLSLVertToFrag v(kVec2f_GrSLType);
         varyingHandler->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = %s * %s;", v.vsOut(),
+        vertBuilder->codeAppendf("%s = float2(%s.x, %s.y) * %s;", v.vsOut(),
+                                 btgp.inTextureCoords()->fName,
                                  btgp.inTextureCoords()->fName,
                                  atlasSizeInvName);
 
