@@ -454,9 +454,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_21(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_22());
     test_path(ctx, rtc.get(), create_path_23());
-    // TODO: implement large buffer uploads in VK and remove this check.
-    if (ctx->contextPriv().getBackend() != kVulkan_GrBackend) {
-        test_path(ctx, rtc.get(), create_path_24());
-    }
+    test_path(ctx, rtc.get(), create_path_24());
 }
 #endif
