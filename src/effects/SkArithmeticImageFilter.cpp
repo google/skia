@@ -41,6 +41,8 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
 
+    SkIRect onFilterBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
+
 #if SK_SUPPORT_GPU
     sk_sp<SkSpecialImage> filterImageGPU(SkSpecialImage* source,
                                          sk_sp<SkSpecialImage> background,
@@ -64,6 +66,8 @@ protected:
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
 private:
+    bool affectsTransparentBlack() const override { return !SkScalarNearlyZero(fK[3]); }
+
     const float fK[4];
     const bool fEnforcePMColor;
 
@@ -200,6 +204,59 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::onFilterImage(SkSpecialImage* s
     this->drawForeground(canvas, foreground.get(), foregroundBounds);
 
     return surf->makeImageSnapshot();
+}
+
+SkIRect ArithmeticImageFilterImpl::onFilterBounds(const SkIRect& src,
+                                                  const SkMatrix& ctm,
+                                                  MapDirection direction) const {
+    if (kReverse_MapDirection == direction) {
+        return SkImageFilter::onFilterBounds(src, ctm, direction);
+    }
+
+    SkASSERT(2 == this->countInputs());
+
+    // result(i1,i2) = k1*i1*i2 + k2*i1 + k3*i2 + k4
+    // Note that background (getInput(0)) is i2, and foreground (getInput(1)) is i1.
+    auto i2 = this->getInput(0) ? this->getInput(0)->filterBounds(src, ctm, direction) : src;
+    auto i1 = this->getInput(1) ? this->getInput(1)->filterBounds(src, ctm, direction) : src;
+
+    // Arithmetic with non-zero k4 may influence the complete filter primitive
+    // region. [k4 > 0 => result(0,0) = k4 => result(i1,i2) >= k4]
+    if (!SkScalarNearlyZero(fK[3])) {
+        i1.join(i2);
+        return i1;
+    }
+
+    // If both K2 or K3 are non-zero, both i1 and i2 appear.
+    if (!SkScalarNearlyZero(fK[1]) && !SkScalarNearlyZero(fK[2])) {
+        i1.join(i2);
+        return i1;
+    }
+
+    // If k2 is non-zero, output can be produced whenever i1 is non-transparent.
+    // [k3 = k4 = 0 => result(i1,i2) = k1*i1*i2 + k2*i1 = (k1*i2 + k2)*i1]
+    if (!SkScalarNearlyZero(fK[1])) {
+        return i1;
+    }
+
+    // If k3 is non-zero, output can be produced whenever i2 is non-transparent.
+    // [k2 = k4 = 0 => result(i1,i2) = k1*i1*i2 + k3*i2 = (k1*i1 + k3)*i2]
+    if (!SkScalarNearlyZero(fK[2])) {
+        return i2;
+    }
+
+    // If just k1 is non-zero, output will only be produce where both inputs
+    // are non-transparent. Use intersection.
+    // [k1 > 0 and k2 = k3 = k4 = 0 => result(i1,i2) = k1*i1*i2]
+    if (!SkScalarNearlyZero(fK[0])) {
+        if (!i1.intersect(i2)) {
+            return SkIRect::MakeEmpty();
+        }
+        return i1;
+    }
+
+    // [k1 = k2 = k3 = k4 = 0 => result(i1,i2) = 0]
+    return SkIRect::MakeEmpty();
 }
 
 #if SK_SUPPORT_GPU
