@@ -37,8 +37,10 @@ static AttribLayout attrib_layout(GrVertexAttribType type) {
             return {true, 1, GR_GL_UNSIGNED_BYTE};
         case kVec4ub_GrVertexAttribType:
             return {true, 4, GR_GL_UNSIGNED_BYTE};
-        case kVec2us_GrVertexAttribType:
+        case kVec2us_norm_GrVertexAttribType:
             return {true, 2, GR_GL_UNSIGNED_SHORT};
+        case kVec2us_uint_GrVertexAttribType:
+            return {false, 2, GR_GL_UNSIGNED_SHORT};
         case kInt_GrVertexAttribType:
             return {false, 1, GR_GL_INT};
         case kUint_GrVertexAttribType:
@@ -47,6 +49,40 @@ static AttribLayout attrib_layout(GrVertexAttribType type) {
     SK_ABORT("Unknown vertex attrib type");
     return {false, 0, 0};
 };
+
+static bool GrVertexAttribTypeIsIntType(const GrShaderCaps* shaderCaps,
+                                        GrVertexAttribType type) {
+    switch (type) {
+        case kFloat_GrVertexAttribType:
+            return false;
+        case kVec2f_GrVertexAttribType:
+            return false;
+        case kVec3f_GrVertexAttribType:
+            return false;
+        case kVec4f_GrVertexAttribType:
+            return false;
+        case kVec2i_GrVertexAttribType:
+            return true;
+        case kVec3i_GrVertexAttribType:
+            return true;
+        case kVec4i_GrVertexAttribType:
+            return true;
+        case kUByte_GrVertexAttribType:
+            return false;
+        case kVec4ub_GrVertexAttribType:
+            return false;
+        case kVec2us_norm_GrVertexAttribType:
+            return false;
+        case kVec2us_uint_GrVertexAttribType:
+            return shaderCaps->integerSupport();
+        case kInt_GrVertexAttribType:
+            return true;
+        case kUint_GrVertexAttribType:
+            return true;
+    }
+    SK_ABORT("Unexpected attribute type");
+    return false;
+}
 
 void GrGLAttribArrayState::set(GrGLGpu* gpu,
                                int index,
@@ -65,7 +101,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
         gpu->bindBuffer(kVertex_GrBufferType, vertexBuffer);
         const AttribLayout& layout = attrib_layout(type);
         const GrGLvoid* offsetAsPtr = reinterpret_cast<const GrGLvoid*>(offsetInBytes);
-        if (!GrVertexAttribTypeIsIntType(type)) {
+        if (!GrVertexAttribTypeIsIntType(gpu->caps()->shaderCaps(), type)) {
             GR_GL_CALL(gpu->glInterface(), VertexAttribPointer(index,
                                                                layout.fCount,
                                                                layout.fType,

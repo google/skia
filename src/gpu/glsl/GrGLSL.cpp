@@ -26,6 +26,66 @@ bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration gen) {
     return false;
 }
 
+const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
+    switch (t) {
+        case kVoid_GrSLType:
+            return "void";
+        case kFloat_GrSLType:
+            return "float";
+        case kVec2f_GrSLType:
+            return "float2";
+        case kVec3f_GrSLType:
+            return "float3";
+        case kVec4f_GrSLType:
+            return "float4";
+        case kVec2us_GrSLType:
+            if (shaderCaps->integerSupport()) {
+                return "uint2";
+            } else {
+                // uint2 (aka uvec2) isn't supported in GLSL ES 1.00/GLSL 1.20
+                return "float2";
+            }
+        case kVec2i_GrSLType:
+            return "int2";
+        case kVec3i_GrSLType:
+            return "int3";
+        case kVec4i_GrSLType:
+            return "int4";
+        case kMat22f_GrSLType:
+            return "float2x2";
+        case kMat33f_GrSLType:
+            return "float3x3";
+        case kMat44f_GrSLType:
+            return "float4x4";
+        case kTexture2DSampler_GrSLType:
+            return "sampler2D";
+        case kITexture2DSampler_GrSLType:
+            return "isampler2D";
+        case kTextureExternalSampler_GrSLType:
+            return "samplerExternalOES";
+        case kTexture2DRectSampler_GrSLType:
+            return "sampler2DRect";
+        case kBufferSampler_GrSLType:
+            return "samplerBuffer";
+        case kBool_GrSLType:
+            return "bool";
+        case kInt_GrSLType:
+            return "int";
+        case kUint_GrSLType:
+            return "uint";
+        case kTexture2D_GrSLType:
+            return "texture2D";
+        case kSampler_GrSLType:
+            return "sampler";
+        case kImageStorage2D_GrSLType:
+            return "image2D";
+        case kIImageStorage2D_GrSLType:
+            return "iimage2D";
+    }
+    SK_ABORT("Unknown shader var type.");
+    return ""; // suppress warning
+}
+
 void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision p,
                                                   const GrShaderCaps& shaderCaps,
                                                   SkString* out) {

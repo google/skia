@@ -84,6 +84,7 @@ enum GrSLType {
     kVec2f_GrSLType,
     kVec3f_GrSLType,
     kVec4f_GrSLType,
+    kVec2us_GrSLType,
     kVec2i_GrSLType,
     kVec3i_GrSLType,
     kVec4i_GrSLType,
@@ -161,6 +162,7 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
         case kBool_GrSLType:
         case kInt_GrSLType:
         case kUint_GrSLType:
+        case kVec2us_GrSLType:
         case kVec2i_GrSLType:
         case kVec3i_GrSLType:
         case kVec4i_GrSLType:
@@ -187,6 +189,7 @@ static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
         case kVec2f_GrSLType:
         case kVec3f_GrSLType:
         case kVec4f_GrSLType:
+        case kVec2us_GrSLType:
         case kVec2i_GrSLType:
         case kVec3i_GrSLType:
         case kVec4i_GrSLType:
@@ -221,6 +224,7 @@ static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kVec2f_GrSLType:
         case kVec3f_GrSLType:
         case kVec4f_GrSLType:
+        case kVec2us_GrSLType:
         case kVec2i_GrSLType:
         case kVec3i_GrSLType:
         case kVec4i_GrSLType:
@@ -251,6 +255,7 @@ static inline bool GrSLTypeIsImageStorage(GrSLType type) {
         case kVec2f_GrSLType:
         case kVec3f_GrSLType:
         case kVec4f_GrSLType:
+        case kVec2us_GrSLType:
         case kVec2i_GrSLType:
         case kVec3i_GrSLType:
         case kVec4i_GrSLType:
@@ -281,6 +286,7 @@ static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {
         case kVec2f_GrSLType:
         case kVec3f_GrSLType:
         case kVec4f_GrSLType:
+        case kVec2us_GrSLType:
         case kVec2i_GrSLType:
         case kVec3i_GrSLType:
         case kVec4i_GrSLType:
@@ -324,7 +330,8 @@ enum GrVertexAttribType {
     kUByte_GrVertexAttribType,   // unsigned byte, e.g. coverage
     kVec4ub_GrVertexAttribType,  // vector of 4 unsigned bytes, e.g. colors
 
-    kVec2us_GrVertexAttribType,  // vector of 2 shorts, e.g. texture coordinates
+    kVec2us_norm_GrVertexAttribType, // vector of 2 shorts. 0 -> 0.0f, 65535 -> 1.0f.
+    kVec2us_uint_GrVertexAttribType, // vector of 2 shorts. 0 -> 0, 65535 -> 65535.
 
     kInt_GrVertexAttribType,
     kUint_GrVertexAttribType,
@@ -356,7 +363,8 @@ static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
             return 1 * sizeof(char);
         case kVec4ub_GrVertexAttribType:
             return 4 * sizeof(char);
-        case kVec2us_GrVertexAttribType:
+        case kVec2us_norm_GrVertexAttribType: // fall through
+        case kVec2us_uint_GrVertexAttribType:
             return 2 * sizeof(int16_t);
         case kInt_GrVertexAttribType:
             return sizeof(int32_t);
@@ -368,48 +376,17 @@ static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
 }
 
 /**
- * Is the attrib type integral?
- */
-static inline bool GrVertexAttribTypeIsIntType(GrVertexAttribType type) {
-    switch (type) {
-        case kFloat_GrVertexAttribType:
-            return false;
-        case kVec2f_GrVertexAttribType:
-            return false;
-        case kVec3f_GrVertexAttribType:
-            return false;
-        case kVec4f_GrVertexAttribType:
-            return false;
-        case kVec2i_GrVertexAttribType:
-            return true;
-        case kVec3i_GrVertexAttribType:
-            return true;
-        case kVec4i_GrVertexAttribType:
-            return true;
-        case kUByte_GrVertexAttribType:
-            return false;
-        case kVec4ub_GrVertexAttribType:
-            return false;
-        case kVec2us_GrVertexAttribType:
-            return false;
-        case kInt_GrVertexAttribType:
-            return true;
-        case kUint_GrVertexAttribType:
-            return true;
-    }
-    SK_ABORT("Unexpected attribute type");
-    return false;
-}
-
-/**
  * converts a GrVertexAttribType to a GrSLType
  */
 static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
     switch (type) {
-        case kUByte_GrVertexAttribType:
+        case kVec2us_norm_GrVertexAttribType: // fall through
+            return kVec2f_GrSLType;
+        case kVec2us_uint_GrVertexAttribType:
+            return kVec2us_GrSLType;
+        case kUByte_GrVertexAttribType:       // fall through
         case kFloat_GrVertexAttribType:
             return kFloat_GrSLType;
-        case kVec2us_GrVertexAttribType:
         case kVec2f_GrVertexAttribType:
             return kVec2f_GrSLType;
         case kVec3f_GrVertexAttribType:
