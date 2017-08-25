@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e203284_7bbbb3ed",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-08-25T15:48:31Z",
+      "side": 1,
+      "message": "nit: then",
+      "range": {
+        "startLine": 10,
+        "startChar": 62,
+        "endLine": 10,
+        "endChar": 66
+      },
+      "revId": "d2fab676f9d793cc320e7059aaccd15d692a2dc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8072d8c_45cdd007",
+        "filename": "src/gpu/vk/GrVkBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-08-25T15:48:31Z",
+      "side": 1,
+      "message": "From what we were talking about yesterday, it sounded like you\u0027d have to copy to the buffer in blocks of 65536 -- did I misunderstand that?",
+      "range": {
+        "startLine": 205,
+        "startChar": 12,
+        "endLine": 206,
+        "endChar": 43
+      },
+      "revId": "d2fab676f9d793cc320e7059aaccd15d692a2dc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
