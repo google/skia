@@ -495,9 +495,13 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
     string namePart = string::npos != under ? str->substr(under + 1, str->length()) : *str;
     SkASSERT(fRoot);
     SkASSERT(fRoot->fFileName.length());
-    if (false && classMatch) {
-        str = &namePart;
-    } else if (true || (curRoot != defRoot && defRoot->isRoot())) {
+    if (classMatch) {
+        buildup = "#";
+        if (*str != classPart && "Sk" == classPart.substr(0, 2)) {
+            buildup += classPart + "_";
+        }
+        buildup += namePart;
+    } else {
         string filename = defRoot->asRoot()->fFileName;
         if (filename.substr(filename.length() - 4) == ".bmh") {
             filename = filename.substr(0, filename.length() - 4);
@@ -507,14 +511,13 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
             --start;
         }
         buildup = filename.substr(start) + "#" + (classMatch ? namePart : *str);
-        str = &buildup;
     }
     string refOut(ref);
     std::replace(refOut.begin(), refOut.end(), '_', ' ');
     if (ref.length() > 2 && islower(ref[0]) && "()" == ref.substr(ref.length() - 2)) {
         refOut = refOut.substr(0, refOut.length() - 2);
     }
-    return leadingSpaces + "<a href=\"" + *str + "\">" + refOut + "</a>";
+    return leadingSpaces + "<a href=\"" + buildup + "\">" + refOut + "</a>";
 }
 
 void MdOut::markTypeOut(Definition* def) {
@@ -574,7 +577,7 @@ void MdOut::markTypeOut(Definition* def) {
             }
             this->writePending();
             fprintf(fOut, "    <td><a name=\"%s\"></a> <code><strong>%s </strong></code></td>",
-                    def->fName.c_str(), def->fName.c_str());
+                    def->fFiddle.c_str(), def->fName.c_str());
             const char* lineEnd = strchr(textStart, '\n');
             SkASSERT(lineEnd < def->fTerminator);
             SkASSERT(lineEnd > textStart);
@@ -599,7 +602,7 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kEnum:
         case MarkType::kEnumClass:
             this->mdHeaderOut(2);
-            fprintf(fOut, "<a name=\"%s\"></a> Enum %s", def->fName.c_str(), def->fName.c_str());
+            fprintf(fOut, "<a name=\"%s\"></a> Enum %s", def->fFiddle.c_str(), def->fName.c_str());
             this->lf(2);
             break;
         case MarkType::kError:
@@ -752,7 +755,7 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kStruct:
             fRoot = def->asRoot();
             this->mdHeaderOut(1);
-            fprintf(fOut, "<a name=\"%s\"></a> Struct %s", def->fName.c_str(), def->fName.c_str());
+            fprintf(fOut, "<a name=\"%s\"></a> Struct %s", def->fFiddle.c_str(), def->fName.c_str());
             this->lf(1);
             break;
         case MarkType::kSubstitute:
