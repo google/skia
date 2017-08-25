@@ -39,8 +39,7 @@ public:
         GrGLSLVertToFrag v(kVec2f_GrSLType);
         varyingHandler->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
         vertBuilder->codeAppendf("%s = %s * %s;", v.vsOut(),
-                                 btgp.inTextureCoords()->fName,
-                                 atlasSizeInvName);
+                                 btgp.inTextureCoords()->fName, atlasSizeInvName);
 
         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color

@@ -15,7 +15,6 @@
 #include "GrMesh.h"
 #include "GrPipeline.h"
 #include "GrRenderTargetPriv.h"
-#include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
 
 #include "GrVkCommandBuffer.h"
