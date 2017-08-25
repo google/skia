@@ -574,7 +574,8 @@ SkVector makeVector() {
 
 void validate(const SkPath& path) {
     if (fValidate) {
-        SkDEBUGCODE(path.experimentalValidateRef());
+        // FIXME: this could probably assert on path.isValid() instead
+        SkDEBUGCODE(path.validateRef());
     }
 }
 

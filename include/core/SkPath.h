@@ -1119,10 +1119,18 @@ public:
     static const int kPathRefGenIDBitCnt = 32;
 #endif
 
-    bool isValid() const;
+    /** Returns if SkPath data is consistent. Corrupt SkPath data is detected if
+        internal values are out of range or internal storage does not match
+        array dimensions.
+
+        @return  true if SkPath data is consistent
+     */
+#ifdef SK_SUPPORT_DIRECT_PATHREF_VALIDATION
+    bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
+#else
+    bool isValid() const { return this->isValidImpl(); }
     bool pathRefIsValid() const { return fPathRef->isValid(); }
-    SkDEBUGCODE(void validate() const { SkASSERT(this->isValid()); } )
-    SkDEBUGCODE(void experimentalValidateRef() const { fPathRef->validate(); } )
+#endif
 
 private:
     enum SerializationOffsets {
@@ -1183,6 +1191,13 @@ private:
 
     Convexity internalGetConvexity() const;
 
+    /** Asserts if SkPath data is inconsistent.
+        Debugging check intended for internal use only.
+     */
+    SkDEBUGCODE(void validate() const { SkASSERT(this->isValidImpl()); } )
+    bool isValidImpl() const;
+    SkDEBUGCODE(void validateRef() const { fPathRef->validate(); } )
+
     bool isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts,
                        bool* isClosed, Direction* direction) const;
 
@@ -1215,6 +1230,7 @@ private:
     friend class SkBench_AddPathTest; // perf test reversePathTo
     friend class PathTest_Private; // unit test reversePathTo
     friend class ForceIsRRect_Private; // unit test isRRect
+    friend class FuzzPath; // for legacy access to validateRef
 };
 
 #endif
