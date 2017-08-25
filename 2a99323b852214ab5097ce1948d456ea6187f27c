@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11821e07_12b10913",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1128,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2017-08-25T18:30:36Z",
+      "side": 1,
+      "message": "Ah nice, consolidating these seems good.  I was being more cautious than maybe I needed to be in my patch.",
+      "revId": "2a99323b852214ab5097ce1948d456ea6187f27c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5a59967_fcad48bb",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1138,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2017-08-25T18:30:36Z",
+      "side": 1,
+      "message": "I\u0027m kind of surprised that you want to keep this around.  It seems about as long to write SkDEBUGCODE(validate()) as it does to write SkASSERT(this-\u003eisValidImpl()).",
+      "revId": "2a99323b852214ab5097ce1948d456ea6187f27c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
