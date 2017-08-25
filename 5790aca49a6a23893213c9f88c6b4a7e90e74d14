@@ -22,6 +22,30 @@
       "revId": "5790aca49a6a23893213c9f88c6b4a7e90e74d14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1387f64d_0e247061",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-25T18:36:11Z",
+      "side": 1,
+      "message": "From an off-line discussion, we\u0027re going to try discarding both the color buffer and the stencil buffer here.",
+      "parentUuid": "8dcd10ea_c47707d0",
+      "range": {
+        "startLine": 227,
+        "startChar": 12,
+        "endLine": 227,
+        "endChar": 70
+      },
+      "revId": "5790aca49a6a23893213c9f88c6b4a7e90e74d14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
