@@ -2,19 +2,19 @@ usingBookmaker
 ===
 
 # <a name="Bookmaker"></a> Bookmaker
-How to use the <a href="usingBookmaker#Bookmaker">Bookmaker</a> utility.
+How to use the <a href="#Bookmaker">Bookmaker</a> utility.
 
 Get the fiddle command line interface tool.
 
 <pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
 $ go get go.skia.org/infra/fiddle/go/fiddlecli</pre>
 
-Build <a href="usingBookmaker#Bookmaker">Bookmaker</a>.
+Build <a href="#Bookmaker">Bookmaker</a>.
 
 <pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
 $ ninja -<a href="usingBookmaker#C">C</a> out/dir bookmaker</pre>
 
-Generate an starter <a href="usingBookmaker#Bookmaker">Bookmaker</a> file from an existing include.
+Generate an starter <a href="#Bookmaker">Bookmaker</a> file from an existing include.
 This writes <a href="usingBookmaker#SkXXX">SkXXX</a>.bmh in the current directory, which is
 out/dir/obj/ from an IDE.
 
@@ -27,7 +27,7 @@ Use your favorite editor to fill out docs/<a href="usingBookmaker#SkXXX">SkXXX</
 Generate fiddle.json from all examples, including the ones you just wrote.
 Error checking is syntatic: starting keywords are closed, keywords have the
 correct parents.
-If you run <a href="usingBookmaker#Bookmaker">Bookmaker</a> inside <a href="usingBookmaker#Visual_Studio">Visual Studio</a>, you can click on errors and it
+If you run <a href="#Bookmaker">Bookmaker</a> inside <a href="usingBookmaker#Visual_Studio">Visual Studio</a>, you can click on errors and it
 will take you to the source line in question.
 
 <pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
@@ -62,4 +62,4 @@ $ ./out/dir/bookmaker -p -b docs -i include/core/<a href="usingBookmaker#SkXXX">
 
 ## <a name="Bugs"></a> Bugs
 
-<a href="usingBookmaker#Bookmaker">Bookmaker</a> bugs are trackedherebug.skia.org/6898.
+<a href="#Bookmaker">Bookmaker</a> bugs are trackedherebug.skia.org/6898.

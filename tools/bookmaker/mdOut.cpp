@@ -485,19 +485,24 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
         classMatch |= curRoot->fName == classPart;
     }
     const Definition* defRoot;
+    const Definition* temp = def;
     do {
-        defRoot = def;
-        if (!(def = def->fParent)) {
+        defRoot = temp;
+        if (!(temp = temp->fParent)) {
             break;
         }
-        classMatch |= def != defRoot && def->fName == classPart;
+        classMatch |= temp != defRoot && temp->fName == classPart;
     } while (true);
     string namePart = string::npos != under ? str->substr(under + 1, str->length()) : *str;
     SkASSERT(fRoot);
     SkASSERT(fRoot->fFileName.length());
-    if (false && classMatch) {
-        str = &namePart;
-    } else if (true || (curRoot != defRoot && defRoot->isRoot())) {
+    if (classMatch) {
+        buildup = "#";
+        if (*str != classPart && "Sk" == classPart.substr(0, 2)) {
+            buildup += classPart + "_";
+        }
+        buildup += namePart;
+    } else {
         string filename = defRoot->asRoot()->fFileName;
         if (filename.substr(filename.length() - 4) == ".bmh") {
             filename = filename.substr(0, filename.length() - 4);
@@ -507,14 +512,18 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
             --start;
         }
         buildup = filename.substr(start) + "#" + (classMatch ? namePart : *str);
-        str = &buildup;
+    }
+    if (MarkType::kParam == def->fMarkType) {
+        const Definition* parent = def->fParent;
+        SkASSERT(MarkType::kMethod == parent->fMarkType);
+        buildup = '#' + parent->fFiddle + '_' + ref;
     }
     string refOut(ref);
     std::replace(refOut.begin(), refOut.end(), '_', ' ');
     if (ref.length() > 2 && islower(ref[0]) && "()" == ref.substr(ref.length() - 2)) {
         refOut = refOut.substr(0, refOut.length() - 2);
     }
-    return leadingSpaces + "<a href=\"" + *str + "\">" + refOut + "</a>";
+    return leadingSpaces + "<a href=\"" + buildup + "\">" + refOut + "</a>";
 }
 
 void MdOut::markTypeOut(Definition* def) {
@@ -573,8 +582,8 @@ void MdOut::markTypeOut(Definition* def) {
                 fTableState = TableState::kColumn;
             }
             this->writePending();
-            fprintf(fOut, "    <td><a name=\"%s\"></a> <code><strong>%s </strong></code></td>",
-                    def->fName.c_str(), def->fName.c_str());
+            fprintf(fOut, "    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td>",
+                    def->fFiddle.c_str(), def->fName.c_str());
             const char* lineEnd = strchr(textStart, '\n');
             SkASSERT(lineEnd < def->fTerminator);
             SkASSERT(lineEnd > textStart);
@@ -599,7 +608,7 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kEnum:
         case MarkType::kEnumClass:
             this->mdHeaderOut(2);
-            fprintf(fOut, "<a name=\"%s\"></a> Enum %s", def->fName.c_str(), def->fName.c_str());
+            fprintf(fOut, "<a name=\"%s\"></a> Enum %s", def->fFiddle.c_str(), def->fName.c_str());
             this->lf(2);
             break;
         case MarkType::kError:
@@ -655,7 +664,8 @@ void MdOut::markTypeOut(Definition* def) {
             tp.skipWhiteSpace();
             const char* end = tp.trimmedBracketEnd('\n', TextParser::OneLine::kYes);
             this->lfAlways(2);
-            fprintf(fOut, "<code><strong>%.*s</strong></code>", (int) (end - tp.fChar), tp.fChar);
+            fprintf(fOut, "<a name=\"%s\"> <code><strong>%.*s</strong></code> </a>",
+                    def->fFiddle.c_str(), (int) (end - tp.fChar), tp.fChar);
             this->lf(2);
             } break;
         case MarkType::kMethod: {
@@ -708,9 +718,11 @@ void MdOut::markTypeOut(Definition* def) {
             paramParser.skipSpace();
             const char* paramName = paramParser.fChar;
             paramParser.skipToSpace();
+            string paramNameStr(paramName, (int) (paramParser.fChar - paramName));
+            string refNameStr = def->fParent->fFiddle + "_" + paramNameStr;
             fprintf(fOut, 
-                    "    <td><code><strong>%.*s </strong></code></td> <td>",
-                    (int) (paramParser.fChar - paramName), paramName);
+                    "    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td> <td>",
+                    refNameStr.c_str(), paramNameStr.c_str());
         } break;
         case MarkType::kPlatform:
             break;
@@ -752,7 +764,7 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kStruct:
             fRoot = def->asRoot();
             this->mdHeaderOut(1);
-            fprintf(fOut, "<a name=\"%s\"></a> Struct %s", def->fName.c_str(), def->fName.c_str());
+            fprintf(fOut, "<a name=\"%s\"></a> Struct %s", def->fFiddle.c_str(), def->fName.c_str());
             this->lf(1);
             break;
         case MarkType::kSubstitute:
