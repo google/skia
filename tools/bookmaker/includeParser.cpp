@@ -304,6 +304,12 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         }
                     }
                     if (!def) {
+                        if ("SK_ATTR_DEPRECATED" == token.fName) {
+                            break;
+                        }
+                        if (0 == token.fName.find("SkDEBUGCODE")) {
+                            break;
+                        }
                         SkDebugf("method missing from bmh: %s\n", fullName.c_str());
                         break;
                     }

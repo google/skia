@@ -288,6 +288,7 @@ makes them visible.
 # isOval                      # Returns if describes Oval. ##
 # isRRect                     # Returns if describes Round_Rect. ##
 # isRect                      # Returns if describes Rect. ##
+# isValid                     # Returns if data is internally consistent. ##
 # isVolatile                  # Returns if Device should not cache. ##
 # lineTo                      # Appends Line. ##
 # moveTo                      # Starts Contour. ##
@@ -299,10 +300,11 @@ makes them visible.
 # rLineTo                     # Appends Line relative to Last_Point. ##
 # rMoveTo                     # Starts Contour relative to Last_Point. ##
 # rQuadTo                     # Appends Quad relative to Last_Point. ##
-# readFromMemory              # Initialize from buffer. ##
+# readFromMemory              # Initializes from buffer. ##
 # reset()                     # Removes Verb_Array, Point_Array, and Weights; frees memory. ##
 # reverseAddPath              # Adds contents of Path back to front. ##
 # rewind()                    # Removes Verb_Array, Point_Array, and Weights; leaves memory allocated. ##
+# serialize()                 # Copies data to buffer. ##
 # setConvexity                # Sets if geometry is convex to avoid future computation. ##
 # setFillType                 # Sets Fill_Type: winding, even-odd, inverse. ##
 # setIsConvex                 # Deprecated. ##
@@ -312,8 +314,8 @@ makes them visible.
 # toggleInverseFillType       # Toggles Fill_Type between inside and outside geometry. ##
 # transform()                 # Applies Matrix to Point_Array and Weights. ##
 # unique()                    # Returns if data has single owner. ##
-# updateBoundsCache           # Refresh result of getBounds. ##
-# writeToMemory               # Copy data to buffer. ##
+# updateBoundsCache           # Refreshes result of getBounds. ##
+# writeToMemory               # Copies data to buffer. ##
 #Table ##
 #Subtopic Path_Member_Functions ##
 #Topic Overview ##
@@ -325,13 +327,13 @@ makes them visible.
 
 #Code
     enum Verb {
-        kMove_Verb 
-        kLine_Verb 
-        kQuad_Verb 
-        kConic_Verb 
-        kCubic_Verb 
-        kClose_Verb 
-        kDone_Verb 
+        kMove_Verb, 
+        kLine_Verb, 
+        kQuad_Verb, 
+        kConic_Verb, 
+        kCubic_Verb, 
+        kClose_Verb, 
+        kDone_Verb, 
     };
 ##
 
@@ -420,8 +422,8 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 
 #Code
     enum Direction {
-        kCW_Direction 
-        kCCW_Direction 
+        kCW_Direction, 
+        kCCW_Direction, 
     };
 ##
 
@@ -602,7 +604,7 @@ path2 bounds = 10, 20, 30, 40
 
 # ------------------------------------------------------------------------------
 
-#Method friend SK_API bool operator==(const SkPath& a, const SkPath& b)
+#Method bool operator==(const SkPath& a, const SkPath& b)
 
 Compares a and b; returns true if Fill_Type, Verb_Array, Point_Array, and Weights
 are equivalent.
@@ -644,7 +646,7 @@ reset one == two
 
 # ------------------------------------------------------------------------------
 
-#Method friend bool operator!=(const SkPath& a, const SkPath& b) 
+#Method bool operator!=(const SkPath& a, const SkPath& b) 
 
 Compares a and b; returns true if Fill_Type, Verb_Array, Point_Array, and Weights
 are not equivalent.
@@ -785,10 +787,10 @@ To be deprecated; only valid for Android framework.
 
 #Code
     enum FillType {
-        kWinding_FillType 
-        kEvenOdd_FillType 
-        kInverseWinding_FillType 
-        kInverseEvenOdd_FillType 
+        kWinding_FillType, 
+        kEvenOdd_FillType, 
+        kInverseWinding_FillType, 
+        kInverseEvenOdd_FillType, 
     };
 ##
 
@@ -1007,7 +1009,7 @@ canvas->drawPath(path, paint);
     enum Convexity {
         kUnknown_Convexity, 
         kConvex_Convexity,
-        kConcave_Convexity 
+        kConcave_Convexity, 
     };
 ##
 
@@ -1195,6 +1197,9 @@ void draw(SkCanvas* canvas) {
 
 #Deprecated
 Use setConvexity.
+##
+
+#NoExample
 ##
 
 ##
@@ -3415,8 +3420,8 @@ line (156,20),(200,20)
 
 #Code
     enum ArcSize {
-        kSmall_ArcSize 
-        kLarge_ArcSize 
+        kSmall_ArcSize, 
+        kLarge_ArcSize, 
     };
 ##
 
@@ -4464,8 +4469,8 @@ void draw(SkCanvas* canvas) {
 
 #Code
     enum AddPathMode {
-        kAppend_AddPathMode 
-        kExtend_AddPathMode 
+        kAppend_AddPathMode, 
+        kExtend_AddPathMode, 
     };
 ##
 
@@ -4865,10 +4870,10 @@ Last_Point can be read and written directly with getLastPt and setLastPt.
 
 #Code
     enum SegmentMask {
-        kLine_SegmentMask = 1 << 0
-        kQuad_SegmentMask = 1 << 1
-        kConic_SegmentMask = 1 << 2
-        kCubic_SegmentMask = 1 << 3
+        kLine_SegmentMask = 1 << 0,
+        kQuad_SegmentMask = 1 << 1,
+        kConic_SegmentMask = 1 << 2,
+        kCubic_SegmentMask = 1 << 3,
     };
 ##
 
@@ -5126,10 +5131,41 @@ void draw(SkCanvas* canvas) {
     copy.readFromMemory(storage.begin(), size);
     SkDebugf("path is " "%s" "equal to copy\n", path == copy ? "" : "not ");
 }
+#StdOut
+path is equal to copy
+##
 ##
 
-#SeeAlso readFromMemory dump dumpHex
+#SeeAlso serialize readFromMemory dump dumpHex
 
+##
+
+#Method sk_sp<SkData> serialize() const
+
+Write Path to buffer, returning the buffer written to, wrapped in Data.
+
+serialize() writes Fill_Type, Verb_Array, Point_Array, Conic_Weight, and
+additionally writes computed information like Convexity and bounds.
+
+serialize() should only be used in concert with readFromMemory.
+The format used for Path in memory is not guaranteed.
+
+#Return  Path data wrapped in Data buffer. ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    SkPath path, copy;
+    path.lineTo(6.f / 7, 2.f / 3);
+    sk_sp<SkData> data = path.serialize();
+    copy.readFromMemory(data->data(), data->size());
+    SkDebugf("path is " "%s" "equal to copy\n", path == copy ? "" : "not ");
+}
+#StdOut
+path is equal to copy
+##
+##
+
+#SeeAlso writeToMemory readFromMemory dump dumpHex
 ##
 
 # ------------------------------------------------------------------------------
@@ -5225,25 +5261,30 @@ empty genID = 1
 
 # ------------------------------------------------------------------------------
 
-#Method void validate() const
+#Method bool isValid() const
 
-Debugging check to see if Path data is consistent.
-Not currently maintained.
+    Returns if Path data is consistent. Corrupt Path data is detected if
+    internal values are out of range or internal storage does not match
+    array dimensions.
 
-#NoExample
+    #Return  true if Path data is consistent ##
+
+    #NoExample
+    ##
+
 ##
 
-##
+#Method bool pathRefIsValid() const
 
-# ------------------------------------------------------------------------------
+    Returns if Path data is consistent.
 
-#Method void experimentalValidateRef() const
+    #Deprecated
+    ##
 
-#Private
-Debugging check to see if Path data is consistent.
-Not ready for public use.
-##
+    #Return  true if Path data is consistent ##
 
+    #NoExample
+    ##
 ##
 
 # ------------------------------------------------------------------------------
