@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8dcd10ea_c47707d0",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-25T18:11:09Z",
+      "side": 1,
+      "message": "In my head this seems fine, but just want to confirm since this is a change in logic. Do we want discard to discard both color and stencil? Before it was just color.",
+      "range": {
+        "startLine": 227,
+        "startChar": 12,
+        "endLine": 227,
+        "endChar": 70
+      },
+      "revId": "5790aca49a6a23893213c9f88c6b4a7e90e74d14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
