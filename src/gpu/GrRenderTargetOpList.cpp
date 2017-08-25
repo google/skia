@@ -91,14 +91,17 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
     }
 }
 
-static std::unique_ptr<GrGpuRTCommandBuffer> create_command_buffer(GrGpu* gpu,
-                                                                   GrRenderTarget* rt,
-                                                                   GrSurfaceOrigin origin,
-                                                                   bool clearSB) {
+static std::unique_ptr<GrGpuCommandBuffer> create_command_buffer(GrGpu* gpu,
+                                                                 GrRenderTarget* rt,
+                                                                 GrSurfaceOrigin origin,
+                                                                 GrLoadOp colorLoadOp,
+                                                                 GrColor loadClearColor,
+                                                                 GrLoadOp stencilLoadOp,
+                                                                 bool clearSB) {
     static const GrGpuRTCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo {
-        GrGpuRTCommandBuffer::LoadOp::kLoad,
-        GrGpuRTCommandBuffer::StoreOp::kStore,
-        GrColor_ILLEGAL
+        colorLoadOp,
+        GrStoreOp::kStore,
+        loadClearColor
     };
 
     // TODO:
@@ -107,8 +110,8 @@ static std::unique_ptr<GrGpuRTCommandBuffer> create_command_buffer(GrGpu* gpu,
     // Note: we would still need SB loads and stores but they would happen at a
     // lower level (inside the VK command buffer).
     const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo stencilLoadAndStoreInfo {
-        clearSB ? GrGpuRTCommandBuffer::LoadOp::kClear : GrGpuRTCommandBuffer::LoadOp::kLoad,
-        GrGpuRTCommandBuffer::StoreOp::kStore,
+        clearSB ? GrLoadOp::kClear : stencilLoadOp,
+        GrStoreOp::kStore,
     };
 
     std::unique_ptr<GrGpuRTCommandBuffer> buffer(
@@ -140,11 +143,14 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
     TRACE_EVENT0("skia", TRACE_FUNC);
 #endif
 
+    // TODO: at the very least, we want the stencil store op to always be discard (at this
+    // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.
     std::unique_ptr<GrGpuRTCommandBuffer> commandBuffer = create_command_buffer(
                                                     flushState->gpu(),
                                                     fTarget.get()->priv().peekRenderTarget(),
                                                     fTarget.get()->origin(),
-                                                    this->requiresStencil());
+                                                    fColorLoadOp, fLoadClearColor,
+                                                    fStencilLoadOp);
     flushState->setCommandBuffer(commandBuffer.get());
     commandBuffer->begin();
 
@@ -153,6 +159,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
         if (!fRecordedOps[i].fOp) {
             continue;
         }
+
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
         TRACE_EVENT0("skia", fRecordedOps[i].fOp->name());
 #endif
