@@ -112,7 +112,7 @@ public:
 
     const char* attr(Attrib attr) const { return fInstProc.getAttrib((int)attr).fName; }
 
-    void fetchNextParam(GrSLType type = kVec4f_GrSLType) const {
+    void fetchNextParam(const GrShaderCaps* shaderCaps, GrSLType type = kVec4f_GrSLType) const {
         SkASSERT(fParamsBuffer.isValid());
         switch (type) {
             case kVec2f_GrSLType: // fall through
@@ -120,7 +120,7 @@ public:
             case kVec4f_GrSLType:
                 break;
             default:
-                fVertexBuilder->codeAppendf("%s(", GrGLSLTypeString(type));
+                fVertexBuilder->codeAppendf("%s(", GrGLSLTypeString(shaderCaps, type));
         }
         fVertexBuilder->appendTexelFetch(fParamsBuffer, "paramsIdx++");
         switch (type) {
@@ -156,12 +156,12 @@ public:
     void init(GrGLSLVaryingHandler*, GrGLSLVertexBuilder*);
     virtual void setupRect(GrGLSLVertexBuilder*) = 0;
     virtual void setupOval(GrGLSLVertexBuilder*) = 0;
-    void setupRRect(GrGLSLVertexBuilder*, int* usedShapeDefinitions);
+    void setupRRect(const GrShaderCaps*, GrGLSLVertexBuilder*, int* usedShapeDefinitions);
 
     void initInnerShape(GrGLSLVaryingHandler*, GrGLSLVertexBuilder*);
     virtual void setupInnerRect(GrGLSLVertexBuilder*) = 0;
     virtual void setupInnerOval(GrGLSLVertexBuilder*) = 0;
-    void setupInnerSimpleRRect(GrGLSLVertexBuilder*);
+    void setupInnerSimpleRRect(const GrShaderCaps*, GrGLSLVertexBuilder*);
 
     const char* outShapeCoords() {
         return fModifiedShapeCoords ? fModifiedShapeCoords : fInputs.attr(Attrib::kShapeCoords);
@@ -200,7 +200,7 @@ protected:
 
     void setupSimpleRadii(GrGLSLVertexBuilder*);
     void setupNinePatchRadii(GrGLSLVertexBuilder*);
-    void setupComplexRadii(GrGLSLVertexBuilder*);
+    void setupComplexRadii(const GrShaderCaps*, GrGLSLVertexBuilder*);
 
     const OpInfo fOpInfo;
     const VertexInputs& fInputs;
@@ -241,7 +241,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         v->codeAppendf("if (0 != (%s & uint(PERSPECTIVE_FLAG))) {",
                        inputs.attr(Attrib::kInstanceInfo));
         v->codeAppend (    "shapeMatrix[2] = ");
-        inputs.fetchNextParam(kVec3f_GrSLType);
+        inputs.fetchNextParam(args.fShaderCaps, kVec3f_GrSLType);
         v->codeAppend (    ";");
         v->codeAppend ("}");
     }
@@ -264,12 +264,12 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         } else if (kOval_ShapeFlag == ip.opInfo().fShapeTypes) {
             backend->setupOval(v);
         } else {
-            backend->setupRRect(v, &usedShapeDefinitions);
+            backend->setupRRect(args.fShaderCaps, v, &usedShapeDefinitions);
         }
     } else {
         if (ip.opInfo().fShapeTypes & kRRect_ShapesMask) {
             v->codeAppend ("if (shapeType >= uint(SIMPLE_R_RECT_SHAPE_TYPE)) {");
-            backend->setupRRect(v, &usedShapeDefinitions);
+            backend->setupRRect(args.fShaderCaps, v, &usedShapeDefinitions);
             v->codeAppend ("}");
             usedShapeDefinitions |= kSimpleRRect_ShapeFlag;
         }
@@ -305,7 +305,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         // Here we take advantage of the fact that outerRect == localRect in recordDRRect.
         v->codeAppendf("float4 outer = %s;", inputs.attr(Attrib::kLocalRect));
         v->codeAppend ("float4 inner = ");
-        inputs.fetchNextParam();
+        inputs.fetchNextParam(args.fShaderCaps);
         v->codeAppend (";");
         // outer2Inner is a transform from shape coords to inner shape coords:
         // e.g. innerShapeCoords = shapeCoords * outer2Inner.xy + outer2Inner.zw
@@ -326,12 +326,12 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             } else if (kOval_ShapeFlag == ip.opInfo().fInnerShapeTypes) {
                 backend->setupInnerOval(v);
             } else {
-                backend->setupInnerSimpleRRect(v);
+                backend->setupInnerSimpleRRect(args.fShaderCaps, v);
             }
         } else {
             if (ip.opInfo().fInnerShapeTypes & kSimpleRRect_ShapeFlag) {
                 v->codeAppend ("if (uint(SIMPLE_R_RECT_SHAPE_TYPE) == innerShapeType) {");
-                backend->setupInnerSimpleRRect(v);
+                backend->setupInnerSimpleRRect(args.fShaderCaps, v);
                 v->codeAppend("}");
                 usedShapeDefinitions |= kSimpleRRect_ShapeFlag;
             }
@@ -385,10 +385,10 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         } else {
             v->codeAppendf(    "float2x3 localMatrix;");
             v->codeAppend (    "localMatrix[0] = ");
-            inputs.fetchNextParam(kVec3f_GrSLType);
+            inputs.fetchNextParam(args.fShaderCaps, kVec3f_GrSLType);
             v->codeAppend (    ";");
             v->codeAppend (    "localMatrix[1] = ");
-            inputs.fetchNextParam(kVec3f_GrSLType);
+            inputs.fetchNextParam(args.fShaderCaps, kVec3f_GrSLType);
             v->codeAppend (    ";");
             v->codeAppend (    "localCoords = (float3(localCoords, 1) * localMatrix).xy;");
         }
@@ -397,7 +397,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     GrSLType positionType = ip.opInfo().fHasPerspective ? kVec3f_GrSLType : kVec2f_GrSLType;
     v->codeAppendf("%s deviceCoords = float3(%s, 1) * shapeMatrix;",
-                   GrGLSLTypeString(positionType), backend->outShapeCoords());
+                   GrGLSLTypeString(args.fShaderCaps, positionType), backend->outShapeCoords());
     gpArgs->fPositionVar.set(positionType, "deviceCoords");
 
     this->emitTransforms(v, varyingHandler, uniHandler, gpArgs->fPositionVar, localCoords,
@@ -420,13 +420,15 @@ void GLSLInstanceProcessor::Backend::init(GrGLSLVaryingHandler* varyingHandler,
     }
 }
 
-void GLSLInstanceProcessor::Backend::setupRRect(GrGLSLVertexBuilder* v, int* usedShapeDefinitions) {
+void GLSLInstanceProcessor::Backend::setupRRect(const GrShaderCaps* shaderCaps,
+                                                GrGLSLVertexBuilder* v,
+                                                int* usedShapeDefinitions) {
     v->codeAppendf("uint2 corner = uint2(uint(%s) & 1, (uint(%s) >> 1) & 1);",
                    fInputs.attr(Attrib::kVertexAttrs), fInputs.attr(Attrib::kVertexAttrs));
     v->codeAppend ("float2 cornerSign = float2(corner) * 2.0 - 1.0;");
     v->codeAppendf("float2 radii%s;", fNeedsNeighborRadii ? ", neighborRadii" : "");
     v->codeAppend ("float2x2 p = ");
-    fInputs.fetchNextParam(kMat22f_GrSLType);
+    fInputs.fetchNextParam(shaderCaps, kMat22f_GrSLType);
     v->codeAppend (";");
     uint8_t types = fOpInfo.fShapeTypes & kRRect_ShapesMask;
     if (0 == (types & (types - 1))) {
@@ -435,7 +437,7 @@ void GLSLInstanceProcessor::Backend::setupRRect(GrGLSLVertexBuilder* v, int* use
         } else if (kNinePatch_ShapeFlag == types) {
             this->setupNinePatchRadii(v);
         } else if (kComplexRRect_ShapeFlag == types) {
-            this->setupComplexRadii(v);
+            this->setupComplexRadii(shaderCaps, v);
         }
     } else {
         if (types & kSimpleRRect_ShapeFlag) {
@@ -459,7 +461,7 @@ void GLSLInstanceProcessor::Backend::setupRRect(GrGLSLVertexBuilder* v, int* use
         }
         if (types & kComplexRRect_ShapeFlag) {
             v->codeAppend ("else {");
-            this->setupComplexRadii(v);
+            this->setupComplexRadii(shaderCaps, v);
             v->codeAppend ("}");
         }
     }
@@ -492,7 +494,8 @@ void GLSLInstanceProcessor::Backend::setupNinePatchRadii(GrGLSLVertexBuilder* v)
     }
 }
 
-void GLSLInstanceProcessor::Backend::setupComplexRadii(GrGLSLVertexBuilder* v) {
+void GLSLInstanceProcessor::Backend::setupComplexRadii(const GrShaderCaps* shaderCaps,
+                                                       GrGLSLVertexBuilder* v) {
     /**
      * The x and y radii of each arc are stored in separate vectors,
      * in the following order:
@@ -508,7 +511,7 @@ void GLSLInstanceProcessor::Backend::setupComplexRadii(GrGLSLVertexBuilder* v) {
      *
      */
     v->codeAppend("float2x2 p2 = ");
-    fInputs.fetchNextParam(kMat22f_GrSLType);
+    fInputs.fetchNextParam(shaderCaps, kMat22f_GrSLType);
     v->codeAppend(";");
     v->codeAppend("radii = float2(p[corner.x][corner.y], p2[corner.y][corner.x]);");
     if (fNeedsNeighborRadii) {
@@ -539,9 +542,10 @@ void GLSLInstanceProcessor::Backend::initInnerShape(GrGLSLVaryingHandler* varyin
     }
 }
 
-void GLSLInstanceProcessor::Backend::setupInnerSimpleRRect(GrGLSLVertexBuilder* v) {
+void GLSLInstanceProcessor::Backend::setupInnerSimpleRRect(const GrShaderCaps* shaderCaps,
+                                                           GrGLSLVertexBuilder* v) {
     v->codeAppend("float2x2 innerP = ");
-    fInputs.fetchNextParam(kMat22f_GrSLType);
+    fInputs.fetchNextParam(shaderCaps, kMat22f_GrSLType);
     v->codeAppend(";");
     v->codeAppend("float2 innerRadii = innerP[0] * 2.0 / innerP[1];");
     this->onSetupInnerSimpleRRect(v);
