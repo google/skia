@@ -111,13 +111,13 @@ bool equalsWithinTolerance(const SkPoint& p) const
 
 <table>
   <tr>
-    <td><a name="SkBlendMode::kSrc"></a> <code><strong>SkBlendMode::kSrc </strong></code></td><td>1</td><td></td>
+    <td><a name="SkBlendMode_kSrc"></a> <code><strong>SkBlendMode::kSrc </strong></code></td><td>1</td><td></td>
   </tr>
   <tr>
-    <td><a name="SkBlendMode::kSrcOver"></a> <code><strong>SkBlendMode::kSrcOver </strong></code></td><td>3</td><td></td>
+    <td><a name="SkBlendMode_kSrcOver"></a> <code><strong>SkBlendMode::kSrcOver </strong></code></td><td>3</td><td></td>
   </tr>
   <tr>
-    <td><a name="SkBlendMode::kPlus"></a> <code><strong>SkBlendMode::kPlus </strong></code></td><td>12</td><td></td>
+    <td><a name="SkBlendMode_kPlus"></a> <code><strong>SkBlendMode::kPlus </strong></code></td><td>12</td><td></td>
   </tr>
 
 </table>
@@ -132,10 +132,10 @@ bool equalsWithinTolerance(const SkPoint& p) const
 
 <table>
   <tr>
-    <td><a name="SkClipOp::kDifference"></a> <code><strong>SkClipOp::kDifference </strong></code></td><td>0</td><td></td>
+    <td><a name="SkClipOp_kDifference"></a> <code><strong>SkClipOp::kDifference </strong></code></td><td>0</td><td></td>
   </tr>
   <tr>
-    <td><a name="SkClipOp::kIntersect"></a> <code><strong>SkClipOp::kIntersect </strong></code></td><td>1</td><td></td>
+    <td><a name="SkClipOp_kIntersect"></a> <code><strong>SkClipOp::kIntersect </strong></code></td><td>1</td><td></td>
   </tr>
 
 </table>
@@ -256,7 +256,7 @@ void draw(SkCanvas*, const SkMatrix* = NULL)
 
 # <a name="SkRasterHandleAllocator"></a> Class SkRasterHandleAllocator
 
-# <a name="SkRasterHandleAllocator::Rec"></a> Struct SkRasterHandleAllocator::Rec
+# <a name="SkRasterHandleAllocator_Rec"></a> Struct SkRasterHandleAllocator::Rec
 
 <a name="MakeCanvas"></a>
 ## MakeCanvas
@@ -549,13 +549,13 @@ void dumpHex() const
 
 # <a name="SkShader"></a> Class SkShader
 
-## <a name="SkShader::TileMode"></a> Enum SkShader::TileMode
+## <a name="SkShader_TileMode"></a> Enum SkShader::TileMode
 
 ### Constants
 
 <table>
   <tr>
-    <td><a name="SkShader::kClamp_TileMode"></a> <code><strong>SkShader::kClamp_TileMode </strong></code></td><td>0</td><td></td>
+    <td><a name="SkShader_kClamp_TileMode"></a> <code><strong>SkShader::kClamp_TileMode </strong></code></td><td>0</td><td></td>
   </tr>
 
 </table>
@@ -604,13 +604,13 @@ static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo&, void* pixels,
 
 # <a name="Legacy_Font_Host"></a> Legacy Font Host
 
-## <a name="SkSurfaceProps::InitType"></a> Enum SkSurfaceProps::InitType
+## <a name="SkSurfaceProps_InitType"></a> Enum SkSurfaceProps::InitType
 
 ### Constants
 
 <table>
   <tr>
-    <td><a name="SkSurfaceProps::kLegacyFontHost_InitType"></a> <code><strong>SkSurfaceProps::kLegacyFontHost_InitType </strong></code></td><td>0</td><td></td>
+    <td><a name="SkSurfaceProps_kLegacyFontHost_InitType"></a> <code><strong>SkSurfaceProps::kLegacyFontHost_InitType </strong></code></td><td>0</td><td></td>
   </tr>
 
 </table>
