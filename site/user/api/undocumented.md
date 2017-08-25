@@ -9,7 +9,7 @@ undocumented
 
 # <a name="SkDocument"></a> Class SkDocument
 
-<a name="beginPage"></a>
+<a name="SkDocument_beginPage"></a>
 ## beginPage
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -27,7 +27,7 @@ SkCanvas* beginPage(SkScalar width, SkScalar height,
 
 # <a name="SkRect"></a> Struct SkRect
 
-<a name="MakeEmpty"></a>
+<a name="SkRect_MakeEmpty"></a>
 ## MakeEmpty
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -36,7 +36,7 @@ static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty()
 
 ---
 
-<a name="dump"></a>
+<a name="SkRect_dump"></a>
 ## dump
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -45,7 +45,7 @@ void dump() const
 
 ---
 
-<a name="dumpHex"></a>
+<a name="SkRect_dumpHex"></a>
 ## dumpHex
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -72,7 +72,7 @@ void dumpHex() const
 
 # <a name="SkPoint"></a> Struct SkPoint
 
-<a name="equalsWithinTolerance"></a>
+<a name="SkPoint_equalsWithinTolerance"></a>
 ## equalsWithinTolerance
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -243,7 +243,7 @@ int SkColorSetARGB(a, r, g, b)
 
 # <a name="SkDrawable"></a> Class SkDrawable
 
-<a name="draw"></a>
+<a name="SkDrawable_draw"></a>
 ## draw
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -258,7 +258,7 @@ void draw(SkCanvas*, const SkMatrix* = NULL)
 
 # <a name="SkRasterHandleAllocator_Rec"></a> Struct SkRasterHandleAllocator::Rec
 
-<a name="MakeCanvas"></a>
+<a name="SkRasterHandleAllocator_MakeCanvas"></a>
 ## MakeCanvas
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -370,7 +370,7 @@ static std::unique_ptr<SkCanvas>
 
 # <a name="SkImageInfo"></a> Struct SkImageInfo
 
-<a name="empty_constructor"></a>
+<a name="SkImageInfo_empty_constructor"></a>
 ## SkImageInfo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -381,7 +381,7 @@ SkImageInfo()
 
 # <a name="SkImage"></a> Class SkImage
 
-<a name="makeShader"></a>
+<a name="SkImage_makeShader"></a>
 ## makeShader
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -463,7 +463,7 @@ sk_sp<SkShader> makeShader(SkShader::TileMode, SkShader::TileMode,
 
 # <a name="SkPathMeasure"></a> Class SkPathMeasure
 
-<a name="dump"></a>
+<a name="SkPathMeasure_dump"></a>
 ## dump
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -489,7 +489,7 @@ bool SK_API Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
 
 # <a name="SkPictureRecorder"></a> Class SkPictureRecorder
 
-<a name="beginRecording"></a>
+<a name="SkPictureRecorder_beginRecording"></a>
 ## beginRecording
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -523,7 +523,7 @@ SkCanvas* beginRecording(const SkRect& bounds, SkBBHFactory* bbhFactory = NULL,
 
 # <a name="SkRRect"></a> Class SkRRect
 
-<a name="dump"></a>
+<a name="SkRRect_dump"></a>
 ## dump
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -532,7 +532,7 @@ void dump() const
 
 ---
 
-<a name="dumpHex"></a>
+<a name="SkRRect_dumpHex"></a>
 ## dumpHex
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -560,7 +560,7 @@ void dumpHex() const
 
 </table>
 
-<a name="MakeBitmapShader"></a>
+<a name="SkShader_MakeBitmapShader"></a>
 ## MakeBitmapShader
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -587,7 +587,7 @@ static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx,
 
 # <a name="SkSurface"></a> Class SkSurface
 
-<a name="MakeRasterDirect"></a>
+<a name="SkSurface_MakeRasterDirect"></a>
 ## MakeRasterDirect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">

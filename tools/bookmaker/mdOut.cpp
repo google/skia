@@ -674,7 +674,7 @@ void MdOut::markTypeOut(Definition* def) {
 
             if (!def->isClone()) {
                 this->lfAlways(2);
-                fprintf(fOut, "<a name=\"%s\"></a>", def->fiddleName().c_str());
+                fprintf(fOut, "<a name=\"%s\"></a>", def->fFiddle.c_str());
                 this->mdHeaderOutLF(2, 1);
                 fprintf(fOut, "%s", method_name.c_str());
                 this->lf(2);

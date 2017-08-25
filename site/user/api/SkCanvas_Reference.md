@@ -148,7 +148,7 @@ when no <a href="undocumented#Surface">Surface</a> is required, and some helpers
 | <a href="#SkCanvas_translate">translate</a> | Translates <a href="#Matrix">Matrix</a>. |
 | <a href="#SkCanvas_writePixels">writePixels</a> | Copies and converts rectangle of pixels to <a href="#Canvas">Canvas</a>. |
 
-<a name="MakeRasterDirect"></a>
+<a name="SkCanvas_MakeRasterDirect"></a>
 ## MakeRasterDirect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -209,7 +209,7 @@ in the center.</div>
 
 ---
 
-<a name="MakeRasterDirectN32"></a>
+<a name="SkCanvas_MakeRasterDirectN32"></a>
 ## MakeRasterDirectN32
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -271,7 +271,7 @@ in the center.</div>
 
 ---
 
-<a name="empty_constructor"></a>
+<a name="SkCanvas_empty_constructor"></a>
 ## SkCanvas
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -301,7 +301,7 @@ paint draws text top to bottom
 
 ---
 
-<a name="int_int_const_SkSurfaceProps_star"></a>
+<a name="SkCanvas_int_int_const_SkSurfaceProps_star"></a>
 ## SkCanvas
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -351,7 +351,7 @@ canvas is empty
 
 ---
 
-<a name="copy_constructor"></a>
+<a name="SkCanvas_copy_constructor"></a>
 ## SkCanvas
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -378,7 +378,7 @@ specifies a <a href="#SkCanvas_copy_constructor_device">device</a> for the canva
 
 ---
 
-<a name="copy_constructor"></a>
+<a name="SkCanvas_copy_constructor"></a>
 ## SkCanvas
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -445,7 +445,7 @@ enum class <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> {
 
 </table>
 
-<a name="const_SkBitmap"></a>
+<a name="SkCanvas_const_SkBitmap"></a>
 ## SkCanvas
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -467,7 +467,7 @@ specializes this constructor; value is unused</td>
 
 ---
 
-<a name="const_SkBitmap_const_SkSurfaceProps"></a>
+<a name="SkCanvas_const_SkBitmap_const_SkSurfaceProps"></a>
 ## SkCanvas
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -519,7 +519,7 @@ device independent fonts</td>
 
 ---
 
-<a name="destructor"></a>
+<a name="SkCanvas_destructor"></a>
 ## ~SkCanvas
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -542,7 +542,7 @@ transparent letters.</div></fiddle-embed></div>
 
 ---
 
-<a name="getMetaData"></a>
+<a name="SkCanvas_getMetaData"></a>
 ## getMetaData
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -572,7 +572,7 @@ after: (null)
 
 ---
 
-<a name="imageInfo"></a>
+<a name="SkCanvas_imageInfo"></a>
 ## imageInfo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -600,7 +600,7 @@ emptyInfo == canvasInfo
 
 ---
 
-<a name="getProps"></a>
+<a name="SkCanvas_getProps"></a>
 ## getProps
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -637,7 +637,7 @@ isRGB:1
 
 ---
 
-<a name="flush"></a>
+<a name="SkCanvas_flush"></a>
 ## flush
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -653,7 +653,7 @@ If <a href="#Canvas">Canvas</a> is associated with <a href="undocumented#GPU_Sur
 
 ---
 
-<a name="getBaseLayerSize"></a>
+<a name="SkCanvas_getBaseLayerSize"></a>
 ## getBaseLayerSize
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -683,7 +683,7 @@ size=20,30
 
 ---
 
-<a name="makeSurface"></a>
+<a name="SkCanvas_makeSurface"></a>
 ## makeSurface
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -725,7 +725,7 @@ size = 3, 4
 
 ---
 
-<a name="getGrContext"></a>
+<a name="SkCanvas_getGrContext"></a>
 ## getGrContext
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -744,7 +744,7 @@ Returns <a href="undocumented#GPU_Context">GPU Context</a> of the <a href="undoc
 
 ---
 
-<a name="accessTopLayerPixels"></a>
+<a name="SkCanvas_accessTopLayerPixels"></a>
 ## accessTopLayerPixels
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -790,7 +790,7 @@ The offscreen and blended result appear on the <a href="undocumented#CPU">CPU</a
 
 ---
 
-<a name="accessTopRasterHandle"></a>
+<a name="SkCanvas_accessTopRasterHandle"></a>
 ## accessTopRasterHandle
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -826,7 +826,7 @@ context = skia
 
 ---
 
-<a name="peekPixels"></a>
+<a name="SkCanvas_peekPixels"></a>
 ## peekPixels
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -869,7 +869,7 @@ width=256 height=256
 
 ---
 
-<a name="readPixels"></a>
+<a name="SkCanvas_readPixels"></a>
 ## readPixels
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1092,7 +1092,7 @@ pixel = 802b5580
 
 ---
 
-<a name="writePixels"></a>
+<a name="SkCanvas_writePixels"></a>
 ## writePixels
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1247,7 +1247,7 @@ Each <a href="#Clip">Clip</a> uses the current <a href="#Matrix">Matrix</a> for 
 
 <a href="#SkCanvas_save">save</a> <a href="#SkCanvas_saveLayer">saveLayer</a> <a href="#SkCanvas_saveLayerPreserveLCDTextRequests">saveLayerPreserveLCDTextRequests</a> <a href="#SkCanvas_saveLayerAlpha">saveLayerAlpha</a> <a href="#SkCanvas_restore">restore</a> <a href="#SkCanvas_restoreToCount">restoreToCount</a>
 
-<a name="save"></a>
+<a name="SkCanvas_save"></a>
 ## save
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1290,7 +1290,7 @@ is restored, the offscreen <a href="undocumented#Bitmap">Bitmap</a> is drawn int
 restored, its <a href="undocumented#Bitmap">Bitmap</a> can be modified by <a href="SkPaint_Reference#Paint">Paint</a> passed to <a href="#State_Stack_Layer">Layer</a> to apply
 <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>.
 
-<a name="saveLayer"></a>
+<a name="SkCanvas_saveLayer"></a>
 ## saveLayer
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1376,7 +1376,7 @@ The red rectangle is clipped; it does not fully fit on the offscreen <a href="#C
 
 ---
 
-<a name="saveLayerPreserveLCDTextRequests"></a>
+<a name="SkCanvas_saveLayerPreserveLCDTextRequests"></a>
 ## saveLayerPreserveLCDTextRequests
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1424,7 +1424,7 @@ depth of saved stack
 
 ---
 
-<a name="saveLayerAlpha"></a>
+<a name="SkCanvas_saveLayerAlpha"></a>
 ## saveLayerAlpha
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1564,7 +1564,7 @@ contents of the previous layer.
 up by four. After drawing another unscaled red circle on top, the offscreen is
 transferred to the main canvas.</div></fiddle-embed></div>
 
-<a name="SaveLayerRec"></a>
+<a name="SkCanvas_SaveLayerRec_SaveLayerRec"></a>
 ## SaveLayerRec
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1743,7 +1743,7 @@ Outside of the circle the mandrill is brightened.</div></fiddle-embed></div>
 
 ---
 
-<a name="restore"></a>
+<a name="SkCanvas_restore"></a>
 ## restore
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1761,7 +1761,7 @@ Does nothing if the stack is empty.
 
 ---
 
-<a name="getSaveCount"></a>
+<a name="SkCanvas_getSaveCount"></a>
 ## getSaveCount
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1792,7 +1792,7 @@ depth = 1
 
 ---
 
-<a name="restoreToCount"></a>
+<a name="SkCanvas_restoreToCount"></a>
 ## restoreToCount
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1830,7 +1830,7 @@ depth = 1
 
 # <a name="Matrix"></a> Matrix
 
-<a name="translate"></a>
+<a name="SkCanvas_translate"></a>
 ## translate
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1866,7 +1866,7 @@ follows translate of (50, 50).</div></fiddle-embed></div>
 
 ---
 
-<a name="scale"></a>
+<a name="SkCanvas_scale"></a>
 ## scale
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1896,7 +1896,7 @@ amount to scale in y</td>
 
 ---
 
-<a name="rotate"></a>
+<a name="SkCanvas_rotate"></a>
 ## rotate
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1956,7 +1956,7 @@ y-coordinate of the point to rotate about</td>
 
 ---
 
-<a name="skew"></a>
+<a name="SkCanvas_skew"></a>
 ## skew
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1991,7 +1991,7 @@ Blue text combines x and y skew to rotate and scale.</div></fiddle-embed></div>
 
 ---
 
-<a name="concat"></a>
+<a name="SkCanvas_concat"></a>
 ## concat
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2016,7 +2016,7 @@ transforming the result with existing <a href="#Matrix">Matrix</a>.
 
 ---
 
-<a name="setMatrix"></a>
+<a name="SkCanvas_setMatrix"></a>
 ## setMatrix
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2039,7 +2039,7 @@ Unlike <a href="#SkCanvas_concat">concat</a>, any prior <a href="#SkCanvas_setMa
 
 ---
 
-<a name="resetMatrix"></a>
+<a name="SkCanvas_resetMatrix"></a>
 ## resetMatrix
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2055,7 +2055,7 @@ Any prior matrix state is overwritten.
 
 ---
 
-<a name="getTotalMatrix"></a>
+<a name="SkCanvas_getTotalMatrix"></a>
 ## getTotalMatrix
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2118,7 +2118,7 @@ Use an image filter to zoom into the pixels drawn.
 The edge of the aliased clip fully draws pixels in the red circle.
 The edge of the anti-aliased clip partially draws pixels in the red circle.</div></fiddle-embed></div>
 
-<a name="clipRect"></a>
+<a name="SkCanvas_clipRect"></a>
 ## clipRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2195,7 +2195,7 @@ visible as a thin pair of lines through the right circle.</div></fiddle-embed></
 
 ---
 
-<a name="androidFramework_setDeviceClipRestriction"></a>
+<a name="SkCanvas_androidFramework_setDeviceClipRestriction"></a>
 ## androidFramework_setDeviceClipRestriction
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2220,7 +2220,7 @@ maximum allowed clip in device coordinates</td>
 
 </table>
 
-<a name="clipRRect"></a>
+<a name="SkCanvas_clipRRect"></a>
 ## clipRRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2295,7 +2295,7 @@ true if <a href="#Clip">Clip</a> is to be antialiased</td>
 
 ---
 
-<a name="clipPath"></a>
+<a name="SkCanvas_clipPath"></a>
 ## clipPath
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2386,7 +2386,7 @@ is set to <a href="#SkPath_kWinding_FillType">SkPath::kWinding FillType</a>, the
 
 ---
 
-<a name="setAllowSimplifyClip"></a>
+<a name="SkCanvas_setAllowSimplifyClip"></a>
 ## setAllowSimplifyClip
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2397,7 +2397,7 @@ Only used for testing.Set to simplify clip stack using path ops.
 
 ---
 
-<a name="clipRegion"></a>
+<a name="SkCanvas_clipRegion"></a>
 ## clipRegion
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2425,7 +2425,7 @@ aligns to pixel boundaries.</div></fiddle-embed></div>
 
 ---
 
-<a name="quickReject"></a>
+<a name="SkCanvas_quickReject"></a>
 ## quickReject
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2498,7 +2498,7 @@ quickReject false
 
 ---
 
-<a name="getLocalClipBounds"></a>
+<a name="SkCanvas_getLocalClipBounds"></a>
 ## getLocalClipBounds
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2569,7 +2569,7 @@ local bounds empty = true
 
 ---
 
-<a name="getDeviceClipBounds"></a>
+<a name="SkCanvas_getDeviceClipBounds"></a>
 ## getDeviceClipBounds
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2638,7 +2638,7 @@ device bounds empty = true
 
 ---
 
-<a name="drawColor"></a>
+<a name="SkCanvas_drawColor"></a>
 ## drawColor
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2663,7 +2663,7 @@ Fill <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a> <a hre
 
 ---
 
-<a name="clear"></a>
+<a name="SkCanvas_clear"></a>
 ## clear
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2686,7 +2686,7 @@ This has the effect of replacing all pixels contained by <a href="#Clip">Clip</a
 
 ---
 
-<a name="discard"></a>
+<a name="SkCanvas_discard"></a>
 ## discard
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2707,7 +2707,7 @@ any cached data is deleted when owning <a href="undocumented#Surface">Surface</a
 
 ---
 
-<a name="drawPaint"></a>
+<a name="SkCanvas_drawPaint"></a>
 ## drawPaint
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2766,7 +2766,7 @@ The lower left corner shows two lines with a miter when path contains polygon.</
 
 
 
-<a name="drawPoints"></a>
+<a name="SkCanvas_drawPoints"></a>
 ## drawPoints
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2830,7 +2830,7 @@ the path is drawn all at once.</div></fiddle-embed></div>
 
 ---
 
-<a name="drawPoint"></a>
+<a name="SkCanvas_drawPoint"></a>
 ## drawPoint
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2893,7 +2893,7 @@ stroke, blend, color, and so on, used to draw</td>
 
 ---
 
-<a name="drawLine"></a>
+<a name="SkCanvas_drawLine"></a>
 ## drawLine
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2953,7 +2953,7 @@ stroke, blend, color, and so on, used to draw</td>
 
 ---
 
-<a name="drawRect"></a>
+<a name="SkCanvas_drawRect"></a>
 ## drawRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2980,7 +2980,7 @@ stroke or fill, blend, color, and so on, used to draw</td>
 
 ---
 
-<a name="drawIRect"></a>
+<a name="SkCanvas_drawIRect"></a>
 ## drawIRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3007,7 +3007,7 @@ stroke or fill, blend, color, and so on, used to draw</td>
 
 ---
 
-<a name="drawRegion"></a>
+<a name="SkCanvas_drawRegion"></a>
 ## drawRegion
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3034,7 +3034,7 @@ if stroked, <a href="#Stroke_Width">Paint Stroke Width</a> describes the line th
 
 ---
 
-<a name="drawOval"></a>
+<a name="SkCanvas_drawOval"></a>
 ## drawOval
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3060,7 +3060,7 @@ if stroked, <a href="#Stroke_Width">Paint Stroke Width</a> describes the line th
 
 ---
 
-<a name="drawRRect"></a>
+<a name="SkCanvas_drawRRect"></a>
 ## drawRRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3089,7 +3089,7 @@ may have any combination of positive non-square radii for the four corners.
 
 ---
 
-<a name="drawDRRect"></a>
+<a name="SkCanvas_drawDRRect"></a>
 ## drawDRRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3131,7 +3131,7 @@ Stroke join does not affect <a href="#SkCanvas_drawDRRect_inner">inner</a> <a hr
 
 ---
 
-<a name="drawCircle"></a>
+<a name="SkCanvas_drawCircle"></a>
 ## drawCircle
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3188,7 +3188,7 @@ half the diameter of <a href="undocumented#Circle">Circle</a></td>
 
 ---
 
-<a name="drawArc"></a>
+<a name="SkCanvas_drawArc"></a>
 ## drawArc
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3235,7 +3235,7 @@ if true, include the center of the <a href="#SkCanvas_drawArc_oval">oval</a></td
 
 ---
 
-<a name="drawRoundRect"></a>
+<a name="SkCanvas_drawRoundRect"></a>
 ## drawRoundRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3275,7 +3275,7 @@ Fourth row radii sum exceeds sides; radii are scaled to fit.</div></fiddle-embed
 
 ---
 
-<a name="drawPath"></a>
+<a name="SkCanvas_drawPath"></a>
 ## drawPath
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3315,7 +3315,7 @@ Third bottom column shows inverse winding fills area outside both contours.</div
 <a href="#SkCanvas_drawImage">drawImage</a>, <a href="#SkCanvas_drawImageRect">drawImageRect</a>, and <a href="#SkCanvas_drawImageNine">drawImageNine</a> can be called with a bare pointer or
 a smart pointer as a convenience. The pairs of calls are otherwise identical.
 
-<a name="drawImage"></a>
+<a name="SkCanvas_drawImage"></a>
 ## drawImage
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3427,7 +3427,7 @@ Drawing the checkerboard with <a href="#SkCanvas_kFast_SrcRectConstraint">kFast 
 
 
 
-<a name="drawImageRect"></a>
+<a name="SkCanvas_drawImageRect"></a>
 ## drawImageRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3691,7 +3691,7 @@ filter strictly within src or draw faster</td>
 
 ---
 
-<a name="drawImageNine"></a>
+<a name="SkCanvas_drawImageNine"></a>
 ## drawImageNine
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3782,7 +3782,7 @@ and below <a href="#SkCanvas_drawImageNine_2_center">center</a> to fill the rema
 
 ---
 
-<a name="drawBitmap"></a>
+<a name="SkCanvas_drawBitmap"></a>
 ## drawBitmap
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3822,7 +3822,7 @@ and so on; or nullptr</td>
 
 ---
 
-<a name="drawBitmapRect"></a>
+<a name="SkCanvas_drawBitmapRect"></a>
 ## drawBitmapRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3957,7 +3957,7 @@ filter strictly within src or draw faster</td>
 
 ---
 
-<a name="drawBitmapNine"></a>
+<a name="SkCanvas_drawBitmapNine"></a>
 ## drawBitmapNine
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4084,7 +4084,7 @@ divisions.
 Optional subset <a href="undocumented#IRect">IRect</a> source to draw from.
 If nullptr, source bounds is dimensions of <a href="undocumented#Bitmap">Bitmap</a> or <a href="undocumented#Image">Image</a>.
 
-<a name="drawBitmapLattice"></a>
+<a name="SkCanvas_drawBitmapLattice"></a>
 ## drawBitmapLattice
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4136,7 +4136,7 @@ and below center to fill the remaining space.</div></fiddle-embed></div>
 
 ---
 
-<a name="drawImageLattice"></a>
+<a name="SkCanvas_drawImageLattice"></a>
 ## drawImageLattice
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4186,7 +4186,7 @@ are scaled if needed to take up the remaining space; the center is transparent.<
 
 ---
 
-<a name="drawText"></a>
+<a name="SkCanvas_drawText"></a>
 ## drawText
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4229,7 +4229,7 @@ start of <a href="#SkCanvas_drawText_text">text</a> on y-axis</td>
 
 ---
 
-<a name="drawString"></a>
+<a name="SkCanvas_drawString"></a>
 ## drawString
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4319,7 +4319,7 @@ text size, blend, color, and so on, used to draw</td>
 
 ---
 
-<a name="drawPosText"></a>
+<a name="SkCanvas_drawPosText"></a>
 ## drawPosText
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4363,7 +4363,7 @@ array of glyph origins</td>
 
 ---
 
-<a name="drawPosTextH"></a>
+<a name="SkCanvas_drawPosTextH"></a>
 ## drawPosTextH
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4410,7 +4410,7 @@ shared y coordinate for all of x positions</td>
 
 ---
 
-<a name="drawTextOnPathHV"></a>
+<a name="SkCanvas_drawTextOnPathHV"></a>
 ## drawTextOnPathHV
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4458,7 +4458,7 @@ offset of <a href="#SkCanvas_drawTextOnPathHV_text">text</a> above (if negative)
 
 ---
 
-<a name="drawTextOnPath"></a>
+<a name="SkCanvas_drawTextOnPath"></a>
 ## drawTextOnPath
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4505,7 +4505,7 @@ to use identity <a href="#Matrix">Matrix</a>.</td>
 
 ---
 
-<a name="drawTextRSXform"></a>
+<a name="SkCanvas_drawTextRSXform"></a>
 ## drawTextRSXform
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4548,7 +4548,7 @@ byte length of <a href="#SkCanvas_drawTextRSXform_text">text</a> array</td>
 
 ---
 
-<a name="drawTextBlob"></a>
+<a name="SkCanvas_drawTextBlob"></a>
 ## drawTextBlob
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4622,7 +4622,7 @@ blend, color, stroking, and so on, used to draw</td>
 
 ---
 
-<a name="drawPicture"></a>
+<a name="SkCanvas_drawPicture"></a>
 ## drawPicture
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4729,7 +4729,7 @@ recorded drawing commands to play</td>
 
 ---
 
-<a name="drawVertices"></a>
+<a name="SkCanvas_drawVertices"></a>
 ## drawVertices
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4784,7 +4784,7 @@ specifies the <a href="undocumented#Shader">Shader</a>, used as <a href="undocum
 
 ---
 
-<a name="drawPatch"></a>
+<a name="SkCanvas_drawPatch"></a>
 ## drawPatch
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4882,7 +4882,7 @@ may be nullptr</td>
 
 ---
 
-<a name="drawAtlas"></a>
+<a name="SkCanvas_drawAtlas"></a>
 ## drawAtlas
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -5046,7 +5046,7 @@ number of sprites to draw</td>
 
 ---
 
-<a name="drawDrawable"></a>
+<a name="SkCanvas_drawDrawable"></a>
 ## drawDrawable
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -5104,7 +5104,7 @@ offset into <a href="#Canvas">Canvas</a> writable pixels in <a href="#SkCanvas_d
 
 ---
 
-<a name="drawAnnotation"></a>
+<a name="SkCanvas_drawAnnotation"></a>
 ## drawAnnotation
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -5162,7 +5162,7 @@ data holding <a href="#SkCanvas_drawAnnotation_2_value">value</a> stored in anno
 
 ---
 
-<a name="getDrawFilter"></a>
+<a name="SkCanvas_getDrawFilter"></a>
 ## getDrawFilter
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -5173,7 +5173,7 @@ Legacy call to be deprecated.
 
 ---
 
-<a name="setDrawFilter"></a>
+<a name="SkCanvas_setDrawFilter"></a>
 ## setDrawFilter
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -5184,7 +5184,7 @@ Legacy call to be deprecated.
 
 ---
 
-<a name="isClipEmpty"></a>
+<a name="SkCanvas_isClipEmpty"></a>
 ## isClipEmpty
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -5216,7 +5216,7 @@ clip is empty
 
 ---
 
-<a name="isClipRect"></a>
+<a name="SkCanvas_isClipRect"></a>
 ## isClipRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">

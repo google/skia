@@ -321,7 +321,7 @@ travel counterclockwise.
 
 
 
-<a name="empty_constructor"></a>
+<a name="SkPath_empty_constructor"></a>
 ## SkPath
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -353,7 +353,7 @@ reset rewind
 
 ---
 
-<a name="copy_constructor"></a>
+<a name="SkPath_copy_constructor"></a>
 ## SkPath
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -402,7 +402,7 @@ path2 verbs: 3
 
 ---
 
-<a name="destructor"></a>
+<a name="SkPath_destructor"></a>
 ## ~SkPath
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -421,7 +421,7 @@ Releases ownership of any shared data and deletes data if <a href="#Path">Path</
 
 ---
 
-<a name="copy_assignment_operator"></a>
+<a name="SkPath_copy_assignment_operator"></a>
 ## operator=
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -466,7 +466,7 @@ path2 bounds = 10, 20, 30, 40
 
 ---
 
-<a name="equal_operator"></a>
+<a name="SkPath_equal_operator"></a>
 ## operator==
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -507,7 +507,7 @@ reset one == two
 
 ---
 
-<a name="not_equal_operator"></a>
+<a name="SkPath_not_equal_operator"></a>
 ## operator!=
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -547,7 +547,7 @@ convexity !=
 
 ---
 
-<a name="isInterpolatable"></a>
+<a name="SkPath_isInterpolatable"></a>
 ## isInterpolatable
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -590,7 +590,7 @@ paths are interpolatable
 
 ---
 
-<a name="interpolate"></a>
+<a name="SkPath_interpolate"></a>
 ## interpolate
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -632,7 +632,7 @@ true if <a href="#Path">Paths</a> contain same number of <a href="#Point">Points
 
 ---
 
-<a name="unique"></a>
+<a name="SkPath_unique"></a>
 ## unique
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -699,7 +699,7 @@ same as the outer parts of the top rectangles, which have a winding of 1.</div><
 
 
 
-<a name="getFillType"></a>
+<a name="SkPath_getFillType"></a>
 ## getFillType
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -732,7 +732,7 @@ default path fill type is kWinding_FillType
 
 ---
 
-<a name="setFillType"></a>
+<a name="SkPath_setFillType"></a>
 ## setFillType
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -760,7 +760,7 @@ one of: <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, <a href="#SkP
 
 ---
 
-<a name="isInverseFillType"></a>
+<a name="SkPath_isInverseFillType"></a>
 ## isInverseFillType
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -792,7 +792,7 @@ default path fill type is inverse: false
 
 ---
 
-<a name="toggleInverseFillType"></a>
+<a name="SkPath_toggleInverseFillType"></a>
 ## toggleInverseFillType
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -865,7 +865,7 @@ if needed by destination <a href="undocumented#Surface">Surface</a>.
 
 
 
-<a name="getConvexity"></a>
+<a name="SkPath_getConvexity"></a>
 ## getConvexity
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -890,7 +890,7 @@ Computed or stored <a href="#Convexity">Convexity</a>.
 
 ---
 
-<a name="getConvexityOrUnknown"></a>
+<a name="SkPath_getConvexityOrUnknown"></a>
 ## getConvexityOrUnknown
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -915,7 +915,7 @@ that alters the path.</div></fiddle-embed></div>
 
 ---
 
-<a name="setConvexity"></a>
+<a name="SkPath_setConvexity"></a>
 ## setConvexity
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -950,7 +950,7 @@ One of <a href="#SkPath_kUnknown_Convexity">kUnknown Convexity</a>, <a href="#Sk
 
 ---
 
-<a name="isConvex"></a>
+<a name="SkPath_isConvex"></a>
 ## isConvex
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -976,7 +976,7 @@ true if <a href="#Convexity">Convexity</a> stored or computed is <a href="#SkPat
 
 ---
 
-<a name="setIsConvex"></a>
+<a name="SkPath_setIsConvex"></a>
 ## setIsConvex
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -987,7 +987,7 @@ Use <a href="#SkPath_setConvexity">setConvexity</a>.
 
 ---
 
-<a name="isOval"></a>
+<a name="SkPath_isOval"></a>
 ## isOval
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1028,7 +1028,7 @@ true if <a href="#Path">Path</a> was constructed by method that reduces to <a hr
 
 ---
 
-<a name="isRRect"></a>
+<a name="SkPath_isRRect"></a>
 ## isRRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1069,7 +1069,7 @@ true for <a href="undocumented#Round_Rect">Round Rect</a> <a href="#Path">Path</
 
 ---
 
-<a name="reset"></a>
+<a name="SkPath_reset"></a>
 ## reset
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1090,7 +1090,7 @@ Internal storage associated with <a href="#Path">Path</a> is released.
 
 ---
 
-<a name="rewind"></a>
+<a name="SkPath_rewind"></a>
 ## rewind
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1115,7 +1115,7 @@ a newly initialized path.</div></fiddle-embed></div>
 
 ---
 
-<a name="isEmpty"></a>
+<a name="SkPath_isEmpty"></a>
 ## isEmpty
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1151,7 +1151,7 @@ after reset path is empty
 
 ---
 
-<a name="isLastContourClosed"></a>
+<a name="SkPath_isLastContourClosed"></a>
 ## isLastContourClosed
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1187,7 +1187,7 @@ after close last contour is closed
 
 ---
 
-<a name="isFinite"></a>
+<a name="SkPath_isFinite"></a>
 ## isFinite
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1223,7 +1223,7 @@ after scale path is not finite
 
 ---
 
-<a name="isVolatile"></a>
+<a name="SkPath_isVolatile"></a>
 ## isVolatile
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1257,7 +1257,7 @@ volatile by default is false
 
 ---
 
-<a name="setIsVolatile"></a>
+<a name="SkPath_setIsVolatile"></a>
 ## setIsVolatile
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1294,7 +1294,7 @@ true if caller will alter <a href="#Path">Path</a> after drawing.</td>
 
 ---
 
-<a name="IsLineDegenerate"></a>
+<a name="SkPath_IsLineDegenerate"></a>
 ## IsLineDegenerate
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1344,7 +1344,7 @@ line from (100,100) to (100.0001,100.0001) is not degenerate, exactly
 
 ---
 
-<a name="IsQuadDegenerate"></a>
+<a name="SkPath_IsQuadDegenerate"></a>
 ## IsQuadDegenerate
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1397,7 +1397,7 @@ quad (1100,1100), (1100,1100), (1100,1100) is degenerate, exactly
 
 ---
 
-<a name="IsCubicDegenerate"></a>
+<a name="SkPath_IsCubicDegenerate"></a>
 ## IsCubicDegenerate
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1444,7 +1444,7 @@ true if <a href="#Cubic">Cubic</a> is degenerate; its length is effectively zero
 
 ---
 
-<a name="isLine"></a>
+<a name="SkPath_isLine"></a>
 ## isLine
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1495,7 +1495,7 @@ one <a href="undocumented#Point">Point</a> for move, one <a href="undocumented#P
 <a href="#Point_Array">Point Array</a> may be read directly from <a href="#Path">Path</a> with <a href="#SkPath_getPoints">getPoints</a>, or inspected with
 <a href="#SkPath_getPoint">getPoint</a>, with <a href="SkPath_Reference#Iter">Iter</a>, or with <a href="SkPath_Reference#RawIter">RawIter</a>.
 
-<a name="getPoints"></a>
+<a name="SkPath_getPoints"></a>
 ## getPoints
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1540,7 +1540,7 @@ just right point count: 3  (0,0) (20,20) (-10,-10)
 
 ---
 
-<a name="countPoints"></a>
+<a name="SkPath_countPoints"></a>
 ## countPoints
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1575,7 +1575,7 @@ second move point count: 3
 
 ---
 
-<a name="getPoint"></a>
+<a name="SkPath_getPoint"></a>
 ## getPoint
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1627,7 +1627,7 @@ returned when iterating through <a href="#Verb_Array">Verb Array</a>.
 <a href="#Verb_Array">Verb Array</a> may be read directly from <a href="#Path">Path</a> with <a href="#SkPath_getVerbs">getVerbs</a>, or inspected with <a href="SkPath_Reference#Iter">Iter</a>, 
 or with <a href="SkPath_Reference#RawIter">RawIter</a>.
 
-<a name="countVerbs"></a>
+<a name="SkPath_countVerbs"></a>
 ## countVerbs
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1660,7 +1660,7 @@ round rect verb count: 10
 
 ---
 
-<a name="getVerbs"></a>
+<a name="SkPath_getVerbs"></a>
 ## getVerbs
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1704,7 +1704,7 @@ just right verb count: 3  move line line
 
 ---
 
-<a name="swap"></a>
+<a name="SkPath_swap"></a>
 ## swap
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1745,7 +1745,7 @@ path2 bounds = 10, 20, 30, 40
 
 ---
 
-<a name="getBounds"></a>
+<a name="SkPath_getBounds"></a>
 ## getBounds
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1784,7 +1784,7 @@ rotated circle bounds = 14.6447, 9.64466, 85.3553, 80.3553
 
 ---
 
-<a name="updateBoundsCache"></a>
+<a name="SkPath_updateBoundsCache"></a>
 ## updateBoundsCache
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1820,7 +1820,7 @@ cached avg: 0.182784 ms
 
 ---
 
-<a name="computeTightBounds"></a>
+<a name="SkPath_computeTightBounds"></a>
 ## computeTightBounds
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1862,7 +1862,7 @@ rotated circle bounds = 25, 20, 75, 70
 
 ---
 
-<a name="conservativelyContainsRect"></a>
+<a name="SkPath_conservativelyContainsRect"></a>
 ## conservativelyContainsRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1898,7 +1898,7 @@ contains <a href="undocumented#Op">Op</a> <a href="undocumented#Rect">Rect</a> <
 
 ---
 
-<a name="incReserve"></a>
+<a name="SkPath_incReserve"></a>
 ## incReserve
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1926,7 +1926,7 @@ number of additional <a href="#Point">Points</a> to preallocate.</td>
 
 ---
 
-<a name="moveTo"></a>
+<a name="SkPath_moveTo"></a>
 ## moveTo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1977,7 +1977,7 @@ Adds beginning of <a href="#Contour">Contour</a> at <a href="undocumented#Point"
 
 ---
 
-<a name="rMoveTo"></a>
+<a name="SkPath_rMoveTo"></a>
 ## rMoveTo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2008,7 +2008,7 @@ offset from <a href="#Last_Point">Last Point</a> y to <a href="#Contour">Contour
 
 ---
 
-<a name="lineTo"></a>
+<a name="SkPath_lineTo"></a>
 ## lineTo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2067,7 +2067,7 @@ end <a href="undocumented#Point">Point</a> of added <a href="undocumented#Line">
 
 ---
 
-<a name="rLineTo"></a>
+<a name="SkPath_rLineTo"></a>
 ## rLineTo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2120,7 +2120,7 @@ tangent to the line between control <a href="undocumented#Point">Point</a> and e
 
 <div><fiddle-embed name="4082f66a42df11bb20462b232b156bb6"></fiddle-embed></div>
 
-<a name="quadTo"></a>
+<a name="SkPath_quadTo"></a>
 ## quadTo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2189,7 +2189,7 @@ end <a href="undocumented#Point">Point</a> of added <a href="#Quad">Quad</a>.</t
 
 ---
 
-<a name="rQuadTo"></a>
+<a name="SkPath_rQuadTo"></a>
 ## rQuadTo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2294,7 +2294,7 @@ done
 
 </fiddle-embed></div>
 
-<a name="conicTo"></a>
+<a name="SkPath_conicTo"></a>
 ## conicTo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2384,7 +2384,7 @@ the conic weight also increases, but remains smaller than one.</div></fiddle-emb
 
 ---
 
-<a name="rConicTo"></a>
+<a name="SkPath_rConicTo"></a>
 ## rConicTo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2442,7 +2442,7 @@ and curves from the end <a href="undocumented#Point">Point</a> towards the secon
 
 <div><fiddle-embed name="466445ed991d86de08587066392d654a"></fiddle-embed></div>
 
-<a name="cubicTo"></a>
+<a name="SkPath_cubicTo"></a>
 ## cubicTo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2518,7 +2518,7 @@ end <a href="undocumented#Point">Point</a> of <a href="#Cubic">Cubic</a>.</td>
 
 ---
 
-<a name="rCubicTo"></a>
+<a name="SkPath_rCubicTo"></a>
 ## rCubicTo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2618,7 +2618,7 @@ Direction sweep, SkScalar x, SkScalar y)</a></td>  </tr>
 5 describes an arc from <a href="undocumented#Oval">Oval</a> center, arc start <a href="undocumented#Point">Point</a> and arc end <a href="undocumented#Point">Point</a>.
 6 describes an arc from a pair of tangent lines and a <a href="#Conic_Weight">Conic Weight</a>.</div></fiddle-embed></div>
 
-<a name="arcTo"></a>
+<a name="SkPath_arcTo"></a>
 ## arcTo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2892,7 +2892,7 @@ end of <a href="#Arc">Arc</a>.</td>
 
 ---
 
-<a name="rArcTo"></a>
+<a name="SkPath_rArcTo"></a>
 ## rArcTo
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2945,7 +2945,7 @@ y offset end of <a href="#Arc">Arc</a> from last <a href="#Path">Path</a> <a hre
 
 ---
 
-<a name="close"></a>
+<a name="SkPath_close"></a>
 ## close
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -2968,7 +2968,7 @@ with <a href="#SkPaint_kFill_Style">SkPaint::kFill Style</a>. With <a href="#SkP
 
 ---
 
-<a name="IsInverseFillType"></a>
+<a name="SkPath_IsInverseFillType"></a>
 ## IsInverseFillType
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3018,7 +3018,7 @@ IsInverseFillType(kInverseEvenOdd_FillType) == true
 
 ---
 
-<a name="ConvertToNonInverseFillType"></a>
+<a name="SkPath_ConvertToNonInverseFillType"></a>
 ## ConvertToNonInverseFillType
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3068,7 +3068,7 @@ ConvertToNonInverseFillType(kInverseEvenOdd_FillType) == kEvenOdd_FillType
 
 ---
 
-<a name="ConvertConicToQuads"></a>
+<a name="SkPath_ConvertConicToQuads"></a>
 ## ConvertConicToQuads
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3125,7 +3125,7 @@ be drawn exactly with a single <a href="#Quad">Quad</a>.</div></fiddle-embed></d
 
 ---
 
-<a name="isRect"></a>
+<a name="SkPath_isRect"></a>
 ## isRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3178,7 +3178,7 @@ addPoly is rect (0, 0, 80, 80); is not closed; direction CCW
 
 ---
 
-<a name="isNestedFillRects"></a>
+<a name="SkPath_isNestedFillRects"></a>
 ## isNestedFillRects
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3224,7 +3224,7 @@ inner (12.5, 22.5, 27.5, 37.5); direction CCW
 
 ---
 
-<a name="addRect"></a>
+<a name="SkPath_addRect"></a>
 ## addRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3331,7 +3331,7 @@ The <a href="#SkPath_addRect_3_right">right</a> <a href="undocumented#Rect">Rect
 
 ---
 
-<a name="addOval"></a>
+<a name="SkPath_addOval"></a>
 ## addOval
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3401,7 +3401,7 @@ index of initial point of ellipse.</td>
 
 ---
 
-<a name="addCircle"></a>
+<a name="SkPath_addCircle"></a>
 ## addCircle
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3439,7 +3439,7 @@ distance from center to edge.</td>
 
 ---
 
-<a name="addArc"></a>
+<a name="SkPath_addArc"></a>
 ## addArc
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3478,7 +3478,7 @@ and <a href="#SkPath_addArc_startAngle">startAngle</a> modulo 90 is not zero.</d
 
 ---
 
-<a name="addRoundRect"></a>
+<a name="SkPath_addRoundRect"></a>
 ## addRoundRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3576,7 +3576,7 @@ array of 8 <a href="undocumented#SkScalar">SkScalar</a> values, a radius pair fo
 
 ---
 
-<a name="addRRect"></a>
+<a name="SkPath_addRRect"></a>
 ## addRRect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3651,7 +3651,7 @@ Index of initial point of RRect.</td>
 
 ---
 
-<a name="addPoly"></a>
+<a name="SkPath_addPoly"></a>
 ## addPoly
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3723,7 +3723,7 @@ The top right composition is made up of one contour; the other three have two.</
 
 
 
-<a name="addPath"></a>
+<a name="SkPath_addPath"></a>
 ## addPath
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3822,7 +3822,7 @@ Transform applied to <a href="#SkPath_addPath_3_src">src</a>.</td>
 
 ---
 
-<a name="reverseAddPath"></a>
+<a name="SkPath_reverseAddPath"></a>
 ## reverseAddPath
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3849,7 +3849,7 @@ Reversed <a href="#SkPath_reverseAddPath_src">src</a> always appends a new <a hr
 
 ---
 
-<a name="offset"></a>
+<a name="SkPath_offset"></a>
 ## offset
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3905,7 +3905,7 @@ offset added to <a href="#Point_Array">Point Array</a> y coordinates.</td>
 
 ---
 
-<a name="transform"></a>
+<a name="SkPath_transform"></a>
 ## transform
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -3967,7 +3967,7 @@ transform may change <a href="#Verb">Verbs</a> and increase their number.
 <a href="#Contour">Contour</a>. <a href="#Last_Point">Last Point</a> of <a href="#Contour">Contour</a> is shared as first <a href="undocumented#Point">Point</a> of added <a href="undocumented#Line">Line</a> or <a href="undocumented#Curve">Curve</a>.
 <a href="#Last_Point">Last Point</a> can be read and written directly with <a href="#SkPath_getLastPt">getLastPt</a> and <a href="#SkPath_setLastPt">setLastPt</a>.
 
-<a name="getLastPt"></a>
+<a name="SkPath_getLastPt"></a>
 ## getLastPt
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4006,7 +4006,7 @@ last point: 35.2786, 52.9772
 
 ---
 
-<a name="setLastPt"></a>
+<a name="SkPath_setLastPt"></a>
 ## setLastPt
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4107,7 +4107,7 @@ Path kQuad_SegmentMask is set
 
 
 
-<a name="getSegmentMasks"></a>
+<a name="SkPath_getSegmentMasks"></a>
 ## getSegmentMasks
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4142,7 +4142,7 @@ mask quad set
 
 ---
 
-<a name="contains"></a>
+<a name="SkPath_contains"></a>
 ## contains
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4182,7 +4182,7 @@ true if <a href="undocumented#Point">Point</a> is in <a href="#Path">Path</a>.
 
 ---
 
-<a name="dump"></a>
+<a name="SkPath_dump"></a>
 ## dump
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4268,7 +4268,7 @@ path is not equal to copy
 
 ---
 
-<a name="dumpHex"></a>
+<a name="SkPath_dumpHex"></a>
 ## dumpHex
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4304,7 +4304,7 @@ dump
 
 ---
 
-<a name="writeToMemory"></a>
+<a name="SkPath_writeToMemory"></a>
 ## writeToMemory
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4341,7 +4341,7 @@ size of storage required for <a href="#Path">Path</a>; always a multiple of 4.
 
 ---
 
-<a name="readFromMemory"></a>
+<a name="SkPath_readFromMemory"></a>
 ## readFromMemory
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4396,7 +4396,7 @@ not necessarily have matching <a href="SkPath_Reference#Generation_ID">Generatio
 
 Empty <a href="#Path">Paths</a> have a <a href="#Generation_ID">Generation ID</a> of one.
 
-<a name="getGenerationID"></a>
+<a name="SkPath_getGenerationID"></a>
 ## getGenerationID
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4435,7 +4435,7 @@ empty genID = 1
 
 ---
 
-<a name="validate"></a>
+<a name="SkPath_validate"></a>
 ## validate
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4447,7 +4447,7 @@ Not currently maintained.
 
 ---
 
-<a name="experimentalValidateRef"></a>
+<a name="SkPath_experimentalValidateRef"></a>
 ## experimentalValidateRef
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4470,7 +4470,7 @@ path of the glyph.</div></fiddle-embed></div>
 
 <a href="SkPath_Reference#RawIter">RawIter</a>
 
-<a name="empty_constructor"></a>
+<a name="Iter_empty_constructor"></a>
 ## Iter
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4503,7 +4503,7 @@ iter is done
 
 ---
 
-<a name="const_SkPath"></a>
+<a name="Iter_const_SkPath"></a>
 ## Iter
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4554,7 +4554,7 @@ kDone_Verb
 
 ---
 
-<a name="setPath"></a>
+<a name="Iter_setPath"></a>
 ## setPath
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4601,7 +4601,7 @@ kDone_Verb
 
 ---
 
-<a name="next"></a>
+<a name="Iter_next"></a>
 ## next
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4677,7 +4677,7 @@ kDone_Verb
 
 ---
 
-<a name="conicWeight"></a>
+<a name="Iter_conicWeight"></a>
 ## conicWeight
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4714,7 +4714,7 @@ conic weight: 0.5
 
 ---
 
-<a name="isCloseLine"></a>
+<a name="Iter_isCloseLine"></a>
 ## isCloseLine
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4756,7 +4756,7 @@ line generated by close
 
 ---
 
-<a name="isClosedContour"></a>
+<a name="Iter_isClosedContour"></a>
 ## isClosedContour
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4796,7 +4796,7 @@ with close(),    forceClose is true : isClosedContour returns true
 Iterates through <a href="#Verb_Array">Verb Array</a>, and associated <a href="#Point_Array">Point Array</a> and <a href="#Conic_Weight">Conic Weight</a>.
 <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Conic Weight</a> are returned unaltered. 
 
-<a name="empty_constructor"></a>
+<a name="RawIter_empty_constructor"></a>
 ## RawIter
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4812,7 +4812,7 @@ Call <a href="#setPath">setPath</a> to initialize <a href="SkPath_Reference#Iter
 
 ---
 
-<a name="copy_constructor"></a>
+<a name="RawIter_copy_constructor"></a>
 ## RawIter
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4834,7 +4834,7 @@ Sets <a href="#RawIter">RawIter</a> to return elements of <a href="#Verb_Array">
 
 ---
 
-<a name="setPath"></a>
+<a name="RawIter_setPath"></a>
 ## setPath
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4852,7 +4852,7 @@ Sets <a href="SkPath_Reference#Iter">Iter</a> to return elements of <a href="#Ve
 
 ---
 
-<a name="next"></a>
+<a name="RawIter_next"></a>
 ## next
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4899,7 +4899,7 @@ kDone_Verb
 
 ---
 
-<a name="peek"></a>
+<a name="RawIter_peek"></a>
 ## peek
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -4936,7 +4936,7 @@ peek Done == verb Done
 
 ---
 
-<a name="conicWeight"></a>
+<a name="RawIter_conicWeight"></a>
 ## conicWeight
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
