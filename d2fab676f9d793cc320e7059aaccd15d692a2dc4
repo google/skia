@@ -93,6 +93,30 @@
       "revId": "d2fab676f9d793cc320e7059aaccd15d692a2dc4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8aab1ab0_8f31bfd8",
+        "filename": "src/gpu/vk/GrVkBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-08-25T15:58:27Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1434bd34_6433db64",
+      "range": {
+        "startLine": 205,
+        "startChar": 12,
+        "endLine": 206,
+        "endChar": 43
+      },
+      "revId": "d2fab676f9d793cc320e7059aaccd15d692a2dc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
