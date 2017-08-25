@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0d5eb2b0_b6138633",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-25T15:56:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e203284_7bbbb3ed",
+      "range": {
+        "startLine": 10,
+        "startChar": 62,
+        "endLine": 10,
+        "endChar": 66
+      },
+      "revId": "d2fab676f9d793cc320e7059aaccd15d692a2dc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8072d8c_45cdd007",
         "filename": "src/gpu/vk/GrVkBuffer.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-08-25T15:48:31Z",
       "side": 1,
       "message": "From what we were talking about yesterday, it sounded like you\u0027d have to copy to the buffer in blocks of 65536 -- did I misunderstand that?",
+      "range": {
+        "startLine": 205,
+        "startChar": 12,
+        "endLine": 206,
+        "endChar": 43
+      },
+      "revId": "d2fab676f9d793cc320e7059aaccd15d692a2dc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1434bd34_6433db64",
+        "filename": "src/gpu/vk/GrVkBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-25T15:56:20Z",
+      "side": 1,
+      "message": "So if we use the updateBuffer call (vkCmdUpdateBuffer), it requires that the max size of data you can send to it is 65536. Thus if we just used that call we would need the loop of updates. That ends up as a bunch of cpu to gpu copy requests and thus not what we want to do.\n\nIn this approach the memcpy here is just to a mapped cpu pointer so the size is fine (though I did miss the umap). And then we just end up doing my GPU size copy from buffer to buffer which also doesn\u0027t not have a size limit.",
+      "parentUuid": "f8072d8c_45cdd007",
       "range": {
         "startLine": 205,
         "startChar": 12,
