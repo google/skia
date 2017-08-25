@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkArithmeticImageFilter.h"
 #include "SkBitmap.h"
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
@@ -288,6 +289,29 @@ private:
     SkTArray<Filter> fFilters;
 };
 
+class FixedBoundsImageFilter : public SkImageFilter {
+public:
+    FixedBoundsImageFilter(const SkIRect& bounds)
+            : SkImageFilter(nullptr, 0, nullptr), fBounds(bounds) {}
+
+private:
+#ifndef SK_IGNORE_TO_STRING
+    void toString(SkString*) const override {}
+#endif
+    Factory getFactory() const override { return nullptr; }
+
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* src, const Context&,
+                                        SkIPoint* offset) const override {
+        return nullptr;
+    }
+    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override { return nullptr; }
+
+    SkIRect onFilterBounds(const SkIRect&, const SkMatrix&, MapDirection) const override {
+        return fBounds;
+    }
+
+    SkIRect fBounds;
+};
 }
 
 sk_sp<SkFlattenable> MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
@@ -1915,4 +1939,118 @@ DEF_TEST(ImageFilterColorSpaceDAG, reporter) {
     auto xformedFilter = xformer->apply(complexFilter.get());
 
     REPORTER_ASSERT(reporter, filter->cloneCount() == 1u);
+}
+
+// Test XfermodeimageFilter::onFilterBounds with different blending modes.
+DEF_TEST(XfermodeImageFilterBounds, reporter) {
+    SkIRect background_rect = SkIRect::MakeXYWH(0, 0, 100, 100);
+    SkIRect foreground_rect = SkIRect::MakeXYWH(50, 50, 100, 100);
+    sk_sp<SkImageFilter> background(new FixedBoundsImageFilter(background_rect));
+    sk_sp<SkImageFilter> foreground(new FixedBoundsImageFilter(foreground_rect));
+
+    const int kModeCount = static_cast<int>(SkBlendMode::kLastMode) + 1;
+    SkIRect expectedBounds[kModeCount];
+    // Expect union of input rects by default.
+    for (int i = 0; i < kModeCount; ++i) {
+        expectedBounds[i] = background_rect;
+        expectedBounds[i].join(foreground_rect);
+    }
+
+    SkIRect intersection = background_rect;
+    intersection.intersect(foreground_rect);
+    expectedBounds[static_cast<int>(SkBlendMode::kClear)] = SkIRect::MakeEmpty();
+    expectedBounds[static_cast<int>(SkBlendMode::kSrc)] = foreground_rect;
+    expectedBounds[static_cast<int>(SkBlendMode::kDst)] = background_rect;
+    expectedBounds[static_cast<int>(SkBlendMode::kSrcIn)] = intersection;
+    expectedBounds[static_cast<int>(SkBlendMode::kDstIn)] = intersection;
+    expectedBounds[static_cast<int>(SkBlendMode::kSrcATop)] = background_rect;
+    expectedBounds[static_cast<int>(SkBlendMode::kDstATop)] = foreground_rect;
+
+    // The value of this variable doesn't matter because we use inputs with fixed bounds.
+    SkIRect src = SkIRect::MakeXYWH(11, 22, 33, 44);
+    for (int i = 0; i < kModeCount; ++i) {
+        sk_sp<SkImageFilter> xfermode(SkXfermodeImageFilter::Make(static_cast<SkBlendMode>(i),
+                                                                  background, foreground, nullptr));
+        auto bounds =
+                xfermode->filterBounds(src, SkMatrix::I(), SkImageFilter::kForward_MapDirection);
+        REPORTER_ASSERT(reporter, bounds == expectedBounds[i]);
+    }
+
+    // Test empty intersection.
+    sk_sp<SkImageFilter> background2(new FixedBoundsImageFilter(SkIRect::MakeXYWH(0, 0, 20, 20)));
+    sk_sp<SkImageFilter> foreground2(new FixedBoundsImageFilter(SkIRect::MakeXYWH(40, 40, 50, 50)));
+    sk_sp<SkImageFilter> xfermode(SkXfermodeImageFilter::Make(
+            SkBlendMode::kSrcIn, std::move(background2), std::move(foreground2), nullptr));
+    auto bounds = xfermode->filterBounds(src, SkMatrix::I(), SkImageFilter::kForward_MapDirection);
+    REPORTER_ASSERT(reporter, bounds.isEmpty());
+}
+
+static void test_arithmetic_bounds(skiatest::Reporter* reporter, float k1, float k2, float k3,
+                                   float k4, sk_sp<SkImageFilter> background,
+                                   sk_sp<SkImageFilter> foreground,
+                                   const SkImageFilter::CropRect* crop, const SkIRect& expected) {
+    sk_sp<SkImageFilter> arithmetic(
+            SkArithmeticImageFilter::Make(k1, k2, k3, k4, false, background, foreground, crop));
+    // The value of the input rect doesn't matter because we use inputs with fixed bounds.
+    SkIRect bounds = arithmetic->filterBounds(SkIRect::MakeXYWH(11, 22, 33, 44), SkMatrix::I(),
+                                              SkImageFilter::kForward_MapDirection);
+    REPORTER_ASSERT(reporter, expected == bounds);
+}
+
+static void test_arithmetic_combinations(skiatest::Reporter* reporter, float v) {
+    SkIRect background_rect = SkIRect::MakeXYWH(0, 0, 100, 100);
+    SkIRect foreground_rect = SkIRect::MakeXYWH(50, 50, 100, 100);
+    sk_sp<SkImageFilter> background(new FixedBoundsImageFilter(background_rect));
+    sk_sp<SkImageFilter> foreground(new FixedBoundsImageFilter(foreground_rect));
+
+    SkIRect union_rect = background_rect;
+    union_rect.join(foreground_rect);
+    SkIRect intersection = background_rect;
+    intersection.intersect(foreground_rect);
+
+    test_arithmetic_bounds(reporter, 0, 0, 0, 0, background, foreground, nullptr,
+                           SkIRect::MakeEmpty());
+    test_arithmetic_bounds(reporter, 0, 0, 0, v, background, foreground, nullptr, union_rect);
+    test_arithmetic_bounds(reporter, 0, 0, v, 0, background, foreground, nullptr, background_rect);
+    test_arithmetic_bounds(reporter, 0, 0, v, v, background, foreground, nullptr, union_rect);
+    test_arithmetic_bounds(reporter, 0, v, 0, 0, background, foreground, nullptr, foreground_rect);
+    test_arithmetic_bounds(reporter, 0, v, 0, v, background, foreground, nullptr, union_rect);
+    test_arithmetic_bounds(reporter, 0, v, v, 0, background, foreground, nullptr, union_rect);
+    test_arithmetic_bounds(reporter, 0, v, v, v, background, foreground, nullptr, union_rect);
+    test_arithmetic_bounds(reporter, v, 0, 0, 0, background, foreground, nullptr, intersection);
+    test_arithmetic_bounds(reporter, v, 0, 0, v, background, foreground, nullptr, union_rect);
+    test_arithmetic_bounds(reporter, v, 0, v, 0, background, foreground, nullptr, background_rect);
+    test_arithmetic_bounds(reporter, v, 0, v, v, background, foreground, nullptr, union_rect);
+    test_arithmetic_bounds(reporter, v, v, 0, 0, background, foreground, nullptr, foreground_rect);
+    test_arithmetic_bounds(reporter, v, v, 0, v, background, foreground, nullptr, union_rect);
+    test_arithmetic_bounds(reporter, v, v, v, 0, background, foreground, nullptr, union_rect);
+    test_arithmetic_bounds(reporter, v, v, v, v, background, foreground, nullptr, union_rect);
+
+    // Test with crop. When k4 is non-zero, the result is expected to be crop_rect
+    // regardless of inputs because the filter affects the whole crop area.
+    SkIRect crop_rect = SkIRect::MakeXYWH(-111, -222, 333, 444);
+    SkImageFilter::CropRect crop(SkRect::Make(crop_rect));
+    test_arithmetic_bounds(reporter, 0, 0, 0, 0, background, foreground, &crop,
+                           SkIRect::MakeEmpty());
+    test_arithmetic_bounds(reporter, 0, 0, 0, v, background, foreground, &crop, crop_rect);
+    test_arithmetic_bounds(reporter, 0, 0, v, 0, background, foreground, &crop, background_rect);
+    test_arithmetic_bounds(reporter, 0, 0, v, v, background, foreground, &crop, crop_rect);
+    test_arithmetic_bounds(reporter, 0, v, 0, 0, background, foreground, &crop, foreground_rect);
+    test_arithmetic_bounds(reporter, 0, v, 0, v, background, foreground, &crop, crop_rect);
+    test_arithmetic_bounds(reporter, 0, v, v, 0, background, foreground, &crop, union_rect);
+    test_arithmetic_bounds(reporter, 0, v, v, v, background, foreground, &crop, crop_rect);
+    test_arithmetic_bounds(reporter, v, 0, 0, 0, background, foreground, &crop, intersection);
+    test_arithmetic_bounds(reporter, v, 0, 0, v, background, foreground, &crop, crop_rect);
+    test_arithmetic_bounds(reporter, v, 0, v, 0, background, foreground, &crop, background_rect);
+    test_arithmetic_bounds(reporter, v, 0, v, v, background, foreground, &crop, crop_rect);
+    test_arithmetic_bounds(reporter, v, v, 0, 0, background, foreground, &crop, foreground_rect);
+    test_arithmetic_bounds(reporter, v, v, 0, v, background, foreground, &crop, crop_rect);
+    test_arithmetic_bounds(reporter, v, v, v, 0, background, foreground, &crop, union_rect);
+    test_arithmetic_bounds(reporter, v, v, v, v, background, foreground, &crop, crop_rect);
+}
+
+// Test ArithmeticImageFilter::onFilterBounds with different blending modes.
+DEF_TEST(ArithmeticImageFilterBounds, reporter) {
+    test_arithmetic_combinations(reporter, 1);
+    test_arithmetic_combinations(reporter, 0.5);
 }
