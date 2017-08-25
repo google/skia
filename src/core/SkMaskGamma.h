@@ -146,10 +146,11 @@ public:
 
     /**
      * Provides direct access to the full table set, so it can be uploaded
-     * into a texture.
+     * into a texture or analyzed in other ways.
+     * Returns nullptr if fGammaTables hasn't been initialized.
      */
     const uint8_t* getGammaTables() const {
-        return (const uint8_t*) fGammaTables;
+        return fIsLinear ? nullptr : (const uint8_t*) fGammaTables;
     }
 
 private:
