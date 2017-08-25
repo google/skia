@@ -637,6 +637,33 @@ void GrVkPrimaryCommandBuffer::copyBufferToImage(const GrVkGpu* gpu,
                                                         copyRegions));
 }
 
+
+void GrVkPrimaryCommandBuffer::copyBuffer(GrVkGpu* gpu,
+                                          GrVkBuffer* srcBuffer,
+                                          GrVkBuffer* dstBuffer,
+                                          uint32_t regionCount,
+                                          const VkBufferCopy* regions) {
+    SkASSERT(fIsActive);
+    SkASSERT(!fActiveRenderPass);
+#ifdef SK_DEBUG
+    for (uint32_t i = 0; i < regionCount; ++i) {
+        const VkBufferCopy& region = regions[i];
+        SkASSERT(region.size > 0);
+        SkASSERT(region.srcOffset < srcBuffer->size());
+        SkASSERT(region.dstOffset < dstBuffer->size());
+        SkASSERT(region.srcOffset + region.size <= srcBuffer->size());
+        SkASSERT(region.dstOffset + region.size <= dstBuffer->size());
+    }
+#endif
+    this->addResource(srcBuffer->resource());
+    this->addResource(dstBuffer->resource());
+    GR_VK_CALL(gpu->vkInterface(), CmdCopyBuffer(fCmdBuffer,
+                                                 srcBuffer->buffer(),
+                                                 dstBuffer->buffer(),
+                                                 regionCount,
+                                                 regions));
+}
+
 void GrVkPrimaryCommandBuffer::updateBuffer(GrVkGpu* gpu,
                                             GrVkBuffer* dstBuffer,
                                             VkDeviceSize dstOffset,
