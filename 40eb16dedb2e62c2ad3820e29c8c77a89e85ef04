@@ -16,6 +16,24 @@
       "revId": "40eb16dedb2e62c2ad3820e29c8c77a89e85ef04",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c80fc33_e7415778",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-28T18:27:37Z",
+      "side": 1,
+      "message": "Sure.  It\u0027d be a good idea to have a unit test for it if you\u0027re not using it, or even really if you are.",
+      "parentUuid": "b8c676c9_f2801e97",
+      "revId": "40eb16dedb2e62c2ad3820e29c8c77a89e85ef04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
