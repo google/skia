@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "cfa67f2a_e4013225",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-28T18:41:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b54b8ddd_5b5a5701",
+      "range": {
+        "startLine": 180,
+        "startChar": 40,
+        "endLine": 180,
+        "endChar": 60
+      },
+      "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "17c51a64_9cb631c6",
         "filename": "src/core/SkMaskBlurFilter.cpp",
         "patchSetId": 2
@@ -72,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "5d648719_56cef2b8",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-28T18:41:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "17c51a64_9cb631c6",
+      "range": {
+        "startLine": 182,
+        "startChar": 41,
+        "endLine": 182,
+        "endChar": 62
+      },
+      "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c99f0c9_a57c8d3f",
         "filename": "src/core/SkMaskBlurFilter.cpp",
         "patchSetId": 2
@@ -89,6 +137,24 @@
     },
     {
       "key": {
+        "uuid": "9814ed80_c4a092d0",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-28T18:41:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c99f0c9_a57c8d3f",
+      "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae50ab98_7c738cc3",
         "filename": "src/core/SkMaskBlurFilter.cpp",
         "patchSetId": 2
@@ -100,6 +166,30 @@
       "writtenOn": "2017-08-28T18:17:41Z",
       "side": 1,
       "message": "I haven\u0027t really thought the limitations through, but could we seed \u0027half\u0027 into sum0 instead?  Maybe uint8_t sum0 \u003d half / weight?",
+      "range": {
+        "startLine": 219,
+        "startChar": 41,
+        "endLine": 219,
+        "endChar": 45
+      },
+      "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b8a27c1_3715edf5",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-28T18:41:43Z",
+      "side": 1,
+      "message": "This is an interesting idea. Let me think it through.",
+      "parentUuid": "ae50ab98_7c738cc3",
       "range": {
         "startLine": 219,
         "startChar": 41,
@@ -135,6 +225,30 @@
     },
     {
       "key": {
+        "uuid": "b15099cf_3f72cc67",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-28T18:41:43Z",
+      "side": 1,
+      "message": "I\u0027m going to keep it like this for now, and so how things work out in the reorganization.",
+      "parentUuid": "b942832d_886615e8",
+      "range": {
+        "startLine": 253,
+        "startChar": 11,
+        "endLine": 253,
+        "endChar": 30
+      },
+      "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8cc4da2c_0b98cd2f",
         "filename": "src/core/SkMaskBlurFilter.h",
         "patchSetId": 2
@@ -155,6 +269,30 @@
       "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57e04b03_0f1025b8",
+        "filename": "src/core/SkMaskBlurFilter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-28T18:41:43Z",
+      "side": 1,
+      "message": "Ack - I\u0027m reorganizing this from the ground up to separate out the box blur from the gauss blur. MikeK thinks we should have an explicit entry point for box blur for the Chrome code. I\u0027m sure I will harmonize the arguments in this process.",
+      "parentUuid": "8cc4da2c_0b98cd2f",
+      "range": {
+        "startLine": 63,
+        "startChar": 44,
+        "endLine": 63,
+        "endChar": 49
+      },
+      "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
