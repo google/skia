@@ -8,10 +8,9 @@
 #ifndef SkThreadedBMPDevice_DEFINED
 #define SkThreadedBMPDevice_DEFINED
 
+#include "SkTaskGroup.h"
 #include "SkDraw.h"
 #include "SkBitmapDevice.h"
-
-#include <future>
 
 class TiledDrawScheduler {
 public:
@@ -39,8 +38,11 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 class SkThreadedBMPDevice : public SkBitmapDevice {
 public:
-    // When threads = 0, we make fThreadCnt = fTileCnt
-    SkThreadedBMPDevice(const SkBitmap& bitmap, int tiles, int threads = 0);
+    // When threads = 0, we make fThreadCnt = tiles. Otherwise fThreadCnt = threads.
+    // When executor = nullptr, we manages the thread pool. Otherwise, the caller manages it.
+    SkThreadedBMPDevice(const SkBitmap& bitmap, int tiles, int threads = 0,
+                        SkExecutor* executor = nullptr);
+
     ~SkThreadedBMPDevice() override { finishThreads(); }
 
 protected:
@@ -83,7 +85,18 @@ private:
     const int fThreadCnt;
     std::unique_ptr<TiledDrawScheduler> fScheduler;
     SkTArray<SkIRect> fTileBounds;
-    SkTArray<std::future<void>> fThreadFutures;
+
+    /**
+     * This can either be
+     * 1. fInternalExecutor.get() which means that we're managing the thread pool's life cycle.
+     * 2. provided by our caller which means that our caller is managing the threads' life cycle.
+     * In the 2nd case, fInternalExecutor == nullptr.
+     */
+    SkExecutor* fExecutor = nullptr;
+    std::unique_ptr<SkExecutor> fInternalExecutor;
+
+    std::unique_ptr<SkTaskGroup> fTaskGroup; // generated from fExecutor
+
     DrawElement fQueue[MAX_QUEUE_SIZE];
     int fQueueSize;
 

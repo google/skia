@@ -176,7 +176,6 @@ private:
 };
 
 void SkThreadedBMPDevice::startThreads() {
-    SkASSERT(fThreadFutures.count() == 0);
     SkASSERT(fQueueSize == 0);
 
     TiledDrawScheduler::WorkFunc work = [this](int tileIndex, int drawIndex){
@@ -190,29 +189,40 @@ void SkThreadedBMPDevice::startThreads() {
     // using Scheduler = TiledDrawSchedulerBySpinning;
     using Scheduler = TiledDrawSchedulerFlexible;
     fScheduler.reset(new Scheduler(fTileCnt, work));
-    for(int i = 0; i < fThreadCnt; ++i) {
-        fThreadFutures.push_back(std::async(std::launch::async, [this, i]() {
-            int tileIndex = i;
-            while (fScheduler->next(tileIndex)) {}
-        }));
-    }
+
+    // We intentionally call the int parameter tileIndex although it ranges from 0 to fThreadCnt-1.
+    // For some schedulers (e.g., TiledDrawSchedulerBySemaphores and TiledDrawSchedulerBySpinning),
+    // fThreadCnt should be equal to fTileCnt so it doesn't make a difference.
+    //
+    // For TiledDrawSchedulerFlexible, the input tileIndex provides only a hint about which tile
+    // the current thread should draw; the scheduler may later modify that tileIndex to draw on
+    // another tile.
+    fTaskGroup->batch(fThreadCnt, [this](int tileIndex){
+        while (fScheduler->next(tileIndex)) {}
+    });
 }
 
 void SkThreadedBMPDevice::finishThreads() {
     fScheduler->finish();
-    for(auto& future : fThreadFutures) {
-        future.wait();
-    }
-    fThreadFutures.reset();
+    fTaskGroup->wait();
     fQueueSize = 0;
     fScheduler.reset(nullptr);
 }
 
-SkThreadedBMPDevice::SkThreadedBMPDevice(const SkBitmap& bitmap, int tiles, int threads)
+SkThreadedBMPDevice::SkThreadedBMPDevice(const SkBitmap& bitmap,
+                                         int tiles,
+                                         int threads,
+                                         SkExecutor* executor)
         : INHERITED(bitmap)
         , fTileCnt(tiles)
         , fThreadCnt(threads <= 0 ? tiles : threads)
 {
+    if (executor == nullptr) {
+        fInternalExecutor = SkExecutor::MakeThreadPool(fThreadCnt);
+        executor = fInternalExecutor.get();
+    }
+    fExecutor = executor;
+
     // Tiling using stripes for now; we'll explore better tiling in the future.
     int h = (bitmap.height() + fTileCnt - 1) / SkTMax(fTileCnt, 1);
     int w = bitmap.width();
@@ -221,6 +231,7 @@ SkThreadedBMPDevice::SkThreadedBMPDevice(const SkBitmap& bitmap, int tiles, int 
         fTileBounds.push_back(SkIRect::MakeLTRB(0, top, w, top + h));
     }
     fQueueSize = 0;
+    fTaskGroup.reset(new SkTaskGroup(*fExecutor));
     startThreads();
 }
 
