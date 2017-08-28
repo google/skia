@@ -54,7 +54,7 @@ sk_shader_t* sk_shader_new_linear_gradient(const sk_point_t pts[2],
                                            const sk_matrix_t* cmatrix) {
     SkShader::TileMode mode;
     if (!from_c_tilemode(cmode, &mode)) {
-        return NULL;
+        return nullptr;
     }
     SkMatrix matrix;
     if (cmatrix) {
@@ -81,7 +81,7 @@ sk_shader_t* sk_shader_new_radial_gradient(const sk_point_t* ccenter,
                                            const sk_matrix_t* cmatrix) {
     SkShader::TileMode mode;
     if (!from_c_tilemode(cmode, &mode)) {
-        return NULL;
+        return nullptr;
     }
     SkMatrix matrix;
     if (cmatrix) {
@@ -125,7 +125,7 @@ sk_shader_t* sk_shader_new_two_point_conical_gradient(const sk_point_t* start,
                                                       const sk_matrix_t* cmatrix) {
     SkShader::TileMode mode;
     if (!from_c_tilemode(cmode, &mode)) {
-        return NULL;
+        return nullptr;
     }
     SkMatrix matrix;
     if (cmatrix) {
@@ -180,7 +180,7 @@ void sk_maskfilter_unref(sk_maskfilter_t* cfilter) {
 sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
     SkBlurStyle style;
     if (!find_blurstyle(cstyle, &style)) {
-        return NULL;
+        return nullptr;
     }
     return ToMaskFilter(SkBlurMaskFilter::Make(style, sigma).release());
 }

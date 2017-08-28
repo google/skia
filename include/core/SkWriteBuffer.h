@@ -91,7 +91,7 @@ public:
         fWriter.write(buffer, bytes);
     }
 
-    void reset(void* storage = NULL, size_t storageSize = 0) {
+    void reset(void* storage = nullptr, size_t storageSize = 0) {
         fWriter.reset(storage, storageSize);
     }
 

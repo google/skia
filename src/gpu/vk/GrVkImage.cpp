@@ -90,7 +90,7 @@ bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, Gr
 
     const VkImageCreateInfo imageCreateInfo = {
         VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,         // sType
-        NULL,                                        // pNext
+        nullptr,                                     // pNext
         createFlags,                                 // VkImageCreateFlags
         imageDesc.fImageType,                        // VkImageType
         imageDesc.fFormat,                           // VkFormat

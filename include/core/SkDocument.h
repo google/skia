@@ -178,7 +178,7 @@ public:
      *  scope when endPage() or close() is called, or the document is deleted.
      */
     SkCanvas* beginPage(SkScalar width, SkScalar height,
-                        const SkRect* content = NULL);
+                        const SkRect* content = nullptr);
 
     /**
      *  Call endPage() when the content for the current page has been drawn

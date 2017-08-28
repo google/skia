@@ -83,7 +83,7 @@ public:
          */
         SkPoint* growForRepeatedVerb(int /*SkPath::Verb*/ verb,
                                      int numVbs,
-                                     SkScalar** weights = NULL) {
+                                     SkScalar** weights = nullptr) {
             return fPathRef->growForRepeatedVerb(verb, numVbs, weights);
         }
 
@@ -328,8 +328,8 @@ private:
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fPointCnt = 0;
         fVerbCnt = 0;
-        fVerbs = NULL;
-        fPoints = NULL;
+        fVerbs = nullptr;
+        fPoints = nullptr;
         fFreeSpace = 0;
         fGenerationID = kEmptyGenID;
         fSegmentMask = 0;
@@ -395,8 +395,8 @@ private:
 
         if (sizeDelta < 0 || static_cast<size_t>(sizeDelta) >= 3 * minSize) {
             sk_free(fPoints);
-            fPoints = NULL;
-            fVerbs = NULL;
+            fPoints = nullptr;
+            fVerbs = nullptr;
             fFreeSpace = 0;
             fVerbCnt = 0;
             fPointCnt = 0;

@@ -88,7 +88,7 @@ void GrVkBuffer::addMemoryBarrier(const GrVkGpu* gpu,
                                   bool byRegion) const {
     VkBufferMemoryBarrier bufferMemoryBarrier = {
         VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER, // sType
-        NULL,                                    // pNext
+        nullptr,                                 // pNext
         srcAccessMask,                           // srcAccessMask
         dstAccesMask,                            // dstAccessMask
         VK_QUEUE_FAMILY_IGNORED,                 // srcQueueFamilyIndex

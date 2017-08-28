@@ -80,10 +80,10 @@ public:
     class Iter {
     public:
         Iter();
-        Iter(const char path[], const char suffix[] = NULL);
+        Iter(const char path[], const char suffix[] = nullptr);
         ~Iter();
 
-        void reset(const char path[], const char suffix[] = NULL);
+        void reset(const char path[], const char suffix[] = nullptr);
         /** If getDir is true, only returns directories.
             Results are undefined if true and false calls are
             interleaved on a single iterator.

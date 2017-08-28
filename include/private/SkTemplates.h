@@ -87,14 +87,14 @@ public:
 template <typename T> class SkAutoTArray : SkNoncopyable {
 public:
     SkAutoTArray() {
-        fArray = NULL;
+        fArray = nullptr;
         SkDEBUGCODE(fCount = 0;)
     }
     /** Allocate count number of T elements
      */
     explicit SkAutoTArray(int count) {
         SkASSERT(count >= 0);
-        fArray = NULL;
+        fArray = nullptr;
         if (count) {
             fArray = new T[count];
         }
@@ -106,7 +106,7 @@ public:
     void reset(int count) {
         delete[] fArray;
         SkASSERT(count >= 0);
-        fArray = NULL;
+        fArray = nullptr;
         if (count) {
             fArray = new T[count];
         }
@@ -142,14 +142,14 @@ template <int kCountRequested, typename T> class SkAutoSTArray : SkNoncopyable {
 public:
     /** Initialize with no objects */
     SkAutoSTArray() {
-        fArray = NULL;
+        fArray = nullptr;
         fCount = 0;
     }
 
     /** Allocate count number of T elements
      */
     SkAutoSTArray(int count) {
-        fArray = NULL;
+        fArray = nullptr;
         fCount = 0;
         this->reset(count);
     }
@@ -184,7 +184,7 @@ public:
             } else if (count > 0) {
                 fArray = (T*) fStorage;
             } else {
-                fArray = NULL;
+                fArray = nullptr;
             }
 
             fCount = count;
@@ -244,7 +244,7 @@ private:
 template <typename T> class SkAutoTMalloc : SkNoncopyable {
 public:
     /** Takes ownership of the ptr. The ptr must be a value which can be passed to sk_free. */
-    explicit SkAutoTMalloc(T* ptr = NULL) {
+    explicit SkAutoTMalloc(T* ptr = nullptr) {
         fPtr = ptr;
     }
 
@@ -308,7 +308,7 @@ public:
      */
     T* release() {
         T* ptr = fPtr;
-        fPtr = NULL;
+        fPtr = nullptr;
         return ptr;
     }
 

@@ -1058,7 +1058,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     SaveLayerFlags saveLayerFlags = rec.fSaveLayerFlags;
 
     SkLazyPaint lazyP;
-    SkImageFilter* imageFilter = paint ? paint->getImageFilter() : NULL;
+    SkImageFilter* imageFilter = paint ? paint->getImageFilter() : nullptr;
     SkMatrix stashedMatrix = fMCRec->fMatrix;
     SkMatrix remainder;
     SkSize scale;

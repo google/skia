@@ -101,9 +101,9 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
         return 0;
     }
 
-    hb_glyph_info_t* info = hb_buffer_get_glyph_infos(buffer, NULL);
+    hb_glyph_info_t* info = hb_buffer_get_glyph_infos(buffer, nullptr);
     hb_glyph_position_t* pos =
-            hb_buffer_get_glyph_positions(buffer, NULL);
+            hb_buffer_get_glyph_positions(buffer, nullptr);
     auto runBuffer = builder->allocRunTextPos(
             paint, SkToInt(len), SkToInt(textBytes), SkString());
     memcpy(runBuffer.utf8text, utf8text, textBytes);

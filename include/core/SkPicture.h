@@ -96,7 +96,7 @@ public:
         @param canvas the canvas receiving the drawing commands.
         @param callback a callback that allows interruption of playback
     */
-    virtual void playback(SkCanvas*, AbortCallback* = NULL) const = 0;
+    virtual void playback(SkCanvas*, AbortCallback* = nullptr) const = 0;
 
     /** Return a cull rect for this picture.
         Ops recorded into this picture that attempt to draw outside the cull might not be drawn.
@@ -152,11 +152,11 @@ public:
 
 #ifdef SK_SUPPORT_LEGACY_PICTURE_GPUVETO
     /** Return true if the picture is suitable for rendering on the GPU.  */
-    bool suitableForGpuRasterization(GrContext*, const char** whyNot = NULL) const;
+    bool suitableForGpuRasterization(GrContext*, const char** whyNot = nullptr) const;
 #endif
 
     // Returns NULL if this is not an SkBigPicture.
-    virtual const SkBigPicture* asSkBigPicture() const { return NULL; }
+    virtual const SkBigPicture* asSkBigPicture() const { return nullptr; }
 
     // Global setting to enable or disable security precautions for serialization.
     static void SetPictureIOSecurityPrecautionsEnabled_Dangerous(bool set);

@@ -144,7 +144,7 @@ static inline size_t SkColorTypeComputeOffset(SkColorType ct, int x, int y, size
  *  alphaType for this colorType, return it in canonical.
  */
 bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
-                                  SkAlphaType* canonical = NULL);
+                                  SkAlphaType* canonical = nullptr);
 
 ///////////////////////////////////////////////////////////////////////////////
 

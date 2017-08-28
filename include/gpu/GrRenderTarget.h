@@ -63,7 +63,7 @@ public:
      * @param rect  a rect bounding the area needing resolve. NULL indicates
      *              the whole RT needs resolving.
      */
-    void flagAsNeedingResolve(const SkIRect* rect = NULL);
+    void flagAsNeedingResolve(const SkIRect* rect = nullptr);
 
     /**
      * Call to override the region that needs to be resolved.

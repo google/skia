@@ -313,9 +313,9 @@ testSimplify(reporter, path, filename);
 
 
 
-static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*skipTest)(skiatest::Reporter* , const char* filename) = nullptr;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = nullptr;
+static void (*stopTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
 static TestDesc tests[] = {
     TEST(tiger8a_h_1),

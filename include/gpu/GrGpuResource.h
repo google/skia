@@ -154,7 +154,7 @@ public:
      * @return true if the object has been released or abandoned,
      *         false otherwise.
      */
-    bool wasDestroyed() const { return NULL == fGpu; }
+    bool wasDestroyed() const { return nullptr == fGpu; }
 
     /**
      * Retrieves the context that owns the object. Note that it is possible for

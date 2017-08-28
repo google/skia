@@ -291,7 +291,7 @@ DEF_TEST(RecordDraw_drawImage, r){
         SkRecord record;
         SkRecorder recorder(&record, 10, 10);
         recorder.drawImage(image, 0, 0);
-        SkRecordDraw(record, &canvas, nullptr, nullptr, 0, nullptr, 0);
+        SkRecordDraw(record, &canvas, nullptr, nullptr, 0, nullptr, nullptr);
     }
     REPORTER_ASSERT(r, canvas.fDrawImageCalled);
     canvas.resetTestValues();
@@ -300,7 +300,7 @@ DEF_TEST(RecordDraw_drawImage, r){
         SkRecord record;
         SkRecorder recorder(&record, 10, 10);
         recorder.drawImageRect(image, SkRect::MakeWH(10, 10), nullptr);
-        SkRecordDraw(record, &canvas, nullptr, nullptr, 0, nullptr, 0);
+        SkRecordDraw(record, &canvas, nullptr, nullptr, 0, nullptr, nullptr);
     }
     REPORTER_ASSERT(r, canvas.fDrawImageRectCalled);
 

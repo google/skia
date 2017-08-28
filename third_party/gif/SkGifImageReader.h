@@ -104,7 +104,7 @@ public:
         , ipass(0)
         , irow(0)
         , rowsRemaining(0)
-        , rowIter(0)
+        , rowIter(nullptr)
         , m_client(client)
         , m_frameContext(frameContext)
     { }
@@ -348,7 +348,7 @@ public:
     const SkGIFFrameContext* frameContext(int index) const
     {
         return index >= 0 && index < static_cast<int>(m_frames.size())
-                ? m_frames[index].get() : 0;
+                ? m_frames[index].get() : nullptr;
     }
 
     void clearDecodeState() {

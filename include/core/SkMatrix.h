@@ -682,7 +682,7 @@ public:
      *
      *  Possible reasons to fail: perspective, one or more scale factors are zero.
      */
-    bool decomposeScale(SkSize* scale, SkMatrix* remaining = NULL) const;
+    bool decomposeScale(SkSize* scale, SkMatrix* remaining = nullptr) const;
 
     /**
      *  Return a reference to a const identity matrix

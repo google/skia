@@ -44,7 +44,7 @@ int main(int argc, char**argv) {
 
         while (!XPending(display)) {
             // Wait for an event on the file descriptor or for timer expiration
-            (void) select(count, &in_fds, NULL, NULL, &tv);
+            (void) select(count, &in_fds, nullptr, nullptr, &tv);
         }
 
         // Handle XEvents (if any) and flush the input

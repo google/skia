@@ -739,7 +739,7 @@ public:
         @return     true if the path represents style fill, or false if it represents hairline
     */
     bool getFillPath(const SkPath& src, SkPath* dst) const {
-        return this->getFillPath(src, dst, NULL, 1);
+        return this->getFillPath(src, dst, nullptr, 1);
     }
 
     /** Optional colors used when filling a path, such as a gradient.
@@ -1293,7 +1293,7 @@ public:
 
         @return  recommended spacing between lines
     */
-    SkScalar getFontSpacing() const { return this->getFontMetrics(NULL, 0); }
+    SkScalar getFontSpacing() const { return this->getFontMetrics(nullptr, 0); }
 
     /** Converts text into glyph indices.
         Returns the number of glyph indices represented by text.
@@ -1355,7 +1355,7 @@ public:
         @return            number of glyphs represented by text of length byteLength
     */
     int countText(const void* text, size_t byteLength) const {
-        return this->textToGlyphs(text, byteLength, NULL);
+        return this->textToGlyphs(text, byteLength, nullptr);
     }
 
     /** Returns the advance width of text if kVerticalText_Flag is clear,
@@ -1386,7 +1386,7 @@ public:
         @return        advance width or height
     */
     SkScalar measureText(const void* text, size_t length) const {
-        return this->measureText(text, length, NULL);
+        return this->measureText(text, length, nullptr);
     }
 
     /** Returns the bytes of text that fit within maxWidth.
@@ -1407,7 +1407,7 @@ public:
         @return               bytes of text that fit, always less than or equal to length
     */
     size_t  breakText(const void* text, size_t length, SkScalar maxWidth,
-                      SkScalar* measuredWidth = NULL) const;
+                      SkScalar* measuredWidth = nullptr) const;
 
     /** Retrieves the advance and bounds for each glyph in text, and returns
         the glyph count in text.
@@ -1428,7 +1428,7 @@ public:
         @return            glyph count in text
     */
     int getTextWidths(const void* text, size_t byteLength, SkScalar widths[],
-                      SkRect bounds[] = NULL) const;
+                      SkRect bounds[] = nullptr) const;
 
     /** Returns the geometry as SkPath equivalent to the drawn text.
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,

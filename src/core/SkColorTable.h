@@ -37,7 +37,7 @@ public:
      *  the index is in range (0 <= index < count).
      */
     SkPMColor operator[](int index) const {
-        SkASSERT(fColors != NULL && (unsigned)index < (unsigned)fCount);
+        SkASSERT(fColors != nullptr && (unsigned)index < (unsigned)fCount);
         return fColors[index];
     }
 

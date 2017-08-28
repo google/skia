@@ -10682,7 +10682,7 @@ path.close();
 }
 
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = battleOp183;
-static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*stopTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
 static struct TestDesc tests[] = {
     TEST(battleOp1),

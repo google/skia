@@ -942,7 +942,7 @@ DEF_TEST(DontOptimizeSaveLayerDrawDrawRestore, reporter) {
     SkCanvas* canvas = recorder.beginRecording(100, 100);
     canvas->drawColor(0);
 
-    canvas->saveLayer(0, &semiTransparent);
+    canvas->saveLayer(nullptr, &semiTransparent);
     canvas->drawBitmap(blueBM, 25, 25);
     canvas->drawBitmap(redBM, 50, 50);
     canvas->restore();

@@ -5798,7 +5798,7 @@ static struct TestDesc subTests[] = {
 
 static const size_t subTestCount = SK_ARRAY_COUNT(subTests);
 
-static void (*firstSubTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*firstSubTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
 static bool runSubTests = false;
 static bool runSubTestsFirst = true;

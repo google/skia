@@ -40,8 +40,8 @@ public:
      */
     void add(SkCanvas* canvas,
              const SkPicture* picture,
-             const SkMatrix* matrix = NULL,
-             const SkPaint* paint = NULL);
+             const SkMatrix* matrix = nullptr,
+             const SkPaint* paint = nullptr);
 
     /**
      *  Perform all the previously added draws. This will reset the state

@@ -496,7 +496,7 @@ struct SK_API SkPoint {
      */
     SkScalar distanceToLineBetweenSqd(const SkPoint& a,
                                       const SkPoint& b,
-                                      Side* side = NULL) const;
+                                      Side* side = nullptr) const;
 
     /**
      * Returns the distance to the infinite line between two pts. Also
@@ -505,7 +505,7 @@ struct SK_API SkPoint {
      */
     SkScalar distanceToLineBetween(const SkPoint& a,
                                    const SkPoint& b,
-                                   Side* side = NULL) const {
+                                   Side* side = nullptr) const {
         return SkScalarSqrt(this->distanceToLineBetweenSqd(a, b, side));
     }
 

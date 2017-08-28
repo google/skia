@@ -59,7 +59,7 @@ public:
      *  @return the actual number bytes that could be skipped.
      */
     size_t skip(size_t size) {
-        return this->read(NULL, size);
+        return this->read(nullptr, size);
     }
 
     /**
@@ -104,7 +104,7 @@ public:
     /** Duplicates this stream. If this cannot be done, returns NULL.
      *  The returned stream will be positioned at the beginning of its data.
      */
-    virtual SkStreamRewindable* duplicate() const { return NULL; }
+    virtual SkStreamRewindable* duplicate() const { return nullptr; }
 
 //SkStreamSeekable
     /** Returns true if this stream can report it's current position. */
@@ -127,7 +127,7 @@ public:
     /** Duplicates this stream. If this cannot be done, returns NULL.
      *  The returned stream will be positioned the same as this stream.
      */
-    virtual SkStreamSeekable* fork() const { return NULL; }
+    virtual SkStreamSeekable* fork() const { return nullptr; }
 
 //SkStreamAsset
     /** Returns true if this stream can report it's total length. */
@@ -138,7 +138,7 @@ public:
 //SkStreamMemory
     /** Returns the starting address for the data. If this cannot be done, returns NULL. */
     //TODO: replace with virtual const SkData* getData()
-    virtual const void* getMemoryBase() { return NULL; }
+    virtual const void* getMemoryBase() { return nullptr; }
 };
 
 /** SkStreamRewindable is a SkStream for which rewind and duplicate are required. */
@@ -373,7 +373,7 @@ public:
 
     /** Returns true if the current path could be opened.
     */
-    bool isValid() const { return fFILE != NULL; }
+    bool isValid() const { return fFILE != nullptr; }
 
     bool write(const void* buffer, size_t size) override;
     void flush() override;

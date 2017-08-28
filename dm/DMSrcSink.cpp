@@ -107,7 +107,7 @@ bool BRDSrc::veto(SinkFlags flags) const {
 static SkBitmapRegionDecoder* create_brd(Path path) {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
     if (!encoded) {
-        return NULL;
+        return nullptr;
     }
     return SkBitmapRegionDecoder::Create(encoded, SkBitmapRegionDecoder::kAndroidCodec_Strategy);
 }

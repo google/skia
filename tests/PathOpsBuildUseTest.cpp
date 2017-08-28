@@ -2415,8 +2415,8 @@ path.close();
     builder.resolve(&path);
 }
 
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = nullptr;
+static void (*stopTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
 static struct TestDesc tests[] = {
     TEST(build1_1),

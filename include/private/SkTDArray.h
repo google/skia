@@ -20,7 +20,7 @@ public:
         SkASSERT(src || count == 0);
 
         fReserve = fCount = 0;
-        fArray = NULL;
+        fArray = nullptr;
         if (count) {
             fArray = (T*)sk_malloc_throw(count * sizeof(T));
             memcpy(fArray, src, sizeof(T) * count);
@@ -84,7 +84,7 @@ public:
      */
     T* release() {
         T* array = fArray;
-        fArray = NULL;
+        fArray = nullptr;
         fReserve = fCount = 0;
         return array;
     }
@@ -110,8 +110,8 @@ public:
 
     T*  begin() { return fArray; }
     const T*  begin() const { return fArray; }
-    T*  end() { return fArray ? fArray + fCount : NULL; }
-    const T*  end() const { return fArray ? fArray + fCount : NULL; }
+    T*  end() { return fArray ? fArray + fCount : nullptr; }
+    const T*  end() const { return fArray ? fArray + fCount : nullptr; }
 
     T&  operator[](int index) {
         SkASSERT(index < fCount);
@@ -132,7 +132,7 @@ public:
     void reset() {
         if (fArray) {
             sk_free(fArray);
-            fArray = NULL;
+            fArray = nullptr;
             fReserve = fCount = 0;
         } else {
             SkASSERT(fReserve == 0 && fCount == 0);
@@ -171,12 +171,12 @@ public:
     }
 
     T* append() {
-        return this->append(1, NULL);
+        return this->append(1, nullptr);
     }
-    T* append(int count, const T* src = NULL) {
+    T* append(int count, const T* src = nullptr) {
         int oldCount = fCount;
         if (count)  {
-            SkASSERT(src == NULL || fArray == NULL ||
+            SkASSERT(src == nullptr || fArray == nullptr ||
                     src + count <= fArray || fArray + oldCount <= src);
 
             this->adjustCount(count);
@@ -194,9 +194,9 @@ public:
     }
 
     T* insert(int index) {
-        return this->insert(index, 1, NULL);
+        return this->insert(index, 1, nullptr);
     }
-    T* insert(int index, int count, const T* src = NULL) {
+    T* insert(int index, int count, const T* src = nullptr) {
         SkASSERT(count);
         SkASSERT(index <= fCount);
         size_t oldCount = fCount;
@@ -345,8 +345,8 @@ public:
 
 #ifdef SK_DEBUG
     void validate() const {
-        SkASSERT((fReserve == 0 && fArray == NULL) ||
-                 (fReserve > 0 && fArray != NULL));
+        SkASSERT((fReserve == 0 && fArray == nullptr) ||
+                 (fReserve > 0 && fArray != nullptr));
         SkASSERT(fCount <= fReserve);
     }
 #endif

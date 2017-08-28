@@ -393,7 +393,7 @@ public:
         it has non-null pixels).
     */
     bool readyToDraw() const {
-        return this->getPixels() != NULL;
+        return this->getPixels() != nullptr;
     }
 
     /** Returns a non-zero, unique value corresponding to the pixels in our
@@ -564,12 +564,12 @@ public:
 #endif
 
     bool extractAlpha(SkBitmap* dst) const {
-        return this->extractAlpha(dst, NULL, NULL, NULL);
+        return this->extractAlpha(dst, nullptr, nullptr, nullptr);
     }
 
     bool extractAlpha(SkBitmap* dst, const SkPaint* paint,
                       SkIPoint* offset) const {
-        return this->extractAlpha(dst, paint, NULL, offset);
+        return this->extractAlpha(dst, paint, nullptr, offset);
     }
 
     /** Set dst to contain alpha layer of this bitmap. If destination bitmap

@@ -233,7 +233,7 @@ SkEventSink::EventResult SkEventSink::DoEvent(const SkEvent& evt) {
 SkEventSink* SkEventSink::FindSink(SkEventSinkID sinkID)
 {
     if (sinkID == 0)
-        return 0;
+        return nullptr;
 
     SkEventSink_Globals&    globals = getGlobals();
     SkAutoMutexAcquire      ac(globals.fSinkMutex);

@@ -127,11 +127,11 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     // sRGB sources decoded to linear before computing mipmaps?
     p.setShader(SkShader::MakeBitmapShader(mipmapBmp, rpt, rpt, &scaleMatrix));
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
-    nextRect("MipMaps", 0);
+    nextRect("MipMaps", nullptr);
 
     // 50% grey via paint color. Paint color (SkColor) is specified to be sRGB!
     p.setColor(0xffbcbcbc);
-    nextRect("Color", 0);
+    nextRect("Color", nullptr);
 
     {
         // Black -> White gradient, scaled to sample just the middle.

@@ -758,7 +758,7 @@ struct Active {
     SkScalar fEnd;
 
     void reset() {
-        fNext = NULL;
+        fNext = nullptr;
         fStart = 0;
         fEnd = 1;
     }
@@ -836,7 +836,7 @@ public:
         , fBisectButton('b')
         , fJoinButton('j')
         , fInOutButton('|')
-        , fUndo(NULL)
+        , fUndo(nullptr)
         , fActivePt(-1)
         , fActiveVerb(-1)
         , fHandlePathMove(true)
@@ -882,7 +882,7 @@ public:
 
     bool constructPath() {
         construct_path(fPath);
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
 
@@ -908,7 +908,7 @@ public:
         PathUndo* next = fUndo->fNext;
         delete fUndo;
         fUndo = next;
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
 
@@ -931,7 +931,7 @@ public:
 
     bool hideAll() {
         fHideAll ^= true;
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
 
@@ -990,7 +990,7 @@ public:
         matrix.setScale(1.f / 1.5f, 1.f / 1.5f, bounds.centerX(), bounds.centerY());
         fPath.transform(matrix);
         validatePath();
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
 
@@ -1006,7 +1006,7 @@ public:
         SkScalar offsetY = (this->height() - bounds.height()) / 2 - bounds.fTop;
         fPath.offset(offsetX, offsetY);
         validatePath();
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
 
@@ -1016,7 +1016,7 @@ public:
         matrix.setScale(1.5f, 1.5f, bounds.centerX(), bounds.centerY());
         fPath.transform(matrix);
         validatePath();
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
 
@@ -1037,7 +1037,7 @@ public:
 
     bool showLegend() {
         fShowLegend ^= true;
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
 
@@ -1161,7 +1161,7 @@ public:
                         }
                         SkPoint maxPt;
                         SkVector tangent;
-                        SkEvalCubicAt(pts, tMax[tIndex], &maxPt, &tangent, NULL);
+                        SkEvalCubicAt(pts, tMax[tIndex], &maxPt, &tangent, nullptr);
                         tangent.setLength(fWidthControl.fValLo * 2);
                         canvas->drawLine(maxPt, {maxPt.fX + tangent.fY, maxPt.fY - tangent.fX},
                                          fSkeletonPaint);
@@ -1669,7 +1669,7 @@ public:
                         SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
                 set_path_pt(fActivePt, pt, &fPath);
                 validatePath();
-                this->inval(NULL);
+                this->inval(nullptr);
                 return true;
                 }
             case MyClick::kPathType:
@@ -1677,7 +1677,7 @@ public:
                 fPath.offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),
                         SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
                 validatePath();
-                this->inval(NULL);
+                this->inval(nullptr);
                 return true;
             case MyClick::kVerbType: {
                 fActiveVerb = myClick->verbHit();
@@ -1789,7 +1789,7 @@ public:
                 break;
         }
         setControlButtonsPos();
-        this->inval(NULL);
+        this->inval(nullptr);
         return true;
     }
 

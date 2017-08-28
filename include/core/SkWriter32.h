@@ -32,7 +32,7 @@ public:
      *  first time an allocation doesn't fit.  From then it will use dynamically allocated storage.
      *  This used to be optional behavior, but pipe now relies on it.
      */
-    SkWriter32(void* external = NULL, size_t externalBytes = 0) {
+    SkWriter32(void* external = nullptr, size_t externalBytes = 0) {
         this->reset(external, externalBytes);
     }
 
@@ -42,7 +42,7 @@ public:
     SK_ATTR_DEPRECATED("use bytesWritten")
     size_t size() const { return this->bytesWritten(); }
 
-    void reset(void* external = NULL, size_t externalBytes = 0) {
+    void reset(void* external = nullptr, size_t externalBytes = 0) {
         SkASSERT(SkIsAlign4((uintptr_t)external));
         SkASSERT(SkIsAlign4(externalBytes));
 
@@ -136,19 +136,19 @@ public:
     }
 
     void writePath(const SkPath& path) {
-        size_t size = path.writeToMemory(NULL);
+        size_t size = path.writeToMemory(nullptr);
         SkASSERT(SkAlign4(size) == size);
         path.writeToMemory(this->reserve(size));
     }
 
     void writeMatrix(const SkMatrix& matrix) {
-        size_t size = matrix.writeToMemory(NULL);
+        size_t size = matrix.writeToMemory(nullptr);
         SkASSERT(SkAlign4(size) == size);
         matrix.writeToMemory(this->reserve(size));
     }
 
     void writeRegion(const SkRegion& rgn) {
-        size_t size = rgn.writeToMemory(NULL);
+        size_t size = rgn.writeToMemory(nullptr);
         SkASSERT(SkAlign4(size) == size);
         rgn.writeToMemory(this->reserve(size));
     }

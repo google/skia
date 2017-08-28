@@ -1877,8 +1877,8 @@ const SkPoint& SkPath::Iter::cons_moveTo() {
 void SkPath::Iter::consumeDegenerateSegments(bool exact) {
     // We need to step over anything that will not move the current draw point
     // forward before the next move is seen
-    const uint8_t* lastMoveVerb = 0;
-    const SkPoint* lastMovePt = 0;
+    const uint8_t* lastMoveVerb = nullptr;
+    const SkPoint* lastMovePt = nullptr;
     const SkScalar* lastMoveWeight = nullptr;
     SkPoint lastPt = fLastPt;
     while (fVerbs != fVerbStop) {

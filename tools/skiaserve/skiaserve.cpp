@@ -110,7 +110,7 @@ int skiaserve_main() {
                               &answer_to_connection, &request,
                               MHD_OPTION_SOCK_ADDR, &address,
                               MHD_OPTION_END);
-    if (NULL == daemon) {
+    if (nullptr == daemon) {
         SkDebugf("Could not initialize daemon\n");
         return 1;
     }
