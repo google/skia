@@ -210,6 +210,12 @@ DEF_TEST(SkNx_abs, r) {
     REPORTER_ASSERT(r, fs[1] == 0.0f);
     REPORTER_ASSERT(r, fs[2] == 2.0f);
     REPORTER_ASSERT(r, fs[3] == 4.0f);
+    auto fshi = Sk2f(0.0f, -0.0f).abs();
+    auto fslo = Sk2f(2.0f, -4.0f).abs();
+    REPORTER_ASSERT(r, fshi[0] == 0.0f);
+    REPORTER_ASSERT(r, fshi[1] == 0.0f);
+    REPORTER_ASSERT(r, fslo[0] == 2.0f);
+    REPORTER_ASSERT(r, fslo[1] == 4.0f);
 }
 
 DEF_TEST(Sk4i_abs, r) {
@@ -357,4 +363,32 @@ DEF_TEST(SkNx_4fLoad4Store4, r) {
     float dst[16];
     Sk4f::Store4(dst, a, b, c, d);
     REPORTER_ASSERT(r, 0 == memcmp(dst, src, 16 * sizeof(float)));
+}
+
+DEF_TEST(SkNx_neg, r) {
+    auto fs = -Sk4f(0.0f, -0.0f, 2.0f, -4.0f);
+    REPORTER_ASSERT(r, fs[0] == 0.0f);
+    REPORTER_ASSERT(r, fs[1] == 0.0f);
+    REPORTER_ASSERT(r, fs[2] == -2.0f);
+    REPORTER_ASSERT(r, fs[3] == 4.0f);
+    auto fshi = -Sk2f(0.0f, -0.0f);
+    auto fslo = -Sk2f(2.0f, -4.0f);
+    REPORTER_ASSERT(r, fshi[0] == 0.0f);
+    REPORTER_ASSERT(r, fshi[1] == 0.0f);
+    REPORTER_ASSERT(r, fslo[0] == -2.0f);
+    REPORTER_ASSERT(r, fslo[1] == 4.0f);
+}
+
+DEF_TEST(SkNx_thenElse, r) {
+    auto fs = (Sk4f(0.0f, -0.0f, 2.0f, -4.0f) < 0).thenElse(-1, 1);
+    REPORTER_ASSERT(r, fs[0] == 1);
+    REPORTER_ASSERT(r, fs[1] == 1);
+    REPORTER_ASSERT(r, fs[2] == 1);
+    REPORTER_ASSERT(r, fs[3] == -1);
+    auto fshi = (Sk2f(0.0f, -0.0f) < 0).thenElse(-1, 1);
+    auto fslo = (Sk2f(2.0f, -4.0f) < 0).thenElse(-1, 1);
+    REPORTER_ASSERT(r, fshi[0] == 1);
+    REPORTER_ASSERT(r, fshi[1] == 1);
+    REPORTER_ASSERT(r, fslo[0] == 1);
+    REPORTER_ASSERT(r, fslo[1] == -1);
 }

@@ -40,6 +40,8 @@ public:
         return est1;
     }
 
+    AI SkNx operator - () const { return vneg_f32(fVec); }
+
     AI SkNx operator + (const SkNx& o) const { return vadd_f32(fVec, o.fVec); }
     AI SkNx operator - (const SkNx& o) const { return vsub_f32(fVec, o.fVec); }
     AI SkNx operator * (const SkNx& o) const { return vmul_f32(fVec, o.fVec); }
@@ -65,6 +67,8 @@ public:
 
     AI static SkNx Min(const SkNx& l, const SkNx& r) { return vmin_f32(l.fVec, r.fVec); }
     AI static SkNx Max(const SkNx& l, const SkNx& r) { return vmax_f32(l.fVec, r.fVec); }
+
+    AI SkNx abs() const { return vabs_f32(fVec); }
 
     AI SkNx rsqrt() const {
         float32x2_t est0 = vrsqrte_f32(fVec);
@@ -95,6 +99,10 @@ public:
     AI bool anyTrue() const {
         auto v = vreinterpret_u32_f32(fVec);
         return vget_lane_u32(v,0) || vget_lane_u32(v,1);
+    }
+
+    AI SkNx thenElse(const SkNx& t, const SkNx& e) const {
+        return vbsl_f32(vreinterpret_u32_f32(fVec), t.fVec, e.fVec);
     }
 
     float32x2_t fVec;
@@ -134,6 +142,8 @@ public:
                     est1 = vmulq_f32(vrecpsq_f32(est0, fVec), est0);
         return est1;
     }
+
+    AI SkNx operator - () const { return vnegq_f32(fVec); }
 
     AI SkNx operator + (const SkNx& o) const { return vaddq_f32(fVec, o.fVec); }
     AI SkNx operator - (const SkNx& o) const { return vsubq_f32(fVec, o.fVec); }
