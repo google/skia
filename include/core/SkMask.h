@@ -59,7 +59,7 @@ struct SkMask {
     uint8_t* getAddr1(int x, int y) const {
         SkASSERT(kBW_Format == fFormat);
         SkASSERT(fBounds.contains(x, y));
-        SkASSERT(fImage != NULL);
+        SkASSERT(fImage != nullptr);
         return fImage + ((x - fBounds.fLeft) >> 3) + (y - fBounds.fTop) * fRowBytes;
     }
 
@@ -70,7 +70,7 @@ struct SkMask {
     uint8_t* getAddr8(int x, int y) const {
         SkASSERT(kA8_Format == fFormat);
         SkASSERT(fBounds.contains(x, y));
-        SkASSERT(fImage != NULL);
+        SkASSERT(fImage != nullptr);
         return fImage + x - fBounds.fLeft + (y - fBounds.fTop) * fRowBytes;
     }
 
@@ -82,7 +82,7 @@ struct SkMask {
     uint16_t* getAddrLCD16(int x, int y) const {
         SkASSERT(kLCD16_Format == fFormat);
         SkASSERT(fBounds.contains(x, y));
-        SkASSERT(fImage != NULL);
+        SkASSERT(fImage != nullptr);
         uint16_t* row = (uint16_t*)(fImage + (y - fBounds.fTop) * fRowBytes);
         return row + (x - fBounds.fLeft);
     }
@@ -95,7 +95,7 @@ struct SkMask {
     uint32_t* getAddr32(int x, int y) const {
         SkASSERT(kARGB32_Format == fFormat);
         SkASSERT(fBounds.contains(x, y));
-        SkASSERT(fImage != NULL);
+        SkASSERT(fImage != nullptr);
         uint32_t* row = (uint32_t*)(fImage + (y - fBounds.fTop) * fRowBytes);
         return row + (x - fBounds.fLeft);
     }

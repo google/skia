@@ -22,7 +22,7 @@ struct SkMask;
 class SK_API SkPixmap {
 public:
     SkPixmap()
-        : fPixels(NULL), fRowBytes(0), fInfo(SkImageInfo::MakeUnknown(0, 0))
+        : fPixels(nullptr), fRowBytes(0), fInfo(SkImageInfo::MakeUnknown(0, 0))
     {}
 
     SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes)
@@ -32,7 +32,7 @@ public:
     void reset();
     void reset(const SkImageInfo& info, const void* addr, size_t rowBytes);
     void reset(const SkImageInfo& info) {
-        this->reset(info, NULL, 0);
+        this->reset(info, nullptr, 0);
     }
 
     // overrides the colorspace in the SkImageInfo of the pixmap

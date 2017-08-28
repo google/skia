@@ -42,10 +42,10 @@ public:
      *  @param size If non-null, this returns the byte size of this entry. This
      *              will be the same value that atSize(index) would return.
      */
-    const void* at(int index, size_t* size = NULL) const;
+    const void* at(int index, size_t* size = nullptr) const;
 
     template <typename T>
-    const T* atT(int index, size_t* size = NULL) const {
+    const T* atT(int index, size_t* size = nullptr) const {
         return reinterpret_cast<const T*>(this->at(index, size));
     }
 

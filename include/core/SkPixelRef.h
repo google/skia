@@ -97,7 +97,7 @@ public:
         fAddedToCache.store(true);
     }
 
-    virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return NULL; }
+    virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return nullptr; }
 
 protected:
     // default impl does nothing.

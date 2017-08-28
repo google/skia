@@ -59,7 +59,7 @@ static SkBitmap make_bmp(int w, int h) {
     paint.setAntiAlias(true);
     sk_tool_utils::set_portable_typeface(&paint);
     paint.setTextSize(wScalar / 2.2f);
-    paint.setShader(0);
+    paint.setShader(nullptr);
     paint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
     constexpr char kTxt[] = "Skia";
     SkPoint texPos = { wScalar / 17, hScalar / 2 + paint.getTextSize() / 2.5f };

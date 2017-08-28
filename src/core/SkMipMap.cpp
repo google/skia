@@ -791,7 +791,7 @@ int SkMipMap::countLevels() const {
 }
 
 bool SkMipMap::getLevel(int index, Level* levelPtr) const {
-    if (NULL == fLevels) {
+    if (nullptr == fLevels) {
         return false;
     }
     if (index < 0) {

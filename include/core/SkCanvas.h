@@ -96,7 +96,7 @@ public:
      *  by any device/pixels. Typically this use used by subclasses who handle
      *  the draw calls in some other way.
      */
-    SkCanvas(int width, int height, const SkSurfaceProps* props = NULL);
+    SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr);
 
     /** Construct a canvas with the specified device to draw into.
 
@@ -193,7 +193,7 @@ public:
      *
      *  On failure, returns NULL and the info, rowBytes, and origin parameters are ignored.
      */
-    void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = NULL);
+    void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = nullptr);
 
     SkRasterHandleAllocator::Handle accessTopRasterHandle() const;
 
@@ -733,9 +733,10 @@ public:
         @param top      The position of the top side of the image being drawn
         @param paint    The paint used to draw the image, or NULL
      */
-    void drawImage(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint = NULL);
+    void drawImage(const SkImage* image, SkScalar left, SkScalar top,
+                   const SkPaint* paint = nullptr);
     void drawImage(const sk_sp<SkImage>& image, SkScalar left, SkScalar top,
-                   const SkPaint* paint = NULL) {
+                   const SkPaint* paint = nullptr) {
         this->drawImage(image.get(), left, top, paint);
     }
 
@@ -843,7 +844,7 @@ public:
         @param paint    The paint used to draw the bitmap, or NULL
     */
     void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-                    const SkPaint* paint = NULL);
+                    const SkPaint* paint = nullptr);
 
     /** Draw the specified bitmap, scaling and translating so that it fills the specified
      *  dst rect. If the src rect is non-null, only that subset of the bitmap is transformed
@@ -881,7 +882,7 @@ public:
      *  - The sides (along the shrink axis) and center are not drawn
      */
     void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
-                        const SkPaint* paint = NULL);
+                        const SkPaint* paint = nullptr);
 
     /**
      *  Specifies coordinates to divide a bitmap into (xCount*yCount) rects.
@@ -1056,7 +1057,7 @@ public:
                        canvas.
     */
     void drawPicture(const SkPicture* picture) {
-        this->drawPicture(picture, NULL, NULL);
+        this->drawPicture(picture, nullptr, nullptr);
     }
     void drawPicture(const sk_sp<SkPicture>& picture) {
         this->drawPicture(picture.get());
@@ -1153,7 +1154,7 @@ public:
      *  If the intent is to force the contents of the drawable into this canvas immediately,
      *  then drawable->draw(canvas) may be called.
      */
-    void drawDrawable(SkDrawable* drawable, const SkMatrix* matrix = NULL);
+    void drawDrawable(SkDrawable* drawable, const SkMatrix* matrix = nullptr);
     void drawDrawable(SkDrawable* drawable, SkScalar x, SkScalar y);
 
     /**
@@ -1356,7 +1357,7 @@ protected:
     // If non-NULL, The imageFilter parameter will be used to expand the clip
     // and offscreen bounds for any margin required by the filter DAG.
     bool clipRectBounds(const SkRect* bounds, SaveLayerFlags flags, SkIRect* intersection,
-                        const SkImageFilter* imageFilter = NULL);
+                        const SkImageFilter* imageFilter = nullptr);
 
 private:
     /** After calling saveLayer(), there can be any number of devices that make
@@ -1583,7 +1584,7 @@ public:
     void restore() {
         if (fCanvas) {
             fCanvas->restoreToCount(fSaveCount);
-            fCanvas = NULL;
+            fCanvas = nullptr;
         }
     }
 

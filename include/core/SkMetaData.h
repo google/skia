@@ -48,14 +48,14 @@ public:
 
     void reset();
 
-    bool findS32(const char name[], int32_t* value = NULL) const;
-    bool findScalar(const char name[], SkScalar* value = NULL) const;
+    bool findS32(const char name[], int32_t* value = nullptr) const;
+    bool findScalar(const char name[], SkScalar* value = nullptr) const;
     const SkScalar* findScalars(const char name[], int* count,
-                                SkScalar values[] = NULL) const;
+                                SkScalar values[] = nullptr) const;
     const char* findString(const char name[]) const;
-    bool findPtr(const char name[], void** value = NULL, PtrProc* = NULL) const;
-    bool findBool(const char name[], bool* value = NULL) const;
-    const void* findData(const char name[], size_t* byteCount = NULL) const;
+    bool findPtr(const char name[], void** value = nullptr, PtrProc* = nullptr) const;
+    bool findBool(const char name[], bool* value = nullptr) const;
+    const void* findData(const char name[], size_t* byteCount = nullptr) const;
 
     bool hasS32(const char name[], int32_t value) const {
         int32_t v;
@@ -67,8 +67,8 @@ public:
     }
     bool hasString(const char name[], const char value[]) const {
         const char* v = this->findString(name);
-        return  (v == NULL && value == NULL) ||
-                (v != NULL && value != NULL && !strcmp(v, value));
+        return  (v == nullptr && value == nullptr) ||
+                (v != nullptr && value != nullptr && !strcmp(v, value));
     }
     bool hasPtr(const char name[], void* value) const {
         void* v;
@@ -86,9 +86,9 @@ public:
 
     void setS32(const char name[], int32_t value);
     void setScalar(const char name[], SkScalar value);
-    SkScalar* setScalars(const char name[], int count, const SkScalar values[] = NULL);
+    SkScalar* setScalars(const char name[], int count, const SkScalar values[] = nullptr);
     void setString(const char name[], const char value[]);
-    void setPtr(const char name[], void* value, PtrProc proc = NULL);
+    void setPtr(const char name[], void* value, PtrProc proc = nullptr);
     void setBool(const char name[], bool value);
     // the data is copied from the input pointer.
     void setData(const char name[], const void* data, size_t byteCount);
@@ -101,7 +101,7 @@ public:
     bool removeData(const char name[]);
 
     // helpers for SkRefCnt
-    bool findRefCnt(const char name[], SkRefCnt** ptr = NULL) {
+    bool findRefCnt(const char name[], SkRefCnt** ptr = nullptr) {
         return this->findPtr(name, reinterpret_cast<void**>(ptr));
     }
     bool hasRefCnt(const char name[], SkRefCnt* ptr) {
@@ -131,7 +131,7 @@ public:
 
     class Iter {
     public:
-        Iter() : fRec(NULL) {}
+        Iter() : fRec(nullptr) {}
         Iter(const SkMetaData&);
 
         /** Reset the iterator, so that calling next() will return the first

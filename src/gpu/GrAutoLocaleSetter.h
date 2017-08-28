@@ -54,11 +54,11 @@ public:
             name = nullptr;
         }
 #endif
-        fLocale = newlocale(LC_ALL_MASK, name, 0);
+        fLocale = newlocale(LC_ALL_MASK, name, nullptr);
         if (fLocale) {
             fOldLocale = uselocale(fLocale);
         } else {
-            fOldLocale = static_cast<locale_t>(0);
+            fOldLocale = static_cast<locale_t>(nullptr);
         }
 #else
         (void) name; // suppress unused param warning.

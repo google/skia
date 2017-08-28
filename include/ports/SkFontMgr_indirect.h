@@ -76,7 +76,7 @@ private:
         {
             SkDEBUGCODE(that.fDataId = SkFontIdentity::kInvalidDataId;)
             SkDEBUGCODE(that.fTtcIndex = 0xbbadbeef;)
-            that.fTypeface = NULL;
+            that.fTypeface = nullptr;
         }
 
         ~DataEntry() {

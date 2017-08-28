@@ -75,7 +75,7 @@ public:
     SkPatch3D();
 
     void    reset();
-    void    transform(const SkMatrix3D&, SkPatch3D* dst = NULL) const;
+    void    transform(const SkMatrix3D&, SkPatch3D* dst = nullptr) const;
 
     // dot a unit vector with the patch's normal
     SkScalar dotWith(SkScalar dx, SkScalar dy, SkScalar dz) const;

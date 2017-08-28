@@ -53,7 +53,7 @@ private:
 
 class SkXMLParser {
 public:
-            SkXMLParser(SkXMLParserError* parserError = NULL);
+    SkXMLParser(SkXMLParserError* parserError = nullptr);
     virtual ~SkXMLParser();
 
     /** Returns true for success

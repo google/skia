@@ -513,7 +513,7 @@ static void fuzz_filter_fuzz(sk_sp<SkData> bytes) {
         bytes->data(), bytes->size());
 
     // Adding some info, but the test passed if we got here without any trouble
-    if (flattenable != NULL) {
+    if (flattenable != nullptr) {
         SkDebugf("Valid stream detected.\n");
         // Let's see if using the filters can cause any trouble...
         SkPaint paint;

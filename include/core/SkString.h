@@ -35,13 +35,13 @@ int SkStrStartsWithOneOf(const char string[], const char prefixes[]);
 
 static int SkStrFind(const char string[], const char substring[]) {
     const char *first = strstr(string, substring);
-    if (NULL == first) return -1;
+    if (nullptr == first) return -1;
     return SkToInt(first - &string[0]);
 }
 
 static int SkStrFindLastOf(const char string[], const char subchar) {
     const char* last = strrchr(string, subchar);
-    if (NULL == last) return -1;
+    if (nullptr == last) return -1;
     return SkToInt(last - &string[0]);
 }
 
@@ -180,7 +180,7 @@ public:
 
     void reset();
     /** Destructive resize, does not preserve contents. */
-    void resize(size_t len) { this->set(NULL, len); }
+    void resize(size_t len) { this->set(nullptr, len); }
     void set(const SkString& src) { *this = src; }
     void set(const char text[]);
     void set(const char text[], size_t len);

@@ -45,7 +45,7 @@ public:
     static sk_sp<SkShader> MakeLinear(const SkPoint pts[2],
                                       const SkColor colors[], const SkScalar pos[], int count,
                                       SkShader::TileMode mode) {
-        return MakeLinear(pts, colors, pos, count, mode, 0, NULL);
+        return MakeLinear(pts, colors, pos, count, mode, 0, nullptr);
     }
 
     /** Returns a shader that generates a linear gradient between the two specified points.
@@ -67,7 +67,7 @@ public:
     static sk_sp<SkShader> MakeLinear(const SkPoint pts[2],
                                       const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
                                       const SkScalar pos[], int count, SkShader::TileMode mode) {
-        return MakeLinear(pts, colors, std::move(colorSpace), pos, count, mode, 0, NULL);
+        return MakeLinear(pts, colors, std::move(colorSpace), pos, count, mode, 0, nullptr);
     }
 
     /** Returns a shader that generates a radial gradient given the center and radius.
@@ -90,7 +90,7 @@ public:
     static sk_sp<SkShader> MakeRadial(const SkPoint& center, SkScalar radius,
                                       const SkColor colors[], const SkScalar pos[], int count,
                                       SkShader::TileMode mode) {
-        return MakeRadial(center, radius, colors, pos, count, mode, 0, NULL);
+        return MakeRadial(center, radius, colors, pos, count, mode, 0, nullptr);
     }
 
     /** Returns a shader that generates a radial gradient given the center and radius.
@@ -113,7 +113,8 @@ public:
     static sk_sp<SkShader> MakeRadial(const SkPoint& center, SkScalar radius,
                                       const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
                                       const SkScalar pos[], int count, SkShader::TileMode mode) {
-        return MakeRadial(center, radius, colors, std::move(colorSpace), pos, count, mode, 0, NULL);
+        return MakeRadial(center, radius, colors, std::move(colorSpace), pos, count, mode,
+                          0, nullptr);
     }
 
     /**
@@ -132,7 +133,7 @@ public:
                                                const SkColor colors[], const SkScalar pos[],
                                                int count, SkShader::TileMode mode) {
         return MakeTwoPointConical(start, startRadius, end, endRadius, colors, pos, count, mode,
-                                   0, NULL);
+                                   0, nullptr);
     }
 
     /**
@@ -153,7 +154,7 @@ public:
                                                sk_sp<SkColorSpace> colorSpace, const SkScalar pos[],
                                                int count, SkShader::TileMode mode) {
         return MakeTwoPointConical(start, startRadius, end, endRadius, colors,
-                                   std::move(colorSpace), pos, count, mode, 0, NULL);
+                                   std::move(colorSpace), pos, count, mode, 0, nullptr);
     }
 
     /** Returns a shader that generates a sweep gradient given a center.
