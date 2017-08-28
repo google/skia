@@ -43,6 +43,7 @@
 #include "ops/GrSemaphoreOp.h"
 #include "ops/GrShadowRRectOp.h"
 #include "ops/GrStencilPathOp.h"
+#include "ops/GrTextureOp.h"
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
 
@@ -769,6 +770,41 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
     this->internalDrawPath(clip, std::move(paint), aa, viewAndUnLocalMatrix, path, GrStyle());
 }
 
+static bool must_filter(const SkRect& src, const SkRect& dst, const SkMatrix& ctm) {
+    // We don't currently look for 90 degree rotations, mirroring, or downscales that sample at
+    // texel centers.
+    if (!ctm.isTranslate()) {
+        return true;
+    }
+    if (src.width() != dst.width() || src.height() != dst.height()) {
+        return true;
+    }
+    // Check that the device space rectangle's fractional offset is the same as the src rectangle,
+    // and that therefore integers in the src image fall on integers in device space.
+    SkScalar x = ctm.getTranslateX(), y = ctm.getTranslateY();
+    x += dst.fLeft; y += dst.fTop;
+    x -= src.fLeft; y -= src.fTop;
+    return !SkScalarIsInt(x) || !SkScalarIsInt(y);
+}
+
+void GrRenderTargetContext::drawTextureAffine(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
+                                              GrSamplerParams::FilterMode filter, GrColor color,
+                                              const SkRect& srcRect, const SkRect& dstRect,
+                                              const SkMatrix& viewMatrix,
+                                              sk_sp<GrColorSpaceXform> colorSpaceXform) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextureAffine", fContext);
+    SkASSERT(!viewMatrix.hasPerspective());
+    if (filter != GrSamplerParams::kNone_FilterMode && !must_filter(srcRect, dstRect, viewMatrix)) {
+        filter = GrSamplerParams::kNone_FilterMode;
+    }
+    bool allowSRGB = SkToBool(this->getColorSpace());
+    this->addDrawOp(clip, GrTextureOp::Make(std::move(proxy), filter, color, srcRect, dstRect,
+                                            viewMatrix, std::move(colorSpaceXform), allowSRGB));
+}
+
 void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
                                                     GrPaint&& paint,
                                                     GrAA aa,
@@ -1259,10 +1295,6 @@ void GrRenderTargetContext::drawDRRect(const GrClip& clip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static inline bool is_int(float x) {
-    return x == (float) sk_float_round2int(x);
-}
-
 void GrRenderTargetContext::drawRegion(const GrClip& clip,
                                        GrPaint&& paint,
                                        GrAA aa,
@@ -1279,8 +1311,8 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
         // GrRegionOp performs no antialiasing but is much faster, so here we check the matrix
         // to see whether aa is really required.
         if (!SkToBool(viewMatrix.getType() & ~(SkMatrix::kTranslate_Mask)) &&
-            is_int(viewMatrix.getTranslateX()) &&
-            is_int(viewMatrix.getTranslateY())) {
+            SkScalarIsInt(viewMatrix.getTranslateX()) &&
+            SkScalarIsInt(viewMatrix.getTranslateY())) {
             aa = GrAA::kNo;
         }
     }
