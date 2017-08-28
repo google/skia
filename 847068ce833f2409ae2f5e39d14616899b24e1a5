@@ -16,6 +16,24 @@
       "revId": "847068ce833f2409ae2f5e39d14616899b24e1a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f860bb4_66c4fb81",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-08-28T20:10:44Z",
+      "side": 1,
+      "message": "Created https://skia-review.googlesource.com/c/skia/+/39761",
+      "parentUuid": "8a2e252c_d36cd975",
+      "revId": "847068ce833f2409ae2f5e39d14616899b24e1a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
