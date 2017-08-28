@@ -472,7 +472,7 @@ GrVkSubHeap::GrVkSubHeap(const GrVkGpu* gpu, uint32_t memoryTypeIndex, uint32_t 
 
     VkMemoryAllocateInfo allocInfo = {
         VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,      // sType
-        NULL,                                        // pNext
+        nullptr,                                     // pNext
         size,                                        // allocationSize
         memoryTypeIndex,                             // memoryTypeIndex
     };
@@ -518,7 +518,7 @@ bool GrVkHeap::subAlloc(VkDeviceSize size, VkDeviceSize alignment,
     if (alignedSize > fSubHeapSize) {
         VkMemoryAllocateInfo allocInfo = {
             VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,      // sType
-            NULL,                                        // pNext
+            nullptr,                                     // pNext
             size,                                        // allocationSize
             memoryTypeIndex,                             // memoryTypeIndex
         };

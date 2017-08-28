@@ -1543,7 +1543,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
                                                       0,
                                                       externalFormat,
                                                       externalType,
-                                                      NULL));
+                                                      nullptr));
         if (GR_GL_NO_ERROR != CHECK_ALLOC_ERROR(this->glInterface())) {
             GL_CALL(DeleteTextures(1, &colorID));
             return -1;

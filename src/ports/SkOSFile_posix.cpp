@@ -110,7 +110,7 @@ size_t sk_qread(FILE* file, void* buffer, size_t count, size_t offset) {
 ////////////////////////////////////////////////////////////////////////////
 
 struct SkOSFileIterData {
-    SkOSFileIterData() : fDIR(0) { }
+    SkOSFileIterData() : fDIR(nullptr) { }
     DIR* fDIR;
     SkString fPath, fSuffix;
 };
@@ -135,7 +135,7 @@ void SkOSFile::Iter::reset(const char path[], const char suffix[]) {
     SkOSFileIterData& self = *static_cast<SkOSFileIterData*>(fSelf.get());
     if (self.fDIR) {
         ::closedir(self.fDIR);
-        self.fDIR = 0;
+        self.fDIR = nullptr;
     }
 
     self.fPath.set(path);

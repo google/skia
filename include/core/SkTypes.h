@@ -216,7 +216,7 @@ template <typename D, typename S> D SkTo(S s) {
 
 /** Returns 0 or 1 based on the condition
 */
-#define SkToBool(cond)  ((cond) != 0)
+#define SkToBool(cond)  (bool(cond))
 
 #define SK_MaxS16   32767
 #define SK_MinS16   -32767

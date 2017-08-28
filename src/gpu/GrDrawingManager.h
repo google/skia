@@ -60,7 +60,7 @@ public:
     GrPathRenderer* getPathRenderer(const GrPathRenderer::CanDrawPathArgs& args,
                                     bool allowSW,
                                     GrPathRendererChain::DrawType drawType,
-                                    GrPathRenderer::StencilSupport* stencilSupport = NULL);
+                                    GrPathRenderer::StencilSupport* stencilSupport = nullptr);
 
     void flushIfNecessary() {
         if (fContext->getResourceCache()->requestsFlush()) {

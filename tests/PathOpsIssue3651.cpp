@@ -1659,9 +1659,9 @@ path.close();
 }
 
 
-static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*skipTest)(skiatest::Reporter* , const char* filename) = nullptr;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = issue3651_1;
-static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*stopTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
 static struct TestDesc tests[] = {
     TEST(issue3651_6),

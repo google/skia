@@ -21,7 +21,7 @@ class SkDumpCanvas : public SkCanvas {
 public:
     class Dumper;
 
-    explicit SkDumpCanvas(Dumper* = 0);
+    explicit SkDumpCanvas(Dumper* = nullptr);
     ~SkDumpCanvas() override;
 
     enum Verb {

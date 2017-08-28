@@ -320,10 +320,10 @@ public:
         return fItemArray;
     }
     T* end() {
-        return fItemArray ? fItemArray + fCount : NULL;
+        return fItemArray ? fItemArray + fCount : nullptr;
     }
     const T* end() const {
-        return fItemArray ? fItemArray + fCount : NULL;
+        return fItemArray ? fItemArray + fCount : nullptr;
     }
 
    /**

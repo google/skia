@@ -80,7 +80,7 @@ public:
      *  called (if not NULL).
      */
     SkEvent* setTargetID(SkEventSinkID targetID) {
-        fTargetProc = NULL;
+        fTargetProc = nullptr;
         fTargetID = targetID;
         return this;
     }
@@ -122,17 +122,23 @@ public:
         in value (if value is non-null). If there is no matching named field, return false
         and ignore the value parameter.
     */
-    bool findS32(const char name[], int32_t* value = NULL) const { return fMeta.findS32(name, value); }
+    bool findS32(const char name[], int32_t* value = nullptr) const {
+        return fMeta.findS32(name, value);
+    }
     /** Return true if the event contains the named SkScalar field, and return the field
         in value (if value is non-null). If there is no matching named field, return false
         and ignore the value parameter.
     */
-    bool findScalar(const char name[], SkScalar* value = NULL) const { return fMeta.findScalar(name, value); }
+    bool findScalar(const char name[], SkScalar* value = nullptr) const {
+        return fMeta.findScalar(name, value);
+    }
     /** Return true if the event contains the named SkScalar field, and return the fields
         in value[] (if value is non-null), and return the number of SkScalars in count (if count is non-null).
         If there is no matching named field, return false and ignore the value and count parameters.
     */
-    const SkScalar* findScalars(const char name[], int* count, SkScalar values[] = NULL) const { return fMeta.findScalars(name, count, values); }
+    const SkScalar* findScalars(const char name[], int* count, SkScalar values[] = nullptr) const {
+        return fMeta.findScalars(name, count, values);
+    }
     /** Return the value of the named string field, or if no matching named field exists, return null.
     */
     const char* findString(const char name[]) const { return fMeta.findString(name); }
@@ -142,7 +148,7 @@ public:
     */
     bool findPtr(const char name[], void** value) const { return fMeta.findPtr(name, value); }
     bool findBool(const char name[], bool* value) const { return fMeta.findBool(name, value); }
-    const void* findData(const char name[], size_t* byteCount = NULL) const {
+    const void* findData(const char name[], size_t* byteCount = nullptr) const {
         return fMeta.findData(name, byteCount);
     }
 
@@ -164,7 +170,9 @@ public:
     /** Add/replace the named SkScalar field to the event. In XML use the subelement <data name=... scalar=... /> */
     void setScalar(const char name[], SkScalar value) { fMeta.setScalar(name, value); }
     /** Add/replace the named SkScalar[] field to the event. */
-    SkScalar* setScalars(const char name[], int count, const SkScalar values[] = NULL) { return fMeta.setScalars(name, count, values); }
+    SkScalar* setScalars(const char name[], int count, const SkScalar values[] = nullptr) {
+        return fMeta.setScalars(name, count, values);
+    }
     /** Add/replace the named string field to the event. In XML use the subelement <data name=... string=... */
     void setString(const char name[], const SkString& value) { fMeta.setString(name, value.c_str()); }
     /** Add/replace the named string field to the event. In XML use the subelement <data name=... string=... */
@@ -184,7 +192,7 @@ public:
     /** Call this to initialize the event from the specified XML node */
     void inflate(const SkDOM&, const SkDOMNode*);
 
-    SkDEBUGCODE(void dump(const char title[] = NULL);)
+    SkDEBUGCODE(void dump(const char title[] = nullptr);)
 
     ///////////////////////////////////////////////////////////////////////////
 

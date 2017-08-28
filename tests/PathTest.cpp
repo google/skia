@@ -2938,7 +2938,7 @@ static void test_iter(skiatest::Reporter* reporter) {
     static const size_t resultPtsSizes3[] = { 1, 2, 2, 2, 1, 0 };
     static const size_t resultPtsSizes4[] = { 1, 2, 1, 1, 0 };
     static const size_t resultPtsSizes5[] = { 1, 2, 1, 1, 1, 0 };
-    static const SkPoint* resultPts1 = 0;
+    static const SkPoint* resultPts1 = nullptr;
     static const SkPoint resultPts2[] = {
         { SK_Scalar1, 0 }, { SK_Scalar1, 0 }, { SK_Scalar1, SK_Scalar1 }, { SK_Scalar1, SK_Scalar1 }, { 0, SK_Scalar1 }
     };

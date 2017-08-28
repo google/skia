@@ -20,7 +20,7 @@ namespace android {
 }
 
 #define SkRegion_gEmptyRunHeadPtr   ((SkRegion::RunHead*)-1)
-#define SkRegion_gRectRunHeadPtr    0
+#define SkRegion_gRectRunHeadPtr    nullptr
 
 /** \class SkRegion
 
@@ -316,7 +316,7 @@ public:
      */
     class SK_API Iterator {
     public:
-        Iterator() : fRgn(NULL), fDone(true) {}
+        Iterator() : fRgn(nullptr), fDone(true) {}
         Iterator(const SkRegion&);
         // if we have a region, reset to it and return true, else return false
         bool rewind();

@@ -29,8 +29,8 @@ static FILE* ios_open_from_bundle(const char path[], const char* perm) {
     CFBundleRef mainBundle = CFBundleGetMainBundle();
 
     // Get a reference to the file's URL
-    CFStringRef pathRef = CFStringCreateWithCString(NULL, path, kCFStringEncodingUTF8);
-    CFURLRef imageURL = CFBundleCopyResourceURL(mainBundle, pathRef, NULL, NULL);
+    CFStringRef pathRef = CFStringCreateWithCString(nullptr, path, kCFStringEncodingUTF8);
+    CFURLRef imageURL = CFBundleCopyResourceURL(mainBundle, pathRef, nullptr, nullptr);
     CFRelease(pathRef);
     if (!imageURL) {
         return nullptr;
@@ -81,7 +81,7 @@ FILE* sk_fopen(const char path[], SkFILE_Flags flags) {
     }
 #endif
     if (nullptr == file && (flags & kWrite_SkFILE_Flag)) {
-        SkDEBUGF(("sk_fopen: fopen(\"%s\", \"%s\") returned NULL (errno:%d): %s\n",
+        SkDEBUGF(("sk_fopen: fopen(\"%s\", \"%s\") returned nullptr (errno:%d): %s\n",
                   path, perm, errno, strerror(errno)));
     }
     return file;

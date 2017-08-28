@@ -7679,9 +7679,9 @@ static void joel_16x(skiatest::Reporter* reporter, const char* filename) {
 testSimplify(reporter, path, filename);
 }
 
-static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*skipTest)(skiatest::Reporter* , const char* filename) = nullptr;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = nullptr;
+static void (*stopTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
 static TestDesc tests[] = {
     TEST(joel_16x),
@@ -8158,7 +8158,7 @@ static TestDesc subTests[] = {
 
 static const size_t subTestCount = SK_ARRAY_COUNT(subTests);
 
-static void (*firstSubTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*firstSubTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
 static bool runSubTests = false;
 static bool runSubTestsFirst = false;

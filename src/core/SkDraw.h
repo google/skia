@@ -39,7 +39,7 @@ public:
     void    drawRect(const SkRect& prePaintRect, const SkPaint&, const SkMatrix* paintMatrix,
                      const SkRect* postPaintRect) const;
     void    drawRect(const SkRect& rect, const SkPaint& paint) const {
-        this->drawRect(rect, paint, NULL, NULL);
+        this->drawRect(rect, paint, nullptr, nullptr);
     }
     void    drawRRect(const SkRRect&, const SkPaint&) const;
     /**
@@ -57,8 +57,8 @@ public:
     }
 
     void drawPath(const SkPath& path, const SkPaint& paint,
-                  SkBlitter* customBlitter = NULL) const {
-        this->drawPath(path, paint, NULL, false, false, customBlitter);
+                  SkBlitter* customBlitter = nullptr) const {
+        this->drawPath(path, paint, nullptr, false, false, customBlitter);
     }
 
     /* If dstOrNull is null, computes a dst by mapping the bitmap's bounds through the matrix. */
@@ -83,10 +83,10 @@ public:
      *  Only device A8 is supported right now.
      */
     void drawPathCoverage(const SkPath& src, const SkPaint& paint,
-                          SkBlitter* customBlitter = NULL) const {
+                          SkBlitter* customBlitter = nullptr) const {
         bool isHairline = paint.getStyle() == SkPaint::kStroke_Style &&
                           paint.getStrokeWidth() > 0;
-        this->drawPath(src, paint, NULL, false, !isHairline, customBlitter);
+        this->drawPath(src, paint, nullptr, false, !isHairline, customBlitter);
     }
 
     /** Helper function that creates a mask from a path and an optional maskfilter.
@@ -131,7 +131,7 @@ private:
 
     void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
                      bool pathIsMutable, bool drawCoverage,
-                     SkBlitter* customBlitter = NULL) const;
+                     SkBlitter* customBlitter = nullptr) const;
 
     void drawLine(const SkPoint[2], const SkPaint&) const;
     void drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,

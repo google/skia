@@ -4628,9 +4628,9 @@ path.close();
     testPathOp(reporter, path1, path2, kIntersect_SkPathOp, filename);
 }
 
-static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
-static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
+static void (*skipTest)(skiatest::Reporter* , const char* filename) = nullptr;
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = nullptr;
+static void (*stopTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
 static struct TestDesc tests[] = {
     TEST(skpwww_gorcraft_ru_1),

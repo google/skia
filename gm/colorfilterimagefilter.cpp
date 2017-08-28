@@ -180,7 +180,7 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
     sk_sp<SkColorFilter> cf(SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat));
     SkPaint p;
     p.setImageFilter(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
-    canvas->saveLayer(NULL, &p);
+    canvas->saveLayer(nullptr, &p);
     canvas->clear(SK_ColorRED);
 }
 

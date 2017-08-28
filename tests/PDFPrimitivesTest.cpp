@@ -426,7 +426,7 @@ DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
                         !SkPDFFont::CanEmbedTypeface(noEmbedTypeface.get(), &canon));
     }
     sk_sp<SkTypeface> portableTypeface(
-            sk_tool_utils::create_portable_typeface(NULL, SkFontStyle()));
+            sk_tool_utils::create_portable_typeface(nullptr, SkFontStyle()));
     REPORTER_ASSERT(reporter,
                     SkPDFFont::CanEmbedTypeface(portableTypeface.get(), &canon));
 }

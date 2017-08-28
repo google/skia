@@ -434,13 +434,13 @@ private:
 };
 
 /**
- *  Helper to unflatten the common data, and return NULL if we fail.
+ *  Helper to unflatten the common data, and return nullptr if we fail.
  */
 #define SK_IMAGEFILTER_UNFLATTEN_COMMON(localVar, expectedCount)    \
     Common localVar;                                                \
     do {                                                            \
         if (!localVar.unflatten(buffer, expectedCount)) {           \
-            return NULL;                                            \
+            return nullptr;                                         \
         }                                                           \
     } while (0)
 

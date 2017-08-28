@@ -102,11 +102,11 @@ public:
                                     SkPoint::Make(100.0f, 100.0f) };
         fShader0 = SkGradientShader::MakeLinear(points,
                                                   colors,
-                                                  NULL,
+                                                  nullptr,
                                                   3,
                                                   SkShader::kMirror_TileMode,
                                                   0,
-                                                  NULL);
+                                                  nullptr);
     }
 
 protected:

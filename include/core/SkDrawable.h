@@ -32,7 +32,7 @@ public:
      *  (i.e. the saveLevel() on the canvas will match what it was when draw() was called,
      *  and the current matrix and clip settings will not be changed.
      */
-    void draw(SkCanvas*, const SkMatrix* = NULL);
+    void draw(SkCanvas*, const SkMatrix* = nullptr);
     void draw(SkCanvas*, SkScalar x, SkScalar y);
 
     SkPicture* newPictureSnapshot();

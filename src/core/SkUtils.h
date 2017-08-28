@@ -75,7 +75,7 @@ SkUnichar   SkUTF8_PrevUnichar(const char**);
     into a utf8 sequence. Will be 1..kMaxBytesInUTF8Sequence,
     or 0 if uni is illegal.
 */
-size_t      SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = NULL);
+size_t      SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = nullptr);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -88,10 +88,10 @@ int SkUTF16_CountUnichars(const uint16_t utf16[], int numberOf16BitValues);
 SkUnichar SkUTF16_NextUnichar(const uint16_t**);
 // this guy backs up to the previus unichar value, and returns it (*--p)
 SkUnichar SkUTF16_PrevUnichar(const uint16_t**);
-size_t SkUTF16_FromUnichar(SkUnichar uni, uint16_t utf16[] = NULL);
+size_t SkUTF16_FromUnichar(SkUnichar uni, uint16_t utf16[] = nullptr);
 
 size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
-                      char utf8[] = NULL);
+                      char utf8[] = nullptr);
 
 inline bool SkUnichar_IsVariationSelector(SkUnichar uni) {
 /*  The 'true' ranges are:
