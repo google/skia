@@ -29,6 +29,8 @@ public:
 
     AI void store(void* ptr) const { _mm_storel_pi((__m64*)ptr, fVec); }
 
+    AI SkNx operator - () const { return _mm_xor_ps(_mm_set1_ps(-0.0f), fVec); }
+
     AI SkNx operator + (const SkNx& o) const { return _mm_add_ps(fVec, o.fVec); }
     AI SkNx operator - (const SkNx& o) const { return _mm_sub_ps(fVec, o.fVec); }
     AI SkNx operator * (const SkNx& o) const { return _mm_mul_ps(fVec, o.fVec); }
@@ -44,6 +46,7 @@ public:
     AI static SkNx Min(const SkNx& l, const SkNx& r) { return _mm_min_ps(l.fVec, r.fVec); }
     AI static SkNx Max(const SkNx& l, const SkNx& r) { return _mm_max_ps(l.fVec, r.fVec); }
 
+    AI SkNx    abs() const { return _mm_andnot_ps(_mm_set1_ps(-0.0f), fVec); }
     AI SkNx   sqrt() const { return _mm_sqrt_ps (fVec);  }
     AI SkNx  rsqrt() const { return _mm_rsqrt_ps(fVec); }
     AI SkNx invert() const { return _mm_rcp_ps(fVec); }
@@ -56,6 +59,15 @@ public:
 
     AI bool allTrue() const { return 0xff == (_mm_movemask_epi8(_mm_castps_si128(fVec)) & 0xff); }
     AI bool anyTrue() const { return 0x00 != (_mm_movemask_epi8(_mm_castps_si128(fVec)) & 0xff); }
+
+    AI SkNx thenElse(const SkNx& t, const SkNx& e) const {
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+        return _mm_blendv_ps(e.fVec, t.fVec, fVec);
+    #else
+        return _mm_or_ps(_mm_and_ps   (fVec, t.fVec),
+                         _mm_andnot_ps(fVec, e.fVec));
+    #endif
+    }
 
     __m128 fVec;
 };
@@ -94,6 +106,8 @@ public:
         _mm_storeu_ps(((float*) dst) +  8, v2);
         _mm_storeu_ps(((float*) dst) + 12, v3);
     }
+
+    AI SkNx operator - () const { return _mm_xor_ps(_mm_set1_ps(-0.0f), fVec); }
 
     AI SkNx operator + (const SkNx& o) const { return _mm_add_ps(fVec, o.fVec); }
     AI SkNx operator - (const SkNx& o) const { return _mm_sub_ps(fVec, o.fVec); }
