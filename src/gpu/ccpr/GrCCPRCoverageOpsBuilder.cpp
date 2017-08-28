@@ -11,7 +11,6 @@
 #include "GrGpuCommandBuffer.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrOpFlushState.h"
-#include "GrPathUtils.h"
 #include "SkGeometry.h"
 #include "SkMakeUnique.h"
 #include "SkMathPriv.h"
@@ -19,6 +18,7 @@
 #include "SkPathPriv.h"
 #include "SkPoint.h"
 #include "SkNx.h"
+#include "ccpr/GrCCPRGeometry.h"
 #include "ops/GrDrawOp.h"
 #include "../pathops/SkPathOpsCubic.h"
 #include <numeric>
@@ -313,7 +313,7 @@ void GrCCPRCoverageOpsBuilder::quadraticTo(SkPoint controlPt, SkPoint endPt) {
 
     SkPoint P[3] = {fCurrFanPoint, controlPt, endPt};
     SkPoint chopped[5];
-    if (GrPathUtils::chopMonotonicQuads(P, chopped)) {
+    if (GrCCPRChopMonotonicQuadratics(fCurrFanPoint, controlPt, endPt, chopped)) {
         this->fanTo(chopped[2]);
         fPointsData[fControlPtsIdx++] = chopped[1];
         fInstanceData[fCurrPathIndices.fQuadratics++].fQuadraticData = {
