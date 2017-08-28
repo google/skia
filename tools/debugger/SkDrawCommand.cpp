@@ -2741,7 +2741,7 @@ bool SkDrawPointsCommand::render(SkCanvas* canvas) const {
 
     bounds.setEmpty();
     for (unsigned int i = 0; i < fCount; ++i) {
-        bounds.growToInclude(fPts[i].fX, fPts[i].fY);
+        bounds.growToInclude(fPts[i]);
     }
 
     xlate_and_scale_to_bounds(canvas, bounds);

@@ -790,11 +790,11 @@ public:
      *  contains(x,y) -> fLeft <= x < fRight && fTop <= y < fBottom. Also note
      *  that contains(x,y) always returns false if the rect is empty.
      */
-    void growToInclude(SkScalar x, SkScalar y) {
-        fLeft  = SkMinScalar(x, fLeft);
-        fRight = SkMaxScalar(x, fRight);
-        fTop    = SkMinScalar(y, fTop);
-        fBottom = SkMaxScalar(y, fBottom);
+    void growToInclude(SkPoint pt) {
+        fLeft  =  SkMinScalar(pt.fX, fLeft);
+        fRight =  SkMaxScalar(pt.fX, fRight);
+        fTop    = SkMinScalar(pt.fY, fTop);
+        fBottom = SkMaxScalar(pt.fY, fBottom);
     }
 
     /** Bulk version of growToInclude */
@@ -808,7 +808,7 @@ public:
         SkASSERT(stride >= sizeof(SkPoint));
         const SkPoint* end = (const SkPoint*)((intptr_t)pts + count * stride);
         for (; pts < end; pts = (const SkPoint*)((intptr_t)pts + stride)) {
-            this->growToInclude(pts->fX, pts->fY);
+            this->growToInclude(*pts);
         }
     }
 
