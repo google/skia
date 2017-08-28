@@ -109,10 +109,6 @@ vfp4 = [
 subprocess.check_call(clang + cflags + vfp4 +
                       ['-c', stages] +
                       ['-o', 'vfp4.o'])
-# TODO: should work fine... I just want to turn this one on separately from x86
-#subprocess.check_call(clang + cflags + vfp4 +
-#                      ['-c', stages_8bit] +
-#                      ['-o', '8bit_vfp4.o'])
 
 def parse_object_file(dot_o, directive, target=None):
   globl, hidden, label, comment, align = \
@@ -223,12 +219,11 @@ print '#endif'
 print '.text'
 print '#if defined(__arm__)'
 print 'BALIGN4'
-parse_object_file(     'vfp4.o', '.long', target='elf32-littlearm')
-#parse_object_file('8bit_vfp4.o', '.long', target='elf32-littlearm')
+parse_object_file('vfp4.o', '.long', target='elf32-littlearm')
 
 print '#elif defined(__x86_64__)'
 print 'BALIGN32'
-parse_object_file('merged.o',   '.byte')
+parse_object_file('merged.o', '.byte')
 
 print '#elif defined(__i386__)'
 print 'BALIGN32'
