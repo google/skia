@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8c676c9_f2801e97",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-08-28T18:18:46Z",
+      "side": 1,
+      "message": "Negate is also missing from Sk4f. Should we add it there as well?",
+      "revId": "40eb16dedb2e62c2ad3820e29c8c77a89e85ef04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
