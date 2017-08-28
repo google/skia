@@ -60,7 +60,7 @@ struct ASTVarDeclarations : public ASTDeclaration {
     ASTVarDeclarations(Modifiers modifiers,
                        std::unique_ptr<ASTType> type,
                        std::vector<ASTVarDeclaration> vars)
-    : INHERITED(type->fPosition, kVar_Kind)
+    : INHERITED(type->fOffset, kVar_Kind)
     , fModifiers(modifiers)
     , fType(std::move(type))
     , fVars(std::move(vars)) {}

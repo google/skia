@@ -17,9 +17,9 @@ namespace SkSL {
  * A function invocation.
  */
 struct FunctionCall : public Expression {
-    FunctionCall(Position position, const Type& type, const FunctionDeclaration& function,
+    FunctionCall(int offset, const Type& type, const FunctionDeclaration& function,
                  std::vector<std::unique_ptr<Expression>> arguments)
-    : INHERITED(position, kFunctionCall_Kind, type)
+    : INHERITED(offset, kFunctionCall_Kind, type)
     , fFunction(std::move(function))
     , fArguments(std::move(arguments)) {}
 

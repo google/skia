@@ -503,7 +503,9 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->write("(");
     }
     this->writeExpression(*b.fLeft, precedence);
-    this->write(" " + Token::OperatorName(b.fOperator) + " ");
+    this->write(" ");
+    this->write(Compiler::OperatorName(b.fOperator));
+    this->write(" ");
     this->writeExpression(*b.fRight, precedence);
     if (precedence >= parentPrecedence) {
         this->write(")");
@@ -530,7 +532,7 @@ void GLSLCodeGenerator::writePrefixExpression(const PrefixExpression& p,
     if (kPrefix_Precedence >= parentPrecedence) {
         this->write("(");
     }
-    this->write(Token::OperatorName(p.fOperator));
+    this->write(Compiler::OperatorName(p.fOperator));
     this->writeExpression(*p.fOperand, kPrefix_Precedence);
     if (kPrefix_Precedence >= parentPrecedence) {
         this->write(")");
@@ -543,7 +545,7 @@ void GLSLCodeGenerator::writePostfixExpression(const PostfixExpression& p,
         this->write("(");
     }
     this->writeExpression(*p.fOperand, kPostfix_Precedence);
-    this->write(Token::OperatorName(p.fOperator));
+    this->write(Compiler::OperatorName(p.fOperator));
     if (kPostfix_Precedence >= parentPrecedence) {
         this->write(")");
     }

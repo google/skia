@@ -16,8 +16,8 @@ namespace SkSL {
  * An identifier in an expression context.
  */
 struct ASTIdentifier : public ASTExpression {
-    ASTIdentifier(Position position, String text)
-    : INHERITED(position, kIdentifier_Kind)
+    ASTIdentifier(int offset, String text)
+    : INHERITED(offset, kIdentifier_Kind)
     , fText(std::move(text)) {}
 
     String description() const override {

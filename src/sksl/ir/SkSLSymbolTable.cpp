@@ -93,7 +93,7 @@ void SymbolTable::addWithoutOwnership(const String& name, const Symbol* symbol) 
             this->takeOwnership(u);
         }
     } else {
-        fErrorReporter.error(symbol->fPosition, "symbol '" + name + "' was already defined");
+        fErrorReporter.error(symbol->fOffset, "symbol '" + name + "' was already defined");
     }
 }
 

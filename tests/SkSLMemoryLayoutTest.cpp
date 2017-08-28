@@ -55,29 +55,29 @@ DEF_TEST(SkSLMemoryLayout140Test, r) {
     // struct 1
     std::vector<SkSL::Type::Field> fields1;
     fields1.emplace_back(SkSL::Modifiers(), SkSL::String("a"), context.fFloat3_Type.get());
-    SkSL::Type s1(SkSL::Position(), SkSL::String("s1"), fields1);
+    SkSL::Type s1(-1, SkSL::String("s1"), fields1);
     REPORTER_ASSERT(r, 16 == layout.size(s1));
     REPORTER_ASSERT(r, 16 == layout.alignment(s1));
 
     fields1.emplace_back(SkSL::Modifiers(), SkSL::String("b"), context.fFloat_Type.get());
-    SkSL::Type s2(SkSL::Position(), SkSL::String("s2"), fields1);
+    SkSL::Type s2(-1, SkSL::String("s2"), fields1);
     REPORTER_ASSERT(r, 16 == layout.size(s2));
     REPORTER_ASSERT(r, 16 == layout.alignment(s2));
 
     fields1.emplace_back(SkSL::Modifiers(), SkSL::String("c"), context.fBool_Type.get());
-    SkSL::Type s3(SkSL::Position(), SkSL::String("s3"), fields1);
+    SkSL::Type s3(-1, SkSL::String("s3"), fields1);
     REPORTER_ASSERT(r, 32 == layout.size(s3));
     REPORTER_ASSERT(r, 16 == layout.alignment(s3));
 
     // struct 2
     std::vector<SkSL::Type::Field> fields2;
     fields2.emplace_back(SkSL::Modifiers(), SkSL::String("a"), context.fInt_Type.get());
-    SkSL::Type s4(SkSL::Position(), SkSL::String("s4"), fields2);
+    SkSL::Type s4(-1, SkSL::String("s4"), fields2);
     REPORTER_ASSERT(r, 16 == layout.size(s4));
     REPORTER_ASSERT(r, 16 == layout.alignment(s4));
 
     fields2.emplace_back(SkSL::Modifiers(), SkSL::String("b"), context.fFloat3_Type.get());
-    SkSL::Type s5(SkSL::Position(), SkSL::String("s5"), fields2);
+    SkSL::Type s5(-1, SkSL::String("s5"), fields2);
     REPORTER_ASSERT(r, 32 == layout.size(s5));
     REPORTER_ASSERT(r, 16 == layout.alignment(s5));
 
@@ -136,29 +136,29 @@ DEF_TEST(SkSLMemoryLayout430Test, r) {
     // struct 1
     std::vector<SkSL::Type::Field> fields1;
     fields1.emplace_back(SkSL::Modifiers(), SkSL::String("a"), context.fFloat3_Type.get());
-    SkSL::Type s1(SkSL::Position(), SkSL::String("s1"), fields1);
+    SkSL::Type s1(-1, SkSL::String("s1"), fields1);
     REPORTER_ASSERT(r, 16 == layout.size(s1));
     REPORTER_ASSERT(r, 16 == layout.alignment(s1));
 
     fields1.emplace_back(SkSL::Modifiers(), SkSL::String("b"), context.fFloat_Type.get());
-    SkSL::Type s2(SkSL::Position(), SkSL::String("s2"), fields1);
+    SkSL::Type s2(-1, SkSL::String("s2"), fields1);
     REPORTER_ASSERT(r, 16 == layout.size(s2));
     REPORTER_ASSERT(r, 16 == layout.alignment(s2));
 
     fields1.emplace_back(SkSL::Modifiers(), SkSL::String("c"), context.fBool_Type.get());
-    SkSL::Type s3(SkSL::Position(), SkSL::String("s3"), fields1);
+    SkSL::Type s3(-1, SkSL::String("s3"), fields1);
     REPORTER_ASSERT(r, 32 == layout.size(s3));
     REPORTER_ASSERT(r, 16 == layout.alignment(s3));
 
     // struct 2
     std::vector<SkSL::Type::Field> fields2;
     fields2.emplace_back(SkSL::Modifiers(), SkSL::String("a"), context.fInt_Type.get());
-    SkSL::Type s4(SkSL::Position(), SkSL::String("s4"), fields2);
+    SkSL::Type s4(-1, SkSL::String("s4"), fields2);
     REPORTER_ASSERT(r, 4 == layout.size(s4));
     REPORTER_ASSERT(r, 4 == layout.alignment(s4));
 
     fields2.emplace_back(SkSL::Modifiers(), SkSL::String("b"), context.fFloat3_Type.get());
-    SkSL::Type s5(SkSL::Position(), SkSL::String("s5"), fields2);
+    SkSL::Type s5(-1, SkSL::String("s5"), fields2);
     REPORTER_ASSERT(r, 32 == layout.size(s5));
     REPORTER_ASSERT(r, 16 == layout.alignment(s5));
 

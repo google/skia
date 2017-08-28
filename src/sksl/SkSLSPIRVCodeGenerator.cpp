@@ -1003,12 +1003,12 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
         const Layout& fieldLayout = type.fields()[i].fModifiers.fLayout;
         if (fieldLayout.fOffset >= 0) {
             if (fieldLayout.fOffset < (int) offset) {
-                fErrors.error(type.fPosition,
+                fErrors.error(type.fOffset,
                               "offset of field '" + type.fields()[i].fName + "' must be at "
                               "least " + to_string((int) offset));
             }
             if (fieldLayout.fOffset % alignment) {
-                fErrors.error(type.fPosition,
+                fErrors.error(type.fOffset,
                               "offset of field '" + type.fields()[i].fName + "' must be a multiple"
                               " of " + to_string((int) alignment));
             }
@@ -1081,7 +1081,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& type, const MemoryLayout& layout) 
                 break;
             case Type::kArray_Kind: {
                 if (type.columns() > 0) {
-                    IntLiteral count(fContext, Position(), type.columns());
+                    IntLiteral count(fContext, -1, type.columns());
                     this->writeInstruction(SpvOpTypeArray, result,
                                            this->getType(type.componentType(), layout),
                                            this->writeIntLiteral(count), fConstantBuffer);
@@ -1331,9 +1331,9 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kSubpassLoad_SpecialIntrinsic: {
             SpvId img = this->writeExpression(*c.fArguments[0], out);
             std::vector<std::unique_ptr<Expression>> args;
-            args.emplace_back(new FloatLiteral(fContext, Position(), 0.0));
-            args.emplace_back(new FloatLiteral(fContext, Position(), 0.0));
-            Constructor ctor(Position(), *fContext.fFloat2_Type, std::move(args));
+            args.emplace_back(new FloatLiteral(fContext, -1, 0.0));
+            args.emplace_back(new FloatLiteral(fContext, -1, 0.0));
+            Constructor ctor(-1, *fContext.fFloat2_Type, std::move(args));
             SpvId coords = this->writeConstantVector(ctor);
             if (1 == c.fArguments.size()) {
                 this->writeInstruction(SpvOpImageRead,
@@ -1566,7 +1566,7 @@ SpvId SPIRVCodeGenerator::writeUIntConstructor(const Constructor& c, OutputStrea
 
 void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const Type& type,
                                                  OutputStream& out) {
-    FloatLiteral zero(fContext, Position(), 0);
+    FloatLiteral zero(fContext, -1, 0);
     SpvId zeroId = this->writeFloatLiteral(zero);
     std::vector<SpvId> columnIds;
     for (int column = 0; column < type.columns(); column++) {
@@ -1603,10 +1603,10 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
                                                                            1));
     SpvId zeroId;
     if (dstType.componentType() == *fContext.fFloat_Type) {
-        FloatLiteral zero(fContext, Position(), 0.0);
+        FloatLiteral zero(fContext, -1, 0.0);
         zeroId = this->writeFloatLiteral(zero);
     } else if (dstType.componentType() == *fContext.fInt_Type) {
-        IntLiteral zero(fContext, Position(), 0);
+        IntLiteral zero(fContext, -1, 0);
         zeroId = this->writeIntLiteral(zero);
     } else {
         ABORT("unsupported matrix component type");
@@ -1864,7 +1864,7 @@ std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, Ou
         case Expression::kFieldAccess_Kind: {
             FieldAccess& fieldExpr = (FieldAccess&) expr;
             chain = this->getAccessChain(*fieldExpr.fBase, out);
-            IntLiteral index(fContext, Position(), fieldExpr.fFieldIndex);
+            IntLiteral index(fContext, -1, fieldExpr.fFieldIndex);
             chain.push_back(this->writeIntLiteral(index));
             break;
         }
@@ -2010,7 +2010,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             SpvId base = this->getLValue(*swizzle.fBase, out)->getPointer();
             ASSERT(base);
             if (count == 1) {
-                IntLiteral index(fContext, Position(), swizzle.fComponents[0]);
+                IntLiteral index(fContext, -1, swizzle.fComponents[0]);
                 SpvId member = this->nextId();
                 this->writeInstruction(SpvOpAccessChain,
                                        this->getPointerType(swizzle.fType,
@@ -2067,17 +2067,17 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             fields.emplace_back(Modifiers(), String(SKSL_RTHEIGHT_NAME),
                                 fContext.fFloat_Type.get());
             String name("sksl_synthetic_uniforms");
-            Type intfStruct(Position(), name, fields);
+            Type intfStruct(-1, name, fields);
             Layout layout(-1, -1, 1, -1, -1, -1, -1, false, false, false,
                           Layout::Format::kUnspecified, false, Layout::kUnspecified_Primitive, -1,
                           -1, "", Layout::kNo_Key);
-            Variable* intfVar = new Variable(Position(),
+            Variable* intfVar = new Variable(-1,
                                              Modifiers(layout, Modifiers::kUniform_Flag),
                                              name,
                                              intfStruct,
                                              Variable::kGlobal_Storage);
             fSynthetics.takeOwnership(intfVar);
-            InterfaceBlock intf(Position(), intfVar, name, String(""),
+            InterfaceBlock intf(-1, intfVar, name, String(""),
                                 std::vector<std::unique_ptr<Expression>>(), st);
             fRTHeightStructId = this->writeInterfaceBlock(intf);
             fRTHeightFieldIndex = 0;
@@ -2087,7 +2087,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         SpvId xId = this->nextId();
         this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fFloat_Type), xId,
                                result, 0, out);
-        IntLiteral fieldIndex(fContext, Position(), fRTHeightFieldIndex);
+        IntLiteral fieldIndex(fContext, -1, fRTHeightFieldIndex);
         SpvId fieldIndexId = this->writeIntLiteral(fieldIndex);
         SpvId heightPtr = this->nextId();
         this->writeOpCode(SpvOpAccessChain, 5, out);
@@ -2104,9 +2104,9 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         SpvId flippedYId = this->nextId();
         this->writeInstruction(SpvOpFSub, this->getType(*fContext.fFloat_Type), flippedYId,
                                heightRead, rawYId, out);
-        FloatLiteral zero(fContext, Position(), 0.0);
+        FloatLiteral zero(fContext, -1, 0.0);
         SpvId zeroId = writeFloatLiteral(zero);
-        FloatLiteral one(fContext, Position(), 1.0);
+        FloatLiteral one(fContext, -1, 1.0);
         SpvId oneId = writeFloatLiteral(one);
         SpvId flipped = this->nextId();
         this->writeOpCode(SpvOpCompositeConstruct, 7, out);
@@ -2509,7 +2509,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
 
 SpvId SPIRVCodeGenerator::writeLogicalAnd(const BinaryExpression& a, OutputStream& out) {
     ASSERT(a.fOperator == Token::LOGICALAND);
-    BoolLiteral falseLiteral(fContext, Position(), false);
+    BoolLiteral falseLiteral(fContext, -1, false);
     SpvId falseConstant = this->writeBoolLiteral(falseLiteral);
     SpvId lhs = this->writeExpression(*a.fLeft, out);
     SpvId rhsLabel = this->nextId();
@@ -2530,7 +2530,7 @@ SpvId SPIRVCodeGenerator::writeLogicalAnd(const BinaryExpression& a, OutputStrea
 
 SpvId SPIRVCodeGenerator::writeLogicalOr(const BinaryExpression& o, OutputStream& out) {
     ASSERT(o.fOperator == Token::LOGICALOR);
-    BoolLiteral trueLiteral(fContext, Position(), true);
+    BoolLiteral trueLiteral(fContext, -1, true);
     SpvId trueConstant = this->writeBoolLiteral(trueLiteral);
     SpvId lhs = this->writeExpression(*o.fLeft, out);
     SpvId rhsLabel = this->nextId();
@@ -2584,10 +2584,10 @@ SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, Out
 
 std::unique_ptr<Expression> create_literal_1(const Context& context, const Type& type) {
     if (type == *context.fInt_Type) {
-        return std::unique_ptr<Expression>(new IntLiteral(context, Position(), 1));
+        return std::unique_ptr<Expression>(new IntLiteral(context, -1, 1));
     }
     else if (type == *context.fFloat_Type) {
-        return std::unique_ptr<Expression>(new FloatLiteral(context, Position(), 1.0));
+        return std::unique_ptr<Expression>(new FloatLiteral(context, -1, 1.0));
     } else {
         ABORT("math is unsupported on type '%s'", type.name().c_str());
     }
@@ -2845,7 +2845,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         fRTHeightStructId = result;
         fRTHeightFieldIndex = fields.size();
         fields.emplace_back(Modifiers(), String(SKSL_RTHEIGHT_NAME), fContext.fFloat_Type.get());
-        type = new Type(type->fPosition, type->name(), fields);
+        type = new Type(type->fOffset, type->name(), fields);
     }
     SpvId typeId = this->getType(*type, layout);
     if (intf.fVariable.fModifiers.fFlags & Modifiers::kBuffer_Flag) {
@@ -3086,7 +3086,7 @@ void SPIRVCodeGenerator::writeWhileStatement(const WhileStatement& w, OutputStre
     // the time being, we just fail with an error due to the lack of testing. If you encounter this
     // message, simply remove the error call below to see whether our while loop support actually
     // works.
-    fErrors.error(w.fPosition, "internal error: while loop support has been disabled in SPIR-V, "
+    fErrors.error(w.fOffset, "internal error: while loop support has been disabled in SPIR-V, "
                   "see SkSLSPIRVCodeGenerator.cpp for details");
 
     SpvId header = this->nextId();
@@ -3118,7 +3118,7 @@ void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, OutputStream& ou
     // the time being, we just fail with an error due to the lack of testing. If you encounter this
     // message, simply remove the error call below to see whether our do loop support actually
     // works.
-    fErrors.error(d.fPosition, "internal error: do loop support has been disabled in SPIR-V, see "
+    fErrors.error(d.fOffset, "internal error: do loop support has been disabled in SPIR-V, see "
                   "SkSLSPIRVCodeGenerator.cpp for details");
 
     SpvId header = this->nextId();

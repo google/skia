@@ -14,7 +14,8 @@
 #include <unordered_set>
 #include "SkSLErrorReporter.h"
 #include "ir/SkSLLayout.h"
-#include "SkSLToken.h"
+#include "SkSLLexer.h"
+#include "SkSLLayoutLexer.h"
 
 struct yy_buffer_state;
 #define YY_TYPEDEF_YY_BUFFER_STATE
@@ -53,8 +54,6 @@ class Parser {
 public:
     Parser(String text, SymbolTable& types, ErrorReporter& errors);
 
-    ~Parser();
-
     /**
      * Consumes a complete .sksl file and produces a list of declarations. Errors are reported via
      * the ErrorReporter; the return value may contain some declarations even when errors have
@@ -62,13 +61,15 @@ public:
      */
     std::vector<std::unique_ptr<ASTDeclaration>> file();
 
+    String text(Token token);
+
+    Position position(Token token);
+
 private:
     /**
-     * Return the next token, including whitespace tokens, from the parse stream. If needText is
-     * false, the token's text is only filled in if it is a token with variable text (identifiers,
-     * numbers, etc.).
+     * Return the next token, including whitespace tokens, from the parse stream.
      */
-    Token nextRawToken(bool needText);
+    Token nextRawToken();
 
     /**
      * Return the next non-whitespace token from the parse stream.
@@ -103,10 +104,10 @@ private:
      * Returns true if the read token was as expected, false otherwise.
      */
     bool expect(Token::Kind kind, const char* expected, Token* result = nullptr);
+    bool expect(Token::Kind kind, String expected, Token* result = nullptr);
 
-    void error(Position p, const char* msg);
-    void error(Position p, String msg);
-
+    void error(Token token, String msg);
+    void error(int offset, String msg);
     /**
      * Returns true if the 'name' identifier refers to a type name. For instance, isType("int") will
      * always return true.
@@ -225,8 +226,9 @@ private:
 
     bool identifier(String* dest);
 
-    void* fScanner;
-    void* fLayoutScanner;
+    String fText;
+    Lexer fLexer;
+    LayoutLexer fLayoutLexer;
     YY_BUFFER_STATE fBuffer;
     // current parse depth, used to enforce a recursion limit to try to keep us from overflowing the
     // stack on pathological inputs

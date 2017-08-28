@@ -343,7 +343,7 @@ private:
     class Defined : public Expression {
     public:
         Defined(const Type& type)
-        : INHERITED(Position(), kDefined_Kind, type) {}
+        : INHERITED(-1, kDefined_Kind, type) {}
 
         bool hasSideEffects() const override {
             return false;

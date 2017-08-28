@@ -87,7 +87,7 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
         if (SK_TRANSFORMEDCOORDS2D_BUILTIN == builtin) {
             this->write("%s");
             if (i.fIndex->fKind != Expression::kIntLiteral_Kind) {
-                fErrors.error(i.fIndex->fPosition,
+                fErrors.error(i.fIndex->fOffset,
                               "index into sk_TransformedCoords2D must be an integer literal");
                 return;
             }
@@ -104,7 +104,7 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
         } else if (SK_TEXTURESAMPLERS_BUILTIN == builtin) {
             this->write("%s");
             if (i.fIndex->fKind != Expression::kIntLiteral_Kind) {
-                fErrors.error(i.fIndex->fPosition,
+                fErrors.error(i.fIndex->fOffset,
                               "index into sk_TextureSamplers must be an integer literal");
                 return;
             }
@@ -414,7 +414,7 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
         this->addUniform(*u);
         if (u->fType == *fContext.fColorSpaceXform_Type) {
             if (fNeedColorSpaceHelper) {
-                fErrors.error(u->fPosition, "only a single ColorSpaceXform is supported");
+                fErrors.error(u->fOffset, "only a single ColorSpaceXform is supported");
             }
             fNeedColorSpaceHelper = true;
             this->writef("        fColorSpaceHelper.emitCode(args.fUniformHandler, "
@@ -512,8 +512,8 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
 void CPPCodeGenerator::writeClone() {
     if (!this->writeSection(CLONE_SECTION)) {
         if (fSectionAndParameterHelper.getSection(FIELDS_SECTION)) {
-            fErrors.error(Position(1, 1), "fragment processors with custom @fields must also have "
-                                          "a custom @clone");
+            fErrors.error(0, "fragment processors with custom @fields must also have a custom"
+                             "@clone");
         }
         this->writef("%s::%s(const %s& src)\n"
                      ": INHERITED(src.optimizationFlags())", fFullName.c_str(), fFullName.c_str(),
@@ -580,7 +580,7 @@ void CPPCodeGenerator::writeGetKey() {
         }
         if (param->fModifiers.fLayout.fKey != Layout::kNo_Key &&
             (param->fModifiers.fFlags & Modifiers::kUniform_Flag)) {
-            fErrors.error(param->fPosition,
+            fErrors.error(param->fOffset,
                           "layout(key) may not be specified on uniforms");
         }
         switch (param->fModifiers.fLayout.fKey) {
@@ -608,7 +608,7 @@ void CPPCodeGenerator::writeGetKey() {
                 break;
             case Layout::kIdentity_Key:
                 if (param->fType.kind() != Type::kMatrix_Kind) {
-                    fErrors.error(param->fPosition,
+                    fErrors.error(param->fOffset,
                                   "layout(key=identity) requires matrix type");
                 }
                 this->writef("    b->add32(%s.isIdentity() ? 1 : 0);\n",

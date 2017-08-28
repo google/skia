@@ -148,7 +148,7 @@ void HCodeGenerator::writeMake() {
 void HCodeGenerator::failOnSection(const char* section, const char* msg) {
     std::vector<const Section*> s = fSectionAndParameterHelper.getSections(section);
     if (s.size()) {
-        fErrors.error(s[0]->fPosition, String("@") + section + " " + msg);
+        fErrors.error(s[0]->fOffset, String("@") + section + " " + msg);
     }
 }
 

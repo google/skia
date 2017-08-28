@@ -23,13 +23,13 @@ namespace SkSL {
  */
 struct ASTInterfaceBlock : public ASTDeclaration {
     // valueName is empty when it was not present in the source
-    ASTInterfaceBlock(Position position,
+    ASTInterfaceBlock(int offset,
                       Modifiers modifiers,
                       String typeName,
                       std::vector<std::unique_ptr<ASTVarDeclarations>> declarations,
                       String instanceName,
                       std::vector<std::unique_ptr<ASTExpression>> sizes)
-    : INHERITED(position, kInterfaceBlock_Kind)
+    : INHERITED(offset, kInterfaceBlock_Kind)
     , fModifiers(modifiers)
     , fTypeName(std::move(typeName))
     , fDeclarations(std::move(declarations))

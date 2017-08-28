@@ -27,9 +27,8 @@ struct Variable : public Symbol {
         kParameter_Storage
     };
 
-    Variable(Position position, Modifiers modifiers, String name, const Type& type,
-             Storage storage)
-    : INHERITED(position, kVariable_Kind, std::move(name))
+    Variable(int offset, Modifiers modifiers, String name, const Type& type, Storage storage)
+    : INHERITED(offset, kVariable_Kind, std::move(name))
     , fModifiers(modifiers)
     , fType(type)
     , fStorage(storage)

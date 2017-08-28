@@ -24,8 +24,8 @@ struct Symbol : public IRNode {
         kField_Kind
     };
 
-    Symbol(Position position, Kind kind, String name)
-    : INHERITED(position)
+    Symbol(int offset, Kind kind, String name)
+    : INHERITED(offset)
     , fKind(kind)
     , fName(std::move(name)) {}
 

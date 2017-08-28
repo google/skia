@@ -16,8 +16,8 @@ namespace SkSL {
  * A 'continue' statement.
  */
 struct ASTContinueStatement : public ASTStatement {
-    ASTContinueStatement(Position position)
-    : INHERITED(position, kContinue_Kind) {}
+    ASTContinueStatement(int offset)
+    : INHERITED(offset, kContinue_Kind) {}
 
     String description() const override {
         return String("continue;");

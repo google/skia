@@ -56,21 +56,21 @@ public:
                     if (IsSupportedSection(s->fName.c_str())) {
                         if (SectionAcceptsArgument(s->fName.c_str())) {
                             if (!s->fArgument.size()) {
-                                errors.error(s->fPosition,
+                                errors.error(s->fOffset,
                                              ("section '@" + s->fName +
                                               "' requires one parameter").c_str());
                             }
                         } else if (s->fArgument.size()) {
-                            errors.error(s->fPosition,
+                            errors.error(s->fOffset,
                                          ("section '@" + s->fName + "' has no parameters").c_str());
                         }
                     } else {
-                        errors.error(s->fPosition,
+                        errors.error(s->fOffset,
                                      ("unsupported section '@" + s->fName + "'").c_str());
                     }
                     if (!SectionPermitsDuplicates(s->fName.c_str()) &&
                             fSections.find(s->fName) != fSections.end()) {
-                        errors.error(s->fPosition,
+                        errors.error(s->fOffset,
                                      ("duplicate section '@" + s->fName + "'").c_str());
                     }
                     fSections[s->fName].push_back(s);

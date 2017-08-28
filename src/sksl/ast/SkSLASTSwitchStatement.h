@@ -17,9 +17,9 @@ namespace SkSL {
  * A 'switch' statement.
  */
 struct ASTSwitchStatement : public ASTStatement {
-    ASTSwitchStatement(Position position, bool isStatic, std::unique_ptr<ASTExpression> value,
+    ASTSwitchStatement(int offset, bool isStatic, std::unique_ptr<ASTExpression> value,
                        std::vector<std::unique_ptr<ASTSwitchCase>> cases)
-    : INHERITED(position, kSwitch_Kind)
+    : INHERITED(offset, kSwitch_Kind)
     , fIsStatic(isStatic)
     , fValue(std::move(value))
     , fCases(std::move(cases)) {}
