@@ -460,8 +460,8 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
     // without the path effect. If *both* have path effects then they should have both preserved
     // the direction and starting point.
 
-    // The asRRect() output params are all initialized just to silence compiler warnings about
-    // uninitialized variables.
+    // The asDeviceSpaceRRect() output params are all initialized just to silence compiler warnings
+    // about uninitialized variables.
     SkRRect rrectA = SkRRect::MakeEmpty(), rrectB = SkRRect::MakeEmpty();
     SkPath::Direction dirA = SkPath::kCW_Direction, dirB = SkPath::kCW_Direction;
     unsigned startA = ~0U, startB = ~0U;

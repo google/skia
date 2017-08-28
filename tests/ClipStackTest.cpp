@@ -158,8 +158,9 @@ static void test_iterators(skiatest::Reporter* reporter) {
         int i;
 
         for (i = 0, element = iter.next(); element; ++i, element = iter.next()) {
-            REPORTER_ASSERT(reporter, SkClipStack::Element::kRect_Type == element->getType());
-            REPORTER_ASSERT(reporter, element->getRect() == gRects[i]);
+            REPORTER_ASSERT(reporter, SkClipStack::Element::DeviceSpaceType::kRect ==
+                                              element->getDeviceSpaceType());
+            REPORTER_ASSERT(reporter, element->getDeviceSpaceRect() == gRects[i]);
         }
 
         SkASSERT(i == 4);
@@ -173,8 +174,9 @@ static void test_iterators(skiatest::Reporter* reporter) {
         int i;
 
         for (i = 3, element = iter.prev(); element; --i, element = iter.prev()) {
-            REPORTER_ASSERT(reporter, SkClipStack::Element::kRect_Type == element->getType());
-            REPORTER_ASSERT(reporter, element->getRect() == gRects[i]);
+            REPORTER_ASSERT(reporter, SkClipStack::Element::DeviceSpaceType::kRect ==
+                                              element->getDeviceSpaceType());
+            REPORTER_ASSERT(reporter, element->getDeviceSpaceRect() == gRects[i]);
         }
 
         SkASSERT(i == -1);
@@ -187,13 +189,15 @@ static void test_iterators(skiatest::Reporter* reporter) {
         SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
 
         element = iter.skipToTopmost(kUnion_SkClipOp);
-        REPORTER_ASSERT(reporter, SkClipStack::Element::kRect_Type == element->getType());
-        REPORTER_ASSERT(reporter, element->getRect() == gRects[3]);
+        REPORTER_ASSERT(reporter, SkClipStack::Element::DeviceSpaceType::kRect ==
+                                          element->getDeviceSpaceType());
+        REPORTER_ASSERT(reporter, element->getDeviceSpaceRect() == gRects[3]);
     }
 }
 
 // Exercise the SkClipStack's getConservativeBounds computation
-static void test_bounds(skiatest::Reporter* reporter, SkClipStack::Element::Type primType) {
+static void test_bounds(skiatest::Reporter* reporter,
+                        SkClipStack::Element::DeviceSpaceType primType) {
     static const int gNumCases = 20;
     static const SkRect gAnswerRectsBW[gNumCases] = {
         // A op B
@@ -252,7 +256,7 @@ static void test_bounds(skiatest::Reporter* reporter, SkClipStack::Element::Type
     bool isIntersectionOfRects = false;
 
     int testCase = 0;
-    int numBitTests = SkClipStack::Element::kPath_Type == primType ? 4 : 1;
+    int numBitTests = SkClipStack::Element::DeviceSpaceType::kPath == primType ? 4 : 1;
     for (int invBits = 0; invBits < numBitTests; ++invBits) {
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
 
@@ -266,18 +270,18 @@ static void test_bounds(skiatest::Reporter* reporter, SkClipStack::Element::Type
                                        SkPath::kEvenOdd_FillType);
 
             switch (primType) {
-                case SkClipStack::Element::kEmpty_Type:
+                case SkClipStack::Element::DeviceSpaceType::kEmpty:
                     SkDEBUGFAIL("Don't call this with kEmpty.");
                     break;
-                case SkClipStack::Element::kRect_Type:
+                case SkClipStack::Element::DeviceSpaceType::kRect:
                     stack.clipRect(rectA, SkMatrix::I(), kIntersect_SkClipOp, false);
                     stack.clipRect(rectB, SkMatrix::I(), gOps[op], false);
                     break;
-                case SkClipStack::Element::kRRect_Type:
+                case SkClipStack::Element::DeviceSpaceType::kRRect:
                     stack.clipRRect(rrectA, SkMatrix::I(), kIntersect_SkClipOp, false);
                     stack.clipRRect(rrectB, SkMatrix::I(), gOps[op], false);
                     break;
-                case SkClipStack::Element::kPath_Type:
+                case SkClipStack::Element::DeviceSpaceType::kPath:
                     stack.clipPath(pathA, SkMatrix::I(), kIntersect_SkClipOp, false);
                     stack.clipPath(pathB, SkMatrix::I(), gOps[op], false);
                     break;
@@ -289,7 +293,7 @@ static void test_bounds(skiatest::Reporter* reporter, SkClipStack::Element::Type
             stack.getConservativeBounds(0, 0, 100, 100, &devClipBound,
                                         &isIntersectionOfRects);
 
-            if (SkClipStack::Element::kRect_Type == primType) {
+            if (SkClipStack::Element::DeviceSpaceType::kRect == primType) {
                 REPORTER_ASSERT(reporter, isIntersectionOfRects ==
                         (gOps[op] == kIntersect_SkClipOp));
             } else {
@@ -810,12 +814,12 @@ static void set_region_to_stack(const SkClipStack& stack, const SkIRect& bounds,
         SkRegion boundsRgn(bounds);
         SkPath path;
 
-        switch (element->getType()) {
-            case SkClipStack::Element::kEmpty_Type:
+        switch (element->getDeviceSpaceType()) {
+            case SkClipStack::Element::DeviceSpaceType::kEmpty:
                 elemRegion.setEmpty();
                 break;
             default:
-                element->asPath(&path);
+                element->asDeviceSpacePath(&path);
                 elemRegion.setPath(path, boundsRgn);
                 break;
         }
@@ -899,17 +903,20 @@ static void add_oval(const SkRect& rect, bool invert, SkClipOp op, SkClipStack* 
 };
 
 static void add_elem_to_stack(const SkClipStack::Element& element, SkClipStack* stack) {
-    switch (element.getType()) {
-        case SkClipStack::Element::kRect_Type:
-            stack->clipRect(element.getRect(), SkMatrix::I(), element.getOp(), element.isAA());
+    switch (element.getDeviceSpaceType()) {
+        case SkClipStack::Element::DeviceSpaceType::kRect:
+            stack->clipRect(element.getDeviceSpaceRect(), SkMatrix::I(), element.getOp(),
+                            element.isAA());
             break;
-        case SkClipStack::Element::kRRect_Type:
-            stack->clipRRect(element.getRRect(), SkMatrix::I(), element.getOp(), element.isAA());
+        case SkClipStack::Element::DeviceSpaceType::kRRect:
+            stack->clipRRect(element.getDeviceSpaceRRect(), SkMatrix::I(), element.getOp(),
+                             element.isAA());
             break;
-        case SkClipStack::Element::kPath_Type:
-            stack->clipPath(element.getPath(), SkMatrix::I(), element.getOp(), element.isAA());
+        case SkClipStack::Element::DeviceSpaceType::kPath:
+            stack->clipPath(element.getDeviceSpacePath(), SkMatrix::I(), element.getOp(),
+                            element.isAA());
             break;
-        case SkClipStack::Element::kEmpty_Type:
+        case SkClipStack::Element::DeviceSpaceType::kEmpty:
             SkDEBUGFAIL("Why did the reducer produce an explicit empty.");
             stack->clipEmpty();
             break;
@@ -1413,9 +1420,10 @@ DEF_TEST(ClipStack, reporter) {
     answer.iset(25, 25, 75, 75);
 
     REPORTER_ASSERT(reporter, element);
-    REPORTER_ASSERT(reporter, SkClipStack::Element::kRect_Type == element->getType());
+    REPORTER_ASSERT(reporter,
+                    SkClipStack::Element::DeviceSpaceType::kRect == element->getDeviceSpaceType());
     REPORTER_ASSERT(reporter, kIntersect_SkClipOp == element->getOp());
-    REPORTER_ASSERT(reporter, element->getRect() == answer);
+    REPORTER_ASSERT(reporter, element->getDeviceSpaceRect() == answer);
     // now check that we only had one in our iterator
     REPORTER_ASSERT(reporter, !iter.next());
 
@@ -1425,9 +1433,9 @@ DEF_TEST(ClipStack, reporter) {
 
     test_assign_and_comparison(reporter);
     test_iterators(reporter);
-    test_bounds(reporter, SkClipStack::Element::kRect_Type);
-    test_bounds(reporter, SkClipStack::Element::kRRect_Type);
-    test_bounds(reporter, SkClipStack::Element::kPath_Type);
+    test_bounds(reporter, SkClipStack::Element::DeviceSpaceType::kRect);
+    test_bounds(reporter, SkClipStack::Element::DeviceSpaceType::kRRect);
+    test_bounds(reporter, SkClipStack::Element::DeviceSpaceType::kPath);
     test_isWideOpen(reporter);
     test_rect_merging(reporter);
     test_rect_replace(reporter);

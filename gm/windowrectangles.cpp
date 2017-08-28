@@ -79,17 +79,17 @@ void WindowRectanglesGM::onCoverClipStack(const SkClipStack& stack, SkCanvas* ca
     for (const SkClipStack::Element* element = iter.next(); element; element = iter.next()) {
         SkClipOp op = element->getOp();
         bool isAA = element->isAA();
-        switch (element->getType()) {
-            case SkClipStack::Element::kPath_Type:
-                canvas->clipPath(element->getPath(), op, isAA);
+        switch (element->getDeviceSpaceType()) {
+            case SkClipStack::Element::DeviceSpaceType::kPath:
+                canvas->clipPath(element->getDeviceSpacePath(), op, isAA);
                 break;
-            case SkClipStack::Element::kRRect_Type:
-                canvas->clipRRect(element->getRRect(), op, isAA);
+            case SkClipStack::Element::DeviceSpaceType::kRRect:
+                canvas->clipRRect(element->getDeviceSpaceRRect(), op, isAA);
                 break;
-            case SkClipStack::Element::kRect_Type:
-                canvas->clipRect(element->getRect(), op, isAA);
+            case SkClipStack::Element::DeviceSpaceType::kRect:
+                canvas->clipRect(element->getDeviceSpaceRect(), op, isAA);
                 break;
-            case SkClipStack::Element::kEmpty_Type:
+            case SkClipStack::Element::DeviceSpaceType::kEmpty:
                 canvas->clipRect({ 0, 0, 0, 0 }, kIntersect_SkClipOp, false);
                 break;
         }
