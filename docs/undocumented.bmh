@@ -14,6 +14,7 @@
  NULL
  RFC
  Bezier Coons
+ C C++
  SaveLayerFlags # not external; need to add typedef support
  SkUserConfig.h  # not external, but still thinking about how markup refers to this
  SkXXX.h        # ditto

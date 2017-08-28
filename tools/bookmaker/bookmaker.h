@@ -40,6 +40,7 @@ using std::vector;
 
 enum class KeyWord {
     kNone,
+    kSK_API,
     kBool,
     kChar,
     kClass,
@@ -148,6 +149,7 @@ enum class Bracket {
     kSlashSlash,
     kPound,
     kColon,
+    kDebugCode,  // parens get special treatment so SkDEBUGCODE( isn't treated as method
 };
 
 enum class Punctuation {  // catch-all for misc symbols tracked in C
@@ -1540,6 +1542,7 @@ public:
         fRootTopic = nullptr;
         fInBrace = nullptr;
         fIncludeWord = nullptr;
+        fLastObject = nullptr;
         fPrev = '\0';
         fInChar = false;
         fInCharCommentString = false;
@@ -1602,6 +1605,7 @@ protected:
     unordered_map<string, Definition> fIUnionMap;
     Definition* fRootTopic;
     Definition* fInBrace;
+    Definition* fLastObject;
     const char* fIncludeWord;
     char fPrev;
     bool fInChar;
@@ -1646,6 +1650,11 @@ public:
         list<Definition>::iterator fDefEnd;
     };
 
+    struct ParentPair {
+        const Definition* fParent;
+        const ParentPair* fPrev;
+    };
+
     IncludeWriter() : IncludeParser() {}
     ~IncludeWriter() override {}
 
@@ -1670,7 +1679,7 @@ public:
             const int start, const int run, int lastWrite, const char last, 
             const char* data);
     void methodOut(const Definition* method, const Definition& child);
-    bool populate(Definition* def, RootDefinition* root);
+    bool populate(Definition* def, ParentPair* parentPair, RootDefinition* root);
     bool populate(BmhParser& bmhParser);
 
     void reset() override {
