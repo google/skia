@@ -10,7 +10,6 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContextPriv.h"
-#include "GrPathUtils.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
@@ -22,6 +21,7 @@
 #include "SkPath.h"
 #include "SkView.h"
 #include "ccpr/GrCCPRCoverageProcessor.h"
+#include "ccpr/GrCCPRGeometry.h"
 #include "gl/GrGLGpu.cpp"
 #include "ops/GrDrawOp.h"
 
@@ -202,10 +202,9 @@ void CCPRGeometryView::updateGpuData() {
             fGpuInstances.push_back().fCubicData = {controlPointsIdx + i * 4, i};
         }
     } else if (is_curve(fMode)) {
-        SkPoint P[3] = {fPoints[0], fPoints[1], fPoints[3]};
         SkPoint chopped[5];
-        fGpuPoints.push_back(P[0]);
-        if (GrPathUtils::chopMonotonicQuads(P, chopped)) {
+        fGpuPoints.push_back(fPoints[0]);
+        if (GrCCPRChopMonotonicQuadratics(fPoints[0], fPoints[1], fPoints[3], chopped)) {
             // Endpoints.
             fGpuPoints.push_back(chopped[2]);
             fGpuPoints.push_back(chopped[4]);
@@ -215,8 +214,8 @@ void CCPRGeometryView::updateGpuData() {
             fGpuInstances.push_back().fQuadraticData = {3, 0};
             fGpuInstances.push_back().fQuadraticData = {4, 1};
         } else {
-            fGpuPoints.push_back(P[2]);
-            fGpuPoints.push_back(P[1]);
+            fGpuPoints.push_back(fPoints[3]);
+            fGpuPoints.push_back(fPoints[1]);
             fGpuInstances.push_back().fQuadraticData = {2, 0};
         }
     } else {

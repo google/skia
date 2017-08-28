@@ -124,14 +124,6 @@ namespace GrPathUtils {
                                                 SkPathPriv::FirstDirection dir,
                                                 SkTArray<SkPoint, true>* quads);
 
-    // Ensures that a quadratic bezier is monotonic with respect to its vector [P2 - P0] (the vector
-    // between its endpoints). In the event that the curve is not monotonic, it is chopped into two
-    // segments that are monotonic. This should be rare for well-behaved curves in the real world.
-    //
-    // Returns false if the curve was already monotonic.
-    //         true if it was chopped into two monotonic segments, now contained in dst.
-    bool chopMonotonicQuads(const SkPoint p[3], SkPoint dst[5]);
-
     // Computes the KLM linear functionals for the cubic implicit form. The "right" side of the
     // curve (when facing in the direction of increasing parameter values) will be the area that
     // satisfies:
