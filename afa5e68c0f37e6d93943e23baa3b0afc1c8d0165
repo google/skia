@@ -69,6 +69,92 @@
       "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c99f0c9_a57c8d3f",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-28T18:17:41Z",
+      "side": 1,
+      "message": "nit: static uint8_t final_scale(...) {",
+      "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae50ab98_7c738cc3",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-28T18:17:41Z",
+      "side": 1,
+      "message": "I haven\u0027t really thought the limitations through, but could we seed \u0027half\u0027 into sum0 instead?  Maybe uint8_t sum0 \u003d half / weight?",
+      "range": {
+        "startLine": 219,
+        "startChar": 41,
+        "endLine": 219,
+        "endChar": 45
+      },
+      "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b942832d_886615e8",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-28T18:17:41Z",
+      "side": 1,
+      "message": "nit: is this conditional needed?  I think for window \u003d\u003d width we\u0027ll skip the while loop below without intervention.",
+      "range": {
+        "startLine": 253,
+        "startChar": 11,
+        "endLine": 253,
+        "endChar": 30
+      },
+      "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cc4da2c_0b98cd2f",
+        "filename": "src/core/SkMaskBlurFilter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-28T18:17:41Z",
+      "side": 1,
+      "message": "It seems that \u0027width\u0027 could be derived from the other args: (srcEnd - src) / srcStride?\n\nExcept for the weird case(bug?) noted in the other comments...  So I guess this is needed for now, but if we fix that case we could consider dropping the explicit width.\n\nOr maybe the API should take (*base, stride, count) for both src/dst.  Then width \u003d\u003d srcCount and we no longer need to pass srcEnd/dstEnd.\n\nAnyway, not something needed for this CL.",
+      "range": {
+        "startLine": 63,
+        "startChar": 44,
+        "endLine": 63,
+        "endChar": 49
+      },
+      "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
