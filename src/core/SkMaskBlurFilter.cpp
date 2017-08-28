@@ -148,7 +148,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         for (size_t y = 0; y < srcH; y++) {
             auto srcStart = &src.fImage[y * src.fRowBytes];
             auto tmpStart = &tmp[y];
-            this->blurOneScan(fInfoW,
+            this->blurOneScan(fInfoW, srcW,
                               srcStart, 1, srcStart + srcW,
                               tmpStart, tmpW, tmpStart + tmpW * tmpH);
         }
@@ -158,7 +158,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         for (size_t y = 0; y < tmpH; y++) {
             auto tmpStart = &tmp[y * tmpW];
             auto dstStart = &dst->fImage[y];
-            this->blurOneScan(fInfoH,
+            this->blurOneScan(fInfoH, srcH,
                               tmpStart, 1, tmpStart + tmpW,
                               dstStart, dst->fRowBytes, dstStart + dst->fRowBytes * dstH);
         }
@@ -168,7 +168,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         for (size_t y = 0; y < srcH; y++) {
             auto srcStart = &src.fImage[y * src.fRowBytes];
             auto dstStart = &dst->fImage[y * dst->fRowBytes];
-            this->blurOneScan(fInfoW,
+            this->blurOneScan(fInfoW, srcW,
                               srcStart, 1, srcStart + srcW,
                               dstStart, 1, dstStart + dstW);
         }
@@ -180,7 +180,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
             auto srcEnd   = &src.fImage[src.fRowBytes * srcH];
             auto dstStart = &dst->fImage[x];
             auto dstEnd   = &dst->fImage[dst->fRowBytes * dstH];
-            this->blurOneScan(fInfoH,
+            this->blurOneScan(fInfoH, srcH,
                               srcStart, src.fRowBytes, srcEnd,
                               dstStart, dst->fRowBytes, dstEnd);
         }
@@ -201,79 +201,78 @@ size_t SkMaskBlurFilter::bufferSize(uint8_t bufferPass) const {
 
 // Blur one horizontal scan into the dst.
 void SkMaskBlurFilter::blurOneScan(
-    FilterInfo info,
+    FilterInfo info, size_t width,
     const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
           uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const {
     // We don't think this is good for quality. It is good for compatibility
     // with previous expectations...
     if (info.isSmall()) {
-        this->blurOneScanBox(info, src, srcStride, srcEnd, dst, dstStride, dstEnd);
+        this->blurOneScanBox(info, width, src, srcStride, srcEnd, dst, dstStride, dstEnd);
     } else {
         this->blurOneScanGauss(info, src, srcStride, srcEnd, dst, dstStride, dstEnd);
     }
 
 }
 
+static uint8_t final_scale(uint64_t weight, uint32_t sum) {
+    const uint64_t half = static_cast<uint64_t>(1) << 31;
+    return SkTo<uint8_t>((weight * sum + half) >> 32);
+}
+
 // Blur one horizontal scan into the dst.
 void SkMaskBlurFilter::blurOneScanBox(
-    FilterInfo info,
+    FilterInfo info, size_t width,
     const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
           uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const {
 
-    auto buffer0Begin = &fBuffer0[0];
-    auto buffer0Cursor = buffer0Begin;
-    auto buffer0End = &fBuffer0[0] + info.diameter(0) - 1;
-    std::memset(&fBuffer0[0], 0, (buffer0End - buffer0Begin) * sizeof(fBuffer0[0]));
+    auto window = info.diameter(0);
+    auto trailingSideStart = std::min(width, window);
+
+    auto srcCursor = src;
+    auto dstCursor = dst;
+
     uint32_t sum0 = 0;
-    const uint64_t half = static_cast<uint64_t>(1) << 31;
-
-    // Consume the source generating pixels.
-    for (auto srcCursor = src; srcCursor < srcEnd; dst += dstStride, srcCursor += srcStride) {
-        uint32_t s = *srcCursor;
-        sum0 += s;
-
-        *dst = SkTo<uint8_t>((info.scaledWeight() * sum0 + half) >> 32);
-
-
-        sum0 -= *buffer0Cursor;
-        *buffer0Cursor = s;
-        buffer0Cursor = (buffer0Cursor + 1) < buffer0End ? buffer0Cursor + 1 : &fBuffer0[0];
+    for (size_t i = 0; i < trailingSideStart; i++) {
+        sum0 += *srcCursor;
+        *dstCursor = final_scale(info.scaledWeight(), sum0);
+        srcCursor += srcStride;
+        dstCursor += dstStride;
     }
 
-    // This handles the case when both ends of the box are not between [src, srcEnd), and both
-    // are zero at that point.
-    for (auto i = 0; i < static_cast<ptrdiff_t>(2 * info.borderSize()) - (srcEnd - src); i++) {
-        uint32_t s = 0;
-        sum0 += s;
+    // Consider the two filter cases:
+    // * window > width - in this case the right edge of the window reaches the end of the source
+    //                    data before left edge starts consuming source data. This means that the
+    //                    will be adding and subtracting zero as it advances, the sum never
+    //                    changing.
+    // * width < window - in this case the right edge of the window will continue consuming
+    //                    source data after the left edge of the window starts consuming source
+    //                    data.
 
-        *dst = SkTo<uint8_t>((info.scaledWeight() * sum0 + half) >> 32);
-
-        sum0 -= *buffer0Cursor;
-        *buffer0Cursor = s;
-        buffer0Cursor = (buffer0Cursor + 1) < buffer0End ? buffer0Cursor + 1 : &fBuffer0[0];
-        dst += dstStride;
+    if (window > width) {
+        auto v = final_scale(info.scaledWeight(), sum0);
+        std::memset(dstCursor, v, window - width);
+    } else if (window < width) {
+        auto windowEnd = src;
+        while (srcCursor < srcEnd) {
+            sum0 += *srcCursor;
+            sum0 -= *windowEnd;
+            *dstCursor = final_scale(info.scaledWeight(), sum0);
+            srcCursor += srcStride;
+            windowEnd += srcStride;
+            dstCursor += dstStride;
+        }
     }
 
-    // Starting from the right, fill in the rest of the buffer.
-    std::memset(&fBuffer0[0], 0, (buffer0End - &fBuffer0[0]) * sizeof(fBuffer0[0]));
+    srcCursor = srcEnd;
+    dstCursor = dstEnd;
 
     sum0 = 0;
-
-    uint8_t* dstCursor = dstEnd;
-    const uint8_t* srcCursor = srcEnd;
-    do {
-        dstCursor -= dstStride;
+    for (size_t i = 0; i < trailingSideStart; i++) {
         srcCursor -= srcStride;
-        uint32_t s = *srcCursor;
-        sum0 += s;
-
-        *dstCursor = SkTo<uint8_t>((info.scaledWeight() * sum0 + half) >> 32);
-
-        sum0 -= *buffer0Cursor;
-        *buffer0Cursor = s;
-        buffer0Cursor = (buffer0Cursor + 1) < buffer0End ? buffer0Cursor + 1 : &fBuffer0[0];
-    } while (dstCursor > dst);
-
+        dstCursor -= dstStride;
+        sum0 += *srcCursor;
+        *dstCursor = final_scale(info.scaledWeight(), sum0);
+    }
 }
 
 // Blur one horizontal scan into the dst.

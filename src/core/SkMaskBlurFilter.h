@@ -60,11 +60,11 @@ public:
 private:
     size_t bufferSize(uint8_t bufferPass) const;
 
-    void blurOneScan(FilterInfo gen,
+    void blurOneScan(FilterInfo gen, size_t width,
                      const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
                            uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const;
 
-    void blurOneScanBox(FilterInfo gen,
+    void blurOneScanBox(FilterInfo gen, size_t width,
                         const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
                               uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const;
 
