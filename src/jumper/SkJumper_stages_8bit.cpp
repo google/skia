@@ -5,23 +5,27 @@
  * found in the LICENSE file.
  */
 
-#include "SkJumper.h"
-#include "SkJumper_misc.h"
-
-#if defined(__SSE2__)
-    #include <immintrin.h>
-#endif
-
 // This restricted SkJumper backend works on 8-bit per channel interlaced
 // pixels.  This is the natural format for kN32_SkColorType buffers, and we
 // hope the stages in this file can replace many custom legacy routines.
 
+#include "SkJumper.h"
+#include "SkJumper_misc.h"
+
+// As an experiment we bake ARMv8 8-bit code in as normally compiled Skia code.
+// Any other platform (so far) is offline-only.
+#if defined(JUMPER_IS_OFFLINE) || (defined(__clang__) && defined(__aarch64__))
+
+#if defined(__aarch64__)
+    #include <arm_neon.h>
+#else
+    #include <immintrin.h>
+#endif
+
 #if !defined(JUMPER_IS_OFFLINE)
-    #error "This file must be pre-compiled."
+    #define WRAP(name) sk_##name##_8bit
 #elif defined(__aarch64__)
     #define WRAP(name) sk_##name##_aarch64_8bit
-#elif defined(__arm__)
-    #define WRAP(name) sk_##name##_vfp4_8bit
 #elif defined(__AVX2__)
     #define WRAP(name) sk_##name##_hsw_8bit
 #elif defined(__SSE4_1__)
@@ -112,7 +116,7 @@ SI V operator*(V x, V y) {
 
 template <typename T>
 SI T inv(T v) { return 0xff - v; }
-SI V two(V v) { return v + v; }
+
 SI V lerp(V from, V to, V t) { return to*t + from*inv(t); }
 
 SI V alpha(V v) {
@@ -162,10 +166,13 @@ SI V saturated_add(V a, V b) {
       b_lo, b_hi;
     split(a.u8x4, &a_lo, &a_hi);
     split(b.u8x4, &b_lo, &b_hi);
-#if defined(__AVX2__)
+#if defined(__aarch64__)
+    return join(vqaddq_u8(a_lo, b_lo),
+                vqaddq_u8(a_hi, b_hi));
+#elif defined(__AVX2__)
     return join(_mm256_adds_epu8(a_lo, b_lo),
                 _mm256_adds_epu8(a_hi, b_hi));
-#else
+#elif defined(__SSE2__)
     return join(_mm_adds_epu8(a_lo, b_lo),
                 _mm_adds_epu8(a_hi, b_hi));
 #endif
@@ -185,7 +192,11 @@ using Stage = void(const Params* params, void** program, R src_lo, R src_hi, R d
 MAYBE_MSABI
 extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t ylimit,
                                      void** program, const SkJumper_constants*) {
-    R r;
+#if defined(JUMPER_IS_OFFLINE)
+    R r;      // Fastest to start uninitialized.
+#else
+    R r{};    // Next best is zero'd for compilers that will complain about uninitialized values.
+#endif
     auto start = (Stage*)load_and_inc(program);
     for (; y < ylimit; y++) {
         Params params = { x,y,0 };
@@ -461,3 +472,5 @@ STAGE(overlay) {
 //   colorburn  |
 //   colordodge  > these involve division, which makes them (much) slower than the float stages.
 //   softlight  |
+
+#endif
