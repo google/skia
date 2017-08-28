@@ -264,8 +264,8 @@ public:
     ~SkFILEStream() override;
 
     static std::unique_ptr<SkFILEStream> Make(const char path[]) {
-        SkFILEStream* stream = new SkFILEStream(path);
-        return stream->isValid() ? std::unique_ptr<SkFILEStream>(stream) : nullptr;
+        std::unique_ptr<SkFILEStream> stream(new SkFILEStream(path));
+        return stream->isValid() ? std::move(stream) : nullptr;
     }
 
     /** Returns true if the current path could be opened. */
