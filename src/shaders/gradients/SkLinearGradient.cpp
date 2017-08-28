@@ -66,9 +66,13 @@ void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {
 SkShaderBase::Context* SkLinearGradient::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
+#ifndef SK_SUPPORT_LEGACY_LINEAR_GRADIENT
+    return CheckedMakeContext<LinearGradient4fContext>(alloc, *this, rec);
+#else
     return rec.fPreferredDstType == ContextRec::kPM4f_DstType
            ? CheckedMakeContext<LinearGradient4fContext>(alloc, *this, rec)
            : CheckedMakeContext<  LinearGradientContext>(alloc, *this, rec);
+#endif
 }
 
 SkShaderBase::Context* SkLinearGradient::onMakeBurstPipelineContext(

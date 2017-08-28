@@ -51,15 +51,66 @@ struct PremulTraits<ApplyPremul::True> {
 //
 //   - store4x()    Store 4 Sk4f values to dest (opportunistic optimization).
 //
+template <typename dst, ApplyPremul premul>
+struct DstTraits;
+
 template <ApplyPremul premul>
-struct DstTraits {
+struct DstTraits<SkPMColor, premul> {
+    using PM   = PremulTraits<premul>;
+
+    // For L32, prescaling by 255 saves a per-pixel multiplication when premul is not needed.
+    static Sk4f load(const SkPM4f& c) {
+        return premul == ApplyPremul::False
+            ? c.to4f_pmorder() * Sk4f(255)
+            : c.to4f_pmorder();
+    }
+
+    static void store(const Sk4f& c, SkPMColor* dst, const Sk4f& bias) {
+        if (premul == ApplyPremul::False) {
+            // c is pre-scaled by 255 and pre-biased, just store.
+            SkNx_cast<uint8_t>(c).store(dst);
+        } else {
+            *dst = Sk4f_toL32(PM::apply(c) + bias);
+        }
+    }
+
+    static void store(const Sk4f& c, SkPMColor* dst, int n) {
+        SkPMColor pmc;
+        store(c, &pmc, Sk4f(0));
+        sk_memset32(dst, pmc, n);
+    }
+
+    static void store4x(const Sk4f& c0, const Sk4f& c1,
+                        const Sk4f& c2, const Sk4f& c3,
+                        SkPMColor* dst,
+                        const Sk4f& bias0,
+                        const Sk4f& bias1) {
+        if (premul == ApplyPremul::False) {
+            // colors are pre-scaled and pre-biased.
+            Sk4f_ToBytes((uint8_t*)dst, c0, c1, c2, c3);
+        } else {
+            store(c0, dst + 0, bias0);
+            store(c1, dst + 1, bias1);
+            store(c2, dst + 2, bias0);
+            store(c3, dst + 3, bias1);
+        }
+    }
+
+    static Sk4f pre_lerp_bias(const Sk4f& bias) {
+        // We can apply the bias before interpolation when the colors are premultiplied.
+        return premul == ApplyPremul::False ? bias : 0;
+    }
+};
+
+template <ApplyPremul premul>
+struct DstTraits<SkPM4f, premul> {
     using PM   = PremulTraits<premul>;
 
     static Sk4f load(const SkPM4f& c) {
         return c.to4f();
     }
 
-    static void store(const Sk4f& c, SkPM4f* dst) {
+    static void store(const Sk4f& c, SkPM4f* dst, const Sk4f& /*bias*/) {
         PM::apply(c).store(dst->fVec);
     }
 
@@ -72,11 +123,17 @@ struct DstTraits {
 
     static void store4x(const Sk4f& c0, const Sk4f& c1,
                         const Sk4f& c2, const Sk4f& c3,
-                        SkPM4f* dst) {
-        store(c0, dst + 0);
-        store(c1, dst + 1);
-        store(c2, dst + 2);
-        store(c3, dst + 3);
+                        SkPM4f* dst,
+                        const Sk4f& bias0, const Sk4f& bias1) {
+        store(c0, dst + 0, bias0);
+        store(c1, dst + 1, bias1);
+        store(c2, dst + 2, bias0);
+        store(c3, dst + 3, bias1);
+    }
+
+    static Sk4f pre_lerp_bias(const Sk4f& /*bias*/) {
+        // For 4f dests we never bias.
+        return 0;
     }
 };
 

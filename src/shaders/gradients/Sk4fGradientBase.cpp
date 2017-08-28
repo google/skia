@@ -288,9 +288,8 @@ GradientShaderBase4fContext::GradientShaderBase4fContext(const SkGradientShaderB
                                                          const ContextRec& rec)
     : INHERITED(shader, rec)
     , fFlags(this->INHERITED::getFlags())
+    , fDither(rec.fPaint->isDither())
 {
-    SkASSERT(rec.fPreferredDstType == ContextRec::kPM4f_DstType);
-
     const SkMatrix& inverse = this->getTotalInverse();
     fDstToPos.setConcat(shader.fPtsToUnit, inverse);
     SkASSERT(!fDstToPos.hasPerspective());
@@ -308,10 +307,4 @@ GradientShaderBase4fContext::GradientShaderBase4fContext(const SkGradientShaderB
 bool SkGradientShaderBase::
 GradientShaderBase4fContext::isValid() const {
     return fDstToPos.isFinite();
-}
-
-void SkGradientShaderBase::
-GradientShaderBase4fContext::shadeSpan(int x, int y, SkPMColor dst[], int count) {
-    // This impl only shades to 4f.
-    SkASSERT(false);
 }
