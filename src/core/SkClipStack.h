@@ -64,13 +64,17 @@ public:
 
         Element(const Element&);
 
-        Element(const SkRect& rect, SkClipOp op, bool doAA) { this->initRect(0, rect, op, doAA); }
-
-        Element(const SkRRect& rrect, SkClipOp op, bool doAA) {
-            this->initRRect(0, rrect, op, doAA);
+        Element(const SkRect& rect, const SkMatrix& m, SkClipOp op, bool doAA) {
+            this->initRect(0, rect, m, op, doAA);
         }
 
-        Element(const SkPath& path, SkClipOp op, bool doAA) { this->initPath(0, path, op, doAA); }
+        Element(const SkRRect& rrect, const SkMatrix& m, SkClipOp op, bool doAA) {
+            this->initRRect(0, rrect, m, op, doAA);
+        }
+
+        Element(const SkPath& path, const SkMatrix& m, SkClipOp op, bool doAA) {
+            this->initPath(0, path, m, op, doAA);
+        }
 
         ~Element() {
 #if SK_SUPPORT_GPU
@@ -202,22 +206,23 @@ public:
             this->setEmpty();
         }
 
-        Element(int saveCount, const SkRRect& rrect, SkClipOp op, bool doAA) {
-            this->initRRect(saveCount, rrect, op, doAA);
+        Element(int saveCount, const SkRRect& rrect, const SkMatrix& m, SkClipOp op, bool doAA) {
+            this->initRRect(saveCount, rrect, m, op, doAA);
         }
 
-        Element(int saveCount, const SkRect& rect, SkClipOp op, bool doAA) {
-            this->initRect(saveCount, rect, op, doAA);
+        Element(int saveCount, const SkRect& rect, const SkMatrix& m, SkClipOp op, bool doAA) {
+            this->initRect(saveCount, rect, m, op, doAA);
         }
 
-        Element(int saveCount, const SkPath& path, SkClipOp op, bool doAA) {
-            this->initPath(saveCount, path, op, doAA);
+        Element(int saveCount, const SkPath& path, const SkMatrix& m, SkClipOp op, bool doAA) {
+            this->initPath(saveCount, path, m, op, doAA);
         }
 
         void initCommon(int saveCount, SkClipOp op, bool doAA);
-        void initRect(int saveCount, const SkRect& rect, SkClipOp op, bool doAA);
-        void initRRect(int saveCount, const SkRRect& rrect, SkClipOp op, bool doAA);
-        void initPath(int saveCount, const SkPath& path, SkClipOp op, bool doAA);
+        void initRect(int saveCount, const SkRect&, const SkMatrix&, SkClipOp, bool doAA);
+        void initRRect(int saveCount, const SkRRect&, const SkMatrix&, SkClipOp, bool doAA);
+        void initPath(int saveCount, const SkPath&, const SkMatrix&, SkClipOp, bool doAA);
+        void initAsPath(int saveCount, const SkPath&, const SkMatrix&, SkClipOp, bool doAA);
 
         void setEmpty();
 
