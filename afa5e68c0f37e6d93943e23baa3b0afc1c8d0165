@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b54b8ddd_5b5a5701",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-28T17:56:32Z",
+      "side": 1,
+      "message": "yes. I will do this in another CL. Good thing you can\u0027t even say this in the current API, so this never happens.\n\nThanks for the find.",
+      "parentUuid": "94463e02_e4795ea4",
+      "range": {
+        "startLine": 180,
+        "startChar": 40,
+        "endLine": 180,
+        "endChar": 60
+      },
+      "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "17c51a64_9cb631c6",
         "filename": "src/core/SkMaskBlurFilter.cpp",
         "patchSetId": 2
