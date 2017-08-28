@@ -13,16 +13,15 @@
 static const size_t kStride = sizeof(F) / sizeof(float);
 
 // A reminder:
-// Code guarded by defined(JUMPER) can assume that it will be compiled by Clang
-// and that F, I32, etc. are kStride-deep ext_vector_types of the appropriate type.
-// Otherwise, F, I32, etc. just alias the basic scalar types (and so kStride == 1).
+// When defined(JUMPER_IS_SCALAR), F, I32, etc. are normal scalar types and kStride is 1.
+// When not, F, I32, etc. are kStride-depp Clang ext_vector_type vectors of the appropriate type.
 
 // You can use most constants in this file, but in a few rare exceptions we read from this struct.
 using K = const SkJumper_constants;
 
 // A little wrapper macro to name Stages differently depending on the instruction set.
 // That lets us link together several options.
-#if !defined(JUMPER)
+#if !defined(JUMPER_IS_OFFLINE)
     #define WRAP(name) sk_##name
 #elif defined(__aarch64__)
     #define WRAP(name) sk_##name##_aarch64
@@ -60,7 +59,7 @@ using K = const SkJumper_constants;
     using Stage = void(K* k, void** program, size_t x, size_t y, size_t tail, F,F,F,F, F,F,F,F);
 #endif
 
-#if defined(JUMPER) && defined(__AVX__)
+#if defined(JUMPER_IS_AVX) || defined(JUMPER_IS_AVX2)
     // We really want to make sure all paths go through this function's (implicit) vzeroupper.
     // If they don't, we'll experience severe slowdowns when we first use SSE instructions again.
     __attribute__((disable_tail_calls))
@@ -68,10 +67,10 @@ using K = const SkJumper_constants;
 MAYBE_MSABI
 extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t ylimit,
                                      void** program, K* k) {
-#if defined(JUMPER)
-    F v;
+#if defined(JUMPER_IS_OFFLINE)
+    F v;    // Really no need to intialize.
 #else
-    F v{};
+    F v{};  // Compilers tend to whine about this, so it's easiest to just zero.
 #endif
     auto start = (Stage*)load_and_inc(program);
     const size_t x0 = x;
@@ -145,7 +144,7 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t y
 
 template <typename V, typename T>
 SI V load(const T* src, size_t tail) {
-#if defined(JUMPER)
+#if !defined(JUMPER_IS_SCALAR)
     __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
         V v{};  // Any inactive lanes are zeroed.
@@ -166,7 +165,7 @@ SI V load(const T* src, size_t tail) {
 
 template <typename V, typename T>
 SI void store(T* dst, V v, size_t tail) {
-#if defined(JUMPER)
+#if !defined(JUMPER_IS_SCALAR)
     __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
         switch (tail) {
@@ -609,10 +608,11 @@ STAGE(from_srgb_dst) {
 STAGE(to_srgb) {
     auto fn = [&](F l) {
         // We tweak c and d for each instruction set to make sure fn(1) is exactly 1.
-    #if defined(JUMPER) && defined(__SSE2__)
+    #if defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || \
+        defined(JUMPER_IS_AVX ) || defined(JUMPER_IS_AVX2 )
         const float c = 1.130048394203f,
                     d = 0.141357362270f;
-    #elif defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
+    #elif defined(JUMPER_IS_NEON)
         const float c = 1.129999995232f,
                     d = 0.141381442547f;
     #else
@@ -1179,7 +1179,7 @@ STAGE(matrix_perspective) {
 SI void gradient_lookup(const SkJumper_GradientCtx* c, U32 idx, F t,
                         F* r, F* g, F* b, F* a) {
     F fr, br, fg, bg, fb, bb, fa, ba;
-#if defined(JUMPER) && defined(__AVX2__)
+#if defined(JUMPER_IS_AVX2)
     if (c->stopCount <=8) {
         fr = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[0]), idx);
         br = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[0]), idx);
@@ -1344,14 +1344,14 @@ STAGE(mask_2pt_conical_degenerates) {
     U32 mask = 0xffffffff;
 
     // TODO: mtklein kindly volunteered to revisit this at some point.
-#if defined(JUMPER)
-    // Vector comparisons set all bits, so we can use something like this.
-    mask = mask & (mad(r, c->fDR, c->fR0) >= 0);  // R(t) >= 0
-    mask = mask & (r == r);                       // t != NaN
-#else
+#if defined(JUMPER_IS_SCALAR)
     // The portable version is more involved, 'cause we only get one bit back.
     mask = mask & if_then_else(mad(r, c->fDR, c->fR0) >= 0, U32(0xffffffff), U32(0)); // R(t) >= 0
     mask = mask & if_then_else(r == r,                      U32(0xffffffff), U32(0)); // t != NaN
+#else
+    // Vector comparisons set all bits, so we can use something like this.
+    mask = mask & (mad(r, c->fDR, c->fR0) >= 0);  // R(t) >= 0
+    mask = mask & (r == r);                       // t != NaN
 #endif
 
     unaligned_store(&c->fMask, mask);

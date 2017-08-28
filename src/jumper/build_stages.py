@@ -28,7 +28,7 @@ generated_win = sys.argv[7] if len(sys.argv) > 7 else generated_win
 clang = [ccache, clang, '-x', 'c++']
 
 
-cflags = ['-std=c++11', '-Os', '-DJUMPER',
+cflags = ['-std=c++11', '-Os', '-DJUMPER_IS_OFFLINE',
           '-momit-leaf-frame-pointer', '-ffp-contract=fast',
           '-fno-exceptions', '-fno-rtti', '-fno-unwind-tables']
 
