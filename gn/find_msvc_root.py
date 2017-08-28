@@ -15,10 +15,8 @@ if msvc == 2015:
   print windk + '/VC'
 else:
   # get the first version
-  dir = os.listdir(windk + '/VC/Tools/MSVC/')[0]
-  if os.path.exists(dir):
-    print dir
+  root = windk + '/VC/Tools/MSVC/'
+  for vc_dir in os.listdir(root):
+    print root + vc_dir
     sys.exit(0)
-  # fallback to a version
-  vc_version = '14.11.25503'
-  print windk + '/VC/Tools/MSVC/' + vc_version
+  sys.exit(1)

@@ -26,5 +26,4 @@ else:
     if os.path.exists(root + edition):
       print root + edition
       sys.exit(0)
-  # fall back to the "default"
-  print 'C:/Program Files (x86)/Microsoft Visual Studio/2017/' + editions[0]
+  sys.exit(1)
