@@ -569,28 +569,13 @@ void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
- * Computes an SkMatrix that can find the cubic KLM functionals as follows:
- *
- *     | ..K.. |   | ..kcoeffs.. |
- *     | ..L.. | = | ..lcoeffs.. | * inverse_transpose_power_basis_matrix
- *     | ..M.. |   | ..mcoeffs.. |
- *
- * 'kcoeffs' are the power basis coefficients to a scalar valued cubic function that returns the
- * signed distance to line K from a given point on the curve:
- *
- *     k(t,s) = C(t,s) * K   [C(t,s) is defined in the following comment]
- *
- * The same applies for lcoeffs and mcoeffs. These are found separately, depending on the type of
- * curve. There are 4 coefficients but 3 rows in the matrix, so in order to do this calculation the
- * caller must first remove a specific column of coefficients.
- *
- * @return which column of klm coefficients to exclude from the calculation.
- */
-static int calc_inverse_transpose_power_basis_matrix(const SkPoint pts[4], SkMatrix* out) {
-    using SkScalar4 = SkNx<4, SkScalar>;
+using ExcludedTerm = GrPathUtils::ExcludedTerm;
 
-    // First we convert the bezier coordinates 'pts' to power basis coefficients X,Y,W=[0 0 0 1].
+ExcludedTerm GrPathUtils::calcCubicInverseTransposePowerBasisMatrix(const SkPoint p[4],
+                                                                    SkMatrix* out) {
+    GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
+
+    // First convert the bezier coordinates p[0..3] to power basis coefficients X,Y(,W=[0 0 0 1]).
     // M3 is the matrix that does this conversion. The homogeneous equation for the cubic becomes:
     //
     //                                     | X   Y   0 |
@@ -598,30 +583,32 @@ static int calc_inverse_transpose_power_basis_matrix(const SkPoint pts[4], SkMat
     //                                     | .   .   0 |
     //                                     | .   .   1 |
     //
-    const SkScalar4 M3[3] = {SkScalar4(-1, 3, -3, 1),
-                             SkScalar4(3, -6, 3, 0),
-                             SkScalar4(-3, 3, 0, 0)};
-    // 4th column of M3   =  SkScalar4(1, 0, 0, 0)};
-    SkScalar4 X(pts[3].x(), 0, 0, 0);
-    SkScalar4 Y(pts[3].y(), 0, 0, 0);
+    const Sk4f M3[3] = {Sk4f(-1, 3, -3, 1),
+                        Sk4f(3, -6, 3, 0),
+                        Sk4f(-3, 3, 0, 0)};
+    // 4th col of M3 =  Sk4f(1, 0, 0, 0)};
+    Sk4f X(p[3].x(), 0, 0, 0);
+    Sk4f Y(p[3].y(), 0, 0, 0);
     for (int i = 2; i >= 0; --i) {
-        X += M3[i] * pts[i].x();
-        Y += M3[i] * pts[i].y();
+        X += M3[i] * p[i].x();
+        Y += M3[i] * p[i].y();
     }
 
     // The matrix is 3x4. In order to invert it, we first need to make it square by throwing out one
-    // of the top three rows. We toss the row that leaves us with the largest absolute determinant.
-    // Since the right column will be [0 0 1], the determinant reduces to x0*y1 - y0*x1.
-    SkScalar absDet[4];
-    const SkScalar4 DETX1 = SkNx_shuffle<1,0,0,3>(X), DETY1 = SkNx_shuffle<1,0,0,3>(Y);
-    const SkScalar4 DETX2 = SkNx_shuffle<2,2,1,3>(X), DETY2 = SkNx_shuffle<2,2,1,3>(Y);
-    const SkScalar4 DET = DETX1 * DETY2 - DETY1 * DETX2;
-    DET.abs().store(absDet);
-    const int skipRow = absDet[0] > absDet[2] ? (absDet[0] > absDet[1] ? 0 : 1)
-                                              : (absDet[1] > absDet[2] ? 1 : 2);
-    const SkScalar rdet = 1 / DET[skipRow];
-    const int row0 = (0 != skipRow) ? 0 : 1;
-    const int row1 = (2 == skipRow) ? 1 : 2;
+    // of the middle two rows. We toss the row that leaves us with the largest absolute determinant.
+    // Since the right column will be [0 0 1], the respective determinants reduce to x0*y2 - y0*x2
+    // and x0*y1 - y0*x1.
+    SkScalar dets[4];
+    Sk4f D = SkNx_shuffle<0,0,2,1>(X) * SkNx_shuffle<2,1,0,0>(Y);
+    D -= SkNx_shuffle<2,3,0,1>(D);
+    D.store(dets);
+    ExcludedTerm skipTerm = SkScalarAbs(dets[0]) > SkScalarAbs(dets[1]) ?
+                            ExcludedTerm::kQuadraticTerm : ExcludedTerm::kLinearTerm;
+    SkScalar det = dets[ExcludedTerm::kQuadraticTerm == skipTerm ? 0 : 1];
+    if (0 == det) {
+        return ExcludedTerm::kNonInvertible;
+    }
+    SkScalar rdet = 1 / det;
 
     // Compute the inverse-transpose of the power basis matrix with the 'skipRow'th row removed.
     // Since W=[0 0 0 1], it follows that our corresponding solution will be equal to:
@@ -630,125 +617,52 @@ static int calc_inverse_transpose_power_basis_matrix(const SkPoint pts[4], SkMat
     //     1/det * | -y0   x0  -x0*y2 + y0*x2 |
     //             |   0    0             det |
     //
-    const SkScalar4 R(rdet, rdet, rdet, 1);
-    X *= R;
-    Y *= R;
-
     SkScalar x[4], y[4], z[4];
     X.store(x);
     Y.store(y);
     (X * SkNx_shuffle<3,3,3,3>(Y) - Y * SkNx_shuffle<3,3,3,3>(X)).store(z);
 
-    out->setAll( y[row1], -x[row1],  z[row1],
-                -y[row0],  x[row0], -z[row0],
-                       0,        0,        1);
+    int middleRow = ExcludedTerm::kQuadraticTerm == skipTerm ? 2 : 1;
+    out->setAll( y[middleRow] * rdet, -x[middleRow] * rdet,  z[middleRow] * rdet,
+                        -y[0] * rdet,          x[0] * rdet,         -z[0] * rdet,
+                                   0,                    0,                    1);
 
-    return skipRow;
+    return skipTerm;
 }
 
-static void calc_serp_klm(const SkPoint pts[4], SkScalar tl, SkScalar sl, SkScalar tm, SkScalar sm,
-                          SkMatrix* klm) {
-    SkMatrix CIT;
-    int skipCol = calc_inverse_transpose_power_basis_matrix(pts, &CIT);
-
-    SkMatrix klmCoeffs;
-    int col = 0;
-    if (0 != skipCol) {
-        klmCoeffs[0] = 0;
-        klmCoeffs[3] = -sl * sl * sl;
-        klmCoeffs[6] = -sm * sm * sm;
-        ++col;
-    }
-    if (1 != skipCol) {
-        klmCoeffs[col + 0] = sl * sm;
-        klmCoeffs[col + 3] = 3 * sl * sl * tl;
-        klmCoeffs[col + 6] = 3 * sm * sm * tm;
-        ++col;
-    }
-    if (2 != skipCol) {
-        klmCoeffs[col + 0] = -tl * sm - tm * sl;
-        klmCoeffs[col + 3] = -3 * sl * tl * tl;
-        klmCoeffs[col + 6] = -3 * sm * tm * tm;
-        ++col;
-    }
-
-    SkASSERT(2 == col);
-    klmCoeffs[2] = tl * tm;
-    klmCoeffs[5] = tl * tl * tl;
-    klmCoeffs[8] = tm * tm * tm;
-
-    klm->setConcat(klmCoeffs, CIT);
+inline static void calc_serp_kcoeffs(SkScalar tl, SkScalar sl, SkScalar tm, SkScalar sm,
+                                     ExcludedTerm skipTerm, SkScalar outCoeffs[3]) {
+    SkASSERT(ExcludedTerm::kQuadraticTerm == skipTerm || ExcludedTerm::kLinearTerm == skipTerm);
+    outCoeffs[0] = 0;
+    outCoeffs[1] = (ExcludedTerm::kLinearTerm == skipTerm) ? sl*sm : -tl*sm - tm*sl;
+    outCoeffs[2] = tl*tm;
 }
 
-static void calc_loop_klm(const SkPoint pts[4], SkScalar td, SkScalar sd, SkScalar te, SkScalar se,
-                          SkMatrix* klm) {
-    SkMatrix CIT;
-    int skipCol = calc_inverse_transpose_power_basis_matrix(pts, &CIT);
-
-    const SkScalar tdse = td * se;
-    const SkScalar tesd = te * sd;
-
-    SkMatrix klmCoeffs;
-    int col = 0;
-    if (0 != skipCol) {
-        klmCoeffs[0] = 0;
-        klmCoeffs[3] = -sd * sd * se;
-        klmCoeffs[6] = -se * se * sd;
-        ++col;
-    }
-    if (1 != skipCol) {
-        klmCoeffs[col + 0] = sd * se;
-        klmCoeffs[col + 3] = sd * (2 * tdse + tesd);
-        klmCoeffs[col + 6] = se * (2 * tesd + tdse);
-        ++col;
-    }
-    if (2 != skipCol) {
-        klmCoeffs[col + 0] = -tdse - tesd;
-        klmCoeffs[col + 3] = -td * (tdse + 2 * tesd);
-        klmCoeffs[col + 6] = -te * (tesd + 2 * tdse);
-        ++col;
-    }
-
-    SkASSERT(2 == col);
-    klmCoeffs[2] = td * te;
-    klmCoeffs[5] = td * td * te;
-    klmCoeffs[8] = te * te * td;
-
-    klm->setConcat(klmCoeffs, CIT);
+inline static void calc_serp_lmcoeffs(SkScalar t, SkScalar s, ExcludedTerm skipTerm,
+                                      SkScalar outCoeffs[3]) {
+    SkASSERT(ExcludedTerm::kQuadraticTerm == skipTerm || ExcludedTerm::kLinearTerm == skipTerm);
+    outCoeffs[0] = -s*s*s;
+    outCoeffs[1] = (ExcludedTerm::kLinearTerm == skipTerm) ? 3*s*s*t : -3*s*t*t;
+    outCoeffs[2] = t*t*t;
 }
 
-// For the case when we have a cusp at a parameter value of infinity (discr == 0, d1 == 0).
-static void calc_inf_cusp_klm(const SkPoint pts[4], SkScalar tn, SkScalar sn, SkMatrix* klm) {
-    SkMatrix CIT;
-    int skipCol = calc_inverse_transpose_power_basis_matrix(pts, &CIT);
+inline static void calc_loop_kcoeffs(SkScalar td, SkScalar sd, SkScalar te, SkScalar se,
+                                     SkScalar tdse, SkScalar tesd, ExcludedTerm skipTerm,
+                                     SkScalar outCoeffs[3]) {
+    SkASSERT(ExcludedTerm::kQuadraticTerm == skipTerm || ExcludedTerm::kLinearTerm == skipTerm);
+    outCoeffs[0] = 0;
+    outCoeffs[1] = (ExcludedTerm::kLinearTerm == skipTerm) ? sd*se : -tdse - tesd;
+    outCoeffs[2] = td*te;
+}
 
-    SkMatrix klmCoeffs;
-    int col = 0;
-    if (0 != skipCol) {
-        klmCoeffs[0] = 0;
-        klmCoeffs[3] = -sn * sn * sn;
-        ++col;
-    }
-    if (1 != skipCol) {
-        klmCoeffs[col + 0] = 0;
-        klmCoeffs[col + 3] = 3 * sn * sn * tn;
-        ++col;
-    }
-    if (2 != skipCol) {
-        klmCoeffs[col + 0] = -sn;
-        klmCoeffs[col + 3] = -3 * sn * tn * tn;
-        ++col;
-    }
-
-    SkASSERT(2 == col);
-    klmCoeffs[2] = tn;
-    klmCoeffs[5] = tn * tn * tn;
-
-    klmCoeffs[6] = 0;
-    klmCoeffs[7] = 0;
-    klmCoeffs[8] = 1;
-
-    klm->setConcat(klmCoeffs, CIT);
+inline static void calc_loop_lmcoeffs(SkScalar t2, SkScalar s2, SkScalar t1, SkScalar s1,
+                                      SkScalar t2s1, SkScalar t1s2, ExcludedTerm skipTerm,
+                                      SkScalar outCoeffs[3]) {
+    SkASSERT(ExcludedTerm::kQuadraticTerm == skipTerm || ExcludedTerm::kLinearTerm == skipTerm);
+    outCoeffs[0] = -s2*s2*s1;
+    outCoeffs[1] = (ExcludedTerm::kLinearTerm == skipTerm) ? s2 * (2*t2s1 + t1s2)
+                                                           : -t2 * (t2s1 + 2*t1s2);
+    outCoeffs[2] = t2*t2*t1;
 }
 
 // For the case when a cubic bezier is actually a quadratic. We duplicate k in l so that the
@@ -797,35 +711,58 @@ static void calc_line_klm(const SkPoint pts[4], SkMatrix* klm) {
                 -nx, -ny, k);
 }
 
-SkCubicType GrPathUtils::getCubicKLM(const SkPoint src[4], SkMatrix* klm, double t[2],
-                                     double s[2]) {
+SkCubicType GrPathUtils::getCubicKLM(const SkPoint src[4], SkMatrix* klm, double tt[2],
+                                     double ss[2]) {
     double d[4];
-    SkCubicType type = SkClassifyCubic(src, t, s, d);
+    SkCubicType type = SkClassifyCubic(src, tt, ss, d);
 
-    const SkScalar tt[2] = {static_cast<SkScalar>(t[0]), static_cast<SkScalar>(t[1])};
-    const SkScalar ss[2] = {static_cast<SkScalar>(s[0]), static_cast<SkScalar>(s[1])};
+    if (SkCubicType::kLineOrPoint == type) {
+        calc_line_klm(src, klm);
+        return SkCubicType::kLineOrPoint;
+    }
 
+    if (SkCubicType::kQuadratic == type) {
+        calc_quadratic_klm(src, d[3], klm);
+        return SkCubicType::kQuadratic;
+    }
+
+    SkMatrix CIT;
+    ExcludedTerm skipTerm = calcCubicInverseTransposePowerBasisMatrix(src, &CIT);
+    if (ExcludedTerm::kNonInvertible == skipTerm) {
+        // This could technically also happen if the curve were quadratic, but SkClassifyCubic
+        // should have detected that case already with tolerance.
+        calc_line_klm(src, klm);
+        return SkCubicType::kLineOrPoint;
+    }
+
+    const SkScalar t0 = static_cast<SkScalar>(tt[0]), t1 = static_cast<SkScalar>(tt[1]),
+                   s0 = static_cast<SkScalar>(ss[0]), s1 = static_cast<SkScalar>(ss[1]);
+
+    SkMatrix klmCoeffs;
     switch (type) {
-        case SkCubicType::kSerpentine:
-            calc_serp_klm(src, tt[0], ss[0], tt[1], ss[1], klm);
-            break;
-        case SkCubicType::kLoop:
-            calc_loop_klm(src, tt[0], ss[0], tt[1], ss[1], klm);
-            break;
-        case SkCubicType::kLocalCusp:
-            calc_serp_klm(src, tt[0], ss[0], tt[1], ss[1], klm);
-            break;
         case SkCubicType::kCuspAtInfinity:
-            calc_inf_cusp_klm(src, tt[0], ss[0], klm);
+            SkASSERT(1 == t1 && 0 == s1); // Infinity.
+            // fallthru.
+        case SkCubicType::kLocalCusp:
+        case SkCubicType::kSerpentine:
+            calc_serp_kcoeffs(t0, s0, t1, s1, skipTerm, &klmCoeffs[0]);
+            calc_serp_lmcoeffs(t0, s0, skipTerm, &klmCoeffs[3]);
+            calc_serp_lmcoeffs(t1, s1, skipTerm, &klmCoeffs[6]);
             break;
-        case SkCubicType::kQuadratic:
-            calc_quadratic_klm(src, d[3], klm);
+        case SkCubicType::kLoop: {
+            const SkScalar tdse = t0 * s1;
+            const SkScalar tesd = t1 * s0;
+            calc_loop_kcoeffs(t0, s0, t1, s1, tdse, tesd, skipTerm, &klmCoeffs[0]);
+            calc_loop_lmcoeffs(t0, s0, t1, s1, tdse, tesd, skipTerm, &klmCoeffs[3]);
+            calc_loop_lmcoeffs(t1, s1, t0, s0, tesd, tdse, skipTerm, &klmCoeffs[6]);
             break;
-        case SkCubicType::kLineOrPoint:
-            calc_line_klm(src, klm);
+        }
+        default:
+            SK_ABORT("Unexpected cubic type.");
             break;
     }
 
+    klm->setConcat(klmCoeffs, CIT);
     return type;
 }
 
