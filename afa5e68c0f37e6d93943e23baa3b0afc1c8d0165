@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94463e02_e4795ea4",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-28T17:48:46Z",
+      "side": 1,
+      "message": "Unrelated to your change: shouldn\u0027t this be (x + src.fRowBytes * srcH)?\n\nI.e. srcEnd \u003d srcStart + src.fRowBytes * srcH;",
+      "range": {
+        "startLine": 180,
+        "startChar": 40,
+        "endLine": 180,
+        "endChar": 60
+      },
+      "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17c51a64_9cb631c6",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-28T17:48:46Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 182,
+        "startChar": 41,
+        "endLine": 182,
+        "endChar": 62
+      },
+      "revId": "afa5e68c0f37e6d93943e23baa3b0afc1c8d0165",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
