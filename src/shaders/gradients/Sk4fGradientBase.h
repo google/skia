@@ -60,8 +60,6 @@ public:
 
     uint32_t getFlags() const override { return fFlags; }
 
-    void shadeSpan(int x, int y, SkPMColor dst[], int count) final;
-
     bool isValid() const;
 
 protected:
@@ -70,6 +68,7 @@ protected:
     SkMatrix::MapXYProc        fDstToPosProc;
     uint8_t                    fFlags;
     bool                       fColorsArePremul;
+    bool                       fDither;
 
 private:
     using INHERITED = Context;
