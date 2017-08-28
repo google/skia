@@ -475,6 +475,8 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
     CPU_CONFIG(nonrendering, kNonRendering_Backend,
                kUnknown_SkColorType, kUnpremul_SkAlphaType, nullptr)
 
+    CPU_CONFIG(a8, kRaster_Backend,
+               kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr)
     CPU_CONFIG(8888, kRaster_Backend,
                kN32_SkColorType, kPremul_SkAlphaType, nullptr)
     CPU_CONFIG(565,  kRaster_Backend,

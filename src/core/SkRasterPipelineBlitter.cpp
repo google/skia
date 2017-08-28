@@ -44,6 +44,7 @@ public:
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1)               override;
     void blitMask  (const SkMask&, const SkIRect& clip)             override;
     void blitRect  (int x, int y, int width, int height)            override;
+    void blitV     (int x, int y, int height, SkAlpha alpha)        override;
 
     // TODO: The default implementations of the other blits look fine,
     // but some of them like blitV could probably benefit from custom
@@ -384,6 +385,18 @@ void SkRasterPipelineBlitter::blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {
     mask.fImage    = coverage;
     mask.fBounds   = clip;
     mask.fRowBytes = 2;
+    mask.fFormat   = SkMask::kA8_Format;
+
+    this->blitMask(mask, clip);
+}
+
+void SkRasterPipelineBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
+    SkIRect clip = {x,y, x+1,y+height};
+
+    SkMask mask;
+    mask.fImage    = &alpha;
+    mask.fBounds   = clip;
+    mask.fRowBytes = 0;     // so we reuse the 1 "row" for all of height
     mask.fFormat   = SkMask::kA8_Format;
 
     this->blitMask(mask, clip);
