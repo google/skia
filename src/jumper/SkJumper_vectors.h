@@ -266,7 +266,8 @@
                 auto v = _mm_cvtsi32_si128(*(const uint32_t*)src);
                 return _mm_insert_epi16(v, src[2], 2);
             };
-            if (tail > 0) { _0 = load_rgb(ptr +  0); }
+            _1 = _2 = _3 = _4 = _5 = _6 = _7 = _mm_setzero_si128();
+            if (  true  ) { _0 = load_rgb(ptr +  0); }
             if (tail > 1) { _1 = load_rgb(ptr +  3); }
             if (tail > 2) { _2 = load_rgb(ptr +  6); }
             if (tail > 3) { _3 = load_rgb(ptr +  9); }
@@ -279,9 +280,9 @@
             auto _23 =                _mm_loadu_si128((const __m128i*)(ptr +  6))    ;
             auto _45 =                _mm_loadu_si128((const __m128i*)(ptr + 12))    ;
             auto _67 = _mm_srli_si128(_mm_loadu_si128((const __m128i*)(ptr + 16)), 4);
-            _0 = _01; _1 = _mm_srli_si128(_01, 6),
-            _2 = _23; _3 = _mm_srli_si128(_23, 6),
-            _4 = _45; _5 = _mm_srli_si128(_45, 6),
+            _0 = _01; _1 = _mm_srli_si128(_01, 6);
+            _2 = _23; _3 = _mm_srli_si128(_23, 6);
+            _4 = _45; _5 = _mm_srli_si128(_45, 6);
             _6 = _67; _7 = _mm_srli_si128(_67, 6);
         }
 
@@ -363,7 +364,7 @@
 
     SI void load4(const float* ptr, size_t tail, F* r, F* g, F* b, F* a) {
         F _04, _15, _26, _37;
-
+        _04 = _15 = _26 = _37 = 0;
         switch (tail) {
             case 0: _37 = _mm256_insertf128_ps(_37, _mm_loadu_ps(ptr+28), 1);
             case 7: _26 = _mm256_insertf128_ps(_26, _mm_loadu_ps(ptr+24), 1);
