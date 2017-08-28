@@ -20,7 +20,8 @@ declare_args() {
     }
   }
 
-  msvc = 2015
+  msvc = 2017
+  run_vcvars = true
 
   extra_asmflags = []
   extra_cflags = []
@@ -37,11 +38,10 @@ declare_args() {
   }
 }
 declare_args() {
-  if (msvc == 2015) {
-    windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
-  } else {
-    windk = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional"
-  }
+  windk = exec_script("find_windk.py", [ "$msvc" ], "trim string")
+}
+declare_args() {
+  msvc_root = exec_script("find_msvc_root.py", [ "$msvc", windk ], "trim string")
 }
 
 if (host_os == "win") {
@@ -99,51 +99,35 @@ config("default") {
       "WIN32_LEAN_AND_MEAN",
       "NOMINMAX",
     ]
-    if (is_winrt) {
-      include_dirs = [
-        "$windk/VC/include",
 
-        "$windk/../Windows Kits/10/Include/10.0.10240.0/ucrt",
-        "$windk/../Windows Kits/10/Include/10.0.10240.0/um",
-        "$windk/../Windows Kits/10/Include/10.0.10240.0/shared",
-        "$windk/../Windows Kits/10/Include/10.0.10240.0/winrt",
-      ]
-      lib_dirs = [
-        "$windk/../Windows Kits\10\lib\10.0.10240.0\ucrt\$target_cpu",
-        "$windk/../Windows Kits\10\lib\10.0.10240.0\um\$target_cpu",
-      ]
-    } else {
-      include_dirs = [
-        "$windk/VC/include",
-    
-        # For local builds.
-        "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
-        "$windk/../Windows Kits/8.1/Include/shared",
-        "$windk/../Windows Kits/8.1/Include/um",
-        "$windk/../Windows Kits/8.1/Include/winrt",
-    
-        # For builds using win_toolchain asset.
-        "$windk/win_sdk/Include/10.0.14393.0/shared",
-        "$windk/win_sdk/Include/10.0.14393.0/ucrt",
-        "$windk/win_sdk/Include/10.0.14393.0/um",
-        "$windk/win_sdk/Include/10.0.14393.0/winrt",
-      ]
-      lib_dirs = [
-        # For local builds.
-        "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/$target_cpu",
-        "$windk/../Windows Kits/8.1/Lib/winv6.3/um/$target_cpu",
-    
-        # For builds using win_toolchain asset.
-        "$windk/win_sdk/Lib/10.0.14393.0/ucrt/$target_cpu",
-        "$windk/win_sdk/Lib/10.0.14393.0/um/$target_cpu",
-      ]
+    include_dirs = [ ]
+    lib_dirs = [ ]
+    if (msvc == 2015) {
+      win_kits = "$windk/../Windows Kits"
+    } else if (msvc == 2017) {
+      win_kits = "$windk/../../../Windows Kits"
     }
-    if (target_cpu == "x86") {
-      lib_dirs += [ "$windk/VC/lib" ]
-    } else if (target_cpu == "arm") {
-      lib_dirs += [ "$windk/VC/lib/arm" ]
-    } else {
-      lib_dirs += [ "$windk/VC/lib/amd64" ]
+    include_dirs += [
+      "$msvc_root/include",
+      "$win_kits/10/Include/10.0.10240.0/ucrt",
+      "$win_kits/10/Include/10.0.10240.0/um",
+      "$win_kits/10/Include/10.0.10240.0/shared",
+      "$win_kits/10/Include/10.0.10240.0/winrt",
+    ]
+    lib_dirs += [
+      "$win_kits/10/lib/10.0.10240.0/ucrt/$target_cpu",
+      "$win_kits/10/lib/10.0.10240.0/um/$target_cpu",
+    ]
+    if (msvc == 2015) {
+      if (target_cpu == "x86") {
+        lib_dirs += [ "$msvc_root/lib" ]
+      } else if (target_cpu == "arm") {
+        lib_dirs += [ "$msvc_root/lib/arm" ]
+      } else {
+        lib_dirs += [ "$msvc_root/lib/amd64" ]
+      }
+    } else  if (msvc == 2017) {
+      lib_dirs += [ "$msvc_root/lib/$target_cpu" ]
     }
   } else {
     cflags += [
@@ -489,19 +473,31 @@ config("executable") {
 toolchain("msvc") {
   lib_dir_switch = "/LIBPATH:"
 
-  _target = "amd64"
   env_setup = ""
   env_setup_end = ""
   if (target_cpu != "x64") {
-    if (target_cpu == "x86") {
-      _target += "_x86"
-    } else if (target_cpu == "arm") {
-      _target += "_arm"
+    _target = "amd64_" + target_cpu
+    if (msvc == 2015) {
+      _vcvarsall = "$msvc_root/vcvarsall.bat"
+    } else if (msvc == 2017) {
+      _vcvarsall = "$msvc_root/../../../Auxiliary/Build/vcvarsall.bat"
     }
-    env_setup = "cmd /c \"\"$windk/VC/vcvarsall.bat\" $_target && "
-    env_setup_end = "\""
+    if (run_vcvars) {
+      env_setup = "cmd /c \"\"$_vcvarsall\" $_target && "
+      env_setup_end = "\""
+    } else {
+      print("Be sure to run")
+      print("\"$_vcvarsall\" $_target")
+      print("to set up your environment before running ninja.")
+    }
+  } else if (msvc == 2015) {
+    _target = "amd64"
   }
-  bin = "$windk/VC/bin/$_target"
+  if (msvc == 2015) {
+    bin = "$msvc_root/bin/$_target"
+  } else if (msvc == 2017) {
+    bin = "$msvc_root/bin/HostX64/$target_cpu"
+  }
 
   tool("asm") {
     _ml = "ml"
