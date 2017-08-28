@@ -112,13 +112,6 @@ extern "C" {
 #if __has_feature(memory_sanitizer)
     // We'll just run portable code.
 
-#elif defined(__aarch64__)
-    StartPipelineFn ASM(start_pipeline,aarch64);
-    StageFn ASM(just_return,aarch64);
-    #define M(st) StageFn ASM(st,aarch64);
-        SK_RASTER_PIPELINE_STAGES(M)
-    #undef M
-
 #elif defined(__arm__)
     StartPipelineFn ASM(start_pipeline,vfp4);
     StageFn ASM(just_return,vfp4);
@@ -228,15 +221,6 @@ static SkOnce gChooseEngineOnce;
 static SkJumper_Engine choose_engine() {
 #if __has_feature(memory_sanitizer)
     // We'll just run portable code.
-
-#elif defined(__aarch64__)
-    return {
-    #define M(stage) ASM(stage, aarch64),
-        { SK_RASTER_PIPELINE_STAGES(M) },
-        M(start_pipeline)
-        M(just_return)
-    #undef M
-    };
 
 #elif defined(__arm__)
     if (1 && SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
