@@ -146,7 +146,7 @@ static inline SkScalar SkMaxScalar(SkScalar a, SkScalar b) { return a > b ? a : 
 static inline SkScalar SkMinScalar(SkScalar a, SkScalar b) { return a < b ? a : b; }
 
 static inline bool SkScalarIsInt(SkScalar x) {
-    return x == (SkScalar)(int)x;
+    return x == SkScalarFloorToScalar(x);
 }
 
 /**
