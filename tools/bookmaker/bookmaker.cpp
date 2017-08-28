@@ -25,7 +25,9 @@ Text Encoding anchors in paragraph are echoed instead of being linked to anchor 
 consts like enum members need fully qualfied refs to make a valid link
 enum comments should be disallowed unless after #Enum and before first #Const
     ... or, should look for enum comments in other places
-
+trouble with aliases, plurals
+    need to keep first letter of includeWriter @param / @return lowercase
+    Quad -> quad, Quads -> quads
  */
 
 static string normalized_name(string name) {
@@ -413,6 +415,9 @@ bool Definition::crossCheckInside(const char* start, const char* end,
     }
     if (inc.startsWith("friend")) {
         inc.skipWord("friend");
+    }
+    if (inc.startsWith("SK_API")) {
+        inc.skipWord("SK_API");
     }
     do {
         bool defEof;
@@ -1162,26 +1167,32 @@ bool BmhParser::childOf(MarkType markType) const {
 }
 
 string BmhParser::className(MarkType markType) {
-    string builder;
-    const Definition* parent = this->parentSpace();
-    if (parent && (parent != fParent || MarkType::kClass != markType)) {
-        builder += parent->fName;
-    }
     const char* end = this->lineEnd();
     const char* mc = this->strnchr(fMC, end);
+    string classID;
+    TextParser::Save savePlace(this);
+    this->skipSpace();
+    const char* wordStart = fChar;
+    this->skipToNonAlphaNum();
+    const char* wordEnd = fChar;
+    classID = string(wordStart, wordEnd - wordStart);
+    if (!mc) {
+        savePlace.restore();
+    }
+    string builder;
+    const Definition* parent = this->parentSpace();
+    if (parent && parent->fName != classID) {
+        builder += parent->fName;
+    }
     if (mc) {
-        this->skipSpace();
-        const char* wordStart = fChar;
-        this->skipToNonAlphaNum();
-        const char* wordEnd = fChar;
         if (mc + 1 < fEnd && fMC == mc[1]) {  // if ##
             if (markType != fParent->fMarkType) {
                 return this->reportError<string>("unbalanced method");
             }
-            if (builder.length() > 0 && wordEnd > wordStart) {
+            if (builder.length() > 0 && classID.size() > 0) {
                 if (builder != fParent->fName) {
                     builder += "::";
-                    builder += string(wordStart, wordEnd - wordStart);
+                    builder += classID;
                     if (builder != fParent->fName) {
                         return this->reportError<string>("name mismatch");
                     }
