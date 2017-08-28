@@ -175,11 +175,11 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
     } else if (weightH > 1) {
         // Blur only vertically.
 
+        auto srcEnd   = &src.fImage[src.fRowBytes * srcH];
+        auto dstEnd   = &dst->fImage[dst->fRowBytes * dstH];
         for (size_t x = 0; x < srcW; x++) {
             auto srcStart = &src.fImage[x];
-            auto srcEnd   = &src.fImage[src.fRowBytes * srcH];
             auto dstStart = &dst->fImage[x];
-            auto dstEnd   = &dst->fImage[dst->fRowBytes * dstH];
             this->blurOneScan(fInfoH, srcH,
                               srcStart, src.fRowBytes, srcEnd,
                               dstStart, dst->fRowBytes, dstEnd);
@@ -214,7 +214,7 @@ void SkMaskBlurFilter::blurOneScan(
 
 }
 
-static uint8_t final_scale(uint64_t weight, uint32_t sum) {
+uint8_t finalScale(uint64_t weight, uint32_t sum) {
     const uint64_t half = static_cast<uint64_t>(1) << 31;
     return SkTo<uint8_t>((weight * sum + half) >> 32);
 }
@@ -234,7 +234,7 @@ void SkMaskBlurFilter::blurOneScanBox(
     uint32_t sum0 = 0;
     for (size_t i = 0; i < trailingSideStart; i++) {
         sum0 += *srcCursor;
-        *dstCursor = final_scale(info.scaledWeight(), sum0);
+        *dstCursor = finalScale(info.scaledWeight(), sum0);
         srcCursor += srcStride;
         dstCursor += dstStride;
     }
@@ -247,16 +247,15 @@ void SkMaskBlurFilter::blurOneScanBox(
     // * width < window - in this case the right edge of the window will continue consuming
     //                    source data after the left edge of the window starts consuming source
     //                    data.
-
     if (window > width) {
-        auto v = final_scale(info.scaledWeight(), sum0);
+        auto v = finalScale(info.scaledWeight(), sum0);
         std::memset(dstCursor, v, window - width);
     } else if (window < width) {
         auto windowEnd = src;
         while (srcCursor < srcEnd) {
             sum0 += *srcCursor;
             sum0 -= *windowEnd;
-            *dstCursor = final_scale(info.scaledWeight(), sum0);
+            *dstCursor = finalScale(info.scaledWeight(), sum0);
             srcCursor += srcStride;
             windowEnd += srcStride;
             dstCursor += dstStride;
@@ -271,7 +270,7 @@ void SkMaskBlurFilter::blurOneScanBox(
         srcCursor -= srcStride;
         dstCursor -= dstStride;
         sum0 += *srcCursor;
-        *dstCursor = final_scale(info.scaledWeight(), sum0);
+        *dstCursor = finalScale(info.scaledWeight(), sum0);
     }
 }
 
