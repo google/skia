@@ -64,12 +64,6 @@ void GrCCPRCubicProcessor::onEmitVertexShader(const GrCCPRCoverageProcessor& pro
     v->codeAppendf("%s.z = determinant(N) * sign(%s.x) * sign(%s.z);",
                    fInset.vsOut(), rtAdjust, rtAdjust);
 
-    // Fetch one of the t,s klm root values for the geometry shader.
-    v->codeAppendf("%s = ", fTS.vsOut());
-    v->appendTexelFetch(pointsBuffer,
-                        SkStringPrintf("%s.x + 2 + sk_VertexID/2", proc.instanceAttrib()).c_str());
-    v->codeAppend ("[sk_VertexID % 2];");
-
     // Emit the vertex position.
     v->codeAppendf("highp float2 self = bezierpts[0] + %s;", atlasOffset);
     gpArgs->fPositionVar.set(kVec2f_GrSLType, "self");
@@ -156,35 +150,40 @@ void GrCCPRCubicProcessor::onEmitGeometryShader(GrGLSLGeometryBuilder* g, const 
     g->codeAppend (    "}");
     g->codeAppend ("}");
 
-    // Calculate the KLM matrix.
-    g->declareGlobal(fKLMMatrix);
-    g->codeAppend ("highp float4 K, L, M;");
-    if (Type::kSerpentine == fType) {
-        g->codeAppend ("highp float2 l,m;");
-        g->codeAppendf("l.ts = float2(%s[0], %s[1]);", fTS.gsIn(), fTS.gsIn());
-        g->codeAppendf("m.ts = float2(%s[2], %s[3]);", fTS.gsIn(), fTS.gsIn());
-        g->codeAppend ("K = float4(0, l.s * m.s, -l.t * m.s - m.t * l.s, l.t * m.t);");
-        g->codeAppend ("L = float4(-1,3,-3,1) * l.ssst * l.sstt * l.sttt;");
-        g->codeAppend ("M = float4(-1,3,-3,1) * m.ssst * m.sstt * m.sttt;");
-
-    } else {
-        g->codeAppend ("highp float2 d,e;");
-        g->codeAppendf("d.ts = float2(%s[0], %s[1]);", fTS.gsIn(), fTS.gsIn());
-        g->codeAppendf("e.ts = float2(%s[2], %s[3]);", fTS.gsIn(), fTS.gsIn());
-        g->codeAppend ("highp float4 dxe = float4(d.s * e.s, d.s * e.t, d.t * e.s, d.t * e.t);");
-        g->codeAppend ("K = float4(0, dxe.x, -dxe.y - dxe.z, dxe.w);");
-        g->codeAppend ("L = float4(-1,1,-1,1) * d.sstt * (dxe.xyzw + float4(0, 2*dxe.zy, 0));");
-        g->codeAppend ("M = float4(-1,1,-1,1) * e.sstt * (dxe.xzyw + float4(0, 2*dxe.yz, 0));");
-    }
-
+    // Find the cubic's power basis coefficients.
     g->codeAppend ("highp float2x4 C = float4x4(-1,  3, -3,  1, "
                                                " 3, -6,  3,  0, "
                                                "-3,  3,  0,  0, "
                                                " 1,  0,  0,  0) * transpose(bezierpts);");
 
-    g->codeAppend ("highp float2 absdet = abs(C[0].xx * C[1].zy - C[1].xx * C[0].zy);");
-    g->codeAppend ("lowp int middlerow = absdet[0] > absdet[1] ? 2 : 1;");
+    // Find the cubic's inflection function.
+    g->codeAppend ("highp float D3 = +determinant(float2x2(C[0].yz, C[1].yz));");
+    g->codeAppend ("highp float D2 = -determinant(float2x2(C[0].xz, C[1].xz));");
+    g->codeAppend ("highp float D1 = +determinant(float2x2(C));");
 
+    // Calculate the KLM matrix.
+    g->declareGlobal(fKLMMatrix);
+    g->codeAppend ("highp float4 K, L, M;");
+    g->codeAppend ("highp float2 l, m;");
+    g->codeAppend ("highp float discr = 3*D2*D2 - 4*D1*D3;");
+    if (Type::kSerpentine == fType) {
+        // This math also works out for the "cusp" and "cusp at infinity" cases.
+        g->codeAppend ("highp float q = 3*D2 + sign(D2) * sqrt(max(3*discr, 0));");
+        g->codeAppend ("l.ts = normalize(float2(q, 6*D1));");
+        g->codeAppend ("m.ts = discr <= 0 ? l.ts : normalize(float2(2*D3, q));");
+        g->codeAppend ("K = float4(0, l.s * m.s, -l.t * m.s - m.t * l.s, l.t * m.t);");
+        g->codeAppend ("L = float4(-1,3,-3,1) * l.ssst * l.sstt * l.sttt;");
+        g->codeAppend ("M = float4(-1,3,-3,1) * m.ssst * m.sstt * m.sttt;");
+    } else {
+        g->codeAppend ("highp float q = D2 + sign(D2) * sqrt(max(-discr, 0));");
+        g->codeAppend ("l.ts = normalize(float2(q, 2*D1));");
+        g->codeAppend ("m.ts = discr >= 0 ? l.ts : normalize(float2(2 * (D2*D2 - D3*D1), D1*q));");
+        g->codeAppend ("highp float4 lxm = float4(l.s * m.s, l.s * m.t, l.t * m.s, l.t * m.t);");
+        g->codeAppend ("K = float4(0, lxm.x, -lxm.y - lxm.z, lxm.w);");
+        g->codeAppend ("L = float4(-1,1,-1,1) * l.sstt * (lxm.xyzw + float4(0, 2*lxm.zy, 0));");
+        g->codeAppend ("M = float4(-1,1,-1,1) * m.sstt * (lxm.xzyw + float4(0, 2*lxm.yz, 0));");
+    }
+    g->codeAppend ("lowp int middlerow = abs(D2) > abs(D1) ? 2 : 1;");
     g->codeAppend ("highp float3x3 CI = inverse(float3x3(C[0][0], C[0][middlerow], C[0][3], "
                                                         "C[1][0], C[1][middlerow], C[1][3], "
                                                         "      0,               0,       1));");

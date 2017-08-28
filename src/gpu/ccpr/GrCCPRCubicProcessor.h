@@ -47,14 +47,12 @@ public:
             : INHERITED(CoverageType::kShader)
             , fType(type)
             , fInset(kVec3f_GrSLType)
-            , fTS(kFloat_GrSLType)
             , fKLMMatrix("klm_matrix", kMat33f_GrSLType, GrShaderVar::kNonArray,
                          kHigh_GrSLPrecision)
             , fKLMDerivatives("klm_derivatives", kVec2f_GrSLType, 3, kHigh_GrSLPrecision) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         varyingHandler->addVarying("insets", &fInset, kHigh_GrSLPrecision);
-        varyingHandler->addVarying("ts", &fTS, kHigh_GrSLPrecision);
     }
 
     void onEmitVertexShader(const GrCCPRCoverageProcessor&, GrGLSLVertexBuilder*,
@@ -70,7 +68,6 @@ protected:
 
     const Type        fType;
     GrGLSLVertToGeo   fInset;
-    GrGLSLVertToGeo   fTS;
     GrShaderVar       fKLMMatrix;
     GrShaderVar       fKLMDerivatives;
 

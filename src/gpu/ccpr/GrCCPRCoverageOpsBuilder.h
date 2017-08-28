@@ -119,7 +119,7 @@ private:
     void fanTo(const SkPoint& pt);
     void quadraticTo(SkPoint controlPt, SkPoint endPt);
     void cubicTo(SkPoint controlPt1, SkPoint controlPt2, SkPoint endPt);
-    void emitCubicSegment(SkCubicType, const SkDCubic&, const SkPoint& ts0, const SkPoint& ts1);
+    void emitCubicSegment(SkCubicType, const SkDCubic&);
     void closeContour();
     void emitHierarchicalFan(int32_t indices[], int count);
     SkDEBUGCODE(void validate();)
