@@ -82,25 +82,25 @@ GrDrawAtlasOp::GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor color,
         *(reinterpret_cast<SkPoint*>(currVertex)) = quad[0];
         *(reinterpret_cast<SkPoint*>(currVertex + texOffset)) =
                 SkPoint::Make(currRect.fLeft, currRect.fTop);
-        bounds.growToInclude(quad[0].fX, quad[0].fY);
+        bounds.growToInclude(quad[0]);
         currVertex += vertexStride;
 
         *(reinterpret_cast<SkPoint*>(currVertex)) = quad[1];
         *(reinterpret_cast<SkPoint*>(currVertex + texOffset)) =
                 SkPoint::Make(currRect.fRight, currRect.fTop);
-        bounds.growToInclude(quad[1].fX, quad[1].fY);
+        bounds.growToInclude(quad[1]);
         currVertex += vertexStride;
 
         *(reinterpret_cast<SkPoint*>(currVertex)) = quad[2];
         *(reinterpret_cast<SkPoint*>(currVertex + texOffset)) =
                 SkPoint::Make(currRect.fRight, currRect.fBottom);
-        bounds.growToInclude(quad[2].fX, quad[2].fY);
+        bounds.growToInclude(quad[2]);
         currVertex += vertexStride;
 
         *(reinterpret_cast<SkPoint*>(currVertex)) = quad[3];
         *(reinterpret_cast<SkPoint*>(currVertex + texOffset)) =
                 SkPoint::Make(currRect.fLeft, currRect.fBottom);
-        bounds.growToInclude(quad[3].fX, quad[3].fY);
+        bounds.growToInclude(quad[3]);
         currVertex += vertexStride;
     }
 
