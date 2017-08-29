@@ -33,6 +33,24 @@
       "revId": "85403965e96d7e681a39ab9e1de358b5c9da4b48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c33c3b9e_a18851ad",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1346,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-29T19:19:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c77978b_7743e05c",
+      "revId": "85403965e96d7e681a39ab9e1de358b5c9da4b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
