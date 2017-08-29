@@ -89,7 +89,7 @@ struct GrContextOptions {
      * Allows the client to include or exclude specific GPU path renderers.
      */
     enum class GpuPathRenderers {
-        kNone              = 0, // Always use sofware masks.
+        kNone              = 0, // Always use sofware masks and/or GrDefaultPathRenderer.
         kDashLine          = 1 << 0,
         kStencilAndCover   = 1 << 1,
         kMSAA              = 1 << 2,
@@ -99,16 +99,17 @@ struct GrContextOptions {
         kSmall             = 1 << 6,
         kCoverageCounting  = 1 << 7,
         kTessellating      = 1 << 8,
-        kDefault           = 1 << 9,
+
+        kAll               = (kTessellating | (kTessellating - 1)),
 
         // Temporarily disabling CCPR by default until it has had a time to soak.
-        kAll               = (kDefault | (kDefault - 1)) & ~kCoverageCounting,
+        kDefault           = kAll & ~kCoverageCounting,
 
         // For legacy. To be removed when updated in Android.
         kDistanceField     = kSmall
     };
 
-    GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
+    GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kDefault;
 
     /**
      * The maximum size of cache textures used for Skia's Glyph cache.
