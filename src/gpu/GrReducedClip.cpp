@@ -79,7 +79,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         fHasIBounds = true;
 
         // Implement the clip with an AA rect element.
-        fElements.addToHead(stackBounds, kReplace_SkClipOp, true/*doAA*/);
+        fElements.addToHead(stackBounds, SkMatrix::I(), kReplace_SkClipOp, true /*doAA*/);
         fElementsGenID = stack.getTopmostGenID();
         fRequiresAA = true;
 
@@ -171,8 +171,9 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         skippable = true;
                     } else if (fWindowRects.count() < maxWindowRectangles && !embiggens &&
-                               !element->isAA() && Element::kRect_Type == element->getType()) {
-                        this->addWindowRectangle(element->getRect(), false);
+                               !element->isAA() &&
+                               Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
+                        this->addWindowRectangle(element->getDeviceSpaceRect(), false);
                         skippable = true;
                     }
                 }
@@ -198,11 +199,11 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                         initialTriState = InitialTriState::kAllOut;
                         skippable = true;
                     } else if (!embiggens && !element->isAA() &&
-                               Element::kRect_Type == element->getType()) {
+                               Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
                         // fIBounds and queryBounds have already acccounted for this element via
                         // clip stack bounds; here we just apply the non-aa rounding effect.
                         SkIRect nonaaRect;
-                        element->getRect().round(&nonaaRect);
+                        element->getDeviceSpaceRect().round(&nonaaRect);
                         if (!this->intersectIBounds(nonaaRect)) {
                             return;
                         }
@@ -304,11 +305,11 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                         initialTriState = InitialTriState::kAllOut;
                         skippable = true;
                     } else if (!embiggens && !element->isAA() &&
-                               Element::kRect_Type == element->getType()) {
+                               Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
                         // fIBounds and queryBounds have already acccounted for this element via
                         // clip stack bounds; here we just apply the non-aa rounding effect.
                         SkIRect nonaaRect;
-                        element->getRect().round(&nonaaRect);
+                        element->getDeviceSpaceRect().round(&nonaaRect);
                         if (!this->intersectIBounds(nonaaRect)) {
                             return;
                         }
@@ -335,7 +336,8 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
             if (isFlip) {
                 SkASSERT(kXOR_SkClipOp == element->getOp() ||
                          kReverseDifference_SkClipOp == element->getOp());
-                fElements.addToHead(SkRect::Make(fIBounds), kReverseDifference_SkClipOp, false);
+                fElements.addToHead(SkRect::Make(fIBounds), SkMatrix::I(),
+                                    kReverseDifference_SkClipOp, false);
             } else {
                 Element* newElement = fElements.addToHead(*element);
                 if (newElement->isAA()) {
@@ -457,18 +459,18 @@ void GrReducedClip::addInteriorWindowRectangles(int maxWindowRectangles) {
             continue;
         }
 
-        if (Element::kRect_Type == element->getType()) {
+        if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
             SkASSERT(element->isAA());
-            this->addWindowRectangle(element->getRect(), true);
+            this->addWindowRectangle(element->getDeviceSpaceRect(), true);
             if (fWindowRects.count() >= maxWindowRectangles) {
                 return;
             }
             continue;
         }
 
-        if (Element::kRRect_Type == element->getType()) {
+        if (Element::DeviceSpaceType::kRRect == element->getDeviceSpaceType()) {
             // For round rects we add two overlapping windows in the shape of a plus.
-            const SkRRect& clipRRect = element->getRRect();
+            const SkRRect& clipRRect = element->getDeviceSpaceRRect();
             SkVector insetTL = clipRRect.radii(SkRRect::kUpperLeft_Corner);
             SkVector insetBR = clipRRect.radii(SkRRect::kLowerRight_Corner);
             if (SkRRect::kComplex_Type == clipRRect.getType()) {
@@ -537,19 +539,18 @@ static bool stencil_element(GrRenderTargetContext* rtc,
                             const SkMatrix& viewMatrix,
                             const SkClipStack::Element* element) {
     GrAA aa = GrBoolToAA(element->isAA());
-    switch (element->getType()) {
-        case Element::kEmpty_Type:
+    switch (element->getDeviceSpaceType()) {
+        case Element::DeviceSpaceType::kEmpty:
             SkDEBUGFAIL("Should never get here with an empty element.");
             break;
-        case Element::kRect_Type:
-            return rtc->priv().drawAndStencilRect(clip, ss,
-                                                  (SkRegion::Op)element->getOp(),
+        case Element::DeviceSpaceType::kRect:
+            return rtc->priv().drawAndStencilRect(clip, ss, (SkRegion::Op)element->getOp(),
                                                   element->isInverseFilled(), aa, viewMatrix,
-                                                  element->getRect());
+                                                  element->getDeviceSpaceRect());
             break;
         default: {
             SkPath path;
-            element->asPath(&path);
+            element->asDeviceSpacePath(&path);
             if (path.isInverseFillType()) {
                 path.toggleInverseFillType();
             }
@@ -570,16 +571,16 @@ static void draw_element(GrRenderTargetContext* rtc,
                          const SkMatrix& viewMatrix,
                          const SkClipStack::Element* element) {
     // TODO: Draw rrects directly here.
-    switch (element->getType()) {
-        case Element::kEmpty_Type:
+    switch (element->getDeviceSpaceType()) {
+        case Element::DeviceSpaceType::kEmpty:
             SkDEBUGFAIL("Should never get here with an empty element.");
             break;
-        case Element::kRect_Type:
-            rtc->drawRect(clip, std::move(paint), aa, viewMatrix, element->getRect());
+        case Element::DeviceSpaceType::kRect:
+            rtc->drawRect(clip, std::move(paint), aa, viewMatrix, element->getDeviceSpaceRect());
             break;
         default: {
             SkPath path;
-            element->asPath(&path);
+            element->asDeviceSpacePath(&path);
             if (path.isInverseFillType()) {
                 path.toggleInverseFillType();
             }
@@ -729,11 +730,11 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
 
         GrPathRenderer* pr = nullptr;
         SkPath clipPath;
-        if (Element::kRect_Type == element->getType()) {
+        if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
             stencilSupport = GrPathRenderer::kNoRestriction_StencilSupport;
             fillInverted = false;
         } else {
-            element->asPath(&clipPath);
+            element->asDeviceSpacePath(&clipPath);
             fillInverted = clipPath.isInverseFillType();
             if (fillInverted) {
                 clipPath.toggleInverseFillType();
@@ -776,9 +777,10 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                      GrUserStencilOp::kIncMaybeClamp,
                      0xffff>()
             );
-            if (Element::kRect_Type == element->getType()) {
+            if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
                 renderTargetContext->priv().stencilRect(stencilClip.fixedClip(), &kDrawToStencil,
-                                                        aaType, SkMatrix::I(), element->getRect());
+                                                        aaType, SkMatrix::I(),
+                                                        element->getDeviceSpaceRect());
             } else {
                 if (!clipPath.isEmpty()) {
                     GrShape shape(clipPath, GrStyle::SimpleFill());
@@ -814,9 +816,10 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
         // element directly or a bounding rect of the entire clip.
         for (GrUserStencilSettings const* const* pass = stencilPasses; *pass; ++pass) {
             if (drawDirectToClip) {
-                if (Element::kRect_Type == element->getType()) {
+                if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
                     renderTargetContext->priv().stencilRect(stencilClip, *pass, aaType,
-                                                            SkMatrix::I(), element->getRect());
+                                                            SkMatrix::I(),
+                                                            element->getDeviceSpaceRect());
                 } else {
                     GrShape shape(clipPath, GrStyle::SimpleFill());
                     GrPaint paint;

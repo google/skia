@@ -90,7 +90,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
                                           const Element* element,
                                           GrPathRenderer** prOut,
                                           bool needsStencil) {
-    if (Element::kRect_Type == element->getType()) {
+    if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
         // rects can always be drawn directly w/o using the software path
         // TODO: skip rrects once we're drawing them directly.
         if (prOut) {
@@ -99,11 +99,11 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
         return false;
     } else {
         // We shouldn't get here with an empty clip element.
-        SkASSERT(Element::kEmpty_Type != element->getType());
+        SkASSERT(Element::DeviceSpaceType::kEmpty != element->getDeviceSpaceType());
 
         // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
         SkPath path;
-        element->asPath(&path);
+        element->asDeviceSpacePath(&path);
         if (path.isInverseFillType()) {
             path.toggleInverseFillType();
         }
@@ -213,16 +213,19 @@ static bool get_analytic_clip_processor(const ElementList& elements,
                     invert ? kInverseFillBW_GrProcessorEdgeType : kFillBW_GrProcessorEdgeType;
             }
 
-            switch (iter.get()->getType()) {
-                case SkClipStack::Element::kPath_Type:
-                    fps.emplace_back(GrConvexPolyEffect::Make(edgeType, iter.get()->getPath()));
+            switch (iter.get()->getDeviceSpaceType()) {
+                case SkClipStack::Element::DeviceSpaceType::kPath:
+                    fps.emplace_back(
+                            GrConvexPolyEffect::Make(edgeType, iter.get()->getDeviceSpacePath()));
                     break;
-                case SkClipStack::Element::kRRect_Type: {
-                    fps.emplace_back(GrRRectEffect::Make(edgeType, iter.get()->getRRect()));
+                case SkClipStack::Element::DeviceSpaceType::kRRect: {
+                    fps.emplace_back(
+                            GrRRectEffect::Make(edgeType, iter.get()->getDeviceSpaceRRect()));
                     break;
                 }
-                case SkClipStack::Element::kRect_Type: {
-                    fps.emplace_back(GrConvexPolyEffect::Make(edgeType, iter.get()->getRect()));
+                case SkClipStack::Element::DeviceSpaceType::kRect: {
+                    fps.emplace_back(
+                            GrConvexPolyEffect::Make(edgeType, iter.get()->getDeviceSpaceRect()));
                     break;
                 }
                 default:
@@ -462,7 +465,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
                 helper.drawRect(temp, SkRegion::kXOR_Op, GrAA::kNo, 0xFF);
             }
             SkPath clipPath;
-            element->asPath(&clipPath);
+            element->asDeviceSpacePath(&clipPath);
             clipPath.toggleInverseFillType();
             GrShape shape(clipPath, GrStyle::SimpleFill());
             helper.drawShape(shape, SkRegion::kReplace_Op, aa, 0x00);
@@ -471,11 +474,11 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
 
         // The other ops (union, xor, diff) only affect pixels inside
         // the geometry so they can just be drawn normally
-        if (Element::kRect_Type == element->getType()) {
-            helper.drawRect(element->getRect(), (SkRegion::Op)op, aa, 0xFF);
+        if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
+            helper.drawRect(element->getDeviceSpaceRect(), (SkRegion::Op)op, aa, 0xFF);
         } else {
             SkPath path;
-            element->asPath(&path);
+            element->asDeviceSpacePath(&path);
             GrShape shape(path, GrStyle::SimpleFill());
             helper.drawShape(shape, (SkRegion::Op)op, aa, 0xFF);
         }
