@@ -59,7 +59,7 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
     if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
         fChain.push_back(sk_make_sp<GrSmallPathRenderer>());
     }
-    if (options.fGpuPathRenderers & Options::GpuPathRenderers::kCoverageCounting) {
+    if (options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting) {
         if (auto ccpr = GrCoverageCountingPathRenderer::CreateIfSupported(*context->caps())) {
             context->contextPriv().addOnFlushCallbackObject(ccpr.get());
             fChain.push_back(std::move(ccpr));
@@ -68,9 +68,9 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
     if (options.fGpuPathRenderers & GpuPathRenderers::kTessellating) {
         fChain.push_back(sk_make_sp<GrTessellatingPathRenderer>());
     }
-    if (options.fGpuPathRenderers & GpuPathRenderers::kDefault) {
-        fChain.push_back(sk_make_sp<GrDefaultPathRenderer>());
-    }
+
+    // We always include the default path renderer (as well as SW), so we can draw any path
+    fChain.push_back(sk_make_sp<GrDefaultPathRenderer>());
 }
 
 GrPathRenderer* GrPathRendererChain::getPathRenderer(
