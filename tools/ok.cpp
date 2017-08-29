@@ -91,7 +91,7 @@ static thread_local const char* tls_currently_running = "";
     static void defer_logging() {}
 
     void ok_log(const char* msg) {
-        fprintf(stderr, "%s\n", msg);
+        fprintf(stderr, "[%s]\t%s\n", tls_currently_running, msg);
     }
 #endif
 
