@@ -86,16 +86,15 @@ protected:
     Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const override {
         return nullptr;
     }
-    bool onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS, SkArenaAlloc* alloc,
-                        const SkMatrix&, const SkPaint&, const SkMatrix*) const override {
-        pipeline->append(SkRasterPipeline::seed_shader);
-        pipeline->append(SkRasterPipeline::matrix_4x3, &fM43);
+    bool onAppendStages(const StageRec& rec) const override {
+        rec.fPipeline->append(SkRasterPipeline::seed_shader);
+        rec.fPipeline->append(SkRasterPipeline::matrix_4x3, &fM43);
         // In theory we should never need to clamp. However, either due to imprecision in our
         // matrix43, or the scan converter passing us pixel centers that in fact are not within
         // the triangle, we do see occasional (slightly) out-of-range values, so we add these
         // clamp stages. It would be nice to find a way to detect when these are not needed.
-        pipeline->append(SkRasterPipeline::clamp_0);
-        pipeline->append(SkRasterPipeline::clamp_a);
+        rec.fPipeline->append(SkRasterPipeline::clamp_0);
+        rec.fPipeline->append(SkRasterPipeline::clamp_a);
         return true;
     }
 

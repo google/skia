@@ -34,8 +34,7 @@ protected:
         // which will write data we don't care to serialize or decode.
     }
 
-    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*, const SkMatrix&,
-                        const SkPaint&, const SkMatrix*) const override {
+    bool onAppendStages(const StageRec&) const override {
         return false;
     }
 
