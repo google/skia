@@ -17,8 +17,8 @@ namespace SkSL {
  * Represents 'true' or 'false'.
  */
 struct BoolLiteral : public Expression {
-    BoolLiteral(const Context& context, Position position, bool value)
-    : INHERITED(position, kBoolLiteral_Kind, *context.fBool_Type)
+    BoolLiteral(const Context& context, int offset, bool value)
+    : INHERITED(offset, kBoolLiteral_Kind, *context.fBool_Type)
     , fValue(value) {}
 
     String description() const override {

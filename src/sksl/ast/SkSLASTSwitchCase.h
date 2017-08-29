@@ -17,9 +17,9 @@ namespace SkSL {
  */
 struct ASTSwitchCase : public ASTStatement {
     // a null value means "default:"
-    ASTSwitchCase(Position position, std::unique_ptr<ASTExpression> value,
+    ASTSwitchCase(int offset, std::unique_ptr<ASTExpression> value,
                   std::vector<std::unique_ptr<ASTStatement>> statements)
-    : INHERITED(position, kSwitch_Kind)
+    : INHERITED(offset, kSwitch_Kind)
     , fValue(std::move(value))
     , fStatements(std::move(statements)) {}
 
