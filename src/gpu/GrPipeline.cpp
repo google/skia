@@ -20,6 +20,7 @@
 GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
                        GrAppliedClip&& appliedClip) {
     SkASSERT(args.fProxy);
+    SkASSERT(kDefault_GrSurfaceOrigin != args.fProxy->origin());
     SkASSERT(processors.isFinalized());
 
     fProxy.reset(args.fProxy);
