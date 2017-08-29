@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa83b3e_af2805b9",
+        "filename": "src/core/SkClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1038,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-29T18:45:18Z",
+      "side": 1,
+      "message": "\"type_str\" -\u003e \"enum mismatch\" ?",
+      "revId": "98df7427e6b829bc9cafe541bafc57a6d44cf844",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
