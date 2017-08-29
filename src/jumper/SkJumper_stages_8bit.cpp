@@ -191,7 +191,7 @@ using Stage = void(const Params* params, void** program, R src_lo, R src_hi, R d
 #endif
 MAYBE_MSABI
 extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t ylimit,
-                                     void** program, const SkJumper_constants*) {
+                                     void** program) {
 #if defined(JUMPER_IS_OFFLINE)
     R r;      // Fastest to start uninitialized.
 #else

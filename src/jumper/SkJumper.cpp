@@ -18,14 +18,6 @@
     #define __has_feature(x) 0
 #endif
 
-// Stages expect these constants to be set to these values.
-// It's fine to rearrange and add new ones if you update SkJumper_constants.
-using K = const SkJumper_constants;
-static K kConstants = {
-    {0,1,2,3,4,5,6,7},
-    {0,1,2,3,4,5,6,7},
-};
-
 #define M(st) +1
 static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
 #undef M
@@ -60,7 +52,7 @@ static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
 // We can't express the real types of most stage functions portably, so we use a stand-in.
 // We'll only ever call start_pipeline(), which then chains into the rest.
 using StageFn         = void(void);
-using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**,K*);
+using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**);
 
 // Some platforms expect C "name" maps to asm "_name", others to "name".
 #if defined(__APPLE__)
@@ -410,7 +402,7 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
     SkAutoSTMalloc<64, void*> program(fSlotsNeeded);
 
     const SkJumper_Engine& engine = this->build_pipeline(program.get() + fSlotsNeeded);
-    engine.start_pipeline(x,y,x+w,y+h, program.get(), &kConstants);
+    engine.start_pipeline(x,y,x+w,y+h, program.get());
 }
 
 std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() const {
@@ -423,6 +415,6 @@ std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() 
 
     auto start_pipeline = engine.start_pipeline;
     return [=](size_t x, size_t y, size_t w, size_t h) {
-        start_pipeline(x,y,x+w,y+h, program, &kConstants);
+        start_pipeline(x,y,x+w,y+h, program);
     };
 }

@@ -17,7 +17,6 @@
 #include <functional>
 #include <vector>
 
-struct SkJumper_constants;
 struct SkJumper_Engine;
 
 /**
