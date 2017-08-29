@@ -61,11 +61,6 @@
 
 static const int SkJumper_kMaxStride = 8;
 
-struct SkJumper_constants {
-    float    iota_F  [SkJumper_kMaxStride];   //  0,1,2,3,4,...
-    uint32_t iota_U32[SkJumper_kMaxStride];   //  0,1,2,3,4,...
-};
-
 struct SkJumper_MemoryCtx {
     void* pixels;
     int   stride;
