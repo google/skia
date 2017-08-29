@@ -83,7 +83,7 @@ public:
         kInverseWinding_FillType,
         /** Same as EvenOdd, but draws outside of the path, rather than inside
          */
-        kInverseEvenOdd_FillType
+        kInverseEvenOdd_FillType,
     };
 
     /** Return the path's fill type. This is used to define how "inside" is
@@ -116,7 +116,7 @@ public:
     enum Convexity {
         kUnknown_Convexity,
         kConvex_Convexity,
-        kConcave_Convexity
+        kConcave_Convexity,
     };
 
     /**
@@ -848,7 +848,7 @@ public:
             Instead, the start of source path will be extended by a straight
             line to the end point of the destination path.
         */
-        kExtend_AddPathMode
+        kExtend_AddPathMode,
     };
 
     /** Add a copy of src to the path, offset by (dx,dy)
@@ -973,9 +973,9 @@ public:
     class SK_API Iter {
     public:
         Iter();
-        Iter(const SkPath&, bool forceClose);
+        Iter(const SkPath& path, bool forceClose);
 
-        void setPath(const SkPath&, bool forceClose);
+        void setPath(const SkPath& path, bool forceClose);
 
         /** Return the next verb in this iteration of the path. When all
             segments have been visited, return kDone_Verb.
@@ -989,8 +989,8 @@ public:
                    doConsumeDegenerates is false, exact has no effect.
             @return The verb for the current segment
         */
-        Verb next(SkPoint pts[4], bool doConsumeDegerates = true, bool exact = false) {
-            if (doConsumeDegerates) {
+        Verb next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false) {
+            if (doConsumeDegenerates) {
                 this->consumeDegenerateSegments(exact);
             }
             return this->doNext(pts);
