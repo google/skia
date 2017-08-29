@@ -30,7 +30,8 @@ public:
 
     // Copy src into current surface owned by either a GrGpuTextureCommandBuffer or
     // GrGpuRenderTargetCommandBuffer.
-    virtual void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
+    virtual void copy(GrSurface* src, GrSurfaceOrigin srcOrigin,
+                      const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
 
     virtual void insertEventMarker(const char*) = 0;
 

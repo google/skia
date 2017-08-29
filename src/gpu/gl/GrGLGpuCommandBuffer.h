@@ -1,9 +1,9 @@
 /*
-* Copyright 2016 Google Inc.
-*
-* Use of this source code is governed by a BSD-style license that can be
-* found in the LICENSE file.
-*/
+ * Copyright 2016 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #ifndef GrGLGpuCommandBuffer_DEFINED
 #define GrGLGpuCommandBuffer_DEFINED
@@ -28,8 +28,9 @@ public:
 
     void submit() override {}
 
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
-        fGpu->copySurface(fTexture, src, srcRect, dstPoint);
+    void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+              const SkIPoint& dstPoint) override {
+        fGpu->copySurface(fTexture, fOrigin, src, srcOrigin, srcRect, dstPoint);
     }
 
     void insertEventMarker(const char* msg) override {
@@ -37,7 +38,7 @@ public:
     }
 
 private:
-    GrGLGpu*                    fGpu;
+    GrGLGpu* fGpu;
 
     typedef GrGpuTextureCommandBuffer INHERITED;
 };
@@ -81,8 +82,9 @@ public:
         state->doUpload(upload);
     }
 
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
-        fGpu->copySurface(fRenderTarget, src, srcRect, dstPoint);
+    void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+              const SkIPoint& dstPoint) override {
+        fGpu->copySurface(fRenderTarget, fOrigin, src, srcOrigin, srcRect, dstPoint);
     }
 
     void submit() override {}

@@ -96,9 +96,10 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc smallDesc;
     smallDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    smallDesc.fConfig = kRGBA_8888_GrPixelConfig;
+    smallDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     smallDesc.fWidth = 4;
     smallDesc.fHeight = 4;
+    smallDesc.fConfig = kRGBA_8888_GrPixelConfig;
     smallDesc.fSampleCnt = 0;
 
     if (context->caps()->avoidStencilBuffers()) {
@@ -136,9 +137,10 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     // An RT with a much larger size should not share.
     GrSurfaceDesc bigDesc;
     bigDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    bigDesc.fConfig = kRGBA_8888_GrPixelConfig;
+    bigDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     bigDesc.fWidth = 400;
     bigDesc.fHeight = 200;
+    bigDesc.fConfig = kRGBA_8888_GrPixelConfig;
     bigDesc.fSampleCnt = 0;
     sk_sp<GrTexture> bigRT(resourceProvider->createTexture(bigDesc, SkBudgeted::kNo));
     if (bigRT && bigRT->asRenderTarget()) {
@@ -228,7 +230,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
                                                                 kRGBA_8888_GrPixelConfig,
                                                                 texHandles[0]);
     sk_sp<GrTexture> borrowed(context->resourceProvider()->wrapBackendTexture(
-            backendTex1, kTopLeft_GrSurfaceOrigin, kBorrow_GrWrapOwnership));
+            backendTex1, kBorrow_GrWrapOwnership));
 
     GrBackendTexture backendTex2 = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
                                                                 kW,
@@ -236,7 +238,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
                                                                 kRGBA_8888_GrPixelConfig,
                                                                 texHandles[1]);
     sk_sp<GrTexture> adopted(context->resourceProvider()->wrapBackendTexture(
-            backendTex2, kTopLeft_GrSurfaceOrigin, kAdopt_GrWrapOwnership));
+            backendTex2, kAdopt_GrWrapOwnership));
 
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
     if (!borrowed || !adopted) {
@@ -1636,6 +1638,7 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
                                             int sampleCnt) {
     GrSurfaceDesc desc;
     desc.fFlags = flags;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kRGBA_8888_GrPixelConfig;

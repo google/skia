@@ -230,7 +230,7 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
     GrSurface* surface = proxy->priv().peekSurface();
 
     if (fContext->getGpu() && surface->asRenderTarget()) {
-        fContext->getGpu()->resolveRenderTarget(surface->asRenderTarget());
+        fContext->getGpu()->resolveRenderTarget(surface->asRenderTarget(), proxy->origin());
     }
     return result;
 }

@@ -30,7 +30,8 @@ public:
 
     ~GrVkGpuTextureCommandBuffer() override;
 
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
+    void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+              const SkIPoint& dstPoint) override;
 
     void insertEventMarker(const char*) override;
 
@@ -38,12 +39,14 @@ private:
     void submit() override;
 
     struct CopyInfo {
-        CopyInfo(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint)
-            : fSrc(src), fSrcRect(srcRect), fDstPoint(dstPoint) {}
+        CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+                 const SkIPoint& dstPoint)
+            : fSrc(src), fSrcOrigin(srcOrigin), fSrcRect(srcRect), fDstPoint(dstPoint) {}
 
-        GrSurface* fSrc;
-        SkIRect    fSrcRect;
-        SkIPoint   fDstPoint;
+        GrSurface*      fSrc;
+        GrSurfaceOrigin fSrcOrigin;
+        SkIRect         fSrcRect;
+        SkIPoint        fDstPoint;
     };
 
     GrVkGpu*                    fGpu;
@@ -68,7 +71,8 @@ public:
 
     void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload) override;
 
-    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
+    void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+              const SkIPoint& dstPoint) override;
 
     void submit() override;
 
@@ -138,12 +142,14 @@ private:
     };
 
     struct CopyInfo {
-        CopyInfo(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint)
-            : fSrc(src), fSrcRect(srcRect), fDstPoint(dstPoint) {}
+        CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+                 const SkIPoint& dstPoint)
+            : fSrc(src), fSrcOrigin(srcOrigin), fSrcRect(srcRect), fDstPoint(dstPoint) {}
 
-        GrSurface* fSrc;
-        SkIRect    fSrcRect;
-        SkIPoint   fDstPoint;
+        GrSurface*      fSrc;
+        GrSurfaceOrigin fSrcOrigin;
+        SkIRect         fSrcRect;
+        SkIPoint        fDstPoint;
     };
 
     struct CommandBufferInfo {
