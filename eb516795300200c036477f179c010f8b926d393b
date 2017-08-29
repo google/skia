@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "783bf03c_02a058c2",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-29T16:19:12Z",
+      "side": 1,
+      "message": "is it worth adding a precautionary comment here in case we ever add ops that can say write to a buffer that we can\u0027t rest if we any Ops have side effects?\n\nAnother approach would be to add a hasSideEffects() virtual to GrOp right now which we would set to true for stencil draws and would be more obvious if adding an Op in the future that has different side effects.",
+      "range": {
+        "startLine": 216,
+        "startChar": 7,
+        "endLine": 218,
+        "endChar": 95
+      },
+      "revId": "eb516795300200c036477f179c010f8b926d393b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
