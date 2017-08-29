@@ -17,9 +17,9 @@ namespace SkSL {
  * An 'if' statement.
  */
 struct IfStatement : public Statement {
-    IfStatement(Position position, bool isStatic, std::unique_ptr<Expression> test,
+    IfStatement(int offset, bool isStatic, std::unique_ptr<Expression> test,
                 std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)
-    : INHERITED(position, kIf_Kind)
+    : INHERITED(offset, kIf_Kind)
     , fIsStatic(isStatic)
     , fTest(std::move(test))
     , fIfTrue(std::move(ifTrue))

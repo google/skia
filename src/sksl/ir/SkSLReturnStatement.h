@@ -17,11 +17,11 @@ namespace SkSL {
  * A 'return' statement.
  */
 struct ReturnStatement : public Statement {
-    ReturnStatement(Position position)
-    : INHERITED(position, kReturn_Kind) {}
+    ReturnStatement(int offset)
+    : INHERITED(offset, kReturn_Kind) {}
 
     ReturnStatement(std::unique_ptr<Expression> expression)
-    : INHERITED(expression->fPosition, kReturn_Kind)
+    : INHERITED(expression->fOffset, kReturn_Kind)
     , fExpression(std::move(expression)) {}
 
     String description() const override {
