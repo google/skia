@@ -13,7 +13,7 @@
 
 class SkBitmapProvider {
 public:
-    explicit SkBitmapProvider(const SkImage* img, SkColorSpace* dstColorSpace)
+    SkBitmapProvider(const SkImage* img, SkColorSpace* dstColorSpace)
         : fImage(img)
         , fDstColorSpace(dstColorSpace) {
         SkASSERT(img);

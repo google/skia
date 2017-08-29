@@ -85,9 +85,8 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
     fInvMatrix = inv;
     fFilterQuality = paint.getFilterQuality();
 
-    SkDefaultBitmapController controller;
-    fBMState = controller.requestBitmap(fProvider, inv, paint.getFilterQuality(),
-                                        fBMStateStorage.get(), fBMStateStorage.size());
+    fBMState = SkBitmapController::RequestBitmap(fProvider, inv, paint.getFilterQuality(),
+                                                 fBMStateStorage.get(), fBMStateStorage.size());
     // Note : we allow the controller to return an empty (zero-dimension) result. Should we?
     if (nullptr == fBMState || fBMState->pixmap().info().isEmpty()) {
         return false;
