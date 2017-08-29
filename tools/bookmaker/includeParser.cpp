@@ -25,6 +25,7 @@ struct IncludeKey {
 
 const IncludeKey kKeyWords[] = {
     { "",           KeyWord::kNone,         KeyProperty::kNone           },
+    { "SK_API",     KeyWord::kSK_API,       KeyProperty::kModifier       },
     { "bool",       KeyWord::kBool,         KeyProperty::kNumber         },
     { "char",       KeyWord::kChar,         KeyProperty::kNumber         },
     { "class",      KeyWord::kClass,        KeyProperty::kObject         },
@@ -236,7 +237,6 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                     if (this->internalName(token)) {
                         continue;
                     }
-                    const char* methodID = bmhParser.fMaps[(int) token.fMarkType].fName;
                     if (!def) {
                         string paramName = className + "::";
                         paramName += string(token.fContentStart,
@@ -304,11 +304,27 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         }
                     }
                     if (!def) {
+                        if ("SK_ATTR_DEPRECATED" == token.fName) {
+                            break;
+                        }
+                        if (0 == token.fName.find("SkDEBUGCODE")) {
+                            break;
+                        }
+                    }
+                    if (!def) {
+            // simple method names inside nested classes have a bug and are missing trailing parens
+                        string withParens = fullName + "()"; // FIXME: this shouldn't be necessary
+                        def = root->find(withParens);
+                    }
+                    if (!def) {
                         SkDebugf("method missing from bmh: %s\n", fullName.c_str());
                         break;
                     }
-                    if (def->crossCheck(methodID, token)) {
+                    if (def->crossCheck2(token)) {
                         def->fVisited = true;
+                        if (MarkType::kDefinedBy == def->fMarkType) {
+                            def->fParent->fVisited = true;
+                        }
                     } else {
                        SkDebugf("method differs from bmh: %s\n", fullName.c_str());
                     }
@@ -912,11 +928,13 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
         iter = std::next(iter);
         ++lastPublic;
     }
+    fLastObject = nullptr;
     while (childIter != includeDef->fChildren.end() && (*childIter)->fParentIndex < lastPublic) {
         Definition* child = *childIter;
         if (!this->parseObject(child, markupDef)) {
             return false;
         }
+        fLastObject = child;
         childIter = std::next(childIter);
     }
     while (childIter != includeDef->fChildren.end()) {
@@ -1292,10 +1310,18 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
         case Definition::Type::kBracket:
             switch (child->fBracket) {
                 case Bracket::kParen:
+                    if (fLastObject) {
+                        TextParser checkDeprecated(child->fFileName, fLastObject->fTerminator + 1,
+                                child->fStart, fLastObject->fLineCount);
+                        checkDeprecated.skipWhiteSpace();
+                        if (checkDeprecated.startsWith("SK_ATTR_DEPRECATED")) {
+                            break;
+                        }
+                    }
                     if (!this->parseMethod(child, markupDef)) {
                         return this->reportError<bool>("failed to parse method");
                     }
-                    break;
+                break;
                 case Bracket::kSlashSlash:
                 case Bracket::kSlashStar:
                     // comments are picked up by parsing objects first
@@ -1335,6 +1361,9 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                     break;
                 case Bracket::kAngle:
                     // pick up templated function pieces when method is found
+                    break;
+                case Bracket::kDebugCode:
+                    // todo: handle this
                     break;
                 default:
                     return this->reportError<bool>("unhandled bracket");
@@ -1457,6 +1486,11 @@ bool IncludeParser::parseChar() {
         case '(':
         case '[':
         case '{': {
+            if (fIncludeWord && '(' == test && fChar - fIncludeWord >= 10 &&
+                    !strncmp("SkDEBUGCODE", fIncludeWord, 10)) {
+                this->pushBracket(Bracket::kDebugCode);
+                break;
+            }
             if (fInCharCommentString) {
                 break;
             }
@@ -1555,6 +1589,8 @@ bool IncludeParser::parseChar() {
                 } else {
                     fInFunction = '}' != test;
                 }
+            } else if (')' == test && Bracket::kDebugCode == this->topBracket()) {
+                this->popBracket();
             } else {
                 return reportError<bool>("malformed close bracket");
             }

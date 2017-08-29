@@ -13,7 +13,8 @@
  GPU GPU-backed OpenGL Vulkan
  NULL
  RFC
- Bezier Coons
+ Bezier Coons Cartesian
+ C C++
  SaveLayerFlags # not external; need to add typedef support
  SkUserConfig.h  # not external, but still thinking about how markup refers to this
  SkXXX.h        # ditto

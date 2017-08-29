@@ -25,7 +25,9 @@ Text Encoding anchors in paragraph are echoed instead of being linked to anchor 
 consts like enum members need fully qualfied refs to make a valid link
 enum comments should be disallowed unless after #Enum and before first #Const
     ... or, should look for enum comments in other places
-
+trouble with aliases, plurals
+    need to keep first letter of includeWriter @param / @return lowercase
+    Quad -> quad, Quads -> quads
  */
 
 static string normalized_name(string name) {
@@ -92,7 +94,8 @@ void Definition::setCanonicalFiddle() {
     fMethodType = Definition::MethodType::kNone;
     size_t doubleColons = fName.find("::", 0);
     SkASSERT(string::npos != doubleColons);
-    string result = fName.substr(0, doubleColons) + "_";
+    string base = fName.substr(0, doubleColons);
+    string result = base + "_";
     doubleColons += 2;
     if (string::npos != fName.find('~', doubleColons)) {
         fMethodType = Definition::MethodType::kDestructor;
@@ -118,56 +121,69 @@ void Definition::setCanonicalFiddle() {
             } else {
                 SkASSERT(0);  // todo: incomplete
             }
-        } else if (string::npos != fName.find("()", doubleColons)) {
-            if (isupper(fName[doubleColons])) {
-                fMethodType = Definition::MethodType::kConstructor;
-                result += "empty_constructor"; 
-            } else {
-                result += fName.substr(doubleColons, fName.length() - doubleColons - 2);
-            }
         } else {
-            size_t comma = fName.find(',', doubleColons);
-            size_t openParen = fName.find('(', doubleColons);
-            if (string::npos == comma && string::npos != openParen) {
-                fMethodType = Definition::MethodType::kConstructor;
-                result += isMove ? "move_" : "copy_"; 
-                result += "constructor"; 
-            } else if (string::npos == openParen) {
-                result += fName.substr(doubleColons);
+            size_t parens = fName.find("()", doubleColons);
+            if (string::npos != parens) {
+                string methodName = fName.substr(doubleColons, parens - doubleColons);
+                do {
+                    size_t nextDouble = methodName.find("::");
+                    if (string::npos == nextDouble) {
+                        break;
+                    }
+                    base = methodName.substr(0, nextDouble);
+                    result += base + '_';
+                    methodName = methodName.substr(nextDouble + 2);
+                    doubleColons += nextDouble + 2;
+                } while (true);
+                if (base == methodName) {
+                    fMethodType = Definition::MethodType::kConstructor;
+                    result += "empty_constructor"; 
+                } else {
+                    result += fName.substr(doubleColons, fName.length() - doubleColons - 2);
+                }
             } else {
-                fMethodType = Definition::MethodType::kConstructor;
-                // name them by their param types, e.g. SkCanvas__int_int_const_SkSurfaceProps_star
-                SkASSERT(string::npos != openParen);
-                // TODO: move forward until parens are balanced and terminator =,)
-                TextParser params("", &fName[openParen] + 1, &*fName.end(), 0);
-                bool underline = false;
-                while (!params.eof()) {
-//                    SkDEBUGCODE(const char* end = params.anyOf("(),="));  // unused for now
-//                    SkASSERT(end[0] != '(');  // fixme: put off handling nested parentheseses
-                    if (params.startsWith("const") || params.startsWith("int")
-                            || params.startsWith("Sk")) {
-                        const char* wordStart = params.fChar;
-                        params.skipToNonAlphaNum();
-                        if (underline) {
-                            result += '_';
-                        } else {
-                            underline = true;
-                        }
-                        result += string(wordStart, params.fChar - wordStart);
-                    } else {
-                        params.skipToNonAlphaNum();
+                size_t openParen = fName.find('(', doubleColons);
+                if (string::npos == openParen) {
+                    result += fName.substr(doubleColons);
+                } else {
+                    size_t comma = fName.find(',', doubleColons);
+                    if (string::npos == comma) {
+                        result += isMove ? "move_" : "copy_"; 
                     }
-                    if (!params.eof() && '*' == params.peek()) {
-                        if (underline) {
-                            result += '_';
+                    fMethodType = Definition::MethodType::kConstructor;
+                    // name them by their param types,
+                    //   e.g. SkCanvas__int_int_const_SkSurfaceProps_star
+                    // TODO: move forward until parens are balanced and terminator =,)
+                    TextParser params("", &fName[openParen] + 1, &*fName.end(), 0);
+                    bool underline = false;
+                    while (!params.eof()) {
+    //                    SkDEBUGCODE(const char* end = params.anyOf("(),="));  // unused for now
+    //                    SkASSERT(end[0] != '(');  // fixme: put off handling nested parentheseses
+                        if (params.startsWith("const") || params.startsWith("int")
+                                || params.startsWith("Sk")) {
+                            const char* wordStart = params.fChar;
+                            params.skipToNonAlphaNum();
+                            if (underline) {
+                                result += '_';
+                            } else {
+                                underline = true;
+                            }
+                            result += string(wordStart, params.fChar - wordStart);
                         } else {
-                            underline = true;
+                            params.skipToNonAlphaNum();
                         }
-                        result += "star";
-                        params.next();
-                        params.skipSpace();
+                        if (!params.eof() && '*' == params.peek()) {
+                            if (underline) {
+                                result += '_';
+                            } else {
+                                underline = true;
+                            }
+                            result += "star";
+                            params.next();
+                            params.skipSpace();
+                        }
+                        params.skipToAlpha();
                     }
-                    params.skipToAlpha();
                 }
             }
         }
@@ -391,13 +407,25 @@ bool Definition::checkMethod() const {
     return true;
 }
 
-bool Definition::crossCheck(const char* tokenID, const Definition& includeToken) const {
-    const char* defStart = fStart;
-    SkASSERT('#' == defStart[0]);  // FIXME: needs to be per definition
-    ++defStart;
-    SkASSERT(!strncmp(defStart, tokenID, strlen(tokenID)));
-    defStart += strlen(tokenID);
-    return crossCheckInside(defStart, fContentStart, includeToken);
+bool Definition::crossCheck2(const Definition& includeToken) const {
+    TextParser parser(fFileName, fStart, fContentStart, fLineCount);
+    parser.skipExact("#");
+    bool isMethod = parser.skipName("Method");
+    const char* contentEnd;
+    if (isMethod) {
+        contentEnd = fContentStart;
+    } else if (parser.skipName("DefinedBy")) {
+        contentEnd = fContentEnd;
+        while (parser.fChar < contentEnd && ' ' >= contentEnd[-1]) {
+            --contentEnd;
+        }
+        if (parser.fChar < contentEnd - 1 && ')' == contentEnd[-1] && '(' == contentEnd[-2]) {
+            contentEnd -= 2;
+        }
+    } else {
+        return parser.reportError<bool>("unexpected crosscheck marktype");
+    }
+    return crossCheckInside(parser.fChar, contentEnd, includeToken);
 }
 
 bool Definition::crossCheck(const Definition& includeToken) const {
@@ -413,6 +441,9 @@ bool Definition::crossCheckInside(const char* start, const char* end,
     }
     if (inc.startsWith("friend")) {
         inc.skipWord("friend");
+    }
+    if (inc.startsWith("SK_API")) {
+        inc.skipWord("SK_API");
     }
     do {
         bool defEof;
@@ -763,6 +794,13 @@ const Definition* RootDefinition::find(const string& ref) const {
     if (leafIter != fLeaves.end()) {
         return &leafIter->second;
     }
+    if (string::npos == ref.find("()")) {
+        string withParens = ref + "()";
+        const auto parensIter = fLeaves.find(withParens);
+        if (parensIter != fLeaves.end()) {
+            return &parensIter->second;
+        }
+    }
     const auto branchIter = fBranches.find(ref);
     if (branchIter != fBranches.end()) {
         const RootDefinition* rootDef = branchIter->second;
@@ -1006,7 +1044,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     fMarkup.emplace_front(markType, defStart, fLineCount, fParent);
                     definition = &fMarkup.front();
                     definition->fName = typeNameBuilder[0];
-                    definition->fFiddle = normalized_name(typeNameBuilder[0]);
+                    definition->fFiddle = fParent->fFiddle;
                     definition->fContentStart = fChar;
                     definition->fContentEnd = this->trimmedBracketEnd(fMC, OneLine::kYes);
                     this->skipToEndBracket(fMC);
@@ -1139,6 +1177,54 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
     return true;
 }
 
+void BmhParser::reportDuplicates(const Definition& def, const string& dup) const {
+    if (MarkType::kExample == def.fMarkType && dup == def.fFiddle) {
+        TextParser reporter(&def);
+        reporter.reportError("duplicate example name");
+    }
+    for (auto& child : def.fChildren ) {
+        reportDuplicates(*child, dup);
+    }
+}
+
+static void find_examples(const Definition& def, vector<string>* exampleNames) {
+    if (MarkType::kExample == def.fMarkType) {
+        exampleNames->push_back(def.fFiddle);
+    }
+    for (auto& child : def.fChildren ) {
+        find_examples(*child, exampleNames);
+    }
+}
+
+bool BmhParser::checkExamples() const {
+    vector<string> exampleNames;
+    for (const auto& topic : fTopicMap) {
+        if (topic.second->fParent) {
+            continue;
+        }
+        find_examples(*topic.second, &exampleNames);
+    }
+    std::sort(exampleNames.begin(), exampleNames.end());
+    string* last = nullptr;
+    string reported;
+    bool checkOK = true;
+    for (auto& nameIter : exampleNames) {
+        if (last && *last == nameIter && reported != *last) {
+            reported = *last;
+            SkDebugf("%s\n", reported.c_str());
+            for (const auto& topic : fTopicMap) {
+                if (topic.second->fParent) {
+                    continue;
+                }
+                this->reportDuplicates(*topic.second, reported);
+            }
+            checkOK = false;
+        }
+        last = &nameIter;
+    }
+    return checkOK;
+}
+
 bool BmhParser::childOf(MarkType markType) const {
     auto childError = [this](MarkType markType) -> bool {
         string errStr = "expected ";
@@ -1162,26 +1248,32 @@ bool BmhParser::childOf(MarkType markType) const {
 }
 
 string BmhParser::className(MarkType markType) {
-    string builder;
-    const Definition* parent = this->parentSpace();
-    if (parent && (parent != fParent || MarkType::kClass != markType)) {
-        builder += parent->fName;
-    }
     const char* end = this->lineEnd();
     const char* mc = this->strnchr(fMC, end);
+    string classID;
+    TextParser::Save savePlace(this);
+    this->skipSpace();
+    const char* wordStart = fChar;
+    this->skipToNonAlphaNum();
+    const char* wordEnd = fChar;
+    classID = string(wordStart, wordEnd - wordStart);
+    if (!mc) {
+        savePlace.restore();
+    }
+    string builder;
+    const Definition* parent = this->parentSpace();
+    if (parent && parent->fName != classID) {
+        builder += parent->fName;
+    }
     if (mc) {
-        this->skipSpace();
-        const char* wordStart = fChar;
-        this->skipToNonAlphaNum();
-        const char* wordEnd = fChar;
         if (mc + 1 < fEnd && fMC == mc[1]) {  // if ##
             if (markType != fParent->fMarkType) {
                 return this->reportError<string>("unbalanced method");
             }
-            if (builder.length() > 0 && wordEnd > wordStart) {
+            if (builder.length() > 0 && classID.size() > 0) {
                 if (builder != fParent->fName) {
                     builder += "::";
-                    builder += string(wordStart, wordEnd - wordStart);
+                    builder += classID;
                     if (builder != fParent->fName) {
                         return this->reportError<string>("name mismatch");
                     }
@@ -1238,6 +1330,49 @@ bool BmhParser::collectExternals() {
             definition->fFiddle = normalized_name(definition->fName);
         }
     } while (!this->eof());
+    return true;
+}
+
+static bool dump_examples(FILE* fiddleOut, const Definition& def, bool* continuation) {
+    if (MarkType::kExample == def.fMarkType) {
+        string result;
+        if (!def.exampleToScript(&result)) {
+            return false;
+        }
+        if (result.length() > 0) {
+            if (*continuation) {
+                fprintf(fiddleOut, ",\n");
+            } else {
+                *continuation = true;
+            }
+            fprintf(fiddleOut, "%s", result.c_str());
+        }
+        return true;
+    }
+    for (auto& child : def.fChildren ) {
+        if (!dump_examples(fiddleOut, *child, continuation)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool BmhParser::dumpExamples(const char* fiddleJsonFileName) const {
+    FILE* fiddleOut = fopen(fiddleJsonFileName, "wb");
+    if (!fiddleOut) {
+        SkDebugf("could not open output file %s\n", fiddleJsonFileName);
+        return false;
+    }
+    fprintf(fiddleOut, "{\n");
+    bool continuation = false;
+    for (const auto& topic : fTopicMap) {
+        if (topic.second->fParent) {
+            continue;
+        }
+        dump_examples(fiddleOut, *topic.second, &continuation);
+    }
+    fprintf(fiddleOut, "\n}\n");
+    fclose(fiddleOut);
     return true;
 }
 
@@ -1976,30 +2111,6 @@ DEFINE_bool2(spellcheck, s, false, "Spell-check. (Requires -b)");
 DEFINE_bool2(tokens, t, false, "Output include tokens. (Requires -i)");
 DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
 
-static bool dump_examples(FILE* fiddleOut, const Definition& def, bool* continuation) {
-    if (MarkType::kExample == def.fMarkType) {
-        string result;
-        if (!def.exampleToScript(&result)) {
-            return false;
-        }
-        if (result.length() > 0) {
-            if (*continuation) {
-                fprintf(fiddleOut, ",\n");
-            } else {
-                *continuation = true;
-            }
-            fprintf(fiddleOut, "%s", result.c_str());
-        }
-        return true;
-    }
-    for (auto& child : def.fChildren ) {
-        if (!dump_examples(fiddleOut, *child, continuation)) {
-            return false;
-        }
-    }
-    return true;
-}
-
 static int count_children(const Definition& def, MarkType markType) {
     int count = 0;
     if (markType == def.fMarkType) {
@@ -2145,23 +2256,14 @@ int main(int argc, char** const argv) {
     int examples = 0;
     int methods = 0;
     int topics = 0;
-    FILE* fiddleOut;
     if (!done && !FLAGS_examples.isEmpty()) {
-        fiddleOut = fopen(FLAGS_examples[0], "wb");
-        if (!fiddleOut) {
-            SkDebugf("could not open output file %s\n", FLAGS_examples[0]);
+        // check to see if examples have duplicate names
+        if (!bmhParser.checkExamples()) {
             return -1;
         }
-        fprintf(fiddleOut, "{\n");
-        bool continuation = false;
-        for (const auto& topic : bmhParser.fTopicMap) {
-            if (topic.second->fParent) {
-                continue;
-            }
-            dump_examples(fiddleOut, *topic.second, &continuation);
+        if (!bmhParser.dumpExamples(FLAGS_examples[0])) {
+            return -1;
         }
-        fprintf(fiddleOut, "\n}\n");
-        fclose(fiddleOut);
     }
     for (const auto& topic : bmhParser.fTopicMap) {
         if (topic.second->fParent) {
