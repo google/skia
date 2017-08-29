@@ -19,13 +19,15 @@ DECLARE_string(pr);
 #define DEFINE_pathrenderer_flag                                                   \
     DEFINE_string(pr, "all",                                                       \
                   "Set of enabled gpu path renderers. Defined as a list of: "      \
-                  "[[~]all [~]dashline [~]nvpr [~]msaa [~]aahairline [~]aaconvex " \
-                  "[~]aalinearizing [~]small [~]tess [~]grdefault]")
+                  "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aahairline [~]aaconvex " \
+                  "[~]aalinearizing [~]small [~]tess]")
 
 inline GrContextOptions::GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
     using GpuPathRenderers = GrContextOptions::GpuPathRenderers;
     if (!strcmp(name, "all")) {
         return GpuPathRenderers::kAll;
+    } else if (!strcmp(name, "default")) {
+        return GpuPathRenderers::kDefault;
     } else if (!strcmp(name, "dashline")) {
         return GpuPathRenderers::kDashLine;
     } else if (!strcmp(name, "nvpr")) {
@@ -44,8 +46,6 @@ inline GrContextOptions::GpuPathRenderers get_named_pathrenderers_flags(const ch
         return GpuPathRenderers::kCoverageCounting;
     } else if (!strcmp(name, "tess")) {
         return GpuPathRenderers::kTessellating;
-    } else if (!strcmp(name, "grdefault")) {
-        return GpuPathRenderers::kDefault;
     } else if (!strcmp(name, "none")) {
         return GpuPathRenderers::kNone;
     }
@@ -59,7 +59,7 @@ inline GrContextOptions::GpuPathRenderers CollectGpuPathRenderersFromFlags() {
         return GpuPathRenderers::kAll;
     }
     GpuPathRenderers gpuPathRenderers = '~' == FLAGS_pr[0][0] ?
-                                        GpuPathRenderers::kAll : GpuPathRenderers::kNone;
+                                        GpuPathRenderers::kDefault : GpuPathRenderers::kNone;
     for (int i = 0; i < FLAGS_pr.count(); ++i) {
         const char* name = FLAGS_pr[i];
         if (name[0] == '~') {
