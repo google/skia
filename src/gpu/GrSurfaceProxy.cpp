@@ -33,7 +33,6 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
-    SkASSERT(kDefault_GrSurfaceOrigin != fOrigin);
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
@@ -64,7 +63,6 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
                                                 int sampleCnt, bool needsStencil,
                                                 GrSurfaceFlags flags, bool isMipMapped,
                                                 SkDestinationSurfaceColorMode mipColorMode) const {
-    SkASSERT(kDefault_GrSurfaceOrigin != fOrigin);
 
     GrSurfaceDesc desc;
     desc.fFlags = flags;
@@ -207,7 +205,6 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
                                                    SkBudgeted budgeted,
                                                    uint32_t flags) {
     SkASSERT(0 == flags || GrResourceProvider::kNoPendingIO_Flag == flags);
-    SkASSERT(kDefault_GrSurfaceOrigin != desc.fOrigin);
 
     const GrCaps* caps = resourceProvider->caps();
 
@@ -302,7 +299,6 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
                                                          GrBackendTexture& backendTex,
                                                          GrSurfaceOrigin origin) {
-    SkASSERT(kDefault_GrSurfaceOrigin != origin);
     sk_sp<GrTexture> tex(context->resourceProvider()->wrapBackendTexture(backendTex));
     return GrSurfaceProxy::MakeWrapped(std::move(tex), origin);
 }

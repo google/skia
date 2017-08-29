@@ -571,12 +571,10 @@ typedef intptr_t GrBackendObject;
 /**
  * Some textures will be stored such that the upper and left edges of the content meet at the
  * the origin (in texture coord space) and for other textures the lower and left edges meet at
- * the origin. kDefault_GrSurfaceOrigin sets textures to TopLeft, and render targets
- * to BottomLeft.
+ * the origin.
  */
 
 enum GrSurfaceOrigin {
-    kDefault_GrSurfaceOrigin,         // DEPRECATED; to be removed
     kTopLeft_GrSurfaceOrigin,
     kBottomLeft_GrSurfaceOrigin,
 };
@@ -592,7 +590,7 @@ struct GrMipLevel {
 struct GrSurfaceDesc {
     GrSurfaceDesc()
         : fFlags(kNone_GrSurfaceFlags)
-        , fOrigin(kDefault_GrSurfaceOrigin)
+        , fOrigin(kTopLeft_GrSurfaceOrigin)
         , fWidth(0)
         , fHeight(0)
         , fConfig(kUnknown_GrPixelConfig)
@@ -621,9 +619,6 @@ struct GrSurfaceDesc {
     int                    fSampleCnt;
     bool                   fIsMipMapped; //!< Indicates if the texture has mipmaps
 };
-
-// Legacy alias
-typedef GrSurfaceDesc GrTextureDesc;
 
 /**
  * Clips are composed from these objects.

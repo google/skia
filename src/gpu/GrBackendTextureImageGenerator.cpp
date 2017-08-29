@@ -148,7 +148,6 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
             }
         }
 
-        SkASSERT(kDefault_GrSurfaceOrigin != fSurfaceOrigin);
         // We just gained access to the texture. If we're on the original context, we could use the
         // original texture, but we'd have no way of detecting that it's no longer in-use. So we
         // always make a wrapped copy, where the release proc informs us that the context is done
