@@ -56,6 +56,12 @@ struct GrContextOptions {
     bool fEnableInstancedRendering = false;
 
     /**
+     * Disables distance field rendering for paths. Distance field computation can be expensive,
+     * and yields no benefit if a path is not rendered multiple times with different transforms.
+     */
+    bool fDisableDistanceFieldPaths = false;
+
+    /**
      * If true this allows path mask textures to be cached. This is only really useful if paths
      * are commonly rendered at the same scale and fractional translation.
      */

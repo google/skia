@@ -197,6 +197,9 @@ bool GrContext::init(const GrContextOptions& options) {
     GrPathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = options.fAllowPathMaskCaching;
     prcOptions.fGpuPathRenderers = options.fGpuPathRenderers;
+    if (options.fDisableDistanceFieldPaths) {
+        prcOptions.fGpuPathRenderers &= ~GrContextOptions::GpuPathRenderers::kDistanceField;
+    }
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions, &fSingleOwner));
 
     fAtlasGlyphCache = new GrAtlasGlyphCache(this, options.fGlyphCacheTextureMaximumBytes);
