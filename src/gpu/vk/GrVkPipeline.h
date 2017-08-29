@@ -40,7 +40,7 @@ public:
     VkPipeline pipeline() const { return fPipeline; }
 
     static void SetDynamicScissorRectState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*,
-                                           SkIRect);
+                                           GrSurfaceOrigin, SkIRect);
     static void SetDynamicViewportState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*);
     static void SetDynamicBlendConstantState(GrVkGpu*, GrVkCommandBuffer*, GrPixelConfig,
                                              const GrXferProcessor&);
