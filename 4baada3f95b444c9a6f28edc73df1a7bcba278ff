@@ -22,6 +22,30 @@
       "revId": "4baada3f95b444c9a6f28edc73df1a7bcba278ff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2544ca6b_8e65c303",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-29T22:54:08Z",
+      "side": 1,
+      "message": "Yes, of course.  We\u0027d need to version pretty much every stage.\n\nLet\u0027s go back to PS1 where we only change ARM... retreat!!",
+      "parentUuid": "93d532a4_68a45787",
+      "range": {
+        "startLine": 102,
+        "startChar": 16,
+        "endLine": 102,
+        "endChar": 39
+      },
+      "revId": "4baada3f95b444c9a6f28edc73df1a7bcba278ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
