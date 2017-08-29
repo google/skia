@@ -110,7 +110,7 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**,K*);
 extern "C" {
 
 #if __has_feature(memory_sanitizer)
-    // We'll just run baseline code.
+    // We'll just run portable code.
 
 #elif defined(__arm__)
     StartPipelineFn ASM(start_pipeline,vfp4);
@@ -168,22 +168,12 @@ extern "C" {
 
 #endif
 
-    // Baseline code compiled as a normal part of Skia.
+    // Portable, single-pixel stages.
     StartPipelineFn sk_start_pipeline;
     StageFn sk_just_return;
     #define M(st) StageFn sk_##st;
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
-
-#if defined(__clang__) && defined(__aarch64__)
-    // We also compile 8-bit stages on ARMv8 as a normal part of Skia when compiled with Clang.
-    StartPipelineFn sk_start_pipeline_8bit;
-    StageFn sk_just_return_8bit;
-    #define M(st) StageFn sk_##st##_8bit;
-        SK_RASTER_PIPELINE_STAGES(M)
-    #undef M
-#endif
-
 }
 
 #if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
@@ -208,16 +198,6 @@ extern "C" {
         }
         LOWP_STAGES(M)
     #undef M
-#elif defined(__clang__) && defined(__aarch64__)
-    template <SkRasterPipeline::StockStage st>
-    static constexpr StageFn* aarch64_8bit() { return nullptr; }
-
-    #define M(st)                                                               \
-        template <> constexpr StageFn* aarch64_8bit<SkRasterPipeline::st>() {   \
-            return sk_##st##_8bit;                                              \
-        }
-        LOWP_STAGES(M)
-    #undef M
 #endif
 
 // Engines comprise everything we need to run SkRasterPipelines.
@@ -227,20 +207,20 @@ struct SkJumper_Engine {
     StageFn*         just_return;
 };
 
-// We'll default to this baseline engine, but try to choose a better one at runtime.
-static const SkJumper_Engine kBaseline = {
+// We'll default to this portable engine, but try to choose a better one at runtime.
+static const SkJumper_Engine kPortable = {
 #define M(stage) sk_##stage,
     { SK_RASTER_PIPELINE_STAGES(M) },
 #undef M
     sk_start_pipeline,
     sk_just_return,
 };
-static SkJumper_Engine gEngine = kBaseline;
+static SkJumper_Engine gEngine = kPortable;
 static SkOnce gChooseEngineOnce;
 
 static SkJumper_Engine choose_engine() {
 #if __has_feature(memory_sanitizer)
-    // We'll just run baseline code.
+    // We'll just run portable code.
 
 #elif defined(__arm__)
     if (1 && SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
@@ -303,7 +283,7 @@ static SkJumper_Engine choose_engine() {
     }
 
 #endif
-    return kBaseline;
+    return kPortable;
 }
 
 #ifndef SK_JUMPER_DISABLE_8BIT
@@ -346,14 +326,6 @@ static SkJumper_Engine choose_engine() {
             #undef M
             };
         }
-    #elif defined(__clang__) && defined(__aarch64__)
-        return {
-        #define M(st) aarch64_8bit<SkRasterPipeline::st>(),
-            { SK_RASTER_PIPELINE_STAGES(M) },
-            sk_start_pipeline_8bit,
-            sk_just_return_8bit,
-        #undef M
-        };
     #endif
         return kNone;
     }

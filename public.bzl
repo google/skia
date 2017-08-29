@@ -116,6 +116,9 @@ BASE_SRCS_ALL = struct(
 
         # Defines main.
         "src/sksl/SkSLMain.cpp",
+
+        # Only pre-compiled into SkJumper_generated.S.
+        "src/jumper/SkJumper_stages_8bit.cpp",
     ],
 )
 
