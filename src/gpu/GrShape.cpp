@@ -29,6 +29,46 @@ GrShape& GrShape::operator=(const GrShape& that) {
     return *this;
 }
 
+GrShape GrShape::InternalMakeFilled(const GrShape& original, bool forceNonInverted) {
+    if (original.style().isSimpleFill()) {
+        if (!(forceNonInverted && original.inverseFilled())) {
+            return original;
+        }
+    }
+    GrShape result;
+    result.fType = original.fType;
+    switch (original.fType) {
+        case Type::kEmpty:
+            break;
+        case Type::kRRect:
+            result.fRRectData.fRRect = original.fRRectData.fRRect;
+            result.fRRectData.fDir = kDefaultRRectDir;
+            result.fRRectData.fStart = kDefaultRRectStart;
+            if (forceNonInverted) {
+                result.fRRectData.fInverted = false;
+            } else {
+                result.fRRectData.fInverted = result.fRRectData.fInverted;
+            }
+            break;
+        case Type::kLine:
+            if (forceNonInverted || !original.fLineData.fInverted) {
+                return GrShape();
+            }
+            result.fLineData = original.fLineData;
+            break;
+        case Type::kPath:
+            result.initType(Type::kPath, &original.fPathData.fPath);
+            result.fPathData.fGenID = original.fPathData.fGenID;
+            if (forceNonInverted && result.fPathData.fPath.isInverseFillType()) {
+                result.fPathData.fPath.toggleInverseFillType();
+            }
+            break;
+    }
+    // We don't copy the inherited key since it can contain path effect information that we just
+    // stripped.
+    return result;
+}
+
 SkRect GrShape::bounds() const {
     // Bounds where left == bottom or top == right can indicate a line or point shape. We return
     // inverted bounds for a truly empty shape.
@@ -196,7 +236,7 @@ void GrShape::setInheritedKey(const GrShape &parent, GrStyle::Apply apply, SkSca
         // We want ApplyFullStyle(ApplyPathEffect(shape)) to have the same key as
         // ApplyFullStyle(shape).
         // The full key is structured as (geo,path_effect,stroke).
-        // If we do ApplyPathEffect we get get,path_effect as the inherited key. If we then
+        // If we do ApplyPathEffect we ge0 get,path_effect as the inherited key. If we then
         // do ApplyFullStyle we'll memcpy geo,path_effect into the new inherited key
         // and then append the style key (which should now be stroke only) at the end.
         int parentCnt = parent.fInheritedKey.count();

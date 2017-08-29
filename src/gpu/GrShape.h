@@ -121,6 +121,14 @@ public:
 
     ~GrShape() { this->changeType(Type::kEmpty); }
 
+    static GrShape MakeFilled(const GrShape& original) {
+        return InternalMakeFilled(original, false);
+    }
+
+    static GrShape MakeFilledNonInverted(const GrShape& original) {
+        return InternalMakeFilled(original, true);
+    }
+
     const GrStyle& style() const { return fStyle; }
 
     /**
@@ -334,6 +342,8 @@ public:
     void writeUnstyledKey(uint32_t* key) const;
 
 private:
+    static GrShape InternalMakeFilled(const GrShape& original, bool forceNonInverted);
+
     enum class Type {
         kEmpty,
         kRRect,
