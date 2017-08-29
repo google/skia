@@ -201,39 +201,29 @@ void SkShaderBase::toString(SkString* str) const {
 }
 #endif
 
-bool SkShaderBase::appendStages(SkRasterPipeline* p,
-                                SkColorSpace* dstCS,
-                                SkArenaAlloc* alloc,
-                                const SkMatrix& ctm,
-                                const SkPaint& paint,
-                                const SkMatrix* localM) const {
-    return this->onAppendStages(p, dstCS, alloc, ctm, paint, localM);
+bool SkShaderBase::appendStages(const StageRec& rec) const {
+    return this->onAppendStages(rec);
 }
 
-bool SkShaderBase::onAppendStages(SkRasterPipeline* p,
-                                  SkColorSpace* dstCS,
-                                  SkArenaAlloc* alloc,
-                                  const SkMatrix& ctm,
-                                  const SkPaint& paint,
-                                  const SkMatrix* localM) const {
+bool SkShaderBase::onAppendStages(const StageRec& rec) const {
     // SkShader::Context::shadeSpan4f() handles the paint opacity internally,
     // but SkRasterPipelineBlitter applies it as a separate stage.
     // We skip the internal shadeSpan4f() step by forcing the paint opaque.
-    SkTCopyOnFirstWrite<SkPaint> opaquePaint(paint);
-    if (paint.getAlpha() != SK_AlphaOPAQUE) {
+    SkTCopyOnFirstWrite<SkPaint> opaquePaint(rec.fPaint);
+    if (rec.fPaint.getAlpha() != SK_AlphaOPAQUE) {
         opaquePaint.writable()->setAlpha(SK_AlphaOPAQUE);
     }
 
-    ContextRec rec(*opaquePaint, ctm, localM, ContextRec::kPM4f_DstType, dstCS);
+    ContextRec cr(*opaquePaint, rec.fCTM, rec.fLocalM, ContextRec::kPM4f_DstType, rec.fDstCS);
 
     struct CallbackCtx : SkJumper_CallbackCtx {
         sk_sp<SkShader> shader;
         Context*        ctx;
     };
-    auto cb = alloc->make<CallbackCtx>();
-    cb->shader = dstCS ? SkColorSpaceXformer::Make(sk_ref_sp(dstCS))->apply(this)
-                       : sk_ref_sp((SkShader*)this);
-    cb->ctx = as_SB(cb->shader)->makeContext(rec, alloc);
+    auto cb = rec.fAlloc->make<CallbackCtx>();
+    cb->shader = rec.fDstCS ? SkColorSpaceXformer::Make(sk_ref_sp(rec.fDstCS))->apply(this)
+                            : sk_ref_sp((SkShader*)this);
+    cb->ctx = as_SB(cb->shader)->makeContext(cr, rec.fAlloc);
     cb->fn  = [](SkJumper_CallbackCtx* self, int active_pixels) {
         auto c = (CallbackCtx*)self;
         int x = (int)c->rgba[0],
@@ -242,8 +232,8 @@ bool SkShaderBase::onAppendStages(SkRasterPipeline* p,
     };
 
     if (cb->ctx) {
-        p->append(SkRasterPipeline::seed_shader);
-        p->append(SkRasterPipeline::callback, cb);
+        rec.fPipeline->append(SkRasterPipeline::seed_shader);
+        rec.fPipeline->append(SkRasterPipeline::callback, cb);
         return true;
     }
     return false;

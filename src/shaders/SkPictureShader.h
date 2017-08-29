@@ -38,8 +38,7 @@ public:
 protected:
     SkPictureShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
-    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                        const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
+    bool onAppendStages(const StageRec&) const override;
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
     bool onIsRasterPipelineOnly(const SkMatrix&) const override;

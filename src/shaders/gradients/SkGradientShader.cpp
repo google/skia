@@ -364,14 +364,13 @@ static void init_stop_pos(
     add_stop_color(ctx, stop, Fs, Bs);
 }
 
-bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
-                                          SkColorSpace* dstCS,
-                                          SkArenaAlloc* alloc,
-                                          const SkMatrix& ctm,
-                                          const SkPaint& paint,
-                                          const SkMatrix* localM) const {
+bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
+    SkRasterPipeline* p = rec.fPipeline;
+    SkArenaAlloc* alloc = rec.fAlloc;
+    SkColorSpace* dstCS = rec.fDstCS;
+
     SkMatrix matrix;
-    if (!this->computeTotalInverse(ctm, localM, &matrix)) {
+    if (!this->computeTotalInverse(rec.fCTM, rec.fLocalM, &matrix)) {
         return false;
     }
     matrix.postConcat(fPtsToUnit);
@@ -405,7 +404,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
     // The two-stop case with stops at 0 and 1.
     if (fColorCount == 2 && fOrigPos == nullptr) {
         const SkPM4f c_l = prepareColor(0),
-            c_r = prepareColor(1);
+                     c_r = prepareColor(1);
 
         // See F and B below.
         auto* f_and_b = alloc->makeArrayDefault<SkPM4f>(2);

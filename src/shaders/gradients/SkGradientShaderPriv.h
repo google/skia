@@ -229,9 +229,7 @@ protected:
                                    SkColor* colorSrc, Rec* recSrc,
                                    int count);
 
-    bool onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS, SkArenaAlloc* alloc,
-                        const SkMatrix& ctm, const SkPaint& paint,
-                        const SkMatrix* localM) const override;
+    bool onAppendStages(const StageRec&) const override;
 
     virtual void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                                       SkRasterPipeline* postPipeline) const = 0;

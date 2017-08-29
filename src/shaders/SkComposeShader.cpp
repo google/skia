@@ -84,36 +84,34 @@ bool SkComposeShader::asACompose(ComposeRec* rec) const {
 }
 #endif
 
-bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
-                                     SkArenaAlloc* alloc, const SkMatrix& ctm,
-                                     const SkPaint& paint, const SkMatrix* localM) const {
+bool SkComposeShader::onAppendStages(const StageRec& rec) const {
     struct Storage {
         float   fRGBA[4 * SkJumper_kMaxStride];
         float   fAlpha;
     };
-    auto storage = alloc->make<Storage>();
+    auto storage = rec.fAlloc->make<Storage>();
 
-    if (!as_SB(fSrc)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {
+    if (!as_SB(fSrc)->appendStages(rec)) {
         return false;
     }
     // This outputs r,g,b,a, which we'll need later when we apply the mode, but we save it off now
     // since fShaderB will overwrite them.
-    pipeline->append(SkRasterPipeline::store_rgba, storage->fRGBA);
+    rec.fPipeline->append(SkRasterPipeline::store_rgba, storage->fRGBA);
 
-    if (!as_SB(fDst)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {
+    if (!as_SB(fDst)->appendStages(rec)) {
         return false;
     }
     // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode/lerp
     // so we have to shuttle them. If we had a stage the would load_into_dst, then we could
     // reverse the two shader invocations, and avoid this move...
-    pipeline->append(SkRasterPipeline::move_src_dst);
-    pipeline->append(SkRasterPipeline::load_rgba, storage->fRGBA);
+    rec.fPipeline->append(SkRasterPipeline::move_src_dst);
+    rec.fPipeline->append(SkRasterPipeline::load_rgba, storage->fRGBA);
 
     if (!this->isJustLerp()) {
-        SkBlendMode_AppendStages(fMode, pipeline);
+        SkBlendMode_AppendStages(fMode, rec.fPipeline);
     }
     if (!this->isJustMode()) {
-        pipeline->append(SkRasterPipeline::lerp_1_float, &fLerpT);
+        rec.fPipeline->append(SkRasterPipeline::lerp_1_float, &fLerpT);
     }
     return true;
 }

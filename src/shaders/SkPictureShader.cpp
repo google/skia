@@ -296,13 +296,11 @@ bool SkPictureShader::onIsRasterPipelineOnly(const SkMatrix& ctm) const {
                                                fTmx, fTmy, this->getLocalMatrix());
 }
 
-bool SkPictureShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
-                                     const SkMatrix& ctm, const SkPaint& paint,
-                                     const SkMatrix* localMatrix) const {
+bool SkPictureShader::onAppendStages(const StageRec& rec) const {
     // Keep bitmapShader alive by using alloc instead of stack memory
-    auto& bitmapShader = *alloc->make<sk_sp<SkShader>>();
-    bitmapShader = this->refBitmapShader(ctm, localMatrix, cs);
-    return bitmapShader && as_SB(bitmapShader)->appendStages(p, cs, alloc, ctm, paint);
+    auto& bitmapShader = *rec.fAlloc->make<sk_sp<SkShader>>();
+    bitmapShader = this->refBitmapShader(rec.fCTM, rec.fLocalM, rec.fDstCS);
+    return bitmapShader && as_SB(bitmapShader)->appendStages(rec);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

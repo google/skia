@@ -119,7 +119,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                                is_opaque, is_constant);
     }
 
-    if (shader->appendStages(&shaderPipeline, dstCS, alloc, ctm, paint)) {
+    if (shader->appendStages({&shaderPipeline, alloc, dstCS, paint, nullptr, ctm})) {
         if (paintColor.a() != 1.0f) {
             shaderPipeline.append(SkRasterPipeline::scale_1_float,
                                   alloc->make<float>(paintColor.a()));

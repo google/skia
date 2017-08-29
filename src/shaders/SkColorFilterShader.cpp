@@ -39,13 +39,11 @@ void SkColorFilterShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fFilter.get());
 }
 
-bool SkColorFilterShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
-                                         SkArenaAlloc* alloc, const SkMatrix& ctm,
-                                         const SkPaint& paint, const SkMatrix* localM) const {
-    if (!as_SB(fShader)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {
+bool SkColorFilterShader::onAppendStages(const StageRec& rec) const {
+    if (!as_SB(fShader)->appendStages(rec)) {
         return false;
     }
-    fFilter->appendStages(pipeline, dstCS, alloc, fShader->isOpaque());
+    fFilter->appendStages(rec.fPipeline, rec.fDstCS, rec.fAlloc, fShader->isOpaque());
     return true;
 }
 

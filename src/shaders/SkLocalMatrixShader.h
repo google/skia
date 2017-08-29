@@ -48,8 +48,7 @@ protected:
 
     SkImage* onIsAImage(SkMatrix* matrix, TileMode* mode) const override;
 
-    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                        const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
+    bool onAppendStages(const StageRec&) const override;
 
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
         return as_SB(fProxyShader)->makeColorSpace(xformer)->makeWithLocalMatrix(
