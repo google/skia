@@ -16,7 +16,7 @@
 namespace SkSL {
 
 /**
- * Represents the construction of a compound type, such as "float2x, y)".
+ * Represents the construction of a compound type, such as "float2(x, y)".
  *
  * Vector constructors will always consist of either exactly 1 scalar, or a collection of vectors
  * and scalars totalling exactly the right number of scalar components.
@@ -25,9 +25,8 @@ namespace SkSL {
  * collection of vectors and scalars totalling exactly the right number of scalar components.
  */
 struct Constructor : public Expression {
-    Constructor(Position position, const Type& type,
-                std::vector<std::unique_ptr<Expression>> arguments)
-    : INHERITED(position, kConstructor_Kind, type)
+    Constructor(int offset, const Type& type, std::vector<std::unique_ptr<Expression>> arguments)
+    : INHERITED(offset, kConstructor_Kind, type)
     , fArguments(std::move(arguments)) {}
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
@@ -37,13 +36,13 @@ struct Constructor : public Expression {
                 // promote float(1) to 1.0
                 int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
                 return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
-                                                                    fPosition,
+                                                                    fOffset,
                                                                     intValue));
             } else if (fType == *irGenerator.fContext.fUInt_Type) {
                 // promote uint(1) to 1u
                 int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
                 return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
-                                                                  fPosition,
+                                                                  fOffset,
                                                                   intValue,
                                                                   &fType));
             }
@@ -96,8 +95,8 @@ struct Constructor : public Expression {
         // a constant scalar constructor should have been collapsed down to the appropriate
         // literal
         ASSERT(fType.kind() == Type::kMatrix_Kind);
-        const FloatLiteral fzero(context, Position(), 0);
-        const IntLiteral izero(context, Position(), 0);
+        const FloatLiteral fzero(context, -1, 0);
+        const IntLiteral izero(context, -1, 0);
         const Expression* zero;
         if (fType.componentType() == *context.fFloat_Type) {
             zero = &fzero;

@@ -19,11 +19,11 @@ class ErrorReporter {
 public:
     virtual ~ErrorReporter() {}
 
-    void error(Position position, const char* msg) {
-        this->error(position, String(msg));
+    void error(int offset, const char* msg) {
+        this->error(offset, String(msg));
     }
 
-    virtual void error(Position position, String msg) = 0;
+    virtual void error(int offset, String msg) = 0;
 
     virtual int errorCount() = 0;
 };

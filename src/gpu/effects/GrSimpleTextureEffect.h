@@ -29,6 +29,7 @@ public:
                 GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode)));
     }
 
+    /* clamp mode */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      sk_sp<GrColorSpaceXform>
                                                              colorSpaceXform,

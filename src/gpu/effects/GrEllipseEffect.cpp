@@ -72,7 +72,9 @@ private:
         if (radii != prevRadii || center != prevCenter) {
             float invRXSqd;
             float invRYSqd;
-
+            // If we're using a scale factor to work around precision issues, choose the larger
+            // radius as the scale factor. The inv radii need to be pre-adjusted by the scale
+            // factor.
             if (scale.isValid()) {
                 if (radii.fX > radii.fY) {
                     invRXSqd = 1.f;
