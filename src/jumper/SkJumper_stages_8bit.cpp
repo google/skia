@@ -476,8 +476,13 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
         V(int   v) : vec(v) {}
         V(float v) : vec(v * 255) {}
         V(U16   v) {
-            // (v + 127) / 255 == (v + (v+128)>>8 +128) >> 8
+        #if 0
+            // (v + 127) / 255 = (v + ((v+128)>>8) + 128) >> 8
             vec = vraddhn_u16(v, vrshrq_n_u16(v, 8));
+        #else
+            // (v + 127) / 255 ≈ (v + 255) >> 8
+            vec = vaddhn_u16(v, U16(255));
+        #endif
         }
 
         operator U8() const { return vec; }
