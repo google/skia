@@ -168,7 +168,7 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
 
     struct Params { size_t x,y,tail; };
     using Stage =
-        void(const Params* params, void** program, R src_lo, R src_hi, R dst_lo, R dst_hi);
+        void(*)(const Params* params, void** program, R src_lo, R src_hi, R dst_lo, R dst_hi);
 
     #if defined(__AVX__)
         // We really want to make sure all paths go through this function's (implicit) vzeroupper.
@@ -183,7 +183,7 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
     #else
         R r{}; // Next best is zero'd for compilers that will complain about uninitialized values.
     #endif
-        auto start = (Stage*)load_and_inc(program);
+        auto start = (Stage)load_and_inc(program);
         for (; y < ylimit; y++) {
             Params params = { x,y,0 };
             while (params.x + kStride <= xlimit) {
@@ -209,7 +209,7 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
             name##_k(ctx, params->x, params->y, params->tail, src, dst);                 \
             split(src.u8x4, &src_lo, &src_hi);                                           \
             split(dst.u8x4, &dst_lo, &dst_hi);                                           \
-            auto next = (Stage*)load_and_inc(program);                                   \
+            auto next = (Stage)load_and_inc(program);                                    \
             next(params,program, src_lo,src_hi, dst_lo,dst_hi);                          \
         }                                                                                \
         SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail, V& src, V& dst)
@@ -458,6 +458,13 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
 
 #elif defined(JUMPER_HAS_NEON_8BIT)  // These are generally compiled as part of Skia.
     #include <arm_neon.h>
+
+    #if defined(__arm__)
+        #define ABI __attribute__((pcs("aapcs-vfp")))
+    #else
+        #define ABI
+    #endif
+
     #define WRAP(name) sk_##name##_8bit
 
     // On ARM it's so easy to de-interlace on loads and re-interlace on stores that
@@ -505,14 +512,15 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
     SI V min(V a, V b) { return if_then_else(a > b, b.vec, a.vec); }
 
 
-    using Stage = void(void** program, size_t x, size_t y, size_t tail,
-                       V  r, V  g, V  b, V  a,
-                       V dr, V dg, V db, V da);
+    // We need to pass as U8 (raw vector types unwrapped by any struct) to appease ARMv7's ABI.
+    using Stage = void (ABI *)(void** program, size_t x, size_t y, size_t tail,
+                               U8  r, U8  g, U8  b, U8  a,
+                               U8 dr, U8 dg, U8 db, U8 da);
 
-    extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t ylimit,
-                                         void** program) {
+    ABI extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t ylimit,
+                                             void** program) {
         V v{};
-        auto start = (Stage*)load_and_inc(program);
+        auto start = (Stage)load_and_inc(program);
         const size_t x0 = x;
         for (; y < ylimit; y++) {
             x = x0;
@@ -526,19 +534,22 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
         }
     }
 
-    extern "C" void WRAP(just_return)(void**,size_t,size_t,size_t, V,V,V,V, V,V,V,V) {}
+    ABI extern "C" void WRAP(just_return)(void**,size_t,size_t,size_t,
+                                          U8,U8,U8,U8, U8,U8,U8,U8) {}
 
     #define STAGE(name)                                                                  \
         SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail,                   \
                          V&  r, V&  g, V&  b, V&  a,                                     \
                          V& dr, V& dg, V& db, V& da);                                    \
-        extern "C" void WRAP(name)(void** program, size_t x, size_t y, size_t tail,      \
-                                   V  r, V  g, V  b, V  a,                               \
-                                   V dr, V dg, V db, V da) {                             \
+        ABI extern "C" void WRAP(name)(void** program, size_t x, size_t y, size_t tail,  \
+                                       U8  r, U8  g, U8  b, U8  a,                       \
+                                       U8 dr, U8 dg, U8 db, U8 da) {                     \
             LazyCtx ctx(program);                                                        \
-            name##_k(ctx,x,y,tail, r,g,b,a, dr,dg,db,da);                                \
-            auto next = (Stage*)load_and_inc(program);                                   \
-            next(program, x,y,tail, r,g,b,a, dr,dg,db,da);                               \
+            V R =  r,  G =  g,  B =  b,  A =  a,                                         \
+             DR = dr, DG = dg, DB = db, DA = da;                                         \
+            name##_k(ctx,x,y,tail, R,G,B,A, DR,DG,DB,DA);                                \
+            auto next = (Stage)load_and_inc(program);                                    \
+            next(program, x,y,tail, R,G,B,A, DR,DG,DB,DA);                               \
         }                                                                                \
         SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail,                   \
                          V&  r, V&  g, V&  b, V&  a,                                     \
