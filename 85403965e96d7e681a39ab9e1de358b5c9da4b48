@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e248d18_872c71f9",
+        "filename": "tools/flags/SkCommonFlagsPathRenderer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-08-29T19:10:09Z",
+      "side": 1,
+      "message": "I believe we want \"default\" for the initial value, instead of \"all\"",
+      "revId": "85403965e96d7e681a39ab9e1de358b5c9da4b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c77978b_7743e05c",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1346,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-08-29T19:10:09Z",
+      "side": 1,
+      "message": "I might always put all right after default, or else at the end of the list all the time. We just don\u0027t know if or when default will change, and it might not be related to ccpr.",
+      "revId": "85403965e96d7e681a39ab9e1de358b5c9da4b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
