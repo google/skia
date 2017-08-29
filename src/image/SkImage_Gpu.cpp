@@ -266,7 +266,6 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
         return nullptr;
     }
 
-    SkASSERT(kDefault_GrSurfaceOrigin != origin);
     sk_sp<GrTexture> tex = ctx->resourceProvider()->wrapBackendTexture(backendTex, ownership);
     if (!tex) {
         return nullptr;

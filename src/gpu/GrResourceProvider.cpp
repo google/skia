@@ -98,8 +98,6 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
 
 sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
                                                      SkBudgeted budgeted, uint32_t flags) {
-    SkASSERT(desc.fOrigin != kDefault_GrSurfaceOrigin);
-
     flags |= kExact_Flag | kNoCreate_Flag;
     sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
     if (tex && SkBudgeted::kNo == budgeted) {
@@ -161,7 +159,6 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                    uint32_t flags) {
     ASSERT_SINGLE_OWNER
-    SkASSERT(desc.fOrigin != kDefault_GrSurfaceOrigin);
 
     if (this->isAbandoned()) {
         return nullptr;
@@ -183,7 +180,6 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
                                                          uint32_t flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(0 == flags || kNoPendingIO_Flag == flags);
-    SkASSERT(kDefault_GrSurfaceOrigin != desc.fOrigin);
 
     if (this->isAbandoned()) {
         return nullptr;
@@ -201,7 +197,6 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDe
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(validate_desc(inDesc, *fCaps));
-    SkASSERT(inDesc.fOrigin != kDefault_GrSurfaceOrigin);
 
     SkTCopyOnFirstWrite<GrSurfaceDesc> desc(inDesc);
 

@@ -138,7 +138,6 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
     desc.fSampleCnt = caps->getSampleCount(desc.fSampleCnt, desc.fConfig);
     // Attempt to catch un- or wrongly initialized sample counts.
     SkASSERT(desc.fSampleCnt >= 0 && desc.fSampleCnt <= 64);
-    SkASSERT(kDefault_GrSurfaceOrigin != desc.fOrigin);
 
     if (mipLevelCount && (desc.fFlags & kPerformInitialClear_GrSurfaceFlag)) {
         return nullptr;
