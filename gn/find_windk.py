@@ -26,4 +26,3 @@ else:
     if os.path.exists(root + edition):
       print root + edition
       sys.exit(0)
-  sys.exit(1)
