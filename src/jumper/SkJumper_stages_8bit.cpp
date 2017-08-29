@@ -96,19 +96,28 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
         V() = default;
         V(U32   v) : u32 (v) {}
         V(U8x4  v) : u8x4(v) {}
-        V(U16x4 v) : u8x4(pack((v + 127)/255)) {}
         V(int   v) : u8x4(v) {}
         V(float v) : u8x4(v*255) {}
+
+    #if defined(SK_JUMPER_LEGACY_DIV255)
+        V(U16x4 v) : u8x4(pack((v + 127)/255)) {}
+    #else
+        V(U16x4 v) : u8x4(pack((v + 255)/256)) {}  // Good, cheap approximation of (v+127)/255.
+    #endif
     };
     static const size_t kStride = sizeof(V) / sizeof(uint32_t);
 
     SI V operator+(V x, V y) { return x.u8x4 + y.u8x4; }
     SI V operator-(V x, V y) { return x.u8x4 - y.u8x4; }
     SI V operator*(V x, V y) {
-        // (x*y + x)/256 is a very good approximation of (x*y + 127)/255.
         U16x4 X = __builtin_convertvector(x.u8x4, U16x4),
               Y = __builtin_convertvector(y.u8x4, U16x4);
+    #if defined(SK_JUMPER_LEGACY_DIV255)
+        // (x*y + x)/256 is a very good approximation of (x*y + 127)/255.
         return pack((X*Y + X)>>8);
+    #else
+        return X*Y;
+    #endif
     }
 
     template <typename T>
@@ -476,8 +485,13 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
         V(int   v) : vec(v) {}
         V(float v) : vec(v * 255) {}
         V(U16   v) {
-            // (v + 127) / 255 == (v + (v+128)>>8 +128) >> 8
+        #if defined(SK_JUMPER_LEGACY_DIV255)
+            // (v + 127) / 255 = (v + ((v+128)>>8) + 128) >> 8
             vec = vraddhn_u16(v, vrshrq_n_u16(v, 8));
+        #else
+            // (v + 127) / 255 ≈ (v + 255) >> 8
+            vec = vaddhn_u16(v, U16(255));
+        #endif
         }
 
         operator U8() const { return vec; }
