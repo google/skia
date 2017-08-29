@@ -17,7 +17,6 @@
 #include "GrClipStackClip.h"
 #include "GrRenderTargetContext.h"
 #include "GrContext.h"
-#include "GrSurfacePriv.h"
 #include "GrTypes.h"
 
 class GrAccelData;

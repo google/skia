@@ -42,7 +42,6 @@ public:
                                  btgp.inTextureCoords()->fName,
                                  btgp.inTextureCoords()->fName,
                                  atlasSizeInvName);
-
         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color
         if (btgp.hasVertexColor()) {
