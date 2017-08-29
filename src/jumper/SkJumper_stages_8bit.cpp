@@ -177,7 +177,7 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
     #endif
     MAYBE_MSABI
     extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t ylimit,
-                                         void** program, const SkJumper_constants*) {
+                                         void** program) {
     #if defined(JUMPER_IS_OFFLINE)
         R r;   // Fastest to start uninitialized.
     #else
@@ -505,7 +505,7 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
                        V dr, V dg, V db, V da);
 
     extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t ylimit,
-                                         void** program, const SkJumper_constants*) {
+                                         void** program) {
         V v{};
         auto start = (Stage*)load_and_inc(program);
         const size_t x0 = x;
