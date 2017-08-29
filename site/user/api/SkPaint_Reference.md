@@ -101,8 +101,8 @@ Multiple colors are drawn either by using multiple paints or with objects like
 |  | description |
 | --- | ---  |
 | <a href="#SkPaint_empty_constructor">SkPaint()</a> | Constructs with default values. |
-| <a href="#SkPaint_copy_constructor">SkPaint(const SkPaint& paint)</a> | Makes a shallow copy. |
-| <a href="#SkPaint_move_constructor">SkPaint(SkPaint&& paint)</a> | Moves paint without copying it. |
+| <a href="#SkPaint_copy_const_SkPaint">SkPaint(const SkPaint& paint)</a> | Makes a shallow copy. |
+| <a href="#SkPaint_move_SkPaint">SkPaint(SkPaint&& paint)</a> | Moves paint without copying it. |
 |  | Decreases <a href="undocumented#Reference_Count">Reference Count</a> of owned objects. |
 
 ## <a name="Operators"></a> Operators
@@ -283,7 +283,7 @@ default initialized <a href="#Paint">Paint</a>
 
 ---
 
-<a name="SkPaint_copy_constructor"></a>
+<a name="SkPaint_copy_const_SkPaint"></a>
 ## SkPaint
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -292,7 +292,7 @@ SkPaint(const SkPaint& paint)
 
 Makes a shallow copy of <a href="#Paint">Paint</a>. <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Draw_Looper">Draw Looper</a>, and <a href="undocumented#Image_Filter">Image Filter</a> are shared
-between the original <a href="#SkPaint_copy_constructor_paint">paint</a> and the copy. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> increment
+between the original <a href="#SkPaint_copy_const_SkPaint_paint">paint</a> and the copy. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> increment
 their references by one.
 
 The referenced objects <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Rasterizer">Rasterizer</a>,
@@ -301,14 +301,14 @@ This prevents objects with <a href="undocumented#Reference_Count">Reference Coun
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_copy_constructor_paint"> <code><strong>paint </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkPaint_copy_const_SkPaint_paint"> <code><strong>paint </strong></code> </a></td> <td>
 original to copy</td>
   </tr>
 </table>
 
 ### Return Value
 
-shallow copy of <a href="#SkPaint_copy_constructor_paint">paint</a>
+shallow copy of <a href="#SkPaint_copy_const_SkPaint_paint">paint</a>
 
 ### Example
 
@@ -325,7 +325,7 @@ SK_ColorBLUE == paint2.getColor()
 
 ---
 
-<a name="SkPaint_move_constructor"></a>
+<a name="SkPaint_move_SkPaint"></a>
 ## SkPaint
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -333,20 +333,20 @@ SkPaint(SkPaint&& paint)
 </pre>
 
 Implements a move constructor to avoid incrementing the reference counts
-of objects referenced by the <a href="#SkPaint_move_constructor_paint">paint</a>.
+of objects referenced by the <a href="#SkPaint_move_SkPaint_paint">paint</a>.
 
-After the call, <a href="#SkPaint_move_constructor_paint">paint</a> is undefined, and can be safely destructed.
+After the call, <a href="#SkPaint_move_SkPaint_paint">paint</a> is undefined, and can be safely destructed.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_move_constructor_paint"> <code><strong>paint </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkPaint_move_SkPaint_paint"> <code><strong>paint </strong></code> </a></td> <td>
 original to move</td>
   </tr>
 </table>
 
 ### Return Value
 
-content of <a href="#SkPaint_move_constructor_paint">paint</a>
+content of <a href="#SkPaint_move_SkPaint_paint">paint</a>
 
 ### Example
 
@@ -643,7 +643,7 @@ by the client.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPaint_unflatten_buffer"> <code><strong>buffer </strong></code> </a></td> <td>
-serialized data to unflatten</td>
+serialized data to <a href="#SkPaint_unflatten">unflatten</a></td>
   </tr>
 </table>
 
@@ -4692,7 +4692,7 @@ double width = 10
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 size_t breakText(const void* text, size_t length, SkScalar maxWidth,
-                 SkScalar* measuredWidth = NULL) const
+                 SkScalar* measuredWidth = nullptr) const
 </pre>
 
 Returns the bytes of <a href="#SkPaint_breakText_text">text</a> that fit within <a href="#SkPaint_breakText_maxWidth">maxWidth</a>.
@@ -4735,7 +4735,7 @@ bytes of <a href="#SkPaint_breakText_text">text</a> that fit, always less than o
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 int getTextWidths(const void* text, size_t byteLength, SkScalar widths[],
-                  SkRect bounds[] = NULL) const
+                  SkRect bounds[] = nullptr) const
 </pre>
 
 Retrieves the advance and <a href="#SkPaint_getTextWidths_bounds">bounds</a> for each glyph in <a href="#SkPaint_getTextWidths_text">text</a>, and returns

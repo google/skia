@@ -4713,7 +4713,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 ##
 
 #Method size_t breakText(const void* text, size_t length, SkScalar maxWidth,
-                      SkScalar* measuredWidth = NULL) const
+                      SkScalar* measuredWidth = nullptr) const
 
     Returns the bytes of text that fit within maxWidth.
     If kVerticalText_Flag is clear, the text fragment fits if its advance width is less than or
@@ -4757,7 +4757,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 ##
 
 #Method int getTextWidths(const void* text, size_t byteLength, SkScalar widths[],
-                      SkRect bounds[] = NULL) const
+                      SkRect bounds[] = nullptr) const
 
     Retrieves the advance and bounds for each glyph in text, and returns
     the glyph count in text.

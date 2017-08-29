@@ -67,7 +67,7 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 #                                                               # description                                     ##
 #Legend ##
 # SkCanvas()                                                    # No Surface, no dimensions.                      ##
-# SkCanvas(int width, int height, const SkSurfaceProps* props = NULL) # No Surface, set dimensions, Surface_Properties. ##
+# SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr) # No Surface, set dimensions, Surface_Properties. ##
 # SkCanvas(SkBaseDevice* device)                                # Existing Device. (SkBaseDevice is private.)     ##
 # SkCanvas(const SkBitmap& bitmap)                              # Uses existing Bitmap.                           ##
 # SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props) # Uses existing Bitmap and Surface_Properties.    ##
@@ -364,7 +364,7 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method SkCanvas(int width, int height, const SkSurfaceProps* props = NULL)
+#Method SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr)
 
 Creates Canvas of the specified dimensions without a Surface.
 Used by subclasses with custom implementations for draw methods.
@@ -466,15 +466,15 @@ The actual output depends on the installed fonts.
 
     #StdOut
     -----
-    --x--
-    --x--
-    --x--
-    --x--
-    --x--
-    --x--
+    ---x-
+    ---x-
+    ---x-
+    ---x-
+    ---x-
+    ---x-
     -----
-    --x--
-    --x--
+    ---x-
+    ---x-
     -----
     #StdOut ##
 ##
@@ -803,7 +803,7 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = NULL)
+#Method void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = nullptr)
 
 Returns the pixel base address, Image_Info, rowBytes, and origin if the pixels
 can be read directly. The returned address is only valid
@@ -3774,7 +3774,7 @@ void draw(SkCanvas* canvas) {
 drawImage, drawImageRect, and drawImageNine can be called with a bare pointer or
 a smart pointer as a convenience. The pairs of calls are otherwise identical.
 
-#Method void drawImage(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint = NULL)
+#Method void drawImage(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint = nullptr)
 
 Draw Image image, with its top-left corner at (left, top),
 using Clip, Matrix, and optional Paint paint.
@@ -3814,7 +3814,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Method void drawImage(const sk_sp<SkImage>& image, SkScalar left, SkScalar top,
-                   const SkPaint* paint = NULL) 
+                   const SkPaint* paint = nullptr) 
 
 Draw Image image, with its top-left corner at (left, top),
 using Clip, Matrix, and optional Paint paint.
@@ -4362,7 +4362,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Method void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-                    const SkPaint* paint = NULL)
+                    const SkPaint* paint = nullptr)
 
 Draw Bitmap bitmap, with its top-left corner at (left, top),
 using Clip, Matrix, and optional Paint paint.
@@ -4580,7 +4580,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Method void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
-                        const SkPaint* paint = NULL)
+                        const SkPaint* paint = nullptr)
 
 Draw Bitmap bitmap stretched differentially to fit into Rect dst.
 IRect center divides the bitmap into nine sections: four sides, four corners,
@@ -5843,7 +5843,7 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method void drawDrawable(SkDrawable* drawable, const SkMatrix* matrix = NULL)
+#Method void drawDrawable(SkDrawable* drawable, const SkMatrix* matrix = nullptr)
 
 Draw Drawable drawable using Clip and Matrix, concatenated with 
 optional matrix.
