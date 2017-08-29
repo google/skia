@@ -40,6 +40,7 @@ using std::vector;
 
 enum class KeyWord {
     kNone,
+    kSK_API,
     kBool,
     kChar,
     kClass,
@@ -148,6 +149,7 @@ enum class Bracket {
     kSlashSlash,
     kPound,
     kColon,
+    kDebugCode,  // parens get special treatment so SkDEBUGCODE( isn't treated as method
 };
 
 enum class Punctuation {  // catch-all for misc symbols tracked in C
@@ -760,7 +762,7 @@ public:
     bool checkMethod() const;
 
     void setCanonicalFiddle();
-    bool crossCheck(const char* tokenName, const Definition& includeToken) const;
+    bool crossCheck2(const Definition& includeToken) const;
     bool crossCheck(const Definition& includeToken) const;
     bool crossCheckInside(const char* start, const char* end, const Definition& includeToken) const;
     bool exampleToScript(string* result) const;
@@ -1287,6 +1289,8 @@ public:
 
     bool addDefinition(const char* defStart, bool hasEnd, MarkType markType,
             const vector<string>& typeNameBuilder);
+    bool checkExamples() const;
+    bool dumpExamples(const char* fiddleJsonFileName) const;
     bool childOf(MarkType markType) const;
     string className(MarkType markType);
     bool collectExternals();
@@ -1316,6 +1320,7 @@ public:
     }
 
     bool popParentStack(Definition* definition);
+    void reportDuplicates(const Definition& def, const string& dup) const;
 
     void reset() override {
         INHERITED::resetCommon();
@@ -1540,6 +1545,7 @@ public:
         fRootTopic = nullptr;
         fInBrace = nullptr;
         fIncludeWord = nullptr;
+        fLastObject = nullptr;
         fPrev = '\0';
         fInChar = false;
         fInCharCommentString = false;
@@ -1602,6 +1608,7 @@ protected:
     unordered_map<string, Definition> fIUnionMap;
     Definition* fRootTopic;
     Definition* fInBrace;
+    Definition* fLastObject;
     const char* fIncludeWord;
     char fPrev;
     bool fInChar;
@@ -1646,6 +1653,11 @@ public:
         list<Definition>::iterator fDefEnd;
     };
 
+    struct ParentPair {
+        const Definition* fParent;
+        const ParentPair* fPrev;
+    };
+
     IncludeWriter() : IncludeParser() {}
     ~IncludeWriter() override {}
 
@@ -1670,7 +1682,7 @@ public:
             const int start, const int run, int lastWrite, const char last, 
             const char* data);
     void methodOut(const Definition* method, const Definition& child);
-    bool populate(Definition* def, RootDefinition* root);
+    bool populate(Definition* def, ParentPair* parentPair, RootDefinition* root);
     bool populate(BmhParser& bmhParser);
 
     void reset() override {
@@ -1680,6 +1692,7 @@ public:
         fEnumDef = nullptr;
         fMethodDef = nullptr;
         fStructDef = nullptr;
+        fAttrDeprecated = nullptr;
         fAnonymousEnumCount = 1;
         fInStruct = false;
     }
@@ -1700,6 +1713,7 @@ private:
     const Definition* fEnumDef;
     const Definition* fMethodDef;
     const Definition* fStructDef;
+    const Definition* fAttrDeprecated;
     const char* fContinuation;  // used to construct paren-qualified method name
     int fAnonymousEnumCount;
     int fEnumItemValueTab;
