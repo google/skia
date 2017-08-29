@@ -124,11 +124,11 @@ private:
 class GrDistanceFieldPathGeoProc : public GrGeometryProcessor {
 public:
     static sk_sp<GrGeometryProcessor> Make(GrColor color,
-                                           const SkMatrix& viewMatrix, sk_sp<GrTextureProxy> proxy,
+                                           const SkMatrix& viewMatrix, sk_sp<GrTextureProxy> proxy[4],
                                            const GrSamplerParams& params,
                                            uint32_t flags, bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
-            new GrDistanceFieldPathGeoProc(color, viewMatrix, std::move(proxy),
+            new GrDistanceFieldPathGeoProc(color, viewMatrix, proxy,
                                            params, flags, usesLocalCoords));
     }
 
@@ -139,6 +139,7 @@ public:
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
+    const Attribute* inTextureIndex() const { return fInTextureIndex; }
     GrColor color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     uint32_t getFlags() const { return fFlags; }
@@ -150,16 +151,17 @@ public:
 
 private:
     GrDistanceFieldPathGeoProc(GrColor, const SkMatrix& viewMatrix,
-                               sk_sp<GrTextureProxy>, const GrSamplerParams&, uint32_t flags,
+                               sk_sp<GrTextureProxy> [], const GrSamplerParams&, uint32_t flags,
                                bool usesLocalCoords);
 
     GrColor          fColor;
     SkMatrix         fViewMatrix;
-    TextureSampler   fTextureSampler;
+    TextureSampler   fTextureSampler[4];
     uint32_t         fFlags;
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInTextureCoords;
+    const Attribute* fInTextureIndex;
     bool             fUsesLocalCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST

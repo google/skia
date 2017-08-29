@@ -351,6 +351,10 @@ public:
                                  dfTexEffect.inTextureCoords()->fName,
                                  dfTexEffect.inTextureCoords()->fName);
 
+        GrGLSLVertToFrag index(kFloat_GrSLType);
+        varyingHandler->addVarying("TextureIndex", &index, kHigh_GrSLPrecision);
+        vertBuilder->codeAppendf("%s = float(%s);", index.vsOut(), dfTexEffect.inTextureIndex()->fName);
+
         // setup pass through color
         varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
 
@@ -373,11 +377,25 @@ public:
         // Use highp to work around aliasing issues
         fragBuilder->codeAppendf("highp float2 uv = %s;", uv.fsIn());
 
-        fragBuilder->codeAppend("float texColor = ");
+        fragBuilder->codeAppendf("float texIndex = %s;", index.fsIn());
+#ifdef MULTITEXTURE
+        fragBuilder->codeAppend("float4 texColor;");
+        fragBuilder->codeAppend("if (texIndex == 0) { texColor = ");
         fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv", kVec2f_GrSLType);
-        fragBuilder->codeAppend(".r;");
+        fragBuilder->codeAppend("; } else if (texIndex == 1) { texColor = ");
+        fragBuilder->appendTextureLookup(args.fTexSamplers[1], "uv", kVec2f_GrSLType);
+        fragBuilder->codeAppend("; } else if (texIndex == 2) { texColor = ");
+        fragBuilder->appendTextureLookup(args.fTexSamplers[2], "uv", kVec2f_GrSLType);
+        fragBuilder->codeAppend("; } else { texColor = ");
+        fragBuilder->appendTextureLookup(args.fTexSamplers[3], "uv", kVec2f_GrSLType);
+        fragBuilder->codeAppend("; }");
+#else
+        fragBuilder->codeAppend("float4 texColor = ");
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv", kVec2f_GrSLType);
+        fragBuilder->codeAppend(";");
+#endif
         fragBuilder->codeAppend("float distance = "
-            SK_DistanceFieldMultiplier "*(texColor - " SK_DistanceFieldThreshold ");");
+            SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");");
 
         fragBuilder->codeAppend("float afwidth;");
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
@@ -459,7 +477,7 @@ public:
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
-        SkASSERT(dfpgp.numTextureSamplers() == 1);
+        //SkASSERT(dfpgp.numTextureSamplers() == 1);
         GrTexture* atlas = dfpgp.textureSampler(0).peekTexture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
@@ -494,13 +512,12 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(GrColor color,
                                                        const SkMatrix& viewMatrix,
-                                                       sk_sp<GrTextureProxy> proxy,
+                                                       sk_sp<GrTextureProxy> proxy[],
                                                        const GrSamplerParams& params,
                                                        uint32_t flags,
                                                        bool usesLocalCoords)
         : fColor(color)
         , fViewMatrix(viewMatrix)
-        , fTextureSampler(std::move(proxy), params)
         , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
         , fInColor(nullptr)
         , fUsesLocalCoords(usesLocalCoords) {
@@ -511,7 +528,12 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(GrColor color,
     fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_uint_GrVertexAttribType,
                                               kHigh_GrSLPrecision);
-    this->addTextureSampler(&fTextureSampler);
+    fInTextureIndex = &this->addVertexAttrib("inTextureIndex", kInt_GrVertexAttribType,
+                                              kHigh_GrSLPrecision);
+    for (int i = 0; i < 4; ++i) {
+        fTextureSampler[i].reset(std::move(proxy[i]), params);
+        this->addTextureSampler(&fTextureSampler[i]);
+    }
 }
 
 void GrDistanceFieldPathGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
@@ -532,7 +554,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldPathGeoProc);
 sk_sp<GrGeometryProcessor> GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+    sk_sp<GrTextureProxy> proxy[4] = { d->textureProxy(texIdx), nullptr, nullptr, nullptr };
 
     static const SkShader::TileMode kTileModes[] = {
         SkShader::kClamp_TileMode,
@@ -554,7 +576,7 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTes
 
     return GrDistanceFieldPathGeoProc::Make(GrRandomColor(d->fRandom),
                                             GrTest::TestMatrix(d->fRandom),
-                                            std::move(proxy),
+                                            proxy,
                                             params,
                                             flags,
                                             d->fRandom->nextBool());

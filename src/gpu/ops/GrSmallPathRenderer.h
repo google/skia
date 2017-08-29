@@ -109,6 +109,7 @@ private:
         GrDrawOpAtlas::AtlasID fID;
         SkRect                 fBounds;
         GrIRect16              fTextureCoords;
+        int                    fAtlasIndex;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeData);
 
         static inline const Key& GetKey(const ShapeData& data) {
@@ -125,7 +126,7 @@ private:
     typedef SkTDynamicHash<ShapeData, ShapeData::Key> ShapeCache;
     typedef SkTInternalLList<ShapeData> ShapeDataList;
 
-    std::unique_ptr<GrDrawOpAtlas> fAtlas;
+    std::unique_ptr<GrDrawOpAtlas> fAtlas[4];
     ShapeCache fShapeCache;
     ShapeDataList fShapeList;
 
