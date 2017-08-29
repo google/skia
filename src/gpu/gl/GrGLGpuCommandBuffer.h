@@ -50,16 +50,22 @@ class GrGLGpuRTCommandBuffer : public GrGpuRTCommandBuffer {
  */
 public:
     GrGLGpuRTCommandBuffer(GrGLGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
+                           const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
                            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo)
             : INHERITED(rt, origin)
-            , fGpu(gpu) {
-        fClearSB = LoadOp::kClear == stencilInfo.fLoadOp;
+            , fGpu(gpu)
+            , fColorLoadAndStoreInfo(colorInfo)
+            , fStencilLoadAndStoreInfo(stencilInfo) {
     }
 
     ~GrGLGpuRTCommandBuffer() override {}
 
     void begin() override {
-        if (fClearSB) {
+        if (GrLoadOp::kClear == fColorLoadAndStoreInfo.fLoadOp) {
+            fGpu->clear(GrFixedClip::Disabled(), fColorLoadAndStoreInfo.fClearColor,
+                        fRenderTarget, fOrigin);
+        }
+        if (GrLoadOp::kClear == fStencilLoadAndStoreInfo.fLoadOp) {
             fGpu->clearStencil(fRenderTarget, 0x0);
         }
     }
@@ -102,8 +108,9 @@ private:
         fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget, fOrigin);
     }
 
-    GrGLGpu*                    fGpu;
-    bool                        fClearSB;
+    GrGLGpu*                                      fGpu;
+    GrGpuRTCommandBuffer::LoadAndStoreInfo        fColorLoadAndStoreInfo;
+    GrGpuRTCommandBuffer::StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
 
     typedef GrGpuRTCommandBuffer INHERITED;
 };

@@ -42,17 +42,16 @@ GrVkGpuTextureCommandBuffer::~GrVkGpuTextureCommandBuffer() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void get_vk_load_store_ops(GrGpuRTCommandBuffer::LoadOp loadOpIn,
-                           GrGpuRTCommandBuffer::StoreOp storeOpIn,
+void get_vk_load_store_ops(GrLoadOp loadOpIn, GrStoreOp storeOpIn,
                            VkAttachmentLoadOp* loadOp, VkAttachmentStoreOp* storeOp) {
     switch (loadOpIn) {
-        case GrGpuRTCommandBuffer::LoadOp::kLoad:
+        case GrLoadOp::kLoad:
             *loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             break;
-        case GrGpuRTCommandBuffer::LoadOp::kClear:
+        case GrLoadOp::kClear:
             *loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
             break;
-        case GrGpuRTCommandBuffer::LoadOp::kDiscard:
+        case GrLoadOp::kDiscard:
             *loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             break;
         default:
@@ -61,10 +60,10 @@ void get_vk_load_store_ops(GrGpuRTCommandBuffer::LoadOp loadOpIn,
     }
 
     switch (storeOpIn) {
-        case GrGpuRTCommandBuffer::StoreOp::kStore:
+        case GrStoreOp::kStore:
             *storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             break;
-        case GrGpuRTCommandBuffer::StoreOp::kDiscard:
+        case GrStoreOp::kDiscard:
             *storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             break;
         default:

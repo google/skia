@@ -2429,9 +2429,9 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
 
 GrGpuRTCommandBuffer* GrGLGpu::createCommandBuffer(
         GrRenderTarget* rt, GrSurfaceOrigin origin,
-        const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+        const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
         const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    return new GrGLGpuRTCommandBuffer(this, rt, origin, stencilInfo);
+    return new GrGLGpuRTCommandBuffer(this, rt, origin, colorInfo, stencilInfo);
 }
 
 GrGpuTextureCommandBuffer* GrGLGpu::createCommandBuffer(GrTexture* texture,

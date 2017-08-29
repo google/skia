@@ -8,6 +8,7 @@
 #ifndef GrOpList_DEFINED
 #define GrOpList_DEFINED
 
+#include "GrColor.h"
 #include "GrGpuResourceRef.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
@@ -92,9 +93,6 @@ public:
 
     int32_t uniqueID() const { return fUniqueID; }
 
-    void setRequiresStencil() { this->setFlag(kClearStencilBuffer_Flag); }
-    bool requiresStencil() { return this->isSetFlag(kClearStencilBuffer_Flag); }
-
     /*
      * Dump out the GrOpList dependency DAG
      */
@@ -103,9 +101,17 @@ public:
     SkDEBUGCODE(virtual int numOps() const = 0;)
     SkDEBUGCODE(virtual int numClips() const { return 0; })
 
+    void setColorLoadOp(GrLoadOp loadOp) { fColorLoadOp = loadOp; }
+    void setLoadClearColor(GrColor color) { fLoadClearColor = color; }
+    void setStencilLoadOp(GrLoadOp loadOp) { fStencilLoadOp = loadOp; }
+
 protected:
     GrSurfaceProxyRef fTarget;
     GrAuditTrail*     fAuditTrail;
+
+    GrLoadOp          fColorLoadOp    = GrLoadOp::kLoad;
+    GrColor           fLoadClearColor = 0x0;
+    GrLoadOp          fStencilLoadOp  = GrLoadOp::kLoad;
 
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
@@ -117,8 +123,6 @@ private:
 
         kWasOutput_Flag = 0x02,   //!< Flag for topological sorting
         kTempMark_Flag  = 0x04,   //!< Flag for topological sorting
-
-        kClearStencilBuffer_Flag = 0x08 //!< Clear the SB before executing the ops
     };
 
     void setFlag(uint32_t flag) {
