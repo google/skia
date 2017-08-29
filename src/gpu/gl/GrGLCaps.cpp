@@ -517,7 +517,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                            kQualcomm_GrGLVendor != ctxInfo.vendor();
 #endif
 
-    if (ctxInfo.hasExtension("GL_EXT_window_rectangles")) {
+    if (false) { //ctxInfo.hasExtension("GL_EXT_window_rectangles")) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_WINDOW_RECTANGLES, &fMaxWindowRectangles);
     }
 

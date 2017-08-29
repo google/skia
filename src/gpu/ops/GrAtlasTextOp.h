@@ -39,6 +39,11 @@ public:
     static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrPaint&& paint, GrMaskFormat maskFormat,
                                                      int glyphCount, GrAtlasGlyphCache* fontCache) {
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
+        if (op->uniqueID() == 36) {
+            int foo = 0;
+
+            foo++;
+        }
 
         op->fFontCache = fontCache;
         switch (maskFormat) {
@@ -90,6 +95,22 @@ public:
         SkRect bounds;
         geo.fBlob->computeSubRunBounds(&bounds, geo.fRun, geo.fSubRun, geo.fViewMatrix, geo.fX,
                                        geo.fY);
+
+#if 1
+        if (this->uniqueID() == 35) {
+            bounds.set(106.0f, 1007.0f, 626.0f, 1039.0f);
+        }
+        if (this->uniqueID() == 42) {
+            bounds.set(106.0f, 1250.0f, 626.0f, 1282.0f);
+        }
+        if (this->uniqueID() == 49) {
+            bounds.set(106.0f, 1493.0f, 626.0f, 1525.0f);
+        }
+//        if (this->uniqueID() == 53) {
+//            bounds.set(44.0f, 1607.0f, 188.0f, 1625.0f);
+//        }
+#endif
+
         // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
         // we treat this as a set of non-AA rects rendered with a texture.
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
@@ -108,7 +129,8 @@ private:
             : INHERITED(ClassID())
             , fColor(paint.getColor())
             , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
-            , fProcessors(std::move(paint)) {}
+            , fProcessors(std::move(paint)) {
+    }
 
     struct FlushInfo {
         sk_sp<const GrBuffer> fVertexBuffer;

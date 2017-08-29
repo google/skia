@@ -104,6 +104,14 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         fOpLists[i]->makeClosed(*fContext->caps());
     }
 
+
+#ifdef SK_DEBUG
+    SkDebugf("*********************** FLUSHING ***************************\n");
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        fOpLists[i]->dump();
+    }
+#endif
+
 #ifdef SK_DEBUG
     // This block checks for any unnecessary splits in the opLists. If two sequential opLists
     // share the same backing GrSurfaceProxy it means the opList was artificially split.

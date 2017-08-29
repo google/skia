@@ -208,8 +208,10 @@ public:
         const RectInfo* info = this->first();
         for (int i = 0; i < fRectCnt; ++i) {
             const SkRect& rect = info->rect();
-            str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
-                        info->color(), rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+            const SkRect& devRect = info->devRect();
+            str.appendf("%d: Color: 0x%08x, ", i, info->color());
+            str.appendf("devRect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                        devRect.fLeft, devRect.fTop, devRect.fRight, devRect.fBottom);
             info = this->next(info);
         }
         str += fHelper.dumpInfo();

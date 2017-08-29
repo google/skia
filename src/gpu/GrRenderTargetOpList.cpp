@@ -275,6 +275,8 @@ bool GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,
     return a.fOp->combineIfPossible(b, caps);
 }
 
+#include "ops/GrAtlasTextOp.h"
+
 GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                                      const GrCaps& caps,
                                      GrAppliedClip* clip,
@@ -305,6 +307,12 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         while (true) {
             const RecordedOp& candidate = fRecordedOps.fromBack(i);
 
+            if (op->uniqueID() == 36 && candidate.fOp->uniqueID() == 20) {
+                int foo = 0;
+
+                foo++;
+            }
+
             if (this->combineIfPossible(candidate, op.get(), clip, dstProxy, caps)) {
                 GrOP_INFO("\t\tBackward: Combining with (%s, opID: %u)\n", candidate.fOp->name(),
                           candidate.fOp->uniqueID());
@@ -314,9 +322,18 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                 return candidate.fOp.get();
             }
             // Stop going backwards if we would cause a painter's order violation.
-            if (!can_reorder(fRecordedOps.fromBack(i).fOp->bounds(), op->bounds())) {
-                GrOP_INFO("\t\tBackward: Intersects with (%s, opID: %u)\n", candidate.fOp->name(),
-                          candidate.fOp->uniqueID());
+            if (!can_reorder(candidate.fOp->bounds(), op->bounds())) {
+                GrOp* incumbent = candidate.fOp.get();
+                if (op->classID() == GrAtlasTextOp::ClassID()) {
+                   can_reorder(candidate.fOp->bounds(), op->bounds());
+                }
+                GrOP_INFO("\t\tBackward: Intersects with (%s, opID: %u) [L: %.2f T: %.2f R: %.2f B: %.2f]\n",
+                          candidate.fOp->name(),
+                          candidate.fOp->uniqueID(),
+                          candidate.fOp->bounds().fLeft,
+                          candidate.fOp->bounds().fTop,
+                          candidate.fOp->bounds().fRight,
+                          candidate.fOp->bounds().fBottom);
                 break;
             }
             ++i;
