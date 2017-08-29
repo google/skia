@@ -17,6 +17,9 @@ static void add_ref(const string& leadingSpaces, const string& ref, string* resu
 // FIXME: preserve inter-line spaces and don't add new ones
 string MdOut::addReferences(const char* refStart, const char* refEnd,
         BmhParser::Resolvable resolvable) {
+    if (!strncmp("class Iter {", refStart, 12)) {
+        SkDebugf("");
+    }
     string result;
     MethodParser t(fRoot ? fRoot->fName : string(), fFileName, refStart, refEnd, fLineCount);
     bool lineStart = true;
