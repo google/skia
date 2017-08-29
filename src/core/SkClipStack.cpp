@@ -140,7 +140,8 @@ void SkClipStack::Element::invertShapeFillType() {
     }
 }
 
-void SkClipStack::Element::initCommon(int saveCount, SkClipOp op, bool doAA) {
+void SkClipStack::Element::initCommon(int saveCount, const SkMatrix& m, SkClipOp op, bool doAA) {
+    fMatrix = m;
     fSaveCount = saveCount;
     fOp = op;
     fDoAA = doAA;
@@ -154,12 +155,13 @@ void SkClipStack::Element::initCommon(int saveCount, SkClipOp op, bool doAA) {
 
 void SkClipStack::Element::initRect(int saveCount, const SkRect& rect, const SkMatrix& m,
                                     SkClipOp op, bool doAA) {
+    fShape = GrShape(rect);
     if (m.rectStaysRect()) {
         SkRect devRect;
         m.mapRect(&devRect, rect);
         fDeviceSpaceRRect.setRect(devRect);
         fDeviceSpaceType = DeviceSpaceType::kRect;
-        this->initCommon(saveCount, op, doAA);
+        this->initCommon(saveCount, m, op, doAA);
         return;
     }
     SkPath path;
@@ -170,6 +172,7 @@ void SkClipStack::Element::initRect(int saveCount, const SkRect& rect, const SkM
 
 void SkClipStack::Element::initRRect(int saveCount, const SkRRect& rrect, const SkMatrix& m,
                                      SkClipOp op, bool doAA) {
+    fShape = GrShape(rrect);
     if (rrect.transform(m, &fDeviceSpaceRRect)) {
         SkRRect::Type type = fDeviceSpaceRRect.getType();
         if (SkRRect::kRect_Type == type || SkRRect::kEmpty_Type == type) {
@@ -177,7 +180,7 @@ void SkClipStack::Element::initRRect(int saveCount, const SkRRect& rrect, const 
         } else {
             fDeviceSpaceType = DeviceSpaceType::kRRect;
         }
-        this->initCommon(saveCount, op, doAA);
+        this->initCommon(saveCount, m, op, doAA);
         return;
     }
     SkPath path;
@@ -210,7 +213,7 @@ void SkClipStack::Element::initAsPath(int saveCount, const SkPath& path, const S
     path.transform(m, fDeviceSpacePath.init());
     fDeviceSpacePath.get()->setIsVolatile(true);
     fDeviceSpaceType = DeviceSpaceType::kPath;
-    this->initCommon(saveCount, op, doAA);
+    this->initCommon(saveCount, m, op, doAA);
 }
 
 void SkClipStack::Element::asDeviceSpacePath(SkPath* path) const {

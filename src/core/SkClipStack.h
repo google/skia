@@ -17,6 +17,7 @@
 #include "SkRect.h"
 #include "SkRegion.h"
 #include "SkTLazy.h"
+#include "GrShape.h"
 
 #if SK_SUPPORT_GPU
 #include "GrResourceKey.h"
@@ -63,7 +64,7 @@ public:
         static const int kTypeCnt = (int)DeviceSpaceType::kLastType + 1;
 
         Element() {
-            this->initCommon(0, kReplace_SkClipOp, false);
+            this->initCommon(0, SkMatrix::I(), kReplace_SkClipOp, false);
             this->setEmpty();
         }
 
@@ -120,6 +121,9 @@ public:
         //!< Call if getDeviceSpaceType() is not kEmpty to get the set operation used to combine
         //!< this element.
         SkClipOp getOp() const { return fOp; }
+
+        const GrShape& shape() const { return fShape; }
+        const SkMatrix& matrix() const { return fMatrix; }
 
         //!< Call to get the element as a path, regardless of its type.
         void asDeviceSpacePath(SkPath* path) const;
@@ -190,6 +194,8 @@ public:
     private:
         friend class SkClipStack;
 
+        GrShape fShape;
+        SkMatrix fMatrix;
         SkTLazy<SkPath> fDeviceSpacePath;
         SkRRect fDeviceSpaceRRect;
         int fSaveCount;  // save count of stack when this element was added.
@@ -219,7 +225,7 @@ public:
         mutable SkTArray<std::unique_ptr<GrUniqueKeyInvalidatedMessage>> fMessages;
 #endif
         Element(int saveCount) {
-            this->initCommon(saveCount, kReplace_SkClipOp, false);
+            this->initCommon(saveCount, SkMatrix::I(), kReplace_SkClipOp, false);
             this->setEmpty();
         }
 
@@ -235,7 +241,7 @@ public:
             this->initPath(saveCount, path, m, op, doAA);
         }
 
-        void initCommon(int saveCount, SkClipOp op, bool doAA);
+        void initCommon(int saveCount, const SkMatrix&, SkClipOp, bool doAA);
         void initRect(int saveCount, const SkRect&, const SkMatrix&, SkClipOp, bool doAA);
         void initRRect(int saveCount, const SkRRect&, const SkMatrix&, SkClipOp, bool doAA);
         void initPath(int saveCount, const SkPath&, const SkMatrix&, SkClipOp, bool doAA);

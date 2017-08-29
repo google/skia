@@ -140,6 +140,9 @@ public:
         return GrShape(*this, apply, scale);
     }
 
+    bool isRRect() const { return Type::kRRect == fType; }
+    bool isRect() const { return Type::kRRect == fType && fRRectData.fRRect.isRect(); }
+
     /** Returns the unstyled geometry as a rrect if possible. */
     bool asRRect(SkRRect* rrect, SkPath::Direction* dir, unsigned* start, bool* inverted) const {
         if (Type::kRRect != fType) {

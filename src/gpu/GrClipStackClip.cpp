@@ -86,11 +86,11 @@ static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(sk_sp<GrTexturePr
 bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
                                           bool hasUserStencilSettings,
                                           const GrRenderTargetContext* renderTargetContext,
-                                          const SkMatrix& viewMatrix,
+                                          const SkVector& translate,
                                           const Element* element,
                                           GrPathRenderer** prOut,
                                           bool needsStencil) {
-    if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
+    if (element->shape().isRect()) {
         // rects can always be drawn directly w/o using the software path
         // TODO: skip rrects once we're drawing them directly.
         if (prOut) {
@@ -101,21 +101,16 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
         // We shouldn't get here with an empty clip element.
         SkASSERT(Element::DeviceSpaceType::kEmpty != element->getDeviceSpaceType());
 
-        // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
-        SkPath path;
-        element->asDeviceSpacePath(&path);
-        if (path.isInverseFillType()) {
-            path.toggleInverseFillType();
-        }
-
+        SkMatrix matrix = element->matrix();
+        matrix.postTranslate(translate.fX, translate.fY);
         GrPathRendererChain::DrawType type =
                 needsStencil ? GrPathRendererChain::DrawType::kStencilAndColor
                              : GrPathRendererChain::DrawType::kColor;
+        GrShape shape = GrShape::MakeFilledNonInverted(element->shape());
 
-        GrShape shape(path, GrStyle::SimpleFill());
         GrPathRenderer::CanDrawPathArgs canDrawArgs;
         canDrawArgs.fCaps = context->caps();
-        canDrawArgs.fViewMatrix = &viewMatrix;
+        canDrawArgs.fViewMatrix = &matrix;
         canDrawArgs.fShape = &shape;
         canDrawArgs.fAAType = GrChooseAAType(GrBoolToAA(element->isAA()),
                                              renderTargetContext->fsaaType(),
@@ -152,8 +147,7 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip
     // space.
-    SkMatrix translate;
-    translate.setTranslate(SkIntToScalar(-reducedClip.left()), SkIntToScalar(-reducedClip.top()));
+    SkVector translate = {SkIntToScalar(-reducedClip.left()), SkIntToScalar(-reducedClip.top())};
 
     for (ElementList::Iter iter(reducedClip.elements()); iter.get(); iter.next()) {
         const Element* element = iter.get();

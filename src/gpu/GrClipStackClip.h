@@ -40,7 +40,7 @@ private:
     static bool PathNeedsSWRenderer(GrContext* context,
                                     bool hasUserStencilSettings,
                                     const GrRenderTargetContext*,
-                                    const SkMatrix& viewMatrix,
+                                    const SkVector& translate,
                                     const SkClipStack::Element* element,
                                     GrPathRenderer** prOut,
                                     bool needsStencil);
