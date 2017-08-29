@@ -18,7 +18,7 @@ namespace SkSL {
  */
 struct Nop : public Statement {
     Nop()
-    : INHERITED(Position(), kNop_Kind) {}
+    : INHERITED(-1, kNop_Kind) {}
 
     virtual bool isEmpty() const override {
         return true;

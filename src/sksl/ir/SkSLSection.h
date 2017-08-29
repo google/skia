@@ -16,8 +16,8 @@ namespace SkSL {
  * A section declaration (e.g. @body { body code here })..
  */
 struct Section : public ProgramElement {
-    Section(Position position, String name, String arg, String text)
-    : INHERITED(position, kSection_Kind)
+    Section(int offset, String name, String arg, String text)
+    : INHERITED(offset, kSection_Kind)
     , fName(std::move(name))
     , fArgument(std::move(arg))
     , fText(std::move(text)) {}
