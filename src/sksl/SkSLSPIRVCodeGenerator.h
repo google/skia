@@ -241,19 +241,19 @@ private:
 
     void writeWord(int32_t word, OutputStream& out);
 
-    void writeString(const char* string, OutputStream& out);
+    void writeString(const char* string, size_t length, OutputStream& out);
 
     void writeLabel(SpvId id, OutputStream& out);
 
     void writeInstruction(SpvOp_ opCode, OutputStream& out);
 
-    void writeInstruction(SpvOp_ opCode, const char* string, OutputStream& out);
+    void writeInstruction(SpvOp_ opCode, StringFragment string, OutputStream& out);
 
     void writeInstruction(SpvOp_ opCode, int32_t word1, OutputStream& out);
 
-    void writeInstruction(SpvOp_ opCode, int32_t word1, const char* string, OutputStream& out);
+    void writeInstruction(SpvOp_ opCode, int32_t word1, StringFragment string, OutputStream& out);
 
-    void writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2, const char* string,
+    void writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2, StringFragment string,
                           OutputStream& out);
 
     void writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2, OutputStream& out);

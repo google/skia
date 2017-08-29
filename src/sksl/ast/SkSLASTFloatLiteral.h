@@ -16,8 +16,8 @@ namespace SkSL {
  * A literal floating point number.
  */
 struct ASTFloatLiteral : public ASTExpression {
-    ASTFloatLiteral(Position position, double value)
-    : INHERITED(position, kFloat_Kind)
+    ASTFloatLiteral(int offset, double value)
+    : INHERITED(offset, kFloat_Kind)
     , fValue(value) {}
 
     String description() const override {
