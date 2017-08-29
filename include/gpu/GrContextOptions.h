@@ -46,10 +46,6 @@ struct GrContextOptions {
     /** some gpus have problems with partial writes of the rendertarget */
     bool fUseDrawInsteadOfPartialRenderTargetWrite = false;
 
-    /** Force us to do all swizzling manually in the shader and don't rely on extensions to do
-        swizzling. */
-    bool fUseShaderSwizzling = false;
-
     /** Construct mipmaps manually, via repeated downsampling draw-calls. This is used when
         the driver's implementation (glGenerateMipmap) contains bugs. This requires mipmap
         level and LOD control (ie desktop or ES3). */

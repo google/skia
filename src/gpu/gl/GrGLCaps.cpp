@@ -598,10 +598,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     this->initShaderPrecisionTable(ctxInfo, gli, shaderCaps);
 
-    if (contextOptions.fUseShaderSwizzling) {
-        fTextureSwizzleSupport = false;
-    }
-
     if (kGL_GrGLStandard == standard) {
         if ((version >= GR_GL_VER(4, 0) || ctxInfo.hasExtension("GL_ARB_sample_shading")) &&
             ctxInfo.vendor() != kIntel_GrGLVendor) {
