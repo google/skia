@@ -273,6 +273,8 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     if (plot->lastUseToken() == target->nextDrawToken()) {
         return false;
     }
+    return false;
+
 
     this->processEviction(plot->id());
     fPlotList.remove(plot);
