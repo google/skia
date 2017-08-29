@@ -22,6 +22,30 @@
       "revId": "eb516795300200c036477f179c010f8b926d393b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cffaf57_2e9004d3",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-29T16:31:14Z",
+      "side": 1,
+      "message": "For now I\u0027ll expand the comment. Implementing the hasSideEffects virtual seems like it would be a CL in and of itself. I\u0027ll a Skia issue to keep track of adding a separate sideEffect tracking system.",
+      "parentUuid": "783bf03c_02a058c2",
+      "range": {
+        "startLine": 216,
+        "startChar": 7,
+        "endLine": 218,
+        "endChar": 95
+      },
+      "revId": "eb516795300200c036477f179c010f8b926d393b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
