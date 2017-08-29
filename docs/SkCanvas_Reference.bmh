@@ -466,15 +466,15 @@ The actual output depends on the installed fonts.
 
     #StdOut
     -----
-    --x--
-    --x--
-    --x--
-    --x--
-    --x--
-    --x--
+    ---x-
+    ---x-
+    ---x-
+    ---x-
+    ---x-
+    ---x-
     -----
-    --x--
-    --x--
+    ---x-
+    ---x-
     -----
     #StdOut ##
 ##

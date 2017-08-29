@@ -268,6 +268,8 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child
             commentStart = privateDef->fContentStart;
             commentLen = (int) (privateDef->fContentEnd - privateDef->fContentStart);
         }
+        // FIXME: may assert here if there's no const value
+        // should have detected and errored on that earlier when enum fContentStart was set
         SkASSERT(commentLen > 0 && commentLen < 1000);
         if (!currentEnumItem->fShort) {
             this->writeCommentHeader();
@@ -508,6 +510,7 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
             }
             this->indentToColumn(column);
             int partLen = (int) (partEnd - partStart);
+            // FIXME : detect this earlier; assert if #Return is empty
             SkASSERT(partLen > 0 && partLen < 200);
             fIndent = column;
             this->rewriteBlock(partLen, partStart);
@@ -673,6 +676,8 @@ void IncludeWriter::structSizeMembers(Definition& child) {
                     inMethod = false;
                 } else if (Punctuation::kLeftBrace == token.fPunctuation) {
                     inMethod = false;
+                } else if (Punctuation::kSemicolon == token.fPunctuation) {
+                    inMethod = false;
                 } else {
                     SkASSERT(0);  // incomplete
                 }
@@ -735,7 +740,8 @@ void IncludeWriter::structSizeMembers(Definition& child) {
     }
 }
 
-bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
+bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefinition* root) {
+    ParentPair pair = { def, prevPair };
     // write bulk of original include up to class, method, enum, etc., excepting preceding comment
     // find associated bmh object
     // write any associated comments in Doxygen form
@@ -762,7 +768,8 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
         }
         if (fContinuation) {
             if (Definition::Type::kKeyWord == child.fType) {
-                if (KeyWord::kFriend == child.fKeyWord || KeyWord::kBool == child.fKeyWord) {
+                if (KeyWord::kFriend == child.fKeyWord || KeyWord::kBool == child.fKeyWord ||
+                        KeyWord::kSK_API == child.fKeyWord) {
                     continue;
                 }
             }
@@ -875,14 +882,27 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                 continue;
             }
             this->methodOut(method, child);
+            if (fAttrDeprecated) {
+                fStart = fAttrDeprecated->fContentStart;
+                fAttrDeprecated = nullptr;
+            }
             continue;
         } 
         if (Definition::Type::kKeyWord == child.fType) {
             const Definition* structDef = nullptr;
             switch (child.fKeyWord) {
                 case KeyWord::kStruct:
+                case KeyWord::kClass:
                     // if struct contains members, compute their name and comment tabs
-                    inStruct = fInStruct = child.fChildren.size() > 0;
+                    if (child.fChildren.size() > 0) {
+                        const ParentPair* testPair = &pair;
+                        while ((testPair = testPair->fPrev)) {
+                            if (KeyWord::kClass == testPair->fParent->fKeyWord) {
+                                inStruct = fInStruct = true;
+                                break;
+                            }
+                        }
+                    }
                     if (fInStruct) {
                         fIndent += 4;
                         fStructDef = root->find(child.fName);
@@ -892,11 +912,10 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                         this->structSizeMembers(child);
                         fIndent -= 4;
                     }
-                case KeyWord::kClass:
                     if (child.fChildren.size() > 0) {
                         const char* bodyEnd = fDeferComment ? fDeferComment->fContentStart - 1 :
                                 child.fContentStart;
-                        this->writeBlock((int) (bodyEnd - fStart), fStart);
+                        this->writeBlockTrim((int) (bodyEnd - fStart), fStart);
                         fStart = child.fContentStart;
                         if (child.fName == root->fName) {
                             if (Definition* parent = root->fParent) {
@@ -942,6 +961,7 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                                     break;
                                 }
                             }
+                            // FIXME: trigger error earlier if inner #Struct or #Class is missing #Code
                             SkASSERT(nextBlock);  // FIXME: check enum for correct order earlier
                             const char* commentStart = codeBlock->fTerminator;
                             const char* commentEnd = nextBlock->fStart;
@@ -962,6 +982,7 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                 case KeyWord::kStatic:
                 case KeyWord::kInt:
                 case KeyWord::kUint32_t:
+                case KeyWord::kUnsigned:
                 case KeyWord::kSize_t:
                 case KeyWord::kFloat:
                 case KeyWord::kBool:
@@ -974,6 +995,8 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                 case KeyWord::kPrivate:
                 case KeyWord::kProtected:
                 case KeyWord::kFriend:
+                case KeyWord::kInline:
+                case KeyWord::kSK_API:
                 case KeyWord::kTypedef:
                     break;
                 default:
@@ -986,7 +1009,7 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                 this->writeBlock((int) (fStart - child.fStart), child.fStart);
                 this->lf(2);
                 fIndent += 4;
-                if (!this->populate(&child, const_cast<Definition*>(structDef)->asRoot())) {
+                if (!this->populate(&child, &pair, const_cast<Definition*>(structDef)->asRoot())) {
                     return false;
                 }
                 // output any remaining definitions at current indent level
@@ -1001,10 +1024,10 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                 fDeferComment = nullptr;
             } else {
                 if (fInEnum && KeyWord::kClass == child.fChildren[0]->fKeyWord) {
-                    if (!this->populate(child.fChildren[0], root)) {
+                    if (!this->populate(child.fChildren[0], &pair, root)) {
                         return false;
                     }
-                } else if (!this->populate(&child, root)) {
+                } else if (!this->populate(&child, &pair, root)) {
                     return false;
                 }
             }
@@ -1023,9 +1046,12 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                 fDeferComment = nullptr;
                 fInEnum = false;
                 continue;
-            } 
+            }
+            if (fAttrDeprecated) {
+                continue;
+            }
             fDeferComment = nullptr;
-            if (!this->populate(&child, root)) {
+            if (!this->populate(&child, &pair, root)) {
                 return false;
             }
             continue;
@@ -1038,6 +1064,12 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
             }
             if (child.fMemberStart) {
                 memberStart = &child;
+            }
+            const char attrDeprecated[] = "SK_ATTR_DEPRECATED";
+            const size_t attrDeprecatedLen = sizeof(attrDeprecated) - 1;
+            if (attrDeprecatedLen == child.fContentEnd - child.fContentStart &&
+                    !strncmp(attrDeprecated, child.fStart, attrDeprecatedLen)) {
+                fAttrDeprecated = &child;
             }
             continue;
         }
@@ -1086,7 +1118,7 @@ bool IncludeWriter::populate(BmhParser& bmhParser) {
         root->clearVisited();
         fStart = includeMapper.second.fContentStart;
         fEnd = includeMapper.second.fContentEnd;
-        allPassed &= this->populate(&includeMapper.second, root);
+        allPassed &= this->populate(&includeMapper.second, nullptr, root);
         this->writeBlock((int) (fEnd - fStart), fStart);
         fIndent = 0;
         this->lfcr();
@@ -1409,7 +1441,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
             case '\'': // possessive apostrophe isn't treated as delimiting punctation
             case '=':
             case '!':  // assumed not to be punctuation, but a programming symbol
-            case '&': case '>': case '<': case '{': case '}': case '/': case '*':
+            case '&': case '>': case '<': case '{': case '}': case '/': case '*': case '[': case ']':
                 word = Word::kMixed;
                 embeddedSymbol = true;
                 break;
@@ -1441,6 +1473,10 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
                         SkASSERT(0);
                 }
                 hasSymbol |= embeddedSymbol;
+                break;
+            case '+':
+                // hackery to allow C++
+                SkASSERT('C' == last || '+' == last);  // FIXME: don't allow + outside of #Formula
                 break;
             case 'A': case 'B': case 'C': case 'D': case 'E':
             case 'F': case 'G': case 'H': case 'I': case 'J':
