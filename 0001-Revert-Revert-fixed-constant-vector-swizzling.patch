@@ -1,0 +1,81 @@
+From a35cedab720e0ba165246f895dd4db6ec4c1ef4d Mon Sep 17 00:00:00 2001
+From: Ethan Nicholas <ethannicholas@google.com>
+Date: Mon, 28 Aug 2017 09:14:57 -0400
+Subject: [PATCH 1/2] Revert "Revert "fixed constant vector swizzling""
+
+This reverts commit 23f92277b916a4bdf11c320799ac9248af60a62e.
+---
+ src/sksl/ir/SkSLConstructor.h | 11 +++++++++++
+ src/sksl/ir/SkSLSwizzle.h     |  6 ++++--
+ tests/SkSLGLSLTest.cpp        | 13 +++++++++++++
+ 3 files changed, 28 insertions(+), 2 deletions(-)
+
+diff --git a/src/sksl/ir/SkSLConstructor.h b/src/sksl/ir/SkSLConstructor.h
+index beed0f702d..ce6cd77d62 100644
+--- a/src/sksl/ir/SkSLConstructor.h
++++ b/src/sksl/ir/SkSLConstructor.h
+@@ -48,6 +48,17 @@ struct Constructor : public Expression {
+                                                                   &fType));
+             }
+         }
++        if (fArguments.size() == 1 && fArguments[0]->fKind == Expression::kFloatLiteral_Kind) {
++            if (fType == *irGenerator.fContext.fFloat_Type ||
++                fType == *irGenerator.fContext.fHalf_Type) {
++                // convert float(1.0) to 1.0
++                double floatValue = ((FloatLiteral&) *fArguments[0]).fValue;
++                return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
++                                                                    fPosition,
++                                                                    floatValue,
++                                                                    &fType));
++            }
++        }
+         return nullptr;
+     }
+ 
+diff --git a/src/sksl/ir/SkSLSwizzle.h b/src/sksl/ir/SkSLSwizzle.h
+index 9d7ca37bdc..ad5afe2fb2 100644
+--- a/src/sksl/ir/SkSLSwizzle.h
++++ b/src/sksl/ir/SkSLSwizzle.h
+@@ -76,13 +76,15 @@ struct Swizzle : public Expression {
+         if (fBase->fKind == Expression::kConstructor_Kind && fBase->isConstant()) {
+             // we're swizzling a constant vector, e.g. float4(1).x. Simplify it.
+             ASSERT(fBase->fKind == Expression::kConstructor_Kind);
+-            if (fType == *irGenerator.fContext.fInt_Type) {
++            if (fType == *irGenerator.fContext.fInt_Type ||
++                fType == *irGenerator.fContext.fShort_Type) {
+                 ASSERT(fComponents.size() == 1);
+                 int64_t value = ((Constructor&) *fBase).getIVecComponent(fComponents[0]);
+                 return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
+                                                                     Position(),
+                                                                     value));
+-            } else if (fType == *irGenerator.fContext.fFloat_Type) {
++            } else if (fType == *irGenerator.fContext.fFloat_Type ||
++                       fType == *irGenerator.fContext.fHalf_Type) {
+                 ASSERT(fComponents.size() == 1);
+                 double value = ((Constructor&) *fBase).getFVecComponent(fComponents[0]);
+                 return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
+diff --git a/tests/SkSLGLSLTest.cpp b/tests/SkSLGLSLTest.cpp
+index a7f6740442..3b28f78d70 100644
+--- a/tests/SkSLGLSLTest.cpp
++++ b/tests/SkSLGLSLTest.cpp
+@@ -1603,4 +1603,17 @@ DEF_TEST(SkSLNumberConversions, r) {
+          "double d2d = d;\n");
+ }
+ 
++DEF_TEST(SkSLConstantSwizzleComparison, r) {
++    test(r,
++         "void main() { if (half4(1.0).x == half4(1.0).y) { sk_FragColor = half4(1.0); } }",
++         *SkSL::ShaderCapsFactory::Default(),
++         "#version 400\n"
++         "out vec4 sk_FragColor;\n"
++         "void main() {\n"
++         "    {\n"
++         "        sk_FragColor = vec4(1.0);\n"
++         "    }\n"
++         "}\n");
++}
++
+ #endif
+-- 
+2.14.0.rc1.383.gd1ce394fe2-goog
+

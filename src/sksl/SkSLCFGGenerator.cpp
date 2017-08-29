@@ -319,7 +319,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
                     break;
                 }
                 default:
-                    this->addExpression(cfg, &b->fLeft, !Token::IsAssignment(b->fOperator));
+                    this->addExpression(cfg, &b->fLeft, !Compiler::IsAssignment(b->fOperator));
                     this->addExpression(cfg, &b->fRight, constantPropagate);
                     cfg.fBlocks[cfg.fCurrent].fNodes.push_back({
                         BasicBlock::Node::kExpression_Kind,
