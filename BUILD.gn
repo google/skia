@@ -1640,7 +1640,7 @@ if (skia_enable_tools) {
     }
   }
 
-  if (skia_enable_gpu && (is_linux || is_mac)) {
+  if (skia_enable_gpu && (is_linux || is_mac || is_ios)) {
     test_app("SkiaSDLExample") {
       sources = [
         "example/SkiaSDLExample.cpp",

@@ -56,7 +56,6 @@ toolchain("msvc") {
     cl = "$bin/cl.exe"
   }
 
-
   tool("asm") {
     _ml = "ml"
     if (target_cpu == "x64") {
