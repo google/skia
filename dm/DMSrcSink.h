@@ -344,6 +344,11 @@ public:
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 
+    const char* fileExtension() const override {
+        // Suppress writing out results from this config - we just want to do our matching test
+        return nullptr;
+    }
+
 private:
     std::unique_ptr<SkExecutor> fExecutor;
 
