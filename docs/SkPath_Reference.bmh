@@ -16,7 +16,7 @@ the middle entry as the end of the first Line and the start of the second Line.
 Path components Arc, Rect, Round_Rect, Circle, and Oval are composed of
 Lines and Curves with as many Verbs and Points required
 for an exact description. Once added to Path, these components may lose their
-identity; although Path can be inspected to determine if it decribes a single
+identity; although Path can be inspected to determine if it describes a single
 Rect, Oval, Round_Rect, and so on.
 
 #Example
@@ -103,7 +103,7 @@ SkPath::kMove_Verb; each SkPath::kMove_Verb that follows starts a new Contour.
 #Example
 #Description 
 Each SkPath::moveTo starts a new Contour, and content after SkPath::close()
-also starts a new Contour. Since SkPath::conicTo wasn't preceded by 
+also starts a new Contour. Since SkPath::conicTo is not preceded by 
 SkPath::moveTo, the first Point of the third Contour starts at the last Point
 of the second Contour.
 ##
@@ -188,7 +188,7 @@ Paths contain geometry. Paths may be empty, or contain one or more Verbs that
 outline a figure. Path always starts with a move verb to a Cartesian
 coordinate, and may be followed by additional verbs that add lines or curves.
 Adding a close verb makes the geometry into a continuous loop, a closed contour.
-Paths may contain any number of contours, each beginnning with a move verb.
+Paths may contain any number of contours, each beginning with a move verb.
 
 Path contours may contain only a move verb, or may also contain lines,
 quadratic Beziers, conics, and cubic Beziers. Path contours may be open or
@@ -210,7 +210,7 @@ SkPath::updateBoundsCache to make Path thread safe.
 # constants                      # description                                 ##
 #Legend ##
 # AddPathMode                    # Sets addPath options.                       ##
-# ArcSize                        # Sets arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep, SkScalar x, SkScalar y) options. ##
+# ArcSize                        # Used by arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep, SkScalar x, SkScalar y).##
 # Convexity                      # Returns if Path is convex or concave.       ##
 # Direction                      # Sets Contour clockwise or counterclockwise. ##
 # FillType                       # Sets winding rule and inverse fill.         ##
@@ -279,8 +279,8 @@ SkPath::updateBoundsCache to make Path thread safe.
 # countPoints                 # Returns Point_Array length. ##
 # countVerbs                  # Returns Verb_Array length. ##
 # cubicTo                     # Appends Cubic. ##
-# dump()                      # Sends text representation using floats to stdout. ##
-# dumpHex                     # Sends text representation using hexadecimal to stdout. ##
+# dump()                      # Sends text representation using floats to standard output. ##
+# dumpHex                     # Sends text representation using hexadecimal to standard output. ##
 # getBounds                   # Returns maximum and minimum of Point_Array. ##
 # getConvexity                # Returns geometry convexity, computing if necessary. ##
 # getConvexityOrUnknown       # Returns geometry convexity if known. ##
@@ -569,7 +569,7 @@ Releases ownership of any shared data and deletes data if Path is sole owner.
 
 #Example
 #Description
-delete calls Path destructor, but copy of original in path2 is unaffected.
+delete calls Path Destructor, but copy of original in path2 is unaffected.
 ##
 void draw(SkCanvas* canvas) {
     SkPath* path = new SkPath();
@@ -596,7 +596,7 @@ Copying Paths by assignment is very efficient and never allocates memory.
 Paths are always copied by value from the interface; the underlying shared
 pointers are not exposed.
 
-#Param path  Verb_Array, Point_Array, Weights, amd Fill_Type to copy ##
+#Param path  Verb_Array, Point_Array, Weights, and Fill_Type to copy ##
 
 #Return  Path copied by value ##
 
@@ -708,7 +708,7 @@ Return true if Paths contain equal Verbs and equal Weights.
 If Paths contain one or more Conics, the Weights must match.
 
 conicTo may add different Verbs depending on Conic_Weight, so it is not
-trival to interpolate a pair of Paths containing Conics with different
+trivial to interpolate a pair of Paths containing Conics with different
 Conic_Weight values. 
 
 #Param compare  Path to compare ##
@@ -1289,7 +1289,7 @@ void draw(SkCanvas* canvas) {
                  unsigned* start = nullptr) const 
 
 Returns true if constructed by addRoundRect, addRRect; and if construction
-is not empty, not Rect, and not Oval. Path constructed with other other calls
+is not empty, not Rect, and not Oval. Path constructed with other calls
 will not return true though Path draws Round_Rect.
 
 rrect receives bounds of Round_Rect.
@@ -1305,9 +1305,13 @@ Triggers performance optimizations on some GPU_Surface implementations.
 #Param dir  storage for Direction; may be nullptr ##
 #Param start  storage for start of Round_Rect; may be nullptr ##
 
-#Return  true for Round_Rect Path constructed by addRoundRect or addRRect ##
+#Return  true if Path contains only Round_Rect ##
 
 #Example
+#Description
+Draw rounded rectangle and its bounds. Draw an arc indicating where the rounded
+rectangle starts and its direction.
+##
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     SkPath path;
@@ -1343,7 +1347,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void reset()
 
-Sets Path to its intial state.
+Sets Path to its initial state.
 Removes Verb_Array, Point_Array, and Weights, and sets FillType to kWinding_FillType.
 Internal storage associated with Path is released.
 
@@ -1364,7 +1368,7 @@ Internal storage associated with Path is released.
 
 #Method void rewind()
 
-Sets Path to its intial state, preserving internal storage.
+Sets Path to its initial state, preserving internal storage.
 Removes Verb_Array, Point_Array, and Weights, and sets FillType to kWinding_FillType.
 Internal storage associated with Path is retained.
 
@@ -1535,7 +1539,7 @@ Mark temporary paths, discarded or modified after use, as volatile
 to inform Device that the path need not be cached.
 
 Mark animating Path volatile to improve performance.
-Mark unchanging Path non-volative to improve repeated rendering.
+Mark unchanging Path non-volatile to improve repeated rendering.
 
 Raster_Surface Path draws are affected by volatile for some shadows.
 GPU_Surface Path draws are affected by volatile for some shadows and concave geometries.
@@ -3335,7 +3339,7 @@ Arc sweep is always less than 180 degrees. If radius is zero, or if
 tangents are nearly parallel, arcTo appends Line from last Path Point to (x1, y1).
 
 arcTo appends at most one Line and one Conic.
-arcTo implements the functionality of PostScript_arct and HTML_Canvas_arcTo.
+arcTo implements the functionality of PostScript_Arct and HTML_Canvas_ArcTo.
 
 #Param x1      x common to pair of tangents ##
 #Param y1      y common to pair of tangents ##
@@ -3398,7 +3402,7 @@ Arc sweep is always less than 180 degrees. If radius is zero, or if
 tangents are nearly parallel, arcTo appends Line from last Path Point to p1.
 
 arcTo appends at most one Line and one Conic.
-arcTo implements the functionality of PostScript_arct and HTML_Canvas_arcTo.
+arcTo implements the functionality of PostScript_Arct and HTML_Canvas_ArcTo.
 
 #Param p1      Point common to pair of tangents ##
 #Param p2      end of second tangent ##
@@ -3508,13 +3512,13 @@ or if last Path Point equals (x, y). arcTo scales radii (rx, ry) to fit last Pat
 (x, y) if both are greater than zero but too small.
 
 arcTo appends up to four Conic curves.
-arcTo implements the functionatlity of SVG_Arc, although SVG sweep-flag value is
+arcTo implements the functionality of SVG_Arc, although SVG sweep-flag value is
 opposite the integer value of sweep; SVG sweep-flag uses 1 for clockwise, while kCW_Direction 
 cast to int is zero.
 
 #Param rx           radius in x before x-axis rotation ##
 #Param ry           radius in y before x-axis rotation ##
-#Param xAxisRotate  x-axis rotation in degrees; positve values are clockwise ##
+#Param xAxisRotate  x-axis rotation in degrees; positive values are clockwise ##
 #Param largeArc     chooses smaller or larger Arc ##
 #Param sweep        chooses clockwise or counterclockwise Arc ##
 #Param x            end of Arc ##
@@ -3557,15 +3561,15 @@ and smaller or larger.
 
 Arc sweep is always less than 360 degrees. arcTo appends Line to xy if either radii are zero,
 or if last Path Point equals (x, y). arcTo scales radii r to fit last Path Point and
-xy if both are greater than zero but too small.
+xy if both are greater than zero but too small to describe an arc.
 
 arcTo appends up to four Conic curves.
-arcTo implements the functionatlity of SVG_Arc, although SVG sweep-flag value is
-opposite the integer value of sweep; SVG sweep-flag uses 1 for clockwise, while kCW_Direction 
-cast to int is zero.
+arcTo implements the functionality of SVG_Arc, although SVG sweep-flag value is
+opposite the integer value of sweep; SVG sweep-flag uses 1 for clockwise, while
+kCW_Direction cast to int is zero.
 
 #Param r            radii in x and y before x-axis rotation ##
-#Param xAxisRotate  x-axis rotation in degrees; positve values are clockwise ##
+#Param xAxisRotate  x-axis rotation in degrees; positive values are clockwise ##
 #Param largeArc     chooses smaller or larger Arc ##
 #Param sweep        chooses clockwise or counterclockwise Arc ##
 #Param xy           end of Arc ##
@@ -3594,8 +3598,8 @@ void draw(SkCanvas* canvas) {
                 Direction sweep, SkScalar dx, SkScalar dy)
 
 Append Arc to Path, relative to last Path Point. Arc is implemented by one or 
-more Conic, weighted to describe part of Oval with radii (r.fX, r.fY) rotated by
-xAxisRotate degrees. Arc curves from last Path Point (x0, y0) to
+more Conic, weighted to describe part of Oval with radii (rx, ry) rotated by
+xAxisRotate degrees. Arc curves from last Path Point (x0, y0) to end Point
 #Formula
 (x0 + dx, y0 + dy)
 ##
@@ -3603,18 +3607,19 @@ xAxisRotate degrees. Arc curves from last Path Point (x0, y0) to
 counterclockwise, and smaller or larger. If Path is empty, the start Arc Point
 is (0, 0).
 
-Arc sweep is always less than 360 degrees. arcTo appends Line to xy if either
-radii are zero, or if last Path Point equals (x, y). arcTo scales radii r to fit
-last Path Point and xy if both are greater than zero but too small.
+Arc sweep is always less than 360 degrees. arcTo appends Line to end Point
+if either radii are zero, or if last Path Point equals end Point.
+arcTo scales radii (rx, ry) to fit last Path Point and end Point if both are
+greater than zero but too small to describe an arc.
 
 arcTo appends up to four Conic curves.
-arcTo implements the functionatlity of SVG_Arc, although SVG sweep-flag value is
+arcTo implements the functionality of SVG_Arc, although SVG sweep-flag value is
 opposite the integer value of sweep; SVG sweep-flag uses 1 for clockwise, while
 kCW_Direction cast to int is zero.
 
 #Param rx           radius in x before x-axis rotation ##
 #Param ry           radius in y before x-axis rotation ##
-#Param xAxisRotate  x-axis rotation in degrees; positve values are clockwise ##
+#Param xAxisRotate  x-axis rotation in degrees; positive values are clockwise ##
 #Param largeArc     chooses smaller or larger Arc ##
 #Param sweep        chooses clockwise or counterclockwise Arc ##
 #Param dx           x offset end of Arc from last Path Point ##
@@ -3645,7 +3650,7 @@ void draw(SkCanvas* canvas) {
 #Method void close()
 
 Append kClose_Verb to Path. A closed Contour connects the first and last Point
-with Line, forming a continous loop. Open and closed Contour draw the same
+with Line, forming a continuous loop. Open and closed Contour draw the same
 with SkPaint::kFill_Style. With SkPaint::kStroke_Style, open Contour draws
 Paint_Stroke_Cap at Contour start and end; closed Contour draws 
 Paint_Stroke_Join at Contour start and end.
@@ -3862,7 +3867,7 @@ void draw(SkCanvas* canvas) {
 
 #Method bool isRect(SkRect* rect, bool* isClosed = nullptr, Direction* direction = nullptr) const
 
-Returns true if Path is eqivalent to Rect when filled.
+Returns true if Path is equivalent to Rect when filled.
 If false: rect, isClosed, and direction are unchanged.
 If true: rect, isClosed, and direction are written to if not nullptr.
 
@@ -4466,7 +4471,7 @@ Add Contour created from Line array, adding
 #Formula
 count - 1 
 ##
-Line segments. Contour added starts at pt[0], then adds a line
+Line segments. Contour added starts at pts[0], then adds a line
 for every additional Point in pts array. If close is true,
 appends kClose_Verb to Path, connecting pts[count - 1] and pts[0].
 
@@ -5036,13 +5041,13 @@ for (int y = 2; y < 256; y += 9) {
 #Method void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const
 
 Writes text representation of Path to stream. If stream is nullptr, dump() writes to
-stdout. Set forceClose to true to get
+standard output. Set forceClose to true to get
 edges used to fill Path. Set dumpAsHex true to get exact binary representations
 of floating point numbers used in Point_Array and Conic_Weights.
 
 #Param stream      writable Stream receiving Path text representation; may be nullptr ##
 #Param forceClose  true if missing kClose_Verb is output ##
-#Param dumpAsHex   true if SkScalar values are written as hexidecimal ##
+#Param dumpAsHex   true if SkScalar values are written as hexadecimal ##
 
 #Example
    SkPath path;
@@ -5084,7 +5089,7 @@ path.close();
 
 #Method void dump() const
 
-Writes text representation of Path to stdout. The representation may be
+Writes text representation of Path to standard output. The representation may be
 directly compiled as C++ code. Floating point values are written
 with limited precision; it may not be possible to reconstruct original Path
 from output.
@@ -5113,7 +5118,7 @@ path is not equal to copy
 
 #Method void dumpHex() const
 
-Writes text representation of Path to stdout. The representation may be
+Writes text representation of Path to standard output. The representation may be
 directly compiled as C++ code. Floating point values are written
 in hexadecimal to preserve their exact bit pattern. The output reconstructs the
 original Path.

@@ -34,7 +34,7 @@ public:
         this->reset();
     }
     bool check(const char* match);
-    void report();
+    void report(SkCommandLineFlags::StringArray report);
 private:
     enum class TableState {
         kNone,
@@ -88,10 +88,10 @@ private:
    modifiers to try to maintain a consistent voice.
    Maybe also look for passive verbs (e.g. 'is') and suggest active ones?
  */
-void BmhParser::spellCheck(const char* match) const {
+void BmhParser::spellCheck(const char* match, SkCommandLineFlags::StringArray report) const {
     SpellCheck checker(*this);
     checker.check(match);
-    checker.report();
+    checker.report(report);
 }
 
 bool SpellCheck::check(const char* match) {
@@ -112,13 +112,22 @@ bool SpellCheck::check(const char* match) {
     return true;
 }
 
+static bool all_lower(const string& str) {
+    for (auto c : str) {
+        if (!islower(c)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool SpellCheck::check(Definition* def) {
     fFileName = def->fFileName;
     fLineCount = def->fLineCount;
     string printable = def->printableName();
     const char* textStart = def->fContentStart;
     if (MarkType::kParam != def->fMarkType && MarkType::kConst != def->fMarkType &&
-            TableState::kNone != fTableState) {
+            MarkType::kPrivate != def->fMarkType && TableState::kNone != fTableState) {
         fTableState = TableState::kNone;
     }
     switch (def->fMarkType) {
@@ -170,6 +179,8 @@ bool SpellCheck::check(Definition* def) {
             break;
         case MarkType::kExample:
             break;
+        case MarkType::kExperimental:
+            break;
         case MarkType::kExternal:
             break;
         case MarkType::kFile:
@@ -184,12 +195,19 @@ bool SpellCheck::check(Definition* def) {
             break;
         case MarkType::kLegend:
             break;
+        case MarkType::kLink:
+            break;
         case MarkType::kList:
+            break;
+        case MarkType::kMarkChar:
             break;
         case MarkType::kMember:
             break;
         case MarkType::kMethod: {
             string method_name = def->methodName();
+            if (all_lower(method_name)) {
+                method_name += "()";
+            }
             string formattedStr = def->formatFunction();
             if (!def->isClone()) {
                 this->wordCheck(method_name);
@@ -197,6 +215,8 @@ bool SpellCheck::check(Definition* def) {
             fTableState = TableState::kNone;
             fMethod = def;
             } break;
+        case MarkType::kNoExample:
+            break;
         case MarkType::kParam: {
             if (TableState::kNone == fTableState) {
                 fTableState = TableState::kRow;
@@ -219,6 +239,8 @@ bool SpellCheck::check(Definition* def) {
        } break;
         case MarkType::kPlatform:
             break;
+        case MarkType::kPrivate:
+            break;
         case MarkType::kReturn:
             break;
         case MarkType::kRow:
@@ -239,6 +261,8 @@ bool SpellCheck::check(Definition* def) {
         case MarkType::kStruct:
             fRoot = def->asRoot();
             this->wordCheck(def->fName);
+            break;
+        case MarkType::kSubstitute:
             break;
         case MarkType::kSubtopic:
             this->printCheck(printable);
@@ -262,6 +286,8 @@ bool SpellCheck::check(Definition* def) {
         case MarkType::kTypedef:
             break;
         case MarkType::kUnion:
+            break;
+        case MarkType::kVolatile:
             break;
         case MarkType::kWidth:
             break;
@@ -348,6 +374,30 @@ void SpellCheck::leafCheck(const char* start, const char* end) {
         text.skipTo(wordStart);  // advances line number
         text.skipToNonAlphaNum();
         fLineCount = text.fLineCount;
+        bool allLower = true;
+        for (const char* test = wordStart; test < text.fChar; ++test) {
+            if (!islower(*test)) {
+                allLower = false;
+                break;
+            }
+        }
+        if (allLower && !text.skipExact("()")) {
+            if (wordStart > text.fStart && '\"' == wordStart[-1] && text.fChar < text.fEnd &&
+                    '\"' == text.fChar[1]) {
+                continue;
+            }
+            const char* openParen = wordStart;
+            while ('(' != *openParen && ')' != *openParen && openParen > text.fStart) {
+                --openParen;
+            }
+            const char* closedParen = text.fChar;
+            while ('(' != *closedParen && ')' != *closedParen && closedParen + 1 < text.fEnd) {
+                ++closedParen;
+            }
+            if ('(' == *openParen && ')' == *closedParen) {
+                continue;
+            }
+        }
         string word(wordStart, text.fChar - wordStart);
         wordCheck(word);
     } while (!text.eof());
@@ -360,25 +410,109 @@ void SpellCheck::printCheck(const string& str) {
     }
 }
 
-void SpellCheck::report() {
-    for (auto iter : fWords) {
-        if (string::npos != iter.second.fFile.find("undocumented.bmh")) {
-            continue;
+static bool stringCompare(std::pair<string, CheckEntry>& i, std::pair<string, CheckEntry>& j) {
+    return i.first.compare(j.first) < 0;
+}
+
+void SpellCheck::report(SkCommandLineFlags::StringArray report) {
+    vector<std::pair<string, CheckEntry>> elems(fWords.begin(), fWords.end());
+    std::sort(elems.begin(), elems.end(), stringCompare);
+    if (report.contains("once")) {
+        for (auto iter : elems) {
+            if (string::npos != iter.second.fFile.find("undocumented.bmh")) {
+                continue;
+            }
+            if (string::npos != iter.second.fFile.find("markup.bmh")) {
+                continue;
+            }
+            if (string::npos != iter.second.fFile.find("usingBookmaker.bmh")) {
+                continue;
+            }
+            if (iter.second.fCount == 1) {
+                SkDebugf("%s(%d): %s\n", iter.second.fFile.c_str(), iter.second.fLine,
+                        iter.first.c_str());
+            }
         }
-        if (string::npos != iter.second.fFile.find("markup.bmh")) {
-            continue;
+        SkDebugf("\n");
+    }
+    if (report.contains("all")) {
+        int column = 0;
+        for (auto iter : elems) {
+            if (string::npos != iter.second.fFile.find("undocumented.bmh")) {
+                continue;
+            }
+            if (string::npos != iter.second.fFile.find("markup.bmh")) {
+                continue;
+            }
+            if (string::npos != iter.second.fFile.find("usingBookmaker.bmh")) {
+                continue;
+            }
+            string check = iter.first.c_str();
+            bool allLower = true;
+            for (auto c : check) {
+                if (isupper(c)) {
+                    allLower = false;
+                    break;
+                }
+            }
+            if (!allLower) {
+                continue;
+            }
+            if (column + check.length() > 100) {
+                SkDebugf("\n");
+                column = 0;
+            }
+            SkDebugf("%s ", check.c_str());
+            column += check.length();
         }
-        if (string::npos != iter.second.fFile.find("usingBookmaker.bmh")) {
-            continue;
-        }
-        if (iter.second.fCount == 1) {
-            SkDebugf("%s %s %d\n", iter.first.c_str(), iter.second.fFile.c_str(),
-                    iter.second.fLine);
+        SkDebugf("\n\n");
+    }
+    if (report.contains("mispellings")) {
+        const char* mispelled[] = {
+            "decrementing",
+            "differentially",
+            "hintgasp",
+            "incrementing",
+            "preallocate",
+            "superset"
+        };
+        const char** mispellPtr = mispelled;
+        const char** mispellEnd = &mispelled[SK_ARRAY_COUNT(mispelled)];
+        for (auto iter : elems) {
+            if (string::npos != iter.second.fFile.find("undocumented.bmh")) {
+                continue;
+            }
+            if (string::npos != iter.second.fFile.find("markup.bmh")) {
+                continue;
+            }
+            if (string::npos != iter.second.fFile.find("usingBookmaker.bmh")) {
+                continue;
+            }
+            string check = iter.first.c_str();
+            while (check.compare(*mispellPtr) > 0) {
+                SkDebugf("%s not found\n", *mispellPtr);
+                if (mispellEnd == ++mispellPtr) {
+                    break;
+                }
+            }
+            if (mispellEnd == mispellPtr) {
+                break;
+            }
+            if (check.compare(*mispellPtr) == 0) {
+                SkDebugf("%s(%d): %s\n", iter.second.fFile.c_str(), iter.second.fLine,
+                        iter.first.c_str());
+                if (mispellEnd == ++mispellPtr) {
+                    break;
+                }
+            }
         }
     }
 }
 
 void SpellCheck::wordCheck(const string& str) {
+    if ("nullptr" == str) {
+        return;  // doesn't seem worth it, treating nullptr as a word in need of correction
+    }
     bool hasColon = false;
     bool hasDot = false;
     bool hasParen = false;
@@ -433,12 +567,24 @@ void SpellCheck::wordCheck(const string& str) {
             && islower(str[0]) && isupper(str[1])) {
         inCode = true;
     }
+    bool methodParam = false;
+    if (fMethod) {
+        for (auto child : fMethod->fChildren) {
+            if (MarkType::kParam == child->fMarkType && str == child->fName) {
+                methodParam = true;
+                break;
+            }
+        }
+    }
     auto& mappy = hasColon ? fColons : 
                   hasDot ? fDots :
                   hasParen ? fParens :
                   hasUnderscore ? fUnderscores :
-                  fInStdOut || inCode || fInConst ? fCode :
+                  fInStdOut || inCode || fInConst || methodParam ? fCode :
                   sawDigit ? fDigits : fWords;
+    if ("rx" == str && !methodParam) {
+        SkDebugf("");
+    }
     auto iter = mappy.find(str);
     if (mappy.end() != iter) {
         iter->second.fCount += 1;
