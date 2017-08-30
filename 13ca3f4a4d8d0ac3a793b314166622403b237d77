@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8d343989_f3a8a1e3",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-30T20:08:11Z",
+      "side": 1,
+      "message": "Since the inputs are specified as sigma for 0 \u003c sigma \u003c 2, there are two values that 1, 1 2/3. Looking at the top 10K web pages, those values never show. See included table.\n\nSanitized in ::blur, and FilterInfo.",
+      "parentUuid": "2ba41574_4474e591",
+      "range": {
+        "startLine": 47,
+        "startChar": 25,
+        "endLine": 47,
+        "endChar": 40
+      },
+      "revId": "13ca3f4a4d8d0ac3a793b314166622403b237d77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "021d8964_e05f77d6",
         "filename": "src/core/SkMaskBlurFilter.h",
         "patchSetId": 1
@@ -39,6 +63,24 @@
       "revId": "13ca3f4a4d8d0ac3a793b314166622403b237d77",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8de11329_efb6de1a",
+        "filename": "src/core/SkMaskBlurFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-30T20:08:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "021d8964_e05f77d6",
+      "revId": "13ca3f4a4d8d0ac3a793b314166622403b237d77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "1ad12923_c9baa9d6",
+        "filename": "src/core/SkMaskBlurFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-30T20:08:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "324b52ef_c0c11647",
+      "range": {
+        "startLine": 68,
+        "startChar": 21,
+        "endLine": 68,
+        "endChar": 31
+      },
+      "revId": "13ca3f4a4d8d0ac3a793b314166622403b237d77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "edd6d17f_09dcfeb0",
         "filename": "src/core/SkMaskBlurFilter.h",
         "patchSetId": 1
@@ -85,6 +151,30 @@
       "revId": "13ca3f4a4d8d0ac3a793b314166622403b237d77",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5dbbfa3_625bdf75",
+        "filename": "src/core/SkMaskBlurFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-30T20:08:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edd6d17f_09dcfeb0",
+      "range": {
+        "startLine": 72,
+        "startChar": 24,
+        "endLine": 72,
+        "endChar": 34
+      },
+      "revId": "13ca3f4a4d8d0ac3a793b314166622403b237d77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "235a887b_7f32bb39",
+        "filename": "src/core/SkMaskBlurFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-30T20:08:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1161fa47_5c56ee69",
+      "range": {
+        "startLine": 76,
+        "startChar": 30,
+        "endLine": 76,
+        "endChar": 40
+      },
+      "revId": "13ca3f4a4d8d0ac3a793b314166622403b237d77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2f9cada0_0d9beea5",
         "filename": "src/core/SkMaskBlurFilter.h",
         "patchSetId": 1
@@ -131,6 +245,30 @@
       "revId": "13ca3f4a4d8d0ac3a793b314166622403b237d77",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7fdac36_5264c57a",
+        "filename": "src/core/SkMaskBlurFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-30T20:08:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f9cada0_0d9beea5",
+      "range": {
+        "startLine": 80,
+        "startChar": 26,
+        "endLine": 80,
+        "endChar": 36
+      },
+      "revId": "13ca3f4a4d8d0ac3a793b314166622403b237d77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
