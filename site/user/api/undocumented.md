@@ -583,6 +583,8 @@ static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx,
 
 # <a name="SkString"></a> Class SkString
 
+# <a name="Supersampling"></a> Supersampling
+
 # <a name="Surface"></a> Surface
 
 # <a name="SkSurface"></a> Class SkSurface

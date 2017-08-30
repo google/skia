@@ -2,19 +2,19 @@
 #External
  DirectWrite TrueType Windows Linux Android
  FreeType FreeType-based Harfbuzz   
- PostScript PostScript_arct
+ Descenders Kerning Unhinted Left_Side_Bearing Right_Side_Bearing
+ PostScript PostScript_Arct
  OS_X Core_Graphics Core_Text iOS
  LCD RGB
- Premultiplied Unpremultiplied
+ Premultiply Premultiplied Unpremultiply Unpremultiplied
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
- HTML_Canvas HTML_Canvas_arcTo
+ HTML_Canvas HTML_Canvas_ArcTo
  API
  CPU
  GPU GPU-backed OpenGL Vulkan
- NULL
  RFC
  Bezier Coons Cartesian
- C C++ 
+ C C++ Destructor Subclasses
  SaveLayerFlags # not external; need to add typedef support
  SkUserConfig.h  # not external, but still thinking about how markup refers to this
  SkXXX.h        # ditto
@@ -22,6 +22,7 @@
  SK_USE_FREETYPE_EMBOLDEN # ditto
  SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION # ditto
  SK_BUILD_FOR_ANDROID_FRAMEWORK # ditto
+ SK_IGNORE_TO_STRING #  ditto
  Developer_Mode # ditto
  Draw_Layer # ditto
  Raster_Engine # ditto
@@ -207,6 +208,7 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Glyph
+#Alias Glyphs
 ##
 
 #Topic GPU_Context
@@ -478,6 +480,10 @@ FT_Load_Glyph
 #Class SkString
 #Class ##
 #Topic ##
+
+#Topic Supersampling
+#Substitute supersampling
+##
 
 #Topic Surface
 #Class SkSurface

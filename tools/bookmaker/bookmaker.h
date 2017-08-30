@@ -10,6 +10,7 @@
 
 #define STDOUT_TO_IDE_OUT 0
 
+#include "SkCommandLineFlags.h"
 #include "SkData.h"
 
 #include <algorithm> 
@@ -452,7 +453,7 @@ public:
 
     bool skipName(const char* word) {
         size_t len = strlen(word);
-        if (len < (size_t) (fEnd - fChar) && !strncmp(word, fChar, len)) {
+        if (len <= (size_t) (fEnd - fChar) && !strncmp(word, fChar, len)) {
             fChar += len;
         }
         return this->eof() || ' ' >= fChar[0];
@@ -495,7 +496,7 @@ public:
 
     bool startsWith(const char* str) const {
         size_t len = strlen(str);
-        ptrdiff_t lineLen = this->lineLength(); 
+        ptrdiff_t lineLen = fEnd - fChar; 
         return len <= (size_t) lineLen && 0 == strncmp(str, fChar, len);
     }
 
@@ -1242,14 +1243,14 @@ public:
 , { "Height",      nullptr,      MarkType::kHeight,      R_N, E_N, M(Example) }
 , { "Image",       nullptr,      MarkType::kImage,       R_N, E_N, M(Example) }
 , { "Legend",      nullptr,      MarkType::kLegend,      R_Y, E_N, M(Table) }
-, { "",            nullptr,      MarkType::kLink,        R_Y, E_N, M(Anchor) }
+, { "",            nullptr,      MarkType::kLink,        R_N, E_N, M(Anchor) }
 , { "List",        nullptr,      MarkType::kList,        R_Y, E_N, M(Method) | M_CSST | M_E | M_D }
 , { "",            nullptr,      MarkType::kMarkChar,    R_N, E_N, 0 }
 , { "Member",      nullptr,      MarkType::kMember,      R_Y, E_N, M(Class) | M(Struct) }
 , { "Method",      &fMethodMap,  MarkType::kMethod,      R_Y, E_Y, M_CSST }
 , { "NoExample",   nullptr,      MarkType::kNoExample,   R_Y, E_N, 0 }
 , { "Param",       nullptr,      MarkType::kParam,       R_Y, E_N, M(Method) }
-, { "Platform",    nullptr,      MarkType::kPlatform,    R_Y, E_N, M(Example) }
+, { "Platform",    nullptr,      MarkType::kPlatform,    R_N, E_N, M(Example) }
 , { "Private",     nullptr,      MarkType::kPrivate,     R_N, E_N, 0 }
 , { "Return",      nullptr,      MarkType::kReturn,      R_Y, E_N, M(Method) }
 , { "",            nullptr,      MarkType::kRoot,        R_Y, E_N, 0 }
@@ -1337,7 +1338,7 @@ public:
 
     bool skipNoName();
     bool skipToDefinitionEnd(MarkType markType);
-    void spellCheck(const char* match) const;
+    void spellCheck(const char* match, SkCommandLineFlags::StringArray report) const;
     vector<string> topicName();
     vector<string> typeName(MarkType markType, bool* expectEnd);
     string uniqueName(const string& base, MarkType markType);
