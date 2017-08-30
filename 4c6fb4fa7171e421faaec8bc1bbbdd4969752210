@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8868cb0_c04bd021",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 908,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-30T19:04:20Z",
+      "side": 1,
+      "message": "Might be easier to read if we put ios up top in if(is_ios) { ... }?",
+      "range": {
+        "startLine": 908,
+        "startChar": 8,
+        "endLine": 908,
+        "endChar": 15
+      },
+      "revId": "4c6fb4fa7171e421faaec8bc1bbbdd4969752210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9657b77b_8b98ae7c",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 974,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-30T19:04:20Z",
+      "side": 1,
+      "message": "We don\u0027t ever have resources or plugins, do we?",
+      "range": {
+        "startLine": 974,
+        "startChar": 8,
+        "endLine": 974,
+        "endChar": 46
+      },
+      "revId": "4c6fb4fa7171e421faaec8bc1bbbdd4969752210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb06b256_fdcd75b0",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-30T19:04:20Z",
+      "side": 1,
+      "message": "I think I\u0027m missing what\u0027s different about this than tool(\"copy\").  What\u0027s with all the pax and hardlinks and all?  Can\u0027t we just copy it?",
+      "revId": "4c6fb4fa7171e421faaec8bc1bbbdd4969752210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68f7d018_82cb1ce1",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-30T19:04:20Z",
+      "side": 1,
+      "message": "What assets are we compiling?  Could we just make this, like, command \u003d \"true\", or \"touch {{output}}\"?",
+      "revId": "4c6fb4fa7171e421faaec8bc1bbbdd4969752210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
