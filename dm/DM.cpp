@@ -1146,7 +1146,7 @@ struct Task {
 
                 if (!FLAGS_writePath.isEmpty()) {
                     const char* ext = task.sink->fileExtension();
-                    if (!FLAGS_dont_write.contains(ext)) {
+                    if (ext && !FLAGS_dont_write.contains(ext)) {
                         if (data->getLength()) {
                             WriteToDisk(task, md5, ext, data, data->getLength(), nullptr);
                             SkASSERT(bitmap.drawsNothing());
