@@ -773,7 +773,7 @@ may be nullptr</td>
 
 ### Return Value
 
-Address of pixels, or nullptr if inaccessible
+address of pixels, or nullptr if inaccessible
 
 ### Example
 
@@ -2132,7 +2132,7 @@ before it is combined with <a href="#Clip">Clip</a>.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_clipRect_rect"> <code><strong>rect </strong></code> </a></td> <td>
-Rectangle to combine with <a href="#Clip">Clip</a></td>
+<a href="undocumented#Rect">Rect</a> to combine with <a href="#Clip">Clip</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_clipRect_op"> <code><strong>op </strong></code> </a></td> <td>
 <a href="#Op">Clip Op</a> to apply to <a href="#Clip">Clip</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_clipRect_doAntiAlias"> <code><strong>doAntiAlias </strong></code> </a></td> <td>
@@ -2157,7 +2157,7 @@ Resulting <a href="#Clip">Clip</a> is aliased; pixels are fully contained by the
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_clipRect_2_rect"> <code><strong>rect </strong></code> </a></td> <td>
-Rectangle to combine with <a href="#Clip">Clip</a></td>
+<a href="undocumented#Rect">Rect</a> to combine with <a href="#Clip">Clip</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_clipRect_2_op"> <code><strong>op </strong></code> </a></td> <td>
 <a href="#Op">Clip Op</a> to apply to <a href="#Clip">Clip</a></td>
   </tr>
@@ -2181,7 +2181,7 @@ before it is combined with <a href="#Clip">Clip</a>.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_clipRect_3_rect"> <code><strong>rect </strong></code> </a></td> <td>
-Rectangle to combine with <a href="#Clip">Clip</a></td>
+<a href="undocumented#Rect">Rect</a> to combine with <a href="#Clip">Clip</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_clipRect_3_doAntiAlias"> <code><strong>doAntiAlias </strong></code> </a></td> <td>
 true if <a href="#Clip">Clip</a> is to be anti-aliased</td>
   </tr>
@@ -2801,13 +2801,13 @@ and lines before drawing.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_drawPoints_mode"> <code><strong>mode </strong></code> </a></td> <td>
-Whether <a href="#SkCanvas_drawPoints_pts">pts</a> draws points or lines</td>
+whether <a href="#SkCanvas_drawPoints_pts">pts</a> draws points or lines</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawPoints_count"> <code><strong>count </strong></code> </a></td> <td>
-The number of points in the array</td>
+number of points in the array</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawPoints_pts"> <code><strong>pts </strong></code> </a></td> <td>
-Array of points to draw</td>
+array of points to draw</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawPoints_paint"> <code><strong>paint </strong></code> </a></td> <td>
-Stroke, blend, color, and so on, used to draw</td>
+stroke, blend, color, and so on, used to draw</td>
   </tr>
 </table>
 
@@ -3904,7 +3904,7 @@ destination <a href="undocumented#Rect">Rect</a> of image to draw to</td>
 <a href="SkPaint_Reference#Paint">Paint</a> containing <a href="undocumented#Blend_Mode">Blend Mode</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 and so on; or nullptr</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawBitmapRect_2_constraint"> <code><strong>constraint </strong></code> </a></td> <td>
-Filter strictly within src or draw faster</td>
+sample strictly within src, or draw faster</td>
   </tr>
 </table>
 
@@ -4493,7 +4493,7 @@ byte length of <a href="#SkCanvas_drawTextOnPath_text">text</a> array</td>
 <a href="SkPath_Reference#Path">Path</a> providing <a href="#SkCanvas_drawTextOnPath_text">text</a> baseline</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawTextOnPath_matrix"> <code><strong>matrix </strong></code> </a></td> <td>
 transform of glyphs before mapping to <a href="#SkCanvas_drawTextOnPath_path">path</a>; may be nullptr
-to use identity <a href="#Matrix">Matrix</a>.</td>
+to use identity <a href="#Matrix">Matrix</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_drawTextOnPath_paint"> <code><strong>paint </strong></code> </a></td> <td>
 <a href="#SkCanvas_drawTextOnPath_text">text</a> size, blend, color, and so on, used to draw</td>
   </tr>
@@ -4814,7 +4814,7 @@ corners in top left, top right, bottom right, bottom left order.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_drawPatch_cubics"> <code><strong>cubics </strong></code> </a></td> <td>
-Cubic array, sharing common points</td>
+<a href="#Cubic">Path Cubic</a> array, sharing common points</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawPatch_colors"> <code><strong>colors </strong></code> </a></td> <td>
 <a href="undocumented#Color">Color</a> array, one for each corner</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawPatch_texCoords"> <code><strong>texCoords </strong></code> </a></td> <td>
@@ -4860,7 +4860,7 @@ corners in top left, top right, bottom right, bottom left order.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_drawPatch_2_cubics"> <code><strong>cubics </strong></code> </a></td> <td>
-Cubic array, sharing common points</td>
+<a href="#Cubic">Path Cubic</a> array, sharing common points</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawPatch_2_colors"> <code><strong>colors </strong></code> </a></td> <td>
 <a href="undocumented#Color">Color</a> array, one for each corner</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawPatch_2_texCoords"> <code><strong>texCoords </strong></code> </a></td> <td>

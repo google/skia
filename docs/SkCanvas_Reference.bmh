@@ -818,7 +818,7 @@ If pixels are inaccessible, info, rowBytes, and origin are unchanged.
                  may be nullptr
 ##
 
-#Return  Address of pixels, or nullptr if inaccessible ##
+#Return  address of pixels, or nullptr if inaccessible ##
 
 #Example
 void draw(SkCanvas* canvas) {
@@ -2366,7 +2366,7 @@ Replace Clip with the intersection or difference of Clip and rect,
 with an aliased or anti-aliased clip edge. rect is transformed by Matrix
 before it is combined with Clip.
 
-#Param  rect  Rectangle to combine with Clip ##
+#Param  rect  Rect to combine with Clip ##
 #Param  op    Clip_Op to apply to Clip ##
 #Param  doAntiAlias  true if Clip is to be anti-aliased ##
 
@@ -2396,7 +2396,7 @@ Replace Clip with the intersection or difference of Clip and rect.
 Resulting Clip is aliased; pixels are fully contained by the clip.
 rect is transformed by Matrix before it is combined with Clip.
 
-#Param  rect  Rectangle to combine with Clip ##
+#Param  rect  Rect to combine with Clip ##
 #Param  op    Clip_Op to apply to Clip ##
 
 #Example
@@ -2425,7 +2425,7 @@ Resulting Clip is aliased; pixels are fully contained by the clip.
 rect is transformed by Matrix
 before it is combined with Clip.
 
-#Param  rect  Rectangle to combine with Clip ##
+#Param  rect   Rect to combine with Clip ##
 #Param  doAntiAlias  true if Clip is to be anti-aliased ##
 
 #Example
@@ -3140,10 +3140,10 @@ Always draws each element one at a time; is not affected by
 Paint_Stroke_Join, and unlike drawPath, does not create a mask from all points
 and lines before drawing. 
 
-#Param  mode     Whether pts draws points or lines ##
-#Param  count    The number of points in the array ##
-#Param  pts      Array of points to draw ##
-#Param  paint    Stroke, blend, color, and so on, used to draw ##
+#Param  mode     whether pts draws points or lines ##
+#Param  count    number of points in the array ##
+#Param  pts      array of points to draw ##
+#Param  paint    stroke, blend, color, and so on, used to draw ##
 
 #Example
 #Height 200
@@ -4496,7 +4496,7 @@ improve performance.
 #Param  paint    Paint containing Blend_Mode, Color_Filter, Image_Filter,
                  and so on; or nullptr
 ##
-#Param  constraint Filter strictly within src or draw faster ##
+#Param  constraint sample strictly within src, or draw faster ##
 
 #Example
 #Height 64
@@ -5164,7 +5164,7 @@ filled 12 point black glyphs.
 #Param  byteLength   byte length of text array ##
 #Param  path         Path providing text baseline ##
 #Param  matrix       transform of glyphs before mapping to path; may be nullptr
-                     to use identity Matrix.
+                     to use identity Matrix
 ##
 #Param  paint        text size, blend, color, and so on, used to draw ##
 
@@ -5571,7 +5571,7 @@ bottom right, bottom left order.
 If paint contains Shader, Point array texCoords maps Shader as texture to
 corners in top left, top right, bottom right, bottom left order.
 
-#Param cubics     Cubic array, sharing common points ##
+#Param cubics     Path_Cubic array, sharing common points ##
 #Param colors     Color array, one for each corner ##
 #Param texCoords  Point array of texure coordinates, mapping Shader to corners;
                   may be nullptr 
@@ -5629,7 +5629,7 @@ bottom right, bottom left order.
 If paint contains Shader, Point array texCoords maps Shader as texture to
 corners in top left, top right, bottom right, bottom left order.
 
-#Param cubics     Cubic array, sharing common points ##
+#Param cubics     Path_Cubic array, sharing common points ##
 #Param colors     Color array, one for each corner ##
 #Param texCoords  Point array of texure coordinates, mapping Shader to corners;
                   may be nullptr 

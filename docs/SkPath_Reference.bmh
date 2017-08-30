@@ -532,7 +532,7 @@ pointers are not exposed.
 
 #Param path  Path to copy by value ##
 
-#Return  Copy of Path ##
+#Return  copy of Path ##
 
 #Example
 #Description
@@ -1079,7 +1079,7 @@ Computes Convexity if required, and returns stored value.
 Convexity is computed if stored value is kUnknown_Convexity,
 or if Path has been altered since Convexity was computed or set.
 
-#Return  Computed or stored Convexity ##
+#Return  computed or stored Convexity ##
 
 #Example
 void draw(SkCanvas* canvas) {
@@ -1109,7 +1109,7 @@ void draw(SkCanvas* canvas) {
 Returns last computed Convexity, or kUnknown_Convexity if 
 Path has been altered since Convexity was computed or set.
 
-#Return  Stored Convexity ##
+#Return  stored Convexity ##
 
 #Example
 #Description
@@ -1571,11 +1571,12 @@ Test if Line between Point pair is degenerate.
 Line with no length or that moves a very short distance is degenerate; it is
 treated as a point. 
 
+exact changes the equality test. If true, returns true only if p1 equals p2.
+If false, returns true if p1 equals or nearly equals p2.
+
 #Param p1     line start point ##
 #Param p2     line end point ##
-#Param exact  If true, returns true only if p1 equals p2. If false, returns true
-              if p1 equals or nearly equals p2 
-##
+#Param exact  if false, allow nearly equals ##
 
 #Return  true if Line is degenerate; its length is effectively zero ##
 
@@ -3821,7 +3822,7 @@ of up to 90 degrees; in this case, set pow2 to one.
 #Param pts   storage for Quad array ##
 #Param pow2  Quad count, as power of two, normally 0 to 5 (1 to 32 Quad curves) ##
 
-#Return  Number of Quad curves written to pts ##
+#Return  number of Quad curves written to pts ##
 
 #Example
 #Description
@@ -4022,7 +4023,7 @@ start determines the first corner added.
 
 #Param rect   Rect to add as a closed contour ##
 #Param dir    Direction to wind added contour ##
-#Param start  Initial corner of Rect to add ##
+#Param start  initial corner of Rect to add ##
 
 #Example
 #Height 128
@@ -4434,7 +4435,7 @@ After appending, Path may be empty, or may contain: Rect, Oval, or Round_Rect.
 
 #Param rrect  bounds and radii of rounded rectangle ##
 #Param dir    Direction to wind Round_Rect ##
-#Param start  Index of initial point of Round_Rect ##
+#Param start  index of initial point of Round_Rect ##
 
 #Example
 void draw(SkCanvas* canvas) {
@@ -4472,8 +4473,8 @@ appends kClose_Verb to Path, connecting pts[count - 1] and pts[0].
 If count is zero, append kMove_Verb to path.
 Has no effect if count is less than one.
   
-#Param pts    Array of Line sharing end and start Point ##
-#Param count  Length of Point array ##
+#Param pts    array of Line sharing end and start Point ##
+#Param count  length of Point array ##
 #Param close  true to add Line connecting Contour end and start ##
 
 #Example
@@ -4635,7 +4636,7 @@ added unaltered. If mode is kExtend_AddPathMode, add Line before appending
 Verbs, Points, and Conic_Weights. 
 
 #Param src     Path Verbs, Points, and Conic_Weights to add ##
-#Param matrix  Transform applied to src ##
+#Param matrix  transform applied to src ##
 #Param mode    kAppend_AddPathMode or kExtend_AddPathMode ##
 
 #Example
@@ -5519,20 +5520,20 @@ kDone_Verb
 
 #Method Verb next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false) 
 
-        Returns next Verb in Verb_Array, and advances Iter.
-        When Verb_Array is exhausted, returns kDone_Verb.
+Returns next Verb in Verb_Array, and advances Iter.
+When Verb_Array is exhausted, returns kDone_Verb.
+
 Zero to four Points are stored in pts, depending on the returned Verb.
+
 If doConsumeDegenerates is true, skip consecutive kMove_Verb entries, returning
 only the last in the series; and skip very small Lines, Quads, and Conics; and
 skip kClose_Verb following kMove_Verb.
 if doConsumeDegenerates is true and exact is true, only skip Lines, Quads, and
 Conics with zero lengths.
 
-    #Param  pts Storage for Point data describing returned Verb ##
-    #Param doConsumeDegenerates If true, skip degenerate Verbs ##
-    #Param exact If true, skip zero length curves. Has no effect if doConsumeDegenerates
-                 is false 
-    ##
+    #Param  pts storage for Point data describing returned Verb ##
+    #Param doConsumeDegenerates if true, skip degenerate Verbs ##
+    #Param exact skip zero length curves ##
 
     #Return next Verb from Verb_Array  ##
 
@@ -5777,7 +5778,7 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
         When Verb_Array is exhausted, returns kDone_Verb.
         Zero to four Points are stored in pts, depending on the returned Verb.
 
-        #Param  pts Storage for Point data describing returned Verb ##
+        #Param  pts storage for Point data describing returned Verb ##
 
         #Return next Verb from Verb_Array  ##
 

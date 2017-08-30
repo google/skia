@@ -3617,7 +3617,7 @@ Does not alter <a href="#SkPaint_setDrawLooper_drawLooper">drawLooper</a> <a hre
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPaint_setDrawLooper_drawLooper"> <code><strong>drawLooper </strong></code> </a></td> <td>
-Iterates through drawing one or more time, altering <a href="#Paint">Paint</a></td>
+iterates through drawing one or more time, altering <a href="#Paint">Paint</a></td>
   </tr>
 </table>
 
@@ -4932,7 +4932,7 @@ returned intersections; may be nullptr</td>
 
 ### Return Value
 
-The number of intersections; may be zero
+number of intersections; may be zero
 
 ### Example
 
