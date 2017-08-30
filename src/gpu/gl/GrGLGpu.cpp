@@ -1960,6 +1960,12 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
     if (!target) {
         return;
     }
+
+    GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
+    // this should only be called internally when we know we have a
+    // stencil buffer.
+    SkASSERT(sb);
+
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
     this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
 
@@ -1970,6 +1976,9 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
     GL_CALL(ClearStencil(clearValue));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
     fHWStencilSettings.invalidate();
+    if (!clearValue) {
+        sb->cleared();
+    }
 }
 
 void GrGLGpu::clearStencilClip(const GrFixedClip& clip,

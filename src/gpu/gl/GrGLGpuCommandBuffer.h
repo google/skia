@@ -61,15 +61,7 @@ public:
 
     ~GrGLGpuRTCommandBuffer() override {}
 
-    void begin() override {
-        if (GrLoadOp::kClear == fColorLoadAndStoreInfo.fLoadOp) {
-            fGpu->clear(GrFixedClip::Disabled(), fColorLoadAndStoreInfo.fClearColor,
-                        fRenderTarget, fOrigin);
-        }
-        if (GrLoadOp::kClear == fStencilLoadAndStoreInfo.fLoadOp) {
-            fGpu->clearStencil(fRenderTarget, 0x0);
-        }
-    }
+    void begin() override;
     void end() override {}
 
     void discard() override { }
