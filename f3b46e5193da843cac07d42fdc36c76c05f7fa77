@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9082d260_c3f801ac",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-30T18:18:02Z",
+      "side": 0,
+      "message": "Ah yes, very important.  :)",
+      "revId": "f3b46e5193da843cac07d42fdc36c76c05f7fa77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
