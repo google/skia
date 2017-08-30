@@ -16,6 +16,24 @@
       "revId": "f64ed013673eac6e52148ab601113943b94b997c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac022713_9ee22ae3",
+        "filename": "include/private/SkSurfaceCharacterization.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-30T13:48:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0838aa7c_d90d0b59",
+      "revId": "f64ed013673eac6e52148ab601113943b94b997c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
