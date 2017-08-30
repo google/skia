@@ -693,3 +693,38 @@ DEF_TEST(FloatSaturate, reporter) {
         REPORTER_ASSERT(reporter, r.fExpectedInt == i);
     }
 }
+
+DEF_TEST(Div255, reporter) {
+    int e1 = 0, e2 = 0, e3 = 0, e4 = 0;
+    int s1 = 0, s2 = 0, s3 = 0, s4 = 0;
+
+    for (int a = 0; a <= 255; a++) {
+        for (int b = 0; b <= 255; b++) {
+            int ab = a * b;
+            int perfect = (int)(ab / 255.0 + 0.5);
+            int p1 = (ab + a) >> 8;
+            int p2 = (ab + 191) >> 8;
+            int p3 = (ab + 127) / 255;
+            int p4 = (ab + 128) / 255;
+
+   //         SkDebugf("%5d perfect %3d, %3d %3d %3d %3d\n", ab, perfect, p1, p2, p3, p4);
+
+            e1 += p1 != perfect;
+            e2 += p2 != perfect;
+            e1 += p3 != perfect;
+            e4 += p4 != perfect;
+
+            int d1 = p1 - perfect; SkASSERT(SkAbs32(d1) <= 1);
+            int d2 = p2 - perfect; SkASSERT(SkAbs32(d2) <= 1);
+            int d3 = p3 - perfect; SkASSERT(SkAbs32(d3) <= 1);
+            int d4 = p4 - perfect; SkASSERT(SkAbs32(d4) <= 1);
+
+            s1 += p1 - perfect;
+            s2 += p2 - perfect;
+            s3 += p3 - perfect;
+            s4 += p4 - perfect;
+        }
+    }
+    SkDebugf("errors: %d:%d %d:%d %d:%d %d:%d\n", e1, s1, e2, s2, e3, s3, e4, s4);
+}
+
