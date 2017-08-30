@@ -45,7 +45,6 @@ void GrSWMaskHelper::drawRect(const SkRect& rect, const SkMatrix& matrix, SkRegi
     fDraw.fMatrix = &translatedMatrix;
 
     fDraw.drawRect(rect, paint);
-    SkDEBUGCODE(fDraw.fMatrix = (SkMatrix*)0xbbbbbbbb);
 }
 
 /**
@@ -72,7 +71,6 @@ void GrSWMaskHelper::drawShape(const GrShape& shape, const SkMatrix& matrix, SkR
         paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
         fDraw.drawPath(path, paint);
     }
-    SkDEBUGCODE(fDraw.fMatrix = (SkMatrix*)0xbbbbbbbb);
 };
 
 bool GrSWMaskHelper::init(const SkIRect& resultBounds) {
@@ -90,8 +88,6 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds) {
     fDraw.fDst      = *fPixels;
     fRasterClip.setRect(bounds);
     fDraw.fRC       = &fRasterClip;
-    // Each draw must specify the matrix.
-    SkDEBUGCODE(fDraw.fMatrix = (SkMatrix*)0xbbbbbbbb);
     return true;
 }
 
