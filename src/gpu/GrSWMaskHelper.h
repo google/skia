@@ -41,13 +41,13 @@ public:
     // may be accumulated in the helper during creation, "resultBounds"
     // allows the caller to specify the region of interest - to limit the
     // amount of work.
-    bool init(const SkIRect& resultBounds, const SkMatrix* matrix);
+    bool init(const SkIRect& resultBounds);
 
     // Draw a single rect into the accumulation bitmap using the specified op
-    void drawRect(const SkRect& rect, SkRegion::Op op, GrAA, uint8_t alpha);
+    void drawRect(const SkRect& rect, const SkMatrix& matrix, SkRegion::Op op, GrAA, uint8_t alpha);
 
     // Draw a single path into the accumuation bitmap using the specified op
-    void drawShape(const GrShape&, SkRegion::Op op, GrAA, uint8_t alpha);
+    void drawShape(const GrShape&, const SkMatrix& matrix, SkRegion::Op op, GrAA, uint8_t alpha);
 
     sk_sp<GrTextureProxy> toTextureProxy(GrContext*, SkBackingFit fit);
 
@@ -57,7 +57,7 @@ public:
     }
 
 private:
-    SkMatrix             fMatrix;
+    SkVector             fTranslate;
     SkAutoPixmapStorage* fPixels;
     SkAutoPixmapStorage  fPixelsStorage;
     SkDraw               fDraw;

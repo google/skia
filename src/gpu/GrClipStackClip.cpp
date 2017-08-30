@@ -444,7 +444,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
     SkMatrix translate;
     translate.setTranslate(SkIntToScalar(-reducedClip.left()), SkIntToScalar(-reducedClip.top()));
 
-    if (!helper.init(maskSpaceIBounds, &translate)) {
+    if (!helper.init(maskSpaceIBounds)) {
         return nullptr;
     }
     helper.clear(InitialState::kAllIn == reducedClip.initialState() ? 0xFF : 0x00);
@@ -462,25 +462,25 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
             if (kReverseDifference_SkClipOp == op) {
                 SkRect temp = SkRect::Make(reducedClip.ibounds());
                 // invert the entire scene
-                helper.drawRect(temp, SkRegion::kXOR_Op, GrAA::kNo, 0xFF);
+                helper.drawRect(temp, translate, SkRegion::kXOR_Op, GrAA::kNo, 0xFF);
             }
             SkPath clipPath;
             element->asDeviceSpacePath(&clipPath);
             clipPath.toggleInverseFillType();
             GrShape shape(clipPath, GrStyle::SimpleFill());
-            helper.drawShape(shape, SkRegion::kReplace_Op, aa, 0x00);
+            helper.drawShape(shape, translate, SkRegion::kReplace_Op, aa, 0x00);
             continue;
         }
 
         // The other ops (union, xor, diff) only affect pixels inside
         // the geometry so they can just be drawn normally
         if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
-            helper.drawRect(element->getDeviceSpaceRect(), (SkRegion::Op)op, aa, 0xFF);
+            helper.drawRect(element->getDeviceSpaceRect(), translate, (SkRegion::Op)op, aa, 0xFF);
         } else {
             SkPath path;
             element->asDeviceSpacePath(&path);
             GrShape shape(path, GrStyle::SimpleFill());
-            helper.drawShape(shape, (SkRegion::Op)op, aa, 0xFF);
+            helper.drawShape(shape, translate, (SkRegion::Op)op, aa, 0xFF);
         }
     }
 
