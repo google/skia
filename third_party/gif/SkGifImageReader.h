@@ -52,7 +52,6 @@ class SkGifCodec;
 #include "SkStreamBuffer.h"
 #include "../private/SkTArray.h"
 #include <memory>
-#include <vector>
 
 typedef SkTArray<unsigned char, true> SkGIFRow;
 
@@ -218,7 +217,7 @@ public:
 
     void addLzwBlock(size_t position, size_t size)
     {
-        m_lzwBlocks.push_back(SkGIFLZWBlock(position, size));
+        m_lzwBlocks.emplace_back(position, size);
     }
 
     bool decode(SkStreamBuffer*, SkGifCodec* client, bool* frameDecoded);
@@ -265,7 +264,7 @@ private:
 
     std::unique_ptr<SkGIFLZWContext> m_lzwContext;
     // LZW blocks for this frame.
-    std::vector<SkGIFLZWBlock> m_lzwBlocks;
+    SkTArray<SkGIFLZWBlock> m_lzwBlocks;
 
     SkGIFColorMap m_localColorMap;
 
@@ -321,7 +320,7 @@ public:
 
     int imagesCount() const
     {
-        const size_t frames = m_frames.size();
+        const int frames = m_frames.count();
         if (!frames) {
             return 0;
         }
@@ -331,7 +330,7 @@ public:
         // possibly SkGIFImageHeader) but before reading the color table. This
         // ensures that we do not count a frame before we know its required
         // frame.
-        return static_cast<int>(m_frames.back()->reachedStartOfData() ? frames : frames - 1);
+        return m_frames.back()->reachedStartOfData() ? frames : frames - 1;
     }
     int loopCount() const {
         if (cLoopCountNotSeen == m_loopCount) {
@@ -347,12 +346,12 @@ public:
 
     const SkGIFFrameContext* frameContext(int index) const
     {
-        return index >= 0 && index < static_cast<int>(m_frames.size())
+        return index >= 0 && index < m_frames.count()
                 ? m_frames[index].get() : nullptr;
     }
 
     void clearDecodeState() {
-        for (size_t index = 0; index < m_frames.size(); index++) {
+        for (int index = 0; index < m_frames.count(); index++) {
             m_frames[index]->clearDecodeState();
         }
     }
@@ -381,7 +380,7 @@ private:
     void addFrameIfNecessary();
     bool currentFrameIsFirstFrame() const
     {
-        return m_frames.empty() || (m_frames.size() == 1u && !m_frames[0]->isComplete());
+        return m_frames.empty() || (m_frames.count() == 1 && !m_frames[0]->isComplete());
     }
 
     // Unowned pointer
@@ -398,7 +397,7 @@ private:
     static constexpr int cLoopCountNotSeen = -2;
     int m_loopCount; // Netscape specific extension block to control the number of animation loops a GIF renders.
 
-    std::vector<std::unique_ptr<SkGIFFrameContext>> m_frames;
+    SkTArray<std::unique_ptr<SkGIFFrameContext>> m_frames;
 
     SkStreamBuffer m_streamBuffer;
     bool m_parseCompleted;
