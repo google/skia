@@ -92,6 +92,8 @@ DEFINE_int32(shard,  0, "Which shard do I run?");
 DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
 DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 
+DEFINE_bool(ddl, false, "If true, use DeferredDisplayLists for GPU SKP rendering.");
+
 #if SK_SUPPORT_GPU
 DEFINE_pathrenderer_flag;
 #endif
@@ -773,7 +775,11 @@ static bool gather_srcs() {
         push_src("gm", "", new GMSrc(r->factory()));
     }
 
-    gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
+    if (FLAGS_ddl) {
+        gather_file_srcs<DDLSKPSrc>(FLAGS_skps, "skp");
+    } else {
+        gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
+    }
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
 #if defined(SK_XML)
     gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");

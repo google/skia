@@ -15,7 +15,9 @@
 #include "GrTypes.h"
 
 class SkCanvas;
+class SkDeferredDisplayList;
 class SkPaint;
+class SkSurfaceCharacterization;
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
 class GrContext;
@@ -334,6 +336,21 @@ public:
      * and the client will still own the semaphores.
      */
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+
+    /**
+     * This creates a characterization of this SkSurface's properties that can
+     * be used to perform gpu-backend preprocessing in a separate thread (via
+     * the SkDeferredDisplayListRecorder).
+     * It will return false on failure (e.g., if the SkSurface is cpu-backed).
+     */
+    bool characterize(SkSurfaceCharacterization* characterization) const;
+
+    /**
+     * Draw a deferred display list (created via SkDeferredDisplayListRecorder).
+     * The draw will be skipped if the characterization stored in the display list
+     * isn't compatible with this surface.
+     */
+    void draw(SkDeferredDisplayList* deferredDisplayList);
 
 protected:
     SkSurface(int width, int height, const SkSurfaceProps*);
