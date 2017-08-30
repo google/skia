@@ -8,9 +8,16 @@
 #include "GrSoftwarePathRenderer.h"
 #include "GrAuditTrail.h"
 #include "GrClip.h"
+#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
+#include "GrOpFlushState.h"
+#include "GrOpList.h"
 #include "GrResourceProvider.h"
 #include "GrSWMaskHelper.h"
+#include "SkMakeUnique.h"
+#include "SkSemaphore.h"
+#include "SkTaskGroup.h"
+#include "SkTraceEvent.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrRectOpFactory.h"
 
@@ -145,10 +152,84 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
     maskMatrix.preConcat(viewMatrix);
     paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
                 std::move(proxy), nullptr, maskMatrix, GrSamplerParams::kNone_FilterMode));
-    renderTargetContext->addDrawOp(clip,
-                                   GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                                           std::move(paint), SkMatrix::I(), invert, dstRect,
-                                           GrAAType::kNone, &userStencilSettings));
+    DrawNonAARect(renderTargetContext, std::move(paint), userStencilSettings, clip, SkMatrix::I(),
+                  dstRect, invert);
+}
+
+static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context, SkBackingFit fit,
+                                                              int width, int height) {
+    GrSurfaceDesc desc;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = kAlpha_8_GrPixelConfig;
+
+    sk_sp<GrSurfaceContext> sContext =
+            context->contextPriv().makeDeferredSurfaceContext(desc, fit, SkBudgeted::kYes);
+    if (!sContext || !sContext->asTextureProxy()) {
+        return nullptr;
+    }
+    return sContext->asTextureProxyRef();
+}
+
+namespace {
+
+class GrMaskUploaderPrepareCallback : public GrPrepareCallback {
+public:
+    GrMaskUploaderPrepareCallback(sk_sp<GrTextureProxy> proxy, const SkIRect& maskBounds,
+                                  const SkMatrix& viewMatrix, const GrShape& shape, GrAA aa)
+            : fProxy(std::move(proxy))
+            , fMaskBounds(maskBounds)
+            , fViewMatrix(viewMatrix)
+            , fShape(shape)
+            , fAA(aa)
+            , fWaited(false) {}
+
+    ~GrMaskUploaderPrepareCallback() override {
+        if (!fWaited) {
+            // This can happen if our owning op list fails to instantiate (so it never prepares)
+            fPixelsReady.wait();
+        }
+    }
+
+    void operator()(GrOpFlushState* flushState) override {
+        TRACE_EVENT0("skia", "Mask Uploader Pre Flush Callback");
+        auto uploadMask = [this](GrDrawOp::WritePixelsFn& writePixelsFn) {
+            TRACE_EVENT0("skia", "Mask Upload");
+            this->fPixelsReady.wait();
+            this->fWaited = true;
+            // If the worker thread was unable to allocate pixels, this check will fail, and we'll
+            // end up drawing with an uninitialized mask texture, but at least we won't crash.
+            if (this->fPixels.addr()) {
+                writePixelsFn(this->fProxy.get(), 0, 0,
+                              this->fPixels.width(), this->fPixels.height(),
+                              kAlpha_8_GrPixelConfig,
+                              this->fPixels.addr(), this->fPixels.rowBytes());
+            }
+        };
+        flushState->addASAPUpload(std::move(uploadMask));
+    }
+
+    SkAutoPixmapStorage* getPixels() { return &fPixels; }
+    SkSemaphore* getSemaphore() { return &fPixelsReady; }
+    const SkIRect& getMaskBounds() const { return fMaskBounds; }
+    const SkMatrix* getViewMatrix() const { return &fViewMatrix; }
+    const GrShape& getShape() const { return fShape; }
+    GrAA getAA() const { return fAA; }
+
+private:
+    // NOTE: This ref cnt isn't thread safe!
+    sk_sp<GrTextureProxy> fProxy;
+    SkAutoPixmapStorage fPixels;
+    SkSemaphore fPixelsReady;
+
+    SkIRect fMaskBounds;
+    SkMatrix fViewMatrix;
+    GrShape fShape;
+    GrAA fAA;
+    bool fWaited;
+};
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -205,11 +286,6 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     GrUniqueKey maskKey;
-    struct KeyData {
-        SkScalar fFractionalTranslateX;
-        SkScalar fFractionalTranslateY;
-    };
-
     if (useCache) {
         // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
         SkScalar sx = args.fViewMatrix->get(SkMatrix::kMScaleX);
@@ -240,8 +316,6 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         builder[4] = fracX | (fracY >> 8);
         args.fShape->writeUnstyledKey(&builder[5]);
 #endif
-        // FIXME: Doesn't the key need to consider whether we're using AA or not? In practice that
-        // should always be true, though.
     }
 
     sk_sp<GrTextureProxy> proxy;
@@ -251,9 +325,42 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!proxy) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
         GrAA aa = GrAAType::kCoverage == args.fAAType ? GrAA::kYes : GrAA::kNo;
-        proxy = GrSWMaskHelper::DrawShapeMaskToTexture(args.fContext, *args.fShape,
-                                                       *boundsForMask, aa,
-                                                       fit, args.fViewMatrix);
+
+        SkTaskGroup* taskGroup = args.fContext->contextPriv().getTaskGroup();
+        if (taskGroup) {
+            proxy = make_deferred_mask_texture_proxy(args.fContext, fit,
+                                                     boundsForMask->width(),
+                                                     boundsForMask->height());
+            if (!proxy) {
+                return false;
+            }
+
+            auto uploader = skstd::make_unique<GrMaskUploaderPrepareCallback>(
+                    proxy, *boundsForMask, *args.fViewMatrix, *args.fShape, aa);
+            GrMaskUploaderPrepareCallback* uploaderRaw = uploader.get();
+
+            auto drawAndUploadMask = [uploaderRaw] {
+                TRACE_EVENT0("skia", "Threaded SW Mask Render");
+                GrSWMaskHelper helper(uploaderRaw->getPixels());
+                if (helper.init(uploaderRaw->getMaskBounds(), uploaderRaw->getViewMatrix())) {
+                    helper.drawShape(uploaderRaw->getShape(), SkRegion::kReplace_Op,
+                                     uploaderRaw->getAA(), 0xFF);
+                } else {
+                    SkDEBUGFAIL("Unable to allocate SW mask.");
+                }
+                uploaderRaw->getSemaphore()->signal();
+            };
+            taskGroup->add(std::move(drawAndUploadMask));
+            args.fRenderTargetContext->getOpList()->addPrepareCallback(std::move(uploader));
+        } else {
+            GrSWMaskHelper helper;
+            if (!helper.init(*boundsForMask, args.fViewMatrix)) {
+                return false;
+            }
+            helper.drawShape(*args.fShape, SkRegion::kReplace_Op, aa, 0xFF);
+            proxy = helper.toTextureProxy(args.fContext, fit);
+        }
+
         if (!proxy) {
             return false;
         }

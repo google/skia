@@ -121,7 +121,8 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
         "mock",
         "mtl",
         "gl4444",
-        "gl565"
+        "gl565",
+        "gltestthreading"
     });
 
     SkCommandLineConfigArray configs;
@@ -254,6 +255,8 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[29]->asConfigGpu()->getColorSpace() == srgbColorSpace.get());
     REPORTER_ASSERT(reporter, configs[30]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getSamples() == 4);
+    REPORTER_ASSERT(reporter, configs[47]->asConfigGpu());
+    REPORTER_ASSERT(reporter, configs[47]->asConfigGpu()->getTestThreading());
 #ifdef SK_VULKAN
     REPORTER_ASSERT(reporter, configs[31]->asConfigGpu());
 #endif
