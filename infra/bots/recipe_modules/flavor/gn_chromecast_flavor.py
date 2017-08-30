@@ -91,7 +91,7 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
     self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
     # We only build perf for the chromecasts.
-    self._run('ninja', ninja, '-C', self.out_dir, 'nanobench')
+    self._run('ninja', ninja, '-C', self.out_dir, 'nanobench', 'dm')
 
   def _adb(self, title, *cmd, **kwargs):
     if not self._ever_ran_adb:
@@ -137,6 +137,35 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
           subprocess.check_call(['adb', 'push',
                                 hp, os.path.join(device, p, f)])
     """, args=[host, device], infra_step=True)
+
+  def cleanup_steps(self):
+    if self._ever_ran_adb:
+      # Reconnect if was disconnected
+      self._adb('disconnect')
+      self._connect_to_remote()
+      self.m.run(self.m.python.inline, 'dump log', program="""
+          import os
+          import subprocess
+          import sys
+          out = sys.argv[1]
+          log = subprocess.check_output(['adb', 'logcat', '-d'])
+          for line in log.split('\\n'):
+            tokens = line.split()
+            if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':
+              addr, path = tokens[-2:]
+              local = os.path.join(out, os.path.basename(path))
+              if os.path.exists(local):
+                sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])
+                line = line.replace(addr, addr + ' ' + sym.strip())
+            print line
+          """,
+          args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
+          infra_step=True,
+          abort_on_failure=False)
+
+      self._adb('disconnect')
+      self._adb('kill adb server', 'kill-server')
+
 
   def _ssh(self, title, *cmd, **kwargs):
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
