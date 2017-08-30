@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "80e8b14a_4f1c4123",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-08-30T21:27:54Z",
+      "side": 1,
+      "message": "Landed separately.",
+      "parentUuid": "7b0ad1d6_393c46e8",
+      "range": {
+        "startLine": 661,
+        "startChar": 3,
+        "endLine": 661,
+        "endChar": 4
+      },
+      "revId": "0cd006a5f4ed0099e9a4bad3c62bcf51d16e99e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd2bb4bd_46f5bebc",
         "filename": "tools/shape/SkShaper_harfbuzz.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "0cd006a5f4ed0099e9a4bad3c62bcf51d16e99e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8549480_f370d259",
+        "filename": "tools/shape/SkShaper_harfbuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-08-30T21:27:54Z",
+      "side": 1,
+      "message": "Yes, I went and fixed this up a bit and added it as a parameter. There\u0027s also the script and other things as well, but trying to just do bidi here.",
+      "parentUuid": "cd2bb4bd_46f5bebc",
+      "range": {
+        "startLine": 109,
+        "startChar": 18,
+        "endLine": 109,
+        "endChar": 31
+      },
+      "revId": "0cd006a5f4ed0099e9a4bad3c62bcf51d16e99e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
