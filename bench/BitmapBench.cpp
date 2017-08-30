@@ -84,6 +84,7 @@ protected:
 
         SkPaint paint(fPaint);
         this->setupPaint(&paint);
+        paint.setAntiAlias(false);
 
         const SkBitmap& bitmap = fBitmap;
         const SkScalar x0 = SkIntToScalar(-bitmap.width() / 2);
