@@ -658,7 +658,7 @@ const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPos(const SkP
                                                                        int textByteCount,
                                                                        SkString lang,
                                                                        const SkRect *bounds) {
-   this->allocInternal(font, SkTextBlob::kFull_Positioning, count, textByteCount, SkPoint::Make(0, 0), bounds);
+    this->allocInternal(font, SkTextBlob::kFull_Positioning, count, textByteCount, SkPoint::Make(0, 0), bounds);
 
     return fCurrentRunBuffer;
 }
