@@ -451,6 +451,7 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
             height = SkNextPow2(height);
         }
 #endif
+        SkDEBUGCODE(bool newStencil = false;)
         GrStencilAttachment::ComputeSharedStencilAttachmentKey(width, height,
                                                                rt->numStencilSamples(), &sbKey);
         GrStencilAttachment* stencil = static_cast<GrStencilAttachment*>(
@@ -460,13 +461,18 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
             stencil = this->gpu()->createStencilAttachmentForRenderTarget(rt, width, height);
             if (stencil) {
                 this->assignUniqueKeyToResource(sbKey, stencil);
+                SkDEBUGCODE(newStencil = true;)
             }
         }
         if (rt->renderTargetPriv().attachStencilAttachment(stencil)) {
 #ifdef SK_DEBUG
             // Fill the SB with an inappropriate value. opLists that use the
             // SB should clear it properly.
-            this->gpu()->clearStencil(rt, 0xFFFF);
+            if (newStencil) {
+                SkASSERT(stencil->isDirty());
+                this->gpu()->clearStencil(rt, 0xFFFF);
+                SkASSERT(stencil->isDirty());
+            }
 #endif
         }
     }
