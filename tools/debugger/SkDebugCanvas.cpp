@@ -251,10 +251,10 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         const SkClipStack::Element* element;
         SkPath devPath;
         while ((element = iter.next())) {
-            SkClipStack::Element::Type type = element->getType();
+            SkClipStack::Element::DeviceSpaceType type = element->getDeviceSpaceType();
             SkPath operand;
-            if (type != SkClipStack::Element::kEmpty_Type) {
-               element->asPath(&operand);
+            if (type != SkClipStack::Element::DeviceSpaceType::kEmpty) {
+                element->asDeviceSpacePath(&operand);
             }
             SkClipOp elementOp = element->getOp();
             this->addClipStackData(devPath, operand, elementOp);

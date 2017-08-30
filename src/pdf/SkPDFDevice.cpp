@@ -301,12 +301,12 @@ static bool get_clip_stack_path(const SkMatrix& transform,
     iter.reset(clipStack, SkClipStack::Iter::kBottom_IterStart);
     for (clipEntry = iter.next(); clipEntry; clipEntry = iter.next()) {
         SkPath entryPath;
-        if (SkClipStack::Element::kEmpty_Type == clipEntry->getType()) {
+        if (SkClipStack::Element::DeviceSpaceType::kEmpty == clipEntry->getDeviceSpaceType()) {
             outClipPath->reset();
             outClipPath->setFillType(SkPath::kInverseWinding_FillType);
             continue;
         } else {
-            clipEntry->asPath(&entryPath);
+            clipEntry->asDeviceSpacePath(&entryPath);
         }
         entryPath.transform(transform);
         if (!apply_clip(clipEntry->getOp(), *outClipPath, entryPath, outClipPath)) {
