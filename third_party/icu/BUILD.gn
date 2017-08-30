@@ -12,10 +12,12 @@ import("../third_party.gni")
 if (skia_use_system_icu) {
   system("icu") {
     libs = [ "icuuc" ]
+    public_defines = [ "U_USING_ICU_NAMESPACE=0" ]
   }
 } else {
   third_party("icu") {
     public_include_dirs = [ "../externals/icu/source/common" ]
+    public_defines = [ "U_USING_ICU_NAMESPACE=0" ]
     configs -= [ "//gn:no_rtti" ]
     if (!is_win) {
       libs = [ "dl" ]

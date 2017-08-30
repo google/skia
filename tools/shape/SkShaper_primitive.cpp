@@ -33,7 +33,10 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
                          const SkPaint& srcPaint,
                          const char* utf8text,
                          size_t textBytes,
+                         bool leftToRight,
                          SkPoint point) const {
+    sk_ignore_unused_variable(leftToRight);
+
     SkPaint paint(srcPaint);
     paint.setTypeface(fImpl->fTypeface);
     paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);

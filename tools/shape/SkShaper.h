@@ -32,6 +32,7 @@ public:
                    const SkPaint& srcPaint,
                    const char* utf8text,
                    size_t textBytes,
+                   bool leftToRight,
                    SkPoint point) const;
 
 private:
