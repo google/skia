@@ -342,9 +342,9 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             auto drawAndUploadMask = [uploaderRaw] {
                 TRACE_EVENT0("skia", "Threaded SW Mask Render");
                 GrSWMaskHelper helper(uploaderRaw->getPixels());
-                if (helper.init(uploaderRaw->getMaskBounds(), uploaderRaw->getViewMatrix())) {
-                    helper.drawShape(uploaderRaw->getShape(), SkRegion::kReplace_Op,
-                                     uploaderRaw->getAA(), 0xFF);
+                if (helper.init(uploaderRaw->getMaskBounds())) {
+                    helper.drawShape(uploaderRaw->getShape(), *uploaderRaw->getViewMatrix(),
+                                     SkRegion::kReplace_Op, uploaderRaw->getAA(), 0xFF);
                 } else {
                     SkDEBUGFAIL("Unable to allocate SW mask.");
                 }
@@ -354,10 +354,10 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             args.fRenderTargetContext->getOpList()->addPrepareCallback(std::move(uploader));
         } else {
             GrSWMaskHelper helper;
-            if (!helper.init(*boundsForMask, args.fViewMatrix)) {
+            if (!helper.init(*boundsForMask)) {
                 return false;
             }
-            helper.drawShape(*args.fShape, SkRegion::kReplace_Op, aa, 0xFF);
+            helper.drawShape(*args.fShape, *args.fViewMatrix, SkRegion::kReplace_Op, aa, 0xFF);
             proxy = helper.toTextureProxy(args.fContext, fit);
         }
 
