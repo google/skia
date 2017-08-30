@@ -306,6 +306,11 @@
       "--nogpu",
       "--config",
       "8888",
+<<<<<<< HEAD:infra/bots/recipes/perf.expected/Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug.json
+      "gles",
+      "--nogpu",
+=======
+>>>>>>> 604a71a5e08ed33b9c983113852e63120f8616ef:infra/bots/recipes/perf.expected/Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug.json
       "-i",
       "/cache/skia/resources",
       "--images",
@@ -327,6 +332,35 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "nanobench"
+  },
+  {
+    "cmd": [
+      "adb"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "disconnect"
+  },
+  {
+    "cmd": [
+      "adb",
+      "connect",
+      "192.168.1.2:5555"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "adb connect 192.168.1.2:5555 (2)"
   },
   {
     "cmd": [
@@ -361,6 +395,20 @@
       "@@@STEP_LOG_LINE@python.inline@  print line@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
+  },
+  {
+    "cmd": [
+      "adb"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "disconnect (2)"
   },
   {
     "cmd": [

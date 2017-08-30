@@ -818,7 +818,23 @@
         "Upload-Perf-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Release"
       ]
     },
+<<<<<<< HEAD
+    "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug"
+      ]
+    },
+    "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release"
+      ]
+    },
+    "Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug": {
+=======
     "Perf-ChromeOS-Clang-Chromebook_CB5_312T-GPU-PowerVRGX6250-arm-Debug": {
+>>>>>>> 604a71a5e08ed33b9c983113852e63120f8616ef
       "priority": 0.8,
       "tasks": [
         "Perf-ChromeOS-Clang-Chromebook_CB5_312T-GPU-PowerVRGX6250-arm-Debug"
@@ -1833,7 +1849,41 @@
         "Upload-Test-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Release"
       ]
     },
+<<<<<<< HEAD
+    "Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug"
+      ]
+    },
+    "Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release"
+      ]
+    },
+    "Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug"
+      ]
+    },
+    "Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release"
+      ]
+    },
+    "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug"
+      ]
+    },
+    "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release": {
+=======
     "Test-ChromeOS-Clang-Chromebook_CB5_312T-GPU-PowerVRGX6250-arm-Debug": {
+>>>>>>> 604a71a5e08ed33b9c983113852e63120f8616ef
       "priority": 0.8,
       "tasks": [
         "Upload-Test-ChromeOS-Clang-Chromebook_CB5_312T-GPU-PowerVRGX6250-arm-Debug"
@@ -6653,7 +6703,75 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+<<<<<<< HEAD
+    "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug": {
+      "dependencies": [
+        "Build-Ubuntu-GCC-arm-Debug-Chromecast",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP"
+      ],
+      "dimensions": [
+        "device_os:1.24_82923",
+        "device_type:chorizo",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release": {
+      "dependencies": [
+        "Build-Ubuntu-GCC-arm-Release-Chromecast",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP"
+      ],
+      "dimensions": [
+        "device_os:1.24_82923",
+        "device_type:chorizo",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug": {
+=======
     "Perf-ChromeOS-Clang-Chromebook_CB5_312T-GPU-PowerVRGX6250-arm-Debug": {
+>>>>>>> 604a71a5e08ed33b9c983113852e63120f8616ef
       "dependencies": [
         "Build-Debian9-Clang-arm-Debug-Chromebook_ARM_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
@@ -13114,7 +13232,156 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+<<<<<<< HEAD
+    "Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug": {
+      "dependencies": [
+        "Build-Ubuntu-GCC-arm-Debug-Chromecast",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP"
+      ],
+      "dimensions": [
+        "device_os:1.24_82923",
+        "device_type:chorizo",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release": {
+      "dependencies": [
+        "Build-Ubuntu-GCC-arm-Release-Chromecast",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP"
+      ],
+      "dimensions": [
+        "device_os:1.24_82923",
+        "device_type:chorizo",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug": {
+      "dependencies": [
+        "Build-Ubuntu-GCC-arm-Debug-Chromecast",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP"
+      ],
+      "dimensions": [
+        "device_os:1.24_82923",
+        "device_type:chorizo",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release": {
+      "dependencies": [
+        "Build-Ubuntu-GCC-arm-Release-Chromecast",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP"
+      ],
+      "dimensions": [
+        "device_os:1.24_82923",
+        "device_type:chorizo",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:61"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        }
+      ],
+=======
     "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
+>>>>>>> 604a71a5e08ed33b9c983113852e63120f8616ef
       "dependencies": [
         "Build-Debian9-Clang-arm64-Release-Android_Vulkan",
         "Housekeeper-PerCommit-BundleRecipes",
@@ -21337,7 +21604,38 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
+<<<<<<< HEAD
+    "Upload-Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release": {
+      "dependencies": [
+        "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release": {
+=======
     "Upload-Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-ANGLE": {
+>>>>>>> 604a71a5e08ed33b9c983113852e63120f8616ef
       "dependencies": [
         "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-ANGLE"
       ],
@@ -23740,7 +24038,119 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+<<<<<<< HEAD
+    "Upload-Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug": {
+      "dependencies": [
+        "Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release": {
+      "dependencies": [
+        "Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug": {
+      "dependencies": [
+        "Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release": {
+      "dependencies": [
+        "Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug": {
+=======
     "Upload-Test-Debian9-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
+>>>>>>> 604a71a5e08ed33b9c983113852e63120f8616ef
       "dependencies": [
         "Test-Debian9-GCC-ShuttleA-GPU-GTX660-x86_64-Release"
       ],
