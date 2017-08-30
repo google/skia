@@ -72,14 +72,17 @@ static thread_local const char* tls_currently_running = "";
     #include <fcntl.h>
     #include <signal.h>
 
-    #if defined(__ANDROID_API__) && __ANDROID_API__ < 24
-        // TODO: do all locking manually with fcntl() so we can lock on older Android NDK APIs?
-        static void   lock_fd(int) {}
-        static void unlock_fd(int) {}
-    #else
-        static void   lock_fd(int fd) { lockf(fd,  F_LOCK, 0); }
-        static void unlock_fd(int fd) { lockf(fd, F_ULOCK, 0); }
-    #endif
+    // We'd ordinarily just use lockf(), but fcntl() is more portable to older Android NDK APIs.
+    static void lock_or_unlock_fd(int fd, short type) {
+        struct flock fl{};
+        fl.l_type   = type;
+        fl.l_whence = SEEK_CUR;
+        fl.l_start  = 0;
+        fl.l_len    = 0;  // 0 == the entire file
+        fcntl(fd, F_SETLKW, &fl);
+    }
+    static void   lock_fd(int fd) { lock_or_unlock_fd(fd, F_WRLCK); }
+    static void unlock_fd(int fd) { lock_or_unlock_fd(fd, F_UNLCK); }
 
     static int log_fd = 2/*stderr*/;
 
