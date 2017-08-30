@@ -24,10 +24,48 @@
 
 static thread_local const char* tls_currently_running = "";
 
-#if __has_include(<execinfo.h>) && __has_include(<fcntl.h>) && __has_include(<signal.h>)
+#if __has_include(<execinfo.h>)
     #include <execinfo.h>
+
+    #define CAN_BACKTRACE
+    static void backtrace(int fd) {
+        void* stack[128];
+        int frames = backtrace(stack, sizeof(stack)/sizeof(*stack));
+        backtrace_symbols_fd(stack, frames, log_fd);
+    }
+
+#elif __has_include(<dlfcn.h>) \
+   && __has_include(<unwind.h>)
+    #include <dlfcn.h>
+    #include <unwind.h>
+
+    #define CAN_BACKTRACE
+    static void backtrace(int fd) {
+        _Unwind_Backtrace([](_Unwind_Context* ctx, void* arg) {
+            auto file = (FILE*)arg;
+            if (auto ip = (void*)_Unwind_GetIP(ctx)) {
+                const char* name = "[unknown]";
+                void*       addr = nullptr;
+
+                Dl_info info;
+                if (dladdr(ip, &info) && info.dli_sname && info.dli_saddr) {
+                    name = info.dli_sname;
+                    addr = info.dli_saddr;
+                }
+                // TODO: write() to fd directly?
+                fprintf(file, "\t%p %s+%zu\n", ip, name, (size_t)ip - (size_t)addr);
+            }
+            return _URC_NO_REASON;
+        }, fdopen(fd, "a"));
+    }
+#endif
+
+#if defined(CAN_BACKTRACE) && __has_include(<fcntl.h>) \
+                           && __has_include(<signal.h>) \
+                           && __has_include(<sys/file.h>)
     #include <fcntl.h>
     #include <signal.h>
+    #include <sys/file.h>
 
     static int log_fd = 2/*stderr*/;
 
@@ -39,7 +77,7 @@ static thread_local const char* tls_currently_running = "";
         static void (*original_handlers[32])(int);
         for (int sig : std::vector<int>{ SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV }) {
             original_handlers[sig] = signal(sig, [](int sig) {
-                lockf(log_fd, F_LOCK, 0);
+                flock(log_fd, LOCK_EX);
                     log("\ncaught signal ");
                     switch (sig) {
                     #define CASE(s) case s: log(#s); break
@@ -53,11 +91,8 @@ static thread_local const char* tls_currently_running = "";
                     log(" while running '");
                     log(tls_currently_running);
                     log("'\n");
-
-                    void* stack[128];
-                    int frames = backtrace(stack, sizeof(stack)/sizeof(*stack));
-                    backtrace_symbols_fd(stack, frames, log_fd);
-                lockf(log_fd, F_ULOCK, 0);
+                    backtrace(log_fd);
+                flock(log_fd, LOCK_UN);
 
                 signal(sig, original_handlers[sig]);
                 raise(sig);
@@ -77,13 +112,13 @@ static thread_local const char* tls_currently_running = "";
     }
 
     void ok_log(const char* msg) {
-        lockf(log_fd, F_LOCK, 0);
+        flock(log_fd, LOCK_EX);
             log("[");
             log(tls_currently_running);
             log("]\t");
             log(msg);
             log("\n");
-        lockf(log_fd, F_ULOCK, 0);
+        flock(log_fd, LOCK_UN);
     }
 
 #else
