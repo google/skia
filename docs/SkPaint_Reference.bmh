@@ -3647,7 +3647,7 @@ Deprecated.
     Pass nullptr to clear Draw_Looper and leave Draw_Looper effect on drawing unaltered.
     Does not alter drawLooper Reference_Count.
 
-    #Param drawLooper  Iterates through drawing one or more time, altering Paint ##
+    #Param drawLooper  iterates through drawing one or more time, altering Paint ##
 
     #Example
     #Height 128
@@ -4975,7 +4975,7 @@ void draw(SkCanvas* canvas) {
     #Param bounds        lower and upper line parallel to the advance ##
     #Param intervals     returned intersections; may be nullptr ##
 
-    #Return              The number of intersections; may be zero ##
+    #Return              number of intersections; may be zero ##
 
     #Example
     #Description

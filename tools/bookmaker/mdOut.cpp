@@ -283,6 +283,26 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
     return true;
 }
 
+bool MdOut::checkParamReturnBody(const Definition* def) const {
+    TextParser paramBody(def);
+    const char* descriptionStart = paramBody.fChar;
+    if (!islower(descriptionStart[0])) {
+        paramBody.skipToNonAlphaNum();
+        string ref = string(descriptionStart, paramBody.fChar - descriptionStart);
+        if (!this->isDefined(paramBody, ref, true)) {
+            string errorStr = MarkType::kReturn == def->fMarkType ? "return" : "param";
+            errorStr += " description must start with lower case";
+            paramBody.reportError(errorStr.c_str());
+            return false;
+        }
+    }
+    if ('.' == paramBody.fEnd[-1]) {
+        paramBody.reportError("make param description a phrase; should not end with period");
+        return false;
+    }
+    return true;
+}
+
 void MdOut::childrenOut(const Definition* def, const char* start) {
     const char* end;
     fLineCount = def->fLineCount;
@@ -719,6 +739,9 @@ void MdOut::markTypeOut(Definition* def) {
             const char* paramName = paramParser.fChar;
             paramParser.skipToSpace();
             string paramNameStr(paramName, (int) (paramParser.fChar - paramName));
+            if (!this->checkParamReturnBody(def)) {
+                return;
+            }
             string refNameStr = def->fParent->fFiddle + "_" + paramNameStr;
             fprintf(fOut, 
                     "    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td> <td>",
@@ -731,6 +754,9 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kReturn:
             this->mdHeaderOut(3);
             fprintf(fOut, "Return Value");
+            if (!this->checkParamReturnBody(def)) {
+                return;
+            }
             this->lf(2);
             break;
         case MarkType::kRow:
