@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "65cac1a6_350b8ac4",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-30T16:10:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de503421_1e72a740",
+      "range": {
+        "startLine": 368,
+        "startChar": 22,
+        "endLine": 368,
+        "endChar": 47
+      },
+      "revId": "30dd76151efa04391bbcdda05b2d9fd8b2fc44ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f040355a_67f06f38",
         "filename": "include/core/SkSurface.h",
         "patchSetId": 13
@@ -45,6 +69,30 @@
       "revId": "30dd76151efa04391bbcdda05b2d9fd8b2fc44ed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed337d73_ef51cd39",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-30T16:10:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f040355a_67f06f38",
+      "range": {
+        "startLine": 375,
+        "startChar": 14,
+        "endLine": 375,
+        "endChar": 35
+      },
+      "revId": "30dd76151efa04391bbcdda05b2d9fd8b2fc44ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
