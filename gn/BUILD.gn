@@ -387,7 +387,10 @@ config("debug_symbols") {
   # It's annoying to wait for full debug symbols to push over
   # to Android devices.  -gline-tables-only is a lot slimmer.
   if (is_android) {
-    cflags = [ "-gline-tables-only" ]
+    cflags = [
+      "-gline-tables-only",
+      "-funwind-tables",  # Helps make in-process backtraces fuller.
+    ]
   } else if (is_win) {
     cflags = [ "/Zi" ]
     ldflags = [ "/DEBUG" ]
@@ -434,7 +437,10 @@ config("release") {
 
 config("executable") {
   if (is_android) {
-    ldflags = [ "-pie" ]
+    ldflags = [
+      "-pie",
+      "-rdynamic",
+    ]
   } else if (is_mac) {
     ldflags = [ "-Wl,-rpath,@loader_path/." ]
   } else if (is_linux) {
