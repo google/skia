@@ -1389,19 +1389,20 @@ if (skia_enable_tools) {
   if (!is_ios && !is_win) {
     test_app("sktexttopdf-hb") {
       sources = [
-        "tools/SkShaper_harfbuzz.cpp",
-        "tools/using_skia_and_harfbuzz.cpp",
+        "tools/shape/SkShaper_harfbuzz.cpp",
+        "tools/shape/using_skia_and_harfbuzz.cpp",
       ]
       deps = [
         ":skia",
         "//third_party/harfbuzz",
+        "//third_party/icu",
       ]
     }
   }
   test_app("sktexttopdf") {
     sources = [
-      "tools/SkShaper_primitive.cpp",
-      "tools/using_skia_and_harfbuzz.cpp",
+      "tools/shape/SkShaper_primitive.cpp",
+      "tools/shape/using_skia_and_harfbuzz.cpp",
     ]
     deps = [
       ":skia",
