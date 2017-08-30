@@ -26,6 +26,15 @@ DEPS = [
 
 def dm_flags(api, bot):
   args = []
+  configs = []
+  blacklisted = []
+
+  def blacklist(quad):
+    config, src, options, name = quad.split(' ') if type(quad) is str else quad
+    if (config == '_' or
+        config in configs or
+        (config[0] == '~' and config[1:] in configs)):
+      blacklisted.extend([config, src, options, name])
 
   # We've been spending lots of time writing out and especially uploading
   # .pdfs, but not doing anything further with them.  skia:6821
@@ -67,7 +76,6 @@ def dm_flags(api, bot):
       'PixelC' in bot):
     args.append('--ignoreSigInt')
 
-  configs = []
   if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
     args.append('--nogpu')
 
@@ -148,8 +156,13 @@ def dm_flags(api, bot):
 
     # We want to test both the OpenGL config and the GLES config on Linux Intel:
     # GL is used by Chrome, GLES is used by ChromeOS.
+    # Also do the Ganesh threading verification test (render with and without
+    # worker threads, using only the SW path renderer, and compare the results).
     if 'Intel' in bot and api.vars.is_linux:
-      configs.extend(['gles', 'glesdft', 'glessrgb'])
+      configs.extend(['gles', 'glesdft', 'glessrgb', 'gltestthreading'])
+      # skbug.com/6333, skbug.com/6419, skbug.com/6702
+      blacklist('gltestthreading gm _ lcdblendmodes')
+      blacklist('gltestthreading gm _ lcdoverlap')
 
     # The following devices do not support glessrgb.
     if 'glessrgb' in configs:
@@ -217,14 +230,6 @@ def dm_flags(api, bot):
   # Eventually I'd like these to pass, but for now just skip 'em.
   if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
     args.remove('tests')
-
-  blacklisted = []
-  def blacklist(quad):
-    config, src, options, name = quad.split(' ') if type(quad) is str else quad
-    if (config == '_' or
-        config in configs or
-        (config[0] == '~' and config[1:] in configs)):
-      blacklisted.extend([config, src, options, name])
 
   # Only run the 'svgparse_*' svgs on 8888.
   if api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
@@ -486,6 +491,7 @@ def dm_flags(api, bot):
     match.extend(['~Once', '~Shared'])  # Not sure what's up with these tests.
 
   if 'TSAN' in bot:
+    args.extend(['--gpuThreads', '8'])
     match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots.
     match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
                   '~RGB565TextureTest'])
