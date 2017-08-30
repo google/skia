@@ -17,9 +17,7 @@ class GrResourceKey;
 
 class GrStencilAttachment : public GrGpuResource {
 public:
-
-
-    virtual ~GrStencilAttachment() {
+    ~GrStencilAttachment() override {
         // TODO: allow SB to be purged and detach itself from rts
     }
 
@@ -27,19 +25,25 @@ public:
     int height() const { return fHeight; }
     int bits() const { return fBits; }
     int numSamples() const { return fSampleCnt; }
+    bool isDirty() const { return fIsDirty; }
+
+    void cleared() { fIsDirty = false; }
 
     // We create a unique stencil buffer at each width, height and sampleCnt and share it for
     // all render targets that require a stencil with those params.
+    // We include the 'awaysCleared' property in the key to segregate the stencil buffers
+    // attached to FBO 0 (in GL) from all the rest to reduce the amount of clearing required.
     static void ComputeSharedStencilAttachmentKey(int width, int height, int sampleCnt,
-                                                  GrUniqueKey* key);
+                                                  bool alwaysCleared, GrUniqueKey* key);
 
 protected:
     GrStencilAttachment(GrGpu* gpu, int width, int height, int bits, int sampleCnt)
-        : GrGpuResource(gpu)
-        , fWidth(width)
-        , fHeight(height)
-        , fBits(bits)
-        , fSampleCnt(sampleCnt) {
+            : INHERITED(gpu)
+            , fWidth(width)
+            , fHeight(height)
+            , fBits(bits)
+            , fSampleCnt(sampleCnt)
+            , fIsDirty(true) {
     }
 
 private:
@@ -48,6 +52,7 @@ private:
     int fHeight;
     int fBits;
     int fSampleCnt;
+    bool fIsDirty;
 
     typedef GrGpuResource INHERITED;
 };
