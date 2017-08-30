@@ -10,7 +10,7 @@
 
 #include "GrPathRenderer.h"
 
-#include "GrContextOptions.h"
+#include "GrTypesPriv.h"
 #include "SkTypes.h"
 #include "SkTArray.h"
 
@@ -25,7 +25,6 @@ class GrContext;
 class GrPathRendererChain : public SkNoncopyable {
 public:
     struct Options {
-        using GpuPathRenderers = GrContextOptions::GpuPathRenderers;
         bool fAllowPathMaskCaching = false;
         GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kDefault;
     };

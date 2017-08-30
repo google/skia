@@ -231,5 +231,7 @@ void GrShaderCaps::initSamplerPrecisionTable() {
 }
 
 void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
+#if GR_TEST_UTILS
     fDualSourceBlendingSupport = fDualSourceBlendingSupport && !options.fSuppressDualSourceBlending;
+#endif
 }
