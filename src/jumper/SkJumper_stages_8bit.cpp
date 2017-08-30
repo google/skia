@@ -166,9 +166,9 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
     #endif
     }
 
-    struct Params { size_t x,y,tail; };
-    using Stage =
-        void(*)(const Params* params, void** program, R src_lo, R src_hi, R dst_lo, R dst_hi);
+    // We pass program as the second argument to keep it in rsi for load_and_inc().
+    using Stage = void(*)(size_t tail, void** program, size_t x, size_t y,
+                          R src_lo, R src_hi, R dst_lo, R dst_hi);
 
     #if defined(__AVX__)
         // We really want to make sure all paths go through this function's (implicit) vzeroupper.
@@ -184,33 +184,33 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
         R r{}; // Next best is zero'd for compilers that will complain about uninitialized values.
     #endif
         auto start = (Stage)load_and_inc(program);
+        const size_t x0 = x;
         for (; y < ylimit; y++) {
-            Params params = { x,y,0 };
-            while (params.x + kStride <= xlimit) {
-                start(&params,program, r,r,r,r);
-                params.x += kStride;
+            x = x0;
+            while (x + kStride <= xlimit) {
+                start(0,program,x,y, r,r,r,r);
+                x += kStride;
             }
-            if (size_t tail = xlimit - params.x) {
-                params.tail = tail;
-                start(&params,program, r,r,r,r);
+            if (size_t tail = xlimit - x) {
+                start(tail,program,x,y, r,r,r,r);
             }
         }
     }
 
-    extern "C" void WRAP(just_return)(const Params*, void**, R,R,R,R) {}
+    extern "C" void WRAP(just_return)(size_t,void**,size_t,size_t, R,R,R,R) {}
 
     #define STAGE(name)                                                                  \
         SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail, V& src, V& dst);  \
-        extern "C" void WRAP(name)(const Params* params, void** program,                 \
+        extern "C" void WRAP(name)(size_t tail, void** program, size_t x, size_t y,      \
                                    R src_lo, R src_hi, R dst_lo, R dst_hi) {             \
             V src = join(src_lo, src_hi),                                                \
               dst = join(dst_lo, dst_hi);                                                \
             LazyCtx ctx(program);                                                        \
-            name##_k(ctx, params->x, params->y, params->tail, src, dst);                 \
+            name##_k(ctx, x,y,tail, src, dst);                                           \
             split(src.u8x4, &src_lo, &src_hi);                                           \
             split(dst.u8x4, &dst_lo, &dst_hi);                                           \
             auto next = (Stage)load_and_inc(program);                                    \
-            next(params,program, src_lo,src_hi, dst_lo,dst_hi);                          \
+            next(tail,program,x,y, src_lo,src_hi, dst_lo,dst_hi);                        \
         }                                                                                \
         SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail, V& src, V& dst)
 
