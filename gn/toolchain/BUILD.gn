@@ -56,7 +56,6 @@ toolchain("msvc") {
     cl = "$bin/cl.exe"
   }
 
-
   tool("asm") {
     _ml = "ml"
     if (target_cpu == "x64") {
@@ -282,6 +281,59 @@ template("gcc_like_toolchain") {
       cp_py = rebase_path("../cp.py")
       command = "$python $cp_py {{source}} {{output}}"
       description = "copy {{source}} {{output}}"
+    }
+
+    tool("copy_bundle_data") {
+      # copy_command use hardlink if possible but this does not work with
+      # directories. If source is a directory, instead use "pax" to create
+      # the same tree structure using hardlinks to individual files (this
+      # preserve symbolic links too) as recommended in the replies to the
+      # question at http://serverfault.com/q/209888/43689 ("cp -al" isn't
+      # available on macOS).
+      #
+      # According to the man page for pax, the commands to use to clone
+      # olddir to newdir using pax are the following:
+      #
+      #   $ mkdir newdir
+      #   $ cd olddir
+      #   $ pax -rwl . ../newdir
+      #
+      # The _copydir command does exactly that but use an absolute path
+      # constructed using shell variable $OLDPWD (automatically set when
+      # cd is used) as computing the relative path is a bit complex and
+      # using pwd would requires a sub-shell to be created.
+      cp_py = rebase_path("../cp.py")
+      _copydir = "mkdir -p {{output}} && cd {{source}} && " +
+                 "pax -rwl . \"\$OLDPWD\"/{{output}}"
+      command = "rm -rf {{output}} && if [[ -d {{source}} ]]; then " +
+                _copydir + "; else $python $cp_py {{source}} {{output}}; fi"
+
+      description = "COPY_BUNDLE_DATA {{source}} {{output}}"
+
+      #      pool = ":bundle_pool($default_toolchain)"
+    }
+
+    tool("compile_xcassets") {
+      _tool = rebase_path("../compile_xcassets.py")
+      if (is_ios) {
+        _sdk_name = "iphoneos"  # or iphonesimulator
+        _min_deployment_target = 8  # ios_deployment_target?
+        _compress_pngs = ""
+      } else {
+        _sdk_name = mac_sdk_name
+        _min_deployment_target = mac_deployment_target
+        _compress_pngs = " -c "
+      }
+      command =
+          "rm -f {{output}} && " +
+          #                "TOOL_VERSION=${tool_versions.compile_xcassets} " +
+          "python $_tool -p $_sdk_name -t $_min_deployment_target " +
+          "$_compress_pngs -T {{bundle_product_type}} -o {{output}} " +
+          "{{inputs}}"
+
+      description = "COMPILE_XCASSETS {{output}}"
+
+      #      pool = ":bundle_pool($default_toolchain)"
     }
 
     toolchain_args = {
