@@ -97,7 +97,7 @@ static std::unique_ptr<GrGpuRTCommandBuffer> create_command_buffer(GrGpu* gpu,
                                                                    GrLoadOp colorLoadOp,
                                                                    GrColor loadClearColor,
                                                                    GrLoadOp stencilLoadOp) {
-    const GrGpuRTCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo {
+    const GrGpuRTCommandBuffer::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,
         GrStoreOp::kStore,
         loadClearColor
@@ -115,8 +115,8 @@ static std::unique_ptr<GrGpuRTCommandBuffer> create_command_buffer(GrGpu* gpu,
 
     std::unique_ptr<GrGpuRTCommandBuffer> buffer(
                             gpu->createCommandBuffer(rt, origin,
-                                                     kBasicLoadStoreInfo,       // Color
-                                                     stencilLoadAndStoreInfo)); // Stencil
+                                                     kColorLoadStoreInfo,
+                                                     stencilLoadAndStoreInfo));
     return buffer;
 }
 
