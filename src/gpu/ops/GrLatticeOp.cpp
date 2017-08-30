@@ -31,6 +31,10 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
+
     static const int kVertsPerRect = 4;
     static const int kIndicesPerRect = 6;
 

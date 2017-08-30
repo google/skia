@@ -246,7 +246,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
                                               testData.get(), 0);
 
     sk_sp<GrRenderTargetContext> rtContext = context->makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, kS, kS, kRGBA_8888_GrPixelConfig, nullptr);
+            SkBackingFit::kExact, kS, kS, kRGBA_8888_GrPixelConfig, nullptr, "test");
 
     struct {
         GrSamplerParams::FilterMode fMode;

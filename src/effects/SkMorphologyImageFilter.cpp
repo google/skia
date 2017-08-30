@@ -503,7 +503,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
 
     if (radius.fWidth > 0) {
         sk_sp<GrRenderTargetContext> dstRTContext(context->makeDeferredRenderTargetContext(
-            SkBackingFit::kApprox, rect.width(), rect.height(), config, colorSpace));
+            SkBackingFit::kApprox, rect.width(), rect.height(), config, colorSpace, "morph IF"));
         if (!dstRTContext) {
             return nullptr;
         }
@@ -521,7 +521,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
     }
     if (radius.fHeight > 0) {
         sk_sp<GrRenderTargetContext> dstRTContext(context->makeDeferredRenderTargetContext(
-            SkBackingFit::kApprox, rect.width(), rect.height(), config, colorSpace));
+            SkBackingFit::kApprox, rect.width(), rect.height(), config, colorSpace, "morph IF"));
         if (!dstRTContext) {
             return nullptr;
         }

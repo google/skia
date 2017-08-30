@@ -48,6 +48,8 @@ public:
         return std::unique_ptr<GrDrawOp>(new PolyBoundsOp(std::move(paint), rect));
     }
 
+    void gatherOp(GrResourceAllocator*) const override { }
+
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {

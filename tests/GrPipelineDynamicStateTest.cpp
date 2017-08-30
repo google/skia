@@ -108,6 +108,8 @@ class GrPipelineDynamicStateTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator*) const override { }
+
     GrPipelineDynamicStateTestOp(ScissorState scissorState, sk_sp<const GrBuffer> vbuff)
         : INHERITED(ClassID())
         , fScissorState(scissorState)
@@ -150,7 +152,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
 
     sk_sp<GrRenderTargetContext> rtc(
         context->makeDeferredRenderTargetContext(SkBackingFit::kExact, kScreenSize, kScreenSize,
-                                                 kRGBA_8888_GrPixelConfig, nullptr));
+                                                 kRGBA_8888_GrPixelConfig, nullptr, "test"));
     if (!rtc) {
         ERRORF(reporter, "could not create render target context.");
         return;

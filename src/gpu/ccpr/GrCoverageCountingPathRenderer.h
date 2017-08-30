@@ -53,6 +53,8 @@ public:
         DEFINE_OP_CLASS_ID
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(DrawPathsOp);
 
+        void gatherOp(GrResourceAllocator*) const override { }
+
         DrawPathsOp(GrCoverageCountingPathRenderer*, const DrawPathArgs&, GrColor);
 
         // GrDrawOp overrides.

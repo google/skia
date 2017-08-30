@@ -19,6 +19,8 @@ class GLInstancedOp final : public InstancedOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator*) const override { }
+
     GLInstancedOp(GLOpAllocator* alloc, GrPaint&& paint)
         : INHERITED(ClassID(), std::move(paint), alloc) {
     }

@@ -104,6 +104,10 @@ private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
 public:
+    void gatherOp(GrResourceAllocator* alloc) const override { 
+        fHelper.gatherOp(alloc);
+    }
+
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
                                           const SkRect& rect, const SkRect* localRect,
                                           const SkMatrix* localMatrix, GrAAType aaType,
@@ -222,6 +226,10 @@ private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
 public:
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
+
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
                                           const SkRect& rect, const SkRect* localRect,
                                           const SkMatrix* localMatrix, GrAAType aaType,

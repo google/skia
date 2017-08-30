@@ -607,6 +607,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
                                                            tempDrawInfo.fTempSurfaceDesc.fHeight,
                                                            tempDrawInfo.fTempSurfaceDesc.fConfig,
                                                            nullptr,
+                                                           "read surface",
                                                            tempDrawInfo.fTempSurfaceDesc.fSampleCnt,
                                                            tempDrawInfo.fTempSurfaceDesc.fOrigin);
         if (tempRTC) {
@@ -641,12 +642,6 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         return false;
     }
 
-    if (!proxyToRead->instantiate(fContext->resourceProvider())) {
-        return false;
-    }
-
-    GrSurface* surfaceToRead = proxyToRead->priv().peekSurface();
-
     if (GrGpu::kRequireDraw_DrawPreference == drawPreference && !didTempDraw) {
         return false;
     }
@@ -655,6 +650,13 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         this->flushSurfaceWrites(proxyToRead.get());
         configToRead = tempDrawInfo.fReadConfig;
     }
+
+    if (!proxyToRead->instantiate(fContext->resourceProvider())) {
+        return false;
+    }
+
+    GrSurface* surfaceToRead = proxyToRead->priv().peekSurface();
+
     if (!fContext->fGpu->readPixels(surfaceToRead, proxyToRead->origin(),
                                     left, top, width, height, configToRead, buffer, rowBytes)) {
         return false;
@@ -731,7 +733,7 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
 
     if (proxy->asRenderTargetProxy()) {
         return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
-                                                               std::move(colorSpace), nullptr);
+                                                               std::move(colorSpace), nullptr, nullptr);
     } else {
         SkASSERT(proxy->asTextureProxy());
         return this->drawingManager()->makeTextureContext(std::move(proxy), std::move(colorSpace));
@@ -792,7 +794,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
     }
 
     return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
-                                                           std::move(colorSpace), props);
+                                                           std::move(colorSpace), props, nullptr);
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetContext(
@@ -815,7 +817,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
 
     return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
                                                            std::move(colorSpace),
-                                                           surfaceProps);
+                                                           surfaceProps, nullptr);
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRenderTargetContext(
@@ -841,7 +843,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
 
     return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
                                                            std::move(colorSpace),
-                                                           surfaceProps);
+                                                           surfaceProps, nullptr);
 }
 
 void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
@@ -870,6 +872,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContextWithFallb
                                                                  int width, int height,
                                                                  GrPixelConfig config,
                                                                  sk_sp<SkColorSpace> colorSpace,
+                                                                 const char* name,
                                                                  int sampleCnt,
                                                                  GrSurfaceOrigin origin,
                                                                  const SkSurfaceProps* surfaceProps,
@@ -879,7 +882,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContextWithFallb
     }
 
     return this->makeDeferredRenderTargetContext(fit, width, height, config, std::move(colorSpace),
-                                                 sampleCnt, origin, surfaceProps, budgeted);
+                                                 name, sampleCnt, origin, surfaceProps, budgeted);
 }
 
 sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
@@ -887,6 +890,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
                                                         int width, int height,
                                                         GrPixelConfig config,
                                                         sk_sp<SkColorSpace> colorSpace,
+                                                        const char* name,
                                                         int sampleCnt,
                                                         GrSurfaceOrigin origin,
                                                         const SkSurfaceProps* surfaceProps,
@@ -914,7 +918,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
     sk_sp<GrRenderTargetContext> renderTargetContext(
         fDrawingManager->makeRenderTargetContext(std::move(rtp),
                                                  std::move(colorSpace),
-                                                 surfaceProps));
+                                                 surfaceProps, name));
     if (!renderTargetContext) {
         return nullptr;
     }

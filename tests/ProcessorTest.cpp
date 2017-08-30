@@ -27,6 +27,8 @@ public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "TestOp"; }
 
+    void gatherOp(GrResourceAllocator*) const override { }
+
     static std::unique_ptr<GrDrawOp> Make(std::unique_ptr<GrFragmentProcessor> fp) {
         return std::unique_ptr<GrDrawOp>(new TestOp(std::move(fp)));
     }
@@ -182,7 +184,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
         for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
             sk_sp<GrRenderTargetContext> renderTargetContext(
                     context->makeDeferredRenderTargetContext( SkBackingFit::kApprox, 1, 1,
-                                                              kRGBA_8888_GrPixelConfig, nullptr));
+                                                              kRGBA_8888_GrPixelConfig, nullptr, "test"));
             {
                 bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
                 bool imageLoadStoreSupport = context->caps()->shaderCaps()->imageLoadStoreSupport();
@@ -401,7 +403,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     // Make the destination context for the test.
     static constexpr int kRenderSize = 256;
     sk_sp<GrRenderTargetContext> rtc = context->makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, kRenderSize, kRenderSize, kRGBA_8888_GrPixelConfig, nullptr);
+            SkBackingFit::kExact, kRenderSize, kRenderSize, kRGBA_8888_GrPixelConfig, nullptr, "test");
 
     sk_sp<GrTextureProxy> proxies[2];
     if (!init_test_textures(context, &random, proxies)) {
@@ -530,7 +532,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
     // Make the destination context for the test.
     static constexpr int kRenderSize = 1024;
     sk_sp<GrRenderTargetContext> rtc = context->makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, kRenderSize, kRenderSize, kRGBA_8888_GrPixelConfig, nullptr);
+            SkBackingFit::kExact, kRenderSize, kRenderSize, kRGBA_8888_GrPixelConfig, nullptr, "test");
 
     sk_sp<GrTextureProxy> proxies[2];
     if (!init_test_textures(context, &random, proxies)) {

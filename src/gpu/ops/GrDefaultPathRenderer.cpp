@@ -330,6 +330,10 @@ private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
 public:
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
+
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkPath& path, SkScalar tolerance,

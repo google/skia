@@ -396,7 +396,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
                                                                              reducedClip.width(),
                                                                              reducedClip.height(),
                                                                              kAlpha_8_GrPixelConfig,
-                                                                             nullptr));
+                                                                             nullptr, "alpha clip mask"));
     if (!rtc) {
         return nullptr;
     }

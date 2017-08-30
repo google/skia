@@ -144,7 +144,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
 
                 sk_sp<GrRenderTargetContext> rtContext =
                     context->makeDeferredRenderTargetContext(SkBackingFit::kExact, kS, kS,
-                                                             kRGBA_8888_GrPixelConfig, nullptr);
+                                                             kRGBA_8888_GrPixelConfig, nullptr, "test");
                 // We make a clone to test that copying GrFragmentProcessor::ImageStorageAccess
                 // works.
                 std::unique_ptr<GrFragmentProcessor> fps[2];

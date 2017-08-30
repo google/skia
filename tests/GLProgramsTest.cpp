@@ -158,7 +158,7 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
                                                                            kRenderTargetWidth,
                                                                            kRenderTargetHeight,
                                                                            kRGBA_8888_GrPixelConfig,
-                                                                           nullptr,
+                                                                           nullptr, "test",
                                                                            sampleCnt,
                                                                            origin));
     return renderTargetContext;
@@ -316,7 +316,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
                                                                            kRenderTargetWidth,
                                                                            kRenderTargetHeight,
                                                                            kRGBA_8888_GrPixelConfig,
-                                                                           nullptr));
+                                                                           nullptr, "Test"));
     if (!renderTargetContext) {
         SkDebugf("Could not allocate a renderTargetContext");
         return false;

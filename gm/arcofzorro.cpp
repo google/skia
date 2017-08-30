@@ -7,7 +7,9 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
-#include "SkRandom.h"
+#include "SkBlurImageFilter.h"
+#include "SkImage.h"
+#include "Resources.h"
 
 namespace skiagm {
 
@@ -27,51 +29,26 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(1000, 1000);
+        return SkISize::Make(300, 300);
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkRandom rand;
 
-        SkRect rect = SkRect::MakeXYWH(10, 10, 200, 200);
 
         SkPaint p;
+        p.setImageFilter(SkBlurImageFilter::Make(1, 1, nullptr));
+
+#if 1
+        auto image = GetResourceAsImage("mandrill_128.png");
+        canvas->drawImage(image, 50, 50,  &p);
+#else
+        const SkRect rect = SkRect::MakeXYWH(50, 50, 200, 200);
 
         p.setStyle(SkPaint::kStroke_Style);
         p.setStrokeWidth(35);
-        int xOffset = 0, yOffset = 0;
-        int direction = 0;
-
-        for (float arc = 134.0f; arc < 136.0f; arc += 0.01f) {
-            SkColor color = rand.nextU();
-            color |= 0xff000000;
-            p.setColor(color);
-
-            canvas->save();
-            canvas->translate(SkIntToScalar(xOffset), SkIntToScalar(yOffset));
-            canvas->drawArc(rect, 0, arc, false, p);
-            canvas->restore();
-
-            switch (direction) {
-            case 0:
-                xOffset += 10;
-                if (xOffset >= 700) {
-                    direction = 1;
-                }
-                break;
-            case 1:
-                xOffset -= 10;
-                yOffset += 10;
-                if (xOffset < 50) {
-                    direction = 2;
-                }
-                break;
-            case 2:
-                xOffset += 10;
-                break;
-            }
-        }
-
+        p.setColor(SK_ColorBLUE);
+        canvas->drawRect(rect, p);
+#endif
     }
 
 private:
