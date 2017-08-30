@@ -152,9 +152,14 @@ extern "C" {
     #undef M
 
 #elif defined(__i386__) || defined(_M_IX86)
-    StartPipelineFn ASM(start_pipeline,sse2);
-    StageFn ASM(just_return,sse2);
+    StartPipelineFn ASM(start_pipeline,sse2),
+                    ASM(start_pipeline,sse2_8bit);
+    StageFn ASM(just_return,sse2),
+            ASM(just_return,sse2_8bit);
     #define M(st) StageFn ASM(st,sse2);
+        SK_RASTER_PIPELINE_STAGES(M)
+    #undef M
+    #define M(st) StageFn ASM(st,sse2_8bit);
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 
@@ -200,6 +205,18 @@ extern "C" {
         }
         LOWP_STAGES(M)
     #undef M
+#elif !defined(SK_JUMPER_LEGACY_X86_8BIT) && \
+    (defined(__i386__) || defined(_M_IX86))
+    template <SkRasterPipeline::StockStage st>
+    static constexpr StageFn* sse2_8bit() { return nullptr; }
+
+    #define M(st) \
+        template <> constexpr StageFn* sse2_8bit<SkRasterPipeline::st>() {  \
+            return ASM(st,sse2_8bit);                                       \
+        }
+        LOWP_STAGES(M)
+    #undef M
+
 #elif defined(JUMPER_HAS_NEON_8BIT)
     template <SkRasterPipeline::StockStage st>
     static constexpr StageFn* neon_8bit() { return nullptr; }
@@ -338,6 +355,18 @@ static SkJumper_Engine choose_engine() {
             #undef M
             };
         }
+    #elif !defined(SK_JUMPER_LEGACY_X86_8BIT) && \
+        (defined(__i386__) || defined(_M_IX86))
+        if (1 && SkCpu::Supports(SkCpu::SSE2)) {
+            return {
+            #define M(st) sse2_8bit<SkRasterPipeline::st>(),
+                { SK_RASTER_PIPELINE_STAGES(M) },
+                ASM(start_pipeline,sse2_8bit),
+                ASM(just_return   ,sse2_8bit)
+            #undef M
+            };
+        }
+
     #elif defined(JUMPER_HAS_NEON_8BIT)
         return {
         #define M(st) neon_8bit<SkRasterPipeline::st>(),
