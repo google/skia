@@ -608,4 +608,26 @@ T* const* unique_ptr_address_as_pointer_address(std::unique_ptr<T> const* up) {
  */
 typedef uint64_t GrFence;
 
+/**
+ * Used to include or exclude specific GPU path renderers for testing purposes.
+ */
+enum class GpuPathRenderers {
+    kNone              = 0, // Always use sofware masks and/or GrDefaultPathRenderer.
+    kDashLine          = 1 << 0,
+    kStencilAndCover   = 1 << 1,
+    kMSAA              = 1 << 2,
+    kAAConvex          = 1 << 3,
+    kAALinearizing     = 1 << 4,
+    kSmall             = 1 << 5,
+    kCoverageCounting  = 1 << 6,
+    kTessellating      = 1 << 7,
+
+    kAll               = (kTessellating | (kTessellating - 1)),
+
+    // Temporarily disabling CCPR by default until it has had a time to soak.
+    kDefault           = kAll & ~kCoverageCounting,
+};
+
+GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
+
 #endif

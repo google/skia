@@ -291,9 +291,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     this->initGLSL(ctxInfo);
     GrShaderCaps* shaderCaps = fShaderCaps.get();
 
-    if (!contextOptions.fSuppressPathRendering) {
-        shaderCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
+    shaderCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
+#if GR_TEST_UTILS
+    if (contextOptions.fSuppressPathRendering) {
+        shaderCaps->fPathRenderingSupport = false;
     }
+#endif
 
     // For now these two are equivalent but we could have dst read in shader via some other method.
     // Before setting this, initGLSL() must have been called.
@@ -1070,8 +1073,11 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
     // renderer is available and enabled; no other path renderers support this feature.
     if (fMultisampleDisableSupport &&
         this->shaderCaps()->dualSourceBlendingSupport() &&
-        this->shaderCaps()->pathRenderingSupport() &&
-        (contextOptions.fGpuPathRenderers & GrContextOptions::GpuPathRenderers::kStencilAndCover)) {
+        this->shaderCaps()->pathRenderingSupport()
+#if GR_TEST_UTILS
+        && (contextOptions.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover)
+#endif
+        ) {
         fUsesMixedSamples = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
                             ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
         // Workaround NVIDIA bug related to glInvalidateFramebuffer and mixed samples.

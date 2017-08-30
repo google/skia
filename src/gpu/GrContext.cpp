@@ -196,9 +196,11 @@ bool GrContext::init(const GrContextOptions& options) {
 
     GrPathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = options.fAllowPathMaskCaching;
+#if GR_TEST_UTILS
     prcOptions.fGpuPathRenderers = options.fGpuPathRenderers;
+#endif
     if (options.fDisableDistanceFieldPaths) {
-        prcOptions.fGpuPathRenderers &= ~GrContextOptions::GpuPathRenderers::kDistanceField;
+        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
     }
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions, &fSingleOwner));
 
