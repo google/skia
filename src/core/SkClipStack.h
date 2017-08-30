@@ -41,21 +41,26 @@ public:
         kInsideOut_BoundsType
     };
 
+    /**
+     * An element of the clip stack. It represents a shape combined with the prevoius clip using a
+     * set operator. Each element can be antialiased or not.
+     */
     class Element {
     public:
-        enum Type {
+        /** This indicates the shape type of the clip element in device space. */
+        enum class DeviceSpaceType {
             //!< This element makes the clip empty (regardless of previous elements).
-            kEmpty_Type,
-            //!< This element combines a rect with the current clip using a set operation
-            kRect_Type,
-            //!< This element combines a round-rect with the current clip using a set operation
-            kRRect_Type,
-            //!< This element combines a path with the current clip using a set operation
-            kPath_Type,
+            kEmpty,
+            //!< This element combines a device space rect with the current clip.
+            kRect,
+            //!< This element combines a device space round-rect with the current clip.
+            kRRect,
+            //!< This element combines a device space path with the current clip.
+            kPath,
 
-            kLastType = kPath_Type
+            kLastType = kPath
         };
-        static const int kTypeCnt = kLastType + 1;
+        static const int kTypeCnt = (int)DeviceSpaceType::kLastType + 1;
 
         Element() {
             this->initCommon(0, kReplace_SkClipOp, false);
@@ -88,31 +93,42 @@ public:
         bool operator!= (const Element& element) const { return !(*this == element); }
 
         //!< Call to get the type of the clip element.
-        Type getType() const { return fType; }
+        DeviceSpaceType getDeviceSpaceType() const { return fDeviceSpaceType; }
 
         //!< Call to get the save count associated with this clip element.
         int getSaveCount() const { return fSaveCount; }
 
-        //!< Call if getType() is kPath to get the path.
-        const SkPath& getPath() const { SkASSERT(kPath_Type == fType); return *fPath.get(); }
-
-        //!< Call if getType() is kRRect to get the round-rect.
-        const SkRRect& getRRect() const { SkASSERT(kRRect_Type == fType); return fRRect; }
-
-        //!< Call if getType() is kRect to get the rect.
-        const SkRect& getRect() const {
-            SkASSERT(kRect_Type == fType && (fRRect.isRect() || fRRect.isEmpty()));
-            return fRRect.getBounds();
+        //!< Call if getDeviceSpaceType() is kPath to get the path.
+        const SkPath& getDeviceSpacePath() const {
+            SkASSERT(DeviceSpaceType::kPath == fDeviceSpaceType);
+            return *fDeviceSpacePath.get();
         }
 
-        //!< Call if getType() is not kEmpty to get the set operation used to combine this element.
+        //!< Call if getDeviceSpaceType() is kRRect to get the round-rect.
+        const SkRRect& getDeviceSpaceRRect() const {
+            SkASSERT(DeviceSpaceType::kRRect == fDeviceSpaceType);
+            return fDeviceSpaceRRect;
+        }
+
+        //!< Call if getDeviceSpaceType() is kRect to get the rect.
+        const SkRect& getDeviceSpaceRect() const {
+            SkASSERT(DeviceSpaceType::kRect == fDeviceSpaceType &&
+                     (fDeviceSpaceRRect.isRect() || fDeviceSpaceRRect.isEmpty()));
+            return fDeviceSpaceRRect.getBounds();
+        }
+
+        //!< Call if getDeviceSpaceType() is not kEmpty to get the set operation used to combine
+        //!< this element.
         SkClipOp getOp() const { return fOp; }
 
         //!< Call to get the element as a path, regardless of its type.
-        void asPath(SkPath* path) const;
+        void asDeviceSpacePath(SkPath* path) const;
 
         //!< Call if getType() is not kPath to get the element as a round rect.
-        const SkRRect& asRRect() const { SkASSERT(kPath_Type != fType); return fRRect; }
+        const SkRRect& asDeviceSpaceRRect() const {
+            SkASSERT(DeviceSpaceType::kPath != fDeviceSpaceType);
+            return fDeviceSpaceRRect;
+        }
 
         /** If getType() is not kEmpty this indicates whether the clip shape should be anti-aliased
             when it is rasterized. */
@@ -148,7 +164,8 @@ public:
          * Is the clip shape inverse filled.
          */
         bool isInverseFilled() const {
-            return kPath_Type == fType && fPath.get()->isInverseFillType();
+            return DeviceSpaceType::kPath == fDeviceSpaceType &&
+                   fDeviceSpacePath.get()->isInverseFillType();
         }
 
 #ifdef SK_DEBUG
@@ -173,11 +190,11 @@ public:
     private:
         friend class SkClipStack;
 
-        SkTLazy<SkPath> fPath;
-        SkRRect fRRect;
+        SkTLazy<SkPath> fDeviceSpacePath;
+        SkRRect fDeviceSpaceRRect;
         int fSaveCount;  // save count of stack when this element was added.
         SkClipOp fOp;
-        Type fType;
+        DeviceSpaceType fDeviceSpaceType;
         bool fDoAA;
 
         /* fFiniteBoundType and fFiniteBound are used to incrementally update the clip stack's
