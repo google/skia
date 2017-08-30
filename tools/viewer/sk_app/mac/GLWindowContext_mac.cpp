@@ -6,7 +6,12 @@
  * found in the LICENSE file.
  */
 
+#include "TargetConditionals.h"
+#if TARGET_OS_IPHONE
+#include <OpenGLES/ES2/gl.h>
+#elif
 #include <OpenGL/gl.h>
+#endif
 #include "../GLWindowContext.h"
 #include "SDL.h"
 #include "WindowContextFactory_mac.h"
