@@ -116,7 +116,11 @@ void GrVkGpuRTCommandBuffer::init() {
     cbInfo.fColorClearValue.color.float32[2] = fClearColor.fRGBA[2];
     cbInfo.fColorClearValue.color.float32[3] = fClearColor.fRGBA[3];
 
-    cbInfo.fBounds.setEmpty();
+    if (VK_ATTACHMENT_LOAD_OP_CLEAR == fVkColorLoadOp) {
+        cbInfo.fBounds = SkRect::MakeWH(vkRT->width(), vkRT->height());
+    } else {
+        cbInfo.fBounds.setEmpty();
+    }
     cbInfo.fIsEmpty = true;
     cbInfo.fStartsWithClear = false;
 
