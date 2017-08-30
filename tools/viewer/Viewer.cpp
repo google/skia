@@ -47,7 +47,6 @@
 
 using namespace sk_app;
 
-using GpuPathRenderers = GrContextOptions::GpuPathRenderers;
 static std::map<GpuPathRenderers, std::string> gPathRendererNames;
 
 Application* Application::Create(int argc, char** argv, void* platformData) {

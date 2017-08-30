@@ -10,7 +10,7 @@
 
 #if SK_SUPPORT_GPU
 
-#include "GrContextOptions.h"
+#include "GrTypesPriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkTypes.h"
 
@@ -22,8 +22,7 @@ DECLARE_string(pr);
                   "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "    \
                   "[~]aalinearizing [~]small [~]tess]")
 
-inline GrContextOptions::GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
-    using GpuPathRenderers = GrContextOptions::GpuPathRenderers;
+inline GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
     if (!strcmp(name, "all")) {
         return GpuPathRenderers::kAll;
     } else if (!strcmp(name, "default")) {
@@ -51,8 +50,7 @@ inline GrContextOptions::GpuPathRenderers get_named_pathrenderers_flags(const ch
     return GpuPathRenderers::kNone;
 }
 
-inline GrContextOptions::GpuPathRenderers CollectGpuPathRenderersFromFlags() {
-    using GpuPathRenderers = GrContextOptions::GpuPathRenderers;
+inline GpuPathRenderers CollectGpuPathRenderersFromFlags() {
     if (FLAGS_pr.isEmpty()) {
         return GpuPathRenderers::kDefault;
     }
