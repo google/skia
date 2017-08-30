@@ -220,22 +220,7 @@ void GrRenderTargetContext::discard() {
 
     AutoCheckFlush acf(this->drawingManager());
 
-    // Discard calls to in-progress opLists are ignored. Calls at the start update the
-    // opLists' color & stencil load ops.
-    if (this->getRTOpList()->isEmpty()) {
-        if (this->caps()->discardRenderTargetSupport()) {
-            this->getRTOpList()->setColorLoadOp(GrLoadOp::kDiscard);
-            this->getRTOpList()->setStencilLoadOp(GrLoadOp::kDiscard);
-        } else {
-            // skbug.com/6956 (Extra clear confuses Nexus7)
-#if 0
-            // Surely, if a discard was requested, a clear should be acceptable
-            this->getRTOpList()->setColorLoadOp(GrLoadOp::kClear);
-            this->getRTOpList()->setLoadClearColor(0x0);
-            this->getRTOpList()->setStencilLoadOp(GrLoadOp::kClear);
-#endif
-        }
-    }
+    this->getRTOpList()->discard();
 }
 
 void GrRenderTargetContext::clear(const SkIRect* rect,

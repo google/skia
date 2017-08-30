@@ -101,8 +101,7 @@ public:
     SkDEBUGCODE(virtual int numOps() const = 0;)
     SkDEBUGCODE(virtual int numClips() const { return 0; })
 
-    void setColorLoadOp(GrLoadOp loadOp) { fColorLoadOp = loadOp; }
-    void setLoadClearColor(GrColor color) { fLoadClearColor = color; }
+    // TODO: it would be nice for this to be hidden
     void setStencilLoadOp(GrLoadOp loadOp) { fStencilLoadOp = loadOp; }
 
 protected:
