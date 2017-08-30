@@ -28,6 +28,7 @@ enum comments should be disallowed unless after #Enum and before first #Const
 trouble with aliases, plurals
     need to keep first letter of includeWriter @param / @return lowercase
     Quad -> quad, Quads -> quads
+check for summary containing all methods
  */
 
 static string normalized_name(string name) {
@@ -1028,16 +1029,8 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                         return false;
                     }
                     if (MarkType::kParam == markType || MarkType::kReturn == markType) {
-                        const char* parmEndCheck = definition->fContentEnd;
-                        while (parmEndCheck < definition->fTerminator) {
-                            if (fMC == parmEndCheck[0]) {
-                                break;
-                            }
-                            if (' ' < parmEndCheck[0]) {
-                                this->reportError<bool>(
-                                        "use full end marker on multiline #Param and #Return");
-                            }
-                            ++parmEndCheck;
+                        if (!this->checkParamReturn(definition)) {
+                            return false;
                         }
                     }
                 } else {
@@ -1223,6 +1216,21 @@ bool BmhParser::checkExamples() const {
         last = &nameIter;
     }
     return checkOK;
+}
+
+bool BmhParser::checkParamReturn(const Definition* definition) const {
+    const char* parmEndCheck = definition->fContentEnd;
+    while (parmEndCheck < definition->fTerminator) {
+        if (fMC == parmEndCheck[0]) {
+            break;
+        }
+        if (' ' < parmEndCheck[0]) {
+            this->reportError<bool>(
+                    "use full end marker on multiline #Param and #Return");
+        }
+        ++parmEndCheck;
+    }
+    return true;
 }
 
 bool BmhParser::childOf(MarkType markType) const {
@@ -2181,7 +2189,7 @@ int main(int argc, char** const argv) {
         return 0;
     }
     if ((FLAGS_include.isEmpty() || FLAGS_bmh.isEmpty()) && FLAGS_populate) {
-        SkDebugf("-r requires -b -i\n");
+        SkDebugf("-p requires -b -i\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
     }

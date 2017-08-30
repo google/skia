@@ -1290,6 +1290,7 @@ public:
     bool addDefinition(const char* defStart, bool hasEnd, MarkType markType,
             const vector<string>& typeNameBuilder);
     bool checkExamples() const;
+    bool checkParamReturn(const Definition* definition) const;
     bool dumpExamples(const char* fiddleJsonFileName) const;
     bool childOf(MarkType markType) const;
     string className(MarkType markType);
@@ -1794,6 +1795,7 @@ private:
 
     string addReferences(const char* start, const char* end, BmhParser::Resolvable );
     bool buildRefFromFile(const char* fileName, const char* outDir);
+    bool checkParamReturnBody(const Definition* def) const;
     void childrenOut(const Definition* def, const char* contentStart);
     const Definition* isDefined(const TextParser& parser, const string& ref, bool report) const;
     string linkName(const Definition* ) const;

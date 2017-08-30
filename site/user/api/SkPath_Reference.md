@@ -161,7 +161,6 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_cubicTo">cubicTo</a> | Appends <a href="#Cubic">Cubic</a>. |
 | <a href="#SkPath_dump_2">dump</a> | Sends text representation using floats to stdout. |
 | <a href="#SkPath_dumpHex">dumpHex</a> | Sends text representation using hexadecimal to stdout. |
-| <a href="#SkPath_experimentalValidateRef">experimentalValidateRef</a> | Experimental; debugging only. |
 | <a href="#SkPath_getBounds">getBounds</a> | Returns maximum and minimum of <a href="#Point_Array">Point Array</a>. |
 | <a href="#SkPath_getConvexity">getConvexity</a> | Returns geometry convexity, computing if necessary. |
 | <a href="#SkPath_getConvexityOrUnknown">getConvexityOrUnknown</a> | Returns geometry convexity if known. |
@@ -395,7 +394,7 @@ pointers are not exposed.
 
 ### Return Value
 
-Copy of <a href="#Path">Path</a>
+copy of <a href="#Path">Path</a>
 
 ### Example
 
@@ -899,7 +898,7 @@ or if <a href="#Path">Path</a> has been altered since <a href="#Convexity">Conve
 
 ### Return Value
 
-Computed or stored <a href="#Convexity">Convexity</a>
+computed or stored <a href="#Convexity">Convexity</a>
 
 ### Example
 
@@ -923,7 +922,7 @@ Returns last computed <a href="#Convexity">Convexity</a>, or <a href="#SkPath_kU
 
 ### Return Value
 
-Stored <a href="#Convexity">Convexity</a>
+stored <a href="#Convexity">Convexity</a>
 
 ### Example
 
@@ -1337,6 +1336,9 @@ Test if <a href="undocumented#Line">Line</a> between <a href="undocumented#Point
 <a href="undocumented#Line">Line</a> with no length or that moves a very short distance is degenerate; it is
 treated as a point. 
 
+<a href="#SkPath_IsLineDegenerate_exact">exact</a> changes the equality test. If true, returns true only if <a href="#SkPath_IsLineDegenerate_p1">p1</a> equals <a href="#SkPath_IsLineDegenerate_p2">p2</a>.
+If false, returns true if <a href="#SkPath_IsLineDegenerate_p1">p1</a> equals or nearly equals <a href="#SkPath_IsLineDegenerate_p2">p2</a>.
+
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_IsLineDegenerate_p1"> <code><strong>p1 </strong></code> </a></td> <td>
@@ -1344,8 +1346,7 @@ line start point</td>
   </tr>  <tr>    <td><a name="SkPath_IsLineDegenerate_p2"> <code><strong>p2 </strong></code> </a></td> <td>
 line end point</td>
   </tr>  <tr>    <td><a name="SkPath_IsLineDegenerate_exact"> <code><strong>exact </strong></code> </a></td> <td>
-If true, returns true only if <a href="#SkPath_IsLineDegenerate_p1">p1</a> equals <a href="#SkPath_IsLineDegenerate_p2">p2</a>. If false, returns true
-if <a href="#SkPath_IsLineDegenerate_p1">p1</a> equals or nearly equals <a href="#SkPath_IsLineDegenerate_p2">p2</a></td>
+if false, allow nearly equals</td>
   </tr>
 </table>
 
@@ -3144,7 +3145,7 @@ storage for <a href="#Quad">Quad</a> array</td>
 
 ### Return Value
 
-Number of <a href="#Quad">Quad</a> curves written to <a href="#SkPath_ConvertConicToQuads_pts">pts</a>
+number of <a href="#Quad">Quad</a> curves written to <a href="#SkPath_ConvertConicToQuads_pts">pts</a>
 
 ### Example
 
@@ -3313,7 +3314,7 @@ If <a href="#SkPath_addRect_2_dir">dir</a> is <a href="#SkPath_kCW_Direction">kC
   </tr>  <tr>    <td><a name="SkPath_addRect_2_dir"> <code><strong>dir </strong></code> </a></td> <td>
 <a href="#SkPath_Direction">Direction</a> to wind added contour</td>
   </tr>  <tr>    <td><a name="SkPath_addRect_2_start"> <code><strong>start </strong></code> </a></td> <td>
-Initial corner of <a href="undocumented#Rect">Rect</a> to add</td>
+initial corner of <a href="undocumented#Rect">Rect</a> to add</td>
   </tr>
 </table>
 
@@ -3670,7 +3671,7 @@ bounds and radii of rounded rectangle</td>
   </tr>  <tr>    <td><a name="SkPath_addRRect_2_dir"> <code><strong>dir </strong></code> </a></td> <td>
 <a href="#SkPath_Direction">Direction</a> to wind <a href="undocumented#Round_Rect">Round Rect</a></td>
   </tr>  <tr>    <td><a name="SkPath_addRRect_2_start"> <code><strong>start </strong></code> </a></td> <td>
-Index of initial point of <a href="undocumented#Round_Rect">Round Rect</a></td>
+index of initial point of <a href="undocumented#Round_Rect">Round Rect</a></td>
   </tr>
 </table>
 
@@ -3701,9 +3702,9 @@ Has no effect if <a href="#SkPath_addPoly_count">count</a> is less than one.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_addPoly_pts"> <code><strong>pts </strong></code> </a></td> <td>
-Array of <a href="undocumented#Line">Line</a> sharing end and start <a href="undocumented#Point">Point</a></td>
+array of <a href="undocumented#Line">Line</a> sharing end and start <a href="undocumented#Point">Point</a></td>
   </tr>  <tr>    <td><a name="SkPath_addPoly_count"> <code><strong>count </strong></code> </a></td> <td>
-Length of <a href="undocumented#Point">Point</a> array</td>
+length of <a href="undocumented#Point">Point</a> array</td>
   </tr>  <tr>    <td><a name="SkPath_addPoly_close"> <code><strong>close </strong></code> </a></td> <td>
 true to add <a href="undocumented#Line">Line</a> connecting <a href="#Contour">Contour</a> end and start</td>
   </tr>
@@ -3838,7 +3839,7 @@ added unaltered. If <a href="#SkPath_addPath_3_mode">mode</a> is <a href="#SkPat
 <table>  <tr>    <td><a name="SkPath_addPath_3_src"> <code><strong>src </strong></code> </a></td> <td>
 <a href="#Path">Path</a> <a href="#Verb">Verbs</a>, <a href="#Point">Points</a>, and <a href="#Weight">Conic Weights</a> to add</td>
   </tr>  <tr>    <td><a name="SkPath_addPath_3_matrix"> <code><strong>matrix </strong></code> </a></td> <td>
-Transform applied to <a href="#SkPath_addPath_3_src">src</a></td>
+<a href="#SkPath_transform">transform</a> applied to <a href="#SkPath_addPath_3_src">src</a></td>
   </tr>  <tr>    <td><a name="SkPath_addPath_3_mode"> <code><strong>mode </strong></code> </a></td> <td>
 <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a> or <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a></td>
   </tr>
@@ -4275,7 +4276,7 @@ void dump() const
 </pre>
 
 Writes text representation of <a href="#Path">Path</a> to stdout. The representation may be
-directly compiled as <a href="usingBookmaker#C">C</a>++ code. Floating point values are written
+directly compiled as <a href="undocumented#C">C</a>++ code. Floating point values are written
 with limited precision; it may not be possible to reconstruct original <a href="#Path">Path</a>
 from output.
 
@@ -4308,7 +4309,7 @@ void dumpHex() const
 </pre>
 
 Writes text representation of <a href="#Path">Path</a> to stdout. The representation may be
-directly compiled as <a href="usingBookmaker#C">C</a>++ code. Floating point values are written
+directly compiled as <a href="undocumented#C">C</a>++ code. Floating point values are written
 in hexadecimal to preserve their exact bit pattern. The output reconstructs the
 original <a href="#Path">Path</a>.
 
@@ -4538,31 +4539,11 @@ bool pathRefIsValid() const
 
 Returns if <a href="#Path">Path</a> data is consistent.
 
+To be deprecated soon.
+
 ### Return Value
 
 true if <a href="#Path">Path</a> data is consistent
-
----
-
-<a name="SkPath_validate"></a>
-## validate
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-void validate() const
-</pre>
-
-Asserts if <a href="#Path">Path</a> data is inconsistent; debug only.
-
----
-
-<a name="SkPath_experimentalValidateRef"></a>
-## experimentalValidateRef
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-void experimentalValidateRef() const
-</pre>
-
-Asserts if <a href="#Path">Path</a> data is inconsistent; debug only.
 
 ---
 
@@ -4729,7 +4710,9 @@ Verb next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false)
 
 Returns <a href="#SkPath_Iter_next">next</a> <a href="#SkPath_Verb">Verb</a> in <a href="#Verb_Array">Verb Array</a>, and advances <a href="#SkPath_Iter_Iter">Iter</a>.
 When <a href="#Verb_Array">Verb Array</a> is exhausted, returns <a href="#SkPath_kDone_Verb">kDone Verb</a>.
+
 Zero to four <a href="#Point">Points</a> are stored in <a href="#SkPath_Iter_next_pts">pts</a>, depending on the returned <a href="#SkPath_Verb">Verb</a>.
+
 If <a href="#SkPath_Iter_next_doConsumeDegenerates">doConsumeDegenerates</a> is true, skip consecutive <a href="#SkPath_kMove_Verb">kMove Verb</a> entries, returning
 only the last in the series; and skip very small <a href="#Line">Lines</a>, <a href="#Quad">Quads</a>, and <a href="#Conic">Conics</a>; and
 skip <a href="#SkPath_kClose_Verb">kClose Verb</a> following <a href="#SkPath_kMove_Verb">kMove Verb</a>.
@@ -4739,12 +4722,11 @@ if <a href="#SkPath_Iter_next_doConsumeDegenerates">doConsumeDegenerates</a> is 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_Iter_next_pts"> <code><strong>pts </strong></code> </a></td> <td>
-Storage for <a href="undocumented#Point">Point</a> data describing returned <a href="#SkPath_Verb">Verb</a></td>
+storage for <a href="undocumented#Point">Point</a> data describing returned <a href="#SkPath_Verb">Verb</a></td>
   </tr>  <tr>    <td><a name="SkPath_Iter_next_doConsumeDegenerates"> <code><strong>doConsumeDegenerates </strong></code> </a></td> <td>
-If true, skip degenerate <a href="#Verb">Verbs</a></td>
+if true, skip degenerate <a href="#Verb">Verbs</a></td>
   </tr>  <tr>    <td><a name="SkPath_Iter_next_exact"> <code><strong>exact </strong></code> </a></td> <td>
-If true, skip zero length curves. Has no effect if <a href="#SkPath_Iter_next_doConsumeDegenerates">doConsumeDegenerates</a>
-is false</td>
+skip zero length curves</td>
   </tr>
 </table>
 
@@ -4993,7 +4975,7 @@ Zero to four <a href="#Point">Points</a> are stored in <a href="#SkPath_RawIter_
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_RawIter_next_pts"> <code><strong>pts </strong></code> </a></td> <td>
-Storage for <a href="undocumented#Point">Point</a> data describing returned <a href="#SkPath_Verb">Verb</a></td>
+storage for <a href="undocumented#Point">Point</a> data describing returned <a href="#SkPath_Verb">Verb</a></td>
   </tr>
 </table>
 
