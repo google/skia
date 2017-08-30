@@ -19,7 +19,7 @@ DECLARE_string(pr);
 #define DEFINE_pathrenderer_flag                                                   \
     DEFINE_string(pr, "default",                                                   \
                   "Set of enabled gpu path renderers. Defined as a list of: "      \
-                  "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aahairline [~]aaconvex " \
+                  "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "    \
                   "[~]aalinearizing [~]small [~]tess]")
 
 inline GrContextOptions::GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
@@ -34,8 +34,6 @@ inline GrContextOptions::GpuPathRenderers get_named_pathrenderers_flags(const ch
         return GpuPathRenderers::kStencilAndCover;
     } else if (!strcmp(name, "msaa")) {
         return GpuPathRenderers::kMSAA;
-    } else if (!strcmp(name, "aahairline")) {
-        return GpuPathRenderers::kAAHairline;
     } else if (!strcmp(name, "aaconvex")) {
         return GpuPathRenderers::kAAConvex;
     } else if (!strcmp(name, "aalinearizing")) {

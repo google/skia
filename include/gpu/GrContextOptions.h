@@ -99,12 +99,11 @@ struct GrContextOptions {
         kDashLine          = 1 << 0,
         kStencilAndCover   = 1 << 1,
         kMSAA              = 1 << 2,
-        kAAHairline        = 1 << 3,
-        kAAConvex          = 1 << 4,
-        kAALinearizing     = 1 << 5,
-        kSmall             = 1 << 6,
-        kCoverageCounting  = 1 << 7,
-        kTessellating      = 1 << 8,
+        kAAConvex          = 1 << 3,
+        kAALinearizing     = 1 << 4,
+        kSmall             = 1 << 5,
+        kCoverageCounting  = 1 << 6,
+        kTessellating      = 1 << 7,
 
         kAll               = (kTessellating | (kTessellating - 1)),
 

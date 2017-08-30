@@ -47,9 +47,10 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
         }
     }
 #endif
-    if (options.fGpuPathRenderers & GpuPathRenderers::kAAHairline) {
-        fChain.push_back(sk_make_sp<GrAAHairLinePathRenderer>());
-    }
+
+    // AA hairline path renderer is very specialized - no other renderer can do this job well
+    fChain.push_back(sk_make_sp<GrAAHairLinePathRenderer>());
+
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
     }
