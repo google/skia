@@ -253,7 +253,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         GrAA aa = GrAAType::kCoverage == args.fAAType ? GrAA::kYes : GrAA::kNo;
         proxy = GrSWMaskHelper::DrawShapeMaskToTexture(args.fContext, *args.fShape,
                                                        *boundsForMask, aa,
-                                                       fit, args.fViewMatrix);
+                                                       fit, *args.fViewMatrix);
         if (!proxy) {
             return false;
         }
