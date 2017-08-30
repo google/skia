@@ -54,6 +54,12 @@ subprocess.check_call(clang + cflags + sse2 +
 subprocess.check_call(clang + cflags + sse2 + win +
                       ['-c', stages_8bit] +
                       ['-o', 'win_8bit_sse2.o'])
+subprocess.check_call(clang + cflags + sse2 + x86 +
+                      ['-c', stages_8bit] +
+                      ['-o', 'x86_8bit_sse2.o'])
+subprocess.check_call(clang + cflags + sse2 + win + x86 +
+                      ['-c', stages_8bit] +
+                      ['-o', 'win_x86_8bit_sse2.o'])
 
 sse41 = ['-msse4.1']
 subprocess.check_call(clang + cflags + sse41 +
@@ -101,6 +107,11 @@ subprocess.check_call(['ld', '-r', '-o', 'merged.o',
 subprocess.check_call(['ld', '-r', '-o', 'win_merged.o',
                        'win_hsw.o', 'win_avx.o', 'win_sse41.o', 'win_sse2.o',
                        'win_8bit_hsw.o', 'win_8bit_sse41.o', 'win_8bit_sse2.o'])
+
+subprocess.check_call(['ld', '-r', '-o', 'x86_merged.o',
+                       'x86_sse2.o', 'x86_8bit_sse2.o'])
+subprocess.check_call(['ld', '-r', '-o', 'win_x86_merged.o',
+                       'win_x86_sse2.o', 'win_x86_8bit_sse2.o'])
 
 vfp4 = [
     '--target=armv7a-linux-gnueabihf',
@@ -227,7 +238,7 @@ parse_object_file('merged.o', '.byte')
 
 print '#elif defined(__i386__)'
 print 'BALIGN32'
-parse_object_file('x86_sse2.o', '.byte')
+parse_object_file('x86_merged.o', '.byte')
 
 print '#endif'
 
@@ -249,7 +260,7 @@ print 'ELSE'
 print '.MODEL FLAT,C'
 print "_text32 SEGMENT ALIGN(32) 'CODE'"
 print 'ALIGN 32'
-parse_object_file('win_x86_sse2.o', 'DB')
+parse_object_file('win_x86_merged.o', 'DB')
 
 print 'ENDIF'
 print 'END'
