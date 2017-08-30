@@ -791,9 +791,17 @@ void GrRenderTargetContext::drawTextureAffine(const GrClip& clip, sk_sp<GrTextur
     if (filter != GrSamplerParams::kNone_FilterMode && !must_filter(srcRect, dstRect, viewMatrix)) {
         filter = GrSamplerParams::kNone_FilterMode;
     }
+    SkRect clippedDstRect = dstRect;
+    SkRect clippedSrcRect = srcRect;
+    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &clippedDstRect,
+                          &clippedSrcRect)) {
+        return;
+    }
+
     bool allowSRGB = SkToBool(this->getColorSpace());
-    this->addDrawOp(clip, GrTextureOp::Make(std::move(proxy), filter, color, srcRect, dstRect,
-                                            viewMatrix, std::move(colorSpaceXform), allowSRGB));
+    this->addDrawOp(clip, GrTextureOp::Make(std::move(proxy), filter, color, clippedSrcRect,
+                                            clippedDstRect, viewMatrix, std::move(colorSpaceXform),
+                                            allowSRGB));
 }
 
 void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
