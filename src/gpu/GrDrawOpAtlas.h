@@ -176,7 +176,8 @@ public:
     }
 
 private:
-    GrDrawOpAtlas(GrContext*, sk_sp<GrTextureProxy>, int numPlotsX, int numPlotsY);
+    GrDrawOpAtlas(GrContext*, GrPixelConfig config, int width, int height,
+                  int numPlotsX, int numPlotsY);
 
     /**
      * The backing GrTexture for a GrDrawOpAtlas is broken into a spatial grid of Plots. The Plots
@@ -288,6 +289,9 @@ private:
 
     GrContext*            fContext;
     sk_sp<GrTextureProxy> fProxy;
+    GrPixelConfig         fPixelConfig;
+    int                   fTextureWidth;
+    int                   fTextureHeight;
     int                   fPlotWidth;
     int                   fPlotHeight;
     SkDEBUGCODE(uint32_t  fNumPlots;)
