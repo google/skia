@@ -12,6 +12,7 @@
 
 #include "SkShaper.h"
 #include "SkStream.h"
+#include "SkTemplates.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
@@ -69,6 +70,15 @@ SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
     SkASSERT(fImpl->fHarfBuzzFont);
     hb_font_set_scale(fImpl->fHarfBuzzFont.get(), FONT_SIZE_SCALE, FONT_SIZE_SCALE);
     hb_ot_font_set_funcs(fImpl->fHarfBuzzFont.get());
+    int axis_count = fImpl->fTypeface->getVariationDesignPosition(nullptr, 0);
+    if (axis_count > 0) {
+        SkAutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> axis_values(axis_count);
+        if (fImpl->fTypeface->getVariationDesignPosition(axis_values, axis_count) == axis_count) {
+            hb_font_set_variations(fImpl->fHarfBuzzFont.get(),
+                                   reinterpret_cast<hb_variation_t*>(axis_values.get()),
+                                   axis_count);
+        }
+    }
 
     fImpl->fBuffer.reset(hb_buffer_create());
 }
