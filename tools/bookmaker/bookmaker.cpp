@@ -7,7 +7,6 @@
 
 #include "bookmaker.h"
 
-#include "SkCommandLineFlags.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
@@ -1487,6 +1486,9 @@ bool BmhParser::findDefinitions() {
                     }
                 } else {
                     bool parentIsList = MarkType::kList == fParent->fMarkType;
+                    if (parentIsList && fLineCount > 1230) {
+                        SkDebugf("");
+                    }
                     // fixme? no nested tables for now
                     const char* colStart = fChar - 1;
                     fMarkup.emplace_front(MarkType::kRow, colStart, fLineCount, fParent);
@@ -1499,6 +1501,9 @@ bool BmhParser::findDefinitions() {
                         fMarkup.emplace_front(MarkType::kColumn, colStart, fLineCount, fParent);
                         Definition* column = &fMarkup.front();
                         column->fContentStart = fChar;
+                        start here;
+                        // list may have inner content (e.g. #Formula) that span multiple lines
+                        // need to parser interior instead of trivially searching for bracket end
                         column->fContentEnd = this->trimmedBracketEnd(fMC, 
                                  parentIsList ? OneLine::kNo : OneLine::kYes);
                         this->skipToEndBracket(fMC);
@@ -2115,7 +2120,7 @@ DEFINE_string2(include, i, "", "A path to a *.h file or a directory.");
 DEFINE_bool2(hack, k, false, "Do a find/replace hack to update all *.bmh files. (Requires -b)");
 DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
 DEFINE_string2(ref, r, "", "Resolve refs and write bmh_*.md files to path. (Requires -b)");
-DEFINE_bool2(spellcheck, s, false, "Spell-check. (Requires -b)");
+DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispellings]. (Requires -b)");
 DEFINE_bool2(tokens, t, false, "Output include tokens. (Requires -i)");
 DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
 
@@ -2198,7 +2203,7 @@ int main(int argc, char** const argv) {
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
-    if (FLAGS_bmh.isEmpty() && FLAGS_spellcheck) {
+    if (FLAGS_bmh.isEmpty() && !FLAGS_spellcheck.isEmpty()) {
         SkDebugf("-s requires -b\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
@@ -2257,8 +2262,8 @@ int main(int argc, char** const argv) {
         MdOut mdOut(bmhParser);
         mdOut.buildReferences(FLAGS_bmh[0], FLAGS_ref[0]);
     }
-    if (!done && FLAGS_spellcheck && FLAGS_examples.isEmpty()) {
-        bmhParser.spellCheck(FLAGS_bmh[0]);
+    if (!done && !FLAGS_spellcheck.isEmpty() && FLAGS_examples.isEmpty()) {
+        bmhParser.spellCheck(FLAGS_bmh[0], FLAGS_spellcheck);
         done = true;
     }
     int examples = 0;
