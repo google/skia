@@ -1273,7 +1273,7 @@ int main(int argc, char** argv) {
                 }
             }
 
-            TRACE_EVENT1("skia", bench->getUniqueName(), "config", config);
+            TRACE_EVENT1("skia", bench->getUniqueName(), "config", TRACE_STR_COPY(config));
 
             target->setup();
             bench->perCanvasPreDraw(canvas);
