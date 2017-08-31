@@ -40,11 +40,28 @@ static uint32_t filter_window(double sigma) {
     return std::max(1u, possibleWindow);
 }
 
+static std::tuple<uint64_t, uint64_t> interp_factors(double sigma) {
+    double radius = 1.5 * sigma - 0.5;
+    double outerRadius = ceil(radius);
+    double outerWindow = 2*outerRadius + 1;
+    double innerRadius = outerRadius - 1;
+    double innerWindow = 2*innerRadius + 1;
+
+    // The inner and outer sums are divided by the window size to get the average over the window.
+    // Then the two averages are weighted by how close the radius is to the inner or outer radius.
+    double outerFactor = (radius - innerRadius) / outerWindow;
+    double innerFactor = (outerRadius - radius) / innerWindow;
+
+    return std::make_tuple(static_cast<uint64_t>(round(outerFactor * (1ull << 32))),
+                           static_cast<uint64_t>(round(innerFactor * (1ull << 32))));
+}
+
 SkMaskBlurFilter::FilterInfo::FilterInfo(double sigma)
     : fIsSmall{sigma < kSmallSigma}
     , fFilterWindow{filter_window(sigma)}
     , fWeight{fIsSmall ? fFilterWindow : weight_from_diameter(fFilterWindow)}
     , fScaledWeight{(static_cast<uint64_t>(1) << 32) / fWeight}
+    , fInterpFactors{interp_factors(sigma)}
 {
     SkASSERT(sigma >= 0);
 }
@@ -87,6 +104,11 @@ uint64_t SkMaskBlurFilter::FilterInfo::scaledWeight() const {
 bool SkMaskBlurFilter::FilterInfo::isSmall() const {
     return fIsSmall;
 }
+
+std::tuple<uint64_t, uint64_t> SkMaskBlurFilter::FilterInfo::interpFactors() const {
+    return fInterpFactors;
+};
+
 
 SkMaskBlurFilter::SkMaskBlurFilter(double sigmaW, double sigmaH)
     : fInfoW{sigmaW}, fInfoH{sigmaH}
@@ -148,7 +170,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         for (size_t y = 0; y < srcH; y++) {
             auto srcStart = &src.fImage[y * src.fRowBytes];
             auto tmpStart = &tmp[y];
-            this->blurOneScan(fInfoW,
+            this->blurOneScan(fInfoW, srcW,
                               srcStart, 1, srcStart + srcW,
                               tmpStart, tmpW, tmpStart + tmpW * tmpH);
         }
@@ -158,7 +180,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         for (size_t y = 0; y < tmpH; y++) {
             auto tmpStart = &tmp[y * tmpW];
             auto dstStart = &dst->fImage[y];
-            this->blurOneScan(fInfoH,
+            this->blurOneScan(fInfoH, srcH,
                               tmpStart, 1, tmpStart + tmpW,
                               dstStart, dst->fRowBytes, dstStart + dst->fRowBytes * dstH);
         }
@@ -168,7 +190,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         for (size_t y = 0; y < srcH; y++) {
             auto srcStart = &src.fImage[y * src.fRowBytes];
             auto dstStart = &dst->fImage[y * dst->fRowBytes];
-            this->blurOneScan(fInfoW,
+            this->blurOneScan(fInfoW, srcW,
                               srcStart, 1, srcStart + srcW,
                               dstStart, 1, dstStart + dstW);
         }
@@ -180,7 +202,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
             auto srcEnd   = &src.fImage[src.fRowBytes * srcH];
             auto dstStart = &dst->fImage[x];
             auto dstEnd   = &dst->fImage[dst->fRowBytes * dstH];
-            this->blurOneScan(fInfoH,
+            this->blurOneScan(fInfoH, srcH,
                               srcStart, src.fRowBytes, srcEnd,
                               dstStart, dst->fRowBytes, dstEnd);
         }
@@ -201,24 +223,41 @@ size_t SkMaskBlurFilter::bufferSize(uint8_t bufferPass) const {
 
 // Blur one horizontal scan into the dst.
 void SkMaskBlurFilter::blurOneScan(
-    FilterInfo info,
+    const FilterInfo& info, size_t width,
     const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
           uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const {
     // We don't think this is good for quality. It is good for compatibility
     // with previous expectations...
     if (info.isSmall()) {
-        this->blurOneScanBox(info, src, srcStride, srcEnd, dst, dstStride, dstEnd);
+        #if defined(SK_LEGACY_SUPPORT_INTEGER_SMALL_RADII)
+            this->blurOneScanBox(info, src, srcStride, srcEnd, dst, dstStride, dstEnd);
+        #else
+            this->blurOneScanBoxInterp(info, width, src, srcStride, srcEnd, dst, dstStride, dstEnd);
+        #endif
+
     } else {
         this->blurOneScanGauss(info, src, srcStride, srcEnd, dst, dstStride, dstEnd);
     }
 
 }
 
+static constexpr uint64_t half = static_cast<uint64_t>(1) << 31;
+
+static uint8_t final_scale(uint64_t weight, uint32_t sum) {
+    return SkTo<uint8_t>((weight * sum + half) >> 32);
+}
+
+static uint8_t interp_final_scale(uint64_t outerWeight, uint32_t outerSum,
+                                  uint64_t innerWeight, uint32_t innerSum) {
+    return SkTo<uint8_t>((outerWeight * outerSum + innerWeight * innerSum + half) >> 32);
+}
+
+
 // Blur one horizontal scan into the dst.
 void SkMaskBlurFilter::blurOneScanBox(
-    FilterInfo info,
+    const FilterInfo& info,
     const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
-          uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const {
+    uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const {
 
     auto buffer0Begin = &fBuffer0[0];
     auto buffer0Cursor = buffer0Begin;
@@ -277,8 +316,79 @@ void SkMaskBlurFilter::blurOneScanBox(
 }
 
 // Blur one horizontal scan into the dst.
+void SkMaskBlurFilter::blurOneScanBoxInterp(
+    const FilterInfo& info, size_t width,
+    const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+          uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const
+{
+    uint64_t outerFactor, innerFactor;
+    std::tie(outerFactor, innerFactor) = info.interpFactors();
+
+    // There are sever windows used in thinking about this algorithm. There is the outer window
+    // that is generated by the ceiling of the radius. There is the inner window that is two
+    // smaller than the outer window, and they are centered on each other. Then there is the
+    // scanning window which is from the right edge of the outer window to the left edge of the
+    // inner window.
+    auto outerWindow = info.diameter(2);
+    auto slidingWindow = outerWindow - 1;
+    auto border = std::min(width, slidingWindow);
+
+    auto rightOuter = src;
+    auto dstCursor = dst;
+
+    uint32_t outerSum = 0;
+    uint32_t innerSum = 0;
+    for (size_t i = 0; i < border; i++) {
+        innerSum = outerSum;
+        outerSum += *rightOuter;
+        *dstCursor = interp_final_scale(outerFactor, outerSum, innerFactor, innerSum);
+        rightOuter += srcStride;
+        dstCursor += dstStride;
+    }
+
+    // Consider the two filter cases:
+    // * slidingWindow > width - in this case the right edge of the window reaches the end of the
+    //                           source data before left edge starts consuming source data. This
+    //                           means that the will be adding and subtracting zero as it advances,
+    //                           the sum never changing.
+    // * width < slidingWindow - in this case the right edge of the window will continue consuming
+    //                           source data after the left edge of the window starts consuming
+    //                           source data.
+
+    if (slidingWindow > width) {
+        auto v = interp_final_scale(outerFactor, outerSum, innerFactor, innerSum);
+        for (auto i = width; i < slidingWindow; i++) {
+            *dstCursor = v;
+            dstCursor += dstStride;
+        }
+    } else if (slidingWindow < width) {
+        auto leftInner = src;
+        while (rightOuter < srcEnd) {
+            innerSum = outerSum - *leftInner;
+            outerSum += *rightOuter;
+            *dstCursor = interp_final_scale(outerFactor, outerSum, innerFactor, innerSum);
+            outerSum -= *leftInner;
+            rightOuter += srcStride;
+            leftInner += srcStride;
+            dstCursor += dstStride;
+        }
+    }
+
+    auto leftOuter = srcEnd;
+    dstCursor = dstEnd;
+    outerSum = 0;
+    for (size_t i = 0; i < border; i++) {
+        leftOuter -= srcStride;
+        dstCursor -= dstStride;
+        innerSum = outerSum;
+        outerSum += *leftOuter;
+        *dstCursor = interp_final_scale(outerFactor, outerSum, innerFactor, innerSum);
+    }
+}
+
+// Blur one horizontal scan into the dst.
 void SkMaskBlurFilter::blurOneScanGauss(
-    FilterInfo info,
+    const FilterInfo& info,
     const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
           uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const {
 
@@ -302,8 +412,6 @@ void SkMaskBlurFilter::blurOneScanGauss(
     uint32_t sum1 = 0;
     uint32_t sum2 = 0;
 
-    const uint64_t half = static_cast<uint64_t>(1) << 31;
-
     // Consume the source generating pixels.
     for (auto srcCursor = src; srcCursor < srcEnd; dst += dstStride, srcCursor += srcStride) {
         uint32_t s = *srcCursor;
@@ -311,7 +419,7 @@ void SkMaskBlurFilter::blurOneScanGauss(
         sum1 += sum0;
         sum2 += sum1;
 
-        *dst = SkTo<uint8_t>((info.scaledWeight() * sum2 + half) >> 32);
+        *dst = final_scale(info.scaledWeight(), sum2);
 
         sum2 -= *buffer2Cursor;
         *buffer2Cursor = sum1;
@@ -334,7 +442,7 @@ void SkMaskBlurFilter::blurOneScanGauss(
         sum1 += sum0;
         sum2 += sum1;
 
-        *dst = SkTo<uint8_t>((info.scaledWeight() * sum2 + half) >> 32);
+        *dst = final_scale(info.scaledWeight(), sum2);
 
         sum2 -= *buffer2Cursor;
         *buffer2Cursor = sum1;
@@ -367,7 +475,7 @@ void SkMaskBlurFilter::blurOneScanGauss(
         sum1 += sum0;
         sum2 += sum1;
 
-        *dstCursor = SkTo<uint8_t>((info.scaledWeight() * sum2 + half) >> 32);
+        *dstCursor = final_scale(info.scaledWeight(), sum2);
 
         sum2 -= *buffer2Cursor;
         *buffer2Cursor = sum1;

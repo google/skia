@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <tuple>
 
 #include "SkMask.h"
 #include "SkTypes.h"
@@ -40,11 +41,15 @@ public:
         // Returned when sigma < 2.
         bool isSmall() const;
 
+        // Factors for interpolating box blur.
+        std::tuple<uint64_t, uint64_t> interpFactors() const;
+
     private:
-        const bool     fIsSmall;
-        const uint32_t fFilterWindow;
-        const uint64_t fWeight;
-        const uint64_t fScaledWeight;
+        const bool                           fIsSmall;
+        const uint32_t                       fFilterWindow;
+        const uint64_t                       fWeight;
+        const uint64_t                       fScaledWeight;
+        const std::tuple<uint64_t, uint64_t> fInterpFactors;
     };
 
     // Create an object suitable for filtering an SkMask using a filter with width sigmaW and
@@ -60,15 +65,19 @@ public:
 private:
     size_t bufferSize(uint8_t bufferPass) const;
 
-    void blurOneScan(FilterInfo gen,
+    void blurOneScan(const FilterInfo& gen, size_t width,
                      const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
                            uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const;
 
-    void blurOneScanBox(FilterInfo gen,
+    void blurOneScanBox(const FilterInfo& gen,
                         const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
                               uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const;
 
-    void blurOneScanGauss(FilterInfo gen,
+    void blurOneScanBoxInterp(const FilterInfo& gen, size_t width,
+                              const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                                    uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const;
+
+    void blurOneScanGauss(const FilterInfo& gen,
                           const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
                                 uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const;
 
