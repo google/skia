@@ -46,6 +46,7 @@
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
 #include "SkThreadUtils.h"
+#include "SkTraceEvent.h"
 #include "Stats.h"
 #include "ThermalManager.h"
 #include "ios_utils.h"
@@ -1271,6 +1272,8 @@ int main(int argc, char** argv) {
                     continue;
                 }
             }
+
+            TRACE_EVENT1("skia", bench->getUniqueName(), "config", config);
 
             target->setup();
             bench->perCanvasPreDraw(canvas);
