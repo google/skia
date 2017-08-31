@@ -33,12 +33,14 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
 
     #if defined(__AVX2__)
         using U8    = uint8_t  __attribute__((ext_vector_type(16)));
+        using U16   = uint16_t __attribute__((ext_vector_type(16)));
         using U32   = uint32_t __attribute__((ext_vector_type(16)));
         using U8x4  = uint8_t  __attribute__((ext_vector_type(64)));
         using U16x4 = uint16_t __attribute__((ext_vector_type(64)));
         using R     = uint8_t  __attribute__((ext_vector_type(32)));
     #else
         using U8    = uint8_t  __attribute__((ext_vector_type( 8)));
+        using U16   = uint16_t __attribute__((ext_vector_type( 8)));
         using U32   = uint32_t __attribute__((ext_vector_type( 8)));
         using U8x4  = uint8_t  __attribute__((ext_vector_type(32)));
         using U16x4 = uint16_t __attribute__((ext_vector_type(32)));
@@ -321,6 +323,26 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
     STAGE(store_bgra) {
         auto ptr = ptr_at_xy<uint32_t>(ctx, x,y);
         store(ptr, swap_rb(src).u32, tail);
+    }
+
+    STAGE(store_565) {
+        auto ptr = ptr_at_xy<uint16_t>(ctx, x,y);
+
+        U32 r = (src.u32 & 0x0000F8) << 8;
+        U32 g = (src.u32 & 0x00FC00) >> 5;
+        U32 b = (src.u32 & 0xF80000) >> 19;
+
+        store(ptr, __builtin_convertvector(r | g | b, U16), tail);
+    }
+    STAGE(load_565_dst) {
+        auto ptr = ptr_at_xy<const uint16_t>(ctx, x,y);
+        U32 p = __builtin_convertvector(load<U16>(ptr, tail), U32);
+
+        U32 rb = ((p & 0xF800) >> 8) | ((p & 0x001F) << 19);
+            rb = rb | ((rb >> 5) & 0x70007);
+        U32 g = ((p & 0x07E0) << 5) | ((p & 0x0C00) >> 1);
+
+        dst = (0xFF << 24) | rb | g;
     }
 
     STAGE(load_a8) {
@@ -619,6 +641,35 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
         }
     }
 
+    SI U16 load_u16(const uint16_t* ptr, size_t tail) {
+        __builtin_assume(tail < kStride);
+        U16 v = 0;
+        switch (tail) {
+            case 0: memcpy(&v, ptr, 8*sizeof(uint16_t)); break;
+            case 7: v[6] = ptr[6];
+            case 6: v[5] = ptr[5];
+            case 5: v[4] = ptr[4];
+            case 4: memcpy(&v, ptr, 4*sizeof(uint16_t)); break;
+            case 3: v[2] = ptr[2];
+            case 2: memcpy(&v, ptr, 2*sizeof(uint16_t)); break;
+            case 1: v[0] = ptr[0];
+        }
+        return v;
+    }
+    SI void store_u16(uint16_t* ptr, size_t tail, U16 v) {
+        __builtin_assume(tail < kStride);
+        switch (tail) {
+            case 0: memcpy(ptr, &v, 8*sizeof(uint16_t)); break;
+            case 7: ptr[6] = v[6];
+            case 6: ptr[5] = v[5];
+            case 5: ptr[4] = v[4];
+            case 4: memcpy(ptr, &v, 4*sizeof(uint16_t)); break;
+            case 3: ptr[2] = v[2];
+            case 2: memcpy(ptr, &v, 2*sizeof(uint16_t)); break;
+            case 1: ptr[0] = v[0];
+        }
+    }
+
     SI U8 load_u8(const uint8_t* ptr, size_t tail) {
         __builtin_assume(tail < kStride);
         U8 v = 0;
@@ -696,6 +747,25 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
 
         uint8x8x4_t rgba = {{ b,g,r,a }};
         store_u32(ptr, tail, rgba);
+    }
+
+    STAGE(store_565) {
+        auto ptr = ptr_at_xy<uint16_t>(ctx, x,y);
+
+        U16 rr = __builtin_convertvector(r.vec >> 3, U16);
+        U16 gg = __builtin_convertvector(g.vec >> 2, U16);
+        U16 bb = __builtin_convertvector(b.vec >> 3, U16);
+        store_u16(ptr, tail, (rr << 11) | (gg << 5) | bb);
+    }
+
+    STAGE(load_565_dst) {
+        auto ptr = ptr_at_xy<const uint16_t>(ctx, x,y);
+
+        auto p = load_u16(ptr, tail);
+        dr = __builtin_convertvector(((p & 0xF800) >> 8) | ( p         >> 13), U8);
+        dg = __builtin_convertvector(((p & 0x07E0) >> 3) | ((p & 0x60) >>  5), U8);
+        db = __builtin_convertvector(( p           << 3) | ((p & 0x1C) >>  3), U8);
+        da = 0xFF;
     }
 
     STAGE(load_a8) {
