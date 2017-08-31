@@ -101,7 +101,8 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     # TODO(kjlubick): Remove this after we are backfilled up and don't need
     # to manually delete this
     self._ssh('Delete old nanobench', 'rm', '/cache/skia/nanobench',
-              abort_on_failure=False)
+              abort_on_failure=False, fail_build_on_failure=False,
+              infra_step=True)
 
   def _adb(self, title, *cmd, **kwargs):
     if not self._ever_ran_adb:
@@ -152,9 +153,9 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     if self._ever_ran_adb:
       # To clean up disk space for next time
       self._ssh('Delete executables', 'rm', '-r', self.m.vars.android_bin_dir,
-                abort_on_failure=False)
+                abort_on_failure=False, infra_step=True)
       # Reconnect if was disconnected
-      self._adb('disconnect')
+      self._adb('disconnect', 'disconnect')
       self._connect_to_remote()
       self.m.run(self.m.python.inline, 'dump log', program="""
           import os
@@ -176,16 +177,14 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
           infra_step=True,
           abort_on_failure=False)
 
-      self._adb('disconnect')
+      self._adb('disconnect', 'disconnect')
       self._adb('kill adb server', 'kill-server')
-
 
   def _ssh(self, title, *cmd, **kwargs):
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
                '-t', '-t', 'root@%s' % self.user_ip] + list(cmd)
 
-    return self.m.run(self.m.step, title, cmd=ssh_cmd,
-               infra_step=False, **kwargs)
+    return self.m.run(self.m.step, title, cmd=ssh_cmd, **kwargs)
 
   def step(self, name, cmd, **kwargs):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
@@ -194,5 +193,5 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
               'push', app, self.m.vars.android_bin_dir)
 
     cmd[0] = '%s/%s' % (self.m.vars.android_bin_dir, cmd[0])
-    self._ssh(str(name), *cmd)
+    self._ssh(str(name), *cmd, infra_step=False)
 
