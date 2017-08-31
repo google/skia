@@ -69,6 +69,30 @@
       "revId": "347a68306772b4daf7320db1d7f253b34c7e8309",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "209d648d_1d103865",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-08-31T20:23:27Z",
+      "side": 1,
+      "message": "I\u0027ve seen other code write a helper that takes 4 register \"pointers\" to share code:\n\ne.g.\nexpand(U16 p, V* r, V* g, V* b, V* a) ...",
+      "parentUuid": "f9657346_5a7a0bb1",
+      "range": {
+        "startLine": 763,
+        "startChar": 0,
+        "endLine": 769,
+        "endChar": 17
+      },
+      "revId": "347a68306772b4daf7320db1d7f253b34c7e8309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
