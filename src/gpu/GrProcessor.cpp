@@ -10,7 +10,6 @@
 #include "GrGeometryProcessor.h"
 #include "GrMemoryPool.h"
 #include "GrSamplerParams.h"
-#include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
 #include "GrXferProcessor.h"
 #include "SkSpinlock.h"

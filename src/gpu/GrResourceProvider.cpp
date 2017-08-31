@@ -15,7 +15,6 @@
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPathRendering.h"
-#include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"

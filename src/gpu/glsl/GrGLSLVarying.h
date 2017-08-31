@@ -93,7 +93,7 @@ public:
 
     /*
      * addVarying allows fine grained control for setting up varyings between stages. Calling this
-     * functions will make sure all necessary decls are setup for the client. The client however is
+     * function will make sure all necessary decls are setup for the client. The client however is
      * responsible for setting up all shader code (e.g "vOut = vIn;") If you just need to take an
      * attribute and pass it through to an output value in a fragment shader, use
      * addPassThroughAttribute.
