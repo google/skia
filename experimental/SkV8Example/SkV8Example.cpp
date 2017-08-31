@@ -8,12 +8,13 @@
  */
 #include <v8.h>
 #include <include/libplatform/libplatform.h>
+
 #include "SkV8Example.h"
 #include "Global.h"
 #include "JsContext.h"
 #include "Path2D.h"
 #include "Path2DBuilder.h"
-#include "GrBackendSurface.h"
+
 #include "gl/GrGLUtil.h"
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLInterface.h"
@@ -83,17 +84,19 @@ void SkV8ExampleWindow::windowSizeChanged() {
             exit(1);
         }
 
-        GrGLFramebufferInfo framebufferInfo;
-        GR_GL_GetIntegerv(fCurIntf, GR_GL_FRAMEBUFFER_BINDING, &framebufferInfo.fFBOID);
-        GrBackendRenderTarget backendRenderTarget(SkScalarRoundToInt(this->width()),
-                                                  SkScalarRoundToInt(this->height()),
-                                                  attachmentInfo.fSampleCount,
-                                                  attachmentInfo.fStencilBits,
-                                                  kSkia8888_GrPixelConfig,
-                                                  framebufferInfo);
+        GrBackendRenderTargetDesc desc;
+        desc.fWidth = SkScalarRoundToInt(this->width());
+        desc.fHeight = SkScalarRoundToInt(this->height());
+        desc.fConfig = kSkia8888_GrPixelConfig;
+        desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+        desc.fSampleCnt = attachmentInfo.fSampleCount;
+        desc.fStencilBits = attachmentInfo.fStencilBits;
+        GrGLint buffer;
+        GR_GL_GetIntegerv(fCurIntf, GR_GL_FRAMEBUFFER_BINDING, &buffer);
+        desc.fRenderTargetHandle = buffer;
+
         SkSafeUnref(fCurSurface);
-        fCurSurface = SkSurface::MakeFromBackendRenderTarget(fCurContext, backendRenderTarget,
-                                                             kBottomLeft_GrSurfaceOrigin,
+        fCurSurface = SkSurface::MakeFromBackendRenderTarget(fCurContext, desc,
                                                              nullptr, nullptr).release();
     }
 }
