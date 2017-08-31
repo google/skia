@@ -175,7 +175,7 @@ public:
 
     bool fillChangesGeom() const override {
         // unclosed rects get closed. Lines get turned into empty geometry
-        return this->isUnclosedRect() || fPath.isLine(nullptr);
+        return this->isUnclosedRect() || (fPath.isLine(nullptr) && !fPath.isInverseFillType());
     }
 
     bool strokeIsConvertedToFill() const override {
@@ -1203,29 +1203,23 @@ void test_volatile_path(skiatest::Reporter* reporter, const Geo& geo) {
 
 void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const Geo& geo) {
     /**
-     * This path effect returns an empty path (possibly inverted)
+     * This path effect returns an empty path.
      */
     class EmptyPathEffect : SkPathEffect {
     public:
         bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
                         const SkRect* cullR) const override {
             dst->reset();
-            if (fInvert) {
-                dst->toggleInverseFillType();
-            }
             return true;
         }
         void computeFastBounds(SkRect* dst, const SkRect& src) const override {
             dst->setEmpty();
         }
-        static sk_sp<SkPathEffect> Make(bool invert) {
-            return sk_sp<SkPathEffect>(new EmptyPathEffect(invert));
-        }
+        static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new EmptyPathEffect); }
         Factory getFactory() const override { return nullptr; }
         void toString(SkString*) const override {}
     private:
-        bool fInvert;
-        EmptyPathEffect(bool invert) : fInvert(invert) {}
+        EmptyPathEffect() {}
     };
 
     SkPath emptyPath;
@@ -1234,27 +1228,17 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const Geo&
     make_key(&emptyKey, emptyShape);
     REPORTER_ASSERT(reporter, emptyShape.isEmpty());
 
-    emptyPath.toggleInverseFillType();
-    GrShape invertedEmptyShape(emptyPath);
-    Key invertedEmptyKey;
-    make_key(&invertedEmptyKey, invertedEmptyShape);
-    REPORTER_ASSERT(reporter, invertedEmptyShape.isEmpty());
-
-    REPORTER_ASSERT(reporter, invertedEmptyKey != emptyKey);
-
     SkPaint pe;
-    pe.setPathEffect(EmptyPathEffect::Make(false));
-    TestCase geoPECase(geo, pe, reporter);
-    REPORTER_ASSERT(reporter, geoPECase.appliedFullStyleKey() == emptyKey);
-    REPORTER_ASSERT(reporter, geoPECase.appliedPathEffectKey() == emptyKey);
-    REPORTER_ASSERT(reporter, geoPECase.appliedPathEffectThenStrokeKey() == emptyKey);
-    REPORTER_ASSERT(reporter, geoPECase.appliedPathEffectShape().isEmpty());
-    REPORTER_ASSERT(reporter, geoPECase.appliedFullStyleShape().isEmpty());
-    REPORTER_ASSERT(reporter, !geoPECase.appliedPathEffectShape().inverseFilled());
-    REPORTER_ASSERT(reporter, !geoPECase.appliedFullStyleShape().inverseFilled());
+    pe.setPathEffect(EmptyPathEffect::Make());
+    TestCase geoCase(geo, pe, reporter);
+    REPORTER_ASSERT(reporter, geoCase.appliedFullStyleKey() == emptyKey);
+    REPORTER_ASSERT(reporter, geoCase.appliedPathEffectKey() == emptyKey);
+    REPORTER_ASSERT(reporter, geoCase.appliedPathEffectThenStrokeKey() == emptyKey);
+    REPORTER_ASSERT(reporter, geoCase.appliedPathEffectShape().isEmpty());
+    REPORTER_ASSERT(reporter, geoCase.appliedFullStyleShape().isEmpty());
 
     SkPaint peStroke;
-    peStroke.setPathEffect(EmptyPathEffect::Make(false));
+    peStroke.setPathEffect(EmptyPathEffect::Make());
     peStroke.setStrokeWidth(2.f);
     peStroke.setStyle(SkPaint::kStroke_Style);
     TestCase geoPEStrokeCase(geo, peStroke, reporter);
@@ -1263,29 +1247,6 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const Geo&
     REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedPathEffectThenStrokeKey() == emptyKey);
     REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedPathEffectShape().isEmpty());
     REPORTER_ASSERT(reporter, geoPEStrokeCase.appliedFullStyleShape().isEmpty());
-    REPORTER_ASSERT(reporter, !geoPEStrokeCase.appliedPathEffectShape().inverseFilled());
-    REPORTER_ASSERT(reporter, !geoPEStrokeCase.appliedFullStyleShape().inverseFilled());
-    pe.setPathEffect(EmptyPathEffect::Make(true));
-
-    TestCase geoPEInvertCase(geo, pe, reporter);
-    REPORTER_ASSERT(reporter, geoPEInvertCase.appliedFullStyleKey() == invertedEmptyKey);
-    REPORTER_ASSERT(reporter, geoPEInvertCase.appliedPathEffectKey() == invertedEmptyKey);
-    REPORTER_ASSERT(reporter, geoPEInvertCase.appliedPathEffectThenStrokeKey() == invertedEmptyKey);
-    REPORTER_ASSERT(reporter, geoPEInvertCase.appliedPathEffectShape().isEmpty());
-    REPORTER_ASSERT(reporter, geoPEInvertCase.appliedFullStyleShape().isEmpty());
-    REPORTER_ASSERT(reporter, geoPEInvertCase.appliedPathEffectShape().inverseFilled());
-    REPORTER_ASSERT(reporter, geoPEInvertCase.appliedFullStyleShape().inverseFilled());
-
-    peStroke.setPathEffect(EmptyPathEffect::Make(true));
-    TestCase geoPEInvertStrokeCase(geo, peStroke, reporter);
-    REPORTER_ASSERT(reporter, geoPEInvertStrokeCase.appliedFullStyleKey() == invertedEmptyKey);
-    REPORTER_ASSERT(reporter, geoPEInvertStrokeCase.appliedPathEffectKey() == invertedEmptyKey);
-    REPORTER_ASSERT(reporter,
-                    geoPEInvertStrokeCase.appliedPathEffectThenStrokeKey() == invertedEmptyKey);
-    REPORTER_ASSERT(reporter, geoPEInvertStrokeCase.appliedPathEffectShape().isEmpty());
-    REPORTER_ASSERT(reporter, geoPEInvertStrokeCase.appliedFullStyleShape().isEmpty());
-    REPORTER_ASSERT(reporter, geoPEInvertStrokeCase.appliedPathEffectShape().inverseFilled());
-    REPORTER_ASSERT(reporter, geoPEInvertStrokeCase.appliedFullStyleShape().inverseFilled());
 }
 
 void test_path_effect_fails(skiatest::Reporter* reporter, const Geo& geo) {
@@ -1352,57 +1313,37 @@ void test_path_effect_fails(skiatest::Reporter* reporter, const Geo& geo) {
 
 DEF_TEST(GrShape_empty_shape, reporter) {
     SkPath emptyPath;
-    SkPath invertedEmptyPath;
-    invertedEmptyPath.toggleInverseFillType();
     SkPaint fill;
     TestCase fillEmptyCase(reporter, emptyPath, fill);
     REPORTER_ASSERT(reporter, fillEmptyCase.baseShape().isEmpty());
     REPORTER_ASSERT(reporter, fillEmptyCase.appliedPathEffectShape().isEmpty());
     REPORTER_ASSERT(reporter, fillEmptyCase.appliedFullStyleShape().isEmpty());
-    REPORTER_ASSERT(reporter, !fillEmptyCase.baseShape().inverseFilled());
-    REPORTER_ASSERT(reporter, !fillEmptyCase.appliedPathEffectShape().inverseFilled());
-    REPORTER_ASSERT(reporter, !fillEmptyCase.appliedFullStyleShape().inverseFilled());
-    TestCase fillInvertedEmptyCase(reporter, invertedEmptyPath, fill);
-    REPORTER_ASSERT(reporter, fillInvertedEmptyCase.baseShape().isEmpty());
-    REPORTER_ASSERT(reporter, fillInvertedEmptyCase.appliedPathEffectShape().isEmpty());
-    REPORTER_ASSERT(reporter, fillInvertedEmptyCase.appliedFullStyleShape().isEmpty());
-    REPORTER_ASSERT(reporter, fillInvertedEmptyCase.baseShape().inverseFilled());
-    REPORTER_ASSERT(reporter, fillInvertedEmptyCase.appliedPathEffectShape().inverseFilled());
-    REPORTER_ASSERT(reporter, fillInvertedEmptyCase.appliedFullStyleShape().inverseFilled());
 
     Key emptyKey(fillEmptyCase.baseKey());
     REPORTER_ASSERT(reporter, emptyKey.count());
-    Key inverseEmptyKey(fillInvertedEmptyCase.baseKey());
-    REPORTER_ASSERT(reporter, inverseEmptyKey.count());
     TestCase::SelfExpectations expectations;
     expectations.fStrokeApplies = false;
     expectations.fPEHasEffect = false;
     // This will test whether applying style preserves emptiness
     fillEmptyCase.testExpectations(reporter, expectations);
-    fillInvertedEmptyCase.testExpectations(reporter, expectations);
 
     // Stroking an empty path should have no effect
+    SkPath emptyPath2;
     SkPaint stroke;
     stroke.setStrokeWidth(2.f);
     stroke.setStyle(SkPaint::kStroke_Style);
-    TestCase strokeEmptyCase(reporter, emptyPath, stroke);
+    TestCase strokeEmptyCase(reporter, emptyPath2, stroke);
     strokeEmptyCase.compare(reporter, fillEmptyCase, TestCase::kAllSame_ComparisonExpecation);
-    TestCase strokeInvertedEmptyCase(reporter, invertedEmptyPath, stroke);
-    strokeInvertedEmptyCase.compare(reporter, fillInvertedEmptyCase,
-                                    TestCase::kAllSame_ComparisonExpecation);
 
     // Dashing and stroking an empty path should have no effect
+    SkPath emptyPath3;
     SkPaint dashAndStroke;
     dashAndStroke.setPathEffect(make_dash());
     dashAndStroke.setStrokeWidth(2.f);
     dashAndStroke.setStyle(SkPaint::kStroke_Style);
-    TestCase dashAndStrokeEmptyCase(reporter, emptyPath, dashAndStroke);
+    TestCase dashAndStrokeEmptyCase(reporter, emptyPath3, dashAndStroke);
     dashAndStrokeEmptyCase.compare(reporter, fillEmptyCase,
                                    TestCase::kAllSame_ComparisonExpecation);
-    TestCase dashAndStrokeInvertexEmptyCase(reporter, invertedEmptyPath, dashAndStroke);
-    // Dashing ignores inverseness so this is equivalent to the non-inverted empty fill.
-    dashAndStrokeInvertexEmptyCase.compare(reporter, fillEmptyCase,
-                                           TestCase::kAllSame_ComparisonExpecation);
 
     // A shape made from an empty rrect should behave the same as an empty path.
     SkRRect emptyRRect = SkRRect::MakeRect(SkRect::MakeEmpty());
@@ -1410,24 +1351,12 @@ DEF_TEST(GrShape_empty_shape, reporter) {
     TestCase dashAndStrokeEmptyRRectCase(reporter, emptyRRect, dashAndStroke);
     dashAndStrokeEmptyRRectCase.compare(reporter, fillEmptyCase,
                                         TestCase::kAllSame_ComparisonExpecation);
-    static constexpr SkPath::Direction kDir = SkPath::kCCW_Direction;
-    static constexpr int kStart = 0;
-    TestCase dashAndStrokeEmptyInvertedRRectCase(reporter, emptyRRect, kDir, kStart, true,
-                                                 GrStyle(dashAndStroke));
-    // Dashing ignores inverseness so this is equivalent to the non-inverted empty fill.
-    dashAndStrokeEmptyInvertedRRectCase.compare(reporter, fillEmptyCase,
-                                                TestCase::kAllSame_ComparisonExpecation);
 
     // Same for a rect.
     SkRect emptyRect = SkRect::MakeEmpty();
     TestCase dashAndStrokeEmptyRectCase(reporter, emptyRect, dashAndStroke);
     dashAndStrokeEmptyRectCase.compare(reporter, fillEmptyCase,
                                        TestCase::kAllSame_ComparisonExpecation);
-    TestCase dashAndStrokeEmptyInvertedRectCase(reporter, SkRRect::MakeRect(emptyRect), kDir,
-                                                kStart, true, GrStyle(dashAndStroke));
-    // Dashing ignores inverseness so this is equivalent to the non-inverted empty fill.
-    dashAndStrokeEmptyInvertedRectCase.compare(reporter, fillEmptyCase,
-                                               TestCase::kAllSame_ComparisonExpecation);
 }
 
 // rect and oval types have rrect start indices that collapse to the same point. Here we select the
@@ -1721,13 +1650,6 @@ DEF_TEST(GrShape_lines, r) {
     TestCase fillEmpty(r, SkPath(), fill);
     fillAB.compare(r, fillEmpty, TestCase::kAllSame_ComparisonExpecation);
     REPORTER_ASSERT(r, !fillAB.baseShape().asLine(nullptr, nullptr));
-
-    SkPath path;
-    path.toggleInverseFillType();
-    TestCase fillEmptyInverted(r, path, fill);
-    TestCase fillABInverted(r, invLineAB, fill);
-    fillABInverted.compare(r, fillEmptyInverted, TestCase::kAllSame_ComparisonExpecation);
-    REPORTER_ASSERT(r, !fillABInverted.baseShape().asLine(nullptr, nullptr));
 
     TestCase strokeAB(r, lineAB, stroke);
     TestCase strokeBA(r, lineBA, stroke);
