@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa415796_22883c48",
+        "filename": "src/gpu/GrOpFlushState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-08-31T16:39:10Z",
+      "side": 1,
+      "message": "Out of curiosity, why this change?",
+      "range": {
+        "startLine": 22,
+        "startChar": 28,
+        "endLine": 22,
+        "endChar": 70
+      },
+      "revId": "681b2402dda741e4811b3b2db54a004990abeace",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
