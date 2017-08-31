@@ -19,35 +19,12 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig
                                                    int numPlotsX, int numPlotsY,
                                                    GrDrawOpAtlas::EvictionFunc func,
                                                    void* data) {
-    GrSurfaceDesc desc;
-    desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fConfig = config;
-
-    // We don't want to flush the context so we claim we're in the middle of flushing so as to
-    // guarantee we do not recieve a texture with pending IO
-    // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
-    static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    sk_sp<GrTexture> texture(ctx->resourceProvider()->createApproxTexture(desc, kFlags));
-    if (!texture) {
-        return nullptr;
-    }
-
-    // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
-    // possess the correct properties (e.g., no pendingIO) should fall out of the system but
-    // should receive special attention.
-    // Note: When switching over to the deferred proxy, use the kExact flag to create
-    // the atlas and assert that the width & height are powers of 2.
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(texture),
-                                                              kTopLeft_GrSurfaceOrigin);
-    if (!proxy) {
-        return nullptr;
-    }
-
     std::unique_ptr<GrDrawOpAtlas> atlas(
-            new GrDrawOpAtlas(ctx, std::move(proxy), numPlotsX, numPlotsY));
+            new GrDrawOpAtlas(ctx, config, width, height, numPlotsX, numPlotsY));
+    if (!atlas->getProxy()) {
+        return nullptr;
+    }
+
     atlas->registerEvictionCallback(func, data);
     return atlas;
 }
@@ -162,16 +139,41 @@ void GrDrawOpAtlas::Plot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, sk_sp<GrTextureProxy> proxy,
+GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width, int height,
                              int numPlotsX, int numPlotsY)
         : fContext(context)
-        , fProxy(std::move(proxy))
+        , fProxy(nullptr)
+        , fPixelConfig(config)
+        , fTextureWidth(width)
+        , fTextureHeight(height)
         , fAtlasGeneration(kInvalidAtlasGeneration + 1) {
-    fPlotWidth = fProxy->width() / numPlotsX;
-    fPlotHeight = fProxy->height() / numPlotsY;
+
+    GrSurfaceDesc desc;
+    desc.fFlags = kNone_GrSurfaceFlags;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+    desc.fWidth = fTextureWidth;
+    desc.fHeight = fTextureHeight;
+    desc.fConfig = fPixelConfig;
+
+    // We don't want to flush the context so we claim we're in the middle of flushing so as to
+    // guarantee we do not recieve a texture with pending IO
+    // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
+    static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
+    sk_sp<GrTexture> texture(context->resourceProvider()->createApproxTexture(desc, kFlags));
+    if (texture) {
+        // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
+        // possess the correct properties (e.g., no pendingIO) should fall out of the system but
+        // should receive special attention.
+        // Note: When switching over to the deferred proxy, use the kExact flag to create
+        // the atlas and assert that the width & height are powers of 2.
+        fProxy = GrSurfaceProxy::MakeWrapped(std::move(texture), kTopLeft_GrSurfaceOrigin);
+    }
+
+    fPlotWidth = fTextureWidth / numPlotsX;
+    fPlotHeight = fTextureHeight / numPlotsY;
     SkASSERT(numPlotsX * numPlotsY <= BulkUseTokenUpdater::kMaxPlots);
-    SkASSERT(fPlotWidth * numPlotsX == fProxy->width());
-    SkASSERT(fPlotHeight * numPlotsY == fProxy->height());
+    SkASSERT(fPlotWidth * numPlotsX == fTextureWidth);
+    SkASSERT(fPlotHeight * numPlotsY == fTextureHeight);
 
     SkDEBUGCODE(fNumPlots = numPlotsX * numPlotsY;)
 
@@ -183,7 +185,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, sk_sp<GrTextureProxy> proxy,
         for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
             uint32_t index = r * numPlotsX + c;
             currPlot->reset(
-                    new Plot(index, 1, x, y, fPlotWidth, fPlotHeight, fProxy->config()));
+                    new Plot(index, 1, x, y, fPlotWidth, fPlotHeight, fPixelConfig));
 
             // build LRU list
             fPlotList.addToHead(currPlot->get());
