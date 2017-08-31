@@ -7,15 +7,14 @@
 
 #include "GrAtlasGlyphCache.h"
 #include "GrContext.h"
+#include "GrDistanceFieldGenFromVector.h"
 #include "GrGpu.h"
 #include "GrRectanizer.h"
-#include "GrSurfacePriv.h"
+
 #include "SkAutoMalloc.h"
+#include "SkDistanceFieldGen.h"
 #include "SkMathPriv.h"
 #include "SkString.h"
-
-#include "SkDistanceFieldGen.h"
-#include "GrDistanceFieldGenFromVector.h"
 
 bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);

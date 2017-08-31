@@ -7,7 +7,6 @@
 
 #include "GrVkTextureRenderTarget.h"
 
-#include "GrRenderTargetPriv.h"
 #include "GrTexturePriv.h"
 #include "GrVkGpu.h"
 #include "GrVkImageView.h"

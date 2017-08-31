@@ -12,7 +12,6 @@
 #include "GrGpu.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetOpList.h"
-#include "GrRenderTargetPriv.h"
 #include "GrXferProcessor.h"
 
 #include "ops/GrOp.h"

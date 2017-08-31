@@ -22,7 +22,6 @@
 #include "GrPipeline.h"
 #include "GrRenderTargetPriv.h"
 #include "GrShaderCaps.h"
-#include "GrSurfacePriv.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
