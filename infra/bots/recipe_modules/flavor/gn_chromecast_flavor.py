@@ -154,7 +154,7 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
       self._ssh('Delete executables', 'rm', '-r', self.m.vars.android_bin_dir,
                 abort_on_failure=False)
       # Reconnect if was disconnected
-      self._adb('disconnect')
+      self._adb('disconnect', 'disconnect')
       self._connect_to_remote()
       self.m.run(self.m.python.inline, 'dump log', program="""
           import os
@@ -176,9 +176,8 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
           infra_step=True,
           abort_on_failure=False)
 
-      self._adb('disconnect')
+      self._adb('disconnect', 'disconnect')
       self._adb('kill adb server', 'kill-server')
-
 
   def _ssh(self, title, *cmd, **kwargs):
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',

@@ -661,7 +661,8 @@
   },
   {
     "cmd": [
-      "adb"
+      "adb",
+      "disconnect"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -724,7 +725,8 @@
   },
   {
     "cmd": [
-      "adb"
+      "adb",
+      "disconnect"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
