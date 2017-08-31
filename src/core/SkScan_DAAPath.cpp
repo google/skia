@@ -346,7 +346,12 @@ void SkScan::DAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
             deltaMask.convertCoverageToAlpha(isEvenOdd, isInverse, isConvex);
             blitter->blitMask(deltaMask.prepareSkMask(), clippedIR);
         } else {
-            SkCoverageDeltaAllocator alloc;
+#ifdef GOOGLE3
+            constexpr int STACK_SIZE = 8 << 10; // 8K stack size alloc; Google3 has 16K limit.
+#else
+            constexpr int STACK_SIZE = 64 << 10; // 64k stack size to avoid heap allocation
+#endif
+            SkSTArenaAlloc<STACK_SIZE> alloc; // avoid heap allocation with SkSTArenaAlloc
             SkCoverageDeltaList deltaList(&alloc, clippedIR.fTop, clippedIR.fBottom, forceRLE);
             gen_alpha_deltas(path, *clipRgn, deltaList, blitter, skipRect, clipRect == nullptr);
             blitter->blitCoverageDeltas(&deltaList, clipBounds, isEvenOdd, isInverse, isConvex);

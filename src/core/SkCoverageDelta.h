@@ -35,25 +35,20 @@ struct SkAntiRect {
     SkAlpha fRightAlpha;
 };
 
-using SkCoverageDeltaAllocator = SkSTArenaAlloc<256>;
-
 // A list of SkCoverageDelta with y from top() to bottom().
 // For each row y, there are count(y) number of deltas.
 // You can ask whether they are sorted or not by sorted(y), and you can sort them by sort(y).
 // Once sorted, getDelta(y, i) should return the i-th leftmost delta on row y.
 class SkCoverageDeltaList {
 public:
-    // We can store INIT_ROW_SIZE deltas per row (i.e., per y-scanline) initially,
-    // and we reserve RESERVED_HEIGHT rows on stack memory.
+    // We can store INIT_ROW_SIZE deltas per row (i.e., per y-scanline) initially.
 #ifdef GOOGLE3
-    static constexpr int INIT_ROW_SIZE = 8; // google3 has 16k stack limit
-    static constexpr int RESERVED_HEIGHT = 120;
+    static constexpr int INIT_ROW_SIZE = 8; // google3 has 16k stack limit; so we make it small
 #else
     static constexpr int INIT_ROW_SIZE = 32;
-    static constexpr int RESERVED_HEIGHT = 128;
 #endif
 
-    SkCoverageDeltaList(SkCoverageDeltaAllocator* alloc, int top, int bottom, bool forceRLE);
+    SkCoverageDeltaList(SkArenaAlloc* alloc, int top, int bottom, bool forceRLE);
 
     int  top() const { return fTop; }
     int  bottom() const { return fBottom; }
@@ -84,7 +79,7 @@ public:
     }
 
 private:
-    SkCoverageDeltaAllocator*   fAlloc;
+    SkArenaAlloc*               fAlloc;
     SkCoverageDelta**           fRows;
     bool*                       fSorted;
     int*                        fCounts;
@@ -93,12 +88,6 @@ private:
     int                         fBottom;
     SkAntiRect                  fAntiRect;
     bool                        fForceRLE;
-
-    SkCoverageDelta             fReservedStorage[RESERVED_HEIGHT * INIT_ROW_SIZE];
-    SkCoverageDelta*            fReservedRows[RESERVED_HEIGHT];
-    bool                        fReservedSorted[RESERVED_HEIGHT];
-    int                         fReservedCounts[RESERVED_HEIGHT];
-    int                         fReservedMaxCounts[RESERVED_HEIGHT];
 
     void checkY(int y) const { SkASSERT(y >= fTop && y < fBottom); }
 
