@@ -119,7 +119,8 @@
       "ninja",
       "-C",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-arm-Release-Chromecast/Release",
-      "nanobench"
+      "nanobench",
+      "dm"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
@@ -167,6 +168,50 @@
       "@@@STEP_LOG_LINE@python.inline@    shutil.move(f, dst_path)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nCHROMECAST_IP_FILE = os.path.expanduser('~/chromecast.txt')\nwith open(CHROMECAST_IP_FILE, 'r') as f:\n  print f.read()\n"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-arm-Release-Chromecast"
+    },
+    "infra_step": true,
+    "name": "read chromecast ip",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@CHROMECAST_IP_FILE = os.path.expanduser('~/chromecast.txt')@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(CHROMECAST_IP_FILE, 'r') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print f.read()@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "root@",
+      "rm",
+      "-r",
+      "/data/local/tmp/bin"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-arm-Release-Chromecast"
+    },
+    "name": "Delete executables"
   },
   {
     "name": "$result",
