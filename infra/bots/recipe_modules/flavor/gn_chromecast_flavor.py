@@ -15,6 +15,8 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     super(GNChromecastFlavorUtils, self).__init__(m)
     self._ever_ran_adb = False
     self._user_ip = ''
+    self.m.vars.android_bin_dir = self.m.path.join(self.m.vars.android_bin_dir,
+                                                   'bin')
 
   @property
   def user_ip_host(self):
@@ -90,8 +92,16 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
 
     self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
     self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
-    # We only build perf for the chromecasts.
-    self._run('ninja', ninja, '-C', self.out_dir, 'nanobench')
+    self._run('ninja', ninja, '-C', self.out_dir, 'nanobench', 'dm')
+
+  def install(self):
+    super(GNChromecastFlavorUtils, self).install()
+    self._adb('mkdir ' + self.m.vars.android_bin_dir,
+              'shell', 'mkdir', '-p', self.m.vars.android_bin_dir)
+    # TODO(kjlubick): Remove this after we are backfilled up and don't need
+    # to manually delete this
+    self._ssh('Delete old nanobench', 'rm', '/cache/skia/nanobench',
+              abort_on_failure=False)
 
   def _adb(self, title, *cmd, **kwargs):
     if not self._ever_ran_adb:
@@ -131,12 +141,44 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
       for f in fs:
         print os.path.join(p,f)
         hp = os.path.realpath(os.path.join(host, p, f))
-        if os.stat(hp).st_size > (3 * 1024 * 1024):
+        if os.stat(hp).st_size > (1.5 * 1024 * 1024):
           print "Skipping because it is too big"
         else:
           subprocess.check_call(['adb', 'push',
                                 hp, os.path.join(device, p, f)])
     """, args=[host, device], infra_step=True)
+
+  def cleanup_steps(self):
+    if self._ever_ran_adb:
+      # To clean up disk space for next time
+      self._ssh('Delete executables', 'rm', '-r', self.m.vars.android_bin_dir,
+                abort_on_failure=False)
+      # Reconnect if was disconnected
+      self._adb('disconnect')
+      self._connect_to_remote()
+      self.m.run(self.m.python.inline, 'dump log', program="""
+          import os
+          import subprocess
+          import sys
+          out = sys.argv[1]
+          log = subprocess.check_output(['adb', 'logcat', '-d'])
+          for line in log.split('\\n'):
+            tokens = line.split()
+            if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':
+              addr, path = tokens[-2:]
+              local = os.path.join(out, os.path.basename(path))
+              if os.path.exists(local):
+                sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])
+                line = line.replace(addr, addr + ' ' + sym.strip())
+            print line
+          """,
+          args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
+          infra_step=True,
+          abort_on_failure=False)
+
+      self._adb('disconnect')
+      self._adb('kill adb server', 'kill-server')
+
 
   def _ssh(self, title, *cmd, **kwargs):
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
@@ -147,9 +189,10 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
 
   def step(self, name, cmd, **kwargs):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
+
     self._adb('push %s' % cmd[0],
               'push', app, self.m.vars.android_bin_dir)
 
-    cmd[0] = '%s%s' % (self.m.vars.android_bin_dir, cmd[0])
+    cmd[0] = '%s/%s' % (self.m.vars.android_bin_dir, cmd[0])
     self._ssh(str(name), *cmd)
 

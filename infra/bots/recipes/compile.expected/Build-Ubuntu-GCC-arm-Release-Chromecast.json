@@ -119,7 +119,8 @@
       "ninja",
       "-C",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-arm-Release-Chromecast/Release",
-      "nanobench"
+      "nanobench",
+      "dm"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

@@ -58,9 +58,46 @@
   },
   {
     "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/cache/skia/bin"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "mkdir /cache/skia/bin"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "root@192.168.1.2",
+      "rm",
+      "/cache/skia/nanobench"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "Delete old nanobench"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    hp = os.path.realpath(os.path.join(host, p, f))\n    if os.stat(hp).st_size > (3 * 1024 * 1024):\n      print \"Skipping because it is too big\"\n    else:\n      subprocess.check_call(['adb', 'push',\n                            hp, os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    hp = os.path.realpath(os.path.join(host, p, f))\n    if os.stat(hp).st_size > (1.5 * 1024 * 1024):\n      print \"Skipping because it is too big\"\n    else:\n      subprocess.check_call(['adb', 'push',\n                            hp, os.path.join(device, p, f)])\n",
       "[START_DIR]/skia/resources",
       "/cache/skia/resources"
     ],
@@ -86,7 +123,7 @@
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
       "@@@STEP_LOG_LINE@python.inline@    hp = os.path.realpath(os.path.join(host, p, f))@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if os.stat(hp).st_size > (3 * 1024 * 1024):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if os.stat(hp).st_size > (1.5 * 1024 * 1024):@@@",
       "@@@STEP_LOG_LINE@python.inline@      print \"Skipping because it is too big\"@@@",
       "@@@STEP_LOG_LINE@python.inline@    else:@@@",
       "@@@STEP_LOG_LINE@python.inline@      subprocess.check_call(['adb', 'push',@@@",
@@ -198,7 +235,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    hp = os.path.realpath(os.path.join(host, p, f))\n    if os.stat(hp).st_size > (3 * 1024 * 1024):\n      print \"Skipping because it is too big\"\n    else:\n      subprocess.check_call(['adb', 'push',\n                            hp, os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    hp = os.path.realpath(os.path.join(host, p, f))\n    if os.stat(hp).st_size > (1.5 * 1024 * 1024):\n      print \"Skipping because it is too big\"\n    else:\n      subprocess.check_call(['adb', 'push',\n                            hp, os.path.join(device, p, f)])\n",
       "[START_DIR]/skp",
       "/cache/skia/skps"
     ],
@@ -224,7 +261,7 @@
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
       "@@@STEP_LOG_LINE@python.inline@    hp = os.path.realpath(os.path.join(host, p, f))@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if os.stat(hp).st_size > (3 * 1024 * 1024):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if os.stat(hp).st_size > (1.5 * 1024 * 1024):@@@",
       "@@@STEP_LOG_LINE@python.inline@      print \"Skipping because it is too big\"@@@",
       "@@@STEP_LOG_LINE@python.inline@    else:@@@",
       "@@@STEP_LOG_LINE@python.inline@      subprocess.check_call(['adb', 'push',@@@",
@@ -282,7 +319,7 @@
       "adb",
       "push",
       "[START_DIR]/out/Debug/nanobench",
-      "/cache/skia/"
+      "/cache/skia/bin"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -302,7 +339,7 @@
       "-t",
       "-t",
       "root@192.168.1.2",
-      "/cache/skia/nanobench",
+      "/cache/skia/bin/nanobench",
       "--nogpu",
       "--config",
       "8888",
@@ -327,6 +364,55 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "nanobench"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "root@192.168.1.2",
+      "rm",
+      "-r",
+      "/cache/skia/bin"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "Delete executables"
+  },
+  {
+    "cmd": [
+      "adb"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "disconnect"
+  },
+  {
+    "cmd": [
+      "adb",
+      "connect",
+      "192.168.1.2:5555"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "adb connect 192.168.1.2:5555 (2)"
   },
   {
     "cmd": [
@@ -361,6 +447,20 @@
       "@@@STEP_LOG_LINE@python.inline@  print line@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
+  },
+  {
+    "cmd": [
+      "adb"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "disconnect (2)"
   },
   {
     "cmd": [
