@@ -221,6 +221,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "Delete old nanobench"
   },
   {
@@ -814,11 +815,13 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
+    "infra_step": true,
     "name": "Delete executables"
   },
   {
     "cmd": [
-      "adb"
+      "adb",
+      "disconnect"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -881,7 +884,8 @@
   },
   {
     "cmd": [
-      "adb"
+      "adb",
+      "disconnect"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
