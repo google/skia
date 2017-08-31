@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "8fca2a18_618a52df",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-31T14:55:32Z",
+      "side": 1,
+      "message": "1.5 * sigma - 0.5 is from the old code. This code is does not meet any spec. We take the ceiling of the result, and [0, 1/3] become 0, and the filter_window will be come 1. This will them be rejected in ::blur, and exit before calling any scan code.",
+      "parentUuid": "8c992093_a18d402e",
+      "range": {
+        "startLine": 47,
+        "startChar": 25,
+        "endLine": 47,
+        "endChar": 40
+      },
+      "revId": "13ca3f4a4d8d0ac3a793b314166622403b237d77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "021d8964_e05f77d6",
         "filename": "src/core/SkMaskBlurFilter.h",
         "patchSetId": 1
