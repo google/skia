@@ -760,6 +760,7 @@ component("skia") {
       "src/ports/SkOSLibrary_posix.cpp",
       "src/ports/SkTLS_pthread.cpp",
     ]
+    libs += [ "dl" ]
   }
 
   if (is_android) {
