@@ -15,7 +15,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceProvider.h"
-#include "GrSurfaceProxy.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 

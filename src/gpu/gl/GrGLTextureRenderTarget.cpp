@@ -8,8 +8,8 @@
 #include "GrGLTextureRenderTarget.h"
 
 #include "GrContext.h"
-#include "GrGLGpu.h"
 #include "GrTexturePriv.h"
+#include "GrGLGpu.h"
 #include "SkTraceMemoryDump.h"
 
 GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,

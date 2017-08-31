@@ -7,7 +7,6 @@
 
 #include "GrVkRenderTarget.h"
 
-#include "GrRenderTargetPriv.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkFramebuffer.h"
 #include "GrVkGpu.h"
@@ -15,6 +14,7 @@
 #include "GrVkResourceProvider.h"
 #include "GrVkUtil.h"
 
+#include "GrRenderTargetPriv.h"
 #include "vk/GrVkTypes.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
