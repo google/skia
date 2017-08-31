@@ -10,7 +10,6 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrTexture.h"
 #include "GrTexturePriv.h"
 #include "SkCanvas.h"
 #include "SkImage_Base.h"

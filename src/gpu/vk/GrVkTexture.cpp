@@ -8,10 +8,10 @@
 #include "GrVkTexture.h"
 #include "GrVkGpu.h"
 #include "GrVkImageView.h"
-#include "GrTexturePriv.h"
 #include "GrVkTextureRenderTarget.h"
 #include "GrVkUtil.h"
 
+#include "GrTexturePriv.h"
 #include "vk/GrVkTypes.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)

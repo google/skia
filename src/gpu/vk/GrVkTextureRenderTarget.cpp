@@ -7,11 +7,11 @@
 
 #include "GrVkTextureRenderTarget.h"
 
-#include "GrRenderTargetPriv.h"
-#include "GrTexturePriv.h"
 #include "GrVkGpu.h"
 #include "GrVkImageView.h"
 #include "GrVkUtil.h"
+
+#include "GrTexturePriv.h"
 
 #include "SkMipMap.h"
 
