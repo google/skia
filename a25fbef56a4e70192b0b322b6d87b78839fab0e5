@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f758386_cab06243",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1392,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-08-31T15:15:25Z",
+      "side": 1,
+      "message": "moving to its own directory was something I meant to do a while ago.",
+      "revId": "a25fbef56a4e70192b0b322b6d87b78839fab0e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e0cff8e_eb6ef1a1",
+        "filename": "tools/shape/using_skia_and_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-08-31T15:15:25Z",
+      "side": 1,
+      "message": "when a SkFILEWStream goes out of scope, doesn\u0027t it flush itself?",
+      "revId": "a25fbef56a4e70192b0b322b6d87b78839fab0e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
