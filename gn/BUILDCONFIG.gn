@@ -37,8 +37,9 @@ if (current_os == "") {
 
 is_android = current_os == "android"
 is_fuchsia = current_os == "fuchsia"
-is_ios = current_os == "ios" || current_os == "tvos"
+is_ios = current_os == "ios" || current_os == "tvos" || current_os == "watchos"
 is_tvos = current_os == "tvos"
+is_watchos = current_os == "watchos"
 is_linux = current_os == "linux"
 is_mac = current_os == "mac"
 is_win = current_os == "win" || current_os == "winrt"

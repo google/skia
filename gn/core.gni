@@ -602,6 +602,6 @@ if (is_win) {
   if (target_cpu != "arm") {
     skia_core_sources += [ "$_src/jumper/SkJumper_generated_win.S" ]
   }
-} else if (!is_tvos) {
+} else if (!is_tvos && !is_watchos) {
   skia_core_sources += [ "$_src/jumper/SkJumper_generated.S" ]
 }

@@ -33,7 +33,7 @@ declare_args() {
   malloc = ""
 
   enable_bitcode = false
-  if (is_tvos) {
+  if (is_tvos || is_watchos) {
     enable_bitcode = true
   }
 }
@@ -64,15 +64,16 @@ if (!is_clang && !is_win) {
 
 if (is_ios) {
   if (is_tvos) {
-    sdk = "appletvos"
-    if (target_cpu == "x86" || target_cpu == "x64") {
-      sdk = "appletvsimulator"
-    }
+    sdk = "appletv"
+  } else if (is_watchos) {
+    sdk = "watch"
   } else {
-    sdk = "iphoneos"
-    if (target_cpu == "x86" || target_cpu == "x64") {
-      sdk = "iphonesimulator"
-    }
+    sdk = "iphone"
+  }
+  if (target_cpu == "x86" || target_cpu == "x64") {
+    sdk += "simulator"
+  } else {
+    sdk += "os"
   }
   ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
 }
@@ -218,6 +219,9 @@ config("default") {
       _target = "i386"
     } else if (target_cpu == "x64") {
       _target = "x86_64"
+    }
+    if (is_watchos && _target == "armv7") {
+      _target = "armv7k"
     }
     asmflags += [
       "-isysroot",
