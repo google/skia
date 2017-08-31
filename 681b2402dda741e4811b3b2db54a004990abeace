@@ -22,6 +22,30 @@
       "revId": "681b2402dda741e4811b3b2db54a004990abeace",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f378500_0702a0c1",
+        "filename": "src/gpu/GrOpFlushState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-31T17:59:31Z",
+      "side": 1,
+      "message": "It does the same thing but I thought it was clearer semantically what was happening.\n\nI was actually a bit surprised we casually allowed a 0 initializer.",
+      "parentUuid": "aa415796_22883c48",
+      "range": {
+        "startLine": 22,
+        "startChar": 28,
+        "endLine": 22,
+        "endChar": 70
+      },
+      "revId": "681b2402dda741e4811b3b2db54a004990abeace",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
