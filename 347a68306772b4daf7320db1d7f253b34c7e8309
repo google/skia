@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "88bf501d_4a4d8d66",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-31T17:50:03Z",
+      "side": 1,
+      "message": "Yeah, will make sure I\u0027m all nice and factored once I sort out scale_565 and lerp_565 too.  They may share with the loads, or maybe the loads will share one call and scale and lerp another.",
+      "parentUuid": "8f17e175_c4b3e3c1",
+      "range": {
+        "startLine": 329,
+        "startChar": 0,
+        "endLine": 336,
+        "endChar": 36
+      },
+      "revId": "347a68306772b4daf7320db1d7f253b34c7e8309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f9657346_5a7a0bb1",
         "filename": "src/jumper/SkJumper_stages_8bit.cpp",
         "patchSetId": 1
