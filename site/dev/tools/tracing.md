@@ -19,6 +19,11 @@ Running any tool with `--trace atrace` on an Android device will cause the appli
 tracing information to [atrace](https://source.android.com/devices/tech/debug/ftrace). On other
 platforms, this has no effect.
 
+If you run `systrace` from the host command line, you will need to supply `-a <app_name>`,
+and the `<app_name>` argument will need to exactly match the command line used on the target
+device. For example, if you use `adb shell "cd /data/local/tmp; ./nanobench --trace atrace ..."`
+you must pass `-a ./nanobench` or systrace will ignore events from the application.
+
 Console Logging
 ---------------
 
