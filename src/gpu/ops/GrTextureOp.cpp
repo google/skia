@@ -82,8 +82,8 @@ public:
                                                                   args.fOutputColor);
                 }
                 args.fFragBuilder->codeAppend("highp float2 texCoord;");
-                args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureCoords,
-                                                              "texCoord");
+                args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureCoords, "texCoord",
+                                                              kHigh_GrSLPrecision);
                 args.fFragBuilder->codeAppendf("%s = ", args.fOutputColor);
                 args.fFragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
                                                                   args.fTexSamplers[0],
