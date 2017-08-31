@@ -166,6 +166,7 @@ def dm_flags(api, bot):
       # skbug.com/6333, skbug.com/6419, skbug.com/6702
       blacklist('gltestthreading gm _ lcdblendmodes')
       blacklist('gltestthreading gm _ lcdoverlap')
+      blacklist('gltestthreading gm _ textbloblooper')
 
     # The following devices do not support glessrgb.
     if 'glessrgb' in configs:
