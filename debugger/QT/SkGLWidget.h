@@ -16,7 +16,6 @@
 #include "SkDebugCanvas.h"
 #include "SkDebugger.h"
 #include "SkGpuDevice.h"
-#include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
@@ -52,7 +51,7 @@ private:
     SkCanvas*        fCanvas;
 
     SkDebugger* fDebugger;
-    GrBackendRenderTarget getBackendRenderTarget();
+    GrBackendRenderTargetDesc getDesc(int w, int h);
 };
 
 #endif /* SK_SUPPORT_GPU */
