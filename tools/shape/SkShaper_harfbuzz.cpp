@@ -12,6 +12,7 @@
 
 #include "SkShaper.h"
 #include "SkStream.h"
+#include "SkTemplates.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
@@ -52,24 +53,40 @@ struct SkShaper::Impl {
     sk_sp<SkTypeface> fTypeface;
 };
 
-SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
-    fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
+static HBFont create_hb_font(SkTypeface* tf) {
     int index;
-    HBBlob blob(stream_to_blob(std::unique_ptr<SkStreamAsset>(
-                               fImpl->fTypeface->openStream(&index))));
+    HBBlob blob(stream_to_blob(std::unique_ptr<SkStreamAsset>(tf->openStream(&index))));
     HBFace face(hb_face_create(blob.get(), (unsigned)index));
     SkASSERT(face);
     if (!face) {
-        return;
+        return nullptr;
     }
     hb_face_set_index(face.get(), (unsigned)index);
-    hb_face_set_upem(face.get(), fImpl->fTypeface->getUnitsPerEm());
+    hb_face_set_upem(face.get(), tf->getUnitsPerEm());
 
-    fImpl->fHarfBuzzFont.reset(hb_font_create(face.get()));
+    HBFont font(hb_font_create(face.get()));
+    SkASSERT(font);
+    if (!font) {
+        return nullptr;
+    }
+    hb_font_set_scale(font.get(), FONT_SIZE_SCALE, FONT_SIZE_SCALE);
+    hb_ot_font_set_funcs(font.get());
+    int axis_count = tf->getVariationDesignPosition(nullptr, 0);
+    if (axis_count > 0) {
+        SkAutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> axis_values(axis_count);
+        if (tf->getVariationDesignPosition(axis_values, axis_count) == axis_count) {
+            hb_font_set_variations(font.get(),
+                                   reinterpret_cast<hb_variation_t*>(axis_values.get()),
+                                   axis_count);
+        }
+    }
+    return font;
+}
+
+SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
+    fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
+    fImpl->fHarfBuzzFont = create_hb_font(fImpl->fTypeface.get());
     SkASSERT(fImpl->fHarfBuzzFont);
-    hb_font_set_scale(fImpl->fHarfBuzzFont.get(), FONT_SIZE_SCALE, FONT_SIZE_SCALE);
-    hb_ot_font_set_funcs(fImpl->fHarfBuzzFont.get());
-
     fImpl->fBuffer.reset(hb_buffer_create());
 }
 
