@@ -113,7 +113,7 @@ public:
         kNone_MapFlags   = 0x0,       //<! Cannot map the resource.
 
         kCanMap_MapFlag  = 0x1,       //<! The resource can be mapped. Must be set for any of
-                                      //   the other flags to have meaning.k
+                                      //   the other flags to have meaning.
         kSubset_MapFlag  = 0x2,       //<! The resource can be partially mapped.
     };
 
