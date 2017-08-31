@@ -266,20 +266,6 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
-                                                        const GrBackendRenderTargetDesc& desc,
-                                                        sk_sp<SkColorSpace> colorSpace,
-                                                        const SkSurfaceProps* props) {
-    if (!context) {
-        return nullptr;
-    }
-
-    GrBackendRenderTarget backendRT(desc, context->contextPriv().getBackend());
-    return MakeFromBackendRenderTarget(context, backendRT, desc.fOrigin,
-                                       std::move(colorSpace), props);
-
-}
-
-sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
                                                         const GrBackendRenderTarget& backendRT,
                                                         GrSurfaceOrigin origin,
                                                         sk_sp<SkColorSpace> colorSpace,
