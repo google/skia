@@ -7,8 +7,7 @@
 
 #include "SkCoverageDelta.h"
 
-SkCoverageDeltaList::SkCoverageDeltaList(SkCoverageDeltaAllocator* alloc, int top, int bottom,
-                                         bool forceRLE) {
+SkCoverageDeltaList::SkCoverageDeltaList(SkArenaAlloc* alloc, int top, int bottom, bool forceRLE) {
     fAlloc              = alloc;
     fTop                = top;
     fBottom             = bottom;
@@ -18,19 +17,11 @@ SkCoverageDeltaList::SkCoverageDeltaList(SkCoverageDeltaAllocator* alloc, int to
     fAntiRect.fY        = bottom;
     fAntiRect.fHeight   = 0;
 
-    if (bottom - top <= RESERVED_HEIGHT) {
-        fSorted     = fReservedSorted;
-        fCounts     = fReservedCounts;
-        fMaxCounts  = fReservedMaxCounts;
-        fRows       = fReservedRows - top;
-        fRows[top]  = fReservedStorage;
-    } else {
-        fSorted     = fAlloc->makeArrayDefault<bool>(bottom - top);
-        fCounts     = fAlloc->makeArrayDefault<int>((bottom - top) * 2);
-        fMaxCounts  = fCounts + bottom - top;
-        fRows       = fAlloc->makeArrayDefault<SkCoverageDelta*>(bottom - top) - top;
-        fRows[top]  = fAlloc->makeArrayDefault<SkCoverageDelta>(INIT_ROW_SIZE * (bottom - top));
-    }
+    fSorted     = fAlloc->makeArrayDefault<bool>(bottom - top);
+    fCounts     = fAlloc->makeArrayDefault<int>((bottom - top) * 2);
+    fMaxCounts  = fCounts + bottom - top;
+    fRows       = fAlloc->makeArrayDefault<SkCoverageDelta*>(bottom - top) - top;
+    fRows[top]  = fAlloc->makeArrayDefault<SkCoverageDelta>(INIT_ROW_SIZE * (bottom - top));
 
     memset(fSorted, true, bottom - top);
     memset(fCounts, 0, sizeof(int) * (bottom - top));
@@ -76,7 +67,7 @@ SkCoverageDeltaMask::SkCoverageDeltaMask(const SkIRect& bounds) : fBounds(bounds
     // Minus index(fBounds.fLeft, fBounds.fTop) so we can directly access fDeltas[index(x, y)]
     fDeltas             = fDeltaStorage + PADDING - this->index(fBounds.fLeft, fBounds.fTop);
 
-    memset(fDeltaStorage, 0, (fExpandedWidth * bounds.height() + PADDING * 2) * sizeof(SkFixed));;
+    memset(fDeltaStorage, 0, (fExpandedWidth * bounds.height() + PADDING * 2) * sizeof(SkFixed));
 }
 
 // TODO As this function is so performance-critical (and we're thinking so much about SIMD), use
