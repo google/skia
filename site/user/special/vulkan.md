@@ -33,14 +33,16 @@ To create a GrContext that is backed by Vulkan the client creates a Vulkan devic
 
     sk_sp<GrContext> context = GrContext::MakeVulkan(vkBackendContext);
 
-When using the Vulkan backend the GrBackendObject field in
-GrBackendRenderTargetDesc and GrBackendTextureDesc is interpeted as a pointer
-to a GrVkImageInfo object. GrVkImageInfo specifies a VkImage and associated
-state (tiling, layout, format, etc). This allows the client to import
-externally created Vulkan images as destinations for Skia rendering via
-SkSurface factory functions or for to composite Skia rendered content using
-SkImage::getTextureHandle().
+When using the Vulkan backend, GrVkImageInfo is used to construct GrBackendTexture
+and GrBackendRenderTarget objects that in turn are used to create SkSurface and SkImage
+objects that refer to VkImages created by the Skia client.
 
+The GrBackendObject returned by SkImage::getTextureHandle(),
+SkSurface::getTextureHandle(), and SkSurface::getRenderTargetHandle() should be
+interpreted as a GrVkImageInfo*. This allows a client to get the backing VkImage
+of a SkImage or SkSurface.
+
+GrVkImageInfo specifies a VkImage and associated state (tiling, layout, format, etc).
 After getting a GrVkImageInfo* via getTextureHandle() or
 getRenderTargetHandle(), the client should check the fImageLayout field to know
 what layout Skia left the VkImage in before using the VkImage. If the client
