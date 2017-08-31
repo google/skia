@@ -13,8 +13,6 @@ GrShape& GrShape::operator=(const GrShape& that) {
     switch (fType) {
         case Type::kEmpty:
             break;
-        case Type::kInvertedEmpty:
-            break;
         case Type::kRRect:
             fRRectData = that.fRRectData;
             break;
@@ -37,8 +35,6 @@ SkRect GrShape::bounds() const {
     static constexpr SkRect kInverted = SkRect::MakeLTRB(1, 1, -1, -1);
     switch (fType) {
         case Type::kEmpty:
-            return kInverted;
-        case Type::kInvertedEmpty:
             return kInverted;
         case Type::kLine: {
             SkRect bounds;
@@ -68,10 +64,9 @@ SkRect GrShape::bounds() const {
 }
 
 SkRect GrShape::styledBounds() const {
-    if (this->isEmpty() && !fStyle.hasNonDashPathEffect()) {
+    if (Type::kEmpty == fType && !fStyle.hasNonDashPathEffect()) {
         return SkRect::MakeEmpty();
     }
-
     SkRect bounds;
     fStyle.adjustBounds(&bounds, this->bounds());
     return bounds;
@@ -127,8 +122,6 @@ int GrShape::unstyledKeySize() const {
     switch (fType) {
         case Type::kEmpty:
             return 1;
-        case Type::kInvertedEmpty:
-            return 1;
         case Type::kRRect:
             SkASSERT(!fInheritedKey.count());
             SkASSERT(0 == SkRRect::kSizeInMemory % sizeof(uint32_t));
@@ -164,9 +157,6 @@ void GrShape::writeUnstyledKey(uint32_t* key) const {
         switch (fType) {
             case Type::kEmpty:
                 *key++ = 1;
-                break;
-            case Type::kInvertedEmpty:
-                *key++ = 2;
                 break;
             case Type::kRRect:
                 fRRectData.fRRect.writeToMemory(key);
@@ -253,8 +243,6 @@ GrShape::GrShape(const GrShape& that) : fStyle(that.fStyle) {
     this->initType(that.fType, thatPath);
     switch (fType) {
         case Type::kEmpty:
-            break;
-        case Type::kInvertedEmpty:
             break;
         case Type::kRRect:
             fRRectData = that.fRRectData;
@@ -366,9 +354,7 @@ void GrShape::attemptToSimplifyPath() {
     bool inverted = this->path().isInverseFillType();
     SkPoint pts[2];
     if (this->path().isEmpty()) {
-        // Dashing ignores inverseness skbug.com/5421.
-        this->changeType(inverted && !this->style().isDashed() ? Type::kInvertedEmpty
-                                                               : Type::kEmpty);
+        this->changeType(Type::kEmpty);
     } else if (this->path().isLine(pts)) {
         this->changeType(Type::kLine);
         fLineData.fPts[0] = pts[0];
@@ -456,8 +442,7 @@ void GrShape::attemptToSimplifyRRect() {
     SkASSERT(Type::kRRect == fType);
     SkASSERT(!fInheritedKey.count());
     if (fRRectData.fRRect.isEmpty()) {
-        // Dashing ignores the inverseness currently. skbug.com/5421
-        fType = fRRectData.fInverted && !fStyle.isDashed() ? Type::kInvertedEmpty : Type::kEmpty;
+        fType = Type::kEmpty;
         return;
     }
     if (!this->style().hasPathEffect()) {
@@ -495,8 +480,8 @@ void GrShape::attemptToSimplifyLine() {
         rec.setStrokeStyle(fStyle.strokeRec().getWidth(), false);
         fStyle = GrStyle(rec, nullptr);
     }
-    if (fStyle.isSimpleFill()) {
-        this->changeType(fLineData.fInverted ? Type::kInvertedEmpty : Type::kEmpty);
+    if (fStyle.isSimpleFill() && !fLineData.fInverted) {
+        this->changeType(Type::kEmpty);
         return;
     }
     SkPoint* pts = fLineData.fPts;
@@ -540,7 +525,7 @@ void GrShape::attemptToSimplifyLine() {
             fRRectData.fStart = kDefaultRRectStart;
             if (fRRectData.fRRect.isEmpty()) {
                 // This can happen when r is very small relative to the rect edges.
-                this->changeType(inverted ? Type::kInvertedEmpty : Type::kEmpty);
+                this->changeType(Type::kEmpty);
                 return;
             }
             fStyle = GrStyle::SimpleFill();

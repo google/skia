@@ -176,10 +176,6 @@ public:
             case Type::kEmpty:
                 out->reset();
                 break;
-            case Type::kInvertedEmpty:
-                out->reset();
-                out->setFillType(kDefaultPathInverseFillType);
-                break;
             case Type::kRRect:
                 out->reset();
                 out->addRRect(fRRectData.fRRect, fRRectData.fDir, fRRectData.fStart);
@@ -208,9 +204,9 @@ public:
 
     /**
      * Returns whether the geometry is empty. Note that applying the style could produce a
-     * non-empty shape. It also may have an inverse fill.
+     * non-empty shape.
      */
-    bool isEmpty() const { return Type::kEmpty == fType || Type::kInvertedEmpty == fType; }
+    bool isEmpty() const { return Type::kEmpty == fType; }
 
     /**
      * Gets the bounds of the geometry without reflecting the shape's styling. This ignores
@@ -233,8 +229,6 @@ public:
         switch (fType) {
             case Type::kEmpty:
                 return true;
-            case Type::kInvertedEmpty:
-                return true;
             case Type::kRRect:
                 return true;
             case Type::kLine:
@@ -256,9 +250,6 @@ public:
         switch (fType) {
             case Type::kEmpty:
                 ret = false;
-                break;
-            case Type::kInvertedEmpty:
-                ret = true;
                 break;
             case Type::kRRect:
                 ret = fRRectData.fInverted;
@@ -297,8 +288,6 @@ public:
         switch (fType) {
             case Type::kEmpty:
                 return true;
-            case Type::kInvertedEmpty:
-                return true;
             case Type::kRRect:
                 return true;
             case Type::kLine:
@@ -313,8 +302,6 @@ public:
     uint32_t segmentMask() const {
         switch (fType) {
             case Type::kEmpty:
-                return 0;
-            case Type::kInvertedEmpty:
                 return 0;
             case Type::kRRect:
                 if (fRRectData.fRRect.getType() == SkRRect::kOval_Type) {
@@ -349,7 +336,6 @@ public:
 private:
     enum class Type {
         kEmpty,
-        kInvertedEmpty,
         kRRect,
         kLine,
         kPath,
