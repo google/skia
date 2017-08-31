@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "65fbba1c_e65ca18f",
+        "filename": "infra/bots/recipe_modules/flavor/gn_chromecast_flavor.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-08-31T14:39:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1f99b27_bf486570",
+      "range": {
+        "startLine": 95,
+        "startChar": 5,
+        "endLine": 95,
+        "endChar": 44
+      },
+      "revId": "57390d21c3d3e60be8e1fff2a77343f24bc2120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9aa712e0_9c05c061",
         "filename": "infra/bots/recipe_modules/flavor/gn_chromecast_flavor.py",
         "patchSetId": 13
@@ -45,6 +69,30 @@
       "revId": "57390d21c3d3e60be8e1fff2a77343f24bc2120c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7e031ea_e21a55f2",
+        "filename": "infra/bots/recipe_modules/flavor/gn_chromecast_flavor.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-08-31T14:39:19Z",
+      "side": 1,
+      "message": "Alas, the chromecast does not support -f for rm.",
+      "parentUuid": "9aa712e0_9c05c061",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 37
+      },
+      "revId": "57390d21c3d3e60be8e1fff2a77343f24bc2120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
