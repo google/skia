@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1f99b27_bf486570",
+        "filename": "infra/bots/recipe_modules/flavor/gn_chromecast_flavor.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-31T14:33:21Z",
+      "side": 1,
+      "message": "Nit: No longer true.",
+      "range": {
+        "startLine": 95,
+        "startChar": 5,
+        "endLine": 95,
+        "endChar": 44
+      },
+      "revId": "57390d21c3d3e60be8e1fff2a77343f24bc2120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9aa712e0_9c05c061",
+        "filename": "infra/bots/recipe_modules/flavor/gn_chromecast_flavor.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-31T14:33:21Z",
+      "side": 1,
+      "message": "Couldn\u0027t we do \"rm -rf\" and avoid the failed step?",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 37
+      },
+      "revId": "57390d21c3d3e60be8e1fff2a77343f24bc2120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
