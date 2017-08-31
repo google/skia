@@ -12,7 +12,7 @@ import("../third_party.gni")
 if (skia_use_system_icu) {
   system("icu") {
     libs = [ "icuuc" ]
-    public_defines = [ "U_USING_ICU_NAMESPACE=0" ]
+    defines = [ "U_USING_ICU_NAMESPACE=0" ]
   }
 } else {
   third_party("icu") {
