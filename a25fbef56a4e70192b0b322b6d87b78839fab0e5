@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ac891c93_88fe7dfc",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1392,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-08-31T15:29:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9f758386_cab06243",
+      "revId": "a25fbef56a4e70192b0b322b6d87b78839fab0e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e0cff8e_eb6ef1a1",
         "filename": "tools/shape/using_skia_and_harfbuzz.cpp",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-08-31T15:15:25Z",
       "side": 1,
       "message": "when a SkFILEWStream goes out of scope, doesn\u0027t it flush itself?",
+      "revId": "a25fbef56a4e70192b0b322b6d87b78839fab0e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d9428cc_2f6d97cf",
+        "filename": "tools/shape/using_skia_and_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-08-31T15:29:00Z",
+      "side": 1,
+      "message": "I need to take a look at that... I got several truncated files until I added this.",
+      "parentUuid": "5e0cff8e_eb6ef1a1",
       "revId": "a25fbef56a4e70192b0b322b6d87b78839fab0e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
