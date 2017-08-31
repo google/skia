@@ -1142,7 +1142,7 @@ bool IncludeParser::parseMember(Definition* child, Definition* markupDef) {
                     break;
                 }
                 const char* start = parser.fChar;
-                const char* end = parser.trimmedBracketEnd('\n', OneLine::kYes);
+                const char* end = parser.trimmedBracketEnd('\n');
                 if (Bracket::kSlashStar == comment->fBracket) {
                     const char* commentEnd = parser.strnstr("*/", end);
                     if (commentEnd) {

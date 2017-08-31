@@ -682,7 +682,7 @@ void MdOut::markTypeOut(Definition* def) {
             TextParser tp(def->fFileName, def->fStart, def->fContentStart, def->fLineCount);
             tp.skipExact("#Member");
             tp.skipWhiteSpace();
-            const char* end = tp.trimmedBracketEnd('\n', TextParser::OneLine::kYes);
+            const char* end = tp.trimmedBracketEnd('\n');
             this->lfAlways(2);
             fprintf(fOut, "<a name=\"%s\"> <code><strong>%.*s</strong></code> </a>",
                     def->fFiddle.c_str(), (int) (end - tp.fChar), tp.fChar);
