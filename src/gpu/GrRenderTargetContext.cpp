@@ -1671,7 +1671,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
     static constexpr GrPathRendererChain::DrawType kType = GrPathRendererChain::DrawType::kColor;
     do {
         shape = GrShape(path, style);
-        if (shape.isEmpty()) {
+        if (shape.isEmpty() && !shape.inverseFilled()) {
             return;
         }
 
