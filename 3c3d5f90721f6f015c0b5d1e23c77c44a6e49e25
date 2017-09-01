@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e611cf3_af7d78c9",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 1690,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-01T13:44:03Z",
+      "side": 1,
+      "message": "Leave a note about what this is and why we need it?  Is why, Qt headers?",
+      "range": {
+        "startLine": 1690,
+        "startChar": 19,
+        "endLine": 1690,
+        "endChar": 27
+      },
+      "revId": "3c3d5f90721f6f015c0b5d1e23c77c44a6e49e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34bb8c5d_1b0006b3",
+        "filename": "gn/run_moc.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-01T13:44:03Z",
+      "side": 1,
+      "message": "I think you probably want to thread through skia_qt_path from GN for these?\n\nAlternatively, maybe we should just make a gn/call.py that just runs exactly its arguments?",
+      "range": {
+        "startLine": 13,
+        "startChar": 6,
+        "endLine": 13,
+        "endChar": 27
+      },
+      "revId": "3c3d5f90721f6f015c0b5d1e23c77c44a6e49e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3744684c_321a4831",
+        "filename": "gn/run_moc.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-01T13:44:03Z",
+      "side": 1,
+      "message": "I think you probably want check_call() if you don\u0027t examine the return value.  That way if moc fails, this script and the build will fail.",
+      "range": {
+        "startLine": 14,
+        "startChar": 11,
+        "endLine": 14,
+        "endChar": 15
+      },
+      "revId": "3c3d5f90721f6f015c0b5d1e23c77c44a6e49e25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
