@@ -205,6 +205,9 @@ public:
                               this->fPixels.width(), this->fPixels.height(),
                               kAlpha_8_GrPixelConfig,
                               this->fPixels.addr(), this->fPixels.rowBytes());
+                // Free this memory immediately, so it can be recycled. This avoids memory pressure
+                // when there is a large amount of threaded work still running during flush.
+                this->fPixels.reset();
             }
         };
         flushState->addASAPUpload(std::move(uploadMask));
