@@ -52,13 +52,8 @@ public:
      *  pre-concated with the current matrix.
      */
     void    drawPath(const SkPath& path, const SkPaint& paint,
-                     const SkMatrix* prePathMatrix, bool pathIsMutable) const {
+                     const SkMatrix* prePathMatrix = nullptr, bool pathIsMutable = false) const {
         this->drawPath(path, paint, prePathMatrix, pathIsMutable, false);
-    }
-
-    void drawPath(const SkPath& path, const SkPaint& paint,
-                  SkBlitter* customBlitter = nullptr) const {
-        this->drawPath(path, paint, nullptr, false, false, customBlitter);
     }
 
     /* If dstOrNull is null, computes a dst by mapping the bitmap's bounds through the matrix. */
