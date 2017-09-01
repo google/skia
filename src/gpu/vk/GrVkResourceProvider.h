@@ -98,7 +98,7 @@ public:
 
     // Finds or creates a compatible GrVkSampler based on the GrSamplerParams.
     // The refcount is incremented and a pointer returned.
-    GrVkSampler* findOrCreateCompatibleSampler(const GrSamplerParams&, uint32_t mipLevels);
+    GrVkSampler* findOrCreateCompatibleSampler(const GrSamplerParams&, uint32_t maxMipLevel);
 
     sk_sp<GrVkPipelineState> findOrCreateCompatiblePipelineState(const GrPipeline&,
                                                                  const GrPrimitiveProcessor&,
