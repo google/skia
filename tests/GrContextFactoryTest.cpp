@@ -147,7 +147,7 @@ DEF_GPUTEST(GrContextFactory_executorAndTaskGroup, reporter, /*factory*/) {
     contextOptions.fExecutor = nullptr;
     GrContextFactory serialFactory(contextOptions);
 
-    std::unique_ptr<SkExecutor> threadPool = SkExecutor::MakeThreadPool(1);
+    std::unique_ptr<SkExecutor> threadPool = SkExecutor::MakeFIFOThreadPool(1);
     contextOptions.fExecutor = threadPool.get();
     GrContextFactory threadedFactory(contextOptions);
 

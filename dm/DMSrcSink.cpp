@@ -1520,7 +1520,7 @@ GPUThreadTestingSink::GPUThreadTestingSink(GrContextFactory::ContextType ct,
                                            const GrContextOptions& grCtxOptions)
         : INHERITED(ct, overrides, samples, diText, colorType, alphaType, std::move(colorSpace),
                     threaded, grCtxOptions)
-        , fExecutor(SkExecutor::MakeThreadPool(FLAGS_gpuThreads)) {
+        , fExecutor(SkExecutor::MakeFIFOThreadPool(FLAGS_gpuThreads)) {
     SkASSERT(fExecutor);
 }
 

@@ -16,7 +16,8 @@ public:
     virtual ~SkExecutor();
 
     // Create a thread pool SkExecutor with a fixed thread count, by default the number of cores.
-    static std::unique_ptr<SkExecutor> MakeThreadPool(int threads = 0);
+    static std::unique_ptr<SkExecutor> MakeFIFOThreadPool(int threads = 0);
+    static std::unique_ptr<SkExecutor> MakeLIFOThreadPool(int threads = 0);
 
     // There is always a default SkExecutor available by calling SkExecutor::GetDefault().
     static SkExecutor& GetDefault();

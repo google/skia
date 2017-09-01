@@ -45,7 +45,7 @@ void SkTaskGroup::wait() {
 
 SkTaskGroup::Enabler::Enabler(int threads) {
     if (threads) {
-        fThreadPool = SkExecutor::MakeThreadPool(threads);
+        fThreadPool = SkExecutor::MakeLIFOThreadPool(threads);
         SkExecutor::SetDefault(fThreadPool.get());
     }
 }
