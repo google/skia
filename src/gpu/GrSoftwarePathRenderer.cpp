@@ -196,7 +196,10 @@ public:
         TRACE_EVENT0("skia", "Mask Uploader Pre Flush Callback");
         auto uploadMask = [this](GrDrawOp::WritePixelsFn& writePixelsFn) {
             TRACE_EVENT0("skia", "Mask Upload");
-            this->fPixelsReady.wait();
+            {
+                TRACE_EVENT0("skia", "Waiting");
+                this->fPixelsReady.wait();
+            }
             this->fWaited = true;
             // If the worker thread was unable to allocate pixels, this check will fail, and we'll
             // end up drawing with an uninitialized mask texture, but at least we won't crash.
@@ -356,6 +359,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             taskGroup->add(std::move(drawAndUploadMask));
             args.fRenderTargetContext->getOpList()->addPrepareCallback(std::move(uploader));
         } else {
+            TRACE_EVENT0("skia", "Serial SW Mask Render");
             GrSWMaskHelper helper;
             if (!helper.init(*boundsForMask)) {
                 return false;

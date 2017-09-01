@@ -12,6 +12,7 @@
 #include "GrShape.h"
 #include "GrSurfaceContext.h"
 #include "GrTextureProxy.h"
+#include "SkTraceEvent.h"
 
 /*
  * Convert a boolean operation into a transfer mode code
@@ -52,6 +53,7 @@ void GrSWMaskHelper::drawRect(const SkRect& rect, const SkMatrix& matrix, SkRegi
  */
 void GrSWMaskHelper::drawShape(const GrShape& shape, const SkMatrix& matrix, SkRegion::Op op,
                                GrAA aa, uint8_t alpha) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
     SkPaint paint;
     paint.setPathEffect(shape.style().refPathEffect());
     shape.style().strokeRec().applyToPaint(&paint);
@@ -74,6 +76,7 @@ void GrSWMaskHelper::drawShape(const GrShape& shape, const SkMatrix& matrix, SkR
 };
 
 bool GrSWMaskHelper::init(const SkIRect& resultBounds) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
     // We will need to translate draws so the bound's UL corner is at the origin
     fTranslate = {-SkIntToScalar(resultBounds.fLeft), -SkIntToScalar(resultBounds.fTop)};
     SkIRect bounds = SkIRect::MakeWH(resultBounds.width(), resultBounds.height());

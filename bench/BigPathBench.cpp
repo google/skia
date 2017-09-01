@@ -84,3 +84,48 @@ DEF_BENCH( return new BigPathBench(kRight_Align,    false); )
 DEF_BENCH( return new BigPathBench(kLeft_Align,     true); )
 DEF_BENCH( return new BigPathBench(kMiddle_Align,   true); )
 DEF_BENCH( return new BigPathBench(kRight_Align,    true); )
+
+#include "SkCommandLineFlags.h"
+
+DEFINE_int32(pathSize, 16, "Size of path");
+
+class SmallSWPathBench : public Benchmark {
+    SkPath      fPath;
+
+public:
+    SmallSWPathBench() {}
+
+protected:
+    const char* onGetName() override {
+        return "small_sw_path";
+    }
+
+    SkIPoint onGetSize() override {
+        return SkIPoint::Make(500, 500);
+    }
+
+    void onDelayedSetup() override {
+        int s = FLAGS_pathSize;
+        fPath.moveTo(0, 0);
+        fPath.lineTo(s / 4, s);
+        fPath.lineTo(s / 2, s / 2);
+        fPath.lineTo(3 * s / 4, s);
+        fPath.lineTo(s, 0);
+        fPath.lineTo(s / 2, s / 3);
+        fPath.close();
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+
+        for (int i = 0; i < loops; i++) {
+            canvas->drawPath(fPath, paint);
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+
+DEF_BENCH( return new SmallSWPathBench(); )
