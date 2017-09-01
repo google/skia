@@ -93,6 +93,10 @@ bool equalsWithinTolerance(const SkPoint& p) const
 
 # <a name="SkDumpCanvas"></a> Class SkDumpCanvas
 
+# <a name="Alias"></a> Alias
+
+# <a name="Anti-alias"></a> Anti-alias
+
 # <a name="BBH_Factory"></a> BBH Factory
 
 # <a name="SkBBHFactory"></a> Class SkBBHFactory
@@ -229,11 +233,17 @@ int SkColorSetARGB(a, r, g, b)
 
 # <a name="Color_Space"></a> Color Space
 
+# <a name="Core_Graphics"></a> Core Graphics
+
+# <a name="Core_Text"></a> Core Text
+
 # <a name="Data"></a> Data
 
 # <a name="Draw_Filter"></a> Draw Filter
 
 # <a name="SkDrawFilter"></a> Class SkDrawFilter
+
+# <a name="Draw_Layer"></a> Draw Layer
 
 # <a name="Draw_Looper"></a> Draw Looper
 
@@ -305,6 +315,10 @@ static std::unique_ptr<SkCanvas>
 # <a name="GPU_Context"></a> GPU Context
 
 # <a name="GPU_Surface"></a> GPU Surface
+
+# <a name="HTML_Canvas"></a> HTML Canvas
+
+## <a name="ArcTo"></a> ArcTo
 
 # <a name="Image"></a> Image
 
@@ -403,6 +417,8 @@ sk_sp<SkShader> makeShader(SkShader::TileMode, SkShader::TileMode,
 
 # <a name="SkIRect"></a> Struct SkIRect
 
+# <a name="Left_Side_Bearing"></a> Left Side Bearing
+
 # <a name="Mask"></a> Mask
 
 # <a name="Mask_Alpha"></a> Mask Alpha
@@ -435,6 +451,8 @@ sk_sp<SkShader> makeShader(SkShader::TileMode, SkShader::TileMode,
     <td><a name="SK_ScalarNaN"> <code><strong>SK_ScalarNaN </strong></code> </a></td><td>to be written</td><td></td>
   </tr>
 </table>
+
+# <a name="OS_X"></a> OS X
 
 # <a name="Paint_Defaults"></a> Paint Defaults
 
@@ -507,6 +525,14 @@ SkCanvas* beginRecording(const SkRect& bounds, SkBBHFactory* bbhFactory = NULL,
 
 # <a name="SkPixmap"></a> Class SkPixmap
 
+# <a name="PostScript"></a> PostScript
+
+## <a name="Arct"></a> Arct
+
+# <a name="Premultiply"></a> Premultiply
+
+# <a name="Raster_Engine"></a> Raster Engine
+
 # <a name="Raster_Surface"></a> Raster Surface
 
 # <a name="Rasterizer"></a> Rasterizer
@@ -518,6 +544,8 @@ SkCanvas* beginRecording(const SkRect& bounds, SkBBHFactory* bbhFactory = NULL,
 # <a name="Reference_Count"></a> Reference Count
 
 # <a name="sk_sp"></a> Class sk_sp
+
+# <a name="Right_Side_Bearing"></a> Right Side Bearing
 
 # <a name="Round_Rect"></a> Round Rect
 
@@ -583,6 +611,8 @@ static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx,
 
 # <a name="SkString"></a> Class SkString
 
+# <a name="Supersampling"></a> Supersampling
+
 # <a name="Surface"></a> Surface
 
 # <a name="SkSurface"></a> Class SkSurface
@@ -626,6 +656,8 @@ static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo&, void* pixels,
 # <a name="Text_Blob"></a> Text Blob
 
 # <a name="SkTextBlob"></a> Class SkTextBlob
+
+# <a name="Unpremultiply"></a> Unpremultiply
 
 # <a name="Vertices"></a> Vertices
 
