@@ -237,6 +237,7 @@ def CheckChangeOnUpload(input_api, output_api):
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
   # coverage or Go installed.
   results.extend(_InfraTests(input_api, output_api))
+  results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
 
   results.extend(_CheckGNFormatted(input_api, output_api))
   return results
@@ -388,6 +389,8 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
         'private' not in file_path):
       requires_owner_check = True
 
+  print requires_owner_check
+  asdfasdfasdf
   if not requires_owner_check:
     return results
 
