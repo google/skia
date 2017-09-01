@@ -54,14 +54,20 @@ bool SkCoverageDeltaMask::Suitable(const SkIRect& bounds) {
     return bounds.width() <= SUITABLE_WIDTH && CanHandle(bounds);
 }
 
-SkCoverageDeltaMask::SkCoverageDeltaMask(const SkIRect& bounds) : fBounds(bounds) {
+SkCoverageDeltaMask::SkCoverageDeltaMask(SkArenaAlloc* alloc, const SkIRect& bounds) {
     SkASSERT(CanHandle(bounds));
+
+    fBounds             = bounds;
 
     // Init the anti-rect to be empty
     fAntiRect.fY        = fBounds.fBottom;
     fAntiRect.fHeight   = 0;
 
     fExpandedWidth      = ExpandWidth(fBounds.width());
+
+    int size            = fExpandedWidth * bounds.height() + PADDING * 2;
+    fDeltaStorage       = alloc->makeArrayDefault<SkFixed>(size);
+    fMask               = alloc->makeArrayDefault<SkAlpha>(size);
 
     // Add PADDING columns so we may access fDeltas[index(-PADDING, 0)]
     // Minus index(fBounds.fLeft, fBounds.fTop) so we can directly access fDeltas[index(x, y)]
