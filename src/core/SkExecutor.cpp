@@ -12,7 +12,6 @@
 #include "SkSpinlock.h"
 #include "SkTArray.h"
 #include "SkThreadUtils.h"
-#include <deque>
 
 #if defined(SK_BUILD_FOR_WIN32)
     #include <windows.h>
@@ -47,20 +46,7 @@ void SkExecutor::SetDefault(SkExecutor* executor) {
     gDefaultExecutor = executor ? executor : &gTrivial;
 }
 
-// We'll always push_back() new work, but pop from the front of deques or the back of SkTArray.
-static inline std::function<void(void)> pop(std::deque<std::function<void(void)>>* list) {
-    std::function<void(void)> fn = std::move(list->front());
-    list->pop_front();
-    return fn;
-}
-static inline std::function<void(void)> pop(SkTArray<std::function<void(void)>>* list) {
-    std::function<void(void)> fn = std::move(list->back());
-    list->pop_back();
-    return fn;
-}
-
 // An SkThreadPool is an executor that runs work on a fixed pool of OS threads.
-template <typename WorkList>
 class SkThreadPool final : public SkExecutor {
 public:
     explicit SkThreadPool(int threads) {
@@ -105,7 +91,8 @@ private:
         {
             SkAutoExclusive lock(fWorkLock);
             SkASSERT(!fWork.empty());        // TODO: if (fWork.empty()) { return true; } ?
-            work = pop(&fWork);
+            work = std::move(fWork.back());
+            fWork.pop_back();
         }
 
         if (!work) {
@@ -127,16 +114,11 @@ private:
     using Lock = SkMutex;
 
     SkTArray<std::unique_ptr<SkThread>> fThreads;
-    WorkList                            fWork;
+    SkTArray<std::function<void(void)>> fWork;
     Lock                                fWorkLock;
     SkSemaphore                         fWorkAvailable;
 };
 
-std::unique_ptr<SkExecutor> SkExecutor::MakeFIFOThreadPool(int threads) {
-    using WorkList = std::deque<std::function<void(void)>>;
-    return skstd::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores());
-}
-std::unique_ptr<SkExecutor> SkExecutor::MakeLIFOThreadPool(int threads) {
-    using WorkList = SkTArray<std::function<void(void)>>;
-    return skstd::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores());
+std::unique_ptr<SkExecutor> SkExecutor::MakeThreadPool(int threads) {
+    return skstd::make_unique<SkThreadPool>(threads > 0 ? threads : num_cores());
 }

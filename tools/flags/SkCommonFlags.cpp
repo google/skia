@@ -131,6 +131,6 @@ bool CollectImages(SkCommandLineFlags::StringArray images, SkTArray<SkString>* o
 
 SkExecutor* GpuExecutorForTools() {
     static std::unique_ptr<SkExecutor> gGpuExecutor = (0 != FLAGS_gpuThreads)
-        ? SkExecutor::MakeFIFOThreadPool(FLAGS_gpuThreads) : nullptr;
+        ? SkExecutor::MakeThreadPool(FLAGS_gpuThreads) : nullptr;
     return gGpuExecutor.get();
 }
