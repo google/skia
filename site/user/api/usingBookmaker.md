@@ -4,7 +4,7 @@ usingBookmaker
 # <a name="Bookmaker"></a> Bookmaker
 How to use the <a href="#Bookmaker">Bookmaker</a> utility.
 
-Install<a href="usingBookmaker#Go">Go</a>https://golang.org/doc/installif needed.  
+Install<a href="usingBookmaker#Go">Go</a>if needed.  
 Get the fiddle command line interface tool.
 By default this will appear in your home directory.
 
@@ -94,4 +94,4 @@ $ ./out/dir/bookmaker -p -b docs -i include/core/<a href="usingBookmaker#SkXXX">
 
 ## <a name="Bugs"></a> Bugs
 
-<a href="#Bookmaker">Bookmaker</a> bugs are trackedherebug.skia.org/6898.
+<a href="#Bookmaker">Bookmaker</a> bugs are trackedhere.
