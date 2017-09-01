@@ -113,8 +113,8 @@ int main(int argc, char** argv) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
     SDL_GLContext glContext = nullptr;
-#if defined(SK_BUILD_FOR_ANDROID)
-    // For Android we need to set up for OpenGL ES and we make the window hi res & full screen
+#if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)
+    // For Android/iOS we need to set up for OpenGL ES and we make the window hi res & full screen
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
     windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
                   SDL_WINDOW_BORDERLESS | SDL_WINDOW_FULLSCREEN_DESKTOP |
@@ -180,7 +180,10 @@ int main(int argc, char** argv) {
         return success;
     }
 
-    glViewport(0, 0, dm.w, dm.h);
+    int dw, dh;
+    SDL_GL_GetDrawableSize(window, &dw, &dh);
+
+    glViewport(0, 0, dw, dh);
     glClearColor(1, 1, 1, 1);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -198,7 +201,7 @@ int main(int argc, char** argv) {
     GR_GL_GetIntegerv(interface.get(), GR_GL_FRAMEBUFFER_BINDING, &buffer);
     GrGLFramebufferInfo info;
     info.fFBOID = (GrGLuint) buffer;
-    GrBackendRenderTarget target(dm.w, dm.h, kMsaaSampleCount, kStencilBits,
+    GrBackendRenderTarget target(dw, dh, kMsaaSampleCount, kStencilBits,
                                  kSkia8888_GrPixelConfig, info);
 
     // setup SkSurface
@@ -212,6 +215,7 @@ int main(int argc, char** argv) {
                                                                     nullptr, &props));
 
     SkCanvas* canvas = surface->getCanvas();
+    canvas->scale((float)dw/dm.w, (float)dh/dm.h);
 
     ApplicationState state;
 
