@@ -52,6 +52,7 @@ with open(os.path.join(pkg, 'Info.plist'), 'w') as f:
   <dict>
     <key>CFBundleExecutable</key> <string>{app}</string>
     <key>CFBundleIdentifier</key> <string>com.google.{app}</string>
+    <key>CFBundlePackageType</key> <string>APPL</string>
   </dict>
 </plist>
 '''.format(app=app))
