@@ -1096,7 +1096,10 @@ void SampleWindow::draw(SkCanvas* canvas) {
     std::unique_ptr<SkThreadedBMPDevice> tDev;
     std::unique_ptr<SkCanvas> tCanvas;
     if (fTiles > 0 && fDeviceType == kRaster_DeviceType) {
-        tDev.reset(new SkThreadedBMPDevice(this->getBitmap(), fTiles, fThreads));
+        // Temporary hack: let the device create/destroy the thread pool between each frame somehow
+        // makes it faster when we draw the same path 100 times when fMeasureFPS is true.
+        SkExecutor* executor = fMeasureFPS ? nullptr : fExecutor.get();
+        tDev.reset(new SkThreadedBMPDevice(this->getBitmap(), fTiles, fThreads, executor));
         tCanvas.reset(new SkCanvas(tDev.get()));
         canvas = tCanvas.get();
     }
