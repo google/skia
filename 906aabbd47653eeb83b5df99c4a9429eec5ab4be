@@ -22,6 +22,30 @@
       "revId": "906aabbd47653eeb83b5df99c4a9429eec5ab4be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d93e27d8_957b0682",
+        "filename": "src/core/SkCoverageDelta.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-01T19:52:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fe58467_801d06bf",
+      "range": {
+        "startLine": 76,
+        "startChar": 11,
+        "endLine": 76,
+        "endChar": 24
+      },
+      "revId": "906aabbd47653eeb83b5df99c4a9429eec5ab4be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
