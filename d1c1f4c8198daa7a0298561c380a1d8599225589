@@ -22,6 +22,30 @@
       "revId": "d1c1f4c8198daa7a0298561c380a1d8599225589",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcf51dc8_ae25aafd",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 1671,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-01T16:44:22Z",
+      "side": 1,
+      "message": "It seems to be working fine.",
+      "parentUuid": "dec8b90d_be57258d",
+      "range": {
+        "startLine": 1671,
+        "startChar": 32,
+        "endLine": 1671,
+        "endChar": 35
+      },
+      "revId": "d1c1f4c8198daa7a0298561c380a1d8599225589",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
