@@ -33,9 +33,9 @@ void IncludeWriter::enumHeaderOut(const RootDefinition* root,
             child.fChildren[0]->fName = enumName;
         }
         fullName = root->fName + "::" + enumName;
-        enumDef = root->find(enumName);
+        enumDef = root->find(enumName, RootDefinition::AllowParens::kNo);
         if (!enumDef) {
-            enumDef = root->find(fullName);
+            enumDef = root->find(fullName, RootDefinition::AllowParens::kNo);
         }
         SkASSERT(enumDef);
         // child[0] should be #Code comment starts at child[0].fTerminator
@@ -48,7 +48,7 @@ void IncludeWriter::enumHeaderOut(const RootDefinition* root,
         if (fAnonymousEnumCount > 1) {
             enumName += '_' + to_string(fAnonymousEnumCount);
         }
-        enumDef = root->find(enumName);
+        enumDef = root->find(enumName, RootDefinition::AllowParens::kNo);
         SkASSERT(enumDef);
         ++fAnonymousEnumCount;
     }
@@ -794,7 +794,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     }
                     ++alternate;
                     string alternateMethod = methodName + '_' + to_string(alternate);
-                    clonedMethod = root->find(alternateMethod);
+                    clonedMethod = root->find(alternateMethod, RootDefinition::AllowParens::kNo);
                 } while (clonedMethod);
                 if (!clonedMethod) {
                     return this->reportError<bool>("cloned method not found");
@@ -823,7 +823,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     --continueEnd;
                 }
                 methodName += string(fContinuation, continueEnd - fContinuation);
-                method = root->find(methodName);
+                method = root->find(methodName, RootDefinition::AllowParens::kNo);
                 if (!method) {
                     fLineCount = child.fLineCount;
                     fclose(fOut);  // so we can see what we've written so far
@@ -836,7 +836,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 continue;
             }
             methodName += "()";
-            method = root->find(methodName);
+            method = root->find(methodName, RootDefinition::AllowParens::kNo);
             if (method && MarkType::kDefinedBy == method->fMarkType) {
                 method = method->fParent;
             }
@@ -873,7 +873,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             methodName = root->fName + "::" + child.fName;
             inConstructor = root->fName == child.fName;
             fContinuation = child.fContentEnd;
-            method = root->find(methodName);
+            method = root->find(methodName, RootDefinition::AllowParens::kNo);
             if (!method) {
                 continue;
             }
@@ -905,9 +905,10 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     }
                     if (fInStruct) {
                         fIndent += 4;
-                        fStructDef = root->find(child.fName);
+                        fStructDef = root->find(child.fName, RootDefinition::AllowParens::kNo);
                         if (nullptr == structDef) {
-                            fStructDef = root->find(root->fName + "::" + child.fName);
+                            fStructDef = root->find(root->fName + "::" + child.fName,
+                                    RootDefinition::AllowParens::kNo);
                         }
                         this->structSizeMembers(child);
                         fIndent -= 4;
@@ -937,9 +938,10 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                                 SkASSERT(0); // incomplete
                             }
                         } else {
-                            structDef = root->find(child.fName);
+                            structDef = root->find(child.fName, RootDefinition::AllowParens::kNo);
                             if (nullptr == structDef) {
-                                structDef = root->find(root->fName + "::" + child.fName);
+                                structDef = root->find(root->fName + "::" + child.fName,
+                                        RootDefinition::AllowParens::kNo);
                             }
                             if (!structDef) {
                                 this->lf(2);
@@ -1162,7 +1164,8 @@ string IncludeWriter::resolveMethod(const char* start, const char* end, bool fir
             }
         }
         SkASSERT(parent);
-        auto defRef = parent->find(parent->fName + "::" + methodname);
+        auto defRef = parent->find(parent->fName + "::" + methodname,
+                RootDefinition::AllowParens::kNo);
         if (defRef && MarkType::kMethod == defRef->fMarkType) {
             substitute = methodname + "()";
         }
@@ -1175,9 +1178,17 @@ string IncludeWriter::resolveMethod(const char* start, const char* end, bool fir
     return substitute;
 }
 
-string IncludeWriter::resolveRef(const char* start, const char* end, bool first) {
+string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
+        RefType* refType) {
         // look up Xxx_Xxx 
     string undername(start, end - start);
+    for (const auto& external : fBmhParser->fExternals) {
+        if (external.fName == undername) {
+            *refType = RefType::kExternal;
+            return external.fName;
+        }
+    }
+    *refType = RefType::kNormal;
     SkASSERT(string::npos == undername.find(' '));
     const Definition* rootDef = nullptr;
     {
@@ -1200,11 +1211,6 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first)
                 if (fBmhParser->fAliasMap.end() != aliasIter) {
                     rootDef = aliasIter->second->fParent;
                 } else if (!first) {
-                    for (const auto& external : fBmhParser->fExternals) {
-                        if (external.fName == undername) {
-                            return external.fName;
-                        }
-                    }
                     SkDebugf("unfound: %s\n", undername.c_str());
                     this->reportError("reference unfound");
                     return "";
@@ -1291,11 +1297,12 @@ int IncludeWriter::lookupReference(const PunctuationState punctuation, const Wor
         const int start, const int run, int lastWrite, const char last, const char* data) {
     const int end = PunctuationState::kDelimiter == punctuation ||
             PunctuationState::kPeriod == punctuation ? run - 1 : run;
-    string temp = this->resolveRef(&data[start], &data[end], Word::kFirst == word);
+    RefType refType = RefType::kUndefined;
+    string resolved = string(&data[start], (size_t) (end - start));
+    string temp = this->resolveRef(&data[start], &data[end], Word::kFirst == word, &refType);
     if (!temp.length()) {
         if (Word::kFirst != word && '_' != last) {
-            temp = string(&data[start], (size_t) (end - start));
-            temp = ConvertRef(temp, false);
+            temp = ConvertRef(resolved, false);
         }
     }                     
     if (temp.length()) {
@@ -1439,6 +1446,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
                 embeddedSymbol = true;
                 break;
             case '\'': // possessive apostrophe isn't treated as delimiting punctation
+            case '\"': // quote is passed straight through
             case '=':
             case '!':  // assumed not to be punctuation, but a programming symbol
             case '&': case '>': case '<': case '{': case '}': case '/': case '*': case '[': case ']':

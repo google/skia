@@ -10,6 +10,7 @@
 
 #define STDOUT_TO_IDE_OUT 0
 
+#include "SkCommandLineFlags.h"
 #include "SkData.h"
 
 #include <algorithm> 
@@ -205,11 +206,6 @@ class TextParser : public NonAssignable {
     TextParser() {}  // only for ParserCommon to call
     friend class ParserCommon;
 public:
-    enum OneLine {
-        kNo,
-        kYes
-    };
-
     class Save {
     public:
         Save(TextParser* parser) {
@@ -435,7 +431,7 @@ public:
     void skipToNonAlphaNum() {
         while (fChar < fEnd && (isalnum(fChar[0])
                 || '_' == fChar[0] || '-' == fChar[0]
-                || (':' == fChar[0] && fChar +1 < fEnd && ':' == fChar[1])
+                || (':' == fChar[0] && fChar + 1 < fEnd && ':' == fChar[1])
                 || ('.' == fChar[0] && fChar + 1 < fEnd && isalpha(fChar[1])))) {
             if (':' == fChar[0] && fChar +1 < fEnd && ':' == fChar[1]) {
                 fChar++;
@@ -452,7 +448,7 @@ public:
 
     bool skipName(const char* word) {
         size_t len = strlen(word);
-        if (len < (size_t) (fEnd - fChar) && !strncmp(word, fChar, len)) {
+        if (len <= (size_t) (fEnd - fChar) && !strncmp(word, fChar, len)) {
             fChar += len;
         }
         return this->eof() || ' ' >= fChar[0];
@@ -495,7 +491,7 @@ public:
 
     bool startsWith(const char* str) const {
         size_t len = strlen(str);
-        ptrdiff_t lineLen = this->lineLength(); 
+        ptrdiff_t lineLen = fEnd - fChar; 
         return len <= (size_t) lineLen && 0 == strncmp(str, fChar, len);
     }
 
@@ -556,8 +552,8 @@ public:
         return nullptr;
     }
 
-    const char* trimmedBracketEnd(const char bracket, OneLine oneLine) const {
-        int max = (int) (OneLine::kYes == oneLine ? this->lineLength() : fEnd - fChar);
+    const char* trimmedBracketEnd(const char bracket) const {
+        int max = (int) (this->lineLength());
         int index = 0;
         while (index < max && bracket != fChar[index]) {
             ++index;
@@ -899,6 +895,11 @@ public:
 
 class RootDefinition : public Definition {
 public:
+    enum class AllowParens {
+        kNo,
+        kYes,
+    };
+
     RootDefinition() {
     }
     
@@ -920,7 +921,7 @@ public:
     const RootDefinition* asRoot() const override { return this; }
     void clearVisited();
     bool dumpUnVisited();
-    const Definition* find(const string& ref) const;
+    const Definition* find(const string& ref, AllowParens ) const;
     bool isRoot() const override { return true; }
     RootDefinition* rootParent() override { return fRootParent; }
     void setRootParent(RootDefinition* rootParent) { fRootParent = rootParent; }
@@ -1108,6 +1109,9 @@ public:
     }
 
     void writeString(const char* str) {
+        if (!strcmp("utf-8", str)) {
+            SkDebugf("");
+        }
         SkASSERT(strlen(str) > 0);
         SkASSERT(' ' < str[0]);
         SkASSERT(' ' < str[strlen(str) - 1]);
@@ -1194,6 +1198,12 @@ public:
         kOptional,
     };
 
+    enum class TableState {
+        kNone,
+        kColumnStart,
+        kColumnEnd,
+    };
+
 #define M(mt) (1LL << (int) MarkType::k##mt)
 #define M_D M(Description)
 #define M_CS M(Class) | M(Struct)
@@ -1216,60 +1226,61 @@ public:
         , fMaps { 
 // names without formal definitions (e.g. Column) aren't included
 // fill in other names once they're actually used
-  { "",            nullptr,      MarkType::kNone,        R_Y, E_N, 0 }
-, { "A",           nullptr,      MarkType::kAnchor,      R_Y, E_N, 0 }
-, { "Alias",       nullptr,      MarkType::kAlias,       R_N, E_N, 0 }
-, { "Bug",         nullptr,      MarkType::kBug,         R_N, E_N, 0 }
-, { "Class",       &fClassMap,   MarkType::kClass,       R_Y, E_O, M_CSST | M(Root) }
-, { "Code",        nullptr,      MarkType::kCode,        R_Y, E_N, M_CSST | M_E }      
-, { "",            nullptr,      MarkType::kColumn,      R_Y, E_N, M(Row) }
-, { "",            nullptr,      MarkType::kComment,     R_N, E_N, 0 }
-, { "Const",       &fConstMap,   MarkType::kConst,       R_Y, E_N, M_E | M_ST  }
-, { "Define",      nullptr,      MarkType::kDefine,      R_O, E_N, M_ST }
-, { "DefinedBy",   nullptr,      MarkType::kDefinedBy,   R_N, E_N, M(Method) }
-, { "Deprecated",  nullptr,      MarkType::kDeprecated,  R_Y, E_N, 0 }
-, { "Description", nullptr,      MarkType::kDescription, R_Y, E_N, M(Example) }
-, { "Doxygen",     nullptr,      MarkType::kDoxygen,     R_Y, E_N, 0 }
-, { "Enum",        &fEnumMap,    MarkType::kEnum,        R_Y, E_O, M_CSST | M(Root) }
-, { "EnumClass",   &fClassMap,   MarkType::kEnumClass,   R_Y, E_O, M_CSST | M(Root) }
-, { "Error",       nullptr,      MarkType::kError,       R_N, E_N, M(Example) }
-, { "Example",     nullptr,      MarkType::kExample,     R_O, E_N, M_CSST | M_E | M(Method) }
+  { "",            nullptr,      MarkType::kNone,         R_Y, E_N, 0 }
+, { "A",           nullptr,      MarkType::kAnchor,       R_Y, E_N, 0 }
+, { "Alias",       nullptr,      MarkType::kAlias,        R_N, E_N, 0 }
+, { "Bug",         nullptr,      MarkType::kBug,          R_N, E_N, 0 }
+, { "Class",       &fClassMap,   MarkType::kClass,        R_Y, E_O, M_CSST | M(Root) }
+, { "Code",        nullptr,      MarkType::kCode,         R_Y, E_N, M_CSST | M_E }      
+, { "",            nullptr,      MarkType::kColumn,       R_Y, E_N, M(Row) }
+, { "",            nullptr,      MarkType::kComment,      R_N, E_N, 0 }
+, { "Const",       &fConstMap,   MarkType::kConst,        R_Y, E_N, M_E | M_ST  }
+, { "Define",      nullptr,      MarkType::kDefine,       R_O, E_N, M_ST }
+, { "DefinedBy",   nullptr,      MarkType::kDefinedBy,    R_N, E_N, M(Method) }
+, { "Deprecated",  nullptr,      MarkType::kDeprecated,   R_Y, E_N, 0 }
+, { "Description", nullptr,      MarkType::kDescription,  R_Y, E_N, M(Example) }
+, { "Doxygen",     nullptr,      MarkType::kDoxygen,      R_Y, E_N, 0 }
+, { "Enum",        &fEnumMap,    MarkType::kEnum,         R_Y, E_O, M_CSST | M(Root) }
+, { "EnumClass",   &fClassMap,   MarkType::kEnumClass,    R_Y, E_O, M_CSST | M(Root) }
+, { "Error",       nullptr,      MarkType::kError,        R_N, E_N, M(Example) }
+, { "Example",     nullptr,      MarkType::kExample,      R_O, E_N, M_CSST | M_E | M(Method) }
 , { "Experimental", nullptr,     MarkType::kExperimental, R_Y, E_N, 0 }
-, { "External",    nullptr,      MarkType::kExternal,    R_Y, E_N, M(Root) }
-, { "File",        nullptr,      MarkType::kFile,        R_N, E_N, M(Track) }
-, { "Formula",     nullptr,      MarkType::kFormula,     R_O, E_N, M_ST | M(Member) | M(Method) | M_D }
-, { "Function",    nullptr,      MarkType::kFunction,    R_O, E_N, M(Example) }
-, { "Height",      nullptr,      MarkType::kHeight,      R_N, E_N, M(Example) }
-, { "Image",       nullptr,      MarkType::kImage,       R_N, E_N, M(Example) }
-, { "Legend",      nullptr,      MarkType::kLegend,      R_Y, E_N, M(Table) }
-, { "",            nullptr,      MarkType::kLink,        R_Y, E_N, M(Anchor) }
-, { "List",        nullptr,      MarkType::kList,        R_Y, E_N, M(Method) | M_CSST | M_E | M_D }
-, { "",            nullptr,      MarkType::kMarkChar,    R_N, E_N, 0 }
-, { "Member",      nullptr,      MarkType::kMember,      R_Y, E_N, M(Class) | M(Struct) }
-, { "Method",      &fMethodMap,  MarkType::kMethod,      R_Y, E_Y, M_CSST }
-, { "NoExample",   nullptr,      MarkType::kNoExample,   R_Y, E_N, 0 }
-, { "Param",       nullptr,      MarkType::kParam,       R_Y, E_N, M(Method) }
-, { "Platform",    nullptr,      MarkType::kPlatform,    R_Y, E_N, M(Example) }
-, { "Private",     nullptr,      MarkType::kPrivate,     R_N, E_N, 0 }
-, { "Return",      nullptr,      MarkType::kReturn,      R_Y, E_N, M(Method) }
-, { "",            nullptr,      MarkType::kRoot,        R_Y, E_N, 0 }
-, { "",            nullptr,      MarkType::kRow,         R_Y, E_N, M(Table) | M(List) }
-, { "SeeAlso",     nullptr,      MarkType::kSeeAlso,     R_Y, E_N, M_CSST | M_E | M(Method) }
-, { "StdOut",      nullptr,      MarkType::kStdOut,      R_N, E_N, M(Example) }
-, { "Struct",      &fClassMap,   MarkType::kStruct,      R_Y, E_O, M(Class) | M(Root) | M_ST }
-, { "Substitute",  nullptr,      MarkType::kSubstitute,  R_N, E_N, M_ST }
-, { "Subtopic",    nullptr,      MarkType::kSubtopic,    R_Y, E_Y, M_CSST }
-, { "Table",       nullptr,      MarkType::kTable,       R_Y, E_N, M(Method) | M_CSST | M_E }
-, { "Template",    nullptr,      MarkType::kTemplate,    R_Y, E_N, 0 }
-, { "",            nullptr,      MarkType::kText,        R_Y, E_N, 0 }
-, { "Time",        nullptr,      MarkType::kTime,        R_Y, E_N, M(Track) }
-, { "ToDo",        nullptr,      MarkType::kToDo,        R_N, E_N, 0 }
-, { "Topic",       nullptr,      MarkType::kTopic,       R_Y, E_Y, M_CS | M(Root) | M(Topic) }
-, { "Track",       nullptr,      MarkType::kTrack,       R_Y, E_N, M_E | M_ST }
-, { "Typedef",     &fTypedefMap, MarkType::kTypedef,     R_Y, E_N, M(Subtopic) | M(Topic) }
-, { "",            nullptr,      MarkType::kUnion,       R_Y, E_N, 0 }
-, { "Volatile",    nullptr,      MarkType::kVolatile,    R_N, E_N, M(StdOut) }
-, { "Width",       nullptr,      MarkType::kWidth,       R_N, E_N, M(Example) } }
+, { "External",    nullptr,      MarkType::kExternal,     R_Y, E_N, M(Root) }
+, { "File",        nullptr,      MarkType::kFile,         R_N, E_N, M(Track) }
+, { "Formula",     nullptr,      MarkType::kFormula,      R_O, E_N, 
+                                                    M(Column) | M_ST | M(Member) | M(Method) | M_D }
+, { "Function",    nullptr,      MarkType::kFunction,     R_O, E_N, M(Example) }
+, { "Height",      nullptr,      MarkType::kHeight,       R_N, E_N, M(Example) }
+, { "Image",       nullptr,      MarkType::kImage,        R_N, E_N, M(Example) }
+, { "Legend",      nullptr,      MarkType::kLegend,       R_Y, E_N, M(Table) }
+, { "",            nullptr,      MarkType::kLink,         R_N, E_N, M(Anchor) }
+, { "List",        nullptr,      MarkType::kList,         R_Y, E_N, M(Method) | M_CSST | M_E | M_D }
+, { "",            nullptr,      MarkType::kMarkChar,     R_N, E_N, 0 }
+, { "Member",      nullptr,      MarkType::kMember,       R_Y, E_N, M(Class) | M(Struct) }
+, { "Method",      &fMethodMap,  MarkType::kMethod,       R_Y, E_Y, M_CSST }
+, { "NoExample",   nullptr,      MarkType::kNoExample,    R_Y, E_N, 0 }
+, { "Param",       nullptr,      MarkType::kParam,        R_Y, E_N, M(Method) }
+, { "Platform",    nullptr,      MarkType::kPlatform,     R_N, E_N, M(Example) }
+, { "Private",     nullptr,      MarkType::kPrivate,      R_N, E_N, 0 }
+, { "Return",      nullptr,      MarkType::kReturn,       R_Y, E_N, M(Method) }
+, { "",            nullptr,      MarkType::kRoot,         R_Y, E_N, 0 }
+, { "",            nullptr,      MarkType::kRow,          R_Y, E_N, M(Table) | M(List) }
+, { "SeeAlso",     nullptr,      MarkType::kSeeAlso,      R_Y, E_N, M_CSST | M_E | M(Method) }
+, { "StdOut",      nullptr,      MarkType::kStdOut,       R_N, E_N, M(Example) }
+, { "Struct",      &fClassMap,   MarkType::kStruct,       R_Y, E_O, M(Class) | M(Root) | M_ST }
+, { "Substitute",  nullptr,      MarkType::kSubstitute,   R_N, E_N, M_ST }
+, { "Subtopic",    nullptr,      MarkType::kSubtopic,     R_Y, E_Y, M_CSST }
+, { "Table",       nullptr,      MarkType::kTable,        R_Y, E_N, M(Method) | M_CSST | M_E }
+, { "Template",    nullptr,      MarkType::kTemplate,     R_Y, E_N, 0 }
+, { "",            nullptr,      MarkType::kText,         R_Y, E_N, 0 }
+, { "Time",        nullptr,      MarkType::kTime,         R_Y, E_N, M(Track) }
+, { "ToDo",        nullptr,      MarkType::kToDo,         R_N, E_N, 0 }
+, { "Topic",       nullptr,      MarkType::kTopic,        R_Y, E_Y, M_CS | M(Root) | M(Topic) }
+, { "Track",       nullptr,      MarkType::kTrack,        R_Y, E_N, M_E | M_ST }
+, { "Typedef",     &fTypedefMap, MarkType::kTypedef,      R_Y, E_N, M(Subtopic) | M(Topic) }
+, { "",            nullptr,      MarkType::kUnion,        R_Y, E_N, 0 }
+, { "Volatile",    nullptr,      MarkType::kVolatile,     R_N, E_N, M(StdOut) }
+, { "Width",       nullptr,      MarkType::kWidth,        R_N, E_N, M(Example) } }
         {
             this->reset();
         }
@@ -1296,6 +1307,7 @@ public:
     string className(MarkType markType);
     bool collectExternals();
     int endHashCount() const;
+    bool endTableColumn(const char* end, const char* terminator);
 
     RootDefinition* findBmhObject(MarkType markType, const string& typeName) {
         auto map = fMaps[(int) markType].fBmh;
@@ -1326,6 +1338,9 @@ public:
     void reset() override {
         INHERITED::resetCommon();
         fRoot = nullptr;
+        fWorkingColumn = nullptr;
+        fRow = nullptr;
+        fTableState = TableState::kNone;
         fMC = '#';
         fInChar = false;
         fInCharCommentString = false;
@@ -1337,7 +1352,7 @@ public:
 
     bool skipNoName();
     bool skipToDefinitionEnd(MarkType markType);
-    void spellCheck(const char* match) const;
+    void spellCheck(const char* match, SkCommandLineFlags::StringArray report) const;
     vector<string> topicName();
     vector<string> typeName(MarkType markType, bool* expectEnd);
     string uniqueName(const string& base, MarkType markType);
@@ -1368,6 +1383,10 @@ public:
     unordered_map<string, Definition*> fTopicMap;
     unordered_map<string, Definition*> fAliasMap;
     RootDefinition* fRoot;
+    Definition* fWorkingColumn;
+    Definition* fRow;
+    const char* fColStart;
+    TableState fTableState;
     mutable char fMC;  // markup character
     bool fAnonymous;
     bool fCloned;
@@ -1639,6 +1658,12 @@ public:
         kSpace,
     };
 
+    enum class RefType {
+        kUndefined,
+        kNormal,
+        kExternal,
+    };
+
     enum class Wrote {
         kNone,
         kLF,
@@ -1699,7 +1724,7 @@ public:
     }
 
     string resolveMethod(const char* start, const char* end, bool first);
-    string resolveRef(const char* start, const char* end, bool first);
+    string resolveRef(const char* start, const char* end, bool first, RefType* refType);
     Wrote rewriteBlock(int size, const char* data);
     Definition* structMemberOut(const Definition* memberStart, const Definition& child);
     void structOut(const Definition* root, const Definition& child,
