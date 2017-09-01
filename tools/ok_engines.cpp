@@ -6,6 +6,7 @@
  */
 
 #include "ok.h"
+#include <stdlib.h>
 
 struct SerialEngine : Engine {
     static std::unique_ptr<Engine> Factory(Options) {
@@ -44,14 +45,26 @@ static Register thread("thread",
     #include <unistd.h>
 
     struct ForkEngine : Engine {
-        static std::unique_ptr<Engine> Factory(Options) {
+        int limit;      // How many concurrent subprocesses do we allow to run at max?
+        int alive = 0;  // How many concurrent subprocesses do we have running right now?
+
+        static std::unique_ptr<Engine> Factory(Options options) {
             ForkEngine engine;
+            engine.limit = atoi(options("limit", "0").c_str());
+            if (engine.limit < 1) {
+                engine.limit = std::thread::hardware_concurrency();
+            }
             return move_unique(engine);
         }
 
         bool crashproof() override { return true; }
 
         std::future<Status> spawn(std::function<Status(void)> fn) override {
+            if (alive == limit) {
+                // The caller will wait for a child process to finish then try again.
+                return std::future<Status>();
+            }
+
             switch (fork()) {
                 case  0:
                     // We are the spawned child process.
@@ -66,10 +79,12 @@ static Register thread("thread",
                 default:
                     // We succesfully spawned a child process!
                     // This will wait for any spawned process to finish and return its Status.
-                    return std::async(std::launch::deferred, [] {
+                    alive++;
+                    return std::async(std::launch::deferred, [&] {
                         do {
                             int status;
                             if (wait(&status) > 0) {
+                                alive--;
                                 return WIFEXITED(status) ? (Status)WEXITSTATUS(status)
                                                          : Status::Crashed;
                             }
@@ -80,6 +95,6 @@ static Register thread("thread",
         }
     };
     static Register _fork("fork",
-                          "Run each task in an independent process with fork().",
+                          "Run each task in an independent process with fork(), limit=ncpus.",
                           ForkEngine::Factory);
 #endif
