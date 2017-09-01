@@ -116,6 +116,14 @@ bool SkPixmap::erase(SkColor color, const SkIRect& inArea) const {
     const int width = area.width();
     const int rowBytes = this->rowBytes();
 
+    if (color == 0
+          && width == this->rowBytesAsPixels()
+          && inArea == this->bounds()) {
+        // All formats represent SkColor(0) as byte 0.
+        memset(this->writable_addr(), 0, height * rowBytes);
+        return true;
+    }
+
     switch (this->colorType()) {
         case kGray_8_SkColorType: {
             if (255 != a) {
