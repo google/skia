@@ -7,6 +7,7 @@
 
 #include "bookmaker.h"
 
+#include "SkCommandLineFlags.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
@@ -789,12 +790,12 @@ bool RootDefinition::dumpUnVisited() {
     return allStructElementsFound;
 }
 
-const Definition* RootDefinition::find(const string& ref, AllowParens allowParens) const {
+const Definition* RootDefinition::find(const string& ref) const {
     const auto leafIter = fLeaves.find(ref);
     if (leafIter != fLeaves.end()) {
         return &leafIter->second;
     }
-    if (AllowParens::kYes == allowParens && string::npos == ref.find("()")) {
+    if (string::npos == ref.find("()")) {
         string withParens = ref + "()";
         const auto parensIter = fLeaves.find(withParens);
         if (parensIter != fLeaves.end()) {
@@ -809,7 +810,7 @@ const Definition* RootDefinition::find(const string& ref, AllowParens allowParen
     const Definition* result = nullptr;
     for (const auto& branch : fBranches) {
         const RootDefinition* rootDef = branch.second;
-        result = rootDef->find(ref, allowParens);
+        result = rootDef->find(ref);
         if (result) {
             break;
         }
@@ -865,7 +866,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     }
                     definition = fParent;
                 } else {
-                    if (!hasEnd && fRoot->find(name, RootDefinition::AllowParens::kNo)) {
+                    if (!hasEnd && fRoot->find(name)) {
                         return this->reportError<bool>("duplicate symbol");
                     }
                     if (MarkType::kStruct == markType || MarkType::kClass == markType) {
@@ -989,7 +990,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kDefinedBy: {
             string prefixed(fRoot->fName);
             const char* start = fChar;
-            string name(start, this->trimmedBracketEnd(fMC) - start);
+            string name(start, this->trimmedBracketEnd(fMC, OneLine::kYes) - start);
             prefixed += "::" + name;
             this->skipToEndBracket(fMC);
             const auto leafIter = fRoot->fLeaves.find(prefixed);
@@ -1038,7 +1039,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     definition->fName = typeNameBuilder[0];
                     definition->fFiddle = fParent->fFiddle;
                     definition->fContentStart = fChar;
-                    definition->fContentEnd = this->trimmedBracketEnd(fMC);
+                    definition->fContentEnd = this->trimmedBracketEnd(fMC, OneLine::kYes);
                     this->skipToEndBracket(fMC);
                     SkAssertResult(fMC == this->next());
                     SkAssertResult(fMC == this->next());
@@ -1078,9 +1079,6 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 fMarkup.emplace_front(markType, defStart, fLineCount, fParent);
                 definition = &fMarkup.front();
                 definition->fContentStart = fChar;
-                if (MarkType::kFormula == markType && MarkType::kRow == definition->fParent->fMarkType) {
-                    SkDebugf("");
-                }
                 definition->fName = typeNameBuilder[0];
                 definition->fFiddle = fParent->fFiddle;
                 char suffix = '\0';
@@ -1129,7 +1127,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             definition->fName = typeNameBuilder[0];
             definition->fFiddle = normalized_name(typeNameBuilder[0]);
             definition->fContentStart = fChar;
-            definition->fContentEnd = this->trimmedBracketEnd('\n');
+            definition->fContentEnd = this->trimmedBracketEnd('\n', OneLine::kYes);
             definition->fTerminator = this->lineEnd() - 1;
             fParent->fChildren.push_back(definition);
             if (MarkType::kAnchor == markType) {
@@ -1139,7 +1137,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 this->skipWhiteSpace();
                 Definition* link = &fMarkup.front();
                 link->fContentStart = fChar;
-                link->fContentEnd = this->trimmedBracketEnd(fMC);
+                link->fContentEnd = this->trimmedBracketEnd(fMC, OneLine::kYes);
                 this->skipToEndBracket(fMC);
                 SkAssertResult(fMC == this->next());
                 SkAssertResult(fMC == this->next());
@@ -1395,29 +1393,14 @@ int BmhParser::endHashCount() const {
     return count;
 }
 
-bool BmhParser::endTableColumn(const char* end, const char* terminator) {
-    if (!this->popParentStack(fParent)) {
-        return false;
-    }
-    fWorkingColumn->fContentEnd = end;
-    fWorkingColumn->fTerminator = terminator;
-    fColStart = fChar - 1;
-    this->skipSpace();
-    fTableState = TableState::kColumnStart;
-    return true;
-}
-
 // FIXME: some examples may produce different output on different platforms 
 // if the text output can be different, think of how to author that
 
 bool BmhParser::findDefinitions() {
     bool lineStart = true;
-    const char* lastChar = nullptr;
-    const char* lastMC = nullptr;
     fParent = nullptr;
     while (!this->eof()) {
         if (this->peek() == fMC) {
-            lastMC = fChar;
             this->next();
             if (this->peek() == fMC) {
                 this->next();
@@ -1425,25 +1408,10 @@ bool BmhParser::findDefinitions() {
                     return this->reportError<bool>("expected definition");
                 }
                 if (this->peek() != fMC) {
-                    if (MarkType::kColumn == fParent->fMarkType) {
-                        SkASSERT(TableState::kColumnEnd == fTableState);
-                        if (!this->endTableColumn(lastChar, lastMC)) {
-                            return false;
-                        }
-                        SkASSERT(fRow);
-                        if (!this->popParentStack(fParent)) {
-                            return false;
-                        }
-                        fRow->fContentEnd = fWorkingColumn->fContentEnd;
-                        fWorkingColumn = nullptr;
-                        fRow = nullptr;
-                        fTableState = TableState::kNone;
-                    } else {
-                        vector<string> parentName;
-                        parentName.push_back(fParent->fName);
-                        if (!this->addDefinition(fChar - 1, true, fParent->fMarkType, parentName)) {
-                            return false;
-                        }
+                    vector<string> parentName;
+                    parentName.push_back(fParent->fName);
+                    if (!this->addDefinition(fChar - 1, true, fParent->fMarkType, parentName)) {
+                        return false;
                     }
                 } else {
                     SkAssertResult(this->next() == fMC);
@@ -1494,22 +1462,15 @@ bool BmhParser::findDefinitions() {
                         && MarkType::kLegend != fParent->fMarkType
                         && MarkType::kList != fParent->fMarkType)) {
                     int endHashes = this->endHashCount();
-                    if (endHashes <= 1) {
+                    if (endHashes <= 1) {  // one line comment
                         if (fParent) {
-                            if (TableState::kColumnEnd == fTableState) {
-                                if (!this->endTableColumn(lastChar, lastMC)) {
-                                    return false;
-                                }
-                            } else {  // one line comment
-                                fMarkup.emplace_front(MarkType::kComment, fChar - 1, fLineCount,
-                                        fParent);
-                                Definition* comment = &fMarkup.front();
-                                comment->fContentStart = fChar - 1;
-                                this->skipToEndBracket('\n');
-                                comment->fContentEnd = fChar;
-                                comment->fTerminator = fChar;
-                                fParent->fChildren.push_back(comment);
-                            }
+                            fMarkup.emplace_front(MarkType::kComment, fChar - 1, fLineCount, fParent);
+                            Definition* comment = &fMarkup.front();
+                            comment->fContentStart = fChar - 1;
+                            this->skipToEndBracket('\n');
+                            comment->fContentEnd = fChar;
+                            comment->fTerminator = fChar;
+                            fParent->fChildren.push_back(comment);
                         } else {
                             fChar = fLine + this->lineLength() - 1;
                         }
@@ -1524,37 +1485,41 @@ bool BmhParser::findDefinitions() {
                             return this->reportError<bool>("missing table");
                         }
                     }
-                } else if (TableState::kNone == fTableState) {
+                } else {
                     bool parentIsList = MarkType::kList == fParent->fMarkType;
-                    if (parentIsList && fLineCount > 1230) {
-                        SkDebugf("");
-                    }
                     // fixme? no nested tables for now
-                    fColStart = fChar - 1;
-                    fMarkup.emplace_front(MarkType::kRow, fColStart, fLineCount, fParent);
-                    fRow = &fMarkup.front();
-                    fRow->fName = fParent->fName;
+                    const char* colStart = fChar - 1;
+                    fMarkup.emplace_front(MarkType::kRow, colStart, fLineCount, fParent);
+                    Definition* row = &fMarkup.front();
                     this->skipWhiteSpace();
-                    fRow->fContentStart = fChar;
-                    this->setAsParent(fRow);
-                    fTableState = TableState::kColumnStart;
-                }
-                if (TableState::kColumnStart == fTableState) {
-                    fMarkup.emplace_front(MarkType::kColumn, fColStart, fLineCount, fParent);
-                    fWorkingColumn = &fMarkup.front();
-                    fWorkingColumn->fName = fParent->fName;
-                    fWorkingColumn->fContentStart = fChar;
-                    this->setAsParent(fWorkingColumn);
-                    fTableState = TableState::kColumnEnd;
-                    continue;
+                    row->fContentStart = fChar;
+                    this->setAsParent(row);
+                    const char* lineEnd = this->lineEnd();
+                    do {
+                        fMarkup.emplace_front(MarkType::kColumn, colStart, fLineCount, fParent);
+                        Definition* column = &fMarkup.front();
+                        column->fContentStart = fChar;
+                        column->fContentEnd = this->trimmedBracketEnd(fMC, 
+                                 parentIsList ? OneLine::kNo : OneLine::kYes);
+                        this->skipToEndBracket(fMC);
+                        colStart = fChar;
+                        SkAssertResult(fMC == this->next());
+                        if (fMC == this->peek()) {
+                            this->next();
+                        }
+                        column->fTerminator = fChar;
+                        fParent->fChildren.push_back(column);
+                        this->skipSpace();
+                    } while (fChar < lineEnd && '\n' != this->peek());
+                    if (!this->popParentStack(fParent)) {
+                        return false;
+                    }
+                    const Definition* lastCol = row->fChildren.back();
+                    row->fContentEnd = lastCol->fContentEnd;
                 }
             }
         }
-        char nextChar = this->next();
-        lineStart = nextChar == '\n';
-        if (' ' < nextChar) {
-            lastChar = fChar;
-        }
+        lineStart = this->next() == '\n';
     }
     if (fParent) {
         return this->reportError<bool>("mismatched end");
@@ -2150,7 +2115,7 @@ DEFINE_string2(include, i, "", "A path to a *.h file or a directory.");
 DEFINE_bool2(hack, k, false, "Do a find/replace hack to update all *.bmh files. (Requires -b)");
 DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
 DEFINE_string2(ref, r, "", "Resolve refs and write bmh_*.md files to path. (Requires -b)");
-DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispellings]. (Requires -b)");
+DEFINE_bool2(spellcheck, s, false, "Spell-check. (Requires -b)");
 DEFINE_bool2(tokens, t, false, "Output include tokens. (Requires -i)");
 DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
 
@@ -2233,7 +2198,7 @@ int main(int argc, char** const argv) {
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
-    if (FLAGS_bmh.isEmpty() && !FLAGS_spellcheck.isEmpty()) {
+    if (FLAGS_bmh.isEmpty() && FLAGS_spellcheck) {
         SkDebugf("-s requires -b\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
@@ -2292,8 +2257,8 @@ int main(int argc, char** const argv) {
         MdOut mdOut(bmhParser);
         mdOut.buildReferences(FLAGS_bmh[0], FLAGS_ref[0]);
     }
-    if (!done && !FLAGS_spellcheck.isEmpty() && FLAGS_examples.isEmpty()) {
-        bmhParser.spellCheck(FLAGS_bmh[0], FLAGS_spellcheck);
+    if (!done && FLAGS_spellcheck && FLAGS_examples.isEmpty()) {
+        bmhParser.spellCheck(FLAGS_bmh[0]);
         done = true;
     }
     int examples = 0;

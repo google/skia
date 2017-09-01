@@ -1,24 +1,30 @@
 # external references that will be documented eventually ...
 #External
- DirectWrite TrueType Windows Linux Android iOS
+ DirectWrite TrueType Windows Linux Android
  FreeType FreeType-based Harfbuzz   
- Descenders Kerning Unhinted 
+ PostScript PostScript_arct
+ OS_X Core_Graphics Core_Text iOS
  LCD RGB
+ Premultiplied Unpremultiplied
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
+ HTML_Canvas HTML_Canvas_arcTo
  API
  CPU
  GPU GPU-backed OpenGL Vulkan
+ NULL
  RFC
  Bezier Coons Cartesian
- C C++ Destructor Subclasses
+ C C++ 
  SaveLayerFlags # not external; need to add typedef support
- SkUserConfig  # not external, but still thinking about how markup refers to this
+ SkUserConfig.h  # not external, but still thinking about how markup refers to this
  SkXXX.h        # ditto
  Skia           # ditto
  SK_USE_FREETYPE_EMBOLDEN # ditto
  SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION # ditto
  SK_BUILD_FOR_ANDROID_FRAMEWORK # ditto
- SK_IGNORE_TO_STRING #  ditto
+ Developer_Mode # ditto
+ Draw_Layer # ditto
+ Raster_Engine # ditto
 
 # FreeType related
 FT_LOAD_TARGET_LIGHT
@@ -30,18 +36,8 @@ FT_Load_Glyph
 
 #External ##
 
-#Topic Alias
-#Alias Aliased
-#Alias Aliasing
-##
-
-#Topic Anti-alias
-#Alias Anti-aliased
-#Alias Anti-aliasing
-##
-
 #Topic Arc
-#Alias Arcs
+#Substitute arcs
 #Topic ##
 
 #Topic BBH_Factory
@@ -68,7 +64,7 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Circle
-#Alias Circles
+#Substitute circles
 #Topic ##
 
 #Topic Clip_Op
@@ -107,18 +103,18 @@ FT_Load_Glyph
     #Const SK_ColorWHITE 0xFFFFFFFF 
     ##
     #Subtopic Alpha
-        #Alias Alpha
+    #Substitute alpha
     #Subtopic ##
     #Subtopic RGB
     #Substitute RGB
         #Subtopic Red
-            #Alias Red
+        #Substitute red
         #Subtopic ##
         #Subtopic Blue
-            #Alias Blue
+        #Substitute blue
         #Subtopic ##
         #Subtopic Green
-            #Alias Green
+        #Substitute green
         #Subtopic ##
     #Subtopic ##
     #Subtopic ARGB
@@ -141,14 +137,6 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Color_Space
-##
-
-#Topic Core_Graphics
-#Substitute Core Graphics
-##
-
-#Topic Core_Text
-#Substitute Core Text
 ##
 
 #Topic Curve
@@ -176,9 +164,6 @@ FT_Load_Glyph
 #Topic Draw_Filter
 #Class SkDrawFilter
 ##
-##
-
-#Topic Draw_Layer
 ##
 
 #Topic Draw_Looper
@@ -222,7 +207,6 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Glyph
-#Alias Glyphs
 ##
 
 #Topic GPU_Context
@@ -231,13 +215,6 @@ FT_Load_Glyph
 
 #Topic GPU_Surface
 #Substitute GPU surface
-##
-
-#Topic HTML_Canvas
-    #Substitute HTML Canvas
-    #Subtopic ArcTo
-        #Substitute HTML Canvas arcTo
-    ##
 ##
 
 #Topic Image
@@ -300,10 +277,8 @@ FT_Load_Glyph
 ##
 ##
 
-#Topic Left_Side_Bearing 
-##
-
 #Topic Line
+#Substitute lines
 #Alias Lines
 #Topic ##
 
@@ -349,12 +324,8 @@ FT_Load_Glyph
     #Typedef ##
 #Topic ##
 
-#Topic OS_X
-#Substitute OS X
-##
-
 #Topic Oval
-#Alias Ovals
+#Substitute ovals
 #Topic ##
 
 #Topic Paint_Defaults
@@ -369,7 +340,7 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Patch
-#Alias Patches
+#Substitute patches
 #Topic ##
 
 #Topic Path_Effect
@@ -424,20 +395,6 @@ FT_Load_Glyph
     #Subtopic ##
 #Topic ##
 
-#Topic PostScript
-#Substitute PostScript
-#Subtopic Arct
-#Substitute PostScript arct
-##
-##
-
-#Topic Premultiply
-#Alias Premultiplied
-##
-
-#Topic Raster_Engine
-##
-
 #Topic Raster_Handle_Allocator
 #Class SkRasterHandleAllocator
     #Struct Rec
@@ -480,9 +437,6 @@ FT_Load_Glyph
 ##
 #Topic ##
 
-#Topic Right_Side_Bearing
-##
-
 #Topic Round_Rect
     #Class SkRRect
         #Method void dump() const
@@ -512,7 +466,7 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Sprite
-#Alias Sprites
+#Substitute sprites
 #Topic ##
 
 #Topic Stream
@@ -524,9 +478,6 @@ FT_Load_Glyph
 #Class SkString
 #Class ##
 #Topic ##
-
-#Topic Supersampling
-##
 
 #Topic Surface
 #Class SkSurface
@@ -566,16 +517,13 @@ FT_Load_Glyph
 #Class ##
 #Topic ##
 
-#Topic Unpremultiply
-#Alias Unpremultiplied
-##
-
 #Topic Vector
 #Struct SkVector
 ##
 ##
 
 #Topic Vertices
+#Substitute vertices
 #Subtopic Colors
 ##
 #Subtopic Texs
