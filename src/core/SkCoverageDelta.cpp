@@ -54,8 +54,10 @@ bool SkCoverageDeltaMask::Suitable(const SkIRect& bounds) {
     return bounds.width() <= SUITABLE_WIDTH && CanHandle(bounds);
 }
 
-SkCoverageDeltaMask::SkCoverageDeltaMask(const SkIRect& bounds) : fBounds(bounds) {
+SkCoverageDeltaMask::SkCoverageDeltaMask(SkArenaAlloc* alloc, const SkIRect& bounds) {
     SkASSERT(CanHandle(bounds));
+
+    fBounds             = bounds;
 
     // Init the anti-rect to be empty
     fAntiRect.fY        = fBounds.fBottom;
@@ -63,11 +65,15 @@ SkCoverageDeltaMask::SkCoverageDeltaMask(const SkIRect& bounds) : fBounds(bounds
 
     fExpandedWidth      = ExpandWidth(fBounds.width());
 
+    int size            = fExpandedWidth * bounds.height() + PADDING * 2;
+    fDeltaStorage       = alloc->makeArrayDefault<SkFixed>(size);
+    fMask               = alloc->makeArrayDefault<SkAlpha>(size);
+
     // Add PADDING columns so we may access fDeltas[index(-PADDING, 0)]
     // Minus index(fBounds.fLeft, fBounds.fTop) so we can directly access fDeltas[index(x, y)]
     fDeltas             = fDeltaStorage + PADDING - this->index(fBounds.fLeft, fBounds.fTop);
 
-    memset(fDeltaStorage, 0, (fExpandedWidth * bounds.height() + PADDING * 2) * sizeof(SkFixed));
+    memset(fDeltaStorage, 0, size * sizeof(SkFixed));
 }
 
 // TODO As this function is so performance-critical (and we're thinking so much about SIMD), use
