@@ -338,20 +338,21 @@ void SkScan::DAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
             return;
         }
 
+#ifdef GOOGLE3
+        constexpr int STACK_SIZE = 12 << 10; // 12K stack size alloc; Google3 has 16K limit.
+#else
+        constexpr int STACK_SIZE = 64 << 10; // 64k stack size to avoid heap allocation
+#endif
+        SkSTArenaAlloc<STACK_SIZE> alloc; // avoid heap allocation with SkSTArenaAlloc
+
         // Only blitter->blitXXX need to be done in order in the threaded backend.
         // Everything before can be done out of order in the threaded backend.
         if (!forceRLE && !isInverse && SkCoverageDeltaMask::Suitable(clippedIR)) {
-            SkCoverageDeltaMask deltaMask(clippedIR);
+            SkCoverageDeltaMask deltaMask(&alloc, clippedIR);
             gen_alpha_deltas(path, *clipRgn, deltaMask, blitter, skipRect, clipRect == nullptr);
             deltaMask.convertCoverageToAlpha(isEvenOdd, isInverse, isConvex);
             blitter->blitMask(deltaMask.prepareSkMask(), clippedIR);
         } else {
-#ifdef GOOGLE3
-            constexpr int STACK_SIZE = 8 << 10; // 8K stack size alloc; Google3 has 16K limit.
-#else
-            constexpr int STACK_SIZE = 64 << 10; // 64k stack size to avoid heap allocation
-#endif
-            SkSTArenaAlloc<STACK_SIZE> alloc; // avoid heap allocation with SkSTArenaAlloc
             SkCoverageDeltaList deltaList(&alloc, clippedIR.fTop, clippedIR.fBottom, forceRLE);
             gen_alpha_deltas(path, *clipRgn, deltaList, blitter, skipRect, clipRect == nullptr);
             blitter->blitCoverageDeltas(&deltaList, clipBounds, isEvenOdd, isInverse, isConvex);

@@ -117,13 +117,14 @@ public:
 #else
     static constexpr int MAX_MASK_SIZE  = 2048;
 #endif
+    static constexpr int MAX_SIZE       = MAX_MASK_SIZE * (sizeof(SkFixed) + sizeof(SkAlpha));
 
     // Expand PADDING on both sides, and make it a multiple of SIMD_WIDTH
     static int  ExpandWidth(int width);
     static bool CanHandle(const SkIRect& bounds);   // whether bounds fits into MAX_MASK_SIZE
     static bool Suitable(const SkIRect& bounds);    // CanHandle(bounds) && width <= SUITABLE_WIDTH
 
-    SkCoverageDeltaMask(const SkIRect& bounds);
+    SkCoverageDeltaMask(SkArenaAlloc* alloc, const SkIRect& bounds);
 
     int              top()       const { return fBounds.fTop; }
     int              bottom()    const { return fBounds.fBottom; }
@@ -155,9 +156,9 @@ public:
 
 private:
     SkIRect     fBounds;
-    SkFixed     fDeltaStorage[MAX_MASK_SIZE];
+    SkFixed*    fDeltaStorage;
     SkFixed*    fDeltas;
-    SkAlpha     fMask[MAX_MASK_SIZE];
+    SkAlpha*    fMask;
     int         fExpandedWidth;
     SkAntiRect  fAntiRect;
 

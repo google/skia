@@ -98,12 +98,13 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
             continue;
         }
 
-        // If there are too many deltas, sorting will be slow. Using a mask will be much faster.
+        // If there are too many deltas, sorting will be slow. Using a mask is much faster.
         // This is such an important optimization that will bring ~2x speedup for benches like
         // path_fill_small_long_line and path_stroke_small_sawtooth.
         if (canUseMask && !deltas->sorted(y) && deltas->count(y) << 3 >= clip.width()) {
             SkIRect rowIR = SkIRect::MakeLTRB(clip.fLeft, y, clip.fRight, y + 1);
-            SkCoverageDeltaMask mask(rowIR);
+            SkSTArenaAlloc<SkCoverageDeltaMask::MAX_SIZE> alloc;
+            SkCoverageDeltaMask mask(&alloc, rowIR);
             for(int i = 0; i < deltas->count(y); ++i) {
                 const SkCoverageDelta& delta = deltas->getDelta(y, i);
                 mask.addDelta(delta.fX, y, delta.fDelta);
