@@ -95,6 +95,7 @@ private:
     SkExecutor* fExecutor = nullptr;
     std::unique_ptr<SkExecutor> fInternalExecutor;
 
+
     std::unique_ptr<SkTaskGroup> fTaskGroup; // generated from fExecutor
 
     DrawElement fQueue[MAX_QUEUE_SIZE];
