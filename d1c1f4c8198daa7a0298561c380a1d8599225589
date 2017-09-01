@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dec8b90d_be57258d",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 1671,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-01T16:41:21Z",
+      "side": 1,
+      "message": "Does this not need to be moc.exe on Windows?",
+      "range": {
+        "startLine": 1671,
+        "startChar": 32,
+        "endLine": 1671,
+        "endChar": 35
+      },
+      "revId": "d1c1f4c8198daa7a0298561c380a1d8599225589",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
