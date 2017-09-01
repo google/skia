@@ -231,7 +231,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                 continue;
             }
             string fullName = classMapper.first + "::" + token.fName;
-            const Definition* def = root->find(fullName, RootDefinition::AllowParens::kYes);
+            const Definition* def = root->find(fullName);
             switch (token.fMarkType) {
                 case MarkType::kMethod: {
                     if (this->internalName(token)) {
@@ -241,7 +241,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         string paramName = className + "::";
                         paramName += string(token.fContentStart,
                                 token.fContentEnd - token.fContentStart);
-                        def = root->find(paramName, RootDefinition::AllowParens::kYes);
+                        def = root->find(paramName);
                         if (!def && 0 == token.fName.find("operator")) {
                             string operatorName = className + "::";
                             TextParser oper("", token.fStart, token.fContentEnd, 0);
@@ -258,7 +258,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                                 }
                             } while (!oper.eof() && oper.next() && parens > 0);
                             operatorName += string(start, oper.fChar - start);
-                            def = root->find(operatorName, RootDefinition::AllowParens::kYes);
+                            def = root->find(operatorName);
                         }
                     }
                     if (!def) {
@@ -267,18 +267,17 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         string constructorName = className + "::";
                         constructorName += string(token.fContentStart + skip,
                                 token.fContentEnd - token.fContentStart - skip);
-                        def = root->find(constructorName, RootDefinition::AllowParens::kYes);
+                        def = root->find(constructorName);
                     }
                     if (!def && 0 == token.fName.find("SK_")) {
                         string incName = token.fName + "()";
                         string macroName = className + "::" + incName;
-                        def = root->find(macroName, RootDefinition::AllowParens::kYes);
+                        def = root->find(macroName);
                         if (def) {
                             if (def->fName == incName) {
                                 def->fVisited = true;
                                 if ("SK_TO_STRING_NONVIRT" == token.fName) {
-                                    def = root->find(className + "::toString",
-                                            RootDefinition::AllowParens::kYes);
+                                    def = root->find(className + "::toString");
                                     if (def) {
                                         def->fVisited = true;
                                     } else {
@@ -301,7 +300,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         }
                         if (allLower) {
                             string lowerName = className + "::" + token.fName + "()";
-                            def = root->find(lowerName, RootDefinition::AllowParens::kYes);
+                            def = root->find(lowerName);
                         }
                     }
                     if (!def) {
@@ -315,7 +314,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                     if (!def) {
             // simple method names inside nested classes have a bug and are missing trailing parens
                         string withParens = fullName + "()"; // FIXME: this shouldn't be necessary
-                        def = root->find(withParens, RootDefinition::AllowParens::kNo);
+                        def = root->find(withParens);
                     }
                     if (!def) {
                         SkDebugf("method missing from bmh: %s\n", fullName.c_str());
@@ -360,7 +359,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                             ++lastUnderscore;
                             string anonName = className + "::" + string(lastUnderscore, 
                                     wordEnd - lastUnderscore) + 's';
-                            def = root->find(anonName, RootDefinition::AllowParens::kYes);
+                            def = root->find(anonName);
                         }
                         if (!def) {
                             SkDebugf("enum missing from bmh: %s\n", fullName.c_str());
@@ -387,10 +386,10 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         string constName = MarkType::kEnumClass == token.fMarkType ?
                                 fullName : className;
                         constName += "::" + child->fName;
-                        def = root->find(constName, RootDefinition::AllowParens::kYes);
+                        def = root->find(constName);
                         if (!def) {
                             string innerName = classMapper.first + "::" + child->fName;
-                            def = root->find(innerName, RootDefinition::AllowParens::kYes);
+                            def = root->find(innerName);
                         }
                         if (!def) {
                             if (string::npos == child->fName.find("Legacy_")) {
@@ -1143,7 +1142,7 @@ bool IncludeParser::parseMember(Definition* child, Definition* markupDef) {
                     break;
                 }
                 const char* start = parser.fChar;
-                const char* end = parser.trimmedBracketEnd('\n');
+                const char* end = parser.trimmedBracketEnd('\n', OneLine::kYes);
                 if (Bracket::kSlashStar == comment->fBracket) {
                     const char* commentEnd = parser.strnstr("*/", end);
                     if (commentEnd) {
@@ -1451,7 +1450,6 @@ bool IncludeParser::parseChar() {
                     return reportError<bool>("malformed closing comment");
                 }
                 if (Bracket::kSlashStar == this->topBracket()) {
-                    this->next();  // include close in bracket -- FIXME? will this skip stuff?
                     this->popBracket();
                 }
                 break;
