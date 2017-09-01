@@ -87,6 +87,8 @@ private:
     std::unique_ptr<uint32_t[]> fBuffer0,
                                 fBuffer1,
                                 fBuffer2;
+    double fSigmaW;
+    double fSigmaH;
 };
 
 #endif  // SkBlurMaskFilter_DEFINED
