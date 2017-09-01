@@ -22,6 +22,30 @@
       "revId": "fbfec38c6bfe34e387fb154a8e781755037f32e4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bdbd92b_ba29ad4d",
+        "filename": "src/gpu/vk/GrVkTexture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-01T13:53:16Z",
+      "side": 1,
+      "message": "No we were allocating the correct amount. The main effect was that when creating a sampler, we were saying the MaxLOD was one more layer than it actually was. This probably effected the computation of the which layer to use slightly and if you happen to pick the perfect scale you could end up on the wrong layer.",
+      "parentUuid": "8e3c84d3_7b7a115f",
+      "range": {
+        "startLine": 242,
+        "startChar": 42,
+        "endLine": 242,
+        "endChar": 53
+      },
+      "revId": "fbfec38c6bfe34e387fb154a8e781755037f32e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
