@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2fa7b7d7_2c0cda54",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-01T12:33:05Z",
+      "side": 1,
+      "message": "This causes a float-cast-overflow when running srgb animated-image-blurs. I will follow up by email with failure link and stacktrace.",
+      "revId": "56ffafee4454759ffcd1b2fea04ce44300624c93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
