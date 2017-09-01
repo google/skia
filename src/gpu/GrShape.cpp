@@ -31,6 +31,82 @@ GrShape& GrShape::operator=(const GrShape& that) {
     return *this;
 }
 
+static bool flip_inversion(bool originalIsInverted, GrShape::FillInversion inversion) {
+    switch (inversion) {
+        case GrShape::FillInversion::kPreserve:
+            return false;
+        case GrShape::FillInversion::kFlip:
+            return true;
+        case GrShape::FillInversion::kForceInverted:
+            return !originalIsInverted;
+        case GrShape::FillInversion::kForceNoninverted:
+            return originalIsInverted;
+    }
+    return false;
+}
+
+static bool is_inverted(bool originalIsInverted, GrShape::FillInversion inversion) {
+    switch (inversion) {
+        case GrShape::FillInversion::kPreserve:
+            return originalIsInverted;
+        case GrShape::FillInversion::kFlip:
+            return !originalIsInverted;
+        case GrShape::FillInversion::kForceInverted:
+            return true;
+        case GrShape::FillInversion::kForceNoninverted:
+            return false;
+    }
+    return false;
+}
+
+GrShape GrShape::MakeFilled(const GrShape& original, FillInversion inversion) {
+    if (original.style().isSimpleFill() && !flip_inversion(original.inverseFilled(), inversion)) {
+        // By returning the original rather than falling through we can preserve any inherited style
+        // key. Otherwise, we wipe it out below since the style change invalidates it.
+        return original;
+    }
+    GrShape result;
+    switch (original.fType) {
+        case Type::kRRect:
+            result.fType = original.fType;
+            result.fRRectData.fRRect = original.fRRectData.fRRect;
+            result.fRRectData.fDir = kDefaultRRectDir;
+            result.fRRectData.fStart = kDefaultRRectStart;
+            result.fRRectData.fInverted = is_inverted(original.fRRectData.fInverted, inversion);
+            break;
+        case Type::kLine:
+            // Lines don't fill.
+            if (is_inverted(original.fLineData.fInverted, inversion)) {
+                result.fType = Type::kInvertedEmpty;
+            } else {
+                result.fType = Type::kEmpty;
+            }
+            break;
+        case Type::kEmpty:
+            result.fType = is_inverted(false, inversion) ? Type::kInvertedEmpty :  Type::kEmpty;
+            break;
+        case Type::kInvertedEmpty:
+            result.fType = is_inverted(true, inversion) ? Type::kInvertedEmpty :  Type::kEmpty;
+            break;
+        case Type::kPath:
+            result.initType(Type::kPath, &original.fPathData.fPath);
+            result.fPathData.fGenID = original.fPathData.fGenID;
+            if (flip_inversion(original.fPathData.fPath.isInverseFillType(), inversion)) {
+                result.fPathData.fPath.toggleInverseFillType();
+            }
+            if (!original.style().isSimpleFill()) {
+                // Going from a non-filled style to fill may allow additional simplifications (e.g.
+                // closing an open rect that wasn't closed in the original shape because it had
+                // stroke style).
+                result.attemptToSimplifyPath();
+            }
+            break;
+    }
+    // We don't copy the inherited key since it can contain path effect information that we just
+    // stripped.
+    return result;
+}
+
 SkRect GrShape::bounds() const {
     // Bounds where left == bottom or top == right can indicate a line or point shape. We return
     // inverted bounds for a truly empty shape.
@@ -206,7 +282,7 @@ void GrShape::setInheritedKey(const GrShape &parent, GrStyle::Apply apply, SkSca
         // We want ApplyFullStyle(ApplyPathEffect(shape)) to have the same key as
         // ApplyFullStyle(shape).
         // The full key is structured as (geo,path_effect,stroke).
-        // If we do ApplyPathEffect we get get,path_effect as the inherited key. If we then
+        // If we do ApplyPathEffect we get geo,path_effect as the inherited key. If we then
         // do ApplyFullStyle we'll memcpy geo,path_effect into the new inherited key
         // and then append the style key (which should now be stroke only) at the end.
         int parentCnt = parent.fInheritedKey.count();
