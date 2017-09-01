@@ -218,8 +218,7 @@ SkThreadedBMPDevice::SkThreadedBMPDevice(const SkBitmap& bitmap,
         , fThreadCnt(threads <= 0 ? tiles : threads)
 {
     if (executor == nullptr) {
-        fInternalExecutor = SkExecutor::MakeThreadPool(fThreadCnt);
-        executor = fInternalExecutor.get();
+        executor = &SkExecutor::GetDefault();
     }
     fExecutor = executor;
 

@@ -86,14 +86,7 @@ private:
     std::unique_ptr<TiledDrawScheduler> fScheduler;
     SkTArray<SkIRect> fTileBounds;
 
-    /**
-     * This can either be
-     * 1. fInternalExecutor.get() which means that we're managing the thread pool's life cycle.
-     * 2. provided by our caller which means that our caller is managing the threads' life cycle.
-     * In the 2nd case, fInternalExecutor == nullptr.
-     */
     SkExecutor* fExecutor = nullptr;
-    std::unique_ptr<SkExecutor> fInternalExecutor;
 
     std::unique_ptr<SkTaskGroup> fTaskGroup; // generated from fExecutor
 
