@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e3c84d3_7b7a115f",
+        "filename": "src/gpu/vk/GrVkTexture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-01T13:47:58Z",
+      "side": 1,
+      "message": "So were we allocating one too many levels?",
+      "range": {
+        "startLine": 242,
+        "startChar": 42,
+        "endLine": 242,
+        "endChar": 53
+      },
+      "revId": "fbfec38c6bfe34e387fb154a8e781755037f32e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
