@@ -9,6 +9,7 @@
 
 #include <cmath>
 
+#include "SkArenaAlloc.h"
 #include "SkMakeUnique.h"
 #include "SkSafeMath.h"
 
@@ -31,12 +32,14 @@ static uint64_t weight_from_diameter(uint32_t d) {
     static constexpr double kSmallSigma = 2.0;
 #endif
 
-static uint32_t filter_window(double sigma) {
+//
+
+static size_t filter_window(double sigma) {
     if (sigma < kSmallSigma) {
-        auto radius = static_cast<uint32_t>(ceil(1.5 * sigma - 0.5));
+        auto radius = static_cast<size_t>(ceil(1.5 * sigma - 0.5));
         return 2 * radius + 1;
     }
-    auto possibleWindow = static_cast<uint32_t>(floor(sigma * 3 * sqrt(2 * kPi) / 4 + 0.5));
+    auto possibleWindow = static_cast<size_t>(floor(sigma * 3 * sqrt(2 * kPi) / 4 + 0.5));
     return std::max(1u, possibleWindow);
 }
 
@@ -109,6 +112,459 @@ std::tuple<uint64_t, uint64_t> SkMaskBlurFilter::FilterInfo::interpFactors() con
     return fInterpFactors;
 };
 
+//==================================================================================================
+class BlurScanInterface {
+public:
+    virtual ~BlurScanInterface() = default;
+    virtual void Blur(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                      uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const = 0;
+};
+
+class PlanningInterface {
+public:
+    virtual ~PlanningInterface() = default;
+    virtual size_t bufferSize() const = 0;
+    virtual size_t border() const = 0;
+    virtual BlurScanInterface* makeBlurScan(
+        SkArenaAlloc* alloc, size_t width, uint32_t* buffer) const = 0;
+};
+
+
+// This class is deprecated, and will be replaced by Box.
+class PlanBoxInteger final : public PlanningInterface {
+public:
+    PlanBoxInteger(double sigma) {
+        // Calculate the radius from sigma. Taken from the old code until something better is
+        // figured out.
+        auto possibleRadius = 1.5 * sigma - 0.5;
+        auto radius = std::max(1.0, std::ceil(possibleRadius));
+        auto window = 2 * radius + 1;
+
+        fWindow = static_cast<size_t>(window);
+    }
+
+    size_t bufferSize() const override { return fWindow - 1;       }
+
+    size_t border()     const override { return (fWindow - 1) / 2; }
+
+    BlurScanInterface* makeBlurScan(
+        SkArenaAlloc* alloc, size_t width, uint32_t* buffer) const override
+    {
+        auto weight = static_cast<uint64_t>(std::round(1.0 / fWindow * (1ull << 32)));
+        auto bufferEnd = buffer + this->bufferSize();
+        size_t noChangeCount = fWindow > width ? fWindow - width : 0;
+
+        return alloc->make<BoxInteger>(weight, buffer, bufferEnd, noChangeCount);
+    }
+
+private:
+    class BoxInteger final : public BlurScanInterface {
+    public:
+        BoxInteger(uint64_t weight, uint32_t* buffer, uint32_t* bufferEnd, size_t noChangeCount)
+            : fWeight{weight}
+            , fBuffer0{buffer}
+            , fBuffer0End{bufferEnd}
+            , fNoChangeCount{noChangeCount} { }
+
+        void Blur(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                  uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const override {
+            auto buffer0Cursor = fBuffer0;
+            std::memset(&fBuffer0[0], 0, (fBuffer0End - fBuffer0) * sizeof(*fBuffer0));
+            uint32_t sum0 = 0;
+
+            // Consume the source generating pixels.
+            for (auto srcCursor = src;
+                 srcCursor < srcEnd; dst += dstStride, srcCursor += srcStride) {
+                uint32_t s = *srcCursor;
+                sum0 += s;
+
+                *dst = this->finalScale(sum0);
+
+                sum0 -= *buffer0Cursor;
+                *buffer0Cursor = s;
+                buffer0Cursor =
+                    (buffer0Cursor + 1) < fBuffer0End ? buffer0Cursor + 1 : &fBuffer0[0];
+            }
+
+            // This handles the case when both ends of the box are not between [src, srcEnd), and
+            // both are zero at that point.
+            for (auto i = 0; i < fNoChangeCount; i++) {
+                uint32_t s = 0;
+                sum0 += s;
+
+                *dst = this->finalScale(sum0);
+
+                sum0 -= *buffer0Cursor;
+                *buffer0Cursor = s;
+                buffer0Cursor =
+                    (buffer0Cursor + 1) < fBuffer0End ? buffer0Cursor + 1 : &fBuffer0[0];
+                dst += dstStride;
+            }
+
+            // Starting from the right, fill in the rest of the buffer.
+            std::memset(&fBuffer0[0], 0, (fBuffer0End - &fBuffer0[0]) * sizeof(fBuffer0[0]));
+
+            sum0 = 0;
+
+            uint8_t* dstCursor = dstEnd;
+            const uint8_t* srcCursor = srcEnd;
+            do {
+                dstCursor -= dstStride;
+                srcCursor -= srcStride;
+                uint32_t s = *srcCursor;
+                sum0 += s;
+
+                *dstCursor = this->finalScale(sum0);
+
+                sum0 -= *buffer0Cursor;
+                *buffer0Cursor = s;
+                buffer0Cursor =
+                    (buffer0Cursor + 1) < fBuffer0End ? buffer0Cursor + 1 : &fBuffer0[0];
+            } while (dstCursor > dst);
+        }
+
+        static constexpr uint64_t kHalf = static_cast<uint64_t>(1) << 31;
+
+        uint8_t finalScale(uint32_t sum) const {
+            return SkTo<uint8_t>((fWeight * sum + kHalf) >> 32);
+        }
+
+        const uint64_t  fWeight;
+        uint32_t* const fBuffer0;
+        uint32_t* const fBuffer0End;
+        const size_t    fNoChangeCount;
+    };
+
+    size_t fWindow;
+};
+
+class PlanBox final : public PlanningInterface {
+public:
+    PlanBox(double sigma) {
+        // Calculate the radius from sigma. Taken from the old code until something better is
+        // figured out.
+        auto possibleRadius = 1.5 * sigma - 0.5;
+        auto radius = std::max(1.0, possibleRadius);
+        auto outerRadius = std::ceil(radius);
+        auto outerWindow = 2 * outerRadius + 1;
+        auto outerFactor = (1 - (outerRadius - radius)) / outerWindow;
+        fOuterWeight = static_cast<uint64_t>(std::round(outerFactor * (1ull << 32)));
+
+        auto innerRadius = outerRadius - 1;
+        auto innerWindow = 2 * innerRadius + 1;
+        auto innerFactor = (1 - (radius - innerRadius)) / innerWindow;
+        fInnerWeight = static_cast<uint64_t>(std::round(innerFactor * (1ull << 32)));
+
+        // Sliding window is defined by the relationship between the outer and inner widows.
+        // In the single window case, you add the element on the right, and subtract the element on
+        // the left. But, because two windows are used, this relationship is more complicated; an
+        // element is added from the right of the outer window, subtracted from the left of the
+        // inner window. Because innerWindow = outerWindow - 2, the distance between
+        // the left and right in the two window case is outerWindow - 1.
+        fSlidingWindow = static_cast<size_t>(outerWindow - 1);
+    }
+
+    size_t bufferSize() const override { return 0; }
+
+    // Remember that sliding window = window - 1. Therefore, radius = sliding window / 2.
+    size_t border()     const override { return fSlidingWindow / 2; }
+
+    BlurScanInterface* makeBlurScan(
+        SkArenaAlloc* alloc, size_t width, uint32_t* buffer) const override
+    {
+        size_t noChangeCount;
+        size_t trailingEdgeZeroCount;
+
+        // The relation between the slidingWindow and the width dictates two operating modes.
+        // * width >= slidingWindow - both sides of the window are contained in the image while
+        // scanning. Therefore, we assume that slidingWindow zeros are consumed on the trailing
+        // edge of the window. After this count, the both edges are traversing the image.
+        // * slidingWindow > width - both sides of the window are off the image while scanning
+        // the middle. The front edge of the window can only travel width until it falls off the
+        // image. At this point, both edges of the window are off the image consuming zeros
+        // and therefore, the destination value does not change. The scan produces unchanged
+        // values until the trailing edge of the window enters the image. This count is
+        // slidingWindow - width.
+        if (width >= fSlidingWindow) {
+            noChangeCount = 0;
+            trailingEdgeZeroCount = fSlidingWindow;
+        } else {
+            noChangeCount = fSlidingWindow - width;
+            trailingEdgeZeroCount = width;
+        }
+        return alloc->make<Box>(fOuterWeight, fInnerWeight, noChangeCount, trailingEdgeZeroCount);
+
+    }
+
+private:
+    class Box final : public BlurScanInterface {
+    public:
+        Box(uint64_t outerWeight, uint64_t innerWeight,
+            size_t noChangeCount, size_t trailingEdgeZeroCount)
+            : fOuterWeight{outerWeight}
+            , fInnerWeight{innerWeight}
+            , fNoChangeCount{noChangeCount}
+            , fTrailingEdgeZeroCount{trailingEdgeZeroCount} { }
+
+        void Blur(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                  uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const override {
+            auto rightOuter = src;
+            auto dstCursor = dst;
+
+            uint32_t outerSum = 0;
+            uint32_t innerSum = 0;
+            for (size_t i = 0; i < fTrailingEdgeZeroCount; i++) {
+                innerSum = outerSum;
+                outerSum += *rightOuter;
+                *dstCursor = this->interpolateSums(outerSum, innerSum);
+
+                rightOuter += srcStride;
+                dstCursor += dstStride;
+            }
+
+            // slidingWindow > width
+            for (auto i = 0; i < fNoChangeCount; i++) {
+                *dstCursor = this->interpolateSums(outerSum, innerSum);;
+                dstCursor += dstStride;
+            }
+
+            // width > slidingWindow
+            auto leftInner = src;
+            while (rightOuter < srcEnd) {
+                innerSum = outerSum - *leftInner;
+                outerSum += *rightOuter;
+                *dstCursor = this->interpolateSums(outerSum, innerSum);
+                outerSum -= *leftInner;
+
+                rightOuter += srcStride;
+                leftInner += srcStride;
+                dstCursor += dstStride;
+            }
+
+            auto leftOuter = srcEnd;
+            dstCursor = dstEnd;
+            outerSum = 0;
+            for (size_t i = 0; i < fTrailingEdgeZeroCount; i++) {
+                leftOuter -= srcStride;
+                dstCursor -= dstStride;
+
+                innerSum = outerSum;
+                outerSum += *leftOuter;
+                *dstCursor = this->interpolateSums(outerSum, innerSum);
+            }
+        }
+
+    private:
+        static constexpr uint64_t kHalf = static_cast<uint64_t>(1) << 31;
+
+        uint8_t interpolateSums(uint32_t outerSum, uint32_t innerSum) const {
+            return SkTo<uint8_t>((fOuterWeight * outerSum + fInnerWeight * innerSum + kHalf) >> 32);
+        };
+        uint64_t fOuterWeight;
+        uint64_t fInnerWeight;
+        size_t fNoChangeCount;
+        size_t fTrailingEdgeZeroCount;
+    };
+private:
+    uint64_t fOuterWeight;
+    uint64_t fInnerWeight;
+    size_t   fSlidingWindow;
+};
+
+class PlanGauss final : public PlanningInterface {
+    PlanGauss(double sigma) {
+        auto possibleWindow = static_cast<size_t>(floor(sigma * 3 * sqrt(2 * kPi) / 4 + 0.5));
+        auto window = std::max(static_cast<size_t>(1), possibleWindow);
+
+        fPass0Size = window - 1;
+        fPass1Size = window - 1;
+        fPass2Size = (window & 1) == 1 ? window - 1 : window;
+
+        fBorder = (window & 1) == 1 ? 3 * ((window - 1) / 2) : 3 * (window / 2) - 1;
+        fSlidingWindow = 2 * fBorder + 1;
+
+        // If the window is odd then the divisor is just window ^ 3 otherwise,
+        // it is window * window * (window + 1) = window ^ 2 + window ^ 3;
+        auto window2 = window * window;
+        auto window3 = window2 * window;
+        auto divisor = (window & 1) == 1 ? window3 : window3 + window2;
+        fWeight = static_cast<uint64_t>(std::round(1.0 / divisor * (1ull << 32)));
+    }
+
+    size_t bufferSize() const override { return fPass0Size + fPass1Size + fPass2Size; }
+
+    size_t border()     const override { return fBorder; }
+
+    BlurScanInterface* makeBlurScan(
+        SkArenaAlloc* alloc, size_t width, uint32_t* buffer) const override
+    {
+        uint64_t weight;
+        uint32_t* buffer0, *buffer0End, *buffer1, *buffer1End, *buffer2, *buffer2End;
+        buffer0 = buffer;
+        buffer0End = buffer1 = buffer0 + fPass0Size;
+        buffer1End = buffer2 = buffer1 + fPass1Size;
+        buffer2End = buffer2 + fPass2Size;
+        size_t noChangeCount;
+
+        return alloc->make<Gauss>(
+            weight, noChangeCount,
+            buffer0, buffer0End,
+            buffer1, buffer1End,
+            buffer2, buffer2End);
+    }
+
+public:
+    class Gauss final : public BlurScanInterface {
+    public:
+        Gauss(uint64_t weight, size_t noChangeCount,
+              uint32_t* buffer0, uint32_t* buffer0End,
+              uint32_t* buffer1, uint32_t* buffer1End,
+              uint32_t* buffer2, uint32_t* buffer2End)
+            : fWeight{weight}
+            , fBuffer0{buffer0}
+            , fBuffer0End{buffer0End}
+            , fBuffer1{buffer1}
+            , fBuffer1End{buffer1End}
+            , fBuffer2{buffer2}
+            , fBuffer2End{buffer2End}
+        { }
+
+        void Blur(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                  uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const override {
+            auto buffer0Cursor = fBuffer0;
+            auto buffer1Cursor = fBuffer1;
+            auto buffer2Cursor = fBuffer2;
+
+            std::memset(&fBuffer0[0], 0, (fBuffer0End - fBuffer0) * sizeof(*fBuffer0));
+            std::memset(&fBuffer1[0], 0, (fBuffer1End - fBuffer1) * sizeof(*fBuffer1));
+            std::memset(&fBuffer2[0], 0, (fBuffer2End - fBuffer2) * sizeof(*fBuffer2));
+
+            uint32_t sum0 = 0;
+            uint32_t sum1 = 0;
+            uint32_t sum2 = 0;
+
+            // Consume the source generating pixels.
+            for (auto srcCursor = src;
+                 srcCursor < srcEnd; dst += dstStride, srcCursor += srcStride) {
+                uint32_t s = *srcCursor;
+                sum0 += s;
+                sum1 += sum0;
+                sum2 += sum1;
+
+                *dst = this->finalScale(sum2);
+
+                sum2 -= *buffer2Cursor;
+                *buffer2Cursor = sum1;
+                buffer2Cursor = (buffer2Cursor + 1) < fBuffer2End ? buffer2Cursor + 1 : fBuffer2;
+
+                sum1 -= *buffer1Cursor;
+                *buffer1Cursor = sum0;
+                buffer1Cursor = (buffer1Cursor + 1) < fBuffer1End ? buffer1Cursor + 1 : fBuffer1;
+
+                sum0 -= *buffer0Cursor;
+                *buffer0Cursor = s;
+                buffer0Cursor = (buffer0Cursor + 1) < fBuffer0End ? buffer0Cursor + 1 : fBuffer0;
+            }
+
+            for (auto i = 0; i < fNoChangeCount; i++) {
+                uint32_t s = 0;
+                sum0 += s;
+                sum1 += sum0;
+                sum2 += sum1;
+
+                *dst = this->finalScale(sum2);
+
+                sum2 -= *buffer2Cursor;
+                *buffer2Cursor = sum1;
+                buffer2Cursor = (buffer2Cursor + 1) < fBuffer2End ? buffer2Cursor + 1 : fBuffer2;
+
+                sum1 -= *buffer1Cursor;
+                *buffer1Cursor = sum0;
+                buffer1Cursor = (buffer1Cursor + 1) < fBuffer1End ? buffer1Cursor + 1 : fBuffer1;
+
+                sum0 -= *buffer0Cursor;
+                *buffer0Cursor = s;
+                buffer0Cursor = (buffer0Cursor + 1) < fBuffer0End ? buffer0Cursor + 1 : fBuffer0;
+                dst += dstStride;
+            }
+
+            // Starting from the right, fill in the rest of the buffer.
+            std::memset(&fBuffer0[0], 0, (fBuffer0End - fBuffer0) * sizeof(*fBuffer0));
+            std::memset(&fBuffer1[0], 0, (fBuffer1End - fBuffer1) * sizeof(*fBuffer1));
+            std::memset(&fBuffer2[0], 0, (fBuffer2End - fBuffer2) * sizeof(*fBuffer2));
+
+            sum0 = sum1 = sum2 = 0;
+
+            uint8_t* dstCursor = dstEnd;
+            const uint8_t* srcCursor = srcEnd;
+            do {
+                dstCursor -= dstStride;
+                srcCursor -= srcStride;
+                uint32_t s = *srcCursor;
+                sum0 += s;
+                sum1 += sum0;
+                sum2 += sum1;
+
+                *dstCursor = this->finalScale(sum2);
+
+                sum2 -= *buffer2Cursor;
+                *buffer2Cursor = sum1;
+                buffer2Cursor = (buffer2Cursor + 1) < fBuffer2End ? buffer2Cursor + 1 : fBuffer2;
+
+                sum1 -= *buffer1Cursor;
+                *buffer1Cursor = sum0;
+                buffer1Cursor = (buffer1Cursor + 1) < fBuffer1End ? buffer1Cursor + 1 : fBuffer1;
+
+                sum0 -= *buffer0Cursor;
+                *buffer0Cursor = s;
+                buffer0Cursor = (buffer0Cursor + 1) < fBuffer0End ? buffer0Cursor + 1 : fBuffer0;
+            } while (dstCursor > dst);
+        }
+
+    private:
+        static constexpr uint64_t kHalf = static_cast<uint64_t>(1) << 31;
+
+        uint8_t finalScale(uint32_t sum) const {
+            return SkTo<uint8_t>((fWeight * sum + kHalf) >> 32);
+        }
+
+        uint32_t* fBuffer0;
+        uint32_t* fBuffer0End;
+        uint32_t* fBuffer1;
+        uint32_t* fBuffer1End;
+        uint32_t* fBuffer2;
+        uint32_t* fBuffer2End;
+        uint64_t fWeight;
+        size_t fNoChangeCount;
+    };
+
+    uint64_t fWeight;
+    size_t   fBorder;
+    size_t   fSlidingWindow;
+    size_t   fPass0Size;
+    size_t   fPass1Size;
+    size_t   fPass2Size;
+};
+
+static BlurScanInterface* make_scan_blur(SkArenaAlloc* alloc, double sigma) {
+
+    if (sigma < 1.0/3.0) {
+        return nullptr;
+    }
+
+    sigma = std::min(sigma, 132.0);
+
+    if (sigma < kSmallSigma){
+#if 1 || defined(SK_LEGACY_SUPPORT_INTEGER_SMALL_RADII)
+        return alloc->make<BoxInteger>(sigma);
+#else
+        return alloc->make<Box>(sigma);
+#endif
+    }
+    return alloc->make<Gauss>(sigma);
+}
+
+//==================================================================================================
 
 SkMaskBlurFilter::SkMaskBlurFilter(double sigmaW, double sigmaH)
     : fInfoW{sigmaW}, fInfoH{sigmaH}
@@ -241,7 +697,6 @@ void SkMaskBlurFilter::blurOneScan(
 
 }
 
-static constexpr uint64_t half = static_cast<uint64_t>(1) << 31;
 
 static uint8_t final_scale(uint64_t weight, uint32_t sum) {
     return SkTo<uint8_t>((weight * sum + half) >> 32);
@@ -321,6 +776,11 @@ void SkMaskBlurFilter::blurOneScanBoxInterp(
     const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
           uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const
 {
+    auto interp = [](uint64_t outerWeight, uint32_t outerSum,
+                     uint64_t innerWeight, uint32_t innerSum) -> uint8_t {
+        return SkTo<uint8_t>((outerWeight * outerSum + innerWeight * innerSum + half) >> 32);
+    };
+
     uint64_t outerFactor, innerFactor;
     std::tie(outerFactor, innerFactor) = info.interpFactors();
 
@@ -341,7 +801,7 @@ void SkMaskBlurFilter::blurOneScanBoxInterp(
     for (size_t i = 0; i < border; i++) {
         innerSum = outerSum;
         outerSum += *rightOuter;
-        *dstCursor = interp_final_scale(outerFactor, outerSum, innerFactor, innerSum);
+        *dstCursor = interp(outerFactor, outerSum, innerFactor, innerSum);
         rightOuter += srcStride;
         dstCursor += dstStride;
     }
@@ -356,7 +816,7 @@ void SkMaskBlurFilter::blurOneScanBoxInterp(
     //                           source data.
 
     if (slidingWindow > width) {
-        auto v = interp_final_scale(outerFactor, outerSum, innerFactor, innerSum);
+        auto v = interp(outerFactor, outerSum, innerFactor, innerSum);
         for (auto i = width; i < slidingWindow; i++) {
             *dstCursor = v;
             dstCursor += dstStride;
@@ -366,7 +826,7 @@ void SkMaskBlurFilter::blurOneScanBoxInterp(
         while (rightOuter < srcEnd) {
             innerSum = outerSum - *leftInner;
             outerSum += *rightOuter;
-            *dstCursor = interp_final_scale(outerFactor, outerSum, innerFactor, innerSum);
+            *dstCursor = interp(outerFactor, outerSum, innerFactor, innerSum);
             outerSum -= *leftInner;
             rightOuter += srcStride;
             leftInner += srcStride;
@@ -382,7 +842,7 @@ void SkMaskBlurFilter::blurOneScanBoxInterp(
         dstCursor -= dstStride;
         innerSum = outerSum;
         outerSum += *leftOuter;
-        *dstCursor = interp_final_scale(outerFactor, outerSum, innerFactor, innerSum);
+        *dstCursor = interp(outerFactor, outerSum, innerFactor, innerSum);
     }
 }
 
