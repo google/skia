@@ -8,6 +8,7 @@
 #ifndef SampleApp_DEFINED
 #define SampleApp_DEFINED
 
+#include "SkExecutor.h"
 #include "SkOSMenu.h"
 #include "SkPath.h"
 #include "SkPicture.h"
@@ -158,9 +159,10 @@ public:
     int getColorConfigIndex() const { return fColorConfigIndex; }
 
     int getTiles() const { return fTiles; }
-    void setTiles(int tiles) { fTiles = tiles; }
+    void setTiles(int tiles) { fTiles = tiles; this->resetExecutor(); }
     int getThreads() const { return fThreads; }
-    void setThreads(int threads) { fThreads = threads; }
+    void setThreads(int threads) { fThreads = threads; this->resetExecutor(); }
+
 
 protected:
     void onDraw(SkCanvas* canvas) override;
@@ -250,6 +252,7 @@ private:
 
     int fTiles = 0;
     int fThreads = 0;
+    std::unique_ptr<SkExecutor> fExecutor;
 
     void loadView(SkView*);
     void updateTitle();
@@ -266,6 +269,10 @@ private:
     void listTitles();
     SkSize tileSize() const;
     bool sendAnimatePulse();
+
+    void resetExecutor() {
+        fExecutor = SkExecutor::MakeFIFOThreadPool(fThreads == 0 ? fTiles : fThreads);
+    }
 
     typedef SkOSWindow INHERITED;
 };
