@@ -594,8 +594,7 @@ struct GrSurfaceDesc {
         , fWidth(0)
         , fHeight(0)
         , fConfig(kUnknown_GrPixelConfig)
-        , fSampleCnt(0)
-        , fIsMipMapped(false) {
+        , fSampleCnt(0) {
     }
 
     GrSurfaceFlags         fFlags;  //!< bitfield of TextureFlags
@@ -617,7 +616,6 @@ struct GrSurfaceDesc {
      * max supported count.
      */
     int                    fSampleCnt;
-    bool                   fIsMipMapped; //!< Indicates if the texture has mipmaps
 };
 
 /**

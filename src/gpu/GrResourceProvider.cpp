@@ -87,7 +87,12 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return nullptr;
     }
 
+
+    // TODO: Try finding an exact scratch texture and use that instead of always creating a new
+    // texture. We need to update GrSurfaceContext writePixels to take an array of texels to be able
+    // to do this.
     sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texels, mipLevelCount));
+
     if (tex) {
         tex->texturePriv().setMipColorMode(mipColorMode);
     }
@@ -96,9 +101,10 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
 }
 
 sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
-                                                     SkBudgeted budgeted, uint32_t flags) {
+                                                     SkBudgeted budgeted, uint32_t flags,
+                                                     bool isMipMapped) {
     flags |= kExact_Flag | kNoCreate_Flag;
-    sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
+    sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags, isMipMapped));
     if (tex && SkBudgeted::kNo == budgeted) {
         tex->resourcePriv().makeUnbudgeted();
     }
@@ -138,7 +144,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
     SkImageInfo srcInfo;
 
     if (make_info(desc.fWidth, desc.fHeight, desc.fConfig, &srcInfo)) {
-        sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, 0);
+        sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, 0, false);
         sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
         if (proxy) {
             sk_sp<GrSurfaceContext> sContext =
@@ -167,7 +173,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return nullptr;
     }
 
-    sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, flags);
+    sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, flags, false);
     if (tex) {
         return tex;
     }
@@ -188,11 +194,11 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    return this->refScratchTexture(desc, flags);
+    return this->refScratchTexture(desc, flags, false);
 }
 
 sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
-                                                       uint32_t flags) {
+                                                       uint32_t flags, bool isMipMapped) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(validate_desc(inDesc, *fCaps));
@@ -211,7 +217,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDe
         }
 
         GrScratchKey key;
-        GrTexturePriv::ComputeScratchKey(*desc, &key);
+        GrTexturePriv::ComputeScratchKey(*desc, isMipMapped, &key);
         uint32_t scratchFlags = 0;
         if (kNoPendingIO_Flag & flags) {
             scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
