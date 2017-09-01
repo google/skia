@@ -184,7 +184,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             for (string prefix : { "_", "::" } ) {
                 RootDefinition* root = test->asRoot();
                 string prefixed = root->fName + prefix + ref;
-                if (const Definition* def = root->find(prefixed)) {
+                if (const Definition* def = root->find(prefixed,
+                        RootDefinition::AllowParens::kYes)) {
                     result += linkRef(leadingSpaces, def, ref);
                     goto found;
                 }
@@ -363,7 +364,7 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
         if (ref == fRoot->fName) {
             return fRoot;
         }
-        if (const Definition* definition = fRoot->find(ref)) {
+        if (const Definition* definition = fRoot->find(ref, RootDefinition::AllowParens::kYes)) {
             return definition;
         }
         Definition* test = fRoot;
@@ -376,14 +377,16 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
                 if (ref == leaf.first) {
                     return leaf.second;
                 }
-                const Definition* definition = leaf.second->find(ref);
+                const Definition* definition = leaf.second->find(ref,
+                        RootDefinition::AllowParens::kYes);
                 if (definition) {
                     return definition;
                 }
             }
             for (string prefix : { "::", "_" } ) {
                 string prefixed = root->fName + prefix + ref;
-                if (const Definition* definition = root->find(prefixed)) {
+                if (const Definition* definition = root->find(prefixed,
+                        RootDefinition::AllowParens::kYes)) {
                     return definition;
                 }
                 if (isupper(prefixed[0])) {
@@ -401,7 +404,7 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
         auto classIter = fBmhParser.fClassMap.find(className);
         if (classIter != fBmhParser.fClassMap.end()) {
             const RootDefinition& classDef = classIter->second;
-            const Definition* result = classDef.find(ref);
+            const Definition* result = classDef.find(ref, RootDefinition::AllowParens::kYes);
             if (result) {
                 return result;
             }
@@ -414,7 +417,7 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
         // try with a prefix
         if ('k' == ref[0]) {
             for (auto const& iter : fBmhParser.fEnumMap) {
-                if (iter.second.find(ref)) {
+                if (iter.second.find(ref, RootDefinition::AllowParens::kYes)) {
                     return &iter.second;
                 }
             }
@@ -456,13 +459,15 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
             string className(ref, 0, pos);
             auto classIter = fBmhParser.fClassMap.find(className);
             if (classIter != fBmhParser.fClassMap.end()) {
-                if (const Definition* definition = classIter->second.find(ref)) {
+                if (const Definition* definition = classIter->second.find(ref,
+                        RootDefinition::AllowParens::kYes)) {
                     return definition;
                 }
             }
             auto enumIter = fBmhParser.fEnumMap.find(className);
             if (enumIter != fBmhParser.fEnumMap.end()) {
-                if (const Definition* definition = enumIter->second.find(ref)) {
+                if (const Definition* definition = enumIter->second.find(ref,
+                        RootDefinition::AllowParens::kYes)) {
                     return definition;
                 }
             }
@@ -682,7 +687,7 @@ void MdOut::markTypeOut(Definition* def) {
             TextParser tp(def->fFileName, def->fStart, def->fContentStart, def->fLineCount);
             tp.skipExact("#Member");
             tp.skipWhiteSpace();
-            const char* end = tp.trimmedBracketEnd('\n', TextParser::OneLine::kYes);
+            const char* end = tp.trimmedBracketEnd('\n');
             this->lfAlways(2);
             fprintf(fOut, "<a name=\"%s\"> <code><strong>%.*s</strong></code> </a>",
                     def->fFiddle.c_str(), (int) (end - tp.fChar), tp.fChar);
