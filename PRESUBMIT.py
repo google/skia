@@ -237,6 +237,7 @@ def CheckChangeOnUpload(input_api, output_api):
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
   # coverage or Go installed.
   results.extend(_InfraTests(input_api, output_api))
+  results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
 
   results.extend(_CheckGNFormatted(input_api, output_api))
   return results
@@ -388,6 +389,7 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
         'private' not in file_path):
       requires_owner_check = True
 
+  print requires_owner_check
   if not requires_owner_check:
     return results
 
@@ -395,16 +397,18 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
   if input_api.change.issue:
     cr = CodeReview(input_api)
 
+    print 'HERE'
     if re.match(REVERT_CL_SUBJECT_PREFIX, cr.GetSubject(), re.I):
       # It is a revert CL, ignore the public api owners check.
       return results
 
-    if cr.IsDryRun():
+    # if cr.IsDryRun():
       # Ignore public api owners check for dry run CLs since they are not
       # going to be committed.
-      return results
+    #   return results
 
     if input_api.gerrit:
+      print 'IT IS GERRIT'
       for reviewer in cr.GetReviewers():
         if reviewer in PUBLIC_API_OWNERS:
           # If an owner is specified as an reviewer in Gerrit then ignore the
