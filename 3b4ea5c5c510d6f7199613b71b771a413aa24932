@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92a06c71_143b7cc0",
+        "filename": "tests/GrShapeTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-01T13:03:06Z",
+      "side": 1,
+      "message": "This and check_equivalence are just moved up in the file with no modification. test_inversions is new code.",
+      "revId": "3b4ea5c5c510d6f7199613b71b771a413aa24932",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
