@@ -43,6 +43,7 @@ declare_args() {
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
+  skia_qt_path = getenv("QT_PATH")
   skia_compile_processors = false
 
   skia_jumper_clang = ""
@@ -1662,6 +1663,68 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":skia",
         "//third_party/libsdl",
+      ]
+    }
+  }
+
+  if (skia_qt_path != "" && (is_win || is_linux || is_mac)) {
+    action_foreach("generate_mocs") {
+      script = "gn/call.py"
+      sources = [
+        "tools/mdbviz/MainWindow.h",
+      ]
+      outputs = [
+        "$target_gen_dir/mdbviz/{{source_name_part}}_moc.cpp",
+      ]
+      args = [
+        "$skia_qt_path" + "/bin/moc",
+        "{{source}}",
+        "-o",
+        "gen/mdbviz/{{source_name_part}}_moc.cpp",
+      ]
+    }
+    action_foreach("generate_resources") {
+      script = "gn/call.py"
+      sources = [
+        "tools/mdbviz/resources.qrc",
+      ]
+      outputs = [
+        "$target_gen_dir/mdbviz/{{source_name_part}}_res.cpp",
+      ]
+      args = [
+        "$skia_qt_path" + "/bin/rcc",
+        "{{source}}",
+        "-o",
+        "gen/mdbviz/{{source_name_part}}_res.cpp",
+      ]
+    }
+    test_app("mdbviz") {
+      if (is_win) {
+        # on Windows we need to disable some exception handling warnings due to the Qt headers
+        cflags = [ "/Wv:18" ]  # 18 -> VS2013, 19 -> VS2015, 1910 -> VS2017
+      }
+      sources = [
+        "tools/mdbviz/MainWindow.cpp",
+        "tools/mdbviz/main.cpp",
+
+        # generated files
+        "$target_gen_dir/mdbviz/MainWindow_moc.cpp",
+        "$target_gen_dir/mdbviz/resources_res.cpp",
+      ]
+      lib_dirs = [ "$skia_qt_path/lib" ]
+      libs = [
+        "Qt5Core.lib",
+        "Qt5Gui.lib",
+        "Qt5Widgets.lib",
+      ]
+      include_dirs = [
+        "$skia_qt_path/include",
+        "$skia_qt_path/include/QtWidgets",
+      ]
+      deps = [
+        ":generate_mocs",
+        ":generate_resources",
+        ":skia",
       ]
     }
   }
