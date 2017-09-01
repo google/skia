@@ -41,6 +41,11 @@ static uint32_t filter_window(double sigma) {
 }
 
 static std::tuple<uint64_t, uint64_t> interp_factors(double sigma) {
+    if (sigma < 1.0/3.0) {
+      return std::make_tuple(static_cast<uint64_t>(1ull << 32),
+                             static_cast<uint64_t>(0));
+    }
+
     double radius = 1.5 * sigma - 0.5;
     double outerRadius = ceil(radius);
     double outerWindow = 2*outerRadius + 1;
