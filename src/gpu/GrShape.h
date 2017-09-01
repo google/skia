@@ -30,7 +30,7 @@
  *
  * Currently this can only be constructed from a path, rect, or rrect though it can become a path
  * applying style to the geometry. The idea is to expand this to cover most or all of the geometries
- * that have SkCanvas::draw APIs.
+ * that have fast paths in the GPU backend.
  */
 class GrShape {
 public:
@@ -120,6 +120,25 @@ public:
     GrShape& operator=(const GrShape& that);
 
     ~GrShape() { this->changeType(Type::kEmpty); }
+
+    /**
+     * Informs MakeFilled on how to modify that shape's fill rule when making a simple filled
+     * version of the shape.
+     */
+    enum class FillInversion {
+        kPreserve,
+        kFlip,
+        kForceNoninverted,
+        kForceInverted
+    };
+    /**
+     * Makes a filled shape from the pre-styled original shape and optionally modifies whether
+     * the fill is inverted or not. It's important to note that the original shape's geometry
+     * may already have been modified if doing so was neutral with respect to its style
+     * (e.g. filled paths are always closed when stored in a shape and dashed paths are always
+     * made non-inverted since dashing ignores inverseness).
+     */
+    static GrShape MakeFilled(const GrShape& original, FillInversion = FillInversion::kPreserve);
 
     const GrStyle& style() const { return fStyle; }
 
@@ -347,6 +366,7 @@ public:
     void writeUnstyledKey(uint32_t* key) const;
 
 private:
+
     enum class Type {
         kEmpty,
         kInvertedEmpty,
