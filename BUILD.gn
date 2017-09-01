@@ -1185,6 +1185,8 @@ if (skia_enable_tools) {
       ]
     } else if (is_win) {
       sources += [ "src/views/win/SkOSWindow_win.cpp" ]
+    } else if (is_ios) {
+      sources += [ "src/views/mac/SkEventNotifier.mm" ]
     }
     if (skia_use_angle) {
       deps += [ "//third_party/angle2" ]
@@ -1556,7 +1558,7 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (skia_enable_gpu && (is_android || is_linux || is_win || is_mac)) {
+  if (skia_enable_gpu) {
     test_app("viewer") {
       is_shared_library = is_android
       sources = [
@@ -1604,6 +1606,13 @@ if (skia_enable_tools) {
           "tools/viewer/sk_app/mac/Window_mac.cpp",
           "tools/viewer/sk_app/mac/main_mac.cpp",
         ]
+      } else if (is_ios) {
+        sources += [
+          "tools/viewer/sk_app/ios/GLWindowContext_ios.cpp",
+          "tools/viewer/sk_app/ios/RasterWindowContext_ios.cpp",
+          "tools/viewer/sk_app/ios/Window_ios.cpp",
+          "tools/viewer/sk_app/ios/main_ios.cpp",
+        ]
       }
 
       if (skia_use_vulkan) {
@@ -1633,7 +1642,7 @@ if (skia_enable_tools) {
       ]
       if (is_android) {
         deps += [ "//third_party/native_app_glue" ]
-      } else if (is_mac) {
+      } else if (is_mac || is_ios) {
         deps += [ "//third_party/libsdl" ]
       }
       if (skia_use_angle) {
