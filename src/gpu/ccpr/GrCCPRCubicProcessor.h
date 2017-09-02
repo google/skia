@@ -38,21 +38,23 @@ class GrGLSLGeometryBuilder;
  */
 class GrCCPRCubicProcessor : public GrCCPRCoverageProcessor::PrimitiveProcessor {
 public:
-    enum class Type {
+    enum class CubicType {
         kSerpentine,
         kLoop
     };
 
-    GrCCPRCubicProcessor(Type type)
+    GrCCPRCubicProcessor(CubicType cubicType)
             : INHERITED(CoverageType::kShader)
-            , fType(type)
-            , fInset(kVec3f_GrSLType)
+            , fCubicType(cubicType)
             , fKLMMatrix("klm_matrix", kMat33f_GrSLType, GrShaderVar::kNonArray,
                          kHigh_GrSLPrecision)
-            , fKLMDerivatives("klm_derivatives", kVec2f_GrSLType, 3, kHigh_GrSLPrecision) {}
+            , fKLMDerivatives("klm_derivatives", kVec2f_GrSLType, 3, kHigh_GrSLPrecision)
+            , fEdgeDistanceEquation("edge_distance_equation", kVec3f_GrSLType,
+                                    GrShaderVar::kNonArray, kHigh_GrSLPrecision)
+            , fKLMD(kVec4f_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
-        varyingHandler->addVarying("insets", &fInset, kHigh_GrSLPrecision);
+        varyingHandler->addVarying("klmd", &fKLMD, kHigh_GrSLPrecision);
     }
 
     void onEmitVertexShader(const GrCCPRCoverageProcessor&, GrGLSLVertexBuilder*,
@@ -61,82 +63,69 @@ public:
     void emitWind(GrGLSLGeometryBuilder*, const char* rtAdjust, const char* outputWind) const final;
     void onEmitGeometryShader(GrGLSLGeometryBuilder*, const char* emitVertexFn, const char* wind,
                               const char* rtAdjust) const final;
+    void emitPerVertexGeometryCode(SkString* fnBody, const char* position, const char* coverage,
+                                   const char* wind) const final;
 
 protected:
     virtual void emitCubicGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn,
                                    const char* wind, const char* rtAdjust) const = 0;
+    virtual void onEmitPerVertexGeometryCode(SkString* fnBody) const = 0;
 
-    const Type        fType;
-    GrGLSLVertToGeo   fInset;
+    const CubicType   fCubicType;
     GrShaderVar       fKLMMatrix;
     GrShaderVar       fKLMDerivatives;
+    GrShaderVar       fEdgeDistanceEquation;
+    GrGLSLGeoToFrag   fKLMD;
 
     typedef GrCCPRCoverageProcessor::PrimitiveProcessor INHERITED;
 };
 
-class GrCCPRCubicInsetProcessor : public GrCCPRCubicProcessor {
+class GrCCPRCubicHullProcessor : public GrCCPRCubicProcessor {
 public:
-    GrCCPRCubicInsetProcessor(Type type)
-            : INHERITED(type)
-            , fKLM(kVec3f_GrSLType)
+    GrCCPRCubicHullProcessor(CubicType cubicType)
+            : INHERITED(cubicType)
             , fGradMatrix(kMat22f_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);
-        varyingHandler->addVarying("klm", &fKLM, kHigh_GrSLPrecision);
         varyingHandler->addVarying("grad_matrix", &fGradMatrix, kHigh_GrSLPrecision);
     }
 
     void emitCubicGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn,
                            const char* wind, const char* rtAdjust) const override;
-    void emitPerVertexGeometryCode(SkString* fnBody, const char* position, const char* coverage,
-                                   const char* wind) const override;
+    void onEmitPerVertexGeometryCode(SkString* fnBody) const override;
     void emitShaderCoverage(GrGLSLFragmentBuilder*, const char* outputCoverage) const override;
 
 protected:
-    GrGLSLGeoToFrag   fKLM;
     GrGLSLGeoToFrag   fGradMatrix;
 
     typedef GrCCPRCubicProcessor INHERITED;
 };
 
-class GrCCPRCubicBorderProcessor : public GrCCPRCubicProcessor {
+class GrCCPRCubicCornerProcessor : public GrCCPRCubicProcessor {
 public:
-    GrCCPRCubicBorderProcessor(Type type)
-            : INHERITED(type)
-            , fEdgeDistanceEquation("edge_distance_equation", kVec3f_GrSLType,
-                                    GrShaderVar::kNonArray, kHigh_GrSLPrecision)
+    GrCCPRCubicCornerProcessor(CubicType cubicType)
+            : INHERITED(cubicType)
             , fEdgeDistanceDerivatives("edge_distance_derivatives", kVec2f_GrSLType,
                                         GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fEdgeSpaceTransform("edge_space_transform", kVec4f_GrSLType, GrShaderVar::kNonArray,
-                                  kHigh_GrSLPrecision)
-            , fKLMD(kVec4f_GrSLType)
             , fdKLMDdx(kVec4f_GrSLType)
-            , fdKLMDdy(kVec4f_GrSLType)
-            , fEdgeSpaceCoord(kVec2f_GrSLType) {}
+            , fdKLMDdy(kVec4f_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);
-        varyingHandler->addVarying("klmd", &fKLMD, kHigh_GrSLPrecision);
         varyingHandler->addFlatVarying("dklmddx", &fdKLMDdx, kHigh_GrSLPrecision);
         varyingHandler->addFlatVarying("dklmddy", &fdKLMDdy, kHigh_GrSLPrecision);
-        varyingHandler->addVarying("edge_space_coord", &fEdgeSpaceCoord, kHigh_GrSLPrecision);
     }
 
     void emitCubicGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn,
                            const char* wind, const char* rtAdjust) const override;
-    void emitPerVertexGeometryCode(SkString* fnBody, const char* position, const char* coverage,
-                                   const char* wind) const override;
+    void onEmitPerVertexGeometryCode(SkString* fnBody) const override;
     void emitShaderCoverage(GrGLSLFragmentBuilder*, const char* outputCoverage) const override;
 
 protected:
-    GrShaderVar        fEdgeDistanceEquation;
     GrShaderVar        fEdgeDistanceDerivatives;
-    GrShaderVar        fEdgeSpaceTransform;
-    GrGLSLGeoToFrag    fKLMD;
     GrGLSLGeoToFrag    fdKLMDdx;
     GrGLSLGeoToFrag    fdKLMDdy;
-    GrGLSLGeoToFrag    fEdgeSpaceCoord;
 
     typedef GrCCPRCubicProcessor INHERITED;
 };
