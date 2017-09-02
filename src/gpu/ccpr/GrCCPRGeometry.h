@@ -8,12 +8,10 @@
 #ifndef GrGrCCPRGeometry_DEFINED
 #define GrGrCCPRGeometry_DEFINED
 
+#include "SkGeometry.h"
 #include "SkNx.h"
 #include "SkPoint.h"
 #include "SkTArray.h"
-
-struct SkDCubic;
-enum class SkCubicType;
 
 /**
  * This class chops device-space contours up into a series of segments that CCPR knows how to
@@ -32,8 +30,8 @@ public:
         kBeginContour,
         kLineTo,
         kMonotonicQuadraticTo, // Monotonic relative to the vector between its endpoints [P2 - P0].
-        kConvexSerpentineTo,
-        kConvexLoopTo,
+        kMonotonicSerpentineTo,
+        kMonotonicLoopTo,
         kEndClosedContour, // endPt == startPt.
         kEndOpenContour // endPt != startPt.
     };
@@ -77,17 +75,50 @@ public:
     void beginContour(const SkPoint& devPt);
     void lineTo(const SkPoint& devPt);
     void quadraticTo(const SkPoint& devP1, const SkPoint& devP2);
-    void cubicTo(const SkPoint& devP1, const SkPoint& devP2, const SkPoint& devP3);
+
+    // We pass through inflection points and loop intersections using a line and quadratic(s)
+    // respectively. 'inflectPad' and 'loopIntersectPad' specify how close (in pixels) cubic
+    // segments are allowed to get to these points. For normal rendering you will want to use the
+    // default values, but these can be overridden for testing purposes.
+    //
+    // NOTE: loops do appear to require two full pixels of padding around the intersection point.
+    //       With just one pixel-width of pad, we start to see bad pixels. Ultimately this has a
+    //       minimal effect on the total amount of segments produced. Most sections that pass
+    //       through the loop intersection can be approximated with a single quadratic anyway,
+    //       regardless of whether we are use one pixel of pad or two (1.622 avg. quads per loop
+    //       intersection vs. 1.489 on the tiger).
+    void cubicTo(const SkPoint& devP1, const SkPoint& devP2, const SkPoint& devP3,
+                 float inflectPad = 0.55f, float loopIntersectPad = 2);
+
     PrimitiveTallies endContour(); // Returns the numbers of primitives needed to draw the contour.
 
 private:
     inline void appendMonotonicQuadratic(const Sk2f& p1, const Sk2f& p2);
-    inline void appendConvexCubic(SkCubicType, const SkDCubic&);
+
+    using AppendCubicFn = void(GrCCPRGeometry::*)(const Sk2f& p0, const Sk2f& p1,
+                                                  const Sk2f& p2, const Sk2f& p3,
+                                                  int maxSubdivisions);
+    static constexpr int kMaxSubdivionsPerCubicSection = 2;
+
+    template<AppendCubicFn AppendLeftRight>
+    inline void chopCubicAtMidTangent(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                                      const Sk2f& p3, const Sk2f& tan0, const Sk2f& tan3,
+                                      int maxFutureSubdivisions = kMaxSubdivionsPerCubicSection);
+
+    template<AppendCubicFn AppendLeft, AppendCubicFn AppendRight>
+    inline void chopCubic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3,
+                          float T, int maxFutureSubdivisions = kMaxSubdivionsPerCubicSection);
+
+    void appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3,
+                               int maxSubdivisions = kMaxSubdivionsPerCubicSection);
+    void appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3,
+                                  int maxSubdivisions = kMaxSubdivionsPerCubicSection);
 
     // Transient state used while building a contour.
     SkPoint                         fCurrAnchorPoint;
     SkPoint                         fCurrFanPoint;
     PrimitiveTallies                fCurrContourTallies;
+    SkCubicType                     fCurrCubicType;
     SkDEBUGCODE(bool                fBuildingContour = false);
 
     // TODO: These points could eventually be written directly to block-allocated GPU buffers.
