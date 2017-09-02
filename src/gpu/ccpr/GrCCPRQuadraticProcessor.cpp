@@ -16,10 +16,9 @@ void GrCCPRQuadraticProcessor::onEmitVertexShader(const GrCCPRCoverageProcessor&
                                                   const TexelBufferHandle& pointsBuffer,
                                                   const char* atlasOffset, const char* rtAdjust,
                                                   GrGPArgs* gpArgs) const {
-    v->codeAppendf("int3 indices = int3(%s.y, %s.x, %s.y + 1);",
-                   proc.instanceAttrib(), proc.instanceAttrib(), proc.instanceAttrib());
     v->codeAppend ("highp float2 self = ");
-    v->appendTexelFetch(pointsBuffer, "indices[sk_VertexID]");
+    v->appendTexelFetch(pointsBuffer,
+                        SkStringPrintf("%s.x + sk_VertexID", proc.instanceAttrib()).c_str());
     v->codeAppendf(".xy + %s;", atlasOffset);
     gpArgs->fPositionVar.set(kVec2f_GrSLType, "self");
 }
