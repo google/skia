@@ -45,7 +45,7 @@ const char* GrCCPRCoverageProcessor::GetProcessorName(Mode mode) {
 
 GrCCPRCoverageProcessor::GrCCPRCoverageProcessor(Mode mode, GrBuffer* pointsBuffer)
         : fMode(mode)
-        , fInstanceAttrib(this->addInstanceAttrib("instance", kVec4i_GrVertexAttribType,
+        , fInstanceAttrib(this->addInstanceAttrib("instance", InstanceArrayFormat(mode),
                                                   kHigh_GrSLPrecision)) {
     fPointsBufferAccess.reset(kRG_float_GrPixelConfig, pointsBuffer, kVertex_GrShaderFlag);
     this->addBufferAccess(&fPointsBufferAccess);
@@ -121,7 +121,7 @@ void PrimitiveProcessor::emitVertexShader(const GrCCPRCoverageProcessor& proc,
                                           GrGLSLVertexBuilder* v,
                                           const TexelBufferHandle& pointsBuffer,
                                           const char* rtAdjust, GrGPArgs* gpArgs) const {
-    v->codeAppendf("int packedoffset = %s.w;", proc.instanceAttrib());
+    v->codeAppendf("int packedoffset = %s[%i];", proc.instanceAttrib(), proc.atlasOffsetIdx());
     v->codeAppend ("highp float2 atlasoffset = float2((packedoffset<<16) >> 16, "
                                                      "packedoffset >> 16);");
 
