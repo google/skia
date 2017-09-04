@@ -665,10 +665,14 @@ sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    return (args.fCaps->shaderCaps()->shaderDerivativeSupport() &&
-            (GrAAType::kCoverage == args.fAAType) && args.fShape->style().isSimpleFill() &&
-            !args.fShape->inverseFilled() && args.fShape->knownToBeConvex());
+GrPathRenderer::CanDrawPath
+GrAAConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    if (args.fCaps->shaderCaps()->shaderDerivativeSupport() &&
+        (GrAAType::kCoverage == args.fAAType) && args.fShape->style().isSimpleFill() &&
+        !args.fShape->inverseFilled() && args.fShape->knownToBeConvex()) {
+        return CanDrawPath::kYes;
+    }
+    return CanDrawPath::kNo;
 }
 
 // extract the result vertices and indices from the GrAAConvexTessellator

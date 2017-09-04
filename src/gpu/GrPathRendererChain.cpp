@@ -96,18 +96,29 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
         }
     }
 
-    for (int i = 0; i < fChain.count(); ++i) {
-        if (fChain[i]->canDrawPath(args)) {
-            if (GrPathRenderer::kNoSupport_StencilSupport != minStencilSupport) {
-                GrPathRenderer::StencilSupport support = fChain[i]->getStencilSupport(*args.fShape);
-                if (support < minStencilSupport) {
-                    continue;
-                } else if (stencilSupport) {
-                    *stencilSupport = support;
-                }
+    GrPathRenderer* bestPathRenderer = nullptr;
+    for (const sk_sp<GrPathRenderer>& pr : fChain) {
+        GrPathRenderer::StencilSupport support = GrPathRenderer::kNoSupport_StencilSupport;
+        if (GrPathRenderer::kNoSupport_StencilSupport != minStencilSupport) {
+            support = pr->getStencilSupport(*args.fShape);
+            if (support < minStencilSupport) {
+                continue;
             }
-            return fChain[i].get();
+        }
+        GrPathRenderer::CanDrawPath canDrawPath = pr->canDrawPath(args);
+        if (GrPathRenderer::CanDrawPath::kNo == canDrawPath) {
+            continue;
+        }
+        if (GrPathRenderer::CanDrawPath::kAsBackup == canDrawPath && bestPathRenderer) {
+            continue;
+        }
+        if (stencilSupport) {
+            *stencilSupport = support;
+        }
+        bestPathRenderer = pr.get();
+        if (GrPathRenderer::CanDrawPath::kYes == canDrawPath) {
+            break;
         }
     }
-    return nullptr;
+    return bestPathRenderer;
 }
