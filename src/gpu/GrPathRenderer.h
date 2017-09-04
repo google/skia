@@ -67,6 +67,12 @@ public:
         return this->onGetStencilSupport(shape);
     }
 
+    enum class CanDrawPath {
+        kNo,
+        kAsBackup, // i.e. This renderer is better than SW fallback if no others can draw the path.
+        kYes
+    };
+
     /** Args to canDrawPath()
      *
      * fCaps             The context caps
@@ -94,13 +100,11 @@ public:
     };
 
     /**
-     * Returns true if this path renderer is able to render the path. Returning false allows the
-     * caller to fallback to another path renderer This function is called when searching for a path
-     * renderer capable of rendering a path.
-     *
-     * @return  true if the path can be drawn by this object, false otherwise.
+     * Returns how well this path renderer is able to render the given path. Returning kNo or
+     * kAsBackup allows the caller to keep searching for a better path renderer. This function is
+     * called when searching for the best path renderer to draw a path.
      */
-    bool canDrawPath(const CanDrawPathArgs& args) const {
+    CanDrawPath canDrawPath(const CanDrawPathArgs& args) const {
         SkDEBUGCODE(args.validate();)
         return this->onCanDrawPath(args);
     }
@@ -158,7 +162,7 @@ public:
                    GrFSAAType::kUnifiedMSAA != args.fRenderTargetContext->fsaaType()));
         SkASSERT(!(canArgs.fAAType == GrAAType::kMixedSamples &&
                    GrFSAAType::kMixedSamples != args.fRenderTargetContext->fsaaType()));
-        SkASSERT(this->canDrawPath(canArgs));
+        SkASSERT(CanDrawPath::kNo != this->canDrawPath(canArgs));
         if (!args.fUserStencilSettings->isUnused()) {
             SkPath path;
             args.fShape->asPath(&path);
@@ -253,7 +257,7 @@ private:
     /**
      * Subclass implementation of canDrawPath()
      */
-    virtual bool onCanDrawPath(const CanDrawPathArgs& args) const = 0;
+    virtual CanDrawPath onCanDrawPath(const CanDrawPathArgs& args) const = 0;
 
     /**
      * Subclass implementation of stencilPath(). Subclass must override iff it ever returns

@@ -38,7 +38,7 @@ public:
     StencilSupport onGetStencilSupport(const GrShape&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
     }
-    bool onCanDrawPath(const CanDrawPathArgs& args) const override;
+    CanDrawPath onCanDrawPath(const CanDrawPathArgs& args) const override;
     bool onDrawPath(const DrawPathArgs&) final;
 
     // GrOnFlushCallbackObject overrides.

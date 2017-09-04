@@ -39,17 +39,22 @@ GrCoverageCountingPathRenderer::CreateIfSupported(const GrCaps& caps) {
                                                  new GrCoverageCountingPathRenderer : nullptr);
 }
 
-bool GrCoverageCountingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+GrPathRenderer::CanDrawPath
+GrCoverageCountingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (!args.fShape->style().isSimpleFill() ||
         args.fShape->inverseFilled() ||
         args.fViewMatrix->hasPerspective() ||
         GrAAType::kCoverage != args.fAAType) {
-        return false;
+        return CanDrawPath::kNo;
     }
 
     SkPath path;
     args.fShape->asPath(&path);
-    return !SkPathPriv::ConicWeightCnt(path);
+    if (SkPathPriv::ConicWeightCnt(path)) {
+        return CanDrawPath::kNo;
+    }
+
+    return CanDrawPath::kYes;
 }
 
 bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
