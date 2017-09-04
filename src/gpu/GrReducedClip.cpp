@@ -743,6 +743,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
             GrShape shape(clipPath, GrStyle::SimpleFill());
             GrPathRenderer::CanDrawPathArgs canDrawArgs;
             canDrawArgs.fCaps = context->caps();
+            canDrawArgs.fClipConservativeBounds = &fIBounds;
             canDrawArgs.fViewMatrix = &SkMatrix::I();
             canDrawArgs.fShape = &shape;
             canDrawArgs.fAAType = aaType;
@@ -793,6 +794,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                                                           &kDrawToStencil,
                                                           renderTargetContext,
                                                           &stencilClip.fixedClip(),
+                                                          &fIBounds,
                                                           &SkMatrix::I(),
                                                           &shape,
                                                           aaType,
@@ -829,6 +831,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                                                       *pass,
                                                       renderTargetContext,
                                                       &stencilClip,
+                                                      &fIBounds,
                                                       &SkMatrix::I(),
                                                       &shape,
                                                       aaType,
