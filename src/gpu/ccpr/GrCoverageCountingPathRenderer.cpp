@@ -39,17 +39,43 @@ GrCoverageCountingPathRenderer::CreateIfSupported(const GrCaps& caps) {
                                                  new GrCoverageCountingPathRenderer : nullptr);
 }
 
-bool GrCoverageCountingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+GrPathRenderer::CanDrawPath
+GrCoverageCountingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (!args.fShape->style().isSimpleFill() ||
         args.fShape->inverseFilled() ||
         args.fViewMatrix->hasPerspective() ||
         GrAAType::kCoverage != args.fAAType) {
-        return false;
+        return CanDrawPath::kNo;
     }
 
     SkPath path;
     args.fShape->asPath(&path);
-    return !SkPathPriv::ConicWeightCnt(path);
+    if (SkPathPriv::ConicWeightCnt(path)) {
+        return CanDrawPath::kNo;
+    }
+
+    SkRect devBounds;
+    SkIRect devIBounds;
+    args.fViewMatrix->mapRect(&devBounds, path.getBounds());
+    devBounds.roundOut(&devIBounds);
+    if (!devIBounds.intersect(*args.fClipConservativeBounds)) {
+        // Path is completely clipped away. Our code will eventually notice this before doing any
+        // real work.
+        return CanDrawPath::kYes;
+    }
+
+    if (devIBounds.height() * devIBounds.width() > 256 * 256) {
+        // Large paths can blow up the atlas size fast. And they are not ideal for a two-pass
+        // rendering algorithm. Give the simpler direct renderers a chance before we commit.
+        return CanDrawPath::kAsBackup;
+    }
+
+    if (args.fShape->hasUnstyledKey() && path.countVerbs() > 50) {
+        // Highly intricate paths do better cached in an SDF, if the renderer will accept them.
+        return CanDrawPath::kAsBackup;
+    }
+
+    return CanDrawPath::kYes;
 }
 
 bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {

@@ -23,7 +23,7 @@ public:
 private:
     StencilSupport onGetStencilSupport(const GrShape&) const override;
 
-    bool onCanDrawPath(const CanDrawPathArgs&) const override;
+    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
 
     bool onDrawPath(const DrawPathArgs&) override;
 
