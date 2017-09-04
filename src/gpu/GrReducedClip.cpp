@@ -743,6 +743,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
             GrShape shape(clipPath, GrStyle::SimpleFill());
             GrPathRenderer::CanDrawPathArgs canDrawArgs;
             canDrawArgs.fCaps = context->caps();
+            canDrawArgs.fClipConservativeBounds = &stencilClip.fixedClip().scissorRect();
             canDrawArgs.fViewMatrix = &SkMatrix::I();
             canDrawArgs.fShape = &shape;
             canDrawArgs.fAAType = aaType;
@@ -793,6 +794,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                                                           &kDrawToStencil,
                                                           renderTargetContext,
                                                           &stencilClip.fixedClip(),
+                                                          &stencilClip.fixedClip().scissorRect(),
                                                           &SkMatrix::I(),
                                                           &shape,
                                                           aaType,
@@ -803,6 +805,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                         args.fContext = context;
                         args.fRenderTargetContext = renderTargetContext;
                         args.fClip = &stencilClip.fixedClip();
+                        args.fClipConservativeBounds = &stencilClip.fixedClip().scissorRect();
                         args.fViewMatrix = &SkMatrix::I();
                         args.fAAType = aaType;
                         args.fShape = &shape;
@@ -829,6 +832,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                                                       *pass,
                                                       renderTargetContext,
                                                       &stencilClip,
+                                                      &stencilClip.fixedClip().scissorRect(),
                                                       &SkMatrix::I(),
                                                       &shape,
                                                       aaType,
