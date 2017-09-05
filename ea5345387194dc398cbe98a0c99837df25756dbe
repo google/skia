@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9daa7011_587b9ddc",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-05T14:43:18Z",
+      "side": 1,
+      "message": "should isMipMapped be part of this?",
+      "range": {
+        "startLine": 46,
+        "startChar": 69,
+        "endLine": 46,
+        "endChar": 74
+      },
+      "revId": "ea5345387194dc398cbe98a0c99837df25756dbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aeeca5c8_4292fe3b",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-05T14:43:18Z",
+      "side": 1,
+      "message": "Do we really want to do this? I don\u0027t really know.",
+      "revId": "ea5345387194dc398cbe98a0c99837df25756dbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40e611cc_93515630",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-05T14:43:18Z",
+      "side": 1,
+      "message": "It seems like mip-ness and match type are not independent. Should we structure the methods to make it impossible to request a non-exact texture with MIP levels? That is make the scratch type be tri-state {kExact, kExactMipped, kApprox}",
+      "range": {
+        "startLine": 260,
+        "startChar": 39,
+        "endLine": 261,
+        "endChar": 0
+      },
+      "revId": "ea5345387194dc398cbe98a0c99837df25756dbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
