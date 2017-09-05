@@ -391,6 +391,9 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
   if not requires_owner_check:
     return results
 
+  print input_api.change.issue
+  print input_api.gerrit
+
   lgtm_from_owner = False
   if input_api.change.issue:
     cr = CodeReview(input_api)
@@ -399,10 +402,10 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
       # It is a revert CL, ignore the public api owners check.
       return results
 
-    if cr.IsDryRun():
-      # Ignore public api owners check for dry run CLs since they are not
-      # going to be committed.
-      return results
+    # if cr.IsDryRun():
+    #   # Ignore public api owners check for dry run CLs since they are not
+    #   # going to be committed.
+    #   return results
 
     if input_api.gerrit:
       for reviewer in cr.GetReviewers():
