@@ -10,12 +10,12 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContextPriv.h"
+#include "GrPathUtils.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "SampleCode.h"
 #include "SkCanvas.h"
-#include "SkGeometry.h"
 #include "SkMakeUnique.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -30,11 +30,11 @@ using CurveInstance = GrCCPRCoverageProcessor::CurveInstance;
 using Mode = GrCCPRCoverageProcessor::Mode;
 
 static int num_points(Mode mode)  {
-    return mode >= Mode::kSerpentineInsets ? 4 : 3;
+    return mode >= Mode::kSerpentineHulls ? 4 : 3;
 }
 
 static int is_quadratic(Mode mode)  {
-    return mode >= Mode::kQuadraticHulls && mode < Mode::kSerpentineInsets;
+    return mode >= Mode::kQuadraticHulls && mode < Mode::kSerpentineHulls;
 }
 
 /**
@@ -64,6 +64,7 @@ private:
     void updateGpuData();
 
     Mode fMode = Mode::kTriangleHulls;
+    SkMatrix fCubicKLM;
 
     SkPoint fPoints[4] = {
         {100.05f, 100.05f},
@@ -105,6 +106,27 @@ private:
     typedef GrDrawOp INHERITED;
 };
 
+static void draw_klm_line(int w, int h, SkCanvas* canvas, const SkScalar line[3], SkColor color) {
+    SkPoint p1, p2;
+    if (SkScalarAbs(line[1]) > SkScalarAbs(line[0])) {
+        // Draw from vertical edge to vertical edge.
+        p1 = {0, -line[2] / line[1]};
+        p2 = {(SkScalar) w, (-line[2] - w * line[0]) / line[1]};
+    } else {
+        // Draw from horizontal edge to horizontal edge.
+        p1 = {-line[2] / line[0], 0};
+        p2 = {(-line[2] - h * line[1]) / line[0], (SkScalar) h};
+    }
+
+    SkPaint linePaint;
+    linePaint.setColor(color);
+    linePaint.setAlpha(128);
+    linePaint.setStyle(SkPaint::kStroke_Style);
+    linePaint.setStrokeWidth(0);
+    linePaint.setAntiAlias(true);
+    canvas->drawLine(p1, p2, linePaint);
+}
+
 void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     SkAutoCanvasRestore acr(canvas, true);
     canvas->setMatrix(SkMatrix::I());
@@ -118,16 +140,29 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     } else {
         outline.lineTo(fPoints[1]);
         outline.lineTo(fPoints[3]);
+        outline.close();
     }
-    outline.close();
 
     SkPaint outlinePaint;
     outlinePaint.setColor(0x30000000);
     outlinePaint.setStyle(SkPaint::kStroke_Style);
     outlinePaint.setStrokeWidth(0);
     outlinePaint.setAntiAlias(true);
-
     canvas->drawPath(outline, outlinePaint);
+
+#if 0
+    SkPaint gridPaint;
+    gridPaint.setColor(0x10000000);
+    gridPaint.setStyle(SkPaint::kStroke_Style);
+    gridPaint.setStrokeWidth(0);
+    gridPaint.setAntiAlias(true);
+    for (int y = 0; y < this->height(); y += GrCCPRCoverageProcessor::kDebugBloat) {
+        canvas->drawLine(0, y, this->width(), y, gridPaint);
+    }
+    for (int x = 0; x < this->width(); x += GrCCPRCoverageProcessor::kDebugBloat) {
+        canvas->drawLine(x, 0, x, this->height(), outlinePaint);
+    }
+#endif
 
     const char* caption = "Use GPU backend to visualize geometry.";
 
@@ -143,7 +178,11 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     pointsPaint.setAntiAlias(true);
 
     if (4 == num_points(fMode)) {
+        int w = this->width(), h = this->height();
         canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, fPoints, pointsPaint);
+        draw_klm_line(w, h, canvas, &fCubicKLM[0], SK_ColorYELLOW);
+        draw_klm_line(w, h, canvas, &fCubicKLM[3], SK_ColorBLUE);
+        draw_klm_line(w, h, canvas, &fCubicKLM[6], SK_ColorRED);
     } else {
         canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, fPoints, pointsPaint);
         canvas->drawPoints(SkCanvas::kPoints_PointMode, 1, fPoints + 3, pointsPaint);
@@ -165,41 +204,45 @@ void CCPRGeometryView::updateGpuData() {
 
     if (4 == vertexCount) {
         double t[2], s[2];
-        SkCubicType type = SkClassifyCubic(fPoints, t, s);
-        SkSTArray<2, float> chops;
-        for (int i = 0; i < 2; ++i) {
-            float chop = t[i] / s[i];
-            if (chop > 0 && chop < 1) {
-                chops.push_back(chop);
+        SkCubicType type = GrPathUtils::getCubicKLM(fPoints, &fCubicKLM, t, s);
+        if (Mode::kSerpentineHulls == fMode && SkCubicType::kLoop == type) {
+            fMode = Mode::kLoopHulls;
+        }
+        if (Mode::kSerpentineCorners == fMode && SkCubicType::kLoop == type) {
+            fMode = Mode::kLoopCorners;
+        }
+        if (Mode::kLoopHulls == fMode && SkCubicType::kLoop != type) {
+            fMode = Mode::kSerpentineHulls;
+        }
+        if (Mode::kLoopCorners == fMode && SkCubicType::kLoop != type) {
+            fMode = Mode::kSerpentineCorners;
+        }
+
+        GrCCPRGeometry geometry;
+        geometry.beginContour(fPoints[0]);
+        geometry.cubicTo(fPoints[1], fPoints[2], fPoints[3],
+                         GrCCPRCoverageProcessor::kDebugBloat / 2,
+                         GrCCPRCoverageProcessor::kDebugBloat / 2);
+        geometry.endContour();
+        fGpuPoints.push_back_n(geometry.points().count(), geometry.points().begin());
+        int ptsIdx = 0;
+        for (GrCCPRGeometry::Verb verb : geometry.verbs()) {
+            switch (verb) {
+                case GrCCPRGeometry::Verb::kLineTo:
+                    ++ptsIdx;
+                    continue;
+                case GrCCPRGeometry::Verb::kMonotonicQuadraticTo:
+                    ptsIdx += 2;
+                    continue;
+                case GrCCPRGeometry::Verb::kMonotonicSerpentineTo:
+                case GrCCPRGeometry::Verb::kMonotonicLoopTo:
+                    fInstanceData.push_back(ptsIdx);
+                    fInstanceData.push_back(0); // Atlas offset.
+                    ptsIdx += 3;
+                    ++fInstanceCount;
+                    continue;
+                default: continue;
             }
-        }
-
-        int instanceCount = chops.count() + 1;
-        SkPoint chopped[10];
-        SkChopCubicAt(fPoints, chopped, chops.begin(), chops.count());
-
-        fGpuPoints.push_back(chopped[0]);
-        for (int i = 0; i < instanceCount; ++i) {
-            fGpuPoints.push_back(chopped[3*i + 1]);
-            fGpuPoints.push_back(chopped[3*i + 2]);
-            if (3 == instanceCount && SkCubicType::kLoop == type) {
-                fGpuPoints.push_back(chopped[3*i]); // Account for floating point error.
-            } else {
-                fGpuPoints.push_back(chopped[3*i + 3]);
-            }
-        }
-
-        if (fMode < Mode::kLoopInsets && SkCubicType::kLoop == type) {
-            fMode = (Mode) ((int) fMode + 2);
-        }
-        if (fMode >= Mode::kLoopInsets && SkCubicType::kLoop != type) {
-            fMode = (Mode) ((int) fMode - 2);
-        }
-
-        for (int i = 0; i < instanceCount; ++i) {
-            fInstanceData.push_back(3*i);
-            fInstanceData.push_back(0); // Atlas offset.
-            ++fInstanceCount;
         }
     } else if (is_quadratic(fMode)) {
         GrCCPRGeometry geometry;
@@ -230,6 +273,10 @@ void CCPRGeometryView::updateGpuData() {
 }
 
 void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
+    if (fView->fInstanceData.empty()) {
+        return;
+    }
+
     GrResourceProvider* rp = state->resourceProvider();
     GrContext* context = state->gpu()->getContext();
     GrGLGpu* glGpu = kOpenGL_GrBackend == context->contextPriv().getBackend() ?
@@ -330,15 +377,20 @@ bool CCPRGeometryView::onQuery(SkEvent* evt) {
             if (fMode >= Mode::kCombinedTriangleHullsAndEdges) {
                 fMode = Mode(int(fMode) + 1);
             }
+            if (fMode >= Mode::kLoopHulls) {
+                // '6' -> kSerpentineHulls, '7' -> kSerpentineCorners. updateGpuData converts to
+                // kLoop* if needed.
+                fMode = Mode(int(fMode) + 1);
+            }
             this->updateAndInval();
             return true;
         }
         if (unichar == 'D') {
             SkDebugf("    SkPoint fPoints[4] = {\n");
-            SkDebugf("        {%f, %f},\n", fPoints[0].x(), fPoints[0].y());
-            SkDebugf("        {%f, %f},\n", fPoints[1].x(), fPoints[1].y());
-            SkDebugf("        {%f, %f},\n", fPoints[2].x(), fPoints[2].y());
-            SkDebugf("        {%f, %f}\n", fPoints[3].x(), fPoints[3].y());
+            SkDebugf("        {%ff, %ff},\n", fPoints[0].x(), fPoints[0].y());
+            SkDebugf("        {%ff, %ff},\n", fPoints[1].x(), fPoints[1].y());
+            SkDebugf("        {%ff, %ff},\n", fPoints[2].x(), fPoints[2].y());
+            SkDebugf("        {%ff, %ff}\n", fPoints[3].x(), fPoints[3].y());
             SkDebugf("    };\n");
             return true;
         }

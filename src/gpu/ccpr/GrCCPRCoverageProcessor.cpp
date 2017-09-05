@@ -30,14 +30,14 @@ const char* GrCCPRCoverageProcessor::GetProcessorName(Mode mode) {
             return "GrCCPRQuadraticHullProcessor";
         case Mode::kQuadraticCorners:
             return "GrCCPRQuadraticCornerProcessor";
-        case Mode::kSerpentineInsets:
-            return "GrCCPRCubicInsetProcessor (serpentine)";
-        case Mode::kSerpentineBorders:
-            return "GrCCPRCubicBorderProcessor (serpentine)";
-        case Mode::kLoopInsets:
-            return "GrCCPRCubicInsetProcessor (loop)";
-        case Mode::kLoopBorders:
-            return "GrCCPRCubicBorderProcessor (loop)";
+        case Mode::kSerpentineHulls:
+            return "GrCCPRCubicHullProcessor (serpentine)";
+        case Mode::kLoopHulls:
+            return "GrCCPRCubicHullProcessor (loop)";
+        case Mode::kSerpentineCorners:
+            return "GrCCPRCubicCornerProcessor (serpentine)";
+        case Mode::kLoopCorners:
+            return "GrCCPRCubicCornerProcessor (loop)";
     }
     SK_ABORT("Unexpected ccpr coverage processor mode.");
     return nullptr;
@@ -76,14 +76,14 @@ GrGLSLPrimitiveProcessor* GrCCPRCoverageProcessor::createGLSLInstance(const GrSh
             return new GrCCPRQuadraticHullProcessor();
         case Mode::kQuadraticCorners:
             return new GrCCPRQuadraticCornerProcessor();
-        case Mode::kSerpentineInsets:
-            return new GrCCPRCubicInsetProcessor(GrCCPRCubicProcessor::Type::kSerpentine);
-        case Mode::kSerpentineBorders:
-            return new GrCCPRCubicBorderProcessor(GrCCPRCubicProcessor::Type::kSerpentine);
-        case Mode::kLoopInsets:
-            return new GrCCPRCubicInsetProcessor(GrCCPRCubicProcessor::Type::kLoop);
-        case Mode::kLoopBorders:
-            return new GrCCPRCubicBorderProcessor(GrCCPRCubicProcessor::Type::kLoop);
+        case Mode::kSerpentineHulls:
+            return new GrCCPRCubicHullProcessor(GrCCPRCubicProcessor::CubicType::kSerpentine);
+        case Mode::kLoopHulls:
+            return new GrCCPRCubicHullProcessor(GrCCPRCubicProcessor::CubicType::kLoop);
+        case Mode::kSerpentineCorners:
+            return new GrCCPRCubicCornerProcessor(GrCCPRCubicProcessor::CubicType::kSerpentine);
+        case Mode::kLoopCorners:
+            return new GrCCPRCubicCornerProcessor(GrCCPRCubicProcessor::CubicType::kLoop);
     }
     SK_ABORT("Unexpected ccpr coverage processor mode.");
     return nullptr;
@@ -169,12 +169,13 @@ void PrimitiveProcessor::emitGeometryShader(const GrCCPRCoverageProcessor& proc,
 
 int PrimitiveProcessor::emitHullGeometry(GrGLSLGeometryBuilder* g, const char* emitVertexFn,
                                          const char* polygonPts, int numSides,
-                                         const char* wedgeIdx, const char* insetPts) const {
+                                         const char* wedgeIdx, const char* midpoint) const {
     SkASSERT(numSides >= 3);
 
-    if (!insetPts) {
-        g->codeAppendf("highp float2 centroidpt = %s * float%i(%f);",
+    if (!midpoint) {
+        g->codeAppendf("highp float2 midpoint = %s * float%i(%f);",
                        polygonPts, numSides, 1.0 / numSides);
+        midpoint = "midpoint";
     }
 
     g->codeAppendf("int previdx = (%s + %i) %% %i, "
@@ -222,15 +223,8 @@ int PrimitiveProcessor::emitHullGeometry(GrGLSLGeometryBuilder* g, const char* e
 
     // Emit one third of what is the convex hull of pixel-size boxes centered on the vertices.
     // Each invocation emits a different third.
-    if (insetPts) {
-        g->codeAppendf("%s(%s[rightidx], 1);", emitVertexFn, insetPts);
-    }
     g->codeAppendf("%s(right + bloat * dr, 1);", emitVertexFn);
-    if (insetPts) {
-        g->codeAppendf("%s(%s[%s], 1);", emitVertexFn, insetPts, wedgeIdx);
-    } else {
-        g->codeAppendf("%s(centroidpt, 1);", emitVertexFn);
-    }
+    g->codeAppendf("%s(%s, 1);", emitVertexFn, midpoint);
     g->codeAppendf("%s(self + bloat * %s, 1);", emitVertexFn, dr2);
     g->codeAppend ("if (any(dnotequal)) {");
     g->codeAppendf(    "%s(self + bloat * dl, 1);", emitVertexFn);
@@ -240,7 +234,7 @@ int PrimitiveProcessor::emitHullGeometry(GrGLSLGeometryBuilder* g, const char* e
     g->codeAppend ("}");
     g->codeAppend ("EndPrimitive();");
 
-    return insetPts ? 6 : 5;
+    return 5;
 }
 
 int PrimitiveProcessor::emitEdgeGeometry(GrGLSLGeometryBuilder* g, const char* emitVertexFn,
