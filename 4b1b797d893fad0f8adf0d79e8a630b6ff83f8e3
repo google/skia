@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc09c8eb_7947c5ab",
+        "filename": "tools/shape/SkShaper_harfbuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-05T14:31:12Z",
+      "side": 1,
+      "message": "why not just fail and remove the code below if you don\u0027t expect to get there.",
+      "range": {
+        "startLine": 148,
+        "startChar": 12,
+        "endLine": 148,
+        "endChar": 23
+      },
+      "revId": "4b1b797d893fad0f8adf0d79e8a630b6ff83f8e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
