@@ -382,6 +382,7 @@ def dm_flags(api, bot):
       blacklist(['serialize-8888', 'gm', '_', test])
   if 'Mac' in bot and 'CPU' in bot and 'Release' in bot:
     # skia:6992
+    blacklist(['pic-8888', 'gm', '_', 'encode-platform'])
     blacklist(['serialize-8888', 'gm', '_', 'encode-platform'])
 
   # skia:4769
