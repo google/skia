@@ -245,6 +245,9 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
         fHWBufferState[kXferCpuToGpu_GrBufferType].fGLTarget = GR_GL_PIXEL_UNPACK_BUFFER;
         fHWBufferState[kXferGpuToCpu_GrBufferType].fGLTarget = GR_GL_PIXEL_PACK_BUFFER;
     }
+    for (int i = 0; i < kGrBufferTypeCount; ++i) {
+        fHWBufferState[i].invalidate();
+    }
     GR_STATIC_ASSERT(6 == SK_ARRAY_COUNT(fHWBufferState));
 
     if (this->caps()->shaderCaps()->texelBufferSupport()) {
