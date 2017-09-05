@@ -68,10 +68,10 @@ public:
         kQuadraticCorners,
 
         // Cubics.
-        kSerpentineInsets,
-        kSerpentineBorders,
-        kLoopInsets,
-        kLoopBorders
+        kSerpentineHulls,
+        kLoopHulls,
+        kSerpentineCorners,
+        kLoopCorners
     };
     static constexpr GrVertexAttribType InstanceArrayFormat(Mode mode) {
         return mode < Mode::kQuadraticHulls ? kVec4i_GrVertexAttribType : kVec2i_GrVertexAttribType;
@@ -92,9 +92,8 @@ public:
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
-#ifdef SK_DEBUG
     static constexpr float kDebugBloat = 50;
-
+#ifdef SK_DEBUG
     // Increases the 1/2 pixel AA bloat by a factor of kDebugBloat and outputs color instead of
     // coverage (coverage=+1 -> green, coverage=0 -> black, coverage=-1 -> red).
     void enableDebugVisualizations() { fDebugVisualizations = true; }
@@ -188,14 +187,11 @@ protected:
     // Logically, the conservative raster hull is equivalent to the convex hull of pixel-size boxes
     // centered on the vertices.
     //
-    // If an optional inset polygon is provided, then this emits a border from the inset to the
-    // hull, rather than the entire hull.
-    //
     // Geometry shader must be configured to output triangle strips.
     //
     // Returns the maximum number of vertices that will be emitted.
     int emitHullGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn, const char* polygonPts,
-                         int numSides, const char* wedgeIdx, const char* insetPts = nullptr) const;
+                         int numSides, const char* wedgeIdx, const char* midpoint = nullptr) const;
 
     // Emits the conservative raster of an edge (i.e. convex hull of two pixel-size boxes centered
     // on the endpoints). Coverage is -1 on the outside border of the edge geometry and 0 on the

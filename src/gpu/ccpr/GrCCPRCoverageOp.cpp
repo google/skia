@@ -314,13 +314,13 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
                 currFan.push_back(ptsIdx += 2);
                 continue;
 
-            case GrCCPRGeometry::Verb::kConvexSerpentineTo:
+            case GrCCPRGeometry::Verb::kMonotonicSerpentineTo:
                 SkASSERT(!currFan.empty());
                 curveInstanceData[currIndices->fSerpentines++] = {ptsIdx, packedAtlasOffset};
                 currFan.push_back(ptsIdx += 3);
                 continue;
 
-            case GrCCPRGeometry::Verb::kConvexLoopTo:
+            case GrCCPRGeometry::Verb::kMonotonicLoopTo:
                 SkASSERT(!currFan.empty());
                 curveInstanceData[currIndices->fLoops++] = {ptsIdx, packedAtlasOffset};
                 currFan.push_back(ptsIdx += 3);
@@ -410,13 +410,13 @@ void GrCCPRCoverageOp::onExecute(GrOpFlushState* flushState) {
 
     // Cubics.
     auto constexpr kCubicsGrPrimitiveType = GrCCPRCoverageProcessor::kCubicsGrPrimitiveType;
-    this->drawMaskPrimitives(flushState, pipeline, Mode::kSerpentineInsets,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kSerpentineHulls,
                              kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fSerpentines);
-    this->drawMaskPrimitives(flushState, pipeline, Mode::kLoopInsets,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kLoopHulls,
                              kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fLoops);
-    this->drawMaskPrimitives(flushState, pipeline, Mode::kSerpentineBorders,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kSerpentineCorners,
                              kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fSerpentines);
-    this->drawMaskPrimitives(flushState, pipeline, Mode::kLoopBorders,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kLoopCorners,
                              kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fLoops);
 }
 

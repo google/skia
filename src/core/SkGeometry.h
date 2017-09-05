@@ -166,6 +166,9 @@ enum class SkCubicType {
     kQuadratic,
     kLineOrPoint
 };
+constexpr bool SkCubicIsDegenerate(SkCubicType type) {
+    return type >= SkCubicType::kQuadratic;
+}
 
 /** Returns the cubic classification.
 
