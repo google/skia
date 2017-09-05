@@ -190,9 +190,6 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
         return nullptr;
     }
 
-    const bool isMipMapped = mipLevelCount > 1;
-    desc.fIsMipMapped = isMipMapped;
-
     std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
     texels[0].fPixels = pixmap.addr();

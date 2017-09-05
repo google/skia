@@ -87,7 +87,12 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return nullptr;
     }
 
+
+    // TODO: Try finding an exact scratch texture and use that instead of always creating a new
+    // texture. We need to update GrSurfaceContext writePixels to take an array of texels to be able
+    // to do this.
     sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texels, mipLevelCount));
+
     if (tex) {
         tex->texturePriv().setMipColorMode(mipColorMode);
     }
@@ -96,8 +101,11 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
 }
 
 sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
-                                                     SkBudgeted budgeted, uint32_t flags) {
-    flags |= kExact_Flag | kNoCreate_Flag;
+                                                     SkBudgeted budgeted, uint32_t flags,
+                                                     bool isMipMapped) {
+    if (isMipMapped) {
+        flags |= kMipMapped_Flag;
+    }
     sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
     if (tex && SkBudgeted::kNo == budgeted) {
         tex->resourcePriv().makeUnbudgeted();
@@ -138,7 +146,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
     SkImageInfo srcInfo;
 
     if (make_info(desc.fWidth, desc.fHeight, desc.fConfig, &srcInfo)) {
-        sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, 0);
+        sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, 0, false);
         sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
         if (proxy) {
             sk_sp<GrSurfaceContext> sContext =
@@ -167,7 +175,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return nullptr;
     }
 
-    sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, flags);
+    sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, flags, false);
     if (tex) {
         return tex;
     }
@@ -188,49 +196,48 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    return this->refScratchTexture(desc, flags);
+    GrSurfaceDesc copyDesc = desc;
+
+    // bin by pow2 with a reasonable min
+    copyDesc.fWidth  = SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fWidth));
+    copyDesc.fHeight = SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fHeight));
+
+    sk_sp<GrTexture> tex = this->refScratchTexture(copyDesc, flags);
+    if (tex) {
+        return tex;
+    }
+
+    return fGpu->createTexture(copyDesc, SkBudgeted::kYes);
 }
 
-sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
-                                                       uint32_t flags) {
+sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc, uint32_t flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
-    SkASSERT(validate_desc(inDesc, *fCaps));
-
-    SkTCopyOnFirstWrite<GrSurfaceDesc> desc(inDesc);
+    SkASSERT(validate_desc(desc, *fCaps));
 
     // We could make initial clears work with scratch textures but it is a rare case so we just opt
     // to fall back to making a new texture.
-    if (!SkToBool(inDesc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
-        (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag))) {
-        if (!(kExact_Flag & flags)) {
-            // bin by pow2 with a reasonable min
-            GrSurfaceDesc* wdesc = desc.writable();
-            wdesc->fWidth  = SkTMax(kMinScratchTextureSize, GrNextPow2(desc->fWidth));
-            wdesc->fHeight = SkTMax(kMinScratchTextureSize, GrNextPow2(desc->fHeight));
-        }
+    if (!SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
+        (fGpu->caps()->reuseScratchTextures() || (desc.fFlags & kRenderTarget_GrSurfaceFlag))) {
 
         GrScratchKey key;
-        GrTexturePriv::ComputeScratchKey(*desc, &key);
+        bool isMipMapped = SkToBool(kMipMapped_Flag & flags);
+        GrTexturePriv::ComputeScratchKey(desc, isMipMapped, &key);
         uint32_t scratchFlags = 0;
         if (kNoPendingIO_Flag & flags) {
             scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
-        } else  if (!(desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
+        } else  if (!(desc.fFlags & kRenderTarget_GrSurfaceFlag)) {
             // If it is not a render target then it will most likely be populated by
             // writePixels() which will trigger a flush if the texture has pending IO.
             scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
         }
         GrGpuResource* resource = fCache->findAndRefScratchResource(key,
-                                                                   GrSurface::WorstCaseSize(*desc),
-                                                                   scratchFlags);
+                                                                    GrSurface::WorstCaseSize(desc),
+                                                                    scratchFlags);
         if (resource) {
             GrSurface* surface = static_cast<GrSurface*>(resource);
             return sk_sp<GrTexture>(surface->asTexture());
         }
-    }
-
-    if (!(kNoCreate_Flag & flags)) {
-        return fGpu->createTexture(*desc, SkBudgeted::kYes);
     }
 
     return nullptr;

@@ -963,7 +963,6 @@ sk_sp<GrTextureProxy> GrRectBlurEffect::CreateBlurProfileTexture(
         texDesc.fWidth = profileSize;
         texDesc.fHeight = 1;
         texDesc.fConfig = kAlpha_8_GrPixelConfig;
-        texDesc.fIsMipMapped = false;
 
         std::unique_ptr<uint8_t[]> profile(SkBlurMask::ComputeBlurProfile(sigma));
 

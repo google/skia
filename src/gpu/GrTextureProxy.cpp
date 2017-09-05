@@ -7,14 +7,18 @@
 
 #include "GrTextureProxy.h"
 
+#include "GrResourceProvider.h"
 #include "GrTexturePriv.h"
 
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
                                const void* srcData, size_t /*rowBytes*/, uint32_t flags)
         : INHERITED(srcDesc, fit, budgeted, flags)
-        , fIsMipMapped(srcDesc.fIsMipMapped)
+        , fIsMipMapped(SkToBool(GrResourceProvider::kMipMapped_Flag & flags))
         , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy) {
     SkASSERT(!srcData);  // currently handled in Make()
+    // Currently we do not support creating GrTextureProxys that are not wrapped that are mip
+    // mapped. This will be changed once we update our mip mapping support.
+    SkASSERT(!fIsMipMapped);
 }
 
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
@@ -80,3 +84,4 @@ size_t GrTextureProxy::onUninstantiatedGpuMemorySize() const {
     return GrSurface::ComputeSize(fConfig, fWidth, fHeight, 1, kHasMipMaps,
                                   SkBackingFit::kApprox == fFit);
 }
+
