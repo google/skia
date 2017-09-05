@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e125d644_0f708936",
+        "filename": "src/gpu/ccpr/GrCCPRCubicProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-05T22:30:27Z",
+      "side": 1,
+      "message": "Wondering whether the erasure code (here and elsewhere) could be shared with the earlier pass or  if it would just make a mess.",
+      "revId": "782e405bb8bb49adb93e26094b09eb186c64b5a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
