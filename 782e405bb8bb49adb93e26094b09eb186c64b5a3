@@ -16,6 +16,24 @@
       "revId": "782e405bb8bb49adb93e26094b09eb186c64b5a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87a9b24d_844428e8",
+        "filename": "src/gpu/ccpr/GrCCPRCubicProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-05T22:39:19Z",
+      "side": 1,
+      "message": "They aren\u0027t very compatible. The earlier pass puts this KLM information into a linearly-interpolated float2x2, which it multiplies with the K value in order to get the gradient, rather than just computing the gradient value directly like we do here.\n\nThe reason for the difference is that we already need the entire KLM matrix here anyway in order to do the multisampling, so I felt like it would be a waste to send down a second float2x2 varying just so we could share a couple lines of code.",
+      "parentUuid": "e125d644_0f708936",
+      "revId": "782e405bb8bb49adb93e26094b09eb186c64b5a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
