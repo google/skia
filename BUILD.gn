@@ -1704,8 +1704,14 @@ if (skia_enable_tools) {
         cflags = [ "/Wv:18" ]  # 18 -> VS2013, 19 -> VS2015, 1910 -> VS2017
       }
       sources = [
+        "tools/UrlDataManager.cpp",
+        "tools/debugger/SkDebugCanvas.cpp",
+        "tools/debugger/SkDrawCommand.cpp",
+        "tools/debugger/SkJsonWriteBuffer.cpp",
+        "tools/debugger/SkObjectParser.cpp",
         "tools/mdbviz/MainWindow.cpp",
         "tools/mdbviz/main.cpp",
+        "tools/picture_utils.cpp",
 
         # generated files
         "$target_gen_dir/mdbviz/MainWindow_moc.cpp",
@@ -1720,11 +1726,15 @@ if (skia_enable_tools) {
       include_dirs = [
         "$skia_qt_path/include",
         "$skia_qt_path/include/QtWidgets",
+        "tools",
+        "tools/debugger",
       ]
       deps = [
         ":generate_mocs",
         ":generate_resources",
         ":skia",
+        "//third_party/jsoncpp",
+        "//third_party/libpng",
       ]
     }
   }
