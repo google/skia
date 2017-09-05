@@ -11,6 +11,8 @@
 #include "SkColorPriv.h"
 #include "SkTypes.h"
 
+bool FLAGS_pbo = false;
+
 /*static*/ char const * const DiffRecord::ResultNames[DiffRecord::kResultCount] = {
     "EqualBits",
     "EqualPixels",

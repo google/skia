@@ -9,6 +9,7 @@
 #include "GrAuditTrail.h"
 #include "GrClip.h"
 #include "GrContextPriv.h"
+#include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
 #include "GrOpFlushState.h"
 #include "GrOpList.h"
@@ -20,6 +21,8 @@
 #include "SkTraceEvent.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrRectOpFactory.h"
+
+extern bool FLAGS_pbo;
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
@@ -177,13 +180,15 @@ namespace {
 class GrMaskUploaderPrepareCallback : public GrPrepareCallback {
 public:
     GrMaskUploaderPrepareCallback(sk_sp<GrTextureProxy> proxy, const SkIRect& maskBounds,
-                                  const SkMatrix& viewMatrix, const GrShape& shape, GrAA aa)
+                                  const SkMatrix& viewMatrix, const GrShape& shape, GrAA aa,
+                                  sk_sp<GrBuffer> xferBuffer = nullptr)
             : fProxy(std::move(proxy))
             , fMaskBounds(maskBounds)
             , fViewMatrix(viewMatrix)
             , fShape(shape)
             , fAA(aa)
-            , fWaited(false) {}
+            , fWaited(false)
+            , fXferBuffer(std::move(xferBuffer)) {}
 
     ~GrMaskUploaderPrepareCallback() override {
         if (!fWaited) {
@@ -194,23 +199,41 @@ public:
 
     void operator()(GrOpFlushState* flushState) override {
         TRACE_EVENT0("skia", "Mask Uploader Pre Flush Callback");
-        auto uploadMask = [this](GrDrawOp::WritePixelsFn& writePixelsFn) {
-            TRACE_EVENT0("skia", "Mask Upload");
-            this->fPixelsReady.wait();
-            this->fWaited = true;
-            // If the worker thread was unable to allocate pixels, this check will fail, and we'll
-            // end up drawing with an uninitialized mask texture, but at least we won't crash.
-            if (this->fPixels.addr()) {
-                writePixelsFn(this->fProxy.get(), 0, 0,
-                              this->fPixels.width(), this->fPixels.height(),
-                              kAlpha_8_GrPixelConfig,
-                              this->fPixels.addr(), this->fPixels.rowBytes());
-                // Free this memory immediately, so it can be recycled. This avoids memory pressure
-                // when there is a large amount of threaded work still running during flush.
-                this->fPixels.reset();
+        if (fXferBuffer) {
+            {
+                TRACE_EVENT0("skia", "Waiting");
+                this->fPixelsReady.wait();
             }
-        };
-        flushState->addASAPUpload(std::move(uploadMask));
+            fXferBuffer->unmap();
+
+            SkAssertResult(fProxy->instantiate(flushState->resourceProvider()));
+            GrTexture* tex = fProxy->priv().peekTexture();
+            SkASSERT(tex);
+            flushState->gpu()->transferPixels(tex, 0, 0, fPixels.width(), fPixels.height(),
+                                              kAlpha_8_GrPixelConfig, fXferBuffer.get(), 0, 0);
+        } else {
+            auto uploadMask = [this](GrDrawOp::WritePixelsFn& writePixelsFn) {
+                TRACE_EVENT0("skia", "Mask Upload");
+                {
+                    TRACE_EVENT0("skia", "Waiting");
+                    this->fPixelsReady.wait();
+                }
+                this->fWaited = true;
+                // If the worker thread was unable to allocate pixels, this check will fail, and we
+                // end up drawing with an uninitialized mask texture, but at least we won't crash.
+                if (this->fPixels.addr()) {
+                    writePixelsFn(this->fProxy.get(), 0, 0,
+                                  this->fPixels.width(), this->fPixels.height(),
+                                  kAlpha_8_GrPixelConfig,
+                                  this->fPixels.addr(), this->fPixels.rowBytes());
+                    // Free this memory immediately, so it can be recycled. This avoids memory
+                    // pressure when there is a large amount of threaded work still running during
+                    // flush.
+                    this->fPixels.reset();
+                }
+            };
+            flushState->addASAPUpload(std::move(uploadMask));
+        }
     }
 
     SkAutoPixmapStorage* getPixels() { return &fPixels; }
@@ -231,6 +254,7 @@ private:
     GrShape fShape;
     GrAA fAA;
     bool fWaited;
+    sk_sp<GrBuffer> fXferBuffer;
 };
 
 }
@@ -330,7 +354,45 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         GrAA aa = GrAAType::kCoverage == args.fAAType ? GrAA::kYes : GrAA::kNo;
 
         SkTaskGroup* taskGroup = args.fContext->contextPriv().getTaskGroup();
-        if (taskGroup) {
+        if (taskGroup && FLAGS_pbo) {
+            proxy = make_deferred_mask_texture_proxy(args.fContext, fit,
+                                                     boundsForMask->width(),
+                                                     boundsForMask->height());
+            if (!proxy) {
+                return false;
+            }
+
+            size_t size = boundsForMask->width() * boundsForMask->height();
+            uint32_t bufferFlags = GrResourceProvider::kNoPendingIO_Flag;
+            sk_sp<GrBuffer> buffer(fResourceProvider->createBuffer(size,
+                                                                   kXferCpuToGpu_GrBufferType,
+                                                                   kDynamic_GrAccessPattern,
+                                                                   bufferFlags));
+            SkASSERT(buffer);
+            void* data = buffer->map();
+
+            auto uploader = skstd::make_unique<GrMaskUploaderPrepareCallback>(
+                    proxy, *boundsForMask, *args.fViewMatrix, *args.fShape, aa, std::move(buffer));
+            GrMaskUploaderPrepareCallback* uploaderRaw = uploader.get();
+
+            uploader->getPixels()->reset(SkImageInfo::MakeA8(boundsForMask->width(),
+                                                             boundsForMask->height()),
+                                         data, boundsForMask->width());
+
+            auto drawAndUploadMask = [uploaderRaw] {
+                TRACE_EVENT0("skia", "Threaded SW Mask Render");
+                GrSWMaskHelper helper(uploaderRaw->getPixels());
+                if (helper.init(uploaderRaw->getMaskBounds(), true)) {
+                    helper.drawShape(uploaderRaw->getShape(), *uploaderRaw->getViewMatrix(),
+                                     SkRegion::kReplace_Op, uploaderRaw->getAA(), 0xFF);
+                } else {
+                    SkDEBUGFAIL("Unable to allocate SW mask.");
+                }
+                uploaderRaw->getSemaphore()->signal();
+            };
+            taskGroup->add(std::move(drawAndUploadMask));
+            args.fRenderTargetContext->getOpList()->addPrepareCallback(std::move(uploader));
+        } else if (taskGroup) {
             proxy = make_deferred_mask_texture_proxy(args.fContext, fit,
                                                      boundsForMask->width(),
                                                      boundsForMask->height());
@@ -355,7 +417,47 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             };
             taskGroup->add(std::move(drawAndUploadMask));
             args.fRenderTargetContext->getOpList()->addPrepareCallback(std::move(uploader));
+        } else if (FLAGS_pbo) {
+            TRACE_EVENT0("skia", "PBO SW Mask Render");
+
+            proxy = make_deferred_mask_texture_proxy(args.fContext, fit,
+                                                     boundsForMask->width(),
+                                                     boundsForMask->height());
+            if (!proxy) {
+                return false;
+            }
+
+            size_t size = boundsForMask->width() * boundsForMask->height();
+            uint32_t bufferFlags = GrResourceProvider::kNoPendingIO_Flag;
+            sk_sp<GrBuffer> buffer(fResourceProvider->createBuffer(size,
+                                                                   kXferCpuToGpu_GrBufferType,
+                                                                   kDynamic_GrAccessPattern,
+                                                                   bufferFlags));
+            SkASSERT(buffer);
+            void* data = buffer->map();
+            SkAutoPixmapStorage pixmap;
+            pixmap.reset(SkImageInfo::MakeA8(boundsForMask->width(), boundsForMask->height()),
+                                             data, boundsForMask->width());
+            GrSWMaskHelper helper(&pixmap);
+            if (!helper.init(*boundsForMask, true)) {
+                return false;
+            }
+            helper.drawShape(*args.fShape, *args.fViewMatrix, SkRegion::kReplace_Op, aa, 0xFF);
+            buffer->unmap();
+
+            if (!proxy->instantiate(fResourceProvider)) {
+                return false;
+            }
+            GrTexture* tex = proxy->priv().peekTexture();
+            SkASSERT(tex);
+            if (!args.fContext->getGpu()->transferPixels(tex, 0, 0, boundsForMask->width(),
+                                                         boundsForMask->height(),
+                                                         kAlpha_8_GrPixelConfig, buffer.get(), 0,
+                                                         0)) {
+                return false;
+            }
         } else {
+            TRACE_EVENT0("skia", "Serial SW Mask Render");
             GrSWMaskHelper helper;
             if (!helper.init(*boundsForMask)) {
                 return false;
