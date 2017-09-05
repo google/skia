@@ -261,6 +261,10 @@ private:
                           GrPixelConfig config, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override;
 
+    // Before calling any variation of TexImage, TexSubImage, etc..., call this to ensure that the
+    // PIXEL_UNPACK_BUFFER is unbound.
+    void unbindCpuToGpuXferBuffer();
+
     void onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin) override;
 
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
