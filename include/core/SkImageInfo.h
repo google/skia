@@ -178,7 +178,7 @@ enum class SkDestinationSurfaceColorMode {
 struct SK_API SkImageInfo {
 public:
     SkImageInfo()
-        : fColorSpace(nullptr)
+        : fColorSpace(SkColorSpace::MakeSRGB())
         , fWidth(0)
         , fHeight(0)
         , fColorType(kUnknown_SkColorType)
@@ -187,7 +187,7 @@ public:
 
     static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at,
                             sk_sp<SkColorSpace> cs = nullptr) {
-        return SkImageInfo(width, height, ct, at, std::move(cs));
+        return SkImageInfo(width, height, ct, at, SkColorSpace::MakeSRGB());
     }
 
     /**
@@ -195,7 +195,7 @@ public:
      */
     static SkImageInfo MakeN32(int width, int height, SkAlphaType at,
                                sk_sp<SkColorSpace> cs = nullptr) {
-        return Make(width, height, kN32_SkColorType, at, cs);
+        return Make(width, height, kN32_SkColorType, at, SkColorSpace::MakeSRGB());
     }
 
     /**
@@ -207,7 +207,7 @@ public:
      *  Sets colortype to the native ARGB32 type, and the alphatype to premul.
      */
     static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr) {
-        return Make(width, height, kN32_SkColorType, kPremul_SkAlphaType, cs);
+        return Make(width, height, kN32_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
     }
 
     static SkImageInfo MakeN32Premul(const SkISize& size) {
@@ -215,17 +215,17 @@ public:
     }
 
     static SkImageInfo MakeA8(int width, int height) {
-        return Make(width, height, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr);
+        return Make(width, height, kAlpha_8_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
     }
 
     static SkImageInfo MakeUnknown(int width, int height) {
-        return Make(width, height, kUnknown_SkColorType, kUnknown_SkAlphaType, nullptr);
+        return Make(width, height, kUnknown_SkColorType, kUnknown_SkAlphaType, SkColorSpace::MakeSRGB());
     }
 
     static SkImageInfo MakeUnknown() {
         return MakeUnknown(0, 0);
     }
-    
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     SkColorType colorType() const { return fColorType; }
@@ -321,7 +321,7 @@ public:
     }
 
     void reset() {
-        fColorSpace = nullptr;
+        fColorSpace = SkColorSpace::MakeSRGB();
         fWidth = 0;
         fHeight = 0;
         fColorType = kUnknown_SkColorType;
@@ -338,7 +338,7 @@ private:
     SkAlphaType         fAlphaType;
 
     SkImageInfo(int width, int height, SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
-        : fColorSpace(std::move(cs))
+        : fColorSpace(SkColorSpace::MakeSRGB())
         , fWidth(width)
         , fHeight(height)
         , fColorType(ct)

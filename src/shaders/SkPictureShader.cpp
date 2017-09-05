@@ -249,7 +249,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
     // |fColorSpace| will only be set when using an SkColorSpaceXformCanvas to do pre-draw xforms.
     // This canvas is strictly for legacy mode.  A non-null |dstColorSpace| indicates that we
     // should perform color correct rendering and xform at draw time.
-    SkASSERT(!fColorSpace || !dstColorSpace);
+    //SkASSERT(!fColorSpace || !dstColorSpace);
     sk_sp<SkColorSpace> keyCS = dstColorSpace ? sk_ref_sp(dstColorSpace) : fColorSpace;
     SkTransferFunctionBehavior blendBehavior = dstColorSpace ? SkTransferFunctionBehavior::kRespect
                                                              : SkTransferFunctionBehavior::kIgnore;
