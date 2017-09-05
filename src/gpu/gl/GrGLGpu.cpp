@@ -1480,6 +1480,14 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
     if (!this->glCaps().hasStencilFormatBeenDeterminedForConfig(config)) {
         // Default to unsupported, set this if we find a stencil format that works.
         int firstWorkingStencilFormatIndex = -1;
+
+        // unbind any previous transfer buffer
+        auto& xferBufferState = fHWBufferState[kXferCpuToGpu_GrBufferType];
+        if (!xferBufferState.fBoundBufferUniqueID.isInvalid()) {
+            GL_CALL(BindBuffer(xferBufferState.fGLTarget, 0));
+            xferBufferState.invalidate();
+        }
+
         // Create color texture
         GrGLuint colorID = 0;
         GL_CALL(GenTextures(1, &colorID));
