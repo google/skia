@@ -27,7 +27,8 @@ private:
 
     // Deferred version
     GrTextureRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&,
-                               SkBackingFit, SkBudgeted, uint32_t flags);
+                               SkBackingFit, SkBudgeted, uint32_t flags,
+                               bool isMipMapped);
 
     // Wrapped version
     GrTextureRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);

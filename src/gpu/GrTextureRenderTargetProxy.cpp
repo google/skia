@@ -14,10 +14,11 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        const GrSurfaceDesc& desc,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
-                                                       uint32_t flags)
+                                                       uint32_t flags,
+                                                       bool isMipMapped)
     : GrSurfaceProxy(desc, fit, budgeted, flags)
     // for now textures w/ data are always wrapped
-    , GrTextureProxy(desc, fit, budgeted, nullptr, 0, flags)
+    , GrTextureProxy(desc, fit, budgeted, nullptr, 0, flags, isMipMapped)
     , GrRenderTargetProxy(caps, desc, fit, budgeted, flags) {
 }
 

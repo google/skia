@@ -10,9 +10,10 @@
 #include "GrTexturePriv.h"
 
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
-                               const void* srcData, size_t /*rowBytes*/, uint32_t flags)
+                               const void* srcData, size_t /*rowBytes*/, uint32_t flags,
+                               bool isMipMapped)
         : INHERITED(srcDesc, fit, budgeted, flags)
-        , fIsMipMapped(srcDesc.fIsMipMapped)
+        , fIsMipMapped(isMipMapped)
         , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy) {
     SkASSERT(!srcData);  // currently handled in Make()
 }
