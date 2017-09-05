@@ -36,10 +36,8 @@
 #include "SkColorTable.h"
 #include "SkGifCodec.h"
 #include "SkMakeUnique.h"
-#include "SkRasterPipeline.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
-#include "../jumper/SkJumper.h"
 
 #include <algorithm>
 
@@ -511,32 +509,31 @@ void SkGifCodec::haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
             // which is twice as wide.
             offsetBytes *= 2;
         }
-        SkRasterPipeline_<256> p;
-        SkRasterPipeline::StockStage storeDst;
         void* src = SkTAddOffset<void>(fTmpBuffer.get(), offsetBytes);
         void* dst = SkTAddOffset<void>(dstLine, offsetBytes);
 
-        SkJumper_MemoryCtx src_ctx = { src, 0 },
-                           dst_ctx = { dst, 0 };
         switch (dstInfo.colorType()) {
             case kBGRA_8888_SkColorType:
-            case kRGBA_8888_SkColorType:
-                p.append(SkRasterPipeline::load_8888_dst, &dst_ctx);
-                p.append(SkRasterPipeline::load_8888, &src_ctx);
-                storeDst = SkRasterPipeline::store_8888;
+            case kRGBA_8888_SkColorType: {
+                auto* dstPixel = reinterpret_cast<TYPE>(dst);               \
+                auto* srcPixel = reinterpret_cast<TYPE>(src);               \
+                for (auto* srcEnd = srcPixel + fSwizzler->swizzleWidth();   \
+                        srcPixel != srcEnd; dstPixel++, srcPixel++) {       \
+                    if (*srcPixel != 0) {                                   \
+                        *dstPixel = *srcPixel;                              \
+                    }                                                       \
+                }
+                PROCESS_ROW(uint32_t*)
                 break;
-            case kRGBA_F16_SkColorType:
-                p.append(SkRasterPipeline::load_f16_dst, &dst_ctx);
-                p.append(SkRasterPipeline::load_f16, &src_ctx);
-                storeDst = SkRasterPipeline::store_f16;
+            }
+            case kRGBA_F16_SkColorType: {
+                PROCESS_ROW(uint64_t*)
                 break;
+            }
             default:
                 SkASSERT(false);
                 return;
         }
-        p.append(SkRasterPipeline::srcover);
-        p.append(storeDst, &dst);
-        p.run(0,0, fSwizzler->swizzleWidth(),1);
     }
 
     // Tell the frame to copy the row data if need be.
