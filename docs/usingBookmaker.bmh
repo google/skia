@@ -25,15 +25,30 @@ $ ninja -C out/dir bookmaker
 ##
 
 Generate an starter Bookmaker file from an existing include.
-This writes SkXXX.bmh in the current directory, which is
-out/dir/obj/ from an IDE.
+This writes docs/SkXXX_Reference.bmh.
 
 #Code
-$ ./out/dir/bookmaker -t -i include/core/SkXXX.h
+$ ./out/dir/bookmaker -i include/core/SkXXX.h -t docs
 ##
 
-Copy SkXXX.bmh to docs.
-Use your favorite editor to fill out docs/SkXXX.bmh.
+If a method or function has an unnamed parameter, bookmaker generates an error:
+
+#Code
+C:/puregit/include/core/SkPixmap.h(208): error: #Method missing param name
+bool erase(const SkColor4f&, const SkIRect* subset = nullptr) const
+           ^
+##
+
+All parameters require names to allow markdown and doxygen documents to refer to
+them. After naming all parameters, check in the include before continuing.
+
+A successful run will output:
+
+#Code
+topics=0 classes=0 methods=0 examples=0
+##
+
+Use your favorite editor to fill out docs/SkXXX_Reference.bmh.
 
 #Subtopic Style
 
