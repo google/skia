@@ -16,6 +16,223 @@
       "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d57993a4_d8008b69",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-05T16:25:43Z",
+      "side": 1,
+      "message": "In the past I have successfully tweaked the \u0027--similarity\u0027 flag during upload in order to get the code review system to detect renames. I\u0027ve tried this time to do that as well, but no luck. I don\u0027t know if it\u0027s because the file is just too different, or because something has changed with the new system.\n\nAt any rate, I\u0027ve dropped in several comments indicating what has changed.",
+      "parentUuid": "639073e2_d348e7d4",
+      "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f523207_a3b908cd",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-05T16:25:43Z",
+      "side": 1,
+      "message": "This class is identical.",
+      "range": {
+        "startLine": 28,
+        "startChar": 6,
+        "endLine": 28,
+        "endChar": 28
+      },
+      "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abd3c2a1_419669c0",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-05T16:25:43Z",
+      "side": 1,
+      "message": "This parsing logic is identical. Only difference is we call:\n\n  fGeometry.lineTo\n  ...\n\ninstead of:\n\n  this-\u003elineTo\n  ...\n\nAlso, the insideContour Boolean is new.",
+      "range": {
+        "startLine": 104,
+        "startChar": 7,
+        "endLine": 104,
+        "endChar": 8
+      },
+      "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a2c40b1_410e596b",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-05T16:25:43Z",
+      "side": 1,
+      "message": "this function is new",
+      "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cd9271a_9096200e",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-05T16:25:43Z",
+      "side": 1,
+      "message": "this function is totally different",
+      "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3eb7df7b_48f8389b",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-05T16:25:43Z",
+      "side": 1,
+      "message": "this function is new",
+      "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69576bcb_7560a3fb",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-05T16:25:43Z",
+      "side": 1,
+      "message": "this function is renamed and totally different",
+      "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b43e6389_76d5cf56",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-05T16:25:43Z",
+      "side": 1,
+      "message": "this algorithm hasn\u0027t changed",
+      "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da4e26ff_7a2ac712",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-05T16:25:43Z",
+      "side": 1,
+      "message": "this function is brand new",
+      "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa038f76_82d5caac",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-05T16:25:43Z",
+      "side": 1,
+      "message": "new",
+      "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0201f31_afecc600",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-05T16:25:43Z",
+      "side": 1,
+      "message": "identical to what used to be here",
+      "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2542f524_e69661c3",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-05T16:25:43Z",
+      "side": 1,
+      "message": "Identical to what used to be here, except I removed ugly logic to handle backward-growing loops. (Those just grow forward now like everybody else.)",
+      "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
