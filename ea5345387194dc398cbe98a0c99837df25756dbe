@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "84716a43_e774215c",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-05T19:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9daa7011_587b9ddc",
+      "range": {
+        "startLine": 46,
+        "startChar": 69,
+        "endLine": 46,
+        "endChar": 74
+      },
+      "revId": "ea5345387194dc398cbe98a0c99837df25756dbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aeeca5c8_4292fe3b",
         "filename": "src/gpu/GrResourceProvider.cpp",
         "patchSetId": 3
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "e94df5dc_4ebc2189",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-05T19:47:38Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "aeeca5c8_4292fe3b",
+      "revId": "ea5345387194dc398cbe98a0c99837df25756dbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "40e611cc_93515630",
         "filename": "src/gpu/GrResourceProvider.h",
         "patchSetId": 3
@@ -53,6 +95,30 @@
       "writtenOn": "2017-09-05T14:43:18Z",
       "side": 1,
       "message": "It seems like mip-ness and match type are not independent. Should we structure the methods to make it impossible to request a non-exact texture with MIP levels? That is make the scratch type be tri-state {kExact, kExactMipped, kApprox}",
+      "range": {
+        "startLine": 260,
+        "startChar": 39,
+        "endLine": 261,
+        "endChar": 0
+      },
+      "revId": "ea5345387194dc398cbe98a0c99837df25756dbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67ea5d9f_f9cbeba1",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-05T19:47:38Z",
+      "side": 1,
+      "message": "Added the mipmapped flag to the scrateTextureFlags and cleaned up some of the unneeded flags (kExact and kNoCreate) to make things clearer about our intent for approx vs exact textures.",
+      "parentUuid": "40e611cc_93515630",
       "range": {
         "startLine": 260,
         "startChar": 39,
