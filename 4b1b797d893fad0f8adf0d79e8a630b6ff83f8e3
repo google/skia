@@ -22,6 +22,30 @@
       "revId": "4b1b797d893fad0f8adf0d79e8a630b6ff83f8e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf62c12d_11337267",
+        "filename": "tools/shape/SkShaper_harfbuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-09-05T14:46:38Z",
+      "side": 1,
+      "message": "This behavior is not guaranteed, so this is the backup slow way. However, if we ever do end up down this path I want it to complain really loud in debug so w know it changed. I\u0027ve taken a look down in the bidi code, and I see no way for this bit of code to be reached, and it doesn\u0027t currently make sense for this code to be reached, but there\u0027s no guarantee on the API that this behavior won\u0027t change in the future.",
+      "parentUuid": "fc09c8eb_7947c5ab",
+      "range": {
+        "startLine": 148,
+        "startChar": 12,
+        "endLine": 148,
+        "endChar": 23
+      },
+      "revId": "4b1b797d893fad0f8adf0d79e8a630b6ff83f8e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
