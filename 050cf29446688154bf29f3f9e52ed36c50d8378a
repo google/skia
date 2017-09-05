@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cacf8a8d_1aead786",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-05T17:54:16Z",
+      "side": 1,
+      "message": "I think we might be happier with this as a template function, something like\n\ntemplate \u003ctypename T\u003e\nstatic void blend_gif_frames(T* dst, const T* src, int width) {\n    while (width --\u003e 0) {\n        if (*src !\u003d 0) {   // GIF pixels are either transparent (\u003d\u003d 0) or opaque (!\u003d 0).\n            *dst \u003d *src;\n        }\n        src++;\n        dst++;\n    }\n}",
+      "range": {
+        "startLine": 533,
+        "startChar": 8,
+        "endLine": 533,
+        "endChar": 25
+      },
+      "revId": "050cf29446688154bf29f3f9e52ed36c50d8378a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
