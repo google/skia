@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7ef21c8_44603bee",
+        "filename": "src/gpu/ops/GrTessellatingPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-05T13:56:38Z",
+      "side": 1,
+      "message": "Since I haven\u0027t followed the full discussion -- which ones are these? AFAIU the ConvexPathRenderer won\u0027t be active if MSAA is enabled, or is that the case this is covering?",
+      "range": {
+        "startLine": 138,
+        "startChar": 73,
+        "endLine": 138,
+        "endChar": 91
+      },
+      "revId": "a8d0ee44276dc1474145297c89571ff3a900cf9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
