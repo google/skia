@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9bca5de8_3001f919",
+        "filename": "src/effects/SkArithmeticImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 7734
+      },
+      "writtenOn": "2017-09-05T15:42:21Z",
+      "side": 1,
+      "message": "I think so: https://cs.chromium.org/chromium/src/third_party/skia/gm/arithmode.cpp?rcl\u003ddbb24efcc5f224a0d9a73ad9b200daf8013df0a1\u0026l\u003d89",
+      "parentUuid": "872d3be6_c2e480cf",
+      "revId": "6f4549837f0125efba4f3dcb5445b78d85213c78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "902ab3d8_4658610a",
         "filename": "src/effects/SkXfermodeImageFilter.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-09-05T13:57:23Z",
       "side": 1,
       "message": "Is there already a GM that exercises this case?",
+      "revId": "6f4549837f0125efba4f3dcb5445b78d85213c78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bee0ee80_29149d9d",
+        "filename": "src/effects/SkXfermodeImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 7734
+      },
+      "writtenOn": "2017-09-05T15:42:21Z",
+      "side": 1,
+      "message": "I think so: https://cs.chromium.org/chromium/src/third_party/skia/gm/xfermodeimagefilter.cpp?rcl\u003ddbb24efcc5f224a0d9a73ad9b200daf8013df0a1\u0026l\u003d52",
+      "parentUuid": "902ab3d8_4658610a",
       "revId": "6f4549837f0125efba4f3dcb5445b78d85213c78",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
