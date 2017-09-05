@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "639073e2_d348e7d4",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-05T13:04:06Z",
+      "side": 1,
+      "message": "Is there any way you could indicate what in here has changed from GrCCPRCoverageOpsBuilder.cpp? Or is it possible to change the similarity metric in git to make it not rewrite the file? TBH, I\u0027m not sure if whether a file is displayed on code review as a modification or new file is a property of the git settings of the server or of the person who created the CL.",
+      "revId": "f279b8c7548777bca9dcda31a9633d084d9f0cda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
