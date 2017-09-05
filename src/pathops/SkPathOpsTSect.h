@@ -1236,7 +1236,10 @@ bool SkTSect<TCurve, OppCurve>::extractCoincident(
         SkTSwap(oppFirst, oppLast);
         SkTSwap(oppStartT, oppEndT);
     }
-    SkOPASSERT(oppStartT < oppEndT);
+    if (oppStartT >= oppEndT) {
+        *result = nullptr;
+        return true;
+    }
     SkASSERT(coinStart == first->fStartT);
     SkASSERT(coinEnd == last->fEndT);
     SkOPASSERT(oppStartT == oppFirst->fStartT);
