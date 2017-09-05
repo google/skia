@@ -206,8 +206,7 @@ extern "C" {
         }
         LOWP_STAGES(M)
     #undef M
-#elif !defined(SK_JUMPER_LEGACY_X86_8BIT) && \
-    (defined(__i386__) || defined(_M_IX86))
+#elif defined(__i386__) || defined(_M_IX86)
     template <SkRasterPipeline::StockStage st>
     static constexpr StageFn* sse2_8bit() { return nullptr; }
 
@@ -356,8 +355,7 @@ static SkJumper_Engine choose_engine() {
             #undef M
             };
         }
-    #elif !defined(SK_JUMPER_LEGACY_X86_8BIT) && \
-        (defined(__i386__) || defined(_M_IX86))
+    #elif defined(__i386__) || defined(_M_IX86)
         if (1 && SkCpu::Supports(SkCpu::SSE2)) {
             return {
             #define M(st) sse2_8bit<SkRasterPipeline::st>(),
