@@ -21,7 +21,7 @@ class GrGLSLGeometryBuilder;
  *
  * The caller is expected to chop cubics at the KLM roots (a.k.a. inflection points and loop
  * intersection points, resulting in necessarily convex segments) before feeding them into this
- * processor.
+ * processor. (Use GrCCPRGeometry.)
  *
  * The curves are rendered in two passes:
  *

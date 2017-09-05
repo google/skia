@@ -13,7 +13,7 @@
 #include "GrPathRenderer.h"
 #include "SkTInternalLList.h"
 #include "ccpr/GrCCPRAtlas.h"
-#include "ccpr/GrCCPRCoverageOpsBuilder.h"
+#include "ccpr/GrCCPRCoverageOp.h"
 #include "ops/GrDrawOp.h"
 #include <map>
 
@@ -106,6 +106,7 @@ public:
         RTPendingOps*                           fOwningRTPendingOps;
         int                                     fBaseInstance;
         SkDEBUGCODE(int                         fDebugInstanceCount;)
+        SkDEBUGCODE(int                         fDebugSkippedInstances;)
         SkSTArray<1, AtlasBatch, true>          fAtlasBatches;
 
         friend class GrCoverageCountingPathRenderer;
@@ -116,9 +117,14 @@ public:
 private:
     GrCoverageCountingPathRenderer() = default;
 
+    void setupPerFlushResources(GrOnFlushResourceProvider*, const uint32_t* opListIDs,
+                                int numOpListIDs, SkTArray<sk_sp<GrRenderTargetContext>>* results);
+
     struct RTPendingOps {
         SkTInternalLList<DrawPathsOp>                 fOpList;
-        GrCCPRCoverageOpsBuilder::MaxBufferItems      fMaxBufferItems;
+        int                                           fNumTotalPaths = 0;
+        int                                           fNumSkPoints = 0;
+        int                                           fNumSkVerbs = 0;
         GrSTAllocator<256, DrawPathsOp::SingleDraw>   fDrawsAllocator;
     };
 
@@ -129,6 +135,7 @@ private:
     sk_sp<GrBuffer>                    fPerFlushVertexBuffer;
     sk_sp<GrBuffer>                    fPerFlushInstanceBuffer;
     GrSTAllocator<4, GrCCPRAtlas>      fPerFlushAtlases;
+    bool                               fPerFlushResourcesAreValid;
     SkDEBUGCODE(bool                   fFlushing = false;)
 };
 
