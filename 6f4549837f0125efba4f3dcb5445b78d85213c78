@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "872d3be6_c2e480cf",
+        "filename": "src/effects/SkArithmeticImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-05T13:57:23Z",
+      "side": 1,
+      "message": "Am I correct in assuming that all these cases are hit by the existing GMs?",
+      "revId": "6f4549837f0125efba4f3dcb5445b78d85213c78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "902ab3d8_4658610a",
+        "filename": "src/effects/SkXfermodeImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-05T13:57:23Z",
+      "side": 1,
+      "message": "Is there already a GM that exercises this case?",
+      "revId": "6f4549837f0125efba4f3dcb5445b78d85213c78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
