@@ -994,6 +994,15 @@ static void restore_pixelstore_state(const GrGLInterface& interface, const GrGLC
     }
 }
 
+void GrGLGpu::unbindCpuToGpuXferBuffer() {
+    auto& xferBufferState = fHWBufferState[kXferCpuToGpu_GrBufferType];
+    if (!xferBufferState.fBoundBufferUniqueID.isInvalid()) {
+        GL_CALL(BindBuffer(xferBufferState.fGLTarget, 0));
+        xferBufferState.invalidate();
+    }
+
+}
+
 bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
                             GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType,
                             int left, int top, int width, int height, GrPixelConfig dataConfig,
@@ -1007,12 +1016,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     SkASSERT(1 == mipLevelCount ||
              (0 == left && 0 == top && width == texWidth && height == texHeight));
 
-    // unbind any previous transfer buffer
-    auto& xferBufferState = fHWBufferState[kXferCpuToGpu_GrBufferType];
-    if (!xferBufferState.fBoundBufferUniqueID.isInvalid()) {
-        GL_CALL(BindBuffer(xferBufferState.fGLTarget, 0));
-        xferBufferState.invalidate();
-    }
+    this->unbindCpuToGpuXferBuffer();
 
     // texels is const.
     // But we may need to flip the texture vertically to prepare it.
@@ -1481,13 +1485,6 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
         // Default to unsupported, set this if we find a stencil format that works.
         int firstWorkingStencilFormatIndex = -1;
 
-        // unbind any previous transfer buffer
-        auto& xferBufferState = fHWBufferState[kXferCpuToGpu_GrBufferType];
-        if (!xferBufferState.fBoundBufferUniqueID.isInvalid()) {
-            GL_CALL(BindBuffer(xferBufferState.fGLTarget, 0));
-            xferBufferState.invalidate();
-        }
-
         // Create color texture
         GrGLuint colorID = 0;
         GL_CALL(GenTextures(1, &colorID));
@@ -1513,6 +1510,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
                                                &externalType)) {
             return false;
         }
+        this->unbindCpuToGpuXferBuffer();
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         GL_ALLOC_CALL(this->glInterface(), TexImage2D(GR_GL_TEXTURE_2D,
                                                       0,
@@ -4044,6 +4042,8 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
             return false;
         }
 
+        this->unbindCpuToGpuXferBuffer();
+
         for (GrGLint level = 1; level < levelCount; ++level) {
             // Define the next mip:
             width = SkTMax(1, width / 2);
@@ -4230,6 +4230,7 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
         return reinterpret_cast<GrBackendObject>(nullptr);
     }
 
+    this->unbindCpuToGpuXferBuffer();
     GL_CALL(TexImage2D(info->fTarget, 0, internalFormat, w, h, 0, externalFormat,
                        externalType, pixels));
 
