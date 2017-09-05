@@ -18,7 +18,7 @@
  * https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
  *
  * The provided curves must be monotonic with respect to the vector of their closing edge [P2 - P0].
- * Use GrPathUtils::chopMonotonicQuads.
+ * (Use GrCCPRGeometry.)
  */
 class GrCCPRQuadraticProcessor : public GrCCPRCoverageProcessor::PrimitiveProcessor {
 public:
