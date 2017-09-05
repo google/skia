@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">CTS18</string>
+    <string name="title_activity_cts">CTSActivity</string>
+</resources>
