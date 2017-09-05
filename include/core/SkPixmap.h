@@ -36,13 +36,13 @@ public:
     }
 
     // overrides the colorspace in the SkImageInfo of the pixmap
-    void setColorSpace(sk_sp<SkColorSpace>);
+    void setColorSpace(sk_sp<SkColorSpace> colorSpace);
 
     /**
      *  If supported, set this pixmap to point to the pixels in the specified mask and return true.
      *  On failure, return false and set this pixmap to empty.
      */
-    bool SK_WARN_UNUSED_RESULT reset(const SkMask&);
+    bool SK_WARN_UNUSED_RESULT reset(const SkMask& mask);
 
     /**
      *  Computes the intersection of area and this pixmap. If that intersection is non-empty,
@@ -205,7 +205,7 @@ public:
     bool erase(SkColor, const SkIRect& subset) const;
 
     bool erase(SkColor color) const { return this->erase(color, this->bounds()); }
-    bool erase(const SkColor4f&, const SkIRect* subset = nullptr) const;
+    bool erase(const SkColor4f& color, const SkIRect* subset = nullptr) const;
 
 private:
     const void*     fPixels;
