@@ -163,7 +163,7 @@ public:
 
     /** These flags govern which scratch resources we are allowed to return */
     enum Flags {
-        kExact_Flag           = 0x1,
+        kMipMapped_Flag           = 0x1,
 
         /** If the caller intends to do direct reads/writes to/from the CPU then this flag must be
          *  set when accessing resources during a GrOpList flush. This includes the execution of
@@ -173,12 +173,10 @@ public:
          */
         kNoPendingIO_Flag     = 0x2,
 
-        kNoCreate_Flag        = 0x4,
-
         /** Normally the caps may indicate a preference for client-side buffers. Set this flag when
          *  creating a buffer to guarantee it resides in GPU memory.
          */
-        kRequireGpuMemory_Flag = 0x8,
+        kRequireGpuMemory_Flag = 0x4,
     };
 
     /**
@@ -262,7 +260,8 @@ private:
      * Try to find an existing scratch texture that exactly matches 'desc'. If successful
      * update the budgeting accordingly.
      */
-    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, SkBudgeted, uint32_t flags);
+    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, SkBudgeted, uint32_t flags,
+                                     bool isMipMapped);
 
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }
