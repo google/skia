@@ -99,6 +99,8 @@ static SkString to_string(int n) {
     return str;
 }
 
+DEFINE_bool(pbo, false, "Use PBOs");
+
 DECLARE_bool(undefok);
 
 DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
