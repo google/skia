@@ -14,12 +14,13 @@
 #include "SkPicture.h"
 #include "SkStream.h"
 
-MainWindow::MainWindow()
-        : fImageLabel(new QLabel) {
-    this->setCentralWidget(fImageLabel);
-
+MainWindow::MainWindow() {
     this->createActions();
     this->createStatusBar();
+    this->createDockWindows();
+
+    this->setWindowTitle("MDB Viz");
+
     this->readSettings();
     this->setUnifiedTitleAndToolBarOnMac(true);
 }
@@ -28,6 +29,21 @@ void MainWindow::openFile() {
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty()) {
         this->loadFile(fileName);
+    }
+}
+
+void MainWindow::setupOpListWidget() {
+    fOpListWidget->clear();
+
+    for (int i = 0; i < fDebugCanvas->getSize(); i++) {
+        QListWidgetItem *item = new QListWidgetItem();
+
+        const SkDrawCommand* command = fDebugCanvas->getDrawCommandAt(i);
+
+        SkString commandString = command->toString();
+        item->setData(Qt::DisplayRole, commandString.c_str());
+
+        fOpListWidget->addItem(item);
     }
 }
 
@@ -58,6 +74,15 @@ void MainWindow::loadFile(const QString &fileName) {
         return;
     }
 
+    fDebugCanvas.reset(new SkDebugCanvas(SkScalarCeilToInt(pic->cullRect().width()),
+                                         SkScalarCeilToInt(pic->cullRect().height())));
+
+    fDebugCanvas->setPicture(pic.get());
+    pic->playback(fDebugCanvas.get());
+    fDebugCanvas->setPicture(nullptr);
+
+    this->setupOpListWidget();
+
     SkBitmap bm;
 
     SkImageInfo ii = SkImageInfo::MakeN32Premul(1024, 1024);
@@ -65,7 +90,7 @@ void MainWindow::loadFile(const QString &fileName) {
 
     SkCanvas canvas(bm);
 
-    canvas.drawPicture(pic);
+    fDebugCanvas->draw(&canvas);
 
     fImage = QImage((uchar*)bm.getPixels(), bm.width(), bm.height(), QImage::Format_RGBA8888);
     fImageLabel->setPixmap(QPixmap::fromImage(fImage));
@@ -75,13 +100,19 @@ void MainWindow::loadFile(const QString &fileName) {
 #endif
 }
 
+
+void MainWindow::about() {
+   QMessageBox::about(this, "About MDB Viz", "Visualize MDB");
+}
+
 void MainWindow::createActions() {
 
-    QMenu *fileMenu = this->menuBar()->addMenu(tr("&File"));
-    QToolBar *fileToolBar = this->addToolBar(tr("File"));
+    // File menu
+    QMenu* fileMenu = this->menuBar()->addMenu(tr("&File"));
+    QToolBar* fileToolBar = this->addToolBar(tr("File"));
 
     const QIcon openIcon = QIcon::fromTheme("document-open", QIcon(":/images/open.png"));
-    QAction *openAct = new QAction(openIcon, tr("&Open..."), this);
+    QAction* openAct = new QAction(openIcon, tr("&Open..."), this);
     openAct->setShortcuts(QKeySequence::Open);
     openAct->setStatusTip(tr("Open an existing file"));
     connect(openAct, &QAction::triggered, this, &MainWindow::openFile);
@@ -94,10 +125,50 @@ void MainWindow::createActions() {
     QAction *exitAct = fileMenu->addAction(exitIcon, tr("E&xit"), this, &QWidget::close);
     exitAct->setShortcuts(QKeySequence::Quit);
     exitAct->setStatusTip(tr("Exit the application"));
+
+    // View menu
+    fViewMenu = this->menuBar()->addMenu(tr("&View"));
+
+    // Help menu
+    this->menuBar()->addSeparator();
+
+    QMenu* helpMenu = this->menuBar()->addMenu(tr("&Help"));
+
+    QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindow::about);
+    aboutAct->setStatusTip(tr("Show the application's About box"));
 }
 
 void MainWindow::createStatusBar() {
     this->statusBar()->showMessage(tr("Ready"));
+}
+
+void MainWindow::createDockWindows() {
+
+    // Op List Window
+    {
+        QDockWidget* opListDock = new QDockWidget("Ops", this);
+        opListDock->setAllowedAreas(Qt::LeftDockWidgetArea);
+
+        fOpListWidget = new QListWidget(opListDock);
+
+        opListDock->setWidget(fOpListWidget);
+        this->addDockWidget(Qt::LeftDockWidgetArea, opListDock);
+
+        fViewMenu->addAction(opListDock->toggleViewAction());
+    }
+
+    // Main canvas Window
+    {
+        QDockWidget* mainCanvasDock = new QDockWidget("Main Canvas", this);
+        mainCanvasDock->setAllowedAreas(Qt::RightDockWidgetArea);
+
+        fImageLabel = new QLabel(mainCanvasDock);
+
+        mainCanvasDock->setWidget(fImageLabel);
+        this->addDockWidget(Qt::RightDockWidgetArea, mainCanvasDock);
+
+        fViewMenu->addAction(mainCanvasDock->toggleViewAction());
+    }
 }
 
 void MainWindow::readSettings() {
