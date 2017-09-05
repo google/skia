@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd258f02_1295ac19",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-05T18:15:34Z",
+      "side": 1,
+      "message": "Probably don\u0027t need these {} now. :)",
+      "range": {
+        "startLine": 533,
+        "startChar": 40,
+        "endLine": 533,
+        "endChar": 41
+      },
+      "revId": "a12893734b842108edbcc145d10889beb292641d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
