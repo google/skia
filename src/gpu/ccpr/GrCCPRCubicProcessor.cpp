@@ -24,7 +24,7 @@ void GrCCPRCubicProcessor::onEmitVertexShader(const GrCCPRCoverageProcessor& pro
 #endif
 
     // Fetch all 4 cubic bezier points.
-    v->codeAppendf("int4 indices = int4(%s.y, %s.x, %s.x + 1, %s.y + 1);",
+    v->codeAppendf("int4 indices = int4(%s.x, %s.x + 1, %s.x + 2, %s.x + 3);",
                    proc.instanceAttrib(), proc.instanceAttrib(), proc.instanceAttrib(),
                    proc.instanceAttrib());
     v->codeAppend ("highp float4x2 bezierpts = float4x2(");
