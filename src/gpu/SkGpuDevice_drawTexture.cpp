@@ -114,13 +114,13 @@ static void draw_texture_affine(const SkPaint& paint, const SkMatrix& ctm, const
         srcToDst.mapRect(&dstRect, srcRect);
     }
     auto csxf = GrColorSpaceXform::Make(colorSpace, rtc->getColorSpace());
-    GrSamplerParams::FilterMode filter;
+    GrSamplerState::Filter filter;
     switch (paint.getFilterQuality()) {
         case kNone_SkFilterQuality:
-            filter = GrSamplerParams::kNone_FilterMode;
+            filter = GrSamplerState::Filter::kNearest;
             break;
         case kLow_SkFilterQuality:
-            filter = GrSamplerParams::kBilerp_FilterMode;
+            filter = GrSamplerState::Filter::kBilerp;
             break;
         case kMedium_SkFilterQuality:
         case kHigh_SkFilterQuality:
@@ -157,9 +157,9 @@ void SkGpuDevice::drawTextureMaker(GrTextureMaker* maker, int imageW, int imageH
                                    const SkMatrix& viewMatrix, const SkPaint& paint) {
     if (can_use_draw_texture_affine(paint, viewMatrix, constraint)) {
         sk_sp<SkColorSpace> cs;
-        // We've done enough checks above to allow us to pass ClampNoFilter() and not check for
+        // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto proxy = maker->refTextureProxyForParams(GrSamplerParams::ClampNoFilter(),
+        auto proxy = maker->refTextureProxyForParams(GrSamplerState::ClampNearest(),
                                                      fRenderTargetContext->getColorSpace(), &cs,
                                                      nullptr);
         if (!proxy) {
@@ -246,10 +246,9 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     bool canUseTextureCoordsAsLocalCoords = !use_shader(producer->isAlphaOnly(), paint) && !mf;
 
     bool doBicubic;
-    GrSamplerParams::FilterMode fm =
-        GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), viewMatrix, srcToDstMatrix,
-                                        &doBicubic);
-    const GrSamplerParams::FilterMode* filterMode = doBicubic ? nullptr : &fm;
+    GrSamplerState::Filter fm = GrSkFilterQualityToGrFilterMode(
+            paint.getFilterQuality(), viewMatrix, srcToDstMatrix, &doBicubic);
+    const GrSamplerState::Filter* filterMode = doBicubic ? nullptr : &fm;
 
     GrTextureProducer::FilterConstraint constraintMode;
     if (SkCanvas::kFast_SrcRectConstraint == constraint) {
@@ -264,7 +263,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     bool coordsAllInsideSrcRect = !paint.isAntiAlias() && !mf;
 
     // Check for optimization to drop the src rect constraint when on bilerp.
-    if (filterMode && GrSamplerParams::kBilerp_FilterMode == *filterMode &&
+    if (filterMode && GrSamplerState::Filter::kBilerp == *filterMode &&
         GrTextureAdjuster::kYes_FilterConstraint == constraintMode && coordsAllInsideSrcRect) {
         SkMatrix combinedMatrix;
         combinedMatrix.setConcat(viewMatrix, srcToDstMatrix);

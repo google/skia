@@ -2879,17 +2879,17 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSw
     }
 }
 
-static inline GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
-    static const GrGLenum gWrapModes[] = {
-        GR_GL_CLAMP_TO_EDGE,
-        GR_GL_REPEAT,
-        GR_GL_MIRRORED_REPEAT
+static inline GrGLenum wrap_mode_to_gl_wrap(GrSamplerState::WrapMode wrapMode) {
+    switch (wrapMode) {
+        case GrSamplerState::WrapMode::kClamp:
+            return GR_GL_CLAMP_TO_EDGE;
+        case GrSamplerState::WrapMode::kRepeat:
+            return GR_GL_REPEAT;
+        case GrSamplerState::WrapMode::kMirrorRepeat:
+            return GR_GL_MIRRORED_REPEAT;
     };
-    GR_STATIC_ASSERT(SkShader::kTileModeCount == SK_ARRAY_COUNT(gWrapModes));
-    GR_STATIC_ASSERT(0 == SkShader::kClamp_TileMode);
-    GR_STATIC_ASSERT(1 == SkShader::kRepeat_TileMode);
-    GR_STATIC_ASSERT(2 == SkShader::kMirror_TileMode);
-    return gWrapModes[tm];
+    SK_ABORT("Unknown wrap mode");
+    return 0;
 }
 
 static GrGLenum get_component_enum_from_char(char component) {
@@ -2919,15 +2919,39 @@ static void get_tex_param_swizzle(GrPixelConfig config,
     }
 }
 
-void GrGLGpu::bindTexture(int unitIdx, const GrSamplerParams& params, bool allowSRGBInputs,
+static GrGLenum filter_to_gl_mag_filter(GrSamplerState::Filter filter) {
+    switch (filter) {
+        case GrSamplerState::Filter::kNearest:
+            return GR_GL_NEAREST;
+        case GrSamplerState::Filter::kBilerp:
+            return GR_GL_LINEAR;
+        case GrSamplerState::Filter::kMipMap:
+            return GR_GL_LINEAR;
+    }
+    SK_ABORT("Unknown filter");
+    return 0;
+}
+
+static GrGLenum filter_to_gl_min_filter(GrSamplerState::Filter filter) {
+    switch (filter) {
+        case GrSamplerState::Filter::kNearest:
+            return GR_GL_NEAREST;
+        case GrSamplerState::Filter::kBilerp:
+            return GR_GL_LINEAR;
+        case GrSamplerState::Filter::kMipMap:
+            return GR_GL_LINEAR_MIPMAP_LINEAR;
+    }
+    SK_ABORT("Unknown filter");
+    return 0;
+}
+
+void GrGLGpu::bindTexture(int unitIdx, const GrSamplerState& samplerState, bool allowSRGBInputs,
                           GrGLTexture* texture, GrSurfaceOrigin textureOrigin) {
     SkASSERT(texture);
 
 #ifdef SK_DEBUG
     if (!this->caps()->npotTextureTileSupport()) {
-        const bool tileX = SkShader::kClamp_TileMode != params.getTileModeX();
-        const bool tileY = SkShader::kClamp_TileMode != params.getTileModeY();
-        if (tileX || tileY) {
+        if (samplerState.isRepeated()) {
             const int w = texture->width();
             const int h = texture->height();
             SkASSERT(SkIsPow2(w) && SkIsPow2(h));
@@ -2956,26 +2980,16 @@ void GrGLGpu::bindTexture(int unitIdx, const GrSamplerParams& params, bool allow
     bool setAll = timestamp < this->getResetTimestamp();
     GrGLTexture::TexParams newTexParams;
 
-    static GrGLenum glMinFilterModes[] = {
-        GR_GL_NEAREST,
-        GR_GL_LINEAR,
-        GR_GL_LINEAR_MIPMAP_LINEAR
-    };
-    static GrGLenum glMagFilterModes[] = {
-        GR_GL_NEAREST,
-        GR_GL_LINEAR,
-        GR_GL_LINEAR
-    };
-    GrSamplerParams::FilterMode filterMode = params.filterMode();
+    GrSamplerState::Filter filterMode = samplerState.filter();
 
-    if (GrSamplerParams::kMipMap_FilterMode == filterMode) {
+    if (GrSamplerState::Filter::kMipMap == filterMode) {
         if (!this->caps()->mipMapSupport()) {
-            filterMode = GrSamplerParams::kBilerp_FilterMode;
+            filterMode = GrSamplerState::Filter::kBilerp;
         }
     }
 
-    newTexParams.fMinFilter = glMinFilterModes[filterMode];
-    newTexParams.fMagFilter = glMagFilterModes[filterMode];
+    newTexParams.fMinFilter = filter_to_gl_min_filter(filterMode);
+    newTexParams.fMagFilter = filter_to_gl_mag_filter(filterMode);
 
     if (this->glCaps().srgbDecodeDisableSupport() && GrPixelConfigIsSRGB(texture->config())) {
         newTexParams.fSRGBDecode = allowSRGBInputs ? GR_GL_DECODE_EXT : GR_GL_SKIP_DECODE_EXT;
@@ -2987,7 +3001,7 @@ void GrGLGpu::bindTexture(int unitIdx, const GrSamplerParams& params, bool allow
 
 #ifdef SK_DEBUG
     // We were supposed to ensure MipMaps were up-to-date and built correctly before getting here.
-    if (GrSamplerParams::kMipMap_FilterMode == filterMode) {
+    if (GrSamplerState::Filter::kMipMap == filterMode) {
         SkASSERT(!texture->texturePriv().mipMapsAreDirty());
         if (GrPixelConfigIsSRGB(texture->config())) {
             SkDestinationSurfaceColorMode colorMode = allowSRGBInputs
@@ -3000,8 +3014,8 @@ void GrGLGpu::bindTexture(int unitIdx, const GrSamplerParams& params, bool allow
 
     newTexParams.fMaxMipMapLevel = texture->texturePriv().maxMipMapLevel();
 
-    newTexParams.fWrapS = tile_to_gl_wrap(params.getTileModeX());
-    newTexParams.fWrapT = tile_to_gl_wrap(params.getTileModeY());
+    newTexParams.fWrapS = wrap_mode_to_gl_wrap(samplerState.wrapModeX());
+    newTexParams.fWrapT = wrap_mode_to_gl_wrap(samplerState.wrapModeY());
     get_tex_param_swizzle(texture->config(), this->glCaps(), newTexParams.fSwizzleRGBA);
     if (setAll || newTexParams.fMagFilter != oldTexParams.fMagFilter) {
         this->setTextureUnit(unitIdx);
@@ -3107,20 +3121,20 @@ void GrGLGpu::bindImageStorage(int unitIdx, GrIOType ioType, GrGLTexture *textur
     }
 }
 
-void GrGLGpu::generateMipmaps(const GrSamplerParams& params, bool allowSRGBInputs,
+void GrGLGpu::generateMipmaps(const GrSamplerState& params, bool allowSRGBInputs,
                               GrGLTexture* texture, GrSurfaceOrigin textureOrigin) {
     SkASSERT(texture);
 
     // First, figure out if we need mips for this texture at all:
-    GrSamplerParams::FilterMode filterMode = params.filterMode();
+    GrSamplerState::Filter filterMode = params.filter();
 
-    if (GrSamplerParams::kMipMap_FilterMode == filterMode) {
+    if (GrSamplerState::Filter::kMipMap == filterMode) {
         if (!this->caps()->mipMapSupport()) {
-            filterMode = GrSamplerParams::kBilerp_FilterMode;
+            filterMode = GrSamplerState::Filter::kBilerp;
         }
     }
 
-    if (GrSamplerParams::kMipMap_FilterMode != filterMode) {
+    if (GrSamplerState::Filter::kMipMap != filterMode) {
         return;
     }
 
@@ -3841,8 +3855,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     int w = srcRect.width();
     int h = srcRect.height();
 
-    GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
-    this->bindTexture(0, params, true, srcTex, srcOrigin);
+    this->bindTexture(0, GrSamplerState::ClampNearest(), true, srcTex, srcOrigin);
 
     GrGLIRect dstVP;
     this->bindSurfaceFBOForPixelOps(dst, GR_GL_FRAMEBUFFER, &dstVP, kDst_TempFBOTarget);
@@ -4067,8 +4080,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
     // Bind the texture, to get things configured for filtering.
     // We'll be changing our base level further below:
     this->setTextureUnit(0);
-    GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
-    this->bindTexture(0, params, gammaCorrect, texture, textureOrigin);
+    this->bindTexture(0, GrSamplerState::ClampBilerp(), gammaCorrect, texture, textureOrigin);
 
     // Vertex data:
     if (!fMipmapProgramArrayBuffer) {
@@ -4297,7 +4309,7 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
 }
 
 bool GrGLGpu::onIsACopyNeededForTextureParams(GrTextureProxy* proxy,
-                                              const GrSamplerParams& textureParams,
+                                              const GrSamplerState& textureParams,
                                               GrTextureProducer::CopyParams* copyParams,
                                               SkScalar scaleAdjust[2]) const {
     const GrTexture* texture = proxy->priv().peekTexture();
@@ -4307,12 +4319,11 @@ bool GrGLGpu::onIsACopyNeededForTextureParams(GrTextureProxy* proxy,
         return false;
     }
 
-    if (textureParams.isTiled() ||
-        GrSamplerParams::kMipMap_FilterMode == textureParams.filterMode()) {
+    if (textureParams.isRepeated() || GrSamplerState::Filter::kMipMap == textureParams.filter()) {
         const GrGLTexture* glTexture = static_cast<const GrGLTexture*>(texture);
         if (GR_GL_TEXTURE_EXTERNAL == glTexture->target() ||
             GR_GL_TEXTURE_RECTANGLE == glTexture->target()) {
-            copyParams->fFilter = GrSamplerParams::kNone_FilterMode;
+            copyParams->fFilter = GrSamplerState::Filter::kNearest;
             copyParams->fWidth = texture->width();
             copyParams->fHeight = texture->height();
             return true;
