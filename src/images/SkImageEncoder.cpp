@@ -40,6 +40,7 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
             case SkEncodedImageFormat::kJPEG: {
                 SkJpegEncoder::Options opts;
                 opts.fQuality = quality;
+                opts.fBlendBehavior = SkTransferFunctionBehavior::kIgnore;
                 return SkJpegEncoder::Encode(dst, src, opts);
             }
             case SkEncodedImageFormat::kPNG: {
