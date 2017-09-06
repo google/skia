@@ -518,6 +518,7 @@ skia_core_sources = [
 
 skia_core_sources += [
   "$_src/jumper/SkJumper.cpp",
+  "$_src/jumper/SkJumper_hybrid.cpp",
   "$_src/jumper/SkJumper_stages.cpp",
   "$_src/jumper/SkJumper_stages_8bit.cpp",
 ]
