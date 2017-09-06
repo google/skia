@@ -89,23 +89,28 @@ public:
                     SkIPoint16* loc);
 
     GrContext* context() const { return fContext; }
-    sk_sp<GrTextureProxy> getProxy() const { return fProxy; }
+    sk_sp<GrTextureProxy> getProxy(int page) const { return fPages[page].fProxy; }
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
     inline bool hasID(AtlasID id) {
-        uint32_t index = GetIndexFromID(id);
+        uint32_t index = GetPlotIndexFromID(id);
         SkASSERT(index < fNumPlots);
-        return fPlotArray[index]->genID() == GetGenerationFromID(id);
+        uint32_t page = GetPageIndexFromID(id);
+        SkASSERT(page < fNumPages);
+        return fPages[page].fPlotArray[index]->genID() == GetGenerationFromID(id);
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
     inline void setLastUseToken(AtlasID id, GrDrawOpUploadToken token) {
         SkASSERT(this->hasID(id));
-        uint32_t index = GetIndexFromID(id);
+        uint32_t index = GetPlotIndexFromID(id);
         SkASSERT(index < fNumPlots);
-        this->makeMRU(fPlotArray[index].get());
-        fPlotArray[index]->setLastUseToken(token);
+        uint32_t page = GetPageIndexFromID(id);
+        SkASSERT(page < fNumPages);
+        //*** this seems awkward
+        this->makeMRU(fPages[page].fPlotArray[index].get(), page);
+        fPages[page].fPlotArray[index]->setLastUseToken(token);
     }
 
     inline void registerEvictionCallback(EvictionFunc func, void* userData) {
@@ -128,9 +133,10 @@ public:
         }
 
         void add(AtlasID id) {
-            int index = GrDrawOpAtlas::GetIndexFromID(id);
-            if (!this->find(index)) {
-                this->set(index);
+            int index = GrDrawOpAtlas::GetPlotIndexFromID(id);
+            int pageIdx = GrDrawOpAtlas::GetPageIndexFromID(id);
+            if (!this->find(pageIdx, index)) {
+                this->set(pageIdx, index);
             }
         }
 
@@ -140,21 +146,22 @@ public:
         }
 
     private:
-        bool find(int index) const {
+        bool find(int pageIdx, int index) const {
             SkASSERT(index < kMaxPlots);
-            return (fPlotAlreadyUpdated >> index) & 1;
+            return (fPlotAlreadyUpdated[pageIdx] >> index) & 1;
         }
 
-        void set(int index) {
-            SkASSERT(!this->find(index));
-            fPlotAlreadyUpdated = fPlotAlreadyUpdated | (1 << index);
+        void set(int pageIdx, int index) {
+            SkASSERT(!this->find(pageIdx, index));
+            fPlotAlreadyUpdated[pageIdx] = fPlotAlreadyUpdated[pageIdx] | (1 << index);
             fPlotsToUpdate.push_back(index);
         }
 
-        static const int kMinItems = 4;
-        static const int kMaxPlots = 32;
+        static constexpr int kMinItems = 4;
+        static constexpr int kMaxPlots = 32;
+        static constexpr int kMaxPages = 4;
         SkSTArray<kMinItems, int, true> fPlotsToUpdate;
-        uint32_t fPlotAlreadyUpdated;
+        uint32_t fPlotAlreadyUpdated[kMaxPages];
 
         friend class GrDrawOpAtlas;
     };
@@ -263,8 +270,12 @@ private:
 
     typedef SkTInternalLList<Plot> PlotList;
 
-    static uint32_t GetIndexFromID(AtlasID id) {
-        return id & 0xffff;
+    static uint32_t GetPlotIndexFromID(AtlasID id) {
+        return id & 0xff;
+    }
+
+    static uint32_t GetPageIndexFromID(AtlasID id) {
+        return (id >> 8) & 0xff;
     }
 
     // top 48 bits are reserved for the generation ID
@@ -274,19 +285,20 @@ private:
 
     inline bool updatePlot(GrDrawOp::Target*, AtlasID*, Plot*);
 
-    inline void makeMRU(Plot* plot) {
-        if (fPlotList.head() == plot) {
+    inline void makeMRU(Plot* plot, int page) {
+        if (fPages[page].fPlotList.head() == plot) {
             return;
         }
 
-        fPlotList.remove(plot);
-        fPlotList.addToHead(plot);
+        fPages[page].fPlotList.remove(plot);
+        fPages[page].fPlotList.addToHead(plot);
+
+        //*** make page MRU
     }
 
     inline void processEviction(AtlasID);
 
     GrContext*            fContext;
-    sk_sp<GrTextureProxy> fProxy;
     GrPixelConfig         fPixelConfig;
     int                   fTextureWidth;
     int                   fTextureHeight;
@@ -302,10 +314,17 @@ private:
     };
 
     SkTDArray<EvictionData> fEvictionCallbacks;
-    // allocated array of Plots
-    std::unique_ptr<sk_sp<Plot>[]> fPlotArray;
-    // LRU list of Plots (MRU at head - LRU at tail)
-    PlotList fPlotList;
+
+    struct Page {
+        sk_sp<GrTextureProxy> fProxy;
+        // allocated array of Plots
+        std::unique_ptr<sk_sp<Plot>[]> fPlotArray;
+        // LRU list of Plots (MRU at head - LRU at tail)
+        PlotList fPlotList;
+    };
+    static constexpr auto kMaxPages = 4;
+    Page fPages[kMaxPages];
+    int fNumPages;
 };
 
 #endif
