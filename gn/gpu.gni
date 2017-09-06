@@ -22,7 +22,7 @@ skia_gpu_sources = [
   "$_include/gpu/GrShaderCaps.h",
   "$_include/gpu/GrSurface.h",
   "$_include/gpu/GrTexture.h",
-  "$_include/gpu/GrSamplerParams.h",
+  "$_include/gpu/GrSamplerState.h",
   "$_include/gpu/GrTypes.h",
 
   "$_include/gpu/gl/GrGLAssembleInterface.h",

@@ -1412,8 +1412,8 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
     m.setTranslateY(-localMatrix.getTranslateY() + SK_Scalar1);
 
     if (fType == kImprovedNoise_Type) {
-        GrSamplerParams textureParams(SkShader::TileMode::kRepeat_TileMode,
-                                      GrSamplerParams::FilterMode::kNone_FilterMode);
+        GrSamplerState textureParams(GrSamplerState::WrapMode::kRepeat,
+                                     GrSamplerState::Filter::kNearest);
         sk_sp<GrTextureProxy> permutationsTexture(
             GrRefCachedBitmapTextureProxy(args.fContext,
                                           paintingData->getImprovedPermutationsBitmap(),

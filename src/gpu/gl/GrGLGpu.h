@@ -59,15 +59,15 @@ public:
     }
 
     // Used by GrGLProgram to configure OpenGL state.
-    void bindTexture(int unitIdx, const GrSamplerParams& params, bool allowSRGBInputs,
+    void bindTexture(int unitIdx, const GrSamplerState& samplerState, bool allowSRGBInputs,
                      GrGLTexture* texture, GrSurfaceOrigin textureOrigin);
 
     void bindTexelBuffer(int unitIdx, GrPixelConfig, GrGLBuffer*);
 
     void bindImageStorage(int unitIdx, GrIOType, GrGLTexture *);
 
-    void generateMipmaps(const GrSamplerParams& params, bool allowSRGBInputs,
-                         GrGLTexture* texture, GrSurfaceOrigin textureOrigin);
+    void generateMipmaps(const GrSamplerState& params, bool allowSRGBInputs, GrGLTexture* texture,
+                         GrSurfaceOrigin textureOrigin);
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                              int readWidth, int readHeight, size_t rowBytes,
@@ -226,7 +226,7 @@ private:
                            bool renderTarget, GrGLTexture::TexParams* initialTexParams,
                            const GrMipLevel texels[], int mipLevelCount);
 
-    bool onIsACopyNeededForTextureParams(GrTextureProxy*, const GrSamplerParams&,
+    bool onIsACopyNeededForTextureParams(GrTextureProxy*, const GrSamplerState&,
                                          GrTextureProducer::CopyParams*,
                                          SkScalar scaleAdjust[2]) const override;
 

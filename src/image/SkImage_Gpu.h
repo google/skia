@@ -40,7 +40,7 @@ public:
     sk_sp<GrTextureProxy> asTextureProxyRef() const override {
         return fProxy;
     }
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerParams&, SkColorSpace*,
+    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerState&, SkColorSpace*,
                                             sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
 

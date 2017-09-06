@@ -236,21 +236,21 @@ private:
 GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
                                                            const SkMatrix& viewMatrix,
                                                            sk_sp<GrTextureProxy> proxy,
-                                                           const GrSamplerParams& params,
+                                                           const GrSamplerState& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                                            float distanceAdjust,
 #endif
                                                            uint32_t flags,
                                                            bool usesLocalCoords)
-    : fColor(color)
-    , fViewMatrix(viewMatrix)
-    , fTextureSampler(std::move(proxy), params)
+        : fColor(color)
+        , fViewMatrix(viewMatrix)
+        , fTextureSampler(std::move(proxy), params)
 #ifdef SK_GAMMA_APPLY_TO_A8
-    , fDistanceAdjust(distanceAdjust)
+        , fDistanceAdjust(distanceAdjust)
 #endif
-    , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
-    , fInColor(nullptr)
-    , fUsesLocalCoords(usesLocalCoords) {
+        , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
+        , fInColor(nullptr)
+        , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
     this->initClassID<GrDistanceFieldA8TextGeoProc>();
     fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
@@ -281,17 +281,10 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorT
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
 
-    static const SkShader::TileMode kTileModes[] = {
-        SkShader::kClamp_TileMode,
-        SkShader::kRepeat_TileMode,
-        SkShader::kMirror_TileMode,
-    };
-    SkShader::TileMode tileModes[] = {
-        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-    };
-    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
-                                                             : GrSamplerParams::kNone_FilterMode);
+    GrSamplerState::WrapMode wrapModes[2];
+    GrTest::TestWrapModes(d->fRandom, wrapModes);
+    GrSamplerState params(wrapModes, d->fRandom->nextBool() ? GrSamplerState::Filter::kBilerp
+                                                            : GrSamplerState::Filter::kNearest);
 
     uint32_t flags = 0;
     flags |= d->fRandom->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0;
@@ -495,7 +488,7 @@ private:
 GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(GrColor color,
                                                        const SkMatrix& viewMatrix,
                                                        sk_sp<GrTextureProxy> proxy,
-                                                       const GrSamplerParams& params,
+                                                       const GrSamplerState& params,
                                                        uint32_t flags,
                                                        bool usesLocalCoords)
         : fColor(color)
@@ -534,17 +527,10 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTes
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
 
-    static const SkShader::TileMode kTileModes[] = {
-        SkShader::kClamp_TileMode,
-        SkShader::kRepeat_TileMode,
-        SkShader::kMirror_TileMode,
-    };
-    SkShader::TileMode tileModes[] = {
-        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-    };
-    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
-                                                             : GrSamplerParams::kNone_FilterMode);
+    GrSamplerState::WrapMode wrapModes[2];
+    GrTest::TestWrapModes(d->fRandom, wrapModes);
+    GrSamplerState params(wrapModes, d->fRandom->nextBool() ? GrSamplerState::Filter::kBilerp
+                                                            : GrSamplerState::Filter::kNearest);
 
     uint32_t flags = 0;
     flags |= d->fRandom->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0;
@@ -806,18 +792,18 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
-                                                  GrColor color, const SkMatrix& viewMatrix,
-                                                  sk_sp<GrTextureProxy> proxy,
-                                                  const GrSamplerParams& params,
-                                                  DistanceAdjust distanceAdjust,
-                                                  uint32_t flags, bool usesLocalCoords)
-    : fColor(color)
-    , fViewMatrix(viewMatrix)
-    , fTextureSampler(std::move(proxy), params)
-    , fDistanceAdjust(distanceAdjust)
-    , fFlags(flags & kLCD_DistanceFieldEffectMask)
-    , fUsesLocalCoords(usesLocalCoords) {
+GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(GrColor color,
+                                                             const SkMatrix& viewMatrix,
+                                                             sk_sp<GrTextureProxy> proxy,
+                                                             const GrSamplerState& params,
+                                                             DistanceAdjust distanceAdjust,
+                                                             uint32_t flags, bool usesLocalCoords)
+        : fColor(color)
+        , fViewMatrix(viewMatrix)
+        , fTextureSampler(std::move(proxy), params)
+        , fDistanceAdjust(distanceAdjust)
+        , fFlags(flags & kLCD_DistanceFieldEffectMask)
+        , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
     this->initClassID<GrDistanceFieldLCDTextGeoProc>();
     fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
@@ -847,17 +833,10 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessor
                                           GrProcessorUnitTest::kAlphaTextureIdx;
     sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
 
-    static const SkShader::TileMode kTileModes[] = {
-        SkShader::kClamp_TileMode,
-        SkShader::kRepeat_TileMode,
-        SkShader::kMirror_TileMode,
-    };
-    SkShader::TileMode tileModes[] = {
-        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-    };
-    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
-                                                             : GrSamplerParams::kNone_FilterMode);
+    GrSamplerState::WrapMode wrapModes[2];
+    GrTest::TestWrapModes(d->fRandom, wrapModes);
+    GrSamplerState params(wrapModes, d->fRandom->nextBool() ? GrSamplerState::Filter::kBilerp
+                                                            : GrSamplerState::Filter::kNearest);
     DistanceAdjust wa = { 0.0f, 0.1f, -0.1f };
     uint32_t flags = kUseLCD_DistanceFieldEffectFlag;
     flags |= d->fRandom->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0;

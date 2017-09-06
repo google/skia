@@ -106,6 +106,15 @@ const SkMatrix& TestMatrixRectStaysRect(SkRandom* random) {
 const SkMatrix& TestMatrixInvertible(SkRandom* random) { return test_matrix(random, true, false); }
 const SkMatrix& TestMatrixPerspective(SkRandom* random) { return test_matrix(random, false, true); }
 
+void TestWrapModes(SkRandom* random, GrSamplerState::WrapMode wrapModes[2]) {
+    static const GrSamplerState::WrapMode kWrapModes[] = {
+            GrSamplerState::WrapMode::kClamp,
+            GrSamplerState::WrapMode::kRepeat,
+            GrSamplerState::WrapMode::kMirrorRepeat,
+    };
+    wrapModes[0] = kWrapModes[random->nextULessThan(SK_ARRAY_COUNT(kWrapModes))];
+    wrapModes[1] = kWrapModes[random->nextULessThan(SK_ARRAY_COUNT(kWrapModes))];
+}
 const SkRect& TestRect(SkRandom* random) {
     static SkRect gRects[7];
     static bool gOnce;
