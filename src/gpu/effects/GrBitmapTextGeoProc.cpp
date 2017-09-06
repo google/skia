@@ -36,12 +36,21 @@ public:
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
 
+        vertBuilder->codeAppendf("int2 coordIndex = int2(int(%s.x), int(%s.y));",
+                                 btgp.inTextureCoords()->fName,
+                                 btgp.inTextureCoords()->fName);
+        vertBuilder->codeAppend("int2 intCoords = int2(coordIndex.x/2, coordIndex.y/2);");
+        vertBuilder->codeAppend("int2 diff = coordIndex - intCoords*int2(2,2);");
+        vertBuilder->codeAppend("int index = 2*diff.x + diff.y;");
+
         GrGLSLVertToFrag v(kVec2f_GrSLType);
         varyingHandler->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = float2(%s.x, %s.y) * %s;", v.vsOut(),
-                                 btgp.inTextureCoords()->fName,
-                                 btgp.inTextureCoords()->fName,
+        vertBuilder->codeAppendf("%s = float2(intCoords.x, intCoords.y) * %s;", v.vsOut(),
                                  atlasSizeInvName);
+
+        GrGLSLVertToFrag index(kFloat_GrSLType);
+        varyingHandler->addVarying("Index", &index);
+        vertBuilder->codeAppendf("%s = float(index);", index.vsOut());
 
         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color
@@ -64,18 +73,28 @@ public:
                              btgp.localMatrix(),
                              args.fFPCoordTransformHandler);
 
-        if (btgp.maskFormat() == kARGB_GrMaskFormat) {
-            fragBuilder->codeAppendf("%s = ", args.fOutputColor);
-            fragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
-                                                        args.fTexSamplers[0],
-                                                        v.fsIn(),
-                                                        kVec2f_GrSLType);
-            fragBuilder->codeAppend(";");
-            fragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
+        fragBuilder->codeAppend("float4 texColor;");
+        if (btgp.numTextureSamplers() > 1) {
+            fragBuilder->codeAppendf("int index = int(%s);", index.fsIn());
+            args.fFragBuilder->codeAppend("switch (index) {");
+            for (int i = 0; i < btgp.numTextureSamplers(); ++i) {
+                args.fFragBuilder->codeAppendf("case %d: texColor = ", i, args.fOutputColor);
+                fragBuilder->appendTextureLookup(args.fTexSamplers[i], v.fsIn(), kVec2f_GrSLType);
+                args.fFragBuilder->codeAppend("; break;");
+            }
+            args.fFragBuilder->codeAppend("}");
         } else {
-            fragBuilder->codeAppendf("%s = ", args.fOutputCoverage);
+            fragBuilder->codeAppend("texColor = ");
             fragBuilder->appendTextureLookup(args.fTexSamplers[0], v.fsIn(), kVec2f_GrSLType);
             fragBuilder->codeAppend(";");
+        }
+
+        if (btgp.maskFormat() == kARGB_GrMaskFormat) {
+            // modulate by color
+            fragBuilder->codeAppendf("%s = %s * texColor;", args.fOutputColor, args.fOutputColor);
+            fragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
+        } else {
+            fragBuilder->codeAppendf("%s = texColor;", args.fOutputCoverage);
         }
     }
 
@@ -89,7 +108,7 @@ public:
             fColor = btgp.color();
         }
 
-        SkASSERT(btgp.numTextureSamplers() == 1);
+        SkASSERT(btgp.numTextureSamplers() >= 1);
         GrTexture* atlas = btgp.textureSampler(0).peekTexture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
@@ -108,6 +127,7 @@ public:
         key |= (btgp.usesLocalCoords() && btgp.localMatrix().hasPerspective()) ? 0x1 : 0x0;
         key |= btgp.maskFormat() << 1;
         b->add32(key);
+        b->add32(btgp.numTextureSamplers());
     }
 
 private:
