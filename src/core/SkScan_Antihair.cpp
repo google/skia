@@ -1002,3 +1002,36 @@ void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
         AntiFrameRect(r, strokeSize, &wrap.getRgn(), wrap.getBlitter());
     }
 }
+
+void SkScan::AntiHairQuad(const SkPoint pts[3], SkBlitter* blitter) {
+    float top = sk_float_floor(pts[0].fY + 0.5) + 0.5;
+    float bot = sk_float_floor(pts[2].fY + 0.5);
+
+    float Ax = pts[0].fX - 2*pts[1].fX + pts[2].fX;
+    float Bx = 2*(pts[1].fX - pts[0].fX);
+    float Cx = pts[0].fX;
+
+    float Ay = pts[0].fY - 2*pts[1].fY + pts[2].fY;
+    float By = 2*(pts[1].fY - pts[0].fY);
+    float Cy = pts[0].fY;
+
+    //      [-B +- sqrt(B^2 - 4AC + 4AY)] / 2A
+
+    float rad = By * By - 4 * Ay * (Cy - top);
+    float drad = 4 * Ay;
+    float inv = 1 / (2*Ay);
+    float negB = -By * inv;
+    while (top < bot) {
+        float root = sk_float_sqrt(rad) * inv;
+        float t0 = negB + root;
+        float t1 = negB - root;
+        float t = (t0 < 0 || t0 > 1) ? t1 : t0;
+        SkASSERT(t >= 0 && t <= 1);
+        float x = (Ax * t + Bx) * t + Cx;
+
+        blitter->blitH((int)(x + 0.5), (int)top, 1);
+
+        top += 1;
+        rad += drad;
+    }
+}

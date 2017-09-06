@@ -11,6 +11,29 @@
 #include "SkPath.h"
 #include "SkMakeUnique.h"
 
+extern bool gUseEvalForQuadHair;
+
+static void test_aaquad(SkCanvas* canvas) {
+    const SkPoint pts[] = {
+        { 10, 10 }, { 500, 500 }, { 300, 800 },
+    };
+
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+
+    SkPath path, path2;
+    path.moveTo(pts[0]); path.quadTo(pts[1], pts[2]);
+    path.offset(20, 0, &path2);
+
+    for (int n = 0; n < 1000; ++n) {
+        gUseEvalForQuadHair = true;
+        canvas->drawPath(path, paint);
+
+        gUseEvalForQuadHair = false;
+        canvas->drawPath(path2, paint);
+    }
+}
+
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
@@ -141,6 +164,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        test_aaquad(canvas); return;
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 

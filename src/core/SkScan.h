@@ -72,6 +72,8 @@ public:
     // Needed by do_fill_path in SkScanPriv.h
     static void FillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
 
+    static void AntiHairQuad(const SkPoint pts[3], SkBlitter* blitter);
+
 private:
     friend class SkAAClip;
     friend class SkRegion;

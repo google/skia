@@ -12,6 +12,8 @@
 #include "SkFDot6.h"
 #include "SkLineClipper.h"
 
+bool gUseEvalForQuadHair;
+
 static void horiline(int x, int stopx, SkFixed fy, SkFixed dy,
                      SkBlitter* blitter) {
     SkASSERT(x < stopx);
@@ -555,7 +557,11 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
                 if (SkPaint::kButt_Cap != capStyle) {
                     extend_pts<capStyle>(prevVerb, iter.peek(), pts, 3);
                 }
-                hairquad(pts, clip, insetClip, outsetClip, blitter, compute_quad_level(pts), lineproc);
+                if (gUseEvalForQuadHair) {
+                    SkScan::AntiHairQuad(pts, blitter);
+                } else {
+                    hairquad(pts, clip, insetClip, outsetClip, blitter, compute_quad_level(pts), lineproc);
+                }
                 lastPt = pts[2];
                 break;
             case SkPath::kConic_Verb: {
