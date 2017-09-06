@@ -196,14 +196,16 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    GrSurfaceDesc copyDesc = desc;
+    if (auto tex = this->refScratchTexture(desc, flags)) {
+        return tex;
+    }
 
+    GrSurfaceDesc copyDesc = desc;
     // bin by pow2 with a reasonable min
     copyDesc.fWidth  = SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fWidth));
     copyDesc.fHeight = SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fHeight));
 
-    sk_sp<GrTexture> tex = this->refScratchTexture(copyDesc, flags);
-    if (tex) {
+    if (auto tex = this->refScratchTexture(copyDesc, flags)) {
         return tex;
     }
 
