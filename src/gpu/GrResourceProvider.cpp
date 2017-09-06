@@ -196,18 +196,21 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    GrSurfaceDesc copyDesc = desc;
+    sk_sp<GrTexture> tex = this->refScratchTexture(desc, flags);
 
-    // bin by pow2 with a reasonable min
-    copyDesc.fWidth  = SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fWidth));
-    copyDesc.fHeight = SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fHeight));
+    if (!tex) {
+        GrSurfaceDesc copyDesc = desc;
+        // bin by pow2 with a reasonable min
+        copyDesc.fWidth  = SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fWidth));
+        copyDesc.fHeight = SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fHeight));
 
-    sk_sp<GrTexture> tex = this->refScratchTexture(copyDesc, flags);
-    if (tex) {
-        return tex;
+        tex = this->refScratchTexture(copyDesc, flags);
+
+        if (!tex) {
+            tex = fGpu->createTexture(copyDesc, SkBudgeted::kYes);
+        }
     }
-
-    return fGpu->createTexture(copyDesc, SkBudgeted::kYes);
+    return tex;
 }
 
 sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc, uint32_t flags) {
