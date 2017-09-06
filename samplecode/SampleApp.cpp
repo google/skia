@@ -74,6 +74,7 @@ const struct {
     const char*         fName;
 } gConfig[] = {
     { kN32_SkColorType,      kLegacy_OutputColorSpace,  "L32" },
+    { kRGB_565_SkColorType,  kLegacy_OutputColorSpace,  "L565" },
     { kN32_SkColorType,      kSRGB_OutputColorSpace,    "S32" },
     { kRGBA_F16_SkColorType, kSRGB_OutputColorSpace,    "F16" },
     { kRGBA_F16_SkColorType, kNarrow_OutputColorSpace,  "F16 Narrow" },
