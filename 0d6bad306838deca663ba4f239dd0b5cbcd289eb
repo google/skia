@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "515e4d47_9ebed9bb",
+        "filename": "src/sksl/lex/DFA.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-06T13:45:35Z",
+      "side": 1,
+      "message": "Is this required? I only see built in and std:: types in use.",
+      "range": {
+        "startLine": 11,
+        "startChar": 10,
+        "endLine": 11,
+        "endChar": 18
+      },
+      "revId": "0d6bad306838deca663ba4f239dd0b5cbcd289eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "576bfaed_f2596868",
+        "filename": "src/sksl/lex/DFAState.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-06T13:45:35Z",
+      "side": 1,
+      "message": "there is operator\u003d\u003d(const std::vector\u0026, const std::vector\u0026).",
+      "revId": "0d6bad306838deca663ba4f239dd0b5cbcd289eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65792676_e9afc133",
+        "filename": "src/sksl/lex/LexUtil.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-06T13:45:35Z",
+      "side": 1,
+      "message": "fprintf(stderr,\n?",
+      "range": {
+        "startLine": 11,
+        "startChar": 20,
+        "endLine": 11,
+        "endChar": 27
+      },
+      "revId": "0d6bad306838deca663ba4f239dd0b5cbcd289eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "750b3e7e_b2675627",
+        "filename": "src/sksl/lex/Main.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-06T13:45:35Z",
+      "side": 1,
+      "message": "Is it worth checking to make sure there is no more input in split?",
+      "range": {
+        "startLine": 164,
+        "startChar": 8,
+        "endLine": 164,
+        "endChar": 52
+      },
+      "revId": "0d6bad306838deca663ba4f239dd0b5cbcd289eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f68354f_2b7fe408",
+        "filename": "src/sksl/lex/NFAState.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-06T13:45:35Z",
+      "side": 1,
+      "message": "This very well could be my ignorance of parsing/NFAs/etc but it\u0027s not obvious to me what all these mean (particularly dot, remapped, and table). Without reading ahead I\u0027m guessing dot is any char as in \".\" in a regex and table means it accepts any of a set of chars? Maybe could use brief comment about what the kinds are.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 19
+      },
+      "revId": "0d6bad306838deca663ba4f239dd0b5cbcd289eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
