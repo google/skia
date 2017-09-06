@@ -256,7 +256,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
 
     SkASSERT(SkIsPow2(scaleFactorX) && SkIsPow2(scaleFactorY));
 
-    // GrTextureDomainEffect does not support kRepeat_Mode with GrSamplerParams::FilterMode.
+    // GrTextureDomainEffect does not support kRepeat_Mode with GrSamplerState::Filter.
     GrTextureDomain::Mode modeForScaling =
             GrTextureDomain::kRepeat_Mode == mode ? GrTextureDomain::kDecal_Mode : mode;
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
@@ -284,14 +284,13 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                                   SkMatrix::I(),
                                                   domain,
                                                   modeForScaling,
-                                                  GrSamplerParams::kBilerp_FilterMode);
+                                                  GrSamplerState::Filter::kBilerp);
             paint.addColorFragmentProcessor(std::move(fp));
             srcRect.offset(-srcOffset);
             srcOffset.set(0, 0);
         } else {
-            GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
-            paint.addColorTextureProcessor(std::move(srcProxy),
-                                           nullptr, SkMatrix::I(), params);
+            paint.addColorTextureProcessor(std::move(srcProxy), nullptr, SkMatrix::I(),
+                                           GrSamplerState::ClampBilerp());
         }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -405,12 +404,12 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                                   SkMatrix::I(),
                                                   domain,
                                                   modeForScaling,
-                                                  GrSamplerParams::kBilerp_FilterMode);
+                                                  GrSamplerState::Filter::kBilerp);
             paint.addColorFragmentProcessor(std::move(fp));
         } else {
             // FIXME:  this should be mitchell, not bilinear.
-            GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
-            paint.addColorTextureProcessor(std::move(srcProxy), nullptr, SkMatrix::I(), params);
+            paint.addColorTextureProcessor(std::move(srcProxy), nullptr, SkMatrix::I(),
+                                           GrSamplerState::ClampBilerp());
         }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 

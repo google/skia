@@ -158,7 +158,7 @@ public:
                                                      const SkMatrix&,
                                                      const SkRect& domain,
                                                      GrTextureDomain::Mode,
-                                                     GrSamplerParams::FilterMode filterMode);
+                                                     GrSamplerState::Filter filterMode);
 
     const char* name() const override { return "TextureDomain"; }
 
@@ -186,7 +186,7 @@ private:
                           const SkMatrix&,
                           const SkRect& domain,
                           GrTextureDomain::Mode,
-                          GrSamplerParams::FilterMode);
+                          GrSamplerState::Filter);
 
     explicit GrTextureDomainEffect(const GrTextureDomainEffect&);
 

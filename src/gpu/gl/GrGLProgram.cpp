@@ -96,7 +96,7 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
 
     fXferProcessor->setData(fProgramDataManager, xp, dstTexture, offset);
     if (dstTexture) {
-        fGpu->bindTexture(nextTexSamplerIdx++, GrSamplerParams::ClampNoFilter(), true,
+        fGpu->bindTexture(nextTexSamplerIdx++, GrSamplerState::ClampNearest(), true,
                           static_cast<GrGLTexture*>(dstTexture),
                           pipeline.dstTextureProxy()->origin());
     }
@@ -172,8 +172,8 @@ void GrGLProgram::bindTextures(const GrResourceIOProcessor& processor,
                                int* nextImageStorageIdx) {
     for (int i = 0; i < processor.numTextureSamplers(); ++i) {
         const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(i);
-        fGpu->bindTexture((*nextTexSamplerIdx)++, sampler.params(),
-                          allowSRGBInputs, static_cast<GrGLTexture*>(sampler.peekTexture()),
+        fGpu->bindTexture((*nextTexSamplerIdx)++, sampler.samplerState(), allowSRGBInputs,
+                          static_cast<GrGLTexture*>(sampler.peekTexture()),
                           sampler.proxy()->origin());
     }
     for (int i = 0; i < processor.numBuffers(); ++i) {
@@ -191,7 +191,7 @@ void GrGLProgram::bindTextures(const GrResourceIOProcessor& processor,
 void GrGLProgram::generateMipmaps(const GrResourceIOProcessor& processor, bool allowSRGBInputs) {
     for (int i = 0; i < processor.numTextureSamplers(); ++i) {
         const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(i);
-        fGpu->generateMipmaps(sampler.params(), allowSRGBInputs,
+        fGpu->generateMipmaps(sampler.samplerState(), allowSRGBInputs,
                               static_cast<GrGLTexture*>(sampler.peekTexture()),
                               sampler.proxy()->origin());
     }
