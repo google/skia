@@ -1320,6 +1320,9 @@ int main(int argc, char** argv) {
     if (FLAGS_forceAnalyticAA) {
         gSkForceAnalyticAA = true;
     }
+    if (FLAGS_forceDeltaAA) {
+        gSkForceDeltaAA = true;
+    }
     if (FLAGS_forceRasterPipeline) {
         gSkForceRasterPipelineBlitter = true;
     }
