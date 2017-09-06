@@ -14,7 +14,7 @@
 #include "GrGpuResourceRef.h"
 #include "GrProcessorUnitTest.h"
 #include "GrProgramElement.h"
-#include "GrSamplerParams.h"
+#include "GrSamplerState.h"
 #include "GrShaderVar.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureProxy.h"
@@ -209,7 +209,7 @@ private:
 
 /**
  * Used to represent a texture that is required by a GrResourceIOProcessor. It holds a GrTexture
- * along with an associated GrSamplerParams. TextureSamplers don't perform any coord manipulation to
+ * along with an associated GrSamplerState. TextureSamplers don't perform any coord manipulation to
  * account for texture origin.
  */
 class GrResourceIOProcessor::TextureSampler {
@@ -225,29 +225,28 @@ public:
      */
     explicit TextureSampler(const TextureSampler& that)
             : fProxyRef(sk_ref_sp(that.fProxyRef.get()), that.fProxyRef.ioType())
-            , fParams(that.fParams)
+            , fSamplerState(that.fSamplerState)
             , fVisibility(that.fVisibility) {}
 
-    TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerParams&);
+    TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerState&);
 
     explicit TextureSampler(sk_sp<GrTextureProxy>,
-                            GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
-                            SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
+                            GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
+                            GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp,
                             GrShaderFlags visibility = kFragment_GrShaderFlag);
 
     TextureSampler& operator=(const TextureSampler&) = delete;
 
-    void reset(sk_sp<GrTextureProxy>, const GrSamplerParams&,
+    void reset(sk_sp<GrTextureProxy>, const GrSamplerState&,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
     void reset(sk_sp<GrTextureProxy>,
-               GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
-               SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
+               GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
+               GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
 
     bool operator==(const TextureSampler& that) const {
         return this->proxy()->underlyingUniqueID() == that.proxy()->underlyingUniqueID() &&
-               fParams == that.fParams &&
-               fVisibility == that.fVisibility;
+               fSamplerState == that.fSamplerState && fVisibility == that.fVisibility;
     }
 
     bool operator!=(const TextureSampler& other) const { return !(*this == other); }
@@ -265,7 +264,7 @@ public:
 
     GrTextureProxy* proxy() const { return fProxyRef.get()->asTextureProxy(); }
     GrShaderFlags visibility() const { return fVisibility; }
-    const GrSamplerParams& params() const { return fParams; }
+    const GrSamplerState& samplerState() const { return fSamplerState; }
 
     bool isInitialized() const { return SkToBool(fProxyRef.get()); }
     /**
@@ -274,9 +273,9 @@ public:
     const GrSurfaceProxyRef* programProxy() const { return &fProxyRef; }
 
 private:
-    GrSurfaceProxyRef               fProxyRef;
-    GrSamplerParams                 fParams;
-    GrShaderFlags                   fVisibility;
+    GrSurfaceProxyRef fProxyRef;
+    GrSamplerState fSamplerState;
+    GrShaderFlags fVisibility;
 };
 
 /**

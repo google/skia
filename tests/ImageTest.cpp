@@ -927,19 +927,19 @@ DEF_GPUTEST(SkImage_MakeCrossContextRelease, reporter, /*factory*/) {
             // Any context should be able to borrow the texture at this point
             sk_sp<SkColorSpace> texColorSpace;
             sk_sp<GrTextureProxy> proxy = as_IB(refImg)->asTextureProxyRef(
-                ctx, GrSamplerParams::ClampNoFilter(), nullptr, &texColorSpace, nullptr);
+                    ctx, GrSamplerState::ClampNearest(), nullptr, &texColorSpace, nullptr);
             REPORTER_ASSERT(reporter, proxy);
 
             // But once it's borrowed, no other context should be able to borrow
             otherTestContext->makeCurrent();
             sk_sp<GrTextureProxy> otherProxy = as_IB(refImg)->asTextureProxyRef(
-                otherCtx, GrSamplerParams::ClampNoFilter(), nullptr, &texColorSpace, nullptr);
+                    otherCtx, GrSamplerState::ClampNearest(), nullptr, &texColorSpace, nullptr);
             REPORTER_ASSERT(reporter, !otherProxy);
 
             // Original context (that's already borrowing) should be okay
             testContext->makeCurrent();
             sk_sp<GrTextureProxy> proxySecondRef = as_IB(refImg)->asTextureProxyRef(
-                ctx, GrSamplerParams::ClampNoFilter(), nullptr, &texColorSpace, nullptr);
+                    ctx, GrSamplerState::ClampNearest(), nullptr, &texColorSpace, nullptr);
             REPORTER_ASSERT(reporter, proxySecondRef);
 
             // Releae all refs from the original context
@@ -948,8 +948,8 @@ DEF_GPUTEST(SkImage_MakeCrossContextRelease, reporter, /*factory*/) {
 
             // Now we should be able to borrow the texture from the other context
             otherTestContext->makeCurrent();
-            otherProxy = as_IB(refImg)->asTextureProxyRef(
-                otherCtx, GrSamplerParams::ClampNoFilter(), nullptr, &texColorSpace, nullptr);
+            otherProxy = as_IB(refImg)->asTextureProxyRef(otherCtx, GrSamplerState::ClampNearest(),
+                                                          nullptr, &texColorSpace, nullptr);
             REPORTER_ASSERT(reporter, otherProxy);
 
             // Release everything
