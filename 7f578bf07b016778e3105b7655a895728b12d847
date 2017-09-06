@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f817889c_a67ec8e5",
+        "filename": "src/core/SkGeometry.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-06T14:25:48Z",
+      "side": 1,
+      "message": "this seems like its begging for either a static assert or just checking if its quad or LineOrPoint. Do we ever expect to add more enums? If not lets be explicit.",
+      "range": {
+        "startLine": 170,
+        "startChar": 4,
+        "endLine": 170,
+        "endChar": 43
+      },
+      "revId": "7f578bf07b016778e3105b7655a895728b12d847",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ef346a2_3072ce03",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-06T14:25:48Z",
+      "side": 1,
+      "message": "looks like you just make this non-debug so that you could use it in the sample code. Is it cleaner to just have the sample code define its own bloat size?",
+      "range": {
+        "startLine": 95,
+        "startChar": 27,
+        "endLine": 95,
+        "endChar": 44
+      },
+      "revId": "7f578bf07b016778e3105b7655a895728b12d847",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
