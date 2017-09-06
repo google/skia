@@ -457,8 +457,10 @@ int SkEdgeBuilder::build_edges(const SkPath& path, const SkIRect* shiftedClip,
     int count = this->build(path, builderClip, shiftEdgesUp, canCullToTheRight, edgeType);
     SkASSERT(count >= 0);
 
-    // canCullToRight == false should imply count != 1
-    SkASSERT(canCullToTheRight || count != 1);
+    // canCullToRight == false should imply count != 1 if edgeType != kBezier.
+    // If edgeType == kBezier (DAA), we don't chop edges at y extrema so count == 1 is valid.
+    // For example, a single cubic edge with a valley shape \_/ is fine for DAA.
+    SkASSERT(edgeType == kBezier || canCullToTheRight || count != 1);
 
     return count;
 }
