@@ -77,16 +77,16 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
     }
 }
 
-void GrPipeline::addDependenciesTo(GrOpList* opList, const GrCaps& caps) const {
+void GrPipeline::addDependenciesTo17(GrOpList* opList, const GrCaps& caps) const {
     for (int i = 0; i < fFragmentProcessors.count(); ++i) {
         GrFragmentProcessor::TextureAccessIter iter(fFragmentProcessors[i].get());
         while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
-            opList->addDependency(sampler->proxy(), caps);
+            opList->addDependency1(sampler->proxy(), caps);
         }
     }
 
     if (fDstTextureProxy) {
-        opList->addDependency(fDstTextureProxy.get(), caps);
+        opList->addDependency1(fDstTextureProxy.get(), caps);
     }
 
 }

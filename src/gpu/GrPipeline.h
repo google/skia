@@ -111,7 +111,7 @@ public:
     /// @name GrFragmentProcessors
 
     // Make the renderTargetContext's GrOpList be dependent on any GrOpLists in this pipeline
-    void addDependenciesTo(GrOpList* recipient, const GrCaps&) const;
+    void addDependenciesTo17(GrOpList* recipient, const GrCaps&) const;
 
     int numColorFragmentProcessors() const { return fNumColorProcessors; }
     int numCoverageFragmentProcessors() const {

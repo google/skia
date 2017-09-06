@@ -67,7 +67,7 @@ void GrOpList::prepare(GrOpFlushState* flushState) {
 }
 
 // Add a GrOpList-based dependency
-void GrOpList::addDependency(GrOpList* dependedOn) {
+void GrOpList::addDependency2(GrOpList* dependedOn) {
     SkASSERT(!dependedOn->dependsOn(this));  // loops are bad
 
     if (this->dependsOn(dependedOn)) {
@@ -78,7 +78,7 @@ void GrOpList::addDependency(GrOpList* dependedOn) {
 }
 
 // Convert from a GrSurface-based dependency to a GrOpList one
-void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
+void GrOpList::addDependency1(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
     if (dependedOn->getLastOpList()) {
         // If it is still receiving dependencies, this GrOpList shouldn't be closed
         SkASSERT(!this->isClosed());
@@ -87,7 +87,7 @@ void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
         if (opList == this) {
             // self-read - presumably for dst reads
         } else {
-            this->addDependency(opList);
+            this->addDependency2(opList);
 
             // Can't make it closed in the self-read case
             opList->makeClosed(caps);

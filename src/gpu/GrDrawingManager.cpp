@@ -117,6 +117,12 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 
             prevOpList = curOpList;
         }
+
+        for (int i = 0; i < fOpLists.count(); ++i) {
+            for (int j = 0; j < fOpLists[i]->numOps(); ++j) {
+
+            }
+        }
     }
 #endif
 

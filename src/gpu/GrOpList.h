@@ -72,7 +72,7 @@ public:
     /*
      * Notify this GrOpList that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps);
+    void addDependency1(GrSurfaceProxy* dependedOn, const GrCaps& caps);
 
     /*
      * Does this opList depend on 'dependedOn'?
@@ -87,7 +87,7 @@ public:
     virtual GrTextureOpList* asTextureOpList() { return nullptr; }
 
     /*
-     * Safely case this GrOpList to a GrRenderTargetOpList (if possible).
+     * Safely cast this GrOpList to a GrRenderTargetOpList (if possible).
      */
     virtual GrRenderTargetOpList* asRenderTargetOpList() { return nullptr; }
 
@@ -163,7 +163,7 @@ private:
     virtual void onPrepare(GrOpFlushState* flushState) = 0;
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 
-    void addDependency(GrOpList* dependedOn);
+    void addDependency2(GrOpList* dependedOn);
 
     uint32_t              fUniqueID;
     uint32_t              fFlags;
