@@ -9,6 +9,7 @@
 #include "Resources.h"
 #include "SkAndroidCodec.h"
 #include "SkAutoMalloc.h"
+#include "SkBase64.h"
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkColorSpace.h"
@@ -37,6 +38,7 @@
 #include "SkPictureData.h"
 #include "SkPictureRecorder.h"
 #include "SkPipe.h"
+#include "SkPngEncoder.h"
 #include "SkRandom.h"
 #include "SkRecordDraw.h"
 #include "SkRecorder.h"
@@ -1428,6 +1430,73 @@ Error NullSink::draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+static bool encode_png_base64(const SkBitmap& bitmap, SkString* dst) {
+    SkPixmap pm;
+    if (!bitmap.peekPixels(&pm)) {
+        dst->set("peekPixels failed");
+        return false;
+    }
+
+    // We're going to embed this PNG in a data URI, so make it as small as possible
+    SkPngEncoder::Options options;
+    options.fFilterFlags = SkPngEncoder::FilterFlag::kAll;
+    options.fZLibLevel = 9;
+    options.fUnpremulBehavior = pm.colorSpace() ? SkTransferFunctionBehavior::kRespect
+                                                : SkTransferFunctionBehavior::kIgnore;
+
+    SkDynamicMemoryWStream wStream;
+    if (!SkPngEncoder::Encode(&wStream, pm, options)) {
+        dst->set("SkPngEncoder::Encode failed");
+        return false;
+    }
+
+    sk_sp<SkData> pngData = wStream.detachAsData();
+    size_t len = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
+
+    // The PNG can be almost arbitrarily large. We don't want to fill our logs with enormous URLs.
+    // Infra says these can be pretty big, as long as we're only outputting them on failure.
+    static const size_t kMaxBase64Length = 1024 * 1024;
+    if (len > kMaxBase64Length) {
+        dst->printf("Encoded image too large (%u bytes)", static_cast<uint32_t>(len));
+        return false;
+    }
+
+    dst->resize(len);
+    SkBase64::Encode(pngData->data(), pngData->size(), dst->writable_str());
+    return true;
+}
+
+static Error compare_bitmaps(const SkBitmap& reference, const SkBitmap& bitmap) {
+    // The dimensions are a property of the Src only, and so should be identical.
+    SkASSERT(reference.getSize() == bitmap.getSize());
+    if (reference.getSize() != bitmap.getSize()) {
+        return "Dimensions don't match reference";
+    }
+    // All SkBitmaps in DM are tight, so this comparison is easy.
+    if (0 != memcmp(reference.getPixels(), bitmap.getPixels(), reference.getSize())) {
+        SkString encoded;
+        SkString errString("Pixels don't match reference");
+        if (encode_png_base64(reference, &encoded)) {
+            errString.append("\nExpected: data:image/png;base64,");
+            errString.append(encoded);
+        } else {
+            errString.append("\nExpected image failed to encode: ");
+            errString.append(encoded);
+        }
+        if (encode_png_base64(bitmap, &encoded)) {
+            errString.append("\nActual: data:image/png;base64,");
+            errString.append(encoded);
+        } else {
+            errString.append("\nActual image failed to encode: ");
+            errString.append(encoded);
+        }
+        return errString;
+    }
+    return "";
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 DEFINE_bool(gpuStats, false, "Append GPU stats to the log for each GPU task?");
 
 GPUSink::GPUSink(GrContextFactory::ContextType ct,
@@ -1547,16 +1616,7 @@ Error GPUThreadTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStre
         return refErr;
     }
 
-    // The dimensions are a property of the Src only, and so should be identical.
-    SkASSERT(reference.getSize() == dst->getSize());
-    if (reference.getSize() != dst->getSize()) {
-        return "Dimensions don't match reference";
-    }
-    // All SkBitmaps in DM are tight, so this comparison is easy.
-    if (0 != memcmp(reference.getPixels(), dst->getPixels(), reference.getSize())) {
-        return "Pixels don't match reference";
-    }
-    return "";
+    return compare_bitmaps(reference, *dst);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1746,15 +1806,7 @@ static Error check_against_reference(const SkBitmap* bitmap, const Src& src, Sin
         if (!err.isEmpty()) {
             return err;
         }
-        // The dimensions are a property of the Src only, and so should be identical.
-        SkASSERT(reference.getSize() == bitmap->getSize());
-        if (reference.getSize() != bitmap->getSize()) {
-            return "Dimensions don't match reference";
-        }
-        // All SkBitmaps in DM are tight, so this comparison is easy.
-        if (0 != memcmp(reference.getPixels(), bitmap->getPixels(), reference.getSize())) {
-            return "Pixels don't match reference";
-        }
+        return compare_bitmaps(reference, *bitmap);
     }
     return "";
 }
