@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "a92bd4c0_f21e0df7",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-06T20:33:14Z",
+      "side": 1,
+      "message": "// comment about pulling index out of uvs ?",
+      "revId": "b699e70c812662ca0d0dd5e76e3b8cd87e51c41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1e51a296_32bf27f2",
         "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
         "patchSetId": 3
@@ -19,6 +36,23 @@
         "endLine": 82,
         "endChar": 51
       },
+      "revId": "b699e70c812662ca0d0dd5e76e3b8cd87e51c41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4be381d9_06189b9f",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-06T20:33:14Z",
+      "side": 1,
+      "message": "// same here ?",
       "revId": "b699e70c812662ca0d0dd5e76e3b8cd87e51c41b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
