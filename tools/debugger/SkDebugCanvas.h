@@ -184,6 +184,10 @@ public:
         return SkIRect::MakeWH(this->imageInfo().width(), this->imageInfo().height());
     }
 
+    void detachCommands(SkTDArray<SkDrawCommand*>* dst) {
+        fCommandVector.swap(*dst);
+    }
+
 protected:
     void willSave() override;
 
@@ -266,7 +270,7 @@ private:
     SkTDArray<SkDrawCommand*> fActiveLayers;
 
     /**
-        Adds the command to the classes vector of commands.
+        Adds the command to the class' vector of commands.
         @param command  The draw command for execution
      */
     void addDrawCommand(SkDrawCommand* command);
