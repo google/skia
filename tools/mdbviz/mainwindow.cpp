@@ -9,11 +9,6 @@
 
 #include "MainWindow.h"
 
-#include "SkBitmap.h"
-#include "SkCanvas.h"
-#include "SkPicture.h"
-#include "SkStream.h"
-
 MainWindow::MainWindow() {
     this->createActions();
     this->createStatusBar();
@@ -35,16 +30,21 @@ void MainWindow::openFile() {
 void MainWindow::setupOpListWidget() {
     fOpListWidget->clear();
 
-    for (int i = 0; i < fDebugCanvas->getSize(); i++) {
+    for (int i = 0; i < fModel.numOps(); i++) {
         QListWidgetItem *item = new QListWidgetItem();
 
-        const SkDrawCommand* command = fDebugCanvas->getDrawCommandAt(i);
-
-        SkString commandString = command->toString();
-        item->setData(Qt::DisplayRole, commandString.c_str());
+        item->setData(Qt::DisplayRole, fModel.getOpName(i));
 
         fOpListWidget->addItem(item);
     }
+
+    fOpListWidget->setCurrentRow(fModel.numOps()-1);
+}
+
+void MainWindow::presentCurrentRenderState() {
+    fImage = QImage((uchar*)fModel.getPixels(), fModel.width(), fModel.height(),
+                    QImage::Format_RGBA8888);
+    fImageLabel->setPixmap(QPixmap::fromImage(fImage));
 }
 
 void MainWindow::loadFile(const QString &fileName) {
@@ -63,37 +63,14 @@ void MainWindow::loadFile(const QString &fileName) {
 
     std::string str = file.fileName().toLocal8Bit().constData();
 
-    std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(str.c_str());
-    if (!stream) {
-        this->statusBar()->showMessage(tr("Couldn't read file"));
+    Model::ErrorCode err = fModel.load(str.c_str());
+    if (Model::ErrorCode::kOK != err) {
+        this->statusBar()->showMessage(Model::ErrorString(err));
         return;
     }
-    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(stream.get()));
-    if (!pic) {
-        this->statusBar()->showMessage(tr("Couldn't decode picture"));
-        return;
-    }
-
-    fDebugCanvas.reset(new SkDebugCanvas(SkScalarCeilToInt(pic->cullRect().width()),
-                                         SkScalarCeilToInt(pic->cullRect().height())));
-
-    fDebugCanvas->setPicture(pic.get());
-    pic->playback(fDebugCanvas.get());
-    fDebugCanvas->setPicture(nullptr);
 
     this->setupOpListWidget();
-
-    SkBitmap bm;
-
-    SkImageInfo ii = SkImageInfo::MakeN32Premul(1024, 1024);
-    bm.allocPixels(ii, 0);
-
-    SkCanvas canvas(bm);
-
-    fDebugCanvas->draw(&canvas);
-
-    fImage = QImage((uchar*)bm.getPixels(), bm.width(), bm.height(), QImage::Format_RGBA8888);
-    fImageLabel->setPixmap(QPixmap::fromImage(fImage));
+    this->presentCurrentRenderState();
 
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
@@ -138,6 +115,11 @@ void MainWindow::createActions() {
     aboutAct->setStatusTip(tr("Show the application's About box"));
 }
 
+void MainWindow::onCurrentRowChanged(int currentRow) {
+    fModel.setCurOp(currentRow);
+    this->presentCurrentRenderState();
+}
+
 void MainWindow::createStatusBar() {
     this->statusBar()->showMessage(tr("Ready"));
 }
@@ -155,6 +137,8 @@ void MainWindow::createDockWindows() {
         this->addDockWidget(Qt::LeftDockWidgetArea, opListDock);
 
         fViewMenu->addAction(opListDock->toggleViewAction());
+
+        connect(fOpListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(onCurrentRowChanged(int)));
     }
 
     // Main canvas Window
