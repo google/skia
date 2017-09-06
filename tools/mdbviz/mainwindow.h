@@ -11,7 +11,7 @@
 #include <memory>
 #include <QMainWindow>
 
-#include "SkDebugCanvas.h"
+#include "Model.h"
 
 class QLabel;
 class QListWidget;
@@ -27,10 +27,13 @@ public:
 private slots:
     void openFile();
     void about();
+    void onCurrentRowChanged(int currentRow);
 
 private:
     void loadFile(const QString &fileName);
     void setupOpListWidget();
+    void presentCurrentRenderState();
+
 
     void createActions();
     void createStatusBar();
@@ -46,7 +49,7 @@ private:
 
     QMenu* fViewMenu;
 
-    std::unique_ptr<SkDebugCanvas> fDebugCanvas;
+    Model fModel;
 };
 
 #endif
