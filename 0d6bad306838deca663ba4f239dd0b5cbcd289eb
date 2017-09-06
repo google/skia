@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bae1eb8d_f2edd7e2",
+        "filename": "src/sksl/lex/DFA.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-09-06T21:00:40Z",
+      "side": 1,
+      "message": "Apparently not anymore :-)",
+      "parentUuid": "515e4d47_9ebed9bb",
+      "range": {
+        "startLine": 11,
+        "startChar": 10,
+        "endLine": 11,
+        "endChar": 18
+      },
+      "revId": "0d6bad306838deca663ba4f239dd0b5cbcd289eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "576bfaed_f2596868",
         "filename": "src/sksl/lex/DFAState.h",
         "patchSetId": 4
@@ -39,6 +63,24 @@
       "revId": "0d6bad306838deca663ba4f239dd0b5cbcd289eb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35f187e9_e88aa9ea",
+        "filename": "src/sksl/lex/DFAState.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-09-06T21:00:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "576bfaed_f2596868",
+      "revId": "0d6bad306838deca663ba4f239dd0b5cbcd289eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "1df9767e_53ae52a7",
+        "filename": "src/sksl/lex/LexUtil.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-09-06T21:00:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "65792676_e9afc133",
+      "range": {
+        "startLine": 11,
+        "startChar": 20,
+        "endLine": 11,
+        "endChar": 27
+      },
+      "revId": "0d6bad306838deca663ba4f239dd0b5cbcd289eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "750b3e7e_b2675627",
         "filename": "src/sksl/lex/Main.cpp",
         "patchSetId": 4
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "1302f42c_6701061c",
+        "filename": "src/sksl/lex/Main.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-09-06T21:00:40Z",
+      "side": 1,
+      "message": "Generally speaking I adopted an \"internal use only, here be dragons\" approach to this tool, but that seems like a good idea. Done.",
+      "parentUuid": "750b3e7e_b2675627",
+      "range": {
+        "startLine": 164,
+        "startChar": 8,
+        "endLine": 164,
+        "endChar": 52
+      },
+      "revId": "0d6bad306838deca663ba4f239dd0b5cbcd289eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3f68354f_2b7fe408",
         "filename": "src/sksl/lex/NFAState.h",
         "patchSetId": 4
@@ -108,6 +198,30 @@
       "revId": "0d6bad306838deca663ba4f239dd0b5cbcd289eb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7bdc31c_6cce1145",
+        "filename": "src/sksl/lex/NFAState.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-09-06T21:00:40Z",
+      "side": 1,
+      "message": "You got it, but a comment is clearly warranted. Done.",
+      "parentUuid": "3f68354f_2b7fe408",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 19
+      },
+      "revId": "0d6bad306838deca663ba4f239dd0b5cbcd289eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
