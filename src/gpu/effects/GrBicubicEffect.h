@@ -36,9 +36,9 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                      const SkMatrix& matrix,
-                                                     const SkShader::TileMode tileModes[2]) {
+                                                     const GrSamplerState::WrapMode wrapModes[2]) {
         return std::unique_ptr<GrFragmentProcessor>(new GrBicubicEffect(
-                std::move(proxy), std::move(colorSpaceXform), matrix, tileModes));
+                std::move(proxy), std::move(colorSpaceXform), matrix, wrapModes));
     }
 
     /**
@@ -60,11 +60,11 @@ public:
      * kNearest).
      */
     static bool ShouldUseBicubic(const SkMatrix& localCoordsToDevice,
-                                 GrSamplerParams::FilterMode* filterMode);
+                                 GrSamplerState::Filter* filterMode);
 
 private:
-    GrBicubicEffect(sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>,
-                    const SkMatrix &matrix, const SkShader::TileMode tileModes[2]);
+    GrBicubicEffect(sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>, const SkMatrix& matrix,
+                    const GrSamplerState::WrapMode wrapModes[2]);
     GrBicubicEffect(sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>,
                     const SkMatrix &matrix, const SkRect& domain);
     explicit GrBicubicEffect(const GrBicubicEffect&);

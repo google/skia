@@ -34,7 +34,7 @@ class GrRenderTargetContext;
 class GrResourceEntry;
 class GrResourceCache;
 class GrResourceProvider;
-class GrSamplerParams;
+class GrSamplerState;
 class GrSurfaceProxy;
 class GrTextBlobCache;
 class GrTextContext;
