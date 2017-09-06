@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3636a49b_25212835",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-06T14:34:35Z",
+      "side": 1,
+      "message": "We had to revert this CL, as it failed some layout tests. I just re-read the code and poked around - 99% sure that you need to pass a valid color space for the second argument to makeTextureImage here (fTargetCS is a good choice).\n\nThat parameter is confusingly named \u0027dstColorSpace\u0027. It doesn\u0027t cause any conversion, but it does control whether or not the resulting image is tagged (at all). By passing nullptr, the GPU-backed image that\u0027s returned has no color space. Then, the xformer assumes that it\u0027s sRGB, so the original color space (in the case of the color-spin layout test) is lost.",
+      "revId": "19c8726a0829e506c5c42d22d67b3fe7505ed24e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
