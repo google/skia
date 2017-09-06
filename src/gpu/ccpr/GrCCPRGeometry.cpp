@@ -18,6 +18,9 @@ GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
 GR_STATIC_ASSERT(2 * sizeof(float) == sizeof(SkPoint));
 GR_STATIC_ASSERT(0 == offsetof(SkPoint, fX));
 
+// Drop curves that are within approximately 1/16 of a pixel of being flat.
+static constexpr float kFlatnessTolerance = 16;
+
 void GrCCPRGeometry::beginPath() {
     SkASSERT(!fBuildingContour);
     fVerbs.push_back(Verb::kBeginPath);
@@ -73,6 +76,19 @@ static inline Sk2f lerp(const Sk2f& a, const Sk2f& b, const Sk2f& t) {
     return SkNx_fma(t, b - a, a);
 }
 
+static inline bool is_quadratic_flat(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
+    // Area (times 2) of the bezier a triangle.
+    Sk2f a = (p0 - p1) * SkNx_shuffle<1,0>(p1 - p2);
+    a -= SkNx_shuffle<1,0>(a);
+
+    // Manhattan length of p2 - p0.
+    Sk2f l = (p1 - p2).abs();
+    l += SkNx_shuffle<1,0>(l);
+
+    // The curve is linear if the bezier area is within a fraction of the length of p3 - p0.
+    return ((a * (kFlatnessTolerance/2)).abs() < l).allTrue();
+}
+
 void GrCCPRGeometry::quadraticTo(const SkPoint& devP0, const SkPoint& devP1) {
     SkASSERT(fBuildingContour);
 
@@ -80,6 +96,13 @@ void GrCCPRGeometry::quadraticTo(const SkPoint& devP0, const SkPoint& devP1) {
     Sk2f p1 = Sk2f::Load(&devP0);
     Sk2f p2 = Sk2f::Load(&devP1);
     fCurrFanPoint = devP1;
+
+    // Don't send curves to the GPU if we know they are flats (or just very small).
+    if (is_quadratic_flat(p0, p1, p2)) {
+        p2.store(&fPoints.push_back());
+        fVerbs.push_back(Verb::kLineTo);
+        return;
+    }
 
     Sk2f tan0 = p1 - p0;
     Sk2f tan1 = p2 - p1;
@@ -122,6 +145,32 @@ inline void GrCCPRGeometry::appendMonotonicQuadratic(const Sk2f& p1, const Sk2f&
     p2.store(&fPoints.push_back());
     fVerbs.push_back(Verb::kMonotonicQuadraticTo);
     ++fCurrContourTallies.fQuadratics;
+}
+
+static inline bool is_cubic_flat(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, const Sk2f& p3) {
+    // Area (times 2) of first triangle in the bezier geometry.
+    Sk2f a1 = (p0 - p1) * SkNx_shuffle<1,0>(p1 - p3);
+    a1 -= SkNx_shuffle<1,0>(a1);
+
+    // Area (times 2) of second triangle in the bezier a geometry.
+    Sk2f a2 = (p1 - p2) * SkNx_shuffle<1,0>(p2 - p3);
+    a2 -= SkNx_shuffle<1,0>(a2);
+
+    if ((a1 * a2 < 0).anyTrue()) {
+        // The bezier points crisscross. Take the other two triangles.
+        a1 = (p0 - p2) * SkNx_shuffle<1,0>(p2 - p3);
+        a1 -= SkNx_shuffle<1,0>(a1);
+
+        a2 = (p2 - p1) * SkNx_shuffle<1,0>(p2 - p3);
+        a2 -= SkNx_shuffle<1,0>(a2);
+    }
+
+    // Manhattan length of p3 - p0.
+    Sk2f l = (p1 - p3).abs();
+    l += SkNx_shuffle<1,0>(l);
+
+    // The curve is linear if the bezier area is within a fraction of the length of p3 - p0.
+    return (((a1 + a2) * (kFlatnessTolerance/2)).abs() < l).allTrue();
 }
 
 using ExcludedTerm = GrPathUtils::ExcludedTerm;
@@ -238,6 +287,13 @@ void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const S
     Sk2f p3 = Sk2f::Load(&devP3);
     fCurrFanPoint = devP3;
 
+    // Don't invest time crunching on of the curve if it is flat (or just very small).
+    if (is_cubic_flat(p0, p1, p2, p3)) {
+        p3.store(&fPoints.push_back());
+        fVerbs.push_back(Verb::kLineTo);
+        return;
+    }
+
     double tt[2], ss[2];
     fCurrCubicType = SkClassifyCubic(devPts, tt, ss);
     if (SkCubicIsDegenerate(fCurrCubicType)) {
@@ -249,10 +305,8 @@ void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const S
     SkMatrix CIT;
     ExcludedTerm skipTerm = GrPathUtils::calcCubicInverseTransposePowerBasisMatrix(devPts, &CIT);
     if (ExcludedTerm::kNonInvertible == skipTerm) {
-        // This could technically also happen if the curve were a quadratic, but SkClassifyCubic
-        // should have detected that case already with tolerance.
-        fCurrCubicType = SkCubicType::kLineOrPoint;
-        this->appendCubicApproximation(p0, p1, p2, p3, /*maxSubdivisions=*/0);
+        p3.store(&fPoints.push_back());
+        fVerbs.push_back(Verb::kLineTo);
         return;
     }
     SkASSERT(0 == CIT[6]);
