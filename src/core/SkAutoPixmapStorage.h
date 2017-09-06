@@ -61,10 +61,10 @@ public:
         this->freeStorage();
         this->INHERITED::reset(info, addr, rb);
     }
-    void reset(const SkImageInfo& info) {
-        this->freeStorage();
-        this->INHERITED::reset(info);
-    }
+ //   void reset(const SkImageInfo& info) {
+ //       this->freeStorage();
+ //       this->INHERITED::reset(info);
+ //   }
     bool SK_WARN_UNUSED_RESULT reset(const SkMask& mask) {
         this->freeStorage();
         return this->INHERITED::reset(mask);
