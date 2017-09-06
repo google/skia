@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8d1f159_199165a9",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-06T14:46:18Z",
+      "side": 1,
+      "message": "Very minor but I find non-nested ifs slightly easier to digest:\n\n  if (auto tex \u003d this-\u003erefScratchTexture(desc, flags)) {\n     return tex;\n  }\n\n  GrSurfaceDesc copyDesc \u003d desc;\n  // bin by pow2 with a reasonable min\n  copyDesc.fWidth  \u003d SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fWidth));\n  copyDesc.fHeight \u003d SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fHeight));\n\n  if (auto tex \u003d this-\u003erefScratchTexture(copyDesc, flags)) {\n    return tex;\n  }\n \n  return fGpu-\u003ecreateTexture(copyDesc, SkBudgeted::kYes);\n }",
+      "revId": "fff08379485941b526f18f2f775f56660a21b61e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
