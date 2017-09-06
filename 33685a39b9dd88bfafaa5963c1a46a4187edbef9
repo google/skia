@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26813fec_0ffef7e5",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1479,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-06T19:48:52Z",
+      "side": 1,
+      "message": "Perhaps output a warning if the encode fails?  For example, if the png is too big?  At least so a human can tell why there aren\u0027t two pngs to look at.",
+      "range": {
+        "startLine": 1479,
+        "startChar": 8,
+        "endLine": 1479,
+        "endChar": 9
+      },
+      "revId": "33685a39b9dd88bfafaa5963c1a46a4187edbef9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
