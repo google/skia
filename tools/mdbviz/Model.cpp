@@ -61,8 +61,23 @@ const char* Model::ErrorString(ErrorCode err) {
     return kStrings[(int)err];
 }
 
-const char* Model::getOpName(int index) {
+const char* Model::getOpName(int index) const {
     return SkDrawCommand::GetCommandString(fOps[index]->getType());
+}
+
+bool Model::isHierarchyPush(int index) const {
+    SkDrawCommand::OpType type = fOps[index]->getType();
+
+    return SkDrawCommand::kSave_OpType == type ||
+           SkDrawCommand::kSaveLayer_OpType == type ||
+           SkDrawCommand::kBeginDrawPicture_OpType == type;
+}
+
+bool Model::isHierarchyPop(int index) const {
+    SkDrawCommand::OpType type = fOps[index]->getType();
+
+    return SkDrawCommand::kRestore_OpType == type ||
+           SkDrawCommand::kEndDrawPicture_OpType == type;
 }
 
 void Model::setCurOp(int curOp) {
@@ -96,5 +111,6 @@ void Model::resetOpList() {
     for (int i = 0; i < fOps.count(); ++i) {
         delete fOps[i];
     }
+    fOps.reset();
     fCurOp = 0;
 }

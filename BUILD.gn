@@ -1736,6 +1736,7 @@ if (skia_enable_tools) {
       ]
       include_dirs = [
         "$skia_qt_path/include",
+        "$skia_qt_path/include/QtCore",
         "$skia_qt_path/include/QtWidgets",
         "tools",
         "tools/debugger",

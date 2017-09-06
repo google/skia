@@ -14,8 +14,9 @@
 #include "Model.h"
 
 class QLabel;
-class QListWidget;
 class QMenu;
+class QTreeWidget;
+class QTreeWidgetItem;
 
 
 class MainWindow : public QMainWindow {
@@ -27,7 +28,7 @@ public:
 private slots:
     void openFile();
     void about();
-    void onCurrentRowChanged(int currentRow);
+    void onCurrentItemChanged(QTreeWidgetItem* cur, QTreeWidgetItem* prev);
 
 private:
     void loadFile(const QString &fileName);
@@ -45,7 +46,7 @@ private:
     QImage  fImage;
     QLabel* fImageLabel;
 
-    QListWidget* fOpListWidget;
+    QTreeWidget* fOpListWidget;
 
     QMenu* fViewMenu;
 

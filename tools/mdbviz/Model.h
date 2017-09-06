@@ -35,7 +35,10 @@ public:
     int curOp() const { return fCurOp; }
 
     int numOps() const { return fOps.count(); }
-    const char* getOpName(int index);
+    const char* getOpName(int index) const;
+
+    bool isHierarchyPush(int index) const;
+    bool isHierarchyPop(int index) const;
 
     // Get the bits visually representing the current rendering state
     void* getPixels() const { return fBM.getPixels(); }

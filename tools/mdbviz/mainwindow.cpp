@@ -30,15 +30,33 @@ void MainWindow::openFile() {
 void MainWindow::setupOpListWidget() {
     fOpListWidget->clear();
 
+    QTreeWidgetItem* item = nullptr;
+    SkTDArray<QTreeWidgetItem*> parents;
+
     for (int i = 0; i < fModel.numOps(); i++) {
-        QListWidgetItem *item = new QListWidgetItem();
+        item = new QTreeWidgetItem();
 
-        item->setData(Qt::DisplayRole, fModel.getOpName(i));
+        item->setText(0, QString::number(i));
+        item->setData(0, Qt::UserRole, i);
+        item->setText(1, fModel.getOpName(i));
 
-        fOpListWidget->addItem(item);
+        if (fModel.isHierarchyPop(i)) {
+            parents.pop();
+        }
+
+        if (parents.isEmpty()) {
+            fOpListWidget->addTopLevelItem(item);
+        } else {
+            parents.top()->addChild(item);
+        }
+
+        if (fModel.isHierarchyPush(i)) {
+            *parents.push() = item;
+        }
     }
 
-    fOpListWidget->setCurrentRow(fModel.numOps()-1);
+    fOpListWidget->setCurrentItem(item);
+    fOpListWidget->expandToDepth(100);
 }
 
 void MainWindow::presentCurrentRenderState() {
@@ -115,7 +133,8 @@ void MainWindow::createActions() {
     aboutAct->setStatusTip(tr("Show the application's About box"));
 }
 
-void MainWindow::onCurrentRowChanged(int currentRow) {
+void MainWindow::onCurrentItemChanged(QTreeWidgetItem* cur, QTreeWidgetItem* /* prev */) {
+    int currentRow = cur->data(0, Qt::UserRole).toInt();
     fModel.setCurOp(currentRow);
     this->presentCurrentRenderState();
 }
@@ -131,14 +150,23 @@ void MainWindow::createDockWindows() {
         QDockWidget* opListDock = new QDockWidget("Ops", this);
         opListDock->setAllowedAreas(Qt::LeftDockWidgetArea);
 
-        fOpListWidget = new QListWidget(opListDock);
+        fOpListWidget = new QTreeWidget(opListDock);
+
+        QTreeWidgetItem* headerItem = new QTreeWidgetItem;
+        headerItem->setText(0, "Index");
+        headerItem->setText(1, "Op Name");
+        fOpListWidget->setHeaderItem(headerItem);
+
+        fOpListWidget->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+        fOpListWidget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
         opListDock->setWidget(fOpListWidget);
         this->addDockWidget(Qt::LeftDockWidgetArea, opListDock);
 
         fViewMenu->addAction(opListDock->toggleViewAction());
 
-        connect(fOpListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(onCurrentRowChanged(int)));
+        connect(fOpListWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+                this, SLOT(onCurrentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
     }
 
     // Main canvas Window
@@ -147,6 +175,10 @@ void MainWindow::createDockWindows() {
         mainCanvasDock->setAllowedAreas(Qt::RightDockWidgetArea);
 
         fImageLabel = new QLabel(mainCanvasDock);
+
+        fImage = QImage(1024, 1024, QImage::Format_RGBA8888);
+        fImage.fill(0);
+        fImageLabel->setPixmap(QPixmap::fromImage(fImage));
 
         mainCanvasDock->setWidget(fImageLabel);
         this->addDockWidget(Qt::RightDockWidgetArea, mainCanvasDock);
