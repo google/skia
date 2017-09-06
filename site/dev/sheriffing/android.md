@@ -33,11 +33,13 @@ You can send the autoroller into dry run mode via the UI. The uploaded change wi
 
 You can also stop the autoroller via the UI. This is useful in cases where a failure needs to be investigated and you do not want to waste TH resources by running unnecessary tests.
 
+If the autoroller displays an error in the UI then look for more detail in it's [cloud logs](https://pantheon.corp.google.com/logs/viewer?project=google.com:skia-buildbots&resource=logging_log%2Fname%2Fandroid-master-autoroll&logName=projects%2Fgoogle.com:skia-buildbots%2Flogs%2Fautoroll).
+
 If you need any more information about the autoroller please look at [skia:5538](https://bugs.chromium.org/p/skia/issues/detail?id=5538) or ask rmistry@ / skiabot@.
 
 We also have autorollers into release branches (also restricted only to Googlers):
 
-* [https://android-o-roll.skia.org](https://android-o-roll.skia.org).
+* [https://android-o-roll.skia.org](https://android-o-roll.skia.org) ([cloud logs](https://pantheon.corp.google.com/logs/viewer?project=google.com:skia-buildbots&resource=logging_log%2Fname%2Fandroid-o-autoroll&logName=projects%2Fgoogle.com:skia-buildbots%2Flogs%2Fautoroll)).
 
 Changes created by these rollers need to be manually approved.<br/>
 The changes created by the release rollers:
