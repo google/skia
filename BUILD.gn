@@ -412,16 +412,6 @@ optional("fontmgr_fuchsia") {
 }
 
 if (skia_compile_processors) {
-  executable("sksllex") {
-    sources = [
-      "src/sksl/lex/Main.cpp",
-      "src/sksl/lex/NFA.cpp",
-      "src/sksl/lex/RegexNode.cpp",
-      "src/sksl/lex/RegexParser.cpp",
-    ]
-    include_dirs = [ "src/sksl/lex" ]
-  }
-
   executable("skslc") {
     defines = [ "SKSL_STANDALONE" ]
     sources = [
