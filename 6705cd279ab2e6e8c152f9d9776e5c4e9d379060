@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7e998d3_53724871",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-06T13:04:42Z",
+      "side": 1,
+      "message": "Should we check for an exact first? It\u0027d be a behavior change but I don\u0027t see why not.",
+      "revId": "6705cd279ab2e6e8c152f9d9776e5c4e9d379060",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
