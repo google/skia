@@ -1406,8 +1406,7 @@ void SkGpuDevice::drawImageNine(const SkImage* image,
     ASSERT_SINGLE_OWNER
     uint32_t pinnedUniqueID;
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
-        GrTextureAdjuster adjuster(this->context(), std::move(proxy),
-                                   image->alphaType(), image->bounds(),
+        GrTextureAdjuster adjuster(this->context(), std::move(proxy), image->alphaType(),
                                    pinnedUniqueID, as_IB(image)->onImageInfo().colorSpace());
         this->drawProducerNine(&adjuster, center, dst, paint);
     } else {
@@ -1461,8 +1460,7 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
     ASSERT_SINGLE_OWNER
     uint32_t pinnedUniqueID;
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
-        GrTextureAdjuster adjuster(this->context(), std::move(proxy),
-                                   image->alphaType(), image->bounds(),
+        GrTextureAdjuster adjuster(this->context(), std::move(proxy), image->alphaType(),
                                    pinnedUniqueID, as_IB(image)->onImageInfo().colorSpace());
         this->drawProducerLattice(&adjuster, lattice, dst, paint);
     } else {
