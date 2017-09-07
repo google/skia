@@ -219,7 +219,14 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
     template <typename V, typename T>
     SI V load(const T* src, size_t tail) {
         __builtin_assume(tail < kStride);
-        if (__builtin_expect(tail, 0)) {
+
+        // It's almost always possible to load a whole V and stay on this same 4K page.
+        size_t page = 4096;
+        size_t this_page = (size_t)src & ~(page-1);
+        size_t next_page = this_page + page;
+        bool stay_on_page = (size_t)src + sizeof(V) <= next_page;
+
+        if (__builtin_expect(tail && !stay_on_page, false)) {
             V v = 0;
             switch (tail) {
             #if defined(__AVX2__)
