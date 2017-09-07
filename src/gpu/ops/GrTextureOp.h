@@ -7,7 +7,7 @@
 
 #include "GrColor.h"
 #include "GrColorSpaceXform.h"
-#include "GrSamplerParams.h"
+#include "GrSamplerState.h"
 
 class GrDrawOp;
 class GrTextureProxy;
@@ -21,7 +21,7 @@ namespace GrTextureOp {
  * the rectangle to draw in local coords which will be transformed by 'viewMatrix' to be in device
  * space. 'viewMatrix' must be affine.
  */
-std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy>, GrSamplerParams::FilterMode, GrColor,
+std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy>, GrSamplerState::Filter, GrColor,
                                const SkRect& srcRect, const SkRect& dstRect,
                                const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>,
                                bool allowSRGBInputs);

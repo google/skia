@@ -61,20 +61,20 @@ void GrTextureProxy::setMipColorMode(SkDestinationSurfaceColorMode colorMode) {
 }
 
 // This method parallels the highest_filter_mode functions in GrGLTexture & GrVkTexture.
-GrSamplerParams::FilterMode GrTextureProxy::highestFilterMode() const {
+GrSamplerState::Filter GrTextureProxy::highestFilterMode() const {
     if (fTarget) {
         return fTarget->asTexture()->texturePriv().highestFilterMode();
     }
 
     if (GrPixelConfigIsSint(this->config())) {
         // We only ever want to nearest-neighbor sample signed int textures.
-        return GrSamplerParams::kNone_FilterMode;
+        return GrSamplerState::Filter::kNearest;
     }
 
     // In OpenGL, GR_GL_TEXTURE_RECTANGLE and GR_GL_TEXTURE_EXTERNAL (which have a highest filter
     // mode of bilerp) can only be created via wrapping.
 
-    return GrSamplerParams::kMipMap_FilterMode;
+    return GrSamplerState::Filter::kMipMap;
 }
 
 size_t GrTextureProxy::onUninstantiatedGpuMemorySize() const {
