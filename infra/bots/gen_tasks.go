@@ -212,7 +212,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"Nexus6p":         {"angler", "OPP1.170223.012"},
 				"Nexus7":          {"grouper", "LMY47V"},
 				"Nexus7v2":        {"flo", "M"},
-				"NexusPlayer":     {"fugu", "OPP2.170420.017"},
+				"NexusPlayer":     {"fugu", "OPR6.170623.010"},
 				"Pixel":           {"sailfish", "NMF26Q"},
 				"PixelC":          {"dragon", "OPR6.170623.010"},
 				"PixelXL":         {"marlin", "OPP3.170518.006"},
