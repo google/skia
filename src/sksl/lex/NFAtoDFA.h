@@ -35,6 +35,10 @@ public:
      * Returns a DFA created from the NFA.
      */
     DFA convert() {
+        printf("NFA states: %d\n", (int) fNFA.fStates.size());
+        for (const auto& s : fNFA.fStates) {
+            printf("    %s\n", s.description().c_str());
+        }
         // create state 0, the "reject" state
         getState(DFAState::Label({}));
         // create a state representing being in all of the NFA's start states at once
@@ -48,6 +52,7 @@ public:
         for (const auto& row : fTransitions) {
             stateCount = std::max(stateCount, (int) row.size());
         }
+        printf("DFA states: %d\n", stateCount);
         return DFA(fTransitions, fAccepts);
     }
 
@@ -56,6 +61,8 @@ private:
      * Returns an existing state with the given label, or creates a new one and returns it.
      */
     DFAState* getState(DFAState::Label label) {
+        if (label.description() != "<>")
+            printf("getState: %s\n", label.description().c_str());
         auto found = fStates.find(label);
         if (found == fStates.end()) {
             int id = fStates.size();
@@ -82,6 +89,7 @@ private:
     }
 
     void addTransition(char c, int start, int next) {
+        printf("addTransition: %d, %d->%d\n", c, start,next);
         while (fTransitions.size() <= (size_t) c) {
             fTransitions.push_back(std::vector<int>());
         }
@@ -99,7 +107,9 @@ private:
             int bestAccept = INT_MAX;
             for (int idx : state->fLabel.fStates) {
                 const NFAState& nfaState = fNFA.fStates[idx];
+                printf("checking %s\n", nfaState.description().c_str());
                 if (nfaState.accept(c)) {
+                    printf("accept %d\n", c);
                     for (int nextState : nfaState.fNext) {
                         if (fNFA.fStates[nextState].fKind == NFAState::kAccept_Kind) {
                             bestAccept = std::min(bestAccept, fNFA.fStates[nextState].fData[0]);
@@ -109,6 +119,7 @@ private:
                 }
             }
             std::sort(next.begin(), next.end());
+            printf("scan: %d, %d\n", c, state->fId);
             DFAState* nextState = this->getState(DFAState::Label(next));
             this->addTransition(c, state->fId, nextState->fId);
             if (bestAccept != INT_MAX) {

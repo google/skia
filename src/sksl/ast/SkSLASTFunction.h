@@ -19,13 +19,13 @@ namespace SkSL {
  * A function declaration or definition. The fBody field will be null for declarations.
  */
 struct ASTFunction : public ASTDeclaration {
-    ASTFunction(Position position, Modifiers modifiers,  std::unique_ptr<ASTType> returnType,
-                String name, std::vector<std::unique_ptr<ASTParameter>> parameters,
+    ASTFunction(int offset, Modifiers modifiers,  std::unique_ptr<ASTType> returnType,
+                StringFragment name, std::vector<std::unique_ptr<ASTParameter>> parameters,
                 std::unique_ptr<ASTBlock> body)
-    : INHERITED(position, kFunction_Kind)
+    : INHERITED(offset, kFunction_Kind)
     , fModifiers(modifiers)
     , fReturnType(std::move(returnType))
-    , fName(std::move(name))
+    , fName(name)
     , fParameters(std::move(parameters))
     , fBody(std::move(body)) {}
 
@@ -47,7 +47,7 @@ struct ASTFunction : public ASTDeclaration {
 
     const Modifiers fModifiers;
     const std::unique_ptr<ASTType> fReturnType;
-    const String fName;
+    const StringFragment fName;
     const std::vector<std::unique_ptr<ASTParameter>> fParameters;
     const std::unique_ptr<ASTBlock> fBody;
 
