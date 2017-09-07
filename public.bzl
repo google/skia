@@ -116,6 +116,7 @@ BASE_SRCS_ALL = struct(
 
         # Defines main.
         "src/sksl/SkSLMain.cpp",
+        "src/sksl/lex/Main.cpp",
     ],
 )
 
