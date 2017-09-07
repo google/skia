@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f5dd98dd_fd00174f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-07T14:23:53Z",
+      "side": 1,
+      "message": "This still applies to the latest patch set.",
+      "parentUuid": "b34b1e7a_60c1860c",
+      "range": {
+        "startLine": 7,
+        "startChar": 30,
+        "endLine": 7,
+        "endChar": 41
+      },
+      "revId": "c8f3ff4d566820f63c7d0e03b670fb427d7ab45b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4d8561e3_64b7a661",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-07-19T13:59:26Z",
       "side": 1,
       "message": "nit: \"the\"\n\nI think this sentence would also be fine if you removed the word and said \"improving code readability\".",
+      "range": {
+        "startLine": 10,
+        "startChar": 14,
+        "endLine": 10,
+        "endChar": 18
+      },
+      "revId": "c8f3ff4d566820f63c7d0e03b670fb427d7ab45b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13fa79f3_ec1ebfc9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-07T14:23:53Z",
+      "side": 1,
+      "message": "This still applies.",
+      "parentUuid": "4d8561e3_64b7a661",
       "range": {
         "startLine": 10,
         "startChar": 14,
