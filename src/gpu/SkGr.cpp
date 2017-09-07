@@ -172,15 +172,22 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
         return nullptr;
     }
 
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
-
     SkPixmap pixmap;
     if (!bitmap.peekPixels(&pixmap)) {
         return nullptr;
     }
 
-    ATRACE_ANDROID_FRAMEWORK("Upload MipMap Texture [%ux%u]", pixmap.width(), pixmap.height());
-    std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));
+    SkBitmap tmpBitmap;
+    SkPixmap tmpPixmap;
+    GrSurfaceDesc desc;
+    const SkPixmap* pmap = compute_desc(*ctx->resourceProvider()->caps(), pixmap, &desc,
+                                        &tmpBitmap, &tmpPixmap);
+    if (!pmap) {
+        return nullptr;
+    }
+
+    ATRACE_ANDROID_FRAMEWORK("Upload MipMap Texture [%ux%u]", pmap->width(), pmap->height());
+    std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(*pmap, colorMode, nullptr));
     if (!mipmaps) {
         return nullptr;
     }
@@ -192,8 +199,8 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
 
     std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
-    texels[0].fPixels = pixmap.addr();
-    texels[0].fRowBytes = pixmap.rowBytes();
+    texels[0].fPixels = pmap->addr();
+    texels[0].fRowBytes = pmap->rowBytes();
 
     for (int i = 1; i < mipLevelCount; ++i) {
         SkMipMap::Level generatedMipLevel;
