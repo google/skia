@@ -22,11 +22,16 @@
 #include "ops/GrRectOpFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+GrPathRenderer::CanDrawPath
+GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // Pass on any style that applies. The caller will apply the style if a suitable renderer is
     // not found and try again with the new GrShape.
-    return !args.fShape->style().applies() && SkToBool(fResourceProvider) &&
-           (args.fAAType == GrAAType::kCoverage || args.fAAType == GrAAType::kNone);
+    if (!args.fShape->style().applies() && SkToBool(fResourceProvider) &&
+        (args.fAAType == GrAAType::kCoverage || args.fAAType == GrAAType::kNone)) {
+        // This is the fallback renderer for when a path is too complicated for the GPU ones.
+        return CanDrawPath::kAsBackup;
+    }
+    return CanDrawPath::kNo;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
