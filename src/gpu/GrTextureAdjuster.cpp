@@ -59,7 +59,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
 }
 
 sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(
-                                                                 const GrSamplerParams& params,
+                                                                 const GrSamplerState& samplerState,
                                                                  SkScalar scaleAdjust[2]) {
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
     CopyParams copyParams;
@@ -68,7 +68,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(
         // The texture was abandoned.
         return nullptr;
     }
-    if (!fContext->getGpu()->isACopyNeededForTextureParams(proxy.get(), params, &copyParams,
+    if (!fContext->getGpu()->isACopyNeededForTextureParams(proxy.get(), samplerState, &copyParams,
                                                            scaleAdjust)) {
         return proxy;
     }
@@ -82,17 +82,17 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
         const SkRect& constraintRect,
         FilterConstraint filterConstraint,
         bool coordsLimitedToConstraintRect,
-        const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+        const GrSamplerState::Filter* filterOrNullForBicubic,
         SkColorSpace* dstColorSpace) {
     SkMatrix textureMatrix = origTextureMatrix;
 
     SkRect domain;
-    GrSamplerParams params;
+    GrSamplerState samplerState;
     if (filterOrNullForBicubic) {
-        params.setFilterMode(*filterOrNullForBicubic);
+        samplerState.setFilterMode(*filterOrNullForBicubic);
     }
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
-    sk_sp<GrTextureProxy> proxy(this->refTextureProxySafeForParams(params, scaleAdjust));
+    sk_sp<GrTextureProxy> proxy(this->refTextureProxySafeForParams(samplerState, scaleAdjust));
     if (!proxy) {
         return nullptr;
     }
@@ -112,8 +112,8 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
 
         // We only expect MIP maps to require a tight copy.
         SkASSERT(filterOrNullForBicubic &&
-                 GrSamplerParams::kMipMap_FilterMode == *filterOrNullForBicubic);
-        static const GrSamplerParams::FilterMode kBilerp = GrSamplerParams::kBilerp_FilterMode;
+                 GrSamplerState::Filter::kMipMap == *filterOrNullForBicubic);
+        static const GrSamplerState::Filter kBilerp = GrSamplerState::Filter::kBilerp;
         domainMode =
                 DetermineDomainMode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
                                     proxy.get(), &kBilerp, &domain);

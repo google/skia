@@ -48,10 +48,10 @@ void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy,
 void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy,
                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
                                        const SkMatrix& matrix,
-                                       const GrSamplerParams& params) {
+                                       const GrSamplerState& samplerState) {
     this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy),
                                                                 std::move(colorSpaceXform),
-                                                                matrix, params));
+                                                                matrix, samplerState));
 }
 
 void GrPaint::addCoverageTextureProcessor(sk_sp<GrTextureProxy> proxy,
@@ -62,7 +62,7 @@ void GrPaint::addCoverageTextureProcessor(sk_sp<GrTextureProxy> proxy,
 
 void GrPaint::addCoverageTextureProcessor(sk_sp<GrTextureProxy> proxy,
                                           const SkMatrix& matrix,
-                                          const GrSamplerParams& params) {
+                                          const GrSamplerState& params) {
     this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy),
                                                                    nullptr, matrix, params));
 }

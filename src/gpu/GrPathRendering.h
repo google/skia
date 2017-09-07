@@ -12,12 +12,13 @@
 #include "GrPathRange.h"
 #include "GrPipeline.h"
 
-class SkDescriptor;
-class SkTypeface;
 class GrGpu;
 class GrPath;
 class GrStencilSettings;
 class GrStyle;
+struct SkScalerContextEffects;
+class SkDescriptor;
+class SkTypeface;
 
 /**
  * Abstract class wrapping HW path rendering API.

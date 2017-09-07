@@ -11,12 +11,12 @@
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
 
-sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerParams& params,
+sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerState& params,
                                                                SkColorSpace* dstColorSpace,
                                                                sk_sp<SkColorSpace>* texColorSpace,
                                                                SkScalar scaleAdjust[2]) {
     CopyParams copyParams;
-    bool willBeMipped = params.filterMode() == GrSamplerParams::kMipMap_FilterMode;
+    bool willBeMipped = params.filter() == GrSamplerState::Filter::kMipMap;
 
     if (!fContext->caps()->mipMapSupport()) {
         willBeMipped = false;
@@ -81,32 +81,31 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         const SkRect& constraintRect,
         FilterConstraint filterConstraint,
         bool coordsLimitedToConstraintRect,
-        const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+        const GrSamplerState::Filter* filterOrNullForBicubic,
         SkColorSpace* dstColorSpace) {
-    const GrSamplerParams::FilterMode* fmForDetermineDomain = filterOrNullForBicubic;
-    if (filterOrNullForBicubic && GrSamplerParams::kMipMap_FilterMode == *filterOrNullForBicubic &&
+    const GrSamplerState::Filter* fmForDetermineDomain = filterOrNullForBicubic;
+    if (filterOrNullForBicubic && GrSamplerState::Filter::kMipMap == *filterOrNullForBicubic &&
         kYes_FilterConstraint == filterConstraint) {
         // TODo: Here we should force a copy restricted to the constraintRect since MIP maps will
         // read outside the constraint rect. However, as in the adjuster case, we aren't currently
         // doing that.
         // We instead we compute the domain as though were bilerping which is only correct if we
         // only sample level 0.
-        static const GrSamplerParams::FilterMode kBilerp = GrSamplerParams::kBilerp_FilterMode;
+        static const GrSamplerState::Filter kBilerp = GrSamplerState::Filter::kBilerp;
         fmForDetermineDomain = &kBilerp;
     }
 
-    GrSamplerParams params;
+    GrSamplerState samplerState;
     if (filterOrNullForBicubic) {
-        params.reset(SkShader::kClamp_TileMode, *filterOrNullForBicubic);
+        samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp, *filterOrNullForBicubic);
     } else {
         // Bicubic doesn't use filtering for it's texture accesses.
-        params.reset(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
+        samplerState = GrSamplerState::ClampNearest();
     }
     sk_sp<SkColorSpace> texColorSpace;
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
-    sk_sp<GrTextureProxy> proxy(this->refTextureProxyForParams(params, dstColorSpace,
-                                                               &texColorSpace,
-                                                               scaleAdjust));
+    sk_sp<GrTextureProxy> proxy(this->refTextureProxyForParams(samplerState, dstColorSpace,
+                                                               &texColorSpace, scaleAdjust));
     if (!proxy) {
         return nullptr;
     }

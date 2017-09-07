@@ -23,7 +23,7 @@ public:
     /** Makes the subset of the texture safe to use with the given texture parameters.
         If the copy's size does not match subset's dimensions then the resulting scale
         factors used to sample the copy are returned in 'scaleAdjust'. */
-    sk_sp<GrTextureProxy> refTextureProxySafeForParams(const GrSamplerParams&,
+    sk_sp<GrTextureProxy> refTextureProxySafeForParams(const GrSamplerState&,
                                                        SkScalar scaleAdjust[2]);
 
     std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
@@ -31,7 +31,7 @@ public:
             const SkRect& constraintRect,
             FilterConstraint,
             bool coordsLimitedToConstraintRect,
-            const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+            const GrSamplerState::Filter* filterOrNullForBicubic,
             SkColorSpace* dstColorSpace) override;
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
