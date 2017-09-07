@@ -64,6 +64,11 @@ protected:
         return true;
     }
 
+    Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
+            const SkCodec::Options&) override;
+
+    Result onIncrementalDecode(int*) override;
+
 private:
 
     /*
@@ -122,14 +127,11 @@ private:
     void allocateStorage(const SkImageInfo& dstInfo);
     int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count, const Options&);
 
-    /*
-     * Scanline decoding.
-     */
     SkSampler* getSampler(bool createIfNecessary) override;
-    Result onStartScanlineDecode(const SkImageInfo& dstInfo,
-            const Options& options) override;
-    int onGetScanlines(void* dst, int count, size_t rowBytes) override;
-    bool onSkipScanlines(int count) override;
+   /*
+    * Does necessary setup, including setting up the libjpeg and swizzler.
+    */
+    Result prepareToDecode(const SkImageInfo& dstInfo, const Options& opts);
 
     std::unique_ptr<JpegDecoderMgr>    fDecoderMgr;
 
@@ -148,6 +150,8 @@ private:
     SkIRect                            fSwizzlerSubset;
 
     std::unique_ptr<SkSwizzler>        fSwizzler;
+    void*                              fDst;
+    size_t                             fDstRowBytes;
 
     friend class SkRawCodec;
 
