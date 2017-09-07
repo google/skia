@@ -44,12 +44,12 @@ sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted bud
 }
 
 // This method parallels GrTextureProxy::highestFilterMode
-static inline GrSamplerParams::FilterMode highest_filter_mode(GrPixelConfig config) {
+static inline GrSamplerState::Filter highest_filter_mode(GrPixelConfig config) {
     if (GrPixelConfigIsSint(config)) {
         // We only ever want to nearest-neighbor sample signed int textures.
-        return GrSamplerParams::kNone_FilterMode;
+        return GrSamplerState::Filter::kNearest;
     }
-    return GrSamplerParams::kMipMap_FilterMode;
+    return GrSamplerState::Filter::kMipMap;
 }
 
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
