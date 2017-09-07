@@ -31,9 +31,6 @@ public:
 
     void reset();
     void reset(const SkImageInfo& info, const void* addr, size_t rowBytes);
-    void reset(const SkImageInfo& info) {
-        this->reset(info, nullptr, 0);
-    }
 
     // overrides the colorspace in the SkImageInfo of the pixmap
     void setColorSpace(sk_sp<SkColorSpace> colorSpace);
