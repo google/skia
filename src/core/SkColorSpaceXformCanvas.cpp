@@ -139,25 +139,25 @@ public:
     void onDrawImage(const SkImage* img,
                      SkScalar l, SkScalar t,
                      const SkPaint* paint) override {
-        fTarget->drawImage(fXformer->apply(img).get(), l, t, MaybePaint(paint, fXformer.get()));
+        fTarget->drawImage(prepareImage(img).get(), l, t, MaybePaint(paint, fXformer.get()));
     }
     void onDrawImageRect(const SkImage* img,
                          const SkRect* src, const SkRect& dst,
                          const SkPaint* paint, SrcRectConstraint constraint) override {
-        fTarget->drawImageRect(fXformer->apply(img).get(),
+        fTarget->drawImageRect(prepareImage(img).get(),
                                src ? *src : SkRect::MakeIWH(img->width(), img->height()), dst,
                                MaybePaint(paint, fXformer.get()), constraint);
     }
     void onDrawImageNine(const SkImage* img,
                          const SkIRect& center, const SkRect& dst,
                          const SkPaint* paint) override {
-        fTarget->drawImageNine(fXformer->apply(img).get(), center, dst,
+        fTarget->drawImageNine(prepareImage(img).get(), center, dst,
                                MaybePaint(paint, fXformer.get()));
     }
     void onDrawImageLattice(const SkImage* img,
                             const Lattice& lattice, const SkRect& dst,
                             const SkPaint* paint) override {
-        fTarget->drawImageLattice(fXformer->apply(img).get(), lattice, dst,
+        fTarget->drawImageLattice(prepareImage(img).get(), lattice, dst,
                                   MaybePaint(paint, fXformer.get()));
     }
     void onDrawAtlas(const SkImage* atlas, const SkRSXform* xforms, const SkRect* tex,
@@ -169,7 +169,7 @@ public:
             fXformer->apply(xformed.begin(), colors, count);
             colors = xformed.begin();
         }
-        fTarget->drawAtlas(fXformer->apply(atlas).get(), xforms, tex, colors, count, mode, cull,
+        fTarget->drawAtlas(prepareImage(atlas).get(), xforms, tex, colors, count, mode, cull,
                            MaybePaint(paint, fXformer.get()));
     }
 
@@ -308,6 +308,20 @@ public:
     void onFlush() override { return fTarget->flush(); }
 
 private:
+    sk_sp<SkImage> prepareImage(const SkImage* image) {
+        GrContext* gr = fTarget->getGrContext();
+        if (gr) {
+            // If fTarget is GPU-accelerated, we want to upload to a texture
+            // before applying the transform. This way, we can get cache hits
+            // in the texture cache and the transform gets applied on the GPU.
+            return fXformer->apply(image->makeTextureImage(gr, nullptr).get());
+        }
+        // TODO: Extract a sub image corresponding to the src rect in order
+        // to xform only the useful part of the image. Sub image could be reduced
+        // even further by taking into account dst_rect+ctm+clip
+        return fXformer->apply(image);
+    }
+
     bool skipXform(const SkBitmap& bitmap) {
         return (!bitmap.colorSpace() && fTargetCS->isSRGB()) ||
                (SkColorSpace::Equals(bitmap.colorSpace(), fTargetCS.get())) ||
