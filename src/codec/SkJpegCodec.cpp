@@ -895,21 +895,22 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void
 
     // Initialize rowptrs.
     int numYRowsPerBlock = DCTSIZE * dinfo->comp_info[0].v_samp_factor;
-    for (int i = 0; i < numYRowsPerBlock; i++) {
+    for (int i = 0; i < DCTSIZE; i++) {
+        for (auto j : { SkYUVSizeInfo::kY, SkYUVSizeInfo::kU, SkYUVSizeInfo::kV }) {
+            yuv[j][i] = SkTAddOffset<JSAMPLE>(planes[j], i * sizeInfo.fWidthBytes[j]);
+        }
+    }
+    for (int i = DCTSIZE; i < numYRowsPerBlock; i++) {
         rowptrs[i] = SkTAddOffset<JSAMPLE>(planes[SkYUVSizeInfo::kY],
                 i * sizeInfo.fWidthBytes[SkYUVSizeInfo::kY]);
     }
-    for (int i = 0; i < DCTSIZE; i++) {
-        rowptrs[i + 2 * DCTSIZE] = SkTAddOffset<JSAMPLE>(planes[SkYUVSizeInfo::kU],
-                i * sizeInfo.fWidthBytes[SkYUVSizeInfo::kU]);
-        rowptrs[i + 3 * DCTSIZE] = SkTAddOffset<JSAMPLE>(planes[SkYUVSizeInfo::kV],
-                i * sizeInfo.fWidthBytes[SkYUVSizeInfo::kV]);
-    }
+
 
     // After each loop iteration, we will increment pointers to Y, U, and V.
-    size_t blockIncrementY = numYRowsPerBlock * sizeInfo.fWidthBytes[SkYUVSizeInfo::kY];
-    size_t blockIncrementU = DCTSIZE * sizeInfo.fWidthBytes[SkYUVSizeInfo::kU];
-    size_t blockIncrementV = DCTSIZE * sizeInfo.fWidthBytes[SkYUVSizeInfo::kV];
+    size_t blockIncrement[3];
+    blockIncrement[0] = numYRowsPerBlock * sizeInfo.fWidthBytes[SkYUVSizeInfo::kY];
+    blockIncrement[1] = DCTSIZE * sizeInfo.fWidthBytes[SkYUVSizeInfo::kU];
+    blockIncrement[2] = DCTSIZE * sizeInfo.fWidthBytes[SkYUVSizeInfo::kV];
 
     uint32_t numRowsPerBlock = numYRowsPerBlock;
 
@@ -925,12 +926,13 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void
         }
 
         // Update rowptrs.
-        for (int i = 0; i < numYRowsPerBlock; i++) {
-            rowptrs[i] += blockIncrementY;
-        }
         for (int i = 0; i < DCTSIZE; i++) {
-            rowptrs[i + 2 * DCTSIZE] += blockIncrementU;
-            rowptrs[i + 3 * DCTSIZE] += blockIncrementV;
+            for (auto j : { SkYUVSizeInfo::kY, SkYUVSizeInfo::kU, SkYUVSizeInfo::kV }) {
+                yuv[j][i] += blockIncrement[j];
+            }
+        }
+        for (int i = DCTSIZE; i < numYRowsPerBlock; i++) {
+            rowptrs[i] += blockIncrement[SkYUVSizeInfo::kY];
         }
     }
 
