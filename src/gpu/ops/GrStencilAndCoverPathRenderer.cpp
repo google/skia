@@ -31,22 +31,18 @@ GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrResourceProvider*
     : fResourceProvider(resourceProvider) {
 }
 
-GrPathRenderer::CanDrawPath
-GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+bool GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // GrPath doesn't support hairline paths. An arbitrary path effect could produce a hairline
     // path.
     if (args.fShape->style().strokeRec().isHairlineStyle() ||
         args.fShape->style().hasNonDashPathEffect()) {
-        return CanDrawPath::kNo;
+        return false;
     }
     if (args.fHasUserStencilSettings) {
-        return CanDrawPath::kNo;
+        return false;
     }
     // doesn't do per-path AA, relies on the target having MSAA.
-    if (GrAAType::kCoverage == args.fAAType) {
-        return CanDrawPath::kNo;
-    }
-    return CanDrawPath::kYes;
+    return (GrAAType::kCoverage != args.fAAType);
 }
 
 static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const GrShape& shape) {
