@@ -390,20 +390,18 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
     // we must do it ourselves.
     J_COLOR_SPACE encodedColorType = fDecoderMgr->dinfo()->jpeg_color_space;
     bool isCMYK = (JCS_CMYK == encodedColorType || JCS_YCCK == encodedColorType);
+    if (isCMYK) {
+        fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
+        return true;
+    }
 
     // Check for valid color types and set the output color space
     switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
-            if (isCMYK) {
-                fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
-            } else {
-                fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
-            }
+            fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
             return true;
         case kBGRA_8888_SkColorType:
-            if (isCMYK) {
-                fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
-            } else if (this->colorXform()) {
+            if (this->colorXform()) {
                 // Always using RGBA as the input format for color xforms makes the
                 // implementation a little simpler.
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
@@ -412,9 +410,7 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
             }
             return true;
         case kRGB_565_SkColorType:
-            if (isCMYK) {
-                fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
-            } else if (this->colorXform()) {
+            if (this->colorXform()) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
             } else {
                 fDecoderMgr->dinfo()->dither_mode = JDITHER_NONE;
@@ -435,11 +431,7 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
                 return false;
             }
 
-            if (isCMYK) {
-                fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
-            } else {
-                fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
-            }
+            fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
             return true;
         default:
             return false;
