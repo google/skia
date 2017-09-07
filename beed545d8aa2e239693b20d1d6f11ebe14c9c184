@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bcbb1b9f_44d0047e",
+        "filename": "tests/DetermineDomainModeTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-07T14:29:26Z",
+      "side": 1,
+      "message": "Maybe add // This skips a use case that will never occur in the wild\n\n?",
+      "revId": "beed545d8aa2e239693b20d1d6f11ebe14c9c184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
