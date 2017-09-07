@@ -22,6 +22,30 @@
       "revId": "a8d0ee44276dc1474145297c89571ff3a900cf9c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44bec7c0_5276356f",
+        "filename": "src/gpu/ops/GrTessellatingPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-07T13:34:45Z",
+      "side": 1,
+      "message": "IIRC, the Default/MSAAPR for MSAA and the AAConvex for non-MSAA.",
+      "parentUuid": "f7ef21c8_44603bee",
+      "range": {
+        "startLine": 138,
+        "startChar": 73,
+        "endLine": 138,
+        "endChar": 91
+      },
+      "revId": "a8d0ee44276dc1474145297c89571ff3a900cf9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
