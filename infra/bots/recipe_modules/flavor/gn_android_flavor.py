@@ -38,7 +38,14 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     # The only non-infra adb steps (dm / nanobench) happen to not use _adb().
     if 'infra_step' not in kwargs:
       kwargs['infra_step'] = True
-    return self._run(title, 'adb', *cmd, **kwargs)
+
+    flaky_devices = ['NexusPlayer', 'PixelC']
+    if self.m.vars.builder_cfg.get('model') in flaky_devices:
+      with self.m.context(cwd=self.m.vars.skia_dir):
+        return self.m.run.with_retry(self.m.step, title, 5,
+                                     cmd=['adb'] + list(cmd), **kwargs)
+    else:
+      return self._run(title, 'adb', *cmd, **kwargs)
 
   def compile(self, unused_target):
     compiler      = self.m.vars.builder_cfg.get('compiler')
