@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "891c1e64_a367abcb",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-07T16:54:07Z",
+      "side": 1,
+      "message": "I feel like you need a destructor for TextureGeometryProcessor that placement deletes these samplers. (Don\u0027t they have refs?)",
+      "revId": "a7eff839cf6a1e9633d75dec92ef0dd169e4ebaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
