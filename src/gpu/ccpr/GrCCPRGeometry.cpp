@@ -40,6 +40,7 @@ void GrCCPRGeometry::beginContour(const SkPoint& devPt) {
 
 void GrCCPRGeometry::lineTo(const SkPoint& devPt) {
     SkASSERT(fBuildingContour);
+    SkASSERT(fCurrFanPoint == fPoints.back());
     fCurrFanPoint = devPt;
     fPoints.push_back(devPt);
     fVerbs.push_back(Verb::kLineTo);
@@ -54,6 +55,22 @@ static inline float dot(const Sk2f& a, const Sk2f& b) {
     float product[2];
     (a * b).store(product);
     return product[0] + product[1];
+}
+
+static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
+    static constexpr float kFlatnessTolerance = 16; // 1/16 of a pixel.
+
+    // Area (times 2) of the triangle.
+    Sk2f a = (p0 - p1) * SkNx_shuffle<1,0>(p1 - p2);
+    a = (a - SkNx_shuffle<1,0>(a)).abs();
+
+    // Bounding box of the triangle.
+    Sk2f bbox0 = Sk2f::Min(Sk2f::Min(p0, p1), p2);
+    Sk2f bbox1 = Sk2f::Max(Sk2f::Max(p0, p1), p2);
+
+    // The triangle is linear if its area is within a fraction of the largest bounding box
+    // dimension, or else if its area is within a fraction of a pixel.
+    return (a * (kFlatnessTolerance/2) < Sk2f::Max(bbox1 - bbox0, 1)).anyTrue();
 }
 
 // Returns whether the (convex) curve segment is monotonic with respect to [endPt - startPt].
@@ -75,11 +92,19 @@ static inline Sk2f lerp(const Sk2f& a, const Sk2f& b, const Sk2f& t) {
 
 void GrCCPRGeometry::quadraticTo(const SkPoint& devP0, const SkPoint& devP1) {
     SkASSERT(fBuildingContour);
+    SkASSERT(fCurrFanPoint == fPoints.back());
 
     Sk2f p0 = Sk2f::Load(&fCurrFanPoint);
     Sk2f p1 = Sk2f::Load(&devP0);
     Sk2f p2 = Sk2f::Load(&devP1);
     fCurrFanPoint = devP1;
+
+    // Don't send curves to the GPU if we know they are flat (or just very small).
+    if (are_collinear(p0, p1, p2)) {
+        p2.store(&fPoints.push_back());
+        fVerbs.push_back(Verb::kLineTo);
+        return;
+    }
 
     Sk2f tan0 = p1 - p0;
     Sk2f tan1 = p2 - p1;
@@ -230,6 +255,7 @@ static inline void calc_loop_intersect_padding_pts(float padRadius, const Sk2f& 
 void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const SkPoint& devP3,
                              float inflectPad, float loopIntersectPad) {
     SkASSERT(fBuildingContour);
+    SkASSERT(fCurrFanPoint == fPoints.back());
 
     SkPoint devPts[4] = {fCurrFanPoint, devP1, devP2, devP3};
     Sk2f p0 = Sk2f::Load(&fCurrFanPoint);
@@ -237,6 +263,15 @@ void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const S
     Sk2f p2 = Sk2f::Load(&devP2);
     Sk2f p3 = Sk2f::Load(&devP3);
     fCurrFanPoint = devP3;
+
+    // Don't crunch on the curve and inflate geometry if it is already flat (or just very small).
+    if (are_collinear(p0, p1, p2) &&
+        are_collinear(p1, p2, p3) &&
+        are_collinear(p0, (p1 + p2) * .5f, p3)) {
+        p3.store(&fPoints.push_back());
+        fVerbs.push_back(Verb::kLineTo);
+        return;
+    }
 
     double tt[2], ss[2];
     fCurrCubicType = SkClassifyCubic(devPts, tt, ss);
@@ -251,8 +286,8 @@ void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const S
     if (ExcludedTerm::kNonInvertible == skipTerm) {
         // This could technically also happen if the curve were a quadratic, but SkClassifyCubic
         // should have detected that case already with tolerance.
-        fCurrCubicType = SkCubicType::kLineOrPoint;
-        this->appendCubicApproximation(p0, p1, p2, p3, /*maxSubdivisions=*/0);
+        p3.store(&fPoints.push_back());
+        fVerbs.push_back(Verb::kLineTo);
         return;
     }
     SkASSERT(0 == CIT[6]);
