@@ -39,6 +39,11 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
             u1 = u0 + width;
             v1 = v0 + height;
         }
+        // shift to make space for index bits
+        u0 <<= 1;
+        v0 <<= 1;
+        u1 <<= 1;
+        v1 <<= 1;
     }
 
     // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color
