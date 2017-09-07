@@ -16,6 +16,24 @@
       "revId": "a8ac92418807e3d46a45413459e6895160134c1d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8cc1d57_457f5a62",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 797,
+      "author": {
+        "id": 5646
+      },
+      "writtenOn": "2017-09-07T17:05:37Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "5ec3d24a_767ec6ec",
+      "revId": "a8ac92418807e3d46a45413459e6895160134c1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
