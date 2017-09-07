@@ -26,8 +26,8 @@ struct ASTDeclaration : public ASTPositionNode {
         kSection_Kind
     };
 
-    ASTDeclaration(Position position, Kind kind)
-    : INHERITED(position)
+    ASTDeclaration(int offset, Kind kind)
+    : INHERITED(offset)
     , fKind(kind) {}
 
     Kind fKind;

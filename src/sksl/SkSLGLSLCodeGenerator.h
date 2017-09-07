@@ -90,6 +90,8 @@ protected:
 
     void write(const String& s);
 
+    void write(StringFragment s);
+
     void writeLine(const String& s);
 
     virtual void writeHeader();

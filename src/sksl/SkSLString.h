@@ -8,6 +8,8 @@
 #ifndef SKSL_STRING
 #define SKSL_STRING
 
+#include <cstring>
+
 #define SKSL_USE_STD_STRING
 
 #include <stdarg.h>
@@ -21,6 +23,33 @@
 #endif
 
 namespace SkSL {
+
+// Represents a (not necessarily null-terminated) slice of a string.
+struct StringFragment {
+    StringFragment()
+    : fChars(nullptr)
+    , fLength(0) {}
+
+    StringFragment(const char* chars)
+    : fChars(chars)
+    , fLength(strlen(chars)) {}
+
+    StringFragment(const char* chars, size_t length)
+    : fChars(chars)
+    , fLength(length) {}
+
+    char operator[](size_t idx) const {
+        return fChars[idx];
+    }
+
+    bool operator==(const char* s) const;
+    bool operator!=(const char* s) const;
+    bool operator==(StringFragment s) const;
+    bool operator!=(StringFragment s) const;
+
+    const char* fChars;
+    size_t fLength;
+};
 
 class String : public SKSL_STRING_BASE {
 public:
@@ -41,6 +70,9 @@ public:
     String(const char* s, size_t size)
     : INHERITED(s, size) {}
 
+    String(StringFragment s)
+    : INHERITED(s.fChars, s.fLength) {}
+
     static String printf(const char* fmt, ...);
 
 #ifdef SKSL_USE_STD_STRING
@@ -53,6 +85,11 @@ public:
 
     String operator+(const char* s) const;
     String operator+(const String& s) const;
+    String operator+(StringFragment s) const;
+    String& operator+=(char c);
+    String& operator+=(const char* s);
+    String& operator+=(const String& s);
+    String& operator+=(StringFragment s);
     bool operator==(const char* s) const;
     bool operator!=(const char* s) const;
     bool operator==(const String& s) const;
@@ -84,6 +121,18 @@ double stod(const String& s);
 
 long stol(const String& s);
 
+} // namespace
+
+namespace std {
+    template<> struct hash<SkSL::StringFragment> {
+        size_t operator()(const SkSL::StringFragment& s) const {
+            size_t result = 0;
+            for (size_t i = 0; i < s.fLength; ++i) {
+                result = result * 101 + s.fChars[i];
+            }
+            return result;
+        }
+    };
 } // namespace
 
 #ifdef SKSL_USE_STD_STRING

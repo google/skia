@@ -17,8 +17,8 @@ namespace SkSL {
  * A 'continue' statement.
  */
 struct ContinueStatement : public Statement {
-    ContinueStatement(Position position)
-    : INHERITED(position, kContinue_Kind) {}
+    ContinueStatement(int offset)
+    : INHERITED(offset, kContinue_Kind) {}
 
     String description() const override {
         return String("continue;");

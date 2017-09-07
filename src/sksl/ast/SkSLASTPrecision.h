@@ -18,8 +18,8 @@ namespace SkSL {
  */
 struct ASTPrecision : public ASTDeclaration {
     // FIXME handle the type
-    ASTPrecision(Position position, Modifiers::Flag precision)
-    : INHERITED(position, kPrecision_Kind)
+    ASTPrecision(int offset, Modifiers::Flag precision)
+    : INHERITED(offset, kPrecision_Kind)
     , fPrecision(precision) {}
 
     String description() const {

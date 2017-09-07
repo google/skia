@@ -61,7 +61,8 @@ public:
     IRGenerator(const Context* context, std::shared_ptr<SymbolTable> root,
                 ErrorReporter& errorReporter);
 
-    void convertProgram(String text,
+    void convertProgram(const char* text,
+                        size_t length,
                         SymbolTable& types,
                         Modifiers::Flag* defaultPrecision,
                         std::vector<std::unique_ptr<ProgramElement>>* result);
@@ -103,26 +104,26 @@ private:
                                                                   const ASTModifiersDeclaration& m);
 
     const Type* convertType(const ASTType& type);
-    std::unique_ptr<Expression> call(Position position,
+    std::unique_ptr<Expression> call(int offset,
                                      const FunctionDeclaration& function,
                                      std::vector<std::unique_ptr<Expression>> arguments);
     int callCost(const FunctionDeclaration& function,
                  const std::vector<std::unique_ptr<Expression>>& arguments);
-    std::unique_ptr<Expression> call(Position position, std::unique_ptr<Expression> function,
+    std::unique_ptr<Expression> call(int offset, std::unique_ptr<Expression> function,
                                      std::vector<std::unique_ptr<Expression>> arguments);
     int coercionCost(const Expression& expr, const Type& type);
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
     std::unique_ptr<Block> convertBlock(const ASTBlock& block);
     std::unique_ptr<Statement> convertBreak(const ASTBreakStatement& b);
     std::unique_ptr<Expression> convertNumberConstructor(
-                                                   Position position,
+                                                   int offset,
                                                    const Type& type,
                                                    std::vector<std::unique_ptr<Expression>> params);
     std::unique_ptr<Expression> convertCompoundConstructor(
-                                                   Position position,
+                                                   int offset,
                                                    const Type& type,
                                                    std::vector<std::unique_ptr<Expression>> params);
-    std::unique_ptr<Expression> convertConstructor(Position position,
+    std::unique_ptr<Expression> convertConstructor(int offset,
                                                    const Type& type,
                                                    std::vector<std::unique_ptr<Expression>> params);
     std::unique_ptr<Statement> convertContinue(const ASTContinueStatement& c);
@@ -142,13 +143,13 @@ private:
     std::unique_ptr<Expression> convertPrefixExpression(const ASTPrefixExpression& expression);
     std::unique_ptr<Statement> convertReturn(const ASTReturnStatement& r);
     std::unique_ptr<Section> convertSection(const ASTSection& e);
-    std::unique_ptr<Expression> getCap(Position position, String name);
-    std::unique_ptr<Expression> getArg(Position position, String name);
+    std::unique_ptr<Expression> getCap(int offset, String name);
+    std::unique_ptr<Expression> getArg(int offset, String name);
     std::unique_ptr<Expression> convertSuffixExpression(const ASTSuffixExpression& expression);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
-                                             const String& field);
+                                             StringFragment field);
     std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base,
-                                               const String& fields);
+                                               StringFragment fields);
     std::unique_ptr<Expression> convertTernaryExpression(const ASTTernaryExpression& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTVarDeclarationStatement& s);
     std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);
