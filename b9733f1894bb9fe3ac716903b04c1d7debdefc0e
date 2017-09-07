@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "151a015c_6f2fd7b3",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-07T14:21:21Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "04b2a1c6_ab438072",
+      "range": {
+        "startLine": 420,
+        "startChar": 13,
+        "endLine": 420,
+        "endChar": 32
+      },
+      "revId": "b9733f1894bb9fe3ac716903b04c1d7debdefc0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c1ce82a5_790db550",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "c659d17d_fcaabe4e",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-07T14:21:21Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "c1ce82a5_790db550",
+      "range": {
+        "startLine": 430,
+        "startChar": 12,
+        "endLine": 430,
+        "endChar": 57
+      },
+      "revId": "b9733f1894bb9fe3ac716903b04c1d7debdefc0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "db8855b7_9230bb6c",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2017-09-07T14:09:13Z",
       "side": 1,
       "message": "As an alternative, you could change all the \"return true\"s into \"break\"s, and add the following block at the end:\n\n    if (JCS_CMYK \u003d\u003d encodedColorType || JCS_YCCK \u003d\u003d encodedColorType) {\n        fDecoderMgr-\u003edinfo()-\u003eout_color_space \u003d JCS_CMYK;\n    }\n    return true;\n\nWe\u0027ll have set the out_color_space twice if CMYK (incorrectly first, then properly after), but that should be fine.",
+      "range": {
+        "startLine": 438,
+        "startChar": 5,
+        "endLine": 438,
+        "endChar": 0
+      },
+      "revId": "b9733f1894bb9fe3ac716903b04c1d7debdefc0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f081940e_dbe2030b",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-07T14:21:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db8855b7_9230bb6c",
       "range": {
         "startLine": 438,
         "startChar": 5,
