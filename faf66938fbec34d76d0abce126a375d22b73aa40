@@ -16,6 +16,24 @@
       "revId": "faf66938fbec34d76d0abce126a375d22b73aa40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8761a868_387295a1",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-07T16:51:41Z",
+      "side": 1,
+      "message": "I believe it\u0027s possible. I don\u0027t think we have been discarding paths based on the clip\u0027s bounds and/or the path\u0027s mapped device bounds? So if a GrClip returns something unexpectedly tight from getConservativeBounds, I think this could trip.\n\nIf we are mapping the path\u0027s bounds higher up on the stack, then maybe we should push it down here rather than recomputing it.",
+      "parentUuid": "96698e26_4bd0edaa",
+      "revId": "faf66938fbec34d76d0abce126a375d22b73aa40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
