@@ -386,48 +386,37 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
                       "- it is being decoded as non-opaque, which will draw slower\n");
     }
 
-    // Check if we will decode to CMYK.  libjpeg-turbo does not convert CMYK to RGBA, so
-    // we must do it ourselves.
     J_COLOR_SPACE encodedColorType = fDecoderMgr->dinfo()->jpeg_color_space;
-    bool isCMYK = (JCS_CMYK == encodedColorType || JCS_YCCK == encodedColorType);
 
     // Check for valid color types and set the output color space
     switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
-            if (isCMYK) {
-                fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
-            } else {
-                fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
-            }
-            return true;
+            fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
+            break;
         case kBGRA_8888_SkColorType:
-            if (isCMYK) {
-                fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
-            } else if (this->colorXform()) {
+            if (this->colorXform()) {
                 // Always using RGBA as the input format for color xforms makes the
                 // implementation a little simpler.
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
             } else {
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_BGRA;
             }
-            return true;
+            break;
         case kRGB_565_SkColorType:
-            if (isCMYK) {
-                fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
-            } else if (this->colorXform()) {
+            if (this->colorXform()) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
             } else {
                 fDecoderMgr->dinfo()->dither_mode = JDITHER_NONE;
                 fDecoderMgr->dinfo()->out_color_space = JCS_RGB565;
             }
-            return true;
+            break;
         case kGray_8_SkColorType:
             if (this->colorXform() || JCS_GRAYSCALE != encodedColorType) {
                 return false;
             }
 
             fDecoderMgr->dinfo()->out_color_space = JCS_GRAYSCALE;
-            return true;
+            break;
         case kRGBA_F16_SkColorType:
             SkASSERT(this->colorXform());
 
@@ -435,15 +424,19 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
                 return false;
             }
 
-            if (isCMYK) {
-                fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
-            } else {
-                fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
-            }
-            return true;
+            fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
+            break;
         default:
             return false;
     }
+
+    // Check if we will decode to CMYK.  libjpeg-turbo does not convert CMYK to RGBA, so
+    // we must do it ourselves.
+    if (JCS_CMYK == encodedColorType || JCS_YCCK == encodedColorType) {
+        fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
+    }
+
+    return true;
 }
 
 /*
