@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "63e43a32_94762383",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-07T13:37:57Z",
+      "side": 1,
+      "message": "Wont this not work if the GPU doesn\u0027t support integers in shaders?",
+      "range": {
+        "startLine": 77,
+        "startChar": 34,
+        "endLine": 77,
+        "endChar": 44
+      },
+      "revId": "b699e70c812662ca0d0dd5e76e3b8cd87e51c41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1e51a296_32bf27f2",
         "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
         "patchSetId": 3
@@ -30,6 +53,30 @@
       "writtenOn": "2017-09-06T17:51:12Z",
       "side": 1,
       "message": "Unfortunately we need a different shader depending on the number of samplers, as args.fTexSamplers[i] isn\u0027t always defined.",
+      "range": {
+        "startLine": 82,
+        "startChar": 33,
+        "endLine": 82,
+        "endChar": 51
+      },
+      "revId": "b699e70c812662ca0d0dd5e76e3b8cd87e51c41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50dfc262_a4dc49e8",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-07T13:37:57Z",
+      "side": 1,
+      "message": "In this CL I came up with an approach for binning to sampler counts: https://skia-review.googlesource.com/c/skia/+/42121\n\nWe should think more about how to do this without duplicating TextureSampler objects like I did.",
+      "parentUuid": "1e51a296_32bf27f2",
       "range": {
         "startLine": 82,
         "startChar": 33,
