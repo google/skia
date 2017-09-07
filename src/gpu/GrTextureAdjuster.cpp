@@ -13,22 +13,14 @@
 #include "SkGr.h"
 
 GrTextureAdjuster::GrTextureAdjuster(GrContext* context, sk_sp<GrTextureProxy> original,
-                                     SkAlphaType alphaType,
-                                     const SkIRect& contentArea, uint32_t uniqueID,
-                                     SkColorSpace* cs)
-    : INHERITED(contentArea.width(), contentArea.height(),
-                GrPixelConfigIsAlphaOnly(original->config()))
-    , fContext(context)
-    , fOriginal(std::move(original))
-    , fAlphaType(alphaType)
-    , fColorSpace(cs)
-    , fUniqueID(uniqueID) {
-    SkASSERT(SkIRect::MakeWH(fOriginal->width(), fOriginal->height()).contains(contentArea));
-    if (contentArea.fLeft > 0 || contentArea.fTop > 0 ||
-        contentArea.fRight < fOriginal->width() || contentArea.fBottom < fOriginal->height()) {
-        fContentArea.set(contentArea);
-    }
-}
+                                     SkAlphaType alphaType, uint32_t uniqueID, SkColorSpace* cs)
+        : INHERITED(original->width(), original->height(),
+                    GrPixelConfigIsAlphaOnly(original->config()))
+        , fContext(context)
+        , fOriginal(std::move(original))
+        , fAlphaType(alphaType)
+        , fColorSpace(cs)
+        , fUniqueID(uniqueID) {}
 
 void GrTextureAdjuster::makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey,
                                     SkColorSpace* dstColorSpace) {
@@ -54,9 +46,8 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
     }
 
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
-    const SkIRect* contentArea = this->contentAreaOrNull();
 
-    sk_sp<GrTextureProxy> copy = CopyOnGpu(fContext, std::move(proxy), contentArea, copyParams);
+    sk_sp<GrTextureProxy> copy = CopyOnGpu(fContext, std::move(proxy), copyParams);
     if (copy) {
         if (key.isValid()) {
             SkASSERT(copy->origin() == this->originalProxy()->origin());
@@ -69,60 +60,31 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
 
 sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(
                                                                  const GrSamplerParams& params,
-                                                                 SkIPoint* outOffset,
                                                                  SkScalar scaleAdjust[2]) {
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
     CopyParams copyParams;
-    const SkIRect* contentArea = this->contentAreaOrNull();
 
     if (!fContext) {
         // The texture was abandoned.
         return nullptr;
     }
-
-    if (contentArea && GrSamplerParams::kMipMap_FilterMode == params.filterMode()) {
-        // If we generate a MIP chain for texture it will read pixel values from outside the content
-        // area.
-        copyParams.fWidth = contentArea->width();
-        copyParams.fHeight = contentArea->height();
-        copyParams.fFilter = GrSamplerParams::kBilerp_FilterMode;
-    } else if (!fContext->getGpu()->isACopyNeededForTextureParams(proxy.get(), params, &copyParams,
-                                                                  scaleAdjust)) {
-        if (outOffset) {
-            if (contentArea) {
-                outOffset->set(contentArea->fLeft, contentArea->fRight);
-            } else {
-                outOffset->set(0, 0);
-            }
-        }
+    if (!fContext->getGpu()->isACopyNeededForTextureParams(proxy.get(), params, &copyParams,
+                                                           scaleAdjust)) {
         return proxy;
     }
 
     sk_sp<GrTextureProxy> copy = this->refTextureProxyCopy(copyParams);
-    if (copy && outOffset) {
-        outOffset->set(0, 0);
-    }
     return copy;
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
         const SkMatrix& origTextureMatrix,
-        const SkRect& origConstraintRect,
+        const SkRect& constraintRect,
         FilterConstraint filterConstraint,
         bool coordsLimitedToConstraintRect,
         const GrSamplerParams::FilterMode* filterOrNullForBicubic,
         SkColorSpace* dstColorSpace) {
     SkMatrix textureMatrix = origTextureMatrix;
-    const SkIRect* contentArea = this->contentAreaOrNull();
-    // Convert the constraintRect to be relative to the texture rather than the content area so
-    // that both rects are in the same coordinate system.
-    SkTCopyOnFirstWrite<SkRect> constraintRect(origConstraintRect);
-    if (contentArea) {
-        SkScalar l = SkIntToScalar(contentArea->fLeft);
-        SkScalar t = SkIntToScalar(contentArea->fTop);
-        constraintRect.writable()->offset(l, t);
-        textureMatrix.postTranslate(l, t);
-    }
 
     SkRect domain;
     GrSamplerParams params;
@@ -130,22 +92,19 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
         params.setFilterMode(*filterOrNullForBicubic);
     }
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
-    sk_sp<GrTextureProxy> proxy(this->refTextureProxySafeForParams(params, nullptr, scaleAdjust));
+    sk_sp<GrTextureProxy> proxy(this->refTextureProxySafeForParams(params, scaleAdjust));
     if (!proxy) {
         return nullptr;
     }
     // If we made a copy then we only copied the contentArea, in which case the new texture is all
     // content.
     if (proxy.get() != this->originalProxy()) {
-        contentArea = nullptr;
         textureMatrix.postScale(scaleAdjust[0], scaleAdjust[1]);
     }
 
     DomainMode domainMode =
-        DetermineDomainMode(*constraintRect, filterConstraint, coordsLimitedToConstraintRect,
-                            proxy.get(),
-                            contentArea, filterOrNullForBicubic,
-                            &domain);
+            DetermineDomainMode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
+                                proxy.get(), filterOrNullForBicubic, &domain);
     if (kTightCopy_DomainMode == domainMode) {
         // TODO: Copy the texture and adjust the texture matrix (both parts need to consider
         // non-int constraint rect)
@@ -156,9 +115,8 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
                  GrSamplerParams::kMipMap_FilterMode == *filterOrNullForBicubic);
         static const GrSamplerParams::FilterMode kBilerp = GrSamplerParams::kBilerp_FilterMode;
         domainMode =
-            DetermineDomainMode(*constraintRect, filterConstraint, coordsLimitedToConstraintRect,
-                                proxy.get(),
-                                contentArea, &kBilerp, &domain);
+                DetermineDomainMode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
+                                    proxy.get(), &kBilerp, &domain);
         SkASSERT(kTightCopy_DomainMode != domainMode);
     }
     SkASSERT(kNoDomain_DomainMode == domainMode ||
