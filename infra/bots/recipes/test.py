@@ -167,6 +167,13 @@ def dm_flags(api, bot):
       blacklist('gltestthreading gm _ lcdblendmodes')
       blacklist('gltestthreading gm _ lcdoverlap')
       blacklist('gltestthreading gm _ textbloblooper')
+      # All of these GMs are flaky, too:
+      blacklist('gltestthreading gm _ bleed_alpha_bmp')
+      blacklist('gltestthreading gm _ bleed_alpha_bmp_shader')
+      blacklist('gltestthreading gm _ bleed_alpha_image')
+      blacklist('gltestthreading gm _ bleed_alpha_image_shader')
+      blacklist('gltestthreading gm _ savelayer_with_backdrop')
+      blacklist('gltestthreading gm _ persp_shaders_bw')
 
     # The following devices do not support glessrgb.
     if 'glessrgb' in configs:
