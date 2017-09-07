@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9defac8d_36f31d0e",
+        "filename": "tools/flags/SkCommonFlags.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-07T13:15:33Z",
+      "side": 1,
+      "message": "Since we already have a SK_HAS_HEIF_LIBRARY flag, let\u0027s put this behind it, like SK_CODEC_DECODES_RAW",
+      "range": {
+        "startLine": 94,
+        "startChar": 83,
+        "endLine": 94,
+        "endChar": 87
+      },
+      "revId": "648249c9d41ef9f696a50c1c7626df356e2b1774",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
