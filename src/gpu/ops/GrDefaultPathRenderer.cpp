@@ -609,20 +609,15 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
     return true;
 }
 
-GrPathRenderer::CanDrawPath
-GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+bool GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     bool isHairline = IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr);
     // If we aren't a single_pass_shape or hairline, we require stencil buffers.
     if (!(single_pass_shape(*args.fShape) || isHairline) && args.fCaps->avoidStencilBuffers()) {
-        return CanDrawPath::kNo;
+        return false;
     }
     // This can draw any path with any simple fill style but doesn't do coverage-based antialiasing.
-    if (GrAAType::kCoverage == args.fAAType ||
-        (!args.fShape->style().isSimpleFill() && !isHairline)) {
-        return CanDrawPath::kNo;
-    }
-    // This is the fallback renderer for when a path is too complicated for the others to draw.
-    return CanDrawPath::kAsBackup;
+    return GrAAType::kCoverage != args.fAAType &&
+           (args.fShape->style().isSimpleFill() || isHairline);
 }
 
 bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {

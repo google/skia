@@ -19,7 +19,7 @@ public:
     typedef SkTArray<float, true> FloatArray;
 
 private:
-    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
+    bool onCanDrawPath(const CanDrawPathArgs&) const override;
 
     bool onDrawPath(const DrawPathArgs&) override;
 

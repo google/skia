@@ -53,7 +53,7 @@ private:
         return GrPathRenderer::kNoSupport_StencilSupport;
     }
 
-    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
+    bool onCanDrawPath(const CanDrawPathArgs&) const override;
 
     bool onDrawPath(const DrawPathArgs&) override;
 

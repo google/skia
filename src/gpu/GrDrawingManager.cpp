@@ -312,7 +312,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
                     new GrSoftwarePathRenderer(fContext->resourceProvider(),
                                                fOptionsForPathRendererChain.fAllowPathMaskCaching);
         }
-        if (GrPathRenderer::CanDrawPath::kNo != fSoftwarePathRenderer->canDrawPath(args)) {
+        if (fSoftwarePathRenderer->canDrawPath(args)) {
             pr = fSoftwarePathRenderer;
         }
     }

@@ -15,7 +15,7 @@ public:
     GrAAConvexPathRenderer();
 
 private:
-    CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
+    bool onCanDrawPath(const CanDrawPathArgs&) const override;
 
     bool onDrawPath(const DrawPathArgs&) override;
 };

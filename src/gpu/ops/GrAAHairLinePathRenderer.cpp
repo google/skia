@@ -677,27 +677,26 @@ static void add_line(const SkPoint p[2],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrPathRenderer::CanDrawPath
-GrAAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+bool GrAAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (GrAAType::kCoverage != args.fAAType) {
-        return CanDrawPath::kNo;
+        return false;
     }
 
     if (!IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr)) {
-        return CanDrawPath::kNo;
+        return false;
     }
 
     // We don't currently handle dashing in this class though perhaps we should.
     if (args.fShape->style().pathEffect()) {
-        return CanDrawPath::kNo;
+        return false;
     }
 
     if (SkPath::kLine_SegmentMask == args.fShape->segmentMask() ||
         args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
-        return CanDrawPath::kYes;
+        return true;
     }
 
-    return CanDrawPath::kNo;
+    return false;
 }
 
 template <class VertexType>

@@ -132,31 +132,27 @@ private:
 GrTessellatingPathRenderer::GrTessellatingPathRenderer() {
 }
 
-GrPathRenderer::CanDrawPath
-GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // This path renderer can draw fill styles, and can do screenspace antialiasing via a one-pixel
-    // coverage ramp. It can do convex and concave paths, but we'll give simpler algorithms a chance
-    // to draw the convex ones first. We pass on paths that have styles, though they may come back
-    // around after applying the styling information to the geometry to create a filled path. In the
-    // non-AA case, We skip paths that don't have a key since the real advantage of this path
+bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    // This path renderer can draw fill styles, and can do screenspace antialiasing via a
+    // one-pixel coverage ramp. It can do convex and concave paths, but we'll leave the convex
+    // ones to simpler algorithms. We pass on paths that have styles, though they may come back
+    // around after applying the styling information to the geometry to create a filled path. In
+    // the non-AA case, We skip paths thta don't have a key since the real advantage of this path
     // renderer comes from caching the tessellated geometry. In the AA case, we do not cache, so we
     // accept paths without keys.
-    if (!args.fShape->style().isSimpleFill()) {
-        return CanDrawPath::kNo;
+    if (!args.fShape->style().isSimpleFill() || args.fShape->knownToBeConvex()) {
+        return false;
     }
     if (GrAAType::kCoverage == args.fAAType) {
         SkPath path;
         args.fShape->asPath(&path);
         if (path.countVerbs() > 10) {
-            return CanDrawPath::kNo;
+            return false;
         }
     } else if (!args.fShape->hasUnstyledKey()) {
-        return CanDrawPath::kNo;
+        return false;
     }
-    if (args.fShape->knownToBeConvex()) {
-        return CanDrawPath::kAsBackup;
-    }
-    return CanDrawPath::kYes;
+    return true;
 }
 
 namespace {
