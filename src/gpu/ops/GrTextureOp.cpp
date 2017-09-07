@@ -37,7 +37,7 @@ public:
     };
     static sk_sp<GrGeometryProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                            sk_sp<GrColorSpaceXform> csxf,
-                                           GrSamplerParams::FilterMode filter) {
+                                           GrSamplerState::Filter filter) {
         return sk_sp<TextureGeometryProcessor>(
                 new TextureGeometryProcessor(std::move(proxy), std::move(csxf), filter));
     }
@@ -100,7 +100,7 @@ public:
 
 private:
     TextureGeometryProcessor(sk_sp<GrTextureProxy> proxy, sk_sp<GrColorSpaceXform> csxf,
-                             GrSamplerParams::FilterMode filter)
+                             GrSamplerState::Filter filter)
             : fSampler(std::move(proxy), filter), fColorSpaceXform(std::move(csxf)) {
         this->initClassID<TextureGeometryProcessor>();
         fPositions =
@@ -125,7 +125,7 @@ private:
 class TextureOp final : public GrMeshDrawOp {
 public:
     static std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy,
-                                          GrSamplerParams::FilterMode filter, GrColor color,
+                                          GrSamplerState::Filter filter, GrColor color,
                                           const SkRect srcRect, const SkRect dstRect,
                                           const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf,
                                           bool allowSRBInputs) {
@@ -140,7 +140,8 @@ public:
 
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("Filter: %d AllowSRGBInputs: %d\n", fFilter, fAllowSRGBInputs);
+        str.appendf("Filter: %d AllowSRGBInputs: %d\n", static_cast<int>(fFilter),
+                    fAllowSRGBInputs);
         str.appendf("# draws: %d\n", fDraws.count());
         for (int i = 0; i < fDraws.count(); ++i) {
             const Draw& draw = fDraws[i];
@@ -170,7 +171,7 @@ public:
     DEFINE_OP_CLASS_ID
 
 private:
-    TextureOp(sk_sp<GrTextureProxy> proxy, GrSamplerParams::FilterMode filter, GrColor color,
+    TextureOp(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter, GrColor color,
               const SkRect& srcRect, const SkRect& dstRect, const SkMatrix& viewMatrix,
               sk_sp<GrColorSpaceXform> csxf, bool allowSRGBInputs)
             : INHERITED(ClassID())
@@ -298,7 +299,7 @@ private:
     };
     SkSTArray<1, Draw, true> fDraws;
     GrTextureProxy* fProxy;
-    GrSamplerParams::FilterMode fFilter;
+    GrSamplerState::Filter fFilter;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     bool fFinalized : 1;
@@ -310,7 +311,7 @@ private:
 
 namespace GrTextureOp {
 
-std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy, GrSamplerParams::FilterMode filter,
+std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter,
                                GrColor color, const SkRect& srcRect, const SkRect& dstRect,
                                const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf,
                                bool allowSRGBInputs) {
@@ -341,8 +342,8 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     srcRect.fBottom = random->nextRangeScalar(0.f, proxy->height()) + proxy->height() / 2.f;
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     GrColor color = SkColorToPremulGrColor(random->nextU());
-    GrSamplerParams::FilterMode filter = (GrSamplerParams::FilterMode)random->nextULessThan(
-            GrSamplerParams::kMipMap_FilterMode + 1);
+    GrSamplerState::Filter filter = (GrSamplerState::Filter)random->nextULessThan(
+            static_cast<uint32_t>(GrSamplerState::Filter::kMipMap) + 1);
     auto csxf = GrTest::TestColorXform(random);
     bool allowSRGBInputs = random->nextBool();
     return GrTextureOp::Make(std::move(proxy), filter, color, srcRect, rect, viewMatrix,

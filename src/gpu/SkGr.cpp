@@ -226,7 +226,7 @@ sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext* ctx, const SkImage
 
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext* ctx,
                                                     const SkBitmap& bitmap,
-                                                    const GrSamplerParams& params,
+                                                    const GrSamplerState& params,
                                                     SkScalar scaleAdjust[2]) {
     // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
     return GrBitmapTextureMaker(ctx, bitmap).refTextureProxyForParams(params, nullptr,
@@ -621,27 +621,27 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrSamplerParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
-                                                            const SkMatrix& viewM,
-                                                            const SkMatrix& localM,
-                                                            bool* doBicubic) {
+GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
+                                                       const SkMatrix& viewM,
+                                                       const SkMatrix& localM,
+                                                       bool* doBicubic) {
     *doBicubic = false;
-    GrSamplerParams::FilterMode textureFilterMode;
+    GrSamplerState::Filter textureFilterMode;
     switch (paintFilterQuality) {
         case kNone_SkFilterQuality:
-            textureFilterMode = GrSamplerParams::kNone_FilterMode;
+            textureFilterMode = GrSamplerState::Filter::kNearest;
             break;
         case kLow_SkFilterQuality:
-            textureFilterMode = GrSamplerParams::kBilerp_FilterMode;
+            textureFilterMode = GrSamplerState::Filter::kBilerp;
             break;
         case kMedium_SkFilterQuality: {
             SkMatrix matrix;
             matrix.setConcat(viewM, localM);
             if (matrix.getMinScale() < SK_Scalar1) {
-                textureFilterMode = GrSamplerParams::kMipMap_FilterMode;
+                textureFilterMode = GrSamplerState::Filter::kMipMap;
             } else {
                 // Don't trigger MIP level generation unnecessarily.
-                textureFilterMode = GrSamplerParams::kBilerp_FilterMode;
+                textureFilterMode = GrSamplerState::Filter::kBilerp;
             }
             break;
         }
@@ -653,7 +653,7 @@ GrSamplerParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
         }
         default:
             // Should be unreachable.  If not, fall back to mipmaps.
-            textureFilterMode = GrSamplerParams::kMipMap_FilterMode;
+            textureFilterMode = GrSamplerState::Filter::kMipMap;
             break;
 
     }

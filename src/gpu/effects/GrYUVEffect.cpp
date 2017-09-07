@@ -79,13 +79,13 @@ public:
             SkMatrix::MakeScale(w[1] / w[0], h[1] / h[0]),
             SkMatrix::MakeScale(w[2] / w[0], h[2] / h[0])
         };
-        GrSamplerParams::FilterMode uvFilterMode =
+        GrSamplerState::Filter uvFilterMode =
             ((sizes[1].fWidth  != sizes[0].fWidth) ||
              (sizes[1].fHeight != sizes[0].fHeight) ||
              (sizes[2].fWidth  != sizes[0].fWidth) ||
              (sizes[2].fHeight != sizes[0].fHeight)) ?
-            GrSamplerParams::kBilerp_FilterMode :
-            GrSamplerParams::kNone_FilterMode;
+            GrSamplerState::Filter::kBilerp :
+            GrSamplerState::Filter::kNearest;
         return std::unique_ptr<GrFragmentProcessor>(
                 new YUVtoRGBEffect(std::move(yProxy), std::move(uProxy), std::move(vProxy),
                                    yuvMatrix, uvFilterMode, colorSpace, nv12));
@@ -159,7 +159,7 @@ public:
 private:
     YUVtoRGBEffect(sk_sp<GrTextureProxy> yProxy, sk_sp<GrTextureProxy> uProxy,
                    sk_sp<GrTextureProxy> vProxy, const SkMatrix yuvMatrix[3],
-                   GrSamplerParams::FilterMode uvFilterMode, SkYUVColorSpace colorSpace, bool nv12)
+                   GrSamplerState::Filter uvFilterMode, SkYUVColorSpace colorSpace, bool nv12)
             : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
             , fYTransform(yuvMatrix[0], yProxy.get())
             , fYSampler(std::move(yProxy))

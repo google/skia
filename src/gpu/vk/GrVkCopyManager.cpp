@@ -7,7 +7,7 @@
 
 #include "GrVkCopyManager.h"
 
-#include "GrSamplerParams.h"
+#include "GrSamplerState.h"
 #include "GrShaderCaps.h"
 #include "GrSurface.h"
 #include "GrTexturePriv.h"
@@ -259,10 +259,10 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     const GrVkDescriptorSet* samplerDS =
         gpu->resourceProvider().getSamplerDescriptorSet(fSamplerDSHandle);
 
-    GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
+    GrSamplerState samplerState = GrSamplerState::ClampNearest();
 
-    GrVkSampler* sampler =
-        resourceProv.findOrCreateCompatibleSampler(params, srcTex->texturePriv().maxMipMapLevel());
+    GrVkSampler* sampler = resourceProv.findOrCreateCompatibleSampler(
+            samplerState, srcTex->texturePriv().maxMipMapLevel());
 
     VkDescriptorImageInfo imageInfo;
     memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));

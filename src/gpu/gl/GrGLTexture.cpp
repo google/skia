@@ -33,18 +33,18 @@ static inline GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, GrPixelCo
 }
 
 // This method parallels GrTextureProxy::highestFilterMode
-static inline GrSamplerParams::FilterMode highest_filter_mode(const GrGLTexture::IDDesc& idDesc,
-                                                              GrPixelConfig config) {
+static inline GrSamplerState::Filter highest_filter_mode(const GrGLTexture::IDDesc& idDesc,
+                                                         GrPixelConfig config) {
     if (GrPixelConfigIsSint(config)) {
         // Integer textures in GL can use GL_NEAREST_MIPMAP_NEAREST. This is a mode we don't support
         // and don't currently have a use for.
-        return GrSamplerParams::kNone_FilterMode;
+        return GrSamplerState::Filter::kNearest;
     }
     if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE ||
         idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
-        return GrSamplerParams::kBilerp_FilterMode;
+        return GrSamplerState::Filter::kBilerp;
     }
-    return GrSamplerParams::kMipMap_FilterMode;
+    return GrSamplerState::Filter::kMipMap;
 }
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.

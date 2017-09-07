@@ -122,16 +122,15 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
-                                         sk_sp<GrTextureProxy> proxy,
-                                         const GrSamplerParams& params, GrMaskFormat format,
+GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, sk_sp<GrTextureProxy> proxy,
+                                         const GrSamplerState& params, GrMaskFormat format,
                                          const SkMatrix& localMatrix, bool usesLocalCoords)
-    : fColor(color)
-    , fLocalMatrix(localMatrix)
-    , fUsesLocalCoords(usesLocalCoords)
-    , fTextureSampler(std::move(proxy), params)
-    , fInColor(nullptr)
-    , fMaskFormat(format) {
+        : fColor(color)
+        , fLocalMatrix(localMatrix)
+        , fUsesLocalCoords(usesLocalCoords)
+        , fTextureSampler(std::move(proxy), params)
+        , fInColor(nullptr)
+        , fMaskFormat(format) {
     this->initClassID<GrBitmapTextGeoProc>();
     fInPosition =
             &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
@@ -161,22 +160,17 @@ GrGLSLPrimitiveProcessor* GrBitmapTextGeoProc::createGLSLInstance(const GrShader
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
 
 #if GR_TEST_UTILS
+
 sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
 
-    static const SkShader::TileMode kTileModes[] = {
-        SkShader::kClamp_TileMode,
-        SkShader::kRepeat_TileMode,
-        SkShader::kMirror_TileMode,
-    };
-    SkShader::TileMode tileModes[] = {
-        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-        kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-    };
-    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
-                                                             : GrSamplerParams::kNone_FilterMode);
+    GrSamplerState::WrapMode wrapModes[2];
+    GrTest::TestWrapModes(d->fRandom, wrapModes);
+    GrSamplerState samplerState(wrapModes, d->fRandom->nextBool()
+                                                   ? GrSamplerState::Filter::kBilerp
+                                                   : GrSamplerState::Filter::kNearest);
 
     GrMaskFormat format = kARGB_GrMaskFormat; // init to avoid warning
     switch (d->fRandom->nextULessThan(3)) {
@@ -191,8 +185,8 @@ sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
             break;
     }
 
-    return GrBitmapTextGeoProc::Make(GrRandomColor(d->fRandom), std::move(proxy),
-                                     params, format, GrTest::TestMatrix(d->fRandom),
+    return GrBitmapTextGeoProc::Make(GrRandomColor(d->fRandom), std::move(proxy), samplerState,
+                                     format, GrTest::TestMatrix(d->fRandom),
                                      d->fRandom->nextBool());
 }
 #endif

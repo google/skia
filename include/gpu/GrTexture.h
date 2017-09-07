@@ -9,8 +9,8 @@
 #ifndef GrTexture_DEFINED
 #define GrTexture_DEFINED
 
+#include "GrSamplerState.h"
 #include "GrSurface.h"
-#include "GrSamplerParams.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
@@ -51,7 +51,7 @@ public:
 
 protected:
     GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType samplerType,
-              GrSamplerParams::FilterMode highestFilterMode, bool wasMipMapDataProvided);
+              GrSamplerState::Filter highestFilterMode, bool wasMipMapDataProvided);
 
 private:
     void computeScratchKey(GrScratchKey*) const override;
@@ -65,7 +65,7 @@ private:
     };
 
     GrSLType                      fSamplerType;
-    GrSamplerParams::FilterMode   fHighestFilterMode;
+    GrSamplerState::Filter        fHighestFilterMode;
     MipMapsStatus                 fMipMapsStatus;
     int                           fMaxMipMapLevel;
     SkDestinationSurfaceColorMode fMipColorMode;

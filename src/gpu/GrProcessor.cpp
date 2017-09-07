@@ -9,7 +9,7 @@
 #include "GrContext.h"
 #include "GrGeometryProcessor.h"
 #include "GrMemoryPool.h"
-#include "GrSamplerParams.h"
+#include "GrSamplerState.h"
 #include "GrTextureProxy.h"
 #include "GrXferProcessor.h"
 #include "SkSpinlock.h"
@@ -220,33 +220,33 @@ bool GrResourceIOProcessor::hasSameSamplersAndAccesses(const GrResourceIOProcess
 GrResourceIOProcessor::TextureSampler::TextureSampler() {}
 
 GrResourceIOProcessor::TextureSampler::TextureSampler(sk_sp<GrTextureProxy> proxy,
-                                                      const GrSamplerParams& params) {
-    this->reset(std::move(proxy), params);
+                                                      const GrSamplerState& samplerState) {
+    this->reset(std::move(proxy), samplerState);
 }
 
 GrResourceIOProcessor::TextureSampler::TextureSampler(sk_sp<GrTextureProxy> proxy,
-                                                      GrSamplerParams::FilterMode filterMode,
-                                                      SkShader::TileMode tileXAndY,
+                                                      GrSamplerState::Filter filterMode,
+                                                      GrSamplerState::WrapMode wrapXAndY,
                                                       GrShaderFlags visibility) {
-    this->reset(std::move(proxy), filterMode, tileXAndY, visibility);
+    this->reset(std::move(proxy), filterMode, wrapXAndY, visibility);
 }
 
 void GrResourceIOProcessor::TextureSampler::reset(sk_sp<GrTextureProxy> proxy,
-                                                  const GrSamplerParams& params,
+                                                  const GrSamplerState& samplerState,
                                                   GrShaderFlags visibility) {
-    fParams = params;
+    fSamplerState = samplerState;
     fProxyRef.setProxy(std::move(proxy), kRead_GrIOType);
-    fParams.setFilterMode(SkTMin(params.filterMode(), this->proxy()->highestFilterMode()));
+    fSamplerState.setFilterMode(SkTMin(samplerState.filter(), this->proxy()->highestFilterMode()));
     fVisibility = visibility;
 }
 
 void GrResourceIOProcessor::TextureSampler::reset(sk_sp<GrTextureProxy> proxy,
-                                                  GrSamplerParams::FilterMode filterMode,
-                                                  SkShader::TileMode tileXAndY,
+                                                  GrSamplerState::Filter filterMode,
+                                                  GrSamplerState::WrapMode wrapXAndY,
                                                   GrShaderFlags visibility) {
     fProxyRef.setProxy(std::move(proxy), kRead_GrIOType);
     filterMode = SkTMin(filterMode, this->proxy()->highestFilterMode());
-    fParams.reset(tileXAndY, filterMode);
+    fSamplerState = GrSamplerState(wrapXAndY, filterMode);
     fVisibility = visibility;
 }
 

@@ -225,19 +225,15 @@ private:
         // Setup GrGeometryProcessor
         GrDrawOpAtlas* atlas = fAtlas;
         if (fUsesDistanceField) {
-            GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
-
             uint32_t flags = 0;
             flags |= ctm.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
             flags |= ctm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
             flags |= fGammaCorrect ? kGammaCorrect_DistanceFieldEffectFlag : 0;
 
             flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
-                    this->color(), this->viewMatrix(), atlas->getProxy(), params, flags,
-                    fHelper.usesLocalCoords());
+                    this->color(), this->viewMatrix(), atlas->getProxy(),
+                    GrSamplerState::ClampBilerp(), flags, fHelper.usesLocalCoords());
         } else {
-            GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
-
             SkMatrix invert;
             if (fHelper.usesLocalCoords()) {
                 if (!this->viewMatrix().invert(&invert)) {
@@ -249,9 +245,9 @@ private:
                 invert.preTranslate(-fShapes[0].fTranslate.fX, -fShapes[0].fTranslate.fY);
             }
 
-            flushInfo.fGeometryProcessor =
-                    GrBitmapTextGeoProc::Make(this->color(), atlas->getProxy(), params,
-                                              kA8_GrMaskFormat, invert, fHelper.usesLocalCoords());
+            flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
+                    this->color(), atlas->getProxy(), GrSamplerState::ClampNearest(),
+                    kA8_GrMaskFormat, invert, fHelper.usesLocalCoords());
         }
 
         // allocate vertices

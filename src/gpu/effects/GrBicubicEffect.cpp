@@ -134,12 +134,12 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                  const SkMatrix& matrix,
-                                 const SkShader::TileMode tileModes[2])
+                                 const GrSamplerState::WrapMode wrapModes[2])
         : INHERITED{ModulateByConfigOptimizationFlags(proxy->config())}
         , fCoordTransform(matrix, proxy.get())
         , fDomain(GrTextureDomain::IgnoredDomain())
         , fTextureSampler(std::move(proxy),
-                          GrSamplerParams(tileModes, GrSamplerParams::kNone_FilterMode))
+                          GrSamplerState(wrapModes, GrSamplerState::Filter::kNearest))
         , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->initClassID<GrBicubicEffect>();
     this->addCoordTransform(&fCoordTransform);
@@ -192,8 +192,8 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    static const SkShader::TileMode kClampClamp[] =
-        { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
+    static const GrSamplerState::WrapMode kClampClamp[] = {GrSamplerState::WrapMode::kClamp,
+                                                           GrSamplerState::WrapMode::kClamp};
     return GrBicubicEffect::Make(d->textureProxy(texIdx), std::move(colorSpaceXform),
                                  SkMatrix::I(), kClampClamp);
 }
@@ -201,10 +201,9 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool GrBicubicEffect::ShouldUseBicubic(const SkMatrix& matrix,
-                                       GrSamplerParams::FilterMode* filterMode) {
+bool GrBicubicEffect::ShouldUseBicubic(const SkMatrix& matrix, GrSamplerState::Filter* filterMode) {
     if (matrix.isIdentity()) {
-        *filterMode = GrSamplerParams::kNone_FilterMode;
+        *filterMode = GrSamplerState::Filter::kNearest;
         return false;
     }
 
@@ -212,22 +211,22 @@ bool GrBicubicEffect::ShouldUseBicubic(const SkMatrix& matrix,
     if (!matrix.getMinMaxScales(scales) || scales[0] < SK_Scalar1) {
         // Bicubic doesn't handle arbitrary minimization well, as src texels can be skipped
         // entirely,
-        *filterMode = GrSamplerParams::kMipMap_FilterMode;
+        *filterMode = GrSamplerState::Filter::kMipMap;
         return false;
     }
     // At this point if scales[1] == SK_Scalar1 then the matrix doesn't do any scaling.
     if (scales[1] == SK_Scalar1) {
         if (matrix.rectStaysRect() && SkScalarIsInt(matrix.getTranslateX()) &&
             SkScalarIsInt(matrix.getTranslateY())) {
-            *filterMode = GrSamplerParams::kNone_FilterMode;
+            *filterMode = GrSamplerState::Filter::kNearest;
         } else {
             // Use bilerp to handle rotation or fractional translation.
-            *filterMode = GrSamplerParams::kBilerp_FilterMode;
+            *filterMode = GrSamplerState::Filter::kBilerp;
         }
         return false;
     }
     // When we use the bicubic filtering effect each sample is read from the texture using
     // nearest neighbor sampling.
-    *filterMode = GrSamplerParams::kNone_FilterMode;
+    *filterMode = GrSamplerState::Filter::kNearest;
     return true;
 }

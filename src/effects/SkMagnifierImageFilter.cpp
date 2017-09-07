@@ -99,7 +99,7 @@ private:
                       float xInvInset,
                       float yInvInset)
             : INHERITED{ModulateByConfigOptimizationFlags(proxy->config())}
-            // TODO: no GrSamplerParams::kBilerp_FilterMode?
+            // TODO: no GrSamplerState::Filter::kBilerp?
             , fCoordTransform(proxy.get())
             , fTextureSampler(std::move(proxy))
             , fColorSpaceXform(std::move(colorSpaceXform))

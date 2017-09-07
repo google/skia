@@ -566,9 +566,8 @@ static void prepare_sampled_images(const GrResourceIOProcessor& processor, GrVkG
             gpu->onResolveRenderTarget(texRT, sampler.proxy()->origin());
         }
 
-        const GrSamplerParams& params = sampler.params();
         // Check if we need to regenerate any mip maps
-        if (GrSamplerParams::kMipMap_FilterMode == params.filterMode()) {
+        if (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter()) {
             if (vkTexture->texturePriv().mipMapsAreDirty()) {
                 gpu->generateMipmap(vkTexture, sampler.proxy()->origin());
                 vkTexture->texturePriv().dirtyMipMaps(false);

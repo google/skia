@@ -8,6 +8,7 @@
 #include "GrGpu.h"
 #include "GrPathRendering.h"
 #include "SkDescriptor.h"
+#include "SkScalerContext.h"
 #include "SkGlyph.h"
 #include "SkMatrix.h"
 #include "SkTypeface.h"

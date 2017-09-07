@@ -88,16 +88,11 @@ std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(
         GrProcessorTestData* testData) {
     int texIdx = testData->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                                : GrProcessorUnitTest::kAlphaTextureIdx;
-    static const SkShader::TileMode kTileModes[] = {
-            SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode,
-    };
-    SkShader::TileMode tileModes[] = {
-            kTileModes[testData->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-            kTileModes[testData->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-    };
-    GrSamplerParams params(tileModes, testData->fRandom->nextBool()
-                                              ? GrSamplerParams::kBilerp_FilterMode
-                                              : GrSamplerParams::kNone_FilterMode);
+    GrSamplerState::WrapMode wrapModes[2];
+    GrTest::TestWrapModes(testData->fRandom, wrapModes);
+    GrSamplerState params(wrapModes, testData->fRandom->nextBool()
+                                             ? GrSamplerState::Filter::kBilerp
+                                             : GrSamplerState::Filter::kNearest);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(testData->fRandom);

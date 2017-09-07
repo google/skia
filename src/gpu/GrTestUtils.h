@@ -12,13 +12,14 @@
 
 #if GR_TEST_UTILS
 
+#include "../private/SkTemplates.h"
 #include "GrColor.h"
 #include "GrColorSpaceXform.h"
+#include "GrSamplerState.h"
 #include "SkPathEffect.h"
 #include "SkRandom.h"
 #include "SkShaderBase.h"
 #include "SkStrokeRec.h"
-#include "../private/SkTemplates.h"
 
 struct GrProcessorTestData;
 class GrStyle;
@@ -36,6 +37,7 @@ const SkMatrix& TestMatrixPreservesRightAngles(SkRandom*);
 const SkMatrix& TestMatrixRectStaysRect(SkRandom*);
 const SkMatrix& TestMatrixInvertible(SkRandom*);
 const SkMatrix& TestMatrixPerspective(SkRandom*);
+void TestWrapModes(SkRandom*, GrSamplerState::WrapMode[2]);
 const SkRect& TestRect(SkRandom*);
 const SkRect& TestSquare(SkRandom*);
 const SkRRect& TestRRectSimple(SkRandom*);

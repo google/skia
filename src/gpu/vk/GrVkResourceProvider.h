@@ -24,7 +24,7 @@
 
 class GrPipeline;
 class GrPrimitiveProcessor;
-class GrSamplerParams;
+class GrSamplerState;
 class GrVkCopyPipeline;
 class GrVkGpu;
 class GrVkPipeline;
@@ -96,9 +96,9 @@ public:
     //       of our cache of GrVkDescriptorPools.
     GrVkDescriptorPool* findOrCreateCompatibleDescriptorPool(VkDescriptorType type, uint32_t count);
 
-    // Finds or creates a compatible GrVkSampler based on the GrSamplerParams.
+    // Finds or creates a compatible GrVkSampler based on the GrSamplerState.
     // The refcount is incremented and a pointer returned.
-    GrVkSampler* findOrCreateCompatibleSampler(const GrSamplerParams&, uint32_t maxMipLevel);
+    GrVkSampler* findOrCreateCompatibleSampler(const GrSamplerState&, uint32_t maxMipLevel);
 
     sk_sp<GrVkPipelineState> findOrCreateCompatiblePipelineState(const GrPipeline&,
                                                                  const GrPrimitiveProcessor&,

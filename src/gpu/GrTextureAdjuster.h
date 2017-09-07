@@ -24,7 +24,7 @@ public:
         outOffset will be the top-left corner of the subset if a copy is not made. Otherwise,
         the copy will be tight to the contents and outOffset will be (0, 0). If the copy's size
         does not match subset's dimensions then the contents are scaled to fit the copy.*/
-    sk_sp<GrTextureProxy> refTextureProxySafeForParams(const GrSamplerParams&, SkIPoint* outOffset,
+    sk_sp<GrTextureProxy> refTextureProxySafeForParams(const GrSamplerState&, SkIPoint* outOffset,
                                                        SkScalar scaleAdjust[2]);
 
     std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
@@ -32,7 +32,7 @@ public:
             const SkRect& constraintRect,
             FilterConstraint,
             bool coordsLimitedToConstraintRect,
-            const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+            const GrSamplerState::Filter* filterOrNullForBicubic,
             SkColorSpace* dstColorSpace) override;
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while

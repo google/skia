@@ -17,7 +17,7 @@
 class GrContext;
 class GrContextThreadSafeProxy;
 class GrTextureProxy;
-class GrSamplerParams;
+class GrSamplerState;
 class SkBitmap;
 class SkData;
 class SkMatrix;

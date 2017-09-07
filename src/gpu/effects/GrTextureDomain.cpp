@@ -212,7 +212,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureDomainEffect::Make(
         const SkMatrix& matrix,
         const SkRect& domain,
         GrTextureDomain::Mode mode,
-        GrSamplerParams::FilterMode filterMode) {
+        GrSamplerState::Filter filterMode) {
     if (GrTextureDomain::kIgnore_Mode == mode ||
         (GrTextureDomain::kClamp_Mode == mode && can_ignore_rect(proxy.get(), domain))) {
         return GrSimpleTextureEffect::Make(std::move(proxy),
@@ -228,14 +228,14 @@ GrTextureDomainEffect::GrTextureDomainEffect(sk_sp<GrTextureProxy> proxy,
                                              const SkMatrix& matrix,
                                              const SkRect& domain,
                                              GrTextureDomain::Mode mode,
-                                             GrSamplerParams::FilterMode filterMode)
+                                             GrSamplerState::Filter filterMode)
         : INHERITED(OptFlags(proxy->config(), mode))
         , fCoordTransform(matrix, proxy.get())
         , fTextureDomain(proxy.get(), domain, mode)
         , fTextureSampler(std::move(proxy), filterMode)
         , fColorSpaceXform(std::move(colorSpaceXform)) {
     SkASSERT(mode != GrTextureDomain::kRepeat_Mode ||
-             filterMode == GrSamplerParams::kNone_FilterMode);
+             filterMode == GrSamplerState::Filter::kNearest);
     this->initClassID<GrTextureDomainEffect>();
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
@@ -325,13 +325,13 @@ std::unique_ptr<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcess
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
     bool bilerp = mode != GrTextureDomain::kRepeat_Mode ? d->fRandom->nextBool() : false;
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    return GrTextureDomainEffect::Make(std::move(proxy),
-                                       std::move(colorSpaceXform),
-                                       matrix,
-                                       domain,
-                                       mode,
-                                       bilerp ? GrSamplerParams::kBilerp_FilterMode
-                                              : GrSamplerParams::kNone_FilterMode);
+    return GrTextureDomainEffect::Make(
+            std::move(proxy),
+            std::move(colorSpaceXform),
+            matrix,
+            domain,
+            mode,
+            bilerp ? GrSamplerState::Filter::kBilerp : GrSamplerState::Filter::kNearest);
 }
 #endif
 
@@ -343,11 +343,9 @@ std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor:
 }
 
 GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentProcessor(
-                    sk_sp<GrTextureProxy> proxy,
-                    const SkIRect& subset,
-                    const SkIPoint& deviceSpaceOffset)
+        sk_sp<GrTextureProxy> proxy, const SkIRect& subset, const SkIPoint& deviceSpaceOffset)
         : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-        , fTextureSampler(proxy, GrSamplerParams::ClampNoFilter())
+        , fTextureSampler(proxy, GrSamplerState::ClampNearest())
         , fTextureDomain(proxy.get(), GrTextureDomain::MakeTexelDomain(subset),
                          GrTextureDomain::kDecal_Mode) {
     this->addTextureSampler(&fTextureSampler);

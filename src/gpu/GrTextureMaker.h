@@ -25,7 +25,7 @@ public:
      *  in order to correct the absolute texture coordinates.
      *  Places the color space of the texture in (*texColorSpace).
      */
-    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerParams&,
+    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerState&,
                                                    SkColorSpace* dstColorSpace,
                                                    sk_sp<SkColorSpace>* texColorSpace,
                                                    SkScalar scaleAdjust[2]);
@@ -35,7 +35,7 @@ public:
             const SkRect& constraintRect,
             FilterConstraint filterConstraint,
             bool coordsLimitedToConstraintRect,
-            const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+            const GrSamplerState::Filter* filterOrNullForBicubic,
             SkColorSpace* dstColorSpace) override;
 
 protected:

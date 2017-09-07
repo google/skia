@@ -1530,12 +1530,16 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
         key |= kHardStopZeroOneOneKey;
     }
 
-    if (SkShader::TileMode::kClamp_TileMode == e.fTileMode) {
-        key |= kClampTileMode;
-    } else if (SkShader::TileMode::kRepeat_TileMode == e.fTileMode) {
-        key |= kRepeatTileMode;
-    } else {
-        key |= kMirrorTileMode;
+    switch (e.fWrapMode) {
+        case GrSamplerState::WrapMode::kClamp:
+            key |= kClampTileMode;
+            break;
+        case GrSamplerState::WrapMode::kRepeat:
+            key |= kRepeatTileMode;
+            break;
+        case GrSamplerState::WrapMode::kMirrorRepeat:
+            key |= kMirrorTileMode;
+            break;
     }
 
     key |= GrColorSpaceXform::XformKey(e.fColorSpaceXform.get()) << kReservedBits;
@@ -1551,17 +1555,17 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
                                                           const char* outputColor,
                                                           const char* inputColor) {
     // First, apply tiling rules.
-    switch (ge.fTileMode) {
-    case SkShader::kClamp_TileMode:
-        fragBuilder->codeAppendf("float clamp_t = clamp(%s, 0.0, 1.0);", t);
-        break;
-    case SkShader::kRepeat_TileMode:
-        fragBuilder->codeAppendf("float clamp_t = fract(%s);", t);
-        break;
-    case SkShader::kMirror_TileMode:
-        fragBuilder->codeAppendf("float t_1 = %s - 1.0;", t);
-        fragBuilder->codeAppendf("float clamp_t = abs(t_1 - 2.0 * floor(t_1 * 0.5) - 1.0);");
-        break;
+    switch (ge.fWrapMode) {
+        case GrSamplerState::WrapMode::kClamp:
+            fragBuilder->codeAppendf("float clamp_t = clamp(%s, 0.0, 1.0);", t);
+            break;
+        case GrSamplerState::WrapMode::kRepeat:
+            fragBuilder->codeAppendf("float clamp_t = fract(%s);", t);
+            break;
+        case GrSamplerState::WrapMode::kMirrorRepeat:
+            fragBuilder->codeAppendf("float t_1 = %s - 1.0;", t);
+            fragBuilder->codeAppendf("float clamp_t = abs(t_1 - 2.0 * floor(t_1 * 0.5) - 1.0);");
+            break;
     }
 
     // Calculate the color.
@@ -1589,7 +1593,7 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
         case kHardStopLeftEdged_ColorType: {
             fragBuilder->codeAppendf("float4 colorTemp = mix(%s[1], %s[2], clamp_t);", colors,
                                      colors);
-            if (SkShader::kClamp_TileMode == ge.fTileMode) {
+            if (GrSamplerState::WrapMode::kClamp == ge.fWrapMode) {
                 fragBuilder->codeAppendf("if (%s < 0.0) {", t);
                 fragBuilder->codeAppendf("    colorTemp = %s[0];", colors);
                 fragBuilder->codeAppendf("}");
@@ -1601,7 +1605,7 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
         case kHardStopRightEdged_ColorType: {
             fragBuilder->codeAppendf("float4 colorTemp = mix(%s[0], %s[1], clamp_t);", colors,
                                      colors);
-            if (SkShader::kClamp_TileMode == ge.fTileMode) {
+            if (GrSamplerState::WrapMode::kClamp == ge.fWrapMode) {
                 fragBuilder->codeAppendf("if (%s > 1.0) {", t);
                 fragBuilder->codeAppendf("    colorTemp = %s[2];", colors);
                 fragBuilder->codeAppendf("}");
@@ -1705,7 +1709,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
         }
     }
 
-    fTileMode = args.fTileMode;
+    fWrapMode = args.fWrapMode;
 
     switch (fColorType) {
         // The two and three color specializations do not currently support tiling.
@@ -1760,18 +1764,16 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
 
             // We always filter the gradient table. Each table is one row of a texture, always
             // y-clamp.
-            GrSamplerParams params;
-            params.setFilterMode(GrSamplerParams::kBilerp_FilterMode);
-            params.setTileModeX(args.fTileMode);
+            GrSamplerState samplerState(args.fWrapMode, GrSamplerState::Filter::kBilerp);
 
             fRow = fAtlas->lockRow(bitmap);
             if (-1 != fRow) {
                 fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
                 // This is 1/2 places where auto-normalization is disabled
                 fCoordTransform.reset(*args.fMatrix, fAtlas->asTextureProxyRef().get(), false);
-                fTextureSampler.reset(fAtlas->asTextureProxyRef(), params);
+                fTextureSampler.reset(fAtlas->asTextureProxyRef(), samplerState);
             } else {
-                // In this instance we know the params are:
+                // In this instance we know the samplerState state is:
                 //   clampY, bilerp
                 // and the proxy is:
                 //   exact fit, power of two in both dimensions
@@ -1787,7 +1789,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
                 }
                 // This is 2/2 places where auto-normalization is disabled
                 fCoordTransform.reset(*args.fMatrix, proxy.get(), false);
-                fTextureSampler.reset(std::move(proxy), params);
+                fTextureSampler.reset(std::move(proxy), samplerState);
                 fYCoord = SK_ScalarHalf;
             }
 
@@ -1805,7 +1807,7 @@ GrGradientEffect::GrGradientEffect(const GrGradientEffect& that)
         , fColors4f(that.fColors4f)
         , fColorSpaceXform(that.fColorSpaceXform)
         , fPositions(that.fPositions)
-        , fTileMode(that.fTileMode)
+        , fWrapMode(that.fWrapMode)
         , fCoordTransform(that.fCoordTransform)
         , fTextureSampler(that.fTextureSampler)
         , fYCoord(that.fYCoord)
@@ -1832,7 +1834,7 @@ GrGradientEffect::~GrGradientEffect() {
 bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
     const GrGradientEffect& ge = processor.cast<GrGradientEffect>();
 
-    if (fTileMode != ge.fTileMode || fColorType != ge.getColorType()) {
+    if (fWrapMode != ge.fWrapMode || fColorType != ge.getColorType()) {
         return false;
     }
     SkASSERT(this->useAtlas() == ge.useAtlas());

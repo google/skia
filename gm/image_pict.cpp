@@ -271,10 +271,9 @@ protected:
     static void draw_as_tex(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
 #if SK_SUPPORT_GPU
         sk_sp<SkColorSpace> texColorSpace;
-        sk_sp<GrTextureProxy> proxy(
-            as_IB(image)->asTextureProxyRef(canvas->getGrContext(), GrSamplerParams::ClampBilerp(),
-                                            canvas->imageInfo().colorSpace(), &texColorSpace,
-                                            nullptr));
+        sk_sp<GrTextureProxy> proxy(as_IB(image)->asTextureProxyRef(
+                canvas->getGrContext(), GrSamplerState::ClampBilerp(),
+                canvas->imageInfo().colorSpace(), &texColorSpace, nullptr));
         if (!proxy) {
             // show placeholder if we have no texture
             SkPaint paint;

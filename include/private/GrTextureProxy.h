@@ -8,7 +8,7 @@
 #ifndef GrTextureProxy_DEFINED
 #define GrTextureProxy_DEFINED
 
-#include "GrSamplerParams.h"
+#include "GrSamplerState.h"
 #include "GrSurfaceProxy.h"
 
 class GrCaps;
@@ -26,7 +26,7 @@ public:
 
     void setMipColorMode(SkDestinationSurfaceColorMode colorMode);
 
-    GrSamplerParams::FilterMode highestFilterMode() const;
+    GrSamplerState::Filter highestFilterMode() const;
 
     GrSLType imageStorageType() const {
         if (GrPixelConfigIsSint(this->config())) {

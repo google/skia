@@ -1356,7 +1356,7 @@ std::unique_ptr<GrFragmentProcessor> Gr2PtConicalGradientEffect::Make(
         matrix.postConcat(inv);
     }
 
-    GrGradientEffect::CreateArgs newArgs(args.fContext, args.fShader, &matrix, args.fTileMode,
+    GrGradientEffect::CreateArgs newArgs(args.fContext, args.fShader, &matrix, args.fWrapMode,
                                          std::move(args.fColorSpaceXform), args.fGammaCorrect);
 
     if (shader.getStartRadius() < kErrorTol) {

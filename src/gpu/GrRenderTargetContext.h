@@ -141,7 +141,7 @@ public:
      * device space. The edges of the rendered rectangle are not antialiased. This asserts that the
      * view matrix does not have perspective.
      */
-    void drawTextureAffine(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerParams::FilterMode,
+    void drawTextureAffine(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter,
                            GrColor, const SkRect& srcRect, const SkRect& dstRect,
                            const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>);
 

@@ -78,8 +78,8 @@ GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTexture
 
     this->addVertexAttrib("edge_norms", kVec4f_GrVertexAttribType, kHigh_GrSLPrecision);
 
-    fAtlasAccess.reset(std::move(atlas), GrSamplerParams::FilterMode::kNone_FilterMode,
-                       SkShader::TileMode::kClamp_TileMode, kFragment_GrShaderFlag);
+    fAtlasAccess.reset(std::move(atlas), GrSamplerState::Filter::kNearest,
+                       GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag);
     fAtlasAccess.instantiate(rp);
     this->addTextureSampler(&fAtlasAccess);
 

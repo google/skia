@@ -24,7 +24,7 @@
 #include "GrImageTextureMaker.h"
 #include "GrResourceKey.h"
 #include "GrResourceProvider.h"
-#include "GrSamplerParams.h"
+#include "GrSamplerState.h"
 #include "GrYUVProvider.h"
 #include "SkGr.h"
 #endif
@@ -78,8 +78,9 @@ public:
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
 #if SK_SUPPORT_GPU
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerParams&,
-                                            SkColorSpace*, sk_sp<SkColorSpace>*,
+    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*,
+                                            const GrSamplerState&, SkColorSpace*,
+                                            sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
 #endif
     SkData* onRefEncoded() const override;
@@ -613,7 +614,7 @@ SkTransferFunctionBehavior SkImage_Lazy::getGeneratorBehaviorAndInfo(SkImageInfo
 
 #if SK_SUPPORT_GPU
 sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef(GrContext* context,
-                                                      const GrSamplerParams& params,
+                                                      const GrSamplerState& params,
                                                       SkColorSpace* dstColorSpace,
                                                       sk_sp<SkColorSpace>* texColorSpace,
                                                       SkScalar scaleAdjust[2]) const {

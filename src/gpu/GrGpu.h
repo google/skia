@@ -486,9 +486,9 @@ public:
     virtual void clearStencil(GrRenderTarget* target, int clearValue) = 0;
 
     // Determines whether a texture will need to be rescaled in order to be used with the
-    // GrSamplerParams. This variation is called when the caller will create a new texture using the
+    // GrSamplerState. This variation is called when the caller will create a new texture using the
     // resource provider from a non-texture src (cpu-backed image, ...).
-    bool isACopyNeededForTextureParams(int width, int height, const GrSamplerParams&,
+    bool isACopyNeededForTextureParams(int width, int height, const GrSamplerState&,
                                        GrTextureProducer::CopyParams*,
                                        SkScalar scaleAdjust[2]) const;
 
@@ -496,7 +496,7 @@ public:
     // original texture but rather was handed the original texture. It adds additional checks
     // relevant to original textures that were created external to Skia via
     // GrResourceProvider::wrap methods.
-    bool isACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerParams& params,
+    bool isACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerState& params,
                                        GrTextureProducer::CopyParams* copyParams,
                                        SkScalar scaleAdjust[2]) const {
         if (this->isACopyNeededForTextureParams(proxy->width(), proxy->height(), params,
@@ -569,7 +569,7 @@ private:
         return nullptr;
     }
 
-    virtual bool onIsACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerParams&,
+    virtual bool onIsACopyNeededForTextureParams(GrTextureProxy* proxy, const GrSamplerState&,
                                                  GrTextureProducer::CopyParams*,
                                                  SkScalar scaleAdjust[2]) const {
         return false;

@@ -249,13 +249,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
             SkBackingFit::kExact, kS, kS, kRGBA_8888_GrPixelConfig, nullptr);
 
     struct {
-        GrSamplerParams::FilterMode fMode;
+        GrSamplerState::Filter fMode;
         const char* fName;
-    } kNamedFilters[] ={
-        { GrSamplerParams::kNone_FilterMode, "filter-none" },
-        { GrSamplerParams::kBilerp_FilterMode, "filter-bilerp" },
-        { GrSamplerParams::kMipMap_FilterMode, "filter-mipmap" }
-    };
+    } kNamedFilters[] = {{GrSamplerState::Filter::kNearest, "filter-none"},
+                         {GrSamplerState::Filter::kBilerp, "filter-bilerp"},
+                         {GrSamplerState::Filter::kMipMap, "filter-mipmap"}};
 
     for (auto filter : kNamedFilters) {
         auto fp = GrSimpleTextureEffect::Make(sContext->asTextureProxyRef(), nullptr, SkMatrix::I(),
