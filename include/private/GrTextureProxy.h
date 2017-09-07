@@ -26,6 +26,8 @@ public:
 
     void setMipColorMode(SkDestinationSurfaceColorMode colorMode);
 
+    void setMipMapsAsValid();
+
     GrSamplerState::Filter highestFilterMode() const;
 
     GrSLType imageStorageType() const {

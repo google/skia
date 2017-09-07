@@ -55,7 +55,8 @@ public:
                      GrSurfaceProxy* dst,
                      GrSurfaceProxy* src,
                      const SkIRect& srcRect,
-                     const SkIPoint& dstPoint) override;
+                     const SkIPoint& dstPoint,
+                     bool markMipsAsValid) override;
 
     GrTextureOpList* asTextureOpList() override { return this; }
 

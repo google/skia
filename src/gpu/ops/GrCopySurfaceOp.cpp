@@ -61,7 +61,8 @@ static bool clip_src_rect_and_dst_point(const GrSurfaceProxy* dst,
 
 std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrSurfaceProxy* dstProxy, GrSurfaceProxy* srcProxy,
                                             const SkIRect& srcRect,
-                                            const SkIPoint& dstPoint) {
+                                            const SkIPoint& dstPoint,
+                                            bool markMipsAsValid) {
     SkASSERT(dstProxy);
     SkASSERT(srcProxy);
     if (GrPixelConfigIsSint(dstProxy->config()) != GrPixelConfigIsSint(srcProxy->config())) {
@@ -76,7 +77,8 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrSurfaceProxy* dstProxy, GrSurfaceP
     }
 
     return std::unique_ptr<GrOp>(new GrCopySurfaceOp(dstProxy, srcProxy,
-                                                     clippedSrcRect, clippedDstPoint));
+                                                     clippedSrcRect, clippedDstPoint,
+                                                     markMipsAsValid));
 }
 
 void GrCopySurfaceOp::onExecute(GrOpFlushState* state) {
@@ -87,4 +89,8 @@ void GrCopySurfaceOp::onExecute(GrOpFlushState* state) {
 
     state->commandBuffer()->copy(fSrc.get()->priv().peekSurface(), fSrc.get()->origin(),
                                  fSrcRect, fDstPoint);
+    if (fMarkMipsAsValid) {
+        SkASSERT(fDst.get()->asTextureProxy());
+        fDst.get()->asTextureProxy()->setMipMapsAsValid();
+    }
 }

@@ -84,12 +84,14 @@ bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBu
                                                       srcBuffer, srcRowBytes, flags);
 }
 
-bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
+bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint,
+                            bool markMipsAsValid) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrSurfaceContext::onCopy");
 
     return this->getOpList()->copySurface(*fContext->caps(),
-                                          this->asSurfaceProxy(), src, srcRect, dstPoint);
+                                          this->asSurfaceProxy(), src, srcRect, dstPoint,
+                                          markMipsAsValid);
 }

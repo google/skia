@@ -36,10 +36,10 @@ static void draw_cell(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat,
 }
 
 static void draw_row(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat, SkScalar dx) {
-    draw_cell(canvas, bm, mat, 0 * dx, kNone_SkFilterQuality);
+    //draw_cell(canvas, bm, mat, 0 * dx, kNone_SkFilterQuality);
     draw_cell(canvas, bm, mat, 1 * dx, kLow_SkFilterQuality);
     draw_cell(canvas, bm, mat, 2 * dx, kMedium_SkFilterQuality);
-    draw_cell(canvas, bm, mat, 3 * dx, kHigh_SkFilterQuality);
+    //draw_cell(canvas, bm, mat, 3 * dx, kHigh_SkFilterQuality);
 }
 
 class FilterBitmapGM : public skiagm::GM {
@@ -85,7 +85,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
 
         canvas->translate(10, 10);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(fMatrix); ++i) {
+        for (size_t i = 2; i < SK_ARRAY_COUNT(fMatrix); ++i) {
             SkSize size = computeSize(fBM, fMatrix[i]);
             size.fWidth += 20;
             size.fHeight += 20;

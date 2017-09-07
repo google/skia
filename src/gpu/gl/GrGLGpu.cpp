@@ -952,10 +952,13 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
             }
         } else {
             for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
+                const void* currentMipData = texels[currentMipLevel].fPixels;
+                if (!currentMipData) {
+                    continue;
+                }
                 int twoToTheMipLevel = 1 << currentMipLevel;
                 int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
                 int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
-                const void* currentMipData = texels[currentMipLevel].fPixels;
                 // Even if curremtMipData is nullptr, continue to call TexImage2D.
                 // This will allocate texture memory which we can later populate.
                 GL_ALLOC_CALL(&interface,
@@ -1033,10 +1036,6 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         memcpy(texelsShallowCopy.get(), texels, mipLevelCount*sizeof(GrMipLevel));
     }
 
-    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; ++currentMipLevel) {
-        SkASSERT(texelsShallowCopy[currentMipLevel].fPixels);
-    }
-
     const GrGLInterface* interface = this->glInterface();
     const GrGLCaps& caps = this->glCaps();
 
@@ -1084,16 +1083,24 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     size_t combined_buffer_size = 0;
     SkTArray<size_t> individual_mip_offsets(mipLevelCount);
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        int twoToTheMipLevel = 1 << currentMipLevel;
-        int currentWidth = SkTMax(1, width / twoToTheMipLevel);
-        int currentHeight = SkTMax(1, height / twoToTheMipLevel);
-        const size_t trimmedSize = currentWidth * bpp * currentHeight;
-        individual_mip_offsets.push_back(combined_buffer_size);
-        combined_buffer_size += trimmedSize;
+        if (texelsShallowCopy[currentMipLevel].fPixels) {
+            int twoToTheMipLevel = 1 << currentMipLevel;
+            int currentWidth = SkTMax(1, width / twoToTheMipLevel);
+            int currentHeight = SkTMax(1, height / twoToTheMipLevel);
+            const size_t trimmedSize = currentWidth * bpp * currentHeight;
+            individual_mip_offsets.push_back(combined_buffer_size);
+            combined_buffer_size += trimmedSize;
+        } else {
+            individual_mip_offsets.push_back(0);
+        }
+
     }
     char* buffer = (char*)tempStorage.reset(combined_buffer_size);
 
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
+        if (!texelsShallowCopy[currentMipLevel].fPixels) {
+            continue;
+        }
         int twoToTheMipLevel = 1 << currentMipLevel;
         int currentWidth = SkTMax(1, width / twoToTheMipLevel);
         int currentHeight = SkTMax(1, height / twoToTheMipLevel);
@@ -1108,8 +1115,8 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         restoreGLRowLength = false;
 
         const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes ?
-                                texelsShallowCopy[currentMipLevel].fRowBytes :
-                                trimRowBytes;
+                texelsShallowCopy[currentMipLevel].fRowBytes :
+                trimRowBytes;
 
         // TODO: This optimization should be enabled with or without mips.
         // For use with mips, we must set GR_GL_UNPACK_ROW_LENGTH once per
@@ -1166,18 +1173,21 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         if (swFlipY || glFlipY) {
             top = texHeight - (top + height);
         }
-        for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
+        for (int currentMipLevel = 0; currentMipLevel < mipLevelCount;
+             currentMipLevel++) {
             int twoToTheMipLevel = 1 << currentMipLevel;
             int currentWidth = SkTMax(1, width / twoToTheMipLevel);
             int currentHeight = SkTMax(1, height / twoToTheMipLevel);
 
-            GL_CALL(TexSubImage2D(target,
-                                  currentMipLevel,
-                                  left, top,
-                                  currentWidth,
-                                  currentHeight,
-                                  externalFormat, externalType,
-                                  texelsShallowCopy[currentMipLevel].fPixels));
+            if (texelsShallowCopy[currentMipLevel].fPixels) {
+                GL_CALL(TexSubImage2D(target,
+                                      currentMipLevel,
+                                      left, top,
+                                      currentWidth,
+                                      currentHeight,
+                                      externalFormat, externalType,
+                                      texelsShallowCopy[currentMipLevel].fPixels));
+            }
         }
     }
 

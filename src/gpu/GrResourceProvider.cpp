@@ -87,7 +87,6 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return nullptr;
     }
 
-
     // TODO: Try finding an exact scratch texture and use that instead of always creating a new
     // texture. We need to update GrSurfaceContext writePixels to take an array of texels to be able
     // to do this.
