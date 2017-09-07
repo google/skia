@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ec3d24a_767ec6ec",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 797,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-07T16:20:39Z",
+      "side": 0,
+      "message": "I\u0027d remove the changes to this file. Everything should still work (modulo a small perf difference), but there are situations where this will cause incorrect color results (because the expectation is that the texture is going to be in the image\u0027s color space). Even without this code, the xformer will still handle doing the conversion (this is just short-circuiting that).",
+      "revId": "a8ac92418807e3d46a45413459e6895160134c1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

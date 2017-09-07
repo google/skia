@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1226a2b_da823844",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-07T16:20:39Z",
+      "side": 1,
+      "message": "It\u0027s probably still worth checking that makeTextureImage didn\u0027t return nullptr. Highly unlikely at this point, but having the fallback behavior in place is easy and worthwhile.",
+      "revId": "9e7e504b86dc2227855d3c3a6ae4706dd6ad03f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
