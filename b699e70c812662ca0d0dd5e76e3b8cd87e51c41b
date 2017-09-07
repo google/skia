@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4b70238d_2da759bc",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-07T18:53:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a92bd4c0_f21e0df7",
+      "revId": "b699e70c812662ca0d0dd5e76e3b8cd87e51c41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "63e43a32_94762383",
         "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
         "patchSetId": 3
@@ -39,6 +57,30 @@
       "revId": "b699e70c812662ca0d0dd5e76e3b8cd87e51c41b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1db87eb8_6cb7eb10",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-07T18:53:08Z",
+      "side": 1,
+      "message": "Rewritten to only use floats (and floor).",
+      "parentUuid": "63e43a32_94762383",
+      "range": {
+        "startLine": 77,
+        "startChar": 34,
+        "endLine": 77,
+        "endChar": 44
+      },
+      "revId": "b699e70c812662ca0d0dd5e76e3b8cd87e51c41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -89,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "2b36cc57_a66c4038",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-07T18:53:08Z",
+      "side": 1,
+      "message": "If it\u0027s okay I think I\u0027ll leave it for now -- if shader compile time becomes an issue I can bin to 1 and 4.",
+      "parentUuid": "50dfc262_a4dc49e8",
+      "range": {
+        "startLine": 82,
+        "startChar": 33,
+        "endLine": 82,
+        "endChar": 51
+      },
+      "revId": "b699e70c812662ca0d0dd5e76e3b8cd87e51c41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4be381d9_06189b9f",
         "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
         "patchSetId": 3
@@ -103,6 +169,24 @@
       "revId": "b699e70c812662ca0d0dd5e76e3b8cd87e51c41b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1dab42f9_b9dfd656",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-07T18:53:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4be381d9_06189b9f",
+      "revId": "b699e70c812662ca0d0dd5e76e3b8cd87e51c41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
