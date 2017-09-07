@@ -16,6 +16,24 @@
       "revId": "a7eff839cf6a1e9633d75dec92ef0dd169e4ebaa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27a5915c_3717db86",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-07T18:06:39Z",
+      "side": 1,
+      "message": "oh, you\u0027re right! Verified with ASAN that it fixes a leak.\n\nDone.",
+      "parentUuid": "891c1e64_a367abcb",
+      "revId": "a7eff839cf6a1e9633d75dec92ef0dd169e4ebaa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
