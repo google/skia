@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96698e26_4bd0edaa",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-07T11:45:49Z",
+      "side": 1,
+      "message": "Do we actually get here? It seems like someone higher up the stack is asleep at the switch.",
+      "revId": "faf66938fbec34d76d0abce126a375d22b73aa40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
