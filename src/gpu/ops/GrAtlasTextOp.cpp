@@ -100,10 +100,9 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                 this->setupDfProcessor(this->viewMatrix(),
                                        fLuminanceColor, this->color(), std::move(proxy));
     } else {
-        GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
-        flushInfo.fGeometryProcessor =
-                GrBitmapTextGeoProc::Make(this->color(), std::move(proxy), params, maskFormat,
-                                          localMatrix, this->usesLocalCoords());
+        flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
+                this->color(), std::move(proxy), GrSamplerState::ClampNearest(), maskFormat,
+                localMatrix, this->usesLocalCoords());
     }
 
     flushInfo.fGlyphsToFlush = 0;
@@ -223,7 +222,6 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const SkMatrix& viewM
                                                            SkColor luminanceColor,
                                                            GrColor color,
                                                            sk_sp<GrTextureProxy> proxy) const {
-    GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
     bool isLCD = this->isLCD();
     // set up any flags
     uint32_t flags = viewMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
@@ -249,8 +247,9 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const SkMatrix& viewM
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
 
-        return GrDistanceFieldLCDTextGeoProc::Make(color, viewMatrix, std::move(proxy), params,
-                                                   widthAdjust, flags, this->usesLocalCoords());
+        return GrDistanceFieldLCDTextGeoProc::Make(color, viewMatrix, std::move(proxy),
+                                                   GrSamplerState::ClampBilerp(), widthAdjust,
+                                                   flags, this->usesLocalCoords());
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
         float correction = 0;
@@ -259,12 +258,13 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const SkMatrix& viewM
             correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
                                                              fUseGammaCorrectDistanceTable);
         }
-        return GrDistanceFieldA8TextGeoProc::Make(color, viewMatrix, std::move(proxy), params,
-                                                  correction, flags, this->usesLocalCoords());
+        return GrDistanceFieldA8TextGeoProc::Make(color, viewMatrix, std::move(proxy),
+                                                  GrSamplerState::ClampBilerp(), correction, flags,
+                                                  this->usesLocalCoords());
 #else
-        return GrDistanceFieldA8TextGeoProc::Make(color,
-                                                  viewMatrix, std::move(proxy),
-                                                  params, flags, this->usesLocalCoords());
+        return GrDistanceFieldA8TextGeoProc::Make(color, viewMatrix, std::move(proxy),
+                                                  GrSamplerState::ClampBilerp(), flags,
+                                                  this->usesLocalCoords());
 #endif
     }
 }

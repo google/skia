@@ -45,25 +45,25 @@ void GrGpu::disconnect(DisconnectType) {}
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrGpu::isACopyNeededForTextureParams(int width, int height,
-                                          const GrSamplerParams& textureParams,
+                                          const GrSamplerState& textureParams,
                                           GrTextureProducer::CopyParams* copyParams,
                                           SkScalar scaleAdjust[2]) const {
     const GrCaps& caps = *this->caps();
-    if (textureParams.isTiled() && !caps.npotTextureTileSupport() &&
+    if (textureParams.isRepeated() && !caps.npotTextureTileSupport() &&
         (!SkIsPow2(width) || !SkIsPow2(height))) {
         SkASSERT(scaleAdjust);
         copyParams->fWidth = GrNextPow2(width);
         copyParams->fHeight = GrNextPow2(height);
         scaleAdjust[0] = ((SkScalar) copyParams->fWidth) / width;
         scaleAdjust[1] = ((SkScalar) copyParams->fHeight) / height;
-        switch (textureParams.filterMode()) {
-            case GrSamplerParams::kNone_FilterMode:
-                copyParams->fFilter = GrSamplerParams::kNone_FilterMode;
+        switch (textureParams.filter()) {
+            case GrSamplerState::Filter::kNearest:
+                copyParams->fFilter = GrSamplerState::Filter::kNearest;
                 break;
-            case GrSamplerParams::kBilerp_FilterMode:
-            case GrSamplerParams::kMipMap_FilterMode:
+            case GrSamplerState::Filter::kBilerp:
+            case GrSamplerState::Filter::kMipMap:
                 // We are only ever scaling up so no reason to ever indicate kMipMap.
-                copyParams->fFilter = GrSamplerParams::kBilerp_FilterMode;
+                copyParams->fFilter = GrSamplerState::Filter::kBilerp;
                 break;
         }
         return true;
