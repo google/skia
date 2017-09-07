@@ -240,16 +240,19 @@ def dm_flags(api, bot):
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     args.remove('svg')
     args.remove('image')
+  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+    # Don't run the 'svgparse_*' svgs on GPU.
+    blacklist('_ svg _ svgparse_')
+  elif bot == 'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN':
+    # Only run the CPU SVGs on 8888.
+    blacklist('~8888 svg _ _')
+  else:
+    # On CPU SVGs we only care about parsing. Only run them on the above bot.
+    args.remove('svg')
 
   # Eventually I'd like these to pass, but for now just skip 'em.
   if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
     args.remove('tests')
-
-  # Only run the 'svgparse_*' svgs on 8888.
-  if api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
-    blacklist('_ svg _ svgparse_')
-  else:
-    blacklist('~8888 svg _ svgparse_')
 
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
@@ -883,6 +886,7 @@ TEST_BUILDERS = [
   'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN',
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug',
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN',
   'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
   ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind' +
    '_AbandonGpuContext'),
