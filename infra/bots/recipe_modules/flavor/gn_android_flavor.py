@@ -114,7 +114,10 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
           """,
           args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
           infra_step=True,
-          abort_on_failure=False)
+          abort_on_failure=False,
+          # adb logcat sometimes hangs when there is no device rather than
+          # exiting with an error.
+          timeout=120)
 
     # Only shutdown the device and quarantine the bot if the first failed step
     # is an infra step. If, instead, we did this for any infra failures, we

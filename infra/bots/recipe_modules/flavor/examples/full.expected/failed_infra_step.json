@@ -774,6 +774,7 @@
     },
     "infra_step": true,
     "name": "dump log",
+    "timeout": 120,
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
       "@@@STEP_LOG_LINE@python.inline@@@@",
