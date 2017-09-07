@@ -12,18 +12,22 @@
 #include "ops/GrDashOp.h"
 #include "ops/GrMeshDrawOp.h"
 
-bool GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+GrPathRenderer::CanDrawPath
+GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     SkPoint pts[2];
     bool inverted;
     if (args.fShape->style().isDashed() && args.fShape->asLine(pts, &inverted)) {
         if (args.fAAType == GrAAType::kMixedSamples) {
-            return false;
+            return CanDrawPath::kNo;
         }
         // We should never have an inverse dashed case.
         SkASSERT(!inverted);
-        return GrDashOp::CanDrawDashLine(pts, args.fShape->style(), *args.fViewMatrix);
+        if (!GrDashOp::CanDrawDashLine(pts, args.fShape->style(), *args.fViewMatrix)) {
+            return CanDrawPath::kNo;
+        }
+        return CanDrawPath::kYes;
     }
-    return false;
+    return CanDrawPath::kNo;
 }
 
 bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
