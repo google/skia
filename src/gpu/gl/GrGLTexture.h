@@ -69,7 +69,7 @@ public:
     bool hasBaseLevelBeenBoundToFBO() const { return fBaseLevelHasBeenBoundToFBO; }
     void baseLevelWasBoundToFBO() { fBaseLevelHasBeenBoundToFBO = true; }
 
-    static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
+    static sk_sp<GrGLTexture> MakeWrapped1(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
 
 protected:
     // Constructor for subclasses.

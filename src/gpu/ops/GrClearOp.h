@@ -17,6 +17,8 @@ class GrClearOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator*) const override { }
+
     static std::unique_ptr<GrClearOp> Make(const GrFixedClip& clip, GrColor color,
                                            GrSurfaceProxy* dstProxy) {
         const SkIRect rect = SkIRect::MakeWH(dstProxy->width(), dstProxy->height());

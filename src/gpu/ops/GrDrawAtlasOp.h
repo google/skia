@@ -20,6 +20,10 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
+
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
                                           GrAAType aaType, int spriteCount, const SkRSXform* xforms,
                                           const SkRect* rects, const SkColor* colors) {

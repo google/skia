@@ -33,6 +33,8 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
+    SkDebugf("New Wrapped Proxy { %d,%d }\n",
+             this->uniqueID().asUInt(), this->underlyingUniqueID().asUInt());
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
@@ -119,6 +121,12 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
         return false;
     }
 
+    SkDebugf("assign: %d -> %d -- pRef:%d rRef:%d R:%d W:%d\n",
+             this->uniqueID().asUInt(), this->underlyingUniqueID().asUInt(),
+             this->getProxyRefCnt_TestOnly(),
+             this->getBackingRefCnt_TestOnly(),
+             this->getPendingReadCnt_TestOnly(),
+             this->getPendingWriteCnt_TestOnly());
     this->assign(std::move(surface));
     return true;
 }

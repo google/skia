@@ -36,7 +36,7 @@ private:
     using DstProxy = GrXferProcessor::DstProxy;
 
 public:
-    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrAuditTrail*);
+    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrAuditTrail*, const char*);
 
     ~GrRenderTargetOpList() override;
 
@@ -124,6 +124,8 @@ private:
         DstProxy fDstProxy;
         GrAppliedClip* fAppliedClip;
     };
+
+    void gatherOpList(GrResourceAllocator*) const override;
 
     void recordOp(std::unique_ptr<GrOp>, const GrCaps& caps,
                   GrAppliedClip* = nullptr, const DstProxy* = nullptr);

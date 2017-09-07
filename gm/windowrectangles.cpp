@@ -206,7 +206,7 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
         ctx->makeDeferredRenderTargetContextWithFallback(SkBackingFit::kExact,
                                                          kCoverRect.width() + padRight,
                                                          kCoverRect.height() + padBottom,
-                                                         kAlpha_8_GrPixelConfig, nullptr));
+                                                         kAlpha_8_GrPixelConfig, nullptr, nullptr));
     if (!maskRTC ||
         !ctx->resourceProvider()->attachStencilAttachment(maskRTC->accessRenderTarget())) {
         return;

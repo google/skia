@@ -124,6 +124,9 @@ private:
  */
 class TextureOp final : public GrMeshDrawOp {
 public:
+    void gatherOp(GrResourceAllocator* alloc) const override {
+    }
+
     static std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy,
                                           GrSamplerParams::FilterMode filter, GrColor color,
                                           const SkRect srcRect, const SkRect dstRect,

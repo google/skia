@@ -23,6 +23,8 @@ class GrGpuCommandBuffer;
 class GrOpFlushState;
 class GrRenderTargetOpList;
 
+class GrResourceAllocator;
+
 /**
  * GrOp is the base class for all Ganesh deferred GPU operations. To facilitate reordering and to
  * minimize draw calls, Ganesh does not generate geometry inline with draw calls. Instead, it
@@ -64,6 +66,8 @@ public:
     virtual ~GrOp();
 
     virtual const char* name() const = 0;
+
+    virtual void gatherOp(GrResourceAllocator*) const = 0;
 
     bool combineIfPossible(GrOp* that, const GrCaps& caps) {
         if (this->classID() != that->classID()) {
