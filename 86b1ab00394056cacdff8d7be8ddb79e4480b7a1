@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e25be49e_244f833d",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-07T14:24:38Z",
+      "side": 1,
+      "message": "Is there a bug for these guys ?",
+      "revId": "86b1ab00394056cacdff8d7be8ddb79e4480b7a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
