@@ -142,7 +142,8 @@ template <typename V, typename T>
 SI V load(const T* src, size_t tail) {
 #if !defined(JUMPER_IS_SCALAR)
     __builtin_assume(tail < kStride);
-    if (__builtin_expect(tail, 0)) {
+
+    if (__builtin_expect(tail && load_crosses_page_boundary<V>(src), false)) {
         V v{};  // Any inactive lanes are zeroed.
         switch (tail) {
             case 7: v[6] = src[6];

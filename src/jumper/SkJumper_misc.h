@@ -78,4 +78,13 @@ struct LazyCtx {
     }
 };
 
+// Most memory loads are small enough that they don't cross 4K page boundaries.
+template <typename V>
+SI bool load_crosses_page_boundary(const void* ptr) {
+    size_t page = 4096;
+    size_t this_page = (size_t)ptr & ~(page-1);
+    size_t next_page = this_page + page;
+    return (size_t)ptr + sizeof(V) > next_page;
+}
+
 #endif//SkJumper_misc_DEFINED

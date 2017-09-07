@@ -219,7 +219,8 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
     template <typename V, typename T>
     SI V load(const T* src, size_t tail) {
         __builtin_assume(tail < kStride);
-        if (__builtin_expect(tail, 0)) {
+
+        if (__builtin_expect(tail && load_crosses_page_boundary<V>(src), false)) {
             V v = 0;
             switch (tail) {
             #if defined(__AVX2__)
@@ -614,18 +615,20 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
 
     SI uint8x8x4_t load_u32(const uint32_t* ptr, size_t tail) {
         __builtin_assume(tail < kStride);
-        uint8x8x4_t rgba;
-        switch (tail) {
-            case 0: rgba = vld4_u8((const uint8_t*)ptr); break;
-            case 7: rgba = vld4_lane_u8((const uint8_t*)(ptr+6), rgba, 6);
-            case 6: rgba = vld4_lane_u8((const uint8_t*)(ptr+5), rgba, 5);
-            case 5: rgba = vld4_lane_u8((const uint8_t*)(ptr+4), rgba, 4);
-            case 4: rgba = vld4_lane_u8((const uint8_t*)(ptr+3), rgba, 3);
-            case 3: rgba = vld4_lane_u8((const uint8_t*)(ptr+2), rgba, 2);
-            case 2: rgba = vld4_lane_u8((const uint8_t*)(ptr+1), rgba, 1);
-            case 1: rgba = vld4_lane_u8((const uint8_t*)(ptr+0), rgba, 0);
+        if (tail && load_crosses_page_boundary<uint8x8x4_t>(ptr)) {
+            uint8x8x4_t rgba;
+            switch (tail) {
+                case 7: rgba = vld4_lane_u8((const uint8_t*)(ptr+6), rgba, 6);
+                case 6: rgba = vld4_lane_u8((const uint8_t*)(ptr+5), rgba, 5);
+                case 5: rgba = vld4_lane_u8((const uint8_t*)(ptr+4), rgba, 4);
+                case 4: rgba = vld4_lane_u8((const uint8_t*)(ptr+3), rgba, 3);
+                case 3: rgba = vld4_lane_u8((const uint8_t*)(ptr+2), rgba, 2);
+                case 2: rgba = vld4_lane_u8((const uint8_t*)(ptr+1), rgba, 1);
+                case 1: rgba = vld4_lane_u8((const uint8_t*)(ptr+0), rgba, 0);
+            }
+            return rgba;
         }
-        return rgba;
+        return vld4_u8((const uint8_t*)ptr);
     }
     SI void store_u32(uint32_t* ptr, size_t tail, uint8x8x4_t rgba) {
         __builtin_assume(tail < kStride);
@@ -643,18 +646,20 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
 
     SI U16 load_u16(const uint16_t* ptr, size_t tail) {
         __builtin_assume(tail < kStride);
-        U16 v = 0;
-        switch (tail) {
-            case 0: memcpy(&v, ptr, 8*sizeof(uint16_t)); break;
-            case 7: v[6] = ptr[6];
-            case 6: v[5] = ptr[5];
-            case 5: v[4] = ptr[4];
-            case 4: memcpy(&v, ptr, 4*sizeof(uint16_t)); break;
-            case 3: v[2] = ptr[2];
-            case 2: memcpy(&v, ptr, 2*sizeof(uint16_t)); break;
-            case 1: v[0] = ptr[0];
+        if (tail && load_crosses_page_boundary<U16>(ptr)) {
+            U16 v = 0;
+            switch (tail) {
+                case 7: v[6] = ptr[6];
+                case 6: v[5] = ptr[5];
+                case 5: v[4] = ptr[4];
+                case 4: memcpy(&v, ptr, 4*sizeof(uint16_t)); break;
+                case 3: v[2] = ptr[2];
+                case 2: memcpy(&v, ptr, 2*sizeof(uint16_t)); break;
+                case 1: v[0] = ptr[0];
+            }
+            return v;
         }
-        return v;
+        return unaligned_load<U16>(ptr);
     }
     SI void store_u16(uint16_t* ptr, size_t tail, U16 v) {
         __builtin_assume(tail < kStride);
@@ -672,18 +677,20 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
 
     SI U8 load_u8(const uint8_t* ptr, size_t tail) {
         __builtin_assume(tail < kStride);
-        U8 v = 0;
-        switch (tail) {
-            case 0: memcpy(&v, ptr, 8); break;
-            case 7: v[6] = ptr[6];
-            case 6: v[5] = ptr[5];
-            case 5: v[4] = ptr[4];
-            case 4: memcpy(&v, ptr, 4); break;
-            case 3: v[2] = ptr[2];
-            case 2: memcpy(&v, ptr, 2); break;
-            case 1: v[0] = ptr[0];
+        if (tail && load_crosses_page_boundary<U8>(ptr)) {
+            U8 v = 0;
+            switch (tail) {
+                case 7: v[6] = ptr[6];
+                case 6: v[5] = ptr[5];
+                case 5: v[4] = ptr[4];
+                case 4: memcpy(&v, ptr, 4); break;
+                case 3: v[2] = ptr[2];
+                case 2: memcpy(&v, ptr, 2); break;
+                case 1: v[0] = ptr[0];
+            }
+            return v;
         }
-        return v;
+        return unaligned_load<U8>(ptr);
     }
     SI void store_u8(uint8_t* ptr, size_t tail, U8 v) {
         __builtin_assume(tail < kStride);
