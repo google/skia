@@ -45,6 +45,7 @@ declare_args() {
   skia_vulkan_sdk = getenv("VULKAN_SDK")
   skia_qt_path = getenv("QT_PATH")
   skia_compile_processors = false
+  skia_lex = false
 
   skia_jumper_clang = ""
   skia_jumper_objdump = ""
@@ -411,7 +412,7 @@ optional("fontmgr_fuchsia") {
   ]
 }
 
-if (skia_compile_processors) {
+if (skia_lex) {
   executable("sksllex") {
     sources = [
       "src/sksl/lex/Main.cpp",
@@ -422,6 +423,38 @@ if (skia_compile_processors) {
     include_dirs = [ "src/sksl/lex" ]
   }
 
+  action("run_sksllex") {
+    script = "gn/run_sksllex.py"
+    sources = [
+      "src/sksl/lex/layout.lex",
+      "src/sksl/lex/sksl.lex",
+    ]
+
+    # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it with a
+    # path that starts with target_out_dir and then uses ".." to back up into the src dir.
+    outputs = [
+      "$target_out_dir/" +
+          rebase_path("src/sksl/lex/SkSLLexer.h", target_out_dir),
+      # the script also modifies the corresponding .cpp file, but if we tell GN that it gets
+      # confused due to the same file being named by two different paths
+    ]
+    sksllex_path = "$root_out_dir/"
+    sksllex_path += "sksllex"
+    if (host_os == "win") {
+      sksllex_path += ".exe"
+    }
+    args = [
+      rebase_path(sksllex_path),
+      rebase_path("bin/clang-format"),
+      rebase_path("src"),
+    ]
+  }
+} else {
+  group("run_sksllex") {
+  }
+}
+
+if (skia_compile_processors) {
   executable("skslc") {
     defines = [ "SKSL_STANDALONE" ]
     sources = [
@@ -482,6 +515,7 @@ optional("gpu") {
   enabled = skia_enable_gpu
   deps = [
     ":compile_processors",
+    ":run_sksllex",
   ]
   public_defines = []
 
