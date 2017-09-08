@@ -15,9 +15,10 @@ import subprocess
 import tempfile
 
 REPO = "https://llvm.googlesource.com/"
-BRANCH = "release_40"
+BRANCH = "release_50"
 
 def create_asset(target_dir):
+  target_dir = os.path.abspath(target_dir)
   # Build Clang, lld, compiler-rt (sanitizer support) and libc++.
   os.chdir(tempfile.mkdtemp())
   subprocess.check_call(["git", "clone", "-b", BRANCH, REPO + "llvm"])
