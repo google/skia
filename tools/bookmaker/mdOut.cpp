@@ -242,6 +242,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
     filename = match + ".md";
     match += ".bmh";
     fOut = nullptr;
+    string fullName;
     for (const auto& topic : fBmhParser.fTopicMap) {
         Definition* topicDef = topic.second;
         if (topicDef->fParent) {
@@ -255,7 +256,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
             continue;
         }
         if (!fOut) {
-            string fullName(outDir);
+            fullName = outDir;
             if ('/' != fullName.back()) {
                 fullName += '/';
             }
@@ -279,6 +280,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
     if (fOut) {
         this->writePending();
         fclose(fOut);
+        SkDebugf("wrote %s\n", fullName.c_str());
         fOut = nullptr;
     }
     return true;
