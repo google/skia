@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf23ec1e_395db035",
+        "filename": "src/gpu/GrTexture.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-08T20:43:38Z",
+      "side": 0,
+      "message": "first of two spots we actually read this value, but we assert it is false above.",
+      "range": {
+        "startLine": 95,
+        "startChar": 29,
+        "endLine": 95,
+        "endChar": 46
+      },
+      "revId": "046c555929b599254bd6957c07254b8fc1e6f331",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e29db5b_9dd0d322",
+        "filename": "src/gpu/GrTextureProxy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-08T20:43:38Z",
+      "side": 0,
+      "message": "second of two spots we read the value, but we assert it is false below.",
+      "range": {
+        "startLine": 15,
+        "startChar": 23,
+        "endLine": 15,
+        "endChar": 43
+      },
+      "revId": "046c555929b599254bd6957c07254b8fc1e6f331",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
