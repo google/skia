@@ -390,7 +390,7 @@ def dm_flags(api, bot):
   if 'Win' in bot or 'Android' in bot or 'Chromecast' in bot:
     for test in ['verylargebitmap', 'verylarge_picture_image']:
       blacklist(['serialize-8888', 'gm', '_', test])
-  if 'Mac' in bot and 'CPU' in bot and 'Release' in bot:
+  if 'Mac' in bot and 'CPU' in bot:
     # skia:6992
     blacklist(['pic-8888', 'gm', '_', 'encode-platform'])
     blacklist(['serialize-8888', 'gm', '_', 'encode-platform'])
