@@ -301,6 +301,85 @@ static int contribution_64(SkFDot6 ordinate) {
     return result;
 }
 
+struct MaskHairBlitter : public SkBlitter {
+public:
+    static constexpr int MAX_SIZE = 1024;
+
+    static bool CanHandle(const SkIRect& bounds) {
+        return bounds.width() * bounds.height() <= MAX_SIZE;
+    }
+
+    // Withotu setBounds, this will have empty bounds and nothing would happen
+    MaskHairBlitter(SkBlitter* blitter) : fBlitter(blitter) {}
+
+    void setBounds(const SkIRect& bounds) {
+        fBounds = bounds;
+        int size = bounds.width() * bounds.height();
+        SkASSERT(size <= MAX_SIZE);
+        memset(fMask, 0, sizeof(SkAlpha) * size);
+    }
+
+    void blitH(int x, int y, int width) override {
+        SK_ABORT("Only blitAntiH2 or blitAntiV2 should be called.");
+    }
+
+    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override {
+        SK_ABORT("Only blitAntiH2 or blitAntiV2 should be called.");
+    }
+
+// #define NO_CLIP
+
+    void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override {
+        SkAlpha* addr = getAddr(x, y);
+#ifdef NO_CLIP
+        SkASSERT(fBounds.contains(x, y) && fBounds.contains(x + 1, y));
+        addr[0] = a0;
+        addr[1] = a1;
+#else
+        if (fBounds.contains(x, y)) {
+            addr[0] = a0;
+        }
+        if (fBounds.contains(x + 1, y)) {
+            addr[1] = a1;
+        }
+#endif
+    }
+
+    void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override {
+        SkAlpha* addr = getAddr(x, y);
+#ifdef NO_CLIP
+        SkASSERT(fBounds.contains(x, y) && fBounds.contains(x, y + 1));
+        addr[0] = a0;
+        addr[fBounds.width()] = a1;
+#else
+        if (fBounds.contains(x, y)) {
+            addr[0] = a0;
+        }
+        if (fBounds.contains(x, y + 1)) {
+            addr[fBounds.width()] = a1;
+        }
+#endif
+    }
+
+    ~MaskHairBlitter() {
+        SkMask mask;
+        mask.fImage = fMask;
+        mask.fBounds = fBounds;
+        mask.fRowBytes = fBounds.width() * sizeof(SkAlpha);
+        mask.fFormat = SkMask::kA8_Format;
+        fBlitter->blitMask(mask, fBounds);
+    }
+
+private:
+    SK_ALWAYS_INLINE SkAlpha* getAddr(int x, int y) {
+        return fMask + (y - fBounds.fTop) * fBounds.width() + x - fBounds.fLeft;
+    }
+
+    SkIRect fBounds;
+    SkAlpha fMask[MAX_SIZE];
+    SkBlitter* fBlitter;
+};
+
 static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
                              const SkIRect* clip, SkBlitter* blitter) {
     // check for integer NaN (0x80000000) which we can't handle (can't negate it)
@@ -499,7 +578,28 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
     }
 
     SkASSERT(hairBlitter);
-    hairBlitter->setup(blitter);
+
+    SkFDot6 minX = SkTMin(x0, x1);
+    SkFDot6 maxX = x0 + x1 - minX;
+    SkFDot6 minY = SkTMin(y0, y1);
+    SkFDot6 maxY = y0 + y1 - minY;
+    SkIRect bounds = SkIRect::MakeLTRB(
+            SkFDot6Floor(minX), SkFDot6Floor(minY), SkFDot6Ceil(maxX), SkFDot6Ceil(maxY));
+#ifdef NO_CLIP
+    bounds.outset(1, 1);
+#else
+    if (clip && !bounds.intersect(*clip)) {
+        return;
+    }
+#endif
+
+    MaskHairBlitter maskBlitter(blitter);
+    if (MaskHairBlitter::CanHandle(bounds)) {
+        maskBlitter.setBounds(bounds);
+        hairBlitter->setup(&maskBlitter);
+    } else {
+        hairBlitter->setup(blitter);
+    }
 
 #ifdef SK_DEBUG
     if (scaleStart > 0 && scaleStop > 0) {
