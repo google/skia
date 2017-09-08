@@ -9,7 +9,7 @@ import re
 import subprocess
 import sys
 
-clang         = 'clang-4.0'
+clang         = 'clang-5.0'
 objdump       = 'gobjdump'
 ccache        = 'ccache'
 stages        = 'src/jumper/SkJumper_stages.cpp'
