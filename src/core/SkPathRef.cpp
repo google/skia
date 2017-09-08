@@ -298,7 +298,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
             return nullptr;
         }
     }
-    
+
     ref->fBoundsIsDirty = false;
 
     // resetToSize clears fSegmentMask and fIsOval
@@ -819,7 +819,6 @@ bool SkPathRef::isValid() const {
         }
     }
 
-#ifdef SK_DEBUG_PATH
     uint32_t mask = 0;
     for (int i = 0; i < fVerbCnt; ++i) {
         switch (fVerbs[~i]) {
@@ -840,16 +839,13 @@ bool SkPathRef::isValid() const {
             case SkPath::kClose_Verb:
                 break;
             case SkPath::kDone_Verb:
-                SkDEBUGFAIL("Done verb shouldn't be recorded.");
-                break;
+                return false;  // Done shouldn't be recorded.
             default:
-                SkDEBUGFAIL("Unknown Verb");
-                break;
+                return false;  // An unknown verb!
         }
     }
     if (mask != fSegmentMask) {
         return false;
     }
-#endif // SK_DEBUG_PATH
     return true;
 }

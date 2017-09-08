@@ -189,6 +189,7 @@ void SkValidatingReadBuffer::readPath(SkPath* path) {
     if (!fError) {
         size = path->readFromMemory(fReader.peek(), fReader.available());
         this->validate((SkAlign4(size) == size) && (0 != size));
+        fError = !(path->isValid() && path->pathRefIsValid());
     }
     if (!fError) {
         (void)this->skip(size);
