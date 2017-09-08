@@ -399,6 +399,8 @@ static void test_path(GrContext* ctx,
     }
 
     GrNoClip noClip;
+    SkIRect clipConservativeBounds = SkIRect::MakeWH(renderTargetContext->width(),
+                                                     renderTargetContext->height());
     GrStyle style(SkStrokeRec::kFill_InitStyle);
     GrShape shape(path, style);
     GrPathRenderer::DrawPathArgs args{ctx,
@@ -406,6 +408,7 @@ static void test_path(GrContext* ctx,
                                       &GrUserStencilSettings::kUnused,
                                       renderTargetContext,
                                       &noClip,
+                                      &clipConservativeBounds,
                                       &matrix,
                                       &shape,
                                       aaType,
