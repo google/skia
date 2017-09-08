@@ -28,6 +28,7 @@ Example usage:
 """
 
 import argparse
+import getpass
 import json
 import os
 import subprocess
@@ -102,6 +103,8 @@ About to run repo init. If it hangs asking you to run glogin then please:
       'git config remote.goog.review %s/' % ANDROID_REPO_URL, shell=True)
   subprocess.check_call(
       'git config review.%s/.autoupload true' % ANDROID_REPO_URL, shell=True)
+  subprocess.check_call(
+      'git config user.email %s@google.com' % getpass.getuser(), shell=True)
 
   # Create repo branch.
   subprocess.check_call('%s start %s .' % (repo_binary, REPO_BRANCH_NAME),
