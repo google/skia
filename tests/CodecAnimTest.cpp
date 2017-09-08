@@ -49,7 +49,9 @@ DEF_TEST(Codec_565, r) {
         return;
     }
     std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(std::move(data)));
-    auto info = codec->getInfo().makeColorType(kRGB_565_SkColorType);
+    auto dim = codec->dimensions();
+    auto info = SkImageInfo::Make(dim.width(), dim.height(), kRGB_565_SkColorType,
+                                  kOpaque_SkAlphaType);
     SkBitmap bm;
     bm.allocPixels(info);
 
@@ -314,14 +316,14 @@ DEF_TEST(Codec_frames, r) {
             //   frame.
             // All should look the same.
             std::vector<SkBitmap> cachedFrames(frameCount);
-            const auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+            const auto dim = codec->dimensions();
+            const auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+                    kPremul_SkAlphaType);
 
             auto decode = [&](SkBitmap* bm, int index, int cachedIndex) {
                 auto decodeInfo = info;
-                if (index > 0) {
-                    auto alphaType = frameInfos[index].fAlpha == SkEncodedInfo::kOpaque_Alpha
-                        ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-                    decodeInfo = info.makeAlphaType(alphaType);
+                if (frameInfos[index].fAlpha == SkEncodedInfo::kOpaque_Alpha) {
+                    decodeInfo = info.makeAlphaType(kOpaque_SkAlphaType);
                 }
                 bm->allocPixels(decodeInfo);
                 if (cachedIndex != SkCodec::kNone) {

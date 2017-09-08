@@ -22,10 +22,10 @@ static inline bool decode_file(const char* filename, SkBitmap* bitmap,
         return false;
     }
 
-    SkImageInfo info = codec->getInfo().makeColorType(colorType);
-    if (requireUnpremul && kPremul_SkAlphaType == info.alphaType()) {
-        info = info.makeAlphaType(kUnpremul_SkAlphaType);
-    }
+    auto dim = codec->dimensions();
+    auto at = codec->getEncodedInfo().opaque() ? kOpaque_SkAlphaType :
+        requireUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
+    auto info = SkImageInfo::Make(dim.width(), dim.height(), colorType, at);
 
     if (!bitmap->tryAllocPixels(info)) {
         return false;

@@ -38,9 +38,11 @@ DEF_TEST(BadImage, reporter) {
         // creation or decoding.  We just want to make sure that we don't crash.
         if (codec) {
             SkBitmap bm;
-            bm.allocPixels(codec->getInfo());
-            codec->getPixels(codec->getInfo(), bm.getPixels(),
-                    bm.rowBytes());
+            auto dim = codec->dimensions();
+            auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+                    kPremul_SkAlphaType);
+            bm.allocPixels(info);
+            codec->getPixels(info, bm.getPixels(), bm.rowBytes());
         }
     }
 }
