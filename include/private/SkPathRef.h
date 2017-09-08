@@ -124,6 +124,8 @@ public:
         /** Return the next verb in this iteration of the path. When all
             segments have been visited, return kDone_Verb.
 
+            If any point in the path is non-finite, return kDone_Verb immediately.
+
             @param  pts The points representing the current verb and/or segment
                         This must not be NULL.
             @return The verb for the current segment
