@@ -54,6 +54,27 @@ GrCoverageCountingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const
         return CanDrawPath::kNo;
     }
 
+    SkRect devBounds;
+    SkIRect devIBounds;
+    args.fViewMatrix->mapRect(&devBounds, path.getBounds());
+    devBounds.roundOut(&devIBounds);
+    if (!devIBounds.intersect(*args.fClipConservativeBounds)) {
+        // Path is completely clipped away. Our code will eventually notice this before doing any
+        // real work.
+        return CanDrawPath::kYes;
+    }
+
+    if (devIBounds.height() * devIBounds.width() > 256 * 256) {
+        // Large paths can blow up the atlas fast. And they are not ideal for a two-pass rendering
+        // algorithm. Give the simpler direct renderers a chance before we commit to drawing it.
+        return CanDrawPath::kAsBackup;
+    }
+
+    if (args.fShape->hasUnstyledKey() && path.countVerbs() > 50) {
+        // Complex paths do better cached in an SDF, if the renderer will accept them.
+        return CanDrawPath::kAsBackup;
+    }
+
     return CanDrawPath::kYes;
 }
 

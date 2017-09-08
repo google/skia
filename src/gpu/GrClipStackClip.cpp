@@ -87,6 +87,7 @@ static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(sk_sp<GrTexturePr
 // optionally, set 'prOut' to NULL. If not, return false (and, optionally, set
 // 'prOut' to the non-SW path renderer that will do the job).
 bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
+                                          const SkIRect& scissorRect,
                                           bool hasUserStencilSettings,
                                           const GrRenderTargetContext* renderTargetContext,
                                           const SkMatrix& viewMatrix,
@@ -118,6 +119,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
         GrShape shape(path, GrStyle::SimpleFill());
         GrPathRenderer::CanDrawPathArgs canDrawArgs;
         canDrawArgs.fCaps = context->caps();
+        canDrawArgs.fClipConservativeBounds = &scissorRect;
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;
         canDrawArgs.fAAType = GrChooseAAType(GrBoolToAA(element->isAA()),
@@ -166,7 +168,7 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
         bool needsStencil = invert ||
                             kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op;
 
-        if (PathNeedsSWRenderer(context, hasUserStencilSettings,
+        if (PathNeedsSWRenderer(context, reducedClip.ibounds(), hasUserStencilSettings,
                                 renderTargetContext, translate, element, nullptr, needsStencil)) {
             return true;
         }

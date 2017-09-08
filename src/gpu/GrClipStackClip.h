@@ -38,6 +38,7 @@ public:
 
 private:
     static bool PathNeedsSWRenderer(GrContext* context,
+                                    const SkIRect& scissorRect,
                                     bool hasUserStencilSettings,
                                     const GrRenderTargetContext*,
                                     const SkMatrix& viewMatrix,
