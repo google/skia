@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "32faa758_9040f751",
+        "filename": "src/core/SkGeometry.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-08T22:17:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f817889c_a67ec8e5",
+      "range": {
+        "startLine": 170,
+        "startChar": 4,
+        "endLine": 170,
+        "endChar": 43
+      },
+      "revId": "7f578bf07b016778e3105b7655a895728b12d847",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3ef346a2_3072ce03",
         "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "7f578bf07b016778e3105b7655a895728b12d847",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a5913f9_34c89750",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-08T22:17:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ef346a2_3072ce03",
+      "range": {
+        "startLine": 95,
+        "startChar": 27,
+        "endLine": 95,
+        "endChar": 44
+      },
+      "revId": "7f578bf07b016778e3105b7655a895728b12d847",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
