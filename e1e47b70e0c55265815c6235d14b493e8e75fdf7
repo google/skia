@@ -16,6 +16,24 @@
       "revId": "e1e47b70e0c55265815c6235d14b493e8e75fdf7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23d8455e_96d90426",
+        "filename": "tools/android/upload_to_android.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-09-08T22:40:44Z",
+      "side": 1,
+      "message": "You mean like Chromium\u0027s CQ has COMMIT\u003dfalse.\nThat is a good question. I am not sure. Derek/Leon do you know?",
+      "parentUuid": "27e36ece_dc7e09cb",
+      "revId": "e1e47b70e0c55265815c6235d14b493e8e75fdf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
