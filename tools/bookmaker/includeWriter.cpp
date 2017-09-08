@@ -1126,6 +1126,7 @@ bool IncludeWriter::populate(BmhParser& bmhParser) {
         this->lfcr();
         this->writePending();
         fclose(fOut);
+        SkDebugf("wrote %s\n", fileName.c_str());
     }
     return allPassed;
 }
