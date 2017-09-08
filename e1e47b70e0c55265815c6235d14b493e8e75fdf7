@@ -34,6 +34,24 @@
       "revId": "e1e47b70e0c55265815c6235d14b493e8e75fdf7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff958f6d_cddccf4c",
+        "filename": "tools/android/upload_to_android.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-08T22:41:29Z",
+      "side": 1,
+      "message": "Yep, like that.",
+      "parentUuid": "23d8455e_96d90426",
+      "revId": "e1e47b70e0c55265815c6235d14b493e8e75fdf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
