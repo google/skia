@@ -485,12 +485,10 @@ private:
         shapeData->fBounds.fRight /= scale;
         shapeData->fBounds.fBottom /= scale;
 
-        shapeData->fTextureCoords.set((atlasLocation.fX+SK_DistanceFieldPad) << 1,
-                                      (atlasLocation.fY+SK_DistanceFieldPad) << 1,
-                                      (atlasLocation.fX+SK_DistanceFieldPad+
-                                       devPathBounds.width()) << 1,
-                                      (atlasLocation.fY+SK_DistanceFieldPad+
-                                       devPathBounds.height()) << 1);
+        shapeData->fTextureCoords.set(atlasLocation.fX+SK_DistanceFieldPad,
+                                      atlasLocation.fY+SK_DistanceFieldPad,
+                                      atlasLocation.fX+SK_DistanceFieldPad+devPathBounds.width(),
+                                      atlasLocation.fY+SK_DistanceFieldPad+devPathBounds.height());
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
@@ -578,9 +576,8 @@ private:
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
 
-        shapeData->fTextureCoords.set(atlasLocation.fX << 1, atlasLocation.fY << 1,
-                                      (atlasLocation.fX+width) << 1,
-                                      (atlasLocation.fY+height) << 1);
+        shapeData->fTextureCoords.set(atlasLocation.fX, atlasLocation.fY,
+                                      atlasLocation.fX+width, atlasLocation.fY+height);
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
