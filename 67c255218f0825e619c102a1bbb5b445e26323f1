@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "369f8030_31d7fc78",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-08T14:22:23Z",
+      "side": 1,
+      "message": "I mentioned this in patch set 20, but maybe I wasn\u0027t clear. You change fDst, but write to dst. Where do you use fDst?\n\nOkay, I see. You pass fDst to this method as dst. I think it\u0027s more confusing than helpful to pass the member variable to a private method by value, and then modify both the member and the value in the same method.",
+      "range": {
+        "startLine": 538,
+        "startChar": 8,
+        "endLine": 538,
+        "endChar": 12
+      },
+      "revId": "67c255218f0825e619c102a1bbb5b445e26323f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1259428b_72909ec8",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-08T14:22:23Z",
+      "side": 1,
+      "message": "I pointed this out in patch set 20. Though you responded \"agreed\", you did not address the problem. This needs to be done inside onStartIncrementalDecode, not here.",
+      "range": {
+        "startLine": 768,
+        "startChar": 7,
+        "endLine": 768,
+        "endChar": 48
+      },
+      "revId": "67c255218f0825e619c102a1bbb5b445e26323f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a67fb64d_aae1a99d",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 782,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-08T14:22:23Z",
+      "side": 1,
+      "message": "Though you appear to have correctly set the number of lines to decode, they\u0027re not necessarily contiguous. If the sample size is 2, we want every other line, which is half the lines, but it\u0027s not the first half of the lines. This looks like it will decode the first half of the lines.\n\n(I think to see this you\u0027d need to set the sample size to 16; libjpeg-turbo will handle sampling down to 8, and then we\u0027ll need to sample that.)",
+      "range": {
+        "startLine": 782,
+        "startChar": 4,
+        "endLine": 782,
+        "endChar": 45
+      },
+      "revId": "67c255218f0825e619c102a1bbb5b445e26323f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97ab3d4d_dc324e45",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-08T14:22:23Z",
+      "side": 1,
+      "message": "It looks like you added an extra line?",
+      "revId": "67c255218f0825e619c102a1bbb5b445e26323f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3620269_1bdb3a40",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 998,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-08T14:22:23Z",
+      "side": 1,
+      "message": "Please remove this test. It does not appear to test anything that is not tested elsewhere.",
+      "range": {
+        "startLine": 998,
+        "startChar": 9,
+        "endLine": 998,
+        "endChar": 31
+      },
+      "revId": "67c255218f0825e619c102a1bbb5b445e26323f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
