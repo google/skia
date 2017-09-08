@@ -525,11 +525,26 @@ def dm_flags(api, bot):
       match.extend(['~CopySurface'])
 
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
-    match.extend(['~gradients_no_texture$', # skia:6132
-                  '~tilemodes', # skia:6132
-                  '~shadertext$', # skia:6132
-                  '~bitmapfilters', # skia:6132
-                  '~GrContextFactory_abandon']) #skia:6209
+    # skia:6132
+    match.extend(['~gradients_no_texture$',
+                  '~tilemodes',
+                  '~shadertext$',
+                  '~bitmapfilters'])
+    match.append('~GrContextFactory_abandon') #skia:6209
+    # skia:7018
+    match.extend(['~ClearOp',
+                  '~ComposedImageFilterBounds_Gpu',
+                  '~ImageEncode_Gpu',
+                  '~ImageFilterFailAffectsTransparentBlack_Gpu',
+                  '~ImageFilterZeroBlurSigma_Gpu',
+                  '~ImageNewShader_GPU',
+                  '~ImageReadPixels_Gpu',
+                  '~ImageScalePixels_Gpu',
+                  '~OverdrawSurface_Gpu',
+                  '~ReadWriteAlpha',
+                  '~SpecialImage_DeferredGpu',
+                  '~SpecialImage_Gpu',
+                  '~SurfaceSemaphores'])
 
   if ('Vulkan' in bot and api.vars.is_linux and
       ('IntelIris540' in bot or 'IntelIris640' in bot)):
