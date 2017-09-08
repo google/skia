@@ -34,6 +34,24 @@
       "revId": "faf66938fbec34d76d0abce126a375d22b73aa40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eda1f51e_3e2703ca",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-08T19:18:03Z",
+      "side": 1,
+      "message": "Is there a known scenario where this does get hit? If there isn\u0027t a known benefit then I think we should omit doing this check. If there is then I think we should convince ourselves that it wouldn\u0027t be better to catch it up stack.\n\nHow much benefit do we lose by just using the path bounds?",
+      "parentUuid": "8761a868_387295a1",
+      "revId": "faf66938fbec34d76d0abce126a375d22b73aa40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
