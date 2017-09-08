@@ -4911,3 +4911,18 @@ DEF_TEST(PathRefSerialization, reporter) {
         REPORTER_ASSERT(reporter, !bytesRead);
     }
 }
+
+DEF_TEST(NonFinitePathIteration, reporter) {
+    SkPath path;
+    path.moveTo(SK_ScalarInfinity, SK_ScalarInfinity);
+
+    int verbs = 0;
+
+    SkPath::RawIter iter(path);
+    SkPoint         pts[4];
+    while (iter.next(pts) != SkPath::kDone_Verb) {
+        verbs++;
+    }
+
+    REPORTER_ASSERT(reporter, verbs == 0);
+}
