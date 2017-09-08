@@ -376,44 +376,6 @@
     },
     "infra_step": true,
     "name": "read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_EXCEPTION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "adb",
-      "wait-for-device"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "wait for device after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1)",
-    "timeout": 60
-  },
-  {
-    "cmd": [
-      "adb",
-      "shell",
-      "cat",
-      "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION (attempt 2)",
     "stdout": "/path/to/tmp/"
   },
   {
@@ -785,7 +747,7 @@
       "adb",
       "pull",
       "/sdcard/revenge_of_the_skiabot/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android/data"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -795,7 +757,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android/data"
+    "name": "pull /sdcard/revenge_of_the_skiabot/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android/data"
   },
   {
     "cmd": [
