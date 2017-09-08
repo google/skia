@@ -168,13 +168,7 @@ static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kAlpha_8_GrPixelConfig;
-
-    sk_sp<GrSurfaceContext> sContext =
-            context->contextPriv().makeDeferredSurfaceContext(desc, fit, SkBudgeted::kYes);
-    if (!sContext || !sContext->asTextureProxy()) {
-        return nullptr;
-    }
-    return sContext->asTextureProxyRef();
+    return GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, fit, SkBudgeted::kYes);
 }
 
 namespace {
