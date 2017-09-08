@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56c4461b_e9404966",
+        "filename": "src/gpu/effects/GrEllipseEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-08T16:45:54Z",
+      "side": 1,
+      "message": "What are these change comment changes in the generated cpp files? Are we just preserving comments through the code generator that were lost before?",
+      "revId": "46655db5380b2d5840557d9cf74268c383b2384e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
