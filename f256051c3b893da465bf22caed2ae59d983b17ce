@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24c4adeb_124b7af5",
+        "filename": "src/codec/SkSampler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-08T14:01:49Z",
+      "side": 1,
+      "message": "This will introduce a bit of a behavior change. See the comments here and in kGray_8. We only check the bits that are used by this color type, whereas you\u0027re checking all 64 bits.",
+      "range": {
+        "startLine": 40,
+        "startChar": 15,
+        "endLine": 40,
+        "endChar": 83
+      },
+      "revId": "f256051c3b893da465bf22caed2ae59d983b17ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
