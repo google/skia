@@ -143,7 +143,93 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "mkdir /sdcard/revenge_of_the_skiabot/resources"
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/resources",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "kill-server"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "kill adb server after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1)",
+    "timeout": 30
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nimport time\nkicks = 0\nwhile True:\n  times = 0\n  while times < 30:\n    print 'Waiting for the device to be connected and ready.'\n    try:\n      times += 1\n      output = subprocess.check_output(['adb', 'shell',\n                                        'getprop',\n                                        'sys.boot_completed'])\n      if '1' in output:\n        print 'Connected'\n        sys.exit(0)\n    except subprocess.CalledProcessError:\n      # no device connected/authorized yet\n      pass\n    time.sleep(5)\n  if kicks >= 3:\n    break\n  print 'Giving the device a \"kick\" by trying to reboot it.'\n  kicks += 1\n  print subprocess.check_output(['adb', 'reboot'])\nprint 'Timed out waiting for device'\nsys.exit(1)\n"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "wait for device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1)",
+    "timeout": 660,
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@kicks = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@while True:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  times = 0@@@",
+      "@@@STEP_LOG_LINE@python.inline@  while times < 30:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Waiting for the device to be connected and ready.'@@@",
+      "@@@STEP_LOG_LINE@python.inline@    try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      times += 1@@@",
+      "@@@STEP_LOG_LINE@python.inline@      output = subprocess.check_output(['adb', 'shell',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                                        'getprop',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                                        'sys.boot_completed'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@      if '1' in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@        print 'Connected'@@@",
+      "@@@STEP_LOG_LINE@python.inline@        sys.exit(0)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    except subprocess.CalledProcessError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      # no device connected/authorized yet@@@",
+      "@@@STEP_LOG_LINE@python.inline@      pass@@@",
+      "@@@STEP_LOG_LINE@python.inline@    time.sleep(5)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if kicks >= 3:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    break@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print 'Giving the device a \"kick\" by trying to reboot it.'@@@",
+      "@@@STEP_LOG_LINE@python.inline@  kicks += 1@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print subprocess.check_output(['adb', 'reboot'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@print 'Timed out waiting for device'@@@",
+      "@@@STEP_LOG_LINE@python.inline@sys.exit(1)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/resources"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/resources (attempt 2)"
   },
   {
     "cmd": [
@@ -376,92 +462,6 @@
     },
     "infra_step": true,
     "name": "read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_EXCEPTION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "adb",
-      "kill-server"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "kill adb server after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1)",
-    "timeout": 30
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport subprocess\nimport sys\nimport time\nkicks = 0\nwhile True:\n  times = 0\n  while times < 30:\n    print 'Waiting for the device to be connected and ready.'\n    try:\n      times += 1\n      output = subprocess.check_output(['adb', 'shell',\n                                        'getprop',\n                                        'sys.boot_completed'])\n      if '1' in output:\n        print 'Connected'\n        sys.exit(0)\n    except subprocess.CalledProcessError:\n      # no device connected/authorized yet\n      pass\n    time.sleep(5)\n  if kicks >= 3:\n    break\n  print 'Giving the device a \"kick\" by trying to reboot it.'\n  kicks += 1\n  print subprocess.check_output(['adb', 'reboot'])\nprint 'Timed out waiting for device'\nsys.exit(1)\n"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "wait for device after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1)",
-    "timeout": 660,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@kicks = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@while True:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  times = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@  while times < 30:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print 'Waiting for the device to be connected and ready.'@@@",
-      "@@@STEP_LOG_LINE@python.inline@    try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      times += 1@@@",
-      "@@@STEP_LOG_LINE@python.inline@      output = subprocess.check_output(['adb', 'shell',@@@",
-      "@@@STEP_LOG_LINE@python.inline@                                        'getprop',@@@",
-      "@@@STEP_LOG_LINE@python.inline@                                        'sys.boot_completed'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@      if '1' in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@        print 'Connected'@@@",
-      "@@@STEP_LOG_LINE@python.inline@        sys.exit(0)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    except subprocess.CalledProcessError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      # no device connected/authorized yet@@@",
-      "@@@STEP_LOG_LINE@python.inline@      pass@@@",
-      "@@@STEP_LOG_LINE@python.inline@    time.sleep(5)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if kicks >= 3:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    break@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print 'Giving the device a \"kick\" by trying to reboot it.'@@@",
-      "@@@STEP_LOG_LINE@python.inline@  kicks += 1@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print subprocess.check_output(['adb', 'reboot'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@print 'Timed out waiting for device'@@@",
-      "@@@STEP_LOG_LINE@python.inline@sys.exit(1)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "adb",
-      "shell",
-      "cat",
-      "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION (attempt 2)",
     "stdout": "/path/to/tmp/"
   },
   {

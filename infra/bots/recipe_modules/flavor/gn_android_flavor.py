@@ -38,7 +38,57 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     # The only non-infra adb steps (dm / nanobench) happen to not use _adb().
     if 'infra_step' not in kwargs:
       kwargs['infra_step'] = True
-    return self._run(title, 'adb', *cmd, **kwargs)
+
+    attempts = 1
+    flaky_devices = ['NexusPlayer', 'PixelC']
+    if self.m.vars.builder_cfg.get('model') in flaky_devices:
+      attempts = 3
+
+    def wait_for_device(attempt):
+      self.m.run(self.m.step,
+                 'kill adb server after failure of \'%s\' (attempt %d)' % (
+                     title, attempt),
+                 cmd=['adb', 'kill-server'],
+                 infra_step=True, timeout=30, abort_on_failure=False,
+                 fail_build_on_failure=False)
+      self.m.run(self.m.python.inline,
+                 'wait for device after failure of \'%s\' (attempt %d)' % (
+                     title, attempt),
+                 program="""
+        import subprocess
+        import sys
+        import time
+        kicks = 0
+        while True:
+          times = 0
+          while times < 30:
+            print 'Waiting for the device to be connected and ready.'
+            try:
+              times += 1
+              output = subprocess.check_output(['adb', 'shell',
+                                                'getprop',
+                                                'sys.boot_completed'])
+              if '1' in output:
+                print 'Connected'
+                sys.exit(0)
+            except subprocess.CalledProcessError:
+              # no device connected/authorized yet
+              pass
+            time.sleep(5)
+          if kicks >= 3:
+            break
+          print 'Giving the device a "kick" by trying to reboot it.'
+          kicks += 1
+          print subprocess.check_output(['adb', 'reboot'])
+        print 'Timed out waiting for device'
+        sys.exit(1)
+        """,
+                 infra_step=True, timeout=660,
+                 abort_on_failure=False, fail_build_on_failure=False)
+
+    with self.m.context(cwd=self.m.vars.skia_dir):
+      self.m.run.with_retry(self.m.step, title, attempts, cmd=['adb']+list(cmd),
+                            between_attempts_fn=wait_for_device, **kwargs)
 
   def compile(self, unused_target):
     compiler      = self.m.vars.builder_cfg.get('compiler')
