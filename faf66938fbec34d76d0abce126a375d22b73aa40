@@ -52,6 +52,24 @@
       "revId": "faf66938fbec34d76d0abce126a375d22b73aa40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc195690_49290751",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-08T21:26:20Z",
+      "side": 1,
+      "message": "This check doesn\u0027t happen for performance, but rather because devIBounds is undefined if the method returns false:\n\nhttps://cs.chromium.org/chromium/src/third_party/skia/include/core/SkRect.h?type\u003dcs\u0026sq\u003dpackage:chromium\u0026l\u003d340\n\nI do believe there are rare instances when it might return false.\n\n\u003e How much benefit do we lose by just using the path bounds?\n\nI guess the most obvious scenario might be drawing a path zoomed in but clipped by the render target bounds. Especially if the RT bounds are a Chrome tile? If the tesselator re-tesselates a path multiple times at each tile, that could hurt pretty bad. Is there some sort of MDB magic for that? the tesselator does not cache AA paths.\n\nJust trying to list the rationale. I\u0027m fine going either way.",
+      "parentUuid": "eda1f51e_3e2703ca",
+      "revId": "faf66938fbec34d76d0abce126a375d22b73aa40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
