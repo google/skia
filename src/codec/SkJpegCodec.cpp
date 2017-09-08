@@ -889,54 +889,54 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void
 
     // Set aside enough space for pointers to rows of Y, U, and V.
     JSAMPROW rowptrs[2 * DCTSIZE + DCTSIZE + DCTSIZE];
-    yuv[0] = &rowptrs[0];           // Y rows (DCTSIZE or 2 * DCTSIZE)
-    yuv[1] = &rowptrs[2 * DCTSIZE]; // U rows (DCTSIZE)
-    yuv[2] = &rowptrs[3 * DCTSIZE]; // V rows (DCTSIZE)
+    yuv[SkYUVSizeInfo::kY] = &rowptrs[0];           // Y rows (DCTSIZE or 2 * DCTSIZE)
+    yuv[SkYUVSizeInfo::kU] = &rowptrs[2 * DCTSIZE]; // U rows (DCTSIZE)
+    yuv[SkYUVSizeInfo::kV] = &rowptrs[3 * DCTSIZE]; // V rows (DCTSIZE)
 
     // Initialize rowptrs.
     int numYRowsPerBlock = DCTSIZE * dinfo->comp_info[0].v_samp_factor;
-    for (int i = 0; i < numYRowsPerBlock; i++) {
-        rowptrs[i] = SkTAddOffset<JSAMPLE>(planes[SkYUVSizeInfo::kY],
+    for (int i = 0; i < DCTSIZE; i++) {
+        for (auto plane : { SkYUVSizeInfo::kY, SkYUVSizeInfo::kU, SkYUVSizeInfo::kV }) {
+            yuv[plane][i] = SkTAddOffset<JSAMPLE>(planes[plane], i * sizeInfo.fWidthBytes[plane]);
+        }
+    }
+    for (int i = DCTSIZE; i < numYRowsPerBlock; i++) {
+        yuv[SkYUVSizeInfo::kY][i] = SkTAddOffset<JSAMPLE>(planes[SkYUVSizeInfo::kY],
                 i * sizeInfo.fWidthBytes[SkYUVSizeInfo::kY]);
     }
-    for (int i = 0; i < DCTSIZE; i++) {
-        rowptrs[i + 2 * DCTSIZE] = SkTAddOffset<JSAMPLE>(planes[SkYUVSizeInfo::kU],
-                i * sizeInfo.fWidthBytes[SkYUVSizeInfo::kU]);
-        rowptrs[i + 3 * DCTSIZE] = SkTAddOffset<JSAMPLE>(planes[SkYUVSizeInfo::kV],
-                i * sizeInfo.fWidthBytes[SkYUVSizeInfo::kV]);
-    }
+
 
     // After each loop iteration, we will increment pointers to Y, U, and V.
-    size_t blockIncrementY = numYRowsPerBlock * sizeInfo.fWidthBytes[SkYUVSizeInfo::kY];
-    size_t blockIncrementU = DCTSIZE * sizeInfo.fWidthBytes[SkYUVSizeInfo::kU];
-    size_t blockIncrementV = DCTSIZE * sizeInfo.fWidthBytes[SkYUVSizeInfo::kV];
-
-    uint32_t numRowsPerBlock = numYRowsPerBlock;
+    size_t blockIncrement[3];
+    blockIncrement[SkYUVSizeInfo::kY] = numYRowsPerBlock * sizeInfo.fWidthBytes[SkYUVSizeInfo::kY];
+    blockIncrement[SkYUVSizeInfo::kU] = DCTSIZE * sizeInfo.fWidthBytes[SkYUVSizeInfo::kU];
+    blockIncrement[SkYUVSizeInfo::kV] = DCTSIZE * sizeInfo.fWidthBytes[SkYUVSizeInfo::kV];
 
     // We intentionally round down here, as this first loop will only handle
     // full block rows.  As a special case at the end, we will handle any
     // remaining rows that do not make up a full block.
-    const int numIters = dinfo->output_height / numRowsPerBlock;
+    const int numIters = dinfo->output_height / numYRowsPerBlock;
     for (int i = 0; i < numIters; i++) {
-        JDIMENSION linesRead = jpeg_read_raw_data(dinfo, yuv, numRowsPerBlock);
-        if (linesRead < numRowsPerBlock) {
+        JDIMENSION linesRead = jpeg_read_raw_data(dinfo, yuv, numYRowsPerBlock);
+        if (linesRead < (uint32_t) numYRowsPerBlock) {
             // FIXME: Handle incomplete YUV decodes without signalling an error.
             return kInvalidInput;
         }
 
         // Update rowptrs.
-        for (int i = 0; i < numYRowsPerBlock; i++) {
-            rowptrs[i] += blockIncrementY;
-        }
         for (int i = 0; i < DCTSIZE; i++) {
-            rowptrs[i + 2 * DCTSIZE] += blockIncrementU;
-            rowptrs[i + 3 * DCTSIZE] += blockIncrementV;
+            for (auto plane : { SkYUVSizeInfo::kY, SkYUVSizeInfo::kU, SkYUVSizeInfo::kV }) {
+                yuv[plane][i] += blockIncrement[plane];
+            }
+        }
+        for (int i = DCTSIZE; i < numYRowsPerBlock; i++) {
+            yuv[SkYUVSizeInfo::kY][i] += blockIncrement[SkYUVSizeInfo::kY];
         }
     }
 
     uint32_t remainingRows = dinfo->output_height - dinfo->output_scanline;
-    SkASSERT(remainingRows == dinfo->output_height % numRowsPerBlock);
-    SkASSERT(dinfo->output_scanline == numIters * numRowsPerBlock);
+    SkASSERT(remainingRows == dinfo->output_height % numYRowsPerBlock);
+    SkASSERT(dinfo->output_scanline == numIters * (uint32_t) numYRowsPerBlock);
     if (remainingRows > 0) {
         // libjpeg-turbo needs memory to be padded by the block sizes.  We will fulfill
         // this requirement using a dummy row buffer.
@@ -952,7 +952,7 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void
             rowptrs[i + 3 * DCTSIZE] = dummyRow.get();
         }
 
-        JDIMENSION linesRead = jpeg_read_raw_data(dinfo, yuv, numRowsPerBlock);
+        JDIMENSION linesRead = jpeg_read_raw_data(dinfo, yuv, numYRowsPerBlock);
         if (linesRead < remainingRows) {
             // FIXME: Handle incomplete YUV decodes without signalling an error.
             return kInvalidInput;
