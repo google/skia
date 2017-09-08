@@ -39,6 +39,8 @@ protected:
 
     SkISize onISize() { return SkISize::Make(970, 780); }
 
+    bool runAsBench() const override { return true;  }
+
     virtual void onDraw(SkCanvas* canvas) {
         SkPath path;
         path.moveTo(SkIntToScalar(0),   SkIntToScalar(50));
