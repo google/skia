@@ -43,12 +43,21 @@ def RunSteps(api):
   # Copy build products.
   api.run.copy_build_products('src', 'dst')
 
+  def between_attempts_fn(attempt):
+    api.run(api.step, 'between_attempts #%d' % attempt,
+            cmd=['echo', 'between_attempt'])
+
   # Retries.
   try:
-    api.run.with_retry(api.step, 'retry fail', 5, cmd=['false'])
+    api.run.with_retry(api.step, 'retry fail', 5, cmd=['false'],
+                       between_attempts_fn=between_attempts_fn)
   except api.step.StepFailure:
     pass
-  api.run.with_retry(api.step, 'retry success', 3, cmd=['false'])
+  assert len(api.run.failed_steps) == 7
+
+  api.run.with_retry(api.step, 'retry success', 3, cmd=['false'],
+                     between_attempts_fn=between_attempts_fn)
+  assert len(api.run.failed_steps) == 7
 
   # Check failure.
   api.run.check_failure()

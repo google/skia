@@ -166,6 +166,19 @@
   },
   {
     "cmd": [
+      "echo",
+      "between_attempt"
+    ],
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
+    },
+    "name": "between_attempts #1"
+  },
+  {
+    "cmd": [
       "false"
     ],
     "env": {
@@ -179,6 +192,19 @@
       "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
+  },
+  {
+    "cmd": [
+      "echo",
+      "between_attempt"
+    ],
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
+    },
+    "name": "between_attempts #2"
   },
   {
     "cmd": [
@@ -198,6 +224,19 @@
   },
   {
     "cmd": [
+      "echo",
+      "between_attempt"
+    ],
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
+    },
+    "name": "between_attempts #3"
+  },
+  {
+    "cmd": [
       "false"
     ],
     "env": {
@@ -211,6 +250,19 @@
       "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
     ]
+  },
+  {
+    "cmd": [
+      "echo",
+      "between_attempt"
+    ],
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
+    },
+    "name": "between_attempts #4"
   },
   {
     "cmd": [
@@ -246,6 +298,19 @@
   },
   {
     "cmd": [
+      "echo",
+      "between_attempt"
+    ],
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
+    },
+    "name": "between_attempts #1 (2)"
+  },
+  {
+    "cmd": [
       "false"
     ],
     "env": {
@@ -262,6 +327,19 @@
   },
   {
     "cmd": [
+      "echo",
+      "between_attempt"
+    ],
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
+    },
+    "name": "between_attempts #2 (2)"
+  },
+  {
+    "cmd": [
       "false"
     ],
     "env": {
@@ -274,7 +352,7 @@
   },
   {
     "name": "$result",
-    "reason": "Failed build steps: fail, fail again, retry fail, retry fail (attempt 2), retry fail (attempt 3), retry fail (attempt 4), retry fail (attempt 5), retry success, retry success (attempt 2)",
+    "reason": "Failed build steps: fail, fail again, retry fail, retry fail (attempt 2), retry fail (attempt 3), retry fail (attempt 4), retry fail (attempt 5)",
     "recipe_result": null,
     "status_code": 1
   }

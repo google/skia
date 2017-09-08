@@ -79,7 +79,7 @@ class SkiaStepApi(recipe_api.RecipeApi):
       with self.m.env(self.m.vars.default_env):
         return steptype(name=name, **kwargs)
     except self.m.step.StepFailure as e:
-      if abort_on_failure or fail_build_on_failure:
+      if fail_build_on_failure:
         self._failed.append(e)
       if abort_on_failure:
         raise
@@ -116,14 +116,21 @@ for pattern in build_products_whitelist:
         args=[src, dst],
         infra_step=True)
 
-  def with_retry(self, steptype, name, attempts, **kwargs):
+  def with_retry(self, steptype, name, attempts, between_attempts_fn=None,
+                 abort_on_failure=True, fail_build_on_failure=True, **kwargs):
     for attempt in xrange(attempts):
       step_name = name
       if attempt > 0:
         step_name += ' (attempt %d)' % (attempt + 1)
       try:
-        res = self(steptype, name=step_name, **kwargs)
+        res = self(steptype, name=step_name, abort_on_failure=True,
+                   fail_build_on_failure=fail_build_on_failure, **kwargs)
+        if attempt > 0 and fail_build_on_failure:
+          del self._failed[-attempt:]
         return res
       except self.m.step.StepFailure:
         if attempt == attempts - 1:
-          raise
+          if abort_on_failure:
+            raise
+        elif between_attempts_fn:
+          between_attempts_fn(attempt+1)
