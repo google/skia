@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8143885c_7ef592f0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-08T04:30:34Z",
+      "side": 1,
+      "message": "It will reduce the for loop by  width * height /2 for the image",
+      "parentUuid": "e75ae4a4_b4ec0051",
+      "range": {
+        "startLine": 9,
+        "startChar": 11,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "6a342d6fb7587a5b2f1276537c0d0abc7dcd8369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8de7dfe9_05c1c5c6",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 1
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "6a94e135_38c648fa",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 904,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-08T04:30:34Z",
+      "side": 1,
+      "message": "ok I will update this",
+      "parentUuid": "41344b80_3e67bc4a",
+      "range": {
+        "startLine": 904,
+        "startChar": 8,
+        "endLine": 904,
+        "endChar": 15
+      },
+      "revId": "6a342d6fb7587a5b2f1276537c0d0abc7dcd8369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d2923c15_0e055aec",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 1
@@ -82,6 +130,30 @@
       "writtenOn": "2017-09-07T20:52:39Z",
       "side": 1,
       "message": "Why not index these with kY, kU, and kV, too?",
+      "range": {
+        "startLine": 911,
+        "startChar": 19,
+        "endLine": 911,
+        "endChar": 20
+      },
+      "revId": "6a342d6fb7587a5b2f1276537c0d0abc7dcd8369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "134d4506_38554f7e",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-08T04:30:34Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "d2923c15_0e055aec",
       "range": {
         "startLine": 911,
         "startChar": 19,
@@ -140,6 +212,30 @@
     },
     {
       "key": {
+        "uuid": "6b3a904e_b66eb78c",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 930,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-08T04:30:34Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "76be5275_7c17380b",
+      "range": {
+        "startLine": 930,
+        "startChar": 22,
+        "endLine": 930,
+        "endChar": 23
+      },
+      "revId": "6a342d6fb7587a5b2f1276537c0d0abc7dcd8369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e5b787f_875dbab6",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 1
@@ -151,6 +247,30 @@
       "writtenOn": "2017-09-07T20:52:39Z",
       "side": 1,
       "message": "Again, I think this is a little extra confusing that you switch back to rowptrs.",
+      "range": {
+        "startLine": 935,
+        "startChar": 12,
+        "endLine": 935,
+        "endChar": 19
+      },
+      "revId": "6a342d6fb7587a5b2f1276537c0d0abc7dcd8369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4eeaa9e_50cd5dd6",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 935,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-08T04:30:34Z",
+      "side": 1,
+      "message": "ok I will update",
+      "parentUuid": "0e5b787f_875dbab6",
       "range": {
         "startLine": 935,
         "startChar": 12,
