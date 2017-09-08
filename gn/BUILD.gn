@@ -309,6 +309,13 @@ config("warnings") {
         cflags += [ "-Wno-over-aligned" ]
       }
 
+      # TODO: fix after we're building with Clang 5
+      cflags += [
+        "-Wno-cast-qual",
+        "-Wno-unused-template",
+        "-Wno-zero-as-null-pointer-constant",
+      ]
+
       cflags += [
         "-Wno-cast-align",
         "-Wno-conditional-uninitialized",
