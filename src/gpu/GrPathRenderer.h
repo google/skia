@@ -73,16 +73,11 @@ public:
         kYes
     };
 
-    /** Args to canDrawPath()
-     *
-     * fCaps             The context caps
-     * fPipelineBuilder  The pipelineBuilder
-     * fViewMatrix       The viewMatrix
-     * fShape            The shape to draw
-     * fAntiAlias        The type of anti aliasing required.
-     */
     struct CanDrawPathArgs {
+        SkDEBUGCODE(CanDrawPathArgs() { memset(this, 0, sizeof(*this)); }) // For validation.
+
         const GrCaps*               fCaps;
+        const SkIRect*              fClipConservativeBounds;
         const SkMatrix*             fViewMatrix;
         const GrShape*              fShape;
         GrAAType                    fAAType;
@@ -93,6 +88,7 @@ public:
 #ifdef SK_DEBUG
         void validate() const {
             SkASSERT(fCaps);
+            SkASSERT(fClipConservativeBounds);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
         }
@@ -109,25 +105,13 @@ public:
         return this->onCanDrawPath(args);
     }
 
-    /**
-     * Args to drawPath()
-     *
-     * fTarget                The target that the path will be rendered to
-     * fResourceProvider      The resource provider for creating gpu resources to render the path
-     * fPipelineBuilder       The pipelineBuilder
-     * fClip                  The clip
-     * fColor                 Color to render with
-     * fViewMatrix            The viewMatrix
-     * fShape                 The shape to draw
-     * fAAtype                true if anti-aliasing is required.
-     * fGammaCorrect          true if gamma-correct rendering is to be used.
-     */
     struct DrawPathArgs {
         GrContext*                   fContext;
         GrPaint&&                    fPaint;
         const GrUserStencilSettings* fUserStencilSettings;
         GrRenderTargetContext*       fRenderTargetContext;
         const GrClip*                fClip;
+        const SkIRect*               fClipConservativeBounds;
         const SkMatrix*              fViewMatrix;
         const GrShape*               fShape;
         GrAAType                     fAAType;
@@ -138,6 +122,7 @@ public:
             SkASSERT(fUserStencilSettings);
             SkASSERT(fRenderTargetContext);
             SkASSERT(fClip);
+            SkASSERT(fClipConservativeBounds);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
         }
@@ -153,9 +138,11 @@ public:
 #ifdef SK_DEBUG
         CanDrawPathArgs canArgs;
         canArgs.fCaps = args.fContext->caps();
+        canArgs.fClipConservativeBounds = args.fClipConservativeBounds;
         canArgs.fViewMatrix = args.fViewMatrix;
         canArgs.fShape = args.fShape;
         canArgs.fAAType = args.fAAType;
+        canArgs.validate();
 
         canArgs.fHasUserStencilSettings = !args.fUserStencilSettings->isUnused();
         SkASSERT(!(canArgs.fAAType == GrAAType::kMSAA &&
@@ -173,18 +160,16 @@ public:
         return this->onDrawPath(args);
     }
 
-    /* Args to stencilPath().
-     *
-     * fResourceProvider      The resource provider for creating gpu resources to render the path
-     * fRenderTargetContext   The target of the draws
-     * fViewMatrix            Matrix applied to the path.
-     * fPath                  The path to draw.
-     * fAAType                The type of AA, cannot be kCoverage.
+    /**
+     * Args to stencilPath(). fAAType cannot be kCoverage.
      */
     struct StencilPathArgs {
+        SkDEBUGCODE(StencilPathArgs() { memset(this, 0, sizeof(*this)); }) // For validation.
+
         GrContext*             fContext;
         GrRenderTargetContext* fRenderTargetContext;
         const GrClip*          fClip;
+        const SkIRect*         fClipConservativeBounds;
         const SkMatrix*        fViewMatrix;
         GrAAType               fAAType;
         const GrShape*         fShape;
@@ -193,6 +178,7 @@ public:
         void validate() const {
             SkASSERT(fContext);
             SkASSERT(fRenderTargetContext);
+            SkASSERT(fClipConservativeBounds);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
             SkASSERT(fShape->style().isSimpleFill());
@@ -275,12 +261,12 @@ private:
         );
 
         GrPaint paint;
-
         DrawPathArgs drawArgs{args.fContext,
                               std::move(paint),
                               &kIncrementStencil,
                               args.fRenderTargetContext,
                               nullptr,  // clip
+                              args.fClipConservativeBounds,
                               args.fViewMatrix,
                               args.fShape,
                               args.fAAType,

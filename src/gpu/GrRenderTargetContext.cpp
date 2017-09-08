@@ -1607,11 +1607,16 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
     GrAAType aaType = fRenderTargetContext->chooseAAType(aa, GrAllowMixedSamples::kNo);
     bool hasUserStencilSettings = !ss->isUnused();
 
+    SkIRect clipConservativeBounds;
+    clip.getConservativeBounds(fRenderTargetContext->width(), fRenderTargetContext->height(),
+                               &clipConservativeBounds, nullptr);
+
     GrShape shape(path, GrStyle::SimpleFill());
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
     canDrawArgs.fCaps = fRenderTargetContext->drawingManager()->getContext()->caps();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
+    canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
     canDrawArgs.fAAType = aaType;
     canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
@@ -1631,6 +1636,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
             ss,
             fRenderTargetContext,
             &clip,
+            &clipConservativeBounds,
             &viewMatrix,
             &shape,
             aaType,
@@ -1661,6 +1667,9 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
     RETURN_IF_ABANDONED
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "internalDrawPath", fContext);
 
+    SkIRect clipConservativeBounds;
+    clip.getConservativeBounds(this->width(), this->height(), &clipConservativeBounds, nullptr);
+
     SkASSERT(!path.isEmpty());
     GrShape shape;
     // NVPR cannot handle hairlines, so this would get picked up by a different stencil and
@@ -1673,6 +1682,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
     canDrawArgs.fCaps = this->drawingManager()->getContext()->caps();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
+    canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
     canDrawArgs.fHasUserStencilSettings = false;
 
     GrPathRenderer* pr;
@@ -1728,6 +1738,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
                                       &GrUserStencilSettings::kUnused,
                                       this,
                                       &clip,
+                                      &clipConservativeBounds,
                                       &viewMatrix,
                                       &shape,
                                       aaType,
