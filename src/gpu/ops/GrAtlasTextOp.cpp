@@ -84,8 +84,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         return;
     }
 
-    sk_sp<GrTextureProxy> proxy = fFontCache->getProxy(this->maskFormat());
-    if (!proxy) {
+    const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(this->maskFormat());
+    if (!proxies[0]) {
         SkDebugf("Could not allocate backing texture for atlas\n");
         return;
     }
@@ -98,10 +98,10 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor =
                 this->setupDfProcessor(this->viewMatrix(),
-                                       fLuminanceColor, this->color(), std::move(proxy));
+                                       fLuminanceColor, this->color(), proxies);
     } else {
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-                this->color(), std::move(proxy), GrSamplerState::ClampNearest(), maskFormat,
+                this->color(), proxies, GrSamplerState::ClampNearest(), maskFormat,
                 localMatrix, this->usesLocalCoords());
     }
 
