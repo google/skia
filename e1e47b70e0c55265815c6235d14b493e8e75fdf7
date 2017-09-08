@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27e36ece_dc7e09cb",
+        "filename": "tools/android/upload_to_android.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-08T21:56:20Z",
+      "side": 1,
+      "message": "Is there a way for us to tag the CL with something that prevents it from landing even if we accidentally +∞ it?",
+      "revId": "e1e47b70e0c55265815c6235d14b493e8e75fdf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
