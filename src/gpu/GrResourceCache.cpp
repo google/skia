@@ -294,6 +294,16 @@ void GrResourceCache::changeUniqueKey(GrGpuResource* resource, const GrUniqueKey
 
     // If another resource has the new key, remove its key then install the key on this resource.
     if (newKey.isValid()) {
+        if (GrGpuResource* old = fUniqueHash.find(newKey)) {
+            // If the old resource using the key is purgeable and is unreachable, then remove it.
+            if (!old->resourcePriv().getScratchKey().isValid() && old->isPurgeable()) {
+                old->cacheAccess().release();
+            } else {
+                this->removeUniqueKey(old);
+            }
+        }
+        SkASSERT(nullptr == fUniqueHash.find(newKey));
+
         // Remove the entry for this resource if it already has a unique key.
         if (resource->getUniqueKey().isValid()) {
             SkASSERT(resource == fUniqueHash.find(resource->getUniqueKey()));
@@ -307,18 +317,6 @@ void GrResourceCache::changeUniqueKey(GrGpuResource* resource, const GrUniqueKey
             }
         }
 
-        if (GrGpuResource* old = fUniqueHash.find(newKey)) {
-            // If the old resource using the key is purgeable and is unreachable, then remove it.
-            if (!old->resourcePriv().getScratchKey().isValid() && old->isPurgeable()) {
-                // release may call validate() which will assert that resource is in fUniqueHash
-                // if it has a valid key. So in debug reset the key here before we assign it.
-                SkDEBUGCODE(resource->cacheAccess().removeUniqueKey();)
-                old->cacheAccess().release();
-            } else {
-                this->removeUniqueKey(old);
-            }
-        }
-        SkASSERT(nullptr == fUniqueHash.find(newKey));
         resource->cacheAccess().setUniqueKey(newKey);
         fUniqueHash.add(resource);
     } else {
