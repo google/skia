@@ -63,7 +63,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
                                                 int sampleCnt, bool needsStencil,
                                                 GrSurfaceFlags flags, bool isMipMapped,
                                                 SkDestinationSurfaceColorMode mipColorMode) const {
-    SkASSERT(!isMipMapped);
+
     GrSurfaceDesc desc;
     desc.fFlags = flags;
     if (fNeedsClear) {
@@ -74,6 +74,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
     desc.fHeight = fHeight;
     desc.fConfig = fConfig;
     desc.fSampleCnt = sampleCnt;
+    desc.fIsMipMapped = isMipMapped;
 
     sk_sp<GrSurface> surface;
     if (SkBackingFit::kApprox == fFit) {

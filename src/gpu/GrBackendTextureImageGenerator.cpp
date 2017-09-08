@@ -182,6 +182,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         desc.fWidth = info.width();
         desc.fHeight = info.height();
         desc.fConfig = proxy->config();
+        desc.fIsMipMapped = proxy->isMipMapped();
 
         sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeDeferredSurfaceContext(
             desc, SkBackingFit::kExact, SkBudgeted::kYes));
