@@ -7,7 +7,6 @@
 
 #include "GrBitmapTextGeoProc.h"
 
-#include "GrAtlasedShaderHelpers.h"
 #include "GrTexture.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -37,10 +36,12 @@ public:
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
 
-        GrGLSLVertToFrag uv(kVec2f_GrSLType);
-        GrGLSLVertToFrag texIdx(kFloat_GrSLType);
-        append_index_uv_varyings(args, btgp.inTextureCoords()->fName, atlasSizeInvName,
-                                 &uv, &texIdx, nullptr);
+        GrGLSLVertToFrag v(kVec2f_GrSLType);
+        varyingHandler->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
+        vertBuilder->codeAppendf("%s = float2(%s.x, %s.y) * %s;", v.vsOut(),
+                                 btgp.inTextureCoords()->fName,
+                                 btgp.inTextureCoords()->fName,
+                                 atlasSizeInvName);
 
         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color
@@ -63,16 +64,18 @@ public:
                              btgp.localMatrix(),
                              args.fFPCoordTransformHandler);
 
-        fragBuilder->codeAppend("float4 texColor;");
-        append_multitexture_lookup(args, btgp.numTextureSamplers(),
-                                   texIdx, uv.fsIn(), "texColor");
-
         if (btgp.maskFormat() == kARGB_GrMaskFormat) {
-            // modulate by color
-            fragBuilder->codeAppendf("%s = %s * texColor;", args.fOutputColor, args.fOutputColor);
+            fragBuilder->codeAppendf("%s = ", args.fOutputColor);
+            fragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
+                                                        args.fTexSamplers[0],
+                                                        v.fsIn(),
+                                                        kVec2f_GrSLType);
+            fragBuilder->codeAppend(";");
             fragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
         } else {
-            fragBuilder->codeAppendf("%s = texColor;", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = ", args.fOutputCoverage);
+            fragBuilder->appendTextureLookup(args.fTexSamplers[0], v.fsIn(), kVec2f_GrSLType);
+            fragBuilder->codeAppend(";");
         }
     }
 
@@ -86,7 +89,7 @@ public:
             fColor = btgp.color();
         }
 
-        SkASSERT(btgp.numTextureSamplers() >= 1);
+        SkASSERT(btgp.numTextureSamplers() == 1);
         GrTexture* atlas = btgp.textureSampler(0).peekTexture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
@@ -105,7 +108,6 @@ public:
         key |= (btgp.usesLocalCoords() && btgp.localMatrix().hasPerspective()) ? 0x1 : 0x0;
         key |= btgp.maskFormat() << 1;
         b->add32(key);
-        b->add32(btgp.numTextureSamplers());
     }
 
 private:
