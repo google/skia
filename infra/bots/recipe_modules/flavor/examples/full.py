@@ -76,6 +76,7 @@ TEST_BUILDERS = [
   'Build-Win-MSVC-x86_64-Release-Vulkan',
   'Housekeeper-PerCommit-CheckGeneratedFiles',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android',
+  'Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android',
   'Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release',
   'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN',
@@ -141,4 +142,30 @@ def GenTests(api):
                      swarm_out_dir='[SWARM_OUT_DIR]') +
       api.step_data('read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION',
                     retcode=1)
+  )
+
+  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android'
+  yield (
+      api.test('retry_adb_command') +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data('mkdir /sdcard/revenge_of_the_skiabot/resources',
+                    retcode=1)
+  )
+
+  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android'
+  fail_step_name = 'mkdir /sdcard/revenge_of_the_skiabot/resources'
+  yield (
+      api.test('retry_adb_command_retries_exhausted') +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data(fail_step_name, retcode=1) +
+      api.step_data(fail_step_name + ' (attempt 2)', retcode=1) +
+      api.step_data(fail_step_name + ' (attempt 3)', retcode=1)
   )
