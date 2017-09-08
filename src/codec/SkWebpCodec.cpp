@@ -39,10 +39,6 @@ bool SkWebpCodec::IsWebp(const void* buf, size_t bytesRead) {
     return bytesRead >= 14 && !memcmp(bytes, "RIFF", 4) && !memcmp(&bytes[8], "WEBPVP", 6);
 }
 
-static SkAlphaType alpha_type(bool hasAlpha) {
-    return hasAlpha ? kUnpremul_SkAlphaType : kOpaque_SkAlphaType;
-}
-
 // Parse headers of RIFF container, and check for valid Webp (VP8) content.
 // Returns an SkWebpCodec on success
 std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
@@ -167,7 +163,7 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
 }
 
 SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
-    SkISize dim = this->getInfo().dimensions();
+    SkISize dim = this->dimensions();
     // SkCodec treats zero dimensional images as errors, so the minimum size
     // that we will recommend is 1x1.
     dim.fWidth = SkTMax(1, SkScalarRoundToInt(desiredScale * dim.fWidth));
@@ -176,7 +172,7 @@ SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
 }
 
 bool SkWebpCodec::onDimensionsSupported(const SkISize& dim) {
-    const SkImageInfo& info = this->getInfo();
+    const SkISize info = this->dimensions();
     return dim.width() >= 1 && dim.width() <= info.width()
             && dim.height() >= 1 && dim.height() <= info.height();
 }
@@ -206,7 +202,7 @@ bool SkWebpCodec::onGetValidSubset(SkIRect* desiredSubset) const {
         return false;
     }
 
-    SkIRect dimensions  = SkIRect::MakeSize(this->getInfo().dimensions());
+    SkIRect dimensions  = SkIRect::MakeSize(this->dimensions());
     if (!dimensions.contains(*desiredSubset)) {
         return false;
     }
@@ -401,9 +397,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
                                          const Options& options, int* rowsDecodedPtr) {
     const int index = options.fFrameIndex;
     SkASSERT(0 == index || index < fFrameHolder.size());
-
-    const auto& srcInfo = this->getInfo();
-    SkASSERT(0 == index || (!options.fSubset && dstInfo.dimensions() == srcInfo.dimensions()));
+    SkASSERT(0 == index || (!options.fSubset && dstInfo.dimensions() == this->dimensions()));
 
     WebPDecoderConfig config;
     if (0 == WebPInitDecoderConfig(&config)) {
@@ -425,8 +419,9 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     // Get the frameRect.  libwebp will have already signaled an error if this is not fully
     // contained by the canvas.
     auto frameRect = SkIRect::MakeXYWH(frame.x_offset, frame.y_offset, frame.width, frame.height);
-    SkASSERT(srcInfo.bounds().contains(frameRect));
-    const bool frameIsSubset = frameRect != srcInfo.bounds();
+    const auto bounds = SkIRect::MakeSize(this->dimensions());
+    SkASSERT(bounds.contains(frameRect));
+    const bool frameIsSubset = frameRect != bounds;
     if (independent && frameIsSubset) {
         SkSampler::Fill(dstInfo, dst, rowBytes, 0, options.fZeroInitialized);
     }
@@ -437,7 +432,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     int subsetHeight = frameRect.height();
     if (options.fSubset) {
         SkIRect subset = *options.fSubset;
-        SkASSERT(this->getInfo().bounds().contains(subset));
+        SkASSERT(bounds.contains(subset));
         SkASSERT(SkIsAlign2(subset.fLeft) && SkIsAlign2(subset.fTop));
         SkASSERT(this->getValidSubset(&subset) && subset == *options.fSubset);
 
@@ -472,7 +467,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     // Ignore the frame size and offset when determining if scaling is necessary.
     int scaledWidth = subsetWidth;
     int scaledHeight = subsetHeight;
-    SkISize srcSize = options.fSubset ? options.fSubset->size() : srcInfo.dimensions();
+    SkISize srcSize = options.fSubset ? options.fSubset->size() : this->dimensions();
     if (srcSize != dstInfo.dimensions()) {
         config.options.use_scaling = 1;
 
@@ -500,11 +495,12 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 
     const bool blendWithPrevFrame = !independent && frame.blend_method == WEBP_MUX_BLEND
         && frame.has_alpha;
-    if (blendWithPrevFrame && options.fPremulBehavior == SkTransferFunctionBehavior::kRespect) {
+    if (blendWithPrevFrame && dstInfo.colorSpace() &&
+            options.fPremulBehavior == SkTransferFunctionBehavior::kRespect) {
         // Blending is done with SkRasterPipeline, which requires a color space that is valid for
         // rendering.
         const auto* cs = dstInfo.colorSpace();
-        if (!cs || (!cs->gammaCloseToSRGB() && !cs->gammaIsLinear())) {
+        if (!cs->gammaCloseToSRGB() && !cs->gammaIsLinear()) {
             return kInvalidConversion;
         }
     }
@@ -567,8 +563,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 
     // We're only transforming the new part of the frame, so no need to worry about the
     // final composited alpha.
-    const auto srcAlpha = 0 == index ? srcInfo.alphaType() : alpha_type(frame.has_alpha);
-    const auto xformAlphaType = select_xform_alpha(dstInfo.alphaType(), srcAlpha);
+    const auto xformAlphaType = select_xform_alpha(dstInfo.alphaType(), !frame.has_alpha);
     const bool needsSrgbToLinear = dstInfo.gammaCloseToSRGB() &&
             options.fPremulBehavior == SkTransferFunctionBehavior::kRespect;
 

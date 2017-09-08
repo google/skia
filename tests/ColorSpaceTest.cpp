@@ -59,7 +59,7 @@ static void test_path(skiatest::Reporter* r, const char* path,
         return;
     }
 
-    SkColorSpace* colorSpace = codec->getInfo().colorSpace();
+    SkColorSpace* colorSpace = codec->colorSpace();
     test_space(r, colorSpace, red, green, blue, expectedGamma);
 }
 

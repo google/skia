@@ -100,7 +100,7 @@ SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info,
     // Wbmp does not need a colorXform, so choose an arbitrary srcFormat.
     : INHERITED(width, height, info, SkColorSpaceXform::ColorFormat(),
                 std::move(stream), SkColorSpace::MakeSRGB())
-    , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
+    , fSrcRowBytes(get_src_row_bytes(width))
     , fSwizzler(nullptr)
 {}
 
