@@ -71,11 +71,11 @@ static SkColorType stored_to_live(unsigned stored) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static bool alpha_type_is_valid(SkAlphaType alphaType) {
-    return (alphaType >= 0) && (alphaType <= kLastEnum_SkAlphaType);
+    return (alphaType >= kUnknown_SkAlphaType) && (alphaType <= kLastEnum_SkAlphaType);
 }
 
 static bool color_type_is_valid(SkColorType colorType) {
-    return (colorType >= 0) && (colorType <= kLastEnum_SkColorType);
+    return (colorType >= kUnknown_SkColorType) && (colorType <= kLastEnum_SkColorType);
 }
 
 SkImageInfo SkImageInfo::MakeS32(int width, int height, SkAlphaType at) {
