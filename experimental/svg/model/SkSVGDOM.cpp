@@ -440,11 +440,9 @@ sk_sp<SkSVGDOM> SkSVGDOM::MakeFromStream(SkStream& svgStream) {
 
 void SkSVGDOM::render(SkCanvas* canvas) const {
     if (fRoot) {
-        SkSVGRenderContext ctx(canvas,
-                               fIDMapper,
-                               SkSVGLengthContext(fContainerSize),
-                               SkSVGPresentationContext());
-        fRoot->render(ctx);
+        SkSVGLengthContext       lctx(fContainerSize);
+        SkSVGPresentationContext pctx;
+        fRoot->render(SkSVGRenderContext(canvas, fIDMapper, lctx, pctx));
     }
 }
 
