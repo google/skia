@@ -311,7 +311,6 @@ config("warnings") {
 
       # TODO: fix after we're building with Clang 5
       cflags += [
-        "-Wno-cast-qual",
         "-Wno-unused-template",
         "-Wno-zero-as-null-pointer-constant",
       ]

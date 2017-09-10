@@ -33,7 +33,7 @@ struct Sk4fRoundtripBench : public Benchmark {
         while (loops --> 0) {
             fs = SkNx_cast<float>(SkNx_cast<T>(fs));
         }
-        fs.store((float*)blackhole);
+        fs.store(const_cast<float*>(blackhole));
     }
 };
 DEF_BENCH(return new Sk4fRoundtripBench<uint8_t>;)
@@ -51,7 +51,7 @@ struct Sk4fFloorBench : public Benchmark {
         while (loops --> 0) {
             fs = fs.floor();
         }
-        fs.store((float*)blackhole);
+        fs.store(const_cast<float*>(blackhole));
     }
 };
 DEF_BENCH(return new Sk4fFloorBench;)

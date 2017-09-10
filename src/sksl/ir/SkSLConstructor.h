@@ -83,7 +83,7 @@ struct Constructor : public Expression {
 
     bool compareConstant(const Context& context, const Expression& other) const override {
         ASSERT(other.fKind == Expression::kConstructor_Kind && other.fType == fType);
-        Constructor& c = (Constructor&) other;
+        const Constructor& c = (const Constructor&) other;
         if (c.fType.kind() == Type::kVector_Kind) {
             for (int i = 0; i < fType.columns(); i++) {
                 if (!this->getVecComponent(i).compareConstant(context, c.getVecComponent(i))) {
@@ -147,13 +147,13 @@ struct Constructor : public Expression {
     double getFVecComponent(int index) const {
         const Expression& c = this->getVecComponent(index);
         ASSERT(c.fKind == Expression::kFloatLiteral_Kind);
-        return ((FloatLiteral&) c).fValue;
+        return ((const FloatLiteral&) c).fValue;
     }
 
     int64_t getIVecComponent(int index) const {
         const Expression& c = this->getVecComponent(index);
         ASSERT(c.fKind == Expression::kIntLiteral_Kind);
-        return ((IntLiteral&) c).fValue;
+        return ((const IntLiteral&) c).fValue;
     }
 
     // null return should be interpreted as zero

@@ -395,7 +395,7 @@ public:
         if (fn_ptr) {
             memcpy(fBuf, &fn_ptr, sizeof(fn_ptr));
             fCall = [](const void* buf, Args... args) {
-                auto fn_ptr = *(R (GR_GL_FUNCTION_TYPE**)(Args...))buf;
+                auto fn_ptr = *(R (GR_GL_FUNCTION_TYPE* const*)(Args...))buf;
                 return fn_ptr(args...);
             };
         }

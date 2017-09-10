@@ -62,12 +62,7 @@ public:
 
     void* readPtr() {
         void* ptr;
-        // we presume this "if" is resolved at compile-time
-        if (4 == sizeof(void*)) {
-            ptr = *(void**)fCurr;
-        } else {
-            memcpy(&ptr, fCurr, sizeof(void*));
-        }
+        memcpy(&ptr, fCurr, sizeof(void*));
         fCurr += sizeof(void*);
         return ptr;
     }

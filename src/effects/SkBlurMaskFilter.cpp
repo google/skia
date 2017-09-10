@@ -420,7 +420,7 @@ static SkCachedData* copy_mask_to_cacheddata(SkMask* mask) {
     if (data) {
         memcpy(data->writable_data(), mask->fImage, size);
         SkMask::FreeImage(mask->fImage);
-        mask->fImage = (uint8_t*)data->data();
+        mask->fImage = (uint8_t*)data->writable_data();
     }
     return data;
 }

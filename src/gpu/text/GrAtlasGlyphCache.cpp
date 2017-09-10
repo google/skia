@@ -366,13 +366,13 @@ static bool get_packed_glyph_df_image(SkGlyphCache* cache, const SkGlyph& glyph,
         if (SkMask::kA8_Format == maskFormat) {
             // make the distance field from the image
             SkGenerateDistanceFieldFromA8Image((unsigned char*)dst,
-                                               (unsigned char*)image,
+                                               (const unsigned char*)image,
                                                glyph.fWidth, glyph.fHeight,
                                                glyph.rowBytes());
         } else if (SkMask::kBW_Format == maskFormat) {
             // make the distance field from the image
             SkGenerateDistanceFieldFromBWImage((unsigned char*)dst,
-                                               (unsigned char*)image,
+                                               (const unsigned char*)image,
                                                glyph.fWidth, glyph.fHeight,
                                                glyph.rowBytes());
         } else {

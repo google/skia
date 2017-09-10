@@ -35,7 +35,7 @@ struct FloatLiteral : public Expression {
     }
 
     bool compareConstant(const Context& context, const Expression& other) const override {
-        FloatLiteral& f = (FloatLiteral&) other;
+        const FloatLiteral& f = (const FloatLiteral&) other;
         return fValue == f.fValue;
     }
 

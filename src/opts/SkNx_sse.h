@@ -85,10 +85,10 @@ public:
     AI void store(void* ptr) const { _mm_storeu_ps((float*)ptr, fVec); }
 
     AI static void Load4(const void* ptr, SkNx* r, SkNx* g, SkNx* b, SkNx* a) {
-        __m128 v0 = _mm_loadu_ps(((float*)ptr) +  0),
-               v1 = _mm_loadu_ps(((float*)ptr) +  4),
-               v2 = _mm_loadu_ps(((float*)ptr) +  8),
-               v3 = _mm_loadu_ps(((float*)ptr) + 12);
+        __m128 v0 = _mm_loadu_ps(((const float*)ptr) +  0),
+               v1 = _mm_loadu_ps(((const float*)ptr) +  4),
+               v2 = _mm_loadu_ps(((const float*)ptr) +  8),
+               v3 = _mm_loadu_ps(((const float*)ptr) + 12);
         _MM_TRANSPOSE4_PS(v0, v1, v2, v3);
         *r = v0;
         *g = v1;
@@ -299,8 +299,8 @@ public:
     AI void store(void* ptr) const { _mm_storel_epi64((__m128i*)ptr, fVec); }
 
     AI static void Load4(const void* ptr, SkNx* r, SkNx* g, SkNx* b, SkNx* a) {
-        __m128i lo = _mm_loadu_si128(((__m128i*)ptr) + 0),
-                hi = _mm_loadu_si128(((__m128i*)ptr) + 1);
+        __m128i lo = _mm_loadu_si128(((const __m128i*)ptr) + 0),
+                hi = _mm_loadu_si128(((const __m128i*)ptr) + 1);
         __m128i even = _mm_unpacklo_epi16(lo, hi),   // r0 r2 g0 g2 b0 b2 a0 a2
                  odd = _mm_unpackhi_epi16(lo, hi);   // r1 r3 ...
         __m128i rg = _mm_unpacklo_epi16(even, odd),  // r0 r1 r2 r3 g0 g1 g2 g3
@@ -368,10 +368,10 @@ public:
     AI void store(void* ptr) const { _mm_storeu_si128((__m128i*)ptr, fVec); }
 
     AI static void Load4(const void* ptr, SkNx* r, SkNx* g, SkNx* b, SkNx* a) {
-        __m128i _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
-                _23 = _mm_loadu_si128(((__m128i*)ptr) + 1),
-                _45 = _mm_loadu_si128(((__m128i*)ptr) + 2),
-                _67 = _mm_loadu_si128(((__m128i*)ptr) + 3);
+        __m128i _01 = _mm_loadu_si128(((const __m128i*)ptr) + 0),
+                _23 = _mm_loadu_si128(((const __m128i*)ptr) + 1),
+                _45 = _mm_loadu_si128(((const __m128i*)ptr) + 2),
+                _67 = _mm_loadu_si128(((const __m128i*)ptr) + 3);
 
         __m128i _02 = _mm_unpacklo_epi16(_01, _23),  // r0 r2 g0 g2 b0 b2 a0 a2
                 _13 = _mm_unpackhi_epi16(_01, _23),  // r1 r3 g1 g3 b1 b3 a1 a3

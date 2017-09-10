@@ -78,7 +78,7 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
         size_t allocSize = (sizeof(SkColor4f) + sizeof(SkScalar)) * fCount;
         fDynamicStorage.reset(allocSize);
         fColors = (SkColor4f*)fDynamicStorage.get();
-        fPos = (SkScalar*)(fColors + fCount);
+        fPos = (const SkScalar*)(fColors + fCount);
     } else {
         fColors = fColorStorage;
         fPos = fPosStorage;
@@ -1391,7 +1391,7 @@ static inline void set_after_interp_color_uni_array(
 
         pdman.set4fv(uni, count, vals.get());
     } else {
-        pdman.set4fv(uni, count, (float*)&colors[0]);
+        pdman.set4fv(uni, count, (const float*)&colors[0]);
     }
 }
 

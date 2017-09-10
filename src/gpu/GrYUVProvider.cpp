@@ -44,7 +44,7 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
     }
 
     if (fCachedData.get()) {
-        planes[0] = (void*)fCachedData->data();
+        planes[0] = (void*)fCachedData->writable_data();
         planes[1] = (uint8_t*)planes[0] + (yuvInfo->fSizeInfo.fWidthBytes[SkYUVSizeInfo::kY] *
                                            yuvInfo->fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
         planes[2] = (uint8_t*)planes[1] + (yuvInfo->fSizeInfo.fWidthBytes[SkYUVSizeInfo::kU] *

@@ -36,7 +36,7 @@ struct IntLiteral : public Expression {
     }
 
     bool compareConstant(const Context& context, const Expression& other) const override {
-        IntLiteral& i = (IntLiteral&) other;
+        const IntLiteral& i = (const IntLiteral&) other;
         return fValue == i.fValue;
     }
 

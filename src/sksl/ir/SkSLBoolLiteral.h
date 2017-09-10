@@ -34,7 +34,7 @@ struct BoolLiteral : public Expression {
     }
 
     bool compareConstant(const Context& context, const Expression& other) const override {
-        BoolLiteral& b = (BoolLiteral&) other;
+        const BoolLiteral& b = (const BoolLiteral&) other;
         return fValue == b.fValue;
     }
 

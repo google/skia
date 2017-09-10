@@ -83,19 +83,20 @@ struct VariableReference : public Expression {
         ASSERT(expr->isConstant());
         switch (expr->fKind) {
             case Expression::kIntLiteral_Kind:
-                return std::unique_ptr<Expression>(new IntLiteral(
-                                                                 irGenerator.fContext,
-                                                                 Position(),
-                                                                 ((IntLiteral*) expr)->fValue));
+                return std::unique_ptr<Expression>(
+                        new IntLiteral(irGenerator.fContext,
+                                       Position(),
+                                       ((const IntLiteral*) expr)->fValue));
             case Expression::kFloatLiteral_Kind:
-                return std::unique_ptr<Expression>(new FloatLiteral(
-                                                               irGenerator.fContext,
-                                                               Position(),
-                                                               ((FloatLiteral*) expr)->fValue));
+                return std::unique_ptr<Expression>(
+                        new FloatLiteral(irGenerator.fContext,
+                                         Position(),
+                                         ((const FloatLiteral*) expr)->fValue));
             case Expression::kBoolLiteral_Kind:
-                return std::unique_ptr<Expression>(new BoolLiteral(irGenerator.fContext,
-                                                                   Position(),
-                                                                   ((BoolLiteral*) expr)->fValue));
+                return std::unique_ptr<Expression>(
+                        new BoolLiteral(irGenerator.fContext,
+                                        Position(),
+                                        ((const BoolLiteral*) expr)->fValue));
             case Expression::kConstructor_Kind: {
                 const Constructor* c = (const Constructor*) expr;
                 std::vector<std::unique_ptr<Expression>> args;

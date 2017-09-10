@@ -55,7 +55,7 @@ static size_t count_indent(const string& text, size_t test, size_t end) {
     return test - result;
 }
 
-static void add_code(const string& text, int pos, int end, 
+static void add_code(const string& text, int pos, int end,
         size_t outIndent, size_t textIndent, string& example) {
     do {
          // fix this to move whole paragraph in, out, but preserve doc indent
@@ -74,7 +74,7 @@ static void add_code(const string& text, int pos, int end,
             pos += nextIndent;
             while ((size_t) pos < len) {
                 example += '"' == text[pos] ? "\\\"" :
-                    '\\' == text[pos] ? "\\\\" : 
+                    '\\' == text[pos] ? "\\\\" :
                     text.substr(pos, 1);
                 ++pos;
             }
@@ -109,14 +109,14 @@ void Definition::setCanonicalFiddle() {
             opPos += sizeof(operatorStr) - 1;
             if ('!' == fName[opPos]) {
                 SkASSERT('=' == fName[opPos + 1]);
-                result += "not_equal_operator"; 
+                result += "not_equal_operator";
             } else if ('=' == fName[opPos]) {
                 if ('(' == fName[opPos + 1]) {
-                    result += isMove ? "move_" : "copy_"; 
-                    result += "assignment_operator"; 
+                    result += isMove ? "move_" : "copy_";
+                    result += "assignment_operator";
                 } else {
                     SkASSERT('=' == fName[opPos + 1]);
-                    result += "equal_operator"; 
+                    result += "equal_operator";
                 }
             } else {
                 SkASSERT(0);  // todo: incomplete
@@ -137,7 +137,7 @@ void Definition::setCanonicalFiddle() {
                 } while (true);
                 if (base == methodName) {
                     fMethodType = Definition::MethodType::kConstructor;
-                    result += "empty_constructor"; 
+                    result += "empty_constructor";
                 } else {
                     result += fName.substr(doubleColons, fName.length() - doubleColons - 2);
                 }
@@ -148,7 +148,7 @@ void Definition::setCanonicalFiddle() {
                 } else {
                     size_t comma = fName.find(',', doubleColons);
                     if (string::npos == comma) {
-                        result += isMove ? "move_" : "copy_"; 
+                        result += isMove ? "move_" : "copy_";
                     }
                     fMethodType = Definition::MethodType::kConstructor;
                     // name them by their param types,
@@ -386,7 +386,7 @@ bool Definition::checkMethod() const {
                 return methodParser.reportError<bool>("multiple #Param with same name");
             }
             foundParam = true;
-            
+
         }
         if (!foundParam && !foundException) {
             return methodParser.reportError<bool>("no #Param found");
@@ -661,7 +661,7 @@ string Definition::methodName() const {
     return fName.substr(start, end - start);
 }
 
-bool Definition::nextMethodParam(TextParser* methodParser, const char** nextEndPtr, 
+bool Definition::nextMethodParam(TextParser* methodParser, const char** nextEndPtr,
         string* paramName) const {
     *nextEndPtr = methodParser->anyOf(",)");
     const char* nextEnd = *nextEndPtr;
@@ -755,7 +755,7 @@ bool Definition::paramsMatch(const string& match, const string& name) const {
         }
         def.skipWhiteSpace();
         m.skipWhiteSpace();
-    } 
+    }
     return !def.eof() && ')' == def.peek() && !m.eof() && ')' == m.peek();
 }
 
@@ -817,7 +817,7 @@ const Definition* RootDefinition::find(const string& ref, AllowParens allowParen
     return result;
 }
 
-/* 
+/*
   class contains named struct, enum, enum-member, method, topic, subtopic
      everything contained by class is uniquely named
      contained names may be reused by other classes
@@ -899,8 +899,8 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                         && fMaps[(int) markType].fExemplary != Exemplary::kOptional) {
                     if (string::npos == fFileName.find("undocumented")
                             && !hasExcluder) {
-                        hasExample == Exemplary::kNo ? 
-                                this->reportWarning("missing example") : 
+                        hasExample == Exemplary::kNo ?
+                                this->reportWarning("missing example") :
                                 this->reportWarning("unexpected example");
                     }
 
@@ -955,7 +955,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 definition->fContentStart = fChar;
                 definition->fName = typeNameBuilder[0];
                 Definition* parent = fParent;
-                while (parent && MarkType::kTopic != parent->fMarkType 
+                while (parent && MarkType::kTopic != parent->fMarkType
                         && MarkType::kSubtopic != parent->fMarkType) {
                     parent = parent->fParent;
                 }
@@ -1109,7 +1109,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             break;
             // always treated as one-liners (can't detect misuse easily)
         case MarkType::kAlias:
-        case MarkType::kAnchor: 
+        case MarkType::kAnchor:
         case MarkType::kDefine:
         case MarkType::kError:
         case MarkType::kFile:
@@ -1156,7 +1156,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     return this->reportError<bool>("duplicate alias");
                 }
                 fAliasMap[alias] = definition;
-            } 
+            }
             break;
         case MarkType::kExternal:
             (void) this->collectExternals();  // FIXME: detect errors in external defs?
@@ -1407,7 +1407,7 @@ bool BmhParser::endTableColumn(const char* end, const char* terminator) {
     return true;
 }
 
-// FIXME: some examples may produce different output on different platforms 
+// FIXME: some examples may produce different output on different platforms
 // if the text output can be different, think of how to author that
 
 bool BmhParser::findDefinitions() {
@@ -1723,7 +1723,7 @@ string BmhParser::methodName() {
             isConstructor = true;
         }
         builder = parent->fName + "::";
-    } 
+    }
     if (isConstructor || expectOperator) {
         paren = this->strnchr(')', end) + 1;
     }
@@ -1789,7 +1789,7 @@ bool BmhParser::popParentStack(Definition* definition) {
 }
 
 TextParser::TextParser(const Definition* definition) :
-    TextParser(definition->fFileName, definition->fContentStart, definition->fContentEnd, 
+    TextParser(definition->fFileName, definition->fContentStart, definition->fContentEnd,
         definition->fLineCount) {
 }
 
@@ -1948,7 +1948,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
             this->skipNoName();
             break;
         case MarkType::kAlias:
-        case MarkType::kAnchor: 
+        case MarkType::kAnchor:
         case MarkType::kBug:  // fixme: expect number
         case MarkType::kDefine:
         case MarkType::kDefinedBy:
@@ -2196,7 +2196,8 @@ int main(int argc, char** const argv) {
         const char* commands[] = { "", "-h", "bmh", "-h", "examples", "-h", "include", "-h", "fiddle",
             "-h", "ref", "-h", "tokens",
             "-h", "crosscheck", "-h", "populate", "-h", "spellcheck" };
-        SkCommandLineFlags::Parse(SK_ARRAY_COUNT(commands), (char**) commands);
+        // TODO: is this cast really sound?
+        SkCommandLineFlags::Parse(SK_ARRAY_COUNT(commands), const_cast<char**>(commands));
         return 0;
     }
     if (FLAGS_bmh.isEmpty() && FLAGS_include.isEmpty()) {
@@ -2317,7 +2318,7 @@ int main(int argc, char** const argv) {
         topics += count_children(*topic.second, MarkType::kSubtopic);
         topics += count_children(*topic.second, MarkType::kTopic);
     }
-    SkDebugf("topics=%d classes=%d methods=%d examples=%d\n", 
+    SkDebugf("topics=%d classes=%d methods=%d examples=%d\n",
             bmhParser.fTopicMap.size(), bmhParser.fClassMap.size(),
             methods, examples);
     return 0;
