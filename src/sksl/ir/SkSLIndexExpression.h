@@ -45,7 +45,7 @@ static const Type& index_type(const Context& context, const Type& type) {
 struct IndexExpression : public Expression {
     IndexExpression(const Context& context, std::unique_ptr<Expression> base,
                     std::unique_ptr<Expression> index)
-    : INHERITED(base->fPosition, kIndex_Kind, index_type(context, base->fType))
+    : INHERITED(base->fOffset, kIndex_Kind, index_type(context, base->fType))
     , fBase(std::move(base))
     , fIndex(std::move(index)) {
         ASSERT(fIndex->fType == *context.fInt_Type || fIndex->fType == *context.fUInt_Type);

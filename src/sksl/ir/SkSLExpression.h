@@ -44,8 +44,8 @@ struct Expression : public IRNode {
         kDefined_Kind
     };
 
-    Expression(Position position, Kind kind, const Type& type)
-    : INHERITED(position)
+    Expression(int offset, Kind kind, const Type& type)
+    : INHERITED(offset)
     , fKind(kind)
     , fType(std::move(type)) {}
 

@@ -32,8 +32,8 @@ struct VariableReference : public Expression {
         kReadWrite_RefKind
     };
 
-    VariableReference(Position position, const Variable& variable, RefKind refKind = kRead_RefKind)
-    : INHERITED(position, kVariableReference_Kind, variable.fType)
+    VariableReference(int offset, const Variable& variable, RefKind refKind = kRead_RefKind)
+    : INHERITED(offset, kVariableReference_Kind, variable.fType)
     , fVariable(variable)
     , fRefKind(refKind) {
         if (refKind != kRead_RefKind) {
@@ -83,18 +83,17 @@ struct VariableReference : public Expression {
         ASSERT(expr->isConstant());
         switch (expr->fKind) {
             case Expression::kIntLiteral_Kind:
-                return std::unique_ptr<Expression>(new IntLiteral(
-                                                                 irGenerator.fContext,
-                                                                 Position(),
-                                                                 ((IntLiteral*) expr)->fValue));
+                return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
+                                                                  -1,
+                                                                  ((IntLiteral*) expr)->fValue));
             case Expression::kFloatLiteral_Kind:
                 return std::unique_ptr<Expression>(new FloatLiteral(
-                                                               irGenerator.fContext,
-                                                               Position(),
-                                                               ((FloatLiteral*) expr)->fValue));
+                                                                   irGenerator.fContext,
+                                                                   -1,
+                                                                   ((FloatLiteral*) expr)->fValue));
             case Expression::kBoolLiteral_Kind:
                 return std::unique_ptr<Expression>(new BoolLiteral(irGenerator.fContext,
-                                                                   Position(),
+                                                                   -1,
                                                                    ((BoolLiteral*) expr)->fValue));
             case Expression::kConstructor_Kind: {
                 const Constructor* c = (const Constructor*) expr;
@@ -102,12 +101,12 @@ struct VariableReference : public Expression {
                 for (const auto& arg : c->fArguments) {
                     args.push_back(copy_constant(irGenerator, arg.get()));
                 }
-                return std::unique_ptr<Expression>(new Constructor(Position(), c->fType,
+                return std::unique_ptr<Expression>(new Constructor(-1, c->fType,
                                                                    std::move(args)));
             }
             case Expression::kSetting_Kind: {
                 const Setting* s = (const Setting*) expr;
-                return std::unique_ptr<Expression>(new Setting(Position(), s->fName,
+                return std::unique_ptr<Expression>(new Setting(-1, s->fName,
                                                                copy_constant(irGenerator,
                                                                              s->fValue.get())));
             }

@@ -9,7 +9,7 @@
 #define SKSL_POSTFIXEXPRESSION
 
 #include "SkSLExpression.h"
-#include "SkSLToken.h"
+#include "SkSLLexer.h"
 
 namespace SkSL {
 
@@ -18,7 +18,7 @@ namespace SkSL {
  */
 struct PostfixExpression : public Expression {
     PostfixExpression(std::unique_ptr<Expression> operand, Token::Kind op)
-    : INHERITED(operand->fPosition, kPostfix_Kind, operand->fType)
+    : INHERITED(operand->fOffset, kPostfix_Kind, operand->fType)
     , fOperand(std::move(operand))
     , fOperator(op) {}
 
@@ -27,7 +27,7 @@ struct PostfixExpression : public Expression {
     }
 
     String description() const override {
-        return fOperand->description() + Token::OperatorName(fOperator);
+        return fOperand->description() + Compiler::OperatorName(fOperator);
     }
 
     std::unique_ptr<Expression> fOperand;

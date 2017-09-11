@@ -17,10 +17,10 @@ namespace SkSL {
  * A 'switch' statement.
  */
 struct SwitchStatement : public Statement {
-    SwitchStatement(Position position, bool isStatic, std::unique_ptr<Expression> value,
+    SwitchStatement(int offset, bool isStatic, std::unique_ptr<Expression> value,
                     std::vector<std::unique_ptr<SwitchCase>> cases,
                     const std::shared_ptr<SymbolTable> symbols)
-    : INHERITED(position, kSwitch_Kind)
+    : INHERITED(offset, kSwitch_Kind)
     , fIsStatic(isStatic)
     , fValue(std::move(value))
     , fSymbols(std::move(symbols))
