@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d7b62e1_b6413ae0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-11T14:35:12Z",
+      "side": 1,
+      "message": "nit: Subject line should not end in a period:\n\nhttps://chris.beams.io/posts/git-commit/",
+      "range": {
+        "startLine": 7,
+        "startChar": 57,
+        "endLine": 7,
+        "endChar": 58
+      },
+      "revId": "313a832208792dc6038229394836dc86c00c3a35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a17ff731_60cddb84",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-11T14:35:12Z",
+      "side": 1,
+      "message": "This comment is no longer true. A better comment might be something along the lines of:\n\nShare code for setting the out_color_space CMYK encoded colorspaces.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 12
+      },
+      "revId": "313a832208792dc6038229394836dc86c00c3a35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
