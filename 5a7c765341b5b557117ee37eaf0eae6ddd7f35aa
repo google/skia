@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a26799d7_2c078624",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1472,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-11T21:31:46Z",
+      "side": 1,
+      "message": "// fall through",
+      "revId": "5a7c765341b5b557117ee37eaf0eae6ddd7f35aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a243f21_67ed8535",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-11T21:31:46Z",
+      "side": 1,
+      "message": "// 0, 0.5, 1 ?",
+      "revId": "5a7c765341b5b557117ee37eaf0eae6ddd7f35aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
