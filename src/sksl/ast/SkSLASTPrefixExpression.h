@@ -9,8 +9,7 @@
 #define SKSL_ASTPREFIXEXPRESSION
 
 #include "SkSLASTExpression.h"
-#include "../SkSLCompiler.h"
-#include "../SkSLLexer.h"
+#include "../SkSLToken.h"
 
 namespace SkSL {
 
@@ -19,12 +18,12 @@ namespace SkSL {
  */
 struct ASTPrefixExpression : public ASTExpression {
     ASTPrefixExpression(Token op, std::unique_ptr<ASTExpression> operand)
-    : INHERITED(op.fOffset, kPrefix_Kind)
+    : INHERITED(op.fPosition, kPrefix_Kind)
     , fOperator(op.fKind)
     , fOperand(std::move(operand)) {}
 
     String description() const override {
-        return Compiler::OperatorName(fOperator) + fOperand->description();
+        return Token::OperatorName(fOperator) + fOperand->description();
     }
 
     const Token::Kind fOperator;

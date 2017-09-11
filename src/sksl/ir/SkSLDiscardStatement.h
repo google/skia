@@ -17,8 +17,8 @@ namespace SkSL {
  * A 'discard' statement.
  */
 struct DiscardStatement : public Statement {
-    DiscardStatement(int offset)
-    : INHERITED(offset, kDiscard_Kind) {}
+    DiscardStatement(Position position)
+    : INHERITED(position, kDiscard_Kind) {}
 
     String description() const override {
         return String("discard;");

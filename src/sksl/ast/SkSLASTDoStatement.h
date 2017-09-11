@@ -16,9 +16,9 @@ namespace SkSL {
  * A 'do' loop.
  */
 struct ASTDoStatement : public ASTStatement {
-    ASTDoStatement(int offset, std::unique_ptr<ASTStatement> statement,
+    ASTDoStatement(Position position, std::unique_ptr<ASTStatement> statement,
                    std::unique_ptr<ASTExpression> test)
-    : INHERITED(offset, kDo_Kind)
+    : INHERITED(position, kDo_Kind)
     , fStatement(std::move(statement))
     , fTest(std::move(test)) {}
 

@@ -16,9 +16,9 @@ namespace SkSL {
  * A 'while' statement.
  */
 struct ASTWhileStatement : public ASTStatement {
-    ASTWhileStatement(int offset, std::unique_ptr<ASTExpression> test,
+    ASTWhileStatement(Position position, std::unique_ptr<ASTExpression> test,
                       std::unique_ptr<ASTStatement> statement)
-    : INHERITED(offset, kWhile_Kind)
+    : INHERITED(position, kWhile_Kind)
     , fTest(std::move(test))
     , fStatement(std::move(statement)) {}
 

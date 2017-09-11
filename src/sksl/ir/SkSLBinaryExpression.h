@@ -11,7 +11,7 @@
 #include "SkSLExpression.h"
 #include "SkSLExpression.h"
 #include "../SkSLIRGenerator.h"
-#include "../SkSLLexer.h"
+#include "../SkSLToken.h"
 
 namespace SkSL {
 
@@ -19,9 +19,9 @@ namespace SkSL {
  * A binary operation.
  */
 struct BinaryExpression : public Expression {
-    BinaryExpression(int offset, std::unique_ptr<Expression> left, Token::Kind op,
+    BinaryExpression(Position position, std::unique_ptr<Expression> left, Token::Kind op,
                      std::unique_ptr<Expression> right, const Type& type)
-    : INHERITED(offset, kBinary_Kind, type)
+    : INHERITED(position, kBinary_Kind, type)
     , fLeft(std::move(left))
     , fOperator(op)
     , fRight(std::move(right)) {}
@@ -34,12 +34,12 @@ struct BinaryExpression : public Expression {
     }
 
     bool hasSideEffects() const override {
-        return Compiler::IsAssignment(fOperator) || fLeft->hasSideEffects() ||
+        return Token::IsAssignment(fOperator) || fLeft->hasSideEffects() ||
                fRight->hasSideEffects();
     }
 
     String description() const override {
-        return "(" + fLeft->description() + " " + Compiler::OperatorName(fOperator) + " " +
+        return "(" + fLeft->description() + " " + Token::OperatorName(fOperator) + " " +
                fRight->description() + ")";
     }
 

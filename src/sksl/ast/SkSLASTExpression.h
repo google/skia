@@ -27,8 +27,8 @@ struct ASTExpression : public ASTPositionNode {
         kTernary_Kind
     };
 
-    ASTExpression(int offset, Kind kind)
-    : INHERITED(offset)
+    ASTExpression(Position position, Kind kind)
+    : INHERITED(position)
     , fKind(kind) {}
 
     const Kind fKind;

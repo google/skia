@@ -8,7 +8,7 @@
 #ifndef SKSL_IRNODE
 #define SKSL_IRNODE
 
-#include "../SkSLLexer.h"
+#include "../SkSLPosition.h"
 
 namespace SkSL {
 
@@ -17,16 +17,14 @@ namespace SkSL {
  * version of the program (all types determined, everything validated), ready for code generation.
  */
 struct IRNode {
-    IRNode(int offset)
-    : fOffset(offset) {}
+    IRNode(Position position)
+    : fPosition(position) {}
 
     virtual ~IRNode() {}
 
     virtual String description() const = 0;
 
-    // character offset of this element within the program being compiled, for error reporting
-    // purposes
-    const int fOffset;
+    const Position fPosition;
 };
 
 } // namespace

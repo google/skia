@@ -16,6 +16,7 @@
 #include "SkSLCFGGenerator.h"
 #include "SkSLContext.h"
 #include "SkSLErrorReporter.h"
+#include "SkSLIRGenerator.h"
 
 #define SK_FRAGCOLOR_BUILTIN           10001
 #define SK_IN_BUILTIN                  10002
@@ -69,7 +70,7 @@ public:
 
     bool toH(const Program& program, String name, OutputStream& out);
 
-    void error(int offset, String msg) override;
+    void error(Position position, String msg) override;
 
     String errorText();
 
@@ -78,10 +79,6 @@ public:
     int errorCount() override {
         return fErrorCount;
     }
-
-    static const char* OperatorName(Token::Kind token);
-
-    static bool IsAssignment(Token::Kind token);
 
 private:
     void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
@@ -117,14 +114,11 @@ private:
 
     void scanCFG(FunctionDefinition& f);
 
-    Position position(int offset);
-
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;
     String fSkiaVertText; // FIXME store parsed version instead
     int fFlags;
 
-    const String* fSource;
     Context fContext;
     int fErrorCount;
     String fErrorText;

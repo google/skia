@@ -27,9 +27,9 @@ class Context;
 class Type : public Symbol {
 public:
     struct Field {
-        Field(Modifiers modifiers, StringFragment name, const Type* type)
+        Field(Modifiers modifiers, String name, const Type* type)
         : fModifiers(modifiers)
-        , fName(name)
+        , fName(std::move(name))
         , fType(std::move(type)) {}
 
         const String description() const {
@@ -37,7 +37,7 @@ public:
         }
 
         Modifiers fModifiers;
-        StringFragment fName;
+        String fName;
         const Type* fType;
     };
 
@@ -62,60 +62,40 @@ public:
     // Create an "other" (special) type with the given name. These types cannot be directly
     // referenced from user code.
     Type(String name)
-    : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kOther_Kind)
-    , fNumberKind(kNonnumeric_NumberKind) {
-        fName.fChars = fNameString.c_str();
-        fName.fLength = fNameString.size();
-    }
+    , fNumberKind(kNonnumeric_NumberKind) {}
 
     // Create a generic type which maps to the listed types.
     Type(String name, std::vector<const Type*> types)
-    : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kGeneric_Kind)
     , fNumberKind(kNonnumeric_NumberKind)
-    , fCoercibleTypes(std::move(types)) {
-        fName.fChars = fNameString.c_str();
-        fName.fLength = fNameString.size();
-    }
+    , fCoercibleTypes(std::move(types)) {}
 
     // Create a struct type with the given fields.
-    Type(int offset, String name, std::vector<Field> fields)
-    : INHERITED(offset, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    Type(Position position, String name, std::vector<Field> fields)
+    : INHERITED(position, kType_Kind, std::move(name))
     , fTypeKind(kStruct_Kind)
     , fNumberKind(kNonnumeric_NumberKind)
-    , fFields(std::move(fields)) {
-        fName.fChars = fNameString.c_str();
-        fName.fLength = fNameString.size();
-    }
+    , fFields(std::move(fields)) {}
 
     // Create a scalar type.
     Type(String name, NumberKind numberKind)
-    : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kScalar_Kind)
     , fNumberKind(numberKind)
     , fColumns(1)
-    , fRows(1) {
-        fName.fChars = fNameString.c_str();
-        fName.fLength = fNameString.size();
-    }
+    , fRows(1) {}
 
     // Create a scalar type which can be coerced to the listed types.
     Type(String name, NumberKind numberKind, std::vector<const Type*> coercibleTypes)
-    : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kScalar_Kind)
     , fNumberKind(numberKind)
     , fCoercibleTypes(std::move(coercibleTypes))
     , fColumns(1)
-    , fRows(1) {
-        fName.fChars = fNameString.c_str();
-        fName.fLength = fNameString.size();
-    }
+    , fRows(1) {}
 
     // Create a vector type.
     Type(String name, const Type& componentType, int columns)
@@ -123,54 +103,42 @@ public:
 
     // Create a vector or array type.
     Type(String name, Kind kind, const Type& componentType, int columns)
-    : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kind)
     , fNumberKind(kNonnumeric_NumberKind)
     , fComponentType(&componentType)
     , fColumns(columns)
     , fRows(1)
-    , fDimensions(SpvDim1D) {
-        fName.fChars = fNameString.c_str();
-        fName.fLength = fNameString.size();
-    }
+    , fDimensions(SpvDim1D) {}
 
     // Create a matrix type.
     Type(String name, const Type& componentType, int columns, int rows)
-    : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kMatrix_Kind)
     , fNumberKind(kNonnumeric_NumberKind)
     , fComponentType(&componentType)
     , fColumns(columns)
     , fRows(rows)
-    , fDimensions(SpvDim1D) {
-        fName.fChars = fNameString.c_str();
-        fName.fLength = fNameString.size();
-    }
+    , fDimensions(SpvDim1D) {}
 
     // Create a sampler type.
     Type(String name, SpvDim_ dimensions, bool isDepth, bool isArrayed, bool isMultisampled,
          bool isSampled)
-    : INHERITED(-1, kType_Kind, StringFragment())
-    , fNameString(std::move(name))
+    : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kSampler_Kind)
     , fNumberKind(kNonnumeric_NumberKind)
     , fDimensions(dimensions)
     , fIsDepth(isDepth)
     , fIsArrayed(isArrayed)
     , fIsMultisampled(isMultisampled)
-    , fIsSampled(isSampled) {
-        fName.fChars = fNameString.c_str();
-        fName.fLength = fNameString.size();
-    }
+    , fIsSampled(isSampled) {}
 
     const String& name() const {
-        return fNameString;
+        return fName;
     }
 
     String description() const override {
-        return fNameString;
+        return fName;
     }
 
     bool operator==(const Type& other) const {
@@ -315,7 +283,6 @@ public:
 private:
     typedef Symbol INHERITED;
 
-    const String fNameString;
     const Kind fTypeKind;
     // always kNonnumeric_NumberKind for non-scalar values
     const NumberKind fNumberKind;

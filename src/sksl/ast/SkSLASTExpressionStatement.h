@@ -17,7 +17,7 @@ namespace SkSL {
  */
 struct ASTExpressionStatement : public ASTStatement {
     ASTExpressionStatement(std::unique_ptr<ASTExpression> expression)
-    : INHERITED(expression->fOffset, kExpression_Kind)
+    : INHERITED(expression->fPosition, kExpression_Kind)
     , fExpression(std::move(expression)) {}
 
     String description() const override {

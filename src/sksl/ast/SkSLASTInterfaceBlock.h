@@ -23,17 +23,17 @@ namespace SkSL {
  */
 struct ASTInterfaceBlock : public ASTDeclaration {
     // valueName is empty when it was not present in the source
-    ASTInterfaceBlock(int offset,
+    ASTInterfaceBlock(Position position,
                       Modifiers modifiers,
-                      StringFragment typeName,
+                      String typeName,
                       std::vector<std::unique_ptr<ASTVarDeclarations>> declarations,
-                      StringFragment instanceName,
+                      String instanceName,
                       std::vector<std::unique_ptr<ASTExpression>> sizes)
-    : INHERITED(offset, kInterfaceBlock_Kind)
+    : INHERITED(position, kInterfaceBlock_Kind)
     , fModifiers(modifiers)
-    , fTypeName(typeName)
+    , fTypeName(std::move(typeName))
     , fDeclarations(std::move(declarations))
-    , fInstanceName(instanceName)
+    , fInstanceName(std::move(instanceName))
     , fSizes(std::move(sizes)) {}
 
     String description() const override {
@@ -42,7 +42,7 @@ struct ASTInterfaceBlock : public ASTDeclaration {
             result += fDeclarations[i]->description() + "\n";
         }
         result += "}";
-        if (fInstanceName.fLength) {
+        if (fInstanceName.size()) {
             result += " " + fInstanceName;
             for (const auto& size : fSizes) {
                 result += "[";
@@ -56,9 +56,9 @@ struct ASTInterfaceBlock : public ASTDeclaration {
     }
 
     const Modifiers fModifiers;
-    const StringFragment fTypeName;
+    const String fTypeName;
     const std::vector<std::unique_ptr<ASTVarDeclarations>> fDeclarations;
-    const StringFragment fInstanceName;
+    const String fInstanceName;
     const std::vector<std::unique_ptr<ASTExpression>> fSizes;
 
     typedef ASTDeclaration INHERITED;

@@ -18,9 +18,9 @@ namespace SkSL {
  * A function definition (a declaration plus an associated block of code).
  */
 struct FunctionDefinition : public ProgramElement {
-    FunctionDefinition(int offset, const FunctionDeclaration& declaration,
+    FunctionDefinition(Position position, const FunctionDeclaration& declaration,
                        std::unique_ptr<Statement> body)
-    : INHERITED(offset, kFunction_Kind)
+    : INHERITED(position, kFunction_Kind)
     , fDeclaration(declaration)
     , fBody(std::move(body)) {}
 

@@ -42,19 +42,6 @@ void GLSLCodeGenerator::write(const String& s) {
     this->write(s.c_str());
 }
 
-void GLSLCodeGenerator::write(StringFragment s) {
-    if (!s.fLength) {
-        return;
-    }
-    if (fAtLineStart) {
-        for (int i = 0; i < fIndentation; i++) {
-            fOut->writeText("    ");
-        }
-    }
-    fOut->write(s.fChars, s.fLength);
-    fAtLineStart = false;
-}
-
 void GLSLCodeGenerator::writeLine(const String& s) {
     this->writeLine(s.c_str());
 }
@@ -64,9 +51,7 @@ void GLSLCodeGenerator::writeLine() {
 }
 
 void GLSLCodeGenerator::writeExtension(const Extension& ext) {
-    this->write("#extension ");
-    this->write(ext.fName);
-    this->writeLine(" : enable");
+    this->writeLine("#extension " + ext.fName + " : enable");
 }
 
 void GLSLCodeGenerator::writeType(const Type& type) {
@@ -74,23 +59,19 @@ void GLSLCodeGenerator::writeType(const Type& type) {
         for (const Type* search : fWrittenStructs) {
             if (*search == type) {
                 // already written
-                this->write(type.fName);
+                this->write(type.name());
                 return;
             }
         }
         fWrittenStructs.push_back(&type);
-        this->write("struct ");
-        this->write(type.fName);
-        this->writeLine(" {");
+        this->writeLine("struct " + type.name() + " {");
         fIndentation++;
         for (const auto& f : type.fields()) {
             this->writeModifiers(f.fModifiers, false);
             this->writeTypePrecision(*f.fType);
             // sizes (which must be static in structs) are part of the type name here
             this->writeType(*f.fType);
-            this->write(" ");
-            this->write(f.fName);
-            this->writeLine(";");
+            this->writeLine(" " + f.fName + ";");
         }
         fIndentation--;
         this->write("}");
@@ -157,12 +138,12 @@ void GLSLCodeGenerator::writeType(const Type& type) {
                     this->write("uint");
                 }
                 else {
-                    this->write(type.fName);
+                    this->write(type.name());
                 }
                 break;
             }
             default:
-                this->write(type.fName);
+                this->write(type.name());
         }
     }
 }
@@ -229,8 +210,8 @@ void GLSLCodeGenerator::writeMinAbsHack(Expression& absExpr, Expression& otherEx
     ASSERT(!fProgram.fSettings.fCaps->canUseMinAndAbsTogether());
     String tmpVar1 = "minAbsHackVar" + to_string(fVarCount++);
     String tmpVar2 = "minAbsHackVar" + to_string(fVarCount++);
-    this->fFunctionHeader += String("    ") + absExpr.fType.fName + " " + tmpVar1 + ";\n";
-    this->fFunctionHeader += String("    ") + otherExpr.fType.fName + " " + tmpVar2 + ";\n";
+    this->fFunctionHeader += "    " + absExpr.fType.name() + " " + tmpVar1 + ";\n";
+    this->fFunctionHeader += "    " + otherExpr.fType.name() + " " + tmpVar2 + ";\n";
     this->write("((" + tmpVar1 + " = ");
     this->writeExpression(absExpr, kTopLevel_Precedence);
     this->write(") < (" + tmpVar2 + " = ");
@@ -522,9 +503,7 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->write("(");
     }
     this->writeExpression(*b.fLeft, precedence);
-    this->write(" ");
-    this->write(Compiler::OperatorName(b.fOperator));
-    this->write(" ");
+    this->write(" " + Token::OperatorName(b.fOperator) + " ");
     this->writeExpression(*b.fRight, precedence);
     if (precedence >= parentPrecedence) {
         this->write(")");
@@ -551,7 +530,7 @@ void GLSLCodeGenerator::writePrefixExpression(const PrefixExpression& p,
     if (kPrefix_Precedence >= parentPrecedence) {
         this->write("(");
     }
-    this->write(Compiler::OperatorName(p.fOperator));
+    this->write(Token::OperatorName(p.fOperator));
     this->writeExpression(*p.fOperand, kPrefix_Precedence);
     if (kPrefix_Precedence >= parentPrecedence) {
         this->write(")");
@@ -564,7 +543,7 @@ void GLSLCodeGenerator::writePostfixExpression(const PostfixExpression& p,
         this->write("(");
     }
     this->writeExpression(*p.fOperand, kPostfix_Precedence);
-    this->write(Compiler::OperatorName(p.fOperator));
+    this->write(Token::OperatorName(p.fOperator));
     if (kPostfix_Precedence >= parentPrecedence) {
         this->write(")");
     }

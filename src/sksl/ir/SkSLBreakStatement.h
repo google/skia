@@ -17,8 +17,8 @@ namespace SkSL {
  * A 'break' statement.
  */
 struct BreakStatement : public Statement {
-    BreakStatement(int offset)
-    : INHERITED(offset, kBreak_Kind) {}
+    BreakStatement(Position position)
+    : INHERITED(position, kBreak_Kind) {}
 
     String description() const override {
         return String("break;");

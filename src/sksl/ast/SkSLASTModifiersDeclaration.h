@@ -20,7 +20,7 @@ namespace SkSL {
  */
 struct ASTModifiersDeclaration : public ASTDeclaration {
     ASTModifiersDeclaration(Modifiers modifiers)
-    : INHERITED(-1, kModifiers_Kind)
+    : INHERITED(Position(), kModifiers_Kind)
     , fModifiers(modifiers) {}
 
     String description() const {
