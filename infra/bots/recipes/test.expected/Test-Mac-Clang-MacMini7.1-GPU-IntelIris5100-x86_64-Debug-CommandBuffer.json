@@ -461,7 +461,8 @@
       "_",
       ".SRW",
       "--match",
-      "~HalfFloatAlphaTextureTest"
+      "~HalfFloatAlphaTextureTest",
+      "--verbose"
     ],
     "env": {
       "BUILDTYPE": "Debug",
