@@ -7,6 +7,7 @@
 
 #include "GrDistanceFieldGeoProc.h"
 
+#include "GrAtlasedShaderHelpers.h"
 #include "GrTexture.h"
 #include "SkDistanceFieldGen.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -78,17 +79,10 @@ public:
 
         // add varyings
         GrGLSLVertToFrag uv(kVec2f_GrSLType);
-        varyingHandler->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = float2(%s.x, %s.y) * %s;", uv.vsOut(),
-                                 dfTexEffect.inTextureCoords()->fName,
-                                 dfTexEffect.inTextureCoords()->fName,
-                                 atlasSizeInvName);
-
+        GrGLSLVertToFrag texIdx(kFloat_GrSLType);
         GrGLSLVertToFrag st(kVec2f_GrSLType);
-        varyingHandler->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = float2(%s.x, %s.y);", st.vsOut(),
-                                 dfTexEffect.inTextureCoords()->fName,
-                                 dfTexEffect.inTextureCoords()->fName);
+        append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
+                                 &uv, &texIdx, &st);
 
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
                               kUniformScale_DistanceFieldEffectMask;
@@ -100,12 +94,12 @@ public:
 
         // Use highp to work around aliasing issues
         fragBuilder->codeAppendf("highp float2 uv = %s;\n", uv.fsIn());
+        fragBuilder->codeAppend("float4 texColor;");
+        append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
+                                   texIdx, "uv", "texColor");
 
-        fragBuilder->codeAppend("float texColor = ");
-        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv", kVec2f_GrSLType);
-        fragBuilder->codeAppend(".r;");
         fragBuilder->codeAppend("float distance = "
-                       SK_DistanceFieldMultiplier "*(texColor - " SK_DistanceFieldThreshold ");");
+                      SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");");
 #ifdef SK_GAMMA_APPLY_TO_A8
         // adjust width based on gamma
         fragBuilder->codeAppendf("distance -= %s;", distanceAdjustUniName);
@@ -197,7 +191,7 @@ public:
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
-        SkASSERT(dfa8gp.numTextureSamplers() == 1);
+        SkASSERT(dfa8gp.numTextureSamplers() >= 1);
         GrTexture* atlas = dfa8gp.textureSampler(0).peekTexture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
@@ -216,6 +210,7 @@ public:
         uint32_t key = dfTexEffect.getFlags();
         key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
         b->add32(key);
+        b->add32(dfTexEffect.numTextureSamplers());
     }
 
 private:
@@ -332,17 +327,10 @@ public:
                                                           &atlasSizeInvName);
 
         GrGLSLVertToFrag uv(kVec2f_GrSLType);
-        varyingHandler->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = float2(%s.x, %s.y) * %s;", uv.vsOut(),
-                                 dfTexEffect.inTextureCoords()->fName,
-                                 dfTexEffect.inTextureCoords()->fName,
-                                 atlasSizeInvName);
-
+        GrGLSLVertToFrag texIdx(kFloat_GrSLType);
         GrGLSLVertToFrag st(kVec2f_GrSLType);
-        varyingHandler->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = float2(%s.x, %s.y);", st.vsOut(),
-                                 dfTexEffect.inTextureCoords()->fName,
-                                 dfTexEffect.inTextureCoords()->fName);
+        append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
+                                 &uv, &texIdx, &st);
 
         // setup pass through color
         varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
@@ -365,12 +353,12 @@ public:
 
         // Use highp to work around aliasing issues
         fragBuilder->codeAppendf("highp float2 uv = %s;", uv.fsIn());
+        fragBuilder->codeAppend("float4 texColor;");
+        append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
+                                   texIdx, "uv", "texColor");
 
-        fragBuilder->codeAppend("float texColor = ");
-        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv", kVec2f_GrSLType);
-        fragBuilder->codeAppend(".r;");
         fragBuilder->codeAppend("float distance = "
-            SK_DistanceFieldMultiplier "*(texColor - " SK_DistanceFieldThreshold ");");
+            SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");");
 
         fragBuilder->codeAppend("float afwidth;");
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
@@ -452,7 +440,7 @@ public:
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
-        SkASSERT(dfpgp.numTextureSamplers() == 1);
+        SkASSERT(dfpgp.numTextureSamplers() >= 1);
         GrTexture* atlas = dfpgp.textureSampler(0).peekTexture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
@@ -472,6 +460,7 @@ public:
         uint32_t key = dfTexEffect.getFlags();
         key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
         b->add32(key);
+        b->add32(dfTexEffect.numTextureSamplers());
     }
 
 private:
@@ -599,17 +588,10 @@ public:
 
         // set up varyings
         GrGLSLVertToFrag uv(kVec2f_GrSLType);
-        varyingHandler->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = float2(%s.x, %s.y) * %s;", uv.vsOut(),
-                                 dfTexEffect.inTextureCoords()->fName,
-                                 dfTexEffect.inTextureCoords()->fName,
-                                 atlasSizeInvName);
-
+        GrGLSLVertToFrag texIdx(kFloat_GrSLType);
         GrGLSLVertToFrag st(kVec2f_GrSLType);
-        varyingHandler->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = float2(%s.x, %s.y);", st.vsOut(),
-                                 dfTexEffect.inTextureCoords()->fName,
-                                 dfTexEffect.inTextureCoords()->fName);
+        append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
+                                 &uv, &texIdx, &st);
 
         GrGLSLVertToFrag delta(kFloat_GrSLType);
         varyingHandler->addVarying("Delta", &delta, kHigh_GrSLPrecision);
@@ -660,26 +642,26 @@ public:
             fragBuilder->codeAppendf("float2 offset = %s*Jdx;", delta.fsIn());
         }
 
-        // green is distance to uv center
-        fragBuilder->codeAppend("\tfloat4 texColor = ");
-        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv", kVec2f_GrSLType);
-        fragBuilder->codeAppend(";\n");
-        fragBuilder->codeAppend("\tfloat3 distance;\n");
-        fragBuilder->codeAppend("\tdistance.y = texColor.r;\n");
-        // red is distance to left offset
-        fragBuilder->codeAppend("\tfloat2 uv_adjusted = uv - offset;\n");
-        fragBuilder->codeAppend("\ttexColor = ");
-        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv_adjusted", kVec2f_GrSLType);
-        fragBuilder->codeAppend(";\n");
-        fragBuilder->codeAppend("\tdistance.x = texColor.r;\n");
-        // blue is distance to right offset
-        fragBuilder->codeAppend("\tuv_adjusted = uv + offset;\n");
-        fragBuilder->codeAppend("\ttexColor = ");
-        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv_adjusted", kVec2f_GrSLType);
-        fragBuilder->codeAppend(";\n");
-        fragBuilder->codeAppend("\tdistance.z = texColor.r;\n");
+        // sample the texture by index
+        fragBuilder->codeAppend("float4 texColor;");
+        append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
+                                   texIdx, "uv", "texColor");
 
-        fragBuilder->codeAppend("\tdistance = "
+        // green is distance to uv center
+        fragBuilder->codeAppend("float3 distance;");
+        fragBuilder->codeAppend("distance.y = texColor.r;");
+        // red is distance to left offset
+        fragBuilder->codeAppend("float2 uv_adjusted = uv - offset;");
+        append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
+                                   texIdx, "uv_adjusted", "texColor");
+        fragBuilder->codeAppend("distance.x = texColor.r;");
+        // blue is distance to right offset
+        fragBuilder->codeAppend("uv_adjusted = uv + offset;");
+        append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
+                                   texIdx, "uv_adjusted", "texColor");
+        fragBuilder->codeAppend("distance.z = texColor.r;");
+
+        fragBuilder->codeAppend("distance = "
            "float3(" SK_DistanceFieldMultiplier ")*(distance - float3(" SK_DistanceFieldThreshold"));");
 
         // adjust width based on gamma
@@ -757,7 +739,7 @@ public:
             pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
         }
 
-        SkASSERT(dflcd.numTextureSamplers() == 1);
+        SkASSERT(dflcd.numTextureSamplers() >= 1);
         GrTexture* atlas = dflcd.textureSampler(0).peekTexture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
@@ -777,6 +759,7 @@ public:
         uint32_t key = dfTexEffect.getFlags();
         key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
         b->add32(key);
+        b->add32(dfTexEffect.numTextureSamplers());
     }
 
 private:
