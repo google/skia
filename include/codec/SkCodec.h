@@ -25,12 +25,13 @@
 class SkColorSpace;
 class SkData;
 class SkFrameHolder;
+class SkMatrix44;
 class SkPngChunkReader;
 class SkSampler;
 
 namespace DM {
+class AndroidCodecSrc;
 class CodecSrc;
-class ColorCodecSrc;
 }
 class ColorCodecBench;
 
@@ -163,11 +164,26 @@ public:
     virtual ~SkCodec();
 
     /**
-     *  Return the ImageInfo associated with this codec.
+     * Return the native dimensions of the encoded image.
      */
-    const SkImageInfo& getInfo() const { return fSrcInfo; }
+    SkISize dimensions() const { return fDimensions; }
 
     const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }
+
+    /**
+     * Returns the native color space of the encoded image, if it is a color
+     * space that Skia can draw. Otherwise, return nullptr.
+     */
+    SkColorSpace* colorSpace() const;
+
+    /**
+     * Returns true and sets |toXYZD50| if the color gamut of the native color
+     * space can be described as a matrix.
+     * Returns false otherwise.
+     * This may return true even if colorSpace() returns nullptr.
+     */
+    bool toXYZD50(SkMatrix44* toXYZD50) const;
+
 
     enum Origin {
         kTopLeft_Origin     = 1, // Default
@@ -205,7 +221,7 @@ public:
         // Upscaling is not supported. Return the original size if the client
         // requests an upscale.
         if (desiredScale >= 1.0f) {
-            return this->getInfo().dimensions();
+            return this->dimensions();
         }
         return this->onGetScaledDimensions(desiredScale);
     }
@@ -216,8 +232,8 @@ public:
      *  desiredSubset.
      *
      *  @param desiredSubset In/out parameter. As input, a desired subset of
-     *      the original bounds (as specified by getInfo). If true is returned,
-     *      desiredSubset may have been modified to a subset which is
+     *      the original bounds (as specified by dimensions). If true is
+     *      returned, desiredSubset may have been modified to a subset which is
      *      supported. Although a particular change may have been made to
      *      desiredSubset to create something supported, it is possible other
      *      changes could result in a valid subset.
@@ -267,7 +283,7 @@ public:
         ZeroInitialized            fZeroInitialized;
         /**
          *  If not NULL, represents a subset of the original image to decode.
-         *  Must be within the bounds returned by getInfo().
+         *  Must be within the bounds returned by dimensions().
          *  If the EncodedFormat is SkEncodedImageFormat::kWEBP (the only one which
          *  currently supports subsets), the top and left values must be even.
          *
@@ -324,14 +340,13 @@ public:
      *  allowing the PixelRef to be immutable.
      *
      *  @param info A description of the format (config, size)
-     *         expected by the caller.  This can simply be identical
-     *         to the info returned by getInfo().
+     *         expected by the caller.
      *
      *         This contract also allows the caller to specify
      *         different output-configs, which the implementation can
      *         decide to support or not.
      *
-     *         A size that does not match getInfo() implies a request
+     *         A size that does not match dimensions() implies a request
      *         to scale. If the generator cannot perform this scale,
      *         it will return kInvalidScale.
      *
@@ -401,7 +416,7 @@ public:
      *  This may require a rewind.
      *
      *  @param dstInfo Info of the destination. If the dimensions do not match
-     *      those of getInfo, this implies a scale.
+     *      dimensions(), this implies a scale.
      *  @param dst Memory to write to. Needs to be large enough to hold the subset,
      *      if present, or the full image as described in dstInfo.
      *  @param options Contains decoding options, including if memory is zero
@@ -460,7 +475,7 @@ public:
      *  Not all SkCodecs support this.
      *
      *  @param dstInfo Info of the destination. If the dimensions do not match
-     *      those of getInfo, this implies a scale.
+     *      dimensions(), this implies a scale.
      *  @param options Contains decoding options, including if memory is zero
      *      initialized.
      *  @return Enum representing success or reason for failure.
@@ -669,6 +684,8 @@ public:
     }
 
 protected:
+    const sk_sp<SkColorSpace> fColorSpace;
+
     using XformFormat = SkColorSpaceXform::ColorFormat;
 
     SkCodec(int width,
@@ -679,18 +696,9 @@ protected:
             sk_sp<SkColorSpace>,
             Origin = kTopLeft_Origin);
 
-    /**
-     *  Allows the subclass to set the recommended SkImageInfo
-     */
-    SkCodec(const SkEncodedInfo&,
-            const SkImageInfo&,
-            XformFormat srcFormat,
-            std::unique_ptr<SkStream>,
-            Origin = kTopLeft_Origin);
-
     virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {
         // By default, scaling is not supported.
-        return this->getInfo().dimensions();
+        return this->dimensions();
     }
 
     // FIXME: What to do about subsets??
@@ -806,8 +814,6 @@ protected:
 
     virtual int onOutputScanline(int inputScanline) const;
 
-    bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha,
-                              SkTransferFunctionBehavior premulBehavior);
     // Some classes never need a colorXform e.g.
     // - ICO uses its embedded codec's colorXform
     // - WBMP is just Black/White
@@ -831,8 +837,8 @@ protected:
     }
 
 private:
+    const SkISize                      fDimensions;
     const SkEncodedInfo                fEncodedInfo;
-    const SkImageInfo                  fSrcInfo;
     const XformFormat                  fSrcXformFormat;
     std::unique_ptr<SkStream>          fStream;
     bool                               fNeedsRewind;
@@ -866,7 +872,7 @@ private:
      *  This must return true for a size returned from getScaledDimensions.
      */
     bool dimensionsSupported(const SkISize& dim) {
-        return dim == fSrcInfo.dimensions() || this->onDimensionsSupported(dim);
+        return dim == this->dimensions() || this->onDimensionsSupported(dim);
     }
 
     /**
@@ -880,6 +886,9 @@ private:
      *  Check for a valid Options.fFrameIndex, and decode prior frames if necessary.
      */
     Result handleFrameIndex(const SkImageInfo&, void* pixels, size_t rowBytes, const Options&);
+
+    bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha src,
+                              SkTransferFunctionBehavior premulBehavior);
 
     // Methods for scanline decoding.
     virtual Result onStartScanlineDecode(const SkImageInfo& /*dstInfo*/,
@@ -928,7 +937,9 @@ private:
      */
     virtual SkSampler* getSampler(bool /*createIfNecessary*/) { return nullptr; }
 
-    friend class DM::CodecSrc;  // for fillIncompleteImage
+    friend class DM::AndroidCodecSrc;
+    friend class DM::CodecSrc;
+    friend class ColorCodecBench;
     friend class SkSampledCodec;
     friend class SkIcoCodec;
 };

@@ -291,8 +291,8 @@ static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSp
     return needsColorCorrectPremul || isF16 || srcDstNotEqual;
 }
 
-static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
-    return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
+static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, bool srcOpaque) {
+    return srcOpaque ? kOpaque_SkAlphaType : dstAlphaType;
 }
 
 #endif // SkCodecPriv_DEFINED

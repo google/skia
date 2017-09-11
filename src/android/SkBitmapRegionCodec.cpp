@@ -12,7 +12,7 @@
 #include "SkPixelRef.h"
 
 SkBitmapRegionCodec::SkBitmapRegionCodec(SkAndroidCodec* codec)
-    : INHERITED(codec->getInfo().width(), codec->getInfo().height())
+    : INHERITED(codec->dimensions().width(), codec->dimensions().height())
     , fCodec(codec)
 {}
 
@@ -37,7 +37,7 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     int outX;
     int outY;
     SkIRect subset = desiredSubset;
-    SubsetType type = adjust_subset_rect(fCodec->getInfo().dimensions(), &subset, &outX, &outY);
+    SubsetType type = adjust_subset_rect(fCodec->dimensions(), &subset, &outX, &outY);
     if (SubsetType::kOutside_SubsetType == type) {
         return false;
     }

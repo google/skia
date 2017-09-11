@@ -359,8 +359,11 @@ static void premultiply_if_necessary(SkBitmap& bitmap) {
     bitmap.setAlphaType(kPremul_SkAlphaType);
 }
 
-static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
-                            CodecSrc::DstColorType dstColorType, SkAlphaType dstAlphaType) {
+static bool get_decode_info(SkImageInfo* decodeInfo,
+                            const SkImageInfo& canvasInfo,
+                            CodecSrc::DstColorType dstColorType,
+                            bool srcOpaque) {
+    auto canvasColorType = canvasInfo.colorType();
     switch (dstColorType) {
         case CodecSrc::kGrayscale_Always_DstColorType:
             if (kRGB_565_SkColorType == canvasColorType) {
@@ -369,8 +372,7 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             *decodeInfo = decodeInfo->makeColorType(kGray_8_SkColorType);
             break;
         case CodecSrc::kNonNative8888_Always_DstColorType:
-            if (kRGB_565_SkColorType == canvasColorType
-                    || kRGBA_F16_SkColorType == canvasColorType) {
+            if (kN32_SkColorType != canvasColorType) {
                 return false;
             }
 #ifdef SK_PMCOLOR_IS_RGBA
@@ -379,9 +381,8 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             *decodeInfo = decodeInfo->makeColorType(kRGBA_8888_SkColorType);
 #endif
             break;
-        default:
-            if (kRGB_565_SkColorType == canvasColorType &&
-                    kOpaque_SkAlphaType != decodeInfo->alphaType()) {
+        case CodecSrc::kGetFromCanvas_DstColorType:
+            if (kRGB_565_SkColorType == canvasColorType && !srcOpaque) {
                 return false;
             }
 
@@ -394,8 +395,6 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             *decodeInfo = decodeInfo->makeColorType(canvasColorType);
             break;
     }
-
-    *decodeInfo = decodeInfo->makeAlphaType(dstAlphaType);
     return true;
 }
 
@@ -433,15 +432,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
 
-    SkImageInfo decodeInfo = codec->getInfo();
-    if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType,
-                         fDstAlphaType)) {
-        return Error::Nonfatal("Skipping uninteresting test.");
-    }
-
     // Try to scale the image if it is desired
     SkISize size = codec->getScaledDimensions(fScale);
-    if (size == decodeInfo.dimensions() && 1.0f != fScale) {
+    if (size == codec->dimensions() && 1.0f != fScale) {
         return Error::Nonfatal("Test without scaling is uninteresting.");
     }
 
@@ -450,7 +443,14 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     if ((size.width() <= 10 || size.height() <= 10) && 1.0f != fScale) {
         return Error::Nonfatal("Scaling very small images is uninteresting.");
     }
-    decodeInfo = decodeInfo.makeWH(size.width(), size.height());
+
+    const auto& canvasInfo = canvas->imageInfo();
+    auto decodeInfo = SkImageInfo::Make(size.width(), size.height(),
+            kUnknown_SkColorType, fDstAlphaType, codec->fColorSpace);
+    auto opaque = codec->getEncodedInfo().opaque();
+    if (!get_decode_info(&decodeInfo, canvasInfo, fDstColorType, opaque)) {
+        return Error::Nonfatal("Skipping uninteresting test.");
+    }
 
     const int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
     const size_t rowBytes = size.width() * bpp;
@@ -698,8 +698,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             // Arbitrarily choose a divisor.
             int divisor = 2;
             // Total width/height of the image.
-            const int W = codec->getInfo().width();
-            const int H = codec->getInfo().height();
+            const int W = codec->dimensions().width();
+            const int H = codec->dimensions().height();
             if (divisor > W || divisor > H) {
                 return Error::Nonfatal(SkStringPrintf("Cannot codec subset: divisor %d is too big "
                                                       "for %s with dimensions (%d x %d)", divisor,
@@ -832,12 +832,6 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't create android codec for %s.", fPath.c_str());
     }
 
-    SkImageInfo decodeInfo = codec->getInfo();
-    if (!get_decode_info(&decodeInfo, canvas->imageInfo().colorType(), fDstColorType,
-                         fDstAlphaType)) {
-        return Error::Nonfatal("Skipping uninteresting test.");
-    }
-
     // Scale the image if it is desired.
     SkISize size = codec->getSampledDimensions(fSampleSize);
 
@@ -846,7 +840,14 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
     if ((size.width() <= 10 || size.height() <= 10) && 1 != fSampleSize) {
         return Error::Nonfatal("Scaling very small images is uninteresting.");
     }
-    decodeInfo = decodeInfo.makeWH(size.width(), size.height());
+
+    const auto& canvasInfo = canvas->imageInfo();
+    auto decodeInfo = SkImageInfo::Make(size.width(), size.height(),
+            kUnknown_SkColorType, fDstAlphaType, codec->fCodec->fColorSpace);
+    auto opaque = codec->getEncodedInfo().opaque();
+    if (!get_decode_info(&decodeInfo, canvasInfo, fDstColorType, opaque)) {
+        return Error::Nonfatal("Skipping uninteresting test.");
+    }
 
     int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
     size_t rowBytes = size.width() * bpp;
@@ -1003,7 +1004,7 @@ SkISize ImageGenSrc::size() const {
     if (nullptr == codec) {
         return {0, 0};
     }
-    return codec->getInfo().dimensions();
+    return codec->dimensions();
 }
 
 Name ImageGenSrc::name() const {
@@ -1080,13 +1081,12 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         dstSpace = SkColorSpace::MakeICC(dstData->data(), dstData->size());
     }
 
-    SkImageInfo decodeInfo = codec->getInfo().makeColorType(fColorType).makeColorSpace(dstSpace);
-    if (kUnpremul_SkAlphaType == decodeInfo.alphaType()) {
-        decodeInfo = decodeInfo.makeAlphaType(kPremul_SkAlphaType);
-    }
+    auto dim = codec->dimensions();
+    auto at = codec->getEncodedInfo().opaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    auto decodeInfo = SkImageInfo::Make(dim.width(), dim.height(), fColorType, at, dstSpace);
     if (kRGBA_F16_SkColorType == fColorType) {
-        SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(decodeInfo.colorSpace())->type());
-        SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(decodeInfo.colorSpace());
+        SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(dstSpace.get())->type());
+        SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(dstSpace.get());
         decodeInfo = decodeInfo.makeColorSpace(csXYZ->makeLinearGamma());
     }
 
@@ -1136,7 +1136,7 @@ SkISize ColorCodecSrc::size() const {
     if (nullptr == codec) {
         return {0, 0};
     }
-    return {codec->getInfo().width(), codec->getInfo().height()};
+    return {codec->dimensions().width(), codec->dimensions().height()};
 }
 
 Name ColorCodecSrc::name() const {

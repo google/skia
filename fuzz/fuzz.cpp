@@ -201,9 +201,9 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
         return;
     }
 
-    SkImageInfo decodeInfo = codec->getInfo();
-    SkISize size = codec->getScaledDimensions(fscale);
-    decodeInfo = decodeInfo.makeWH(size.width(), size.height());
+    auto dim = codec->getScaledDimensions(fscale);
+    auto decodeInfo = SkImageInfo::Make(dim.width(), dim.height(),
+            kN32_SkColorType, kPremul_SkAlphaType, sk_ref_sp(codec->colorSpace()));
 
     SkBitmap bitmap;
     SkCodec::Options options;
@@ -312,8 +312,8 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
             // Arbitrarily choose a divisor.
             int divisor = 2;
             // Total width/height of the image.
-            const int W = codec->getInfo().width();
-            const int H = codec->getInfo().height();
+            const int W = codec->dimensions().width();
+            const int H = codec->dimensions().height();
             if (divisor > W || divisor > H) {
                 SkDebugf("[terminated] Cannot codec subset: divisor %d is too big "
                          "with dimensions (%d x %d)\n", divisor, W, H);

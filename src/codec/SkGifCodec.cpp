@@ -93,16 +93,7 @@ std::unique_ptr<SkCodec> SkGifCodec::MakeFromStream(std::unique_ptr<SkStream> st
     //        expanding to 8 bits and take advantage of the SkSwizzler to work from 4.
     const auto encodedInfo = SkEncodedInfo::Make(SkEncodedInfo::kPalette_Color, alpha, 8);
 
-    // The choice of unpremul versus premul is arbitrary, since all colors are either fully
-    // opaque or fully transparent (i.e. kBinary), but we stored the transparent colors as all
-    // zeroes, which is arguably premultiplied.
-    const auto alphaType = reader->firstFrameHasAlpha() ? kUnpremul_SkAlphaType
-                                                        : kOpaque_SkAlphaType;
-
-    const auto imageInfo = SkImageInfo::Make(reader->screenWidth(), reader->screenHeight(),
-                                             kN32_SkColorType, alphaType,
-                                             SkColorSpace::MakeSRGB());
-    return std::unique_ptr<SkCodec>(new SkGifCodec(encodedInfo, imageInfo, reader.release()));
+    return std::unique_ptr<SkCodec>(new SkGifCodec(encodedInfo, reader.release()));
 }
 
 bool SkGifCodec::onRewind() {
@@ -110,9 +101,9 @@ bool SkGifCodec::onRewind() {
     return true;
 }
 
-SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
-                       SkGifImageReader* reader)
-    : INHERITED(encodedInfo, imageInfo, SkColorSpaceXform::kRGBA_8888_ColorFormat, nullptr)
+SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, SkGifImageReader* reader)
+    : INHERITED(reader->screenWidth(), reader->screenHeight(), encodedInfo,
+                SkColorSpaceXform::kRGBA_8888_ColorFormat, nullptr, SkColorSpace::MakeSRGB())
     , fReader(reader)
     , fTmpBuffer(nullptr)
     , fSwizzler(nullptr)
@@ -293,7 +284,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
             return result;
     }
 
-    if (dstInfo.dimensions() != this->getInfo().dimensions()) {
+    if (dstInfo.dimensions() != this->dimensions()) {
         return gif_error("Scaling not supported.\n", kInvalidScale);
     }
 
@@ -350,7 +341,8 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
             //   cover all rows? If so, we do not have to fill here.)
             // - There is no color table for this frame. In that case will not
             //   draw anything, so we need to fill.
-            if (frameContext->frameRect() != this->getInfo().bounds()
+            auto dim = this->dimensions();
+            if (frameContext->frameRect() != SkIRect::MakeWH(dim.width(), dim.height())
                     || frameContext->interlaced() || !fCurrColorTableIsReal) {
                 // fill ignores the width (replaces it with the actual, scaled width).
                 // But we need to scale in Y.
@@ -441,8 +433,8 @@ void SkGifCodec::haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
     const int width = frameContext->width();
     const int xBegin = frameContext->xOffset();
     const int yBegin = frameContext->yOffset() + rowNumber;
-    const int xEnd = std::min(xBegin + width, this->getInfo().width());
-    const int yEnd = std::min(yBegin + rowNumber + repeatCount, this->getInfo().height());
+    const int xEnd = std::min(xBegin + width, this->dimensions().width());
+    const int yEnd = std::min(yBegin + rowNumber + repeatCount, this->dimensions().height());
     // FIXME: No need to make the checks on width/xBegin/xEnd for every row. We could instead do
     // this once in prepareToDecode.
     if (!width || (xBegin < 0) || (yBegin < 0) || (xEnd <= xBegin) || (yEnd <= yBegin))

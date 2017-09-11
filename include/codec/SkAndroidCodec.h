@@ -13,6 +13,10 @@
 #include "SkStream.h"
 #include "SkTypes.h"
 
+namespace DM {
+    class AndroidCodecSrc;
+}
+
 /**
  *  Abstract interface defining image codec functionality that is necessary for
  *  Android.
@@ -45,7 +49,7 @@ public:
 
     const SkEncodedInfo& getEncodedInfo() const;
 
-    const SkImageInfo& getInfo() const { return fInfo; }
+    SkISize dimensions() const { return fCodec->dimensions(); }
 
     /**
      *  Format of the encoded data.
@@ -242,11 +246,8 @@ protected:
             size_t rowBytes, const AndroidOptions& options) = 0;
 
 private:
-
-    // This will always be a reference to the info that is contained by the
-    // embedded SkCodec.
-    const SkImageInfo& fInfo;
-
     std::unique_ptr<SkCodec> fCodec;
+
+    friend class DM::AndroidCodecSrc;
 };
 #endif // SkAndroidCodec_DEFINED
