@@ -18,6 +18,7 @@
 class GrAuditTrail;
 class GrCaps;
 class GrOpFlushState;
+class GrPrepareCallback;
 class GrRenderTargetOpList;
 class GrResourceProvider;
 class GrSurfaceProxy;
@@ -26,12 +27,6 @@ class GrTextureOpList;
 
 struct SkIPoint;
 struct SkIRect;
-
-class GrPrepareCallback : SkNoncopyable {
-public:
-    virtual ~GrPrepareCallback() {}
-    virtual void operator()(GrOpFlushState*) = 0;
-};
 
 class GrOpList : public SkRefCnt {
 public:
@@ -58,9 +53,7 @@ public:
 
     virtual void reset();
 
-    void addPrepareCallback(std::unique_ptr<GrPrepareCallback> callback) {
-        fPrepareCallbacks.push_back(std::move(callback));
-    }
+    void addPrepareCallback(std::unique_ptr<GrPrepareCallback> callback);
 
     // TODO: in an MDB world, where the OpLists don't allocate GPU resources, it seems like
     // these could go away

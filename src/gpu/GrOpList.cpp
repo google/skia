@@ -8,6 +8,7 @@
 #include "GrOpList.h"
 
 #include "GrContext.h"
+#include "GrPrepareCallback.h"
 #include "GrSurfaceProxy.h"
 
 #include "SkAtomics.h"
@@ -56,6 +57,10 @@ void GrOpList::reset() {
     fTarget.reset();
     fPrepareCallbacks.reset();
     fAuditTrail = nullptr;
+}
+
+void GrOpList::addPrepareCallback(std::unique_ptr<GrPrepareCallback> callback) {
+    fPrepareCallbacks.push_back(std::move(callback));
 }
 
 void GrOpList::prepare(GrOpFlushState* flushState) {

@@ -12,6 +12,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrOpFlushState.h"
 #include "GrOpList.h"
+#include "GrPrepareCallback.h"
 #include "GrResourceProvider.h"
 #include "GrSWMaskHelper.h"
 #include "SkMakeUnique.h"
@@ -173,63 +174,30 @@ static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context
 
 namespace {
 
-class GrMaskUploaderPrepareCallback : public GrPrepareCallback {
+/**
+ * Payload class for use with GrMaskUploaderPrepareCallback. The software path renderer only draws
+ * a single path into the mask texture. This stores all of the information needed by the worker
+ * thread's call to drawShape (see below, in onDrawPath).
+ */
+class SoftwarePathData {
 public:
-    GrMaskUploaderPrepareCallback(sk_sp<GrTextureProxy> proxy, const SkIRect& maskBounds,
-                                  const SkMatrix& viewMatrix, const GrShape& shape, GrAA aa)
-            : fProxy(std::move(proxy))
-            , fMaskBounds(maskBounds)
+    SoftwarePathData(const SkIRect& maskBounds, const SkMatrix& viewMatrix, const GrShape& shape,
+                     GrAA aa)
+            : fMaskBounds(maskBounds)
             , fViewMatrix(viewMatrix)
             , fShape(shape)
-            , fAA(aa)
-            , fWaited(false) {}
+            , fAA(aa) {}
 
-    ~GrMaskUploaderPrepareCallback() override {
-        if (!fWaited) {
-            // This can happen if our owning op list fails to instantiate (so it never prepares)
-            fPixelsReady.wait();
-        }
-    }
-
-    void operator()(GrOpFlushState* flushState) override {
-        TRACE_EVENT0("skia", "Mask Uploader Pre Flush Callback");
-        auto uploadMask = [this](GrDrawOp::WritePixelsFn& writePixelsFn) {
-            TRACE_EVENT0("skia", "Mask Upload");
-            this->fPixelsReady.wait();
-            this->fWaited = true;
-            // If the worker thread was unable to allocate pixels, this check will fail, and we'll
-            // end up drawing with an uninitialized mask texture, but at least we won't crash.
-            if (this->fPixels.addr()) {
-                writePixelsFn(this->fProxy.get(), 0, 0,
-                              this->fPixels.width(), this->fPixels.height(),
-                              kAlpha_8_GrPixelConfig,
-                              this->fPixels.addr(), this->fPixels.rowBytes());
-                // Free this memory immediately, so it can be recycled. This avoids memory pressure
-                // when there is a large amount of threaded work still running during flush.
-                this->fPixels.reset();
-            }
-        };
-        flushState->addASAPUpload(std::move(uploadMask));
-    }
-
-    SkAutoPixmapStorage* getPixels() { return &fPixels; }
-    SkSemaphore* getSemaphore() { return &fPixelsReady; }
     const SkIRect& getMaskBounds() const { return fMaskBounds; }
     const SkMatrix* getViewMatrix() const { return &fViewMatrix; }
     const GrShape& getShape() const { return fShape; }
     GrAA getAA() const { return fAA; }
 
 private:
-    // NOTE: This ref cnt isn't thread safe!
-    sk_sp<GrTextureProxy> fProxy;
-    SkAutoPixmapStorage fPixels;
-    SkSemaphore fPixelsReady;
-
     SkIRect fMaskBounds;
     SkMatrix fViewMatrix;
     GrShape fShape;
     GrAA fAA;
-    bool fWaited;
 };
 
 }
@@ -337,16 +305,17 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                 return false;
             }
 
-            auto uploader = skstd::make_unique<GrMaskUploaderPrepareCallback>(
+            auto uploader = skstd::make_unique<GrMaskUploaderPrepareCallback<SoftwarePathData>>(
                     proxy, *boundsForMask, *args.fViewMatrix, *args.fShape, aa);
-            GrMaskUploaderPrepareCallback* uploaderRaw = uploader.get();
+            GrMaskUploaderPrepareCallback<SoftwarePathData>* uploaderRaw = uploader.get();
 
             auto drawAndUploadMask = [uploaderRaw] {
                 TRACE_EVENT0("skia", "Threaded SW Mask Render");
                 GrSWMaskHelper helper(uploaderRaw->getPixels());
-                if (helper.init(uploaderRaw->getMaskBounds())) {
-                    helper.drawShape(uploaderRaw->getShape(), *uploaderRaw->getViewMatrix(),
-                                     SkRegion::kReplace_Op, uploaderRaw->getAA(), 0xFF);
+                if (helper.init(uploaderRaw->data().getMaskBounds())) {
+                    helper.drawShape(uploaderRaw->data().getShape(),
+                                     *uploaderRaw->data().getViewMatrix(),
+                                     SkRegion::kReplace_Op, uploaderRaw->data().getAA(), 0xFF);
                 } else {
                     SkDEBUGFAIL("Unable to allocate SW mask.");
                 }

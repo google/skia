@@ -1457,7 +1457,7 @@ DEF_TEST(ClipStack, reporter) {
 #if SK_SUPPORT_GPU
 sk_sp<GrTextureProxy> GrClipStackClip::testingOnly_createClipMask(GrContext* context) const {
     const GrReducedClip reducedClip(*fStack, SkRect::MakeWH(512, 512), 0);
-    return this->createSoftwareClipMask(context, reducedClip);
+    return this->createSoftwareClipMask(context, reducedClip, nullptr);
 }
 
 // Verify that clip masks are freed up when the clip state that generated them goes away.
