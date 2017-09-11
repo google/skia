@@ -186,6 +186,18 @@ public:
                                   _mm_shuffle_epi32(mul31, _MM_SHUFFLE(0,0,2,0)));
     }
 
+    static AI SkNx interp(const SkNx&a, const SkNx&sa, const SkNx& b, const SkNx&sb) {
+        __m128i kHalf = _mm_set1_epi64((__m64)(static_cast<uint64_t>(1) << 31));
+        __m128i mula20 = _mm_mul_epu32(a.fVec, sa.fVec),
+                mula31 = _mm_mul_epu32(_mm_srli_si128(a.fVec, 4), _mm_srli_si128(sa.fVec, 4)),
+                mulb20 = _mm_mul_epu32(b.fVec, sb.fVec),
+                mulb31 = _mm_mul_epu32(_mm_srli_si128(b.fVec, 4), _mm_srli_si128(sb.fVec, 4));
+        __m128i result20 = _mm_add_epi64(mula20,_mm_add_epi64(mulb20, kHalf)),
+                result31 = _mm_add_epi64(mula31,_mm_add_epi64(mulb31, kHalf));
+        return _mm_unpacklo_epi32(_mm_shuffle_epi32(result20, _MM_SHUFFLE(0,0,3,1)),
+                                  _mm_shuffle_epi32(result31, _MM_SHUFFLE(0,0,3,1)));
+    }
+
     AI SkNx operator & (const SkNx& o) const { return _mm_and_si128(fVec, o.fVec); }
     AI SkNx operator | (const SkNx& o) const { return _mm_or_si128(fVec, o.fVec); }
     AI SkNx operator ^ (const SkNx& o) const { return _mm_xor_si128(fVec, o.fVec); }

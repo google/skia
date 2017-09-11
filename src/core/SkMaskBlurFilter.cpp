@@ -11,6 +11,7 @@
 #include <climits>
 
 #include "SkArenaAlloc.h"
+#include "SkNx.h"
 #include "SkSafeMath.h"
 
 static const double kPi = 3.14159265358979323846264338327950288;
@@ -26,6 +27,9 @@ public:
     virtual ~BlurScanInterface() = default;
     virtual void blur(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
                             uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const = 0;
+    virtual bool canBlur4() = 0;
+    virtual void blur4Transpose(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                                      uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const = 0;
 };
 
 class PlanningInterface {
@@ -148,6 +152,12 @@ private:
             } while (dstCursor > dst);
         }
 
+        bool canBlur4() override { return false; }
+        void blur4Transpose(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                                  uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const override {
+        }
+
+    private:
         static constexpr uint64_t kHalf = static_cast<uint64_t>(1) << 31;
 
         uint8_t finalScale(uint32_t sum) const {
@@ -278,6 +288,75 @@ private:
                 innerSum = outerSum;
                 outerSum += *leftOuter;
                 *dstCursor = this->interpolateSums(outerSum, innerSum);
+            }
+        }
+
+        bool canBlur4() override { return true; }
+        // NB this is a transposing scan. The next src is src+1, and the next down is
+        // src+srcStride.
+        void blur4Transpose(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                                  uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const override {
+            auto rightOuter = src;
+            auto dstCursor = dst;
+
+            const Sk4i outerWeight(SkTo<uint32_t>(fOuterWeight));
+            const Sk4i innerWeight(SkTo<uint32_t>(fInnerWeight));
+
+            auto load = [](const uint8_t* cursor, size_t stride) {
+                return Sk4i(cursor[0*stride], cursor[1*stride], cursor[2*stride], cursor[3*stride]);
+            };
+
+            Sk4i outerSum = 0;
+            Sk4i innerSum = 0;
+            for (size_t i = 0; i < fTrailingEdgeZeroCount; i++) {
+                innerSum = outerSum;
+
+                outerSum += load(rightOuter, srcStride);
+                Sk4i blurred = Sk4i::interp(outerSum, outerWeight, innerSum, innerWeight);
+                Sk4b bytes = SkNx_cast<uint8_t>(blurred);
+                bytes.store(dstCursor);
+
+                rightOuter += 1;
+                dstCursor += dstStride;
+            }
+
+            // slidingWindow > width
+            for (size_t i = 0; i < fNoChangeCount; i++) {
+                Sk4i blurred = Sk4i::interp(outerSum, outerWeight, innerSum, innerWeight);
+                Sk4b bytes = SkNx_cast<uint8_t>(blurred);
+                bytes.store(dstCursor);
+                dstCursor += dstStride;
+            }
+
+            // width > slidingWindow
+            auto leftInner = src;
+            while (rightOuter < srcEnd) {
+                innerSum = outerSum - load(leftInner, srcStride);
+                outerSum += load(rightOuter, srcStride);
+
+                Sk4i blurred = Sk4i::interp(outerSum, outerWeight, innerSum, innerWeight);
+                Sk4b bytes = SkNx_cast<uint8_t>(blurred);
+                bytes.store(dstCursor);
+
+                outerSum -= load(leftInner, srcStride);
+
+                rightOuter += 1;
+                leftInner += 1;
+                dstCursor += dstStride;
+            }
+
+            auto leftOuter = srcEnd;
+            dstCursor = dstEnd;
+            outerSum = 0;
+            for (size_t i = 0; i < fTrailingEdgeZeroCount; i++) {
+                leftOuter -= 1;
+                dstCursor -= dstStride;
+
+                innerSum = outerSum;
+                outerSum += load(leftOuter, srcStride);
+                Sk4i blurred = Sk4i::interp(outerSum, outerWeight, innerSum, innerWeight);
+                Sk4b bytes = SkNx_cast<uint8_t>(blurred);
+                bytes.store(dstCursor);
             }
         }
 
@@ -495,6 +574,12 @@ public:
             }
         }
 
+        bool canBlur4() override { return false; }
+
+        void blur4Transpose(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                            uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const override {
+        }
+
     private:
         static constexpr uint64_t kHalf = static_cast<uint64_t>(1) << 31;
 
@@ -598,21 +683,45 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         // Blur both directions.
         size_t tmpW = srcH;
         size_t tmpH = dstW;
-        auto tmp = alloc.makeArrayDefault<uint8_t>(tmpW * tmpH);
+        // FIXME back to default
+        auto tmp = alloc.makeArray<uint8_t>(tmpW * tmpH);
+        memset(tmp, 0x00, tmpW * tmpH);
 
         // Blur horizontally, and transpose.
         auto scanW = planW->makeBlurScan(&alloc, srcW, buffer);
-        for (size_t y = 0; y < srcH; y++) {
+        size_t y = 0;
+        if (scanW->canBlur4() && srcH > 4) {
+            for (;y < srcH - 4; y += 4) {
+                auto srcStart = &src.fImage[y * src.fRowBytes];
+                auto tmpStart = &tmp[y];
+                scanW->blur4Transpose(srcStart, src.fRowBytes, srcStart + srcW,
+                                      tmpStart, tmpW, tmpStart + tmpW * tmpH);
+            }
+        }
+
+        for (;y < srcH; y++) {
             auto srcStart = &src.fImage[y * src.fRowBytes];
             auto tmpStart = &tmp[y];
-            scanW->blur(srcStart, 1, srcStart + srcW,
+            scanW->blur(srcStart,    1, srcStart + srcW,
                         tmpStart, tmpW, tmpStart + tmpW * tmpH);
         }
+
 
         // Blur vertically (scan in memory order because of the transposition),
         // and transpose back to the original orientation.
         auto scanH = planH->makeBlurScan(&alloc, tmpW, buffer);
-        for (size_t y = 0; y < tmpH; y++) {
+        y = 0;
+        if (scanH->canBlur4() && tmpH > 4) {
+            for (;y < tmpH - 4; y += 4) {
+                auto tmpStart = &tmp[y * tmpW];
+                auto dstStart = &dst->fImage[y];
+
+                scanH->blur4Transpose(
+                    tmpStart, tmpW, tmpStart + tmpW,
+                    dstStart, dst->fRowBytes, dstStart + dst->fRowBytes * dstH);
+            }
+        }
+        for (;y < tmpH; y++) {
             auto tmpStart = &tmp[y * tmpW];
             auto dstStart = &dst->fImage[y];
 
