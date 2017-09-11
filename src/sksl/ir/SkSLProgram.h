@@ -39,15 +39,15 @@ struct Program {
             : fKind(kInt_Kind)
             , fValue(i) {}
 
-            std::unique_ptr<Expression> literal(const Context& context, Position position) const {
+            std::unique_ptr<Expression> literal(const Context& context, int offset) const {
                 switch (fKind) {
                     case Program::Settings::Value::kBool_Kind:
                         return std::unique_ptr<Expression>(new BoolLiteral(context,
-                                                                           position,
+                                                                           offset,
                                                                            fValue));
                     case Program::Settings::Value::kInt_Kind:
                         return std::unique_ptr<Expression>(new IntLiteral(context,
-                                                                          position,
+                                                                          offset,
                                                                           fValue));
                     default:
                         ASSERT(false);
@@ -103,6 +103,7 @@ struct Program {
     };
 
     Program(Kind kind,
+            std::unique_ptr<String> source,
             Settings settings,
             Modifiers::Flag defaultPrecision,
             Context* context,
@@ -110,6 +111,7 @@ struct Program {
             std::shared_ptr<SymbolTable> symbols,
             Inputs inputs)
     : fKind(kind)
+    , fSource(std::move(source))
     , fSettings(settings)
     , fDefaultPrecision(defaultPrecision)
     , fContext(context)
@@ -118,6 +120,7 @@ struct Program {
     , fInputs(inputs) {}
 
     Kind fKind;
+    std::unique_ptr<String> fSource;
     Settings fSettings;
     // FIXME handle different types; currently it assumes this is for floats
     Modifiers::Flag fDefaultPrecision;

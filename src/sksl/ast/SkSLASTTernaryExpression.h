@@ -19,7 +19,7 @@ struct ASTTernaryExpression : public ASTExpression {
     ASTTernaryExpression(std::unique_ptr<ASTExpression> test,
                          std::unique_ptr<ASTExpression> ifTrue,
                          std::unique_ptr<ASTExpression> ifFalse)
-    : INHERITED(test->fPosition, kTernary_Kind)
+    : INHERITED(test->fOffset, kTernary_Kind)
     , fTest(std::move(test))
     , fIfTrue(std::move(ifTrue))
     , fIfFalse(std::move(ifFalse)) {}
