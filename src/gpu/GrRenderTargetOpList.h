@@ -36,7 +36,7 @@ private:
     using DstProxy = GrXferProcessor::DstProxy;
 
 public:
-    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrAuditTrail*);
+    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrAuditTrail*, const char*);
 
     ~GrRenderTargetOpList() override;
 
@@ -68,12 +68,18 @@ public:
     bool onExecute(GrOpFlushState* flushState) override;
 
     uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
+        this->addDependencies(op->foo(), caps);
+
         this->recordOp(std::move(op), caps, nullptr, nullptr);
+
         return this->uniqueID();
     }
     uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps,
                    GrAppliedClip&& clip, const DstProxy& dstProxy) {
+        this->addDependencies(op->foo(), caps);
+
         this->recordOp(std::move(op), caps, clip.doesClip() ? &clip : nullptr, &dstProxy);
+
         return this->uniqueID();
     }
 
@@ -124,6 +130,8 @@ private:
         DstProxy fDstProxy;
         GrAppliedClip* fAppliedClip;
     };
+
+    void gatherOpList(GrResourceAllocator*) const override;
 
     void recordOp(std::unique_ptr<GrOp>, const GrCaps& caps,
                   GrAppliedClip* = nullptr, const DstProxy* = nullptr);

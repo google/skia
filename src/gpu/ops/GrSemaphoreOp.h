@@ -16,6 +16,8 @@
 
 class GrSemaphoreOp : public GrOp {
 public:
+    void gatherOp(GrResourceAllocator*) const override { }
+
     static std::unique_ptr<GrSemaphoreOp> MakeSignal(sk_sp<GrSemaphore> semaphore,
                                                      GrRenderTargetProxy* proxy,
                                                      bool forceFlush);

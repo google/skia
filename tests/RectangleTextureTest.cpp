@@ -24,7 +24,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* cont
     sk_sp<GrRenderTargetContext> rtContext(
             context->makeDeferredRenderTargetContext(SkBackingFit::kExact, rectProxy->width(),
                                                      rectProxy->height(), rectProxy->config(),
-                                                     nullptr));
+                                                     nullptr, "test"));
     for (auto filter : {GrSamplerParams::kNone_FilterMode,
                         GrSamplerParams::kBilerp_FilterMode,
                         GrSamplerParams::kMipMap_FilterMode}) {

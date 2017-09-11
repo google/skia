@@ -590,6 +590,10 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
+
     /** Optional extra params to render a partial arc rather than a full circle. */
     struct ArcParams {
         SkScalar fStartAngleRadians;
@@ -1160,6 +1164,11 @@ private:
 
 public:
     DEFINE_OP_CLASS_ID
+
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
+
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
                                           const SkRect& ellipse, const SkStrokeRec& stroke) {
         DeviceSpaceParams params;
@@ -1390,6 +1399,10 @@ private:
 
 public:
     DEFINE_OP_CLASS_ID
+
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
 
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
                                           const SkRect& ellipse, const SkStrokeRec& stroke) {
@@ -1725,6 +1738,10 @@ private:
 
 public:
     DEFINE_OP_CLASS_ID
+
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
 
     // A devStrokeWidth <= 0 indicates a fill only. If devStrokeWidth > 0 then strokeOnly indicates
     // whether the rrect is only stroked or stroked and filled.
@@ -2069,6 +2086,10 @@ private:
 
 public:
     DEFINE_OP_CLASS_ID
+
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
 
     // If devStrokeWidths values are <= 0 indicates then fill only. Otherwise, strokeOnly indicates
     // whether the rrect is only stroked or stroked and filled.

@@ -18,7 +18,9 @@
 class GrAuditTrail;
 class GrCaps;
 class GrOpFlushState;
+class GrProcessorSet;
 class GrRenderTargetOpList;
+class GrResourceAllocator;
 class GrResourceProvider;
 class GrSurfaceProxy;
 class GrTextureProxy;
@@ -35,8 +37,10 @@ public:
 
 class GrOpList : public SkRefCnt {
 public:
-    GrOpList(GrResourceProvider*, GrSurfaceProxy*, GrAuditTrail*);
+    GrOpList(GrResourceProvider*, GrSurfaceProxy*, GrAuditTrail*, const char* name);
     ~GrOpList() override;
+
+    const char* name() { return fName; }
 
     // These three methods are invoked at flush time
     bool instantiate(GrResourceProvider* resourceProvider);
@@ -74,6 +78,8 @@ public:
      */
     void addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps);
 
+    void addDependencies(const GrProcessorSet*, const GrCaps& caps);
+
     /*
      * Does this opList depend on 'dependedOn'?
      */
@@ -105,15 +111,20 @@ public:
     void setStencilLoadOp(GrLoadOp loadOp) { fStencilLoadOp = loadOp; }
 
 protected:
+    SkDEBUGCODE(bool isInstantiated() const;)
+
     GrSurfaceProxyRef fTarget;
     GrAuditTrail*     fAuditTrail;
+    const char*       fName;
 
     GrLoadOp          fColorLoadOp    = GrLoadOp::kLoad;
     GrColor           fLoadClearColor = 0x0;
     GrLoadOp          fStencilLoadOp  = GrLoadOp::kLoad;
 
 private:
-    friend class GrDrawingManager; // for resetFlag & TopoSortTraits
+    friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gather
+
+    virtual void gatherOpList(GrResourceAllocator*) const = 0;
 
     static uint32_t CreateUniqueID();
 

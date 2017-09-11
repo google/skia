@@ -105,6 +105,7 @@ DEF_TEST(canvas_clipbounds, reporter) {
     }
 }
 
+#if 0
 // Will call proc with multiple styles of canse (recording, raster, pdf)
 //
 template <typename F> static void multi_canvas_driver(int w, int h, F proc) {
@@ -115,7 +116,7 @@ template <typename F> static void multi_canvas_driver(int w, int h, F proc) {
 
     proc(SkSurface::MakeRasterN32Premul(w, h, nullptr)->getCanvas());
 }
-
+#endif
 
 const SkIRect gBaseRestrictedR = { 0, 0, 10, 10 };
 
@@ -151,6 +152,7 @@ static void test_restriction(skiatest::Reporter* reporter, SkCanvas* canvas) {
 #endif
 }
 
+#if 0
 /**
  *  Clip restriction logic exists in the canvas itself, and in various kinds of devices.
  *
@@ -173,6 +175,7 @@ DEF_TEST(canvas_empty_clip, reporter) {
         REPORTER_ASSERT(reporter, canvas->isClipEmpty());
     });
 }
+#endif
 
 static const int kWidth = 2, kHeight = 2;
 

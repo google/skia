@@ -224,6 +224,8 @@ void GrTextureStripAtlas::lockTexture() {
             return;
         }
 
+        proxy->fIsOkayToBePreInstantiated = true;
+
         SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
         fDesc.fContext->resourceProvider()->assignUniqueKeyToProxy(key, proxy.get());
         // This is a new texture, so all of our cache info is now invalid

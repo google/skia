@@ -41,6 +41,8 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Creation
 
+    bool fDepsHandled = false;
+
     enum Flags {
         /**
          * Perform HW anti-aliasing. This means either HW FSAA, if supported by the render target,
