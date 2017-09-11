@@ -21,9 +21,9 @@ struct ASTType : public ASTPositionNode {
         kStruct_Kind
     };
 
-    ASTType(Position position, String name, Kind kind, std::vector<int> sizes)
-    : INHERITED(position)
-    , fName(std::move(name))
+    ASTType(int offset, StringFragment name, Kind kind, std::vector<int> sizes)
+    : INHERITED(offset)
+    , fName(name)
     , fKind(kind)
     , fSizes(std::move(sizes)) {}
 
@@ -31,7 +31,7 @@ struct ASTType : public ASTPositionNode {
         return fName;
     }
 
-    const String fName;
+    const StringFragment fName;
 
     const Kind fKind;
 
