@@ -120,13 +120,13 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, sk_sp<GrTextureProxy> proxy,
+GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
+                                         const sk_sp<GrTextureProxy> proxies[kMaxTextures],
                                          const GrSamplerState& params, GrMaskFormat format,
                                          const SkMatrix& localMatrix, bool usesLocalCoords)
         : fColor(color)
         , fLocalMatrix(localMatrix)
         , fUsesLocalCoords(usesLocalCoords)
-        , fTextureSampler(std::move(proxy), params)
         , fInColor(nullptr)
         , fMaskFormat(format) {
     this->initClassID<GrBitmapTextGeoProc>();
@@ -141,7 +141,12 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, sk_sp<GrTextureProxy> pr
 
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_uint_GrVertexAttribType,
                                               kHigh_GrSLPrecision);
-    this->addTextureSampler(&fTextureSampler);
+    for (int i = 0; i < kMaxTextures; ++i) {
+        if (proxies[i]) {
+            fTextureSamplers[i].reset(std::move(proxies[i]), params);
+            this->addTextureSampler(&fTextureSamplers[i]);
+        }
+    }
 }
 
 void GrBitmapTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
@@ -162,7 +167,12 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
 sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+    sk_sp<GrTextureProxy> proxies[kMaxTextures] = {
+        d->textureProxy(texIdx),
+        nullptr,
+        nullptr,
+        nullptr
+    };
 
     GrSamplerState::WrapMode wrapModes[2];
     GrTest::TestWrapModes(d->fRandom, wrapModes);
@@ -183,7 +193,7 @@ sk_sp<GrGeometryProcessor> GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* 
             break;
     }
 
-    return GrBitmapTextGeoProc::Make(GrRandomColor(d->fRandom), std::move(proxy), samplerState,
+    return GrBitmapTextGeoProc::Make(GrRandomColor(d->fRandom), proxies, samplerState,
                                      format, GrTest::TestMatrix(d->fRandom),
                                      d->fRandom->nextBool());
 }
