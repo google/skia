@@ -16,6 +16,24 @@
       "revId": "46655db5380b2d5840557d9cf74268c383b2384e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbaf1864_fda42dd8",
+        "filename": "src/gpu/effects/GrEllipseEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-09-11T15:53:21Z",
+      "side": 1,
+      "message": "Yep. To minimize the amount of string copying, we only preserved text for tokens where it mattered (identifiers, numbers, etc.), so all of the comments got lost. Obviously it\u0027s no longer necessary to do that.",
+      "parentUuid": "56c4461b_e9404966",
+      "revId": "46655db5380b2d5840557d9cf74268c383b2384e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
