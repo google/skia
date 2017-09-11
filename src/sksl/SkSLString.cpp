@@ -77,6 +77,32 @@ String String::operator+(const String& s) const {
     return result;
 }
 
+String String::operator+(StringFragment s) const {
+    String result(*this);
+    result.append(s.fChars, s.fLength);
+    return result;
+}
+
+String& String::operator+=(char c) {
+    INHERITED::operator+=(c);
+    return *this;
+}
+
+String& String::operator+=(const char* s) {
+    INHERITED::operator+=(s);
+    return *this;
+}
+
+String& String::operator+=(const String& s) {
+    INHERITED::operator+=(s);
+    return *this;
+}
+
+String& String::operator+=(StringFragment s) {
+    this->append(s.fChars, s.fLength);
+    return *this;
+}
+
 bool String::operator==(const String& s) const {
     return this->size() == s.size() && !memcmp(c_str(), s.c_str(), this->size());
 }
@@ -105,6 +131,28 @@ bool operator==(const char* s1, const String& s2) {
 
 bool operator!=(const char* s1, const String& s2) {
     return s2 != s1;
+}
+
+bool StringFragment::operator==(StringFragment s) const {
+    if (fLength != s.fLength) {
+        return false;
+    }
+    return !memcmp(fChars, s.fChars, fLength);
+}
+
+bool StringFragment::operator!=(StringFragment s) const {
+    if (fLength != s.fLength) {
+        return true;
+    }
+    return memcmp(fChars, s.fChars, fLength);
+}
+
+bool StringFragment::operator==(const char* s) const {
+    return !strncmp(fChars, s, fLength);
+}
+
+bool StringFragment::operator!=(const char* s) const {
+    return strncmp(fChars, s, fLength);
 }
 
 String to_string(int32_t value) {

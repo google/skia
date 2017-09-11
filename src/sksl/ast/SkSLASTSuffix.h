@@ -26,8 +26,8 @@ struct ASTSuffix : public ASTPositionNode {
         kPostDecrement_Kind
     };
 
-    ASTSuffix(Position position, Kind kind)
-    : INHERITED(position)
+    ASTSuffix(int offset, Kind kind)
+    : INHERITED(offset)
     , fKind(kind) {}
 
     String description() const override {
