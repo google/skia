@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3693ea4e_f1a4b026",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-11T21:00:34Z",
+      "side": 1,
+      "message": "FWIW, I think we originally just ran adb wait-for-usb-device, but that wasn\u0027t enough for some flaky bot.",
+      "revId": "9bcfb1def436e6ba00052887e338d10c4508cb7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
