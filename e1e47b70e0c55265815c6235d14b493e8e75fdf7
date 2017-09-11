@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "81b6e137_97fc0ab3",
+        "filename": "tools/android/upload_to_android.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-11T12:56:43Z",
+      "side": 1,
+      "message": "You can add a \"-c\" to only sync the \"current branch\" i.e. master in this case. That will save time and space by not syncing all the old branches.",
+      "range": {
+        "startLine": 94,
+        "startChar": 9,
+        "endLine": 94,
+        "endChar": 41
+      },
+      "revId": "e1e47b70e0c55265815c6235d14b493e8e75fdf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "27e36ece_dc7e09cb",
         "filename": "tools/android/upload_to_android.py",
         "patchSetId": 11
@@ -49,6 +72,24 @@
       "side": 1,
       "message": "Yep, like that.",
       "parentUuid": "23d8455e_96d90426",
+      "revId": "e1e47b70e0c55265815c6235d14b493e8e75fdf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37d94a03_9bc4d683",
+        "filename": "tools/android/upload_to_android.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-11T12:56:43Z",
+      "side": 1,
+      "message": "There\u0027s one flag for \"Presubmit-Ready\", which means it will test your change. There\u0027s a separate flag for \"Autosubmit\". Whoever accidentally +∞\u0027s it would also need to accidentally set \"Autosubmit\" to +1 or manually submit it. But if you want to be really cautious, you could try giving it a -1 or -2 vote for \"Code-Review\". I don\u0027t know whether that will prevent TreeHugger from running presubmit checks, but you could try it.",
+      "parentUuid": "ff958f6d_cddccf4c",
       "revId": "e1e47b70e0c55265815c6235d14b493e8e75fdf7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
