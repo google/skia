@@ -77,6 +77,7 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**);
     M(lerp_u8)           \
     M(scale_1_float)     \
     M(scale_u8)          \
+    M(scale_circle) M(lerp_circle) \
     M(move_src_dst)      \
     M(move_dst_src)      \
     M(clear)             \
