@@ -22,6 +22,30 @@
       "revId": "f256051c3b893da465bf22caed2ae59d983b17ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2556618b_87895cc4",
+        "filename": "src/codec/SkSampler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-11T12:55:49Z",
+      "side": 1,
+      "message": "ok but not able to find where they are checking this in the code",
+      "parentUuid": "24c4adeb_124b7af5",
+      "range": {
+        "startLine": 40,
+        "startChar": 15,
+        "endLine": 40,
+        "endChar": 83
+      },
+      "revId": "f256051c3b893da465bf22caed2ae59d983b17ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
