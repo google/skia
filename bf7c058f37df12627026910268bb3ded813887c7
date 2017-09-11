@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "623ad4cf_640166b4",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-11T15:33:17Z",
+      "side": 1,
+      "message": "// CMD differs from its sister class, SoftwarePathData, in that: it has multiple shapes, they are all in device space (for now) and each element contains its AA setting.\n\n?",
+      "revId": "bf7c058f37df12627026910268bb3ded813887c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49528687_3d4aa8c2",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-11T15:33:17Z",
+      "side": 1,
+      "message": "Looking at SoftwarePathData, should this be getMaskBounds ?",
+      "revId": "bf7c058f37df12627026910268bb3ded813887c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ce4e8c7_39390130",
+        "filename": "src/gpu/GrPrepareCallback.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-11T15:33:17Z",
+      "side": 1,
+      "message": "// Maybe a comment about how all this works ?",
+      "revId": "bf7c058f37df12627026910268bb3ded813887c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa78d450_fc7be554",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-11T15:33:17Z",
+      "side": 1,
+      "message": "// Maybe something here about how this differs from ClipMaskData \n// A single object, AA vs non-AA, not in device space\n\n?",
+      "revId": "bf7c058f37df12627026910268bb3ded813887c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
