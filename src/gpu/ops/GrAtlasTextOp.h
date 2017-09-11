@@ -161,7 +161,7 @@ private:
 
     // TODO just use class params
     sk_sp<GrGeometryProcessor> setupDfProcessor(const SkMatrix& viewMatrix, SkColor luminanceColor,
-                                                GrColor color, sk_sp<GrTextureProxy> proxy) const;
+                                                GrColor color, const sk_sp<GrTextureProxy>* p) const;
 
 
     // The minimum number of Geometry we will try to allocate.
