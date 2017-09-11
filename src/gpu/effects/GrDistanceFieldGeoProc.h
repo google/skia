@@ -52,11 +52,11 @@ class GrDistanceFieldA8TextGeoProc : public GrGeometryProcessor {
 public:
 #ifdef SK_GAMMA_APPLY_TO_A8
     static sk_sp<GrGeometryProcessor> Make(GrColor color, const SkMatrix& viewMatrix,
-                                           sk_sp<GrTextureProxy> proxy,
+                                           const sk_sp<GrTextureProxy>* proxies,
                                            const GrSamplerState& params, float lum, uint32_t flags,
                                            bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
-            new GrDistanceFieldA8TextGeoProc(color, viewMatrix, std::move(proxy),
+            new GrDistanceFieldA8TextGeoProc(color, viewMatrix, proxies,
                                              params, lum, flags, usesLocalCoords));
     }
 #else
@@ -90,7 +90,8 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrDistanceFieldA8TextGeoProc(GrColor, const SkMatrix& viewMatrix, sk_sp<GrTextureProxy> proxy,
+    GrDistanceFieldA8TextGeoProc(GrColor, const SkMatrix& viewMatrix, 
+                                 const sk_sp<GrTextureProxy>* proxies,
                                  const GrSamplerState& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                  float distanceAdjust,
@@ -99,7 +100,7 @@ private:
 
     GrColor          fColor;
     SkMatrix         fViewMatrix;
-    TextureSampler   fTextureSampler;
+    TextureSampler   fTextureSamplers[4];   //**** it's magic... a magic number....
 #ifdef SK_GAMMA_APPLY_TO_A8
     float            fDistanceAdjust;
 #endif
@@ -123,11 +124,11 @@ private:
 class GrDistanceFieldPathGeoProc : public GrGeometryProcessor {
 public:
     static sk_sp<GrGeometryProcessor> Make(GrColor color, const SkMatrix& viewMatrix,
-                                           sk_sp<GrTextureProxy> proxy,
+                                           const sk_sp<GrTextureProxy>* proxies,
                                            const GrSamplerState& params, uint32_t flags,
                                            bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
-            new GrDistanceFieldPathGeoProc(color, viewMatrix, std::move(proxy),
+            new GrDistanceFieldPathGeoProc(color, viewMatrix, proxies,
                                            params, flags, usesLocalCoords));
     }
 
@@ -148,12 +149,13 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrDistanceFieldPathGeoProc(GrColor, const SkMatrix& viewMatrix, sk_sp<GrTextureProxy>,
+    GrDistanceFieldPathGeoProc(GrColor, const SkMatrix& viewMatrix,
+                               const sk_sp<GrTextureProxy>* proxies,
                                const GrSamplerState&, uint32_t flags, bool usesLocalCoords);
 
     GrColor          fColor;
     SkMatrix         fViewMatrix;
-    TextureSampler   fTextureSampler;
+    TextureSampler   fTextureSamplers[4];
     uint32_t         fFlags;
     const Attribute* fInPosition;
     const Attribute* fInColor;
@@ -190,13 +192,13 @@ public:
 
     static sk_sp<GrGeometryProcessor> Make(GrColor color,
                                            const SkMatrix& viewMatrix,
-                                           sk_sp<GrTextureProxy> proxy,
+                                           const sk_sp<GrTextureProxy>* proxies,
                                            const GrSamplerState& params,
                                            DistanceAdjust distanceAdjust,
                                            uint32_t flags,
                                            bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
-            new GrDistanceFieldLCDTextGeoProc(color, viewMatrix, std::move(proxy),
+            new GrDistanceFieldLCDTextGeoProc(color, viewMatrix, proxies,
                                               params, distanceAdjust,
                                               flags, usesLocalCoords));
     }
@@ -219,13 +221,14 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrDistanceFieldLCDTextGeoProc(GrColor, const SkMatrix& viewMatrix, sk_sp<GrTextureProxy> proxy,
+    GrDistanceFieldLCDTextGeoProc(GrColor, const SkMatrix& viewMatrix, 
+                                  const sk_sp<GrTextureProxy>* proxies,
                                   const GrSamplerState& params, DistanceAdjust wa, uint32_t flags,
                                   bool usesLocalCoords);
 
     GrColor          fColor;
     SkMatrix         fViewMatrix;
-    TextureSampler   fTextureSampler;
+    TextureSampler   fTextureSamplers[4];
     DistanceAdjust   fDistanceAdjust;
     uint32_t         fFlags;
     const Attribute* fInPosition;
