@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2c387b4_780949f3",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-11T16:29:59Z",
+      "side": 1,
+      "message": "Would it be worth adding a kUnknown_Direction ?",
+      "revId": "b9bd61b942d15d773857472a4720dbcbc13a5c96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
