@@ -48,6 +48,9 @@ public:
         return fFragmentProcessors[idx + fColorFragmentProcessorCnt +
                                    fFragmentProcessorOffset].get();
     }
+    const GrFragmentProcessor* fragmentProcessor(int idx) const {
+        return fFragmentProcessors[idx + fFragmentProcessorOffset].get();
+    }
 
     const GrXferProcessor* xferProcessor() const {
         SkASSERT(this->isFinalized());

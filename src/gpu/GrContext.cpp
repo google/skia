@@ -646,12 +646,6 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         return false;
     }
 
-    if (!proxyToRead->instantiate(fContext->resourceProvider())) {
-        return false;
-    }
-
-    GrSurface* surfaceToRead = proxyToRead->priv().peekSurface();
-
     if (GrGpu::kRequireDraw_DrawPreference == drawPreference && !didTempDraw) {
         return false;
     }
@@ -660,6 +654,13 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         this->flushSurfaceWrites(proxyToRead.get());
         configToRead = tempDrawInfo.fReadConfig;
     }
+
+    if (!proxyToRead->instantiate(fContext->resourceProvider())) {
+        return false;
+    }
+
+    GrSurface* surfaceToRead = proxyToRead->priv().peekSurface();
+
     if (!fContext->fGpu->readPixels(surfaceToRead, proxyToRead->origin(),
                                     left, top, width, height, configToRead, buffer, rowBytes)) {
         return false;
@@ -736,7 +737,7 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
 
     if (proxy->asRenderTargetProxy()) {
         return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
-                                                               std::move(colorSpace), nullptr);
+                                                               std::move(colorSpace), nullptr, nullptr);
     } else {
         SkASSERT(proxy->asTextureProxy());
         return this->drawingManager()->makeTextureContext(std::move(proxy), std::move(colorSpace));
@@ -794,7 +795,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
     }
 
     return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
-                                                           std::move(colorSpace), props);
+                                                           std::move(colorSpace), props, nullptr);
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetContext(
@@ -816,7 +817,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
 
     return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
                                                            std::move(colorSpace),
-                                                           surfaceProps);
+                                                           surfaceProps, nullptr);
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRenderTargetContext(
@@ -841,7 +842,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
 
     return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
                                                            std::move(colorSpace),
-                                                           surfaceProps);
+                                                           surfaceProps, nullptr);
 }
 
 void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {

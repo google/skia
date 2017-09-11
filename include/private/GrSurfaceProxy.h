@@ -129,8 +129,9 @@ protected:
     // refs & unrefs to the new GrSurface
     void transferRefs() {
         SkASSERT(fTarget);
+        //SkASSERT(fRefCnt >= 1);
 
-        fTarget->fRefCnt += (fRefCnt-1); // don't xfer the proxy's creation ref
+        fTarget->fRefCnt += SkTMax(fRefCnt-1, 0); // don't xfer the proxy's creation ref
         fTarget->fPendingReads += fPendingReads;
         fTarget->fPendingWrites += fPendingWrites;
     }
@@ -173,6 +174,8 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    bool fIsOkayToBePreInstantiated = false;
+
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>, GrSurfaceOrigin);
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
 
@@ -329,6 +332,7 @@ public:
 
     bool isWrapped_ForTesting() const;
 
+    SkDEBUGCODE(bool isInstantiated() const { return SkToBool(fTarget); })
     SkDEBUGCODE(void validate(GrContext*) const;)
 
     // Provides access to functions that aren't part of the public API.
@@ -348,7 +352,11 @@ protected:
             , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
             , fGpuMemorySize(kInvalidGpuMemorySize)
             , fLastOpList(nullptr) {
+#if 0
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
+        SkDebugf("New Deferred Proxy { %d,%d }\n",
+                 this->uniqueID().asUInt(), this->underlyingUniqueID().asUInt());
+#endif
     }
 
     // Wrapped version
