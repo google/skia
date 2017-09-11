@@ -1312,6 +1312,7 @@ static inline int color_type_to_color_count(GrGradientEffect::ColorType colorTyp
         case GrGradientEffect::kTwo_ColorType:
             return 2;
         case GrGradientEffect::kThree_ColorType:
+        case GrGradientEffect::kSymmetricThree_ColorType:
             return 3;
         case GrGradientEffect::kTexture_ColorType:
             return 0;
@@ -1348,9 +1349,9 @@ GrGradientEffect::ColorType GrGradientEffect::determineColorType(
 
     if (2 == shader.fColorCount) {
         return kTwo_ColorType;
-    } else if (3 == shader.fColorCount &&
-               close_to_one_half(shader.getRecs()[1].fPos)) {
-        return kThree_ColorType;
+    } else if (3 == shader.fColorCount) {
+        return close_to_one_half(shader.getRecs()[1].fPos) ? kSymmetricThree_ColorType
+                                                           : kThree_ColorType;
     }
 
     return kTexture_ColorType;
@@ -1364,9 +1365,9 @@ void GrGradientEffect::GLSLProcessor::emitUniforms(GrGLSLUniformHandler* uniform
                                                      kDefault_GrSLPrecision,
                                                      "Colors",
                                                      colorCount);
-        if (ge.fColorType == kSingleHardStop_ColorType) {
-            fHardStopT = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType,
-                                                    kDefault_GrSLPrecision, "HardStopT");
+        if (kSingleHardStop_ColorType == ge.fColorType || kThree_ColorType == ge.fColorType) {
+            fExtraStopT = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType,
+                                                     kDefault_GrSLPrecision, "ExtraStopT");
         }
     } else {
         fFSYUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
@@ -1468,12 +1469,13 @@ void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& 
 
     switch (e.getColorType()) {
         case GrGradientEffect::kSingleHardStop_ColorType:
-            pdman.set1f(fHardStopT, e.fPositions[1]);
+        case GrGradientEffect::kThree_ColorType:
+            pdman.set1f(fExtraStopT, e.fPositions[1]);
             // fall through
         case GrGradientEffect::kHardStopLeftEdged_ColorType:
         case GrGradientEffect::kHardStopRightEdged_ColorType:
         case GrGradientEffect::kTwo_ColorType:
-        case GrGradientEffect::kThree_ColorType: {
+        case GrGradientEffect::kSymmetricThree_ColorType: {
             if (e.fColors4f.count() > 0) {
                 // Gamma-correct / color-space aware
                 if (GrGradientEffect::kBeforeInterp_PremulType == e.getPremulType()) {
@@ -1522,6 +1524,8 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
         key |= kTwoColorKey;
     } else if (GrGradientEffect::kThree_ColorType == e.getColorType()) {
         key |= kThreeColorKey;
+    } else if (GrGradientEffect::kSymmetricThree_ColorType == e.getColorType()) {
+        key |= kSymmetricThreeColorKey;
     } else if (GrGradientEffect::kSingleHardStop_ColorType == e.getColorType()) {
         key |= kHardStopCenteredKey;
     } else if (GrGradientEffect::kHardStopLeftEdged_ColorType == e.getColorType()) {
@@ -1572,7 +1576,7 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
     const char* colors = uniformHandler->getUniformCStr(fColorsUni);
     switch (ge.getColorType()) {
         case kSingleHardStop_ColorType: {
-            const char* stopT = uniformHandler->getUniformCStr(fHardStopT);
+            const char* stopT = uniformHandler->getUniformCStr(fExtraStopT);
 
             fragBuilder->codeAppend ("float4 start, end;");
             fragBuilder->codeAppend ("float relative_t;");
@@ -1622,6 +1626,25 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
         }
 
         case kThree_ColorType: {
+            const char* stopT = uniformHandler->getUniformCStr(fExtraStopT);
+
+            fragBuilder->codeAppend("float4 start, end;");
+            fragBuilder->codeAppend("float relative_t;");
+            fragBuilder->codeAppendf("if (clamp_t < %s) {", stopT);
+            fragBuilder->codeAppendf("    start = %s[0];", colors);
+            fragBuilder->codeAppendf("    end   = %s[1];", colors);
+            fragBuilder->codeAppendf("    relative_t = clamp_t / %s;", stopT);
+            fragBuilder->codeAppend("} else {");
+            fragBuilder->codeAppendf("    start = %s[1];", colors);
+            fragBuilder->codeAppendf("    end   = %s[2];", colors);
+            fragBuilder->codeAppendf("    relative_t = (clamp_t - %s) / (1 - %s);", stopT, stopT);
+            fragBuilder->codeAppend("}");
+            fragBuilder->codeAppend("float4 colorTemp = mix(start, end, relative_t);");
+
+            break;
+        }
+
+        case kSymmetricThree_ColorType: {
             fragBuilder->codeAppendf("float oneMinus2t = 1.0 - (2.0 * clamp_t);");
             fragBuilder->codeAppendf("float4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s[0];",
                                      colors);
@@ -1715,6 +1738,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
         // The two and three color specializations do not currently support tiling.
         case kTwo_ColorType:
         case kThree_ColorType:
+        case kSymmetricThree_ColorType:
         case kHardStopLeftEdged_ColorType:
         case kHardStopRightEdged_ColorType:
         case kSingleHardStop_ColorType:
@@ -1843,7 +1867,7 @@ bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
             return false;
         }
     } else {
-        if (kSingleHardStop_ColorType == fColorType) {
+        if (kSingleHardStop_ColorType == fColorType || kThree_ColorType == fColorType) {
             if (!SkScalarNearlyEqual(ge.fPositions[1], fPositions[1])) {
                 return false;
             }
