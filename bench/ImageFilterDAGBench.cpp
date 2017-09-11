@@ -8,11 +8,12 @@
 #include "Benchmark.h"
 #include "Resources.h"
 #include "SkBlurImageFilter.h"
-#include "SkDisplacementMapEffect.h"
 #include "SkCanvas.h"
+#include "SkDisplacementMapEffect.h"
 #include "SkImage.h"
 #include "SkMergeImageFilter.h"
-
+#include "SkOffsetImageFilter.h"
+#include "SkXfermodeImageFilter.h"
 
 // Exercise a blur filter connected to 5 inputs of the same merge filter.
 // This bench shows an improvement in performance once cacheing of re-used
@@ -117,6 +118,33 @@ private:
     typedef Benchmark INHERITED;
 };
 
+// Exercise an Xfermode kSrcIn filter compositing two inputs which have a small intersection.
+class ImageFilterXfermodeIn : public Benchmark {
+public:
+    ImageFilterXfermodeIn() {}
+
+protected:
+    const char* onGetName() override { return "image_filter_xfermode_in"; }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        for (int j = 0; j < loops; j++) {
+            auto blur = SkBlurImageFilter::Make(20.0f, 20.0f, nullptr);
+            auto offset1 = SkOffsetImageFilter::Make(100.0f, 100.0f, blur);
+            auto offset2 = SkOffsetImageFilter::Make(-100.0f, -100.0f, blur);
+            auto xfermode =
+                    SkXfermodeImageFilter::Make(SkBlendMode::kSrcIn, offset1, offset2, nullptr);
+
+            SkPaint paint;
+            paint.setImageFilter(xfermode);
+            canvas->drawRect(SkRect::MakeWH(200.0f, 200.0f), paint);
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+
 DEF_BENCH(return new ImageFilterDAGBench;)
 DEF_BENCH(return new ImageMakeWithFilterDAGBench;)
 DEF_BENCH(return new ImageFilterDisplacedBlur;)
+DEF_BENCH(return new ImageFilterXfermodeIn;)
