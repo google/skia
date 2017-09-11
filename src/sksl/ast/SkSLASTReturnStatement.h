@@ -17,8 +17,8 @@ namespace SkSL {
  */
 struct ASTReturnStatement : public ASTStatement {
     // expression may be null
-    ASTReturnStatement(int offset, std::unique_ptr<ASTExpression> expression)
-    : INHERITED(offset, kReturn_Kind)
+    ASTReturnStatement(Position position, std::unique_ptr<ASTExpression> expression)
+    : INHERITED(position, kReturn_Kind)
     , fExpression(std::move(expression)) {}
 
     String description() const override {

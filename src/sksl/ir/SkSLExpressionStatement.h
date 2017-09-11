@@ -18,7 +18,7 @@ namespace SkSL {
  */
 struct ExpressionStatement : public Statement {
     ExpressionStatement(std::unique_ptr<Expression> expression)
-    : INHERITED(expression->fOffset, kExpression_Kind)
+    : INHERITED(expression->fPosition, kExpression_Kind)
     , fExpression(std::move(expression)) {}
 
     String description() const override {

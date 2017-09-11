@@ -30,7 +30,6 @@ public:
                                                          GrSamplerState::Filter::kNearest)));
     }
 
-    /* clamp mode */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      sk_sp<GrColorSpaceXform>
                                                              colorSpaceXform,

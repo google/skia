@@ -16,10 +16,10 @@ namespace SkSL {
  * A 'for' loop.
  */
 struct ASTForStatement : public ASTStatement {
-    ASTForStatement(int offset, std::unique_ptr<ASTStatement> initializer,
+    ASTForStatement(Position position, std::unique_ptr<ASTStatement> initializer,
                    std::unique_ptr<ASTExpression> test, std::unique_ptr<ASTExpression> next,
                    std::unique_ptr<ASTStatement> statement)
-    : INHERITED(offset, kFor_Kind)
+    : INHERITED(position, kFor_Kind)
     , fInitializer(std::move(initializer))
     , fTest(std::move(test))
     , fNext(std::move(next))

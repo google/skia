@@ -24,7 +24,7 @@ struct VarDeclaration : public Statement {
     VarDeclaration(const Variable* var,
                    std::vector<std::unique_ptr<Expression>> sizes,
                    std::unique_ptr<Expression> value)
-    : INHERITED(var->fOffset, Statement::kVarDeclaration_Kind)
+    : INHERITED(var->fPosition, Statement::kVarDeclaration_Kind)
     , fVar(var)
     , fSizes(std::move(sizes))
     , fValue(std::move(value)) {}
@@ -55,9 +55,9 @@ struct VarDeclaration : public Statement {
  * A variable declaration statement, which may consist of one or more individual variables.
  */
 struct VarDeclarations : public ProgramElement {
-    VarDeclarations(int offset, const Type* baseType,
+    VarDeclarations(Position position, const Type* baseType,
                     std::vector<std::unique_ptr<VarDeclaration>> vars)
-    : INHERITED(offset, kVar_Kind)
+    : INHERITED(position, kVar_Kind)
     , fBaseType(*baseType) {
         for (auto& var : vars) {
             fVars.push_back(std::unique_ptr<Statement>(var.release()));

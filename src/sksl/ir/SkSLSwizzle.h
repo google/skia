@@ -65,7 +65,7 @@ static const Type& get_type(const Context& context, Expression& value, size_t co
  */
 struct Swizzle : public Expression {
     Swizzle(const Context& context, std::unique_ptr<Expression> base, std::vector<int> components)
-    : INHERITED(base->fOffset, kSwizzle_Kind, get_type(context, *base, components.size()))
+    : INHERITED(base->fPosition, kSwizzle_Kind, get_type(context, *base, components.size()))
     , fBase(std::move(base))
     , fComponents(std::move(components)) {
         ASSERT(fComponents.size() >= 1 && fComponents.size() <= 4);
@@ -80,13 +80,13 @@ struct Swizzle : public Expression {
                 ASSERT(fComponents.size() == 1);
                 int64_t value = ((Constructor&) *fBase).getIVecComponent(fComponents[0]);
                 return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
-                                                                  -1,
-                                                                  value));
+                                                                    Position(),
+                                                                    value));
             } else if (fType == *irGenerator.fContext.fFloat_Type) {
                 ASSERT(fComponents.size() == 1);
                 double value = ((Constructor&) *fBase).getFVecComponent(fComponents[0]);
                 return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
-                                                                    -1,
+                                                                    Position(),
                                                                     value));
             }
         }

@@ -18,7 +18,7 @@ namespace SkSL {
  */
 struct VarDeclarationsStatement : public Statement {
     VarDeclarationsStatement(std::unique_ptr<VarDeclarations> decl)
-    : INHERITED(decl->fOffset, kVarDeclarations_Kind)
+    : INHERITED(decl->fPosition, kVarDeclarations_Kind)
     , fDeclaration(std::move(decl)) {}
 
     bool isEmpty() const override {

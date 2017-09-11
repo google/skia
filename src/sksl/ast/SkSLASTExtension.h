@@ -16,8 +16,8 @@ namespace SkSL {
  * An extension declaration.
  */
 struct ASTExtension : public ASTDeclaration {
-    ASTExtension(int offset, String name)
-    : INHERITED(offset, kExtension_Kind)
+    ASTExtension(Position position, String name)
+    : INHERITED(position, kExtension_Kind)
     , fName(std::move(name)) {}
 
     String description() const override {

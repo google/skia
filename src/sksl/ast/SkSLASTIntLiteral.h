@@ -17,8 +17,8 @@ namespace SkSL {
  * appear as a unary minus being applied to an integer literal.
  */
 struct ASTIntLiteral : public ASTExpression {
-    ASTIntLiteral(int offset, uint64_t value)
-    : INHERITED(offset, kInt_Kind)
+    ASTIntLiteral(Position position, uint64_t value)
+    : INHERITED(position, kInt_Kind)
     , fValue(value) {}
 
     String description() const override {

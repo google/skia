@@ -25,8 +25,8 @@ struct ProgramElement : public IRNode {
         kSection_Kind
     };
 
-    ProgramElement(int offset, Kind kind)
-    : INHERITED(offset)
+    ProgramElement(Position position, Kind kind)
+    : INHERITED(position)
     , fKind(kind) {}
 
     Kind fKind;

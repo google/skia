@@ -17,9 +17,9 @@ namespace SkSL {
  * A 'while' loop.
  */
 struct WhileStatement : public Statement {
-    WhileStatement(int offset, std::unique_ptr<Expression> test,
+    WhileStatement(Position position, std::unique_ptr<Expression> test,
                    std::unique_ptr<Statement> statement)
-    : INHERITED(offset, kWhile_Kind)
+    : INHERITED(position, kWhile_Kind)
     , fTest(std::move(test))
     , fStatement(std::move(statement)) {}
 

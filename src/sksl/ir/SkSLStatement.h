@@ -35,8 +35,8 @@ struct Statement : public IRNode {
         kWhile_Kind
     };
 
-    Statement(int offset, Kind kind)
-    : INHERITED(offset)
+    Statement(Position position, Kind kind)
+    : INHERITED(position)
     , fKind(kind) {}
 
     virtual bool isEmpty() const {

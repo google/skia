@@ -17,9 +17,9 @@ namespace SkSL {
  * A single case of a 'switch' statement.
  */
 struct SwitchCase : public Statement {
-    SwitchCase(int offset, std::unique_ptr<Expression> value,
+    SwitchCase(Position position, std::unique_ptr<Expression> value,
                std::vector<std::unique_ptr<Statement>> statements)
-    : INHERITED(offset, kSwitch_Kind)
+    : INHERITED(position, kSwitch_Kind)
     , fValue(std::move(value))
     , fStatements(std::move(statements)) {}
 

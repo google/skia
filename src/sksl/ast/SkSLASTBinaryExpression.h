@@ -9,8 +9,7 @@
 #define SKSL_ASTBINARYEXPRESSION
 
 #include "SkSLASTExpression.h"
-#include "../SkSLCompiler.h"
-#include "../SkSLLexer.h"
+#include "../SkSLToken.h"
 
 namespace SkSL {
 
@@ -20,13 +19,13 @@ namespace SkSL {
 struct ASTBinaryExpression : public ASTExpression {
     ASTBinaryExpression(std::unique_ptr<ASTExpression> left, Token op,
                         std::unique_ptr<ASTExpression> right)
-    : INHERITED(op.fOffset, kBinary_Kind)
+    : INHERITED(op.fPosition, kBinary_Kind)
     , fLeft(std::move(left))
     , fOperator(op.fKind)
     , fRight(std::move(right)) {}
 
     String description() const override {
-        return "(" + fLeft->description() + " " + Compiler::OperatorName(fOperator) + " " +
+        return "(" + fLeft->description() + " " + Token::OperatorName(fOperator) + " " +
                fRight->description() + ")";
     }
 

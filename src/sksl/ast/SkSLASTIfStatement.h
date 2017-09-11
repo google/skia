@@ -16,9 +16,9 @@ namespace SkSL {
  * An 'if' statement.
  */
 struct ASTIfStatement : public ASTStatement {
-    ASTIfStatement(int offset, bool isStatic, std::unique_ptr<ASTExpression> test,
+    ASTIfStatement(Position position, bool isStatic, std::unique_ptr<ASTExpression> test,
                    std::unique_ptr<ASTStatement> ifTrue, std::unique_ptr<ASTStatement> ifFalse)
-    : INHERITED(offset, kIf_Kind)
+    : INHERITED(position, kIf_Kind)
     , fIsStatic(isStatic)
     , fTest(std::move(test))
     , fIfTrue(std::move(ifTrue))
