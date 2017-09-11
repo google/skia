@@ -88,13 +88,12 @@ About to run repo init. If it hangs asking you to run glogin then please:
 """
   os.chdir(android_dir)
   subprocess.check_call(
-      '%s init -u %s/a/platform/manifest -g "all,-notdefault,-darwin" -b master'
+      '%s init -u %s/a/platform/manifest -g "all,-notdefault,-darwin" '
+      '-b master --depth=1'
           % (repo_binary, ANDROID_REPO_URL), shell=True)
 
   print 'Syncing the Android checkout at %s' % android_dir
-  print '%s sync %s tools/repohooks -j 32' % (
-                            repo_binary, SKIA_PATH_IN_ANDROID)
-  subprocess.check_call('%s sync %s tools/repohooks -j 32' % (
+  subprocess.check_call('%s sync %s tools/repohooks -j 32 -c' % (
                             repo_binary, SKIA_PATH_IN_ANDROID), shell=True)
 
   # Set the necessary git config options.
