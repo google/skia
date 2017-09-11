@@ -382,6 +382,7 @@ private:
 
     friend class GrAtlasTextBlob;               // for access to add[Mesh]DrawOp
     friend class GrStencilAndCoverTextContext;  // for access to add[Mesh]DrawOp
+    friend class GrClipStackClip;               // for access to getOpList
 
     friend class GrDrawingManager; // for ctor
     friend class GrRenderTargetContextPriv;
