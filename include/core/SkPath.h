@@ -208,15 +208,13 @@ enum Direction {
         SkPath::Convexity is computed if stored value is kUnknown_Convexity,
         or if SkPath has been altered since SkPath::Convexity was computed or set.
 
+        direction is set to kCW_Direction or kCCW_Direction if Convexity is
+        kConvex_Convexity and if Direction can be determined; otherwise, direction is unaltered.
+
+        @param direction  set Direction if path is convex; may be nullptr
         @return  computed or stored SkPath::Convexity
     */
-    Convexity getConvexity() const {
-        if (kUnknown_Convexity != fConvexity) {
-            return static_cast<Convexity>(fConvexity);
-        } else {
-            return this->internalGetConvexity();
-        }
-    }
+    Convexity getConvexity(Direction* direction = nullptr) const;
 
     /** Returns last computed SkPath::Convexity, or kUnknown_Convexity if
         SkPath has been altered since SkPath::Convexity was computed or set.
@@ -1686,8 +1684,6 @@ private:
     inline void injectMoveToIfNeeded();
 
     inline bool hasOnlyMoveTos() const;
-
-    Convexity internalGetConvexity() const;
 
     /** Asserts if SkPath data is inconsistent.
         Debugging check intended for internal use only.

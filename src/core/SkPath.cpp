@@ -2463,73 +2463,80 @@ private:
     bool                fBackwards;
 };
 
-SkPath::Convexity SkPath::internalGetConvexity() const {
-    SkASSERT(kUnknown_Convexity == fConvexity);
-    SkPoint         pts[4];
-    SkPath::Verb    verb;
-    SkPath::Iter    iter(*this, true);
+SkPath::Convexity SkPath::getConvexity(Direction* direction) const {
+    if (kUnknown_Convexity == fConvexity) {
+        SkPoint         pts[4];
+        SkPath::Verb    verb;
+        SkPath::Iter    iter(*this, true);
 
-    int             contourCount = 0;
-    int             count;
-    Convexicator    state;
+        int             contourCount = 0;
+        int             count;
+        Convexicator    state;
 
-    if (!isFinite()) {
-        return kUnknown_Convexity;
-    }
-    while ((verb = iter.next(pts, true, true)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case kMove_Verb:
-                if (++contourCount > 1) {
-                    fConvexity = kConcave_Convexity;
-                    return kConcave_Convexity;
-                }
-                pts[1] = pts[0];
-                // fall through
-            case kLine_Verb:
-                count = 1;
-                state.setCurve(false);
-                break;
-            case kQuad_Verb:
-                // fall through
-            case kConic_Verb:
-                // fall through
-            case kCubic_Verb:
-                count = 2 + (kCubic_Verb == verb);
-                // As an additional enhancement, this could set curve true only
-                // if the curve is nonlinear
-                state.setCurve(true);
-                break;
-            case kClose_Verb:
-                state.setCurve(false);
-                state.close();
-                count = 0;
-                break;
-            default:
-                SkDEBUGFAIL("bad verb");
-                fConvexity = kConcave_Convexity;
-                return kConcave_Convexity;
-        }
-
-        for (int i = 1; i <= count; i++) {
-            state.addPt(pts[i]);
-        }
-        // early exit
-        if (!state.isFinite()) {
+        if (!isFinite()) {
             return kUnknown_Convexity;
         }
-        if (kConcave_Convexity == state.getConvexity()) {
-            fConvexity = kConcave_Convexity;
-            return kConcave_Convexity;
+        while ((verb = iter.next(pts, true, true)) != SkPath::kDone_Verb) {
+            switch (verb) {
+                case kMove_Verb:
+                    if (++contourCount > 1) {
+                        fConvexity = kConcave_Convexity;
+                        return kConcave_Convexity;
+                    }
+                    pts[1] = pts[0];
+                    // fall through
+                case kLine_Verb:
+                    count = 1;
+                    state.setCurve(false);
+                    break;
+                case kQuad_Verb:
+                    // fall through
+                case kConic_Verb:
+                    // fall through
+                case kCubic_Verb:
+                    count = 2 + (kCubic_Verb == verb);
+                    // As an additional enhancement, this could set curve true only
+                    // if the curve is nonlinear
+                    state.setCurve(true);
+                    break;
+                case kClose_Verb:
+                    state.setCurve(false);
+                    state.close();
+                    count = 0;
+                    break;
+                default:
+                    SkDEBUGFAIL("bad verb");
+                    fConvexity = kConcave_Convexity;
+                    return kConcave_Convexity;
+            }
+
+            for (int i = 1; i <= count; i++) {
+                state.addPt(pts[i]);
+            }
+            // early exit
+            if (!state.isFinite()) {
+                return kUnknown_Convexity;
+            }
+            if (kConcave_Convexity == state.getConvexity()) {
+                fConvexity = kConcave_Convexity;
+                return kConcave_Convexity;
+            }
+        }
+        fConvexity = state.getConvexity();
+        if (kConvex_Convexity == fConvexity &&
+                SkPathPriv::kUnknown_FirstDirection == fFirstDirection) {
+            if (SkPathPriv::kUnknown_FirstDirection == state.getFirstDirection() &&
+                    !this->getBounds().isEmpty() && !state.hasBackwards()) {
+                fConvexity = Convexity::kConcave_Convexity;
+            } else {
+                fFirstDirection = state.getFirstDirection();
+            }
         }
     }
-    fConvexity = state.getConvexity();
-    if (kConvex_Convexity == fConvexity && SkPathPriv::kUnknown_FirstDirection == fFirstDirection) {
-        if (SkPathPriv::kUnknown_FirstDirection == state.getFirstDirection() &&
-                !this->getBounds().isEmpty() && !state.hasBackwards()) {
-            fConvexity = Convexity::kConcave_Convexity;
-        } else {
-            fFirstDirection = state.getFirstDirection();
-        }
+    if (direction && kConvex_Convexity == static_cast<Convexity>(fConvexity) &&
+            SkPathPriv::kUnknown_FirstDirection != fFirstDirection) {
+        *direction = SkPathPriv::kCW_FirstDirection == fFirstDirection ?
+                Direction::kCW_Direction : Direction::kCCW_Direction;
     }
     return static_cast<Convexity>(fConvexity);
 }
