@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "b5e34a9b_afd07056",
+        "filename": "tools/android/upload_to_android.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-11T13:50:11Z",
+      "side": 1,
+      "message": "Adding \"--depth\u003d1\" to repo init will do a shallow checkout, skipping the git history.",
+      "range": {
+        "startLine": 90,
+        "startChar": 10,
+        "endLine": 90,
+        "endChar": 14
+      },
+      "revId": "e1e47b70e0c55265815c6235d14b493e8e75fdf7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "81b6e137_97fc0ab3",
         "filename": "tools/android/upload_to_android.py",
         "patchSetId": 11
