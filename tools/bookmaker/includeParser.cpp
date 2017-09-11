@@ -683,13 +683,17 @@ void IncludeParser::dumpComment(Definition* token) {
 }
 
     // dump equivalent markup 
-void IncludeParser::dumpTokens()  {
+bool IncludeParser::dumpTokens(const string& dir) {
     string skClassName = this->className();
-    string fileName = skClassName + ".bmh";
+    string fileName = dir;
+    if (dir.length() && '/' != dir[dir.length() - 1]) {
+        fileName += '/';
+    }
+    fileName += skClassName + "_Reference.bmh";
     fOut = fopen(fileName.c_str(), "wb");
     if (!fOut) {
         SkDebugf("could not open output file %s\n", fileName.c_str());
-        return;
+        return false;
     }
     string prefixName = skClassName.substr(0, 2);
     string topicName = skClassName.length() > 2 && isupper(skClassName[2]) &&
@@ -811,6 +815,8 @@ void IncludeParser::dumpTokens()  {
     fprintf(fOut, "#Topic %s ##"                                                             "\n",
             topicName.c_str());
     fclose(fOut);
+    SkDebugf("wrote %s\n", fileName.c_str());
+    return true;
 }
 
 bool IncludeParser::findComments(const Definition& includeDef, Definition* markupDef) {
@@ -1404,14 +1410,14 @@ bool IncludeParser::parseChar() {
     char test = *fChar;
     if ('\\' == fPrev) {
         if ('\n' == test) {
-            ++fLineCount;
+//            ++fLineCount;
             fLine = fChar + 1;
         }
         goto done;
     }
     switch (test) {
         case '\n':
-            ++fLineCount;
+//            ++fLineCount;
             fLine = fChar + 1;
             if (fInChar) {
                 return reportError<bool>("malformed char");
@@ -1777,7 +1783,7 @@ bool IncludeParser::parseChar() {
     }
 done:
     fPrev = test;
-    ++fChar;
+    this->next();
     return true;
 }
 
