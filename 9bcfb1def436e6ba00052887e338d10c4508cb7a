@@ -16,6 +16,29 @@
       "revId": "9bcfb1def436e6ba00052887e338d10c4508cb7a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0707800c_4a54d84e",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-11T23:25:22Z",
+      "side": 1,
+      "message": "5 minutes seems a bit too conservative.  3 minutes is probably fine.",
+      "range": {
+        "startLine": 57,
+        "startChar": 74,
+        "endLine": 57,
+        "endChar": 77
+      },
+      "revId": "9bcfb1def436e6ba00052887e338d10c4508cb7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
