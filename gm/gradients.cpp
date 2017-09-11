@@ -1074,14 +1074,15 @@ DEF_SIMPLE_GM(sweep_tiling, canvas, 690, 512) {
 }
 
 // Exercises the special-case Ganesh gradient effects.
-DEF_SIMPLE_GM(gradients_interesting, canvas, 640, 1080) {
+DEF_SIMPLE_GM(gradients_interesting, canvas, 640, 1300) {
     static const SkColor colors2[] = { SK_ColorRED, SK_ColorBLUE };
     static const SkColor colors3[] = { SK_ColorRED, SK_ColorYELLOW, SK_ColorBLUE };
     static const SkColor colors4[] = { SK_ColorRED, SK_ColorYELLOW, SK_ColorYELLOW, SK_ColorBLUE };
 
-    static const SkScalar hardLeft[]   = { 0,   0,   1 };
-    static const SkScalar hardRight[]  = { 0,   1,   1 };
-    static const SkScalar hardCenter[] = { 0, .5f, .5f, 1 };
+    static const SkScalar softRight[]  = { 0, .999f,   1 }; // Based on Android launcher "clipping"
+    static const SkScalar hardLeft[]   = { 0,     0,   1 };
+    static const SkScalar hardRight[]  = { 0,     1,   1 };
+    static const SkScalar hardCenter[] = { 0,   .5f, .5f, 1 };
 
     static const struct {
         const SkColor*  colors;
@@ -1089,7 +1090,8 @@ DEF_SIMPLE_GM(gradients_interesting, canvas, 640, 1080) {
         int             count;
     } configs[] = {
         { colors2,    nullptr, 2 }, // kTwo_ColorType
-        { colors3,    nullptr, 3 }, // kThree_ColorType
+        { colors3,    nullptr, 3 }, // kSymmetricThree_ColorType
+        { colors3,  softRight, 3 }, // kThree_ColorType
         { colors3,   hardLeft, 3 }, // kHardStopLeftEdged_ColorType
         { colors3,  hardRight, 3 }, // kHardStopRightEdged_ColorType
         { colors4, hardCenter, 4 }, // kSingleHardStop_ColorType
