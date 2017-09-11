@@ -16,6 +16,24 @@
       "revId": "27b6c11fc4292b00db99fd0c2d4abef0f19c9c6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e87b94e8_44ecd353",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-11T20:07:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d81fdd2_fbbf6104",
+      "revId": "27b6c11fc4292b00db99fd0c2d4abef0f19c9c6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
