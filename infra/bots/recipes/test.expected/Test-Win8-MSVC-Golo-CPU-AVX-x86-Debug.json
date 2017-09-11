@@ -611,7 +611,8 @@
       "_",
       "image",
       "_",
-      ".SRW"
+      ".SRW",
+      "--verbose"
     ],
     "env": {
       "BUILDTYPE": "Debug",

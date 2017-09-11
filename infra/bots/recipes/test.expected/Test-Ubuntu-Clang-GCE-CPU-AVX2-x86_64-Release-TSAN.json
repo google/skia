@@ -459,7 +459,8 @@
       "--match",
       "~ReadWriteAlpha",
       "~RGBA4444TextureTest",
-      "~RGB565TextureTest"
+      "~RGB565TextureTest",
+      "--verbose"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
