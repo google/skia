@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b93a183_25570fbf",
+        "filename": "tools/android/upload_to_android.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-11T21:19:30Z",
+      "side": 1,
+      "message": "Alternatively you could just append\n\n  #ifndef SK_DEBUG\n  #define SK_DEBUG\n  #endif//SK_DEBUG\n\nto the end of the file unconditionally.",
+      "revId": "3552d7be9cf019ca5f411d612b4fe8baf36a8643",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
