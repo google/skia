@@ -51,7 +51,6 @@ static const char* SKSL_FP_INCLUDE =
 #include "sksl_fp.include"
 ;
 
-
 namespace SkSL {
 
 Compiler::Compiler(Flags flags)
@@ -187,20 +186,23 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(GSamplerCubeArrayShadow);
     ADD_TYPE(ColorSpaceXform);
 
-    String skCapsName("sk_Caps");
-    Variable* skCaps = new Variable(Position(), Modifiers(), skCapsName,
+    StringFragment skCapsName("sk_Caps");
+    Variable* skCaps = new Variable(-1, Modifiers(), skCapsName,
                                     *fContext.fSkCaps_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skCapsName, std::unique_ptr<Symbol>(skCaps));
 
-    String skArgsName("sk_Args");
-    Variable* skArgs = new Variable(Position(), Modifiers(), skArgsName,
+    StringFragment skArgsName("sk_Args");
+    Variable* skArgs = new Variable(-1, Modifiers(), skArgsName,
                                     *fContext.fSkArgs_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
 
     Modifiers::Flag ignored1;
     std::vector<std::unique_ptr<ProgramElement>> ignored2;
-    fIRGenerator->convertProgram(String(SKSL_INCLUDE), *fTypes, &ignored1, &ignored2);
+    fIRGenerator->convertProgram(SKSL_INCLUDE, strlen(SKSL_INCLUDE), *fTypes, &ignored1, &ignored2);
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+    if (fErrorCount) {
+        printf("Unexpected errors: %s\n", fErrorText.c_str());
+    }
     ASSERT(!fErrorCount);
 }
 
@@ -260,7 +262,7 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
                     BinaryExpression* b = (BinaryExpression*) expr;
                     if (b->fOperator == Token::EQ) {
                         this->addDefinition(b->fLeft.get(), &b->fRight, definitions);
-                    } else if (Token::IsAssignment(b->fOperator)) {
+                    } else if (Compiler::IsAssignment(b->fOperator)) {
                         this->addDefinition(
                                        b->fLeft.get(),
                                        (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
@@ -401,7 +403,7 @@ static bool is_dead(const Expression& lvalue) {
  * to a dead target and lack of side effects on the left hand side.
  */
 static bool dead_assignment(const BinaryExpression& b) {
-    if (!Token::IsAssignment(b.fOperator)) {
+    if (!Compiler::IsAssignment(b.fOperator)) {
         return false;
     }
     return is_dead(*b.fLeft);
@@ -540,7 +542,7 @@ void delete_right(BasicBlock* b,
 static std::unique_ptr<Expression> construct(const Type& type, std::unique_ptr<Expression> v) {
     std::vector<std::unique_ptr<Expression>> args;
     args.push_back(std::move(v));
-    auto result = std::unique_ptr<Expression>(new Constructor(Position(), type, std::move(args)));
+    auto result = std::unique_ptr<Expression>(new Constructor(-1, type, std::move(args)));
     return result;
 }
 
@@ -642,7 +644,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             if (var.fStorage == Variable::kLocal_Storage && !definitions[&var] &&
                 (*undefinedVariables).find(&var) == (*undefinedVariables).end()) {
                 (*undefinedVariables).insert(&var);
-                this->error(expr->fPosition,
+                this->error(expr->fOffset,
                             "'" + var.fName + "' has not been assigned");
             }
             break;
@@ -877,7 +879,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* s, SwitchCase*
     for (const auto& s : statementPtrs) {
         statements.push_back(std::move(*s));
     }
-    return std::unique_ptr<Statement>(new Block(Position(), std::move(statements), s->fSymbols));
+    return std::unique_ptr<Statement>(new Block(-1, std::move(statements), s->fSymbols));
 }
 
 void Compiler::simplifyStatement(DefinitionMap& definitions,
@@ -964,7 +966,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                             break;
                         } else {
                             if (s.fIsStatic && !(fFlags & kPermitInvalidStaticTests_Flag)) {
-                                this->error(s.fPosition,
+                                this->error(s.fOffset,
                                             "static switch contains non-static conditional break");
                                 s.fIsStatic = false;
                             }
@@ -980,7 +982,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                             (*iter)->setStatement(std::move(newBlock));
                         } else {
                             if (s.fIsStatic && !(fFlags & kPermitInvalidStaticTests_Flag)) {
-                                this->error(s.fPosition,
+                                this->error(s.fOffset,
                                             "static switch contains non-static conditional break");
                                 s.fIsStatic = false;
                             }
@@ -1022,16 +1024,16 @@ void Compiler::scanCFG(FunctionDefinition& f) {
     for (size_t i = 0; i < cfg.fBlocks.size(); i++) {
         if (i != cfg.fStart && !cfg.fBlocks[i].fEntrances.size() &&
             cfg.fBlocks[i].fNodes.size()) {
-            Position p;
+            int offset;
             switch (cfg.fBlocks[i].fNodes[0].fKind) {
                 case BasicBlock::Node::kStatement_Kind:
-                    p = (*cfg.fBlocks[i].fNodes[0].statement())->fPosition;
+                    offset = (*cfg.fBlocks[i].fNodes[0].statement())->fOffset;
                     break;
                 case BasicBlock::Node::kExpression_Kind:
-                    p = (*cfg.fBlocks[i].fNodes[0].expression())->fPosition;
+                    offset = (*cfg.fBlocks[i].fNodes[0].expression())->fOffset;
                     break;
             }
-            this->error(p, String("unreachable"));
+            this->error(offset, String("unreachable"));
         }
     }
     if (fErrorCount) {
@@ -1081,14 +1083,14 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                     case Statement::kIf_Kind:
                         if (((const IfStatement&) s).fIsStatic &&
                             !(fFlags & kPermitInvalidStaticTests_Flag)) {
-                            this->error(s.fPosition, "static if has non-static test");
+                            this->error(s.fOffset, "static if has non-static test");
                         }
                         ++iter;
                         break;
                     case Statement::kSwitch_Kind:
                         if (((const SwitchStatement&) s).fIsStatic &&
                              !(fFlags & kPermitInvalidStaticTests_Flag)) {
-                            this->error(s.fPosition, "static switch has non-static test");
+                            this->error(s.fOffset, "static switch has non-static test");
                         }
                         ++iter;
                         break;
@@ -1121,7 +1123,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
     // check for missing return
     if (f.fDeclaration.fReturnType != *fContext.fVoid_Type) {
         if (cfg.fBlocks[cfg.fExit].fEntrances.size()) {
-            this->error(f.fPosition, String("function can exit without returning a value"));
+            this->error(f.fOffset, String("function can exit without returning a value"));
         }
     }
 }
@@ -1135,21 +1137,28 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
     Modifiers::Flag ignored;
     switch (kind) {
         case Program::kVertex_Kind:
-            fIRGenerator->convertProgram(String(SKSL_VERT_INCLUDE), *fTypes, &ignored, &elements);
+            fIRGenerator->convertProgram(SKSL_VERT_INCLUDE, strlen(SKSL_VERT_INCLUDE), *fTypes,
+                                         &ignored, &elements);
             break;
         case Program::kFragment_Kind:
-            fIRGenerator->convertProgram(String(SKSL_FRAG_INCLUDE), *fTypes, &ignored, &elements);
+            fIRGenerator->convertProgram(SKSL_FRAG_INCLUDE, strlen(SKSL_FRAG_INCLUDE), *fTypes,
+                                         &ignored, &elements);
             break;
         case Program::kGeometry_Kind:
-            fIRGenerator->convertProgram(String(SKSL_GEOM_INCLUDE), *fTypes, &ignored, &elements);
+            fIRGenerator->convertProgram(SKSL_GEOM_INCLUDE, strlen(SKSL_GEOM_INCLUDE), *fTypes,
+                                         &ignored, &elements);
             break;
         case Program::kFragmentProcessor_Kind:
-            fIRGenerator->convertProgram(String(SKSL_FP_INCLUDE), *fTypes, &ignored, &elements);
+            fIRGenerator->convertProgram(SKSL_FP_INCLUDE, strlen(SKSL_FP_INCLUDE), *fTypes,
+                                         &ignored, &elements);
             break;
     }
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     Modifiers::Flag defaultPrecision;
-    fIRGenerator->convertProgram(text, *fTypes, &defaultPrecision, &elements);
+    std::unique_ptr<String> textPtr(new String(std::move(text)));
+    fSource = textPtr.get();
+    fIRGenerator->convertProgram(textPtr->c_str(), textPtr->size(), *fTypes, &defaultPrecision,
+                                 &elements);
     if (!fErrorCount) {
         for (auto& element : elements) {
             if (element->fKind == ProgramElement::kFunction_Kind) {
@@ -1157,11 +1166,13 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             }
         }
     }
-    auto result = std::unique_ptr<Program>(new Program(kind, settings, defaultPrecision, &fContext,
+    auto result = std::unique_ptr<Program>(new Program(kind, std::move(textPtr), settings,
+                                                       defaultPrecision, &fContext,
                                                        std::move(elements),
                                                        fIRGenerator->fSymbolTable,
                                                        fIRGenerator->fInputs));
     fIRGenerator->finish();
+    fSource = nullptr;
     this->writeErrorCount();
     if (fErrorCount) {
         return nullptr;
@@ -1172,8 +1183,10 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
 bool Compiler::toSPIRV(const Program& program, OutputStream& out) {
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
+    fSource = program.fSource.get();
     SPIRVCodeGenerator cg(&fContext, &program, this, &buffer);
     bool result = cg.generateCode();
+    fSource = nullptr;
     if (result) {
         spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
         const String& data = buffer.str();
@@ -1188,8 +1201,10 @@ bool Compiler::toSPIRV(const Program& program, OutputStream& out) {
         out.write(data.c_str(), data.size());
     }
 #else
+    fSource = program.fSource.get();
     SPIRVCodeGenerator cg(&fContext, &program, this, &out);
     bool result = cg.generateCode();
+    fSource = nullptr;
 #endif
     this->writeErrorCount();
     return result;
@@ -1205,8 +1220,10 @@ bool Compiler::toSPIRV(const Program& program, String* out) {
 }
 
 bool Compiler::toGLSL(const Program& program, OutputStream& out) {
+    fSource = program.fSource.get();
     GLSLCodeGenerator cg(&fContext, &program, this, &out);
     bool result = cg.generateCode();
+    fSource = nullptr;
     this->writeErrorCount();
     return result;
 }
@@ -1221,22 +1238,111 @@ bool Compiler::toGLSL(const Program& program, String* out) {
 }
 
 bool Compiler::toCPP(const Program& program, String name, OutputStream& out) {
+    fSource = program.fSource.get();
     CPPCodeGenerator cg(&fContext, &program, this, name, &out);
     bool result = cg.generateCode();
+    fSource = nullptr;
     this->writeErrorCount();
     return result;
 }
 
 bool Compiler::toH(const Program& program, String name, OutputStream& out) {
+    fSource = program.fSource.get();
     HCodeGenerator cg(&program, this, name, &out);
     bool result = cg.generateCode();
+    fSource = nullptr;
     this->writeErrorCount();
     return result;
 }
 
-void Compiler::error(Position position, String msg) {
+const char* Compiler::OperatorName(Token::Kind kind) {
+    switch (kind) {
+        case Token::PLUS:         return "+";
+        case Token::MINUS:        return "-";
+        case Token::STAR:         return "*";
+        case Token::SLASH:        return "/";
+        case Token::PERCENT:      return "%";
+        case Token::SHL:          return "<<";
+        case Token::SHR:          return ">>";
+        case Token::LOGICALNOT:   return "!";
+        case Token::LOGICALAND:   return "&&";
+        case Token::LOGICALOR:    return "||";
+        case Token::LOGICALXOR:   return "^^";
+        case Token::BITWISENOT:   return "~";
+        case Token::BITWISEAND:   return "&";
+        case Token::BITWISEOR:    return "|";
+        case Token::BITWISEXOR:   return "^";
+        case Token::EQ:           return "=";
+        case Token::EQEQ:         return "==";
+        case Token::NEQ:          return "!=";
+        case Token::LT:           return "<";
+        case Token::GT:           return ">";
+        case Token::LTEQ:         return "<=";
+        case Token::GTEQ:         return ">=";
+        case Token::PLUSEQ:       return "+=";
+        case Token::MINUSEQ:      return "-=";
+        case Token::STAREQ:       return "*=";
+        case Token::SLASHEQ:      return "/=";
+        case Token::PERCENTEQ:    return "%=";
+        case Token::SHLEQ:        return "<<=";
+        case Token::SHREQ:        return ">>=";
+        case Token::LOGICALANDEQ: return "&&=";
+        case Token::LOGICALOREQ:  return "||=";
+        case Token::LOGICALXOREQ: return "^^=";
+        case Token::BITWISEANDEQ: return "&=";
+        case Token::BITWISEOREQ:  return "|=";
+        case Token::BITWISEXOREQ: return "^=";
+        case Token::PLUSPLUS:     return "++";
+        case Token::MINUSMINUS:   return "--";
+        case Token::COMMA:        return ",";
+        default:
+            ABORT("unsupported operator: %d\n", kind);
+    }
+}
+
+
+bool Compiler::IsAssignment(Token::Kind op) {
+    switch (op) {
+        case Token::EQ:           // fall through
+        case Token::PLUSEQ:       // fall through
+        case Token::MINUSEQ:      // fall through
+        case Token::STAREQ:       // fall through
+        case Token::SLASHEQ:      // fall through
+        case Token::PERCENTEQ:    // fall through
+        case Token::SHLEQ:        // fall through
+        case Token::SHREQ:        // fall through
+        case Token::BITWISEOREQ:  // fall through
+        case Token::BITWISEXOREQ: // fall through
+        case Token::BITWISEANDEQ: // fall through
+        case Token::LOGICALOREQ:  // fall through
+        case Token::LOGICALXOREQ: // fall through
+        case Token::LOGICALANDEQ:
+            return true;
+        default:
+            return false;
+    }
+}
+
+Position Compiler::position(int offset) {
+    ASSERT(fSource);
+    int line = 1;
+    int column = 1;
+    for (int i = 0; i < offset; i++) {
+        if ((*fSource)[i] == '\n') {
+            ++line;
+            column = 1;
+        }
+        else {
+            ++column;
+        }
+    }
+    return Position(line, column);
+}
+
+void Compiler::error(int offset, String msg) {
     fErrorCount++;
-    fErrorText += "error: " + position.description() + ": " + msg.c_str() + "\n";
+    Position pos = this->position(offset);
+    fErrorText += "error: " + to_string(pos.fLine) + ": " + msg.c_str() + "\n";
 }
 
 String Compiler::errorText() {

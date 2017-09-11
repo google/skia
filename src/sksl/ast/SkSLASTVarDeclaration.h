@@ -22,7 +22,7 @@ namespace SkSL {
  * instances.
  */
 struct ASTVarDeclaration {
-    ASTVarDeclaration(const String name,
+    ASTVarDeclaration(StringFragment name,
                       std::vector<std::unique_ptr<ASTExpression>> sizes,
                       std::unique_ptr<ASTExpression> value)
     : fName(name)
@@ -30,7 +30,7 @@ struct ASTVarDeclaration {
     , fValue(std::move(value)) {}
 
     String description() const {
-        String result = fName;
+        String result(fName);
         for (const auto& size : fSizes) {
             if (size) {
                 result += "[" + size->description() + "]";
@@ -44,7 +44,7 @@ struct ASTVarDeclaration {
         return result;
     }
 
-    String fName;
+    StringFragment fName;
 
     // array sizes, if any. e.g. 'foo[3][]' has sizes [3, null]
     std::vector<std::unique_ptr<ASTExpression>> fSizes;
@@ -60,7 +60,7 @@ struct ASTVarDeclarations : public ASTDeclaration {
     ASTVarDeclarations(Modifiers modifiers,
                        std::unique_ptr<ASTType> type,
                        std::vector<ASTVarDeclaration> vars)
-    : INHERITED(type->fPosition, kVar_Kind)
+    : INHERITED(type->fOffset, kVar_Kind)
     , fModifiers(modifiers)
     , fType(std::move(type))
     , fVars(std::move(vars)) {}
