@@ -335,14 +335,16 @@ private:
             return;
         }
         sk_sp<const GrBuffer> ibuffer;
-        if (fDraws.count() > 1) {
+
+        static constexpr bool kForceIndexed = true;
+        if (fDraws.count() > 1 || kForceIndexed) {
             ibuffer.reset(target->resourceProvider()->refQuadIndexBuffer());
             if (!ibuffer) {
                 SkDebugf("Could not allocate quad indices\n");
                 return;
             }
         }
-        if (fDraws.count() > 1) {
+        if (fDraws.count() > 1 || kForceIndexed) {
             if (1 == fProxyCnt) {
                 SkASSERT(gp->getVertexStride() == sizeof(TextureGeometryProcessor::Vertex));
                 for (int i = 0; i < fDraws.count(); ++i) {
