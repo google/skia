@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45e38a5e_a58108f6",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-11T12:24:30Z",
+      "side": 1,
+      "message": "It looks like the old code will only do this when this condition is true:\n\n(!SkToBool(desc.fFlags \u0026 kPerformInitialClear_GrSurfaceFlag) \u0026\u0026\n (fGpu-\u003ecaps()-\u003ereuseScratchTextures() || (desc.fFlags \u0026 kRenderTarget_GrSurfaceFlag)))\n\nOtherwise it uses the original desc with createTexture. I bet this is the source of the regression.",
+      "revId": "86c5e8896a6255679ba70cbe52a0a0d50ae389c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
