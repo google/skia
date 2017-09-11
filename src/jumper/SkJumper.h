@@ -130,4 +130,9 @@ struct SkJumper_ColorLookupTableCtx {
     int limits[4];
 };
 
+struct SkJumper_CoverCircleCtx {
+    float x,y, radius;
+    bool antialias;
+};
+
 #endif//SkJumper_DEFINED

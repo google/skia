@@ -35,6 +35,7 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
         using U8    = uint8_t  __attribute__((ext_vector_type(16)));
         using U16   = uint16_t __attribute__((ext_vector_type(16)));
         using U32   = uint32_t __attribute__((ext_vector_type(16)));
+        using F     = float    __attribute__((ext_vector_type(16)));
         using U8x4  = uint8_t  __attribute__((ext_vector_type(64)));
         using U16x4 = uint16_t __attribute__((ext_vector_type(64)));
         using R     = uint8_t  __attribute__((ext_vector_type(32)));
@@ -42,6 +43,7 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
         using U8    = uint8_t  __attribute__((ext_vector_type( 8)));
         using U16   = uint16_t __attribute__((ext_vector_type( 8)));
         using U32   = uint32_t __attribute__((ext_vector_type( 8)));
+        using F     = float    __attribute__((ext_vector_type( 8)));
         using U8x4  = uint8_t  __attribute__((ext_vector_type(32)));
         using U16x4 = uint16_t __attribute__((ext_vector_type(32)));
         using R     = uint8_t  __attribute__((ext_vector_type(16)));
@@ -383,8 +385,8 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
     STAGE(scale_u8) {
         auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
 
-        V c = __builtin_convertvector(load<U8>(ptr, tail), U32) << 24;
-        src = src * alpha(c);
+        V c = alpha(__builtin_convertvector(load<U8>(ptr, tail), U32) << 24);
+        src = src * c;
     }
 
     STAGE(lerp_1_float) {
@@ -394,8 +396,33 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
     STAGE(lerp_u8) {
         auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
 
-        V c = __builtin_convertvector(load<U8>(ptr, tail), U32) << 24;
-        src = lerp(dst, src, alpha(c));
+        V c = alpha(__builtin_convertvector(load<U8>(ptr, tail), U32) << 24);
+        src = lerp(dst, src, c);
+    }
+
+    SI V cover_circle(const SkJumper_CoverCircleCtx* ctx, int x, int y) {
+        float iota[] = {
+             0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
+             // TODO: AVX2
+        };
+        F X = F(x) + unaligned_load<F>(iota);
+        F Y = F(y) + 0.5f;
+
+        F dX = X - ctx->x,
+          dY = Y - ctx->y;
+
+        return if_then_else(dX*dX + dY*dY <= ctx->radius*ctx->radius,
+                            U32(0xffffffff), U32(0x00000000));
+    }
+
+    STAGE(scale_circle) {
+        V c = cover_circle(ctx, x,y);
+        src = src.u32 * c.u32;
+    }
+
+    STAGE(lerp_circle) {
+        V c = cover_circle(ctx, x,y);
+        src = lerp(dst, src, c);
     }
 
     STAGE(move_src_dst) { dst = src; }

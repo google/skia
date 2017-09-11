@@ -98,7 +98,8 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**);
     M(difference)        \
     M(exclusion)         \
     M(hardlight)         \
-    M(overlay)
+    M(overlay)           \
+    //M(scale_circle) M(lerp_circle)
 
 extern "C" {
 

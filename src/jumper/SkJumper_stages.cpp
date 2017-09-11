@@ -1532,3 +1532,35 @@ STAGE(clut_4D) {
     // "a" was really CMYK's K, so we just set alpha opaque.
     a = 1.0f;
 }
+
+SI F cover_circle(const SkJumper_CoverCircleCtx* ctx, int x, int y) {
+    float iota[] = { 0.5f,1.5f,2.5f,3.5f,4.5f,5.5f,6.5f,7.5f };
+    F X = cast(x) + unaligned_load<F>(iota);
+    F Y = cast(y) + 0.5f;
+
+    F dX = X - ctx->x,
+      dY = Y - ctx->y;
+
+    if (ctx->antialias) {
+        F dist = ctx->radius - sqrt_(dX*dX + dY*dY);
+        return max(0, min(1, (dist + 0.707f) * (0.5/0.707f)));
+    } else {
+        return if_then_else(dX*dX + dY*dY <= ctx->radius*ctx->radius, F(1), F(0));
+    }
+}
+
+STAGE(scale_circle) {
+    auto c = cover_circle(ctx, x,y);
+    r = r*c;
+    g = g*c;
+    b = b*c;
+    a = a*c;
+}
+
+STAGE(lerp_circle) {
+    auto c = cover_circle(ctx, x,y);
+    r = lerp(dr, r, c);
+    g = lerp(dg, g, c);
+    b = lerp(db, b, c);
+    a = lerp(da, a, c);
+}
