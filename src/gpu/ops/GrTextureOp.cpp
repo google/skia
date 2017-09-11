@@ -341,8 +341,6 @@ private:
                 SkDebugf("Could not allocate quad indices\n");
                 return;
             }
-        }
-        if (fDraws.count() > 1) {
             if (1 == fProxyCnt) {
                 SkASSERT(gp->getVertexStride() == sizeof(TextureGeometryProcessor::Vertex));
                 for (int i = 0; i < fDraws.count(); ++i) {
