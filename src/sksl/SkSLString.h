@@ -10,6 +10,8 @@
 
 #define SKSL_USE_STD_STRING
 
+#include <stdarg.h>
+
 #ifdef SKSL_USE_STD_STRING
     #define SKSL_STRING_BASE std::string
     #include <string>
