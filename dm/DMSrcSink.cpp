@@ -1461,6 +1461,9 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
 
     src.modifyGrContextOptions(&grOptions);
 
+    const char* name = src.name().c_str();
+    SkDebugf("name: %s\n", name);
+
     GrContextFactory factory(grOptions);
     const SkISize size = src.size();
     SkImageInfo info =

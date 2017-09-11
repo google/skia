@@ -243,6 +243,9 @@ static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor,
 class DashOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
+
+    void gatherOp(GrResourceAllocator*) const override { }
+
     struct LineData {
         SkMatrix fViewMatrix;
         SkMatrix fSrcRotInv;

@@ -253,8 +253,10 @@ protected:
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
                 grPaint.addColorFragmentProcessor(std::move(fp));
-                renderTargetContext->priv().testingOnly_addDrawOp(GrRectOpFactory::MakeNonAAFill(
-                        std::move(grPaint), viewMatrix, renderRect, GrAAType::kNone));
+                std::unique_ptr<GrDrawOp> op(GrRectOpFactory::MakeNonAAFill(
+                                std::move(grPaint), viewMatrix, renderRect, GrAAType::kNone));
+                const GrProcessorSet* set = op->foo();
+                renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
             }
         }
     }

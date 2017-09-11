@@ -12,6 +12,7 @@
 #include "GrGpuCommandBuffer.h"
 #include "GrRect.h"
 #include "GrRenderTargetContext.h"
+#include "GrResourceAllocator.h"
 #include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrCopySurfaceOp.h"
@@ -253,6 +254,30 @@ bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
 
     this->recordOp(std::move(op), caps);
     return true;
+}
+
+void GrRenderTargetOpList::gatherOpList(GrResourceAllocator* alloc) const {
+    SkASSERT(!this->isInstantiated());
+
+    unsigned int cur = alloc->numOps();
+
+    SkDebugf("----------------------------------------\n");
+    SkDebugf("gather for opList #%d { %d,%d }: %s\n", this->uniqueID(), 
+                                                  fTarget.get()->uniqueID().asUInt(),
+                                                  fTarget.get()->underlyingUniqueID().asUInt());
+
+    alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1, "opList");
+
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        const GrOp* op = fRecordedOps[i].fOp.get();
+
+        SkASSERT(alloc->curOp() == cur+i);
+        SkDebugf("opList #%d (%s): %d\n", this->uniqueID(), op->name(), cur+i);
+        op->gatherOp(alloc);
+
+        alloc->incOps();
+    }
+    SkDebugf("----------------------------------------\n");
 }
 
 static inline bool can_reorder(const SkRect& a, const SkRect& b) { return !GrRectsOverlap(a, b); }
