@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d81fdd2_fbbf6104",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-11T19:15:51Z",
+      "side": 1,
+      "message": "I feel this (and all the other places) should be \"const sk_sp\u003cGrTextureProxy\u003e[kMaxPages] pageProxies\". This would make me feel better about all the direct iteration over kMaxPages elements.",
+      "revId": "27b6c11fc4292b00db99fd0c2d4abef0f19c9c6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
