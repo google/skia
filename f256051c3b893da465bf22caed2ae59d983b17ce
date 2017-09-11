@@ -46,6 +46,30 @@
       "revId": "f256051c3b893da465bf22caed2ae59d983b17ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c39e7c14_0a414d60",
+        "filename": "src/codec/SkSampler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-11T14:26:57Z",
+      "side": 1,
+      "message": "I don\u0027t follow your comment. The old code cast to a smaller type, effectively ignoring the high bits when it compares to zero.",
+      "parentUuid": "2556618b_87895cc4",
+      "range": {
+        "startLine": 40,
+        "startChar": 15,
+        "endLine": 40,
+        "endChar": 83
+      },
+      "revId": "f256051c3b893da465bf22caed2ae59d983b17ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
