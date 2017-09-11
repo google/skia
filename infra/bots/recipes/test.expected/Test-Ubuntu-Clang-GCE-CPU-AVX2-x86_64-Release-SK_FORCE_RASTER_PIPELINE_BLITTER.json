@@ -262,7 +262,8 @@
       "--src",
       "gm",
       "image",
-      "colorImage"
+      "colorImage",
+      "--verbose"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

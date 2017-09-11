@@ -455,7 +455,8 @@
       "complexclip4_aa",
       "--match",
       "~Once",
-      "~Shared"
+      "~Shared",
+      "--verbose"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

@@ -410,6 +410,7 @@
       "image",
       "_",
       ".SRW",
+      "--verbose",
       "--releaseAndAbandonGpuContext"
     ],
     "env": {

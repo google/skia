@@ -280,7 +280,8 @@
       "_",
       ".SRW",
       "--match",
-      "~Threaded"
+      "~Threaded",
+      "--verbose"
     ],
     "env": {
       "BUILDTYPE": "Release",

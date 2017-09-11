@@ -478,7 +478,8 @@
       "angle_gl_es2",
       "gm",
       "_",
-      "discard"
+      "discard",
+      "--verbose"
     ],
     "env": {
       "BUILDTYPE": "Debug_x64",

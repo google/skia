@@ -657,28 +657,8 @@ def dm_flags(api, bot):
       or 'Win8-MSVC-ShuttleB' in bot):
     args.append('--noRAW_threading')
 
-  # Some people don't like verbose output.
-  verbose = False
-
-  if 'Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot:
-    # TODO(dogben): Track down what's causing bots to die.
-    verbose = True
-
-  if 'Valgrind' in bot and 'PreAbandonGpuContext' in bot:
-    verbose = True
-
-  if 'NexusPlayer' in bot and 'CPU' in bot:
-    # The Nexus Player's image decoding tests are slow enough that swarming
-    # times it out for not printing anything frequently enough.  --verbose
-    # makes dm print something every time we start or complete a task.
-    verbose = True
-
-  if 'Android' in bot or 'iOS' in bot:
-    # Enable verbose output on mobile platforms.
-    verbose = True
-
-  if verbose:
-    args.append('--verbose')
+  # Let's make all bots produce verbose output by default.
+  args.append('--verbose')
 
   return args
 

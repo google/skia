@@ -618,7 +618,8 @@
       "~SpecialImage_Gpu",
       "~WritePixels_Gpu",
       "~WritePixelsNonTexture_Gpu",
-      "~XfermodeImageFilterCroppedInput_Gpu"
+      "~XfermodeImageFilterCroppedInput_Gpu",
+      "--verbose"
     ],
     "env": {
       "BUILDTYPE": "Debug_x64",

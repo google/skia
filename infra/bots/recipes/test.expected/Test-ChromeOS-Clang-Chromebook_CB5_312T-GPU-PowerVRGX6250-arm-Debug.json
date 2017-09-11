@@ -973,7 +973,8 @@
       "_",
       ".SRW",
       "--match",
-      "~gradients_view_perspective_nodither"
+      "~gradients_view_perspective_nodither",
+      "--verbose"
     ],
     "env": {
       "BUILDTYPE": "Debug",
