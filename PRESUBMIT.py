@@ -544,10 +544,14 @@ def PostUploadHook(cl, change, output_api):
           _MergeCQExtraTrybotsMaps(
               cq_master_to_trybots, _GetCQExtraTrybotsMap(extra_bots))
     if cq_master_to_trybots:
-      _AddCQExtraTrybotsToDesc(cq_master_to_trybots, new_description_lines)
+      _AddCQExtraTrybotsToDesc(
+          cq_master_to_trybots, new_description_lines, footers)
 
     # If the description has changed update it.
     if new_description_lines != original_description_lines:
+      print 'LINES ARE DIFFERENT:'
+      print new_description_lines
+      print original_description_lines
       # Add a new line separating the new contents from the old contents.
       new_description_lines.insert(len(original_description_lines), '')
       cl.UpdateDescriptionFooters(new_description_lines, footers)
@@ -555,7 +559,7 @@ def PostUploadHook(cl, change, output_api):
     return results
 
 
-def _AddCQExtraTrybotsToDesc(cq_master_to_trybots, description_lines):
+def _AddCQExtraTrybotsToDesc(cq_master_to_trybots, description_lines, footers):
   """Adds the specified master and trybots to the CQ_INCLUDE_TRYBOTS keyword.
 
   If the keyword already exists in the description then it appends to it only
@@ -565,6 +569,7 @@ def _AddCQExtraTrybotsToDesc(cq_master_to_trybots, description_lines):
   """
   found = None
   foundIdx = -1
+  import pdb; pdb.set_trace();
   for idx, line in enumerate(description_lines):
     if line.startswith('CQ_INCLUDE_TRYBOTS'):
       found = line
