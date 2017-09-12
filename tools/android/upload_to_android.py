@@ -41,6 +41,7 @@ SKIA_PATH_IN_ANDROID = os.path.join('external', 'skia')
 ANDROID_REPO_URL = 'https://googleplex-android.googlesource.com'
 REPO_BRANCH_NAME = 'experiment'
 SKIA_GERRIT_INSTANCE = 'https://skia-review.googlesource.com'
+SK_USER_CONFIG_PATH = os.path.join('include', 'config', 'SkUserConfig.h')
 
 
 def get_change_details(change_num):
@@ -51,7 +52,7 @@ def get_change_details(change_num):
   return json.loads(content[5:])
 
 
-def upload_to_android(work_dir, change_num):
+def upload_to_android(work_dir, change_num, debug):
   if not os.path.isdir(work_dir):
     print 'Creating %s' % work_dir
     os.makedirs(work_dir)
@@ -121,6 +122,14 @@ About to run repo init. If it hangs asking you to run glogin then please:
         shell=True)
     subprocess.check_call('git cherry-pick FETCH_HEAD', shell=True)
 
+    if debug:
+      # Add SK_DEBUG to SkUserConfig.h.
+      with open(SK_USER_CONFIG_PATH, 'a') as f:
+        f.write('#ifndef SK_DEBUG\n')
+        f.write('#define SK_DEBUG\n')
+        f.write('#endif//SK_DEBUG\n')
+      subprocess.check_call('git add %s' % SK_USER_CONFIG_PATH, shell=True)
+
     # Amend the commit message to add a "[DO NOT SUBMIT]" prefix and a "Test:"
     # line which is required by Android presubmit checks.
     original_commit_message = change_details['subject']
@@ -155,8 +164,11 @@ def main():
       '--change-num', '-c', required=True,
       help='The skia-rev Gerrit change number that should be patched into '
            'Android.')
+  parser.add_argument(
+      '--debug', '-d', action='store_true', default=False,
+      help='Adds SK_DEBUG to SkUserConfig.h.')
   args = parser.parse_args()
-  upload_to_android(args.work_dir, args.change_num)
+  upload_to_android(args.work_dir, args.change_num, args.debug)
 
 
 if __name__ == '__main__':
