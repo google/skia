@@ -40,10 +40,15 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
             v1 = v0 + height;
         }
         // shift to make space for index bits
+        uint32_t pageIndex = glyph->pageIndex();
         u0 <<= 1;
+        u0 |= pageIndex >> 1;
         v0 <<= 1;
+        v0 |= pageIndex & 0x1;
         u1 <<= 1;
+        u1 |= pageIndex >> 1;
         v1 <<= 1;
+        v1 |= pageIndex & 0x1;
     }
 
     // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color

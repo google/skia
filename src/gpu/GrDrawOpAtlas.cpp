@@ -148,28 +148,6 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width
         , fTextureHeight(height)
         , fAtlasGeneration(kInvalidAtlasGeneration + 1) {
 
-    GrSurfaceDesc desc;
-    desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    desc.fWidth = fTextureWidth;
-    desc.fHeight = fTextureHeight;
-    desc.fConfig = fPixelConfig;
-
-    // We don't want to flush the context so we claim we're in the middle of flushing so as to
-    // guarantee we do not recieve a texture with pending IO
-    // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
-    static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    sk_sp<GrTexture> texture(context->resourceProvider()->createApproxTexture(desc, kFlags));
-    if (texture) {
-        // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
-        // possess the correct properties (e.g., no pendingIO) should fall out of the system but
-        // should receive special attention.
-        // Note: When switching over to the deferred proxy, use the kExact flag to create
-        // the atlas and assert that the width & height are powers of 2.
-        fProxies[0] = GrSurfaceProxy::MakeWrapped(std::move(texture),
-                                                       kTopLeft_GrSurfaceOrigin);
-    }
-
     fPlotWidth = fTextureWidth / numPlotsX;
     fPlotHeight = fTextureHeight / numPlotsY;
     SkASSERT(numPlotsX * numPlotsY <= BulkUseTokenUpdater::kMaxPlots);
@@ -177,23 +155,9 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width
     SkASSERT(fPlotHeight * numPlotsY == fTextureHeight);
 
     SkDEBUGCODE(fNumPlots = numPlotsX * numPlotsY;)
-    SkDEBUGCODE(fNumPages = 1;)
+    SkDEBUGCODE(fNumPages = 0;)
 
-    // set up allocated plots
-    fPages[0].fPlotArray.reset(new sk_sp<Plot>[ numPlotsX * numPlotsY ]);
-
-    sk_sp<Plot>* currPlot = fPages[0].fPlotArray.get();
-    for (int y = numPlotsY - 1, r = 0; y >= 0; --y, ++r) {
-        for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
-            uint32_t index = r * numPlotsX + c;
-            currPlot->reset(
-                    new Plot(0, index, 1, x, y, fPlotWidth, fPlotHeight, fPixelConfig));
-
-            // build LRU list
-            fPages[0].fPlotList.addToHead(currPlot->get());
-            ++currPlot;
-        }
-    }
+    setupPage(0);
 }
 
 void GrDrawOpAtlas::processEviction(AtlasID id) {
@@ -234,47 +198,68 @@ inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
 
 bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width, int height,
                                const void* image, SkIPoint16* loc) {
-    // Eventually we will iterate through these, for now just use the one.
-    int pageIdx = 0;
-
-    // We should already have a texture, TODO clean this up
-    SkASSERT(fProxies[pageIdx]);
     if (width > fPlotWidth || height > fPlotHeight) {
         return false;
     }
+    
+    for (int pageIdx = 0; pageIdx < kMaxPages; ++pageIdx) {
+        if (fProxies[pageIdx]) {
+            // look through all allocated plots for one we can share, in Most Recently Refed order
+            PlotList::Iter plotIter;
+            plotIter.init(fPages[pageIdx].fPlotList, PlotList::Iter::kHead_IterStart);
+            Plot* plot;
+            while ((plot = plotIter.get())) {
+                SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
+                if (plot->addSubImage(width, height, image, loc)) {
+                    return this->updatePlot(target, id, plot);
+                }
+                plotIter.next();
+            }
 
-    // now look through all allocated plots for one we can share, in Most Recently Refed order
-    PlotList::Iter plotIter;
-    plotIter.init(fPages[pageIdx].fPlotList, PlotList::Iter::kHead_IterStart);
-    Plot* plot;
-    while ((plot = plotIter.get())) {
-        SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
-        if (plot->addSubImage(width, height, image, loc)) {
-            return this->updatePlot(target, id, plot);
+            // If the above fails, then see if the least recently refed plot has already been
+            // flushed to the gpu
+            plot = fPages[pageIdx].fPlotList.tail();
+            SkASSERT(plot);
+            if (target->hasDrawBeenFlushed(plot->lastUseToken())) {
+                this->processEviction(plot->id());
+                plot->resetRects();
+                SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
+                SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc);
+                SkASSERT(verify);
+                if (!this->updatePlot(target, id, plot)) {
+                    return false;
+                }
+
+                fAtlasGeneration++;
+                return true;
+            }
         }
-        plotIter.next();
     }
 
-    // If the above fails, then see if the least recently refed plot has already been flushed to the
-    // gpu
-    plot = fPages[pageIdx].fPlotList.tail();
-    SkASSERT(plot);
-    if (target->hasDrawBeenFlushed(plot->lastUseToken())) {
-        this->processEviction(plot->id());
-        plot->resetRects();
-        SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
-        SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc);
-        SkASSERT(verify);
-        if (!this->updatePlot(target, id, plot)) {
+    // If the simple cases fail, try to create a new page and add to it
+    for (int pageIdx = 0; pageIdx < kMaxPages; ++pageIdx) {
+        if (!fProxies[pageIdx]) {
+            setupPage(pageIdx);
+            
+            PlotList::Iter plotIter;
+            plotIter.init(fPages[pageIdx].fPlotList, PlotList::Iter::kHead_IterStart);
+            Plot* plot;
+            while ((plot = plotIter.get())) {
+                SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
+                if (plot->addSubImage(width, height, image, loc)) {
+                    return this->updatePlot(target, id, plot);
+                }
+                plotIter.next();
+            }
+            // something has gone terribly wrong
             return false;
         }
-
-        fAtlasGeneration++;
-        return true;
     }
 
-    // TODO: at this point try to create a new page and add to it before evicting
-
+    //*** handle fallback better
+    int pageIdx = 0;
+    Plot* plot = fPages[pageIdx].fPlotList.tail();
+    
     // If this plot has been used in a draw that is currently being prepared by an op, then we have
     // to fail. This gives the op a chance to enqueue the draw, and call back into this function.
     // When that draw is enqueued, the draw token advances, and the subsequent call will continue
@@ -316,4 +301,55 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
 
     fAtlasGeneration++;
     return true;
+}
+
+void GrDrawOpAtlas::setupPage(int pageIndex) {
+    GrSurfaceDesc desc;
+    desc.fFlags = kNone_GrSurfaceFlags;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+    desc.fWidth = fTextureWidth;
+    desc.fHeight = fTextureHeight;
+    desc.fConfig = fPixelConfig;
+    
+    // We don't want to flush the context so we claim we're in the middle of flushing so as to
+    // guarantee we do not recieve a texture with pending IO
+    // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
+    static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
+    sk_sp<GrTexture> texture(fContext->resourceProvider()->createApproxTexture(desc, kFlags));
+    if (texture) {
+        // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
+        // possess the correct properties (e.g., no pendingIO) should fall out of the system but
+        // should receive special attention.
+        // Note: When switching over to the deferred proxy, use the kExact flag to create
+        // the atlas and assert that the width & height are powers of 2.
+        fProxies[pageIndex] = GrSurfaceProxy::MakeWrapped(std::move(texture),
+                                                          kTopLeft_GrSurfaceOrigin);
+    }
+    if (!fProxies[pageIndex]) {
+        return;
+    }
+
+    // *** this could be more efficient
+    int numPlotsX = fTextureWidth/fPlotWidth;
+    int numPlotsY = fTextureHeight/fPlotHeight;
+    
+    // set up allocated plots
+    // *** allocate these ahead of time?
+    // *** make sure they're not already allocated?
+    fPages[pageIndex].fPlotArray.reset(new sk_sp<Plot>[ numPlotsX * numPlotsY ]);
+    
+    sk_sp<Plot>* currPlot = fPages[pageIndex].fPlotArray.get();
+    for (int y = numPlotsY - 1, r = 0; y >= 0; --y, ++r) {
+        for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
+            uint32_t plotIndex = r * numPlotsX + c;
+            currPlot->reset(new Plot(pageIndex, plotIndex, 1, x, y, fPlotWidth, fPlotHeight,
+                                     fPixelConfig));
+            
+            // build LRU list
+            fPages[pageIndex].fPlotList.addToHead(currPlot->get());
+            ++currPlot;
+        }
+    }
+    
+    SkDEBUGCODE(fNumPages++;)
 }

@@ -47,17 +47,17 @@ static void append_multitexture_lookup(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                        const char* coordName,
                                        const char* colorName) {
     // conditionally load from the indexed texture sampler
-    if (numTextureSamplers > 1) {
-        args.fFragBuilder->codeAppendf("if (%s == 0) ", texIdx.fsIn());
+    for (int i = 1; i < numTextureSamplers; ++i) {
+        args.fFragBuilder->codeAppendf("if (%s == %d) { %s = ", texIdx.fsIn(), i, colorName);
+        args.fFragBuilder->appendTextureLookup(args.fTexSamplers[i], coordName, kVec2f_GrSLType);
+        args.fFragBuilder->codeAppend("; } else ");
     }
     args.fFragBuilder->codeAppendf("{ %s = ", colorName);
     args.fFragBuilder->appendTextureLookup(args.fTexSamplers[0], coordName, kVec2f_GrSLType);
     args.fFragBuilder->codeAppend("; }");
-    for (int i = 1; i < numTextureSamplers; ++i) {
-        args.fFragBuilder->codeAppendf("else if (%s == %d) { %s =", texIdx.fsIn(), i, colorName);
-        args.fFragBuilder->appendTextureLookup(args.fTexSamplers[i], coordName, kVec2f_GrSLType);
-        args.fFragBuilder->codeAppend("; }");
-    }
+//    args.fFragBuilder->codeAppendf("if (%s == 1) { %s = float4(1.0, 0.0, 0.0, 1.0); }",
+//                                   texIdx.fsIn(), colorName);
+
 }
 
 #endif
