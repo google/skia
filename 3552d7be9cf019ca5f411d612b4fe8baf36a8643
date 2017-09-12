@@ -16,6 +16,24 @@
       "revId": "3552d7be9cf019ca5f411d612b4fe8baf36a8643",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ee8a88a_f191fa95",
+        "filename": "tools/android/upload_to_android.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-09-12T13:43:52Z",
+      "side": 1,
+      "message": "That is so much better. Done.",
+      "parentUuid": "0b93a183_25570fbf",
+      "revId": "3552d7be9cf019ca5f411d612b4fe8baf36a8643",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
