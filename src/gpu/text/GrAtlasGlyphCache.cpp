@@ -176,16 +176,18 @@ void GrAtlasGlyphCache::dump() const {
     static int gDumpCount = 0;
     for (int i = 0; i < kMaskFormatCount; ++i) {
         if (fAtlases[i]) {
-            sk_sp<GrTextureProxy> proxy = fAtlases[i]->getProxy();
-            if (proxy) {
-                SkString filename;
+            const sk_sp<GrTextureProxy>* proxies = fAtlases[i]->getProxies();
+            for (int pageIdx = 0; pageIdx < GrDrawOpAtlas::kMaxPages; ++pageIdx) {
+                if (proxies[pageIdx]) {
+                    SkString filename;
 #ifdef SK_BUILD_FOR_ANDROID
-                filename.printf("/sdcard/fontcache_%d%d.png", gDumpCount, i);
+                    filename.printf("/sdcard/fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
 #else
-                filename.printf("fontcache_%d%d.png", gDumpCount, i);
+                    filename.printf("fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
 #endif
 
-                save_pixels(fContext, proxy.get(), filename.c_str());
+                    save_pixels(fContext, proxies[pageIdx].get(), filename.c_str());
+                }
             }
         }
     }

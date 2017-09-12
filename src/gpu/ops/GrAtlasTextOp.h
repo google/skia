@@ -159,9 +159,12 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
+    static constexpr auto kMaxTextures = 4;
+    
     // TODO just use class params
     sk_sp<GrGeometryProcessor> setupDfProcessor(const SkMatrix& viewMatrix, SkColor luminanceColor,
-                                                GrColor color, sk_sp<GrTextureProxy> proxy) const;
+                                                GrColor color,
+                                                const sk_sp<GrTextureProxy> [kMaxTextures]) const;
 
 
     // The minimum number of Geometry we will try to allocate.
