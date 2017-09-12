@@ -241,6 +241,21 @@ public:
                                          &GrResourceIOProcessor::numTextureSamplers,
                                          &GrResourceIOProcessor::textureSampler>;
 
+    void markAsHandled() {
+        GrFragmentProcessor::TextureAccessIter iter(this);
+        while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+            sampler->fHandled = true;
+        }
+    }
+
+    void proxyIter(ProxyVisitor* visitor) {
+        GrFragmentProcessor::TextureAccessIter iter(this);
+        while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+            sampler->fHandled = true;
+            visitor->visit(sampler->proxy());
+        }
+    }
+
 protected:
     enum OptimizationFlags : uint32_t {
         kNone_OptimizationFlags,

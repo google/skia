@@ -28,6 +28,10 @@ public:
     ~InstancedOp() override;
     const char* name() const override { return "InstancedOp"; }
 
+    void proxyIter(ProxyVisitor* visitor) const override {
+        fProcessors.proxyIter(visitor);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.printf(

@@ -784,6 +784,10 @@ public:
 
     const char* name() const override { return "AAHairlineOp"; }
 
+    void proxyIter(ProxyVisitor* visitor) const override {
+        fHelper.proxyIter(visitor);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("Color: 0x%08x Coverage: 0x%02x, Count: %d\n", fColor, fCoverage,

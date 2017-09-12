@@ -97,6 +97,12 @@ public:
         friend class GrSimpleMeshDrawOpHelper;
     };
 
+    void proxyIter(ProxyVisitor* visitor) const {
+        if (fProcessors) {
+            fProcessors->proxyIter(visitor);
+        }
+    }
+
     SkString dumpInfo() const;
 
 protected:
@@ -127,6 +133,7 @@ class GrSimpleMeshDrawOpHelperWithStencil : private GrSimpleMeshDrawOpHelper {
 public:
     using MakeArgs = GrSimpleMeshDrawOpHelper::MakeArgs;
     using Flags = GrSimpleMeshDrawOpHelper::Flags;
+    using GrSimpleMeshDrawOpHelper::proxyIter;
 
     // using declarations can't be templated, so this is a pass through function instead.
     template <typename Op, typename... OpArgs>
