@@ -23,7 +23,7 @@
     #endif
 
     #define N 8
-    #define WRAP(name) sk_##name##_neon_8bit
+    #define WRAP(name) sk_##name##_8bit
 #else
     #include <immintrin.h>
 
@@ -44,12 +44,11 @@
 using U8  = uint8_t  __attribute__((ext_vector_type(N)));
 using U16 = uint16_t __attribute__((ext_vector_type(N)));
 using U32 = uint32_t __attribute__((ext_vector_type(N)));
-using I16 =  int16_t __attribute__((ext_vector_type(N)));
 
 // We pass program as the second argument so that load_and_inc() will find it in %rsi on x86-64.
 using Stage = void (ABI*)(size_t tail, void** program, size_t x, size_t y,
-                          I16  r, I16  g, I16  b, I16  a,
-                          I16 dr, I16 dg, I16 db, I16 da);
+                          U16  r, U16  g, U16  b, U16  a,
+                          U16 dr, U16 dg, U16 db, U16 da);
 
 SI void* load_and_inc(void**& program) {
 #if defined(__x86_64__)
@@ -81,7 +80,7 @@ ABI extern "C" void WRAP(start_pipeline)(const size_t x0,
 }
 
 ABI extern "C" void WRAP(just_return)(size_t,void**,size_t,size_t,
-                                      I16,I16,I16,I16, I16,I16,I16,I16) {}
+                                      U16,U16,U16,U16, U16,U16,U16,U16) {}
 
 // Lazily resolved on first cast.  Does nothing if cast to Ctx::None.
 struct Ctx {
@@ -102,19 +101,54 @@ struct Ctx {
 
 #define STAGE(name, ...)                                                               \
     SI void name##_k(__VA_ARGS__, size_t x, size_t y, size_t tail,                     \
-                     I16&  r, I16&  g, I16&  b, I16&  a,                               \
-                     I16& dr, I16& dg, I16& db, I16& da);                              \
+                     U16&  r, U16&  g, U16&  b, U16&  a,                               \
+                     U16& dr, U16& dg, U16& db, U16& da);                              \
     ABI extern "C" void WRAP(name)(size_t tail, void** program, size_t x, size_t y,    \
-                                   I16  r, I16  g, I16  b, I16  a,                     \
-                                   I16 dr, I16 dg, I16 db, I16 da) {                   \
+                                   U16  r, U16  g, U16  b, U16  a,                     \
+                                   U16 dr, U16 dg, U16 db, U16 da) {                   \
         name##_k(Ctx{program}, x,y,tail, r,g,b,a, dr,dg,db,da);                        \
         auto next = (Stage)load_and_inc(program);                                      \
         next(tail,program,x,y, r,g,b,a, dr,dg,db,da);                                  \
     }                                                                                  \
     SI void name##_k(__VA_ARGS__, size_t x, size_t y, size_t tail,                     \
-                     I16&  r, I16&  g, I16&  b, I16&  a,                               \
-                     I16& dr, I16& dg, I16& db, I16& da)
+                     U16&  r, U16&  g, U16&  b, U16&  a,                               \
+                     U16& dr, U16& dg, U16& db, U16& da)
 
-STAGE(seed_shader, Ctx::None) {
+SI U16 div255(U16 v) { return (v+127)/255; }
+SI U16    inv(U16 v) { return 255-v; }
 
+STAGE(uniform_color, const SkJumper_UniformColorCtx* c) {
+    auto rgba = (const uint8_t*)&c->rgba;
+    r = rgba[0];
+    g = rgba[1];
+    b = rgba[2];
+    a = rgba[3];
 }
+
+STAGE(set_rgb, const float rgb[3]) {
+    r = rgb[0] * 255.0f + 0.5f;
+    g = rgb[1] * 255.0f + 0.5f;
+    b = rgb[2] * 255.0f + 0.5f;
+}
+
+STAGE(premul, Ctx::None) {
+    r = div255(r * a);
+    g = div255(g * a);
+    b = div255(b * a);
+}
+
+STAGE(swap_rb, Ctx::None) {
+    auto tmp = r;
+    r = b;
+    b = tmp;
+}
+
+STAGE(invert, Ctx::None) {
+    r = inv(r);
+    g = inv(g);
+    b = inv(b);
+    a = inv(a);
+}
+
+STAGE(black_color, Ctx::None) { r = g = b =   0; a = 255; }
+STAGE(white_color, Ctx::None) { r = g = b = 255; a = 255; }
