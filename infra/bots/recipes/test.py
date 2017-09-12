@@ -70,6 +70,10 @@ def dm_flags(api, bot):
   if 'Test-iOS' in bot:
     args.extend(['--threads', '0'])
 
+  if 'float_cast_overflow' in bot:
+    # DO NOT SUBMIT
+    args.extend(['--threads', '0'])
+
   # Android's kernel will occasionally attempt to kill our process, using
   # SIGINT, in an effort to free up resources. If requested, that signal
   # is ignored and dm will keep attempting to proceed until we actually
@@ -519,6 +523,11 @@ def dm_flags(api, bot):
     match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots.
     match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
                   '~RGB565TextureTest'])
+
+  if 'float_cast_overflow' in bot:
+    # skia:4632
+    blacklist('8888', 'gm', '_', 'clippedcubic2')
+    match.append('~^ProcessorCloneTest$')
 
   if 'Vulkan' in bot and 'Adreno530' in bot:
       # skia:5777
