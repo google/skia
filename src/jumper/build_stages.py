@@ -13,7 +13,7 @@ clang         = 'clang-5.0'
 objdump       = 'gobjdump'
 ccache        = 'ccache'
 stages        = 'src/jumper/SkJumper_stages.cpp'
-stages_8bit   = 'src/jumper/SkJumper_stages_8bit.cpp'
+stages_8bit   = 'src/jumper/SkJumper_stages_lowp.cpp'
 generated     = 'src/jumper/SkJumper_generated.S'
 generated_win = 'src/jumper/SkJumper_generated_win.S'
 
