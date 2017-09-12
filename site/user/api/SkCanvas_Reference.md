@@ -277,12 +277,12 @@ in the center.</div>
 SkCanvas()
 </pre>
 
-Creates an empty canvas with no backing device or pixels, with 
+Creates an empty <a href="#Canvas">Canvas</a> with no backing device or pixels, with 
 a width and height of zero.
 
 ### Return Value
 
-empty canvas
+empty <a href="#Canvas">Canvas</a>
 
 ### Example
 
@@ -981,7 +981,7 @@ Does not copy, and returns false if:
     <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
     <td><a href="#Canvas">Canvas</a> pixels could not be converted to <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.colorType() or <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.alphaType().</td>  </tr>  <tr>
     <td><a href="#Canvas">Canvas</a> pixels are not readable; for instance, <a href="#Canvas">Canvas</a> is document-based.</td>  </tr>  <tr>
-    <td><a href="undocumented#Pixmap">Pixmap</a> pixels could not be allocated.</td>  </tr>  <tr>
+    <td><a href="SkPixmap_Reference#Pixmap">Pixmap</a> pixels could not be allocated.</td>  </tr>  <tr>
     <td><a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.rowBytes() is too small to contain one row of pixels.</td>  </tr>
 </table>
 
@@ -1128,9 +1128,9 @@ Does not copy, and returns false if:
 <table>  <tr>    <td><a name="SkCanvas_writePixels_info"> <code><strong>info </strong></code> </a></td> <td>
 width, height, <a href="#Color_Type">Image Color Type</a>, and <a href="#Alpha_Type">Image Alpha Type</a> of <a href="#SkCanvas_writePixels_pixels">pixels</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_writePixels_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
-<a href="#SkCanvas_writePixels_pixels">pixels</a> to copy, of size <a href="#SkCanvas_writePixels_info">info</a>.height() times <a href="#SkCanvas_writePixels_rowBytes">rowBytes</a>, or larger</td>
+<a href="#SkCanvas_writePixels_pixels">pixels</a> to copy, of size height times <a href="#SkCanvas_writePixels_rowBytes">rowBytes</a>, or larger</td>
   </tr>  <tr>    <td><a name="SkCanvas_writePixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
-size of one <a href="#SkCanvas_writePixels_pixels">pixels</a> row; <a href="#SkCanvas_writePixels_info">info</a>.width() times pixel size, or larger</td>
+size of one row of <a href="#SkCanvas_writePixels_pixels">pixels</a>; width times pixel size, or larger</td>
   </tr>  <tr>    <td><a name="SkCanvas_writePixels_x"> <code><strong>x </strong></code> </a></td> <td>
 offset into <a href="#Canvas">Canvas</a> writable <a href="#SkCanvas_writePixels_pixels">pixels</a> in <a href="#SkCanvas_writePixels_x">x</a>; may be negative</td>
   </tr>  <tr>    <td><a name="SkCanvas_writePixels_y"> <code><strong>y </strong></code> </a></td> <td>
