@@ -52,6 +52,7 @@ public:
     }
 
     void assign();
+    SkDEBUGCODE(void dump();)
 
 private:
     class Interval;

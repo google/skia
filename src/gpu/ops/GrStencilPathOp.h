@@ -19,6 +19,10 @@ class GrStencilPathOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void proxyIter(ProxyVisitor*) const override {
+        SkASSERT(0);
+    }
+
     static std::unique_ptr<GrOp> Make(const SkMatrix& viewMatrix,
                                       bool useHWAA,
                                       GrPathRendering::FillType fillType,

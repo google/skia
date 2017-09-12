@@ -430,11 +430,15 @@ protected:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    const GrCoordTransform& getCoordTransform() const { return fCoordTransform; }
+    const GrCoordTransform& getCoordTransform() const {
+        SkASSERT(1 == this->numCoordTransforms());
+        return this->coordTransform(0);
+    }
 
     /** Checks whether the constructor failed to fully initialize the processor. */
     bool isValid() const {
-        return fColorType != kTexture_ColorType || fTextureSampler.isInitialized();
+        return fColorType != kTexture_ColorType || 
+               (1 == this->numTextureSamplers() && this->textureSampler(0).isInitialized());
     }
 
 private:
@@ -450,8 +454,8 @@ private:
     SkTDArray<SkScalar>      fPositions;
     SkShader::TileMode       fTileMode;
 
-    GrCoordTransform fCoordTransform;
-    TextureSampler fTextureSampler;
+    GrCoordTransform fCoordTransform1;
+    TextureSampler fTextureSampler1;
     SkScalar fYCoord;
     GrTextureStripAtlas* fAtlas;
     int fRow;

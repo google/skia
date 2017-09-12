@@ -186,6 +186,10 @@ class ShadowCircularRRectOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void proxyIter(ProxyVisitor* visitor) const override {
+        // No proxies here
+    }
+
     // An insetWidth > 1/2 rect width or height indicates a simple fill.
     ShadowCircularRRectOp(GrColor color, const SkRect& devRect,
                           float devRadius, bool isCircle, float blurRadius, float insetWidth,

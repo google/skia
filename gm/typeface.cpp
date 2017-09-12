@@ -180,10 +180,10 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
             // See https://bug.skia.org/5530 .
             { false, false, false },  // aliased
 #endif
-            { true,  false, false },  // anti-aliased
-            { true,  true , false },  // subpixel anti-aliased
+//            { true,  false, false },  // anti-aliased
+//            { true,  true , false },  // subpixel anti-aliased
             { true,  false, true  },  // anti-aliased in layer (flat pixel geometry)
-            { true,  true , true  },  // subpixel anti-aliased in layer (flat pixel geometry)
+//            { true,  true , true  },  // subpixel anti-aliased in layer (flat pixel geometry)
         };
 
         // The hintgasp.ttf is designed for the following sizes to be different.
@@ -195,24 +195,24 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
         // GASP_SYMMETRIC_SMOOTHING|GASP_SYMMETRIC_GRIDFIT  0x000C  13<=ppem<=14
         // (neither)                                        0x0000  15<=ppem
         // Odd sizes have embedded bitmaps.
-        constexpr SkScalar textSizes[] = { 9, 10, 11, 12, 13, 14, 15, 16 };
+        constexpr SkScalar textSizes[] = { 9 }; //, 10, 11, 12, 13, 14, 15, 16 };
 
-        constexpr SkPaint::Hinting hintingTypes[] = { SkPaint::kNo_Hinting,
-                                                      SkPaint::kSlight_Hinting,
-                                                      SkPaint::kNormal_Hinting,
-                                                      SkPaint::kFull_Hinting };
+        constexpr SkPaint::Hinting hintingTypes[] = { SkPaint::kNo_Hinting, };
+                                                      //SkPaint::kSlight_Hinting,
+                                                      //SkPaint::kNormal_Hinting,
+                                                      //SkPaint::kFull_Hinting };
 
         struct SubpixelType {
             bool requested;
             SkVector offset;
         } constexpr subpixelTypes[] = {
             { false, { 0.00, 0.00 } },
-            { true , { 0.00, 0.00 } },
-            { true , { 0.25, 0.00 } },
-            { true , { 0.25, 0.25 } },
+//            { true , { 0.00, 0.00 } },
+//            { true , { 0.25, 0.00 } },
+//            { true , { 0.25, 0.25 } },
         };
 
-        constexpr bool rotateABitTypes[] = { false, true };
+        constexpr bool rotateABitTypes[] = { false, }; //true };
 
         SkPaint paint;
         paint.setTypeface(face);

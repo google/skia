@@ -217,7 +217,8 @@ bool GrResourceIOProcessor::hasSameSamplersAndAccesses(const GrResourceIOProcess
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrResourceIOProcessor::TextureSampler::TextureSampler() {}
+GrResourceIOProcessor::TextureSampler::TextureSampler() {
+}
 
 GrResourceIOProcessor::TextureSampler::TextureSampler(sk_sp<GrTextureProxy> proxy,
                                                       const GrSamplerParams& params) {

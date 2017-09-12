@@ -61,6 +61,10 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
+    void proxyIter(ProxyVisitor* visitor) const override {
+        fHelper.proxyIter(visitor);
+    }
+
     const char* name() const override { return "NonAAStrokeRectOp"; }
 
     SkString dumpInfo() const override {

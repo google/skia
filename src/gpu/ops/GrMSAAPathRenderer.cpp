@@ -222,6 +222,11 @@ private:
 
 public:
     DEFINE_OP_CLASS_ID
+
+    void proxyIter(ProxyVisitor* visitor) const override {
+        fHelper.proxyIter(visitor);
+    }
+
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkPath& path, GrAAType aaType,
                                           const SkMatrix& viewMatrix, const SkRect& devBounds,
                                           const GrUserStencilSettings* stencilSettings) {

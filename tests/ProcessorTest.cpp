@@ -27,6 +27,10 @@ public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "TestOp"; }
 
+    void proxyIter(ProxyVisitor* visitor) const override {
+        SkASSERT(0);
+    }
+
     static std::unique_ptr<GrDrawOp> Make(std::unique_ptr<GrFragmentProcessor> fp) {
         return std::unique_ptr<GrDrawOp>(new TestOp(std::move(fp)));
     }
