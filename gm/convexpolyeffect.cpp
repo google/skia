@@ -48,6 +48,10 @@ public:
         return std::unique_ptr<GrDrawOp>(new PolyBoundsOp(std::move(paint), rect));
     }
 
+    void proxyIter(ProxyVisitor* visitor) const override {
+        fProcessors.proxyIter(visitor);
+    }
+
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {

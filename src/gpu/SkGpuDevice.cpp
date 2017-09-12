@@ -375,6 +375,14 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
         return;
     }
 
+
+    static int foo = 0;
+
+    foo++;
+    if (11 == foo) {
+        SkDebugf("foo\n");
+    }
+
     GrStyle style(paint);
     fRenderTargetContext->drawRect(this->clip(), std::move(grPaint),
                                    GrBoolToAA(paint.isAntiAlias()), this->ctm(), rect, &style);
@@ -430,6 +438,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         SkPath path;
         path.setIsVolatile(true);
         path.addRRect(rrect);
+        grPaint.markHandled();
         GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
                                             this->clip(), path, paint, this->ctm(), nullptr,
                                             this->devClipBounds(), true);

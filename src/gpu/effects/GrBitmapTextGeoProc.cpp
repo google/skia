@@ -145,6 +145,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_uint_GrVertexAttribType,
                                               kHigh_GrSLPrecision);
     this->addTextureSampler(&fTextureSampler);
+    fTextureSampler.fHandled = true;  // all the ops that use this should add dependencies
 }
 
 void GrBitmapTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,

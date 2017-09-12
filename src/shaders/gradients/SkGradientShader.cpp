@@ -1722,7 +1722,8 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
                 fPremulType = kAfterInterp_PremulType;
             }
 
-            fCoordTransform.reset(*args.fMatrix);
+            fCoordTransform1.reset(*args.fMatrix);
+            fTextureSampler1.fHandled = true;          // no texture to sample
 
             break;
         case kTexture_ColorType:
@@ -1768,8 +1769,8 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
             if (-1 != fRow) {
                 fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
                 // This is 1/2 places where auto-normalization is disabled
-                fCoordTransform.reset(*args.fMatrix, fAtlas->asTextureProxyRef().get(), false);
-                fTextureSampler.reset(fAtlas->asTextureProxyRef(), params);
+                fCoordTransform1.reset(*args.fMatrix, fAtlas->asTextureProxyRef().get(), false);
+                fTextureSampler1.reset(fAtlas->asTextureProxyRef(), params);
             } else {
                 // In this instance we know the params are:
                 //   clampY, bilerp
@@ -1786,17 +1787,17 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
                     return;
                 }
                 // This is 2/2 places where auto-normalization is disabled
-                fCoordTransform.reset(*args.fMatrix, proxy.get(), false);
-                fTextureSampler.reset(std::move(proxy), params);
+                fCoordTransform1.reset(*args.fMatrix, proxy.get(), false);
+                fTextureSampler1.reset(std::move(proxy), params);
                 fYCoord = SK_ScalarHalf;
             }
 
-            this->addTextureSampler(&fTextureSampler);
+            this->addTextureSampler(&fTextureSampler1);
 
             break;
     }
 
-    this->addCoordTransform(&fCoordTransform);
+    this->addCoordTransform(&fCoordTransform1);
 }
 
 GrGradientEffect::GrGradientEffect(const GrGradientEffect& that)
@@ -1806,17 +1807,17 @@ GrGradientEffect::GrGradientEffect(const GrGradientEffect& that)
         , fColorSpaceXform(that.fColorSpaceXform)
         , fPositions(that.fPositions)
         , fTileMode(that.fTileMode)
-        , fCoordTransform(that.fCoordTransform)
-        , fTextureSampler(that.fTextureSampler)
+        , fCoordTransform1(that.fCoordTransform1)
+        , fTextureSampler1(that.fTextureSampler1)
         , fYCoord(that.fYCoord)
         , fAtlas(that.fAtlas)
         , fRow(that.fRow)
         , fIsOpaque(that.fIsOpaque)
         , fColorType(that.fColorType)
         , fPremulType(that.fPremulType) {
-    this->addCoordTransform(&fCoordTransform);
+    this->addCoordTransform(&fCoordTransform1);
     if (kTexture_ColorType == fColorType) {
-        this->addTextureSampler(&fTextureSampler);
+        this->addTextureSampler(&fTextureSampler1);
     }
     if (this->useAtlas()) {
         fAtlas->lockRow(fRow);
