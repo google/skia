@@ -31,6 +31,10 @@ public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "NonAARectOp"; }
 
+    void proxyIter(ProxyVisitor* visitor) const override {
+        fHelper.proxyIter(visitor);
+    }
+
     // This creates an instance of a simple non-AA solid color rect-drawing Op
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkRect& r) {
         return Helper::FactoryHelper<NonAARectOp>(std::move(paint), r, nullptr, ClassID());

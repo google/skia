@@ -35,6 +35,10 @@ protected:
                                                                           : RequiresDstTexture::kNo;
     }
 
+    void proxyIter(ProxyVisitor* visitor) const override {
+        fProcessorSet.proxyIter(visitor);
+    }
+
 protected:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     GrColor color() const { return fInputColor; }

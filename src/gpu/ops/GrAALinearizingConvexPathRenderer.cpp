@@ -126,6 +126,10 @@ class AAFlatteningConvexPathOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
+    void proxyIter(ProxyVisitor* visitor) const override {
+        fHelper.proxyIter(visitor);
+    }
+
 public:
     DEFINE_OP_CLASS_ID
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,

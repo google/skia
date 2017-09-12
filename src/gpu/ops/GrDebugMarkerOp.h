@@ -17,6 +17,10 @@ class GrDebugMarkerOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void proxyIter(ProxyVisitor*) const override {
+        // No proxies here
+    }
+
     static std::unique_ptr<GrOp> Make(GrRenderTargetProxy* proxy, const SkString& str) {
         return std::unique_ptr<GrOp>(new GrDebugMarkerOp(proxy, str));
     }

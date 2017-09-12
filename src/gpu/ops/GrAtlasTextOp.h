@@ -16,6 +16,15 @@ class GrAtlasTextOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void proxyIter(ProxyVisitor* visitor) const override {
+        fProcessors.proxyIter(visitor);
+
+        sk_sp<GrTextureProxy> proxy = fFontCache->getProxy(this->maskFormat());
+        if (proxy) {
+            visitor->visit(proxy.get());
+        }
+    }
+
     ~GrAtlasTextOp() override {
         for (int i = 0; i < fGeoCount; i++) {
             fGeoData[i].fBlob->unref();

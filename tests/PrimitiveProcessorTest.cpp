@@ -28,6 +28,10 @@ class Op : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void proxyIter(ProxyVisitor*) const override {
+        SkASSERT(0);
+    }
+
     const char* name() const override { return "Dummy Op"; }
 
     static std::unique_ptr<GrDrawOp> Make(int numAttribs) {

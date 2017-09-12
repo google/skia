@@ -43,6 +43,12 @@ public:
     GrSimpleMeshDrawOpHelper(const MakeArgs&, GrAAType, Flags = Flags::kNone);
     ~GrSimpleMeshDrawOpHelper();
 
+    void proxyIter(ProxyVisitor* visitor) const {
+        if (fProcessors) {
+            fProcessors->proxyIter(visitor);
+        }
+    }
+
     GrSimpleMeshDrawOpHelper() = delete;
     GrSimpleMeshDrawOpHelper(const GrSimpleMeshDrawOpHelper&) = delete;
     GrSimpleMeshDrawOpHelper& operator=(const GrSimpleMeshDrawOpHelper&) = delete;
@@ -127,6 +133,7 @@ class GrSimpleMeshDrawOpHelperWithStencil : private GrSimpleMeshDrawOpHelper {
 public:
     using MakeArgs = GrSimpleMeshDrawOpHelper::MakeArgs;
     using Flags = GrSimpleMeshDrawOpHelper::Flags;
+    using GrSimpleMeshDrawOpHelper::proxyIter;
 
     // using declarations can't be templated, so this is a pass through function instead.
     template <typename Op, typename... OpArgs>

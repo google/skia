@@ -32,6 +32,25 @@ public:
 
     ~GrProcessorSet();
 
+    void markAsHandled() const {
+        for (int i = 0; i < this->numFragmentProcessors(); ++i) {
+            GrFragmentProcessor::TextureAccessIter iter(this->fragmentProcessor1(i));
+            while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+                sampler->fHandled = true;
+            }
+        }
+    }
+
+    void proxyIter(ProxyVisitor* visitor) const {
+        for (int i = 0; i < this->numFragmentProcessors(); ++i) {
+            GrFragmentProcessor::TextureAccessIter iter(this->fragmentProcessor1(i));
+            while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+                sampler->fHandled = true;
+                visitor->visit(sampler->proxy());
+            }
+        }
+    }
+
     int numColorFragmentProcessors() const { return fColorFragmentProcessorCnt; }
     int numCoverageFragmentProcessors() const {
         return this->numFragmentProcessors() - fColorFragmentProcessorCnt;
@@ -47,6 +66,9 @@ public:
     const GrFragmentProcessor* coverageFragmentProcessor(int idx) const {
         return fFragmentProcessors[idx + fColorFragmentProcessorCnt +
                                    fFragmentProcessorOffset].get();
+    }
+    const GrFragmentProcessor* fragmentProcessor1(int idx) const {
+        return fFragmentProcessors[idx + fFragmentProcessorOffset].get();
     }
 
     const GrXferProcessor* xferProcessor() const {

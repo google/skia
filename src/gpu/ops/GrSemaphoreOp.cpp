@@ -24,6 +24,10 @@ public:
 
     const char* name() const override { return "SignalSemaphore"; }
 
+    void proxyIter(ProxyVisitor* visitor) const override {
+        // No proxies here
+    }
+
 private:
     explicit GrSignalSemaphoreOp(sk_sp<GrSemaphore> semaphore, GrRenderTargetProxy* proxy,
                                  bool forceFlush)
@@ -49,6 +53,10 @@ public:
     }
 
     const char* name() const override { return "WaitSemaphore"; }
+
+    void proxyIter(ProxyVisitor* visitor) const override {
+        // No proxies here
+    }
 
 private:
     explicit GrWaitSemaphoreOp(sk_sp<GrSemaphore> semaphore, GrRenderTargetProxy* proxy)

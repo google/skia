@@ -18,6 +18,10 @@ class GrClearStencilClipOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void proxyIter(ProxyVisitor*) const override {
+        // No proxies here
+    }
+
     static std::unique_ptr<GrOp> Make(const GrFixedClip& clip, bool insideStencilMask,
                                       GrRenderTargetProxy* proxy) {
         return std::unique_ptr<GrOp>(new GrClearStencilClipOp(clip, insideStencilMask, proxy));

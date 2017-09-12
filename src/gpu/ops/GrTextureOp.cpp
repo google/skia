@@ -102,6 +102,8 @@ private:
     TextureGeometryProcessor(sk_sp<GrTextureProxy> proxy, sk_sp<GrColorSpaceXform> csxf,
                              GrSamplerParams::FilterMode filter)
             : fSampler(std::move(proxy), filter), fColorSpaceXform(std::move(csxf)) {
+        // The proxy is handled by the TextureOp
+        fSampler.fHandled = true;
         this->initClassID<TextureGeometryProcessor>();
         fPositions =
                 this->addVertexAttrib("position", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
@@ -124,6 +126,10 @@ private:
  */
 class TextureOp final : public GrMeshDrawOp {
 public:
+    void proxyIter(ProxyVisitor* visitor) const override {
+        visitor->visit(fProxy);
+    }
+
     static std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy,
                                           GrSamplerParams::FilterMode filter, GrColor color,
                                           const SkRect srcRect, const SkRect dstRect,
