@@ -1090,8 +1090,8 @@ DEF_SIMPLE_GM(gradients_interesting, canvas, 640, 1300) {
         int             count;
     } configs[] = {
         { colors2,    nullptr, 2 }, // kTwo_ColorType
-        { colors3,    nullptr, 3 }, // kSymmetricThree_ColorType
-        { colors3,  softRight, 3 }, // kThree_ColorType
+        { colors3,    nullptr, 3 }, // kThree_ColorType (simple)
+        { colors3,  softRight, 3 }, // kThree_ColorType (tricky)
         { colors3,   hardLeft, 3 }, // kHardStopLeftEdged_ColorType
         { colors3,  hardRight, 3 }, // kHardStopRightEdged_ColorType
         { colors4, hardCenter, 4 }, // kSingleHardStop_ColorType

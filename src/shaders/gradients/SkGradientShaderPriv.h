@@ -389,7 +389,6 @@ public:
     enum ColorType {
         kTwo_ColorType,
         kThree_ColorType,              // 0, t, 1
-        kSymmetricThree_ColorType,
         kTexture_ColorType,
         kSingleHardStop_ColorType,     // 0, t, t, 1
         kHardStopLeftEdged_ColorType,  // 0, 0, 1
@@ -542,11 +541,10 @@ private:
         // hard stop cases (neither means using texture atlas)
         kTwoColorKey            =  2,
         kThreeColorKey          =  4,
-        kSymmetricThreeColorKey =  6,
 
-        kHardStopCenteredKey    =  8,
-        kHardStopZeroZeroOneKey = 10,
-        kHardStopZeroOneOneKey  = 12,
+        kHardStopCenteredKey    =  6,
+        kHardStopZeroZeroOneKey =  8,
+        kHardStopZeroOneOneKey  = 10,
 
         // Next two bits for tile mode
         kClampTileMode          = 16,
