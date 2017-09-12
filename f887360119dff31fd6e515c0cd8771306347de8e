@@ -264,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "b92ef50a_52f970bd",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-12T15:40:39Z",
+      "side": 1,
+      "message": "I not concerned about space so much but two whole ints for some very range limited chars made me sad.",
+      "parentUuid": "9e55304e_b73b67c6",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "81aeca0e_872e8f8d",
         "filename": "src/gpu/GrDrawOpAtlas.h",
         "patchSetId": 10
@@ -328,6 +346,24 @@
       "side": 1,
       "message": "I\u0027m not sure what you mean -- are you suggesting I should use an SkTDArray here?",
       "parentUuid": "70221f95_dd49cabe",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07e1c838_0327e719",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-12T15:40:39Z",
+      "side": 1,
+      "message": "The SkSTArray is fine but seems a bit overkill for the PlotData object.",
+      "parentUuid": "7d8560ad_b33785ef",
       "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
