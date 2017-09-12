@@ -282,6 +282,24 @@
     },
     {
       "key": {
+        "uuid": "29439213_ead2c5b4",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:55:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b92ef50a_52f970bd",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "81aeca0e_872e8f8d",
         "filename": "src/gpu/GrDrawOpAtlas.h",
         "patchSetId": 10
@@ -367,6 +385,24 @@
       "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dabae678_90874440",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:55:14Z",
+      "side": 1,
+      "message": "Ok, I think I\u0027ll leave it for now. Enough other things are changing.",
+      "parentUuid": "07e1c838_0327e719",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
