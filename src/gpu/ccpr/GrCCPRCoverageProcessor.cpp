@@ -159,8 +159,8 @@ void PrimitiveProcessor::emitGeometryShader(const GrCCPRCoverageProcessor& proc,
     g->codeAppendf("highp float2 bloat = %f * abs(%s.xz);", kAABloatRadius, rtAdjust);
 
 #ifdef SK_DEBUG
-    if (proc.debugVisualizations()) {
-        g->codeAppendf("bloat *= %f;", GrCCPRCoverageProcessor::kDebugBloat);
+    if (proc.debugVisualizationsEnabled()) {
+        g->codeAppendf("bloat *= %f;", proc.debugBloat());
     }
 #endif
 
@@ -324,7 +324,7 @@ void PrimitiveProcessor::emitCoverage(const GrCCPRCoverageProcessor& proc, GrGLS
     f->codeAppendf("%s = float4(1);", outputCoverage);
 
 #ifdef SK_DEBUG
-    if (proc.debugVisualizations()) {
+    if (proc.debugVisualizationsEnabled()) {
         f->codeAppendf("%s = float4(-%s.a, %s.a, 0, 1);", outputColor, outputColor, outputColor);
     }
 #endif
