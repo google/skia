@@ -314,10 +314,10 @@ void draw(SkCanvas* ) {
 
 #Method SkCanvas()
 
-Creates an empty canvas with no backing device or pixels, with 
+Creates an empty Canvas with no backing device or pixels, with 
 a width and height of zero.
 
-#Return  empty canvas ##
+#Return  empty Canvas ##
 
 #Example
 
@@ -1251,8 +1251,8 @@ this->imageInfo.alphaType()
 ##
 
 #Param info  width, height, Image_Color_Type, and Image_Alpha_Type of pixels ##
-#Param pixels  pixels to copy, of size info.height() times rowBytes, or larger ##
-#Param rowBytes  size of one pixels row; info.width() times pixel size, or larger ##
+#Param pixels  pixels to copy, of size height times rowBytes, or larger ##
+#Param rowBytes  size of one row of pixels; width times pixel size, or larger ##
 #Param x  offset into Canvas writable pixels in x; may be negative ##
 #Param y  offset into Canvas writable pixels in y; may be negative ##
 
@@ -3118,7 +3118,7 @@ void draw(SkCanvas* canvas) {
     enum PointMode {
         kPoints_PointMode,
         kLines_PointMode,
-        kPolygon_PointMode 
+        kPolygon_PointMode,
     };
 ##
 
