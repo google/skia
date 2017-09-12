@@ -574,37 +574,28 @@ def DM_ARGS(asan):
   config = ["565", "8888", "pdf", "srgb"]
   # TODO(mtklein): maybe investigate why these fail?
   match = [
-      "~Canvas",
-      "~Codec",
-      "~Codec_Dimensions",
-      "~Codec_stripes",
-      "~FontMgr",
-      "~PaintBreakText",
-      "~RecordDraw_TextBounds",
-      "~Scalar",
-      "~skps",
-      "~Stream",
+      "~^FontHostStream$$",
+      "~^FontMgr$$",
+      "~^PaintBreakText$$",
+      "~^RecordDraw_TextBounds$$",
   ]
   if asan:
     # The ASAN we use with Bazel has some strict checks, so omit tests that
     # trigger them.
     match += [
-        "~bigrect",
-        "~clippedcubic2",
-        "~conicpaths",
-        "~^gradients",
-        "~Math",
-        "~Matrix",
-        "~PathBigCubic",
-        "~PathOpsCubic",
-        "~PathOpsFailOp",
-        "~PathOpsOpCubicsThreaded",
-        "~PathOpsOpLoopsThreaded",
-        "~PathOpsSimplify",
-        "~PathOpsTightBoundsQuads",
-        "~Point",
-        "~sk_linear_to_srgb",
-        "~small_color_stop",
+        "~^bigrect$$",
+        "~^clippedcubic2$$",
+        "~^conicpaths$$",
+        "~^DashPathEffectTest_asPoints_limit$$",
+        "~^Matrix$$",
+        "~^Matrix44$$",
+        "~^PathBigCubic$$",
+        "~^PathOpsCubicIntersection$$",
+        "~^PathOpsCubicLineIntersection$$",
+        "~^PathOpsFailOp$$",
+        "~^PathOpsOpCubicsThreaded$$",
+        "~^PathOpsOpLoopsThreaded$$",
+        "~^Point$$",
     ]
   return ["--src"] + source + ["--config"] + config + ["--match"] + match
 
