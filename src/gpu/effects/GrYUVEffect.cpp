@@ -19,10 +19,10 @@
 namespace {
 
 static const float kJPEGConversionMatrix[16] = {
-    1.0f,  0.0f,      1.402f,  -0.701f,
-    1.0f, -0.34414f, -0.71414f, 0.529f,
-    1.0f,  1.772f,    0.0f,    -0.886f,
-    0.0f,  0.0f,      0.0f,     1.0
+    1.0f,  0.0f,       1.402f,   -0.703749f,
+    1.0f, -0.344136f, -0.714136f, 0.531211f,
+    1.0f,  1.772f,     0.0f,     -0.889475f,
+    0.0f,  0.0f,       0.0f,      1.0
 };
 
 static const float kRec601ConversionMatrix[16] = {
@@ -128,7 +128,7 @@ public:
                 fragBuilder->appendTextureLookup(args.fTexSamplers[2],
                                                  args.fTransformedCoords[2].c_str(),
                                                  args.fTransformedCoords[2].getType());
-                fragBuilder->codeAppendf(".g,");
+                fragBuilder->codeAppendf(".r,");
             }
             fragBuilder->codeAppendf("1.0) * %s;", colorSpaceMatrix);
         }
