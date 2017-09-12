@@ -11,6 +11,7 @@
 #include <climits>
 
 #include "SkArenaAlloc.h"
+#include "SkNx.h"
 #include "SkSafeMath.h"
 
 static const double kPi = 3.14159265358979323846264338327950288;
@@ -26,6 +27,9 @@ public:
     virtual ~BlurScanInterface() = default;
     virtual void blur(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
                             uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const = 0;
+    virtual bool canBlur4() = 0;
+    virtual void blur4Transpose(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                                      uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const = 0;
 };
 
 class PlanningInterface {
@@ -148,6 +152,12 @@ private:
             } while (dstCursor > dst);
         }
 
+        bool canBlur4() override { return false; }
+        void blur4Transpose(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                                  uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const override {
+        }
+
+    private:
         static constexpr uint64_t kHalf = static_cast<uint64_t>(1) << 31;
 
         uint8_t finalScale(uint32_t sum) const {
@@ -173,12 +183,12 @@ public:
         auto outerRadius = std::ceil(radius);
         auto outerWindow = 2 * outerRadius + 1;
         auto outerFactor = (1 - (outerRadius - radius)) / outerWindow;
-        fOuterWeight = static_cast<uint64_t>(round(outerFactor * (1ull << 32)));
+        fOuterWeight = static_cast<uint32_t>(round(outerFactor * (1ull << 24)));
 
         auto innerRadius = outerRadius - 1;
         auto innerWindow = 2 * innerRadius + 1;
         auto innerFactor = (1 - (radius - innerRadius)) / innerWindow;
-        fInnerWeight = static_cast<uint64_t>(round(innerFactor * (1ull << 32)));
+        fInnerWeight = static_cast<uint32_t>(round(innerFactor * (1ull << 24)));
 
         // Sliding window is defined by the relationship between the outer and inner widows.
         // In the single window case, you add the element on the right, and subtract the element on
@@ -189,7 +199,7 @@ public:
         fSlidingWindow = static_cast<size_t>(outerWindow - 1);
     }
 
-    size_t bufferSize() const override { return 0; }
+    size_t bufferSize() const override { return (fSlidingWindow - 1) * sizeof(Sk4u); }
 
     // Remember that sliding window = window - 1. Therefore, radius = sliding window / 2.
     size_t border()     const override { return fSlidingWindow / 2; }
@@ -219,31 +229,42 @@ public:
             noChangeCount = fSlidingWindow - width;
             trailingEdgeZeroCount = width;
         }
-        return alloc->make<Box>(fOuterWeight, fInnerWeight, noChangeCount, trailingEdgeZeroCount);
+
+        Sk4u* sk4uBuffer = (Sk4u*)buffer;
+        return alloc->make<Box>(fOuterWeight, fInnerWeight, noChangeCount, trailingEdgeZeroCount,
+                                sk4uBuffer, sk4uBuffer + fSlidingWindow);
 
     }
 
 private:
     class Box final : public BlurScanInterface {
     public:
-        Box(uint64_t outerWeight, uint64_t innerWeight,
-            size_t noChangeCount, size_t trailingEdgeZeroCount)
+        Box(uint32_t outerWeight, uint32_t innerWeight,
+            size_t noChangeCount, size_t trailingEdgeZeroCount,
+            Sk4u* buffer, Sk4u* bufferEnd)
             : fOuterWeight{outerWeight}
             , fInnerWeight{innerWeight}
             , fNoChangeCount{noChangeCount}
-            , fTrailingEdgeZeroCount{trailingEdgeZeroCount} { }
+            , fTrailingEdgeZeroCount{trailingEdgeZeroCount}
+            , fBuffer{buffer}
+            , fBufferEnd{bufferEnd} { }
 
         void blur(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
                   uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const override {
             auto rightOuter = src;
             auto dstCursor = dst;
 
+            auto interpolateSums = [this](uint32_t outerSum, uint32_t innerSum) {
+                return SkTo<uint8_t>(
+                    (fOuterWeight * outerSum + fInnerWeight * innerSum + kHalf) >> 24);
+            };
+
             uint32_t outerSum = 0;
             uint32_t innerSum = 0;
             for (size_t i = 0; i < fTrailingEdgeZeroCount; i++) {
                 innerSum = outerSum;
                 outerSum += *rightOuter;
-                *dstCursor = this->interpolateSums(outerSum, innerSum);
+                *dstCursor = interpolateSums(outerSum, innerSum);
 
                 rightOuter += srcStride;
                 dstCursor += dstStride;
@@ -251,7 +272,7 @@ private:
 
             // slidingWindow > width
             for (size_t i = 0; i < fNoChangeCount; i++) {
-                *dstCursor = this->interpolateSums(outerSum, innerSum);;
+                *dstCursor = interpolateSums(outerSum, innerSum);;
                 dstCursor += dstStride;
             }
 
@@ -260,7 +281,7 @@ private:
             while (rightOuter < srcEnd) {
                 innerSum = outerSum - *leftInner;
                 outerSum += *rightOuter;
-                *dstCursor = this->interpolateSums(outerSum, innerSum);
+                *dstCursor = interpolateSums(outerSum, innerSum);
                 outerSum -= *leftInner;
 
                 rightOuter += srcStride;
@@ -277,24 +298,107 @@ private:
 
                 innerSum = outerSum;
                 outerSum += *leftOuter;
-                *dstCursor = this->interpolateSums(outerSum, innerSum);
+                *dstCursor = interpolateSums(outerSum, innerSum);
+            }
+        }
+
+        bool canBlur4() override { return true; }
+
+        // NB this is a transposing scan. The next src is src+1, and the next down is
+        // src+srcStride.
+        void blur4Transpose(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                                  uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const override {
+            auto rightOuter = src;
+            auto dstCursor = dst;
+
+            Sk4u* const bufferStart = fBuffer;
+            Sk4u* bufferCursor = bufferStart;
+            Sk4u* const bufferEnd = fBufferEnd;
+
+            const Sk4u outerWeight(SkTo<uint32_t>(fOuterWeight));
+            const Sk4u innerWeight(SkTo<uint32_t>(fInnerWeight));
+
+            auto load = [](const uint8_t* cursor, size_t stride) -> Sk4u {
+                return Sk4u(cursor[0*stride], cursor[1*stride], cursor[2*stride], cursor[3*stride]);
+            };
+
+            auto interpolateSums = [&] (Sk4u outerSum,  Sk4u innerSum) {
+                return
+                    SkNx_cast<uint8_t>(
+                        (outerSum * outerWeight + innerSum * innerWeight + kHalf) >> 24);
+            };
+
+            Sk4u outerSum = 0;
+            Sk4u innerSum = 0;
+            for (size_t i = 0; i < fTrailingEdgeZeroCount; i++) {
+                innerSum = outerSum;
+
+                Sk4u s = load(rightOuter, srcStride);
+                outerSum += s;
+                Sk4b blurred = interpolateSums(outerSum, innerSum);
+                blurred.store(dstCursor);
+
+                s.store(bufferCursor);
+                bufferCursor = (bufferCursor + 1) < bufferEnd ? bufferCursor + 1 : bufferStart;
+
+                rightOuter += 1;
+                dstCursor += dstStride;
+            }
+
+            // slidingWindow > width
+            for (size_t i = 0; i < fNoChangeCount; i++) {
+                Sk4b blurred = interpolateSums(outerSum, innerSum);
+                blurred.store(dstCursor);
+                dstCursor += dstStride;
+            }
+
+            // width > slidingWindow
+            auto leftInner = src;
+            while (rightOuter < srcEnd) {
+                Sk4u trailEdge = Sk4u::Load(bufferCursor);
+                Sk4u s = load(rightOuter, srcStride);
+                innerSum = outerSum - trailEdge;
+                outerSum += s;
+
+                Sk4b blurred = interpolateSums(outerSum, innerSum);
+                blurred.store(dstCursor);
+
+                outerSum -= trailEdge;
+                s.store(bufferCursor);
+                bufferCursor = (bufferCursor + 1) < bufferEnd ? bufferCursor + 1 : bufferStart;
+
+                rightOuter += 1;
+                leftInner += 1;
+                dstCursor += dstStride;
+            }
+
+            auto leftOuter = srcEnd;
+            dstCursor = dstEnd;
+            outerSum = 0;
+            for (size_t i = 0; i < fTrailingEdgeZeroCount; i++) {
+                leftOuter -= 1;
+                dstCursor -= dstStride;
+
+                innerSum = outerSum;
+                outerSum += load(leftOuter, srcStride);
+                Sk4b blurred = interpolateSums(outerSum, innerSum);
+                blurred.store(dstCursor);
             }
         }
 
     private:
-        static constexpr uint64_t kHalf = static_cast<uint64_t>(1) << 31;
+        static constexpr uint32_t kHalf = static_cast<uint32_t>(1) << 23;
 
-        uint8_t interpolateSums(uint32_t outerSum, uint32_t innerSum) const {
-            return SkTo<uint8_t>((fOuterWeight * outerSum + fInnerWeight * innerSum + kHalf) >> 32);
-        }
-        uint64_t fOuterWeight;
-        uint64_t fInnerWeight;
-        size_t fNoChangeCount;
-        size_t fTrailingEdgeZeroCount;
+        const uint32_t fOuterWeight;
+        const uint32_t fInnerWeight;
+        const size_t   fNoChangeCount;
+        const size_t   fTrailingEdgeZeroCount;
+        Sk4u* const    fBuffer;
+        Sk4u* const    fBufferEnd;
     };
 private:
-    uint64_t fOuterWeight;
-    uint64_t fInnerWeight;
+    uint32_t fOuterWeight;
+    uint32_t fInnerWeight;
     size_t   fSlidingWindow;
 };
 
@@ -495,6 +599,12 @@ public:
             }
         }
 
+        bool canBlur4() override { return false; }
+
+        void blur4Transpose(const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                            uint8_t* dst, size_t dstStride, uint8_t* dstEnd) const override {
+        }
+
     private:
         static constexpr uint64_t kHalf = static_cast<uint64_t>(1) << 31;
 
@@ -598,21 +708,44 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         // Blur both directions.
         size_t tmpW = srcH;
         size_t tmpH = dstW;
+
         auto tmp = alloc.makeArrayDefault<uint8_t>(tmpW * tmpH);
 
         // Blur horizontally, and transpose.
         auto scanW = planW->makeBlurScan(&alloc, srcW, buffer);
-        for (size_t y = 0; y < srcH; y++) {
+        size_t y = 0;
+        if (scanW->canBlur4() && srcH > 4) {
+            for (;y < srcH - 4; y += 4) {
+                auto srcStart = &src.fImage[y * src.fRowBytes];
+                auto tmpStart = &tmp[y];
+                scanW->blur4Transpose(srcStart, src.fRowBytes, srcStart + srcW,
+                                      tmpStart, tmpW, tmpStart + tmpW * tmpH);
+            }
+        }
+
+        for (;y < srcH; y++) {
             auto srcStart = &src.fImage[y * src.fRowBytes];
             auto tmpStart = &tmp[y];
-            scanW->blur(srcStart, 1, srcStart + srcW,
+            scanW->blur(srcStart,    1, srcStart + srcW,
                         tmpStart, tmpW, tmpStart + tmpW * tmpH);
         }
+
 
         // Blur vertically (scan in memory order because of the transposition),
         // and transpose back to the original orientation.
         auto scanH = planH->makeBlurScan(&alloc, tmpW, buffer);
-        for (size_t y = 0; y < tmpH; y++) {
+        y = 0;
+        if (scanH->canBlur4() && tmpH > 4) {
+            for (;y < tmpH - 4; y += 4) {
+                auto tmpStart = &tmp[y * tmpW];
+                auto dstStart = &dst->fImage[y];
+
+                scanH->blur4Transpose(
+                    tmpStart, tmpW, tmpStart + tmpW,
+                    dstStart, dst->fRowBytes, dstStart + dst->fRowBytes * dstH);
+            }
+        }
+        for (;y < tmpH; y++) {
             auto tmpStart = &tmp[y * tmpW];
             auto dstStart = &dst->fImage[y];
 
