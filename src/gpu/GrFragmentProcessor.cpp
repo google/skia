@@ -16,6 +16,14 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
+void GrFragmentProcessor::proxyIter(GrProxyVisitor* visitor) {
+    GrFragmentProcessor::TextureAccessIter iter(this);
+    while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+        sampler->fHandled = true;
+        visitor->visit(sampler->proxy());
+    }
+}
+
 bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
     if (this->classID() != that.classID() ||
         !this->hasSameSamplersAndAccesses(that)) {

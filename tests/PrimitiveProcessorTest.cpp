@@ -28,10 +28,14 @@ class Op : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    const char* name() const override { return "Dummy Op"; }
-
     static std::unique_ptr<GrDrawOp> Make(int numAttribs) {
         return std::unique_ptr<GrDrawOp>(new Op(numAttribs));
+    }
+
+    const char* name() const override { return "Dummy Op"; }
+
+    void proxyIter(GrProxyVisitor*) const override {
+        SkASSERT(0);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override {

@@ -12,6 +12,7 @@
 #include "GrGpuCommandBuffer.h"
 #include "GrRect.h"
 #include "GrRenderTargetContext.h"
+#include "GrResourceAllocator.h"
 #include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrCopySurfaceOp.h"
@@ -255,6 +256,44 @@ bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
     return true;
 }
 
+class ProxyGatherVisitor : public GrProxyVisitor {
+public:
+    ProxyGatherVisitor(GrResourceAllocator* allocator) : fAllocator(allocator) { }
+
+    void visit(GrSurfaceProxy* proxy) override {
+        fAllocator->addInterval(proxy);
+    }
+
+    GrResourceAllocator* fAllocator;
+};
+
+
+void GrRenderTargetOpList::gatherOpList(GrResourceAllocator* alloc) const {
+    SkASSERT(!this->isInstantiated());
+
+    unsigned int cur = alloc->numOps();
+
+    SkDebugf("----------------------------------------\n");
+    SkDebugf("gather for opList #%d { %d,%d }: %s\n", this->uniqueID(), 
+                                                  fTarget.get()->uniqueID().asUInt(),
+                                                  fTarget.get()->underlyingUniqueID().asUInt());
+
+    alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);
+
+    ProxyGatherVisitor visitor(alloc);
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        const GrOp* op = fRecordedOps[i].fOp.get();
+
+        SkASSERT(alloc->curOp() == cur+i);
+        SkDebugf("opList #%d (%s): %d\n", this->uniqueID(), op->name(), cur+i);
+
+        op->proxyIter(&visitor);
+
+        alloc->incOps();
+    }
+    SkDebugf("----------------------------------------\n");
+}
+
 static inline bool can_reorder(const SkRect& a, const SkRect& b) { return !GrRectsOverlap(a, b); }
 
 bool GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,
@@ -317,6 +356,7 @@ void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                 GrOP_INFO("\t\t\tBackward: Combined op info:\n");
                 GrOP_INFO(SkTabString(candidate.fOp->dumpInfo(), 4).c_str());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, candidate.fOp.get(), op.get());
+                op->markAsHandled();
                 return;
             }
             // Stop going backwards if we would cause a painter's order violation.

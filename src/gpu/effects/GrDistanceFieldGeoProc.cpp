@@ -251,6 +251,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
     , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
     , fInColor(nullptr)
     , fUsesLocalCoords(usesLocalCoords) {
+    fTextureSampler.fHandled = true; // the atlastextop handled the ref
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
     this->initClassID<GrDistanceFieldA8TextGeoProc>();
     fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
@@ -505,6 +506,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(GrColor color,
         , fInColor(nullptr)
         , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
+    fTextureSampler.fHandled = true; // SmallPathOp handles the proxy
     this->initClassID<GrDistanceFieldPathGeoProc>();
     fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
                                          kHigh_GrSLPrecision);
@@ -818,6 +820,7 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
     , fDistanceAdjust(distanceAdjust)
     , fFlags(flags & kLCD_DistanceFieldEffectMask)
     , fUsesLocalCoords(usesLocalCoords) {
+    fTextureSampler.fHandled = true;  // proxy is handled in AtlasTextOp
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
     this->initClassID<GrDistanceFieldLCDTextGeoProc>();
     fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,

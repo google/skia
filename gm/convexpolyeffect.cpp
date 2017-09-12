@@ -42,10 +42,14 @@ class PolyBoundsOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    const char* name() const override { return "PolyBoundsOp"; }
-
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkRect& rect) {
         return std::unique_ptr<GrDrawOp>(new PolyBoundsOp(std::move(paint), rect));
+    }
+
+    const char* name() const override { return "PolyBoundsOp"; }
+
+    void proxyIter(GrProxyVisitor* visitor) const override {
+        fProcessors.proxyIter(visitor);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }

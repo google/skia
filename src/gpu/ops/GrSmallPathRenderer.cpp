@@ -189,6 +189,12 @@ public:
 
     const char* name() const override { return "SmallPathOp"; }
 
+    void proxyIter(GrProxyVisitor* visitor) const override {
+        fHelper.proxyIter(visitor);
+
+        visitor->visit(fAtlas->getProxy().get());
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         for (const auto& geo : fShapes) {

@@ -23,6 +23,10 @@ public:
 
     const char* name() const override { return "DebugMarker"; }
 
+    void proxyIter(GrProxyVisitor*) const override {
+        // No proxies here
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.append(INHERITED::dumpInfo());

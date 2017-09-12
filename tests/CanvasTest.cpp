@@ -105,8 +105,7 @@ DEF_TEST(canvas_clipbounds, reporter) {
     }
 }
 
-// Will call proc with multiple styles of canse (recording, raster, pdf)
-//
+// Will call proc with multiple styles of canvas (recording, raster, pdf)
 template <typename F> static void multi_canvas_driver(int w, int h, F proc) {
     proc(SkPictureRecorder().beginRecording(SkRect::MakeIWH(w, h)));
 
@@ -115,7 +114,6 @@ template <typename F> static void multi_canvas_driver(int w, int h, F proc) {
 
     proc(SkSurface::MakeRasterN32Premul(w, h, nullptr)->getCanvas());
 }
-
 
 const SkIRect gBaseRestrictedR = { 0, 0, 10, 10 };
 

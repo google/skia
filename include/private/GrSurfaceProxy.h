@@ -130,7 +130,7 @@ protected:
     void transferRefs() {
         SkASSERT(fTarget);
 
-        fTarget->fRefCnt += (fRefCnt-1); // don't xfer the proxy's creation ref
+        fTarget->fRefCnt += SkTMax(fRefCnt-1, 0); // don't xfer the proxy's creation ref
         fTarget->fPendingReads += fPendingReads;
         fTarget->fPendingWrites += fPendingWrites;
     }
@@ -329,6 +329,7 @@ public:
 
     bool isWrapped_ForTesting() const;
 
+    SkDEBUGCODE(bool isInstantiated() const { return SkToBool(fTarget); })
     SkDEBUGCODE(void validate(GrContext*) const;)
 
     // Provides access to functions that aren't part of the public API.
@@ -417,6 +418,11 @@ private:
     GrOpList* fLastOpList;
 
     typedef GrIORefProxy INHERITED;
+};
+
+class GrProxyVisitor {
+public:
+    virtual void visit(GrSurfaceProxy*) = 0;
 };
 
 #endif
