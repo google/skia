@@ -42,6 +42,7 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
 
     static const size_t kMaxTotalSize = SK_MaxS32;
 
+    SkColorSpaceTransferFn fn;
     int shift = 0;
     switch (info.colorType()) {
         case kAlpha_8_SkColorType:
@@ -57,13 +58,13 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
             shift = 1;
             break;
         case kN32_SkColorType:
-            if (info.colorSpace() && !info.colorSpace()->gammaCloseToSRGB()) {
+            if (info.colorSpace() && !info.colorSpace()->isNumericalTransferFn(&fn)) {
                 return false;
             }
             shift = 2;
             break;
         case kRGBA_F16_SkColorType:
-            if (info.colorSpace() && (!info.colorSpace()->gammaIsLinear())) {
+            if (info.colorSpace() && !info.colorSpace()->isNumericalTransferFn(&fn)) {
                 return false;
             }
             shift = 3;
