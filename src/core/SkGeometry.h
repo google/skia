@@ -166,8 +166,21 @@ enum class SkCubicType {
     kQuadratic,
     kLineOrPoint
 };
-constexpr bool SkCubicIsDegenerate(SkCubicType type) {
-    return type >= SkCubicType::kQuadratic;
+
+static inline bool SkCubicIsDegenerate(SkCubicType type) {
+    switch (type) {
+        case SkCubicType::kSerpentine:
+        case SkCubicType::kLoop:
+        case SkCubicType::kLocalCusp:
+        case SkCubicType::kCuspAtInfinity:
+            return false;
+        default:
+            SK_ABORT("Invalid SkCubicType");
+            // fallthru
+        case SkCubicType::kQuadratic:
+        case SkCubicType::kLineOrPoint:
+            return true;
+    }
 }
 
 /** Returns the cubic classification.
