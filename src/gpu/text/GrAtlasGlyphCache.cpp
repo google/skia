@@ -37,6 +37,7 @@ bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
 
 GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes)
         : fContext(context), fPreserveStrike(nullptr) {
+#if 0
     // Calculate RGBA size. Must be between 1024 x 512 and MaxTextureSize x MaxTextureSize / 2
     int log2MaxTextureSize = SkPrevLog2(context->caps()->maxTextureSize());
     int log2MaxDim = 10;
@@ -53,7 +54,13 @@ GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes)
     // Plots are either 256 or 512.
     int maxPlot = SkTMin(512, SkTMax(256, 1 << (log2MaxDim - 2)));
     int minPlot = SkTMin(512, SkTMax(256, 1 << (log2MaxDim - 3)));
-
+#endif
+    int maxDim = 512;
+    int minDim = 512;
+    // Plots are either 256 or 512.
+    int maxPlot = 256;
+    int minPlot = 256;
+    
     // Setup default atlas configs. The A8 atlas uses maxDim for both width and height, as the A8
     // format is already very compact.
     fAtlasConfigs[kA8_GrMaskFormat].fWidth = maxDim;
