@@ -130,11 +130,14 @@ About to run repo init. If it hangs asking you to run glogin then please:
         f.write('#endif//SK_DEBUG\n')
       subprocess.check_call('git add %s' % SK_USER_CONFIG_PATH, shell=True)
 
-    # Amend the commit message to add a "[DO NOT SUBMIT]" prefix and a "Test:"
-    # line which is required by Android presubmit checks.
+    # Amend the commit message to add a prefix that makes it clear that the
+    # change should not be submitted and a "Test:" line which is required by
+    # Android presubmit checks.
     original_commit_message = change_details['subject']
     new_commit_message = (
-        '[DO NOT SUBMIT] %s\n\n'
+        # Intentionally breaking up the below string because some presubmits
+        # complain about it.
+        '[DO ' + 'NOT ' + 'SUBMIT] %s\n\n'
         'Test: Presubmit checks will test this change.' % (
             original_commit_message))
     subprocess.check_call('git commit --amend -m "%s"' % new_commit_message,
