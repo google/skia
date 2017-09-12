@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "010acb45_f8c15ad4",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1364,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-12T15:17:56Z",
+      "side": 1,
+      "message": "Maybe go to high precision due to the inverses ?",
+      "revId": "b139a31f73bc3dbae6a0d0c73793b8cb1e2cfff4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f5552bf_98dad4c9",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1575,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-12T15:17:56Z",
+      "side": 1,
+      "message": "Is \"t/(1-t)\" missing ?",
+      "revId": "b139a31f73bc3dbae6a0d0c73793b8cb1e2cfff4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
