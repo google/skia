@@ -548,6 +548,9 @@ def PostUploadHook(cl, change, output_api):
 
     # If the description has changed update it.
     if new_description_lines != original_description_lines:
+      print 'LINES ARE DIFFERENT:'
+      print new_description_lines
+      print original_description_lines
       # Add a new line separating the new contents from the old contents.
       new_description_lines.insert(len(original_description_lines), '')
       cl.UpdateDescriptionFooters(new_description_lines, footers)
