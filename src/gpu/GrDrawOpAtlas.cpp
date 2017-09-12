@@ -21,7 +21,7 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig
                                                    void* data) {
     std::unique_ptr<GrDrawOpAtlas> atlas(
             new GrDrawOpAtlas(ctx, config, width, height, numPlotsX, numPlotsY));
-    if (!atlas->getProxy()) {
+    if (!atlas->getProxies()[0]) {
         return nullptr;
     }
 
@@ -32,13 +32,14 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawOpAtlas::Plot::Plot(int index, uint64_t genID, int offX, int offY, int width, int height,
-                          GrPixelConfig config)
+GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY,
+                          int width, int height, GrPixelConfig config)
         : fLastUpload(GrDrawOpUploadToken::AlreadyFlushedToken())
         , fLastUse(GrDrawOpUploadToken::AlreadyFlushedToken())
-        , fIndex(index)
+        , fPageIndex(pageIndex)
+        , fPlotIndex(plotIndex)
         , fGenID(genID)
-        , fID(CreateId(fIndex, fGenID))
+        , fID(CreateId(fPageIndex, fPlotIndex, fGenID))
         , fData(nullptr)
         , fWidth(width)
         , fHeight(height)
@@ -126,7 +127,7 @@ void GrDrawOpAtlas::Plot::resetRects() {
     }
 
     fGenID++;
-    fID = CreateId(fIndex, fGenID);
+    fID = CreateId(fPageIndex, fPlotIndex, fGenID);
 
     // zero out the plot
     if (fData) {
@@ -142,7 +143,6 @@ void GrDrawOpAtlas::Plot::resetRects() {
 GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width, int height,
                              int numPlotsX, int numPlotsY)
         : fContext(context)
-        , fProxy(nullptr)
         , fPixelConfig(config)
         , fTextureWidth(width)
         , fTextureHeight(height)
@@ -166,7 +166,8 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width
         // should receive special attention.
         // Note: When switching over to the deferred proxy, use the kExact flag to create
         // the atlas and assert that the width & height are powers of 2.
-        fProxy = GrSurfaceProxy::MakeWrapped(std::move(texture), kTopLeft_GrSurfaceOrigin);
+        fProxies[0] = GrSurfaceProxy::MakeWrapped(std::move(texture),
+                                                       kTopLeft_GrSurfaceOrigin);
     }
 
     fPlotWidth = fTextureWidth / numPlotsX;
@@ -176,19 +177,20 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width
     SkASSERT(fPlotHeight * numPlotsY == fTextureHeight);
 
     SkDEBUGCODE(fNumPlots = numPlotsX * numPlotsY;)
+    SkDEBUGCODE(fNumPages = 1;)
 
     // set up allocated plots
-    fPlotArray.reset(new sk_sp<Plot>[ numPlotsX * numPlotsY ]);
+    fPages[0].fPlotArray.reset(new sk_sp<Plot>[ numPlotsX * numPlotsY ]);
 
-    sk_sp<Plot>* currPlot = fPlotArray.get();
+    sk_sp<Plot>* currPlot = fPages[0].fPlotArray.get();
     for (int y = numPlotsY - 1, r = 0; y >= 0; --y, ++r) {
         for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
             uint32_t index = r * numPlotsX + c;
             currPlot->reset(
-                    new Plot(index, 1, x, y, fPlotWidth, fPlotHeight, fPixelConfig));
+                    new Plot(0, index, 1, x, y, fPlotWidth, fPlotHeight, fPixelConfig));
 
             // build LRU list
-            fPlotList.addToHead(currPlot->get());
+            fPages[0].fPlotList.addToHead(currPlot->get());
             ++currPlot;
         }
     }
@@ -201,7 +203,8 @@ void GrDrawOpAtlas::processEviction(AtlasID id) {
 }
 
 inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plot* plot) {
-    this->makeMRU(plot);
+    int pageIdx = GetPageIndexFromID(plot->id());
+    this->makeMRU(plot, pageIdx);
 
     // If our most recent upload has already occurred then we have to insert a new
     // upload. Otherwise, we already have a scheduled upload that hasn't yet ocurred.
@@ -212,11 +215,11 @@ inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
 
         // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
         // Once it is deferred more care must be taken upon instantiation failure.
-        if (!fProxy->instantiate(fContext->resourceProvider())) {
+        if (!fProxies[pageIdx]->instantiate(fContext->resourceProvider())) {
             return false;
         }
 
-        GrTextureProxy* proxy = fProxy.get();
+        GrTextureProxy* proxy = fProxies[pageIdx].get();
 
         GrDrawOpUploadToken lastUploadToken = target->addAsapUpload(
             [plotsp, proxy] (GrDrawOp::WritePixelsFn& writePixels) {
@@ -231,18 +234,21 @@ inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
 
 bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width, int height,
                                const void* image, SkIPoint16* loc) {
+    // Eventually we will iterate through these, for now just use the one.
+    int pageIdx = 0;
+
     // We should already have a texture, TODO clean this up
-    SkASSERT(fProxy);
+    SkASSERT(fProxies[pageIdx]);
     if (width > fPlotWidth || height > fPlotHeight) {
         return false;
     }
 
     // now look through all allocated plots for one we can share, in Most Recently Refed order
     PlotList::Iter plotIter;
-    plotIter.init(fPlotList, PlotList::Iter::kHead_IterStart);
+    plotIter.init(fPages[pageIdx].fPlotList, PlotList::Iter::kHead_IterStart);
     Plot* plot;
     while ((plot = plotIter.get())) {
-        SkASSERT(GrBytesPerPixel(fProxy->config()) == plot->bpp());
+        SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
         if (plot->addSubImage(width, height, image, loc)) {
             return this->updatePlot(target, id, plot);
         }
@@ -251,12 +257,12 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
 
     // If the above fails, then see if the least recently refed plot has already been flushed to the
     // gpu
-    plot = fPlotList.tail();
+    plot = fPages[pageIdx].fPlotList.tail();
     SkASSERT(plot);
     if (target->hasDrawBeenFlushed(plot->lastUseToken())) {
         this->processEviction(plot->id());
         plot->resetRects();
-        SkASSERT(GrBytesPerPixel(fProxy->config()) == plot->bpp());
+        SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
         SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc);
         SkASSERT(verify);
         if (!this->updatePlot(target, id, plot)) {
@@ -266,6 +272,8 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
         fAtlasGeneration++;
         return true;
     }
+
+    // TODO: at this point try to create a new page and add to it before evicting
 
     // If this plot has been used in a draw that is currently being prepared by an op, then we have
     // to fail. This gives the op a chance to enqueue the draw, and call back into this function.
@@ -277,12 +285,12 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     }
 
     this->processEviction(plot->id());
-    fPlotList.remove(plot);
-    sk_sp<Plot>& newPlot = fPlotArray[plot->index()];
+    fPages[pageIdx].fPlotList.remove(plot);
+    sk_sp<Plot>& newPlot = fPages[pageIdx].fPlotArray[plot->index()];
     newPlot.reset(plot->clone());
 
-    fPlotList.addToHead(newPlot.get());
-    SkASSERT(GrBytesPerPixel(fProxy->config()) == newPlot->bpp());
+    fPages[pageIdx].fPlotList.addToHead(newPlot.get());
+    SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == newPlot->bpp());
     SkDEBUGCODE(bool verify = )newPlot->addSubImage(width, height, image, loc);
     SkASSERT(verify);
 
@@ -292,10 +300,10 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
     // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
     // Once it is deferred more care must be taken upon instantiation failure.
-    if (!fProxy->instantiate(fContext->resourceProvider())) {
+    if (!fProxies[pageIdx]->instantiate(fContext->resourceProvider())) {
         return false;
     }
-    GrTextureProxy* proxy = fProxy.get();
+    GrTextureProxy* proxy = fProxies[pageIdx].get();
 
     GrDrawOpUploadToken lastUploadToken = target->addInlineUpload(
         [plotsp, proxy] (GrDrawOp::WritePixelsFn& writePixels) {
