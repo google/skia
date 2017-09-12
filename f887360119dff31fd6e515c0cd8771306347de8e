@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "e73c20dc_0623b18e",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9aaac457_688932e5",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8f0fcbd8_a19e6c14",
         "filename": "src/gpu/GrDrawOpAtlas.h",
         "patchSetId": 10
@@ -50,6 +68,24 @@
       "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c339e04_5cffc7a4",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f0fcbd8_a19e6c14",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "2f61318d_dbfc52c2",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "I need the plot pointer anyway for setLastUseToken, so I just pulled it out into a variable.",
+      "parentUuid": "06904cfd_2dc9adb1",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "166a072d_ff384b34",
         "filename": "src/gpu/GrDrawOpAtlas.h",
         "patchSetId": 10
@@ -84,6 +138,24 @@
       "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65a0c8d5_2143d5a1",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "166a072d_ff384b34",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "94de46ed_642b8e62",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab917187_acd791fb",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3eeef47c_6df4b19c",
         "filename": "src/gpu/GrDrawOpAtlas.h",
         "patchSetId": 10
@@ -121,6 +211,24 @@
     },
     {
       "key": {
+        "uuid": "a0dcef4b_93da8ef2",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3eeef47c_6df4b19c",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fedd15ca_87e7f4f4",
         "filename": "src/gpu/GrDrawOpAtlas.h",
         "patchSetId": 10
@@ -132,6 +240,24 @@
       "writtenOn": "2017-09-11T20:54:35Z",
       "side": 1,
       "message": "Shouldn\u0027t these be folded together into one uint32_t ?",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e55304e_b73b67c6",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "I\u0027m not sure what you mean -- are you concerned about space or something else? I could make them uint16_t.",
+      "parentUuid": "fedd15ca_87e7f4f4",
       "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -155,6 +281,24 @@
     },
     {
       "key": {
+        "uuid": "863cf097_c25050d1",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81aeca0e_872e8f8d",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70221f95_dd49cabe",
         "filename": "src/gpu/GrDrawOpAtlas.h",
         "patchSetId": 10
@@ -166,6 +310,24 @@
       "writtenOn": "2017-09-11T20:54:35Z",
       "side": 1,
       "message": "What happened to our SkSTDArray ?",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d8560ad_b33785ef",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "I\u0027m not sure what you mean -- are you suggesting I should use an SkTDArray here?",
+      "parentUuid": "70221f95_dd49cabe",
       "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -189,6 +351,24 @@
     },
     {
       "key": {
+        "uuid": "fed9738d_95c869c3",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "472093b3_697e377c",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b665f117_8b456a3e",
         "filename": "src/gpu/GrDrawOpAtlas.h",
         "patchSetId": 10
@@ -203,6 +383,24 @@
       "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b66ae5b0_c2f060eb",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b665f117_8b456a3e",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -223,6 +421,24 @@
     },
     {
       "key": {
+        "uuid": "d5e1512f_8b9ee6ed",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b5eb8e89_22650cf4",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "54db368c_4a8a972f",
         "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
         "patchSetId": 10
@@ -237,6 +453,24 @@
       "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a67e671_378004f7",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "54db368c_4a8a972f",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -257,6 +491,24 @@
     },
     {
       "key": {
+        "uuid": "484fb4c6_54721c84",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 799,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1cf4aea3_f79992e1",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "092456ae_4d1daf97",
         "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
         "patchSetId": 10
@@ -274,6 +526,24 @@
     },
     {
       "key": {
+        "uuid": "ff6ff479_4f79071a",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "092456ae_4d1daf97",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a064474c_ffcd0011",
         "filename": "src/gpu/ops/GrAtlasTextOp.h",
         "patchSetId": 10
@@ -288,6 +558,24 @@
       "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "075b13fc_c5720f85",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-12T15:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a064474c_ffcd0011",
+      "revId": "f887360119dff31fd6e515c0cd8771306347de8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
