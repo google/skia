@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79c3b0dc_81799e4c",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-12T17:22:30Z",
+      "side": 1,
+      "message": "I think this indicates you want to be accumulating in Sk4u...",
+      "range": {
+        "startLine": 318,
+        "startChar": 81,
+        "endLine": 318,
+        "endChar": 85
+      },
+      "revId": "352b0eebea9dff6e7458614afb2e63c172265ee3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
