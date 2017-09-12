@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b0ee4c3_0446015a",
+        "filename": "src/gpu/effects/GrYUVEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-12T19:46:23Z",
+      "side": 1,
+      "message": "This is unrelated to the fix, but I spotted it while I was here, and wanted to fix it. It\u0027s just a (harmless) typo that was introduced when the NV12 stuff was added.",
+      "revId": "9b05aef9e1f343fcb62ddb792d9acead4de64250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
