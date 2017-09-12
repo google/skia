@@ -198,6 +198,9 @@ def nanobench_flags(api, bot):
     match.append('~shapes_mixed_10000_32x33')
     match.append('~shapes_rect_100_500x500')
     match.append('~shapes_rrect_10000_32x32')
+  if 'float_cast_overflow' in bot:
+    # skia:4632
+    match.append('~^floor2int_undef$')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
