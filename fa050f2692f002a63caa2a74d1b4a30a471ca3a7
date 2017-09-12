@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aba59e3_f698e0ab",
+        "filename": "src/jumper/build_stages.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-09-12T23:47:17Z",
+      "side": 1,
+      "message": "nit: stages_lowp",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 11
+      },
+      "revId": "fa050f2692f002a63caa2a74d1b4a30a471ca3a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

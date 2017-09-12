@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7461b5bc_271dc425",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-09-12T23:47:17Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 7,
+        "startChar": 6,
+        "endLine": 7,
+        "endChar": 14
+      },
+      "revId": "2e5785d229db0ed26ecf2e11369baa4c69cbf7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "735e9002_8fb886c6",
+        "filename": "src/jumper/build_stages.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-09-12T23:47:17Z",
+      "side": 1,
+      "message": "nit: stages_lowp?",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 11
+      },
+      "revId": "2e5785d229db0ed26ecf2e11369baa4c69cbf7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
