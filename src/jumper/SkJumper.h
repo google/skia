@@ -51,12 +51,8 @@
 #endif
 
 // When compiled with Clang on ARM, we'll have 8-bit NEON stages.
-#if defined(__clang__)
-    #if defined(__aarch64__)
-        #define JUMPER_HAS_NEON_8BIT
-    #elif defined(__arm__) && defined(__ARM_NEON__)
-        #define JUMPER_HAS_NEON_8BIT
-    #endif
+#if defined(__clang__) && defined(__ARM_NEON)
+    #define JUMPER_HAS_NEON_LOWP
 #endif
 
 static const int SkJumper_kMaxStride = 8;
