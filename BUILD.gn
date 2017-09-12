@@ -1803,7 +1803,7 @@ if (skia_jumper_clang != "") {
 
     inputs = [
       "src/jumper/SkJumper_stages.cpp",
-      "src/jumper/SkJumper_stages_8bit.cpp",
+      "src/jumper/SkJumper_stages_lowp.cpp",
     ]
 
     # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it.
