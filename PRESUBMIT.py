@@ -621,4 +621,8 @@ def CheckChangeOnCommit(input_api, output_api):
           SKIA_TREE_STATUS_URL + '/banner-status?format=json')))
   results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
   results.extend(_CheckOwnerIsInAuthorsFile(input_api, output_api))
+  # Checks for the presence of 'DO NOT''SUBMIT' in CL description and in
+  # content of files.
+  results.extend(
+      input_api.canned_checks.CheckDoNotSubmit(input_api, output_api))
   return results
