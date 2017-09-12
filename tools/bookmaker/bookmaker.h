@@ -449,7 +449,9 @@ public:
     bool skipName(const char* word) {
         size_t len = strlen(word);
         if (len <= (size_t) (fEnd - fChar) && !strncmp(word, fChar, len)) {
-            fChar += len;
+            for (int i = 0; i < len; ++i) {
+                this->next();
+            }
         }
         return this->eof() || ' ' >= fChar[0];
     }
@@ -1231,7 +1233,7 @@ public:
 , { "Alias",       nullptr,      MarkType::kAlias,        R_N, E_N, 0 }
 , { "Bug",         nullptr,      MarkType::kBug,          R_N, E_N, 0 }
 , { "Class",       &fClassMap,   MarkType::kClass,        R_Y, E_O, M_CSST | M(Root) }
-, { "Code",        nullptr,      MarkType::kCode,         R_Y, E_N, M_CSST | M_E }      
+, { "Code",        nullptr,      MarkType::kCode,         R_O, E_N, M_CSST | M_E }      
 , { "",            nullptr,      MarkType::kColumn,       R_Y, E_N, M(Row) }
 , { "",            nullptr,      MarkType::kComment,      R_N, E_N, 0 }
 , { "Const",       &fConstMap,   MarkType::kConst,        R_Y, E_N, M_E | M_ST  }
@@ -1396,7 +1398,7 @@ public:
     bool fInComment;
     bool fInString;
     bool fCheckMethods;
-
+    bool fWroteOut = false;
 private:
     typedef ParserCommon INHERITED;
 };
@@ -1489,7 +1491,7 @@ public:
     IClassDefinition* defineClass(const Definition& includeDef, const string& className);
     void dumpClassTokens(IClassDefinition& classDef);
     void dumpComment(Definition* token);
-    void dumpTokens();
+    bool dumpTokens(const string& directory);
     bool findComments(const Definition& includeDef, Definition* markupDef);
 
     Definition* findIncludeObject(const Definition& includeDef, MarkType markType,
@@ -1822,6 +1824,7 @@ private:
     bool buildRefFromFile(const char* fileName, const char* outDir);
     bool checkParamReturnBody(const Definition* def) const;
     void childrenOut(const Definition* def, const char* contentStart);
+    const Definition* findParamType();
     const Definition* isDefined(const TextParser& parser, const string& ref, bool report) const;
     string linkName(const Definition* ) const;
     string linkRef(const string& leadingSpaces, const Definition*, const string& ref) const;
@@ -1837,6 +1840,7 @@ private:
         fEnumClass = nullptr;
         fMethod = nullptr;
         fRoot = nullptr;
+        fLastParam = nullptr;
         fTableState = TableState::kNone;
         fHasFiddle = false;
         fInDescription = false;
@@ -1857,6 +1861,7 @@ private:
     const Definition* fEnumClass;
     Definition* fMethod;
     RootDefinition* fRoot;
+    const Definition* fLastParam;
     TableState fTableState;
     bool fHasFiddle;
     bool fInDescription;   // FIXME: for now, ignore unfound camelCase in description since it may
