@@ -25,6 +25,21 @@ class GrSwizzle;
  */
 class GrFragmentProcessor : public GrResourceIOProcessor {
 public:
+    void markAsHandled() {
+        GrFragmentProcessor::TextureAccessIter iter(this);
+        while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+            sampler->fHandled = true;
+        }
+    }
+
+    void proxyIter(ProxyVisitor* visitor) {
+        GrFragmentProcessor::TextureAccessIter iter(this);
+        while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+            sampler->fHandled = true;
+            visitor->visit(sampler->proxy());
+        }    
+    }
+
     /**
     *  In many instances (e.g. SkShader::asFragmentProcessor() implementations) it is desirable to
     *  only consider the input color's alpha. However, there is a competing desire to have reusable

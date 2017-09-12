@@ -67,13 +67,38 @@ public:
     void onPrepare(GrOpFlushState* flushState) override;
     bool onExecute(GrOpFlushState* flushState) override;
 
+    class ProxyDependencyVisitor : public ProxyVisitor {
+    public:
+        ProxyDependencyVisitor(const GrCaps* caps, GrRenderTargetOpList* opList)
+                : fCaps(caps)
+                , fOpList(opList) {
+        }
+
+        void visit(GrSurfaceProxy* proxy) override {
+            fOpList->addDependency(proxy, *fCaps);
+        }
+
+        const GrCaps*         fCaps;
+        GrRenderTargetOpList* fOpList;
+    };
+
     uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
+        ProxyDependencyVisitor visitor(&caps, this);
+        op->proxyIter(&visitor);
+
         this->recordOp(std::move(op), caps, nullptr, nullptr);
+
         return this->uniqueID();
     }
+
     uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps,
                    GrAppliedClip&& clip, const DstProxy& dstProxy) {
+        ProxyDependencyVisitor visitor(&caps, this);
+        op->proxyIter(&visitor);
+        clip.proxyIter(&visitor);
+
         this->recordOp(std::move(op), caps, clip.doesClip() ? &clip : nullptr, &dstProxy);
+
         return this->uniqueID();
     }
 
@@ -124,6 +149,8 @@ private:
         DstProxy fDstProxy;
         GrAppliedClip* fAppliedClip;
     };
+
+    void gatherOpList(GrResourceAllocator*) const override;
 
     void recordOp(std::unique_ptr<GrOp>, const GrCaps& caps,
                   GrAppliedClip* = nullptr, const DstProxy* = nullptr);

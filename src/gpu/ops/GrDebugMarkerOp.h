@@ -17,6 +17,13 @@ class GrDebugMarkerOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator* alloc) const override {
+    }
+
+    void proxyIter(ProxyVisitor*) const override {
+        SkASSERT(0);
+    }
+
     static std::unique_ptr<GrOp> Make(GrRenderTargetProxy* proxy, const SkString& str) {
         return std::unique_ptr<GrOp>(new GrDebugMarkerOp(proxy, str));
     }

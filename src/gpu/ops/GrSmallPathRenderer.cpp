@@ -135,6 +135,16 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
+
+    void proxyIter(ProxyVisitor* visitor) const override {
+        fHelper.proxyIter(visitor);
+
+        visitor->visit(fAtlas->getProxy().get());
+    }
+
     using ShapeData = GrSmallPathRenderer::ShapeData;
     using ShapeCache = SkTDynamicHash<ShapeData, ShapeData::Key>;
     using ShapeDataList = GrSmallPathRenderer::ShapeDataList;

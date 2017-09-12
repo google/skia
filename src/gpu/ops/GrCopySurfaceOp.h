@@ -15,6 +15,12 @@ class GrCopySurfaceOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator*) const override { }
+
+    void proxyIter(ProxyVisitor* visitor) const override {
+        SkASSERT(0);
+    }
+
     static std::unique_ptr<GrOp> Make(GrSurfaceProxy* dst, GrSurfaceProxy* src,
                                       const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);

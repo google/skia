@@ -35,6 +35,25 @@ protected:
                                                                           : RequiresDstTexture::kNo;
     }
 
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        const GrFragmentProcessor* fp;
+
+        for (int i = 0; i < fProcessorSet.numFragmentProcessors(); ++i) {
+            fp = fProcessorSet.colorFragmentProcessor(i);
+
+            GrFragmentProcessor::TextureAccessIter iter(fp);
+            while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+                sampler->proxy();
+            }
+        }
+
+        const GrXferProcessor* xfp = fProcessorSet.xferProcessor();
+    }
+
+    void proxyIter(ProxyVisitor* visitor) const override {
+        SkASSERT(0);
+    }
+
 protected:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     GrColor color() const { return fInputColor; }

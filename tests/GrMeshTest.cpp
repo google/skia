@@ -252,6 +252,12 @@ class GrMeshTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator*) const override { }
+
+    void proxyIter(ProxyVisitor* visitor) const override {
+        SkASSERT(0);
+    }
+
     GrMeshTestOp(std::function<void(DrawMeshHelper*)> testFn)
         : INHERITED(ClassID())
         , fTestFn(testFn) {

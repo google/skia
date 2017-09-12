@@ -11,6 +11,7 @@
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
 #include "GrPipeline.h"
+#include "GrResourceAllocator.h"
 
 struct SkRect;
 
@@ -42,6 +43,26 @@ public:
 
     GrSimpleMeshDrawOpHelper(const MakeArgs&, GrAAType, Flags = Flags::kNone);
     ~GrSimpleMeshDrawOpHelper();
+
+    void gatherOp(GrResourceAllocator* alloc) const {
+        if (fProcessors) {
+            for (int i = 0; i < fProcessors->numFragmentProcessors(); ++i) {
+                const GrFragmentProcessor* fp = fProcessors->fragmentProcessor(i);
+
+                GrFragmentProcessor::TextureAccessIter iter(fp);
+                while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+                    alloc->addInterval(sampler->proxy());
+                }
+
+            }
+        }
+    }
+
+    void proxyIter(ProxyVisitor* visitor) const {
+        if (fProcessors) {
+            fProcessors->proxyIter(visitor);
+        }
+    }
 
     GrSimpleMeshDrawOpHelper() = delete;
     GrSimpleMeshDrawOpHelper(const GrSimpleMeshDrawOpHelper&) = delete;
@@ -127,6 +148,10 @@ class GrSimpleMeshDrawOpHelperWithStencil : private GrSimpleMeshDrawOpHelper {
 public:
     using MakeArgs = GrSimpleMeshDrawOpHelper::MakeArgs;
     using Flags = GrSimpleMeshDrawOpHelper::Flags;
+    using GrSimpleMeshDrawOpHelper::gatherOp;
+    using GrSimpleMeshDrawOpHelper::proxyIter;
+
+//    void gatherOp(GrResourceAllocator* alloc) const override { fHelper.gatherOp(alloc); }
 
     // using declarations can't be templated, so this is a pass through function instead.
     template <typename Op, typename... OpArgs>

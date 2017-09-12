@@ -121,6 +121,14 @@ class GrCCPRCoverageOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator*) const override {
+    
+    }
+
+    void proxyIter(ProxyVisitor*) const override {
+        SkASSERT(0);
+    }
+
     // GrDrawOp interface.
     const char* name() const override { return "GrCCPRCoverageOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }

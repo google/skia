@@ -11,17 +11,28 @@
 #include "GrSurfaceProxyPriv.h"
 
 void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
-                                      unsigned int start, unsigned int end) {
+                                      unsigned int start, unsigned int end,
+                                      const char* msg) {
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
+
+    unsigned int proxyID = proxy->uniqueID().asUInt();
+    unsigned int underlyingID = proxy->underlyingUniqueID().asUInt();
 
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
         SkASSERT(intvl->fEnd < start);
+        SkDebugf("revising interval for %s { %d,%d } from [%d, %d] to [%d, %d]\n",
+                 msg,
+                 proxyID, underlyingID,
+                 intvl->fStart, intvl->fEnd,
+                 intvl->fStart, end);
         intvl->fEnd = end;
         return;
     }
 
+    SkDebugf("adding new interval for { %d,%d }: [ %d, %d ]\n",
+             proxyID, underlyingID, start, end);
     // TODO: given the usage pattern an arena allocation scheme would work well here
     Interval* newIntvl = new Interval(proxy, start, end);
 
@@ -113,10 +124,46 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     }
 }
 
+#ifdef SK_DEBUG
+void GrResourceAllocator::dump() {
+    unsigned int min = fNumOps+1;
+    unsigned int max = 0;
+    for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->fNext) {
+        SkDebugf("{ %d,%d }: [%d, %d] - pRef:%d rRef:%d R:%d W:%d\n",
+                 cur->fProxy->uniqueID().asUInt(), cur->fProxy->underlyingUniqueID().asUInt(),
+                 cur->fStart, cur->fEnd,
+                 cur->fProxy->getProxyRefCnt_TestOnly(),
+                 cur->fProxy->getBackingRefCnt_TestOnly(),
+                 cur->fProxy->getPendingReadCnt_TestOnly(),
+                 cur->fProxy->getPendingWriteCnt_TestOnly());
+        if (min > cur->fStart) {
+            min = cur->fStart;
+        }
+        if (max < cur->fEnd) {
+            max = cur->fEnd;
+        }
+    }
+
+    for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->fNext) {
+        SkDebugf("{ %3d,%3d }: ",
+                 cur->fProxy->uniqueID().asUInt(), cur->fProxy->underlyingUniqueID().asUInt());
+        for (unsigned int i = min; i <= max; ++i) {
+            if (i >= cur->fStart && i <= cur->fEnd) {
+                SkDebugf("x");
+            } else {
+                SkDebugf(" ");
+            }
+        }
+        SkDebugf("\n");
+    }
+}
+#endif
+
 void GrResourceAllocator::assign() {
     fIntvlHash.reset(); // we don't need this anymore
     SkDEBUGCODE(fAssigned = true;)
 
+    this->dump();
     while (Interval* cur = fIntvlList.popHead()) {
         this->expire(cur->fStart);
 

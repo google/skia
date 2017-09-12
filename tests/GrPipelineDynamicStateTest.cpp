@@ -108,6 +108,12 @@ class GrPipelineDynamicStateTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator*) const override { }
+
+    void proxyIter(ProxyVisitor* visitor) const override {
+        SkASSERT(0);
+    }
+
     GrPipelineDynamicStateTestOp(ScissorState scissorState, sk_sp<const GrBuffer> vbuff)
         : INHERITED(ClassID())
         , fScissorState(scissorState)

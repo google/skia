@@ -119,6 +119,12 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator*) const override {}
+
+    void proxyIter(ProxyVisitor* visitor) const override {
+        fHelper.proxyIter(visitor);
+    }
+
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
                                           const SkRect& devOutside, const SkRect& devInside) {
         return Helper::FactoryHelper<AAStrokeRectOp>(std::move(paint), viewMatrix, devOutside,

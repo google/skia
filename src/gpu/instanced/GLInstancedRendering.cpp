@@ -19,6 +19,12 @@ class GLInstancedOp final : public InstancedOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator*) const override { }
+
+    void proxyIter(ProxyVisitor* visitor) const override {
+        SkASSERT(0);
+    }
+
     GLInstancedOp(GLOpAllocator* alloc, GrPaint&& paint)
         : INHERITED(ClassID(), std::move(paint), alloc) {
     }
