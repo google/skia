@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3e3315c1_3d21af1e",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1364,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-12T15:21:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "010acb45_f8c15ad4",
+      "revId": "b139a31f73bc3dbae6a0d0c73793b8cb1e2cfff4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f5552bf_98dad4c9",
         "filename": "src/shaders/gradients/SkGradientShader.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "b139a31f73bc3dbae6a0d0c73793b8cb1e2cfff4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "664804ea_f2946acf",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1575,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-12T15:21:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f5552bf_98dad4c9",
+      "revId": "b139a31f73bc3dbae6a0d0c73793b8cb1e2cfff4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
