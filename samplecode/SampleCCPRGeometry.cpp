@@ -29,6 +29,8 @@ using TriangleInstance = GrCCPRCoverageProcessor::TriangleInstance;
 using CurveInstance = GrCCPRCoverageProcessor::CurveInstance;
 using Mode = GrCCPRCoverageProcessor::Mode;
 
+static constexpr float kDebugBloat = 40;
+
 static int num_points(Mode mode)  {
     return mode >= Mode::kSerpentineHulls ? 4 : 3;
 }
@@ -156,10 +158,10 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     gridPaint.setStyle(SkPaint::kStroke_Style);
     gridPaint.setStrokeWidth(0);
     gridPaint.setAntiAlias(true);
-    for (int y = 0; y < this->height(); y += GrCCPRCoverageProcessor::kDebugBloat) {
+    for (int y = 0; y < this->height(); y += kDebugBloat) {
         canvas->drawLine(0, y, this->width(), y, gridPaint);
     }
-    for (int x = 0; x < this->width(); x += GrCCPRCoverageProcessor::kDebugBloat) {
+    for (int x = 0; x < this->width(); x += kDebugBloat) {
         canvas->drawLine(x, 0, x, this->height(), outlinePaint);
     }
 #endif
@@ -220,9 +222,7 @@ void CCPRGeometryView::updateGpuData() {
 
         GrCCPRGeometry geometry;
         geometry.beginContour(fPoints[0]);
-        geometry.cubicTo(fPoints[1], fPoints[2], fPoints[3],
-                         GrCCPRCoverageProcessor::kDebugBloat / 2,
-                         GrCCPRCoverageProcessor::kDebugBloat / 2);
+        geometry.cubicTo(fPoints[1], fPoints[2], fPoints[3], kDebugBloat/2, kDebugBloat/2);
         geometry.endContour();
         fGpuPoints.push_back_n(geometry.points().count(), geometry.points().begin());
         int ptsIdx = 0;
@@ -305,7 +305,7 @@ void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
                         SkBlendMode::kSrcOver);
 
     GrCCPRCoverageProcessor ccprProc(fView->fMode, pointsBuffer.get());
-    SkDEBUGCODE(ccprProc.enableDebugVisualizations();)
+    SkDEBUGCODE(ccprProc.enableDebugVisualizations(kDebugBloat);)
 
     GrMesh mesh(4 == vertexCount ?  GrPrimitiveType::kLinesAdjacency : GrPrimitiveType::kTriangles);
     mesh.setInstanced(instanceBuffer.get(), fView->fInstanceCount, 0, vertexCount);

@@ -92,12 +92,12 @@ public:
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
-    static constexpr float kDebugBloat = 50;
 #ifdef SK_DEBUG
-    // Increases the 1/2 pixel AA bloat by a factor of kDebugBloat and outputs color instead of
+    // Increases the 1/2 pixel AA bloat by a factor of debugBloat and outputs color instead of
     // coverage (coverage=+1 -> green, coverage=0 -> black, coverage=-1 -> red).
-    void enableDebugVisualizations() { fDebugVisualizations = true; }
-    bool debugVisualizations() const { return fDebugVisualizations; }
+    void enableDebugVisualizations(float debugBloat) { fDebugBloat = debugBloat; }
+    bool debugVisualizationsEnabled() const { return fDebugBloat > 0; }
+    float debugBloat() const { SkASSERT(this->debugVisualizationsEnabled()); return fDebugBloat; }
 
     static void Validate(GrRenderTargetProxy* atlasProxy);
 #endif
@@ -105,10 +105,10 @@ public:
     class PrimitiveProcessor;
 
 private:
-    const Mode         fMode;
-    const Attribute&   fInstanceAttrib;
-    BufferAccess       fPointsBufferAccess;
-    SkDEBUGCODE(bool   fDebugVisualizations = false;)
+    const Mode          fMode;
+    const Attribute&    fInstanceAttrib;
+    BufferAccess        fPointsBufferAccess;
+    SkDEBUGCODE(float   fDebugBloat = false;)
 
     typedef GrGeometryProcessor INHERITED;
 };
