@@ -334,8 +334,107 @@ static bool quick_cubic_niceness_check(const SkPoint pts[4]) {
            lt_90(pts[2], pts[3], pts[0]);
 }
 
+struct MaskHairBlitter : public SkBlitter {
+public:
+    static constexpr int MAX_SIZE = 1024;
+
+    static bool CanHandle(const SkIRect& bounds) {
+        return bounds.width() * bounds.height() <= MAX_SIZE;
+    }
+
+    // Withotu setBounds, this will have empty bounds and nothing would happen
+    MaskHairBlitter(SkBlitter* blitter) : fBlitter(blitter) {}
+
+    void setBounds(const SkIRect& bounds) {
+        fBounds = bounds;
+        int size = bounds.width() * bounds.height();
+        SkASSERT(size <= MAX_SIZE);
+        memset(fMask, 0, sizeof(SkAlpha) * size);
+    }
+
+    void blitH(int x, int y, int width) override {
+        SK_ABORT("Not implemented.");
+    }
+
+    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override {
+        SkAlpha* addr = getAddr(x, y);
+        for(int i = 0; runs[i]; i += runs[i]) {
+            SkASSERT(fBounds.contains(x + i, y));
+            SkASSERT(fBounds.contains(x + i + runs[i] - 1, y));
+            // TODO SIMD
+            for(int j = 0; j < runs[i]; ++j) {
+                SafeAdd(addr[i], antialias[i]);
+            }
+        }
+    }
+
+    void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override {
+        // TODO SIMD
+        SkAlpha* addr = getAddr(x, y);
+        SkASSERT(fBounds.contains(x, y) && fBounds.contains(x + 1, y));
+        SafeAdd(addr[0], a0);
+        SafeAdd(addr[1], a1);
+    }
+
+    void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override {
+        SkAlpha* addr = getAddr(x, y);
+        SkASSERT(fBounds.contains(x, y) && fBounds.contains(x, y + 1));
+        // Can we do SIMD here?
+        SafeAdd(addr[0], a0);
+        SafeAdd(addr[fBounds.width()], a1);
+    }
+
+    ~MaskHairBlitter() {
+        if (!fBounds.isEmpty()) {
+            SkMask mask;
+            mask.fImage = fMask;
+            mask.fBounds = fBounds;
+            mask.fRowBytes = fBounds.width() * sizeof(SkAlpha);
+            mask.fFormat = SkMask::kA8_Format;
+            fBlitter->blitMask(mask, fBounds);
+        }
+    }
+
+private:
+    SK_ALWAYS_INLINE SkAlpha* getAddr(int x, int y) {
+        return fMask + (y - fBounds.fTop) * fBounds.width() + x - fBounds.fLeft;
+    }
+
+    SK_ALWAYS_INLINE void SafeAdd(SkAlpha& alpha, SkAlpha delta) {
+        alpha = SkTMin(0xff, alpha + delta);
+    }
+
+    SkIRect fBounds;
+    SkBlitter* fBlitter;
+    SkAlpha fMask[MAX_SIZE];
+};
+
+static SkRect compute_nocheck_cubic_bounds(const SkPoint pts[4]) {
+    SkASSERT(SkScalarsAreFinite(&pts[0].fX, 8));
+
+    Sk2s min = Sk2s::Load(pts);
+    Sk2s max = min;
+    for (int i = 1; i < 4; ++i) {
+        Sk2s pair = Sk2s::Load(pts+i);
+        min = Sk2s::Min(min, pair);
+        max = Sk2s::Max(max, pair);
+    }
+    return { min[0], min[1], max[0], max[1] };
+}
+
 static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* blitter,
                        SkScan::HairRgnProc lineproc) {
+    SkRect bounds = compute_nocheck_cubic_bounds(pts);
+    SkIRect ibounds;
+    bounds.roundOut(&ibounds);
+    ibounds.outset(1, 1);
+
+    MaskHairBlitter maskBlitter(blitter);
+    if (MaskHairBlitter::CanHandle(ibounds)) {
+        maskBlitter.setBounds(ibounds);
+        blitter = &maskBlitter;
+    }
+
     const int lines = compute_cubic_segs(pts);
     SkASSERT(lines > 0);
     if (1 == lines) {
@@ -363,19 +462,6 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
     }
     tmp[lines] = pts[3];
     lineproc(tmp, lines + 1, clip, blitter);
-}
-
-static SkRect compute_nocheck_cubic_bounds(const SkPoint pts[4]) {
-    SkASSERT(SkScalarsAreFinite(&pts[0].fX, 8));
-
-    Sk2s min = Sk2s::Load(pts);
-    Sk2s max = min;
-    for (int i = 1; i < 4; ++i) {
-        Sk2s pair = Sk2s::Load(pts+i);
-        min = Sk2s::Min(min, pair);
-        max = Sk2s::Max(max, pair);
-    }
-    return { min[0], min[1], max[0], max[1] };
 }
 
 static inline void haircubic(const SkPoint pts[4], const SkRegion* clip, const SkRect* insetClip, const SkRect* outsetClip,
