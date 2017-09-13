@@ -564,6 +564,11 @@ template<> AI /*static*/ Sk4b SkNx_cast<uint8_t, int32_t>(const Sk4i& src) {
     return vqmovn_u16(vcombine_u16(_16, _16));
 }
 
+template<> AI /*static*/ Sk4b SkNx_cast<uint8_t, uint32_t>(const Sk4u& src) {
+    uint16x4_t _16 = vqmovn_u32(src.fVec);
+    return vqmovn_u16(vcombine_u16(_16, _16));
+}
+
 template<> AI /*static*/ Sk4i SkNx_cast<int32_t, uint16_t>(const Sk4h& src) {
     return vreinterpretq_s32_u32(vmovl_u16(src.fVec));
 }
