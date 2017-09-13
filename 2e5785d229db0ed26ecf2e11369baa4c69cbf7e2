@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d9b20d15_eb73ede1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-13T00:58:36Z",
+      "side": 1,
+      "message": "no way man.",
+      "parentUuid": "7461b5bc_271dc425",
+      "range": {
+        "startLine": 7,
+        "startChar": 6,
+        "endLine": 7,
+        "endChar": 14
+      },
+      "revId": "2e5785d229db0ed26ecf2e11369baa4c69cbf7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "735e9002_8fb886c6",
         "filename": "src/jumper/build_stages.py",
         "patchSetId": 9

@@ -22,6 +22,30 @@
       "revId": "fa050f2692f002a63caa2a74d1b4a30a471ca3a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "757532b3_d2f3e04c",
+        "filename": "src/jumper/build_stages.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-13T00:58:36Z",
+      "side": 1,
+      "message": "Yeah yeah, this\u0027ll all need to double up so we can guard it.",
+      "parentUuid": "7aba59e3_f698e0ab",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 11
+      },
+      "revId": "fa050f2692f002a63caa2a74d1b4a30a471ca3a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

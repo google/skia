@@ -22,6 +22,30 @@
       "revId": "a640c49b7ecf667696542143edec96d10a940592",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2102b865_dccb9511",
+        "filename": "src/jumper/build_stages.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-13T00:58:36Z",
+      "side": 0,
+      "message": "Yeah, once the guard comes down.",
+      "parentUuid": "718f5c1a_c2225dd2",
+      "range": {
+        "startLine": 16,
+        "startChar": 17,
+        "endLine": 16,
+        "endChar": 52
+      },
+      "revId": "a640c49b7ecf667696542143edec96d10a940592",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
