@@ -171,6 +171,10 @@ public:
 
     const char* name() const override { return "AAStrokeRect"; }
 
+    void proxyIter(VisitProxyFunc func) const override {
+        fHelper.proxyIter(func);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         for (const auto& info : fRects) {
