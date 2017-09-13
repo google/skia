@@ -70,6 +70,10 @@ def dm_flags(api, bot):
   if 'Test-iOS' in bot:
     args.extend(['--threads', '0'])
 
+  if 'float_cast_overflow' in bot:
+    # DO NOT SUBMIT
+    args.extend(['--threads', '0'])
+
   # Android's kernel will occasionally attempt to kill our process, using
   # SIGINT, in an effort to free up resources. If requested, that signal
   # is ignored and dm will keep attempting to proceed until we actually
@@ -520,6 +524,36 @@ def dm_flags(api, bot):
     match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
                   '~RGB565TextureTest'])
 
+  if 'float_cast_overflow' in bot and 'CPU' in bot:
+    # skia:4632
+    blacklist(['565',  'gm', '_', 'bigrect'])
+    blacklist(['8888', 'gm', '_', 'bigrect'])
+    blacklist(['srgb', 'gm', '_', 'bigrect'])
+    blacklist(['565',  'gm', '_', 'clippedcubic2'])
+    blacklist(['8888', 'gm', '_', 'clippedcubic2'])
+    blacklist(['srgb', 'gm', '_', 'clippedcubic2'])
+    blacklist(['565',  'gm', '_', 'conicpaths'])
+    blacklist(['8888', 'gm', '_', 'conicpaths'])
+    blacklist(['srgb', 'gm', '_', 'conicpaths'])
+    blacklist(['pdf',  'gm', '_', 'fontmgr_iterDebian9'])
+    blacklist(['pdf',  'gm', '_', 'fontmgr_matchDebian9'])
+    blacklist(['pdf',  'gm', '_', 'typefacestylesDebian'])
+    blacklist(['pdf',  'gm', '_', 'typefacestyles_kerningDebian'])
+    match.append('~^DashPathEffectTest_asPoints_limit$')
+    match.append('~^Matrix$')
+    match.append('~^PathBigCubic$')
+    match.append('~^PathOpsCubicIntersection$')
+    match.append('~^PathOpsCubicLineIntersection$')
+    match.append('~^PathOpsFailOp$')
+    match.append('~^PathOpsOpCubicsThreaded$')
+    match.append('~^PathOpsOpLoopsThreaded$')
+    match.append('~^Point$')
+  if 'float_cast_overflow' in bot and 'GPU' in bot:
+    # skia:4632
+    match.append('~^GLPrograms$')
+    match.append('~^ProcessorCloneTest$')
+    match.append('~^ProcessorOptimizationValidationTest$')
+
   if 'Vulkan' in bot and 'Adreno530' in bot:
       # skia:5777
       match.extend(['~CopySurface'])
@@ -829,7 +863,9 @@ def test_steps(api):
     args.append('--releaseAndAbandonGpuContext')
 
   with api.env(env):
-    api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+    shards = 20
+    for i in xrange(shards):
+      api.run(api.flavor.step, 'dm%d' % i, cmd=args+['--shard', '%d' % i, '--shards', '%d' % shards], abort_on_failure=False)
 
   if api.vars.upload_dm_results:
     # Copy images and JSON to host machine if needed.
