@@ -733,6 +733,7 @@ private:
 
 public:
     DEFINE_OP_CLASS_ID
+
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
                                           const SkPath& path,
                                           const GrUserStencilSettings* stencilSettings) {
@@ -749,6 +750,10 @@ public:
     }
 
     const char* name() const override { return "AAConvexPathOp"; }
+
+    void proxyIter(std::function<void(const GrSurfaceProxy*)> func) const override {
+        fHelper.proxyIter(func);
+    }
 
     SkString dumpInfo() const override {
         SkString string;

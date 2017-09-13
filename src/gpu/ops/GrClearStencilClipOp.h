@@ -24,7 +24,7 @@ public:
     }
 
     const char* name() const override { return "ClearStencilClip"; }
-
+    
     SkString dumpInfo() const override {
         SkString string("Scissor [");
         if (fClip.scissorEnabled()) {
