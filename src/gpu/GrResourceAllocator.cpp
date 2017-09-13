@@ -134,3 +134,39 @@ void GrResourceAllocator::assign() {
         fActiveIntvls.insertByIncreasingEnd(cur);
     }
 }
+
+#ifdef SK_DEBUG
+void GrResourceAllocator::dump() {
+    unsigned int min = fNumOps+1;
+    unsigned int max = 0;
+    for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->fNext) {
+        SkDebugf("{ %d,%d }: [%d, %d] - pRef:%d rRef:%d R:%d W:%d\n",
+                 cur->fProxy->uniqueID().asUInt(), cur->fProxy->underlyingUniqueID().asUInt(),
+                 cur->fStart, cur->fEnd,
+                 cur->fProxy->getProxyRefCnt_TestOnly(),
+                 cur->fProxy->getBackingRefCnt_TestOnly(),
+                 cur->fProxy->getPendingReadCnt_TestOnly(),
+                 cur->fProxy->getPendingWriteCnt_TestOnly());
+        if (min > cur->fStart) {
+            min = cur->fStart;
+        }
+        if (max < cur->fEnd) {
+            max = cur->fEnd;
+        }
+    }
+
+    for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->fNext) {
+        SkDebugf("{ %3d,%3d }: ",
+                 cur->fProxy->uniqueID().asUInt(), cur->fProxy->underlyingUniqueID().asUInt());
+        for (unsigned int i = min; i <= max; ++i) {
+            if (i >= cur->fStart && i <= cur->fEnd) {
+                SkDebugf("x");
+            } else {
+                SkDebugf(" ");
+            }
+        }
+        SkDebugf("\n");
+    }
+}
+#endif
+
