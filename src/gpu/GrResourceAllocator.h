@@ -43,15 +43,16 @@ public:
 
     // Add a usage interval from start to end inclusive. This is usually used for renderTargets.
     // If an existing interval already exists it will be expanded to include the new range.
-    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end);
+    void addInterval(const GrSurfaceProxy*, unsigned int start, unsigned int end);
 
     // Add an interval that spans just the current op. Usually this is for texture uses.
     // If an existing interval already exists it will be expanded to include the new operation.
-    void addInterval(GrSurfaceProxy* proxy) {
+    void addInterval(const GrSurfaceProxy* proxy) {
         this->addInterval(proxy, fNumOps, fNumOps);
     }
 
     void assign();
+    SkDEBUGCODE(void dump();)
 
 private:
     class Interval;
@@ -61,7 +62,7 @@ private:
 
     // These two methods wrap the interactions with the free pool
     void freeUpSurface(GrSurface* surface);
-    sk_sp<GrSurface> findSurfaceFor(GrSurfaceProxy* proxy);
+    sk_sp<GrSurface> findSurfaceFor(const GrSurfaceProxy* proxy);
 
     struct FreePoolTraits {
         static const GrScratchKey& GetKey(const GrSurface& s) {
@@ -76,7 +77,7 @@ private:
 
     class Interval {
     public:
-        Interval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end)
+        Interval(const GrSurfaceProxy* proxy, unsigned int start, unsigned int end)
             : fProxy(proxy)
             , fProxyID(proxy->uniqueID().asUInt())
             , fStart(start)
@@ -91,7 +92,7 @@ private:
         }
         static uint32_t Hash(const uint32_t& key) { return key; }
 
-        GrSurfaceProxy* fProxy;
+        const GrSurfaceProxy* fProxy;
         uint32_t        fProxyID; // This is here b.c. DynamicHash requires a ref to the key 
         unsigned int    fStart;
         unsigned int    fEnd;
