@@ -52,6 +52,7 @@ public:
     }
 
     void assign();
+    SkDEBUGCODE(void dump();)
 
 private:
     class Interval;
@@ -92,7 +93,7 @@ private:
         static uint32_t Hash(const uint32_t& key) { return key; }
 
         GrSurfaceProxy* fProxy;
-        uint32_t        fProxyID; // This is here b.c. DynamicHash requires a ref to the key 
+        uint32_t        fProxyID; // This is here b.c. DynamicHash requires a ref to the key
         unsigned int    fStart;
         unsigned int    fEnd;
         Interval*       fNext;

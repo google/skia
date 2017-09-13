@@ -124,10 +124,12 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
         fColorXformFromSRGB = GrColorSpaceXform::Make(srgbColorSpace.get(), fColorSpace.get());
     }
 
+#ifndef MDB_ALLOC_RESOURCES
     // MDB TODO: to ensure all resources still get allocated in the correct order in the hybrid
     // world we need to get the correct opList here so that it, in turn, can grab and hold
     // its rendertarget.
     this->getRTOpList();
+#endif
     SkDEBUGCODE(this->validate();)
 }
 
