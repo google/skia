@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab648a9f_ea94f676",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-13T20:11:41Z",
+      "side": 1,
+      "message": "{ return false; }",
+      "range": {
+        "startLine": 30,
+        "startChar": 28,
+        "endLine": 30,
+        "endChar": 32
+      },
+      "revId": "fae5a93b265f859ececd8c423c8500df7a132933",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36b09cf7_f114cf7c",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-13T20:11:41Z",
+      "side": 1,
+      "message": "{ SK_ABORT(); }",
+      "range": {
+        "startLine": 33,
+        "startChar": 68,
+        "endLine": 33,
+        "endChar": 79
+      },
+      "revId": "fae5a93b265f859ececd8c423c8500df7a132933",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e62c0cde_7d498d64",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-13T20:11:41Z",
+      "side": 1,
+      "message": "y + 4 \u003c\u003d tmpH; y +\u003d 4\n\n\nDouble check that works?",
+      "range": {
+        "startLine": 746,
+        "startChar": 20,
+        "endLine": 746,
+        "endChar": 21
+      },
+      "revId": "fae5a93b265f859ececd8c423c8500df7a132933",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e784844_fb10b314",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-13T20:11:41Z",
+      "side": 1,
+      "message": "You madman.",
+      "range": {
+        "startLine": 196,
+        "startChar": 82,
+        "endLine": 196,
+        "endChar": 84
+      },
+      "revId": "fae5a93b265f859ececd8c423c8500df7a132933",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfe28ab7_7ed45ec7",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-13T20:11:41Z",
+      "side": 1,
+      "message": "Unused?",
+      "revId": "fae5a93b265f859ececd8c423c8500df7a132933",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
