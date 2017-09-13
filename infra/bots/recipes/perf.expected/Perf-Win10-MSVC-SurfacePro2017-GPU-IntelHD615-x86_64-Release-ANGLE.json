@@ -159,7 +159,7 @@
       "1.1",
       "--nocpu",
       "--config",
-      "angle_d3d11_es2",
+      "angle_gl_es2",
       "--match",
       "~hardstop_",
       "~GM_radial_gradient3",
