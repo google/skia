@@ -198,6 +198,9 @@ def nanobench_flags(api, bot):
     match.append('~shapes_mixed_10000_32x33')
     match.append('~shapes_rect_100_500x500')
     match.append('~shapes_rrect_10000_32x32')
+  if 'float_cast_overflow' in bot and 'CPU' in bot:
+    # skia:4632
+    match.append('~^floor2int_undef$')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -374,6 +377,7 @@ TEST_BUILDERS = [
   'Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug',
   'Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release',
+  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow',
   'Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release',
   'Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-CommandBuffer',
   'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release',

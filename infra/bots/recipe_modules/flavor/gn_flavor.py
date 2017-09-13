@@ -80,7 +80,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     if extra_config == 'MSAN':
       args['skia_enable_gpu']     = 'false'
       args['skia_use_fontconfig'] = 'false'
-    if extra_config == 'ASAN':
+    if 'ASAN' in extra_config or 'UBSAN' in extra_config:
       args['skia_enable_spirv_validation'] = 'false'
     if extra_config == 'Mesa':
       args['skia_use_mesa'] = 'true'
@@ -114,10 +114,16 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     if compiler == 'Clang' and 'Win' in os:
       args['clang_win'] = '"%s"' % self.m.vars.slave_dir.join('clang_win')
 
+    sanitize = ''
+    if extra_config == 'UBSAN_float_cast_overflow':
+      sanitize = 'float-cast-overflow'
+    elif 'SAN' in extra_config:
+      sanitize = extra_config
+
     for (k,v) in {
       'cc':  cc,
       'cxx': cxx,
-      'sanitize': extra_config if 'SAN' in extra_config else '',
+      'sanitize': sanitize,
       'target_cpu': target_arch,
       'target_os': 'ios' if 'iOS' in extra_config else '',
       'windk': win_toolchain if 'Win' in os else '',
@@ -173,7 +179,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     elif self.m.vars.is_linux:
       cmd = ['catchsegv'] + cmd
 
-    if 'ASAN' == extra_config:
+    if 'ASAN' == extra_config or 'UBSAN' in extra_config:
       env[ 'ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'

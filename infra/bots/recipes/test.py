@@ -520,6 +520,32 @@ def dm_flags(api, bot):
     match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
                   '~RGB565TextureTest'])
 
+  if 'float_cast_overflow' in bot and 'CPU' in bot:
+    # skia:4632
+    for config in ['565', '8888', 'f16', 'srgb']:
+      blacklist([config, 'gm', '_', 'bigrect'])
+      blacklist([config, 'gm', '_', 'clippedcubic2'])
+      blacklist([config, 'gm', '_', 'conicpaths'])
+    blacklist(['pdf', 'gm', '_', 'fontmgr_iterDebian9'])
+    blacklist(['pdf', 'gm', '_', 'fontmgr_matchDebian9'])
+    blacklist(['pdf', 'gm', '_', 'typefacestylesDebian'])
+    blacklist(['pdf', 'gm', '_', 'typefacestyles_kerningDebian'])
+    match.append('~^DashPathEffectTest_asPoints_limit$')
+    match.append('~^Matrix$')
+    match.append('~^Matrix44$')
+    match.append('~^PathBigCubic$')
+    match.append('~^PathOpsCubicIntersection$')
+    match.append('~^PathOpsCubicLineIntersection$')
+    match.append('~^PathOpsFailOp$')
+    match.append('~^PathOpsOpCubicsThreaded$')
+    match.append('~^PathOpsOpLoopsThreaded$')
+    match.append('~^Point$')
+  if 'float_cast_overflow' in bot and 'GPU' in bot:
+    # skia:4632
+    match.append('~^GLPrograms$')
+    match.append('~^ProcessorCloneTest$')
+    match.append('~^ProcessorOptimizationValidationTest$')
+
   if 'Vulkan' in bot and 'Adreno530' in bot:
       # skia:5777
       match.extend(['~CopySurface'])
@@ -882,6 +908,7 @@ TEST_BUILDERS = [
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug',
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow',
   'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
   ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind' +
    '_AbandonGpuContext'),
@@ -893,6 +920,8 @@ TEST_BUILDERS = [
   'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release',
   'Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug',
+  ('Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-UBSAN' +
+   '_float_cast_overflow'),
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-Valgrind' +
    '_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug',
