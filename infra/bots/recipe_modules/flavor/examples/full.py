@@ -81,6 +81,7 @@ TEST_BUILDERS = [
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release',
   'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN',
   'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-MSAN',
+  'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow',
   'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs',
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release',
   ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-'
