@@ -24,6 +24,7 @@ class GrDrawPathOpBase : public GrDrawOp {
 protected:
     GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix, GrPaint&&,
                      GrPathRendering::FillType, GrAAType);
+
     FixedFunctionFlags fixedFunctionFlags() const override {
         if (GrAATypeIsHW(fAAType)) {
             return FixedFunctionFlags::kUsesHWAA | FixedFunctionFlags::kUsesStencil;
@@ -33,6 +34,10 @@ protected:
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         return this->doProcessorAnalysis(caps, clip).requiresDstTexture() ? RequiresDstTexture::kYes
                                                                           : RequiresDstTexture::kNo;
+    }
+
+    void visitProxies(VisitProxyFunc func) const override {
+        fProcessorSet.visitProxies(func);
     }
 
 protected:

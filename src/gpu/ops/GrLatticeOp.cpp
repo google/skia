@@ -60,6 +60,10 @@ public:
 
     const char* name() const override { return "NonAALatticeOp"; }
 
+    void visitProxies(VisitProxyFunc func) const override {
+        fHelper.visitProxies(func);
+    }
+
     SkString dumpInfo() const override {
         SkString str;
 

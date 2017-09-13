@@ -65,6 +65,12 @@ public:
 
     virtual const char* name() const = 0;
 
+    typedef std::function<void(GrSurfaceProxy*)> VisitProxyFunc;
+
+    virtual void visitProxies(VisitProxyFunc) const {
+        // This default implementation assumes the op has no proxies
+    }
+
     bool combineIfPossible(GrOp* that, const GrCaps& caps) {
         if (this->classID() != that->classID()) {
             return false;

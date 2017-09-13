@@ -245,6 +245,13 @@ public:
 
     const char* name() const override { return "TextureOp"; }
 
+    void visitProxies(VisitProxyFunc func) const override {
+        auto proxies = this->proxies();
+        for (int i = 0; i < fProxyCnt; ++i) {
+            func(proxies[i]);
+        }
+    }
+
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("AllowSRGBInputs: %d\n", fAllowSRGBInputs);
@@ -482,6 +489,7 @@ private:
             for (int i = 0; i < that->fProxyCnt; ++i) {
                 if (map[i] < 0) {
                     thatProxies[i]->addPendingRead();
+
                     thisProxies[-map[i]] = thatProxies[i];
                     thisFilters[-map[i]] = thatFilters[i];
                     map[i] = -map[i];
