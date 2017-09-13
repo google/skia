@@ -201,6 +201,10 @@ public:
 
     const char* name() const override { return "AAFillRectOp"; }
 
+    void proxyIter(VisitProxyFunc func) const override {
+        fHelper.proxyIter(func);
+    }
+
     SkString dumpInfo() const override {
         SkString str;
         str.append(INHERITED::dumpInfo());

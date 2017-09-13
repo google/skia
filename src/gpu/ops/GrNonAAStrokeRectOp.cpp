@@ -63,6 +63,10 @@ public:
 
     const char* name() const override { return "NonAAStrokeRectOp"; }
 
+    void proxyIter(VisitProxyFunc func) const override {
+        fHelper.proxyIter(func);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.appendf(

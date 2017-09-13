@@ -33,6 +33,10 @@ public:
         return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
     }
 
+    void proxyIter(VisitProxyFunc func) const override {
+        fProcessorSet.proxyIter(func);
+    }
+
 protected:
     BezierTestOp(sk_sp<GrGeometryProcessor> gp, const SkRect& rect, GrColor color, int32_t classID)
             : INHERITED(classID)

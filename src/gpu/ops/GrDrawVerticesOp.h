@@ -46,6 +46,10 @@ public:
 
     const char* name() const override { return "DrawVerticesOp"; }
 
+    void proxyIter(VisitProxyFunc func) const override {
+        fHelper.proxyIter(func);
+    }
+
     SkString dumpInfo() const override;
 
     FixedFunctionFlags fixedFunctionFlags() const override;
