@@ -646,12 +646,6 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         return false;
     }
 
-    if (!proxyToRead->instantiate(fContext->resourceProvider())) {
-        return false;
-    }
-
-    GrSurface* surfaceToRead = proxyToRead->priv().peekSurface();
-
     if (GrGpu::kRequireDraw_DrawPreference == drawPreference && !didTempDraw) {
         return false;
     }
@@ -660,6 +654,13 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         this->flushSurfaceWrites(proxyToRead.get());
         configToRead = tempDrawInfo.fReadConfig;
     }
+
+    if (!proxyToRead->instantiate(fContext->resourceProvider())) {
+        return false;
+    }
+
+    GrSurface* surfaceToRead = proxyToRead->priv().peekSurface();
+
     if (!fContext->fGpu->readPixels(surfaceToRead, proxyToRead->origin(),
                                     left, top, width, height, configToRead, buffer, rowBytes)) {
         return false;
