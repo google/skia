@@ -20,6 +20,15 @@
 #include "SkGr.h"
 #endif
 
+DEF_SIMPLE_GM(flutter_rrect, canvas, 1000, 1000) {
+    SkPaint p;
+    p.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 1.07735f));
+    SkRRect r = SkRRect::MakeRectXY(
+        SkRect::MakeLTRB(598.625, 548.25, 672.125, 621.75),
+        36.749981f, 36.749981f);
+    canvas->drawRRect(r, p);
+}
+
 /** Holds either a bitmap or image to be rendered and a rect that indicates what part of the bitmap
     or image should be tested by the GM. The area outside of the rect is present to check
     for bleed due to filtering/blurring. */

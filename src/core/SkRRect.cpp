@@ -41,7 +41,15 @@ void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
         fRadii[i].set(xRad, yRad);
     }
     fType = kSimple_Type;
-    if (xRad >= SkScalarHalf(fRect.width()) && yRad >= SkScalarHalf(fRect.height())) {
+    if (fRect.left() + xRad >= fRect.right() - xRad &&
+        fRect.top() + yRad >= fRect.bottom() - yRad) {
+        // Checking this way preserves the oval-ness property when adding an rrect to a path.
+        // If we compare the radii to the width/height of the rect, we're doing math at a
+        // potentially (much) smaller scale, where floating point precision is much higher. So, if
+        // xRad is (width/2) - epsilon, we will decide that this rrect is not an oval. However,
+        // when adding the rrect to a path, we construct all of the points explicitly, so they may
+        // round to the same value. We then end up with a path flagged as an rrect that is
+        // functionally an oval.
         fType = kOval_Type;
         // TODO: assert that all the x&y radii are already W/2 & H/2
     }
