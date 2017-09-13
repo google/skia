@@ -177,6 +177,10 @@ public:
 
     const char* name() const override { return "AAFlatteningConvexPathOp"; }
 
+    void visitProxies(VisitProxyFunc func) const override {
+        fHelper.visitProxies(func);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         for (const auto& path : fPaths) {

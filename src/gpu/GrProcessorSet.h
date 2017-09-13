@@ -36,9 +36,6 @@ public:
     int numCoverageFragmentProcessors() const {
         return this->numFragmentProcessors() - fColorFragmentProcessorCnt;
     }
-    int numFragmentProcessors() const {
-        return fFragmentProcessors.count() - fFragmentProcessorOffset;
-    }
 
     const GrFragmentProcessor* colorFragmentProcessor(int idx) const {
         SkASSERT(idx < fColorFragmentProcessorCnt);
@@ -155,8 +152,35 @@ public:
 
     SkString dumpProcessors() const;
 
+    void markAsHandled() const {
+        for (int i = 0; i < this->numFragmentProcessors(); ++i) {
+            GrFragmentProcessor::TextureAccessIter iter(this->fragmentProcessor(i));
+            while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+                sampler->fHandled = true;
+            }
+        }
+    }
+
+    void visitProxies(std::function<void(GrSurfaceProxy*)> func) const {
+        for (int i = 0; i < this->numFragmentProcessors(); ++i) {
+            GrFragmentProcessor::TextureAccessIter iter(this->fragmentProcessor(i));
+            while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+                sampler->fHandled = true;
+                func(sampler->proxy());
+            }
+        }
+    }
+
 private:
     GrProcessorSet(Empty) : fXP((const GrXferProcessor*)nullptr), fFlags(kFinalized_Flag) {}
+
+    int numFragmentProcessors() const {
+        return fFragmentProcessors.count() - fFragmentProcessorOffset;
+    }
+
+    const GrFragmentProcessor* fragmentProcessor(int idx) const {
+        return fFragmentProcessors[idx + fFragmentProcessorOffset].get();
+    }
 
     // This absurdly large limit allows Analysis and this to pack fields together.
     static constexpr int kMaxColorProcessors = UINT8_MAX;

@@ -116,8 +116,13 @@ public:
                         HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-private:
     const char* name() const override { return "GrPipelineDynamicStateTestOp"; }
+
+    void visitProxies(VisitProxyFunc func) const override {
+        SkASSERT(0);
+    }
+
+private:
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override {
         return RequiresDstTexture::kNo;

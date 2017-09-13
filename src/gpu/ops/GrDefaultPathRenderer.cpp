@@ -343,6 +343,10 @@ public:
 
     const char* name() const override { return "DefaultPathOp"; }
 
+    void visitProxies(VisitProxyFunc func) const override {
+        fHelper.visitProxies(func);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("Color: 0x%08x Count: %d\n", fColor, fPaths.count());

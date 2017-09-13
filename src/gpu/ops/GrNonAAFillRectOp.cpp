@@ -139,6 +139,10 @@ public:
 
     const char* name() const override { return "NonAAFillRectOp"; }
 
+    void visitProxies(VisitProxyFunc func) const override {
+        fHelper.visitProxies(func);
+    }
+
     SkString dumpInfo() const override {
         SkString str;
         str.append(GrMeshDrawOp::dumpInfo());
@@ -257,6 +261,10 @@ public:
     }
 
     const char* name() const override { return "NonAAFillRectPerspectiveOp"; }
+
+    void visitProxies(VisitProxyFunc func) const override {
+        fHelper.visitProxies(func);
+    }
 
     SkString dumpInfo() const override {
         SkString str;
