@@ -208,13 +208,8 @@ def dm_flags(api, bot):
 
     # ANGLE bot *only* runs the angle configs
     if 'ANGLE' in bot:
-      configs = ['angle_d3d11_es2',
-                 'angle_d3d9_es2',
-                 'angle_gl_es2',
-                 'angle_d3d11_es3']
-      if sample_count is not '':
-        configs.append('angle_d3d11_es2_msaa' + sample_count)
-        configs.append('angle_d3d11_es3_msaa' + sample_count)
+      configs = ['angle_d3d9_es2',
+                 'angle_gl_es2']
 
     # Vulkan bot *only* runs the vk config.
     if 'Vulkan' in bot:
