@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b018e4a_30b34d1f",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-13T03:58:05Z",
+      "side": 1,
+      "message": "What no \"if extra_config matches UBSAN_(.*)\"... ?",
+      "revId": "2c4b7ea579f84b756cf16c700a5bb1298c074829",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
