@@ -33,6 +33,10 @@ public:
 
     const char* name() const override { return "DrawAtlasOp"; }
 
+    void proxyIter(GrProxyVisitor* visitor) const override {
+        fHelper.proxyIter(visitor);
+    }
+
     SkString dumpInfo() const override;
 
     FixedFunctionFlags fixedFunctionFlags() const override;

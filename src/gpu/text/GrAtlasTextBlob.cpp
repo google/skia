@@ -298,10 +298,12 @@ inline void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrClip& 
     int lastRun = fRuns[run].fSubRunInfo.count() - 1;
     for (int subRun = 0; subRun <= lastRun; subRun++) {
         const Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
+#if 0
         GrPaint grPaint;
         if (!paint.toGrPaint(info.maskFormat(), rtc, viewMatrix, &grPaint)) {
             continue;
         }
+#endif
         int glyphCount = info.glyphCount();
         if (0 == glyphCount) {
             continue;

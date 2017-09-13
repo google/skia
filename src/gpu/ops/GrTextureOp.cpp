@@ -181,11 +181,14 @@ private:
                 this->addVertexAttrib("position", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
         fSamplers[0].reset(std::move(proxies[0]), filters[0]);
         this->addTextureSampler(&fSamplers[0]);
+        // The proxy is handled by the TextureOp
+        fSamplers[0].fHandled = true;
         for (int i = 1; i < proxyCnt; ++i) {
             // This class has one sampler built in, the rest come from memory this processor was
             // placement-newed into and so haven't been constructed.
             new (&fSamplers[i]) TextureSampler(std::move(proxies[i]), filters[i]);
             this->addTextureSampler(&fSamplers[i]);
+            fSamplers[i].fHandled = true;
         }
         if (samplerCnt > 1) {
             // Here we initialize any extra samplers by repeating the last one samplerCnt - proxyCnt
@@ -194,6 +197,7 @@ private:
             for (int i = proxyCnt; i < samplerCnt; ++i) {
                 new (&fSamplers[i]) TextureSampler(sk_ref_sp(dupeProxy), filters[proxyCnt - 1]);
                 this->addTextureSampler(&fSamplers[i]);
+                fSamplers[i].fHandled = true;
             }
             SkASSERT(caps.integerSupport());
             fTextureIdx = this->addVertexAttrib("textureIdx", kInt_GrVertexAttribType);
@@ -244,6 +248,13 @@ public:
     }
 
     const char* name() const override { return "TextureOp"; }
+
+    void proxyIter(GrProxyVisitor* visitor) const override {
+        auto proxies = this->proxies();
+        for (int i = 0; i < fProxyCnt; ++i) {
+            visitor->visit(proxies[i]);
+        }
+    }
 
     SkString dumpInfo() const override {
         SkString str;
@@ -482,6 +493,7 @@ private:
             for (int i = 0; i < that->fProxyCnt; ++i) {
                 if (map[i] < 0) {
                     thatProxies[i]->addPendingRead();
+
                     thisProxies[-map[i]] = thatProxies[i];
                     thisFilters[-map[i]] = thatFilters[i];
                     map[i] = -map[i];

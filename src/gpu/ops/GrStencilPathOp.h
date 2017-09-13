@@ -32,6 +32,10 @@ public:
 
     const char* name() const override { return "StencilPathOp"; }
 
+    void proxyIter(GrProxyVisitor*) const override {
+        // No proxies here
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.printf("Path: 0x%p, AA: %d", fPath.get(), fUseHWAA);

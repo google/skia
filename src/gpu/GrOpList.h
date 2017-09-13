@@ -17,9 +17,12 @@
 
 class GrAuditTrail;
 class GrCaps;
+class GrFragmentProcessor;
 class GrOpFlushState;
 class GrPrepareCallback;
+class GrProcessorSet;
 class GrRenderTargetOpList;
+class GrResourceAllocator;
 class GrResourceProvider;
 class GrSurfaceProxy;
 class GrTextureProxy;
@@ -98,6 +101,8 @@ public:
     void setStencilLoadOp(GrLoadOp loadOp) { fStencilLoadOp = loadOp; }
 
 protected:
+    SkDEBUGCODE(bool isInstantiated() const;)
+
     GrSurfaceProxyRef fTarget;
     GrAuditTrail*     fAuditTrail;
 
@@ -106,7 +111,9 @@ protected:
     GrLoadOp          fStencilLoadOp  = GrLoadOp::kLoad;
 
 private:
-    friend class GrDrawingManager; // for resetFlag & TopoSortTraits
+    friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gather
+
+    virtual void gatherOpList(GrResourceAllocator*) const = 0;
 
     static uint32_t CreateUniqueID();
 

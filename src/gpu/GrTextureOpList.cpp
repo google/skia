@@ -106,6 +106,10 @@ bool GrTextureOpList::copySurface(const GrCaps& caps,
     return true;
 }
 
+void GrTextureOpList::gatherOpList(GrResourceAllocator*) const {
+
+}
+
 void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op) {
     SkASSERT(fTarget.get());
     // A closed GrOpList should never receive new/more ops

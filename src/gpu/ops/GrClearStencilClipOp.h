@@ -24,6 +24,10 @@ public:
     }
 
     const char* name() const override { return "ClearStencilClip"; }
+    
+    void proxyIter(GrProxyVisitor*) const override {
+        // No proxies here
+    }
 
     SkString dumpInfo() const override {
         SkString string("Scissor [");

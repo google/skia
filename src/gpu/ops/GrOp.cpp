@@ -10,6 +10,22 @@
 #include "GrMemoryPool.h"
 #include "SkSpinlock.h"
 
+#include "GrProcessorSet.h"
+
+class NullProxyDependencyVisitor : public GrProxyVisitor {
+public:
+    NullProxyDependencyVisitor() { }
+
+    void visit(GrSurfaceProxy* proxy) override { }
+};
+
+
+void GrOp::markAsHandled() {
+    NullProxyDependencyVisitor visitor;
+
+    this->proxyIter(&visitor);
+}
+
 // TODO I noticed a small benefit to using a larger exclusive pool for ops. Its very small, but
 // seems to be mostly consistent.  There is a lot in flux right now, but we should really revisit
 // this.

@@ -237,6 +237,10 @@ public:
 
     const char* name() const override { return "ShadowCircularRRectOp"; }
 
+    void proxyIter(GrProxyVisitor* visitor) const override {
+        // No proxies here
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         for (int i = 0; i < fGeoData.count(); ++i) {

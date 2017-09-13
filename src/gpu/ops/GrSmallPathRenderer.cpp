@@ -192,6 +192,17 @@ public:
 
     const char* name() const override { return "SmallPathOp"; }
 
+    void proxyIter(GrProxyVisitor* visitor) const override {
+        fHelper.proxyIter(visitor);
+
+        const sk_sp<GrTextureProxy>* proxies = fAtlas->getProxies();
+        for (int i = 0; i < GrDrawOpAtlas::kMaxPages; ++i) {
+            if (proxies[i].get()) {
+                visitor->visit(proxies[i].get());
+            }
+        }
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         for (const auto& geo : fShapes) {
