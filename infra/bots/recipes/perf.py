@@ -114,10 +114,8 @@ def nanobench_flags(api, bot):
       configs = ['vk']
 
     if 'ANGLE' in bot:
-      # Test only ANGLE configs.
-      configs = ['angle_d3d11_es2']
-      if sample_count is not '':
-        configs.append('angle_d3d11_es2_msaa' + sample_count)
+      configs = ['angle_d3d9_es2',
+                 'angle_gl_es2']
 
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
