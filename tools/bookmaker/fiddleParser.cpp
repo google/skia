@@ -63,8 +63,7 @@ bool FiddleParser::parseFiddles() {
                     --brackets;
                 }
             } while (!this->eof() && this->next() && brackets > 0);
-            SkDebugf("fiddle compile error in %s: %.*s\n", name.c_str(), (int) (fChar - errorStart),
-                    errorStart);
+            this->reportError("fiddle compile error");
         }
         if (!this->skipExact("],\n")) {
             return false;
@@ -77,8 +76,7 @@ bool FiddleParser::parseFiddles() {
             if (!this->skipToEndBracket('"')) {
                 return false;
             }
-            SkDebugf("fiddle runtime error in %s: %.*s\n", name.c_str(), (int) (fChar - errorStart),
-                    errorStart);
+            this->reportError("fiddle runtime error");
         }
         if (!this->skipExact("\",\n")) {
             return false;
@@ -92,7 +90,7 @@ bool FiddleParser::parseFiddles() {
         }
         Definition* example = this->findExample(name);
         if (!example) {
-            SkDebugf("missing example %s\n", name.c_str());
+            this->reportError("missing example");
         }
         string hash(hashStart, fChar - hashStart);
         if (example) {
@@ -141,21 +139,21 @@ bool FiddleParser::parseFiddles() {
                         SkASSERT(fiddleLen > 0);
                         if (bmhLen != fiddleLen) {
                             if (!foundVolatile) {
-                                SkDebugf("mismatched stdout len in %s\n", name.c_str());
+                                bmh.reportError("mismatched stdout len\n");
                             }
                         } else  if (strncmp(bmh.fChar, fiddle.fChar, fiddleLen)) {
                             if (!foundVolatile) {
-                                SkDebugf("mismatched stdout text in %s\n", name.c_str());
+                                bmh.reportError("mismatched stdout text\n");
                             }
                         }
                         bmh.skipToLineStart();
                         fiddle.skipToLineStart();
                     } while (!bmh.eof() && !fiddle.eof());
                     if (!foundStdOut) {
-                        SkDebugf("bmh %s missing stdout\n", name.c_str());
+                        bmh.reportError("bmh %s missing stdout\n");
                     } else if (!bmh.eof() || !fiddle.eof()) {
                         if (!foundVolatile) {
-                            SkDebugf("%s mismatched stdout eof\n", name.c_str());
+                            bmh.reportError("%s mismatched stdout eof\n");
                         }
                     }
                 }
