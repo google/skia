@@ -98,6 +98,8 @@ public:
     void setStencilLoadOp(GrLoadOp loadOp) { fStencilLoadOp = loadOp; }
 
 protected:
+    SkDEBUGCODE(bool isInstantiated() const;)
+
     GrSurfaceProxyRef fTarget;
     GrAuditTrail*     fAuditTrail;
 
