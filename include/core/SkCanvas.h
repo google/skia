@@ -199,7 +199,7 @@ public:
     */
     SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props);
 
-    /** Draw saved SkCanvas::_anonymous, if any.
+    /** Draw saved layer, if any.
         Free up resources used by SkCanvas.
     */
     virtual ~SkCanvas();
@@ -232,11 +232,11 @@ public:
     */
     void flush();
 
-    /** Gets the size of the base or root SkCanvas::_anonymous in global canvas coordinates. The
-        origin of the base SkCanvas::_anonymous is always (0,0). The area available for drawing may be
+    /** Gets the size of the base or root layer in global canvas coordinates. The
+        origin of the base layer is always (0,0). The area available for drawing may be
         smaller (due to clipping or saveLayer).
 
-        @return  integral width and height of base SkCanvas::_anonymous
+        @return  integral width and height of base layer
     */
     virtual SkISize getBaseLayerSize() const;
 
@@ -267,7 +267,7 @@ public:
 
         @param info      storage for writable pixels' SkImageInfo; may be nullptr
         @param rowBytes  storage for writable pixels' row bytes; may be nullptr
-        @param origin    storage for SkCanvas top SkCanvas::_anonymous origin, its top left corner;
+        @param origin    storage for SkCanvas top layer origin, its top left corner;
                          may be nullptr
         @return          address of pixels, or nullptr if inaccessible
     */
@@ -389,8 +389,8 @@ public:
 
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
-        @param bounds  hint to limit the size of the SkCanvas::_anonymous; may be nullptr
-        @param paint   graphics state for SkCanvas::_anonymous; may be nullptr
+        @param bounds  hint to limit the size of the layer; may be nullptr
+        @param paint   graphics state for layer; may be nullptr
         @return        depth of saved stack
     */
     int saveLayer(const SkRect* bounds, const SkPaint* paint);
@@ -404,7 +404,7 @@ public:
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
         clipPath(), clipRegion().
 
-        SkRect bounds suggests but does not define the SkCanvas::_anonymous size. To clip drawing to
+        SkRect bounds suggests but does not define the layer size. To clip drawing to
         a specific rectangle, use clipRect().
 
         Optional SkPaint paint applies color alpha, SkColorFilter, SkImageFilter, and
@@ -412,8 +412,8 @@ public:
 
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
-        @param bounds  hint to limit the size of SkCanvas::_anonymous; may be nullptr
-        @param paint   graphics state for SkCanvas::_anonymous; may be nullptr
+        @param bounds  hint to limit the size of layer; may be nullptr
+        @param paint   graphics state for layer; may be nullptr
         @return        depth of saved stack
     */
     int saveLayer(const SkRect& bounds, const SkPaint* paint) {
@@ -422,16 +422,16 @@ public:
 
     /** Saves SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most platforms),
         and allocates a SkBitmap for subsequent drawing.
-        lcd text is preserved when the SkCanvas::_anonymous is drawn to the prior SkCanvas::_anonymous.
+        lcd text is preserved when the layer is drawn to the prior layer.
 
         Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
-        and draws SkCanvas::_anonymous.
+        and draws layer.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
         clipPath(), clipRegion().
 
-        SkRect bounds suggests but does not define the SkCanvas::_anonymous size. To clip drawing to
+        SkRect bounds suggests but does not define the layer size. To clip drawing to
         a specific rectangle, use clipRect().
 
         Optional SkPaint paint applies color alpha, SkColorFilter, SkImageFilter, and
@@ -440,11 +440,11 @@ public:
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
         Draw text on an opaque background so that lcd text blends correctly with the
-        prior SkCanvas::_anonymous. lcd text drawn on a background with transparency may result in
+        prior layer. lcd text drawn on a background with transparency may result in
         incorrect banding.
 
-        @param bounds  hint to limit the size of SkCanvas::_anonymous; may be nullptr
-        @param paint   graphics state for SkCanvas::_anonymous; may be nullptr
+        @param bounds  hint to limit the size of layer; may be nullptr
+        @param paint   graphics state for layer; may be nullptr
         @return        depth of saved stack
     */
     int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint);
@@ -453,41 +453,41 @@ public:
         and allocates SkBitmap for subsequent drawing.
 
         Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
-        and blends SkCanvas::_anonymous with alpha opacity onto prior SkCanvas::_anonymous.
+        and blends layer with alpha opacity onto prior layer.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
         clipPath(), clipRegion().
 
-        SkRect bounds suggests but does not define SkCanvas::_anonymous size. To clip drawing to
+        SkRect bounds suggests but does not define layer size. To clip drawing to
         a specific rectangle, use clipRect().
 
         alpha of zero is fully transparent, 255 is fully opaque.
 
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
-        @param bounds  hint to limit the size of SkCanvas::_anonymous; may be nullptr
-        @param alpha   opacity of SkCanvas::_anonymous
+        @param bounds  hint to limit the size of layer; may be nullptr
+        @param alpha   opacity of SkCanvas::layer
         @return        depth of saved stack
     */
     int saveLayerAlpha(const SkRect* bounds, U8CPU alpha);
 
     /** \enum
         SaveLayerFlags provides options that may be used in any combination in SaveLayerRec,
-        defining how _anonymous allocated by saveLayer() operates.
+        defining how layer allocated by saveLayer() operates.
     */
     enum {
-        /** Creates _anonymous without transparency. Flag is ignored if _anonymous SkPaint contains
+        /** Creates layer without transparency. Flag is ignored if layer SkPaint contains
             SkImageFilter or SkColorFilter.
         */
         kIsOpaque_SaveLayerFlag               = 1 << 0,
 
-        /** Creates _anonymous for LCD text. Flag is ignored if _anonymous SkPaint contains
+        /** Creates layer for LCD text. Flag is ignored if layer SkPaint contains
             SkImageFilter or SkColorFilter.
         */
         kPreserveLCDText_SaveLayerFlag        = 1 << 1,
 
-        /** Initializes _anonymous with the contents of the previous _anonymous. */
+        /** Initializes layer with the contents of the previous layer. */
         kInitWithPrevious_SaveLayerFlag       = 1 << 2,
 
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
@@ -499,7 +499,7 @@ public:
     typedef uint32_t SaveLayerFlags;
 
     /** \struct SkCanvas::SaveLayerRec
-        SaveLayerRec contains the state used to create the SkCanvas::_anonymous.
+        SaveLayerRec contains the state used to create the layer.
     */
     struct SaveLayerRec {
 
@@ -511,9 +511,9 @@ public:
 
         /** Sets fBounds, fPaint, and fSaveLayerFlags; sets fBackdrop to nullptr.
 
-            @param bounds          SkCanvas::_anonymous dimensions; may be nullptr
-            @param paint           applied to SkCanvas::_anonymous when overlaying prior SkCanvas::_anonymous; may be nullptr
-            @param saveLayerFlags  SaveLayerRec options to modify SkCanvas::_anonymous
+            @param bounds          layer dimensions; may be nullptr
+            @param paint           applied to layer when overlaying prior layer; may be nullptr
+            @param saveLayerFlags  SaveLayerRec options to modify layer
             @return                SaveLayerRec with empty backdrop
         */
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
@@ -524,11 +524,11 @@ public:
 
         /** Sets fBounds, fPaint, fBackdrop, and fSaveLayerFlags.
 
-            @param bounds          SkCanvas::_anonymous dimensions; may be nullptr
-            @param paint           applied to SkCanvas::_anonymous when overlaying prior SkCanvas::_anonymous;
+            @param bounds          layer dimensions; may be nullptr
+            @param paint           applied to layer when overlaying prior layer;
                                    may be nullptr
-            @param backdrop        prior SkCanvas::_anonymous copied with SkImageFilter; may be nullptr
-            @param saveLayerFlags  SaveLayerRec options to modify SkCanvas::_anonymous
+            @param backdrop        prior layer copied with SkImageFilter; may be nullptr
+            @param saveLayerFlags  SaveLayerRec options to modify layer
             @return                SaveLayerRec fully specified
         */
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
@@ -542,19 +542,19 @@ public:
         /** EXPERIMENTAL: Not ready for general use.
             Sets fBounds, fPaint, fBackdrop, fClipMask, fClipMatrix, and fSaveLayerFlags.
             clipMatrix uses color alpha channel of image, transformed by clipMatrix, to clip
-            SkCanvas::_anonymous when drawn to SkCanvas.
+            layer when drawn to SkCanvas.
 
             Implementation is incomplete; has no effect if SkBaseDevice is GPU-backed.
 
-            @param bounds          SkCanvas::_anonymous dimensions; may be nullptr
-            @param paint           graphics state applied to SkCanvas::_anonymous when overlaying prior
-                                   SkCanvas::_anonymous; may be nullptr
-            @param backdrop        prior SkCanvas::_anonymous copied with SkImageFilter;
+            @param bounds          layer dimensions; may be nullptr
+            @param paint           graphics state applied to layer when overlaying prior
+                                   layer; may be nullptr
+            @param backdrop        prior layer copied with SkImageFilter;
                                    may be nullptr
-            @param clipMask        clip applied to SkCanvas::_anonymous; may be nullptr
+            @param clipMask        clip applied to layer; may be nullptr
             @param clipMatrix      matrix applied to clipMask; may be nullptr to use
                                    identity matrix
-            @param saveLayerFlags  SaveLayerRec options to modify SkCanvas::_anonymous
+            @param saveLayerFlags  SaveLayerRec options to modify layer
             @return                SaveLayerRec fully specified
         */
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
@@ -568,38 +568,38 @@ public:
             , fSaveLayerFlags(saveLayerFlags)
         {}
 
-        /** fBounds is used as a hint to limit the size of SkCanvas::_anonymous; may be nullptr.
-            fBounds suggests but does not define SkCanvas::_anonymous size. To clip drawing to
+        /** fBounds is used as a hint to limit the size of layer; may be nullptr.
+            fBounds suggests but does not define layer size. To clip drawing to
             a specific rectangle, use clipRect().
         */
         const SkRect*        fBounds         = nullptr;
 
-        /** fPaint modifies how SkCanvas::_anonymous overlays the prior SkCanvas::_anonymous; may be nullptr.
+        /** fPaint modifies how layer overlays the prior layer; may be nullptr.
             color alpha, SkBlendMode, SkColorFilter, SkDrawLooper, SkImageFilter, and
-            SkMaskFilter affect SkCanvas::_anonymous draw.
+            SkMaskFilter affect layer draw.
         */
         const SkPaint*       fPaint          = nullptr;
 
-        /** fBackdrop applies SkImageFilter to the prior SkCanvas::_anonymous when copying to the SkCanvas::_anonymous;
+        /** fBackdrop applies SkImageFilter to the prior layer when copying to the layer;
             may be nullptr. Use kInitWithPrevious_SaveLayerFlag to copy the
-            prior SkCanvas::_anonymous without an SkImageFilter.
+            prior layer without an SkImageFilter.
         */
         const SkImageFilter* fBackdrop       = nullptr;
 
-        /** restore() clips SkCanvas::_anonymous by the color alpha channel of fClipMask when
-            SkCanvas::_anonymous is copied to SkBaseDevice. fClipMask may be nullptr.    .
+        /** restore() clips layer by the color alpha channel of fClipMask when
+            layer is copied to SkBaseDevice. fClipMask may be nullptr.    .
         */
         const SkImage*       fClipMask       = nullptr;
 
-        /** fClipMatrix transforms fClipMask before it clips SkCanvas::_anonymous. If
+        /** fClipMatrix transforms fClipMask before it clips layer. If
             fClipMask describes a translucent gradient, it may be scaled and rotated
             without introducing artifacts. fClipMatrix may be nullptr.
         */
         const SkMatrix*      fClipMatrix     = nullptr;
 
-        /** fSaveLayerFlags are used to create SkCanvas::_anonymous without transparency,
-            create SkCanvas::_anonymous for LCD text, and to create SkCanvas::_anonymous with the
-            contents of the previous SkCanvas::_anonymous.
+        /** fSaveLayerFlags are used to create layer without transparency,
+            create layer for LCD text, and to create layer with the
+            contents of the previous layer.
         */
         SaveLayerFlags       fSaveLayerFlags = 0;
 
@@ -609,17 +609,17 @@ public:
         and allocates SkBitmap for subsequent drawing.
 
         Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
-        and blends SkBitmap with color alpha opacity onto the prior SkCanvas::_anonymous.
+        and blends SkBitmap with color alpha opacity onto the prior layer.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
         clipPath(), clipRegion().
 
-        SaveLayerRec contains the state used to create the SkCanvas::_anonymous.
+        SaveLayerRec contains the state used to create the layer.
 
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
-        @param layerRec  SkCanvas::_anonymous state
+        @param layerRec  layer state
         @return          depth of save state stack
     */
     int saveLayer(const SaveLayerRec& layerRec);
