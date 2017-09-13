@@ -70,6 +70,10 @@ def dm_flags(api, bot):
   if 'Test-iOS' in bot:
     args.extend(['--threads', '0'])
 
+  if 'float_cast_overflow' in bot:
+    # DO NOT SUBMIT
+    args.extend(['--threads', '0'])
+
   # Android's kernel will occasionally attempt to kill our process, using
   # SIGINT, in an effort to free up resources. If requested, that signal
   # is ignored and dm will keep attempting to proceed until we actually
@@ -520,6 +524,16 @@ def dm_flags(api, bot):
     match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
                   '~RGB565TextureTest'])
 
+  if 'float_cast_overflow' in bot:
+    # skia:4632
+    blacklist(['8888', 'gm', '_', 'clippedcubic2'])
+    blacklist(['srgb', 'gm', '_', 'clippedcubic2'])
+    blacklist(['8888', 'gm', '_', 'conicpaths'])
+    # GPU
+    match.append('~^ProcessorCloneTest$')
+    match.append('~^ProcessorOptimizationValidationTest$')
+    match.append('~^GLPrograms$')
+
   if 'Vulkan' in bot and 'Adreno530' in bot:
       # skia:5777
       match.extend(['~CopySurface'])
@@ -829,7 +843,9 @@ def test_steps(api):
     args.append('--releaseAndAbandonGpuContext')
 
   with api.env(env):
-    api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+    shards = 20
+    for i in xrange(shards):
+      api.run(api.flavor.step, 'dm%d' % i, cmd=args+['--shard', '%d' % i, '--shards', '%d' % shards], abort_on_failure=False)
 
   if api.vars.upload_dm_results:
     # Copy images and JSON to host machine if needed.
