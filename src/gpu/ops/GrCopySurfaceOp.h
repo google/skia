@@ -21,6 +21,10 @@ public:
 
     const char* name() const override { return "CopySurface"; }
 
+    void proxyIter(std::function<void(const GrSurfaceProxy*)> func) const override {
+        SkASSERT(0);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.append(INHERITED::dumpInfo());

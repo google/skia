@@ -97,6 +97,17 @@ public:
 
     const char* name() const override { return "AtlasTextOp"; }
 
+    void proxyIter(std::function<void(const GrSurfaceProxy*)> func) const override {
+        fProcessors.proxyIter(func);
+
+        const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(this->maskFormat());
+        for (int i = 0; i < kMaxTextures; ++i) {
+            if (proxies[i]) {
+                func(proxies[i].get());
+            }
+        }
+    }
+
     SkString dumpInfo() const override;
 
     FixedFunctionFlags fixedFunctionFlags() const override;

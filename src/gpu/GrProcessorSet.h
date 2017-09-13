@@ -48,6 +48,9 @@ public:
         return fFragmentProcessors[idx + fColorFragmentProcessorCnt +
                                    fFragmentProcessorOffset].get();
     }
+    const GrFragmentProcessor* fragmentProcessor1(int idx) const {
+        return fFragmentProcessors[idx + fFragmentProcessorOffset].get();
+    }
 
     const GrXferProcessor* xferProcessor() const {
         SkASSERT(this->isFinalized());
@@ -154,6 +157,25 @@ public:
     static constexpr const Analysis EmptySetAnalysis() { return Analysis(Empty::kEmpty); }
 
     SkString dumpProcessors() const;
+
+    void markAsHandled() const {
+        for (int i = 0; i < this->numFragmentProcessors(); ++i) {
+            GrFragmentProcessor::TextureAccessIter iter(this->fragmentProcessor1(i));
+            while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+                sampler->fHandled = true;
+            }
+        }
+    }
+
+    void proxyIter(std::function<void(const GrSurfaceProxy*)> func) const {
+        for (int i = 0; i < this->numFragmentProcessors(); ++i) {
+            GrFragmentProcessor::TextureAccessIter iter(this->fragmentProcessor1(i));
+            while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+                sampler->fHandled = true;
+                func(sampler->proxy());
+            }
+        }
+    }
 
 private:
     GrProcessorSet(Empty) : fXP((const GrXferProcessor*)nullptr), fFlags(kFinalized_Flag) {}

@@ -28,6 +28,10 @@ public:
     ~InstancedOp() override;
     const char* name() const override { return "InstancedOp"; }
 
+    void proxyIter(std::function<void(const GrSurfaceProxy*)> func) const override {
+        fProcessors.proxyIter(func);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.printf(

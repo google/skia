@@ -139,6 +139,10 @@ public:
 
     const char* name() const override { return "NonAAFillRectOp"; }
 
+    void proxyIter(std::function<void(const GrSurfaceProxy*)> func) const override {
+        fHelper.proxyIter(func);
+    }
+
     SkString dumpInfo() const override {
         SkString str;
         str.append(GrMeshDrawOp::dumpInfo());
@@ -257,6 +261,10 @@ public:
     }
 
     const char* name() const override { return "NonAAFillRectPerspectiveOp"; }
+
+    void proxyIter(std::function<void(const GrSurfaceProxy*)> func) const override {
+        fHelper.proxyIter(func);
+    }
 
     SkString dumpInfo() const override {
         SkString str;

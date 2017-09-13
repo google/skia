@@ -60,6 +60,10 @@ public:
 
     const char* name() const override { return "NonAALatticeOp"; }
 
+    void proxyIter(std::function<void(const GrSurfaceProxy*)> func) const override {
+        fHelper.proxyIter(func);
+    }
+
     SkString dumpInfo() const override {
         SkString str;
 
