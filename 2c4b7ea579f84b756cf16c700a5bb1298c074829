@@ -16,6 +16,24 @@
       "revId": "2c4b7ea579f84b756cf16c700a5bb1298c074829",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28c3056a_481cd302",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-13T14:50:49Z",
+      "side": 1,
+      "message": "I didn\u0027t want to overgeneralize if this is the only one we have.\n\nI was also too lazy to replace underscores with dashes.",
+      "parentUuid": "7b018e4a_30b34d1f",
+      "revId": "2c4b7ea579f84b756cf16c700a5bb1298c074829",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
