@@ -82,6 +82,12 @@ public:
     }
     bool operator!=(const GrAppliedClip& that) const { return !(*this == that); }
 
+    void proxyIter(std::function<void(const GrSurfaceProxy*)> func) const {
+        if (fClipCoverageFP) {
+            fClipCoverageFP->proxyIter(func);
+        }
+    }
+
 private:
     GrScissorState             fScissorState;
     GrWindowRectsState         fWindowRectsState;

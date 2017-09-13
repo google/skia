@@ -15,6 +15,7 @@ class GrGLSLFragmentProcessor;
 class GrInvariantOutput;
 class GrPipeline;
 class GrProcessorKeyBuilder;
+class GrProxyVisitor;
 class GrShaderCaps;
 class GrSwizzle;
 
@@ -240,6 +241,21 @@ public:
                                          GrResourceIOProcessor,
                                          &GrResourceIOProcessor::numTextureSamplers,
                                          &GrResourceIOProcessor::textureSampler>;
+
+    void markAsHandled() {
+        GrFragmentProcessor::TextureAccessIter iter(this);
+        while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+            sampler->fHandled = true;
+        }
+    }
+
+    void proxyIter(std::function<void(const GrSurfaceProxy*)> func) {
+        GrFragmentProcessor::TextureAccessIter iter(this);
+        while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+            sampler->fHandled = true;
+            func(sampler->proxy());
+        }
+    }
 
 protected:
     enum OptimizationFlags : uint32_t {

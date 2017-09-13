@@ -20,6 +20,7 @@ class GrCaps;
 class GrOpFlushState;
 class GrPrepareCallback;
 class GrRenderTargetOpList;
+class GrResourceAllocator;
 class GrResourceProvider;
 class GrSurfaceProxy;
 class GrTextureProxy;
@@ -65,12 +66,12 @@ public:
     /*
      * Notify this GrOpList that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps);
+    void addDependency(const GrSurfaceProxy* dependedOn, const GrCaps& caps);
 
     /*
      * Does this opList depend on 'dependedOn'?
      */
-    bool dependsOn(GrOpList* dependedOn) const {
+    bool dependsOn(const GrOpList* dependedOn) const {
         return fDependencies.find(dependedOn) >= 0;
     }
 
@@ -98,6 +99,8 @@ public:
     void setStencilLoadOp(GrLoadOp loadOp) { fStencilLoadOp = loadOp; }
 
 protected:
+    SkDEBUGCODE(bool isInstantiated() const;)
+
     GrSurfaceProxyRef fTarget;
     GrAuditTrail*     fAuditTrail;
 
@@ -106,7 +109,9 @@ protected:
     GrLoadOp          fStencilLoadOp  = GrLoadOp::kLoad;
 
 private:
-    friend class GrDrawingManager; // for resetFlag & TopoSortTraits
+    friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gather
+
+    virtual void gatherOpList(GrResourceAllocator*) const = 0;
 
     static uint32_t CreateUniqueID();
 
@@ -149,20 +154,20 @@ private:
             return dt->fDependencies.count();
         }
         static GrOpList* Dependency(GrOpList* dt, int index) {
-            return dt->fDependencies[index];
+            return const_cast<GrOpList*>(dt->fDependencies[index]);
         }
     };
 
     virtual void onPrepare(GrOpFlushState* flushState) = 0;
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 
-    void addDependency(GrOpList* dependedOn);
+    void addDependency(const GrOpList* dependedOn);
 
     uint32_t              fUniqueID;
     uint32_t              fFlags;
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
-    SkTDArray<GrOpList*>  fDependencies;
+    SkTDArray<const GrOpList*>  fDependencies;
 
     // These are used rarely, most clients never produce any
     SkTArray<std::unique_ptr<GrPrepareCallback>> fPrepareCallbacks;

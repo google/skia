@@ -343,6 +343,10 @@ public:
 
     const char* name() const override { return "DefaultPathOp"; }
 
+    void proxyIter(std::function<void(const GrSurfaceProxy*)> func) const override {
+        fHelper.proxyIter(func);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("Color: 0x%08x Count: %d\n", fColor, fPaths.count());

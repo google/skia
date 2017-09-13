@@ -36,6 +36,10 @@ public:
 
     const char* name() const override { return "Clear"; }
 
+    void proxyIter(std::function<void(const GrSurfaceProxy*)> func) const override {
+        // No proxies here
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.append(INHERITED::dumpInfo());
