@@ -177,6 +177,10 @@ public:
 
     const char* name() const override { return "TessellatingPathOp"; }
 
+    void visitProxies(VisitProxyFunc func) const override {
+        fHelper.visitProxies(func);
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("Color 0x%08x, aa: %d\n", fColor, fAntiAlias);

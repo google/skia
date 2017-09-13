@@ -243,6 +243,7 @@ static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor,
 class DashOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
+
     struct LineData {
         SkMatrix fViewMatrix;
         SkMatrix fSrcRotInv;
@@ -262,6 +263,10 @@ public:
     }
 
     const char* name() const override { return "DashOp"; }
+
+    void visitProxies(VisitProxyFunc func) const override {
+        fProcessorSet.visitProxies(func);
+    }
 
     SkString dumpInfo() const override {
         SkString string;

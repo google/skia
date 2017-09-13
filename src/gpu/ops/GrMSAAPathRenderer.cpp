@@ -222,6 +222,7 @@ private:
 
 public:
     DEFINE_OP_CLASS_ID
+
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkPath& path, GrAAType aaType,
                                           const SkMatrix& viewMatrix, const SkRect& devBounds,
                                           const GrUserStencilSettings* stencilSettings) {
@@ -242,6 +243,10 @@ public:
     }
 
     const char* name() const override { return "MSAAPathOp"; }
+
+    void visitProxies(VisitProxyFunc func) const override {
+        fHelper.visitProxies(func);
+    }
 
     SkString dumpInfo() const override {
         SkString string;

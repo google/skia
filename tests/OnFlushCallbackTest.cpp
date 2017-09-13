@@ -29,7 +29,6 @@ protected:
 
 public:
     DEFINE_OP_CLASS_ID
-    const char* name() const override { return "NonAARectOp"; }
 
     // This creates an instance of a simple non-AA solid color rect-drawing Op
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkRect& r) {
@@ -55,6 +54,12 @@ public:
         }
         // Choose some conservative values for aa bloat and zero area.
         this->setBounds(r, HasAABloat::kYes, IsZeroArea::kYes);
+    }
+
+    const char* name() const override { return "NonAARectOp"; }
+
+    void visitProxies(VisitProxyFunc func) const override {
+        fHelper.visitProxies(func);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
