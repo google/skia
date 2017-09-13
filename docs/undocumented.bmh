@@ -14,7 +14,10 @@
  SaveLayerFlags # not external; need to add typedef support
  SkUserConfig  # not external, but still thinking about how markup refers to this
  SkXXX.h        # ditto
+ SkXXX_Reference # ditto
  Skia           # ditto
+ SK_DEBUG       # ditto
+ SK_RELEASE     # ditto
  SK_USE_FREETYPE_EMBOLDEN # ditto
  SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION # ditto
  SK_BUILD_FOR_ANDROID_FRAMEWORK # ditto
@@ -52,6 +55,13 @@ FT_Load_Glyph
 #Topic Bitmap
 #Class SkBitmap
     #Subtopic Row_Bytes
+    ##
+    #Method void erase(SkColor c, const SkIRect& area) const
+    ##
+    #Method bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes)
+    ##
+    #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                    int srcX, int srcY, SkTransferFunctionBehavior behavior) const
     ##
 #Class ##
 ##
@@ -141,6 +151,16 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Color_Space
+#Class SkColorSpace
+    #Method static sk_sp<SkColorSpace> MakeSRGBLinear()
+    ##
+##
+#EnumClass SkTransferFunctionBehavior
+#Const kRespect 0
+##
+#Const kIgnore 1
+##
+#EnumClass ##
 ##
 
 #Topic Core_Graphics
@@ -209,6 +229,18 @@ FT_Load_Glyph
     #Const kHigh_SkFilterQuality 3
     ##
 #Enum ##
+#Subtopic Nearest_Neighbor
+#Substitute nearest neighbor filter
+##
+#Subtopic Bilerp
+#Substitute bilerp filter
+##
+#Subtopic MipMap
+#Substitute mip-map filter
+##
+#Subtopic BiCubic
+#Substitute bicubic filter
+##
 #Topic ##
 
 #Topic Font
@@ -242,12 +274,21 @@ FT_Load_Glyph
 
 #Topic Image
     #Subtopic Alpha_Type
+    #Alias Alpha_Type
         #Enum SkAlphaType
+            #Const kUnknown_SkAlphaType 0
+            ##
+            #Const kOpaque_SkAlphaType 1
+            ##
             #Const kPremul_SkAlphaType 2
+            ##
+            #Const kUnpremul_SkAlphaType 3
             ##
         ##
     #Subtopic ##
-    #Subtopic Color_Type 
+    #Subtopic Color_Type
+    #Alias Color_Type
+    #Alias Color_Types
         #Enum SkColorType
             #Const kUnknown_SkColorType 0
             ##
@@ -276,11 +317,26 @@ FT_Load_Glyph
         #Struct SkImageInfo
             #Method SkImageInfo()
             ##
+            #Method SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const
+            ##
+            #Method size_t minRowBytes() const
+            ##
+            #Method bool isOpaque() const
+            ##
+            #Method int bytesPerPixel() const
+            ##
         ## 
     #Subtopic ##
     #Class SkImage
         #Method sk_sp<SkShader> makeShader(SkShader::TileMode, SkShader::TileMode,
                                    const SkMatrix* localMatrix = nullptr) const
+        ##
+        #Method static sk_sp<SkImage> MakeRasterCopy(const SkPixmap&)
+        ##
+        #Method bool readPixels(const SkPixmap& dst, int srcX, int srcY,
+                    CachingHint = kAllow_CachingHint) const
+        ##
+        #Method bool scalePixels(const SkPixmap& dst, SkFilterQuality, CachingHint = kAllow_CachingHint) const
         ##
     ##
 #Topic ##
@@ -297,6 +353,8 @@ FT_Load_Glyph
 
 #Topic IRect
 #Struct SkIRect
+    #Method bool intersect(const SkIRect& r)
+    ##
 ##
 ##
 
@@ -308,6 +366,20 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Mask
+#Class SkMask
+    #Enum Format
+        #Const kBW_Format 0
+        ##
+        #Const kA8_Format 1
+        ##
+        #Const k3D_Format 2
+        ##
+        #Const kARGB32_Format 3
+        ##
+        k#Const LCD16_Format 4
+        ##
+    ##
+##
 #Topic ##
 
 #Topic Mask_Alpha
@@ -317,6 +389,11 @@ FT_Load_Glyph
 #Class SkMaskFilter
 #Class ##
 #Topic ##
+
+#Topic Math
+    #Method static inline bool sk_64_isS32(int64_t value)
+    ##
+##
 
 #Topic Matrix
 #Struct SkMatrix
@@ -405,12 +482,12 @@ FT_Load_Glyph
 ##
 ##
 
-#Enum SkPixelGeometry
+#Topic PixelRef
+#Class SkPixelRef
+##
 ##
 
-#Topic Pixmap
-#Class SkPixmap
-##
+#Enum SkPixelGeometry
 ##
 
 #Topic Point
@@ -532,6 +609,8 @@ FT_Load_Glyph
 #Class SkSurface
     #Method static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo&, void* pixels, size_t rowBytes,
                                              const SkSurfaceProps* = nullptr)
+    ##
+    #Method bool readPixels(const SkPixmap& dst, int srcX, int srcY);
     ##
 ##
 #Subtopic Properties
