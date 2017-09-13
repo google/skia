@@ -55,8 +55,13 @@ public:
 
         DrawPathsOp(GrCoverageCountingPathRenderer*, const DrawPathArgs&, GrColor);
 
-        // GrDrawOp overrides.
         const char* name() const override { return "GrCoverageCountingPathRenderer::DrawPathsOp"; }
+
+        void visitProxies(VisitProxyFunc func) const override {
+            fProcessors.visitProxies(func);
+        }
+
+        // GrDrawOp overrides.
         FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
         RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override;
         void wasRecorded(GrRenderTargetOpList*) override;
