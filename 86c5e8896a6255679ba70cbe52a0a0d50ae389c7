@@ -34,6 +34,24 @@
       "revId": "86c5e8896a6255679ba70cbe52a0a0d50ae389c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a0cd93f_4f857cd9",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-13T16:56:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5765029c_7e0157d7",
+      "revId": "86c5e8896a6255679ba70cbe52a0a0d50ae389c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
