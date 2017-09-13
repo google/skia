@@ -58,7 +58,7 @@ static void draw_donut_skewed(SkCanvas* canvas, const SkRect& r, const SkPaint& 
 /*
  * Spits out a dummy gradient to test blur with shader on paint
  */
-static sk_sp<SkShader> MakeRadial() {
+static sk_sp<SkShader> make_radial() {
     SkPoint pts[2] = {
         { 0, 0 },
         { SkIntToScalar(100), SkIntToScalar(100) }
@@ -123,7 +123,7 @@ protected:
                 paint.setAlpha(fAlpha);
 
                 SkPaint paintWithRadial = paint;
-                paintWithRadial.setShader(MakeRadial());
+                paintWithRadial.setShader(make_radial());
 
                 constexpr Proc procs[] = {
                     fill_rect, draw_donut, draw_donut_skewed

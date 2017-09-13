@@ -31,6 +31,7 @@ GrOpList::GrOpList(GrResourceProvider* resourceProvider,
     fTarget.setProxy(sk_ref_sp(surfaceProxy), kWrite_GrIOType);
     fTarget.get()->setLastOpList(this);
 
+#ifndef MDB_ALLOC_RESOURCES
     // MDB TODO: remove this! We are currently moving to having all the ops that target
     // the RT as a dest (e.g., clear, etc.) rely on the opList's 'fTarget' pointer
     // for the IO Ref. This works well but until they are all swapped over (and none
@@ -39,6 +40,7 @@ GrOpList::GrOpList(GrResourceProvider* resourceProvider,
     // re-use assumptions.
     fTarget.get()->instantiate(resourceProvider);
     fTarget.markPendingIO();
+#endif
 }
 
 GrOpList::~GrOpList() {
@@ -101,6 +103,10 @@ void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
 }
 
 #ifdef SK_DEBUG
+bool GrOpList::isInstantiated() const {
+    return fTarget.get()->priv().isInstantiated();
+}
+
 void GrOpList::dump() const {
     SkDebugf("--------------------------------------------------------------\n");
     SkDebugf("node: %d -> RT: %d\n", fUniqueID, fTarget.get() ? fTarget.get()->uniqueID().asUInt()
