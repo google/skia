@@ -21,7 +21,7 @@ public:
 
     const char* name() const override { return "CopySurface"; }
 
-    void visitProxies(VisitProxyFunc func) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         func(fDst.get());
         func(fSrc.get());
     }

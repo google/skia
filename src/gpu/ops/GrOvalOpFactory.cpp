@@ -785,7 +785,7 @@ public:
 
     const char* name() const override { return "CircleOp"; }
 
-    void visitProxies(VisitProxyFunc func) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         fHelper.visitProxies(func);
     }
 
@@ -1252,7 +1252,7 @@ public:
 
     const char* name() const override { return "EllipseOp"; }
 
-    void visitProxies(VisitProxyFunc func) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         fHelper.visitProxies(func);
     }
 
@@ -1482,7 +1482,7 @@ public:
 
     const char* name() const override { return "DIEllipseOp"; }
 
-    void visitProxies(VisitProxyFunc func) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         fHelper.visitProxies(func);
     }
 
@@ -1800,7 +1800,7 @@ public:
 
     const char* name() const override { return "CircularRRectOp"; }
 
-    void visitProxies(VisitProxyFunc func) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         fHelper.visitProxies(func);
     }
 
@@ -2157,7 +2157,7 @@ public:
 
     const char* name() const override { return "EllipticalRRectOp"; }
 
-    void visitProxies(VisitProxyFunc func) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         fHelper.visitProxies(func);
     }
 
