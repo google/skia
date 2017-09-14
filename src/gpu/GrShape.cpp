@@ -456,10 +456,7 @@ void GrShape::attemptToSimplifyPath() {
         fRRectData.fDir = rrectDir;
         fRRectData.fStart = rrectStart;
         fRRectData.fInverted = inverted;
-        // Currently SkPath does not acknowledge that empty, rect, or oval subtypes as rrects.
         SkASSERT(!fRRectData.fRRect.isEmpty());
-        SkASSERT(fRRectData.fRRect.getType() != SkRRect::kRect_Type);
-        SkASSERT(fRRectData.fRRect.getType() != SkRRect::kOval_Type);
     } else if (this->path().isOval(&rect, &rrectDir, &rrectStart)) {
         this->changeType(Type::kRRect);
         fRRectData.fRRect.setOval(rect);
