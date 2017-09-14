@@ -2190,10 +2190,10 @@ int main(int argc, char** const argv) {
         SkCommandLineFlags::Parse(argc, argv);
     } else {
         SkCommandLineFlags::PrintUsage();
-        const char* commands[] = { "", "-h", "bmh", "-h", "examples", "-h", "include", "-h", "fiddle",
+        const char* const commands[] = { "", "-h", "bmh", "-h", "examples", "-h", "include", "-h", "fiddle",
             "-h", "ref", "-h", "tokens",
             "-h", "crosscheck", "-h", "populate", "-h", "spellcheck" };
-        SkCommandLineFlags::Parse(SK_ARRAY_COUNT(commands), (char**) commands);
+        SkCommandLineFlags::Parse(SK_ARRAY_COUNT(commands), commands);
         return 0;
     }
     if (FLAGS_bmh.isEmpty() && FLAGS_include.isEmpty()) {
