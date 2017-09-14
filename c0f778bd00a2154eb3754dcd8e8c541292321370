@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14d568f8_3e886786",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-14T19:45:55Z",
+      "side": 1,
+      "message": "This was going to be a quick CL because I noticed that we were computing but not using the finalIRect while debugging the other round-rect issues...\n\nBut: How is this working? We\u0027re moving grPaint here, but directFilter can fail, and then we fall back to the code at the bottom of this function, and expect to use grPaint again.",
+      "revId": "c0f778bd00a2154eb3754dcd8e8c541292321370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
