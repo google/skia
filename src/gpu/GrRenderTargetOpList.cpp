@@ -12,6 +12,7 @@
 #include "GrGpuCommandBuffer.h"
 #include "GrRect.h"
 #include "GrRenderTargetContext.h"
+#include "GrResourceAllocator.h"
 #include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrCopySurfaceOp.h"
@@ -250,6 +251,25 @@ bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
 
     this->addOp(std::move(op), caps);
     return true;
+}
+
+void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
+    unsigned int cur = alloc->numOps();
+
+    // Add the interval for all the writes to this opList's target
+    alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);
+
+    auto gather = [ alloc ] (GrSurfaceProxy* p) {
+        alloc->addInterval(p);
+    };
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        SkASSERT(alloc->curOp() == cur+i);
+
+        const GrOp* op = fRecordedOps[i].fOp.get(); // only diff from the GrTextureOpList version
+        op->visitProxies(gather);
+
+        alloc->incOps();
+    }
 }
 
 static inline bool can_reorder(const SkRect& a, const SkRect& b) { return !GrRectsOverlap(a, b); }
