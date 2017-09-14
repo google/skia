@@ -25,10 +25,14 @@ namespace {
 class TestOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    const char* name() const override { return "TestOp"; }
-
     static std::unique_ptr<GrDrawOp> Make(std::unique_ptr<GrFragmentProcessor> fp) {
         return std::unique_ptr<GrDrawOp>(new TestOp(std::move(fp)));
+    }
+
+    const char* name() const override { return "TestOp"; }
+
+    void visitProxies(VisitProxyFunc func) const override {
+        fProcessors.visitProxies(func);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
