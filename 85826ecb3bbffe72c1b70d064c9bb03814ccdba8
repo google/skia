@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06f5d4b2_21460d4d",
+        "filename": "tools/android/measure_fps.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-09-14T19:57:55Z",
+      "side": 1,
+      "message": "Nit: Add extra newline here (since there should be 2 lines between top-level definitions)",
+      "revId": "85826ecb3bbffe72c1b70d064c9bb03814ccdba8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aedada13_b69a70c3",
+        "filename": "tools/android/measure_fps.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-09-14T19:57:55Z",
+      "side": 1,
+      "message": "Nit: Add extra newline here (since there should be 2 lines between top-level definitions)",
+      "revId": "85826ecb3bbffe72c1b70d064c9bb03814ccdba8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
