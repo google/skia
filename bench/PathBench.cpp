@@ -62,13 +62,7 @@ protected:
             path.transform(m);
         }
 
-        int count = loops;
-        if (fFlags & kBig_Flag) {
-            count >>= 2;
-        }
-        count >>= (3 * complexity());
-
-        for (int i = 0; i < SkTMax(1, count); i++) {
+        for (int i = 0; i < loops; i++) {
             canvas->drawPath(path, paint);
         }
     }

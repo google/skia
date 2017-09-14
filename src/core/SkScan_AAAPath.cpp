@@ -1681,10 +1681,19 @@ void SkScan::AAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
         // blitter when the blit region is small enough (i.e., canHandleRect(ir)).
         // When isInverse is true, the blit region is no longer ir so we won't use the mask blitter.
         // The caller may also use the forceRLE flag to force not using the mask blitter.
+        // Also, when the path is a simple rect, preparing a mask and blitting it might have too
+        // much overhead. Hence we'll use blitFatAntiRect to avoid the mask and its overhead.
         if (MaskAdditiveBlitter::canHandleRect(ir) && !isInverse && !forceRLE) {
-            MaskAdditiveBlitter additiveBlitter(blitter, ir, *clipRgn, isInverse);
-            aaa_fill_path(path, clipRgn->getBounds(), &additiveBlitter, ir.fTop, ir.fBottom,
-                    clipRect == nullptr, true, forceRLE);
+            // blitFatAntiRect is slower than the normal AAA flow without MaskAdditiveBlitter.
+            // Hence only call blitFatAntiRect when MaskAdditiveBlitter would have been used.
+            SkRect rect;
+            if (path.isRect(&rect) && ir.height() >= 3 && ir.width() >= 3) {
+                blitter->blitFatAntiRect(rect);
+            } else {
+                MaskAdditiveBlitter additiveBlitter(blitter, ir, *clipRgn, isInverse);
+                aaa_fill_path(path, clipRgn->getBounds(), &additiveBlitter, ir.fTop, ir.fBottom,
+                        clipRect == nullptr, true, forceRLE);
+            }
         } else if (!isInverse && path.isConvex()) {
             // If the filling area is convex (i.e., path.isConvex && !isInverse), our simpler
             // aaa_walk_convex_edges won't generate alphas above 255. Hence we don't need
