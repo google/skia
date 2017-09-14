@@ -516,29 +516,6 @@ private:
         return static_cast<SkPngNormalDecoder*>(png_get_progressive_ptr(png_ptr));
     }
 
-    Result decodeAllRows(void* dst, size_t rowBytes, int* rowsDecoded) override {
-        const int height = this->getInfo().height();
-        png_set_progressive_read_fn(this->png_ptr(), this, nullptr, AllRowsCallback, nullptr);
-        fDst = dst;
-        fRowBytes = rowBytes;
-
-        fRowsWrittenToOutput = 0;
-        fFirstRow = 0;
-        fLastRow = height - 1;
-
-        this->processData();
-
-        if (fRowsWrittenToOutput == height) {
-            return SkCodec::kSuccess;
-        }
-
-        if (rowsDecoded) {
-            *rowsDecoded = fRowsWrittenToOutput;
-        }
-
-        return SkCodec::kIncompleteInput;
-    }
-
     void allRowsCallback(png_bytep row, int rowNum) {
         SkASSERT(rowNum == fRowsWrittenToOutput);
         fRowsWrittenToOutput++;
@@ -661,36 +638,6 @@ private:
                 }
             }
         }
-    }
-
-    SkCodec::Result decodeAllRows(void* dst, size_t rowBytes, int* rowsDecoded) override {
-        const int height = this->getInfo().height();
-        this->setUpInterlaceBuffer(height);
-        png_set_progressive_read_fn(this->png_ptr(), this, nullptr, InterlacedRowCallback,
-                                    nullptr);
-
-        fFirstRow = 0;
-        fLastRow = height - 1;
-        fLinesDecoded = 0;
-
-        this->processData();
-
-        png_bytep srcRow = fInterlaceBuffer.get();
-        // FIXME: When resuming, this may rewrite rows that did not change.
-        for (int rowNum = 0; rowNum < fLinesDecoded; rowNum++) {
-            this->applyXformRow(dst, srcRow);
-            dst = SkTAddOffset<void>(dst, rowBytes);
-            srcRow = SkTAddOffset<png_byte>(srcRow, fPng_rowbytes);
-        }
-        if (fInterlacedComplete) {
-            return SkCodec::kSuccess;
-        }
-
-        if (rowsDecoded) {
-            *rowsDecoded = fLinesDecoded;
-        }
-
-        return SkCodec::kIncompleteInput;
     }
 
     void setRange(int firstRow, int lastRow, void* dst, size_t rowBytes) override {
@@ -1094,7 +1041,8 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
 
     this->allocateStorage(dstInfo);
     this->initializeXformParams();
-    return this->decodeAllRows(dst, rowBytes, rowsDecoded);
+    this->setRange(0, dstInfo.height() - 1, dst, rowBytes);
+    return this->decode(rowsDecoded);
 }
 
 SkCodec::Result SkPngCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
