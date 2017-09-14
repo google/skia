@@ -69,6 +69,24 @@
       "revId": "0b231c1c320b6c6fc1078d7b3624521012424073",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10936681_67de5615",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2079,
+      "author": {
+        "id": 7734
+      },
+      "writtenOn": "2017-09-14T19:48:06Z",
+      "side": 1,
+      "message": "Just looked into gm/imagesource.cpp and gm/imagesource2.cpp, and I can make my questions more specific:\n1. Changes to filterBounds() seem not to affect the existing gm tests. Should they affect rendering output in some ways?\n2. Is it possible to exercise non-identity ctms to filterBounds() in a gm test?",
+      "parentUuid": "6bb44b0d_49c4e88e",
+      "revId": "0b231c1c320b6c6fc1078d7b3624521012424073",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
