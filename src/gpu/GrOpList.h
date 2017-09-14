@@ -76,7 +76,13 @@ public:
      * Does this opList depend on 'dependedOn'?
      */
     bool dependsOn(GrOpList* dependedOn) const {
-        return fDependencies.find(dependedOn) >= 0;
+        for (int i = 0; i < fDependencies.count(); ++i) {
+            if (fDependencies[i] == dependedOn) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /*
@@ -165,11 +171,11 @@ private:
 
     void addDependency(GrOpList* dependedOn);
 
-    uint32_t              fUniqueID;
-    uint32_t              fFlags;
+    uint32_t               fUniqueID;
+    uint32_t               fFlags;
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
-    SkTDArray<GrOpList*>  fDependencies;
+    SkSTArray<1, GrOpList*, true> fDependencies;
 
     // These are used rarely, most clients never produce any
     SkTArray<std::unique_ptr<GrPrepareCallback>> fPrepareCallbacks;
