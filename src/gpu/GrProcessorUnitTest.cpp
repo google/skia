@@ -14,6 +14,9 @@ std::unique_ptr<GrFragmentProcessor> GrProcessorUnitTest::MakeChildFP(GrProcesso
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
     std::unique_ptr<GrFragmentProcessor> fp;
     do {
+        if (fp) {
+            fp->markAsHandled();
+        }
         fp = GrFragmentProcessorTestFactory::Make(data);
         SkASSERT(fp);
     } while (fp->numChildProcessors() != 0);

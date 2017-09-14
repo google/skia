@@ -9,6 +9,7 @@
 
 #include "GrAuditTrail.h"
 #include "GrGpu.h"
+#include "GrResourceAllocator.h"
 #include "GrTextureProxy.h"
 #include "SkStringUtils.h"
 #include "ops/GrCopySurfaceOp.h"
@@ -98,12 +99,42 @@ bool GrTextureOpList::copySurface(const GrCaps& caps,
     if (!op) {
         return false;
     }
-#ifdef ENABLE_MDB
-    this->addDependency(src);
-#endif
+
+    auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
+        this->addDependency(p, caps);
+    };
+    op->visitProxies(addDependency);
 
     this->recordOp(std::move(op));
     return true;
+}
+
+void GrTextureOpList::gatherOpList(GrResourceAllocator* alloc) const {
+    SkASSERT(!this->isInstantiated());
+
+    unsigned int cur = alloc->numOps();
+
+    SkDebugf("----------------------------------------\n");
+    SkDebugf("gather for texture opList #%d { %d,%d }: %s\n", this->uniqueID(),
+                                                  fTarget.get()->uniqueID().asUInt(),
+                                                  fTarget.get()->underlyingUniqueID().asUInt());
+
+    alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);
+
+    auto gather = [ alloc ] (GrSurfaceProxy* p) {
+        alloc->addInterval(p);
+    };
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        const GrOp* op = fRecordedOps[i].get();
+
+        SkASSERT(alloc->curOp() == cur+i);
+        SkDebugf("opList #%d (%s): %d\n", this->uniqueID(), op->name(), cur+i);
+
+        op->visitProxies(gather);
+
+        alloc->incOps();
+    }
+    SkDebugf("----------------------------------------\n");
 }
 
 void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op) {

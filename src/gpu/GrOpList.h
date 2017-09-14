@@ -13,13 +13,19 @@
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
 
-//#define ENABLE_MDB 1
+
+// Turn on/off the explicit distribution of GPU resources at flush time
+//#define MDB_ALLOC_RESOURCES 1
+
+// Turn on/off the sorting of opLists at flush time
+//#define ENABLE_MDB_SORT 1
 
 class GrAuditTrail;
 class GrCaps;
 class GrOpFlushState;
 class GrPrepareCallback;
 class GrRenderTargetOpList;
+class GrResourceAllocator;
 class GrResourceProvider;
 class GrSurfaceProxy;
 class GrTextureProxy;
@@ -108,7 +114,9 @@ protected:
     GrLoadOp          fStencilLoadOp  = GrLoadOp::kLoad;
 
 private:
-    friend class GrDrawingManager; // for resetFlag & TopoSortTraits
+    friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherOpList
+
+    virtual void gatherOpList(GrResourceAllocator*) const = 0;
 
     static uint32_t CreateUniqueID();
 
