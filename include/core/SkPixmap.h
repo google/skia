@@ -193,13 +193,13 @@ public:
      *  If dst's dimensions differ from the src dimension, the image will be scaled, applying the
      *  specified filter-quality.
      */
-    bool scalePixels(const SkPixmap& dst, SkFilterQuality) const;
+    bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality) const;
 
     /**
      *  Returns true if pixels were written to (e.g. if colorType is kUnknown_SkColorType, this
      *  will return false). If subset does not intersect the bounds of this pixmap, returns false.
      */
-    bool erase(SkColor, const SkIRect& subset) const;
+    bool erase(SkColor color, const SkIRect& subset) const;
 
     bool erase(SkColor color) const { return this->erase(color, this->bounds()); }
     bool erase(const SkColor4f& color, const SkIRect* subset = nullptr) const;
