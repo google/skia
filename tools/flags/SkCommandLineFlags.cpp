@@ -217,7 +217,7 @@ struct CompareFlagsByName {
 };
 }  // namespace
 
-void SkCommandLineFlags::Parse(int argc, char** argv) {
+void SkCommandLineFlags::Parse(int argc, const char* const * argv) {
     // Only allow calling this function once.
     static bool gOnce;
     if (gOnce) {
