@@ -121,8 +121,9 @@ class GrCCPRCoverageOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    // GrDrawOp interface.
     const char* name() const override { return "GrCCPRCoverageOp"; }
+
+    // GrDrawOp interface.
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override {
         return RequiresDstTexture::kNo;

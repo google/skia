@@ -270,6 +270,8 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
         dstTextureSampler.reset(sk_ref_sp(dstTextureProxy));
         SkAssertResult(dstTextureSampler.instantiate(gpu->getContext()->resourceProvider()));
         textureBindings.push_back(&dstTextureSampler);
+    } else {
+        dstTextureSampler.fHandled = true;    
     }
 
     // Get new descriptor sets

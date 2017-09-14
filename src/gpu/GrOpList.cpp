@@ -39,8 +39,8 @@ GrOpList::GrOpList(GrResourceProvider* resourceProvider,
     // here so that the GrSurfaces are created in an order that preserves the GrSurface
     // re-use assumptions.
     fTarget.get()->instantiate(resourceProvider);
-    fTarget.markPendingIO();
 #endif
+    fTarget.markPendingIO();
 }
 
 GrOpList::~GrOpList() {
@@ -74,7 +74,7 @@ void GrOpList::prepare(GrOpFlushState* flushState) {
 }
 
 // Add a GrOpList-based dependency
-void GrOpList::addDependency(GrOpList* dependedOn) {
+void GrOpList::addDependency(const GrOpList* dependedOn) {
     SkASSERT(!dependedOn->dependsOn(this));  // loops are bad
 
     if (this->dependsOn(dependedOn)) {
@@ -85,7 +85,7 @@ void GrOpList::addDependency(GrOpList* dependedOn) {
 }
 
 // Convert from a GrSurface-based dependency to a GrOpList one
-void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
+void GrOpList::addDependency(const GrSurfaceProxy* dependedOn, const GrCaps& caps) {
     if (dependedOn->getLastOpList()) {
         // If it is still receiving dependencies, this GrOpList shouldn't be closed
         SkASSERT(!this->isClosed());

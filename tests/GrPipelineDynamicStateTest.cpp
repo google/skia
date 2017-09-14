@@ -116,8 +116,9 @@ public:
                         HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-private:
     const char* name() const override { return "GrPipelineDynamicStateTestOp"; }
+
+private:
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override {
         return RequiresDstTexture::kNo;
