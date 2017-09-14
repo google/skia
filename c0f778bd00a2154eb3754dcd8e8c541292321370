@@ -16,6 +16,24 @@
       "revId": "c0f778bd00a2154eb3754dcd8e8c541292321370",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c241ae6_6c71c7f3",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-14T20:13:13Z",
+      "side": 1,
+      "message": "GrPaint is passed by \u0026\u0026 not by value. It\u0027s soul is only stolen when the method succeeds.",
+      "parentUuid": "14d568f8_3e886786",
+      "revId": "c0f778bd00a2154eb3754dcd8e8c541292321370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
