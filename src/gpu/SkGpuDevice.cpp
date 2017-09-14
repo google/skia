@@ -403,15 +403,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         SkRRect devRRect;
         if (rrect.transform(this->ctm(), &devRRect)) {
             if (devRRect.allCornersCircular()) {
-                SkRect maskRect;
-                if (mf->canFilterMaskGPU(devRRect, this->devClipBounds(),
-                                         this->ctm(), &maskRect)) {
-                    SkIRect finalIRect;
-                    maskRect.roundOut(&finalIRect);
-
-                    // we used to test finalIRect for quickReject, but that seems unlikely
-                    // given that the original shape was not rejected...
-
+                if (mf->canFilterMaskGPU(devRRect, this->devClipBounds(), this->ctm(), nullptr)) {
                     if (mf->directFilterRRectMaskGPU(this->context(), fRenderTargetContext.get(),
                                                      std::move(grPaint), this->clip(), this->ctm(),
                                                      style.strokeRec(), rrect, devRRect)) {
