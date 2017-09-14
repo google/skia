@@ -82,7 +82,7 @@ public:
     }
     bool operator!=(const GrAppliedClip& that) const { return !(*this == that); }
 
-    void visitProxies(std::function<void(GrSurfaceProxy*)> func) const {
+    void visitProxies(const std::function<void(GrSurfaceProxy*)>& func) const {
         if (fClipCoverageFP) {
             fClipCoverageFP->visitProxies(func);
         }
