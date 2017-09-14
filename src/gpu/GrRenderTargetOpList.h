@@ -141,6 +141,8 @@ private:
         GrAppliedClip* fAppliedClip;
     };
 
+    void gatherOpList(GrResourceAllocator*) const override;
+
     void recordOp(std::unique_ptr<GrOp>, const GrCaps& caps,
                   GrAppliedClip* = nullptr, const DstProxy* = nullptr);
 

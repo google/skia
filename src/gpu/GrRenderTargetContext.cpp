@@ -15,6 +15,7 @@
 #include "GrDrawingManager.h"
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
+#include "GrOpList.h"
 #include "GrPathRenderer.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetContextPriv.h"
@@ -518,6 +519,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
                     GrColor clearColor;
                     if (paint.isConstantBlendedColor(&clearColor)) {
                         this->clear(nullptr, clearColor, true);
+                        paint.markHandled();
                         return;
                     }
                 }
@@ -720,6 +722,7 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
     SkRect croppedLocalRect = localRect;
     if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix,
                           &croppedRect, &croppedLocalRect)) {
+        paint.markHandled();
         return;
     }
 

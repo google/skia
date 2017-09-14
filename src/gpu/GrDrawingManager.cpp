@@ -11,9 +11,11 @@
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrOnFlushResourceProvider.h"
+#include "GrOpList.h"
 #include "GrRenderTargetContext.h"
 #include "GrPathRenderingRenderTargetContext.h"
 #include "GrRenderTargetProxy.h"
+#include "GrResourceAllocator.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfaceProxyPriv.h"
@@ -120,7 +122,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     }
 #endif
 
-#ifdef ENABLE_MDB
+#ifdef ENABLE_MDB_SORT
     SkDEBUGCODE(bool result =)
                         SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
     SkASSERT(result);
@@ -165,6 +167,18 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     for (int i = 0; i < fOpLists.count(); ++i) {
         SkDEBUGCODE(fOpLists[i]->dump();)
     }
+#endif
+
+#ifdef MDB_ALLOC_RESOURCES
+    //-------------------------------------------------------------------------
+    SkDebugf("------------------------------------\n");
+    GrResourceAllocator alloc(fContext->resourceProvider());
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        fOpLists[i]->gatherOpList(&alloc);
+    }
+
+    alloc.assign();
+    //-------------------------------------------------------------------------
 #endif
 
     for (int i = 0; i < fOpLists.count(); ++i) {
