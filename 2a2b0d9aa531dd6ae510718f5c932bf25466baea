@@ -42,6 +42,23 @@
     },
     {
       "key": {
+        "uuid": "718cbb44_b21d463d",
+        "filename": "tools/android/measure_fps.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-09-14T17:19:02Z",
+      "side": 1,
+      "message": "Nit-\n\nCan directly do:\noptions, args \u003d parser.parse_args()",
+      "revId": "2a2b0d9aa531dd6ae510718f5c932bf25466baea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3cce1de0_9ebb90c8",
         "filename": "tools/android/measure_fps.py",
         "patchSetId": 2
@@ -53,6 +70,24 @@
       "writtenOn": "2017-09-14T17:13:58Z",
       "side": 1,
       "message": "Nit-\n\nAdd a def main() as described here:\nhttps://google.github.io/styleguide/pyguide.html?showone\u003dMain#Main\n\nAfter that the only things defined at the top-level will be the imports, the query_surfaceflinger_frame_count function and main(). Everything separated 2 lines.",
+      "revId": "2a2b0d9aa531dd6ae510718f5c932bf25466baea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a5b893c_2b88d398",
+        "filename": "tools/android/measure_fps.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-09-14T17:19:02Z",
+      "side": 1,
+      "message": "oh and you will also have a top level section for __name__ \u003d\u003d \u0027__main__\u0027 where you can parse your flags.\nSomething like-\n\nif __name__ \u003d\u003d \u0027__main__\u0027:\n  parser \u003d optparse.OptionParser()\n  parser.add_option(\"-i\", \"--interval\", type\u003d\"int\", default\u003d\"2\")\n  options, args \u003d parser.parse_args()\n  main(options.interval)\n\n(or however you prefer to structure it)",
+      "parentUuid": "3cce1de0_9ebb90c8",
       "revId": "2a2b0d9aa531dd6ae510718f5c932bf25466baea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
