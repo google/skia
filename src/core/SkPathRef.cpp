@@ -10,6 +10,7 @@
 #include "SkOnce.h"
 #include "SkPath.h"
 #include "SkPathRef.h"
+#include "SkPathPriv.h"
 #include <limits>
 
 //////////////////////////////////////////////////////////////////////////////
@@ -298,7 +299,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
             return nullptr;
         }
     }
-
+    
     ref->fBoundsIsDirty = false;
 
     // resetToSize clears fSegmentMask and fIsOval
@@ -592,7 +593,7 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
 
 uint32_t SkPathRef::genID() const {
     SkASSERT(!fEditorsAttached);
-    static const uint32_t kMask = (static_cast<int64_t>(1) << SkPath::kPathRefGenIDBitCnt) - 1;
+    static const uint32_t kMask = (static_cast<int64_t>(1) << SkPathPriv::kPathRefGenIDBitCnt) - 1;
     if (!fGenerationID) {
         if (0 == fPointCnt && 0 == fVerbCnt) {
             fGenerationID = kEmptyGenID;
@@ -690,11 +691,6 @@ void SkPathRef::Iter::setPathRef(const SkPathRef& path) {
     fConicWeights = path.conicWeights();
     if (fConicWeights) {
       fConicWeights -= 1;  // begin one behind
-    }
-
-    // Don't allow iteration through non-finite points.
-    if (!path.isFinite()) {
-        fVerbStop = fVerbs;
     }
 }
 
