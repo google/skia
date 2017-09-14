@@ -80,7 +80,7 @@ when no <a href="undocumented#Surface">Surface</a> is required, and some helpers
 | <a href="#SkCanvas_drawArc">drawArc</a> | Draws <a href="undocumented#Arc">Arc</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
 | <a href="#SkCanvas_drawAtlas">drawAtlas</a> | Draws sprites using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
 | <a href="#SkCanvas_drawBitmap">drawBitmap</a> | Draws <a href="undocumented#Bitmap">Bitmap</a> at (x, y) position. |
-| <a href="#SkCanvas_drawBitmapLattice">drawBitmapLattice</a> | Draws differentially stretched <a href="undocumented#Bitmap">Bitmap</a>. |
+| <a href="#SkCanvas_drawBitmapLattice">drawBitmapLattice</a> | Draws proportionally stretched <a href="undocumented#Bitmap">Bitmap</a>. |
 | <a href="#SkCanvas_drawBitmapNine">drawBitmapNine</a> | Draws <a href="undocumented#Nine_Patch">Nine Patch</a> <a href="undocumented#Bitmap">Bitmap</a>. |
 | <a href="#SkCanvas_drawBitmapRect">drawBitmapRect</a> | Draws <a href="undocumented#Bitmap">Bitmap</a>, source <a href="undocumented#Rect">Rect</a> to destination <a href="undocumented#Rect">Rect</a>. |
 | <a href="#SkCanvas_drawCircle">drawCircle</a> | Draws <a href="undocumented#Circle">Circle</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
@@ -89,7 +89,7 @@ when no <a href="undocumented#Surface">Surface</a> is required, and some helpers
 | <a href="#SkCanvas_drawDrawable">drawDrawable</a> | Draws <a href="undocumented#Drawable">Drawable</a>, encapsulated drawing commands. |
 | <a href="#SkCanvas_drawIRect">drawIRect</a> | Draws <a href="undocumented#IRect">IRect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
 | <a href="#SkCanvas_drawImage">drawImage</a> | Draws <a href="undocumented#Image">Image</a> at (x, y) position. |
-| <a href="#SkCanvas_drawImageLattice">drawImageLattice</a> | Draws differentially stretched <a href="undocumented#Image">Image</a>. |
+| <a href="#SkCanvas_drawImageLattice">drawImageLattice</a> | Draws proportionally stretched <a href="undocumented#Image">Image</a>. |
 | <a href="#SkCanvas_drawImageNine">drawImageNine</a> | Draws <a href="undocumented#Nine_Patch">Nine Patch</a> <a href="undocumented#Image">Image</a>. |
 | <a href="#SkCanvas_drawImageRect">drawImageRect</a> | Draws <a href="undocumented#Image">Image</a>, source <a href="undocumented#Rect">Rect</a> to destination <a href="undocumented#Rect">Rect</a>. |
 | <a href="#SkCanvas_drawLine">drawLine</a> | Draws line segment between two points. |
@@ -277,12 +277,12 @@ in the center.</div>
 SkCanvas()
 </pre>
 
-Creates an empty canvas with no backing device or pixels, with 
+Creates an empty <a href="#Canvas">Canvas</a> with no backing device or pixels, with 
 a width and height of zero.
 
 ### Return Value
 
-empty canvas
+empty <a href="#Canvas">Canvas</a>
 
 ### Example
 
@@ -310,11 +310,11 @@ SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr)
 Creates <a href="#Canvas">Canvas</a> of the specified dimensions without a <a href="undocumented#Surface">Surface</a>.
 Used by <a href="undocumented#Subclasses">Subclasses</a> with custom implementations for draw methods.
 
-If <a href="#SkCanvas_int_int_const_SkSurfaceProps_star_props">props</a> equals nullptr, <a href="#Properties">Surface Properties</a> are created with <a href="#Properties_Legacy_Font_Host">Surface Properties Legacy Font Host</a> settings,
-which choose the pixel striping direction and order. Since a platform may dynamically
-change its direction when the device is rotated, and since a platform may have
-multiple monitors with different characteristics, it's best not to rely on this
-legacy behavior.
+If <a href="#SkCanvas_int_int_const_SkSurfaceProps_star_props">props</a> equals nullptr, <a href="#Properties">Surface Properties</a> are created with
+<a href="#Properties_Legacy_Font_Host">Surface Properties Legacy Font Host</a> settings, which choose the pixel striping 
+direction and order. Since a platform may dynamically change its direction when
+the device is rotated, and since a platform may have multiple monitors with
+different characteristics, it is best not to rely on this legacy behavior.
 
 ### Parameters
 
@@ -981,7 +981,7 @@ Does not copy, and returns false if:
     <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
     <td><a href="#Canvas">Canvas</a> pixels could not be converted to <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.colorType() or <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.alphaType().</td>  </tr>  <tr>
     <td><a href="#Canvas">Canvas</a> pixels are not readable; for instance, <a href="#Canvas">Canvas</a> is document-based.</td>  </tr>  <tr>
-    <td><a href="undocumented#Pixmap">Pixmap</a> pixels could not be allocated.</td>  </tr>  <tr>
+    <td><a href="SkPixmap_Reference#Pixmap">Pixmap</a> pixels could not be allocated.</td>  </tr>  <tr>
     <td><a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.rowBytes() is too small to contain one row of pixels.</td>  </tr>
 </table>
 
@@ -1130,7 +1130,7 @@ width, height, <a href="#Color_Type">Image Color Type</a>, and <a href="#Alpha_T
   </tr>  <tr>    <td><a name="SkCanvas_writePixels_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
 <a href="#SkCanvas_writePixels_pixels">pixels</a> to copy, of size <a href="#SkCanvas_writePixels_info">info</a>.height() times <a href="#SkCanvas_writePixels_rowBytes">rowBytes</a>, or larger</td>
   </tr>  <tr>    <td><a name="SkCanvas_writePixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
-size of one <a href="#SkCanvas_writePixels_pixels">pixels</a> row; <a href="#SkCanvas_writePixels_info">info</a>.width() times pixel size, or larger</td>
+size of one row of <a href="#SkCanvas_writePixels_pixels">pixels</a>; <a href="#SkCanvas_writePixels_info">info</a>.width() times pixel size, or larger</td>
   </tr>  <tr>    <td><a name="SkCanvas_writePixels_x"> <code><strong>x </strong></code> </a></td> <td>
 offset into <a href="#Canvas">Canvas</a> writable <a href="#SkCanvas_writePixels_pixels">pixels</a> in <a href="#SkCanvas_writePixels_x">x</a>; may be negative</td>
   </tr>  <tr>    <td><a name="SkCanvas_writePixels_y"> <code><strong>y </strong></code> </a></td> <td>
@@ -2730,7 +2730,7 @@ graphics state used to fill <a href="#Canvas">Canvas</a></td>
 enum <a href="#SkCanvas_PointMode">PointMode</a> {
 <a href="#SkCanvas_kPoints_PointMode">kPoints PointMode</a>,
 <a href="#SkCanvas_kLines_PointMode">kLines PointMode</a>,
-<a href="#SkCanvas_kPolygon_PointMode">kPolygon PointMode</a> 
+<a href="#SkCanvas_kPolygon_PointMode">kPolygon PointMode</a>,
 };</pre>
 
 Selects if an array of points are drawn as discrete points, as lines, or as
@@ -3692,7 +3692,7 @@ void drawImageNine(const SkImage* image, const SkIRect& center,
                    const SkRect& dst, const SkPaint* paint = nullptr)
 </pre>
 
-Draw <a href="undocumented#Image">Image</a> <a href="#SkCanvas_drawImageNine_image">image</a> stretched differentially to fit into <a href="undocumented#Rect">Rect</a> <a href="#SkCanvas_drawImageNine_dst">dst</a>.
+Draw <a href="undocumented#Image">Image</a> <a href="#SkCanvas_drawImageNine_image">image</a> stretched proportionally to fit into <a href="undocumented#Rect">Rect</a> <a href="#SkCanvas_drawImageNine_dst">dst</a>.
 <a href="undocumented#IRect">IRect</a> <a href="#SkCanvas_drawImageNine_center">center</a> divides the <a href="#SkCanvas_drawImageNine_image">image</a> into nine sections: four sides, four corners, and
 the <a href="#SkCanvas_drawImageNine_center">center</a>. Corners are unmodified or scaled down proportionately if their sides
 are larger than <a href="#SkCanvas_drawImageNine_dst">dst</a>; <a href="#SkCanvas_drawImageNine_center">center</a> and four sides are scaled to fit remaining space, if any.
@@ -3735,7 +3735,7 @@ void drawImageNine(const sk_sp<SkImage>& image, const SkIRect& center,
                    const SkRect& dst, const SkPaint* paint = nullptr)
 </pre>
 
-Draw <a href="undocumented#Image">Image</a> <a href="#SkCanvas_drawImageNine_2_image">image</a> stretched differentially to fit into <a href="undocumented#Rect">Rect</a> <a href="#SkCanvas_drawImageNine_2_dst">dst</a>.
+Draw <a href="undocumented#Image">Image</a> <a href="#SkCanvas_drawImageNine_2_image">image</a> stretched proportionally to fit into <a href="undocumented#Rect">Rect</a> <a href="#SkCanvas_drawImageNine_2_dst">dst</a>.
 <a href="undocumented#IRect">IRect</a> <a href="#SkCanvas_drawImageNine_2_center">center</a> divides the <a href="#SkCanvas_drawImageNine_2_image">image</a> into nine sections: four sides, four corners, and
 the <a href="#SkCanvas_drawImageNine_2_center">center</a>. Corners are not scaled, or scaled down proportionately if their sides
 are larger than <a href="#SkCanvas_drawImageNine_2_dst">dst</a>; <a href="#SkCanvas_drawImageNine_2_center">center</a> and four sides are scaled to fit remaining space, if any.
@@ -3958,7 +3958,7 @@ void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                     const SkRect& dst, const SkPaint* paint = nullptr)
 </pre>
 
-Draw <a href="undocumented#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> stretched differentially to fit into <a href="undocumented#Rect">Rect</a> <a href="#SkCanvas_drawBitmapNine_dst">dst</a>.
+Draw <a href="undocumented#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> stretched proportionally to fit into <a href="undocumented#Rect">Rect</a> <a href="#SkCanvas_drawBitmapNine_dst">dst</a>.
 <a href="undocumented#IRect">IRect</a> <a href="#SkCanvas_drawBitmapNine_center">center</a> divides the <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> into nine sections: four sides, four corners,
 and the <a href="#SkCanvas_drawBitmapNine_center">center</a>. Corners are not scaled, or scaled down proportionately if their
 sides are larger than <a href="#SkCanvas_drawBitmapNine_dst">dst</a>; <a href="#SkCanvas_drawBitmapNine_center">center</a> and four sides are scaled to fit remaining
@@ -4085,7 +4085,7 @@ void drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
                        const SkRect& dst, const SkPaint* paint = nullptr)
 </pre>
 
-Draw <a href="undocumented#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> stretched differentially to fit into <a href="undocumented#Rect">Rect</a> <a href="#SkCanvas_drawBitmapLattice_dst">dst</a>.
+Draw <a href="undocumented#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> stretched proportionally to fit into <a href="undocumented#Rect">Rect</a> <a href="#SkCanvas_drawBitmapLattice_dst">dst</a>.
 
 <a href="#SkCanvas_Lattice">Lattice</a> <a href="#SkCanvas_drawBitmapLattice_lattice">lattice</a> divides <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> into a rectangular grid.
 Each intersection of an even-numbered row and column is fixed; like the corners
@@ -4137,7 +4137,7 @@ void drawImageLattice(const SkImage* image, const Lattice& lattice,
                       const SkRect& dst, const SkPaint* paint = nullptr)
 </pre>
 
-Draw <a href="undocumented#Image">Image</a> <a href="#SkCanvas_drawImageLattice_image">image</a> stretched differentially to fit into <a href="undocumented#Rect">Rect</a> <a href="#SkCanvas_drawImageLattice_dst">dst</a>.
+Draw <a href="undocumented#Image">Image</a> <a href="#SkCanvas_drawImageLattice_image">image</a> stretched proportionally to fit into <a href="undocumented#Rect">Rect</a> <a href="#SkCanvas_drawImageLattice_dst">dst</a>.
 
 <a href="#SkCanvas_Lattice">Lattice</a> <a href="#SkCanvas_drawImageLattice_lattice">lattice</a> divides <a href="#SkCanvas_drawImageLattice_image">image</a> into a rectangular grid.
 Each intersection of an even-numbered row and column is fixed; like the corners

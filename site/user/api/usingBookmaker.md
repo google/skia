@@ -17,14 +17,34 @@ Build <a href="#Bookmaker">Bookmaker</a>.
 $ ninja -<a href="undocumented#C">C</a> out/dir bookmaker</pre>
 
 Generate an starter <a href="#Bookmaker">Bookmaker</a> file from an existing include.
-This writes <a href="usingBookmaker#SkXXX">SkXXX</a>.bmh in the current directory, which is
-out/dir/obj/ from an IDE.
 
 <pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
-$ ./out/dir/bookmaker -t -i include/core/<a href="usingBookmaker#SkXXX">SkXXX</a>.h</pre>
+$ ./out/dir/bookmaker -i include/core/<a href="undocumented#SkXXX.h">SkXXX.h</a> -t docs</pre>
 
-Copy <a href="usingBookmaker#SkXXX">SkXXX</a>.bmh to docs.
-Use your favorite editor to fill out docs/<a href="usingBookmaker#SkXXX">SkXXX</a>.bmh.
+If a method or function has an unnamed parameter, bookmaker generates an error:
+
+<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<a href="undocumented#C">C</a>:/puregit/include/core/<a href="SkPixmap_Reference#SkPixmap">SkPixmap</a>.h(208): error: # missing param name
+bool erase(const SkColor4f&, const SkIRect* subset = nullptr) const
+^
+</pre>
+
+All parameters require names to allow markdown and doxygen documents to refer to
+them. After naming all parameters, check in the include before continuing.
+
+A successful run generates
+
+<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+docs/<a href="undocumented#SkXXX_Reference">SkXXX Reference</a>.bmh</pre>
+
+.
+
+Next, use your favorite editor to fill out
+
+<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+docs/<a href="undocumented#SkXXX_Reference">SkXXX Reference</a>.bmh</pre>
+
+.
 
 ## <a name="Style"></a> Style
 
@@ -86,11 +106,12 @@ This reports if a method no longer exists or its parameters have changed.
 <pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
 $ ./out/dir/bookmaker -x -b docs/<a href="usingBookmaker#SkXXX">SkXXX</a>.bmh -i include/core/<a href="usingBookmaker#SkXXX">SkXXX</a>.h</pre>
 
-Generate an updated include header.
-This writes the updated <a href="undocumented#SkXXX.h">SkXXX.h</a> to the current directory.
+Generate an updated include header. Run:
 
 <pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
 $ ./out/dir/bookmaker -p -b docs -i include/core/<a href="usingBookmaker#SkXXX">SkXXX</a>.h</pre>
+
+to write the updated <a href="undocumented#SkXXX.h">SkXXX.h</a> to the current directory.
 
 ## <a name="Bugs"></a> Bugs
 

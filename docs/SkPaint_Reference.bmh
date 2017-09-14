@@ -348,7 +348,7 @@ This prevents objects with Reference_Count from being modified once Paint refers
 
 #Method SkPaint(SkPaint&& paint)
 
-    Implements a move constructor to avoid incrementing the reference counts
+    Implements a move constructor to avoid increasing the reference counts
     of objects referenced by the paint.
 
     After the call, paint is undefined, and can be safely destructed.
@@ -443,7 +443,7 @@ are increased by one. paint is unmodified.
 
 #Method SkPaint& operator=(SkPaint&& paint)
 
-Moves the paint to avoid incrementing the reference counts
+Moves the paint to avoid increasing the reference counts
 of objects referenced by the paint parameter. Objects containing Reference_Count in the
 prior destination are decreased by one; those objects are deleted if the resulting count
 is zero.
@@ -1178,7 +1178,7 @@ kLCDRenderText_Flag or kSubpixelText_Flag (or both) at compile time.
 
 Linear_Text selects whether text is rendered as a Glyph or as a Path.
 If kLinearText_Flag is set, it has the same effect as setting Hinting to kNormal_Hinting.
-If kLinearText_Flag is clear, it's the same as setting Hinting to kNo_Hinting.
+If kLinearText_Flag is clear, it is the same as setting Hinting to kNo_Hinting.
 
 #Method bool isLinearText() const
 
@@ -2838,7 +2838,7 @@ void draw(SkCanvas* canvas) {
 
     Optional colors used when filling a path, such as a gradient.
 
-    Sets Shader to shader, decrementing Reference_Count of the previous Shader.
+    Sets Shader to shader, decreasing Reference_Count of the previous Shader.
     Does not alter shader Reference_Count.
 
     #Param shader  how geometry is filled with color; if nullptr, Color is used instead ##
@@ -2930,7 +2930,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void setColorFilter(sk_sp<SkColorFilter> colorFilter)
 
-    Sets Color_Filter to filter, decrementing Reference_Count of the previous Color_Filter. 
+    Sets Color_Filter to filter, decreasing Reference_Count of the previous Color_Filter. 
     Pass nullptr to clear Color_Filter.
     Does not alter filter Reference_Count.
 
@@ -3120,7 +3120,7 @@ If Paint has no Path_Effect, the path geometry is unaltered when filled or strok
 #Method void setPathEffect(sk_sp<SkPathEffect> pathEffect)
 
     Sets Path_Effect to pathEffect, 
-    decrementing Reference_Count of the previous Path_Effect. 
+    decreasing Reference_Count of the previous Path_Effect. 
     Pass nullptr to leave the path geometry unaltered.
     Does not alter pathEffect Reference_Count.
 
@@ -3204,7 +3204,7 @@ Set Mask_Filter to nullptr to prevent Mask_Filter from modifying the draw.
 #Method void setMaskFilter(sk_sp<SkMaskFilter> maskFilter)
 
     Sets Mask_Filter to maskFilter,
-    decrementing Reference_Count of the previous Mask_Filter. 
+    decreasing Reference_Count of the previous Mask_Filter. 
     Pass nullptr to clear Mask_Filter and leave Mask_Filter effect on Mask_Alpha unaltered.
     Does not affect Rasterizer.
     Does not alter maskFilter Reference_Count.
@@ -3299,7 +3299,7 @@ implementation.
 #Method void setTypeface(sk_sp<SkTypeface> typeface)
 
     Sets Typeface to typeface,
-    decrementing Reference_Count of the previous Typeface. 
+    decreasing Reference_Count of the previous Typeface. 
     Pass nullptr to clear Typeface and use the default typeface.
     Does not alter typeface Reference_Count.
 
@@ -3416,7 +3416,7 @@ Path, and Text.
 #Method void setRasterizer(sk_sp<SkRasterizer> rasterizer)
 
     Sets Rasterizer to rasterizer,
-    decrementing Reference_Count of the previous Rasterizer. 
+    decreasing Reference_Count of the previous Rasterizer. 
     Pass nullptr to clear Rasterizer and leave Rasterizer effect on Mask_Alpha unaltered.
     Does not affect Mask_Filter.
     Does not alter rasterizer Reference_Count.
@@ -3521,7 +3521,7 @@ Mask_Filter and Rasterizer.
 #Method void setImageFilter(sk_sp<SkImageFilter> imageFilter)
 
     Sets Image_Filter to imageFilter,
-    decrementing Reference_Count of the previous Image_Filter. 
+    decreasing Reference_Count of the previous Image_Filter. 
     Pass nullptr to clear Image_Filter, and remove Image_Filter effect
     on drawing.
     Does not affect Rasterizer or Mask_Filter.
@@ -3642,7 +3642,7 @@ Deprecated.
 #Method void setDrawLooper(sk_sp<SkDrawLooper> drawLooper)
 
     Sets Draw_Looper to drawLooper,
-    decrementing Reference_Count of the previous drawLooper. 
+    decreasing Reference_Count of the previous drawLooper. 
     Pass nullptr to clear Draw_Looper and leave Draw_Looper effect on drawing unaltered.
     Does not alter drawLooper Reference_Count.
 
@@ -4000,11 +4000,11 @@ All character encoding are able to represent all of Unicode, differing only
 in the total storage required.
 
 #A UTF-8 (RFC 3629) # https://tools.ietf.org/html/rfc3629 ## is made up of 8-bit bytes, 
-and is a superset of ASCII.
-#A UTF-16 (RFC 2781) # https://tools.ietf.org/html/rfc2781 ## is made up of 16-bit words, 
-and is a superset of Unicode ranges 0x0000 to 0xD7FF and 0xE000 to 0xFFFF.
-#A UTF-32 # http://www.unicode.org/versions/Unicode5.0.0/ch03.pdf ## is
-made up of 32-bit words, and is a superset of Unicode.
+and encodes ASCII in one byte, and all valid code points in Unicode in multiple bytes.
+#A UTF-16 (RFC 2781) # https://tools.ietf.org/html/rfc2781 ## uses one or two 16-bit words, 
+and encodes Unicode ranges 0x0000 to 0xD7FF and 0xE000 to 0xFFFF in one word.
+#A UTF-32 # http://www.unicode.org/versions/Unicode5.0.0/ch03.pdf ## describes
+a 32-bit word, which encodes all code points in Unicode.
 
 Font_Manager uses font data to convert character code points into glyph indices. 
 A glyph index is a 16-bit word.

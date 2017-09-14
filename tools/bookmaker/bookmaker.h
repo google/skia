@@ -8,8 +8,6 @@
 #ifndef bookmaker_DEFINED
 #define bookmaker_DEFINED
 
-#define STDOUT_TO_IDE_OUT 0
-
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
 
@@ -71,7 +69,10 @@ enum class KeyWord {
     kStruct,
     kTemplate,
     kTypedef,
+    kUint16_t,
     kUint32_t,
+    kUint64_t,
+    kUint8_t,
     kUnion,
     kUnsigned,
     kVoid,
@@ -160,6 +161,24 @@ enum class Punctuation {  // catch-all for misc symbols tracked in C
     kLeftBrace,
     kColon,     // for foo() : bar(1), baz(2) {}
 };
+
+enum class KeyProperty {
+    kNone,
+    kClassSection,
+    kFunction,
+    kModifier,
+    kNumber,
+    kObject,
+    kPreprocessor,
+};
+
+struct IncludeKey {
+    const char* fName;
+    KeyWord fKeyWord;
+    KeyProperty fProperty;
+};
+
+extern const IncludeKey kKeyWords[];
 
 static inline bool has_nonwhitespace(const string& s) {
     bool nonwhite = false;
@@ -449,7 +468,9 @@ public:
     bool skipName(const char* word) {
         size_t len = strlen(word);
         if (len <= (size_t) (fEnd - fChar) && !strncmp(word, fChar, len)) {
-            fChar += len;
+            for (size_t i = 0; i < len; ++i) {
+                this->next();
+            }
         }
         return this->eof() || ' ' >= fChar[0];
     }
@@ -890,6 +911,7 @@ public:
     bool fPrivate = false;
     bool fShort = false;
     bool fMemberStart = false;
+    bool fAnonymous = false;
     mutable bool fVisited = false;
 };
 
@@ -959,6 +981,7 @@ public:
 
     ParserCommon() : TextParser()
         , fParent(nullptr)
+        , fDebugOut(false)
     {
     }
 
@@ -972,9 +995,9 @@ public:
 
     void indentToColumn(int column) {
         SkASSERT(column >= fColumn);
-#if STDOUT_TO_IDE_OUT
-        SkDebugf("%*s", column - fColumn, "");
-#endif
+        if (fDebugOut) {
+            SkDebugf("%*s", column - fColumn, "");
+        }
         fprintf(fOut, "%*s", column - fColumn, "");
         fColumn = column;
         fSpaces += column - fColumn;
@@ -1068,10 +1091,13 @@ public:
             fPendingSpace = false;
         }
         writePending();
-#if STDOUT_TO_IDE_OUT
-        string check(data, size);
-        SkDebugf("%s", check.c_str());
-#endif
+        if (fDebugOut) {
+            if (!strncmp("SK_SUPPORT", data, 10)) {
+                SkDebugf("");
+            }
+            string check(data, size);
+            SkDebugf("%s", check.c_str());
+        }
         fprintf(fOut, "%.*s", size, data);
         int added = 0;
         while (size > 0 && '\n' != data[--size]) {
@@ -1109,9 +1135,6 @@ public:
     }
 
     void writeString(const char* str) {
-        if (!strcmp("utf-8", str)) {
-            SkDebugf("");
-        }
         SkASSERT(strlen(str) > 0);
         SkASSERT(' ' < str[0]);
         SkASSERT(' ' < str[strlen(str) - 1]);
@@ -1119,9 +1142,12 @@ public:
             fPendingSpace = false;
         }
         writePending();
-#if STDOUT_TO_IDE_OUT
-        SkDebugf("%s", str);
-#endif
+        if (fDebugOut) {
+            if (!strncmp("SK_SUPPORT", str, 10)) {
+                SkDebugf("");
+            }
+            SkDebugf("%s", str);
+        }
         SkASSERT(!strchr(str, '\n'));
         fprintf(fOut, "%s", str);
         fColumn += strlen(str);
@@ -1134,9 +1160,9 @@ public:
         fPendingLF = SkTMin(fPendingLF, fMaxLF);
         bool wroteLF = false;
         while (fLinefeeds < fPendingLF) {
-#if STDOUT_TO_IDE_OUT
-            SkDebugf("\n");
-#endif
+            if (fDebugOut) {
+                SkDebugf("\n");
+            }
             fprintf(fOut, "\n");
             ++fLinefeeds;
             wroteLF = true;
@@ -1145,17 +1171,17 @@ public:
         if (wroteLF) {
             SkASSERT(0 == fColumn);
             SkASSERT(fIndent >= fSpaces);
-    #if STDOUT_TO_IDE_OUT
-            SkDebugf("%*s", fIndent - fSpaces, "");
-    #endif
+            if (fDebugOut) {
+                SkDebugf("%*s", fIndent - fSpaces, "");
+            }
             fprintf(fOut, "%*s", fIndent - fSpaces, "");
             fColumn = fIndent;
             fSpaces = fIndent;
         }
         if (fPendingSpace) {
-    #if STDOUT_TO_IDE_OUT
-            SkDebugf(" ");
-    #endif
+            if (fDebugOut) {
+                SkDebugf(" ");
+            }
             fprintf(fOut, " ");
             ++fColumn;
             fPendingSpace = false;
@@ -1173,6 +1199,7 @@ public:
     int fColumn;        // current column; number of chars past last linefeed
     int fIndent;        // desired indention
     bool fPendingSpace; // a space should preceed the next string or block
+    bool fDebugOut;     // set true to write to std out
 private:
     typedef TextParser INHERITED;
 };
@@ -1231,7 +1258,7 @@ public:
 , { "Alias",       nullptr,      MarkType::kAlias,        R_N, E_N, 0 }
 , { "Bug",         nullptr,      MarkType::kBug,          R_N, E_N, 0 }
 , { "Class",       &fClassMap,   MarkType::kClass,        R_Y, E_O, M_CSST | M(Root) }
-, { "Code",        nullptr,      MarkType::kCode,         R_Y, E_N, M_CSST | M_E }      
+, { "Code",        nullptr,      MarkType::kCode,         R_O, E_N, M_CSST | M_E }      
 , { "",            nullptr,      MarkType::kColumn,       R_Y, E_N, M(Row) }
 , { "",            nullptr,      MarkType::kComment,      R_N, E_N, 0 }
 , { "Const",       &fConstMap,   MarkType::kConst,        R_Y, E_N, M_E | M_ST  }
@@ -1396,7 +1423,7 @@ public:
     bool fInComment;
     bool fInString;
     bool fCheckMethods;
-
+    bool fWroteOut = false;
 private:
     typedef ParserCommon INHERITED;
 };
@@ -1489,7 +1516,7 @@ public:
     IClassDefinition* defineClass(const Definition& includeDef, const string& className);
     void dumpClassTokens(IClassDefinition& classDef);
     void dumpComment(Definition* token);
-    void dumpTokens();
+    bool dumpTokens(const string& directory);
     bool findComments(const Definition& includeDef, Definition* markupDef);
 
     Definition* findIncludeObject(const Definition& includeDef, MarkType markType,
@@ -1651,6 +1678,11 @@ public:
         kMixed,
     };
 
+    enum class Phrase {
+        kNo,
+        kYes,
+    };
+
     enum class PunctuationState {
         kStart,
         kDelimiter,
@@ -1721,11 +1753,12 @@ public:
         fAttrDeprecated = nullptr;
         fAnonymousEnumCount = 1;
         fInStruct = false;
+        fWroteMethod = false;
     }
 
     string resolveMethod(const char* start, const char* end, bool first);
     string resolveRef(const char* start, const char* end, bool first, RefType* refType);
-    Wrote rewriteBlock(int size, const char* data);
+    Wrote rewriteBlock(int size, const char* data, Phrase phrase);
     Definition* structMemberOut(const Definition* memberStart, const Definition& child);
     void structOut(const Definition* root, const Definition& child,
             const char* commentStart, const char* commentEnd);
@@ -1748,6 +1781,7 @@ private:
     int fStructValueTab;
     int fStructCommentTab;
     bool fInStruct;
+    bool fWroteMethod;
 
     typedef IncludeParser INHERITED;
 };
@@ -1822,6 +1856,7 @@ private:
     bool buildRefFromFile(const char* fileName, const char* outDir);
     bool checkParamReturnBody(const Definition* def) const;
     void childrenOut(const Definition* def, const char* contentStart);
+    const Definition* findParamType();
     const Definition* isDefined(const TextParser& parser, const string& ref, bool report) const;
     string linkName(const Definition* ) const;
     string linkRef(const string& leadingSpaces, const Definition*, const string& ref) const;
@@ -1837,6 +1872,7 @@ private:
         fEnumClass = nullptr;
         fMethod = nullptr;
         fRoot = nullptr;
+        fLastParam = nullptr;
         fTableState = TableState::kNone;
         fHasFiddle = false;
         fInDescription = false;
@@ -1857,6 +1893,7 @@ private:
     const Definition* fEnumClass;
     Definition* fMethod;
     RootDefinition* fRoot;
+    const Definition* fLastParam;
     TableState fTableState;
     bool fHasFiddle;
     bool fInDescription;   // FIXME: for now, ignore unfound camelCase in description since it may

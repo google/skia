@@ -485,9 +485,11 @@ void SpellCheck::report(SkCommandLineFlags::StringArray report) {
             }
         }
         SkDebugf("\n");
+        return;
     }
     if (report.contains("all")) {
         int column = 0;
+        char lastInitial = 'a';
         for (auto iter : elems) {
             if (string::npos != iter.second.fFile.find("undocumented.bmh")) {
                 continue;
@@ -509,50 +511,47 @@ void SpellCheck::report(SkCommandLineFlags::StringArray report) {
             if (!allLower) {
                 continue;
             }
-            if (column + check.length() > 100) {
+            if (column + check.length() > 100 || check[0] != lastInitial) {
                 SkDebugf("\n");
                 column = 0;
+            }
+            if (check[0] != lastInitial) {
+                SkDebugf("\n");
+                lastInitial = check[0];
             }
             SkDebugf("%s ", check.c_str());
             column += check.length();
         }
         SkDebugf("\n\n");
+        return;
     }
-    if (report.contains("mispellings")) {
-        const char* mispelled[] = {
-            "decrementing",
-            "differentially",
-            "incrementing",
-            "superset",
-        };
-        const char** mispellPtr = mispelled;
-        const char** mispellEnd = &mispelled[SK_ARRAY_COUNT(mispelled)];
-        for (auto iter : elems) {
-            if (string::npos != iter.second.fFile.find("undocumented.bmh")) {
-                continue;
-            }
-            if (string::npos != iter.second.fFile.find("markup.bmh")) {
-                continue;
-            }
-            if (string::npos != iter.second.fFile.find("usingBookmaker.bmh")) {
-                continue;
-            }
-            string check = iter.first.c_str();
-            while (check.compare(*mispellPtr) > 0) {
-                SkDebugf("%s not found\n", *mispellPtr);
-                if (mispellEnd == ++mispellPtr) {
-                    break;
-                }
-            }
-            if (mispellEnd == mispellPtr) {
+    int index = 0;
+    const char* mispelled = report[0];
+    for (auto iter : elems) {
+        if (string::npos != iter.second.fFile.find("undocumented.bmh")) {
+            continue;
+        }
+        if (string::npos != iter.second.fFile.find("markup.bmh")) {
+            continue;
+        }
+        if (string::npos != iter.second.fFile.find("usingBookmaker.bmh")) {
+            continue;
+        }
+        string check = iter.first.c_str();
+        while (check.compare(mispelled) > 0) {
+            SkDebugf("%s not found\n", mispelled);
+            if (report.count() == ++index) {
                 break;
             }
-            if (check.compare(*mispellPtr) == 0) {
-                SkDebugf("%s(%d): %s\n", iter.second.fFile.c_str(), iter.second.fLine,
-                        iter.first.c_str());
-                if (mispellEnd == ++mispellPtr) {
-                    break;
-                }
+        }
+        if (report.count() == index) {
+            break;
+        }
+        if (check.compare(mispelled) == 0) {
+            SkDebugf("%s(%d): %s\n", iter.second.fFile.c_str(), iter.second.fLine,
+                    iter.first.c_str());
+            if (report.count() == ++index) {
+                break;
             }
         }
     }
