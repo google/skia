@@ -25,6 +25,7 @@ class GrCaps;
 class GrOpFlushState;
 class GrPrepareCallback;
 class GrRenderTargetOpList;
+class GrResourceAllocator;
 class GrResourceProvider;
 class GrSurfaceProxy;
 class GrTextureProxy;
@@ -113,7 +114,9 @@ protected:
     GrLoadOp          fStencilLoadOp  = GrLoadOp::kLoad;
 
 private:
-    friend class GrDrawingManager; // for resetFlag & TopoSortTraits
+    friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals
+
+    virtual void gatherProxyIntervals(GrResourceAllocator*) const = 0;
 
     static uint32_t CreateUniqueID();
 
