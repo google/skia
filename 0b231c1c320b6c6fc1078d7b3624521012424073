@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1fd4458b_da391c3d",
+        "filename": "src/effects/SkImageSource.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 7734
+      },
+      "writtenOn": "2017-09-14T19:26:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3a55ce5e_ee612a31",
+      "revId": "0b231c1c320b6c6fc1078d7b3624521012424073",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67000fbd_ce495ec3",
         "filename": "tests/ImageFilterTest.cpp",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-09-14T19:07:15Z",
       "side": 1,
       "message": "Add a test with a non-identity CTM?",
+      "revId": "0b231c1c320b6c6fc1078d7b3624521012424073",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bb44b0d_49c4e88e",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2079,
+      "author": {
+        "id": 7734
+      },
+      "writtenOn": "2017-09-14T19:26:44Z",
+      "side": 1,
+      "message": "I\u0027m not sure if can make both the code and test the correct. I can verify with blink layout tests but they are for SkMatrix::I() cases. Are there other ways to verify?",
+      "parentUuid": "67000fbd_ce495ec3",
       "revId": "0b231c1c320b6c6fc1078d7b3624521012424073",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
