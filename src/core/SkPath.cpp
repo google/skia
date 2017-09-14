@@ -341,8 +341,8 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
 uint32_t SkPath::getGenerationID() const {
     uint32_t genID = fPathRef->genID();
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    SkASSERT((unsigned)fFillType < (1 << (32 - kPathRefGenIDBitCnt)));
-    genID |= static_cast<uint32_t>(fFillType) << kPathRefGenIDBitCnt;
+    SkASSERT((unsigned)fFillType < (1 << (32 - SkPathPriv::kPathRefGenIDBitCnt)));
+    genID |= static_cast<uint32_t>(fFillType) << SkPathPriv::kPathRefGenIDBitCnt;
 #endif
     return genID;
 }
