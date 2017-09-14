@@ -95,7 +95,7 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 # drawArc                          # Draws Arc using Clip, Matrix, and Paint.##
 # drawAtlas                        # Draws sprites using Clip, Matrix, and Paint.##
 # drawBitmap                       # Draws Bitmap at (x, y) position. ##
-# drawBitmapLattice                # Draws differentially stretched Bitmap. ##
+# drawBitmapLattice                # Draws proportionally stretched Bitmap. ##
 # drawBitmapNine                   # Draws Nine_Patch Bitmap. ##
 # drawBitmapRect                   # Draws Bitmap, source Rect to destination Rect. ##
 # drawCircle                       # Draws Circle using Clip, Matrix, and Paint. ##
@@ -104,7 +104,7 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 # drawDrawable                     # Draws Drawable, encapsulated drawing commands. ##
 # drawIRect                        # Draws IRect using Clip, Matrix, and Paint. ##
 # drawImage                        # Draws Image at (x, y) position. ##
-# drawImageLattice                 # Draws differentially stretched Image. ##
+# drawImageLattice                 # Draws proportionally stretched Image. ##
 # drawImageNine                    # Draws Nine_Patch Image. ##
 # drawImageRect                    # Draws Image, source Rect to destination Rect. ##
 # drawLine                         # Draws line segment between two points.##
@@ -314,10 +314,10 @@ void draw(SkCanvas* ) {
 
 #Method SkCanvas()
 
-Creates an empty canvas with no backing device or pixels, with 
+Creates an empty Canvas with no backing device or pixels, with 
 a width and height of zero.
 
-#Return  empty canvas ##
+#Return  empty Canvas ##
 
 #Example
 
@@ -369,11 +369,11 @@ void draw(SkCanvas* canvas) {
 Creates Canvas of the specified dimensions without a Surface.
 Used by Subclasses with custom implementations for draw methods.
 
-If props equals nullptr, Surface_Properties are created with Surface_Properties_Legacy_Font_Host settings,
-which choose the pixel striping direction and order. Since a platform may dynamically
-change its direction when the device is rotated, and since a platform may have
-multiple monitors with different characteristics, it's best not to rely on this
-legacy behavior.
+If props equals nullptr, Surface_Properties are created with
+Surface_Properties_Legacy_Font_Host settings, which choose the pixel striping 
+direction and order. Since a platform may dynamically change its direction when
+the device is rotated, and since a platform may have multiple monitors with
+different characteristics, it is best not to rely on this legacy behavior.
 
 #Param width  zero or greater ##
 #Param height zero or greater ##
@@ -1252,7 +1252,7 @@ this->imageInfo.alphaType()
 
 #Param info  width, height, Image_Color_Type, and Image_Alpha_Type of pixels ##
 #Param pixels  pixels to copy, of size info.height() times rowBytes, or larger ##
-#Param rowBytes  size of one pixels row; info.width() times pixel size, or larger ##
+#Param rowBytes  size of one row of pixels; info.width() times pixel size, or larger ##
 #Param x  offset into Canvas writable pixels in x; may be negative ##
 #Param y  offset into Canvas writable pixels in y; may be negative ##
 
@@ -1551,6 +1551,7 @@ depth = 1
 # ------------------------------------------------------------------------------
 
 #Topic Layer
+#Substitute layer
 #Alias Layers
 
 Layer allocates a temporary Bitmap to draw into. When the drawing is
@@ -3118,7 +3119,7 @@ void draw(SkCanvas* canvas) {
     enum PointMode {
         kPoints_PointMode,
         kLines_PointMode,
-        kPolygon_PointMode 
+        kPolygon_PointMode,
     };
 ##
 
@@ -4284,7 +4285,7 @@ void draw(SkCanvas* canvas) {
 #Method void drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                        const SkPaint* paint = nullptr)
 
-Draw Image image stretched differentially to fit into Rect dst.
+Draw Image image stretched proportionally to fit into Rect dst.
 IRect center divides the image into nine sections: four sides, four corners, and
 the center. Corners are unmodified or scaled down proportionately if their sides
 are larger than dst; center and four sides are scaled to fit remaining space, if any.
@@ -4350,7 +4351,7 @@ void draw(SkCanvas* canvas) {
 #Method void drawImageNine(const sk_sp<SkImage>& image, const SkIRect& center, const SkRect& dst,
                        const SkPaint* paint = nullptr) 
 
-Draw Image image stretched differentially to fit into Rect dst.
+Draw Image image stretched proportionally to fit into Rect dst.
 IRect center divides the image into nine sections: four sides, four corners, and
 the center. Corners are not scaled, or scaled down proportionately if their sides
 are larger than dst; center and four sides are scaled to fit remaining space, if any.
@@ -4635,7 +4636,7 @@ void draw(SkCanvas* canvas) {
 #Method void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
                         const SkPaint* paint = nullptr)
 
-Draw Bitmap bitmap stretched differentially to fit into Rect dst.
+Draw Bitmap bitmap stretched proportionally to fit into Rect dst.
 IRect center divides the bitmap into nine sections: four sides, four corners,
 and the center. Corners are not scaled, or scaled down proportionately if their
 sides are larger than dst; center and four sides are scaled to fit remaining
@@ -4783,7 +4784,7 @@ void draw(SkCanvas* canvas) {
 #Method void drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst,
                            const SkPaint* paint = nullptr)
 
-Draw Bitmap bitmap stretched differentially to fit into Rect dst.
+Draw Bitmap bitmap stretched proportionally to fit into Rect dst.
 
 Lattice lattice divides bitmap into a rectangular grid.
 Each intersection of an even-numbered row and column is fixed; like the corners
@@ -4860,7 +4861,7 @@ void draw(SkCanvas* canvas) {
 #Method void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                           const SkPaint* paint = nullptr)
 
-Draw Image image stretched differentially to fit into Rect dst.
+Draw Image image stretched proportionally to fit into Rect dst.
 
 Lattice lattice divides image into a rectangular grid.
 Each intersection of an even-numbered row and column is fixed; like the corners

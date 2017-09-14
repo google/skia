@@ -22,7 +22,9 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
     bool lineStart = true;
     string ref;
     string leadingSpaces;
+    int distFromParam = 99;
     do {
+        ++distFromParam;
         const char* base = t.fChar;
         t.skipWhiteSpace();
         const char* wordStart = t.fChar;
@@ -138,6 +140,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             const Definition* def;
             if (fMethod && (def = fMethod->hasParam(ref))) {
                 result += linkRef(leadingSpaces, def, ref);
+                fLastParam = def;
+                distFromParam = 0;
                 continue;
             } else if (!fInDescription && ref[0] != '0' 
                     && string::npos != ref.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ")) {
@@ -145,6 +149,23 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 if (('f' != ref[0] && string::npos == ref.find("()"))
 //                        || '.' != t.backup(ref.c_str())
                         && ('k' != ref[0] && string::npos == ref.find("_Private"))) {
+                    if ('.' == wordStart[0] && distFromParam == 1) {
+                        const Definition* paramType = this->findParamType();
+                        if (paramType) {
+                            string fullName = paramType->fName + "::" + ref;
+                            bool found = false;
+                            for (auto child : paramType->fChildren) {
+                                if (fullName == child->fName) {
+                                    result += linkRef(leadingSpaces, paramType, ref);
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (found) {
+                                continue;
+                            }
+                        }
+                    }
                     if (BmhParser::Resolvable::kOut != resolvable) {
                         t.reportError("missed camelCase");
                         return result;
@@ -242,6 +263,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
     filename = match + ".md";
     match += ".bmh";
     fOut = nullptr;
+    string fullName;
     for (const auto& topic : fBmhParser.fTopicMap) {
         Definition* topicDef = topic.second;
         if (topicDef->fParent) {
@@ -255,7 +277,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
             continue;
         }
         if (!fOut) {
-            string fullName(outDir);
+            fullName = outDir;
             if ('/' != fullName.back()) {
                 fullName += '/';
             }
@@ -279,6 +301,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
     if (fOut) {
         this->writePending();
         fclose(fOut);
+        SkDebugf("wrote %s\n", fullName.c_str());
         fOut = nullptr;
     }
     return true;
@@ -328,6 +351,31 @@ void MdOut::childrenOut(const Definition* def, const char* start) {
     if (MarkType::kEnumClass == def->fMarkType) {
         fEnumClass = nullptr;
     }
+}
+
+const Definition* MdOut::findParamType() {
+    SkASSERT(fMethod);
+    TextParser parser(fMethod->fFileName, fMethod->fStart, fMethod->fContentStart,
+            fMethod->fLineCount);
+    string lastFull;
+    do {
+        parser.skipToAlpha();
+        if (parser.eof()) {
+            return nullptr;
+        }
+        const char* word = parser.fChar;
+        parser.skipFullName();
+        SkASSERT(!parser.eof());
+        string name = string(word, parser.fChar - word);
+        if (fLastParam->fName == name) {
+            const Definition* paramType = this->isDefined(parser, lastFull, false);
+            return paramType;
+        }
+        if (isupper(name[0])) {
+            lastFull = name; 
+        }
+    } while (true);
+    return nullptr;
 }
 
 const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, bool report) const {
