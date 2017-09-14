@@ -247,11 +247,8 @@ bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
     if (!op) {
         return false;
     }
-#ifdef ENABLE_MDB
-    this->addDependency(src);
-#endif
 
-    this->recordOp(std::move(op), caps);
+    this->addOp(std::move(op), caps);
     return true;
 }
 
