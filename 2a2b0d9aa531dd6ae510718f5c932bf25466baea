@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "720a923a_18720cc7",
+        "filename": "tools/android/measure_fps.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-14T19:55:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f73f86c4_3dc192e7",
+      "revId": "2a2b0d9aa531dd6ae510718f5c932bf25466baea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9df1b6ee_86107dd9",
         "filename": "tools/android/measure_fps.py",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "057ab517_5be18659",
+        "filename": "tools/android/measure_fps.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-14T19:55:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9df1b6ee_86107dd9",
+      "range": {
+        "startLine": 14,
+        "startChar": 61,
+        "endLine": 14,
+        "endChar": 62
+      },
+      "revId": "2a2b0d9aa531dd6ae510718f5c932bf25466baea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "718cbb44_b21d463d",
         "filename": "tools/android/measure_fps.py",
         "patchSetId": 2
@@ -56,6 +98,24 @@
       "revId": "2a2b0d9aa531dd6ae510718f5c932bf25466baea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37f7d38e_6fa5f341",
+        "filename": "tools/android/measure_fps.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-14T19:55:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "718cbb44_b21d463d",
+      "revId": "2a2b0d9aa531dd6ae510718f5c932bf25466baea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -94,6 +154,24 @@
     },
     {
       "key": {
+        "uuid": "0d3e902c_5313d077",
+        "filename": "tools/android/measure_fps.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-14T19:55:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a5b893c_2b88d398",
+      "revId": "2a2b0d9aa531dd6ae510718f5c932bf25466baea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "10168e86_18bfa54d",
         "filename": "tools/android/measure_fps.py",
         "patchSetId": 2
@@ -108,6 +186,24 @@
       "revId": "2a2b0d9aa531dd6ae510718f5c932bf25466baea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b992d384_ec40ff5e",
+        "filename": "tools/android/measure_fps.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-14T19:55:53Z",
+      "side": 1,
+      "message": "I think this is intended to be run as a dev tool, but not necessarily automated yet. The developer can hit ^C when they are done. I have left it running indefinitely in a background window, and just checked it when relevant, and ignored it when it wasn\u0027t. A timeout would have been counterproductive in that case.",
+      "parentUuid": "10168e86_18bfa54d",
+      "revId": "2a2b0d9aa531dd6ae510718f5c932bf25466baea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
