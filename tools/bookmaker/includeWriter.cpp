@@ -406,9 +406,6 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
 
 // walk children and output complete method doxygen description
 void IncludeWriter::methodOut(const Definition* method, const Definition& child) {
-    if ("SkPath::getGenerationID" == method->fName) {
-        SkDebugf("");
-    }
     fBmhMethod = method;
     fMethodDef = &child;
     fContinuation = nullptr;
@@ -942,14 +939,8 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                             if (Definition* parent = root->fParent) {
                                 if (MarkType::kTopic == parent->fMarkType ||
                                         MarkType::kSubtopic == parent->fMarkType) {
-                                    const char* commentStart = parent->fContentStart;
-                                    for (auto child : parent->fChildren) {
-                                        if (MarkType::kClass == child->fMarkType) {
-                                            break;
-                                        }
-                                        commentStart = child->fTerminator;
-                                    }
-                                    const char* commentEnd = root->fStart;
+                                    const char* commentStart = root->fContentStart;
+                                    const char* commentEnd = root->fChildren[0]->fStart;
                                     this->structOut(root, *root, commentStart, commentEnd);
                                 } else {
                                     SkASSERT(0); // incomplete
@@ -985,8 +976,8 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                             }
                             // FIXME: trigger error earlier if inner #Struct or #Class is missing #Code
                             SkASSERT(nextBlock);  // FIXME: check enum for correct order earlier
-                            const char* commentStart = codeBlock->fTerminator;
-                            const char* commentEnd = nextBlock->fStart;
+                            const char* commentStart = structDef->fContentStart;
+                            const char* commentEnd = codeBlock->fStart;
                             this->structOut(root, *structDef, commentStart, commentEnd);
                         }
                         fDeferComment = nullptr;
