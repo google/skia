@@ -62,7 +62,7 @@ private:
 
     // These two methods wrap the interactions with the free pool
     void freeUpSurface(GrSurface* surface);
-    sk_sp<GrSurface> findSurfaceFor(GrSurfaceProxy* proxy);
+    sk_sp<GrSurface> findSurfaceFor(const GrSurfaceProxy* proxy);
 
     struct FreePoolTraits {
         static const GrScratchKey& GetKey(const GrSurface& s) {

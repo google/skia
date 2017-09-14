@@ -88,7 +88,7 @@ void GrResourceAllocator::freeUpSurface(GrSurface* surface) {
 // First try to reuse one of the recently allocated/used GrSurfaces in the free pool.
 // If we can't find a useable one, create a new one.
 // TODO: handle being overbudget
-sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(GrSurfaceProxy* proxy) {
+sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy) {
     // First look in the free pool
     GrScratchKey key;
 
