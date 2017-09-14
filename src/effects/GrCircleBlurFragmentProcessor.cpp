@@ -263,19 +263,20 @@ public:
         const GrCircleBlurFragmentProcessor& _outer =
                 args.fFp.cast<GrCircleBlurFragmentProcessor>();
         (void)_outer;
-        fCircleDataVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kVec4f_GrSLType,
+        fCircleDataVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                           kDefault_GrSLPrecision, "circleData");
         fragBuilder->codeAppendf(
-                "float2 vec = float2((sk_FragCoord.x - %s.x) * %s.w, (sk_FragCoord.y - %s.y) * "
-                "%s.w);\nfloat dist = length(vec) + (0.5 - %s.z) * %s.w;\n%s = %s * texture(%s, "
-                "float2(dist, 0.5)).%s.w;\n",
+                "half2 vec = half2(half((sk_FragCoord.x - highfloat(%s.x)) * highfloat(%s.w)), "
+                "half((sk_FragCoord.y - highfloat(%s.y)) * highfloat(%s.w)));\nhalf dist = "
+                "highfloat(length(vec)) + (0.5 - highfloat(%s.z)) * highfloat(%s.w);\n%s = %s * "
+                "texture(%s, highfloat2(half2(dist, 0.5))).%s.w;\n",
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
                 args.fUniformHandler->getUniformCStr(fCircleDataVar), args.fOutputColor,
-                args.fInputColor ? args.fInputColor : "float4(1)",
+                args.fInputColor ? args.fInputColor : "half4(1)",
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
     }

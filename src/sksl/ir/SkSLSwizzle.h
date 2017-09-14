@@ -32,6 +32,12 @@ static const Type& get_type(const Context& context, Expression& value, size_t co
             case 3: return *context.fFloat3_Type;
             case 4: return *context.fFloat4_Type;
         }
+    } else if (base == *context.fHalf_Type) {
+        switch (count) {
+            case 2: return *context.fHalf2_Type;
+            case 3: return *context.fHalf3_Type;
+            case 4: return *context.fHalf4_Type;
+        }
     } else if (base == *context.fDouble_Type) {
         switch (count) {
             case 2: return *context.fDouble2_Type;
@@ -44,11 +50,23 @@ static const Type& get_type(const Context& context, Expression& value, size_t co
             case 3: return *context.fInt3_Type;
             case 4: return *context.fInt4_Type;
         }
+    } else if (base == *context.fShort_Type) {
+        switch (count) {
+            case 2: return *context.fShort2_Type;
+            case 3: return *context.fShort3_Type;
+            case 4: return *context.fShort4_Type;
+        }
     } else if (base == *context.fUInt_Type) {
         switch (count) {
             case 2: return *context.fUInt2_Type;
             case 3: return *context.fUInt3_Type;
             case 4: return *context.fUInt4_Type;
+        }
+    } else if (base == *context.fUShort_Type) {
+        switch (count) {
+            case 2: return *context.fUShort2_Type;
+            case 3: return *context.fUShort3_Type;
+            case 4: return *context.fUShort4_Type;
         }
     } else if (base == *context.fBool_Type) {
         switch (count) {
