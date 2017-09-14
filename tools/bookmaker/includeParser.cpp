@@ -7,22 +7,6 @@
 
 #include "bookmaker.h"
 
-enum class KeyProperty {
-    kNone,
-    kClassSection,
-    kFunction,
-    kModifier,
-    kNumber,
-    kObject,
-    kPreprocessor,
-};
-
-struct IncludeKey {
-    const char* fName;
-    KeyWord fKeyWord;
-    KeyProperty fProperty;
-};
-
 const IncludeKey kKeyWords[] = {
     { "",           KeyWord::kNone,         KeyProperty::kNone           },
     { "SK_API",     KeyWord::kSK_API,       KeyProperty::kModifier       },
@@ -55,7 +39,10 @@ const IncludeKey kKeyWords[] = {
     { "struct",     KeyWord::kStruct,       KeyProperty::kObject         },
     { "template",   KeyWord::kTemplate,     KeyProperty::kObject         },
     { "typedef",    KeyWord::kTypedef,      KeyProperty::kObject         },
+    { "uint16_t",   KeyWord::kUint16_t,     KeyProperty::kNumber         },
     { "uint32_t",   KeyWord::kUint32_t,     KeyProperty::kNumber         },
+    { "uint64_t",   KeyWord::kUint64_t,     KeyProperty::kNumber         },
+    { "uint8_t",    KeyWord::kUint8_t,      KeyProperty::kNumber         },
     { "union",      KeyWord::kUnion,        KeyProperty::kObject         },
     { "unsigned",   KeyWord::kUnsigned,     KeyProperty::kNumber         },
     { "void",       KeyWord::kVoid,         KeyProperty::kNumber         },
@@ -417,6 +404,8 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
     if (!root->dumpUnVisited()) {
         SkDebugf("some struct elements not found; struct finding in includeParser is missing\n");
     }
+    SkDebugf("cross-checked %s\n", className.c_str());
+    bmhParser.fWroteOut = true;
     return true;
 }
 
@@ -683,13 +672,17 @@ void IncludeParser::dumpComment(Definition* token) {
 }
 
     // dump equivalent markup 
-void IncludeParser::dumpTokens()  {
+bool IncludeParser::dumpTokens(const string& dir) {
     string skClassName = this->className();
-    string fileName = skClassName + ".bmh";
+    string fileName = dir;
+    if (dir.length() && '/' != dir[dir.length() - 1]) {
+        fileName += '/';
+    }
+    fileName += skClassName + "_Reference.bmh";
     fOut = fopen(fileName.c_str(), "wb");
     if (!fOut) {
         SkDebugf("could not open output file %s\n", fileName.c_str());
-        return;
+        return false;
     }
     string prefixName = skClassName.substr(0, 2);
     string topicName = skClassName.length() > 2 && isupper(skClassName[2]) &&
@@ -811,6 +804,8 @@ void IncludeParser::dumpTokens()  {
     fprintf(fOut, "#Topic %s ##"                                                             "\n",
             topicName.c_str());
     fclose(fOut);
+    SkDebugf("wrote %s\n", fileName.c_str());
+    return true;
 }
 
 bool IncludeParser::findComments(const Definition& includeDef, Definition* markupDef) {
@@ -960,7 +955,8 @@ bool IncludeParser::parseComment(const string& filename, const char* start, cons
             if (!parser.skipWord(kKeyWords[(int) markupDef->fKeyWord].fName)) {
                 return reportError<bool>("missing object type");
             }
-            if (!parser.skipWord(markupDef->fName.c_str())) {
+            if (!parser.skipWord(markupDef->fName.c_str()) &&
+                    KeyWord::kEnum != markupDef->fKeyWord) {
                 return reportError<bool>("missing object name");
             }
 
@@ -1232,6 +1228,9 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
             break;
         }
     }
+    while (end > start && ' ' >= end[-1]) {
+        --end;
+    }
     markupDef->fTokens.emplace_back(MarkType::kMethod, start, end, tokenIter->fLineCount,
             markupDef);
     Definition* markupChild = &markupDef->fTokens.back();
@@ -1404,14 +1403,14 @@ bool IncludeParser::parseChar() {
     char test = *fChar;
     if ('\\' == fPrev) {
         if ('\n' == test) {
-            ++fLineCount;
+//            ++fLineCount;
             fLine = fChar + 1;
         }
         goto done;
     }
     switch (test) {
         case '\n':
-            ++fLineCount;
+//            ++fLineCount;
             fLine = fChar + 1;
             if (fInChar) {
                 return reportError<bool>("malformed char");
@@ -1777,7 +1776,7 @@ bool IncludeParser::parseChar() {
     }
 done:
     fPrev = test;
-    ++fChar;
+    this->next();
     return true;
 }
 

@@ -938,6 +938,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     definition->fFiddle = normalized_name(name);
                 }
                 definition->fMarkType = markType;
+                definition->fAnonymous = fAnonymous;
                 this->setAsParent(definition);
             }
             } break;
@@ -1078,9 +1079,6 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 fMarkup.emplace_front(markType, defStart, fLineCount, fParent);
                 definition = &fMarkup.front();
                 definition->fContentStart = fChar;
-                if (MarkType::kFormula == markType && MarkType::kRow == definition->fParent->fMarkType) {
-                    SkDebugf("");
-                }
                 definition->fName = typeNameBuilder[0];
                 definition->fFiddle = fParent->fFiddle;
                 char suffix = '\0';
@@ -1383,6 +1381,7 @@ bool BmhParser::dumpExamples(const char* fiddleJsonFileName) const {
     }
     fprintf(fiddleOut, "\n}\n");
     fclose(fiddleOut);
+    SkDebugf("wrote %s\n", fiddleJsonFileName);
     return true;
 }
 
@@ -1525,10 +1524,6 @@ bool BmhParser::findDefinitions() {
                         }
                     }
                 } else if (TableState::kNone == fTableState) {
-                    bool parentIsList = MarkType::kList == fParent->fMarkType;
-                    if (parentIsList && fLineCount > 1230) {
-                        SkDebugf("");
-                    }
                     // fixme? no nested tables for now
                     fColStart = fChar - 1;
                     fMarkup.emplace_front(MarkType::kRow, fColStart, fLineCount, fParent);
@@ -1627,6 +1622,7 @@ bool HackParser::hackFiles() {
     } while (!this->eof());
     fprintf(out, "%.*s", (int) (fEnd - start), start);
     fclose(out);
+    SkDebugf("wrote %s\n", filename.c_str());
     return true;
 }
 
@@ -2143,15 +2139,16 @@ string BmhParser::word(const string& prefix, const string& delimiter) {
 // pass one: parse text, collect definitions
 // pass two: lookup references
 
-DEFINE_string2(bmh, b, "", "A path to a *.bmh file or a directory.");
+DEFINE_string2(bmh, b, "", "Path to a *.bmh file or a directory.");
 DEFINE_string2(examples, e, "", "File of fiddlecli input, usually fiddle.json (For now, disables -r -f -s)");
 DEFINE_string2(fiddle, f, "", "File of fiddlecli output, usually fiddleout.json.");
-DEFINE_string2(include, i, "", "A path to a *.h file or a directory.");
+DEFINE_string2(include, i, "", "Path to a *.h file or a directory.");
 DEFINE_bool2(hack, k, false, "Do a find/replace hack to update all *.bmh files. (Requires -b)");
+DEFINE_bool2(stdout, o, false, "Write file out to standard out.");
 DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
 DEFINE_string2(ref, r, "", "Resolve refs and write bmh_*.md files to path. (Requires -b)");
-DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispellings]. (Requires -b)");
-DEFINE_bool2(tokens, t, false, "Output include tokens. (Requires -i)");
+DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispelling]. (Requires -b)");
+DEFINE_string2(tokens, t, "", "Directory to write bmh from include. (Requires -i)");
 DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
 
 static int count_children(const Definition& def, MarkType markType) {
@@ -2220,7 +2217,6 @@ int main(int argc, char** const argv) {
             SkDebugf("hack failed\n");
             return -1;
         }
-        SkDebugf("hack success\n");
         return 0;
     }
     if ((FLAGS_include.isEmpty() || FLAGS_bmh.isEmpty()) && FLAGS_populate) {
@@ -2238,7 +2234,7 @@ int main(int argc, char** const argv) {
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
-    if (FLAGS_include.isEmpty() && FLAGS_tokens) {
+    if (FLAGS_include.isEmpty() && !FLAGS_tokens.isEmpty()) {
         SkDebugf("-t requires -i\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
@@ -2255,14 +2251,16 @@ int main(int argc, char** const argv) {
     }
     bool done = false;
     if (!FLAGS_include.isEmpty()) {
-        if (FLAGS_tokens || FLAGS_crosscheck) {
+        if (!FLAGS_tokens.isEmpty() || FLAGS_crosscheck) {
             IncludeParser includeParser;
             includeParser.validate();
             if (!includeParser.parseFile(FLAGS_include[0], ".h")) {
                 return -1;
             }
-            if (FLAGS_tokens) {
-                includeParser.dumpTokens();
+            if (!FLAGS_tokens.isEmpty()) {
+                if (includeParser.dumpTokens(FLAGS_tokens[0])) {
+                    bmhParser.fWroteOut = true;
+                }
                 done = true;
             } else if (FLAGS_crosscheck) {
                 if (!includeParser.crossCheck(bmhParser)) {
@@ -2276,9 +2274,11 @@ int main(int argc, char** const argv) {
             if (!includeWriter.parseFile(FLAGS_include[0], ".h")) {
                 return -1;
             }
+            includeWriter.fDebugOut = FLAGS_stdout;
             if (!includeWriter.populate(bmhParser)) {
                 return -1;
             }
+            bmhParser.fWroteOut = true;
             done = true;
         }
     }
@@ -2290,7 +2290,9 @@ int main(int argc, char** const argv) {
     }
     if (!done && !FLAGS_ref.isEmpty() && FLAGS_examples.isEmpty()) {
         MdOut mdOut(bmhParser);
-        mdOut.buildReferences(FLAGS_bmh[0], FLAGS_ref[0]);
+        if (mdOut.buildReferences(FLAGS_bmh[0], FLAGS_ref[0])) {
+            bmhParser.fWroteOut = true;
+        }
     }
     if (!done && !FLAGS_spellcheck.isEmpty() && FLAGS_examples.isEmpty()) {
         bmhParser.spellCheck(FLAGS_bmh[0], FLAGS_spellcheck);
@@ -2307,18 +2309,21 @@ int main(int argc, char** const argv) {
         if (!bmhParser.dumpExamples(FLAGS_examples[0])) {
             return -1;
         }
+        return 0;
     }
-    for (const auto& topic : bmhParser.fTopicMap) {
-        if (topic.second->fParent) {
-            continue;
+    if (!bmhParser.fWroteOut) {
+        for (const auto& topic : bmhParser.fTopicMap) {
+            if (topic.second->fParent) {
+                continue;
+            }
+            examples += count_children(*topic.second, MarkType::kExample);
+            methods += count_children(*topic.second, MarkType::kMethod);
+            topics += count_children(*topic.second, MarkType::kSubtopic);
+            topics += count_children(*topic.second, MarkType::kTopic);
         }
-        examples += count_children(*topic.second, MarkType::kExample);
-        methods += count_children(*topic.second, MarkType::kMethod);
-        topics += count_children(*topic.second, MarkType::kSubtopic);
-        topics += count_children(*topic.second, MarkType::kTopic);
+        SkDebugf("topics=%d classes=%d methods=%d examples=%d\n", 
+                bmhParser.fTopicMap.size(), bmhParser.fClassMap.size(),
+                methods, examples);
     }
-    SkDebugf("topics=%d classes=%d methods=%d examples=%d\n", 
-            bmhParser.fTopicMap.size(), bmhParser.fClassMap.size(),
-            methods, examples);
     return 0;
 }
