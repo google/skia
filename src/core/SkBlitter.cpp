@@ -89,7 +89,9 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
     bool canUseMask = !deltas->forceRLE() &&
                       SkCoverageDeltaMask::CanHandle(SkIRect::MakeLTRB(0, 0, clip.width(), 1));
     const SkAntiRect& antiRect = deltas->getAntiRect();
-    for(int y = deltas->top(); y < deltas->bottom(); ++y) {
+    int top = SkTMax(deltas->top(), clip.fTop);
+    int bottom = SkTMin(deltas->bottom(), clip.fBottom);
+    for(int y = top; y < bottom; ++y) {
         // If antiRect is non-empty and we're at its top row, blit it and skip to the bottom
         if (antiRect.fHeight && y == antiRect.fY) {
             this->blitAntiRect(antiRect.fX, antiRect.fY, antiRect.fWidth, antiRect.fHeight,
@@ -521,6 +523,23 @@ void SkRectClipBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 
 const SkPixmap* SkRectClipBlitter::justAnOpaqueColor(uint32_t* value) {
     return fBlitter->justAnOpaqueColor(value);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void SkRecordingBlitter::blitRect(int x, int  y, int width, int height) {
+    fRecord->addRect(x, y, width, height);
+}
+
+void SkRecordingBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
+    // The mask's memory may be temporary so we have to copy it.
+    // We'll eventually use blitCoverageDeltas(SkCoverageDeltaMask) to avoid copying.
+    fRecord->addMask(mask);
+}
+
+void SkRecordingBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
+                                            bool isEvenOdd, bool isInverse, bool isConvex) {
+    fRecord->addList(deltas);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

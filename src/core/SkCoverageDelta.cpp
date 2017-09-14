@@ -40,6 +40,43 @@ SkCoverageDeltaList::SkCoverageDeltaList(SkArenaAlloc* alloc, int top, int botto
     }
 }
 
+SkCoverageDeltaList::SkCoverageDeltaList(SkArenaAlloc* alloc, SkCoverageDeltaList* other) {
+    fAlloc = alloc;
+    fTop = other->fTop;
+    fBottom = other->fBottom;
+    fForceRLE = other->fForceRLE;
+    fAntiRect = other->fAntiRect;
+
+    int h = fBottom - fTop;
+
+    fSorted     = fAlloc->makeArrayDefault<bool>(h);
+    fCounts     = fAlloc->makeArrayDefault<int>(h * 2);
+    fMaxCounts  = fCounts + h;
+    fRows       = fAlloc->makeArrayDefault<SkCoverageDelta*>(h) - fTop;
+
+    // Minus top so we can directly use fCounts[y] instead of fCounts[y - fTop].
+    // Same for fMaxCounts, fRows, and fSorted.
+    fSorted    -= fTop;
+    fCounts    -= fTop;
+    fMaxCounts -= fTop;
+
+    memcpy(fSorted + fTop, other->fSorted + fTop, sizeof(bool) * h);
+    memcpy(fCounts + fTop, other->fCounts + fTop, sizeof(int) * h);
+    memcpy(fMaxCounts + fTop, other->fCounts + fTop, sizeof(int) * h); // maxCount = count
+
+    int totalCount = 0;
+    for(int i = fTop; i < fBottom; ++i) {
+        totalCount += fCounts[i];
+    }
+    fRows[fTop]  = fAlloc->makeArrayDefault<SkCoverageDelta>(totalCount);
+    for(int y = fTop; y < fBottom; ++y) {
+        memcpy(fRows[y], other->fRows[y], sizeof(SkCoverageDelta) * fCounts[y]);
+        if (y < fBottom - 1) {
+            fRows[y + 1] = fRows[y] + fCounts[y];
+        }
+    }
+}
+
 int SkCoverageDeltaMask::ExpandWidth(int width) {
     int result = width + PADDING * 2;
     return result + (SIMD_WIDTH - result % SIMD_WIDTH) % SIMD_WIDTH;
@@ -126,4 +163,19 @@ void SkCoverageDeltaMask::convertCoverageToAlpha(bool isEvenOdd, bool isInverse,
         deltaRow    += fExpandedWidth;
         maskRow     += fBounds.width();
     }
+}
+
+void SkCoverageRecord::addMask(const SkMask& mask) {
+    // The mask's memory may be temporary so we have to copy it.
+    // We'll eventually use blitCoverageDeltas(SkCoverageDeltaMask) to avoid copying.
+    fMasks.push_back(mask);
+    SkMask& newMask = fMasks[fMasks.size() - 1];
+    newMask.fImage = fAlloc->makeArrayDefault<SkAlpha>(mask.fRowBytes * mask.fBounds.height());
+    memcpy(newMask.fImage, mask.fImage, mask.fRowBytes * mask.fBounds.height());
+}
+
+void SkCoverageRecord::addList(SkCoverageDeltaList* deltas) {
+    // TODO instead copying the whole list, maybe we want to process it and only store SkAlphas
+    // and runs.
+    fLists.emplace_back(fAlloc, deltas);
 }

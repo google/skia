@@ -10,7 +10,10 @@
 #ifndef SkDraw_DEFINED
 #define SkDraw_DEFINED
 
+#include "SkArenaAlloc.h"
+#include "SkBlitter.h"
 #include "SkCanvas.h"
+#include "SkCoverageDelta.h"
 #include "SkMask.h"
 #include "SkPaint.h"
 #include "SkPixmap.h"
@@ -55,6 +58,16 @@ public:
                      const SkMatrix* prePathMatrix = nullptr, bool pathIsMutable = false) const {
         this->drawPath(path, paint, prePathMatrix, pathIsMutable, false);
     }
+    void*   initDrawPath(const SkPath& path, const SkPaint& paint,
+                         const SkMatrix* prePathMatrix, bool pathIsMutable,
+                         SkArenaAlloc* alloc) const {
+        SkCoverageRecord* record = alloc->make<SkCoverageRecord>(alloc);
+        SkRecordingBlitter blitter(record);
+        this->drawPath(path, paint, prePathMatrix, pathIsMutable, false, &blitter);
+        return record;
+    }
+    void    postDrawPath(const SkPath& path, const SkPaint& paint,
+                         const SkMatrix* prePathMatrix, bool pathIsMutable, void* initData);
 
     /* If dstOrNull is null, computes a dst by mapping the bitmap's bounds through the matrix. */
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
@@ -127,6 +140,11 @@ private:
     void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
                      bool pathIsMutable, bool drawCoverage,
                      SkBlitter* customBlitter = nullptr) const;
+    // void*   initDrawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
+    //                  bool pathIsMutable, bool drawCoverage,
+    //                  SkBlitter* customBlitter = nullptr) const;
+    // void    postDrawPath(void*) const;
+
 
     void drawLine(const SkPoint[2], const SkPaint&) const;
     void drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,

@@ -173,9 +173,9 @@ void gen_alpha_deltas(const SkPath& path, const SkRegion& clipRgn, Deltas& resul
             SkBezier* lb = list[i];
             SkBezier* rb = list[i + 1];
 
-            bool lDX0 = lb->fP0.fX == lb->fP1.fX;
-            bool rDX0 = rb->fP0.fX == rb->fP1.fX;
-            if (!lDX0 || !rDX0) { // make sure that the edges are vertical
+            bool lDX0 = lb->fP0.fX == lb->fP1.fX && lb->fCount == 2;
+            bool rDX0 = rb->fP0.fX == rb->fP1.fX && rb->fCount == 2;
+            if (!lDX0 || !rDX0) { // make sure that the edges are vertical lines
                 continue;
             }
 

@@ -1028,6 +1028,32 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
     proc(devPath, *fRC, blitter);
 }
 
+void SkDraw::postDrawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
+                          const SkMatrix* prePathMatrix, bool pathIsMutable, void* initData) {
+    SkCoverageRecord* record = static_cast<SkCoverageRecord*>(initData);
+
+    // We don't handle custom blitter yet.
+    SkAutoBlitterChoose blitterStorage;
+    blitterStorage.choose(fDst, *fMatrix, origPaint, false);
+    SkBlitter* blitter = blitterStorage.get();
+
+    for(const SkIRect& rect : record->fRects) {
+        blitter->blitRect(rect.fLeft, rect.fTop, rect.width(), rect.height());
+    }
+    // TODO the bounds below may be incorrect
+    // (e.g., the inverse filling might have already handled some rects)
+    for(const SkMask& mask : record->fMasks) {
+        SkIRect clippedBounds = fRC->getBounds();
+        if (clippedBounds.intersect(mask.fBounds)) {
+            blitter->blitMask(mask, clippedBounds);
+        }
+    }
+    for(SkCoverageDeltaList& list : record->fLists) {
+        blitter->blitCoverageDeltas(&list, fRC->getBounds(), origSrcPath.getFillType() & 1,
+                                    origSrcPath.isInverseFillType(), origSrcPath.isConvex());
+    }
+}
+
 void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
                       const SkMatrix* prePathMatrix, bool pathIsMutable,
                       bool drawCoverage, SkBlitter* customBlitter) const {
