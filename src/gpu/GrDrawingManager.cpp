@@ -14,6 +14,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrPathRenderingRenderTargetContext.h"
 #include "GrRenderTargetProxy.h"
+#include "GrResourceAllocator.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfaceProxyPriv.h"
@@ -165,6 +166,18 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     for (int i = 0; i < fOpLists.count(); ++i) {
         SkDEBUGCODE(fOpLists[i]->dump();)
     }
+#endif
+
+#ifdef GPU_ALLOC
+    //-------------------------------------------------------------------------
+    SkDebugf("------------------------------------\n");
+    GrResourceAllocator alloc(fContext->resourceProvider());
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        fOpLists[i]->gatherOpList(&alloc);
+    }
+
+    alloc.assign();
+    //-------------------------------------------------------------------------
 #endif
 
     for (int i = 0; i < fOpLists.count(); ++i) {
