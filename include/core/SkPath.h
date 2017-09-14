@@ -17,6 +17,22 @@ class SkRRect;
 class SkWStream;
 
 /** \class SkPath
+    SkPath contain geometry. SkPath may be empty, or contain one or more SkPath::Verb that
+    outline a figure. SkPath always starts with a move verb to a Cartesian
+    coordinate, and may be followed by additional verbs that add lines or curves.
+    Adding a close verb makes the geometry into a continuous loop, a closed contour.
+    SkPath may contain any number of contours, each beginning with a move verb.
+
+    SkPath contours may contain only a move verb, or may also contain lines,
+    quadratic beziers, conics, and cubic beziers. SkPath contours may be open or
+    closed.
+
+    When used to draw a filled area, SkPath describes whether the fill is inside or
+    outside the geometry. SkPath also describes the winding rule used to fill
+    overlapping contours.
+
+    Internally, SkPath lazily computes metrics likes bounds and convexity. Call
+    SkPath::updateBoundsCache to make SkPath thread safe.
 */
 class SK_API SkPath {
 public:
@@ -406,9 +422,9 @@ enum Direction {
         Quad with no length or that moves a very short distance is degenerate; it is
         treated as a point.
 
-        @param p1     Quad start point
-        @param p2     Quad control point
-        @param p3     Quad end point
+        @param p1     quad start point
+        @param p2     quad control point
+        @param p3     quad end point
         @param exact  if true, returns true only if p1, p2, and p3 are equal;
                       if false, returns true if p1, p2, and p3 are equal or nearly equal
         @return       true if quad is degenerate; its length is effectively zero
@@ -423,10 +439,10 @@ enum Direction {
         Cubic with no length or that moves a very short distance is degenerate; it is
         treated as a point.
 
-        @param p1     Cubic start point
-        @param p2     Cubic control point 1
-        @param p3     Cubic control point 2
-        @param p4     Cubic end point
+        @param p1     cubic start point
+        @param p2     cubic control point 1
+        @param p3     cubic control point 2
+        @param p4     cubic end point
         @param exact  if true, returns true only if p1, p2, p3, and p4 are equal;
                       if false, returns true if p1, p2, p3, and p4 are equal or nearly equal
         @return       true if cubic is degenerate; its length is effectively zero
@@ -977,12 +993,12 @@ enum Direction {
         Every third point in array shares last SkPoint of previous quad and first SkPoint of
         next quad. Maximum pts storage size is given by:
 
-        @param p0    Conic start SkPoint
-        @param p1    Conic control SkPoint
-        @param p2    Conic end SkPoint
-        @param w     Conic weight
+        @param p0    conic start SkPoint
+        @param p1    conic control SkPoint
+        @param p2    conic end SkPoint
+        @param w     conic weight
         @param pts   storage for quad array
-        @param pow2  Quad count, as power of two, normally 0 to 5 (1 to 32 quad curves)
+        @param pow2  quad count, as power of two, normally 0 to 5 (1 to 32 quad curves)
         @return      number of quad curves written to pts
     */
     static int ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
@@ -1352,6 +1368,9 @@ enum Direction {
     };
 
     /** \class SkPath::Iter
+        Iterates through verb array, and associated SkPoint arrays and conic weight.
+        Provides options to treat open contours as closed, and to ignore
+        degenerate data.
     */
     class SK_API Iter {
 
@@ -1360,7 +1379,7 @@ enum Direction {
         /** Initializes iter with an empty SkPath. next() on iter returns kDone_Verb.
             Call setPath to initialize iter at a later time.
 
-            @return  Iter of empty SkPath
+            @return  iter of empty SkPath
         */
         Iter();
 
@@ -1370,7 +1389,7 @@ enum Direction {
 
             @param path        SkPath to iterate
             @param forceClose  true if open contours generate kClose_Verb
-            @return            Iter of path
+            @return            iter of path
         */
         Iter(const SkPath& path, bool forceClose);
 
@@ -1454,6 +1473,8 @@ enum Direction {
     };
 
     /** \class SkPath::RawIter
+        Iterates through verb array, and associated SkPoint arrays and conic weight.
+        verb array, SkPoint arrays, and conic weight are returned unaltered.
     */
     class SK_API RawIter {
 
@@ -1617,7 +1638,7 @@ enum Direction {
         array dimensions.
 
         @return  true if SkPath data is consistent
-     */
+    */
     bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
 #else
     bool isValid() const { return this->isValidImpl(); }
