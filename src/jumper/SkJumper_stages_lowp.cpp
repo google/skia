@@ -281,6 +281,7 @@ SI V load(const T* ptr, size_t tail) {
     V v = 0;
     switch (tail & (N-1)) {
         case  0: memcpy(&v, ptr, sizeof(v)); break;
+    #if defined(__AVX2__)
         case 15: v[14] = ptr[14];
         case 14: v[13] = ptr[13];
         case 13: v[12] = ptr[12];
@@ -289,6 +290,7 @@ SI V load(const T* ptr, size_t tail) {
         case 10: v[ 9] = ptr[ 9];
         case  9: v[ 8] = ptr[ 8];
         case  8: memcpy(&v, ptr,  8*sizeof(T)); break;
+    #endif
         case  7: v[ 6] = ptr[ 6];
         case  6: v[ 5] = ptr[ 5];
         case  5: v[ 4] = ptr[ 4];
@@ -303,6 +305,7 @@ template <typename V, typename T>
 SI void store(T* ptr, size_t tail, V v) {
     switch (tail & (N-1)) {
         case  0: memcpy(ptr, &v, sizeof(v)); break;
+    #if defined(__AVX2__)
         case 15: ptr[14] = v[14];
         case 14: ptr[13] = v[13];
         case 13: ptr[12] = v[12];
@@ -311,6 +314,7 @@ SI void store(T* ptr, size_t tail, V v) {
         case 10: ptr[ 9] = v[ 9];
         case  9: ptr[ 8] = v[ 8];
         case  8: memcpy(ptr, &v,  8*sizeof(T)); break;
+    #endif
         case  7: ptr[ 6] = v[ 6];
         case  6: ptr[ 5] = v[ 5];
         case  5: ptr[ 4] = v[ 4];
