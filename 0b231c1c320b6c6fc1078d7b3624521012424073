@@ -105,6 +105,24 @@
       "revId": "0b231c1c320b6c6fc1078d7b3624521012424073",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b44e29b5_f1131abd",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2079,
+      "author": {
+        "id": 7734
+      },
+      "writtenOn": "2017-09-14T21:24:26Z",
+      "side": 1,
+      "message": "\u003e To be more clear, where SkMatrix::I() appears above, could you add a new test with a non-identity (say, SkMatrix::MakeScale(2)) matrix? Would that not work?\n\u003e\n\nYes, my patch set 2 does this and the test passes, but I\u0027m not sure if the expected results are correct without other ways to verify.\n \n\u003e It\u0027s possible that filterBounds() would not affect a gm test (unless there was a bug in the code, and it mistakenly cropped the source image too much). But that\u0027s just off the top of my head; I\u0027m not certain.",
+      "parentUuid": "e034542c_79adc0bc",
+      "revId": "0b231c1c320b6c6fc1078d7b3624521012424073",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
