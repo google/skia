@@ -68,7 +68,7 @@ public:
     bool onExecute(GrOpFlushState* flushState) override;
 
     uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
-        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
+        auto addDependency = [ &caps, this ] (const GrSurfaceProxy* p) {
             this->addDependency(p, caps);
         };
 
@@ -81,7 +81,7 @@ public:
 
     uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps,
                    GrAppliedClip&& clip, const DstProxy& dstProxy) {
-        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
+        auto addDependency = [ &caps, this ] (const GrSurfaceProxy* p) {
             this->addDependency(p, caps);
         };
 
@@ -140,6 +140,8 @@ private:
         DstProxy fDstProxy;
         GrAppliedClip* fAppliedClip;
     };
+
+    void gatherOpList(GrResourceAllocator*) const override;
 
     void recordOp(std::unique_ptr<GrOp>, const GrCaps& caps,
                   GrAppliedClip* = nullptr, const DstProxy* = nullptr);

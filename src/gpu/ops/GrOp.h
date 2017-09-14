@@ -63,6 +63,8 @@ public:
     GrOp(uint32_t classID);
     virtual ~GrOp();
 
+    void markAsHandled();
+
     virtual const char* name() const = 0;
 
     typedef std::function<void(GrSurfaceProxy*)> VisitProxyFunc;
