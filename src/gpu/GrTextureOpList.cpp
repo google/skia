@@ -98,12 +98,16 @@ bool GrTextureOpList::copySurface(const GrCaps& caps,
     if (!op) {
         return false;
     }
-#ifdef ENABLE_MDB
+#ifdef ENABLE_MDB_SORT
     this->addDependency(src);
 #endif
 
     this->recordOp(std::move(op));
     return true;
+}
+
+void GrTextureOpList::gatherOpList(GrResourceAllocator*) const {
+
 }
 
 void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op) {
