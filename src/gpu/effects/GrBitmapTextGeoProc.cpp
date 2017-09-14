@@ -149,6 +149,17 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
     }
 }
 
+void GrBitmapTextGeoProc::resetProxies(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+                                       const GrSamplerState& params) {
+    this->resetTextureSamplers();
+    for (int i = 0; i < kMaxTextures; ++i) {
+        if (proxies[i]) {
+            fTextureSamplers[i].reset(std::move(proxies[i]), params);
+            this->addTextureSampler(&fTextureSamplers[i]);
+        }
+    }
+}
+
 void GrBitmapTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
                                               GrProcessorKeyBuilder* b) const {
     GrGLBitmapTextGeoProc::GenKey(*this, caps, b);

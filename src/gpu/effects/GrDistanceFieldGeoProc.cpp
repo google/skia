@@ -261,6 +261,17 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(
     }
 }
 
+void GrDistanceFieldA8TextGeoProc::resetProxies(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+                                                const GrSamplerState& params) {
+    this->resetTextureSamplers();
+    for (int i = 0; i < kMaxTextures; ++i) {
+        if (proxies[i]) {
+            fTextureSamplers[i].reset(std::move(proxies[i]), params);
+            this->addTextureSampler(&fTextureSamplers[i]);
+        }
+    }
+}
+
 void GrDistanceFieldA8TextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
                                                        GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldA8TextGeoProc::GenKey(*this, caps, b);
@@ -815,6 +826,17 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
     fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_uint_GrVertexAttribType,
                                               kHigh_GrSLPrecision);
+    for (int i = 0; i < kMaxTextures; ++i) {
+        if (proxies[i]) {
+            fTextureSamplers[i].reset(std::move(proxies[i]), params);
+            this->addTextureSampler(&fTextureSamplers[i]);
+        }
+    }
+}
+
+void GrDistanceFieldLCDTextGeoProc::resetProxies(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+                                                 const GrSamplerState& params) {
+    this->resetTextureSamplers();
     for (int i = 0; i < kMaxTextures; ++i) {
         if (proxies[i]) {
             fTextureSamplers[i].reset(std::move(proxies[i]), params);
