@@ -245,7 +245,7 @@ public:
 
     const char* name() const override { return "TextureOp"; }
 
-    void visitProxies(VisitProxyFunc func) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         auto proxies = this->proxies();
         for (int i = 0; i < fProxyCnt; ++i) {
             func(proxies[i]);

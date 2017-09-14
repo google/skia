@@ -33,7 +33,7 @@ public:
         return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
     }
 
-    void visitProxies(VisitProxyFunc func) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         fProcessorSet.visitProxies(func);
     }
 

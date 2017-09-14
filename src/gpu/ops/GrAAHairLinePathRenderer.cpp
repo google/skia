@@ -785,7 +785,7 @@ public:
 
     const char* name() const override { return "AAHairlineOp"; }
 
-    void visitProxies(VisitProxyFunc func) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         fHelper.visitProxies(func);
     }
 

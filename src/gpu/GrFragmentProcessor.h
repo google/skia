@@ -241,7 +241,7 @@ public:
                                          &GrResourceIOProcessor::numTextureSamplers,
                                          &GrResourceIOProcessor::textureSampler>;
 
-    void visitProxies(std::function<void(GrSurfaceProxy*)> func) {
+    void visitProxies(const std::function<void(GrSurfaceProxy*)>& func) {
         GrFragmentProcessor::TextureAccessIter iter(this);
         while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
             func(sampler->proxy());

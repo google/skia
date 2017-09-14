@@ -139,7 +139,7 @@ public:
 
     const char* name() const override { return "NonAAFillRectOp"; }
 
-    void visitProxies(VisitProxyFunc func) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         fHelper.visitProxies(func);
     }
 
@@ -262,7 +262,7 @@ public:
 
     const char* name() const override { return "NonAAFillRectPerspectiveOp"; }
 
-    void visitProxies(VisitProxyFunc func) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         fHelper.visitProxies(func);
     }
 

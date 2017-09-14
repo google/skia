@@ -67,7 +67,7 @@ public:
 
     typedef std::function<void(GrSurfaceProxy*)> VisitProxyFunc;
 
-    virtual void visitProxies(VisitProxyFunc) const {
+    virtual void visitProxies(const VisitProxyFunc&) const {
         // This default implementation assumes the op has no proxies
     }
 

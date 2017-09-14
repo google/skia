@@ -31,7 +31,7 @@ public:
 
     const char* name() const override { return "TestOp"; }
 
-    void visitProxies(VisitProxyFunc func) const override {
+    void visitProxies(const VisitProxyFunc& func) const override {
         fProcessors.visitProxies(func);
     }
 
