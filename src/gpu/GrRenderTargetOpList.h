@@ -74,7 +74,7 @@ public:
 
         op->visitProxies(addDependency);
 
-        this->recordOp(std::move(op), caps, nullptr, nullptr);
+        this->recordOp(std::move(op), caps);
 
         return this->uniqueID();
     }
@@ -140,6 +140,8 @@ private:
         DstProxy fDstProxy;
         GrAppliedClip* fAppliedClip;
     };
+
+    void gatherOpList(GrResourceAllocator*) const override;
 
     void recordOp(std::unique_ptr<GrOp>, const GrCaps& caps,
                   GrAppliedClip* = nullptr, const DstProxy* = nullptr);
