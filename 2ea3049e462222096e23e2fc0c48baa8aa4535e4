@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c166e37_c845d2f1",
+        "filename": "src/core/SkScan_Hairline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-09-14T16:55:45Z",
+      "side": 1,
+      "message": "Without",
+      "range": {
+        "startLine": 345,
+        "startChar": 7,
+        "endLine": 345,
+        "endChar": 14
+      },
+      "revId": "2ea3049e462222096e23e2fc0c48baa8aa4535e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c09fb5e_ec6a65f2",
+        "filename": "src/core/SkScan_Hairline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-09-14T16:55:45Z",
+      "side": 1,
+      "message": "this-\u003egetAddr, and below...\naddr \u003d runStart?",
+      "range": {
+        "startLine": 360,
+        "startChar": 24,
+        "endLine": 360,
+        "endChar": 31
+      },
+      "revId": "2ea3049e462222096e23e2fc0c48baa8aa4535e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da2459a5_98bd0291",
+        "filename": "src/core/SkScan_Hairline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-09-14T16:55:45Z",
+      "side": 1,
+      "message": "hMaskPair",
+      "range": {
+        "startLine": 373,
+        "startChar": 17,
+        "endLine": 373,
+        "endChar": 21
+      },
+      "revId": "2ea3049e462222096e23e2fc0c48baa8aa4535e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bf1bb63_9563c336",
+        "filename": "src/core/SkScan_Hairline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-09-14T16:55:45Z",
+      "side": 1,
+      "message": "vMaskPair",
+      "range": {
+        "startLine": 380,
+        "startChar": 17,
+        "endLine": 380,
+        "endChar": 21
+      },
+      "revId": "2ea3049e462222096e23e2fc0c48baa8aa4535e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15d29bbc_022f1502",
+        "filename": "src/core/SkScan_Hairline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-09-14T16:55:45Z",
+      "side": 1,
+      "message": "Maybe alphaAddr maskAddr ?",
+      "range": {
+        "startLine": 399,
+        "startChar": 30,
+        "endLine": 399,
+        "endChar": 37
+      },
+      "revId": "2ea3049e462222096e23e2fc0c48baa8aa4535e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a05cce1f_d4765cd1",
+        "filename": "src/core/SkScan_Hairline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-09-14T16:55:45Z",
+      "side": 1,
+      "message": "saturateAdd. This does not look static or SaturateAdd if static.\n\nCan this be written as SkAlpha SaturateAdd(SkAlpha alpha, SkAlpha delta), and used\n\naddr[i] \u003d SaturateAdd(addr[i], delta);\n?",
+      "range": {
+        "startLine": 403,
+        "startChar": 26,
+        "endLine": 403,
+        "endChar": 33
+      },
+      "revId": "2ea3049e462222096e23e2fc0c48baa8aa4535e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
