@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "1c66ae5d_95a22ab0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-14T12:44:21Z",
+      "side": 1,
+      "message": "Added timing related to code to check the performance with and without the patch",
+      "parentUuid": "f7848f95_e535c9fe",
+      "range": {
+        "startLine": 9,
+        "startChar": 11,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "6a342d6fb7587a5b2f1276537c0d0abc7dcd8369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8de7dfe9_05c1c5c6",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 1
