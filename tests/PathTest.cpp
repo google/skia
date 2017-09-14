@@ -126,50 +126,46 @@ static void test_path_crbug364224() {
     canvas->drawPath(path, paint);
 }
 
+static void test_draw_AA_path(int width, int height, const SkPath& path) {
+    auto surface(SkSurface::MakeRasterN32Premul(width, height));
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas->drawPath(path, paint);
+}
+
 // this is a unit test instead of a GM because it doesn't draw anything
 static void test_fuzz_crbug_638223() {
-    auto surface(SkSurface::MakeRasterN32Premul(250, 250));
-    SkCanvas* canvas = surface->getCanvas();
     SkPath path;
     path.moveTo(SkBits2Float(0x47452a00), SkBits2Float(0x43211d01));  // 50474, 161.113f
     path.conicTo(SkBits2Float(0x401c0000), SkBits2Float(0x40680000),
         SkBits2Float(0x02c25a81), SkBits2Float(0x981a1fa0),
         SkBits2Float(0x6bf9abea));  // 2.4375f, 3.625f, 2.85577e-37f, -1.992e-24f, 6.03669e+26f
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(250, 250, path);
 }
 
 static void test_fuzz_crbug_643933() {
-    auto surface(SkSurface::MakeRasterN32Premul(250, 250));
-    SkCanvas* canvas = surface->getCanvas();
-    SkPaint paint;
-    paint.setAntiAlias(true);
     SkPath path;
     path.moveTo(0, 0);
     path.conicTo(SkBits2Float(0x002001f2), SkBits2Float(0x4161ffff),  // 2.93943e-39f, 14.125f
             SkBits2Float(0x49f7224d), SkBits2Float(0x45eec8df), // 2.02452e+06f, 7641.11f
             SkBits2Float(0x721aee0c));  // 3.0687e+30f
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(250, 250, path);
     path.reset();
     path.moveTo(0, 0);
     path.conicTo(SkBits2Float(0x00007ff2), SkBits2Float(0x4169ffff),  // 4.58981e-41f, 14.625f
         SkBits2Float(0x43ff2261), SkBits2Float(0x41eeea04),  // 510.269f, 29.8643f
         SkBits2Float(0x5d06eff8));  // 6.07704e+17f
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(250, 250, path);
 }
 
 static void test_fuzz_crbug_647922() {
-    auto surface(SkSurface::MakeRasterN32Premul(250, 250));
-    SkCanvas* canvas = surface->getCanvas();
-    SkPaint paint;
-    paint.setAntiAlias(true);
     SkPath path;
     path.moveTo(0, 0);
     path.conicTo(SkBits2Float(0x00003939), SkBits2Float(0x42487fff),  // 2.05276e-41f, 50.125f
             SkBits2Float(0x48082361), SkBits2Float(0x4408e8e9),  // 139406, 547.639f
             SkBits2Float(0x4d1ade0f));  // 1.6239e+08f
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(250, 250, path);
 }
 
 static void test_fuzz_crbug_662780() {
@@ -201,10 +197,6 @@ static void test_fuzz_crbug_662780() {
 }
 
 static void test_mask_overflow() {
-    auto surface(SkSurface::MakeRasterN32Premul(500, 500));
-    SkCanvas* canvas = surface->getCanvas();
-    SkPaint paint;
-    paint.setAntiAlias(true);
     SkPath path;
     path.moveTo(SkBits2Float(0x43e28000), SkBits2Float(0x43aa8000));  // 453, 341
     path.lineTo(SkBits2Float(0x43de6000), SkBits2Float(0x43aa8000));  // 444.75f, 341
@@ -215,21 +207,17 @@ static void test_mask_overflow() {
     path.lineTo(SkBits2Float(0x43da8000), SkBits2Float(0x43b18000));  // 437, 355
     path.lineTo(SkBits2Float(0x43e28000), SkBits2Float(0x43b18000));  // 453, 355
     path.lineTo(SkBits2Float(0x43e28000), SkBits2Float(0x43aa8000));  // 453, 341
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(500, 500, path);
 }
 
 static void test_fuzz_crbug_668907() {
-    auto surface(SkSurface::MakeRasterN32Premul(400, 500));
-    SkCanvas* canvas = surface->getCanvas();
-    SkPaint paint;
-    paint.setAntiAlias(true);
     SkPath path;
     path.moveTo(SkBits2Float(0x46313741), SkBits2Float(0x3b00e540));  // 11341.8f, 0.00196679f
     path.quadTo(SkBits2Float(0x41410041), SkBits2Float(0xc1414141), SkBits2Float(0x41414141),
             SkBits2Float(0x414100ff));  // 12.0626f, -12.0784f, 12.0784f, 12.0627f
     path.lineTo(SkBits2Float(0x46313741), SkBits2Float(0x3b00e540));  // 11341.8f, 0.00196679f
     path.close();
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(400, 500, path);
 }
 
 /**
@@ -259,16 +247,12 @@ static void test_path_crbugskia2820(skiatest::Reporter* reporter) {//GrContext* 
 }
 
 static void test_path_crbugskia5995() {
-    auto surface(SkSurface::MakeRasterN32Premul(500, 500));
-    SkCanvas* canvas = surface->getCanvas();
-    SkPaint paint;
-    paint.setAntiAlias(true);
     SkPath path;
     path.moveTo(SkBits2Float(0x40303030), SkBits2Float(0x3e303030));  // 2.75294f, 0.172059f
     path.quadTo(SkBits2Float(0x41d63030), SkBits2Float(0x30303030), SkBits2Float(0x41013030),
             SkBits2Float(0x00000000));  // 26.7735f, 6.40969e-10f, 8.07426f, 0
     path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
-    canvas->drawPath(path, paint);
+    test_draw_AA_path(500, 500, path);
 }
 
 static void make_path0(SkPath* path) {
@@ -426,11 +410,7 @@ static void test_bad_cubic_crbug234190() {
     path.cubicTo(-2.35893e+08f, -4.21044e+08f,
                  -2.38991e+08f, -4.26573e+08f,
                  -2.41016e+08f, -4.30188e+08f);
-
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    auto surface(SkSurface::MakeRasterN32Premul(84, 88));
-    surface->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(84, 88, path);
 }
 
 static void test_bad_cubic_crbug229478() {
@@ -545,16 +525,11 @@ static void build_path_simple_170666(SkPath& path) {
 // 24 interations (instead of 16).
 static void test_crbug_170666() {
     SkPath path;
-    SkPaint paint;
-    paint.setAntiAlias(true);
-
-    auto surface(SkSurface::MakeRasterN32Premul(1000, 1000));
-
     build_path_simple_170666(path);
-    surface->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(1000, 1000, path);
 
     build_path_170666(path);
-    surface->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(1000, 1000, path);
 }
 
 
@@ -759,12 +734,7 @@ static void test_fuzz_crbug_627414(skiatest::Reporter* reporter) {
     SkPath path;
     path.moveTo(0, 0);
     path.conicTo(3.58732e-43f, 2.72084f, 3.00392f, 3.00392f, 8.46e+37f);
-
-    SkPaint paint;
-    paint.setAntiAlias(true);
-
-    auto surf = SkSurface::MakeRasterN32Premul(100, 100);
-    surf->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(100, 100, path);
 }
 
 // Inspired by http://ie.microsoft.com/testdrive/Performance/Chalkboard/
@@ -782,11 +752,7 @@ static void test_tricky_cubic() {
     SkPath path;
     path.moveTo(pts[0]);
     path.cubicTo(pts[1], pts[2], pts[3]);
-
-    SkPaint paint;
-    paint.setAntiAlias(true);
-
-    SkSurface::MakeRasterN32Premul(19, 130)->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(19, 130, path);
 }
 
 // Inspired by http://code.google.com/p/chromium/issues/detail?id=141651
@@ -4417,11 +4383,7 @@ static void test_crbug_629455(skiatest::Reporter* reporter) {
                  SkBits2Float(0x423fcdcd), SkBits2Float(0x40ed9341));
 //  AKA: cubicTo(-4.31596e+08f, -4.31602e+08f, -4.31602e+08f, -4.31602e+08f, 47.951f, 7.42423f);
     path.lineTo(0, 0);
-
-    auto surface = SkSurface::MakeRasterN32Premul(100, 100);
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    surface->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(100, 100, path);
 }
 
 static void test_fuzz_crbug_662952(skiatest::Reporter* reporter) {
@@ -4470,11 +4432,7 @@ static void test_fuzz_crbug_662730(skiatest::Reporter* reporter) {
     path.lineTo(SkBits2Float(0x37373737), SkBits2Float(0x37373737));  // 1.09205e-05f, 1.09205e-05f
     path.lineTo(SkBits2Float(0x37373745), SkBits2Float(0x0001b800));  // 1.09205e-05f, 1.57842e-40f
     path.close();
-
-    auto surface = SkSurface::MakeRasterN32Premul(100, 100);
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    surface->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(100, 100, path);
 }
 
 #if !defined(SK_SUPPORT_LEGACY_DELTA_AA)
@@ -4511,11 +4469,7 @@ static void test_skbug_6947() {
                 break;
         }
     }
-
-    auto surface = SkSurface::MakeRasterN32Premul(250, 125);
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    surface->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(250, 125, path);
 }
 
 static void test_skbug_7015() {
@@ -4528,11 +4482,7 @@ static void test_skbug_7015() {
             SkBits2Float(0x4388d8f6), SkBits2Float(0x43921604),
             SkBits2Float(0x4388c000), SkBits2Float(0x43947c08));
     path.close();
-
-    auto surface = SkSurface::MakeRasterN32Premul(500, 500);
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    surface->getCanvas()->drawPath(path, paint);
+    test_draw_AA_path(500, 500, path);
 }
 
 #endif
