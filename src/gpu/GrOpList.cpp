@@ -81,7 +81,7 @@ void GrOpList::addDependency(GrOpList* dependedOn) {
         return;  // don't add duplicate dependencies
     }
 
-    fDependencies.push_back(dependedOn);
+    *fDependencies.push() = dependedOn;
 }
 
 // Convert from a GrSurface-based dependency to a GrOpList one
