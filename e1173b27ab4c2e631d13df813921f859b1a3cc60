@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "025d7104_cfddc136",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1684,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-14T16:25:35Z",
+      "side": 1,
+      "message": "Yes. But blitFatAntiRect is slower than the normal AAA flow without MaskAdditiveBlitter. Hence I only want to call blitFatAntiRect when MaskAdditiveBlitter would have been used. I\u0027ll add that to the comment.",
+      "parentUuid": "7e3a5d49_1c8a0281",
+      "range": {
+        "startLine": 1684,
+        "startChar": 12,
+        "endLine": 1684,
+        "endChar": 50
+      },
+      "revId": "e1173b27ab4c2e631d13df813921f859b1a3cc60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e0b812e8_77905449",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 2
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "85a37705_660ed07f",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1685,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-14T16:25:35Z",
+      "side": 1,
+      "message": "Agree. I\u0027ll add the comment.",
+      "parentUuid": "e0b812e8_77905449",
+      "revId": "e1173b27ab4c2e631d13df813921f859b1a3cc60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a1ba73b3_2cc00139",
         "filename": "src/core/SkScan_AAAPath.cpp",
         "patchSetId": 2
@@ -53,6 +95,30 @@
       "writtenOn": "2017-09-14T15:36:20Z",
       "side": 1,
       "message": "I know 3x3 is the minimum for blitFatAntiRect(), but is it also the best threshold for performance?  Is it always best to call blitFatAntiRect() if we can?",
+      "range": {
+        "startLine": 1686,
+        "startChar": 38,
+        "endLine": 1686,
+        "endChar": 74
+      },
+      "revId": "e1173b27ab4c2e631d13df813921f859b1a3cc60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17754875_0fc97e94",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1686,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-14T16:25:35Z",
+      "side": 1,
+      "message": "As explained in the first comment, blitFatAntiRect is only beneficial because we can eliminate the usage of MaskAdditiveBlitter. Hence if we were using Mask, and now we can use blitFatAntiRect, we should always use it. If we were not using Mask, we shouldn\u0027t use it.",
+      "parentUuid": "a1ba73b3_2cc00139",
       "range": {
         "startLine": 1686,
         "startChar": 38,
