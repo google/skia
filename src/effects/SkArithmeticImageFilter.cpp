@@ -302,18 +302,18 @@ private:
                 SkString dstColor("dstColor");
                 this->emitChild(0, &dstColor, args);
 
-                fKUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kVec4f_GrSLType,
-                                                         kDefault_GrSLPrecision, "k");
+                fKUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+                                                         "k");
                 const char* kUni = args.fUniformHandler->getUniformCStr(fKUni);
 
                 // We don't try to optimize for this case at all
                 if (!args.fInputColor) {
-                    fragBuilder->codeAppend("const float4 src = float4(1);");
+                    fragBuilder->codeAppend("const half4 src = half4(1);");
                 } else {
-                    fragBuilder->codeAppendf("float4 src = %s;", args.fInputColor);
+                    fragBuilder->codeAppendf("half4 src = %s;", args.fInputColor);
                 }
 
-                fragBuilder->codeAppendf("float4 dst = %s;", dstColor.c_str());
+                fragBuilder->codeAppendf("half4 dst = %s;", dstColor.c_str());
                 fragBuilder->codeAppendf("%s = %s.x * src * dst + %s.y * src + %s.z * dst + %s.w;",
                                          args.fOutputColor, kUni, kUni, kUni, kUni);
                 fragBuilder->codeAppendf("%s = clamp(%s, 0.0, 1.0);\n", args.fOutputColor,
