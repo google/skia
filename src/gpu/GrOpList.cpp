@@ -39,8 +39,8 @@ GrOpList::GrOpList(GrResourceProvider* resourceProvider,
     // here so that the GrSurfaces are created in an order that preserves the GrSurface
     // re-use assumptions.
     fTarget.get()->instantiate(resourceProvider);
-    fTarget.markPendingIO();
 #endif
+    fTarget.markPendingIO();
 }
 
 GrOpList::~GrOpList() {
