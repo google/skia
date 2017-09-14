@@ -21,6 +21,11 @@ public:
 
     const char* name() const override { return "CopySurface"; }
 
+    void visitProxies(VisitProxyFunc func) const override {
+        func(fDst.get());
+        func(fSrc.get());
+    }
+
     SkString dumpInfo() const override {
         SkString string;
         string.append(INHERITED::dumpInfo());

@@ -74,7 +74,7 @@ public:
 
         op->visitProxies(addDependency);
 
-        this->recordOp(std::move(op), caps, nullptr, nullptr);
+        this->recordOp(std::move(op), caps);
 
         return this->uniqueID();
     }

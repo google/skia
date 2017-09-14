@@ -98,9 +98,11 @@ bool GrTextureOpList::copySurface(const GrCaps& caps,
     if (!op) {
         return false;
     }
-#ifdef ENABLE_MDB
-    this->addDependency(src);
-#endif
+
+    auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
+        this->addDependency(p, caps);
+    };
+    op->visitProxies(addDependency);
 
     this->recordOp(std::move(op));
     return true;
