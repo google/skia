@@ -10,6 +10,7 @@
 #include "SkOnce.h"
 #include "SkPath.h"
 #include "SkPathRef.h"
+#include "SkPathPriv.h"
 #include <limits>
 
 //////////////////////////////////////////////////////////////////////////////
@@ -592,7 +593,7 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
 
 uint32_t SkPathRef::genID() const {
     SkASSERT(!fEditorsAttached);
-    static const uint32_t kMask = (static_cast<int64_t>(1) << SkPath::kPathRefGenIDBitCnt) - 1;
+    static const uint32_t kMask = (static_cast<int64_t>(1) << SkPathPriv::kPathRefGenIDBitCnt) - 1;
     if (!fGenerationID) {
         if (0 == fPointCnt && 0 == fVerbCnt) {
             fGenerationID = kEmptyGenID;

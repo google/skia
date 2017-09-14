@@ -1611,19 +1611,13 @@ enum Direction {
     */
     uint32_t getGenerationID() const;
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    static const int kPathRefGenIDBitCnt = 30; // leave room for the fill type (skbug.com/1762)
-#else
-    static const int kPathRefGenIDBitCnt = 32;
-#endif
-
+#ifdef SK_SUPPORT_DIRECT_PATHREF_VALIDATION
     /** Returns if SkPath data is consistent. Corrupt SkPath data is detected if
         internal values are out of range or internal storage does not match
         array dimensions.
 
         @return  true if SkPath data is consistent
      */
-#ifdef SK_SUPPORT_DIRECT_PATHREF_VALIDATION
     bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
 #else
     bool isValid() const { return this->isValidImpl(); }
