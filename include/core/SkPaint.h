@@ -87,7 +87,7 @@ public:
     */
     SkPaint(const SkPaint& paint);
 
-    /** Implements a move constructor to avoid incrementing the reference counts
+    /** Implements a move constructor to avoid increasing the reference counts
         of objects referenced by the paint.
 
         After the call, paint is undefined, and can be safely destructed.
@@ -115,7 +115,7 @@ public:
     */
     SkPaint& operator=(const SkPaint& paint);
 
-    /** Moves the paint to avoid incrementing the reference counts
+    /** Moves the paint to avoid increasing the reference counts
         of objects referenced by the paint parameter. Objects containing SkRefCnt in the
         prior destination are decreased by one; those objects are deleted if the resulting count
         is zero.
@@ -567,20 +567,20 @@ public:
         Use helpers SkColorGetA(), SkColorGetR(), SkColorGetG(), and SkColorGetB() to extract
         a color component.
 
-        @return  Unpremultiplied ARGB
+        @return  unpremultiplied ARGB
     */
     SkColor getColor() const { return fColor; }
 
     /** Sets alpha and RGB used when stroking and filling. The color is a 32-bit value,
         unpremultiplied, packing 8-bit components for alpha, red, blue, and green.
 
-        @param color  Unpremultiplied ARGB
+        @param color  unpremultiplied ARGB
     */
     void setColor(SkColor color);
 
     /** Retrieves alpha from the color used when stroking and filling.
 
-        @return  Alpha ranging from zero, fully transparent, to 255, fully opaque
+        @return  alpha ranging from zero, fully transparent, to 255, fully opaque
     */
     uint8_t getAlpha() const { return SkToU8(SkColorGetA(fColor)); }
 
@@ -590,7 +590,7 @@ public:
         a set to zero makes color fully transparent; a set to 255 makes color
         fully opaque.
 
-        @param a  Alpha component of color
+        @param a  alpha component of color
     */
     void setAlpha(U8CPU a);
 
@@ -760,7 +760,7 @@ public:
 
     /** Optional colors used when filling a path, such as a gradient.
 
-        Sets SkShader to shader, decrementing SkRefCnt of the previous SkShader.
+        Sets SkShader to shader, decreasing SkRefCnt of the previous SkShader.
         Does not alter shader SkRefCnt.
 
         @param shader  how geometry is filled with color; if nullptr, color is used instead
@@ -781,7 +781,7 @@ public:
     */
     sk_sp<SkColorFilter> refColorFilter() const;
 
-    /** Sets SkColorFilter to filter, decrementing SkRefCnt of the previous SkColorFilter.
+    /** Sets SkColorFilter to filter, decreasing SkRefCnt of the previous SkColorFilter.
         Pass nullptr to clear SkColorFilter.
         Does not alter filter SkRefCnt.
 
@@ -824,7 +824,7 @@ public:
     sk_sp<SkPathEffect> refPathEffect() const;
 
     /** Sets SkPathEffect to pathEffect,
-        decrementing SkRefCnt of the previous SkPathEffect.
+        decreasing SkRefCnt of the previous SkPathEffect.
         Pass nullptr to leave the path geometry unaltered.
         Does not alter pathEffect SkRefCnt.
 
@@ -847,7 +847,7 @@ public:
     sk_sp<SkMaskFilter> refMaskFilter() const;
 
     /** Sets SkMaskFilter to maskFilter,
-        decrementing SkRefCnt of the previous SkMaskFilter.
+        decreasing SkRefCnt of the previous SkMaskFilter.
         Pass nullptr to clear SkMaskFilter and leave SkMaskFilter effect on mask alpha unaltered.
         Does not affect SkRasterizer.
         Does not alter maskFilter SkRefCnt.
@@ -870,7 +870,7 @@ public:
     sk_sp<SkTypeface> refTypeface() const;
 
     /** Sets SkTypeface to typeface,
-        decrementing SkRefCnt of the previous SkTypeface.
+        decreasing SkRefCnt of the previous SkTypeface.
         Pass nullptr to clear SkTypeface and use the default typeface.
         Does not alter typeface SkRefCnt.
 
@@ -893,7 +893,7 @@ public:
     sk_sp<SkRasterizer> refRasterizer() const;
 
     /** Sets SkRasterizer to rasterizer,
-        decrementing SkRefCnt of the previous SkRasterizer.
+        decreasing SkRefCnt of the previous SkRasterizer.
         Pass nullptr to clear SkRasterizer and leave SkRasterizer effect on mask alpha unaltered.
         Does not affect SkMaskFilter.
         Does not alter rasterizer SkRefCnt.
@@ -917,7 +917,7 @@ public:
     sk_sp<SkImageFilter> refImageFilter() const;
 
     /** Sets SkImageFilter to imageFilter,
-        decrementing SkRefCnt of the previous SkImageFilter.
+        decreasing SkRefCnt of the previous SkImageFilter.
         Pass nullptr to clear SkImageFilter, and remove SkImageFilter effect
         on drawing.
         Does not affect SkRasterizer or SkMaskFilter.
@@ -949,7 +949,7 @@ public:
     SkDrawLooper* getLooper() const { return fDrawLooper.get(); }
 
     /** Sets SkDrawLooper to drawLooper,
-        decrementing SkRefCnt of the previous drawLooper.
+        decreasing SkRefCnt of the previous drawLooper.
         Pass nullptr to clear SkDrawLooper and leave SkDrawLooper effect on drawing unaltered.
         Does not alter drawLooper SkRefCnt.
 
@@ -1062,9 +1062,9 @@ public:
         Character codes encoded size are specified by UTF-8, UTF-16, or UTF-32.
         All character encoding are able to represent all of Unicode, differing only
         in the total storage required. UTF-8 (RFC 3629) is made up of 8-bit bytes,
-        and is a superset of ASCII. UTF-16 (RFC 2781) is made up of 16-bit words,
-        and is a superset of Unicode ranges 0x0000 to 0xD7FF and 0xE000 to 0xFFFF. UTF-32 is
-        made up of 32-bit words, and is a superset of Unicode.
+        and encodes ASCII in one byte, and all valid code points in Unicode in multiple bytes. UTF-16 (RFC 2781) uses one or two 16-bit words,
+        and encodes Unicode ranges 0x0000 to 0xD7FF and 0xE000 to 0xFFFF in one word. UTF-32 describes
+        a 32-bit word, which encodes all code points in Unicode.
 
         font manager uses font data to convert character code points into glyph indices.
         A glyph index is a 16-bit word.
@@ -1098,15 +1098,6 @@ public:
     void setTextEncoding(TextEncoding encoding);
 
     /** \struct SkPaint::FontMetrics
-        FontMetrics is filled out by getFontMetrics(). FontMetrics contents reflect the values
-        computed by font manager using SkTypeface. Values are set to zero if they are
-        not available.
-
-        fUnderlineThickness and fUnderlinePosition have a bit set in fFlags if their values
-        are valid, since their value may be zero.
-
-        fStrikeoutThickness and fStrikeoutPosition have a bit set in fFlags if their values
-        are valid, since their value may be zero.
     */
     struct FontMetrics {
 
@@ -1540,7 +1531,7 @@ public:
 
         intervals are cached to improve performance for multiple calls.
 
-        @param blob       Glyphs, positions, and text paint attributes
+        @param blob       glyphs, positions, and text paint attributes
         @param bounds     lower and upper line parallel to the advance
         @param intervals  returned intersections; may be nullptr
         @return           number of intersections; may be zero

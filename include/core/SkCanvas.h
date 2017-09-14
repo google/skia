@@ -86,7 +86,7 @@ public:
 
         Pixel buffer size should be info height times computed rowBytes.
 
-        @param info      width, height, SkColorType, SkAlphaType, color space, of raster surface;
+        @param info      width, height, SkColorType, SkAlphaType, SkColorSpace, of raster surface;
                          width, or height, or both, may be zero
         @param pixels    pointer to destination pixels buffer
         @param rowBytes  interval from one SkSurface row to the next, or zero
@@ -125,21 +125,21 @@ public:
         return MakeRasterDirect(SkImageInfo::MakeN32Premul(width, height), pixels, rowBytes);
     }
 
-    /** Creates an empty canvas with no backing device or pixels, with
+    /** Creates an empty SkCanvas with no backing device or pixels, with
         a width and height of zero.
 
-        @return  empty canvas
+        @return  empty SkCanvas
     */
     SkCanvas();
 
     /** Creates SkCanvas of the specified dimensions without a SkSurface.
         Used by Subclasses with custom implementations for draw methods.
 
-        If props equals nullptr, SkSurfaceProps are created with SkSurfaceProps::InitType settings,
-        which choose the pixel striping direction and order. Since a platform may dynamically
-        change its direction when the device is rotated, and since a platform may have
-        multiple monitors with different characteristics, it's best not to rely on this
-        legacy behavior.
+        If props equals nullptr, SkSurfaceProps are created with
+        SkSurfaceProps::InitType settings, which choose the pixel striping
+        direction and order. Since a platform may dynamically change its direction when
+        the device is rotated, and since a platform may have multiple monitors with
+        different characteristics, it is best not to rely on this legacy behavior.
 
         @param width   zero or greater
         @param height  zero or greater
@@ -199,7 +199,7 @@ public:
     */
     SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props);
 
-    /** Draw saved SkCanvas::_anonymous, if any.
+    /** Draw saved layer, if any.
         Free up resources used by SkCanvas.
     */
     virtual ~SkCanvas();
@@ -232,11 +232,11 @@ public:
     */
     void flush();
 
-    /** Gets the size of the base or root SkCanvas::_anonymous in global canvas coordinates. The
-        origin of the base SkCanvas::_anonymous is always (0,0). The area available for drawing may be
+    /** Gets the size of the base or root layer in global canvas coordinates. The
+        origin of the base layer is always (0,0). The area available for drawing may be
         smaller (due to clipping or saveLayer).
 
-        @return  integral width and height of base SkCanvas::_anonymous
+        @return  integral width and height of base layer
     */
     virtual SkISize getBaseLayerSize() const;
 
@@ -246,7 +246,7 @@ public:
         If props is nullptr, matches SkSurfaceProps in SkCanvas. If props is nullptr and SkCanvas
         does not have SkSurfaceProps, creates SkSurface with default SkSurfaceProps.
 
-        @param info   width, height, SkColorType, SkAlphaType, and color space
+        @param info   width, height, SkColorType, SkAlphaType, and SkColorSpace
         @param props  SkSurfaceProps to match; may be nullptr to match SkCanvas
         @return       SkSurface matching info and props, or nullptr if no match is available
     */
@@ -267,7 +267,7 @@ public:
 
         @param info      storage for writable pixels' SkImageInfo; may be nullptr
         @param rowBytes  storage for writable pixels' row bytes; may be nullptr
-        @param origin    storage for SkCanvas top SkCanvas::_anonymous origin, its top left corner;
+        @param origin    storage for SkCanvas top layer origin, its top left corner;
                          may be nullptr
         @return          address of pixels, or nullptr if inaccessible
     */
@@ -339,7 +339,7 @@ public:
 
         @param info      width, height, SkColorType, and SkAlphaType of pixels
         @param pixels    pixels to copy, of size info.height() times rowBytes, or larger
-        @param rowBytes  size of one pixels row; info.width() times pixel size, or larger
+        @param rowBytes  size of one row of pixels; info.width() times pixel size, or larger
         @param x         offset into SkCanvas writable pixels in x; may be negative
         @param y         offset into SkCanvas writable pixels in y; may be negative
         @return          true if pixels were written to SkCanvas
@@ -389,8 +389,8 @@ public:
 
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
-        @param bounds  hint to limit the size of the SkCanvas::_anonymous; may be nullptr
-        @param paint   graphics state for SkCanvas::_anonymous; may be nullptr
+        @param bounds  hint to limit the size of the layer; may be nullptr
+        @param paint   graphics state for layer; may be nullptr
         @return        depth of saved stack
     */
     int saveLayer(const SkRect* bounds, const SkPaint* paint);
@@ -404,7 +404,7 @@ public:
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
         clipPath(), clipRegion().
 
-        SkRect bounds suggests but does not define the SkCanvas::_anonymous size. To clip drawing to
+        SkRect bounds suggests but does not define the layer size. To clip drawing to
         a specific rectangle, use clipRect().
 
         Optional SkPaint paint applies color alpha, SkColorFilter, SkImageFilter, and
@@ -412,8 +412,8 @@ public:
 
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
-        @param bounds  hint to limit the size of SkCanvas::_anonymous; may be nullptr
-        @param paint   graphics state for SkCanvas::_anonymous; may be nullptr
+        @param bounds  hint to limit the size of layer; may be nullptr
+        @param paint   graphics state for layer; may be nullptr
         @return        depth of saved stack
     */
     int saveLayer(const SkRect& bounds, const SkPaint* paint) {
@@ -422,16 +422,16 @@ public:
 
     /** Saves SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most platforms),
         and allocates a SkBitmap for subsequent drawing.
-        lcd text is preserved when the SkCanvas::_anonymous is drawn to the prior SkCanvas::_anonymous.
+        lcd text is preserved when the layer is drawn to the prior layer.
 
         Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
-        and draws SkCanvas::_anonymous.
+        and draws layer.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
         clipPath(), clipRegion().
 
-        SkRect bounds suggests but does not define the SkCanvas::_anonymous size. To clip drawing to
+        SkRect bounds suggests but does not define the layer size. To clip drawing to
         a specific rectangle, use clipRect().
 
         Optional SkPaint paint applies color alpha, SkColorFilter, SkImageFilter, and
@@ -440,11 +440,11 @@ public:
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
         Draw text on an opaque background so that lcd text blends correctly with the
-        prior SkCanvas::_anonymous. lcd text drawn on a background with transparency may result in
+        prior layer. lcd text drawn on a background with transparency may result in
         incorrect banding.
 
-        @param bounds  hint to limit the size of SkCanvas::_anonymous; may be nullptr
-        @param paint   graphics state for SkCanvas::_anonymous; may be nullptr
+        @param bounds  hint to limit the size of layer; may be nullptr
+        @param paint   graphics state for layer; may be nullptr
         @return        depth of saved stack
     */
     int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint);
@@ -453,41 +453,41 @@ public:
         and allocates SkBitmap for subsequent drawing.
 
         Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
-        and blends SkCanvas::_anonymous with alpha opacity onto prior SkCanvas::_anonymous.
+        and blends layer with alpha opacity onto prior layer.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
         clipPath(), clipRegion().
 
-        SkRect bounds suggests but does not define SkCanvas::_anonymous size. To clip drawing to
+        SkRect bounds suggests but does not define layer size. To clip drawing to
         a specific rectangle, use clipRect().
 
         alpha of zero is fully transparent, 255 is fully opaque.
 
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
-        @param bounds  hint to limit the size of SkCanvas::_anonymous; may be nullptr
-        @param alpha   opacity of SkCanvas::_anonymous
+        @param bounds  hint to limit the size of layer; may be nullptr
+        @param alpha   opacity of layer
         @return        depth of saved stack
     */
     int saveLayerAlpha(const SkRect* bounds, U8CPU alpha);
 
     /** \enum
         SaveLayerFlags provides options that may be used in any combination in SaveLayerRec,
-        defining how _anonymous allocated by saveLayer() operates.
+        defining how layer allocated by saveLayer() operates.
     */
     enum {
-        /** Creates _anonymous without transparency. Flag is ignored if _anonymous SkPaint contains
+        /** Creates layer without transparency. Flag is ignored if layer SkPaint contains
             SkImageFilter or SkColorFilter.
         */
         kIsOpaque_SaveLayerFlag               = 1 << 0,
 
-        /** Creates _anonymous for LCD text. Flag is ignored if _anonymous SkPaint contains
+        /** Creates layer for LCD text. Flag is ignored if layer SkPaint contains
             SkImageFilter or SkColorFilter.
         */
         kPreserveLCDText_SaveLayerFlag        = 1 << 1,
 
-        /** Initializes _anonymous with the contents of the previous _anonymous. */
+        /** Initializes layer with the contents of the previous layer. */
         kInitWithPrevious_SaveLayerFlag       = 1 << 2,
 
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
@@ -499,7 +499,6 @@ public:
     typedef uint32_t SaveLayerFlags;
 
     /** \struct SkCanvas::SaveLayerRec
-        SaveLayerRec contains the state used to create the SkCanvas::_anonymous.
     */
     struct SaveLayerRec {
 
@@ -511,9 +510,9 @@ public:
 
         /** Sets fBounds, fPaint, and fSaveLayerFlags; sets fBackdrop to nullptr.
 
-            @param bounds          SkCanvas::_anonymous dimensions; may be nullptr
-            @param paint           applied to SkCanvas::_anonymous when overlaying prior SkCanvas::_anonymous; may be nullptr
-            @param saveLayerFlags  SaveLayerRec options to modify SkCanvas::_anonymous
+            @param bounds          layer dimensions; may be nullptr
+            @param paint           applied to layer when overlaying prior layer; may be nullptr
+            @param saveLayerFlags  SaveLayerRec options to modify layer
             @return                SaveLayerRec with empty backdrop
         */
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
@@ -524,11 +523,11 @@ public:
 
         /** Sets fBounds, fPaint, fBackdrop, and fSaveLayerFlags.
 
-            @param bounds          SkCanvas::_anonymous dimensions; may be nullptr
-            @param paint           applied to SkCanvas::_anonymous when overlaying prior SkCanvas::_anonymous;
+            @param bounds          layer dimensions; may be nullptr
+            @param paint           applied to layer when overlaying prior layer;
                                    may be nullptr
-            @param backdrop        prior SkCanvas::_anonymous copied with SkImageFilter; may be nullptr
-            @param saveLayerFlags  SaveLayerRec options to modify SkCanvas::_anonymous
+            @param backdrop        prior layer copied with SkImageFilter; may be nullptr
+            @param saveLayerFlags  SaveLayerRec options to modify layer
             @return                SaveLayerRec fully specified
         */
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
@@ -542,19 +541,19 @@ public:
         /** EXPERIMENTAL: Not ready for general use.
             Sets fBounds, fPaint, fBackdrop, fClipMask, fClipMatrix, and fSaveLayerFlags.
             clipMatrix uses color alpha channel of image, transformed by clipMatrix, to clip
-            SkCanvas::_anonymous when drawn to SkCanvas.
+            layer when drawn to SkCanvas.
 
             Implementation is incomplete; has no effect if SkBaseDevice is GPU-backed.
 
-            @param bounds          SkCanvas::_anonymous dimensions; may be nullptr
-            @param paint           graphics state applied to SkCanvas::_anonymous when overlaying prior
-                                   SkCanvas::_anonymous; may be nullptr
-            @param backdrop        prior SkCanvas::_anonymous copied with SkImageFilter;
+            @param bounds          layer dimensions; may be nullptr
+            @param paint           graphics state applied to layer when overlaying prior
+                                   layer; may be nullptr
+            @param backdrop        prior layer copied with SkImageFilter;
                                    may be nullptr
-            @param clipMask        clip applied to SkCanvas::_anonymous; may be nullptr
+            @param clipMask        clip applied to layer; may be nullptr
             @param clipMatrix      matrix applied to clipMask; may be nullptr to use
                                    identity matrix
-            @param saveLayerFlags  SaveLayerRec options to modify SkCanvas::_anonymous
+            @param saveLayerFlags  SaveLayerRec options to modify layer
             @return                SaveLayerRec fully specified
         */
         SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
@@ -568,38 +567,38 @@ public:
             , fSaveLayerFlags(saveLayerFlags)
         {}
 
-        /** fBounds is used as a hint to limit the size of SkCanvas::_anonymous; may be nullptr.
-            fBounds suggests but does not define SkCanvas::_anonymous size. To clip drawing to
+        /** fBounds is used as a hint to limit the size of layer; may be nullptr.
+            fBounds suggests but does not define layer size. To clip drawing to
             a specific rectangle, use clipRect().
         */
         const SkRect*        fBounds         = nullptr;
 
-        /** fPaint modifies how SkCanvas::_anonymous overlays the prior SkCanvas::_anonymous; may be nullptr.
+        /** fPaint modifies how layer overlays the prior layer; may be nullptr.
             color alpha, SkBlendMode, SkColorFilter, SkDrawLooper, SkImageFilter, and
-            SkMaskFilter affect SkCanvas::_anonymous draw.
+            SkMaskFilter affect layer draw.
         */
         const SkPaint*       fPaint          = nullptr;
 
-        /** fBackdrop applies SkImageFilter to the prior SkCanvas::_anonymous when copying to the SkCanvas::_anonymous;
+        /** fBackdrop applies SkImageFilter to the prior layer when copying to the layer;
             may be nullptr. Use kInitWithPrevious_SaveLayerFlag to copy the
-            prior SkCanvas::_anonymous without an SkImageFilter.
+            prior layer without an SkImageFilter.
         */
         const SkImageFilter* fBackdrop       = nullptr;
 
-        /** restore() clips SkCanvas::_anonymous by the color alpha channel of fClipMask when
-            SkCanvas::_anonymous is copied to SkBaseDevice. fClipMask may be nullptr.    .
+        /** restore() clips layer by the color alpha channel of fClipMask when
+            layer is copied to SkBaseDevice. fClipMask may be nullptr.    .
         */
         const SkImage*       fClipMask       = nullptr;
 
-        /** fClipMatrix transforms fClipMask before it clips SkCanvas::_anonymous. If
+        /** fClipMatrix transforms fClipMask before it clips layer. If
             fClipMask describes a translucent gradient, it may be scaled and rotated
             without introducing artifacts. fClipMatrix may be nullptr.
         */
         const SkMatrix*      fClipMatrix     = nullptr;
 
-        /** fSaveLayerFlags are used to create SkCanvas::_anonymous without transparency,
-            create SkCanvas::_anonymous for LCD text, and to create SkCanvas::_anonymous with the
-            contents of the previous SkCanvas::_anonymous.
+        /** fSaveLayerFlags are used to create layer without transparency,
+            create layer for LCD text, and to create layer with the
+            contents of the previous layer.
         */
         SaveLayerFlags       fSaveLayerFlags = 0;
 
@@ -609,17 +608,17 @@ public:
         and allocates SkBitmap for subsequent drawing.
 
         Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
-        and blends SkBitmap with color alpha opacity onto the prior SkCanvas::_anonymous.
+        and blends SkBitmap with color alpha opacity onto the prior layer.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
         clipPath(), clipRegion().
 
-        SaveLayerRec contains the state used to create the SkCanvas::_anonymous.
+        SaveLayerRec contains the state used to create the layer.
 
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
-        @param layerRec  SkCanvas::_anonymous state
+        @param layerRec  layer state
         @return          depth of save state stack
     */
     int saveLayer(const SaveLayerRec& layerRec);
@@ -938,7 +937,7 @@ public:
     /** Fill clip with color color.
         mode determines how ARGB is combined with destination.
 
-        @param color  Unpremultiplied ARGB
+        @param color  unpremultiplied ARGB
         @param mode   SkBlendMode used to combine source color and destination
     */
     void drawColor(SkColor color, SkBlendMode mode = SkBlendMode::kSrcOver);
@@ -946,7 +945,7 @@ public:
     /** Fill clip with color color using SkBlendMode::kSrc.
         This has the effect of replacing all pixels contained by clip with color.
 
-        @param color  Unpremultiplied ARGB
+        @param color  unpremultiplied ARGB
     */
     void clear(SkColor color) {
         this->drawColor(color, SkBlendMode::kSrc);
@@ -1148,8 +1147,8 @@ public:
         In paint: SkPaint::Style determines if circle is stroked or filled;
         if stroked, SkPaint stroke width describes the line thickness.
 
-        @param cx      Circle center on the x-axis
-        @param cy      Circle center on the y-axis
+        @param cx      circle center on the x-axis
+        @param cy      circle center on the y-axis
         @param radius  half the diameter of circle
         @param paint   SkPaint stroke or fill, blend, color, and so on, used to draw
     */
@@ -1160,7 +1159,7 @@ public:
         In paint: SkPaint::Style determines if circle is stroked or filled;
         if stroked, SkPaint stroke width describes the line thickness.
 
-        @param center  Circle center
+        @param center  circle center
         @param radius  half the diameter of circle
         @param paint   SkPaint stroke or fill, blend, color, and so on, used to draw
     */
@@ -1443,7 +1442,7 @@ public:
         this->drawImageRect(image.get(), dst, paint, constraint);
     }
 
-    /** Draw SkImage image stretched differentially to fit into SkRect dst.
+    /** Draw SkImage image stretched proportionally to fit into SkRect dst.
         SkIRect center divides the image into nine sections: four sides, four corners, and
         the center. Corners are unmodified or scaled down proportionately if their sides
         are larger than dst; center and four sides are scaled to fit remaining space, if any.
@@ -1467,7 +1466,7 @@ public:
     void drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                        const SkPaint* paint = nullptr);
 
-    /** Draw SkImage image stretched differentially to fit into SkRect dst.
+    /** Draw SkImage image stretched proportionally to fit into SkRect dst.
         SkIRect center divides the image into nine sections: four sides, four corners, and
         the center. Corners are not scaled, or scaled down proportionately if their sides
         are larger than dst; center and four sides are scaled to fit remaining space, if any.
@@ -1595,7 +1594,7 @@ public:
     void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint,
                         SrcRectConstraint constraint = kStrict_SrcRectConstraint);
 
-    /** Draw SkBitmap bitmap stretched differentially to fit into SkRect dst.
+    /** Draw SkBitmap bitmap stretched proportionally to fit into SkRect dst.
         SkIRect center divides the bitmap into nine sections: four sides, four corners,
         and the center. Corners are not scaled, or scaled down proportionately if their
         sides are larger than dst; center and four sides are scaled to fit remaining
@@ -1622,6 +1621,13 @@ public:
                         const SkPaint* paint = nullptr);
 
     /** \struct SkCanvas::Lattice
+        Lattice divides SkBitmap or SkImage into a rectangular grid.
+        Grid entries on even columns and even rows are fixed; these entries are
+        always drawn at their original size if the destination is large enough.
+        If the destination side is too small to hold the fixed entries, all fixed
+        entries are proportionately scaled down to fit.
+        The grid entries not on even columns and rows are scaled to fit the
+        remaining space, if any.
     */
     struct Lattice {
 
@@ -1673,7 +1679,7 @@ public:
 
     };
 
-    /** Draw SkBitmap bitmap stretched differentially to fit into SkRect dst.
+    /** Draw SkBitmap bitmap stretched proportionally to fit into SkRect dst.
 
         Lattice lattice divides bitmap into a rectangular grid.
         Each intersection of an even-numbered row and column is fixed; like the corners
@@ -1701,7 +1707,7 @@ public:
     void drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkRect& dst,
                            const SkPaint* paint = nullptr);
 
-    /** Draw SkImage image stretched differentially to fit into SkRect dst.
+    /** Draw SkImage image stretched proportionally to fit into SkRect dst.
 
         Lattice lattice divides image into a rectangular grid.
         Each intersection of an even-numbered row and column is fixed; like the corners
@@ -1941,7 +1947,7 @@ public:
         Elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader, SkColorFilter,
         SkImageFilter, and SkDrawLooper; apply to blob.
 
-        @param blob   Glyphs, positions, and their paints' text size, typeface, and so on
+        @param blob   glyphs, positions, and their paints' text size, typeface, and so on
         @param x      horizontal offset applied to blob
         @param y      vertical offset applied to blob
         @param paint  blend, color, stroking, and so on, used to draw
@@ -1959,7 +1965,7 @@ public:
         Elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader, SkColorFilter,
         SkImageFilter, and SkDrawLooper; apply to blob.
 
-        @param blob   Glyphs, positions, and their paints' text size, typeface, and so on
+        @param blob   glyphs, positions, and their paints' text size, typeface, and so on
         @param x      horizontal offset applied to blob
         @param y      vertical offset applied to blob
         @param paint  blend, color, stroking, and so on, used to draw
@@ -2059,7 +2065,7 @@ public:
         corners in top left, top right, bottom right, bottom left order.
 
         @param cubics     SkPath cubic array, sharing common points
-        @param colors     Color array, one for each corner
+        @param colors     color array, one for each corner
         @param texCoords  SkPoint array of texture coordinates, mapping SkShader to corners;
                           may be nullptr
         @param mode       SkBlendMode for colors, and for SkShader if paint has one
@@ -2087,7 +2093,7 @@ public:
         corners in top left, top right, bottom right, bottom left order.
 
         @param cubics     SkPath cubic array, sharing common points
-        @param colors     Color array, one for each corner
+        @param colors     color array, one for each corner
         @param texCoords  SkPoint array of texture coordinates, mapping SkShader to corners;
                           may be nullptr
         @param paint      SkShader, SkColorFilter, SkBlendMode, used to draw
@@ -2110,7 +2116,7 @@ public:
         @param atlas     SkImage containing sprites
         @param xform     SkRSXform mappings for sprites in atlas
         @param tex       SkRect locations of sprites in atlas
-        @param colors    Color, one per sprite, blended with sprite using SkBlendMode; may be nullptr
+        @param colors    color, one per sprite, blended with sprite using SkBlendMode; may be nullptr
         @param count     number of sprites to draw
         @param mode      SkBlendMode combining colors and sprites
         @param cullRect  SkRect bounds of transformed sprites for efficient clipping; may be nullptr
@@ -2133,7 +2139,7 @@ public:
         @param atlas     SkImage containing sprites
         @param xform     SkRSXform mappings for sprites in atlas
         @param tex       SkRect locations of sprites in atlas
-        @param colors    Color, one per sprite, blended with sprite using SkBlendMode; may be nullptr
+        @param colors    color, one per sprite, blended with sprite using SkBlendMode; may be nullptr
         @param count     number of sprites to draw
         @param mode      SkBlendMode combining colors and sprites
         @param cullRect  SkRect bounds of transformed sprites for efficient clipping; may be nullptr
