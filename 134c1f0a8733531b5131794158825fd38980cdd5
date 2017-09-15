@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2267c1e9_687c8e6b",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-15T16:31:55Z",
+      "side": 1,
+      "message": "nit: \u0027using\u0027 ?\n\nAnd if you\u0027re going to fix, that, how about \u0027percisions\u0027 just above here?",
+      "revId": "134c1f0a8733531b5131794158825fd38980cdd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
