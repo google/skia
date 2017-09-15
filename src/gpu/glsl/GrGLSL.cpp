@@ -30,33 +30,47 @@ const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
     switch (t) {
         case kVoid_GrSLType:
             return "void";
-        case kFloat_GrSLType:
-            return "float";
-        case kVec2f_GrSLType:
-            return "float2";
-        case kVec3f_GrSLType:
-            return "float3";
-        case kVec4f_GrSLType:
-            return "float4";
-        case kVec2us_GrSLType:
+        case kHalf_GrSLType:
+            return "half";
+        case kHalf2_GrSLType:
+            return "half2";
+        case kHalf3_GrSLType:
+            return "half3";
+        case kHalf4_GrSLType:
+            return "half4";
+        case kHighFloat_GrSLType:
+            return "highfloat";
+        case kHighFloat2_GrSLType:
+            return "highfloat2";
+        case kHighFloat3_GrSLType:
+            return "highfloat3";
+        case kHighFloat4_GrSLType:
+            return "highfloat4";
+        case kUint2_GrSLType:
             if (shaderCaps->integerSupport()) {
                 return "uint2";
             } else {
                 // uint2 (aka uvec2) isn't supported in GLSL ES 1.00/GLSL 1.20
-                return "float2";
+                return "highfloat2";
             }
-        case kVec2i_GrSLType:
+        case kInt2_GrSLType:
             return "int2";
-        case kVec3i_GrSLType:
+        case kInt3_GrSLType:
             return "int3";
-        case kVec4i_GrSLType:
+        case kInt4_GrSLType:
             return "int4";
-        case kMat22f_GrSLType:
-            return "float2x2";
-        case kMat33f_GrSLType:
-            return "float3x3";
-        case kMat44f_GrSLType:
-            return "float4x4";
+        case kHighFloat2x2_GrSLType:
+            return "highfloat2x2";
+        case kHighFloat3x3_GrSLType:
+            return "highfloat3x3";
+        case kHighFloat4x4_GrSLType:
+            return "highfloat4x4";
+        case kHalf2x2_GrSLType:
+            return "half2x2";
+        case kHalf3x3_GrSLType:
+            return "half3x3";
+        case kHalf4x4_GrSLType:
+            return "half4x4";
         case kTexture2DSampler_GrSLType:
             return "sampler2D";
         case kITexture2DSampler_GrSLType:
@@ -73,6 +87,10 @@ const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
             return "int";
         case kUint_GrSLType:
             return "uint";
+        case kShort_GrSLType:
+            return "short";
+        case kUShort_GrSLType:
+            return "ushort";
         case kTexture2D_GrSLType:
             return "texture2D";
         case kSampler_GrSLType:
