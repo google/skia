@@ -233,7 +233,7 @@ def dm_flags(api, bot):
       args.extend(['--pr', 'ccpr'])
 
     # Bogus test for internal bot.
-    if api.vars.internal_bot_id == '0':
+    if api.vars.internal_hardware_label == '0':
       args.append('--internal0')
 
   args.append('--config')
@@ -1096,7 +1096,7 @@ def GenTests(api):
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]',
-                   internal_bot_id='0') +
+                   internal_hardware_label='0') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',

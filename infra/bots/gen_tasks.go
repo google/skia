@@ -60,9 +60,9 @@ var (
 	// dimensions for the given task.
 	alternateSwarmDimensions func(parts map[string]string) []string
 
-	// internalBotIdFn can be set in an init function to provide an
-	// internal_bot_id variable to the recipe.
-	internalBotIdFn func(parts map[string]string) *string
+	// internalHardwareLabelFn can be set in an init function to provide an
+	// internal_hardware_label variable to the recipe.
+	internalHardwareLabelFn func(parts map[string]string) *string
 
 	// Defines the structure of job names.
 	jobNameSchema *JobNameSchema
@@ -86,10 +86,10 @@ var (
 	jobsFile              = flag.String("jobs", "", "JSON file containing jobs to run.")
 )
 
-// internalBotId returns the internal ID for the bot, if any.
-func internalBotId(parts map[string]string) *string {
-	if internalBotIdFn != nil {
-		return internalBotIdFn(parts)
+// internalHardwareLabel returns the internal ID for the bot, if any.
+func internalHardwareLabel(parts map[string]string) *string {
+	if internalHardwareLabelFn != nil {
+		return internalHardwareLabelFn(parts)
 	}
 	return nil
 }
@@ -726,9 +726,9 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		// skia:6737
 		s.ExecutionTimeout = 6 * time.Hour
 	}
-	iid := internalBotId(parts)
+	iid := internalHardwareLabel(parts)
 	if iid != nil {
-		s.ExtraArgs = append(s.ExtraArgs, fmt.Sprintf("internal_bot_id=%s", *iid))
+		s.ExtraArgs = append(s.ExtraArgs, fmt.Sprintf("internal_hardware_label=%s", *iid))
 	}
 	b.MustAddTask(name, s)
 
@@ -820,9 +820,9 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		// skia:6737
 		s.ExecutionTimeout = 6 * time.Hour
 	}
-	iid := internalBotId(parts)
+	iid := internalHardwareLabel(parts)
 	if iid != nil {
-		s.ExtraArgs = append(s.ExtraArgs, fmt.Sprintf("internal_bot_id=%s", *iid))
+		s.ExtraArgs = append(s.ExtraArgs, fmt.Sprintf("internal_hardware_label=%s", *iid))
 	}
 	b.MustAddTask(name, s)
 
