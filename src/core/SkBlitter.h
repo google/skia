@@ -69,8 +69,9 @@ public:
     virtual void blitAntiRect(int x, int y, int width, int height,
                               SkAlpha leftAlpha, SkAlpha rightAlpha);
 
-    // Blit a rect in AA with size at least 3 x 3 (small rect has too many edge cases...)
-    void blitFatAntiRect(const SkRect& rect);
+    // Blit a rect in AA with bounds (i.e., rect.roundOut()) at least 3 x 3
+    // (small rect has too many edge cases...)
+    void blitFatAntiRect(const SkRect& rect, const SkIRect& bounds);
 
     /// Blit a pattern of pixels defined by a rectangle-clipped mask;
     /// typically used for text.
