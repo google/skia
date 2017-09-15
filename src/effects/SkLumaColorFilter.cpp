@@ -7,7 +7,7 @@
 
 #include "SkLumaColorFilter.h"
 #include "SkPM4f.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkRasterPipeline.h"
 #include "SkString.h"
 

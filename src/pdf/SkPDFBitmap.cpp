@@ -7,7 +7,7 @@
 
 #include "SkPDFBitmap.h"
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkData.h"
 #include "SkDeflate.h"
 #include "SkImage.h"
@@ -46,7 +46,7 @@ static void fill_stream(SkWStream* out, char value, size_t n) {
     out->write(buffer, n % sizeof(buffer));
 }
 
-// TODO(reed@): Decide if these five functions belong in SkColorPriv.h
+// TODO(reed@): Decide if these five functions belong in SkColorData.h
 static bool SkIsBGRA(SkColorType ct) {
     SkASSERT(kBGRA_8888_SkColorType == ct || kRGBA_8888_SkColorType == ct);
     return kBGRA_8888_SkColorType == ct;

@@ -7,7 +7,7 @@
 
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkData.h"
 #include "SkJpegCodec.h"
 #include "SkMakeUnique.h"
