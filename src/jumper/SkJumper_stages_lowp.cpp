@@ -10,10 +10,9 @@
 // backend with stage definitions that can be shared by x86 and ARM.
 
 #include "SkJumper.h"
+#include "SkJumper_misc.h"
 
 #if defined(__clang__)  // This file is empty when not compiled by Clang.
-
-#define SI static inline
 
 #if defined(__ARM_NEON)
     #include <arm_neon.h>
@@ -58,17 +57,6 @@ using Stage = void (ABI*)(size_t tail, void** program, size_t x, size_t y,
                           U16  r, U16  g, U16  b, U16  a,
                           U16 dr, U16 dg, U16 db, U16 da);
 
-SI void* load_and_inc(void**& program) {
-#if defined(__x86_64__)
-    // If program is in %rsi, this is a single-instruction *program++.
-    void* rax;
-    asm("lodsq" : "=a"(rax), "+S"(program));
-    return rax;
-#else
-    return *program++;
-#endif
-}
-
 MAYBE_MSABI
 ABI extern "C" void WRAP(start_pipeline)(const size_t x0,
                                          const size_t y0,
@@ -89,23 +77,6 @@ ABI extern "C" void WRAP(start_pipeline)(const size_t x0,
 
 ABI extern "C" void WRAP(just_return)(size_t,void**,size_t,size_t,
                                       U16,U16,U16,U16, U16,U16,U16,U16) {}
-
-// Lazily resolved on first cast.  Does nothing if cast to Ctx::None.
-struct Ctx {
-    using None = decltype(nullptr);
-
-    void*   ptr;
-    void**& program;
-
-    explicit Ctx(void**& p) : ptr(nullptr), program(p) {}
-
-    template <typename T>
-    operator T*() {
-        if (!ptr) { ptr = load_and_inc(program); }
-        return (T*)ptr;
-    }
-    operator None() { return nullptr; }
-};
 
 #define STAGE(name, ...)                                                               \
     SI void name##_k(__VA_ARGS__, size_t x, size_t y, size_t tail,                     \

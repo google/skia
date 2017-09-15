@@ -95,31 +95,31 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t y
 }
 
 #if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
-    #define STAGE(name)                                                                   \
-        SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail,                    \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);             \
-        extern "C" void WRAP(name)(Params* params, void** program,                        \
-                                   F r, F g, F b, F a) {                                  \
-            LazyCtx ctx(program);                                                         \
-            name##_k(ctx,params->x,params->y,params->tail, r,g,b,a,                       \
-                     params->dr, params->dg, params->db, params->da);                     \
-            auto next = (Stage*)load_and_inc(program);                                    \
-            next(params,program, r,g,b,a);                                                \
-        }                                                                                 \
-        SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail,                    \
+    #define STAGE(name)                                                               \
+        SI void name##_k(Ctx ctx, size_t x, size_t y, size_t tail,                    \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);         \
+        extern "C" void WRAP(name)(Params* params, void** program,                    \
+                                   F r, F g, F b, F a) {                              \
+            Ctx ctx(program);                                                         \
+            name##_k(ctx,params->x,params->y,params->tail, r,g,b,a,                   \
+                     params->dr, params->dg, params->db, params->da);                 \
+            auto next = (Stage*)load_and_inc(program);                                \
+            next(params,program, r,g,b,a);                                            \
+        }                                                                             \
+        SI void name##_k(Ctx ctx, size_t x, size_t y, size_t tail,                    \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 #else
-    #define STAGE(name)                                                                   \
-        SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail,                    \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);             \
-        extern "C" void WRAP(name)(size_t tail, void** program, size_t x, size_t y,       \
-                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {          \
-            LazyCtx ctx(program);                                                         \
-            name##_k(ctx,x,y,tail, r,g,b,a, dr,dg,db,da);                                 \
-            auto next = (Stage*)load_and_inc(program);                                    \
-            next(tail,program,x,y, r,g,b,a, dr,dg,db,da);                                 \
-        }                                                                                 \
-        SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail,                    \
+    #define STAGE(name)                                                               \
+        SI void name##_k(Ctx ctx, size_t x, size_t y, size_t tail,                    \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);         \
+        extern "C" void WRAP(name)(size_t tail, void** program, size_t x, size_t y,   \
+                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {      \
+            Ctx ctx(program);                                                         \
+            name##_k(ctx,x,y,tail, r,g,b,a, dr,dg,db,da);                             \
+            auto next = (Stage*)load_and_inc(program);                                \
+            next(tail,program,x,y, r,g,b,a, dr,dg,db,da);                             \
+        }                                                                             \
+        SI void name##_k(Ctx ctx, size_t x, size_t y, size_t tail,                    \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 #endif
 

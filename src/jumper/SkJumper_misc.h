@@ -63,19 +63,21 @@ SI void* load_and_inc(void**& program) {
 #endif
 }
 
-// LazyCtx doesn't do anything unless you call operator T*(), encapsulating the logic
-// from above that stages without a context pointer are represented by just 1 void*.
-struct LazyCtx {
+// Lazily resolved on first cast.  Does nothing if cast to Ctx::None.
+struct Ctx {
+    using None = decltype(nullptr);
+
     void*   ptr;
     void**& program;
 
-    explicit LazyCtx(void**& p) : ptr(nullptr), program(p) {}
+    explicit Ctx(void**& p) : ptr(nullptr), program(p) {}
 
     template <typename T>
     operator T*() {
         if (!ptr) { ptr = load_and_inc(program); }
         return (T*)ptr;
     }
+    operator None() { return nullptr; }
 };
 
 #endif//SkJumper_misc_DEFINED
