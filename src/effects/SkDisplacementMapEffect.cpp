@@ -13,7 +13,7 @@
 #include "SkSpecialImage.h"
 #include "SkWriteBuffer.h"
 #include "SkUnPreMultiply.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #if SK_SUPPORT_GPU
 #include "GrClip.h"
 #include "GrContext.h"

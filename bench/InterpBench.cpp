@@ -6,7 +6,7 @@
  */
 
 #include "Benchmark.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkFixed.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"

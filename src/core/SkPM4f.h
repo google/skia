@@ -8,7 +8,7 @@
 #ifndef SkPM4f_DEFINED
 #define SkPM4f_DEFINED
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkNx.h"
 
 static inline Sk4f swizzle_rb(const Sk4f& x) {

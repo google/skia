@@ -9,7 +9,7 @@
 
 #include "SkAutoMalloc.h"
 #include "SkAutoPixmapStorage.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkDescriptor.h"
 #include "SkDraw.h"
 #include "SkGlyph.h"
