@@ -574,7 +574,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
     if (FT_Get_PS_Font_Info(face, &psFontInfo) == 0) {
         info->fItalicAngle = psFontInfo.italic_angle;
     } else if ((postTable = (TT_Postscript*)FT_Get_Sfnt_Table(face, ft_sfnt_post)) != nullptr) {
-        info->fItalicAngle = SkFixedToScalar(postTable->italicAngle);
+        info->fItalicAngle = SkFixedFloorToInt(postTable->italicAngle);
     } else {
         info->fItalicAngle = 0;
     }
