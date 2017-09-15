@@ -1400,6 +1400,10 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
     // Either we don't stitch tiles, either we have a valid tile size
     SkASSERT(!fStitchTiles || !fTileSize.isEmpty());
 
+    if (fSeed > SK_MaxS32FitsInFloat || fSeed < SK_MinS32FitsInFloat) {
+        return nullptr;
+    }
+    
     std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData =
         skstd::make_unique<SkPerlinNoiseShaderImpl::PaintingData>(fTileSize,
                                                                   fSeed,
