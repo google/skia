@@ -2,6 +2,8 @@ SkCanvas Reference
 ===
 
 # <a name="Canvas"></a> Canvas
+
+# <a name="SkCanvas"></a> Class SkCanvas
 <a href="#Canvas">Canvas</a> provides an interface for drawing, and how the drawing is clipped and transformed.
 <a href="#Canvas">Canvas</a> contains a stack of <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> values.
 
@@ -22,8 +24,6 @@ destination.
 
 <a href="#Canvas">Canvas</a> can be constructed to draw to <a href="undocumented#Bitmap">Bitmap</a> without first creating <a href="undocumented#Raster_Surface">Raster Surface</a>.
 This approach may be deprecated in the future.  
-
-# <a name="SkCanvas"></a> Class SkCanvas
 
 # <a name="Overview"></a> Overview
 
