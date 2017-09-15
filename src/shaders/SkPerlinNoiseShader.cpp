@@ -186,15 +186,15 @@ public:
         {
             static const SkScalar gInvBlockSizef = SkScalarInvert(SkIntToScalar(kBlockSize));
 
+            // The seed value clamp to the range [1, kRandMaximum - 1].
+            if (seed <= 0) {
+                seed = -fmod(seed, kRandMaximum - 1) + 1;
+            }
+            if (seed > kRandMaximum - 1) {
+                seed = kRandMaximum - 1;
+            }
             // According to the SVG spec, we must truncate (not round) the seed value.
             fSeed = SkScalarTruncToInt(seed);
-            // The seed value clamp to the range [1, kRandMaximum - 1].
-            if (fSeed <= 0) {
-                fSeed = -(fSeed % (kRandMaximum - 1)) + 1;
-            }
-            if (fSeed > kRandMaximum - 1) {
-                fSeed = kRandMaximum - 1;
-            }
             for (int channel = 0; channel < 4; ++channel) {
                 for (int i = 0; i < kBlockSize; ++i) {
                     fLatticeSelector[i] = i;
