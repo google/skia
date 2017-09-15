@@ -272,10 +272,6 @@
       "image",
       "_",
       ".SRW",
-      "--match",
-      "~^GLPrograms$",
-      "~^ProcessorCloneTest$",
-      "~^ProcessorOptimizationValidationTest$",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",
