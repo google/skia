@@ -254,7 +254,14 @@ bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
 }
 
 void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
+    SkASSERT(!this->isInstantiated());
+
     unsigned int cur = alloc->numOps();
+
+    SkDebugf("----------------------------------------\n");
+    SkDebugf("gather for RT opList #%d { %d,%d }: %s\n", this->uniqueID(),
+                                                  fTarget.get()->uniqueID().asUInt(),
+                                                  fTarget.get()->underlyingUniqueID().asUInt());
 
     // Add the interval for all the writes to this opList's target
     alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);
@@ -266,10 +273,12 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
         SkASSERT(alloc->curOp() == cur+i);
 
         const GrOp* op = fRecordedOps[i].fOp.get(); // only diff from the GrTextureOpList version
+        SkDebugf("opList #%d (%s): %d\n", this->uniqueID(), op->name(), cur+i);
         op->visitProxies(gather);
 
         alloc->incOps();
     }
+    SkDebugf("----------------------------------------\n");
 }
 
 static inline bool can_reorder(const SkRect& a, const SkRect& b) { return !GrRectsOverlap(a, b); }
@@ -334,6 +343,8 @@ void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                 GrOP_INFO("\t\t\tBackward: Combined op info:\n");
                 GrOP_INFO(SkTabString(candidate.fOp->dumpInfo(), 4).c_str());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, candidate.fOp.get(), op.get());
+
+                op->markAsHandled();
                 return;
             }
             // Stop going backwards if we would cause a painter's order violation.
