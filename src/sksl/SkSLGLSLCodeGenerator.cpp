@@ -971,6 +971,9 @@ void GLSLCodeGenerator::writeHeader() {
             this->writeExtension((Extension&) *e);
         }
     }
+    if (this->usesPrecisionModifiers()) {
+        this->writeLine("precision mediump float;");
+    }
 }
 
 void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
