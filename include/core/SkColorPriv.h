@@ -21,6 +21,15 @@ static inline unsigned SkAlpha255To256(U8CPU alpha) {
     return alpha + 1;
 }
 
+/** Multiplify value by 0..256, and shift the result down 8
+    (i.e. return (value * alpha256) >> 8)
+ */
+#define SkAlphaMul(value, alpha256)     (((value) * (alpha256)) >> 8)
+
+static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
+    return static_cast<U8CPU>(SkScalarPin(x, 0, 1) * 255 + 0.5);
+}
+
 #define SK_A32_BITS     8
 
 #define SK_A32_MASK     ((1 << SK_A32_BITS) - 1)

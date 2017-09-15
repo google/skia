@@ -183,11 +183,6 @@ static inline unsigned Sk255To256(U8CPU value) {
     return value + (value >> 7);
 }
 
-/** Multiplify value by 0..256, and shift the result down 8
-    (i.e. return (value * alpha256) >> 8)
- */
-#define SkAlphaMul(value, alpha256)     (((value) * (alpha256)) >> 8)
-
 /** Calculates 256 - (value * alpha256) / 255 in range [0,256],
  *  for [0,255] value and [0,256] alpha256.
  */
@@ -217,10 +212,6 @@ static inline int SkAlphaBlend255(S16CPU src, S16CPU dst, U8CPU alpha) {
     int prod = (src - dst) * alpha + 128;
     prod = (prod + (prod >> 8)) >> 8;
     return dst + prod;
-}
-
-static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
-    return static_cast<U8CPU>(SkScalarPin(x, 0, 1) * 255 + 0.5);
 }
 
 #define SK_R16_BITS     5
