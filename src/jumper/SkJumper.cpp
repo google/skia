@@ -72,19 +72,22 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**);
 // Some stages have 8-bit versions from SkJumper_stages_lowp.cpp.
 #define LOWP_STAGES(M)   \
     M(black_color) M(white_color) M(uniform_color) \
-    M(set_rgb)           \
-    M(premul)            \
+    M(set_rgb)            \
+    M(premul)             \
+    M(luminance_to_alpha) \
     M(load_8888) M(load_8888_dst) M(store_8888) \
     M(load_bgra) M(load_bgra_dst) M(store_bgra) \
     M(load_a8)   M(load_a8_dst)   M(store_a8)   \
     M(load_g8)   M(load_g8_dst)                 \
-                 M(load_565_dst)  M(store_565)  \
+    M(load_565)  M(load_565_dst)  M(store_565)  \
     M(swap_rb)           \
     M(srcover_rgba_8888) \
     M(lerp_1_float)      \
     M(lerp_u8)           \
+    M(lerp_565)          \
     M(scale_1_float)     \
     M(scale_u8)          \
+    M(scale_565)         \
     M(move_src_dst)      \
     M(move_dst_src)      \
     M(clear)             \
