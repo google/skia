@@ -238,10 +238,6 @@ private:
         flushInfo.fPipeline = fHelper.makePipeline(target);
         // Setup GrGeometryProcessor
         GrDrawOpAtlas* atlas = fAtlas;
-        uint32_t atlasPageCount = atlas->pageCount();
-        if (!atlasPageCount) {
-            return;
-        }
         if (fUsesDistanceField) {
             uint32_t flags = 0;
             flags |= ctm.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
@@ -389,19 +385,6 @@ private:
             flushInfo.fInstancesToFlush++;
         }
 
-        // During preparation the number of atlas pages has increased.
-        // Update the proxies used in the GP to match.
-        if (atlasPageCount != atlas->pageCount()) {
-            GrGeometryProcessor* gp = flushInfo.fGeometryProcessor.get();
-            if (fUsesDistanceField) {
-                reinterpret_cast<GrDistanceFieldPathGeoProc*>(gp)->resetProxies(
-                    atlas->getProxies(), GrSamplerState::ClampBilerp());
-            } else {
-                reinterpret_cast<GrBitmapTextGeoProc*>(gp)->resetProxies(
-                    atlas->getProxies(), GrSamplerState::ClampNearest());
-            }
-        }
-
         this->flush(target, &flushInfo);
     }
 
@@ -513,17 +496,12 @@ private:
         shapeData->fBounds.fRight /= scale;
         shapeData->fBounds.fBottom /= scale;
 
-        // We pack the 2bit page index in the low bit of the u and v texture coords
-        uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(id);
-        SkASSERT(pageIndex < 4);
-        uint16_t uBit = (pageIndex >> 1) & 0x1;
-        uint16_t vBit = pageIndex & 0x1;
-        shapeData->fTextureCoords.set((atlasLocation.fX+SK_DistanceFieldPad) << 1 | uBit,
-                                      (atlasLocation.fY+SK_DistanceFieldPad) << 1 | vBit,
+        shapeData->fTextureCoords.set((atlasLocation.fX+SK_DistanceFieldPad) << 1,
+                                      (atlasLocation.fY+SK_DistanceFieldPad) << 1,
                                       (atlasLocation.fX+SK_DistanceFieldPad+
-                                       devPathBounds.width()) << 1 | uBit,
+                                       devPathBounds.width()) << 1,
                                       (atlasLocation.fY+SK_DistanceFieldPad+
-                                       devPathBounds.height()) << 1 | vBit);
+                                       devPathBounds.height()) << 1);
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
@@ -611,14 +589,9 @@ private:
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
 
-        // We pack the 2bit page index in the low bit of the u and v texture coords
-        uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(id);
-        SkASSERT(pageIndex < 4);
-        uint16_t uBit = (pageIndex >> 1) & 0x1;
-        uint16_t vBit = pageIndex & 0x1;
-        shapeData->fTextureCoords.set(atlasLocation.fX << 1 | uBit, atlasLocation.fY << 1 | vBit,
-                                      (atlasLocation.fX+width) << 1 | uBit,
-                                      (atlasLocation.fY+height) << 1 | vBit);
+        shapeData->fTextureCoords.set(atlasLocation.fX << 1, atlasLocation.fY << 1,
+                                      (atlasLocation.fX+width) << 1,
+                                      (atlasLocation.fY+height) << 1);
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
