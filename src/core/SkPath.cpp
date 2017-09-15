@@ -2476,7 +2476,7 @@ SkPath::Convexity SkPath::internalGetConvexity() const {
     if (!isFinite()) {
         return kUnknown_Convexity;
     }
-    while ((verb = iter.next(pts, true, true)) != SkPath::kDone_Verb) {
+    while ((verb = iter.next(pts, false, false)) != SkPath::kDone_Verb) {
         switch (verb) {
             case kMove_Verb:
                 if (++contourCount > 1) {
