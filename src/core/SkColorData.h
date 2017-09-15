@@ -15,7 +15,6 @@
 
 #include "SkColor.h"
 #include "SkColorPriv.h"
-#include "SkMath.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -331,18 +330,6 @@ static inline void SkBlendRGB16(const uint16_t src[], uint16_t dst[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define SK_R32_BITS     8
-#define SK_G32_BITS     8
-#define SK_B32_BITS     8
-
-#define SK_R32_MASK     ((1 << SK_R32_BITS) - 1)
-#define SK_G32_MASK     ((1 << SK_G32_BITS) - 1)
-#define SK_B32_MASK     ((1 << SK_B32_BITS) - 1)
-
-#define SkR32Assert(r)  SkASSERT((unsigned)(r) <= SK_R32_MASK)
-#define SkG32Assert(g)  SkASSERT((unsigned)(g) <= SK_G32_MASK)
-#define SkB32Assert(b)  SkASSERT((unsigned)(b) <= SK_B32_MASK)
-
 #ifdef SK_DEBUG
     #define SkPMColorAssert(color_value)                                    \
         do {                                                                \
@@ -493,21 +480,6 @@ static inline SkPMColor SkFastFourByteInterp(SkPMColor src,
     // scale = srcWeight + (srcWeight >> 7) is more accurate than
     // scale = srcWeight + 1, but 7% slower
     return SkFastFourByteInterp256(src, dst, srcWeight + (srcWeight >> 7));
-}
-
-static inline
-SkPMColor SkPremultiplyARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
-    SkA32Assert(a);
-    SkR32Assert(r);
-    SkG32Assert(g);
-    SkB32Assert(b);
-
-    if (a != 255) {
-        r = SkMulDiv255Round(r, a);
-        g = SkMulDiv255Round(g, a);
-        b = SkMulDiv255Round(b, a);
-    }
-    return SkPackARGB32(a, r, g, b);
 }
 
 /**
