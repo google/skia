@@ -274,7 +274,6 @@
       ".SRW",
       "--match",
       "~^GLPrograms$",
-      "~^ProcessorCloneTest$",
       "~^ProcessorOptimizationValidationTest$",
       "--verbose"
     ],

@@ -524,30 +524,30 @@ def dm_flags(api, bot):
     match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
                   '~RGB565TextureTest'])
 
-  if 'float_cast_overflow' in bot and 'CPU' in bot:
-    # skia:4632
-    for config in ['565', '8888', 'f16', 'srgb']:
-      blacklist([config, 'gm', '_', 'bigrect'])
-      blacklist([config, 'gm', '_', 'clippedcubic2'])
-      blacklist([config, 'gm', '_', 'conicpaths'])
-    blacklist(['pdf', 'gm', '_', 'fontmgr_iterDebian9'])
-    blacklist(['pdf', 'gm', '_', 'fontmgr_matchDebian9'])
-    blacklist(['pdf', 'gm', '_', 'typefacestylesDebian'])
-    blacklist(['pdf', 'gm', '_', 'typefacestyles_kerningDebian'])
-    match.append('~^DashPathEffectTest_asPoints_limit$')
-    match.append('~^Matrix$')
-    match.append('~^Matrix44$')
-    match.append('~^PathBigCubic$')
-    match.append('~^PathOpsCubicIntersection$')
-    match.append('~^PathOpsCubicLineIntersection$')
-    match.append('~^PathOpsFailOp$')
-    match.append('~^PathOpsOpCubicsThreaded$')
-    match.append('~^PathOpsOpLoopsThreaded$')
-    match.append('~^Point$')
+  #if 'float_cast_overflow' in bot and 'CPU' in bot:
+  #  # skia:4632
+  #  for config in ['565', '8888', 'f16', 'srgb']:
+  #    blacklist([config, 'gm', '_', 'bigrect'])
+  #    blacklist([config, 'gm', '_', 'clippedcubic2'])
+  #    blacklist([config, 'gm', '_', 'conicpaths'])
+  #  blacklist(['pdf', 'gm', '_', 'fontmgr_iterDebian9'])
+  #  blacklist(['pdf', 'gm', '_', 'fontmgr_matchDebian9'])
+  #  blacklist(['pdf', 'gm', '_', 'typefacestylesDebian'])
+  #  blacklist(['pdf', 'gm', '_', 'typefacestyles_kerningDebian'])
+  #  match.append('~^DashPathEffectTest_asPoints_limit$')
+  #  match.append('~^Matrix$')
+  #  match.append('~^Matrix44$')
+  #  match.append('~^PathBigCubic$')
+  #  match.append('~^PathOpsCubicIntersection$')
+  #  match.append('~^PathOpsCubicLineIntersection$')
+  #  match.append('~^PathOpsFailOp$')
+  #  match.append('~^PathOpsOpCubicsThreaded$')
+  #  match.append('~^PathOpsOpLoopsThreaded$')
+  #  match.append('~^Point$')
   if 'float_cast_overflow' in bot and 'GPU' in bot:
     # skia:4632
     match.append('~^GLPrograms$')
-    match.append('~^ProcessorCloneTest$')
+    #match.append('~^ProcessorCloneTest$')
     match.append('~^ProcessorOptimizationValidationTest$')
 
   if 'Vulkan' in bot and 'Adreno530' in bot:
@@ -823,7 +823,11 @@ def test_steps(api):
           api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
     ]
 
-  args.extend(dm_flags(api, api.vars.builder_name))
+  if ('float_cast_overflow' in api.vars.builder_name and
+      'CPU' in api.vars.builder_name):
+    args.extend('--src tests gm image colorImage svg'.split(' '))
+  else:
+    args.extend(dm_flags(api, api.vars.builder_name))
 
   env = {}
   if 'Ubuntu16' in api.vars.builder_name:
@@ -858,8 +862,34 @@ def test_steps(api):
   if 'ReleaseAndAbandonGpuContext' in extra_config_parts:
     args.append('--releaseAndAbandonGpuContext')
 
-  with api.env(env):
-    api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+  def run(extra_args):
+    with api.env(env):
+      api.run(api.flavor.step, 'dm', cmd=args+extra_args,
+              abort_on_failure=False)
+
+  if ('float_cast_overflow' in api.vars.builder_name and
+      'CPU' in api.vars.builder_name):
+    for config in ['565', '8888', 'f16', 'srgb']:
+      run(['--config', config, '--match', '^bigrect$'])
+      run(['--config', config, '--match', '^clippedcubic2$'])
+      run(['--config', config, '--match', '^conicpaths$'])
+    run(['--config', 'pdf', '--match', '^fontmgr_iterDebian9$'])
+    run(['--config', 'pdf', '--match', '^fontmgr_matchDebian9$'])
+    run(['--config', 'pdf', '--match', '^typefacestylesDebian$'])
+    run(['--config', 'pdf', '--match', '^typefacestyles_kerningDebian$'])
+    run(['--match', '^DashPathEffectTest_asPoints_limit$'])
+    run(['--match', '^Matrix$'])
+    run(['--match', '^Matrix44$'])
+    run(['--match', '^PathBigCubic$'])
+    run(['--match', '^PathOpsCubicIntersection$'])
+    run(['--match', '^PathOpsCubicLineIntersection$'])
+    run(['--match', '^PathOpsFailOp$'])
+    run(['--match', '^PathOpsOpCubicsThreaded$'])
+    run(['--match', '^PathOpsOpLoopsThreaded$'])
+    run(['--match', '^Point$'])
+  else:
+    run([])
+
 
   if api.vars.upload_dm_results:
     # Copy images and JSON to host machine if needed.
