@@ -202,9 +202,11 @@ void GrMtlCaps::initShaderCaps() {
     }
 
     // Setting this true with the assumption that this cap will eventually mean we support varying
-    // percisions and not just via modifiers.
+    // precisions and not just via modifiers.
     shaderCaps->fUsesPrecisionModifiers = true;
     shaderCaps->fFlatInterpolationSupport = true;
+    // We haven't yet tested that using flat attributes perform well.
+    shaderCaps->fPreferFlatInterpolation = true;
 
     shaderCaps->fShaderDerivativeSupport = true;
     shaderCaps->fGeometryShaderSupport = false;

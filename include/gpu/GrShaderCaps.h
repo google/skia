@@ -119,6 +119,8 @@ public:
 
     bool flatInterpolationSupport() const { return fFlatInterpolationSupport; }
 
+    bool preferFlatInterpolation() const { return fPreferFlatInterpolation; }
+
     bool noperspectiveInterpolationSupport() const { return fNoPerspectiveInterpolationSupport; }
 
     bool multisampleInterpolationSupport() const { return fMultisampleInterpolationSupport; }
@@ -289,6 +291,7 @@ private:
     bool fUsesPrecisionModifiers : 1;
     bool fCanUseAnyFunctionInShader : 1;
     bool fFlatInterpolationSupport : 1;
+    bool fPreferFlatInterpolation : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
     bool fMultisampleInterpolationSupport : 1;
     bool fSampleVariablesSupport : 1;

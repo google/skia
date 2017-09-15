@@ -65,6 +65,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fMustObfuscateUniformColor = false;
     fMustGuardDivisionEvenAfterExplicitZeroCheck = false;
     fFlatInterpolationSupport = false;
+    fPreferFlatInterpolation = false;
     fNoPerspectiveInterpolationSupport = false;
     fMultisampleInterpolationSupport = false;
     fSampleVariablesSupport = false;
@@ -155,6 +156,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Must guard division even after explicit zero check",
                        fMustGuardDivisionEvenAfterExplicitZeroCheck);
     writer->appendBool("Flat interpolation support", fFlatInterpolationSupport);
+    writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
     writer->appendBool("No perspective interpolation support", fNoPerspectiveInterpolationSupport);
     writer->appendBool("Multisample interpolation support", fMultisampleInterpolationSupport);
     writer->appendBool("Sample variables support", fSampleVariablesSupport);

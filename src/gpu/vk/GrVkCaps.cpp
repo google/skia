@@ -234,6 +234,9 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
     // Vulkan is based off ES 3.0 so the following should all be supported
     shaderCaps->fUsesPrecisionModifiers = true;
     shaderCaps->fFlatInterpolationSupport = true;
+    // Flat interpolation appears to be slow on Qualcomm GPUs. This was tested in GL and is assumed
+    // to be true with Vulkan as well.
+    shaderCaps->fPreferFlatInterpolation = kQualcomm_VkVendor != properties.vendorID;
 
     // GrShaderCaps
 
