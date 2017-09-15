@@ -93,6 +93,30 @@
       "revId": "3bf6366c6fc5d619358458e50909b60deb4cfe4a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1581841d_e7beb3c9",
+        "filename": "src/jumper/SkJumper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-15T22:02:34Z",
+      "side": 0,
+      "message": "Yes, it\u0027s to make it easy to switch on and off locally.  Mostly having it in the code makes it easy find, by searching for 1 \u0026\u0026.  If we leave it blank, it\u0027s less clear what\u0027s essential and what\u0027s an optional knob to tweak.",
+      "parentUuid": "defb3035_901b7089",
+      "range": {
+        "startLine": 244,
+        "startChar": 6,
+        "endLine": 244,
+        "endChar": 8
+      },
+      "revId": "3bf6366c6fc5d619358458e50909b60deb4cfe4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

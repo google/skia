@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd138c39_cf855285",
+        "filename": "src/jumper/SkJumper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-15T22:02:34Z",
+      "side": 1,
+      "message": "Just to get this on paper, and I don\u0027t think this is very important, we don\u0027t technically have to guard these little sections guarded by JUMPER_NEON_HAS_LOWP.  They\u0027re not introducing a dependency on external assembly... in that case we\u0027re directly compiling SkJumper_stages_lowp.cpp as normal Skia code instead of offline into assembly.  (We can do the same for x86-64 and SSE2... just haven\u0027t gotten around to it yet.)  You can see what\u0027s depending on assembly or not by the use of the ASM macro.\n\nI only mention this to be thorough.  I don\u0027t think NEON is going to come up very often when compiling from Linux for Windows.  (Not until we start building Chrome for that supposed ARMv8 Windows 10, from Linux.)",
+      "revId": "c66b516c3be15cd2d1fb88023824d8e3036f89bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
