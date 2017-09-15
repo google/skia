@@ -62,7 +62,7 @@ var (
 
 	// internalHardwareLabelFn can be set in an init function to provide an
 	// internal_hardware_label variable to the recipe.
-	internalHardwareLabelFn func(parts map[string]string) *string
+	internalHardwareLabelFn func(parts map[string]string) *int
 
 	// Defines the structure of job names.
 	jobNameSchema *JobNameSchema
@@ -87,7 +87,7 @@ var (
 )
 
 // internalHardwareLabel returns the internal ID for the bot, if any.
-func internalHardwareLabel(parts map[string]string) *string {
+func internalHardwareLabel(parts map[string]string) *int {
 	if internalHardwareLabelFn != nil {
 		return internalHardwareLabelFn(parts)
 	}
@@ -728,7 +728,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	}
 	iid := internalHardwareLabel(parts)
 	if iid != nil {
-		s.ExtraArgs = append(s.ExtraArgs, fmt.Sprintf("internal_hardware_label=%s", *iid))
+		s.ExtraArgs = append(s.ExtraArgs, fmt.Sprintf("internal_hardware_label=%d", *iid))
 	}
 	b.MustAddTask(name, s)
 
@@ -822,7 +822,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	}
 	iid := internalHardwareLabel(parts)
 	if iid != nil {
-		s.ExtraArgs = append(s.ExtraArgs, fmt.Sprintf("internal_hardware_label=%s", *iid))
+		s.ExtraArgs = append(s.ExtraArgs, fmt.Sprintf("internal_hardware_label=%d", *iid))
 	}
 	b.MustAddTask(name, s)
 
