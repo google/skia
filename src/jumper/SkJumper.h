@@ -118,7 +118,7 @@ struct SkJumper_2PtConicalCtx {
 
 struct SkJumper_UniformColorCtx {
     float r,g,b,a;
-    uint32_t rgba;
+    uint16_t rgba[4];  // [0,255] in a 16-bit lane.
 };
 
 struct SkJumper_ColorLookupTableCtx {
