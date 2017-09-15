@@ -22,6 +22,30 @@
       "revId": "3bf6366c6fc5d619358458e50909b60deb4cfe4a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "661b7163_46c20d88",
+        "filename": "src/jumper/SkJumper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-15T21:33:22Z",
+      "side": 0,
+      "message": "Yes, we\u0027d better put back the \"0 \u0026\u0026\"  This little section sets up a debugging feature that\u0027s not meant to land on.  Generally we want to go through the empty log_missing().",
+      "parentUuid": "c5f9fbdb_744bf347",
+      "range": {
+        "startLine": 26,
+        "startChar": 8,
+        "endLine": 26,
+        "endChar": 10
+      },
+      "revId": "3bf6366c6fc5d619358458e50909b60deb4cfe4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
