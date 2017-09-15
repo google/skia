@@ -180,48 +180,44 @@ private:
 void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     fOffsetVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                            kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                            "Offset");
+                                            kHalf2_GrSLType, "Offset");
     fInvZoomVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                             kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                             "InvZoom");
+                                             kHalf2_GrSLType, "InvZoom");
     fInvInsetVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                              kVec2f_GrSLType, kDefault_GrSLPrecision,
-                                              "InvInset");
+                                              kHalf2_GrSLType, "InvInset");
     fBoundsVar = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                            kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                            "Bounds");
+                                            kHalf4_GrSLType, "Bounds");
 
     const GrMagnifierEffect& zoom = args.fFp.cast<GrMagnifierEffect>();
     fColorSpaceHelper.emitCode(uniformHandler, zoom.colorSpaceXform());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
-    fragBuilder->codeAppendf("\t\tfloat2 coord = %s;\n", coords2D.c_str());
-    fragBuilder->codeAppendf("\t\tfloat2 zoom_coord = %s + %s * %s;\n",
+    fragBuilder->codeAppendf("\t\thighfloat2 coord = %s;\n", coords2D.c_str());
+    fragBuilder->codeAppendf("\t\thighfloat2 zoom_coord = %s + %s * %s;\n",
                              uniformHandler->getUniformCStr(fOffsetVar),
                              coords2D.c_str(),
                              uniformHandler->getUniformCStr(fInvZoomVar));
     const char* bounds = uniformHandler->getUniformCStr(fBoundsVar);
-    fragBuilder->codeAppendf("\t\tfloat2 delta = (coord - %s.xy) * %s.zw;\n", bounds, bounds);
-    fragBuilder->codeAppendf("\t\tdelta = min(delta, float2(1.0, 1.0) - delta);\n");
+    fragBuilder->codeAppendf("\t\thighfloat2 delta = (coord - %s.xy) * %s.zw;\n", bounds, bounds);
+    fragBuilder->codeAppendf("\t\tdelta = min(delta, half2(1.0, 1.0) - delta);\n");
     fragBuilder->codeAppendf("\t\tdelta = delta * %s;\n",
                              uniformHandler->getUniformCStr(fInvInsetVar));
 
-    fragBuilder->codeAppend("\t\tfloat weight = 0.0;\n");
+    fragBuilder->codeAppend("\t\thalf weight = 0.0;\n");
     fragBuilder->codeAppend("\t\tif (delta.s < 2.0 && delta.t < 2.0) {\n");
-    fragBuilder->codeAppend("\t\t\tdelta = float2(2.0, 2.0) - delta;\n");
-    fragBuilder->codeAppend("\t\t\tfloat dist = length(delta);\n");
+    fragBuilder->codeAppend("\t\t\tdelta = half2(2.0, 2.0) - delta;\n");
+    fragBuilder->codeAppend("\t\t\thalf dist = length(delta);\n");
     fragBuilder->codeAppend("\t\t\tdist = max(2.0 - dist, 0.0);\n");
     fragBuilder->codeAppend("\t\t\tweight = min(dist * dist, 1.0);\n");
     fragBuilder->codeAppend("\t\t} else {\n");
-    fragBuilder->codeAppend("\t\t\tfloat2 delta_squared = delta * delta;\n");
+    fragBuilder->codeAppend("\t\t\thighfloat2 delta_squared = delta * delta;\n");
     fragBuilder->codeAppend("\t\t\tweight = min(min(delta_squared.x, delta_squared.y), 1.0);\n");
     fragBuilder->codeAppend("\t\t}\n");
 
-    fragBuilder->codeAppend("\t\tfloat2 mix_coord = mix(coord, zoom_coord, weight);\n");
-    fragBuilder->codeAppend("\t\tfloat4 output_color = ");
-    fragBuilder->appendTextureLookup(args.fTexSamplers[0], "mix_coord", kVec2f_GrSLType,
+    fragBuilder->codeAppend("\t\thighfloat2 mix_coord = mix(coord, zoom_coord, weight);\n");
+    fragBuilder->codeAppend("\t\thalf4 output_color = ");
+    fragBuilder->appendTextureLookup(args.fTexSamplers[0], "mix_coord", kHalf2_GrSLType,
                                      &fColorSpaceHelper);
     fragBuilder->codeAppend(";\n");
 

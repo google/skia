@@ -29,7 +29,7 @@ struct Symbol : public IRNode {
     , fKind(kind)
     , fName(name) {}
 
-    const Kind fKind;
+    Kind fKind;
     StringFragment fName;
 
     typedef IRNode INHERITED;

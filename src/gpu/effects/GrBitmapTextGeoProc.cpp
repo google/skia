@@ -32,13 +32,13 @@ public:
 
         const char* atlasSizeInvName;
         fAtlasSizeInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
-                                                          kVec2f_GrSLType,
+                                                          kHighFloat2_GrSLType,
                                                           kHigh_GrSLPrecision,
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
 
-        GrGLSLVertToFrag uv(kVec2f_GrSLType);
-        GrGLSLVertToFrag texIdx(kFloat_GrSLType);
+        GrGLSLVertToFrag uv(kHighFloat2_GrSLType);
+        GrGLSLVertToFrag texIdx(kHalf_GrSLType);
         append_index_uv_varyings(args, btgp.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, nullptr);
 
@@ -63,14 +63,14 @@ public:
                              btgp.localMatrix(),
                              args.fFPCoordTransformHandler);
 
-        fragBuilder->codeAppend("float4 texColor;");
+        fragBuilder->codeAppend("half4 texColor;");
         append_multitexture_lookup(args, btgp.numTextureSamplers(),
                                    texIdx, uv.fsIn(), "texColor");
 
         if (btgp.maskFormat() == kARGB_GrMaskFormat) {
             // modulate by color
             fragBuilder->codeAppendf("%s = %s * texColor;", args.fOutputColor, args.fOutputColor);
-            fragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
         } else {
             fragBuilder->codeAppendf("%s = texColor;", args.fOutputCoverage);
         }

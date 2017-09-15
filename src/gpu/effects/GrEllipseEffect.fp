@@ -6,17 +6,17 @@
  */
 
 layout(key) in int edgeType;
-in float2 center;
-in float2 radii;
+in half2 center;
+in half2 radii;
 
-float2 prevCenter;
-float2 prevRadii = float2(-1);
+half2 prevCenter;
+half2 prevRadii = half2(-1);
 // The ellipse uniform is (center.x, center.y, 1 / rx^2, 1 / ry^2)
-// The last two terms can underflow on mediump, so we use highp.
-uniform highp float4 ellipse;
+// The last two terms can underflow with halfs, so we use floats.
+uniform highfloat4 ellipse;
 
 bool useScale = sk_Caps.floatPrecisionVaries;
-layout(when=useScale) uniform float2 scale;
+layout(when=useScale) uniform half2 scale;
 
 @optimizationFlags { kCompatibleWithCoverageAsAlpha_OptimizationFlag }
 
@@ -50,7 +50,7 @@ layout(when=useScale) uniform float2 scale;
 
 void main() {
     // d is the offset to the ellipse center
-    float2 d = sk_FragCoord.xy - ellipse.xy;
+    half2 d = sk_FragCoord.xy - ellipse.xy;
     // If we're on a device with a "real" mediump then we'll do the distance computation in a space
     // that is normalized by the larger radius. The scale uniform will be scale, 1/scale. The
     // inverse squared radii uniform values are already in this normalized space. The center is
@@ -58,19 +58,19 @@ void main() {
     @if (useScale) {
         d *= scale.y;
     }
-    float2 Z = d * ellipse.zw;
+    half2 Z = d * ellipse.zw;
     // implicit is the evaluation of (x/rx)^2 + (y/ry)^2 - 1.
-    float implicit = dot(Z, d) - 1;
+    half implicit = dot(Z, d) - 1;
     // grad_dot is the squared length of the gradient of the implicit.
-    float grad_dot = 4 * dot(Z, Z);
+    half grad_dot = 4 * dot(Z, Z);
     // Avoid calling inversesqrt on zero.
     grad_dot = max(grad_dot, 1e-4);
-    float approx_dist = implicit * inversesqrt(grad_dot);
+    half approx_dist = implicit * inversesqrt(grad_dot);
     @if (useScale) {
         approx_dist *= scale.x;
     }
 
-    float alpha;
+    half alpha;
     @switch (edgeType) {
         case 0 /* kFillBW_GrProcessorEdgeType */:
             alpha = approx_dist > 0.0 ? 0.0 : 1.0;

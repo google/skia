@@ -105,32 +105,38 @@ public:
 
     void initParams(const TexelBufferHandle paramsBuffer) {
         fParamsBuffer = paramsBuffer;
-        fVertexBuilder->codeAppendf("highp int paramsIdx = int(%s & 0x%x);",
+        fVertexBuilder->codeAppendf("int paramsIdx = int(%s & 0x%x);",
                                     this->attr(Attrib::kInstanceInfo),
                                     kParamsIdx_InfoMask);
     }
 
     const char* attr(Attrib attr) const { return fInstProc.getAttrib((int)attr).fName; }
 
-    void fetchNextParam(const GrShaderCaps* shaderCaps, GrSLType type = kVec4f_GrSLType) const {
+    void fetchNextParam(const GrShaderCaps* shaderCaps, GrSLType type = kHalf4_GrSLType) const {
         SkASSERT(fParamsBuffer.isValid());
         switch (type) {
-            case kVec2f_GrSLType: // fall through
-            case kVec3f_GrSLType: // fall through
-            case kVec4f_GrSLType:
+            case kHighFloat2_GrSLType: // fall through
+            case kHighFloat3_GrSLType: // fall through
+            case kHighFloat4_GrSLType: // fall through
+            case kHalf2_GrSLType:      // fall through
+            case kHalf3_GrSLType:      // fall through
+            case kHalf4_GrSLType:
                 break;
             default:
                 fVertexBuilder->codeAppendf("%s(", GrGLSLTypeString(shaderCaps, type));
         }
         fVertexBuilder->appendTexelFetch(fParamsBuffer, "paramsIdx++");
         switch (type) {
-            case kVec2f_GrSLType:
+            case kHighFloat2_GrSLType: // fall through
+            case kHalf2_GrSLType:
                 fVertexBuilder->codeAppend(".xy");
                 break;
-            case kVec3f_GrSLType:
+            case kHighFloat3_GrSLType: // fall through
+            case kHalf3_GrSLType:
                 fVertexBuilder->codeAppend(".xyz");
                 break;
-            case kVec4f_GrSLType:
+            case kHighFloat4_GrSLType: // fall through
+            case kHalf4_GrSLType:
                 break;
             default:
                 fVertexBuilder->codeAppend(")");
@@ -177,11 +183,11 @@ protected:
             , fModifiesCoverage(false)
             , fModifiesColor(false)
             , fNeedsNeighborRadii(false)
-            , fColor(kVec4f_GrSLType)
+            , fColor(kHalf4_GrSLType)
             , fTriangleIsArc(kInt_GrSLType)
-            , fArcCoords(kVec2f_GrSLType)
-            , fInnerShapeCoords(kVec2f_GrSLType)
-            , fInnerRRect(kVec4f_GrSLType)
+            , fArcCoords(kHalf2_GrSLType)
+            , fInnerShapeCoords(kHalf2_GrSLType)
+            , fInnerRRect(kHalf4_GrSLType)
             , fModifiedShapeCoords(nullptr) {
         if (fOpInfo.fShapeTypes & kRRect_ShapesMask) {
             fModifiedShapeCoords = "adjustedShapeCoords";
@@ -232,16 +238,16 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     }
 
     if (!ip.opInfo().fHasPerspective) {
-        v->codeAppendf("float2x3 shapeMatrix = float2x3(%s, %s);",
+        v->codeAppendf("half2x3 shapeMatrix = half2x3(%s, %s);",
                        inputs.attr(Attrib::kShapeMatrixX), inputs.attr(Attrib::kShapeMatrixY));
     } else {
         v->defineConstantf("int", "PERSPECTIVE_FLAG", "0x%x", kPerspective_InfoFlag);
-        v->codeAppendf("float3x3 shapeMatrix = float3x3(%s, %s, float3(0, 0, 1));",
+        v->codeAppendf("half3x3 shapeMatrix = half3x3(%s, %s, half3(0, 0, 1));",
                        inputs.attr(Attrib::kShapeMatrixX), inputs.attr(Attrib::kShapeMatrixY));
         v->codeAppendf("if (0 != (%s & uint(PERSPECTIVE_FLAG))) {",
                        inputs.attr(Attrib::kInstanceInfo));
         v->codeAppend (    "shapeMatrix[2] = ");
-        inputs.fetchNextParam(args.fShaderCaps, kVec3f_GrSLType);
+        inputs.fetchNextParam(args.fShaderCaps, kHalf3_GrSLType);
         v->codeAppend (    ";");
         v->codeAppend ("}");
     }
@@ -303,16 +309,16 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                            inputs.attr(Attrib::kInstanceInfo));
         }
         // Here we take advantage of the fact that outerRect == localRect in recordDRRect.
-        v->codeAppendf("float4 outer = %s;", inputs.attr(Attrib::kLocalRect));
-        v->codeAppend ("float4 inner = ");
+        v->codeAppendf("half4 outer = %s;", inputs.attr(Attrib::kLocalRect));
+        v->codeAppend ("half4 inner = ");
         inputs.fetchNextParam(args.fShaderCaps);
         v->codeAppend (";");
         // outer2Inner is a transform from shape coords to inner shape coords:
         // e.g. innerShapeCoords = shapeCoords * outer2Inner.xy + outer2Inner.zw
-        v->codeAppend ("float4 outer2Inner = float4(outer.zw - outer.xy, "
-                                               "outer.xy + outer.zw - inner.xy - inner.zw) / "
-                                               "(inner.zw - inner.xy).xyxy;");
-        v->codeAppendf("float2 innerShapeCoords = %s * outer2Inner.xy + outer2Inner.zw;",
+        v->codeAppend ("half4 outer2Inner = half4(outer.zw - outer.xy, "
+                                                 "outer.xy + outer.zw - inner.xy - inner.zw) / "
+                                                 "(inner.zw - inner.xy).xyxy;");
+        v->codeAppendf("half2 innerShapeCoords = %s * outer2Inner.xy + outer2Inner.zw;",
                        backend->outShapeCoords());
 
         backend->initInnerShape(varyingHandler, v);
@@ -372,8 +378,8 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const char* localCoords = nullptr;
     if (ip.opInfo().fUsesLocalCoords) {
         localCoords = "localCoords";
-        v->codeAppendf("float2 t = 0.5 * (%s + float2(1));", backend->outShapeCoords());
-        v->codeAppendf("float2 localCoords = (1.0 - t) * %s.xy + t * %s.zw;",
+        v->codeAppendf("half2 t = 0.5 * (%s + half2(1));", backend->outShapeCoords());
+        v->codeAppendf("half2 localCoords = (1.0 - t) * %s.xy + t * %s.zw;",
                        inputs.attr(Attrib::kLocalRect), inputs.attr(Attrib::kLocalRect));
     }
     if (ip.opInfo().fHasLocalMatrix && ip.opInfo().fHasParams) {
@@ -383,20 +389,20 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         if (!ip.opInfo().fUsesLocalCoords) {
             inputs.skipParams(2);
         } else {
-            v->codeAppendf(    "float2x3 localMatrix;");
+            v->codeAppendf(    "half2x3 localMatrix;");
             v->codeAppend (    "localMatrix[0] = ");
-            inputs.fetchNextParam(args.fShaderCaps, kVec3f_GrSLType);
+            inputs.fetchNextParam(args.fShaderCaps, kHalf3_GrSLType);
             v->codeAppend (    ";");
             v->codeAppend (    "localMatrix[1] = ");
-            inputs.fetchNextParam(args.fShaderCaps, kVec3f_GrSLType);
+            inputs.fetchNextParam(args.fShaderCaps, kHalf3_GrSLType);
             v->codeAppend (    ";");
-            v->codeAppend (    "localCoords = (float3(localCoords, 1) * localMatrix).xy;");
+            v->codeAppend (    "localCoords = (half3(localCoords, 1) * localMatrix).xy;");
         }
         v->codeAppend("}");
     }
 
-    GrSLType positionType = ip.opInfo().fHasPerspective ? kVec3f_GrSLType : kVec2f_GrSLType;
-    v->codeAppendf("%s deviceCoords = float3(%s, 1) * shapeMatrix;",
+    GrSLType positionType = ip.opInfo().fHasPerspective ? kHighFloat3_GrSLType : kHighFloat2_GrSLType;
+    v->codeAppendf("%s deviceCoords = highfloat3(%s, 1) * shapeMatrix;",
                    GrGLSLTypeString(args.fShaderCaps, positionType), backend->outShapeCoords());
     gpArgs->fPositionVar.set(positionType, "deviceCoords");
 
@@ -409,7 +415,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 void GLSLInstanceProcessor::Backend::init(GrGLSLVaryingHandler* varyingHandler,
                                           GrGLSLVertexBuilder* v) {
     if (fModifiedShapeCoords) {
-        v->codeAppendf("float2 %s = %s;", fModifiedShapeCoords, fInputs.attr(Attrib::kShapeCoords));
+        v->codeAppendf("half2 %s = %s;", fModifiedShapeCoords, fInputs.attr(Attrib::kShapeCoords));
     }
 
     this->onInit(varyingHandler, v);
@@ -425,10 +431,10 @@ void GLSLInstanceProcessor::Backend::setupRRect(const GrShaderCaps* shaderCaps,
                                                 int* usedShapeDefinitions) {
     v->codeAppendf("uint2 corner = uint2(uint(%s) & 1, (uint(%s) >> 1) & 1);",
                    fInputs.attr(Attrib::kVertexAttrs), fInputs.attr(Attrib::kVertexAttrs));
-    v->codeAppend ("float2 cornerSign = float2(corner) * 2.0 - 1.0;");
-    v->codeAppendf("float2 radii%s;", fNeedsNeighborRadii ? ", neighborRadii" : "");
-    v->codeAppend ("float2x2 p = ");
-    fInputs.fetchNextParam(shaderCaps, kMat22f_GrSLType);
+    v->codeAppend ("half2 cornerSign = half2(corner) * 2.0 - 1.0;");
+    v->codeAppendf("half2 radii%s;", fNeedsNeighborRadii ? ", neighborRadii" : "");
+    v->codeAppend ("half2x2 p = ");
+    fInputs.fetchNextParam(shaderCaps, kHalf2x2_GrSLType);
     v->codeAppend (";");
     uint8_t types = fOpInfo.fShapeTypes & kRRect_ShapesMask;
     if (0 == (types & (types - 1))) {
@@ -469,11 +475,11 @@ void GLSLInstanceProcessor::Backend::setupRRect(const GrShaderCaps* shaderCaps,
     this->adjustRRectVertices(v);
 
     if (fArcCoords.vsOut()) {
-        v->codeAppendf("%s = (cornerSign * %s + radii - float2(1)) / radii;",
+        v->codeAppendf("%s = (cornerSign * %s + radii - half2(1)) / radii;",
                        fArcCoords.vsOut(), fModifiedShapeCoords);
     }
     if (fTriangleIsArc.vsOut()) {
-        v->codeAppendf("%s = int(all(equal(float2(1), abs(%s))));",
+        v->codeAppendf("%s = int(all(equal(half2(1), abs(%s))));",
                        fTriangleIsArc.vsOut(), fInputs.attr(Attrib::kShapeCoords));
     }
 
@@ -488,9 +494,9 @@ void GLSLInstanceProcessor::Backend::setupSimpleRadii(GrGLSLVertexBuilder* v) {
 }
 
 void GLSLInstanceProcessor::Backend::setupNinePatchRadii(GrGLSLVertexBuilder* v) {
-    v->codeAppend("radii = float2(p[0][corner.x], p[1][corner.y]);");
+    v->codeAppend("radii = half2(p[0][corner.x], p[1][corner.y]);");
     if (fNeedsNeighborRadii) {
-        v->codeAppend("neighborRadii = float2(p[0][1 - corner.x], p[1][1 - corner.y]);");
+        v->codeAppend("neighborRadii = half2(p[0][1 - corner.x], p[1][1 - corner.y]);");
     }
 }
 
@@ -510,12 +516,12 @@ void GLSLInstanceProcessor::Backend::setupComplexRadii(const GrShaderCaps* shade
      *          x2       x4
      *
      */
-    v->codeAppend("float2x2 p2 = ");
-    fInputs.fetchNextParam(shaderCaps, kMat22f_GrSLType);
+    v->codeAppend("half2x2 p2 = ");
+    fInputs.fetchNextParam(shaderCaps, kHalf2x2_GrSLType);
     v->codeAppend(";");
-    v->codeAppend("radii = float2(p[corner.x][corner.y], p2[corner.y][corner.x]);");
+    v->codeAppend("radii = half2(p[corner.x][corner.y], p2[corner.y][corner.x]);");
     if (fNeedsNeighborRadii) {
-        v->codeAppend("neighborRadii = float2(p[1 - corner.x][corner.y], "
+        v->codeAppend("neighborRadii = half2(p[1 - corner.x][corner.y], "
                                              "p2[1 - corner.y][corner.x]);");
     }
 }
@@ -544,10 +550,10 @@ void GLSLInstanceProcessor::Backend::initInnerShape(GrGLSLVaryingHandler* varyin
 
 void GLSLInstanceProcessor::Backend::setupInnerSimpleRRect(const GrShaderCaps* shaderCaps,
                                                            GrGLSLVertexBuilder* v) {
-    v->codeAppend("float2x2 innerP = ");
-    fInputs.fetchNextParam(shaderCaps, kMat22f_GrSLType);
+    v->codeAppend("half2x2 innerP = ");
+    fInputs.fetchNextParam(shaderCaps, kHalf2x2_GrSLType);
     v->codeAppend(";");
-    v->codeAppend("float2 innerRadii = innerP[0] * 2.0 / innerP[1];");
+    v->codeAppend("half2 innerRadii = innerP[0] * 2.0 / innerP[1];");
     this->onSetupInnerSimpleRRect(v);
 }
 
@@ -558,7 +564,7 @@ void GLSLInstanceProcessor::Backend::emitCode(GrGLSLVertexBuilder* v, GrGLSLPPFr
                      fModifiesColor ? outColor : nullptr);
     if (outCoverage && !fModifiesCoverage) {
         // Even though the subclass doesn't use coverage, we are expected to assign some value.
-        f->codeAppendf("%s = float4(1);", outCoverage);
+        f->codeAppendf("%s = half4(1);", outCoverage);
     }
     if (!fModifiesColor) {
         // The subclass didn't assign a value to the output color.
@@ -625,18 +631,18 @@ void GLSLInstanceProcessor::BackendNonAA::onInitInnerShape(GrGLSLVaryingHandler*
 
 void GLSLInstanceProcessor::BackendNonAA::setupInnerRect(GrGLSLVertexBuilder* v) {
     if (fInnerRRect.vsOut()) {
-        v->codeAppendf("%s = float4(1);", fInnerRRect.vsOut());
+        v->codeAppendf("%s = half4(1);", fInnerRRect.vsOut());
     }
 }
 
 void GLSLInstanceProcessor::BackendNonAA::setupInnerOval(GrGLSLVertexBuilder* v) {
     if (fInnerRRect.vsOut()) {
-        v->codeAppendf("%s = float4(0, 0, 1, 1);", fInnerRRect.vsOut());
+        v->codeAppendf("%s = half4(0, 0, 1, 1);", fInnerRRect.vsOut());
     }
 }
 
 void GLSLInstanceProcessor::BackendNonAA::onSetupInnerSimpleRRect(GrGLSLVertexBuilder* v) {
-    v->codeAppendf("%s = float4(1.0 - innerRadii, 1.0 / innerRadii);", fInnerRRect.vsOut());
+    v->codeAppendf("%s = half4(1.0 - innerRadii, 1.0 / innerRadii);", fInnerRRect.vsOut());
 }
 
 void GLSLInstanceProcessor::BackendNonAA::onEmitCode(GrGLSLVertexBuilder*,
@@ -647,11 +653,11 @@ void GLSLInstanceProcessor::BackendNonAA::onEmitCode(GrGLSLVertexBuilder*,
     if (!fOpInfo.fCannotDiscard) {
         dropFragment = "discard";
     } else if (fModifiesCoverage) {
-        f->codeAppend ("lowp float covered = 1.0;");
+        f->codeAppend ("half covered = 1.0;");
         dropFragment = "covered = 0.0";
     } else if (fModifiesColor) {
-        f->codeAppendf("lowp float4 color = %s;", fColor.fsIn());
-        dropFragment = "color = float4(0)";
+        f->codeAppendf("half4 color = %s;", fColor.fsIn());
+        dropFragment = "color = half4(0)";
     }
     if (fTriangleIsArc.fsIn()) {
         SkASSERT(dropFragment);
@@ -662,19 +668,19 @@ void GLSLInstanceProcessor::BackendNonAA::onEmitCode(GrGLSLVertexBuilder*,
         SkASSERT(dropFragment);
         f->codeAppendf("// Inner shape.\n");
         if (kRect_ShapeFlag == fOpInfo.fInnerShapeTypes) {
-            f->codeAppendf("if (all(lessThanEqual(abs(%s), float2(1)))) %s;",
+            f->codeAppendf("if (all(lessThanEqual(abs(%s), half2(1)))) %s;",
                            fInnerShapeCoords.fsIn(), dropFragment);
         } else if (kOval_ShapeFlag == fOpInfo.fInnerShapeTypes) {
             f->codeAppendf("if ((dot(%s, %s) <= 1.0)) %s;",
                            fInnerShapeCoords.fsIn(), fInnerShapeCoords.fsIn(), dropFragment);
         } else {
-            f->codeAppendf("if (all(lessThan(abs(%s), float2(1)))) {", fInnerShapeCoords.fsIn());
-            f->codeAppendf(    "float2 distanceToArcEdge = abs(%s) - %s.xy;",
+            f->codeAppendf("if (all(lessThan(abs(%s), half2(1)))) {", fInnerShapeCoords.fsIn());
+            f->codeAppendf(    "half2 distanceToArcEdge = abs(%s) - %s.xy;",
                                fInnerShapeCoords.fsIn(), fInnerRRect.fsIn());
-            f->codeAppend (    "if (any(lessThan(distanceToArcEdge, float2(0)))) {");
+            f->codeAppend (    "if (any(lessThan(distanceToArcEdge, half2(0)))) {");
             f->codeAppendf(        "%s;", dropFragment);
             f->codeAppend (    "} else {");
-            f->codeAppendf(        "float2 rrectCoords = distanceToArcEdge * %s.zw;",
+            f->codeAppendf(        "half2 rrectCoords = distanceToArcEdge * %s.zw;",
                                    fInnerRRect.fsIn());
             f->codeAppend (        "if (dot(rrectCoords, rrectCoords) <= 1.0) {");
             f->codeAppendf(            "%s;", dropFragment);
@@ -684,7 +690,7 @@ void GLSLInstanceProcessor::BackendNonAA::onEmitCode(GrGLSLVertexBuilder*,
         }
     }
     if (fModifiesCoverage) {
-        f->codeAppendf("%s = float4(covered);", outCoverage);
+        f->codeAppendf("%s = half4(covered);", outCoverage);
     } else if (fModifiesColor) {
         f->codeAppendf("%s = color;", outColor);
     }
@@ -696,15 +702,15 @@ class GLSLInstanceProcessor::BackendCoverage : public Backend {
 public:
     BackendCoverage(OpInfo opInfo, const VertexInputs& inputs)
             : INHERITED(opInfo, inputs)
-            , fColorTimesRectCoverage(kVec4f_GrSLType)
-            , fRectCoverage(kFloat_GrSLType)
-            , fEllipseCoords(kVec2f_GrSLType)
-            , fEllipseName(kVec2f_GrSLType)
-            , fBloatedRadius(kFloat_GrSLType)
-            , fDistanceToInnerEdge(kVec2f_GrSLType)
-            , fInnerShapeBloatedHalfSize(kVec2f_GrSLType)
-            , fInnerEllipseCoords(kVec2f_GrSLType)
-            , fInnerEllipseName(kVec2f_GrSLType) {
+            , fColorTimesRectCoverage(kHalf4_GrSLType)
+            , fRectCoverage(kHalf_GrSLType)
+            , fEllipseCoords(kHalf2_GrSLType)
+            , fEllipseName(kHalf2_GrSLType)
+            , fBloatedRadius(kHalf_GrSLType)
+            , fDistanceToInnerEdge(kHalf2_GrSLType)
+            , fInnerShapeBloatedHalfSize(kHalf2_GrSLType)
+            , fInnerEllipseCoords(kHalf2_GrSLType)
+            , fInnerEllipseName(kHalf2_GrSLType) {
         fShapeIsCircle = !fOpInfo.fNonSquare && !(fOpInfo.fShapeTypes & kRRect_ShapesMask);
         fTweakAlphaForCoverage = !fOpInfo.fCannotTweakAlphaForCoverage && !fOpInfo.fInnerShapeTypes;
         fModifiesCoverage = !fTweakAlphaForCoverage;
@@ -751,10 +757,10 @@ private:
 
 void GLSLInstanceProcessor::BackendCoverage::onInit(GrGLSLVaryingHandler* varyingHandler,
                                                     GrGLSLVertexBuilder* v) {
-    v->codeAppend ("float2x2 shapeTransposeMatrix = transpose(float2x2(shapeMatrix));");
-    v->codeAppend ("float2 shapeHalfSize = float2(length(shapeTransposeMatrix[0]), "
+    v->codeAppend ("half2x2 shapeTransposeMatrix = transpose(half2x2(shapeMatrix));");
+    v->codeAppend ("half2 shapeHalfSize = half2(length(shapeTransposeMatrix[0]), "
                                              "length(shapeTransposeMatrix[1]));");
-    v->codeAppend ("float2 bloat = 0.5 / shapeHalfSize;");
+    v->codeAppend ("half2 bloat = 0.5 / shapeHalfSize;");
     v->codeAppendf("bloatedShapeCoords = %s * (1.0 + bloat);", fInputs.attr(Attrib::kShapeCoords));
 
     if (kOval_ShapeFlag != fOpInfo.fShapeTypes) {
@@ -767,7 +773,7 @@ void GLSLInstanceProcessor::BackendCoverage::onInit(GrGLSLVaryingHandler* varyin
         } else {
             varyingHandler->addVarying("rectCoverage", &fRectCoverage, kLow_GrSLPrecision);
         }
-        v->codeAppend("float rectCoverage = 0.0;");
+        v->codeAppend("half rectCoverage = 0.0;");
     }
     if (kRect_ShapeFlag != fOpInfo.fShapeTypes) {
         varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc, kLow_GrSLPrecision);
@@ -783,18 +789,18 @@ void GLSLInstanceProcessor::BackendCoverage::onInit(GrGLSLVaryingHandler* varyin
 
 void GLSLInstanceProcessor::BackendCoverage::setupRect(GrGLSLVertexBuilder* v) {
     // Make the border one pixel wide. Inner vs outer is indicated by coordAttrs.
-    v->codeAppendf("float2 rectBloat = (%s != 0) ? bloat : -bloat;",
+    v->codeAppendf("half2 rectBloat = (%s != 0) ? bloat : -bloat;",
                    fInputs.attr(Attrib::kVertexAttrs));
     // Here we use the absolute value, because when the rect is thinner than a pixel, this makes it
     // mark the spot where pixel center is within half a pixel of the *opposite* edge. This,
     // combined with the "maxCoverage" logic below gives us mathematically correct coverage even for
     // subpixel rectangles.
-    v->codeAppendf("bloatedShapeCoords = %s * abs(float2(1.0 + rectBloat));",
+    v->codeAppendf("bloatedShapeCoords = %s * abs(half2(1.0 + rectBloat));",
                    fInputs.attr(Attrib::kShapeCoords));
 
     // Determine coverage at the vertex. Coverage naturally ramps from 0 to 1 unless the rect is
     // narrower than a pixel.
-    v->codeAppend ("float maxCoverage = 4.0 * min(0.5, shapeHalfSize.x) *"
+    v->codeAppend ("half maxCoverage = 4.0 * min(0.5, shapeHalfSize.x) *"
                                              "min(0.5, shapeHalfSize.y);");
     v->codeAppendf("rectCoverage = (%s != 0) ? 0.0 : maxCoverage;",
                    fInputs.attr(Attrib::kVertexAttrs));
@@ -806,9 +812,9 @@ void GLSLInstanceProcessor::BackendCoverage::setupRect(GrGLSLVertexBuilder* v) {
 
 void GLSLInstanceProcessor::BackendCoverage::setupOval(GrGLSLVertexBuilder* v) {
     // Offset the inner and outer octagons by one pixel. Inner vs outer is indicated by coordAttrs.
-    v->codeAppendf("float2 ovalBloat = (%s != 0) ? bloat : -bloat;",
+    v->codeAppendf("half2 ovalBloat = (%s != 0) ? bloat : -bloat;",
                    fInputs.attr(Attrib::kVertexAttrs));
-    v->codeAppendf("bloatedShapeCoords = %s * max(float2(1.0 + ovalBloat), float2(0));",
+    v->codeAppendf("bloatedShapeCoords = %s * max(half2(1.0 + ovalBloat), half2(0));",
                    fInputs.attr(Attrib::kShapeCoords));
     v->codeAppendf("%s = bloatedShapeCoords * shapeHalfSize;", fEllipseCoords.vsOut());
     if (fEllipseName.vsOut()) {
@@ -831,8 +837,8 @@ void GLSLInstanceProcessor::BackendCoverage::adjustRRectVertices(GrGLSLVertexBui
     // We try to let the AA borders line up with the arc edges on their particular side, but we
     // can't allow them to get closer than one half pixel to the edge or they might overlap with
     // their neighboring border.
-    v->codeAppend("float2 innerEdge = max(1.0 - bloat, float2(0));");
-    v->codeAppend ("float2 borderEdge = cornerSign * clamp(1.0 - radii, -innerEdge, innerEdge);");
+    v->codeAppend("half2 innerEdge = max(1.0 - bloat, half2(0));");
+    v->codeAppend ("half2 borderEdge = cornerSign * clamp(1.0 - radii, -innerEdge, innerEdge);");
     // 0.5 is a special value that indicates this vertex is an arc edge.
     v->codeAppendf("if (abs(%s.x) == 0.5)"
                        "bloatedShapeCoords.x = borderEdge.x;", fInputs.attr(Attrib::kShapeCoords));
@@ -855,7 +861,7 @@ void GLSLInstanceProcessor::BackendCoverage::onSetupRRect(GrGLSLVertexBuilder* v
     // interior edge of the border will necessarily clamp, and we need to match the AA behavior of
     // the arc segments (i.e. distance from bloated edge only; ignoring the fact that the pixel
     // actully has less coverage because it's not completely inside the opposite edge.)
-    v->codeAppend("float2 d = shapeHalfSize + 0.5 - abs(bloatedShapeCoords) * shapeHalfSize;");
+    v->codeAppend("half2 d = shapeHalfSize + 0.5 - abs(bloatedShapeCoords) * shapeHalfSize;");
     v->codeAppend("rectCoverage = min(d.x, d.y);");
 
     SkASSERT(!fShapeIsCircle);
@@ -863,8 +869,8 @@ void GLSLInstanceProcessor::BackendCoverage::onSetupRRect(GrGLSLVertexBuilder* v
     // smooth transition from flat edge to arc, we don't allow the radii to be smaller than one half
     // pixel. (We don't worry about the transition on the opposite side when a radius is so large
     // that the border clamped on that side.)
-    v->codeAppendf("float2 clampedRadii = max(radii, bloat);");
-    v->codeAppendf("%s = (cornerSign * bloatedShapeCoords + clampedRadii - float2(1)) * "
+    v->codeAppendf("half2 clampedRadii = max(radii, bloat);");
+    v->codeAppendf("%s = (cornerSign * bloatedShapeCoords + clampedRadii - half2(1)) * "
                         "shapeHalfSize;", fEllipseCoords.vsOut());
     v->codeAppendf("%s = 1.0 / (clampedRadii * clampedRadii * shapeHalfSize * shapeHalfSize);",
                    fEllipseName.vsOut());
@@ -872,7 +878,7 @@ void GLSLInstanceProcessor::BackendCoverage::onSetupRRect(GrGLSLVertexBuilder* v
 
 void GLSLInstanceProcessor::BackendCoverage::onInitInnerShape(GrGLSLVaryingHandler* varyingHandler,
                                                               GrGLSLVertexBuilder* v) {
-    v->codeAppend("float2 innerShapeHalfSize = shapeHalfSize / outer2Inner.xy;");
+    v->codeAppend("half2 innerShapeHalfSize = shapeHalfSize / outer2Inner.xy;");
 
     if (kOval_ShapeFlag == fOpInfo.fInnerShapeTypes) {
         varyingHandler->addVarying("innerEllipseCoords", &fInnerEllipseCoords,
@@ -910,7 +916,7 @@ void GLSLInstanceProcessor::BackendCoverage::setupInnerOval(GrGLSLVertexBuilder*
         v->codeAppendf("%s = innerShapeCoords * innerShapeHalfSize;", fInnerEllipseCoords.vsOut());
     }
     if (fInnerRRect.vsOut()) {
-        v->codeAppendf("%s = float4(0, 0, innerShapeHalfSize);", fInnerRRect.vsOut());
+        v->codeAppendf("%s = half4(0, 0, innerShapeHalfSize);", fInnerRRect.vsOut());
     }
 }
 
@@ -920,7 +926,7 @@ void GLSLInstanceProcessor::BackendCoverage::onSetupInnerSimpleRRect(GrGLSLVerte
     v->codeAppendf("%s = 1.0 / (innerRadii * innerRadii * innerShapeHalfSize * "
                                "innerShapeHalfSize);",
                    fInnerEllipseName.vsOut());
-    v->codeAppendf("%s = float4(1.0 - innerRadii, innerShapeHalfSize);", fInnerRRect.vsOut());
+    v->codeAppendf("%s = half4(1.0 - innerRadii, innerShapeHalfSize);", fInnerRRect.vsOut());
 }
 
 void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
@@ -937,7 +943,7 @@ void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
         v->codeAppendf("%s = rectCoverage;", fRectCoverage.vsOut());
     }
 
-    SkString coverage("lowp float coverage");
+    SkString coverage("half coverage");
     if (fOpInfo.fInnerShapeTypes || (!fTweakAlphaForCoverage && fTriangleIsArc.fsIn())) {
         f->codeAppendf("%s;", coverage.c_str());
         coverage = "coverage";
@@ -964,7 +970,7 @@ void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
 
     if (fOpInfo.fInnerShapeTypes) {
         f->codeAppendf("// Inner shape.\n");
-        SkString innerCoverageDecl("lowp float innerCoverage");
+        SkString innerCoverageDecl("half innerCoverage");
         if (kOval_ShapeFlag == fOpInfo.fInnerShapeTypes) {
             this->emitArc(f, fInnerEllipseCoords.fsIn(), fInnerEllipseName.fsIn(),
                           true /*ellipseCoordsNeedClamp*/, true /*ellipseCoordsMayBeNegative*/,
@@ -978,12 +984,12 @@ void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
                 this->emitInnerRect(f, innerCoverageDecl.c_str());
             } else {
                 f->codeAppendf("%s = 0.0;", innerCoverageDecl.c_str());
-                f->codeAppendf("mediump float2 distanceToArcEdge = abs(%s) - %s.xy;",
+                f->codeAppendf("half2 distanceToArcEdge = abs(%s) - %s.xy;",
                                fInnerShapeCoords.fsIn(), fInnerRRect.fsIn());
-                f->codeAppend ("if (any(lessThan(distanceToArcEdge, float2(1e-5)))) {");
+                f->codeAppend ("if (any(lessThan(distanceToArcEdge, half2(1e-5)))) {");
                 this->emitInnerRect(f, "innerCoverage");
                 f->codeAppend ("} else {");
-                f->codeAppendf(    "mediump float2 ellipseCoords = distanceToArcEdge * %s.zw;",
+                f->codeAppendf(    "half2 ellipseCoords = distanceToArcEdge * %s.zw;",
                                    fInnerRRect.fsIn());
                 this->emitArc(f, "ellipseCoords", fInnerEllipseName.fsIn(),
                               false /*ellipseCoordsNeedClamp*/,
@@ -991,9 +997,9 @@ void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
                 f->codeAppend ("}");
             }
         }
-        f->codeAppendf("%s = float4(max(coverage - innerCoverage, 0.0));", outCoverage);
+        f->codeAppendf("%s = half4(max(coverage - innerCoverage, 0.0));", outCoverage);
     } else if (!fTweakAlphaForCoverage) {
-        f->codeAppendf("%s = float4(coverage);", outCoverage);
+        f->codeAppendf("%s = half4(coverage);", outCoverage);
     }
 }
 
@@ -1016,7 +1022,7 @@ void GLSLInstanceProcessor::BackendCoverage::emitCircle(GrGLSLPPFragmentBuilder*
                                                         const char* outCoverage) {
     // TODO: circleCoords = max(circleCoords, 0) if we decide to do this optimization on rrects.
     SkASSERT(!(kRRect_ShapesMask & fOpInfo.fShapeTypes));
-    f->codeAppendf("mediump float distanceToEdge = %s - length(%s);",
+    f->codeAppendf("half distanceToEdge = %s - length(%s);",
                    fBloatedRadius.fsIn(), fEllipseCoords.fsIn());
     f->codeAppendf("%s = clamp(distanceToEdge, 0.0, 1.0);", outCoverage);
 }
@@ -1033,27 +1039,27 @@ void GLSLInstanceProcessor::BackendCoverage::emitArc(GrGLSLPPFragmentBuilder* f,
         //  - To restrict the arcs of rounded rects to their positive quadrants.
         //  - To avoid inversesqrt(0) in the ellipse formula.
         if (ellipseCoordsMayBeNegative) {
-            f->codeAppendf("mediump float2 ellipseClampedCoords = max(abs(%s), float2(1e-4));",
+            f->codeAppendf("half2 ellipseClampedCoords = max(abs(%s), half2(1e-4));",
                            ellipseCoords);
         } else {
-            f->codeAppendf("mediump float2 ellipseClampedCoords = max(%s, float2(1e-4));",
+            f->codeAppendf("half2 ellipseClampedCoords = max(%s, half2(1e-4));",
                            ellipseCoords);
         }
         ellipseCoords = "ellipseClampedCoords";
     }
     // ellipseCoords are in pixel space and ellipseName is 1 / rx^2, 1 / ry^2.
-    f->codeAppendf("highp float2 Z = %s * %s;", ellipseCoords, ellipseName);
+    f->codeAppendf("highfloat2 Z = %s * %s;", ellipseCoords, ellipseName);
     // implicit is the evaluation of (x/rx)^2 + (y/ry)^2 - 1.
-    f->codeAppendf("highp float implicit = dot(Z, %s) - 1.0;", ellipseCoords);
+    f->codeAppendf("highfloat implicit = dot(Z, %s) - 1.0;", ellipseCoords);
     // gradDot is the squared length of the gradient of the implicit.
-    f->codeAppendf("highp float gradDot = 4.0 * dot(Z, Z);");
-    f->codeAppend ("mediump float approxDist = implicit * inversesqrt(gradDot);");
+    f->codeAppendf("highfloat gradDot = 4.0 * dot(Z, Z);");
+    f->codeAppend ("half approxDist = implicit * inversesqrt(gradDot);");
     f->codeAppendf("%s = clamp(0.5 - approxDist, 0.0, 1.0);", outCoverage);
 }
 
 void GLSLInstanceProcessor::BackendCoverage::emitInnerRect(GrGLSLPPFragmentBuilder* f,
                                                            const char* outCoverage) {
-    f->codeAppendf("lowp float2 c = %s - abs(%s);",
+    f->codeAppendf("half2 c = %s - abs(%s);",
                    fInnerShapeBloatedHalfSize.fsIn(), fDistanceToInnerEdge.fsIn());
     f->codeAppendf("%s = clamp(min(c.x, c.y), 0.0, 1.0);", outCoverage);
 }
@@ -1065,15 +1071,15 @@ public:
     BackendMultisample(OpInfo opInfo, const VertexInputs& inputs, int effectiveSampleCnt)
             : INHERITED(opInfo, inputs)
             , fEffectiveSampleCnt(effectiveSampleCnt)
-            , fShapeCoords(kVec2f_GrSLType)
-            , fShapeInverseMatrix(kMat22f_GrSLType)
-            , fFragShapeHalfSpan(kVec2f_GrSLType)
-            , fArcTest(kVec2f_GrSLType)
-            , fArcInverseMatrix(kMat22f_GrSLType)
-            , fFragArcHalfSpan(kVec2f_GrSLType)
+            , fShapeCoords(kHalf2_GrSLType)
+            , fShapeInverseMatrix(kHalf2x2_GrSLType)
+            , fFragShapeHalfSpan(kHalf2_GrSLType)
+            , fArcTest(kHalf2_GrSLType)
+            , fArcInverseMatrix(kHalf2x2_GrSLType)
+            , fFragArcHalfSpan(kHalf2_GrSLType)
             , fEarlyAccept(kInt_GrSLType)
-            , fInnerShapeInverseMatrix(kMat22f_GrSLType)
-            , fFragInnerShapeHalfSpan(kVec2f_GrSLType) {
+            , fInnerShapeInverseMatrix(kHalf2x2_GrSLType)
+            , fFragInnerShapeHalfSpan(kHalf2_GrSLType) {
         fRectTrianglesMaySplit = fOpInfo.fHasPerspective;
         fNeedsNeighborRadii = this->isMixedSampled() && !fOpInfo.fHasPerspective;
     }
@@ -1181,9 +1187,9 @@ void GLSLInstanceProcessor::BackendMultisample::onInit(GrGLSLVaryingHandler* var
         }
     }
     if (!fOpInfo.fHasPerspective) {
-        v->codeAppend("float2x2 shapeInverseMatrix = inverse(float2x2(shapeMatrix));");
-        v->codeAppend("float2 fragShapeSpan = abs(float4(shapeInverseMatrix).xz) + "
-                                           "abs(float4(shapeInverseMatrix).yw);");
+        v->codeAppend("half2x2 shapeInverseMatrix = inverse(half2x2(shapeMatrix));");
+        v->codeAppend("half2 fragShapeSpan = abs(half4(shapeInverseMatrix).xz) + "
+                                           "abs(half4(shapeInverseMatrix).yw);");
     }
 }
 
@@ -1199,7 +1205,7 @@ void GLSLInstanceProcessor::BackendMultisample::setupRect(GrGLSLVertexBuilder* v
     }
     if (fArcTest.vsOut()) {
         // Pick a value that is not > 0.
-        v->codeAppendf("%s = float2(0);", fArcTest.vsOut());
+        v->codeAppendf("%s = highfloat2(0);", fArcTest.vsOut());
     }
     if (fTriangleIsArc.vsOut()) {
         v->codeAppendf("%s = 0;", fTriangleIsArc.vsOut());
@@ -1212,8 +1218,8 @@ void GLSLInstanceProcessor::BackendMultisample::setupRect(GrGLSLVertexBuilder* v
 void GLSLInstanceProcessor::BackendMultisample::setupOval(GrGLSLVertexBuilder* v) {
     v->codeAppendf("%s = abs(%s);", fArcCoords.vsOut(), this->outShapeCoords());
     if (fArcInverseMatrix.vsOut()) {
-        v->codeAppendf("float2 s = sign(%s);", this->outShapeCoords());
-        v->codeAppendf("%s = shapeInverseMatrix * float2x2(s.x, 0, 0 , s.y);",
+        v->codeAppendf("half2 s = sign(%s);", this->outShapeCoords());
+        v->codeAppendf("%s = shapeInverseMatrix * half2x2(s.x, 0, 0 , s.y);",
                        fArcInverseMatrix.vsOut());
     }
     if (fFragArcHalfSpan.vsOut()) {
@@ -1221,7 +1227,7 @@ void GLSLInstanceProcessor::BackendMultisample::setupOval(GrGLSLVertexBuilder* v
     }
     if (fArcTest.vsOut()) {
         // Pick a value that is > 0.
-        v->codeAppendf("%s = float2(1);", fArcTest.vsOut());
+        v->codeAppendf("%s = half2(1);", fArcTest.vsOut());
     }
     if (fTriangleIsArc.vsOut()) {
         if (!this->isMixedSampled()) {
@@ -1247,13 +1253,13 @@ void GLSLInstanceProcessor::BackendMultisample::adjustRRectVertices(GrGLSLVertex
         // For the mixed samples algorithm it's best to bloat the corner triangles a bit so that
         // more of the pixels that cross into the arc region are completely inside the shared edges.
         // We also snap to a regular rect if the radii shrink smaller than a pixel.
-        v->codeAppend ("float2 midpt = 0.5 * (neighborRadii - radii);");
-        v->codeAppend ("float2 cornerSize = any(lessThan(radii, fragShapeSpan)) ? "
-                           "float2(0) : min(radii + 0.5 * fragShapeSpan, 1.0 - midpt);");
+        v->codeAppend ("half2 midpt = 0.5 * (neighborRadii - radii);");
+        v->codeAppend ("half2 cornerSize = any(lessThan(radii, fragShapeSpan)) ? "
+                           "half2(0) : min(radii + 0.5 * fragShapeSpan, 1.0 - midpt);");
     } else {
         // TODO: We could still bloat the corner triangle in the perspective case; we would just
         // need to find the screen-space derivative of shape coords at this particular point.
-        v->codeAppend ("float2 cornerSize = any(lessThan(radii, float2(1e-3))) ? float2(0) : radii;");
+        v->codeAppend ("half2 cornerSize = any(lessThan(radii, half2(1e-3))) ? half2(0) : radii;");
     }
 
     v->codeAppendf("if (abs(%s.x) == 0.5)"
@@ -1275,12 +1281,12 @@ void GLSLInstanceProcessor::BackendMultisample::onSetupRRect(GrGLSLVertexBuilder
         v->codeAppendf("%s = 0.5 * fragShapeSpan;", fFragShapeHalfSpan.vsOut());
     }
     if (fArcInverseMatrix.vsOut()) {
-        v->codeAppend ("float2 s = cornerSign / radii;");
-        v->codeAppendf("%s = shapeInverseMatrix * float2x2(s.x, 0, 0, s.y);",
+        v->codeAppend ("half2 s = cornerSign / radii;");
+        v->codeAppendf("%s = shapeInverseMatrix * half2x2(s.x, 0, 0, s.y);",
                        fArcInverseMatrix.vsOut());
     }
     if (fFragArcHalfSpan.vsOut()) {
-        v->codeAppendf("%s = 0.5 * (abs(float4(%s).xz) + abs(float4(%s).yw));",
+        v->codeAppendf("%s = 0.5 * (abs(half4(%s).xz) + abs(half4(%s).yw));",
                        fFragArcHalfSpan.vsOut(), fArcInverseMatrix.vsOut(),
                        fArcInverseMatrix.vsOut());
     }
@@ -1289,8 +1295,8 @@ void GLSLInstanceProcessor::BackendMultisample::onSetupRRect(GrGLSLVertexBuilder
         // edges of a fan triangle to a point within that triangle. fArcTest is used to check if a
         // fragment is too close to either shared edge, in which case we point sample the shape as a
         // rect at that point in order to guarantee the mixed samples discard logic works correctly.
-        v->codeAppendf("%s = (cornerSize == float2(0)) ? float2(0) : "
-                       "cornerSign * %s * float2x2(1, cornerSize.x - 1.0, cornerSize.y - 1.0, 1);",
+        v->codeAppendf("%s = (cornerSize == half2(0)) ? half2(0) : "
+                       "cornerSign * %s * half2x2(1, cornerSize.x - 1.0, cornerSize.y - 1.0, 1);",
                        fArcTest.vsOut(), fModifiedShapeCoords);
         if (!fOpInfo.fHasPerspective) {
             // Shift the point at which distances to edges are measured from the center of the pixel
@@ -1303,7 +1309,7 @@ void GLSLInstanceProcessor::BackendMultisample::onSetupRRect(GrGLSLVertexBuilder
     }
     if (fEarlyAccept.vsOut()) {
         SkASSERT(this->isMixedSampled());
-        v->codeAppendf("%s = all(equal(float2(1), abs(%s))) ? 0 : SAMPLE_MASK_ALL;",
+        v->codeAppendf("%s = all(equal(half2(1), abs(%s))) ? 0 : SAMPLE_MASK_ALL;",
                        fEarlyAccept.vsOut(), fInputs.attr(Attrib::kShapeCoords));
     }
 }
@@ -1319,7 +1325,7 @@ GLSLInstanceProcessor::BackendMultisample::onInitInnerShape(GrGLSLVaryingHandler
     if (!fOpInfo.fHasPerspective) {
         varyingHandler->addFlatVarying("innerShapeInverseMatrix", &fInnerShapeInverseMatrix,
                                        kHigh_GrSLPrecision);
-        v->codeAppendf("%s = shapeInverseMatrix * float2x2(outer2Inner.x, 0, 0, outer2Inner.y);",
+        v->codeAppendf("%s = shapeInverseMatrix * highfloat2x2(outer2Inner.x, 0, 0, outer2Inner.y);",
                        fInnerShapeInverseMatrix.vsOut());
         varyingHandler->addFlatVarying("fragInnerShapeHalfSpan", &fFragInnerShapeHalfSpan,
                                        kHigh_GrSLPrecision);
@@ -1333,14 +1339,14 @@ void GLSLInstanceProcessor::BackendMultisample::setupInnerRect(GrGLSLVertexBuild
         // The fragment shader will generalize every inner shape as a round rect. Since this one
         // is a rect, we simply emit bogus parameters for the round rect (negative radii) that
         // ensure the fragment shader always takes the "sample as rect" codepath.
-        v->codeAppendf("%s = float4(2.0 * (inner.zw - inner.xy) / (outer.zw - outer.xy), float2(0));",
+        v->codeAppendf("%s = half4(2.0 * (inner.zw - inner.xy) / (outer.zw - outer.xy), half2(0));",
                        fInnerRRect.vsOut());
     }
 }
 
 void GLSLInstanceProcessor::BackendMultisample::setupInnerOval(GrGLSLVertexBuilder* v) {
     if (fInnerRRect.vsOut()) {
-        v->codeAppendf("%s = float4(0, 0, 1, 1);", fInnerRRect.vsOut());
+        v->codeAppendf("%s = half4(0, 0, 1, 1);", fInnerRRect.vsOut());
     }
 }
 
@@ -1349,9 +1355,9 @@ void GLSLInstanceProcessor::BackendMultisample::onSetupInnerSimpleRRect(GrGLSLVe
     if (fFragInnerShapeHalfSpan.vsOut()) {
         v->codeAppendf("innerRadii = max(innerRadii, 2e-1 * %s);", fFragInnerShapeHalfSpan.vsOut());
     } else {
-        v->codeAppend ("innerRadii = max(innerRadii, float2(1e-4));");
+        v->codeAppend ("innerRadii = max(innerRadii, half2(1e-4));");
     }
-    v->codeAppendf("%s = float4(1.0 - innerRadii, 1.0 / innerRadii);", fInnerRRect.vsOut());
+    v->codeAppendf("%s = half4(1.0 - innerRadii, 1.0 / innerRadii);", fInnerRRect.vsOut());
 }
 
 void GLSLInstanceProcessor::BackendMultisample::onEmitCode(GrGLSLVertexBuilder*,
@@ -1364,8 +1370,8 @@ void GLSLInstanceProcessor::BackendMultisample::onEmitCode(GrGLSLVertexBuilder*,
     }
 
     if (kRect_ShapeFlag != (fOpInfo.fShapeTypes | fOpInfo.fInnerShapeTypes)) {
-        GrShaderVar x("x", kVec2f_GrSLType, GrShaderVar::kNonArray, kHigh_GrSLPrecision);
-        f->emitFunction(kFloat_GrSLType, "square", 1, &x, "return dot(x, x);", &fSquareFun);
+        GrShaderVar x("x", kHighFloat2_GrSLType, GrShaderVar::kNonArray);
+        f->emitFunction(kHalf_GrSLType, "square", 1, &x, "return dot(x, x);", &fSquareFun);
     }
 
     EmitShapeCoords shapeCoords;
@@ -1387,7 +1393,7 @@ void GLSLInstanceProcessor::BackendMultisample::onEmitCode(GrGLSLVertexBuilder*,
     if (fOpInfo.fHasPerspective && fOpInfo.fInnerShapeTypes) {
         // This determines if the fragment should consider the inner shape in its sample mask.
         // We take the derivative early in case discards may occur before we get to the inner shape.
-        f->codeAppendf("highp float2 fragInnerShapeApproxHalfSpan = 0.5 * fwidth(%s);",
+        f->codeAppendf("highfloat2 fragInnerShapeApproxHalfSpan = 0.5 * fwidth(%s);",
                        fInnerShapeCoords.fsIn());
     }
 
@@ -1404,7 +1410,7 @@ void GLSLInstanceProcessor::BackendMultisample::onEmitCode(GrGLSLVertexBuilder*,
         if (arcTest && fOpInfo.fHasPerspective) {
             // The non-perspective version accounts for fwidth() in the vertex shader.
             // We make sure to take the derivative here, before a neighbor pixel may early accept.
-            f->codeAppendf("highp float2 arcTest = %s - 0.5 * fwidth(%s);",
+            f->codeAppendf("highfloat2 arcTest = %s - 0.5 * fwidth(%s);",
                            fArcTest.fsIn(), fArcTest.fsIn());
             arcTest = "arcTest";
         }
@@ -1415,7 +1421,7 @@ void GLSLInstanceProcessor::BackendMultisample::onEmitCode(GrGLSLVertexBuilder*,
         if (arcTest) {
             // At this point, if the sample mask is all set it means we are inside an arc triangle.
             f->codeAppendf("if (gl_SampleMaskIn[0] == SAMPLE_MASK_ALL || "
-                               "all(greaterThan(%s, float2(0)))) {", arcTest);
+                               "all(greaterThan(%s, highfloat2(0)))) {", arcTest);
             this->emitArc(f, arcCoords, false, clampArcCoords, opts);
             f->codeAppend ("} else {");
             this->emitRect(f, shapeCoords, opts);
@@ -1488,10 +1494,10 @@ void GLSLInstanceProcessor::BackendMultisample::emitRect(GrGLSLPPFragmentBuilder
     }
     f->codeAppend ("int rectMask = 0;");
     f->codeAppend ("for (int i = 0; i < SAMPLE_COUNT; i++) {");
-    f->codeAppend (    "highp float2 pt = ");
+    f->codeAppend (    "highfloat2 pt = ");
     this->interpolateAtSample(f, *coords.fVarying, "i", coords.fInverseMatrix);
     f->codeAppend (    ";");
-    f->codeAppend (    "if (all(lessThan(abs(pt), float2(1)))) rectMask |= (1 << i);");
+    f->codeAppend (    "if (all(lessThan(abs(pt), highfloat2(1)))) rectMask |= (1 << i);");
     f->codeAppend ("}");
     this->acceptCoverageMask(f, "rectMask", opts);
     if (coords.fFragHalfSpan) {
@@ -1507,7 +1513,7 @@ void GLSLInstanceProcessor::BackendMultisample::emitArc(GrGLSLPPFragmentBuilder*
         SkString absArcCoords;
         absArcCoords.printf(coordsMayBeNegative ? "abs(%s)" : "%s", coords.fVarying->fsIn());
         if (clampCoords) {
-            f->codeAppendf("if (%s(max(%s + %s, float2(0))) < 1.0) {",
+            f->codeAppendf("if (%s(max(%s + %s, half2(0))) < 1.0) {",
                            fSquareFun.c_str(), absArcCoords.c_str(), coords.fFragHalfSpan);
         } else {
             f->codeAppendf("if (%s(%s + %s) < 1.0) {",
@@ -1515,7 +1521,7 @@ void GLSLInstanceProcessor::BackendMultisample::emitArc(GrGLSLPPFragmentBuilder*
         }
         // The entire pixel is inside the arc.
         this->acceptOrRejectWholeFragment(f, true, opts);
-        f->codeAppendf("} else if (%s(max(%s - %s, float2(0))) >= 1.0) {",
+        f->codeAppendf("} else if (%s(max(%s - %s, half2(0))) >= 1.0) {",
                        fSquareFun.c_str(), absArcCoords.c_str(), coords.fFragHalfSpan);
         // The entire pixel is outside the arc.
         this->acceptOrRejectWholeFragment(f, false, opts);
@@ -1523,12 +1529,12 @@ void GLSLInstanceProcessor::BackendMultisample::emitArc(GrGLSLPPFragmentBuilder*
     }
     f->codeAppend (    "int arcMask = 0;");
     f->codeAppend (    "for (int i = 0; i < SAMPLE_COUNT; i++) {");
-    f->codeAppend (        "highp float2 pt = ");
+    f->codeAppend (        "highfloat2 pt = ");
     this->interpolateAtSample(f, *coords.fVarying, "i", coords.fInverseMatrix);
     f->codeAppend (        ";");
     if (clampCoords) {
         SkASSERT(!coordsMayBeNegative);
-        f->codeAppend (    "pt = max(pt, float2(0));");
+        f->codeAppend (    "pt = max(pt, highfloat2(0));");
     }
     f->codeAppendf(        "if (%s(pt) < 1.0) arcMask |= (1 << i);", fSquareFun.c_str());
     f->codeAppend (    "}");
@@ -1542,31 +1548,31 @@ void GLSLInstanceProcessor::BackendMultisample::emitSimpleRRect(GrGLSLPPFragment
                                                                 const EmitShapeCoords& coords,
                                                                 const char* rrect,
                                                                 const EmitShapeOpts& opts) {
-    f->codeAppendf("highp float2 distanceToArcEdge = abs(%s) - %s.xy;", coords.fVarying->fsIn(),
+    f->codeAppendf("highfloat2 distanceToArcEdge = abs(%s) - %s.xy;", coords.fVarying->fsIn(),
                    rrect);
-    f->codeAppend ("if (any(lessThan(distanceToArcEdge, float2(0)))) {");
+    f->codeAppend ("if (any(lessThan(distanceToArcEdge, highfloat2(0)))) {");
     this->emitRect(f, coords, opts);
     f->codeAppend ("} else {");
     if (coords.fInverseMatrix && coords.fFragHalfSpan) {
-        f->codeAppendf("highp float2 rrectCoords = distanceToArcEdge * %s.zw;", rrect);
-        f->codeAppendf("highp float2 fragRRectHalfSpan = %s * %s.zw;", coords.fFragHalfSpan, rrect);
+        f->codeAppendf("highfloat2 rrectCoords = distanceToArcEdge * %s.zw;", rrect);
+        f->codeAppendf("highfloat2 fragRRectHalfSpan = %s * %s.zw;", coords.fFragHalfSpan, rrect);
         f->codeAppendf("if (%s(rrectCoords + fragRRectHalfSpan) <= 1.0) {", fSquareFun.c_str());
         // The entire pixel is inside the round rect.
         this->acceptOrRejectWholeFragment(f, true, opts);
-        f->codeAppendf("} else if (%s(max(rrectCoords - fragRRectHalfSpan, float2(0))) >= 1.0) {",
+        f->codeAppendf("} else if (%s(max(rrectCoords - fragRRectHalfSpan, highfloat2(0))) >= 1.0) {",
                        fSquareFun.c_str());
         // The entire pixel is outside the round rect.
         this->acceptOrRejectWholeFragment(f, false, opts);
         f->codeAppend ("} else {");
-        f->codeAppendf(    "highp float2 s = %s.zw * sign(%s);", rrect, coords.fVarying->fsIn());
-        f->codeAppendf(    "highp float2x2 innerRRectInverseMatrix = %s * "
-                           "float2x2(s.x, 0, 0, s.y);", coords.fInverseMatrix);
+        f->codeAppendf(    "highfloat2 s = %s.zw * sign(%s);", rrect, coords.fVarying->fsIn());
+        f->codeAppendf(    "highfloat2x2 innerRRectInverseMatrix = %s * "
+                           "highfloat2x2(s.x, 0, 0, s.y);", coords.fInverseMatrix);
         f->codeAppend (    "highp int rrectMask = 0;");
         f->codeAppend (    "for (int i = 0; i < SAMPLE_COUNT; i++) {");
-        f->codeAppend (        "highp float2 pt = rrectCoords + ");
+        f->codeAppend (        "highfloat2 pt = rrectCoords + ");
         f->appendOffsetToSample("i", GrGLSLFPFragmentBuilder::kSkiaDevice_Coordinates);
         f->codeAppend (                  "* innerRRectInverseMatrix;");
-        f->codeAppendf(        "if (%s(max(pt, float2(0))) < 1.0) rrectMask |= (1 << i);",
+        f->codeAppendf(        "if (%s(max(pt, highfloat2(0))) < 1.0) rrectMask |= (1 << i);",
                                fSquareFun.c_str());
         f->codeAppend (    "}");
         this->acceptCoverageMask(f, "rrectMask", opts);
@@ -1574,10 +1580,10 @@ void GLSLInstanceProcessor::BackendMultisample::emitSimpleRRect(GrGLSLPPFragment
     } else {
         f->codeAppend ("int rrectMask = 0;");
         f->codeAppend ("for (int i = 0; i < SAMPLE_COUNT; i++) {");
-        f->codeAppend (    "highp float2 shapePt = ");
+        f->codeAppend (    "highfloat2 shapePt = ");
         this->interpolateAtSample(f, *coords.fVarying, "i", nullptr);
         f->codeAppend (    ";");
-        f->codeAppendf(    "highp float2 rrectPt = max(abs(shapePt) - %s.xy, float2(0)) * %s.zw;",
+        f->codeAppendf(    "highfloat2 rrectPt = max(abs(shapePt) - %s.xy, highfloat2(0)) * %s.zw;",
                            rrect, rrect);
         f->codeAppendf(    "if (%s(rrectPt) < 1.0) rrectMask |= (1 << i);", fSquareFun.c_str());
         f->codeAppend ("}");
