@@ -19,6 +19,7 @@ DEPS = [
 ]
 
 
+GS_BUCKET_IMAGES = 'skia-infra-gm'
 DM_JSON = 'dm.json'
 UPLOAD_ATTEMPTS = 5
 VERBOSE_LOG = 'verbose.log'
@@ -60,7 +61,7 @@ def RunSteps(api):
   api.file.remove('rm old verbose.log', log_file)
 
   # Upload the images.
-  image_dest_path = 'gs://%s/dm-images-v1' % api.properties['gs_bucket']
+  image_dest_path = 'gs://%s/dm-images-v1' % GS_BUCKET_IMAGES
   for ext in ['.png', '.pdf']:
     files_to_upload = api.file.glob_paths(
         'find images',
@@ -104,6 +105,14 @@ def GenTests(api):
     api.test('normal_bot') +
     api.properties(buildername=builder,
                    gs_bucket='skia-infra-gm',
+                   revision='abc123',
+                   path_config='kitchen')
+  )
+
+  yield (
+    api.test('alternate_bucket') +
+    api.properties(buildername=builder,
+                   gs_bucket='skia-infra-gm-alt',
                    revision='abc123',
                    path_config='kitchen')
   )
