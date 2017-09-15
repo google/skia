@@ -9,6 +9,7 @@
 #define GrTessellator_DEFINED
 
 #include "GrColor.h"
+#include "SkColorData.h"
 #include "SkPoint.h"
 
 class SkPath;

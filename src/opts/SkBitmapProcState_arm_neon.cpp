@@ -7,7 +7,7 @@
 
 #include "SkBitmapProcState.h"
 #include "SkBitmapProcState_filter.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkPaint.h"
 #include "SkShader.h"   // for tilemodes
 #include "SkUtilsArm.h"

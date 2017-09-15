@@ -7,7 +7,7 @@
 
 #include "SkColorSpaceXform_A2B.h"
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpace_A2B.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
