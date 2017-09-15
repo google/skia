@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5f9fbdb_744bf347",
+        "filename": "src/jumper/SkJumper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 6026
+      },
+      "writtenOn": "2017-09-15T21:25:33Z",
+      "side": 0,
+      "message": "Oh, I didn\u0027t see the `0 \u0026\u0026` here -- is that here intentional? If so, I\u0027ll restore it.",
+      "range": {
+        "startLine": 26,
+        "startChar": 8,
+        "endLine": 26,
+        "endChar": 10
+      },
+      "revId": "3bf6366c6fc5d619358458e50909b60deb4cfe4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
