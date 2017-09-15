@@ -8,6 +8,8 @@
 #ifndef SkColorPriv_DEFINED
 #define SkColorPriv_DEFINED
 
+#include "SkMath.h"
+
 /** Turn 0..255 into 0..256 by adding 1 at the half-way point. Used to turn a
     byte into a scale value, so that we can say scale * value >> 8 instead of
     alpha * value / 255.
@@ -31,8 +33,14 @@ static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
 }
 
 #define SK_A32_BITS     8
+#define SK_R32_BITS     8
+#define SK_G32_BITS     8
+#define SK_B32_BITS     8
 
 #define SK_A32_MASK     ((1 << SK_A32_BITS) - 1)
+#define SK_R32_MASK     ((1 << SK_R32_BITS) - 1)
+#define SK_G32_MASK     ((1 << SK_G32_BITS) - 1)
+#define SK_B32_MASK     ((1 << SK_B32_BITS) - 1)
 
 #define SkGetPackedA32(packed)      ((uint32_t)((packed) << (24 - SK_A32_SHIFT)) >> 24)    
 #define SkGetPackedR32(packed)      ((uint32_t)((packed) << (24 - SK_R32_SHIFT)) >> 24)
@@ -40,6 +48,9 @@ static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
 #define SkGetPackedB32(packed)      ((uint32_t)((packed) << (24 - SK_B32_SHIFT)) >> 24)
 
 #define SkA32Assert(a)  SkASSERT((unsigned)(a) <= SK_A32_MASK)
+#define SkR32Assert(r)  SkASSERT((unsigned)(r) <= SK_R32_MASK)
+#define SkG32Assert(g)  SkASSERT((unsigned)(g) <= SK_G32_MASK)
+#define SkB32Assert(b)  SkASSERT((unsigned)(b) <= SK_B32_MASK)
 
 /**
  *  Pack the components into a SkPMColor, checking (in the debug version) that
@@ -62,6 +73,21 @@ static inline SkPMColor SkPackARGB32(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
 static inline SkPMColor SkPackARGB32NoCheck(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return (a << SK_A32_SHIFT) | (r << SK_R32_SHIFT) |
            (g << SK_G32_SHIFT) | (b << SK_B32_SHIFT);
+}
+
+static inline
+SkPMColor SkPremultiplyARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+    SkA32Assert(a);
+    SkR32Assert(r);
+    SkG32Assert(g);
+    SkB32Assert(b);
+
+    if (a != 255) {
+        r = SkMulDiv255Round(r, a);
+        g = SkMulDiv255Round(g, a);
+        b = SkMulDiv255Round(b, a);
+    }
+    return SkPackARGB32(a, r, g, b);
 }
 
 // When Android is compiled optimizing for size, SkAlphaMulQ doesn't get
