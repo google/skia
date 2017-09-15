@@ -1125,6 +1125,7 @@ bool IncludeParser::parseMember(Definition* child, Definition* markupDef) {
     IClassDefinition& classDef = fIClassMap[markupDef->fName];
     string uniqueName = this->uniqueName(classDef.fMethods, nameStr);
     markupChild->fName = uniqueName;
+    markupChild->fTerminator = markupChild->fContentEnd;
     classDef.fMembers[uniqueName] = markupChild;
     if (child->fParentIndex >= 2) {
         auto comment = child->fParent->fTokens.begin();
@@ -1162,6 +1163,9 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
     std::advance(tokenIter, child->fParentIndex);
     tokenIter = std::prev(tokenIter);
     string nameStr(tokenIter->fStart, tokenIter->fContentEnd - tokenIter->fStart);
+    if (0 == nameStr.find("SK_ATTR_DEPRECATED")) {
+        SkDebugf("");
+    }
     while (tokenIter != child->fParent->fTokens.begin()) {
         auto testIter = std::prev(tokenIter);
         switch (testIter->fType) {
@@ -1230,6 +1234,17 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
     }
     while (end > start && ' ' >= end[-1]) {
         --end;
+    }
+    if (!markupDef) {
+        auto parentIter = child->fParent->fTokens.begin();
+        SkASSERT(child->fParentIndex > 0);
+        std::advance(parentIter, child->fParentIndex - 1);
+        Definition* methodName = &*parentIter;
+        TextParser name(methodName);
+        if (name.skipToEndBracket(':') && name.startsWith("::")) {
+            return true;  // expect this is inline class definition outside of class
+        }
+        SkASSERT(0);  // code incomplete
     }
     markupDef->fTokens.emplace_back(MarkType::kMethod, start, end, tokenIter->fLineCount,
             markupDef);
@@ -1314,6 +1329,15 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                         TextParser checkDeprecated(child->fFileName, fLastObject->fTerminator + 1,
                                 child->fStart, fLastObject->fLineCount);
                         checkDeprecated.skipWhiteSpace();
+                        if (checkDeprecated.startsWith("SK_ATTR_DEPRECATED")) {
+                            break;
+                        }
+                    }
+                    {
+                        auto tokenIter = child->fParent->fTokens.begin();
+                        std::advance(tokenIter, child->fParentIndex);
+                        tokenIter = std::prev(tokenIter);
+                        TextParser checkDeprecated(&*tokenIter);
                         if (checkDeprecated.startsWith("SK_ATTR_DEPRECATED")) {
                             break;
                         }
@@ -1679,6 +1703,9 @@ bool IncludeParser::parseChar() {
                     }
                     Definition* member = &*namedIter;
                     member->fMarkType = MarkType::kMember;
+                    if (!member->fTerminator) {
+                        member->fTerminator = member->fContentEnd;
+                    }
                     fParent->fChildren.push_back(member);
                     for (auto nameType = baseIter; nameType != namedIter; ++nameType) {
                         member->fChildren.push_back(&*nameType);
