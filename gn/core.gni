@@ -521,8 +521,15 @@ skia_core_sources += [
   "$_src/jumper/SkJumper_stages.cpp",
   "$_src/jumper/SkJumper_stages_lowp.cpp",
 ]
+skia_core_defines = []
 if (is_win) {
-  skia_core_sources += [ "$_src/jumper/SkJumper_generated_win.S" ]
+  if (host_os == "win") {
+    skia_core_sources += [ "$_src/jumper/SkJumper_generated_win.S" ]
+  } else {
+    # TODO(thakis): Enable jumper in linux->win cross builds once the
+    # assembler situation is figured out, https://crbug.com/762167
+    skia_core_defines += [ "SK_JUMPER_USE_ASSEMBLY=0" ]
+  }
 } else {
   skia_core_sources += [ "$_src/jumper/SkJumper_generated.S" ]
 }

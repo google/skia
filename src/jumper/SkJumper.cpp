@@ -17,13 +17,21 @@
 #if !defined(__has_feature)
     #define __has_feature(x) 0
 #endif
+#if !defined(SK_JUMPER_USE_ASSEMBLY)
+#if __has_feature(memory_sanitizer)
+#define SK_JUMPER_USE_ASSEMBLY 0
+#else
+#define SK_JUMPER_USE_ASSEMBLY 1
+#endif
+#endif
 
 #define M(st) +1
 static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
 #undef M
 
 #ifndef SK_JUMPER_DISABLE_8BIT
-    #if 0 && !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
+    // Intentionally commented out; optional logging for local debugging.
+    #if 0 && SK_JUMPER_USE_ASSEMBLY && (defined(__x86_64__) || defined(_M_X64))
         #include <atomic>
 
         #define M(st) #st,
@@ -102,7 +110,7 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**);
 
 extern "C" {
 
-#if __has_feature(memory_sanitizer)
+#if !SK_JUMPER_USE_ASSEMBLY
     // We'll just run baseline code.
 
 #elif defined(__arm__)
@@ -172,7 +180,8 @@ extern "C" {
 
 }
 
-#if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
+#if SK_JUMPER_USE_ASSEMBLY
+#if defined(__x86_64__) || defined(_M_X64)
     template <SkRasterPipeline::StockStage st>
     static constexpr StageFn* hsw_lowp() { return nullptr; }
 
@@ -217,6 +226,7 @@ extern "C" {
         LOWP_STAGES(M)
     #undef M
 #endif
+#endif
 
 // Engines comprise everything we need to run SkRasterPipelines.
 struct SkJumper_Engine {
@@ -237,7 +247,7 @@ static SkJumper_Engine gEngine = kBaseline;
 static SkOnce gChooseEngineOnce;
 
 static SkJumper_Engine choose_engine() {
-#if __has_feature(memory_sanitizer)
+#if !SK_JUMPER_USE_ASSEMBLY
     // We'll just run baseline code.
 
 #elif defined(__arm__)
@@ -316,7 +326,8 @@ static SkJumper_Engine choose_engine() {
     static SkOnce gChooseLowpOnce;
 
     static SkJumper_Engine choose_lowp() {
-    #if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
+    #if SK_JUMPER_USE_ASSEMBLY
+    #if defined(__x86_64__) || defined(_M_X64)
         if (1 && SkCpu::Supports(SkCpu::HSW)) {
             return {
             #define M(st) hsw_lowp<SkRasterPipeline::st>(),
@@ -363,6 +374,7 @@ static SkJumper_Engine choose_engine() {
             sk_just_return_lowp,
         #undef M
         };
+    #endif
     #endif
         return kNone;
     }
