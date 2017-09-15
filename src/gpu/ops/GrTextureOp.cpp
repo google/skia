@@ -108,7 +108,7 @@ public:
                                      gpArgs->fPositionVar,
                                      textureGP.fTextureCoords.fName,
                                      args.fFPCoordTransformHandler);
-                if (args.fShaderCaps->flatInterpolationSupport()) {
+                if (args.fShaderCaps->preferFlatInterpolation()) {
                     args.fVaryingHandler->addFlatPassThroughAttribute(&textureGP.fColors,
                                                                       args.fOutputColor);
                 } else {
