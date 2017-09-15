@@ -92,7 +92,13 @@ void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rg
         auto ctx = alloc->make<SkJumper_UniformColorCtx>();
         Sk4f color = Sk4f::Load(rgba);
         color.store(&ctx->r);
-        ctx->rgba = Sk4f_toL32(color);
+
+        // To make loads more direct, we store 8-bit values in 16-bit slots.
+        color = color * 255.0f + 0.5f;
+        ctx->rgba[0] = (uint16_t)color[0];
+        ctx->rgba[1] = (uint16_t)color[1];
+        ctx->rgba[2] = (uint16_t)color[2];
+        ctx->rgba[3] = (uint16_t)color[3];
 
         this->unchecked_append(uniform_color, ctx);
         INC_COLOR;
