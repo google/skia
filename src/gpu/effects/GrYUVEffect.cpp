@@ -110,10 +110,9 @@ public:
             const YUVtoRGBEffect& effect = args.fFp.cast<YUVtoRGBEffect>();
 
             const char* colorSpaceMatrix = nullptr;
-            fMatrixUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                          kMat44f_GrSLType, kDefault_GrSLPrecision,
+            fMatrixUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4x4_GrSLType,
                                                           "ColorSpaceMatrix", &colorSpaceMatrix);
-            fragBuilder->codeAppendf("%s = float4(", args.fOutputColor);
+            fragBuilder->codeAppendf("%s = half4(", args.fOutputColor);
             fragBuilder->appendTextureLookup(args.fTexSamplers[0],
                                              args.fTransformedCoords[0].c_str(),
                                              args.fTransformedCoords[0].getType());
@@ -275,24 +274,24 @@ public:
                 case kYUV_OutputChannels:
                     fRGBToYUVUni = args.fUniformHandler->addUniformArray(
                         kFragment_GrShaderFlag,
-                        kVec4f_GrSLType, kDefault_GrSLPrecision,
+                        kHalf4_GrSLType,
                         "RGBToYUV", 3, &uniName);
-                    fragBuilder->codeAppendf("%s = float4(dot(rgbColor.rgb, %s[0].rgb) + %s[0].a,"
-                                                       "dot(rgbColor.rgb, %s[1].rgb) + %s[1].a,"
-                                                       "dot(rgbColor.rgb, %s[2].rgb) + %s[2].a,"
-                                                       "rgbColor.a);",
+                    fragBuilder->codeAppendf("%s = half4(dot(rgbColor.rgb, %s[0].rgb) + %s[0].a,"
+                                                        "dot(rgbColor.rgb, %s[1].rgb) + %s[1].a,"
+                                                        "dot(rgbColor.rgb, %s[2].rgb) + %s[2].a,"
+                                                        "rgbColor.a);",
                                              args.fOutputColor, uniName, uniName, uniName, uniName,
                                              uniName, uniName);
                     break;
                 case kUV_OutputChannels:
                     fRGBToYUVUni = args.fUniformHandler->addUniformArray(
                         kFragment_GrShaderFlag,
-                        kVec4f_GrSLType, kDefault_GrSLPrecision,
+                        kHalf4_GrSLType,
                         "RGBToUV", 2, &uniName);
-                    fragBuilder->codeAppendf("%s = float4(dot(rgbColor.rgb, %s[0].rgb) + %s[0].a,"
-                                                       "dot(rgbColor.rgb, %s[1].rgb) + %s[1].a,"
-                                                       "0.0,"
-                                                       "rgbColor.a);",
+                    fragBuilder->codeAppendf("%s = half4(dot(rgbColor.rgb, %s[0].rgb) + %s[0].a,"
+                                                        "dot(rgbColor.rgb, %s[1].rgb) + %s[1].a,"
+                                                        "0.0,"
+                                                        "rgbColor.a);",
                                              args.fOutputColor, uniName, uniName, uniName, uniName);
                     break;
                 case kY_OutputChannels:
@@ -300,9 +299,9 @@ public:
                 case kV_OutputChannels:
                     fRGBToYUVUni = args.fUniformHandler->addUniform(
                         kFragment_GrShaderFlag,
-                        kVec4f_GrSLType, kDefault_GrSLPrecision,
+                        kHalf4_GrSLType,
                         "RGBToYUorV", &uniName);
-                    fragBuilder->codeAppendf("%s = float4(dot(rgbColor.rgb, %s.rgb) + %s.a);\n",
+                    fragBuilder->codeAppendf("%s = half4(dot(rgbColor.rgb, %s.rgb) + %s.a);\n",
                                              args.fOutputColor, uniName, uniName);
                     break;
             }

@@ -24,13 +24,12 @@ class GrCCPRQuadraticProcessor : public GrCCPRCoverageProcessor::PrimitiveProces
 public:
     GrCCPRQuadraticProcessor()
             : INHERITED(CoverageType::kShader)
-            , fCanonicalMatrix("canonical_matrix", kMat33f_GrSLType, GrShaderVar::kNonArray,
-                               kHigh_GrSLPrecision)
-            , fCanonicalDerivatives("canonical_derivatives", kMat22f_GrSLType,
-                                    GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fEdgeDistanceEquation("edge_distance_equation", kVec3f_GrSLType,
-                                    GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fXYD(kVec3f_GrSLType) {}
+            , fCanonicalMatrix("canonical_matrix", kHighFloat3x3_GrSLType, GrShaderVar::kNonArray)
+            , fCanonicalDerivatives("canonical_derivatives", kHighFloat2x2_GrSLType,
+                                    GrShaderVar::kNonArray)
+            , fEdgeDistanceEquation("edge_distance_equation", kHighFloat3_GrSLType,
+                                    GrShaderVar::kNonArray)
+            , fXYD(kHighFloat3_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         varyingHandler->addVarying("xyd", &fXYD, kHigh_GrSLPrecision);
@@ -67,7 +66,7 @@ protected:
 class GrCCPRQuadraticHullProcessor : public GrCCPRQuadraticProcessor {
 public:
     GrCCPRQuadraticHullProcessor()
-            : fGradXY(kVec2f_GrSLType) {}
+            : fGradXY(kHighFloat2_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);
@@ -91,10 +90,10 @@ private:
 class GrCCPRQuadraticCornerProcessor : public GrCCPRQuadraticProcessor {
 public:
     GrCCPRQuadraticCornerProcessor()
-            : fEdgeDistanceDerivatives("edge_distance_derivatives", kVec2f_GrSLType,
-                                       GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fdXYDdx(kVec3f_GrSLType)
-            , fdXYDdy(kVec3f_GrSLType) {}
+            : fEdgeDistanceDerivatives("edge_distance_derivatives", kHighFloat2_GrSLType,
+                                       GrShaderVar::kNonArray)
+            , fdXYDdx(kHighFloat3_GrSLType)
+            , fdXYDdy(kHighFloat3_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);
