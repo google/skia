@@ -22,6 +22,30 @@
       "revId": "d9b24e7d4b53161ab64dadbcd26d32e937e69004",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ca4a47f_15650991",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1944,
+      "author": {
+        "id": 7734
+      },
+      "writtenOn": "2017-09-15T16:08:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a4ac69c_a7d0a149",
+      "range": {
+        "startLine": 1944,
+        "startChar": 8,
+        "endLine": 1944,
+        "endChar": 29
+      },
+      "revId": "d9b24e7d4b53161ab64dadbcd26d32e937e69004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
