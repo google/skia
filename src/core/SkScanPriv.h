@@ -117,6 +117,23 @@ static bool safeRoundOut(const SkRect& src, SkIRect* dst, int32_t maxInt) {
     return false;
 }
 
+// Check if the path is a rect and fat enough after clipping; if so, blit it.
+static inline bool TryBlitFatAntiRect(SkBlitter* blitter, const SkPath& path, const SkIRect& clip) {
+    SkRect rect;
+    if (!path.isRect(&rect)) {
+        return false; // not rect
+    }
+    if (!rect.intersect(SkRect::Make(clip))) {
+        return true; // The intersection is empty. Hence consider it done.
+    }
+    SkIRect bounds = rect.roundOut();
+    if (bounds.width() < 3 || bounds.height() < 3) {
+        return false; // not fat
+    }
+    blitter->blitFatAntiRect(rect, bounds);
+    return true;
+}
+
 using FillPathFunc = std::function<void(const SkPath& path, SkBlitter* blitter, bool isInverse,
         const SkIRect& ir, const SkRegion* clipRgn, const SkIRect* clipRect, bool forceRLE)>;
 
