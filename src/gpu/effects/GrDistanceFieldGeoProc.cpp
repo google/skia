@@ -260,6 +260,16 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(
     }
 }
 
+void GrDistanceFieldA8TextGeoProc::addNewProxies(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+                                                 const GrSamplerState& params) {
+    for (int i = 0; i < kMaxTextures; ++i) {
+        if (proxies[i] && !fTextureSamplers[i].isInitialized()) {
+            fTextureSamplers[i].reset(std::move(proxies[i]), params);
+            this->addTextureSampler(&fTextureSamplers[i]);
+        }
+    }
+}
+
 void GrDistanceFieldA8TextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
                                                        GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldA8TextGeoProc::GenKey(*this, caps, b);
@@ -504,6 +514,16 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
                                               kHigh_GrSLPrecision);
     for (int i = 0; i < kMaxTextures; ++i) {
         if (proxies[i]) {
+            fTextureSamplers[i].reset(std::move(proxies[i]), params);
+            this->addTextureSampler(&fTextureSamplers[i]);
+        }
+    }
+}
+
+void GrDistanceFieldPathGeoProc::addNewProxies(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+                                               const GrSamplerState& params) {
+    for (int i = 0; i < kMaxTextures; ++i) {
+        if (proxies[i] && !fTextureSamplers[i].isInitialized()) {
             fTextureSamplers[i].reset(std::move(proxies[i]), params);
             this->addTextureSampler(&fTextureSamplers[i]);
         }
@@ -816,6 +836,16 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
     for (int i = 0; i < kMaxTextures; ++i) {
         if (proxies[i]) {
             fTextureSamplers[i].reset(std::move(proxies[i]), params);
+            this->addTextureSampler(&fTextureSamplers[i]);
+        }
+    }
+}
+
+void GrDistanceFieldLCDTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy> prox[kMaxTextures],
+                                                  const GrSamplerState& params) {
+    for (int i = 0; i < kMaxTextures; ++i) {
+        if (prox[i] && !fTextureSamplers[i].isInitialized()) {
+            fTextureSamplers[i].reset(std::move(prox[i]), params);
             this->addTextureSampler(&fTextureSamplers[i]);
         }
     }

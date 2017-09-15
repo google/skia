@@ -652,6 +652,19 @@ private:
     }
 
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
+        GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
+        if (gp->numTextureSamplers() != fAtlas->pageCount()) {
+            // During preparation the number of atlas pages has increased.
+            // Update the proxies used in the GP to match.
+            if (fUsesDistanceField) {
+                reinterpret_cast<GrDistanceFieldPathGeoProc*>(gp)->addNewProxies(
+                    fAtlas->getProxies(), GrSamplerState::ClampBilerp());
+            } else {
+                reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(
+                    fAtlas->getProxies(), GrSamplerState::ClampNearest());
+            }
+        }
+
         if (flushInfo->fInstancesToFlush) {
             GrMesh mesh(GrPrimitiveType::kTriangles);
             int maxInstancesPerDraw =
