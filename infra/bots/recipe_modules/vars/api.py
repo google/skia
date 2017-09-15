@@ -143,6 +143,10 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
     self.chromeos_homedir = '/home/chronos/user/'
 
+    # Internal bot support.
+    self.internal_bot_id = self.m.properties.get('internal_bot_id')
+    self.is_internal_bot = self.internal_bot_id is not None
+
   @property
   def is_linux(self):
     return 'Ubuntu' in self.builder_name or 'Debian' in self.builder_name

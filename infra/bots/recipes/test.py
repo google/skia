@@ -232,6 +232,10 @@ def dm_flags(api, bot):
       configs = [c for c in configs if c == 'gl' or c == 'gles']
       args.extend(['--pr', 'ccpr'])
 
+    # Bogus test for internal bot.
+    if api.vars.internal_bot_id == '0':
+      args.append('--internal0')
+
   args.append('--config')
   args.extend(configs)
 
@@ -1084,4 +1088,23 @@ def GenTests(api):
     api.step_data('dm', retcode=1) +
     api.step_data('pull /sdcard/revenge_of_the_skiabot/dm_out '+
                   '[CUSTOM_[SWARM_OUT_DIR]]/dm', retcode=1)
+  )
+
+  yield (
+    api.test('internal_bot') +
+    api.properties(buildername=builder,
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   internal_bot_id='0') +
+    api.path.exists(
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skimage', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skp', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
+        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
+    )
   )

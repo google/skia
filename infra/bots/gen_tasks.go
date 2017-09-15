@@ -60,6 +60,10 @@ var (
 	// dimensions for the given task.
 	alternateSwarmDimensions func(parts map[string]string) []string
 
+	// internalBotIdFn can be set in an init function to provide an
+	// internal_bot_id variable to the recipe.
+	internalBotIdFn func(parts map[string]string) *string
+
 	// Defines the structure of job names.
 	jobNameSchema *JobNameSchema
 
@@ -81,6 +85,14 @@ var (
 	cfgFile               = flag.String("cfg_file", "", "JSON file containing general configuration information.")
 	jobsFile              = flag.String("jobs", "", "JSON file containing jobs to run.")
 )
+
+// internalBotId returns the internal ID for the bot, if any.
+func internalBotId(parts map[string]string) *string {
+	if internalBotIdFn != nil {
+		return internalBotIdFn(parts)
+	}
+	return nil
+}
 
 // linuxGceDimensions are the Swarming dimensions for Linux GCE
 // instances.
@@ -714,6 +726,10 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		// skia:6737
 		s.ExecutionTimeout = 6 * time.Hour
 	}
+	iid := internalBotId(parts)
+	if iid != nil {
+		s.ExtraArgs = append(s.ExtraArgs, fmt.Sprintf("internal_bot_id=%s", *iid))
+	}
 	b.MustAddTask(name, s)
 
 	// Upload results if necessary.
@@ -803,6 +819,10 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	} else if parts["arch"] == "x86" && parts["configuration"] == "Debug" {
 		// skia:6737
 		s.ExecutionTimeout = 6 * time.Hour
+	}
+	iid := internalBotId(parts)
+	if iid != nil {
+		s.ExtraArgs = append(s.ExtraArgs, fmt.Sprintf("internal_bot_id=%s", *iid))
 	}
 	b.MustAddTask(name, s)
 
