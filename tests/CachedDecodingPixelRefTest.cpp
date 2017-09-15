@@ -18,6 +18,7 @@
 #include "SkUtils.h"
 
 #include "Test.h"
+#include "sk_tool_utils.h"
 
 class TestImageGenerator : public SkImageGenerator {
 public:
@@ -29,7 +30,7 @@ public:
     static int Width() { return 10; }
     static int Height() { return 10; }
     // value choosen so that there is no loss when converting to to RGB565 and back
-    static SkColor Color() { return 0xff10355a; }
+    static SkColor Color() { return sk_tool_utils::color_to_565(0xffaabbcc); }
     static SkPMColor PMColor() { return SkPreMultiplyColor(Color()); }
 
     TestImageGenerator(TestType type, skiatest::Reporter* reporter,

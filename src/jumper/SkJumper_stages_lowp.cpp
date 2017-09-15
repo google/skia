@@ -109,6 +109,8 @@ SI U16 if_then_else(I16 c, U16 t, U16 e) { return (t & c) | (e & ~c); }
 
 SI U16 max(U16 x, U16 y) { return if_then_else(x < y, y, x); }
 SI U16 min(U16 x, U16 y) { return if_then_else(x < y, x, y); }
+SI U16 max(U16 x, U16 y, U16 z) { return max(x, max(y, z)); }
+SI U16 min(U16 x, U16 y, U16 z) { return min(x, min(y, z)); }
 
 SI U16 from_float(float f) { return f * 255.0f + 0.5f; }
 
@@ -412,7 +414,10 @@ SI void store_565(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b) {
                    | B <<  0);
 }
 
-// TODO: load_565
+STAGE(load_565, const SkJumper_MemoryCtx* ctx) {
+    load_565(ptr_at_xy<const uint16_t>(ctx, x,y), tail, &r,&g,&b);
+    a = 255;
+}
 STAGE(load_565_dst, const SkJumper_MemoryCtx* ctx) {
     load_565(ptr_at_xy<const uint16_t>(ctx, x,y), tail, &dr,&dg,&db);
     da = 255;
@@ -450,19 +455,15 @@ STAGE(load_g8_dst, const SkJumper_MemoryCtx* ctx) {
     dr = dg = db = load_8(ptr_at_xy<const uint8_t>(ctx, x,y), tail);
     da = 255;
 }
-// TODO: luminance_to_alpha (≈ store_g8)
+STAGE(luminance_to_alpha, Ctx::None) {
+    a = (r*54 + g*183 + b*19)/256;  // 0.2126, 0.7152, 0.0722 with 256 denominator.
+    r = g = b = 0;
+}
 
 // ~~~~~~ Coverage scales / lerps ~~~~~~ //
 
 STAGE(scale_1_float, const float* f) {
     U16 c = from_float(*f);
-    r = div255( r * c );
-    g = div255( g * c );
-    b = div255( b * c );
-    a = div255( a * c );
-}
-STAGE(scale_u8, const SkJumper_MemoryCtx* ctx) {
-    U16 c = load_8(ptr_at_xy<const uint8_t>(ctx, x,y), tail);
     r = div255( r * c );
     g = div255( g * c );
     b = div255( b * c );
@@ -475,6 +476,14 @@ STAGE(lerp_1_float, const float* f) {
     b = lerp(db, b, c);
     a = lerp(da, a, c);
 }
+
+STAGE(scale_u8, const SkJumper_MemoryCtx* ctx) {
+    U16 c = load_8(ptr_at_xy<const uint8_t>(ctx, x,y), tail);
+    r = div255( r * c );
+    g = div255( g * c );
+    b = div255( b * c );
+    a = div255( a * c );
+}
 STAGE(lerp_u8, const SkJumper_MemoryCtx* ctx) {
     U16 c = load_8(ptr_at_xy<const uint8_t>(ctx, x,y), tail);
     r = lerp(dr, r, c);
@@ -483,7 +492,31 @@ STAGE(lerp_u8, const SkJumper_MemoryCtx* ctx) {
     a = lerp(da, a, c);
 }
 
-// TODO: scale_565, lerp_565
+// Derive alpha's coverage from rgb coverage and the values of src and dst alpha.
+SI U16 alpha_coverage_from_rgb_coverage(U16 a, U16 da, U16 cr, U16 cg, U16 cb) {
+    return if_then_else(a < da, min(cr,cg,cb)
+                              , max(cr,cg,cb));
+}
+STAGE(scale_565, const SkJumper_MemoryCtx* ctx) {
+    U16 cr,cg,cb;
+    load_565(ptr_at_xy<const uint16_t>(ctx, x,y), tail, &cr,&cg,&cb);
+    U16 ca = alpha_coverage_from_rgb_coverage(a,da, cr,cg,cb);
+
+    r = div255( r * cr );
+    g = div255( g * cg );
+    b = div255( b * cb );
+    a = div255( a * ca );
+}
+STAGE(lerp_565, const SkJumper_MemoryCtx* ctx) {
+    U16 cr,cg,cb;
+    load_565(ptr_at_xy<const uint16_t>(ctx, x,y), tail, &cr,&cg,&cb);
+    U16 ca = alpha_coverage_from_rgb_coverage(a,da, cr,cg,cb);
+
+    r = lerp(dr, r, cr);
+    g = lerp(dg, g, cg);
+    b = lerp(db, b, cb);
+    a = lerp(da, a, ca);
+}
 
 // ~~~~~~ Compound stages ~~~~~~ //
 
