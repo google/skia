@@ -1025,6 +1025,9 @@ bool GLSLCodeGenerator::generateCode() {
     fOut = rawOut;
 
     write_stringstream(fHeader, *rawOut);
+    if (this->usesPrecisionModifiers()) {
+        this->writeLine("precision mediump float;");
+    }
     write_stringstream(body, *rawOut);
     return true;
 }

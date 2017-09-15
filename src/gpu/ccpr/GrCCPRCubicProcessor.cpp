@@ -124,7 +124,7 @@ void GrCCPRCubicProcessor::emitPerVertexGeometryCode(SkString* fnBody, const cha
                                                      const char* /*coverage*/,
                                                      const char* /*wind*/) const {
     fnBody->appendf("highfloat3 klm = highfloat3(%s, 1) * %s;", position, fKLMMatrix.c_str());
-    fnBody->appendf("highfloat d = dot(float3(%s, 1), %s);",
+    fnBody->appendf("highfloat d = dot(highfloat3(%s, 1), %s);",
                     position, fEdgeDistanceEquation.c_str());
     fnBody->appendf("%s = highfloat4(klm, d);", fKLMD.gsOut());
     this->onEmitPerVertexGeometryCode(fnBody);
