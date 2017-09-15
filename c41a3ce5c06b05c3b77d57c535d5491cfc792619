@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a547c2ed_9d801cd5",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-15T15:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "420fea76_036dd853",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "89c966d0_2ab35216",
         "filename": "src/gpu/GrDrawOpAtlas.cpp",
         "patchSetId": 7
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fc725762_f36823fa",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-15T15:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89c966d0_2ab35216",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d9075700_e5fdc3fb",
         "filename": "src/gpu/GrDrawOpAtlas.cpp",
         "patchSetId": 7
@@ -47,6 +83,24 @@
       "writtenOn": "2017-09-15T13:24:33Z",
       "side": 1,
       "message": "This same block of code seems to appear several times. Would it make sense to share it?",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72ecf215_1a38d1b3",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-15T15:08:32Z",
+      "side": 1,
+      "message": "I\u0027m not sure I can -- it\u0027s conditional on addSubImage whether we return.",
+      "parentUuid": "d9075700_e5fdc3fb",
       "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "4ff6110e_312d97ab",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-15T15:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50017155_b9214d11",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d4fe4e90_fd7ccef6",
         "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
         "patchSetId": 7
@@ -84,6 +156,24 @@
       "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5840744_2efaa60d",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-15T15:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d4fe4e90_fd7ccef6",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "d645d516_20822ff3",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-15T15:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "475c2b5d_106a2341",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06050b5c_3d803be2",
         "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
         "patchSetId": 7
@@ -118,6 +226,24 @@
       "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07e04919_aba06f0f",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-15T15:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06050b5c_3d803be2",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "b852c237_673ebb0a",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-15T15:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80ea2b38_d6f8e3e2",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3d424770_1953c83f",
         "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
         "patchSetId": 7
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "330a83c0_b79ac876",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-15T15:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d424770_1953c83f",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e44c83ee_589ee200",
         "filename": "src/gpu/text/GrAtlasTextBlob_regenInOp.cpp",
         "patchSetId": 7
@@ -169,6 +331,24 @@
       "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2a168ef_8af422eb",
+        "filename": "src/gpu/text/GrAtlasTextBlob_regenInOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-15T15:08:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e44c83ee_589ee200",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
