@@ -9,7 +9,7 @@
 #include "SkPM4f.h"
 #include "SkArenaAlloc.h"
 #include "SkBitmap.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
