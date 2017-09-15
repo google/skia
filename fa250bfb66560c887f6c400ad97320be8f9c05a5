@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4930b5bf_c73e37a2",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-15T18:40:38Z",
+      "side": 1,
+      "message": "This could be removed now; I just wanted to have an example in place before you added your change.",
+      "range": {
+        "startLine": 1101,
+        "startChar": 0,
+        "endLine": 1118,
+        "endChar": 3
+      },
+      "revId": "fa250bfb66560c887f6c400ad97320be8f9c05a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
