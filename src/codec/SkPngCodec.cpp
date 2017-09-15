@@ -7,7 +7,7 @@
 
 #include "SkBitmap.h"
 #include "SkCodecPriv.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpace.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorTable.h"

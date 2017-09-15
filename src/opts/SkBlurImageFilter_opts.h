@@ -8,7 +8,7 @@
 #ifndef SkBlurImageFilter_opts_DEFINED
 #define SkBlurImageFilter_opts_DEFINED
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkRect.h"
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2

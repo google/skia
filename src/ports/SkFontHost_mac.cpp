@@ -22,7 +22,7 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkAutoMalloc.h"
 #include "SkCGUtils.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkDescriptor.h"
 #include "SkEndian.h"
 #include "SkFloatingPoint.h"
@@ -1050,7 +1050,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     glyph->fHeight = SkToU16(skIBounds.height());
 }
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 
 static void build_power_table(uint8_t table[]) {
     for (int i = 0; i < 256; i++) {

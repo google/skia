@@ -6,7 +6,7 @@
  */
 
 #include "SkBlendModePriv.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkMathPriv.h"
 #include "SkOnce.h"
 #include "SkOpts.h"

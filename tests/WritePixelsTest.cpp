@@ -6,7 +6,7 @@
  */
 
 #include "SkCanvas.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkMathPriv.h"
 #include "SkSurface.h"
 #include "Test.h"

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkEndian.h"
 #include "SkFDot6.h"
 #include "SkFixed.h"

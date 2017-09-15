@@ -11,7 +11,7 @@
 
 #include "SkBitmap.h"
 #include "SkCGUtils.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkData.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"

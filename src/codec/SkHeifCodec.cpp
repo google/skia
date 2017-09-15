@@ -10,7 +10,7 @@
 #ifdef SK_HAS_HEIF_LIBRARY
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpace_Base.h"
 #include "SkEndian.h"
 #include "SkStream.h"

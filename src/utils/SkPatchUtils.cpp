@@ -7,7 +7,7 @@
 
 #include "SkPatchUtils.h"
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpace_Base.h"
 #include "SkGeometry.h"
 #include "SkPM4f.h"

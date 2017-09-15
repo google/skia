@@ -6,7 +6,7 @@
  */
 
 #include "SkShadowTessellator.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkDrawShadowInfo.h"
 #include "SkGeometry.h"
 #include "SkInsetConvexPolygon.h"

@@ -8,7 +8,7 @@
 #ifndef SkPM4fPriv_DEFINED
 #define SkPM4fPriv_DEFINED
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
 #include "SkArenaAlloc.h"

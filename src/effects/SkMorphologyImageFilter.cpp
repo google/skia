@@ -8,7 +8,7 @@
 #include "SkMorphologyImageFilter.h"
 
 #include "SkBitmap.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
 #include "SkOpts.h"
 #include "SkReadBuffer.h"

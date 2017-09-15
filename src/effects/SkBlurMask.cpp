@@ -409,7 +409,7 @@ static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
 
 
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 
 static void merge_src_with_blur(uint8_t dst[], int dstRB,
                                 const uint8_t src[], int srcRB,

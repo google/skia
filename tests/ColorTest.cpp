@@ -6,7 +6,7 @@
  */
 
 #include "SkColor.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkMathPriv.h"
 #include "SkRandom.h"
 #include "SkUnPreMultiply.h"

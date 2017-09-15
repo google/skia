@@ -6,7 +6,7 @@
  */
 
 #include "SkCodecPriv.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkHalf.h"
 #include "SkOpts.h"
 #include "SkSwizzler.h"

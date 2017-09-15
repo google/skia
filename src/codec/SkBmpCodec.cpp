@@ -10,7 +10,7 @@
 #include "SkBmpRLECodec.h"
 #include "SkBmpStandardCodec.h"
 #include "SkCodecPriv.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkStream.h"
 
 /*

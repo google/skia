@@ -14,7 +14,7 @@
 #include "SkArenaAlloc.h"
 #include "SkAutoMalloc.h"
 #include "SkClampRange.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpace.h"
 #include "SkOnce.h"
 #include "SkPM4fPriv.h"

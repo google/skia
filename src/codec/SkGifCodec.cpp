@@ -32,7 +32,7 @@
 
 #include "SkCodecAnimation.h"
 #include "SkCodecPriv.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorTable.h"
 #include "SkGifCodec.h"
 #include "SkMakeUnique.h"

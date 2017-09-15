@@ -7,7 +7,7 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkConvertPixels.h"
 #include "SkData.h"
 #include "SkImageInfoPriv.h"

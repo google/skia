@@ -6,7 +6,7 @@
  */
 
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 
 /*
     Filter_32_opaque

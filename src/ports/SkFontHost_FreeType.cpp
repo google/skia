@@ -8,7 +8,7 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkDescriptor.h"
 #include "SkFDot6.h"
 #include "SkFontDescriptor.h"

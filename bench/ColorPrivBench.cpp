@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "Benchmark.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkRandom.h"
 #include "SkString.h"
 

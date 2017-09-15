@@ -6,7 +6,7 @@
  */
 
 #include "SkColorMatrixFilterRowMajor255.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkNx.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"

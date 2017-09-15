@@ -9,7 +9,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkFDot6.h"
 #include "SkFontHost_FreeType_common.h"
 #include "SkPath.h"

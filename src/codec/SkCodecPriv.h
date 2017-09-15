@@ -8,7 +8,7 @@
 #ifndef SkCodecPriv_DEFINED
 #define SkCodecPriv_DEFINED
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpaceXform.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
