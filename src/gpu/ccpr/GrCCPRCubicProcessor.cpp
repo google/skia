@@ -124,7 +124,7 @@ void GrCCPRCubicProcessor::emitPerVertexGeometryCode(SkString* fnBody, const cha
                                                      const char* /*coverage*/,
                                                      const char* /*wind*/) const {
     fnBody->appendf("highfloat3 klm = highfloat3(%s, 1) * %s;", position, fKLMMatrix.c_str());
-    fnBody->appendf("highfloat d = dot(float3(%s, 1), %s);",
+    fnBody->appendf("highfloat d = dot(highfloat3(%s, 1), %s);",
                     position, fEdgeDistanceEquation.c_str());
     fnBody->appendf("%s = highfloat4(klm, d);", fKLMD.gsOut());
     this->onEmitPerVertexGeometryCode(fnBody);
@@ -202,7 +202,7 @@ void GrCCPRCubicCornerProcessor::emitShaderCoverage(GrGLSLFragmentBuilder* f,
 
     // Use software msaa to estimate actual coverage at the corner pixels.
     const int sampleCount = this->defineSoftSampleLocations(f, "samples");
-    f->codeAppendf("highfloat4 klmd_center = float4(%s.xyz, %s.w + 0.5);",
+    f->codeAppendf("highfloat4 klmd_center = highfloat4(%s.xyz, %s.w + 0.5);",
                    fKLMD.fsIn(), fKLMD.fsIn());
     f->codeAppendf("for (int i = 0; i < %i; ++i) {", sampleCount);
     f->codeAppend (    "highfloat4 klmd = grad_klmd * samples[i] + klmd_center;");
