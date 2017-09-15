@@ -126,7 +126,7 @@ public:
 
     void freeAll();
 
-    // if getProxies returns nullptr, the client must not try to use other functions on the
+    // if getProxy returns nullptr, the client must not try to use other functions on the
     // GrAtlasGlyphCache which use the atlas.  This function *must* be called first, before other
     // functions which use the atlas.
     const sk_sp<GrTextureProxy>* getProxies(GrMaskFormat format) {
@@ -134,13 +134,6 @@ public:
             return this->getAtlas(format)->getProxies();
         }
         return nullptr;
-    }
-
-    uint32_t getAtlasPageCount(GrMaskFormat format) {
-        if (this->initAtlas(format)) {
-            return this->getAtlas(format)->pageCount();
-        }
-        return 0;
     }
 
     bool hasGlyph(GrGlyph* glyph) {

@@ -39,19 +39,11 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
             u1 = u0 + width;
             v1 = v0 + height;
         }
-        // We pack the 2bit page index in the low bit of the u and v texture coords
-        uint32_t pageIndex = glyph->pageIndex();
-        SkASSERT(pageIndex < 4);
-        uint16_t uBit = (pageIndex >> 1) & 0x1;
-        uint16_t vBit = pageIndex & 0x1;
+        // shift to make space for index bits
         u0 <<= 1;
-        u0 |= uBit;
         v0 <<= 1;
-        v0 |= vBit;
         u1 <<= 1;
-        u1 |= uBit;
         v1 <<= 1;
-        v1 |= vBit;
     }
 
     // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color
