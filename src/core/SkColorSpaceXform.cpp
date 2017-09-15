@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpace_A2B.h"
 #include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"

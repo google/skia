@@ -8,7 +8,7 @@
 #include "SkBitmapCache.h"
 #include "SkBitmapController.h"
 #include "SkBitmapProcState.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkPaint.h"
 #include "SkShader.h"   // for tilemodes
 #include "SkUtilsArm.h"
