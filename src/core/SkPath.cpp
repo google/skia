@@ -2040,6 +2040,43 @@ SkPath::Verb SkPath::Iter::doNext(SkPoint ptsParam[4]) {
     Format in compressed buffer: [ptCount, verbCount, pts[], verbs[]]
 */
 
+namespace {
+
+enum class SerializationType : uint8_t { kRRect = 0, kGeneral = 1 };
+
+struct RRectData {
+    SkRRect fRRect;
+    union {
+        uint32_t fPacked;
+        struct {
+            unsigned fStartIndex : 3;
+            unsigned fIsCCW : 1;
+            unsigned fVolatile : 1;
+        } fPackedFields;
+    };
+};
+static_assert(sizeof(RRectData) == sizeof(SkRRect) + sizeof(uint32_t), "unexpected size");
+
+}  // anonymous namespace
+
+static bool serialize_as_rrect(const SkPathRef* ref, bool isVolatile, SkWBuffer* buffer) {
+    SkRect oval;
+    RRectData rrectData;
+    bool isCCW;
+    unsigned start;
+    if (ref->isOval(&oval, &isCCW, &start)) {
+        rrectData.fRRect.setOval(oval);
+        // Convert to rrect start indices.
+        start *= 2;
+    } else if (!ref->isRRect(&rrectData.fRRect, &isCCW, &start)) {
+        return false;
+    }
+    rrectData.fPackedFields.fIsCCW = isCCW ? 1 : 0;
+    rrectData.fPackedFields.fStartIndex = start;
+    rrectData.fPackedFields.fVolatile = isVolatile ? 1 : 0;
+    buffer->
+}
+
 size_t SkPath::writeToMemory(void* storage) const {
     SkDEBUGCODE(this->validate();)
 
@@ -2049,6 +2086,8 @@ size_t SkPath::writeToMemory(void* storage) const {
     }
 
     SkWBuffer   buffer(storage);
+
+    SerializationType type = SerializationType::kGeneral;
 
     int32_t packed = (fConvexity << kConvexity_SerializationShift) |
                      (fFillType << kFillType_SerializationShift) |
@@ -2083,6 +2122,32 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     unsigned version = packed & 0xFF;
     if (version >= kPathPrivLastMoveToIndex_Version && !buffer.readS32(&fLastMoveToIndex)) {
         return 0;
+    }
+    if (version >= kPathPrivTypeEnumVersion) {
+        SerializationType type = (packed >> kType_SerializationShift) & 0xF;
+        switch (type) {
+            case SerializationType::kRRect: {
+                RRectData rrectData;
+                if (!rrectData.fRRect.readFromMemory(reinterpret_cast<const char*>(storage) + buffer.pos(), buffer.available())) {
+                    return 0;
+                }
+                if (!rrectData.fRRect.isValid()) {
+                    return 0;
+                }
+                if (!buffer.readU32(&rrectData.fPacked)) {
+                    return 0;
+                }
+                this->reset();
+                SkPath::Direction dir = rrectData.fPackedFields.fIsCCW ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
+                this->addRRect(rrectData.fRRect, dir, rrectData.fPackedFields.fStartIndex);
+                break;
+            }
+            case SerializationType::kGeneral:
+                // Fall through to general path deserialization
+                break;
+            default:
+                return 0;
+        }
     }
 
     fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;

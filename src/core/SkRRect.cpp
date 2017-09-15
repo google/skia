@@ -6,6 +6,7 @@
  */
 
 #include <cmath>
+#include "SkBuffer.h"
 #include "SkRRect.h"
 #include "SkMatrix.h"
 #include "SkScaleToSides.h"
@@ -456,10 +457,19 @@ void SkRRect::inset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 size_t SkRRect::writeToMemory(void* buffer) const {
+    static_assert(sizeof(SkRRect) == SkRRect::kSizeInMemory + sizeof(fType), "Unexpected layout");
+    static_assert(kSizeInMemory == offsetof(SkRRect, fType), "Unexpected layout");
     // Serialize only the rect and corners, but not the derived type tag.
     memcpy(buffer, this, kSizeInMemory);
     return kSizeInMemory;
 }
+
+void SkRRect::writeToBuffer(SkWBuffer* buffer) const {
+    static_assert(sizeof(SkRRect) == SkRRect::kSizeInMemory + sizeof(fType), "Unexpected layout");
+    static_assert(kSizeInMemory == offsetof(SkRRect, fType), "Unexpected layout");
+    buffer->write(this, kSizeInMemory);
+}
+
 
 size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
     if (length < kSizeInMemory) {
@@ -471,6 +481,14 @@ size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
     this->computeType();
 
     return kSizeInMemory;
+}
+
+bool SkRRect::readFromBuffer(SkRBuffer* buffer) {
+    if (!buffer->read(this, kSizeInMemory)) {
+        return false;
+    }
+    this->computeType();
+    return true;
 }
 
 #include "SkString.h"
@@ -501,7 +519,86 @@ void SkRRect::dump(bool asHex) const {
  *  We need all combinations of predicates to be true to have a "safe" radius value.
  */
 static bool are_radius_check_predicates_valid(SkScalar rad, SkScalar min, SkScalar max) {
-    return (min <= max) && (rad <= max - min) && (min + rad <= max) && (max - rad >= min);
+    return (min < max) && (rad <= max - min) && (min + rad <= max) && (max - rad >= min);
+}
+
+bool SkRRect::validateAndGetType(int32_t* type) {
+    bool allRadiiZero = (0 == fRadii[0].fX && 0 == fRadii[0].fY);
+    bool allCornersSquare = (0 == fRadii[0].fX || 0 == fRadii[0].fY);
+    bool allRadiiSame = true;
+
+    for (int i = 1; i < 4; ++i) {
+        if (0 != fRadii[i].fX || 0 != fRadii[i].fY) {
+            allRadiiZero = false;
+        }
+
+        if (fRadii[i].fX != fRadii[i-1].fX || fRadii[i].fY != fRadii[i-1].fY) {
+            allRadiiSame = false;
+        }
+
+        if (0 != fRadii[i].fX && 0 != fRadii[i].fY) {
+            allCornersSquare = false;
+        }
+    }
+    bool patchesOfNine = radii_are_nine_patch(fRadii);
+
+    //  OK TO REJECT INFINITE RRECTS?
+    if (!fRect.isFinite()) {
+        return false;
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        if (!are_radius_check_predicates_valid(fRadii[i].fX, fRect.fLeft, fRect.fRight) ||
+            !are_radius_check_predicates_valid(fRadii[i].fY, fRect.fTop, fRect.fBottom)) {
+            return false;
+        }
+    }
+    if (fRect.isEmpty()) {
+        SkASSERT(allRadiiZero && allRadiiSame && allCornersSquare);
+        return kEmpty_Type;
+    }
+    if (f)
+    switch (fType) {
+    case kEmpty_Type:
+        if (fRect.isEmpty() || !allRadiiZero || !allRadiiSame || !allCornersSquare) {
+            return false;
+        }
+        break;
+    case kRect_Type:
+        if (fRect.isEmpty() || !allRadiiZero || !allRadiiSame || !allCornersSquare) {
+            return false;
+        }
+        break;
+    case kOval_Type:
+        if (fRect.isEmpty() || allRadiiZero || !allRadiiSame || allCornersSquare) {
+            return false;
+        }
+
+        for (int i = 0; i < 4; ++i) {
+            if (!SkScalarNearlyEqual(fRadii[i].fX, SkScalarHalf(fRect.width())) ||
+                !SkScalarNearlyEqual(fRadii[i].fY, SkScalarHalf(fRect.height()))) {
+                return false;
+            }
+        }
+        break;
+    case kSimple_Type:
+        if (fRect.isEmpty() || allRadiiZero || !allRadiiSame || allCornersSquare) {
+            return false;
+        }
+        break;
+    case kNinePatch_Type:
+        if (fRect.isEmpty() || allRadiiZero || allRadiiSame || allCornersSquare || !patchesOfNine) {
+            return false;
+        }
+        break;
+    case kComplex_Type:
+        if (fRect.isEmpty() || allRadiiZero || allRadiiSame || allCornersSquare || patchesOfNine) {
+            return false;
+        }
+        break;
+    }
+
+    return true;
 }
 
 bool SkRRect::isValid() const {
@@ -527,10 +624,14 @@ bool SkRRect::isValid() const {
     if (fType > kLastType) {
         return false;
     }
+    //  OK TO REJECT INFINITE RRECTS?
+    if (!fRect.isFinite()) {
+        return false;
+    }
 
     switch (fType) {
         case kEmpty_Type:
-            if (!fRect.isEmpty() || !allRadiiZero || !allRadiiSame || !allCornersSquare) {
+            if (fRect.isEmpty() || !allRadiiZero || !allRadiiSame || !allCornersSquare) {
                 return false;
             }
             break;
@@ -557,14 +658,12 @@ bool SkRRect::isValid() const {
             }
             break;
         case kNinePatch_Type:
-            if (fRect.isEmpty() || allRadiiZero || allRadiiSame || allCornersSquare ||
-                !patchesOfNine) {
+            if (fRect.isEmpty() || allRadiiZero || allRadiiSame || allCornersSquare || !patchesOfNine) {
                 return false;
             }
             break;
         case kComplex_Type:
-            if (fRect.isEmpty() || allRadiiZero || allRadiiSame || allCornersSquare ||
-                patchesOfNine) {
+            if (fRect.isEmpty() || allRadiiZero || allRadiiSame || allCornersSquare || patchesOfNine) {
                 return false;
             }
             break;
