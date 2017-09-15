@@ -123,6 +123,24 @@
       "revId": "0b231c1c320b6c6fc1078d7b3624521012424073",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e72eeda8_3bdd5772",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2079,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-09-15T13:55:38Z",
+      "side": 1,
+      "message": "Ah, sorry; I missed your second patch set. Looks fine w/uNit.",
+      "parentUuid": "b44e29b5_f1131abd",
+      "revId": "0b231c1c320b6c6fc1078d7b3624521012424073",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
