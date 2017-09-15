@@ -26,11 +26,7 @@ SkStreamAsset* SkTypeface_FCI::onOpenStream(int* ttcIndex) const {
         if (!stream) {
             return nullptr;
         }
-#ifdef SK_SUPPORT_LEGACY_STREAM_API
         return stream->duplicate();
-#else
-        return stream->duplicate().release();
-#endif
     }
 
     return fFCI->openStream(this->getIdentity());

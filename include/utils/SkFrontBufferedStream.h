@@ -8,7 +8,10 @@
 #ifndef SkFrontBufferedStream_DEFINED
 #define SkFrontBufferedStream_DEFINED
 
-#include "SkStream.h"
+#include "SkTypes.h"
+
+class SkStream;
+class SkStreamRewindable;
 
 /**
  *  Specialized stream that buffers the first X bytes of a stream,
@@ -33,13 +36,6 @@ public:
      *      NULL on failure. The caller is required to delete when finished with
      *      this object.
      */
-    static std::unique_ptr<SkStreamRewindable> Make(std::unique_ptr<SkStream> stream,
-                                                    size_t minBufferSize);
-
-#ifdef SK_SUPPORT_LEGACY_STREAM_API
-    static SkStreamRewindable* Create(SkStream* stream, size_t minBufferSize) {
-        return Make(std::unique_ptr<SkStream>(stream), minBufferSize).release();
-    }
-#endif
+    static SkStreamRewindable* Create(SkStream* stream, size_t minBufferSize);
 };
 #endif  // SkFrontBufferedStream_DEFINED

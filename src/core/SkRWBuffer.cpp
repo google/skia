@@ -315,9 +315,7 @@ public:
         return fBuffer->size() == fGlobalOffset;
     }
 
-#ifdef SK_SUPPORT_LEGACY_STREAM_API
     SkStreamAsset* duplicate() const override { return new SkROBufferStreamAsset(fBuffer); }
-#endif
 
     size_t getPosition() const override {
         return fGlobalOffset;
@@ -343,24 +341,14 @@ public:
         return true;
     }
 
-#ifdef SK_SUPPORT_LEGACY_STREAM_API
     SkStreamAsset* fork() const override {
         SkStreamAsset* clone = this->duplicate();
         clone->seek(this->getPosition());
         return clone;
     }
-#endif
+
 
 private:
-#ifndef SK_SUPPORT_LEGACY_STREAM_API
-    SkStreamAsset* onDuplicate() const override { return new SkROBufferStreamAsset(fBuffer); }
-    SkStreamAsset* onFork() const override {
-        auto clone = this->duplicate();
-        clone->seek(this->getPosition());
-        return clone.release();
-    }
-#endif
-
     sk_sp<SkROBuffer> fBuffer;
     SkROBuffer::Iter  fIter;
     size_t            fLocalOffset;

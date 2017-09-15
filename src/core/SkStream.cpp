@@ -15,14 +15,6 @@
 #include "SkOSFile.h"
 #include "SkTypes.h"
 
-#ifdef SK_SUPPORT_LEGACY_STREAM_API
-#define DUP_NAME    duplicate
-#define FORK_NAME   fork
-#else
-#define DUP_NAME    onDuplicate
-#define FORK_NAME   onFork
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -224,7 +216,7 @@ bool SkFILEStream::rewind() {
     return true;
 }
 
-SkStreamAsset* SkFILEStream::DUP_NAME() const {
+SkStreamAsset* SkFILEStream::duplicate() const {
     // TODO: fOriginalOffset instead of 0.
     return new SkFILEStream(fFILE, fSize, 0, fOriginalOffset);
 }
@@ -242,7 +234,7 @@ bool SkFILEStream::move(long offset) {
     return this->seek(fOffset + offset);
 }
 
-SkStreamAsset* SkFILEStream::FORK_NAME() const {
+SkStreamAsset* SkFILEStream::fork() const {
     return new SkFILEStream(fFILE, fSize, fOffset, fOriginalOffset);
 }
 
@@ -350,14 +342,7 @@ bool SkMemoryStream::rewind() {
     return true;
 }
 
-#ifdef SK_SUPPORT_LEGACY_STREAM_API
-SkMemoryStream* SkMemoryStream::duplicate() const
-#else
-SkMemoryStream* SkMemoryStream::onDuplicate() const
-#endif
-{
-    return new SkMemoryStream(fData);
-}
+SkMemoryStream* SkMemoryStream::duplicate() const { return new SkMemoryStream(fData); }
 
 size_t SkMemoryStream::getPosition() const {
     return fOffset;
@@ -374,7 +359,7 @@ bool SkMemoryStream::move(long offset) {
     return this->seek(fOffset + offset);
 }
 
-SkMemoryStream* SkMemoryStream::FORK_NAME() const {
+SkMemoryStream* SkMemoryStream::fork() const {
     std::unique_ptr<SkMemoryStream> that(this->duplicate());
     that->seek(fOffset);
     return that.release();
@@ -746,7 +731,7 @@ public:
         return true;
     }
 
-    SkBlockMemoryStream* DUP_NAME() const override {
+    SkBlockMemoryStream* duplicate() const override {
         return new SkBlockMemoryStream(fBlockMemory, fSize);
     }
 
@@ -775,12 +760,12 @@ public:
         return seek(fOffset + offset);
     }
 
-    SkBlockMemoryStream* FORK_NAME() const override {
-        SkBlockMemoryStream* that = this->DUP_NAME();
+    SkBlockMemoryStream* fork() const override {
+        std::unique_ptr<SkBlockMemoryStream> that(this->duplicate());
         that->fCurrent = this->fCurrent;
         that->fOffset = this->fOffset;
         that->fCurrentOffset = this->fCurrentOffset;
-        return that;
+        return that.release();
     }
 
     size_t getLength() const override {
