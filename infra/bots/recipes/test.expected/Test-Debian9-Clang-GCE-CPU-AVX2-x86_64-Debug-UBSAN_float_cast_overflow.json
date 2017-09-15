@@ -523,7 +523,6 @@
       "~^PathBigCubic$",
       "~^PathOpsCubicIntersection$",
       "~^PathOpsCubicLineIntersection$",
-      "~^PathOpsFailOp$",
       "~^PathOpsOpCubicsThreaded$",
       "~^PathOpsOpLoopsThreaded$",
       "--verbose"
