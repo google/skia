@@ -7,7 +7,7 @@
 
 #include "SkMipMap.h"
 #include "SkBitmap.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkHalf.h"
 #include "SkMathPriv.h"
 #include "SkNx.h"

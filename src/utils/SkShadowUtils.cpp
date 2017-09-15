@@ -8,7 +8,7 @@
 #include "SkShadowUtils.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkDevice.h"
 #include "SkDrawShadowInfo.h"
 #include "SkPath.h"

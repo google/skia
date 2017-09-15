@@ -9,7 +9,7 @@
 #include "SkArenaAlloc.h"
 #include "SkBlitRow.h"
 #include "SkColorFilter.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
 #include "SkXfermodePriv.h"

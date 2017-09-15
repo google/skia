@@ -684,7 +684,7 @@ SkBlitter* SkBlitterClipper::apply(SkBlitter* blitter, const SkRegion* clip,
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkColorShader.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 
 class Sk3DShader : public SkShaderBase {
 public:

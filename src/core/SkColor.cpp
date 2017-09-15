@@ -6,7 +6,7 @@
  */
 
 #include "SkColor.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkFixed.h"
 
 SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
