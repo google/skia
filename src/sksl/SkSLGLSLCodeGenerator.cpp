@@ -966,6 +966,9 @@ void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
 void GLSLCodeGenerator::writeHeader() {
     this->write(fProgram.fSettings.fCaps->versionDeclString());
     this->writeLine();
+    if (this->usesPrecisionModifiers()) {
+        this->writeLine("precision mediump float;");
+    }
     for (const auto& e : fProgram.fElements) {
         if (e->fKind == ProgramElement::kExtension_Kind) {
             this->writeExtension((Extension&) *e);
