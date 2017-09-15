@@ -8,7 +8,7 @@
 #include "SkMagnifierImageFilter.h"
 
 #include "SkBitmap.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"

@@ -652,7 +652,7 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* metrics) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 
 static void bilevel_to_bw(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph) {
     const int width = glyph.fWidth;

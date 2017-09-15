@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkColorPriv_DEFINED
-#define SkColorPriv_DEFINED
+#ifndef SkColorData_DEFINED
+#define SkColorData_DEFINED
 
-#ifdef SK_PRIVATE_TO_SKIA
 // turn this own for extra debug checking when blending onto 565
 #ifdef SK_DEBUG
     #define CHECK_FOR_565_OVERFLOW
 #endif
 
 #include "SkColor.h"
+#include "SkColorPriv.h"
 #include "SkMath.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -174,8 +174,7 @@ static inline U8CPU SkComputeLuminance(U8CPU r, U8CPU g, U8CPU b) {
     return (r * 54 + g * 183 + b * 19) >> 8;
 }
 
-#endif
-
+#if 0
 /** Turn 0..255 into 0..256 by adding 1 at the half-way point. Used to turn a
     byte into a scale value, so that we can say scale * value >> 8 instead of
     alpha * value / 255.
@@ -188,8 +187,7 @@ static inline unsigned SkAlpha255To256(U8CPU alpha) {
     // even though it is less accurate than a+(a>>7) for non-opaque dsts
     return alpha + 1;
 }
-
-#if SK_PRIVATE_TO_SKIA
+#endif
 
 /**
  *  Turn a 0..255 value into a 0..256 value, rounding up if the value is >= 0x80.
@@ -357,37 +355,25 @@ static inline void SkBlendRGB16(const uint16_t src[], uint16_t dst[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#endif
-
-#define SK_A32_BITS     8
-
-#ifdef SK_PRIVATE_TO_SKIA
+// #define SK_A32_BITS     8
 
 #define SK_R32_BITS     8
 #define SK_G32_BITS     8
 #define SK_B32_BITS     8
 
-#endif
-
-#define SK_A32_MASK     ((1 << SK_A32_BITS) - 1)
-
-#ifdef SK_PRIVATE_TO_SKIA
+// #define SK_A32_MASK     ((1 << SK_A32_BITS) - 1)
 
 #define SK_R32_MASK     ((1 << SK_R32_BITS) - 1)
 #define SK_G32_MASK     ((1 << SK_G32_BITS) - 1)
 #define SK_B32_MASK     ((1 << SK_B32_BITS) - 1)
 
-#endif
+// #define SkGetPackedA32(packed)      ((uint32_t)((packed) << (24 - SK_A32_SHIFT)) >> 24)
+// #define SkGetPackedR32(packed)      ((uint32_t)((packed) << (24 - SK_R32_SHIFT)) >> 24)
+// #define SkGetPackedG32(packed)      ((uint32_t)((packed) << (24 - SK_G32_SHIFT)) >> 24)
+// #define SkGetPackedB32(packed)      ((uint32_t)((packed) << (24 - SK_B32_SHIFT)) >> 24)
 
-#define SkGetPackedA32(packed)      ((uint32_t)((packed) << (24 - SK_A32_SHIFT)) >> 24)    
-#define SkGetPackedR32(packed)      ((uint32_t)((packed) << (24 - SK_R32_SHIFT)) >> 24)
-#define SkGetPackedG32(packed)      ((uint32_t)((packed) << (24 - SK_G32_SHIFT)) >> 24)
-#define SkGetPackedB32(packed)      ((uint32_t)((packed) << (24 - SK_B32_SHIFT)) >> 24)
+//  #define SkA32Assert(a)  SkASSERT((unsigned)(a) <= SK_A32_MASK)
 
-#define SkA32Assert(a)  SkASSERT((unsigned)(a) <= SK_A32_MASK)
-
-#ifdef SK_PRIVATE_TO_SKIA
-    
 #define SkR32Assert(r)  SkASSERT((unsigned)(r) <= SK_R32_MASK)
 #define SkG32Assert(g)  SkASSERT((unsigned)(g) <= SK_G32_MASK)
 #define SkB32Assert(b)  SkASSERT((unsigned)(b) <= SK_B32_MASK)
@@ -418,12 +404,11 @@ static inline bool SkPMColorValid(SkPMColor c) {
     return valid;
 }
 
-#endif
-
 /**
  *  Pack the components into a SkPMColor, checking (in the debug version) that
  *  the components are 0..255, and are already premultiplied (i.e. alpha >= color)
  */
+#if 0
 static inline SkPMColor SkPackARGB32(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     SkA32Assert(a);
     SkASSERT(r <= a);
@@ -433,8 +418,7 @@ static inline SkPMColor SkPackARGB32(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return (a << SK_A32_SHIFT) | (r << SK_R32_SHIFT) |
            (g << SK_G32_SHIFT) | (b << SK_B32_SHIFT);
 }
-
-#ifdef SK_PRIVATE_TO_SKIA
+#endif
 
 static inline uint32_t SkPackPMColor_as_RGBA(SkPMColor c) {
     return SkPackARGB_as_RGBA(SkGetPackedA32(c), SkGetPackedR32(c),
@@ -561,8 +545,8 @@ static inline SkPMColor SkFastFourByteInterp(SkPMColor src,
     // scale = srcWeight + 1, but 7% slower
     return SkFastFourByteInterp256(src, dst, srcWeight + (srcWeight >> 7));
 }
-#endif
 
+#if 0
 /**
  *  Same as SkPackARGB32, but this version guarantees to not check that the
  *  values are premultiplied in the debug version.
@@ -571,8 +555,7 @@ static inline SkPMColor SkPackARGB32NoCheck(U8CPU a, U8CPU r, U8CPU g, U8CPU b) 
     return (a << SK_A32_SHIFT) | (r << SK_R32_SHIFT) |
            (g << SK_G32_SHIFT) | (b << SK_B32_SHIFT);
 }
-
-#if SK_PRIVATE_TO_SKIA
+#endif
 
 static inline
 SkPMColor SkPremultiplyARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
@@ -589,8 +572,7 @@ SkPMColor SkPremultiplyARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return SkPackARGB32(a, r, g, b);
 }
 
-#endif
-
+#if 0
 // When Android is compiled optimizing for size, SkAlphaMulQ doesn't get
 // inlined; forcing inlining significantly improves performance.
 static SK_ALWAYS_INLINE uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
@@ -604,8 +586,7 @@ static SK_ALWAYS_INLINE uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
 static inline SkPMColor SkPMSrcOver(SkPMColor src, SkPMColor dst) {
     return src + SkAlphaMulQ(dst, SkAlpha255To256(255 - SkGetPackedA32(src)));
 }
-
-#if SK_PRIVATE_TO_SKIA
+#endif
 
 /**
  * Interpolates between colors src and dst using [0,256] scale.
@@ -1111,7 +1092,5 @@ static inline void SkBlitLCD16OpaqueRow(SkPMColor dst[], const uint16_t mask[],
                                     opaqueDst);
     }
 }
-
-#endif
 
 #endif

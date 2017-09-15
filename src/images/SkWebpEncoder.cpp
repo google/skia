@@ -19,7 +19,7 @@
 #ifdef SK_HAS_WEBP_LIBRARY
 
 #include "SkBitmap.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpace_Base.h"
 #include "SkImageEncoderFns.h"
 #include "SkStream.h"

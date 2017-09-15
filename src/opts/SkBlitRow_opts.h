@@ -9,7 +9,7 @@
 #define SkBlitRow_opts_DEFINED
 
 #include "Sk4px.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkMSAN.h"
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2

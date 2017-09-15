@@ -8,7 +8,7 @@
 #include <emmintrin.h>
 #include "SkBitmapProcState_opts_SSE2.h"
 #include "SkBitmapProcState_utils.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkPaint.h"
 #include "SkUtils.h"
 
