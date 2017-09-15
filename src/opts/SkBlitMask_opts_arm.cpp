@@ -6,7 +6,7 @@
  */
 
 #include "SkColor.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkBlitMask.h"
 #include "SkUtilsArm.h"
 #include "SkBlitMask_opts_arm_neon.h"

@@ -8,7 +8,7 @@
 #include "SkAAClip.h"
 #include "SkAtomics.h"
 #include "SkBlitter.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkPath.h"
 #include "SkScan.h"
 #include "SkUtils.h"

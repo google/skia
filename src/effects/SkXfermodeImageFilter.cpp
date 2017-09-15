@@ -8,7 +8,7 @@
 #include "SkXfermodeImageFilter.h"
 #include "SkArithmeticImageFilter.h"
 #include "SkCanvas.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"

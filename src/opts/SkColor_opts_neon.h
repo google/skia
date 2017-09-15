@@ -9,7 +9,7 @@
 #define SkColor_opts_neon_DEFINED
 
 #include "SkTypes.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 
 #include <arm_neon.h>
 

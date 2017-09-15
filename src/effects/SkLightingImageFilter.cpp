@@ -7,7 +7,7 @@
 
 #include "SkLightingImageFilter.h"
 #include "SkBitmap.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
 #include "SkPoint3.h"
 #include "SkReadBuffer.h"
