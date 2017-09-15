@@ -7,7 +7,7 @@
 
 #include "SkBlitMask.h"
 #include "SkColor.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkOpts.h"
 
 SkBlitMask::BlitLCD16RowProc SkBlitMask::BlitLCD16RowFactory(bool isOpaque) {

@@ -9,7 +9,7 @@
 #include "SkBlendModePriv.h"
 #include "SkComposeShader.h"
 #include "SkColorFilter.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorShader.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
