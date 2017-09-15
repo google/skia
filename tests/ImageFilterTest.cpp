@@ -1941,7 +1941,7 @@ DEF_TEST(ImageFilterColorSpaceDAG, reporter) {
     REPORTER_ASSERT(reporter, filter->cloneCount() == 1u);
 }
 
-// Test SkXfermodeImageFilter::filterBounds with different blending modes.
+// Test XfermodeimageFilter::onFilterBounds with different blending modes.
 DEF_TEST(XfermodeImageFilterBounds, reporter) {
     SkIRect background_rect = SkIRect::MakeXYWH(0, 0, 100, 100);
     SkIRect foreground_rect = SkIRect::MakeXYWH(50, 50, 100, 100);
@@ -2049,50 +2049,8 @@ static void test_arithmetic_combinations(skiatest::Reporter* reporter, float v) 
     test_arithmetic_bounds(reporter, v, v, v, v, background, foreground, &crop, crop_rect);
 }
 
-// Test SkArithmeticImageFilter::filterBounds with different blending modes.
+// Test ArithmeticImageFilter::onFilterBounds with different blending modes.
 DEF_TEST(ArithmeticImageFilterBounds, reporter) {
     test_arithmetic_combinations(reporter, 1);
     test_arithmetic_combinations(reporter, 0.5);
-}
-
-// Test SkImageSource::filterBounds.
-DEF_TEST(ImageSourceBounds, reporter) {
-    sk_sp<SkImage> image(SkImage::MakeFromBitmap(make_gradient_circle(64, 64)));
-    // Default src and dst rects.
-    sk_sp<SkImageFilter> source1(SkImageSource::Make(image));
-    SkIRect imageBounds = SkIRect::MakeWH(64, 64);
-    SkIRect input(SkIRect::MakeXYWH(10, 20, 30, 40));  // The values don't matter.
-    REPORTER_ASSERT(reporter,
-                    imageBounds == source1->filterBounds(input, SkMatrix::I(),
-                                                         SkImageFilter::kForward_MapDirection));
-    REPORTER_ASSERT(reporter,
-                    imageBounds == source1->filterBounds(input, SkMatrix::I(),
-                                                         SkImageFilter::kReverse_MapDirection));
-    SkMatrix scale(SkMatrix::MakeScale(2));
-    SkIRect scaledBounds = SkIRect::MakeWH(128, 128);
-    REPORTER_ASSERT(reporter,
-                    scaledBounds == source1->filterBounds(input, scale,
-                                                          SkImageFilter::kForward_MapDirection));
-    REPORTER_ASSERT(reporter,
-                    scaledBounds == source1->filterBounds(input, scale,
-                                                          SkImageFilter::kReverse_MapDirection));
-
-    // Specified src and dst rects.
-    SkRect src(SkRect::MakeXYWH(0.5, 0.5, 100.5, 100.5));
-    SkRect dst(SkRect::MakeXYWH(-10.5, -10.5, 120.5, 120.5));
-    sk_sp<SkImageFilter> source2(SkImageSource::Make(image, src, dst, kMedium_SkFilterQuality));
-    REPORTER_ASSERT(reporter,
-                    dst.roundOut() == source2->filterBounds(input, SkMatrix::I(),
-                                                            SkImageFilter::kForward_MapDirection));
-    REPORTER_ASSERT(reporter,
-                    src.roundOut() == source2->filterBounds(input, SkMatrix::I(),
-                                                            SkImageFilter::kReverse_MapDirection));
-    scale.mapRect(&dst);
-    scale.mapRect(&src);
-    REPORTER_ASSERT(reporter,
-                    dst.roundOut() == source2->filterBounds(input, scale,
-                                                            SkImageFilter::kForward_MapDirection));
-    REPORTER_ASSERT(reporter,
-                    src.roundOut() == source2->filterBounds(input, scale,
-                                                            SkImageFilter::kReverse_MapDirection));
 }
