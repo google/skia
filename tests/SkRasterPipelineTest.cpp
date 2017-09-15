@@ -278,13 +278,18 @@ DEF_TEST(SkRasterPipeline_repeat_tiling, r) {
     // so v' becomes negative. :'(
 
     // Here's a regression test to make sure this doesn't happen.
-    float in [4] = {19133558.0f,0,0,0};
+    float  in[4 * SkJumper_kMaxStride];
     float out[4 * SkJumper_kMaxStride];
+    for (float& f : in) {
+        f = 0;
+    }
+    in[0] = 19133558.0f;
+
     SkJumper_TileCtx tile = { 9.0f, 1/9.0f };
 
     SkSTArenaAlloc<256> alloc;
     SkRasterPipeline p(&alloc);
-    p.append_constant_color(&alloc, in);
+    p.append(SkRasterPipeline::load_rgba, in);
     p.append(SkRasterPipeline::repeat_x, &tile);
     p.append(SkRasterPipeline::store_rgba, out);
     p.run(0,0,1,1);
