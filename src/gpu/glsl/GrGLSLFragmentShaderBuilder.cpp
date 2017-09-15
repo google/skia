@@ -85,7 +85,8 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
     , fCustomColorOutputIndex(-1)
     , fHasSecondaryOutput(false)
     , fUsedSampleOffsetArrays(0)
-    , fHasInitializedSampleMask(false) {
+    , fHasInitializedSampleMask(false)
+    , fForceHighPrecision(false) {
     fSubstageIndices.push_back(0);
 #ifdef SK_DEBUG
     fUsedProcessorFeatures = GrProcessor::kNone_RequiredFeatures;
