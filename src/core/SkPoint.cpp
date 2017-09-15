@@ -132,7 +132,7 @@ SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
     } else {
         double xx = dx;
         double yy = dy;
-        return (float)sqrt(xx * xx + yy * yy);
+        return sk_double_to_float(sqrt(xx * xx + yy * yy));
     }
 }
 

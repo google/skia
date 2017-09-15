@@ -547,7 +547,6 @@ def dm_flags(api, bot):
     match.append('~^PathOpsFailOp$')
     match.append('~^PathOpsOpCubicsThreaded$')
     match.append('~^PathOpsOpLoopsThreaded$')
-    match.append('~^Point$')
   if 'float_cast_overflow' in bot and 'GPU' in bot:
     # skia:4632
     match.append('~^GLPrograms$')

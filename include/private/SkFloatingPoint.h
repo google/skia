@@ -105,6 +105,14 @@ static inline int sk_float_saturate2int(float x) {
 #define sk_double_round2int(x)      (int)floor((x) + 0.5f)
 #define sk_double_ceil2int(x)       (int)ceil(x)
 
+// Cast double to float, ignoring any warning about finite values being cast to infinity.
+#if defined(__clang__)
+__attribute__((no_sanitize("float-cast-overflow")))
+#endif
+static inline float sk_double_to_float(double x) {
+    return static_cast<float>(x);
+}
+
 static const uint32_t kIEEENotANumber = 0x7fffffff;
 #define SK_FloatNaN                 (*SkTCast<const float*>(&kIEEENotANumber))
 #define SK_FloatInfinity            (+(float)INFINITY)

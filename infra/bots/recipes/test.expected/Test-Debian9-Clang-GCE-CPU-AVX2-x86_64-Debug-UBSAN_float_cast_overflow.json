@@ -528,7 +528,6 @@
       "~^PathOpsFailOp$",
       "~^PathOpsOpCubicsThreaded$",
       "~^PathOpsOpLoopsThreaded$",
-      "~^Point$",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",
