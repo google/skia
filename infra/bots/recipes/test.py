@@ -540,7 +540,6 @@ def dm_flags(api, bot):
     match.append('~^PathBigCubic$')
     match.append('~^PathOpsCubicIntersection$')
     match.append('~^PathOpsCubicLineIntersection$')
-    match.append('~^PathOpsFailOp$')
     match.append('~^PathOpsOpCubicsThreaded$')
     match.append('~^PathOpsOpLoopsThreaded$')
     match.append('~^Point$')
