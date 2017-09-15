@@ -146,6 +146,13 @@ SkRect SkImageSource::computeFastBounds(const SkRect& src) const {
     return fDstRect;
 }
 
+SkIRect SkImageSource::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                                          MapDirection direction) const {
+    SkRect bounds = kForward_MapDirection == direction ? fDstRect : fSrcRect;
+    ctm.mapRect(&bounds);
+    return bounds.roundOut();
+}
+
 #ifndef SK_IGNORE_TO_STRING
 void SkImageSource::toString(SkString* str) const {
     str->appendf("SkImageSource: (");
