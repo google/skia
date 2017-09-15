@@ -12,7 +12,7 @@
 #include "SkBlendModePriv.h"
 #include "SkBlitter.h"
 #include "SkCanvas.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkDevice.h"
 #include "SkDeviceLooper.h"
 #include "SkDraw.h"

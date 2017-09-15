@@ -9,7 +9,7 @@
 #include "SkJpegCodec.h"
 #include "SkJpegDecoderMgr.h"
 #include "SkCodecPriv.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpace_Base.h"
 #include "SkStream.h"
 #include "SkTemplates.h"

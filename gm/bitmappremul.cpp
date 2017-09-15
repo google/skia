@@ -8,7 +8,7 @@
 #include "gm.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 
 /**
  * This GM checks that bitmap pixels are unpremultiplied before being exported

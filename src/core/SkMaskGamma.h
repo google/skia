@@ -10,7 +10,7 @@
 
 #include "SkTypes.h"
 #include "SkColor.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkRefCnt.h"
 
 /**

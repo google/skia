@@ -8,7 +8,7 @@
 #include "SkBlurImageFilter.h"
 
 #include "SkAutoPixmapStorage.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
 #include "SkGpuBlurUtils.h"
 #include "SkOpts.h"

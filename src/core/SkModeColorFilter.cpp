@@ -9,7 +9,7 @@
 #include "SkBlendModePriv.h"
 #include "SkBlitRow.h"
 #include "SkColorFilter.h"
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
 #include "SkModeColorFilter.h"
 #include "SkPM4f.h"
