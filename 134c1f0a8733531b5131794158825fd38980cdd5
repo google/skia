@@ -16,6 +16,24 @@
       "revId": "134c1f0a8733531b5131794158825fd38980cdd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b0e9c61_3cdb2765",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-15T16:47:54Z",
+      "side": 1,
+      "message": "Done and done",
+      "parentUuid": "2267c1e9_687c8e6b",
+      "revId": "134c1f0a8733531b5131794158825fd38980cdd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
