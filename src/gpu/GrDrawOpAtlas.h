@@ -120,6 +120,7 @@ public:
     }
 
     static constexpr auto kMaxPages = 4;
+    uint32_t pageCount() { return fNumPages; }
 
     /**
      * A class which can be handed back to GrDrawOpAtlas for updating last use tokens in bulk.  The
@@ -190,6 +191,10 @@ public:
         return width > kGlyphMaxDim || height > kGlyphMaxDim;
     }
 
+    static uint32_t GetPageIndexFromID(AtlasID id) {
+        return id & 0xff;
+    }
+
 private:
     GrDrawOpAtlas(GrContext*, GrPixelConfig config, int width, int height,
                   int numPlotsX, int numPlotsY);
@@ -252,7 +257,7 @@ private:
         static GrDrawOpAtlas::AtlasID CreateId(uint32_t pageIdx, uint32_t plotIdx,
                                                uint64_t generation) {
             SkASSERT(pageIdx < (1 << 8));
-            SkASSERT(pageIdx == 0); // for now, we only support one page
+            SkASSERT(pageIdx < kMaxPages);
             SkASSERT(plotIdx < (1 << 8));
             SkASSERT(generation < ((uint64_t)1 << 48));
             return generation << 16 | plotIdx << 8 | pageIdx;
@@ -286,10 +291,6 @@ private:
 
     typedef SkTInternalLList<Plot> PlotList;
 
-    static uint32_t GetPageIndexFromID(AtlasID id) {
-        return id & 0xff;
-    }
-
     static uint32_t GetPlotIndexFromID(AtlasID id) {
         return (id >> 8) & 0xff;
     }
@@ -311,6 +312,8 @@ private:
 
         // TODO: make page MRU
     }
+
+    bool createNewPage();
 
     inline void processEviction(AtlasID);
 
@@ -340,7 +343,7 @@ private:
     // proxies kept separate to make it easier to pass them up to client
     sk_sp<GrTextureProxy> fProxies[kMaxPages];
     Page fPages[kMaxPages];
-    SkDEBUGCODE(uint32_t fNumPages;)
+    uint32_t fNumPages;
 };
 
 #endif

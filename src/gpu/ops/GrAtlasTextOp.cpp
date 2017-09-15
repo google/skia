@@ -84,25 +84,26 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         return;
     }
 
-    const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(this->maskFormat());
-    if (!proxies[0]) {
+    GrMaskFormat maskFormat = this->maskFormat();
+
+    uint32_t atlasPageCount = fFontCache->getAtlasPageCount(maskFormat);
+    const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(maskFormat);
+    if (!atlasPageCount || !proxies[0]) {
         SkDebugf("Could not allocate backing texture for atlas\n");
         return;
     }
-
-    GrMaskFormat maskFormat = this->maskFormat();
 
     FlushInfo flushInfo;
     flushInfo.fPipeline =
             target->makePipeline(fSRGBFlags, std::move(fProcessors), target->detachAppliedClip());
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor =
-                this->setupDfProcessor(this->viewMatrix(),
-                                       fLuminanceColor, this->color(), proxies);
+            this->setupDfProcessor(this->viewMatrix(),
+                                   fLuminanceColor, this->color(), proxies);
     } else {
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-                this->color(), proxies, GrSamplerState::ClampNearest(), maskFormat,
-                localMatrix, this->usesLocalCoords());
+            this->color(), proxies, GrSamplerState::ClampNearest(), maskFormat,
+            localMatrix, this->usesLocalCoords());
     }
 
     flushInfo.fGlyphsToFlush = 0;
@@ -139,6 +140,24 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         memcpy(currVertex, blobVertices, byteCount);
 
         currVertex += byteCount;
+    }
+
+    // During preparation the number of atlas pages has increased.
+    // Update the proxies used in the GP to match.
+    if (atlasPageCount != fFontCache->getAtlasPageCount(maskFormat)) {
+        GrGeometryProcessor* gp = flushInfo.fGeometryProcessor.get();
+        if (this->usesDistanceFields()) {
+            if (this->isLCD()) {
+                reinterpret_cast<GrDistanceFieldLCDTextGeoProc*>(gp)->resetProxies(
+                    fFontCache->getProxies(maskFormat), GrSamplerState::ClampBilerp());
+            } else {
+                reinterpret_cast<GrDistanceFieldA8TextGeoProc*>(gp)->resetProxies(
+                    fFontCache->getProxies(maskFormat), GrSamplerState::ClampBilerp());
+            }
+        } else {
+            reinterpret_cast<GrBitmapTextGeoProc*>(gp)->resetProxies(
+                fFontCache->getProxies(maskFormat), GrSamplerState::ClampNearest());
+        }
     }
 
     this->flush(target, &flushInfo);

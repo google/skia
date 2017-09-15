@@ -137,6 +137,10 @@ void GrResourceIOProcessor::addImageStorageAccess(const ImageStorageAccess* acce
     fImageStorageAccesses.push_back(access);
 }
 
+void GrResourceIOProcessor::resetTextureSamplers() {
+    fTextureSamplers.reset();
+}
+
 void GrResourceIOProcessor::addPendingIOs() const {
     for (const auto& sampler : fTextureSamplers) {
         sampler->programProxy()->markPendingIO();

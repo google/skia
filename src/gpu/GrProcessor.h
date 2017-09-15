@@ -191,6 +191,7 @@ protected:
     void addTextureSampler(const TextureSampler*);
     void addBufferAccess(const BufferAccess*);
     void addImageStorageAccess(const ImageStorageAccess*);
+    void resetTextureSamplers();
 
     bool hasSameSamplersAndAccesses(const GrResourceIOProcessor&) const;
 
