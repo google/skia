@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "420fea76_036dd853",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-15T13:24:33Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89c966d0_2ab35216",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-15T13:24:33Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9075700_e5fdc3fb",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-15T13:24:33Z",
+      "side": 1,
+      "message": "This same block of code seems to appear several times. Would it make sense to share it?",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50017155_b9214d11",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-15T13:24:33Z",
+      "side": 1,
+      "message": "Maybe move this line before the if-test and use it in there ?",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4fe4e90_fd7ccef6",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-15T13:24:33Z",
+      "side": 1,
+      "message": "You don\u0027t want the single texture/most common case first?",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "475c2b5d_106a2341",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-15T13:24:33Z",
+      "side": 1,
+      "message": "May be expand this comment: \"During preparation the number of atlas pages has increased. Update the proxies used in the GP to match\" ?",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06050b5c_3d803be2",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-15T13:24:33Z",
+      "side": 1,
+      "message": "// Similar comment here ?",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80ea2b38_d6f8e3e2",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-15T13:24:33Z",
+      "side": 1,
+      "message": "// We are hiding the 2bit page index in the low bit of the texture coords\n\n?",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d424770_1953c83f",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-15T13:24:33Z",
+      "side": 1,
+      "message": "// same comment here ?",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e44c83ee_589ee200",
+        "filename": "src/gpu/text/GrAtlasTextBlob_regenInOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-15T13:24:33Z",
+      "side": 1,
+      "message": "Maybe make more explicit ?",
+      "revId": "c41a3ce5c06b05c3b77d57c535d5491cfc792619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
