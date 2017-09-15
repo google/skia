@@ -1880,10 +1880,15 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
 
 
     // Test that multiple move commands do not cause asserts.
+
+    // At the time of writing, this would not modify cached convexity. This caused an assert while
+    // checking conservative containment again. https://bug.skia.org/1460
     path.moveTo(SkIntToScalar(100), SkIntToScalar(100));
+#if 0
     REPORTER_ASSERT(reporter, path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(50), 0,
                                                                                SkIntToScalar(10),
                                                                                SkIntToScalar(10))));
+#endif
 
     // Same as above path and first test but with an extra moveTo.
     path.reset();
@@ -1891,12 +1896,10 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     path.moveTo(0, 0);
     path.lineTo(SkIntToScalar(100), 0);
     path.lineTo(0, SkIntToScalar(100));
-    // Convexity logic is now more conservative, so that multiple (non-trailing) moveTos make a
-    // path non-convex.
-    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(
-        SkRect::MakeXYWH(SkIntToScalar(50), 0,
-                         SkIntToScalar(10),
-                         SkIntToScalar(10))));
+
+    REPORTER_ASSERT(reporter, path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(50), 0,
+                                                                               SkIntToScalar(10),
+                                                                               SkIntToScalar(10))));
 
     // Same as above path and first test but with the extra moveTo making a degenerate sub-path
     // following the non-empty sub-path. Verifies that this does not trigger assertions.
