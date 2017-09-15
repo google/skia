@@ -1,5 +1,6 @@
 #Topic Pixmap
- 
+#Alias Pixmap_Reference
+
 #Class SkPixmap
 
 Pixmap provides a utility to pair SkImageInfo with pixels and row bytes. 

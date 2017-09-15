@@ -1,6 +1,8 @@
 #Topic Canvas
 #Alias Canvas_Reference
 
+#Class SkCanvas
+
 Canvas provides an interface for drawing, and how the drawing is clipped and transformed.
 Canvas contains a stack of Matrix and Clip values.
 
@@ -21,8 +23,6 @@ destination.
 
 Canvas can be constructed to draw to Bitmap without first creating Raster_Surface.
 This approach may be deprecated in the future.  
-
-#Class SkCanvas
 
 #Topic Overview
 
