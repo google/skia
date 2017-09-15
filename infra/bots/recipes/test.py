@@ -232,10 +232,6 @@ def dm_flags(api, bot):
       configs = [c for c in configs if c == 'gl' or c == 'gles']
       args.extend(['--pr', 'ccpr'])
 
-    # Bogus test for internal bot.
-    if api.vars.internal_hardware_label == 0:
-      args.append('--internal0')
-
   args.append('--config')
   args.extend(configs)
 
@@ -338,6 +334,14 @@ def dm_flags(api, bot):
     # is fairly slow and not platform-specific. So we just disable it on all of
     # Android and iOS. skia:5438
     blacklist('_ test _ GrShape')
+
+  if api.vars.internal_hardware_label == 1:
+    # skia:7046
+    blacklist('_ test _ WritePixelsNonTexture_Gpu')
+    blacklist('_ test _ WritePixels_Gpu')
+    blacklist('_ test _ GrSurfaceRenderability')
+    blacklist('_ test _ ES2BlendWithNoTexture')
+
 
   # skia:4095
   bad_serialize_gms = ['bleed_image',
@@ -1091,12 +1095,12 @@ def GenTests(api):
   )
 
   yield (
-    api.test('internal_bot') +
+    api.test('internal_bot_1') +
     api.properties(buildername=builder,
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]',
-                   internal_hardware_label=0) +
+                   internal_hardware_label=1) +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
