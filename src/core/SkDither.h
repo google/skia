@@ -9,13 +9,13 @@
 #ifndef SkDither_DEFINED
 #define SkDither_DEFINED
 
-#include "SkColorPriv.h"
+#include "SkColorData.h"
 
 #define SK_DitherValueMax4444   15
 #define SK_DitherValueMax565    7
 
 /*  need to use macros for bit-counts for each component, and then
-    move these into SkColorPriv.h
+    move these into SkColorData.h
 */
 
 #define SkDITHER_R32_FOR_565_MACRO(r, d)    (r + d - (r >> 5))
