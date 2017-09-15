@@ -46,6 +46,53 @@
       "revId": "3bf6366c6fc5d619358458e50909b60deb4cfe4a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b834820_70ffffb1",
+        "filename": "src/jumper/SkJumper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 6026
+      },
+      "writtenOn": "2017-09-15T21:39:10Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "661b7163_46c20d88",
+      "range": {
+        "startLine": 26,
+        "startChar": 8,
+        "endLine": 26,
+        "endChar": 10
+      },
+      "revId": "3bf6366c6fc5d619358458e50909b60deb4cfe4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "defb3035_901b7089",
+        "filename": "src/jumper/SkJumper.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 6026
+      },
+      "writtenOn": "2017-09-15T21:39:10Z",
+      "side": 0,
+      "message": "What\u0027s with the `if (1 \u0026\u0026` btw? I\u0027m guessing that\u0027s so you can change the 1 to 0 locally for debugging? If so, is adding `0 \u0026\u0026` really that much more work that it\u0027s worth confusing the casual reader? :-)",
+      "range": {
+        "startLine": 244,
+        "startChar": 6,
+        "endLine": 244,
+        "endChar": 8
+      },
+      "revId": "3bf6366c6fc5d619358458e50909b60deb4cfe4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
