@@ -442,10 +442,10 @@ static void check(skiatest::Reporter* r,
 
 #ifndef SK_PNG_DISABLE_TESTS
         // Test using SkFrontBufferedStream, as Android does
-        SkStream* bufferedStream = SkFrontBufferedStream::Create(
-                new SkMemoryStream(std::move(fullData)), SkCodec::MinBufferedBytesNeeded());
+        auto bufferedStream = SkFrontBufferedStream::Make(
+                      SkMemoryStream::Make(std::move(fullData)), SkCodec::MinBufferedBytesNeeded());
         REPORTER_ASSERT(r, bufferedStream);
-        codec = SkCodec::MakeFromStream(std::unique_ptr<SkStream>(bufferedStream));
+        codec = SkCodec::MakeFromStream(std::move(bufferedStream));
         REPORTER_ASSERT(r, codec);
         if (codec) {
             test_info(r, codec.get(), info, SkCodec::kSuccess, &codecDigest);

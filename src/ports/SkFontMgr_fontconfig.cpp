@@ -435,7 +435,11 @@ public:
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
         *ttcIndex = fData->getIndex();
+#ifdef SK_SUPPORT_LEGACY_STREAM_API
         return fData->getStream()->duplicate();
+#else
+        return fData->getStream()->duplicate().release();
+#endif
     }
 
     std::unique_ptr<SkFontData> onMakeFontData() const override {
