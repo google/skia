@@ -162,10 +162,5 @@ bool sk_mkdir(const char* path) {
 #else
     retval = mkdir(path, 0777);
 #endif
-    if (0 == retval) {
-        return true;
-    } else {
-        fprintf(stderr, "sk_mkdir: error %d creating dir '%s'\n", errno, path);
-        return false;
-    }
+    return 0 == retval;
 }
