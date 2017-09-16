@@ -137,10 +137,11 @@ SI D join(S lo, S hi) {
 // ~~~~~~ Basic / misc. stages ~~~~~~ //
 
 STAGE(uniform_color, const SkJumper_UniformColorCtx* c) {
-    r = c->rgba[0];
-    g = c->rgba[1];
-    b = c->rgba[2];
-    a = c->rgba[3];
+    auto rgba = (const uint8_t*)&c->rgba;
+    r = rgba[0];
+    g = rgba[1];
+    b = rgba[2];
+    a = rgba[3];
 }
 STAGE(black_color, Ctx::None) { r = g = b =   0; a = 255; }
 STAGE(white_color, Ctx::None) { r = g = b = 255; a = 255; }
