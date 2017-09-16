@@ -520,8 +520,6 @@
       "typefacestyles_kerningDebian",
       "--match",
       "~^DashPathEffectTest_asPoints_limit$",
-      "~^Matrix$",
-      "~^Matrix44$",
       "~^PathBigCubic$",
       "~^PathOpsCubicIntersection$",
       "~^PathOpsCubicLineIntersection$",
