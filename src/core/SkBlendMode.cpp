@@ -9,20 +9,40 @@
 #include "SkRasterPipeline.h"
 #include "../jumper/SkJumper.h"
 
-bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode mode) {
+bool SkBlendMode_ShouldPreScaleCoverage(SkBlendMode mode, bool rgb_coverage) {
+    // The most important things we do here are:
+    //   1) never pre-scale with rgb coverage if the blend mode involves a source-alpha term;
+    //   2) always pre-scale Plus.
+    //
+    // When we pre-scale with rgb coverage, we scale each of source r,g,b, with a distinct value,
+    // and source alpha with one of those three values.  This process destructively updates the
+    // source-alpha term, so we can't evaluate blend modes that need its original value.
+    //
+    // Plus always requires pre-scaling as a specific quirk of its implementation in
+    // SkRasterPipeline.  This lets us put the clamp inside the blend mode itself rather
+    // than as a separate stage that'd come after the lerp.
+    //
+    // This function is a finer-grained breakdown of SkBlendMode_SupportsCoverageAsAlpha().
     switch (mode) {
-        case SkBlendMode::kDst:
-        case SkBlendMode::kSrcOver:
-        case SkBlendMode::kDstOver:
-        case SkBlendMode::kDstOut:
-        case SkBlendMode::kSrcATop:
-        case SkBlendMode::kXor:
-        case SkBlendMode::kPlus:
+        case SkBlendMode::kDst:        // d              --> no sa term, ok!
+        case SkBlendMode::kDstOver:    // d + s*inv(da)  --> no sa term, ok!
+        case SkBlendMode::kPlus:       // clamp(s+d)     --> no sa term, ok!
             return true;
-        default:
-            break;
+
+        case SkBlendMode::kDstOut:     // d * inv(sa)
+        case SkBlendMode::kSrcATop:    // s*da + d*inv(sa)
+        case SkBlendMode::kSrcOver:    // s + d*inv(sa)
+        case SkBlendMode::kXor:        // s*inv(da) + d*inv(sa)
+            return !rgb_coverage;
+
+        default: break;
     }
     return false;
+}
+
+// Users of this function may want to switch to the rgb-coverage aware version above.
+bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode mode) {
+    return SkBlendMode_ShouldPreScaleCoverage(mode, false);
 }
 
 struct CoeffRec {
@@ -60,14 +80,6 @@ bool SkBlendMode_AsCoeff(SkBlendMode mode, SkBlendModeCoeff* src, SkBlendModeCoe
         *dst = gCoeffs[static_cast<int>(mode)].fDst;
     }
     return true;
-}
-
-bool SkBlendMode_ShouldPreScaleCoverage(SkBlendMode mode, bool rgb_coverage) {
-    // The most important things we do here are:
-    //   - always use pre-scaling for plus mode;
-    //   - never use pre-scaling for srcover with 565 coverage.
-    return mode == SkBlendMode::kPlus ||
-          (mode == SkBlendMode::kSrcOver && !rgb_coverage);
 }
 
 void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
