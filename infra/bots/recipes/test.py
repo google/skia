@@ -539,8 +539,6 @@ def dm_flags(api, bot):
     blacklist(['pdf', 'gm', '_', 'typefacestylesDebian'])
     blacklist(['pdf', 'gm', '_', 'typefacestyles_kerningDebian'])
     match.append('~^DashPathEffectTest_asPoints_limit$')
-    match.append('~^Matrix$')
-    match.append('~^Matrix44$')
     match.append('~^PathBigCubic$')
     match.append('~^PathOpsCubicIntersection$')
     match.append('~^PathOpsCubicLineIntersection$')

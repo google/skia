@@ -770,7 +770,8 @@ static double sk_inv_determinant(const float mat[9], int isPerspective) {
     // Since the determinant is on the order of the cube of the matrix members,
     // compare to the cube of the default nearly-zero constant (although an
     // estimate of the condition number would be better if it wasn't so expensive).
-    if (SkScalarNearlyZero((float)det, SK_ScalarNearlyZero * SK_ScalarNearlyZero * SK_ScalarNearlyZero)) {
+    if (SkScalarNearlyZero(sk_double_to_float(det),
+                           SK_ScalarNearlyZero * SK_ScalarNearlyZero * SK_ScalarNearlyZero)) {
         return 0;
     }
     return 1.0 / det;

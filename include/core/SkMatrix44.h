@@ -56,7 +56,7 @@
         return x;
     }
     static inline float SkDoubleToMScalar(double x) {
-        return static_cast<float>(x);
+        return sk_double_to_float(x);
     }
     static inline double SkMScalarToDouble(float x) {
         return static_cast<double>(x);
