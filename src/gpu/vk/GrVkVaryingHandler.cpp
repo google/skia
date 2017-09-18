@@ -13,27 +13,34 @@ static inline int grsltype_to_location_size(GrSLType type) {
     switch(type) {
         case kVoid_GrSLType:
             return 0;
-        case kFloat_GrSLType:
+        case kHighFloat_GrSLType: // fall through
+        case kHalf_GrSLType:
             return 1;
-        case kVec2f_GrSLType:
+        case kHighFloat2_GrSLType: // fall through
+        case kHalf2_GrSLType:
             return 1;
-        case kVec3f_GrSLType:
+        case kHighFloat3_GrSLType:
+        case kHalf3_GrSLType:
             return 1;
-        case kVec4f_GrSLType:
+        case kHighFloat4_GrSLType:
+        case kHalf4_GrSLType:
             return 1;
-        case kVec2us_GrSLType:
+        case kUint2_GrSLType:
             return 1;
-        case kVec2i_GrSLType:
+        case kInt2_GrSLType:
             return 1;
-        case kVec3i_GrSLType:
+        case kInt3_GrSLType:
             return 1;
-        case kVec4i_GrSLType:
+        case kInt4_GrSLType:
             return 1;
-        case kMat22f_GrSLType:
+        case kHighFloat2x2_GrSLType:
+        case kHalf2x2_GrSLType:
             return 2;
-        case kMat33f_GrSLType:
+        case kHighFloat3x3_GrSLType:
+        case kHalf3x3_GrSLType:
             return 3;
-        case kMat44f_GrSLType:
+        case kHighFloat4x4_GrSLType:
+        case kHalf4x4_GrSLType:
             return 4;
         case kTexture2DSampler_GrSLType:
             return 0;
@@ -47,9 +54,11 @@ static inline int grsltype_to_location_size(GrSLType type) {
              return 0;
         case kBool_GrSLType:
              return 1;
-        case kInt_GrSLType:
+        case kInt_GrSLType: // fall through
+        case kShort_GrSLType:
              return 1;
         case kUint_GrSLType:
+        case kUShort_GrSLType: // fall through
              return 1;
         case kTexture2D_GrSLType:
              return 0;

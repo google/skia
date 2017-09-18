@@ -20,11 +20,11 @@ public:
 
         SkString srgbFuncName;
         static const GrShaderVar gSrgbArgs[] = {
-            GrShaderVar("x", kFloat_GrSLType),
+            GrShaderVar("x", kHalf_GrSLType),
         };
         switch (srgbe.mode()) {
             case GrSRGBEffect::Mode::kLinearToSRGB:
-                fragBuilder->emitFunction(kFloat_GrSLType,
+                fragBuilder->emitFunction(kHalf_GrSLType,
                                           "linear_to_srgb",
                                           SK_ARRAY_COUNT(gSrgbArgs),
                                           gSrgbArgs,
@@ -33,7 +33,7 @@ public:
                                           &srgbFuncName);
                 break;
             case GrSRGBEffect::Mode::kSRGBToLinear:
-                fragBuilder->emitFunction(kFloat_GrSLType,
+                fragBuilder->emitFunction(kHalf_GrSLType,
                                           "srgb_to_linear",
                                           SK_ARRAY_COUNT(gSrgbArgs),
                                           gSrgbArgs,
@@ -44,20 +44,20 @@ public:
         }
 
         if (nullptr == args.fInputColor) {
-            args.fInputColor = "float4(1)";
+            args.fInputColor = "half4(1)";
         }
 
-        fragBuilder->codeAppendf("float4 color = %s;", args.fInputColor);
+        fragBuilder->codeAppendf("half4 color = %s;", args.fInputColor);
         if (srgbe.alpha() == GrSRGBEffect::Alpha::kPremul) {
-            fragBuilder->codeAppendf("float nonZeroAlpha = max(color.a, 0.00001);");
-            fragBuilder->codeAppendf("color = float4(color.rgb / nonZeroAlpha, color.a);");
+            fragBuilder->codeAppendf("half nonZeroAlpha = max(color.a, 0.00001);");
+            fragBuilder->codeAppendf("color = half4(color.rgb / nonZeroAlpha, color.a);");
         }
-        fragBuilder->codeAppendf("color = float4(%s(color.r), %s(color.g), %s(color.b), color.a);",
+        fragBuilder->codeAppendf("color = half4(%s(color.r), %s(color.g), %s(color.b), color.a);",
                                     srgbFuncName.c_str(),
                                     srgbFuncName.c_str(),
                                     srgbFuncName.c_str());
         if (srgbe.alpha() == GrSRGBEffect::Alpha::kPremul) {
-            fragBuilder->codeAppendf("color = float4(color.rgb, 1) * color.a;");
+            fragBuilder->codeAppendf("color = half4(color.rgb, 1) * color.a;");
         }
         fragBuilder->codeAppendf("%s = color;", args.fOutputColor);
     }
