@@ -321,7 +321,6 @@ DEF_TEST(SkSLUsesPrecisionModifiers, r) {
          "sk_FragColor.rg = half2(x, y); }",
          *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
          "#version 400\n"
-         "precision mediump float;\n"
          "out mediump vec4 sk_FragColor;\n"
          "void main() {\n"
          "    mediump float x = 0.75;\n"
@@ -511,7 +510,6 @@ DEF_TEST(SkSLDerivatives, r) {
          "void main() { sk_FragColor.r = 1; }",
          *SkSL::ShaderCapsFactory::ShaderDerivativeExtensionString(),
          "#version 400\n"
-         "precision mediump float;\n"
          "out mediump vec4 sk_FragColor;\n"
          "void main() {\n"
          "    sk_FragColor.x = 1.0;\n"
@@ -521,7 +519,6 @@ DEF_TEST(SkSLDerivatives, r) {
          *SkSL::ShaderCapsFactory::ShaderDerivativeExtensionString(),
          "#version 400\n"
          "#extension GL_OES_standard_derivatives : require\n"
-         "precision mediump float;\n"
          "out mediump vec4 sk_FragColor;\n"
          "void main() {\n"
          "    sk_FragColor.x = dFdx(1.0);\n"
@@ -1488,7 +1485,6 @@ DEF_TEST(SkSLTypePrecision, r) {
          "half2x4 h24 = half2x4(1, 2, 3, 4, 5, 6, 7, 8);",
          *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
          "#version 400\n"
-         "precision mediump float;\n"
          "out mediump vec4 sk_FragColor;\n"
          "highp float f = 1.0;\n"
          "mediump float h = 2.0;\n"
@@ -1582,7 +1578,6 @@ DEF_TEST(SkSLForceHighPrecision, r) {
          "void main() { half x = sqrt(1); half4 y = half4(x); sk_FragColor = y; }",
          *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
          "#version 400\n"
-         "precision mediump float;\n"
          "out mediump vec4 sk_FragColor;\n"
          "void main() {\n"
          "    mediump float x = sqrt(1.0);\n"
@@ -1598,7 +1593,6 @@ DEF_TEST(SkSLForceHighPrecision, r) {
          "void main() { half x = sqrt(1); half4 y = half4(x); sk_FragColor = y; }",
          settings,
          "#version 400\n"
-         "precision mediump float;\n"
          "out mediump vec4 sk_FragColor;\n"
          "void main() {\n"
          "    highp float x = sqrt(1.0);\n"
