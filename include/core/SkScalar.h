@@ -55,7 +55,7 @@ typedef float SkScalar;
 
 #define SkIntToScalar(x)        static_cast<SkScalar>(x)
 #define SkIntToFloat(x)         static_cast<float>(x)
-#define SkScalarTruncToInt(x)   static_cast<int>(x)
+#define SkScalarTruncToInt(x)   sk_float_saturate2int(x)
 
 #define SkScalarToFloat(x)      static_cast<float>(x)
 #define SkFloatToScalar(x)      static_cast<SkScalar>(x)
