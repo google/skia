@@ -251,7 +251,7 @@ public:
     */
     void setSinCos(SkScalar sinValue, SkScalar cosValue);
 
-    SkMatrix& setRSXform(const SkRSXform&);
+    SkMatrix& setRSXform(const SkRSXform& rsxForm);
 
     /** Set the matrix to skew by sx and sy, with a pivot point at (px, py).
         The pivot point is the coordinate that should remain unchanged by the
@@ -646,7 +646,7 @@ public:
     size_t readFromMemory(const void* buffer, size_t length);
 
     void dump() const;
-    void toString(SkString*) const;
+    void toString(SkString* str) const;
 
     /**
      * Calculates the minimum scaling factor of the matrix as computed from the SVD of the upper
