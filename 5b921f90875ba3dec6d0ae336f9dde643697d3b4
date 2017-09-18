@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fcc15691_a3448bad",
+        "filename": "include/private/SkFloatingPoint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-18T14:35:29Z",
+      "side": 1,
+      "message": "Thanks for fixing this. I had been assuming it would come out as FLT_MAX only if it\u0027s numerically \"close\" to that number, otherwise inf. If even DBL_MAX could be converted to FLT_MAX, that could definitely change some math.",
+      "revId": "5b921f90875ba3dec6d0ae336f9dde643697d3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
