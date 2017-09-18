@@ -4482,6 +4482,16 @@ static void test_skbug_7015() {
     test_draw_AA_path(500, 500, path);
 }
 
+static void test_skbug_7051() {
+    SkPath path;
+    path.moveTo(10, 10);
+    path.cubicTo(10, 20, 10, 30, 30, 30);
+    path.lineTo(50, 20);
+    path.lineTo(50, 10);
+    path.close();
+    test_draw_AA_path(100, 100, path);
+}
+
 #endif
 
 static void test_interp(skiatest::Reporter* reporter) {
@@ -4559,6 +4569,7 @@ DEF_TEST(Paths, reporter) {
 #if !defined(SK_SUPPORT_LEGACY_DELTA_AA)
     test_skbug_6947();
     test_skbug_7015();
+    test_skbug_7051();
 #endif
 
     SkSize::Make(3, 4);
