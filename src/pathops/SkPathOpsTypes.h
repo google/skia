@@ -234,9 +234,7 @@ private:
 
 // Use Almost Equal when comparing coordinates. Use epsilon to compare T values.
 bool AlmostEqualUlps(float a, float b);
-inline bool AlmostEqualUlps(double a, double b) {
-    return AlmostEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
-}
+bool AlmostEqualUlps(double a, double b);
 
 bool AlmostEqualUlpsNoNormalCheck(float a, float b);
 inline bool AlmostEqualUlpsNoNormalCheck(double a, double b) {
@@ -253,9 +251,7 @@ bool AlmostDequalUlps(float a, float b);
 bool AlmostDequalUlps(double a, double b);
 
 bool NotAlmostEqualUlps(float a, float b);
-inline bool NotAlmostEqualUlps(double a, double b) {
-    return NotAlmostEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
-}
+bool NotAlmostEqualUlps(double a, double b);
 
 bool NotAlmostEqualUlps_Pin(float a, float b);
 inline bool NotAlmostEqualUlps_Pin(double a, double b) {
@@ -263,9 +259,7 @@ inline bool NotAlmostEqualUlps_Pin(double a, double b) {
 }
 
 bool NotAlmostDequalUlps(float a, float b);
-inline bool NotAlmostDequalUlps(double a, double b) {
-    return NotAlmostDequalUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
-}
+bool NotAlmostDequalUlps(double a, double b);
 
 // Use Almost Bequal when comparing coordinates in conjunction with between.
 bool AlmostBequalUlps(float a, float b);

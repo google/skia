@@ -138,6 +138,13 @@ bool AlmostEqualUlps_Pin(float a, float b) {
     return equal_ulps_pin(a, b, UlpsEpsilon, UlpsEpsilon);
 }
 
+bool AlmostEqualUlps(double a, double b) {
+    if (fabs(a) < SK_ScalarMax && fabs(b) < SK_ScalarMax) {
+        return AlmostEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+    }
+    return fabs(a - b) / SkTMax(fabs(a), fabs(b)) < FLT_EPSILON * 16;
+}
+
 bool NotAlmostEqualUlps(float a, float b) {
     const int UlpsEpsilon = 16;
     return not_equal_ulps(a, b, UlpsEpsilon);
@@ -148,9 +155,23 @@ bool NotAlmostEqualUlps_Pin(float a, float b) {
     return not_equal_ulps_pin(a, b, UlpsEpsilon);
 }
 
+bool NotAlmostEqualUlps(double a, double b) {
+    if (fabs(a) < SK_ScalarMax && fabs(b) < SK_ScalarMax) {
+        return NotAlmostEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+    }
+    return fabs(a - b) / SkTMax(fabs(a), fabs(b)) >= FLT_EPSILON * 16;
+}
+
 bool NotAlmostDequalUlps(float a, float b) {
     const int UlpsEpsilon = 16;
     return d_not_equal_ulps(a, b, UlpsEpsilon);
+}
+
+bool NotAlmostDequalUlps(double a, double b) {
+    if (fabs(a) < SK_ScalarMax && fabs(b) < SK_ScalarMax) {
+        return NotAlmostDequalUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+    }
+    return fabs(a - b) / SkTMax(fabs(a), fabs(b)) >= FLT_EPSILON * 16;
 }
 
 bool RoughlyEqualUlps(float a, float b) {
