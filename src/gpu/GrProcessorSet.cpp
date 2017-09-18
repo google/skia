@@ -159,7 +159,9 @@ bool GrProcessorSet::operator==(const GrProcessorSet& that) const {
 GrProcessorSet::Analysis GrProcessorSet::finalize(const GrProcessorAnalysisColor& colorInput,
                                                   const GrProcessorAnalysisCoverage coverageInput,
                                                   const GrAppliedClip* clip, bool isMixedSamples,
-                                                  const GrCaps& caps, GrColor* overrideInputColor) {
+                                                  const GrCaps& caps, GrClampBehavior dstClamp,
+                                                  GrColor* overrideInputColor) {
+    // XXX Continue plumbing dstClamp
     SkASSERT(!this->isFinalized());
     SkASSERT(!fFragmentProcessorOffset);
 

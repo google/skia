@@ -112,7 +112,8 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override;
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override;
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrClampBehavior dstClamp) override;
 
 private:
     GrAtlasTextOp(GrPaint&& paint)
