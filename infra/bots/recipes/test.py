@@ -545,11 +545,6 @@ def dm_flags(api, bot):
     match.append('~^PathOpsFailOp$')
     match.append('~^PathOpsOpCubicsThreaded$')
     match.append('~^PathOpsOpLoopsThreaded$')
-  if 'float_cast_overflow' in bot and 'GPU' in bot:
-    # skia:4632
-    match.append('~^GLPrograms$')
-    match.append('~^ProcessorCloneTest$')
-    match.append('~^ProcessorOptimizationValidationTest$')
 
   if 'Vulkan' in bot and 'Adreno530' in bot:
       # skia:5777
@@ -925,8 +920,6 @@ TEST_BUILDERS = [
   'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release',
   'Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug',
-  ('Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-UBSAN' +
-   '_float_cast_overflow'),
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-Valgrind' +
    '_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug',
