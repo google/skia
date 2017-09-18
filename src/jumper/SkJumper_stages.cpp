@@ -9,13 +9,6 @@
 #include "SkJumper_misc.h"     // SI, unaligned_load(), bit_cast()
 #include "SkJumper_vectors.h"  // F, I32, U32, U16, U8, cast(), expand()
 
-// Our fundamental vector depth is our pixel stride.
-static const size_t kStride = sizeof(F) / sizeof(float);
-
-// A reminder:
-// When defined(JUMPER_IS_SCALAR), F, I32, etc. are normal scalar types and kStride is 1.
-// When not, F, I32, etc. are kStride-depp Clang ext_vector_type vectors of the appropriate type.
-
 // A little wrapper macro to name Stages differently depending on the instruction set.
 // That lets us link together several options.
 #if !defined(JUMPER_IS_OFFLINE)
@@ -34,103 +27,53 @@ static const size_t kStride = sizeof(F) / sizeof(float);
     #define WRAP(name) sk_##name##_sse2
 #endif
 
+// Our fundamental vector depth is our pixel stride.
+static const size_t N = sizeof(F) / sizeof(float);
+// When defined(JUMPER_IS_SCALAR), F, I32, etc. are normal scalar types and N is 1.
+// When not, F, I32, etc. are N-deep Clang ext_vector_type vectors of the appropriate type.
+
 // We're finally going to get to what a Stage function looks like!
-//    tail == 0 ~~> work on a full kStride pixels
+//    tail == 0 ~~> work on a full N pixels
 //    tail != 0 ~~> work on only the first tail pixels
-// tail is always < kStride.
+// tail is always < N.
 
-#if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
-    // On 32-bit x86 we've only got 8 xmm registers, so we keep the 4 hottest (r,g,b,a)
-    // in registers and the d-registers on the stack (giving us 4 temporary registers).
-    // General-purpose registers are also tight, so we put most of those on the stack too.
-    // On ARMv7, we do the same so that we can make the r,g,b,a vectors wider.
-    struct Params {
-        size_t x, y, tail;
-        F dr,dg,db,da;
-    };
-    using Stage = void(Params*, void** program, F r, F g, F b, F a);
+// We keep program the second argument, so that it's passed in %rsi for load_and_inc().
+using Stage = void(*)(size_t tail, void** program, size_t x, size_t y, F,F,F,F, F,F,F,F);
 
-#else
-    // We keep program the second argument, so that it's passed in rsi for load_and_inc().
-    using Stage = void(size_t tail, void** program, size_t x, size_t y, F,F,F,F, F,F,F,F);
-#endif
-
-#if defined(JUMPER_IS_AVX) || defined(JUMPER_IS_AVX2)
-    // We really want to make sure all paths go through this function's (implicit) vzeroupper.
-    // If they don't, we'll experience severe slowdowns when we first use SSE instructions again.
-    __attribute__((disable_tail_calls))
-#endif
 MAYBE_MSABI
-extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t ylimit,
+extern "C" void WRAP(start_pipeline)(const size_t x0,
+                                     const size_t y0,
+                                     const size_t xlimit,
+                                     const size_t ylimit,
                                      void** program) {
-#if defined(JUMPER_IS_OFFLINE)
-    F v;    // Really no need to intialize.
-#else
-    F v{};  // Compilers tend to whine about this, so it's easiest to just zero.
-#endif
-    auto start = (Stage*)load_and_inc(program);
-    const size_t x0 = x;
-    for (; y < ylimit; y++) {
-    #if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
-        Params params = { x0,y,0, v,v,v,v };
-        while (params.x + kStride <= xlimit) {
-            start(&params,program, v,v,v,v);
-            params.x += kStride;
-        }
-        if (size_t tail = xlimit - params.x) {
-            params.tail = tail;
-            start(&params,program, v,v,v,v);
-        }
-    #else
-        x = x0;
-        while (x + kStride <= xlimit) {
-            start(0,program,x,y,    v,v,v,v, v,v,v,v);
-            x += kStride;
+    auto start = (Stage)load_and_inc(program);
+    for (size_t y = y0; y < ylimit; y++) {
+        size_t x = x0;
+        for (; x + N <= xlimit; x += N) {
+            start(   0,program,x,y, 0,0,0,0, 0,0,0,0);
         }
         if (size_t tail = xlimit - x) {
-            start(tail,program,x,y, v,v,v,v, v,v,v,v);
+            start(tail,program,x,y, 0,0,0,0, 0,0,0,0);
         }
-    #endif
     }
 }
 
-#if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
-    #define STAGE(name)                                                               \
-        SI void name##_k(Ctx ctx, size_t x, size_t y, size_t tail,                    \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);         \
-        extern "C" void WRAP(name)(Params* params, void** program,                    \
-                                   F r, F g, F b, F a) {                              \
-            Ctx ctx(program);                                                         \
-            name##_k(ctx,params->x,params->y,params->tail, r,g,b,a,                   \
-                     params->dr, params->dg, params->db, params->da);                 \
-            auto next = (Stage*)load_and_inc(program);                                \
-            next(params,program, r,g,b,a);                                            \
-        }                                                                             \
-        SI void name##_k(Ctx ctx, size_t x, size_t y, size_t tail,                    \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
-#else
-    #define STAGE(name)                                                               \
-        SI void name##_k(Ctx ctx, size_t x, size_t y, size_t tail,                    \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);         \
-        extern "C" void WRAP(name)(size_t tail, void** program, size_t x, size_t y,   \
-                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {      \
-            Ctx ctx(program);                                                         \
-            name##_k(ctx,x,y,tail, r,g,b,a, dr,dg,db,da);                             \
-            auto next = (Stage*)load_and_inc(program);                                \
-            next(tail,program,x,y, r,g,b,a, dr,dg,db,da);                             \
-        }                                                                             \
-        SI void name##_k(Ctx ctx, size_t x, size_t y, size_t tail,                    \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
-#endif
-
-
 // just_return() is a simple no-op stage that only exists to end the chain,
 // returning back up to start_pipeline(), and from there to the caller.
-#if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
-    extern "C" void WRAP(just_return)(Params*, void**, F,F,F,F) {}
-#else
-    extern "C" void WRAP(just_return)(size_t, void**, size_t,size_t, F,F,F,F, F,F,F,F) {}
-#endif
+extern "C" void WRAP(just_return)(size_t, void**, size_t,size_t, F,F,F,F, F,F,F,F) {}
+
+#define STAGE(name)                                                               \
+    SI void name##_k(Ctx ctx, size_t x, size_t y, size_t tail,                    \
+                     F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);         \
+    extern "C" void WRAP(name)(size_t tail, void** program, size_t x, size_t y,   \
+                               F r, F g, F b, F a, F dr, F dg, F db, F da) {      \
+        Ctx ctx(program);                                                         \
+        name##_k(ctx,x,y,tail, r,g,b,a, dr,dg,db,da);                             \
+        auto next = (Stage)load_and_inc(program);                                \
+        next(tail,program,x,y, r,g,b,a, dr,dg,db,da);                             \
+    }                                                                             \
+    SI void name##_k(Ctx ctx, size_t x, size_t y, size_t tail,                    \
+                     F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 
 
 // We could start defining normal Stages now.  But first, some helper functions.
@@ -141,7 +84,7 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t y
 template <typename V, typename T>
 SI V load(const T* src, size_t tail) {
 #if !defined(JUMPER_IS_SCALAR)
-    __builtin_assume(tail < kStride);
+    __builtin_assume(tail < N);
     if (__builtin_expect(tail, 0)) {
         V v{};  // Any inactive lanes are zeroed.
         switch (tail) {
@@ -162,7 +105,7 @@ SI V load(const T* src, size_t tail) {
 template <typename V, typename T>
 SI void store(T* dst, V v, size_t tail) {
 #if !defined(JUMPER_IS_SCALAR)
-    __builtin_assume(tail < kStride);
+    __builtin_assume(tail < N);
     if (__builtin_expect(tail, 0)) {
         switch (tail) {
             case 7: dst[6] = v[6];
@@ -285,19 +228,19 @@ STAGE(white_color) {
 // load registers r,g,b,a from context (mirrors store_rgba)
 STAGE(load_rgba) {
     auto ptr = (const float*)ctx;
-    r = unaligned_load<F>(ptr + 0*kStride);
-    g = unaligned_load<F>(ptr + 1*kStride);
-    b = unaligned_load<F>(ptr + 2*kStride);
-    a = unaligned_load<F>(ptr + 3*kStride);
+    r = unaligned_load<F>(ptr + 0*N);
+    g = unaligned_load<F>(ptr + 1*N);
+    b = unaligned_load<F>(ptr + 2*N);
+    a = unaligned_load<F>(ptr + 3*N);
 }
 
 // store registers r,g,b,a into context (mirrors load_rgba)
 STAGE(store_rgba) {
     auto ptr = (float*)ctx;
-    unaligned_store(ptr + 0*kStride, r);
-    unaligned_store(ptr + 1*kStride, g);
-    unaligned_store(ptr + 2*kStride, b);
-    unaligned_store(ptr + 3*kStride, a);
+    unaligned_store(ptr + 0*N, r);
+    unaligned_store(ptr + 1*N, g);
+    unaligned_store(ptr + 2*N, b);
+    unaligned_store(ptr + 3*N, a);
 }
 
 // Most blend modes apply the same logic to each channel.
@@ -1477,7 +1420,7 @@ STAGE(bicubic_p3y) { bicubic_y<+3>(ctx, &g); }
 STAGE(callback) {
     auto c = (SkJumper_CallbackCtx*)ctx;
     store4(c->rgba,0, r,g,b,a);
-    c->fn(c, tail ? tail : kStride);
+    c->fn(c, tail ? tail : N);
     load4(c->read_from,0, &r,&g,&b,&a);
 }
 
