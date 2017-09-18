@@ -532,7 +532,6 @@ def dm_flags(api, bot):
     # skia:4632
     for config in ['565', '8888', 'f16', 'srgb']:
       blacklist([config, 'gm', '_', 'bigrect'])
-      blacklist([config, 'gm', '_', 'clippedcubic2'])
       blacklist([config, 'gm', '_', 'conicpaths'])
     blacklist(['pdf', 'gm', '_', 'fontmgr_iterDebian9'])
     blacklist(['pdf', 'gm', '_', 'fontmgr_matchDebian9'])
@@ -542,11 +541,7 @@ def dm_flags(api, bot):
     match.append('~^Matrix$')
     match.append('~^Matrix44$')
     match.append('~^PathBigCubic$')
-    match.append('~^PathOpsCubicIntersection$')
-    match.append('~^PathOpsCubicLineIntersection$')
     match.append('~^PathOpsFailOp$')
-    match.append('~^PathOpsOpCubicsThreaded$')
-    match.append('~^PathOpsOpLoopsThreaded$')
   if 'float_cast_overflow' in bot and 'GPU' in bot:
     # skia:4632
     match.append('~^GLPrograms$')
