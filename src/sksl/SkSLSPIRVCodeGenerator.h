@@ -98,6 +98,8 @@ private:
 
     SpvId nextId();
 
+    Type getActualType(const Type& type);
+
     SpvId getType(const Type& type);
 
     SpvId getType(const Type& type, const MemoryLayout& layout);

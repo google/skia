@@ -1,8 +1,8 @@
 in uniform sampler2D image;
 in uniform colorSpaceXform colorXform;
 in uniform sampler2D mask;
-in uniform float innerThreshold;
-in uniform float outerThreshold;
+in uniform half innerThreshold;
+in uniform half outerThreshold;
 
 @class {
     inline OptimizationFlags optFlags(float outerThreshold);
@@ -49,16 +49,16 @@ in uniform float outerThreshold;
 }
 
 void main() {
-    float4 color = texture(image, sk_TransformedCoords2D[0], colorXform);
-    float4 mask_color = texture(mask, sk_TransformedCoords2D[1]);
+    half4 color = texture(image, sk_TransformedCoords2D[0], colorXform);
+    half4 mask_color = texture(mask, sk_TransformedCoords2D[1]);
     if (mask_color.a < 0.5) {
         if (color.a > outerThreshold) {
-            float scale = outerThreshold / color.a;
+            half scale = outerThreshold / color.a;
             color.rgb *= scale;
             color.a = outerThreshold;
         }
     } else if (color.a < innerThreshold) {
-        float scale = innerThreshold / max(0.001, color.a);
+        half scale = innerThreshold / max(0.001, color.a);
         color.rgb *= scale;
         color.a = innerThreshold;
     }

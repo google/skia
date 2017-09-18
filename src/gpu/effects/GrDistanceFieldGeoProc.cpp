@@ -45,7 +45,7 @@ public:
 
         const char* atlasSizeInvName;
         fAtlasSizeInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
-                                                          kVec2f_GrSLType,
+                                                          kHighFloat2_GrSLType,
                                                           kHigh_GrSLPrecision,
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
@@ -53,8 +53,7 @@ public:
         // adjust based on gamma
         const char* distanceAdjustUniName = nullptr;
         // width, height, 1/(3*width)
-        fDistanceAdjustUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                        kFloat_GrSLType, kDefault_GrSLPrecision,
+        fDistanceAdjustUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
                                                         "DistanceAdjust", &distanceAdjustUniName);
 #endif
 
@@ -78,9 +77,9 @@ public:
                              args.fFPCoordTransformHandler);
 
         // add varyings
-        GrGLSLVertToFrag uv(kVec2f_GrSLType);
-        GrGLSLVertToFrag texIdx(kFloat_GrSLType);
-        GrGLSLVertToFrag st(kVec2f_GrSLType);
+        GrGLSLVertToFrag uv(kHighFloat2_GrSLType);
+        GrGLSLVertToFrag texIdx(kHalf_GrSLType);
+        GrGLSLVertToFrag st(kHighFloat2_GrSLType);
         append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, &st);
 
@@ -93,19 +92,19 @@ public:
             SkToBool(dfTexEffect.getFlags() & kAliased_DistanceFieldEffectFlag);
 
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppendf("highp float2 uv = %s;\n", uv.fsIn());
-        fragBuilder->codeAppend("float4 texColor;");
+        fragBuilder->codeAppendf("highfloat2 uv = %s;\n", uv.fsIn());
+        fragBuilder->codeAppend("half4 texColor;");
         append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
                                    texIdx, "uv", "texColor");
 
-        fragBuilder->codeAppend("float distance = "
+        fragBuilder->codeAppend("half distance = "
                       SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");");
 #ifdef SK_GAMMA_APPLY_TO_A8
         // adjust width based on gamma
         fragBuilder->codeAppendf("distance -= %s;", distanceAdjustUniName);
 #endif
 
-        fragBuilder->codeAppend("float afwidth;");
+        fragBuilder->codeAppend("half afwidth;");
         if (isUniformScale) {
             // For uniform scale, we adjust for the effect of the transformation on the distance
             // by using the length of the gradient of the t coordinate in the y direction.
@@ -128,29 +127,29 @@ public:
 
             // this gives us a smooth step across approximately one fragment
 #ifdef SK_VULKAN
-            fragBuilder->codeAppendf("float st_grad_len = length(dFdx(%s));", st.fsIn());
+            fragBuilder->codeAppendf("half st_grad_len = length(dFdx(%s));", st.fsIn());
 #else
             // We use the y gradient because there is a bug in the Mali 400 in the x direction.
-            fragBuilder->codeAppendf("float st_grad_len = length(dFdy(%s));", st.fsIn());
+            fragBuilder->codeAppendf("half st_grad_len = length(dFdy(%s));", st.fsIn());
 #endif
             fragBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*st_grad_len);");
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
             // (which is the inverse transform for this fragment) and take the length of the result.
-            fragBuilder->codeAppend("float2 dist_grad = float2(dFdx(distance), dFdy(distance));");
+            fragBuilder->codeAppend("half2 dist_grad = half2(dFdx(distance), dFdy(distance));");
             // the length of the gradient may be 0, so we need to check for this
             // this also compensates for the Adreno, which likes to drop tiles on division by 0
-            fragBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
+            fragBuilder->codeAppend("half dg_len2 = dot(dist_grad, dist_grad);");
             fragBuilder->codeAppend("if (dg_len2 < 0.0001) {");
-            fragBuilder->codeAppend("dist_grad = float2(0.7071, 0.7071);");
+            fragBuilder->codeAppend("dist_grad = half2(0.7071, 0.7071);");
             fragBuilder->codeAppend("} else {");
             fragBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
             fragBuilder->codeAppend("}");
 
-            fragBuilder->codeAppendf("float2 Jdx = dFdx(%s);", st.fsIn());
-            fragBuilder->codeAppendf("float2 Jdy = dFdy(%s);", st.fsIn());
-            fragBuilder->codeAppend("float2 grad = float2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
+            fragBuilder->codeAppendf("half2 Jdx = dFdx(%s);", st.fsIn());
+            fragBuilder->codeAppendf("half2 Jdy = dFdy(%s);", st.fsIn());
+            fragBuilder->codeAppend("half2 grad = half2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
             fragBuilder->codeAppend("                 dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
 
             // this gives us a smooth step across approximately one fragment
@@ -158,18 +157,18 @@ public:
         }
 
         if (isAliased) {
-            fragBuilder->codeAppend("float val = distance > 0 ? 1.0 : 0.0;");
+            fragBuilder->codeAppend("half val = distance > 0 ? 1.0 : 0.0;");
         } else if (isGammaCorrect) {
             // The smoothstep falloff compensates for the non-linear sRGB response curve. If we are
             // doing gamma-correct rendering (to an sRGB or F16 buffer), then we actually want
             // distance mapped linearly to coverage, so use a linear step:
             fragBuilder->codeAppend(
-                "float val = clamp((distance + afwidth) / (2.0 * afwidth), 0.0, 1.0);");
+                "half val = clamp((distance + afwidth) / (2.0 * afwidth), 0.0, 1.0);");
         } else {
-            fragBuilder->codeAppend("float val = smoothstep(-afwidth, afwidth, distance);");
+            fragBuilder->codeAppend("half val = smoothstep(-afwidth, afwidth, distance);");
         }
 
-        fragBuilder->codeAppendf("%s = float4(val);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("%s = half4(val);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
@@ -341,14 +340,14 @@ public:
 
         const char* atlasSizeInvName;
         fAtlasSizeInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
-                                                          kVec2f_GrSLType,
+                                                          kHighFloat2_GrSLType,
                                                           kHigh_GrSLPrecision,
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
 
-        GrGLSLVertToFrag uv(kVec2f_GrSLType);
-        GrGLSLVertToFrag texIdx(kFloat_GrSLType);
-        GrGLSLVertToFrag st(kVec2f_GrSLType);
+        GrGLSLVertToFrag uv(kHighFloat2_GrSLType);
+        GrGLSLVertToFrag texIdx(kHalf_GrSLType);
+        GrGLSLVertToFrag st(kHighFloat2_GrSLType);
         append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, &st);
 
@@ -372,15 +371,15 @@ public:
                              args.fFPCoordTransformHandler);
 
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppendf("highp float2 uv = %s;", uv.fsIn());
-        fragBuilder->codeAppend("float4 texColor;");
+        fragBuilder->codeAppendf("highfloat2 uv = %s;", uv.fsIn());
+        fragBuilder->codeAppend("half4 texColor;");
         append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
                                    texIdx, "uv", "texColor");
 
-        fragBuilder->codeAppend("float distance = "
+        fragBuilder->codeAppend("half distance = "
             SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");");
 
-        fragBuilder->codeAppend("float afwidth;");
+        fragBuilder->codeAppend("half afwidth;");
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
                                kUniformScale_DistanceFieldEffectMask;
         bool isSimilarity = SkToBool(dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag);
@@ -407,30 +406,30 @@ public:
 
             // this gives us a smooth step across approximately one fragment
 #ifdef SK_VULKAN
-            fragBuilder->codeAppendf("float st_grad_len = length(dFdx(%s));", st.fsIn());
+            fragBuilder->codeAppendf("half st_grad_len = length(dFdx(%s));", st.fsIn());
 #else
             // We use the y gradient because there is a bug in the Mali 400 in the x direction.
-            fragBuilder->codeAppendf("float st_grad_len = length(dFdy(%s));", st.fsIn());
+            fragBuilder->codeAppendf("half st_grad_len = length(dFdy(%s));", st.fsIn());
 #endif
             fragBuilder->codeAppend("afwidth = abs(" SK_DistanceFieldAAFactor "*st_grad_len);");
         } else {
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
             // (which is the inverse transform for this fragment) and take the length of the result.
-            fragBuilder->codeAppend("float2 dist_grad = float2(dFdx(distance), dFdy(distance));");
+            fragBuilder->codeAppend("half2 dist_grad = half2(dFdx(distance), dFdy(distance));");
             // the length of the gradient may be 0, so we need to check for this
             // this also compensates for the Adreno, which likes to drop tiles on division by 0
-            fragBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
+            fragBuilder->codeAppend("half dg_len2 = dot(dist_grad, dist_grad);");
             fragBuilder->codeAppend("if (dg_len2 < 0.0001) {");
-            fragBuilder->codeAppend("dist_grad = float2(0.7071, 0.7071);");
+            fragBuilder->codeAppend("dist_grad = half2(0.7071, 0.7071);");
             fragBuilder->codeAppend("} else {");
             fragBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
             fragBuilder->codeAppend("}");
 
-            fragBuilder->codeAppendf("float2 Jdx = dFdx(%s);", st.fsIn());
-            fragBuilder->codeAppendf("float2 Jdy = dFdy(%s);", st.fsIn());
-            fragBuilder->codeAppend("float2 grad = float2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
-            fragBuilder->codeAppend("                 dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
+            fragBuilder->codeAppendf("half2 Jdx = dFdx(%s);", st.fsIn());
+            fragBuilder->codeAppendf("half2 Jdy = dFdy(%s);", st.fsIn());
+            fragBuilder->codeAppend("half2 grad = half2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
+            fragBuilder->codeAppend("                   dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
 
             // this gives us a smooth step across approximately one fragment
             fragBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*length(grad);");
@@ -440,12 +439,12 @@ public:
         // mapped linearly to coverage, so use a linear step:
         if (isGammaCorrect) {
             fragBuilder->codeAppend(
-                "float val = clamp((distance + afwidth) / (2.0 * afwidth), 0.0, 1.0);");
+                "half val = clamp((distance + afwidth) / (2.0 * afwidth), 0.0, 1.0);");
         } else {
-            fragBuilder->codeAppend("float val = smoothstep(-afwidth, afwidth, distance);");
+            fragBuilder->codeAppend("half val = smoothstep(-afwidth, afwidth, distance);");
         }
 
-        fragBuilder->codeAppendf("%s = float4(val);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("%s = half4(val);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
@@ -600,7 +599,7 @@ public:
 
         const char* atlasSizeInvName;
         fAtlasSizeInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
-                                                          kVec2f_GrSLType,
+                                                          kHighFloat2_GrSLType,
                                                           kHigh_GrSLPrecision,
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
@@ -627,13 +626,13 @@ public:
                              args.fFPCoordTransformHandler);
 
         // set up varyings
-        GrGLSLVertToFrag uv(kVec2f_GrSLType);
-        GrGLSLVertToFrag texIdx(kFloat_GrSLType);
-        GrGLSLVertToFrag st(kVec2f_GrSLType);
+        GrGLSLVertToFrag uv(kHighFloat2_GrSLType);
+        GrGLSLVertToFrag texIdx(kHalf_GrSLType);
+        GrGLSLVertToFrag st(kHighFloat2_GrSLType);
         append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, &st);
 
-        GrGLSLVertToFrag delta(kFloat_GrSLType);
+        GrGLSLVertToFrag delta(kHighFloat_GrSLType);
         varyingHandler->addVarying("Delta", &delta, kHigh_GrSLPrecision);
         if (dfTexEffect.getFlags() & kBGR_DistanceFieldEffectFlag) {
             vertBuilder->codeAppendf("%s = -%s.x/3.0;", delta.vsOut(), atlasSizeInvName);
@@ -650,48 +649,48 @@ public:
 
         // create LCD offset adjusted by inverse of transform
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppendf("highp float2 uv = %s;\n", uv.fsIn());
+        fragBuilder->codeAppendf("highfloat2 uv = %s;\n", uv.fsIn());
 
         if (isUniformScale) {
 #ifdef SK_VULKAN
-            fragBuilder->codeAppendf("float st_grad_len = abs(dFdx(%s.x));", st.fsIn());
+            fragBuilder->codeAppendf("half st_grad_len = abs(dFdx(%s.x));", st.fsIn());
 #else
             // We use the y gradient because there is a bug in the Mali 400 in the x direction.
-            fragBuilder->codeAppendf("float st_grad_len = abs(dFdy(%s.y));", st.fsIn());
+            fragBuilder->codeAppendf("half st_grad_len = abs(dFdy(%s.y));", st.fsIn());
 #endif
-            fragBuilder->codeAppendf("float2 offset = float2(st_grad_len*%s, 0.0);", delta.fsIn());
+            fragBuilder->codeAppendf("half2 offset = half2(st_grad_len*%s, 0.0);", delta.fsIn());
         } else if (isSimilarity) {
             // For a similarity matrix with rotation, the gradient will not be aligned
             // with the texel coordinate axes, so we need to calculate it.
 #ifdef SK_VULKAN
-            fragBuilder->codeAppendf("float2 st_grad = dFdx(%s);", st.fsIn());
-            fragBuilder->codeAppendf("float2 offset = %s*st_grad;", delta.fsIn());
+            fragBuilder->codeAppendf("half2 st_grad = dFdx(%s);", st.fsIn());
+            fragBuilder->codeAppendf("half2 offset = %s*st_grad;", delta.fsIn());
 #else
             // We use dFdy because of a Mali 400 bug, and rotate -90 degrees to
             // get the gradient in the x direction.
-            fragBuilder->codeAppendf("float2 st_grad = dFdy(%s);", st.fsIn());
-            fragBuilder->codeAppendf("float2 offset = %s*float2(st_grad.y, -st_grad.x);",
+            fragBuilder->codeAppendf("half2 st_grad = dFdy(%s);", st.fsIn());
+            fragBuilder->codeAppendf("half2 offset = %s*half2(st_grad.y, -st_grad.x);",
                                      delta.fsIn());
 #endif
-            fragBuilder->codeAppend("float st_grad_len = length(st_grad);");
+            fragBuilder->codeAppend("half st_grad_len = length(st_grad);");
         } else {
-            fragBuilder->codeAppendf("float2 st = %s;\n", st.fsIn());
+            fragBuilder->codeAppendf("half2 st = %s;\n", st.fsIn());
 
-            fragBuilder->codeAppend("float2 Jdx = dFdx(st);");
-            fragBuilder->codeAppend("float2 Jdy = dFdy(st);");
-            fragBuilder->codeAppendf("float2 offset = %s*Jdx;", delta.fsIn());
+            fragBuilder->codeAppend("half2 Jdx = dFdx(st);");
+            fragBuilder->codeAppend("half2 Jdy = dFdy(st);");
+            fragBuilder->codeAppendf("half2 offset = %s*Jdx;", delta.fsIn());
         }
 
         // sample the texture by index
-        fragBuilder->codeAppend("float4 texColor;");
+        fragBuilder->codeAppend("half4 texColor;");
         append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
                                    texIdx, "uv", "texColor");
 
         // green is distance to uv center
-        fragBuilder->codeAppend("float3 distance;");
+        fragBuilder->codeAppend("half3 distance;");
         fragBuilder->codeAppend("distance.y = texColor.r;");
         // red is distance to left offset
-        fragBuilder->codeAppend("float2 uv_adjusted = uv - offset;");
+        fragBuilder->codeAppend("half2 uv_adjusted = uv - offset;");
         append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
                                    texIdx, "uv_adjusted", "texColor");
         fragBuilder->codeAppend("distance.x = texColor.r;");
@@ -702,12 +701,11 @@ public:
         fragBuilder->codeAppend("distance.z = texColor.r;");
 
         fragBuilder->codeAppend("distance = "
-           "float3(" SK_DistanceFieldMultiplier ")*(distance - float3(" SK_DistanceFieldThreshold"));");
+           "half3(" SK_DistanceFieldMultiplier ")*(distance - half3(" SK_DistanceFieldThreshold"));");
 
         // adjust width based on gamma
         const char* distanceAdjustUniName = nullptr;
-        fDistanceAdjustUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                        kVec3f_GrSLType, kDefault_GrSLPrecision,
+        fDistanceAdjustUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf3_GrSLType,
                                                         "DistanceAdjust", &distanceAdjustUniName);
         fragBuilder->codeAppendf("distance -= %s;", distanceAdjustUniName);
 
@@ -715,7 +713,7 @@ public:
         // for each color component. However, this is only important when using perspective
         // transformations, and even then using a single factor seems like a reasonable
         // trade-off between quality and speed.
-        fragBuilder->codeAppend("float afwidth;");
+        fragBuilder->codeAppend("half afwidth;");
         if (isSimilarity) {
             // For similarity transform (uniform scale-only is a subset of this), we adjust for the
             // effect of the transformation on the distance by using the length of the gradient of
@@ -728,16 +726,16 @@ public:
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
             // (which is the inverse transform for this fragment) and take the length of the result.
-            fragBuilder->codeAppend("float2 dist_grad = float2(dFdx(distance.r), dFdy(distance.r));");
+            fragBuilder->codeAppend("half2 dist_grad = half2(dFdx(distance.r), dFdy(distance.r));");
             // the length of the gradient may be 0, so we need to check for this
             // this also compensates for the Adreno, which likes to drop tiles on division by 0
-            fragBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
+            fragBuilder->codeAppend("half dg_len2 = dot(dist_grad, dist_grad);");
             fragBuilder->codeAppend("if (dg_len2 < 0.0001) {");
-            fragBuilder->codeAppend("dist_grad = float2(0.7071, 0.7071);");
+            fragBuilder->codeAppend("dist_grad = half2(0.7071, 0.7071);");
             fragBuilder->codeAppend("} else {");
             fragBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
             fragBuilder->codeAppend("}");
-            fragBuilder->codeAppend("float2 grad = float2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
+            fragBuilder->codeAppend("half2 grad = half2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
             fragBuilder->codeAppend("                 dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
 
             // this gives us a smooth step across approximately one fragment
@@ -749,11 +747,11 @@ public:
         // mapped linearly to coverage, so use a linear step:
         if (isGammaCorrect) {
             fragBuilder->codeAppendf("%s = "
-                "float4(clamp((distance + float3(afwidth)) / float3(2.0 * afwidth), 0.0, 1.0), 1.0);",
+                "half4(clamp((distance + half3(afwidth)) / half3(2.0 * afwidth), 0.0, 1.0), 1.0);",
                 args.fOutputCoverage);
         } else {
             fragBuilder->codeAppendf(
-                "%s = float4(smoothstep(float3(-afwidth), float3(afwidth), distance), 1.0);",
+                "%s = half4(smoothstep(half3(-afwidth), half3(afwidth), distance), 1.0);",
                 args.fOutputCoverage);
         }
     }
