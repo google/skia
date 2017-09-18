@@ -119,21 +119,21 @@ private:
 
             // emit attributes
             varyingHandler->emitAttributes(cgp);
-            fragBuilder->codeAppend("highfloat4 circleEdge;");
+            fragBuilder->codeAppend("highp float4 circleEdge;");
             varyingHandler->addPassThroughAttribute(cgp.fInCircleEdge, "circleEdge",
                                                     kHigh_GrSLPrecision);
             if (cgp.fInClipPlane) {
-                fragBuilder->codeAppend("half3 clipPlane;");
+                fragBuilder->codeAppend("float3 clipPlane;");
                 varyingHandler->addPassThroughAttribute(cgp.fInClipPlane, "clipPlane");
             }
             if (cgp.fInIsectPlane) {
                 SkASSERT(cgp.fInClipPlane);
-                fragBuilder->codeAppend("half3 isectPlane;");
+                fragBuilder->codeAppend("float3 isectPlane;");
                 varyingHandler->addPassThroughAttribute(cgp.fInIsectPlane, "isectPlane");
             }
             if (cgp.fInUnionPlane) {
                 SkASSERT(cgp.fInClipPlane);
-                fragBuilder->codeAppend("half3 unionPlane;");
+                fragBuilder->codeAppend("float3 unionPlane;");
                 varyingHandler->addPassThroughAttribute(cgp.fInUnionPlane, "unionPlane");
             }
 
@@ -152,19 +152,19 @@ private:
                                  cgp.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
 
-            fragBuilder->codeAppend("highfloat d = length(circleEdge.xy);");
-            fragBuilder->codeAppend("half distanceToOuterEdge = circleEdge.z * (1.0 - d);");
-            fragBuilder->codeAppend("half edgeAlpha = clamp(distanceToOuterEdge, 0.0, 1.0);");
+            fragBuilder->codeAppend("highp float d = length(circleEdge.xy);");
+            fragBuilder->codeAppend("float distanceToOuterEdge = circleEdge.z * (1.0 - d);");
+            fragBuilder->codeAppend("float edgeAlpha = clamp(distanceToOuterEdge, 0.0, 1.0);");
             if (cgp.fStroke) {
                 fragBuilder->codeAppend(
-                        "half distanceToInnerEdge = circleEdge.z * (d - circleEdge.w);");
-                fragBuilder->codeAppend("half innerAlpha = clamp(distanceToInnerEdge, 0.0, 1.0);");
+                        "float distanceToInnerEdge = circleEdge.z * (d - circleEdge.w);");
+                fragBuilder->codeAppend("float innerAlpha = clamp(distanceToInnerEdge, 0.0, 1.0);");
                 fragBuilder->codeAppend("edgeAlpha *= innerAlpha;");
             }
 
             if (cgp.fInClipPlane) {
                 fragBuilder->codeAppend(
-                        "half clip = clamp(circleEdge.z * dot(circleEdge.xy, clipPlane.xy) + "
+                        "float clip = clamp(circleEdge.z * dot(circleEdge.xy, clipPlane.xy) + "
                         "clipPlane.z, 0.0, 1.0);");
                 if (cgp.fInIsectPlane) {
                     fragBuilder->codeAppend(
@@ -178,7 +178,7 @@ private:
                 }
                 fragBuilder->codeAppend("edgeAlpha *= clip;");
             }
-            fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = float4(edgeAlpha);", args.fOutputCoverage);
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
@@ -275,12 +275,12 @@ private:
             // emit attributes
             varyingHandler->emitAttributes(egp);
 
-            GrGLSLVertToFrag ellipseOffsets(kHalf2_GrSLType);
+            GrGLSLVertToFrag ellipseOffsets(kVec2f_GrSLType);
             varyingHandler->addVarying("EllipseOffsets", &ellipseOffsets);
             vertBuilder->codeAppendf("%s = %s;", ellipseOffsets.vsOut(),
                                      egp.fInEllipseOffset->fName);
 
-            GrGLSLVertToFrag ellipseRadii(kHalf4_GrSLType);
+            GrGLSLVertToFrag ellipseRadii(kVec4f_GrSLType);
             varyingHandler->addVarying("EllipseRadii", &ellipseRadii);
             vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(), egp.fInEllipseRadii->fName);
 
@@ -301,16 +301,16 @@ private:
                                  args.fFPCoordTransformHandler);
 
             // for outer curve
-            fragBuilder->codeAppendf("half2 scaledOffset = %s*%s.xy;", ellipseOffsets.fsIn(),
+            fragBuilder->codeAppendf("float2 scaledOffset = %s*%s.xy;", ellipseOffsets.fsIn(),
                                      ellipseRadii.fsIn());
-            fragBuilder->codeAppend("half test = dot(scaledOffset, scaledOffset) - 1.0;");
-            fragBuilder->codeAppendf("half2 grad = 2.0*scaledOffset*%s.xy;", ellipseRadii.fsIn());
-            fragBuilder->codeAppend("half grad_dot = dot(grad, grad);");
+            fragBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");
+            fragBuilder->codeAppendf("float2 grad = 2.0*scaledOffset*%s.xy;", ellipseRadii.fsIn());
+            fragBuilder->codeAppend("float grad_dot = dot(grad, grad);");
 
             // avoid calling inversesqrt on zero.
             fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
-            fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
-            fragBuilder->codeAppend("half edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
+            fragBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
+            fragBuilder->codeAppend("float edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
 
             // for inner curve
             if (egp.fStroke) {
@@ -322,7 +322,7 @@ private:
                 fragBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
             }
 
-            fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = float4(edgeAlpha);", args.fOutputCoverage);
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
@@ -417,11 +417,11 @@ private:
             // emit attributes
             varyingHandler->emitAttributes(diegp);
 
-            GrGLSLVertToFrag offsets0(kHalf2_GrSLType);
+            GrGLSLVertToFrag offsets0(kVec2f_GrSLType);
             varyingHandler->addVarying("EllipseOffsets0", &offsets0);
             vertBuilder->codeAppendf("%s = %s;", offsets0.vsOut(), diegp.fInEllipseOffsets0->fName);
 
-            GrGLSLVertToFrag offsets1(kHalf2_GrSLType);
+            GrGLSLVertToFrag offsets1(kVec2f_GrSLType);
             varyingHandler->addVarying("EllipseOffsets1", &offsets1);
             vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(), diegp.fInEllipseOffsets1->fName);
 
@@ -445,25 +445,25 @@ private:
                                  args.fFPCoordTransformHandler);
 
             // for outer curve
-            fragBuilder->codeAppendf("half2 scaledOffset = %s.xy;", offsets0.fsIn());
-            fragBuilder->codeAppend("half test = dot(scaledOffset, scaledOffset) - 1.0;");
-            fragBuilder->codeAppendf("half2 duvdx = dFdx(%s);", offsets0.fsIn());
-            fragBuilder->codeAppendf("half2 duvdy = dFdy(%s);", offsets0.fsIn());
+            fragBuilder->codeAppendf("float2 scaledOffset = %s.xy;", offsets0.fsIn());
+            fragBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");
+            fragBuilder->codeAppendf("float2 duvdx = dFdx(%s);", offsets0.fsIn());
+            fragBuilder->codeAppendf("float2 duvdy = dFdy(%s);", offsets0.fsIn());
             fragBuilder->codeAppendf(
-                    "half2 grad = half2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
-                    "                  2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
+                    "float2 grad = float2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
+                    "                 2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
                     offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn(), offsets0.fsIn());
 
-            fragBuilder->codeAppend("half grad_dot = dot(grad, grad);");
+            fragBuilder->codeAppend("float grad_dot = dot(grad, grad);");
             // avoid calling inversesqrt on zero.
             fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
-            fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
+            fragBuilder->codeAppend("float invlen = inversesqrt(grad_dot);");
             if (DIEllipseStyle::kHairline == diegp.fStyle) {
                 // can probably do this with one step
-                fragBuilder->codeAppend("half edgeAlpha = clamp(1.0-test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppend("float edgeAlpha = clamp(1.0-test*invlen, 0.0, 1.0);");
                 fragBuilder->codeAppend("edgeAlpha *= clamp(1.0+test*invlen, 0.0, 1.0);");
             } else {
-                fragBuilder->codeAppend("half edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppend("float edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
             }
 
             // for inner curve
@@ -473,14 +473,14 @@ private:
                 fragBuilder->codeAppendf("duvdx = dFdx(%s);", offsets1.fsIn());
                 fragBuilder->codeAppendf("duvdy = dFdy(%s);", offsets1.fsIn());
                 fragBuilder->codeAppendf(
-                        "grad = half2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
-                        "             2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
+                        "grad = float2(2.0*%s.x*duvdx.x + 2.0*%s.y*duvdx.y,"
+                        "            2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
                         offsets1.fsIn(), offsets1.fsIn(), offsets1.fsIn(), offsets1.fsIn());
                 fragBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
                 fragBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
             }
 
-            fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = float4(edgeAlpha);", args.fOutputCoverage);
         }
 
         static void GenKey(const GrGeometryProcessor& gp,

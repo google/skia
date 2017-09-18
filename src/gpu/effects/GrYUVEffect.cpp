@@ -89,9 +89,10 @@ public:
             const YUVtoRGBEffect& effect = args.fFp.cast<YUVtoRGBEffect>();
 
             const char* colorSpaceMatrix = nullptr;
-            fMatrixUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4x4_GrSLType,
+            fMatrixUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                          kMat44f_GrSLType, kDefault_GrSLPrecision,
                                                           "ColorSpaceMatrix", &colorSpaceMatrix);
-            fragBuilder->codeAppendf("%s = half4(", args.fOutputColor);
+            fragBuilder->codeAppendf("%s = float4(", args.fOutputColor);
             fragBuilder->appendTextureLookup(args.fTexSamplers[0],
                                              args.fTransformedCoords[0].c_str(),
                                              args.fTransformedCoords[0].getType());

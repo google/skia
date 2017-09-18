@@ -53,7 +53,7 @@ private:
         // you do not give gl_FragColor a value, the gl context is lost and we end up drawing
         // nothing. So this fix just sets the gl_FragColor arbitrarily to 0.
         GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
-        fragBuilder->codeAppendf("%s = half4(0);", args.fOutputPrimary);
+        fragBuilder->codeAppendf("%s = float4(0);", args.fOutputPrimary);
     }
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}

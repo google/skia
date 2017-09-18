@@ -93,12 +93,11 @@ public:
     }
 
     // Create a scalar type.
-    Type(String name, NumberKind numberKind, int priority)
+    Type(String name, NumberKind numberKind)
     : INHERITED(-1, kType_Kind, StringFragment())
     , fNameString(std::move(name))
     , fTypeKind(kScalar_Kind)
     , fNumberKind(numberKind)
-    , fPriority(priority)
     , fColumns(1)
     , fRows(1) {
         fName.fChars = fNameString.c_str();
@@ -106,12 +105,11 @@ public:
     }
 
     // Create a scalar type which can be coerced to the listed types.
-    Type(String name, NumberKind numberKind, int priority, std::vector<const Type*> coercibleTypes)
+    Type(String name, NumberKind numberKind, std::vector<const Type*> coercibleTypes)
     : INHERITED(-1, kType_Kind, StringFragment())
     , fNameString(std::move(name))
     , fTypeKind(kScalar_Kind)
     , fNumberKind(numberKind)
-    , fPriority(priority)
     , fCoercibleTypes(std::move(coercibleTypes))
     , fColumns(1)
     , fRows(1) {
@@ -226,14 +224,6 @@ public:
     }
 
     /**
-     * Returns the "priority" of a number type, in order of double > float > half > int > short.
-     * When operating on two number types, the result is the higher-priority type.
-     */
-    int priority() const {
-        return fPriority;
-    }
-
-    /**
      * Returns true if an instance of this type can be freely coerced (implicitly converted) to
      * another type.
      */
@@ -325,21 +315,20 @@ public:
 private:
     typedef Symbol INHERITED;
 
-    String fNameString;
-    Kind fTypeKind;
+    const String fNameString;
+    const Kind fTypeKind;
     // always kNonnumeric_NumberKind for non-scalar values
-    NumberKind fNumberKind;
-    int fPriority = -1;
+    const NumberKind fNumberKind;
     const Type* fComponentType = nullptr;
-    std::vector<const Type*> fCoercibleTypes;
-    int fColumns = -1;
-    int fRows = -1;
-    std::vector<Field> fFields;
-    SpvDim_ fDimensions = SpvDim1D;
-    bool fIsDepth = false;
-    bool fIsArrayed = false;
-    bool fIsMultisampled = false;
-    bool fIsSampled = false;
+    const std::vector<const Type*> fCoercibleTypes;
+    const int fColumns = -1;
+    const int fRows = -1;
+    const std::vector<Field> fFields;
+    const SpvDim_ fDimensions = SpvDim1D;
+    const bool fIsDepth = false;
+    const bool fIsArrayed = false;
+    const bool fIsMultisampled = false;
+    const bool fIsSampled = false;
 };
 
 } // namespace

@@ -82,26 +82,26 @@ public:
 
             // Setup pass through color
             if (gp.hasVertexColor()) {
-                GrGLSLVertToFrag varying(kHalf4_GrSLType);
+                GrGLSLVertToFrag varying(kVec4f_GrSLType);
                 varyingHandler->addVarying("color", &varying);
 
                 // There are several optional steps to process the color. Start with the attribute:
-                vertBuilder->codeAppendf("half4 color = %s;", gp.inColor()->fName);
+                vertBuilder->codeAppendf("float4 color = %s;", gp.inColor()->fName);
 
                 // Linearize
                 if (gp.linearizeColor()) {
                     SkString srgbFuncName;
                     static const GrShaderVar gSrgbArgs[] = {
-                        GrShaderVar("x", kHalf_GrSLType),
+                        GrShaderVar("x", kFloat_GrSLType),
                     };
-                    vertBuilder->emitFunction(kHalf_GrSLType,
+                    vertBuilder->emitFunction(kFloat_GrSLType,
                                               "srgb_to_linear",
                                               SK_ARRAY_COUNT(gSrgbArgs),
                                               gSrgbArgs,
                                               "return (x <= 0.04045) ? (x / 12.92) "
                                               ": pow((x + 0.055) / 1.055, 2.4);",
                                               &srgbFuncName);
-                    vertBuilder->codeAppendf("color = half4(%s(%s.r), %s(%s.g), %s(%s.b), %s.a);",
+                    vertBuilder->codeAppendf("color = float4(%s(%s.r), %s(%s.g), %s(%s.b), %s.a);",
                                              srgbFuncName.c_str(), gp.inColor()->fName,
                                              srgbFuncName.c_str(), gp.inColor()->fName,
                                              srgbFuncName.c_str(), gp.inColor()->fName,
@@ -110,7 +110,7 @@ public:
 
                 // For SkColor, do a red/blue swap and premul
                 if (gp.fFlags & kColorAttributeIsSkColor_GPFlag) {
-                    vertBuilder->codeAppend("color = half4(color.a * color.bgr, color.a);");
+                    vertBuilder->codeAppend("color = float4(color.a * color.bgr, color.a);");
                 }
 
                 // Do color-correction to destination gamut
@@ -161,18 +161,19 @@ public:
 
             // Setup coverage as pass through
             if (gp.hasVertexCoverage()) {
-                fragBuilder->codeAppendf("half alpha = 1.0;");
+                fragBuilder->codeAppendf("float alpha = 1.0;");
                 varyingHandler->addPassThroughAttribute(gp.inCoverage(), "alpha");
-                fragBuilder->codeAppendf("%s = half4(alpha);", args.fOutputCoverage);
+                fragBuilder->codeAppendf("%s = float4(alpha);", args.fOutputCoverage);
             } else if (gp.coverage() == 0xff) {
-                fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+                fragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
             } else {
                 const char* fragCoverage;
                 fCoverageUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                              kHalf_GrSLType,
+                                                              kFloat_GrSLType,
+                                                              kDefault_GrSLPrecision,
                                                               "Coverage",
                                                               &fragCoverage);
-                fragBuilder->codeAppendf("%s = half4(%s);", args.fOutputCoverage, fragCoverage);
+                fragBuilder->codeAppendf("%s = float4(%s);", args.fOutputCoverage, fragCoverage);
             }
         }
 

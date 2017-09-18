@@ -37,39 +37,39 @@ static void test_success(skiatest::Reporter* r, const char* src) {
 
 DEF_TEST(SkSLUndefinedSymbol, r) {
     test_failure(r,
-                 "void main() { x = highfloat2(1); }",
+                 "void main() { x = float2(1); }",
                  "error: 1: unknown identifier 'x'\n1 error\n");
 }
 
 DEF_TEST(SkSLUndefinedFunction, r) {
     test_failure(r,
-                 "void main() { int x = foo(1); }",
+                 "void main() { int x = foo(1); }", 
                  "error: 1: unknown identifier 'foo'\n1 error\n");
 }
 
 DEF_TEST(SkSLGenericArgumentMismatch, r) {
     test_failure(r,
-                 "void main() { highfloat x = sin(1, 2); }",
+                 "void main() { float x = sin(1, 2); }", 
                  "error: 1: call to 'sin' expected 1 argument, but found 2\n1 error\n");
     test_failure(r,
-                 "void main() { highfloat x = sin(true); }",
+                 "void main() { float x = sin(true); }", 
                  "error: 1: no match for sin(bool)\n1 error\n");
     test_success(r,
-                 "void main() { highfloat x = sin(1); }");
+                 "void main() { float x = sin(1); }");
 }
 
 DEF_TEST(SkSLArgumentCountMismatch, r) {
     test_failure(r,
-                 "highfloat foo(highfloat x) { return x * x; }"
-                 "void main() { highfloat x = foo(1, 2); }",
+                 "float foo(float x) { return x * x; }"
+                 "void main() { float x = foo(1, 2); }", 
                  "error: 1: call to 'foo' expected 1 argument, but found 2\n1 error\n");
 }
 
 DEF_TEST(SkSLArgumentMismatch, r) {
-    test_failure(r,
-                 "highfloat foo(highfloat x) { return x * x; }"
-                 "void main() { highfloat x = foo(true); }",
-                 "error: 1: expected 'highfloat', but found 'bool'\n1 error\n");
+    test_failure(r, 
+                 "float foo(float x) { return x * x; }"
+                 "void main() { float x = foo(true); }", 
+                 "error: 1: expected 'float', but found 'bool'\n1 error\n");
 }
 
 DEF_TEST(SkSLIfTypeMismatch, r) {
@@ -80,32 +80,32 @@ DEF_TEST(SkSLIfTypeMismatch, r) {
 
 DEF_TEST(SkSLDoTypeMismatch, r) {
     test_failure(r,
-                 "void main() { do { } while (highfloat2(1)); }",
-                 "error: 1: expected 'bool', but found 'highfloat2'\n1 error\n");
+                 "void main() { do { } while (float2(1)); }",
+                 "error: 1: expected 'bool', but found 'float2'\n1 error\n");
 }
 
 DEF_TEST(SkSLWhileTypeMismatch, r) {
     test_failure(r,
-                 "void main() { while (highfloat3(1)) { } }",
-                 "error: 1: expected 'bool', but found 'highfloat3'\n1 error\n");
+                 "void main() { while (float3(1)) { } }",
+                 "error: 1: expected 'bool', but found 'float3'\n1 error\n");
 }
 
 DEF_TEST(SkSLForTypeMismatch, r) {
     test_failure(r,
-                 "void main() { for (int x = 0; x; x++) { } }",
+                 "void main() { for (int x = 0; x; x++) { } }", 
                  "error: 1: expected 'bool', but found 'int'\n1 error\n");
 }
 
 DEF_TEST(SkSLConstructorTypeMismatch, r) {
     test_failure(r,
-                 "void main() { highfloat2 x = highfloat2(1.0, false); }",
-                 "error: 1: expected 'highfloat', but found 'bool'\n1 error\n");
+                 "void main() { float2 x = float2(1.0, false); }", 
+                 "error: 1: expected 'float', but found 'bool'\n1 error\n");
     test_failure(r,
-                 "void main() { highfloat2 x = highfloat2(bool2(false)); }",
-                 "error: 1: 'bool2' is not a valid parameter to 'highfloat2' constructor\n1 error\n");
+                 "void main() { float2 x = float2(bool2(false)); }",
+                 "error: 1: 'bool2' is not a valid parameter to 'float2' constructor\n1 error\n");
     test_failure(r,
-                 "void main() { bool2 x = bool2(highfloat2(1)); }",
-                 "error: 1: 'highfloat2' is not a valid parameter to 'bool2' constructor\n1 error\n");
+                 "void main() { bool2 x = bool2(float2(1)); }",
+                 "error: 1: 'float2' is not a valid parameter to 'bool2' constructor\n1 error\n");
     test_failure(r,
                  "void main() { bool x = bool(1.0); }",
                  "error: 1: cannot construct 'bool'\n1 error\n");
@@ -113,69 +113,69 @@ DEF_TEST(SkSLConstructorTypeMismatch, r) {
                  "struct foo { int x; }; void main() { foo x = foo(5); }",
                  "error: 1: cannot construct 'foo'\n1 error\n");
     test_failure(r,
-                 "struct foo { int x; } foo; void main() { highfloat x = highfloat(foo); }",
-                 "error: 1: invalid argument to 'highfloat' constructor (expected a number or bool, but found 'foo')\n1 error\n");
+                 "struct foo { int x; } foo; void main() { float x = float(foo); }",
+                 "error: 1: invalid argument to 'float' constructor (expected a number or bool, but found 'foo')\n1 error\n");
     test_failure(r,
-                 "struct foo { int x; } foo; void main() { highfloat2 x = highfloat2(foo); }",
-                 "error: 1: 'foo' is not a valid parameter to 'highfloat2' constructor\n1 error\n");
+                 "struct foo { int x; } foo; void main() { float2 x = float2(foo); }",
+                 "error: 1: 'foo' is not a valid parameter to 'float2' constructor\n1 error\n");
     test_failure(r,
-                 "void main() { highfloat2x2 x = highfloat2x2(true); }",
-                 "error: 1: expected 'highfloat', but found 'bool'\n1 error\n");
+                 "void main() { float2x2 x = float2x2(true); }",
+                 "error: 1: expected 'float', but found 'bool'\n1 error\n");
 }
 
 DEF_TEST(SkSLConstructorArgumentCount, r) {
     test_failure(r,
-                 "void main() { highfloat3 x = highfloat3(1.0, 2.0); }",
-                 "error: 1: invalid arguments to 'highfloat3' constructor (expected 3 scalars, but "
+                 "void main() { float3 x = float3(1.0, 2.0); }",
+                 "error: 1: invalid arguments to 'float3' constructor (expected 3 scalars, but "
                  "found 2)\n1 error\n");
     test_failure(r,
-                 "void main() { highfloat3 x = highfloat3(1.0, 2.0, 3.0, 4.0); }",
-                 "error: 1: invalid arguments to 'highfloat3' constructor (expected 3 scalars, but found "
+                 "void main() { float3 x = float3(1.0, 2.0, 3.0, 4.0); }",
+                 "error: 1: invalid arguments to 'float3' constructor (expected 3 scalars, but found "
                  "4)\n1 error\n");
 }
 
 DEF_TEST(SkSLSwizzleScalar, r) {
     test_failure(r,
-                 "void main() { highfloat x = 1; highfloat y = x.y; }",
-                 "error: 1: cannot swizzle value of type 'highfloat'\n1 error\n");
+                 "void main() { float x = 1; float y = x.y; }",
+                 "error: 1: cannot swizzle value of type 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLSwizzleMatrix, r) {
     test_failure(r,
-                 "void main() { highfloat2x2 x = highfloat2x2(1); highfloat y = x.y; }",
-                 "error: 1: cannot swizzle value of type 'highfloat2x2'\n1 error\n");
+                 "void main() { float2x2 x = float2x2(1); float y = x.y; }",
+                 "error: 1: cannot swizzle value of type 'float2x2'\n1 error\n");
 }
 
 DEF_TEST(SkSLSwizzleOutOfBounds, r) {
     test_failure(r,
-                 "void main() { highfloat3 test = highfloat2(1).xyz; }",
+                 "void main() { float3 test = float2(1).xyz; }",
                  "error: 1: invalid swizzle component 'z'\n1 error\n");
 }
 
 DEF_TEST(SkSLSwizzleTooManyComponents, r) {
     test_failure(r,
-                 "void main() { highfloat4 test = highfloat2(1).xxxxx; }",
+                 "void main() { float4 test = float2(1).xxxxx; }",
                  "error: 1: too many components in swizzle mask 'xxxxx'\n1 error\n");
 }
 
 DEF_TEST(SkSLSwizzleDuplicateOutput, r) {
     test_failure(r,
-                 "void main() { highfloat4 test = highfloat4(1); test.xyyz = highfloat4(1); }",
+                 "void main() { float4 test = float4(1); test.xyyz = float4(1); }",
                  "error: 1: cannot write to the same swizzle field more than once\n1 error\n");
 }
 
 DEF_TEST(SkSLAssignmentTypeMismatch, r) {
     test_failure(r,
                  "void main() { int x = 1.0; }",
-                 "error: 1: expected 'int', but found 'highfloat'\n1 error\n");
+                 "error: 1: expected 'int', but found 'float'\n1 error\n");
     test_failure(r,
                  "void main() { int x; x = 1.0; }",
-                 "error: 1: type mismatch: '=' cannot operate on 'int', 'highfloat'\n1 error\n");
+                 "error: 1: type mismatch: '=' cannot operate on 'int', 'float'\n1 error\n");
     test_success(r,
-                 "void main() { highfloat3 x = highfloat3(0); x *= 1.0; }");
+                 "void main() { float3 x = float3(0); x *= 1.0; }");
     test_failure(r,
                  "void main() { int3 x = int3(0); x *= 1.0; }",
-                 "error: 1: type mismatch: '*=' cannot operate on 'int3', 'highfloat'\n1 error\n");
+                 "error: 1: type mismatch: '*=' cannot operate on 'int3', 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLReturnFromVoid, r) {
@@ -192,13 +192,13 @@ DEF_TEST(SkSLReturnMissingValue, r) {
 
 DEF_TEST(SkSLReturnTypeMismatch, r) {
     test_failure(r,
-                 "int foo() { return 1.0; } void main() { }",
-                 "error: 1: expected 'int', but found 'highfloat'\n1 error\n");
+                 "int foo() { return 1.0; } void main() { }", 
+                 "error: 1: expected 'int', but found 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLDuplicateFunction, r) {
     test_failure(r,
-                 "void main() { } void main() { }",
+                 "void main() { } void main() { }", 
                  "error: 1: duplicate definition of void main()\n1 error\n");
     test_success(r,
                  "void main(); void main() { }");
@@ -206,29 +206,29 @@ DEF_TEST(SkSLDuplicateFunction, r) {
 
 DEF_TEST(SkSLUsingInvalidValue, r) {
     test_failure(r,
-                 "void main() { int x = int; }",
+                 "void main() { int x = int; }", 
                  "error: 1: expected '(' to begin constructor invocation\n1 error\n");
     test_failure(r,
-                 "int test() { return 1; } void main() { int x = test; }",
+                 "int test() { return 1; } void main() { int x = test; }", 
                  "error: 1: expected '(' to begin function call\n1 error\n");
 }
 DEF_TEST(SkSLDifferentReturnType, r) {
     test_failure(r,
-                 "int main() { return 1; } void main() { }",
+                 "int main() { return 1; } void main() { }", 
                  "error: 1: functions 'void main()' and 'int main()' differ only in return type\n1 "
                  "error\n");
 }
 
 DEF_TEST(SkSLDifferentModifiers, r) {
     test_failure(r,
-                 "void test(int x); void test(out int x) { }",
+                 "void test(int x); void test(out int x) { }", 
                  "error: 1: modifiers on parameter 1 differ between declaration and definition\n1 "
                  "error\n");
 }
 
 DEF_TEST(SkSLDuplicateSymbol, r) {
     test_failure(r,
-                 "int main; void main() { }",
+                 "int main; void main() { }", 
                  "error: 1: symbol 'main' was already defined\n1 error\n");
 
     test_failure(r,
@@ -240,32 +240,32 @@ DEF_TEST(SkSLDuplicateSymbol, r) {
 
 DEF_TEST(SkSLBinaryTypeMismatch, r) {
     test_failure(r,
-                 "void main() { highfloat x = 3 * true; }",
+                 "void main() { float x = 3 * true; }",
                  "error: 1: type mismatch: '*' cannot operate on 'int', 'bool'\n1 error\n");
     test_failure(r,
                  "void main() { bool x = 1 || 2.0; }",
-                 "error: 1: type mismatch: '||' cannot operate on 'int', 'highfloat'\n1 error\n");
+                 "error: 1: type mismatch: '||' cannot operate on 'int', 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLCallNonFunction, r) {
     test_failure(r,
-                 "void main() { highfloat x = 3; x(); }",
+                 "void main() { float x = 3; x(); }",
                  "error: 1: 'x' is not a function\n1 error\n");
 }
 
 DEF_TEST(SkSLInvalidUnary, r) {
     test_failure(r,
-                 "void main() { highfloat4x4 x = highfloat4x4(1); ++x; }",
-                 "error: 1: '++' cannot operate on 'highfloat4x4'\n1 error\n");
+                 "void main() { float4x4 x = float4x4(1); ++x; }",
+                 "error: 1: '++' cannot operate on 'float4x4'\n1 error\n");
     test_failure(r,
-                 "void main() { highfloat3 x = highfloat3(1); --x; }",
-                 "error: 1: '--' cannot operate on 'highfloat3'\n1 error\n");
+                 "void main() { float3 x = float3(1); --x; }",
+                 "error: 1: '--' cannot operate on 'float3'\n1 error\n");
     test_failure(r,
-                 "void main() { highfloat4x4 x = highfloat4x4(1); x++; }",
-                 "error: 1: '++' cannot operate on 'highfloat4x4'\n1 error\n");
+                 "void main() { float4x4 x = float4x4(1); x++; }",
+                 "error: 1: '++' cannot operate on 'float4x4'\n1 error\n");
     test_failure(r,
-                 "void main() { highfloat3 x = highfloat3(1); x--; }",
-                 "error: 1: '--' cannot operate on 'highfloat3'\n1 error\n");
+                 "void main() { float3 x = float3(1); x--; }",
+                 "error: 1: '--' cannot operate on 'float3'\n1 error\n");
     test_failure(r,
                  "void main() { int x = !12; }",
                  "error: 1: '!' cannot operate on 'int'\n1 error\n");
@@ -276,7 +276,7 @@ DEF_TEST(SkSLInvalidUnary, r) {
                  "struct foo { } bar; void main() { foo x = -bar; }",
                  "error: 1: '-' cannot operate on 'foo'\n1 error\n");
     test_success(r,
-                 "void main() { highfloat2 x = highfloat2(1, 1); x = +x; x = -x; }");
+                 "void main() { float2 x = float2(1, 1); x = +x; x = -x; }");
 }
 
 DEF_TEST(SkSLInvalidAssignment, r) {
@@ -296,17 +296,17 @@ DEF_TEST(SkSLBadIndex, r) {
                  "void main() { int x = 2[0]; }",
                  "error: 1: expected array, but found 'int'\n1 error\n");
     test_failure(r,
-                 "void main() { highfloat2 x = highfloat2(0); int y = x[0][0]; }",
-                 "error: 1: expected array, but found 'highfloat'\n1 error\n");
+                 "void main() { float2 x = float2(0); int y = x[0][0]; }",
+                 "error: 1: expected array, but found 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLTernaryMismatch, r) {
     test_failure(r,
                  "void main() { int x = 5 > 2 ? true : 1.0; }",
-                 "error: 1: ternary operator result mismatch: 'bool', 'highfloat'\n1 error\n");
+                 "error: 1: ternary operator result mismatch: 'bool', 'float'\n1 error\n");
     test_failure(r,
-                 "void main() { int x = 5 > 2 ? highfloat3(1) : 1.0; }",
-                 "error: 1: ternary operator result mismatch: 'highfloat3', 'highfloat'\n1 error\n");
+                 "void main() { int x = 5 > 2 ? float3(1) : 1.0; }",
+                 "error: 1: ternary operator result mismatch: 'float3', 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLInterfaceBlockStorageModifiers, r) {
@@ -333,7 +333,7 @@ DEF_TEST(SkSLUseWithoutInitialize, r) {
                  "error: 1: 'x' has not been assigned\n1 error\n");
     test_failure(r,
                  "void main() { int x; switch (3) { case 0: x = 0; case 1: x = 1; }"
-                               "sk_FragColor = highfloat4(x); }",
+                               "sk_FragColor = float4(x); }",
                  "error: 1: 'x' has not been assigned\n1 error\n");
 }
 
@@ -403,32 +403,32 @@ DEF_TEST(SkSLDivByZero, r) {
                  "int x = 1 / 0;",
                  "error: 1: division by zero\n1 error\n");
     test_failure(r,
-                 "highfloat x = 1 / 0;",
+                 "float x = 1 / 0;",
                  "error: 1: division by zero\n1 error\n");
     test_failure(r,
-                 "highfloat x = 1.0 / 0.0;",
+                 "float x = 1.0 / 0.0;",
                  "error: 1: division by zero\n1 error\n");
     test_failure(r,
-                 "highfloat x = -67.0 / (3.0 - 3);",
+                 "float x = -67.0 / (3.0 - 3);",
                  "error: 1: division by zero\n1 error\n");
 }
 
 DEF_TEST(SkSLUnsupportedGLSLIdentifiers, r) {
     test_failure(r,
-                 "void main() { highfloat x = gl_FragCoord.x; };",
+                 "void main() { float x = gl_FragCoord.x; };",
                  "error: 1: unknown identifier 'gl_FragCoord'\n1 error\n");
     test_failure(r,
-                 "void main() { highfloat r = gl_FragColor.r; };",
+                 "void main() { float r = gl_FragColor.r; };",
                  "error: 1: unknown identifier 'gl_FragColor'\n1 error\n");
 }
 
 DEF_TEST(SkSLWrongSwitchTypes, r) {
     test_failure(r,
-                 "void main() { switch (highfloat2(1)) { case 1: break; } }",
-                 "error: 1: expected 'int', but found 'highfloat2'\n1 error\n");
+                 "void main() { switch (float2(1)) { case 1: break; } }",
+                 "error: 1: expected 'int', but found 'float2'\n1 error\n");
     test_failure(r,
-                 "void main() { switch (1) { case highfloat2(1): break; } }",
-                 "error: 1: expected 'int', but found 'highfloat2'\n1 error\n");
+                 "void main() { switch (1) { case float2(1): break; } }",
+                 "error: 1: expected 'int', but found 'float2'\n1 error\n");
 }
 
 DEF_TEST(SkSLNonConstantCase, r) {
@@ -445,18 +445,18 @@ DEF_TEST(SkSLDuplicateCase, r) {
 
 DEF_TEST(SkSLFieldAfterRuntimeArray, r) {
     test_failure(r,
-                 "buffer broken { highfloat x[]; highfloat y; };",
+                 "buffer broken { float x[]; float y; };",
                  "error: 1: only the last entry in an interface block may be a runtime-sized "
                  "array\n1 error\n");
 }
 
 DEF_TEST(SkSLStaticIf, r) {
     test_success(r,
-                 "void main() { highfloat x = 5; highfloat y = 10;"
-                 "@if (x < y) { sk_FragColor = highfloat4(1); } }");
+                 "void main() { float x = 5; float y = 10;"
+                 "@if (x < y) { sk_FragColor = float4(1); } }");
     test_failure(r,
-                 "void main() { highfloat x = sqrt(25); highfloat y = 10;"
-                 "@if (x < y) { sk_FragColor = highfloat4(1); } }",
+                 "void main() { float x = sqrt(25); float y = 10;"
+                 "@if (x < y) { sk_FragColor = float4(1); } }",
                  "error: 1: static if has non-static test\n1 error\n");
 }
 
@@ -465,16 +465,16 @@ DEF_TEST(SkSLStaticSwitch, r) {
                  "void main() {"
                  "int x = 1;"
                  "@switch (x) {"
-                 "case 1: sk_FragColor = highfloat4(1); break;"
-                 "default: sk_FragColor = highfloat4(0);"
+                 "case 1: sk_FragColor = float4(1); break;"
+                 "default: sk_FragColor = float4(0);"
                  "}"
                  "}");
     test_failure(r,
                  "void main() {"
                  "int x = int(sqrt(1));"
                  "@switch (x) {"
-                 "case 1: sk_FragColor = highfloat4(1); break;"
-                 "default: sk_FragColor = highfloat4(0);"
+                 "case 1: sk_FragColor = float4(1); break;"
+                 "default: sk_FragColor = float4(0);"
                  "}"
                  "}",
                  "error: 1: static switch has non-static test\n1 error\n");
@@ -482,8 +482,8 @@ DEF_TEST(SkSLStaticSwitch, r) {
                  "void main() {"
                  "int x = 1;"
                  "@switch (x) {"
-                 "case 1: sk_FragColor = highfloat4(1); if (sqrt(0) < sqrt(1)) break;"
-                 "default: sk_FragColor = highfloat4(0);"
+                 "case 1: sk_FragColor = float4(1); if (sqrt(0) < sqrt(1)) break;"
+                 "default: sk_FragColor = float4(0);"
                  "}"
                  "}",
                  "error: 1: static switch contains non-static conditional break\n1 error\n");

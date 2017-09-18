@@ -29,7 +29,7 @@ void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
     SkASSERT(outputColor);
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     outputColor->append(fragBuilder->getMangleString());
-    fragBuilder->codeAppendf("half4 %s;", outputColor->c_str());
+    fragBuilder->codeAppendf("float4 %s;", outputColor->c_str());
     this->internalEmitChild(childIndex, inputColor, outputColor->c_str(), args);
 }
 

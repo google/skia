@@ -101,10 +101,10 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     // corner of the screen than the previous circle.
 
     // set up vertex shader; this is a trivial vertex shader that passes through position and color
-    GrShaderVar aPosition("a_position", kHalf2_GrSLType, GrShaderVar::kIn_TypeModifier);
-    GrShaderVar oPosition("o_position", kHalf2_GrSLType, GrShaderVar::kOut_TypeModifier);
-    GrShaderVar aColor("a_color", kHalf3_GrSLType, GrShaderVar::kIn_TypeModifier);
-    GrShaderVar oColor("o_color", kHalf3_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrShaderVar oPosition("o_position", kVec2f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrShaderVar aColor("a_color", kVec3f_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kOut_TypeModifier);
 
     SkString vshaderTxt(version);
     aPosition.appendDecl(shaderCaps, &vshaderTxt);
@@ -119,7 +119,7 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     vshaderTxt.append(
             "void main()\n"
             "{\n"
-            "    gl_Position = highfloat4(a_position, 0.0, 1.0);\n"
+            "    gl_Position = float4(a_position, 0.0, 1.0);\n"
             "    o_position = a_position;\n"
             "    o_color = a_color;\n"
             "}\n");
@@ -129,8 +129,9 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     // coded center and compare that to some hard-coded circle radius to compute a coverage.
     // Then, this coverage is mixed with the coverage from the previous stage and passed to the
     // next stage.
-    GrShaderVar oFragColor("o_FragColor", kHalf4_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kMedium_GrSLPrecision, *shaderCaps, &fshaderTxt);
     oPosition.setTypeModifier(GrShaderVar::kIn_TypeModifier);
     oPosition.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";\n");
@@ -151,13 +152,13 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     fshaderTxt.appendf(
             "void main()\n"
             "{\n"
-            "    half4 outputColor;\n"
+            "    float4 outputColor;\n"
             "    %s outputCoverage;\n"
-            "    outputColor = half4(%s, 1.0);\n"
+            "    outputColor = float4(%s, 1.0);\n"
             "    outputCoverage = %s;\n",
-            fCoverageSetup == kUseVec4_CoverageSetup ? "half4" : "half",
+            fCoverageSetup == kUseVec4_CoverageSetup ? "float4" : "float",
             oColor.getName().c_str(),
-            fCoverageSetup == kUseVec4_CoverageSetup ? "half4(1.0)" : "1.0"
+            fCoverageSetup == kUseVec4_CoverageSetup ? "float4(1.0)" : "1.0"
             );
 
     float radius = 1.0f;
@@ -166,13 +167,13 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
         float centerY = 1.0f - radius;
         fshaderTxt.appendf(
             "    {\n"
-            "        half d = length(%s - half2(%f, %f));\n"
-            "        half edgeAlpha = clamp(100.0 * (%f - d), 0.0, 1.0);\n"
+            "        float d = length(%s - float2(%f, %f));\n"
+            "        float edgeAlpha = clamp(100.0 * (%f - d), 0.0, 1.0);\n"
             "        outputCoverage = 0.5 * outputCoverage + 0.5 * %s;\n"
             "    }\n",
             oPosition.getName().c_str(), centerX, centerY,
             radius,
-            fCoverageSetup == kUseVec4_CoverageSetup ? "half4(edgeAlpha)" : "edgeAlpha"
+            fCoverageSetup == kUseVec4_CoverageSetup ? "float4(edgeAlpha)" : "edgeAlpha"
             );
         radius *= 0.8f;
     }

@@ -42,7 +42,8 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
     const GrBicubicEffect& bicubicEffect = args.fFp.cast<GrBicubicEffect>();
 
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fImageIncrementUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
+    fImageIncrementUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                     "ImageIncrement");
 
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
@@ -70,26 +71,26 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
      *
      * This is GLSL, so the matrix is column-major (transposed from standard matrix notation).
      */
-    fragBuilder->codeAppend("half4x4 kMitchellCoefficients = half4x4("
+    fragBuilder->codeAppend("float4x4 kMitchellCoefficients = float4x4("
                             " 1.0 / 18.0,  16.0 / 18.0,   1.0 / 18.0,  0.0 / 18.0,"
                             "-9.0 / 18.0,   0.0 / 18.0,   9.0 / 18.0,  0.0 / 18.0,"
                             "15.0 / 18.0, -36.0 / 18.0,  27.0 / 18.0, -6.0 / 18.0,"
                             "-7.0 / 18.0,  21.0 / 18.0, -21.0 / 18.0,  7.0 / 18.0);");
-    fragBuilder->codeAppendf("highfloat2 coord = %s - %s * highfloat2(0.5);", coords2D.c_str(), imgInc);
+    fragBuilder->codeAppendf("float2 coord = %s - %s * float2(0.5);", coords2D.c_str(), imgInc);
     // We unnormalize the coord in order to determine our fractional offset (f) within the texel
     // We then snap coord to a texel center and renormalize. The snap prevents cases where the
     // starting coords are near a texel boundary and accumulations of imgInc would cause us to skip/
     // double hit a texel.
     fragBuilder->codeAppendf("coord /= %s;", imgInc);
-    fragBuilder->codeAppend("highfloat2 f = fract(coord);");
-    fragBuilder->codeAppendf("coord = (coord - f + highfloat2(0.5)) * %s;", imgInc);
-    fragBuilder->codeAppend("half4 wx = kMitchellCoefficients * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
-    fragBuilder->codeAppend("half4 wy = kMitchellCoefficients * half4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);");
-    fragBuilder->codeAppend("half4 rowColors[4];");
+    fragBuilder->codeAppend("float2 f = fract(coord);");
+    fragBuilder->codeAppendf("coord = (coord - f + float2(0.5)) * %s;", imgInc);
+    fragBuilder->codeAppend("float4 wx = kMitchellCoefficients * float4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
+    fragBuilder->codeAppend("float4 wy = kMitchellCoefficients * float4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);");
+    fragBuilder->codeAppend("float4 rowColors[4];");
     for (int y = 0; y < 4; ++y) {
         for (int x = 0; x < 4; ++x) {
             SkString coord;
-            coord.printf("coord + %s * highfloat2(%d, %d)", imgInc, x - 1, y - 1);
+            coord.printf("coord + %s * float2(%d, %d)", imgInc, x - 1, y - 1);
             SkString sampleVar;
             sampleVar.printf("rowColors[%d]", x);
             fDomain.sampleTexture(fragBuilder,
@@ -101,7 +102,7 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
                                   args.fTexSamplers[0]);
         }
         fragBuilder->codeAppendf(
-            "half4 s%d = wx.x * rowColors[0] + wx.y * rowColors[1] + wx.z * rowColors[2] + wx.w * rowColors[3];",
+            "float4 s%d = wx.x * rowColors[0] + wx.y * rowColors[1] + wx.z * rowColors[2] + wx.w * rowColors[3];",
             y);
     }
     SkString bicubicColor("(wy.x * s0 + wy.y * s1 + wy.z * s2 + wy.w * s3)");

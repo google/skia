@@ -16,7 +16,6 @@
 #include "SkSLCFGGenerator.h"
 #include "SkSLContext.h"
 #include "SkSLErrorReporter.h"
-#include "SkSLLexer.h"
 
 #define SK_FRAGCOLOR_BUILTIN           10001
 #define SK_IN_BUILTIN                  10002

@@ -40,7 +40,7 @@ public:
 
     /**
      * This returns a variable name to access the 2D, perspective correct version of the coords in
-     * the fragment shader. The passed in coordinates must either be of type kHalf2 or kHalf3. If
+     * the fragment shader. The passed in coordinates must either be of type kVec2f or kVec3f. If
      * the coordinates are 3-dimensional, it a perspective divide into is emitted into the
      * fragment shader (xy / z) to convert them to 2D.
      */
@@ -90,6 +90,13 @@ public:
     virtual void maskSampleCoverage(const char* mask, bool invert = false) = 0;
 
     /**
+     * Overrides the default precision for the entire fragment program. Processors that require
+     * high precision input (eg from incoming texture samples) may use this. For calculations that
+     * are limited to a single processor's code, it is better to annotate individual declarations.
+     */
+    virtual void elevateDefaultPrecision(GrSLPrecision) = 0;
+
+    /**
      * Fragment procs with child procs should call these functions before/after calling emitCode
      * on a child proc.
      */
@@ -97,8 +104,6 @@ public:
     virtual void onAfterChildProcEmitCode() = 0;
 
     virtual const SkString& getMangleString() const = 0;
-
-    virtual void forceHighPrecision() = 0;
 };
 
 /*
@@ -164,10 +169,10 @@ public:
     void appendOffsetToSample(const char* sampleIdx, Coordinates) override;
     void maskSampleCoverage(const char* mask, bool invert = false) override;
     void overrideSampleCoverage(const char* mask) override;
+    void elevateDefaultPrecision(GrSLPrecision) override;
     const SkString& getMangleString() const override { return fMangleString; }
     void onBeforeChildProcEmitCode() override;
     void onAfterChildProcEmitCode() override;
-    void forceHighPrecision() override { fForceHighPrecision = true; }
 
     // GrGLSLXPFragmentBuilder interface.
     bool hasCustomColorOutput() const override { return fHasCustomColorOutput; }
@@ -229,7 +234,7 @@ private:
     bool          fHasSecondaryOutput;
     uint8_t       fUsedSampleOffsetArrays;
     bool          fHasInitializedSampleMask;
-    bool          fForceHighPrecision;
+    GrSLPrecision fDefaultPrecision;
 
 #ifdef SK_DEBUG
     // some state to verify shaders and effects are consistent, this is reset between effects by

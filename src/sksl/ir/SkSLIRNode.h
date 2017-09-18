@@ -26,7 +26,7 @@ struct IRNode {
 
     // character offset of this element within the program being compiled, for error reporting
     // purposes
-    int fOffset;
+    const int fOffset;
 };
 
 } // namespace

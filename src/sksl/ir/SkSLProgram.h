@@ -74,8 +74,6 @@ struct Program {
         // if true, Setting objects (e.g. sk_Caps.fbFetchSupport) should be replaced with their
         // constant equivalents during compilation
         bool fReplaceSettings = true;
-        // if true, all halfs are forced to be floats
-        bool fForceHighPrecision = false;
         std::unordered_map<String, Value> fArgs;
     };
 
@@ -107,6 +105,7 @@ struct Program {
     Program(Kind kind,
             std::unique_ptr<String> source,
             Settings settings,
+            Modifiers::Flag defaultPrecision,
             Context* context,
             std::vector<std::unique_ptr<ProgramElement>> elements,
             std::shared_ptr<SymbolTable> symbols,
@@ -114,6 +113,7 @@ struct Program {
     : fKind(kind)
     , fSource(std::move(source))
     , fSettings(settings)
+    , fDefaultPrecision(defaultPrecision)
     , fContext(context)
     , fSymbols(symbols)
     , fElements(std::move(elements))
@@ -122,6 +122,8 @@ struct Program {
     Kind fKind;
     std::unique_ptr<String> fSource;
     Settings fSettings;
+    // FIXME handle different types; currently it assumes this is for floats
+    Modifiers::Flag fDefaultPrecision;
     Context* fContext;
     // it's important to keep fElements defined after (and thus destroyed before) fSymbols,
     // because destroying elements can modify reference counts in symbols

@@ -81,7 +81,7 @@ void GrShaderVar::setIOType(GrIOType ioType) {
 }
 
 void GrShaderVar::appendDecl(const GrShaderCaps* shaderCaps, SkString* out) const {
-    SkASSERT(kDefault_GrSLPrecision == fPrecision || GrSLTypeTemporarilyAcceptsPrecision(fType));
+    SkASSERT(kDefault_GrSLPrecision == fPrecision || GrSLTypeAcceptsPrecision(fType));
     SkString layout = fLayoutQualifier;
     if (!fLayoutQualifier.isEmpty()) {
         out->appendf("layout(%s) ", fLayoutQualifier.c_str());

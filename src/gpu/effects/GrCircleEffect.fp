@@ -6,14 +6,14 @@
  */
 
 layout(key) in int edgeType;
-in half2 center;
-in half radius;
+in float2 center;
+in float radius;
 
-half2 prevCenter;
-half prevRadius = -1;
+float2 prevCenter;
+float prevRadius = -1;
 // The circle uniform is (center.x, center.y, radius + 0.5, 1 / (radius + 0.5)) for regular
 // fills and (..., radius - 0.5, 1 / (radius - 0.5)) for inverse fills.
-uniform half4 circle;
+uniform float4 circle;
 
 @optimizationFlags { kCompatibleWithCoverageAsAlpha_OptimizationFlag }
 
@@ -36,7 +36,7 @@ void main() {
     // TODO: Right now the distance to circle caclulation is performed in a space normalized to the
     // radius and then denormalized. This is to prevent overflow on devices that have a "real"
     // mediump. It'd be nice to only do this on mediump devices.
-    half d;
+    float d;
     @if (edgeType == 2 /* kInverseFillBW_GrProcessorEdgeType */ ||
          edgeType == 3 /* kInverseFillAA_GrProcessorEdgeType */) {
         d = (length((circle.xy - sk_FragCoord.xy) * circle.w) - 1.0) * circle.z;

@@ -32,8 +32,8 @@ layout(key) in int rangeType;
 }
 
 void main() {
-    half value;
-    half range;
+    float value;
+    float range;
     @switch (rangeType) {
         case 0:
             range = 1.0 / 255.0;
@@ -53,17 +53,17 @@ void main() {
         uint m = (y & 1) << 5 | (x & 1) << 4 |
                  (y & 2) << 2 | (x & 2) << 1 |
                  (y & 4) >> 1 | (x & 4) >> 2;
-        value = half(m) * 1.0 / 64.0 - 63.0 / 128.0;
+        value = float(m) * 1.0 / 64.0 - 63.0 / 128.0;
     } else {
         // Simulate the integer effect used above using step/mod. For speed, simulates a 4x4
         // dither pattern rather than an 8x8 one.
-        half4 modValues = mod(sk_FragCoord.xyxy, half4(2.0, 2.0, 4.0, 4.0));
-        half4 stepValues = step(modValues, half4(1.0, 1.0, 2.0, 2.0));
-        value = dot(stepValues, half4(8.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 1.0 / 16.0)) - 15.0 / 32.0;
+        float4 modValues = mod(sk_FragCoord.xyxy, float4(2.0, 2.0, 4.0, 4.0));
+        float4 stepValues = step(modValues, float4(1.0, 1.0, 2.0, 2.0));
+        value = dot(stepValues, float4(8.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 1.0 / 16.0)) - 15.0 / 32.0;
     }
     // For each color channel, add the random offset to the channel value and then clamp
     // between 0 and alpha to keep the color premultiplied.
-    sk_OutColor = half4(clamp(sk_InColor.rgb + value * range, 0, sk_InColor.a), sk_InColor.a);
+    sk_OutColor = float4(clamp(sk_InColor.rgb + value * range, 0, sk_InColor.a), sk_InColor.a);
 }
 
 @test(testData) {

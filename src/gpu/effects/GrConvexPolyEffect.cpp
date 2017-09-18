@@ -103,7 +103,8 @@ void GLAARectEffect::emitCode(EmitArgs& args) {
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
     fRectUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                    kHalf4_GrSLType,
+                                                    kVec4f_GrSLType,
+                                                    kDefault_GrSLPrecision,
                                                     "rect",
                                                     &rectName);
 
@@ -111,16 +112,16 @@ void GLAARectEffect::emitCode(EmitArgs& args) {
     if (GrProcessorEdgeTypeIsAA(aare.getEdgeType())) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
         // numbers, xSub and ySub.
-        fragBuilder->codeAppend("\t\thalf xSub, ySub;\n");
+        fragBuilder->codeAppend("\t\tfloat xSub, ySub;\n");
         fragBuilder->codeAppendf("\t\txSub = min(sk_FragCoord.x - %s.x, 0.0);\n", rectName);
         fragBuilder->codeAppendf("\t\txSub += min(%s.z - sk_FragCoord.x, 0.0);\n", rectName);
         fragBuilder->codeAppendf("\t\tySub = min(sk_FragCoord.y - %s.y, 0.0);\n", rectName);
         fragBuilder->codeAppendf("\t\tySub += min(%s.w - sk_FragCoord.y, 0.0);\n", rectName);
         // Now compute coverage in x and y and multiply them to get the fraction of the pixel
         // covered.
-        fragBuilder->codeAppendf("\t\thalf alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n");
+        fragBuilder->codeAppendf("\t\tfloat alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n");
     } else {
-        fragBuilder->codeAppendf("\t\thalf alpha = 1.0;\n");
+        fragBuilder->codeAppendf("\t\tfloat alpha = 1.0;\n");
         fragBuilder->codeAppendf("\t\talpha *= (sk_FragCoord.x - %s.x) > -0.5 ? 1.0 : 0.0;\n",
                                  rectName);
         fragBuilder->codeAppendf("\t\talpha *= (%s.z - sk_FragCoord.x) > -0.5 ? 1.0 : 0.0;\n",
@@ -190,15 +191,16 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
 
     const char *edgeArrayName;
     fEdgeUniform = args.fUniformHandler->addUniformArray(kFragment_GrShaderFlag,
-                                                         kHalf3_GrSLType,
+                                                         kVec3f_GrSLType,
+                                                         kDefault_GrSLPrecision,
                                                          "edges",
                                                          cpe.getEdgeCount(),
                                                          &edgeArrayName);
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    fragBuilder->codeAppend("\t\thalf alpha = 1.0;\n");
-    fragBuilder->codeAppend("\t\thalf edge;\n");
+    fragBuilder->codeAppend("\t\tfloat alpha = 1.0;\n");
+    fragBuilder->codeAppend("\t\tfloat edge;\n");
     for (int i = 0; i < cpe.getEdgeCount(); ++i) {
-        fragBuilder->codeAppendf("\t\tedge = dot(%s[%d], half3(sk_FragCoord.x, sk_FragCoord.y, "
+        fragBuilder->codeAppendf("\t\tedge = dot(%s[%d], float3(sk_FragCoord.x, sk_FragCoord.y, "
                                                              "1));\n",
                                  edgeArrayName, i);
         if (GrProcessorEdgeTypeIsAA(cpe.getEdgeType())) {

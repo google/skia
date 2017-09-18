@@ -32,15 +32,13 @@ struct Constructor : public Expression {
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override {
         if (fArguments.size() == 1 && fArguments[0]->fKind == Expression::kIntLiteral_Kind) {
-            if (fType == *irGenerator.fContext.fFloat_Type ||
-                fType == *irGenerator.fContext.fHalf_Type) {
+            if (fType == *irGenerator.fContext.fFloat_Type) {
                 // promote float(1) to 1.0
                 int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
                 return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
                                                                     fOffset,
                                                                     intValue));
-            } else if (fType == *irGenerator.fContext.fUInt_Type ||
-                       fType == *irGenerator.fContext.fUShort_Type) {
+            } else if (fType == *irGenerator.fContext.fUInt_Type) {
                 // promote uint(1) to 1u
                 int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
                 return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,

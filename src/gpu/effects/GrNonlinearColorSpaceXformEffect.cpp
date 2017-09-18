@@ -23,21 +23,24 @@ public:
         const char* srcCoeffsName = nullptr;
         if (SkToBool(csxe.ops() & GrNonlinearColorSpaceXformEffect::kSrcTransfer_Op)) {
             fSrcTransferFnUni = uniformHandler->addUniformArray(
-                    kFragment_GrShaderFlag, kHalf_GrSLType, "SrcTransferFn",
-                    GrNonlinearColorSpaceXformEffect::kNumTransferFnCoeffs, &srcCoeffsName);
+                    kFragment_GrShaderFlag, kFloat_GrSLType, kDefault_GrSLPrecision,
+                    "SrcTransferFn", GrNonlinearColorSpaceXformEffect::kNumTransferFnCoeffs,
+                    &srcCoeffsName);
         }
 
         const char* dstCoeffsName = nullptr;
         if (SkToBool(csxe.ops() & GrNonlinearColorSpaceXformEffect::kDstTransfer_Op)) {
             fDstTransferFnUni = uniformHandler->addUniformArray(
-                    kFragment_GrShaderFlag, kHalf_GrSLType, "DstTransferFn",
-                    GrNonlinearColorSpaceXformEffect::kNumTransferFnCoeffs, &dstCoeffsName);
+                    kFragment_GrShaderFlag, kFloat_GrSLType, kDefault_GrSLPrecision,
+                    "DstTransferFn", GrNonlinearColorSpaceXformEffect::kNumTransferFnCoeffs,
+                    &dstCoeffsName);
         }
 
         const char* gamutXformName = nullptr;
         if (SkToBool(csxe.ops() & GrNonlinearColorSpaceXformEffect::kGamutXform_Op)) {
-            fGamutXformUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4x4_GrSLType,
-                                                        "GamutXform", &gamutXformName);
+            fGamutXformUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kMat44f_GrSLType,
+                                                        kDefault_GrSLPrecision, "GamutXform",
+                                                        &gamutXformName);
         }
 
         // Helper function to apply the src or dst transfer function to a single value
@@ -49,32 +52,32 @@ public:
             }
             const char* fnName = i ? "dst_transfer_fn" : "src_transfer_fn";
             static const GrShaderVar gTransferFnFuncArgs[] = {
-                    GrShaderVar("x", kHalf_GrSLType),
+                    GrShaderVar("x", kFloat_GrSLType),
             };
             SkString transferFnBody;
             // Temporaries to make evaluation line readable
-            transferFnBody.printf("half A = %s[0];", coeffsName);
-            transferFnBody.appendf("half B = %s[1];", coeffsName);
-            transferFnBody.appendf("half C = %s[2];", coeffsName);
-            transferFnBody.appendf("half D = %s[3];", coeffsName);
-            transferFnBody.appendf("half E = %s[4];", coeffsName);
-            transferFnBody.appendf("half F = %s[5];", coeffsName);
-            transferFnBody.appendf("half G = %s[6];", coeffsName);
-            transferFnBody.append("half s = sign(x);");
+            transferFnBody.printf("float A = %s[0];", coeffsName);
+            transferFnBody.appendf("float B = %s[1];", coeffsName);
+            transferFnBody.appendf("float C = %s[2];", coeffsName);
+            transferFnBody.appendf("float D = %s[3];", coeffsName);
+            transferFnBody.appendf("float E = %s[4];", coeffsName);
+            transferFnBody.appendf("float F = %s[5];", coeffsName);
+            transferFnBody.appendf("float G = %s[6];", coeffsName);
+            transferFnBody.append("float s = sign(x);");
             transferFnBody.append("x = abs(x);");
             transferFnBody.appendf("return s * ((x < D) ? (C * x) + F : pow(A * x + B, G) + E);");
-            fragBuilder->emitFunction(kHalf_GrSLType, fnName, SK_ARRAY_COUNT(gTransferFnFuncArgs),
+            fragBuilder->emitFunction(kFloat_GrSLType, fnName, SK_ARRAY_COUNT(gTransferFnFuncArgs),
                                       gTransferFnFuncArgs, transferFnBody.c_str(), &tfFuncNames[i]);
         }
 
         if (nullptr == args.fInputColor) {
-            args.fInputColor = "half4(1)";
+            args.fInputColor = "float4(1)";
         }
-        fragBuilder->codeAppendf("half4 color = %s;", args.fInputColor);
+        fragBuilder->codeAppendf("float4 color = %s;", args.fInputColor);
 
         // 1: Un-premultiply the input color (if necessary)
-        fragBuilder->codeAppendf("half nonZeroAlpha = max(color.a, 0.00001);");
-        fragBuilder->codeAppendf("color = half4(color.rgb / nonZeroAlpha, nonZeroAlpha);");
+        fragBuilder->codeAppendf("float nonZeroAlpha = max(color.a, 0.00001);");
+        fragBuilder->codeAppendf("color = float4(color.rgb / nonZeroAlpha, nonZeroAlpha);");
 
         // 2: Apply src transfer function (to get to linear RGB)
         if (srcCoeffsName) {
@@ -86,7 +89,7 @@ public:
         // 3: Apply gamut matrix
         if (gamutXformName) {
             fragBuilder->codeAppendf(
-                "color.rgb = (%s * half4(color.rgb, 1.0)).rgb;", gamutXformName);
+                "color.rgb = (%s * float4(color.rgb, 1.0)).rgb;", gamutXformName);
         }
 
         // 4: Apply dst transfer fn
@@ -97,7 +100,7 @@ public:
         }
 
         // 5: Premultiply again
-        fragBuilder->codeAppendf("%s = half4(color.rgb * color.a, color.a);", args.fOutputColor);
+        fragBuilder->codeAppendf("%s = float4(color.rgb * color.a, color.a);", args.fOutputColor);
     }
 
     static inline void GenKey(const GrProcessor& processor, const GrShaderCaps&,

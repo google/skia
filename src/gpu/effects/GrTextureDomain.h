@@ -23,7 +23,7 @@ struct SkRect;
 
 /**
  * Limits a texture's lookup coordinates to a domain. Samples outside the domain are either clamped
- * the edge of the domain or result in a half4 of zeros (decal mode). The domain is clipped to
+ * the edge of the domain or result in a float4 of zeros (decal mode). The domain is clipped to
  * normalized texture coords ([0,1]x[0,1] square). Bilinear filtering can cause texels outside the
  * domain to affect the read value unless the caller considers this when calculating the domain.
  */
@@ -98,7 +98,7 @@ public:
          * Call this from GrGLSLFragmentProcessor::emitCode() to sample the texture W.R.T. the
          * domain and mode.
          *
-         * @param outcolor  name of half4 variable to hold the sampled color.
+         * @param outcolor  name of float4 variable to hold the sampled color.
          * @param inCoords  name of float2 variable containing the coords to be used with the domain.
          *                  It is assumed that this is a variable and not an expression.
          * @param inModulateColor   if non-nullptr the sampled color will be modulated with this

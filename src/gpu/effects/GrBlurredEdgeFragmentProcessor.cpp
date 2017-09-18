@@ -25,12 +25,12 @@ public:
                 args.fFp.cast<GrBlurredEdgeFragmentProcessor>();
         (void)_outer;
         fragBuilder->codeAppendf(
-                "half factor = half(1.0 - highfloat(%s.w));\n@switch (%d) {\n    case 0:\n        "
-                "factor = half(exp(highfloat(highfloat(-factor * factor) * 4.0)) - "
-                "0.017999999999999999);\n        break;\n    case 1:\n        factor = "
-                "half(smoothstep(1.0, 0.0, highfloat(factor)));\n        break;\n}\n%s = "
-                "half4(factor);\n",
-                args.fInputColor ? args.fInputColor : "half4(1)", _outer.mode(), args.fOutputColor);
+                "float factor = 1.0 - %s.w;\n@switch (%d) {\n    case 0:\n        factor = "
+                "exp((-factor * factor) * 4.0) - 0.017999999999999999;\n        break;\n    case "
+                "1:\n        factor = smoothstep(1.0, 0.0, factor);\n        break;\n}\n%s = "
+                "float4(factor);\n",
+                args.fInputColor ? args.fInputColor : "float4(1)", _outer.mode(),
+                args.fOutputColor);
     }
 
 private:

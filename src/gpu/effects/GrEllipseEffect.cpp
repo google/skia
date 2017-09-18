@@ -23,34 +23,35 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrEllipseEffect& _outer = args.fFp.cast<GrEllipseEffect>();
         (void)_outer;
-        prevRadii = half2(-1.0);
+        prevRadii = float2(-1.0);
         useScale = sk_Caps.floatPrecisionVaries;
-        fEllipseVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHighFloat4_GrSLType,
-                                                       kDefault_GrSLPrecision, "ellipse");
+        fEllipseVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kVec4f_GrSLType,
+                                                       kHigh_GrSLPrecision, "ellipse");
         if (useScale) {
-            fScaleVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
+            fScaleVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kVec2f_GrSLType,
                                                          kDefault_GrSLPrecision, "scale");
         }
         fragBuilder->codeAppendf(
-                "half2 prevCenter;\nhalf2 prevRadii = half2(%f, %f);\nbool useScale = %s;\nhalf2 d "
-                "= half2(sk_FragCoord.xy - %s.xy);\n@if (useScale) {\n    d *= %s.y;\n}\nhalf2 Z = "
-                "d * half2(%s.zw);\nhalf implicit = dot(Z, d) - 1.0;\nhalf grad_dot = 4.0 * dot(Z, "
-                "Z);\ngrad_dot = half(max(highfloat(grad_dot), 0.0001));\nhalf approx_dist = "
-                "highfloat(implicit) * inversesqrt(highfloat(grad_dot));\n@if (useScale) {\n    "
-                "approx_dist *= %s.x;\n}\nhalf alpha;\n@switch (%d) {\n    case 0:\n        alpha "
-                "= half(highfloat(approx_dist) > 0.0 ? 0.0 : 1.0);\n        break;\n    case 1:\n  "
-                "      alpha = half(clamp(0.5 - highfloat(approx_dist), 0.0, 1.0));\n        "
-                "break;\n    case 2:\n        alpha = half(highfloat(approx_dist) > 0.0 ? 1.0 : "
-                "0.0);\n        break;\n    case 3:\n        alpha = half(clamp(0.5 + "
-                "highfloat(approx_dist), 0.0, 1.0));\n        break;\n    default:\n        "
-                "discard;\n}\n%s = %s * alpha;\n",
+                "float2 prevCenter;\nfloat2 prevRadii = float2(%f, %f);\nbool useScale = "
+                "%s;\nfloat2 d = sk_FragCoord.xy - %s.xy;\n@if (useScale) {\n    d *= "
+                "%s.y;\n}\nfloat2 Z = d * %s.zw;\nfloat implicit = dot(Z, d) - 1.0;\nfloat "
+                "grad_dot = 4.0 * dot(Z, Z);\ngrad_dot = max(grad_dot, 0.0001);\nfloat approx_dist "
+                "= implicit * inversesqrt(grad_dot);\n@if (useScale) {\n    approx_dist *= "
+                "%s.x;\n}\nfloat alpha;\n@switch (%d) {\n    case 0:\n        alpha = approx_dist "
+                "> 0.0 ? 0.0 : 1.0;\n        break;\n    case 1:\n        alpha = clamp(0.5 - "
+                "approx_dist, 0.0, 1.0);\n        break;\n    case 2:\n        alpha = approx_dist "
+                "> 0.0 ? 1.0 : 0.0;\n        break;\n    case 3:\n        alpha = clamp(0.5 + "
+                "approx_dist, 0.0, 1.0);\n        break;\n    default:\n        discard;\n}\n%s = "
+                "%s * alpha;\n",
                 prevRadii.fX, prevRadii.fY, (useScale ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(fEllipseVar),
-                fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar) : "half2(0)",
+                fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar)
+                                    : "float2(0.0)",
                 args.fUniformHandler->getUniformCStr(fEllipseVar),
-                fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar) : "half2(0)",
+                fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar)
+                                    : "float2(0.0)",
                 _outer.edgeType(), args.fOutputColor,
-                args.fInputColor ? args.fInputColor : "half4(1)");
+                args.fInputColor ? args.fInputColor : "float4(1)");
     }
 
 private:

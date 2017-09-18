@@ -72,11 +72,11 @@ class GrCCPRTriangleCornerProcessor : public GrCCPRTriangleProcessor {
 public:
     GrCCPRTriangleCornerProcessor()
             : INHERITED(CoverageType::kShader)
-            , fEdgeDistance(kHighFloat3_GrSLType)
-            , fDevCoord(kHighFloat2_GrSLType)
-            , fNeighbors(kHighFloat4_GrSLType)
-            , fEdgeDistances(kHighFloat3x3_GrSLType)
-            , fCornerIdx(kShort_GrSLType) {}
+            , fEdgeDistance(kVec3f_GrSLType)
+            , fDevCoord(kVec2f_GrSLType)
+            , fNeighbors(kVec4f_GrSLType)
+            , fEdgeDistances(kMat33f_GrSLType)
+            , fCornerIdx(kInt_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);
