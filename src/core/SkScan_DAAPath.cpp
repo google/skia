@@ -327,9 +327,14 @@ void SkScan::DAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
         SkIRect clippedIR = ir;
         clippedIR.intersect(clipBounds);
 
-        // The overhead of even constructing SkCoverageDeltaList/Mask is too big.
-        // So TryBlitFatAntiRect and return if it's successful.
-        if (TryBlitFatAntiRect(blitter, path, clipBounds)) {
+        SkRect rect;
+        if (!isInverse && path.isRect(&rect) && clippedIR.height() >= 3 && clippedIR.width() >= 3) {
+            // The overhead of even constructing SkCoverageDeltaList/Mask is too big. So just blit.
+            bool nonEmpty = rect.intersect(SkRect::Make(clipBounds));
+            SkASSERT(nonEmpty); // do_fill_path should have already handled the empty case
+            if (nonEmpty) {
+                blitter->blitFatAntiRect(rect);
+            }
             return;
         }
 
