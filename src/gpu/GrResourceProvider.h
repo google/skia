@@ -10,8 +10,10 @@
 
 #include "GrBuffer.h"
 #include "GrPathRange.h"
+#include "GrTextureProxy.h"
 #include "SkImageInfo.h"
 #include "SkScalerContext.h"
+#include "SkTDynamicHash.h"
 
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
@@ -46,16 +48,47 @@ public:
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    // TextureProxies & GrUniqueKeys
+    //
+    // The two GrResourceProvider methods assignUniqueKeyToProxy and findProxyByUniqueKey drive
+    // the behavior of uniqueKeys on proxies.
+    //
+    // assignUniqueKeyToProxy does the following:
+    //    if the proxy is wrapped, it sets the key on the texture & proxy & adds the proxy to the hash
+    //    if the proxy is deferred, it just set the unique key on the proxy & adds it to the hash
+    //
+    //    Note that when a deferred proxy with a unique key is instantiated, its unique key will be 
+    //    pushed to the backing resource.
+    //
+    //    Futher note, a proxy can only receive a unique key once and, once set, it can't be removed.
+    // 
+    // findProxyByUniqueKey does the following:
+    //    first looks in the UniqueKeyProxy hash table to see if there is already a proxy w/ the key
+    //    failing that it looks in the ResourceCache to see there is a texture with that key
+    //       if so, it will wrap the texture in a proxy, add the proxy to the cache and return it
+    //    failing that it will return null
+    //
+    // The GrResourceProvider also has a notifyDeletingUniqueProxy method used to indicate that
+    // the given key needs to be removed from the UniqueKeyProxy hash table.
+
+    /* 
+     * Assigns a unique key to a proxy. The proxy will be findable via this key using
+     * findProxyByUniqueKey(). It is an error if an existing proxy already has the key
+     */
+    void assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
+
+    /*
+     * Finds a proxy by unique key. If the proxy is found it is ref'ed and returned.
+     */
+    sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
+
+    /*
+     * The proxy matching the provided key is going away. Clean up as necessary
+     */
+    void notifyDeletingUniqueProxy(const GrUniqueKey&);
+
+    ///////////////////////////////////////////////////////////////////////////
     // Textures
-
-    /** Assigns a unique key to the texture. The texture will be findable via this key using
-    findTextureByUniqueKey(). If an existing texture has this key, it's key will be removed. */
-    void assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy*);
-
-    /** Finds a texture by unique key. If the texture is found it is ref'ed and returned. */
-    // MDB TODO (caching): If this were actually caching proxies (rather than shallowly 
-    // wrapping GrSurface caching) we would not need the origin parameter.
-    sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey& key, GrSurfaceOrigin);
 
     /**
      * Finds a texture that approximately matches the descriptor. Will be at least as large in width
@@ -252,7 +285,20 @@ public:
 
     const GrCaps* caps() const { return fCaps.get(); }
 
+    int numUniqueKeyProxies() const { return fUniqueKeyProxies.count(); }
+
 private:
+    struct UniqueKeyHashTraits {
+        static const GrUniqueKey& GetKey(const GrTextureProxy& p) { return p.getUniqueKey(); }
+
+        static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
+    };
+    typedef SkTDynamicHash<GrTextureProxy, GrUniqueKey, UniqueKeyHashTraits> UniqueKeyHash;
+
+    // The resourceProvider does not get a ref on these proxies but they must send a message
+    // to the resourceProvider when they are deleted.
+    UniqueKeyHash fUniqueKeyProxies;
+
     GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
     void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture);
 
