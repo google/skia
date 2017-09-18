@@ -8,6 +8,7 @@
 #ifndef SkColorPriv_DEFINED
 #define SkColorPriv_DEFINED
 
+#include "SkColor.h"
 #include "SkMath.h"
 
 /** Turn 0..255 into 0..256 by adding 1 at the half-way point. Used to turn a
@@ -41,6 +42,30 @@ static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
 #define SK_R32_MASK     ((1 << SK_R32_BITS) - 1)
 #define SK_G32_MASK     ((1 << SK_G32_BITS) - 1)
 #define SK_B32_MASK     ((1 << SK_B32_BITS) - 1)
+
+/*
+ *  Skia's 32bit backend only supports 1 sizzle order at a time (compile-time).
+ *  This is specified by 4 defines SK_A32_SHIFT, SK_R32_SHIFT, ... for G and B.
+ *
+ *  For easier compatibility with Skia's GPU backend, we further restrict these
+ *  to either (in memory-byte-order) RGBA or BGRA. Note that this "order" does
+ *  not directly correspond to the same shift-order, since we have to take endianess
+ *  into account.
+ *
+ *  Here we enforce this constraint.
+ */
+
+#ifdef SK_CPU_BENDIAN
+    #define SK_RGBA_R32_SHIFT   24
+    #define SK_RGBA_G32_SHIFT   16
+    #define SK_RGBA_B32_SHIFT   8
+    #define SK_RGBA_A32_SHIFT   0
+#else
+    #define SK_RGBA_R32_SHIFT   0
+    #define SK_RGBA_G32_SHIFT   8
+    #define SK_RGBA_B32_SHIFT   16
+    #define SK_RGBA_A32_SHIFT   24
+#endif
 
 #define SkGetPackedA32(packed)      ((uint32_t)((packed) << (24 - SK_A32_SHIFT)) >> 24)    
 #define SkGetPackedR32(packed)      ((uint32_t)((packed) << (24 - SK_R32_SHIFT)) >> 24)
