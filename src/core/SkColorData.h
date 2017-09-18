@@ -33,21 +33,11 @@
  */
 
 #ifdef SK_CPU_BENDIAN
-    #define SK_RGBA_R32_SHIFT   24
-    #define SK_RGBA_G32_SHIFT   16
-    #define SK_RGBA_B32_SHIFT   8
-    #define SK_RGBA_A32_SHIFT   0
-
     #define SK_BGRA_B32_SHIFT   24
     #define SK_BGRA_G32_SHIFT   16
     #define SK_BGRA_R32_SHIFT   8
     #define SK_BGRA_A32_SHIFT   0
 #else
-    #define SK_RGBA_R32_SHIFT   0
-    #define SK_RGBA_G32_SHIFT   8
-    #define SK_RGBA_B32_SHIFT   16
-    #define SK_RGBA_A32_SHIFT   24
-
     #define SK_BGRA_B32_SHIFT   0
     #define SK_BGRA_G32_SHIFT   8
     #define SK_BGRA_R32_SHIFT   16
