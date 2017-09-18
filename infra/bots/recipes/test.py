@@ -532,7 +532,6 @@ def dm_flags(api, bot):
     # skia:4632
     for config in ['565', '8888', 'f16', 'srgb']:
       blacklist([config, 'gm', '_', 'bigrect'])
-      blacklist([config, 'gm', '_', 'clippedcubic2'])
       blacklist([config, 'gm', '_', 'conicpaths'])
     blacklist(['pdf', 'gm', '_', 'fontmgr_iterDebian9'])
     blacklist(['pdf', 'gm', '_', 'fontmgr_matchDebian9'])
@@ -540,11 +539,7 @@ def dm_flags(api, bot):
     blacklist(['pdf', 'gm', '_', 'typefacestyles_kerningDebian'])
     match.append('~^DashPathEffectTest_asPoints_limit$')
     match.append('~^PathBigCubic$')
-    match.append('~^PathOpsCubicIntersection$')
-    match.append('~^PathOpsCubicLineIntersection$')
     match.append('~^PathOpsFailOp$')
-    match.append('~^PathOpsOpCubicsThreaded$')
-    match.append('~^PathOpsOpLoopsThreaded$')
 
   if 'Vulkan' in bot and 'Adreno530' in bot:
       # skia:5777
