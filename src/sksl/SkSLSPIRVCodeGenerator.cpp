@@ -2906,13 +2906,6 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
         }
         const VarDeclaration& varDecl = (VarDeclaration&) *decl.fVars[i];
         const Variable* var = varDecl.fVar;
-        // These haven't been implemented in our SPIR-V generator yet and we only currently use them
-        // in the OpenGL backend.
-        ASSERT(!(var->fModifiers.fFlags & (Modifiers::kReadOnly_Flag |
-                                           Modifiers::kWriteOnly_Flag |
-                                           Modifiers::kCoherent_Flag |
-                                           Modifiers::kVolatile_Flag |
-                                           Modifiers::kRestrict_Flag)));
         if (var->fModifiers.fLayout.fBuiltin == BUILTIN_IGNORE) {
             continue;
         }
@@ -2972,13 +2965,6 @@ void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, Outpu
         ASSERT(stmt->fKind == Statement::kVarDeclaration_Kind);
         VarDeclaration& varDecl = (VarDeclaration&) *stmt;
         const Variable* var = varDecl.fVar;
-        // These haven't been implemented in our SPIR-V generator yet and we only currently use them
-        // in the OpenGL backend.
-        ASSERT(!(var->fModifiers.fFlags & (Modifiers::kReadOnly_Flag |
-                                           Modifiers::kWriteOnly_Flag |
-                                           Modifiers::kCoherent_Flag |
-                                           Modifiers::kVolatile_Flag |
-                                           Modifiers::kRestrict_Flag)));
         SpvId id = this->nextId();
         fVariableMap[var] = id;
         SpvId type = this->getPointerType(var->fType, SpvStorageClassFunction);

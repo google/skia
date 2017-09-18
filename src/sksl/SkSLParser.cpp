@@ -706,7 +706,7 @@ Layout Parser::layout() {
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
-            READONLY | WRITEONLY | COHERENT | VOLATILE | RESTRICT | BUFFER)* */
+            BUFFER)* */
 Modifiers Parser::modifiers() {
     Layout layout = this->layout();
     int flags = 0;
@@ -753,26 +753,6 @@ Modifiers Parser::modifiers() {
             case Token::NOPERSPECTIVE:
                 this->nextToken();
                 flags |= Modifiers::kNoPerspective_Flag;
-                break;
-            case Token::READONLY:
-                this->nextToken();
-                flags |= Modifiers::kReadOnly_Flag;
-                break;
-            case Token::WRITEONLY:
-                this->nextToken();
-                flags |= Modifiers::kWriteOnly_Flag;
-                break;
-            case Token::COHERENT:
-                this->nextToken();
-                flags |= Modifiers::kCoherent_Flag;
-                break;
-            case Token::VOLATILE:
-                this->nextToken();
-                flags |= Modifiers::kVolatile_Flag;
-                break;
-            case Token::RESTRICT:
-                this->nextToken();
-                flags |= Modifiers::kRestrict_Flag;
                 break;
             case Token::BUFFER:
                 this->nextToken();

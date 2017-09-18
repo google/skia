@@ -75,14 +75,6 @@ struct Token {
         NOPERSPECTIVE,
 #undef READONLY
         READONLY,
-#undef WRITEONLY
-        WRITEONLY,
-#undef COHERENT
-        COHERENT,
-#undef VOLATILE
-        VOLATILE,
-#undef RESTRICT
-        RESTRICT,
 #undef BUFFER
         BUFFER,
 #undef HASSIDEEFFECTS

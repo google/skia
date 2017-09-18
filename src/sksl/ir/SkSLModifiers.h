@@ -27,13 +27,8 @@ struct Modifiers {
         kUniform_Flag        = 1 <<  6,
         kFlat_Flag           = 1 <<  7,
         kNoPerspective_Flag  = 1 <<  8,
-        kReadOnly_Flag       = 1 <<  9,
-        kWriteOnly_Flag      = 1 << 10,
-        kCoherent_Flag       = 1 << 11,
-        kVolatile_Flag       = 1 << 12,
-        kRestrict_Flag       = 1 << 13,
-        kBuffer_Flag         = 1 << 14,
-        kHasSideEffects_Flag = 1 << 15
+        kBuffer_Flag         = 1 <<  9,
+        kHasSideEffects_Flag = 1 << 10
     };
 
     Modifiers()
@@ -66,21 +61,6 @@ struct Modifiers {
         }
         if (fFlags & kNoPerspective_Flag) {
             result += "noperspective ";
-        }
-        if (fFlags & kReadOnly_Flag) {
-            result += "readonly ";
-        }
-        if (fFlags & kWriteOnly_Flag) {
-            result += "writeonly ";
-        }
-        if (fFlags & kCoherent_Flag) {
-            result += "coherent ";
-        }
-        if (fFlags & kVolatile_Flag) {
-            result += "volatile ";
-        }
-        if (fFlags & kRestrict_Flag) {
-            result += "restrict ";
         }
         if (fFlags & kBuffer_Flag) {
             result += "buffer ";
