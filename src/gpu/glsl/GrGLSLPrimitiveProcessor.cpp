@@ -43,12 +43,13 @@ void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLPPFragmentBuilder* fragBu
     SkASSERT(colorUniform);
     const char* stagedLocalVarName;
     *colorUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                               kHalf4_GrSLType,
+                                               kVec4f_GrSLType,
+                                               kDefault_GrSLPrecision,
                                                "Color",
                                                &stagedLocalVarName);
     fragBuilder->codeAppendf("%s = %s;", outputName, stagedLocalVarName);
     if (fragBuilder->getProgramBuilder()->shaderCaps()->mustObfuscateUniformColor()) {
-        fragBuilder->codeAppendf("%s = max(%s, half4(0, 0, 0, 0));", outputName, outputName);
+        fragBuilder->codeAppendf("%s = max(%s, float4(0, 0, 0, 0));", outputName, outputName);
     }
 }
 

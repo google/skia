@@ -133,9 +133,9 @@ protected:
 
     PrimitiveProcessor(CoverageType coverageType)
             : fCoverageType(coverageType)
-            , fGeomWind("wind", kHalf_GrSLType, GrShaderVar::kNonArray, kLow_GrSLPrecision)
-            , fFragWind(kHalf_GrSLType)
-            , fFragCoverageTimesWind(kHalf_GrSLType) {}
+            , fGeomWind("wind", kFloat_GrSLType, GrShaderVar::kNonArray, kLow_GrSLPrecision)
+            , fFragWind(kFloat_GrSLType)
+            , fFragCoverageTimesWind(kFloat_GrSLType) {}
 
     // Called before generating shader code. Subclass should add its custom varyings to the handler
     // and update its corresponding internal member variables.

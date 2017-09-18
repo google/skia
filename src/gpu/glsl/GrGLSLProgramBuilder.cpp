@@ -82,7 +82,8 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
         rtAdjustVisibility |= kGeometry_GrShaderFlag;
     }
     fUniformHandles.fRTAdjustmentUni = this->uniformHandler()->addUniform(rtAdjustVisibility,
-                                                                          kHighFloat4_GrSLType,
+                                                                          kVec4f_GrSLType,
+                                                                          kHigh_GrSLPrecision,
                                                                           "rtAdjustment");
     const char* rtAdjustName =
         this->uniformHandler()->getUniformCStr(fUniformHandles.fRTAdjustmentUni);
@@ -454,7 +455,7 @@ void GrGLSLProgramBuilder::nameExpression(SkString* output, const char* baseName
     } else {
         this->nameVariable(&outName, '\0', baseName);
     }
-    fFS.codeAppendf("half4 %s;", outName.c_str());
+    fFS.codeAppendf("float4 %s;", outName.c_str());
     *output = outName;
 }
 
@@ -467,7 +468,7 @@ void GrGLSLProgramBuilder::addRTHeightUniform(const char* name) {
         GrGLSLUniformHandler* uniformHandler = this->uniformHandler();
         fUniformHandles.fRTHeightUni =
             uniformHandler->internalAddUniformArray(kFragment_GrShaderFlag,
-                                                    kHalf_GrSLType, kDefault_GrSLPrecision,
+                                                    kFloat_GrSLType, kDefault_GrSLPrecision,
                                                     name, false, 0, nullptr);
 }
 

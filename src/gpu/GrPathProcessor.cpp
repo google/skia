@@ -37,13 +37,14 @@ public:
         // Setup uniform color
         const char* stagedLocalVarName;
         fColorUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                         kHalf4_GrSLType,
+                                                         kVec4f_GrSLType,
+                                                         kDefault_GrSLPrecision,
                                                          "Color",
                                                          &stagedLocalVarName);
         fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, stagedLocalVarName);
 
         // setup constant solid coverage
-        fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
     }
 
     void emitTransforms(GrGLSLVaryingHandler* varyingHandler,
@@ -51,8 +52,8 @@ public:
         int i = 0;
         while (const GrCoordTransform* coordTransform = transformHandler->nextCoordTransform()) {
             GrSLType varyingType =
-                    coordTransform->getMatrix().hasPerspective() ? kHalf3_GrSLType
-                                                                 : kHalf2_GrSLType;
+                    coordTransform->getMatrix().hasPerspective() ? kVec3f_GrSLType
+                                                                 : kVec2f_GrSLType;
 
             SkString strVaryingName;
             strVaryingName.printf("TransformedCoord_%d", i);
@@ -88,9 +89,9 @@ public:
             }
             fInstalledTransforms[t].fCurrentValue = m;
 
-            SkASSERT(fInstalledTransforms[t].fType == kHalf2_GrSLType ||
-                     fInstalledTransforms[t].fType == kHalf3_GrSLType);
-            unsigned components = fInstalledTransforms[t].fType == kHalf2_GrSLType ? 2 : 3;
+            SkASSERT(fInstalledTransforms[t].fType == kVec2f_GrSLType ||
+                     fInstalledTransforms[t].fType == kVec3f_GrSLType);
+            unsigned components = fInstalledTransforms[t].fType == kVec2f_GrSLType ? 2 : 3;
             pd.setPathFragmentInputTransform(fInstalledTransforms[t].fHandle, components, m);
             ++t;
         }

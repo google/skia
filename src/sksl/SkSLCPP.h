@@ -22,6 +22,4 @@ inline SkPoint float2(float xy) { return SkPoint::Make(xy, xy); }
 
 inline SkPoint float2(float x, float y) { return SkPoint::Make(x, y); }
 
-#define half2 float2
-
 #endif

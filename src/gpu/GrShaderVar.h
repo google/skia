@@ -37,12 +37,13 @@ public:
     };
 
     /**
-     * Defaults to a non-arry half with no type modifier or layout qualifier.
+     * Defaults to a non-arry float with no precision specifier, type modifier, or layout qualifier.
      */
     GrShaderVar()
-        : fType(kHalf_GrSLType)
+        : fType(kFloat_GrSLType)
         , fTypeModifier(kNone_TypeModifier)
         , fCount(kNonArray)
+        , fPrecision(kDefault_GrSLPrecision)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
     }
 
@@ -115,7 +116,7 @@ public:
              const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeTemporarilyAcceptsPrecision(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -139,7 +140,7 @@ public:
              const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeTemporarilyAcceptsPrecision(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -164,7 +165,7 @@ public:
              const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeTemporarilyAcceptsPrecision(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;
@@ -189,7 +190,7 @@ public:
              const char* extraModifiers = nullptr,
              bool useUniformFloatArrays = USE_UNIFORM_FLOAT_ARRAYS) {
         SkASSERT(kVoid_GrSLType != type);
-        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeTemporarilyAcceptsPrecision(type));
+        SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
         fType = type;
         fTypeModifier = typeModifier;
         fName = name;

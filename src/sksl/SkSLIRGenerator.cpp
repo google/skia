@@ -17,6 +17,7 @@
 #include "ast/SkSLASTFloatLiteral.h"
 #include "ast/SkSLASTIndexSuffix.h"
 #include "ast/SkSLASTIntLiteral.h"
+#include "ast/SkSLASTPrecision.h"
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBoolLiteral.h"
 #include "ir/SkSLBreakStatement.h"
@@ -980,15 +981,8 @@ static bool determine_binary_type(const Context& context,
             *outResultType = context.fBool_Type.get();
             return left.canCoerceTo(*context.fBool_Type) &&
                    right.canCoerceTo(*context.fBool_Type);
+        case Token::STAR: // fall through
         case Token::STAREQ:
-            if (left.kind() == Type::kScalar_Kind) {
-                *outLeftType = &left;
-                *outRightType = &left;
-                *outResultType = &left;
-                return right.canCoerceTo(left);
-            }
-            // fall through
-        case Token::STAR:
             if (is_matrix_multiply(left, right)) {
                 // determine final component type
                 if (determine_binary_type(context, Token::STAR, left.componentType(),
@@ -1028,22 +1022,12 @@ static bool determine_binary_type(const Context& context,
             isLogical = false;
             validMatrixOrVectorOp = true;
             break;
-        case Token::PLUSEQ:
-        case Token::MINUSEQ:
-        case Token::SLASHEQ:
-        case Token::PERCENTEQ:
-        case Token::SHLEQ:
-        case Token::SHREQ:
-            if (left.kind() == Type::kScalar_Kind) {
-                *outLeftType = &left;
-                *outRightType = &left;
-                *outResultType = &left;
-                return right.canCoerceTo(left);
-            }
-            // fall through
         case Token::PLUS:    // fall through
+        case Token::PLUSEQ:  // fall through
         case Token::MINUS:   // fall through
+        case Token::MINUSEQ: // fall through
         case Token::SLASH:   // fall through
+        case Token::SLASHEQ: // fall through
             isLogical = false;
             validMatrixOrVectorOp = true;
             break;
@@ -1057,23 +1041,9 @@ static bool determine_binary_type(const Context& context,
             validMatrixOrVectorOp = false;
     }
     bool isVectorOrMatrix = left.kind() == Type::kVector_Kind || left.kind() == Type::kMatrix_Kind;
-    if (left.kind() == Type::kScalar_Kind && right.kind() == Type::kScalar_Kind &&
-            right.canCoerceTo(left)) {
-        if (left.priority() > right.priority()) {
-            *outLeftType = &left;
-            *outRightType = &left;
-        } else {
-            *outLeftType = &right;
-            *outRightType = &right;
-        }
-        if (isLogical) {
-            *outResultType = context.fBool_Type.get();
-        } else {
-            *outResultType = &left;
-        }
-        return true;
-    }
-    if (right.canCoerceTo(left) && isVectorOrMatrix && validMatrixOrVectorOp) {
+    // FIXME: incorrect for shift
+    if (right.canCoerceTo(left) && (left.kind() == Type::kScalar_Kind ||
+                                   (isVectorOrMatrix && validMatrixOrVectorOp))) {
         *outLeftType = &left;
         *outRightType = &left;
         if (isLogical) {
@@ -1510,17 +1480,18 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
                               to_string((uint64_t) args.size()) + ")");
         return nullptr;
     }
-    if (type == args[0]->fType) {
+    if (type.isFloat() && args[0]->fType.isFloat()) {
         return std::move(args[0]);
     }
-    if (type.isFloat() && args.size() == 1 && args[0]->fKind == Expression::kFloatLiteral_Kind) {
-        double value = ((FloatLiteral&) *args[0]).fValue;
-        return std::unique_ptr<Expression>(new FloatLiteral(fContext, offset, value, &type));
+    if (type.isSigned() && args[0]->fType.isSigned()) {
+        return std::move(args[0]);
+    }
+    if (type.isUnsigned() && args[0]->fType.isUnsigned()) {
+        return std::move(args[0]);
     }
     if (type.isFloat() && args.size() == 1 && args[0]->fKind == Expression::kIntLiteral_Kind) {
         int64_t value = ((IntLiteral&) *args[0]).fValue;
-        return std::unique_ptr<Expression>(new FloatLiteral(fContext, offset, (double) value,
-                                                            &type));
+        return std::unique_ptr<Expression>(new FloatLiteral(fContext, offset, (double) value));
     }
     if (args[0]->fKind == Expression::kIntLiteral_Kind && (type == *fContext.fInt_Type ||
         type == *fContext.fUInt_Type)) {
@@ -1978,6 +1949,7 @@ void IRGenerator::markWrittenTo(const Expression& expr, bool readWrite) {
 void IRGenerator::convertProgram(const char* text,
                                  size_t length,
                                  SymbolTable& types,
+                                 Modifiers::Flag* defaultPrecision,
                                  std::vector<std::unique_ptr<ProgramElement>>* out) {
     Parser parser(text, length, types, fErrors);
     std::vector<std::unique_ptr<ASTDeclaration>> parsed = parser.file();
@@ -1985,6 +1957,7 @@ void IRGenerator::convertProgram(const char* text,
         printf("float type has name: '%s'\n", fContext.fFloat_Type->name().c_str());
         return;
     }
+    *defaultPrecision = Modifiers::kHighp_Flag;
     for (size_t i = 0; i < parsed.size(); i++) {
         ASTDeclaration& decl = *parsed[i];
         switch (decl.fKind) {
@@ -2029,6 +2002,10 @@ void IRGenerator::convertProgram(const char* text,
                 if (s) {
                     out->push_back(std::move(s));
                 }
+                break;
+            }
+            case ASTDeclaration::kPrecision_Kind: {
+                *defaultPrecision = ((ASTPrecision&) decl).fPrecision;
                 break;
             }
             default:

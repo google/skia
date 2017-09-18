@@ -156,22 +156,21 @@ static bool is_float(const Context& context, const Type& type) {
     if (type.kind() == Type::kVector_Kind) {
         return is_float(context, type.componentType());
     }
-    return type == *context.fFloat_Type || type == *context.fHalf_Type ||
-           type == *context.fDouble_Type;
+    return type == *context.fFloat_Type || type == *context.fDouble_Type;
 }
 
 static bool is_signed(const Context& context, const Type& type) {
     if (type.kind() == Type::kVector_Kind) {
         return is_signed(context, type.componentType());
     }
-    return type == *context.fInt_Type || type == *context.fShort_Type;
+    return type == *context.fInt_Type;
 }
 
 static bool is_unsigned(const Context& context, const Type& type) {
     if (type.kind() == Type::kVector_Kind) {
         return is_unsigned(context, type.componentType());
     }
-    return type == *context.fUInt_Type || type == *context.fUShort_Type;
+    return type == *context.fUInt_Type;
 }
 
 static bool is_bool(const Context& context, const Type& type) {
@@ -1037,36 +1036,11 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
     }
 }
 
-Type SPIRVCodeGenerator::getActualType(const Type& type) {
-    if (type == *fContext.fHalf_Type) {
-        return *fContext.fFloat_Type;
-    }
-    if (type == *fContext.fShort_Type) {
-        return *fContext.fInt_Type;
-    }
-    if (type == *fContext.fUShort_Type) {
-        return *fContext.fUInt_Type;
-    }
-    if (type.kind() == Type::kMatrix_Kind || type.kind() == Type::kVector_Kind) {
-        if (type.componentType() == *fContext.fHalf_Type) {
-            return fContext.fFloat_Type->toCompound(fContext, type.columns(), type.rows());
-        }
-        if (type.componentType() == *fContext.fShort_Type) {
-            return fContext.fInt_Type->toCompound(fContext, type.columns(), type.rows());
-        }
-        if (type.componentType() == *fContext.fUShort_Type) {
-            return fContext.fUInt_Type->toCompound(fContext, type.columns(), type.rows());
-        }
-    }
-    return type;
-}
-
 SpvId SPIRVCodeGenerator::getType(const Type& type) {
     return this->getType(type, fDefaultLayout);
 }
 
-SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layout) {
-    Type type = this->getActualType(rawType);
+SpvId SPIRVCodeGenerator::getType(const Type& type, const MemoryLayout& layout) {
     String key = type.name() + to_string((int) layout.fStd);
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
@@ -1220,9 +1194,8 @@ SpvId SPIRVCodeGenerator::getPointerType(const Type& type, SpvStorageClass_ stor
     return this->getPointerType(type, fDefaultLayout, storageClass);
 }
 
-SpvId SPIRVCodeGenerator::getPointerType(const Type& rawType, const MemoryLayout& layout,
+SpvId SPIRVCodeGenerator::getPointerType(const Type& type, const MemoryLayout& layout,
                                          SpvStorageClass_ storageClass) {
-    Type type = this->getActualType(rawType);
     String key = type.description() + "*" + to_string(layout.fStd) + to_string(storageClass);
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
@@ -1533,53 +1506,55 @@ SpvId SPIRVCodeGenerator::writeConstantVector(const Constructor& c) {
 }
 
 SpvId SPIRVCodeGenerator::writeFloatConstructor(const Constructor& c, OutputStream& out) {
-    ASSERT(c.fType.isFloat());
+    ASSERT(c.fType == *fContext.fFloat_Type);
     ASSERT(c.fArguments.size() == 1);
     ASSERT(c.fArguments[0]->fType.isNumber());
     SpvId result = this->nextId();
     SpvId parameter = this->writeExpression(*c.fArguments[0], out);
-    if (c.fArguments[0]->fType.isSigned()) {
+    if (c.fArguments[0]->fType == *fContext.fInt_Type) {
         this->writeInstruction(SpvOpConvertSToF, this->getType(c.fType), result, parameter,
                                out);
-    } else {
-        ASSERT(c.fArguments[0]->fType.isUnsigned());
+    } else if (c.fArguments[0]->fType == *fContext.fUInt_Type) {
         this->writeInstruction(SpvOpConvertUToF, this->getType(c.fType), result, parameter,
                                out);
+    } else if (c.fArguments[0]->fType == *fContext.fFloat_Type) {
+        return parameter;
     }
     return result;
 }
 
 SpvId SPIRVCodeGenerator::writeIntConstructor(const Constructor& c, OutputStream& out) {
-    ASSERT(c.fType.isSigned());
+    ASSERT(c.fType == *fContext.fInt_Type);
     ASSERT(c.fArguments.size() == 1);
     ASSERT(c.fArguments[0]->fType.isNumber());
     SpvId result = this->nextId();
     SpvId parameter = this->writeExpression(*c.fArguments[0], out);
-    if (c.fArguments[0]->fType.isFloat()) {
+    if (c.fArguments[0]->fType == *fContext.fFloat_Type) {
         this->writeInstruction(SpvOpConvertFToS, this->getType(c.fType), result, parameter,
                                out);
-    }
-    else {
-        ASSERT(c.fArguments[0]->fType.isUnsigned());
+    } else if (c.fArguments[0]->fType == *fContext.fUInt_Type) {
         this->writeInstruction(SpvOpBitcast, this->getType(c.fType), result, parameter,
                                out);
+    } else if (c.fArguments[0]->fType == *fContext.fInt_Type) {
+        return parameter;
     }
     return result;
 }
 
 SpvId SPIRVCodeGenerator::writeUIntConstructor(const Constructor& c, OutputStream& out) {
-    ASSERT(c.fType.isUnsigned());
+    ASSERT(c.fType == *fContext.fUInt_Type);
     ASSERT(c.fArguments.size() == 1);
     ASSERT(c.fArguments[0]->fType.isNumber());
     SpvId result = this->nextId();
     SpvId parameter = this->writeExpression(*c.fArguments[0], out);
-    if (c.fArguments[0]->fType.isFloat()) {
+    if (c.fArguments[0]->fType == *fContext.fFloat_Type) {
         this->writeInstruction(SpvOpConvertFToU, this->getType(c.fType), result, parameter,
                                out);
-    } else {
-        ASSERT(c.fArguments[0]->fType.isSigned());
+    } else if (c.fArguments[0]->fType == *fContext.fInt_Type) {
         this->writeInstruction(SpvOpBitcast, this->getType(c.fType), result, parameter,
                                out);
+    } else if (c.fArguments[0]->fType == *fContext.fUInt_Type) {
+        return parameter;
     }
     return result;
 }
@@ -1814,15 +1789,11 @@ SpvId SPIRVCodeGenerator::writeArrayConstructor(const Constructor& c, OutputStre
 }
 
 SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& out) {
-    if (c.fArguments.size() == 1 &&
-        this->getActualType(c.fType) == this->getActualType(c.fArguments[0]->fType)) {
-        return this->writeExpression(*c.fArguments[0], out);
-    }
-    if (c.fType == *fContext.fFloat_Type || c.fType == *fContext.fHalf_Type) {
+    if (c.fType == *fContext.fFloat_Type) {
         return this->writeFloatConstructor(c, out);
-    } else if (c.fType == *fContext.fInt_Type || c.fType == *fContext.fShort_Type) {
+    } else if (c.fType == *fContext.fInt_Type) {
         return this->writeIntConstructor(c, out);
-    } else if (c.fType == *fContext.fUInt_Type || c.fType == *fContext.fUShort_Type) {
+    } else if (c.fType == *fContext.fUInt_Type) {
         return this->writeUIntConstructor(c, out);
     }
     switch (c.fType.kind()) {
@@ -2287,12 +2258,11 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
     if (b.fOperator == Token::COMMA) {
         return rhs;
     }
-    Type tmp("<invalid>");
     // component type we are operating on: float, int, uint
     const Type* operandType;
     // IR allows mismatched types in expressions (e.g. float2* float), but they need special handling
     // in SPIR-V
-    if (this->getActualType(b.fLeft->fType) != this->getActualType(b.fRight->fType)) {
+    if (b.fLeft->fType != b.fRight->fType) {
         if (b.fLeft->fType.kind() == Type::kVector_Kind &&
             b.fRight->fType.isNumber()) {
             // promote number to vector
@@ -2356,9 +2326,8 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
             ABORT("unsupported binary expression: %s", b.description().c_str());
         }
     } else {
-        tmp = this->getActualType(b.fLeft->fType);
-        operandType = &tmp;
-        ASSERT(*operandType == this->getActualType(b.fRight->fType));
+        operandType = &b.fLeft->fType;
+        ASSERT(*operandType == b.fRight->fType);
     }
     switch (b.fOperator) {
         case Token::EQEQ: {
@@ -2737,7 +2706,7 @@ SpvId SPIRVCodeGenerator::writeIntLiteral(const IntLiteral& i) {
 }
 
 SpvId SPIRVCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
-    if (f.fType == *fContext.fFloat_Type || f.fType == *fContext.fHalf_Type) {
+    if (f.fType == *fContext.fFloat_Type) {
         float value = (float) f.fValue;
         auto entry = fFloatConstants.find(value);
         if (entry == fFloatConstants.end()) {

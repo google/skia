@@ -64,6 +64,7 @@ public:
     void convertProgram(const char* text,
                         size_t length,
                         SymbolTable& types,
+                        Modifiers::Flag* defaultPrecision,
                         std::vector<std::unique_ptr<ProgramElement>>* result);
 
     /**

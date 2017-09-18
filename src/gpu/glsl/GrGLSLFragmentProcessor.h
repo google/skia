@@ -86,9 +86,9 @@ public:
         @param fp                The processor that generated this program stage.
         @param key               The key that was computed by GenKey() from the generating
                                  GrProcessor.
-        @param outputColor       A predefined half4 in the FS in which the stage should place its
+        @param outputColor       A predefined float4 in the FS in which the stage should place its
                                  output color (or coverage).
-        @param inputColor        A half4 that holds the input color to the stage in the FS. This may
+        @param inputColor        A float4 that holds the input color to the stage in the FS. This may
                                  be nullptr in which case the implied input is solid white (all
                                  ones). TODO: Better system for communicating optimization info
                                  (e.g. input color is solid white, trans black, known to be opaque,
@@ -152,7 +152,7 @@ public:
     }
 
     inline void emitChild(int childIndex, SkString* outputColor, EmitArgs& parentArgs) {
-        this->emitChild(childIndex, "half4(1.0)", outputColor, parentArgs);
+        this->emitChild(childIndex, "float4(1.0)", outputColor, parentArgs);
     }
 
     /** Will emit the code of a child proc in its own scope. Pass in the parent's EmitArgs and
@@ -167,7 +167,7 @@ public:
                    EmitArgs& parentArgs);
 
     inline void emitChild(int childIndex, EmitArgs& args) {
-        this->emitChild(childIndex, "half4(1.0)", args);
+        this->emitChild(childIndex, "float4(1.0)", args);
     }
 
     /** Variation that uses the parent's output color variable to hold the child's output.*/

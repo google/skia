@@ -51,14 +51,16 @@ void CPPCodeGenerator::writef(const char* s, ...) {
 void CPPCodeGenerator::writeHeader() {
 }
 
-bool CPPCodeGenerator::usesPrecisionModifiers() const {
-    return false;
+void CPPCodeGenerator::writePrecisionModifier() {
 }
 
-String CPPCodeGenerator::getTypeName(const Type& type) {
-    return type.name();
+void CPPCodeGenerator::writeType(const Type& type) {
+    if (type.kind() == Type::kStruct_Kind) {
+        INHERITED::writeType(type);
+    } else {
+        this->write(type.fName);
+    }
 }
-
 void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                              Precedence parentPrecedence) {
     if (b.fOperator == Token::PERCENT) {
@@ -115,16 +117,19 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
     INHERITED::writeIndexExpression(i);
 }
 
-static String default_value(const Type& type) {
-    if (type.fName == "colorSpaceXform") {
+static const char* default_value(const Type& type) {
+    if (type.fName == "float") {
+        return "0.0";
+    } else if (type.fName == "float2") {
+        return "float2(0.0)";
+    } else if (type.fName == "float3") {
+        return "float30.0)";
+    } else if (type.fName == "float4") {
+        return "float4(0.0)";
+    } else if (type.fName == "floatt4x4" || type.fName == "colorSpaceXform") {
         return "float4x4(1.0)";
     }
-    switch (type.kind()) {
-        case Type::kScalar_Kind: return "0";
-        case Type::kVector_Kind: return type.name() + "(0)";
-        case Type::kMatrix_Kind: return type.name() + "(1)";
-        default: ABORT("unsupported default_value type\n");
-    }
+    ABORT("unsupported default_value type\n");
 }
 
 static bool is_private(const Variable& var) {
@@ -135,7 +140,7 @@ static bool is_private(const Variable& var) {
 }
 
 void CPPCodeGenerator::writeRuntimeValue(const Type& type, const String& cppCode) {
-    if (type.isFloat()) {
+    if (type == *fContext.fFloat_Type) {
         this->write("%f");
         fFormatArgs.push_back(cppCode);
     } else if (type == *fContext.fInt_Type) {
@@ -144,12 +149,12 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const String& cppCode
     } else if (type == *fContext.fBool_Type) {
         this->write("%s");
         fFormatArgs.push_back("(" + cppCode + " ? \"true\" : \"false\")");
-    } else if (type == *fContext.fFloat2_Type || type == *fContext.fHalf2_Type) {
-        this->write(type.name() + "(%f, %f)");
+    } else if (type == *fContext.fFloat2_Type) {
+        this->write("float2(%f, %f)");
         fFormatArgs.push_back(cppCode + ".fX");
         fFormatArgs.push_back(cppCode + ".fY");
     } else {
-        this->write(type.name());
+        this->write(type.fName);
         this->write("\n");
         ABORT("unsupported runtime value type\n");
     }
@@ -184,7 +189,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
     switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
         case SK_INCOLOR_BUILTIN:
             this->write("%s");
-            fFormatArgs.push_back(String("args.fInputColor ? args.fInputColor : \"half4(1)\""));
+            fFormatArgs.push_back(String("args.fInputColor ? args.fInputColor : \"float4(1)\""));
             break;
         case SK_OUTCOLOR_BUILTIN:
             this->write("%s");
@@ -206,7 +211,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
                     var = String::printf("fColorSpaceHelper.isValid() ? "
                                          "args.fUniformHandler->getUniformCStr("
                                                   "fColorSpaceHelper.gamutXformUniform()) : \"%s\"",
-                           default_value(ref.fVariable.fType).c_str());
+                           default_value(ref.fVariable.fType));
                 } else {
                     var = String::printf("args.fUniformHandler->getUniformCStr(%sVar)",
                                          HCodeGenerator::FieldName(name.c_str()).c_str());
@@ -216,7 +221,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
                     code = String::printf("%sVar.isValid() ? %s : \"%s\"",
                                           HCodeGenerator::FieldName(name.c_str()).c_str(),
                                           var.c_str(),
-                                          default_value(ref.fVariable.fType).c_str());
+                                          default_value(ref.fVariable.fType));
                 } else {
                     code = var;
                 }
@@ -248,7 +253,7 @@ void CPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
 void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (c.fFunction.fBuiltin && c.fFunction.fName == "COLORSPACE") {
         String tmpVar = "_tmpVar" + to_string(++fVarCount);
-        fFunctionHeader += "half4 " + tmpVar + ";";
+        fFunctionHeader += "float4 " + tmpVar + ";";
         ASSERT(c.fArguments.size() == 2);
         this->write("%s");
         fFormatArgs.push_back("fColorSpaceHelper.isValid() ? \"(" + tmpVar + " = \" : \"\"");
@@ -257,7 +262,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         String xform("args.fUniformHandler->getUniformCStr(fColorSpaceHelper.gamutXformUniform())");
         this->write("%s");
         fFormatArgs.push_back("fColorSpaceHelper.isValid() ? SkStringPrintf(\", "
-                              "half4(clamp((%s * half4(" + tmpVar + ".rgb, 1.0)).rgb, 0.0, " +
+                              "float4(clamp((%s * float4(" + tmpVar + ".rgb, 1.0)).rgb, 0.0, " +
                               tmpVar + ".a), " + tmpVar + ".a))\", " + xform + ").c_str() : \"\"");
         return;
     }
@@ -344,22 +349,14 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
     }
     const char* type;
     if (var.fType == *fContext.fFloat_Type) {
-        type = "kHighFloat_GrSLType";
-    } else if (var.fType == *fContext.fHalf_Type) {
-        type = "kHalf_GrSLType";
+        type = "kFloat_GrSLType";
     } else if (var.fType == *fContext.fFloat2_Type) {
-        type = "kHighFloat2_GrSLType";
-    } else if (var.fType == *fContext.fHalf2_Type) {
-        type = "kHalf2_GrSLType";
+        type = "kVec2f_GrSLType";
     } else if (var.fType == *fContext.fFloat4_Type) {
-        type = "kHighFloat4_GrSLType";
-    } else if (var.fType == *fContext.fHalf4_Type) {
-        type = "kHalf4_GrSLType";
+        type = "kVec4f_GrSLType";
     } else if (var.fType == *fContext.fFloat4x4_Type ||
                var.fType == *fContext.fColorSpaceXform_Type) {
-        type = "kHighFloat4x4_GrSLType";
-    } else if (var.fType == *fContext.fHalf4x4_Type) {
-        type = "kHalf4x4_GrSLType";
+        type = "kMat44f_GrSLType";
     } else {
         ABORT("unsupported uniform type: %s %s;\n", String(var.fType.fName).c_str(),
               String(var.fName).c_str());
@@ -460,12 +457,11 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
             }
             String nameString(u->fName);
             const char* name = nameString.c_str();
-            if (u->fType == *fContext.fFloat4_Type || u->fType == *fContext.fHalf4_Type) {
+            if (u->fType == *fContext.fFloat4_Type) {
                 this->writef("        const SkRect %sValue = _outer.%s();\n"
                              "        %s.set4fv(%sVar, 1, (float*) &%sValue);\n",
                              name, name, pdman, HCodeGenerator::FieldName(name).c_str(), name);
-            } else if (u->fType == *fContext.fFloat4x4_Type ||
-                       u->fType == *fContext.fHalf4x4_Type) {
+            } else if (u->fType == *fContext.fFloat4x4_Type) {
                 this->writef("        float %sValue[16];\n"
                              "        _outer.%s().asColMajorf(%sValue);\n"
                              "        %s.setMatrix4f(%sVar, %sValue);\n",

@@ -15,7 +15,7 @@
 layout(key) in int mode;
 
 void main() {
-    half factor = 1.0 - sk_InColor.a;
+    float factor = 1.0 - sk_InColor.a;
     @switch (mode) {
         case 0: // kGaussian_Mode
             factor = exp(-factor * factor * 4.0) - 0.018;
@@ -24,5 +24,5 @@ void main() {
             factor = smoothstep(1.0, 0.0, factor);
             break;
     }
-    sk_OutColor = half4(factor);
+    sk_OutColor = float4(factor);
 }
