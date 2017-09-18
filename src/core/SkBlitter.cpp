@@ -45,8 +45,9 @@ inline static SkAlpha ScalarToAlpha(SkScalar a) {
     return (SkAlpha)(a * 255);
 }
 
-void SkBlitter::blitFatAntiRect(const SkRect& rect, const SkIRect& bounds) {
-    SkASSERT(rect.roundOut() == bounds && bounds.width() >= 3 && bounds.height() >= 3);
+void SkBlitter::blitFatAntiRect(const SkRect& rect) {
+    SkIRect bounds = rect.roundOut();
+    SkASSERT(bounds.width() >= 3 && bounds.height() >= 3);
 
     int         runSize = bounds.width() + 1; // +1 so we can set runs[bounds.width()] = 0
     void*       storage = this->allocBlitMemory(runSize * (sizeof(int16_t) + sizeof(SkAlpha)));
