@@ -241,7 +241,7 @@ private:
 
             // Positive distance is towards the center of the circle.
             // Map all the cases to the lower right quadrant.
-            fragBuilder->codeAppendf("float2 delta = abs(sk_FragCoord.xy - %s.%s);",
+            fragBuilder->codeAppendf("half2 delta = abs(sk_FragCoord.xy - %s.%s);",
                                      posName, indices);
 
             switch (mode) {
@@ -249,14 +249,14 @@ private:
                     // When a shadow circle gets large we can have some precision issues if
                     // we do "length(delta)/radius". The scaleDist temporary cuts the
                     // delta vector down a bit before invoking length.
-                    fragBuilder->codeAppendf("float scaledDist = length(delta/%s);", radName);
+                    fragBuilder->codeAppendf("half scaledDist = length(delta/%s);", radName);
                     fragBuilder->codeAppendf("%s = clamp((%s.%c/%s - scaledDist), 0.0, 1.0);",
                                              outputName, sizesName, indices[0], radName);
                     break;
                 case kRect_Mode:
                     fragBuilder->codeAppendf(
-                        "float2 rectDist = float2(1.0 - clamp((%s.%c - delta.x)/%s, 0.0, 1.0),"
-                                             "1.0 - clamp((%s.%c - delta.y)/%s, 0.0, 1.0));",
+                        "half2 rectDist = half2(1.0 - clamp((%s.%c - delta.x)/%s, 0.0, 1.0),"
+                                               "1.0 - clamp((%s.%c - delta.y)/%s, 0.0, 1.0));",
                         sizesName, indices[0], radName,
                         sizesName, indices[1], radName);
                     fragBuilder->codeAppendf("%s = clamp(1.0 - length(rectDist), 0.0, 1.0);",
@@ -273,11 +273,11 @@ private:
 
                     //----------------
                     // rect distance computation
-                    fragBuilder->codeAppendf("float xDist = (%s.%c - delta.x) / %s;",
+                    fragBuilder->codeAppendf("half xDist = (%s.%c - delta.x) / %s;",
                                              sizesName, indices[0], radName);
-                    fragBuilder->codeAppendf("float yDist = (%s.%c - delta.y) / %s;",
+                    fragBuilder->codeAppendf("half yDist = (%s.%c - delta.y) / %s;",
                                              sizesName, indices[1], radName);
-                    fragBuilder->codeAppend("float rectDist = clamp(min(xDist, yDist), 0.0, 1.0);");
+                    fragBuilder->codeAppend("half rectDist = clamp(min(xDist, yDist), 0.0, 1.0);");
 
                     //----------------
                     // ice-cream-cone fractional distance computation
@@ -286,59 +286,59 @@ private:
                     // compute the pointy end of the ice cream cone. If it smaller we just want to
                     // use the center of the corner's circle. When using the blurRadius the inset
                     // amount can't exceed the halfwidths of the RRect.
-                    fragBuilder->codeAppendf("float insetDist = min(max(%s, %s.%c),"
+                    fragBuilder->codeAppendf("half insetDist = min(max(%s, %s.%c),"
                                                                    "min(%s.%c, %s.%c));",
                                              radName, radiiName, indices[0],
                                              sizesName, indices[0], sizesName, indices[1]);
                     // "maxValue" is a correction term for if the blurRadius is larger than the
                     // size of the RRect. In that case we don't want to go all the way to black.
-                    fragBuilder->codeAppendf("float maxValue = insetDist/%s;", radName);
+                    fragBuilder->codeAppendf("half maxValue = insetDist/%s;", radName);
 
-                    fragBuilder->codeAppendf("float2 coneBottom = float2(%s.%c - insetDist,"
-                                                                    "%s.%c - insetDist);",
+                    fragBuilder->codeAppendf("half2 coneBottom = half2(%s.%c - insetDist,"
+                                                                       "%s.%c - insetDist);",
                                              sizesName, indices[0], sizesName, indices[1]);
 
-                    fragBuilder->codeAppendf("float2 cornerTop = float2(%s.%c - %s.%c, %s.%c) -"
+                    fragBuilder->codeAppendf("half2 cornerTop = half2(%s.%c - %s.%c, %s.%c) -"
                                                                         "coneBottom;",
                                              sizesName, indices[0], radiiName, indices[0],
                                              sizesName, indices[1]);
-                    fragBuilder->codeAppendf("float2 cornerRight = float2(%s.%c, %s.%c - %s.%c) -"
+                    fragBuilder->codeAppendf("half2 cornerRight = half2(%s.%c, %s.%c - %s.%c) -"
                                                                         "coneBottom;",
                                              sizesName, indices[0],
                                              sizesName, indices[1], radiiName, indices[1]);
 
-                    fragBuilder->codeAppend("float2 ptInConeSpace = delta - coneBottom;");
-                    fragBuilder->codeAppend("float distToPtInConeSpace = length(ptInConeSpace);");
+                    fragBuilder->codeAppend("half2 ptInConeSpace = delta - coneBottom;");
+                    fragBuilder->codeAppend("half distToPtInConeSpace = length(ptInConeSpace);");
 
-                    fragBuilder->codeAppend("float cross1 =  ptInConeSpace.x * cornerTop.y -"
-                                                            "ptInConeSpace.y * cornerTop.x;");
-                    fragBuilder->codeAppend("float cross2 = -ptInConeSpace.x * cornerRight.y + "
-                                                            "ptInConeSpace.y * cornerRight.x;");
+                    fragBuilder->codeAppend("half cross1 =  ptInConeSpace.x * cornerTop.y -"
+                                                           "ptInConeSpace.y * cornerTop.x;");
+                    fragBuilder->codeAppend("half cross2 = -ptInConeSpace.x * cornerRight.y + "
+                                                           "ptInConeSpace.y * cornerRight.x;");
 
-                    fragBuilder->codeAppend("float inCone = step(0.0, cross1) *"
-                                                           "step(0.0, cross2);");
+                    fragBuilder->codeAppend("half inCone = step(0.0, cross1) *"
+                                                          "step(0.0, cross2);");
 
-                    fragBuilder->codeAppendf("float2 cornerCenterInConeSpace = float2(insetDist -"
+                    fragBuilder->codeAppendf("half2 cornerCenterInConeSpace = half2(insetDist -"
                                                                                  "%s.%c);",
                                              radiiName, indices[0]);
 
-                    fragBuilder->codeAppend("float2 connectingVec = ptInConeSpace -"
+                    fragBuilder->codeAppend("half2 connectingVec = ptInConeSpace -"
                                                                         "cornerCenterInConeSpace;");
                     fragBuilder->codeAppend("ptInConeSpace = normalize(ptInConeSpace);");
 
                     // "a" (i.e., dot(ptInConeSpace, ptInConeSpace) should always be 1.0f since
                     // ptInConeSpace is now normalized
-                    fragBuilder->codeAppend("float b = 2.0 * dot(ptInConeSpace, connectingVec);");
-                    fragBuilder->codeAppendf("float c = dot(connectingVec, connectingVec) - "
+                    fragBuilder->codeAppend("half b = 2.0 * dot(ptInConeSpace, connectingVec);");
+                    fragBuilder->codeAppendf("half c = dot(connectingVec, connectingVec) - "
                                                                                    "%s.%c * %s.%c;",
                                              radiiName, indices[0], radiiName, indices[0]);
 
-                    fragBuilder->codeAppend("float fourAC = 4*c;");
+                    fragBuilder->codeAppend("half fourAC = 4*c;");
                     // This max prevents sqrt(-1) when outside the cone
-                    fragBuilder->codeAppend("float bSq = max(b*b, fourAC);");
+                    fragBuilder->codeAppend("half bSq = max(b*b, fourAC);");
 
                     // lop off negative values that are outside the cone
-                    fragBuilder->codeAppend("float coneDist = "
+                    fragBuilder->codeAppend("half coneDist = "
                                                     "max(0.0, 0.5 * (-b + sqrt(bSq - fourAC)));");
                     // make the coneDist a fraction of how far it is from the edge to the
                     // cone's base
@@ -358,42 +358,38 @@ private:
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
             const char* positionsUniName = nullptr;
-            fPositionsUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                       kVec4f_GrSLType, kDefault_GrSLPrecision,
+            fPositionsUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                        "Positions", &positionsUniName);
             const char* sizesUniName = nullptr;
-            fSizesUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                   kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                                   "Sizes", &sizesUniName);
+            fSizesUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+                                                   kDefault_GrSLPrecision, "Sizes", &sizesUniName);
             const char* radiiUniName = nullptr;
             if (fp.fFirstMode == kSimpleCircular_Mode || fp.fSecondMode == kSimpleCircular_Mode) {
-                fRadiiUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                       kVec4f_GrSLType, kDefault_GrSLPrecision,
+                fRadiiUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                        "Radii", &radiiUniName);
             }
             const char* radUniName = nullptr;
-            fRadiusUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                    kFloat_GrSLType, kDefault_GrSLPrecision,
+            fRadiusUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
                                                     "Radius", &radUniName);
 
-            fragBuilder->codeAppend("float firstDist;");
+            fragBuilder->codeAppend("half firstDist;");
             fragBuilder->codeAppend("{");
             this->emitModeCode(fp.firstMode(), fragBuilder,
                                positionsUniName, sizesUniName, radiiUniName,
                                radUniName, "firstDist", "xy");
             fragBuilder->codeAppend("}");
 
-            fragBuilder->codeAppend("float secondDist;");
+            fragBuilder->codeAppend("half secondDist;");
             fragBuilder->codeAppend("{");
             this->emitModeCode(fp.secondMode(), fragBuilder,
                                positionsUniName, sizesUniName, radiiUniName,
                                radUniName, "secondDist", "zw");
             fragBuilder->codeAppend("}");
 
-            fragBuilder->codeAppend("float2 distVec = float2(1.0 - firstDist, 1.0 - secondDist);");
+            fragBuilder->codeAppend("half2 distVec = half2(1.0 - firstDist, 1.0 - secondDist);");
 
             // Finally use the distance to apply the Gaussian edge
-            fragBuilder->codeAppend("float factor = clamp(length(distVec), 0.0, 1.0);");
+            fragBuilder->codeAppend("half factor = clamp(length(distVec), 0.0, 1.0);");
             fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
             fragBuilder->codeAppendf("%s = factor*%s;",
                                      args.fOutputColor, args.fInputColor);

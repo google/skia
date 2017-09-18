@@ -96,9 +96,11 @@ protected:
 
     virtual void writeHeader();
 
-    virtual void writePrecisionModifier();
+    virtual bool usesPrecisionModifiers() const;
 
-    virtual void writeType(const Type& type);
+    virtual String getTypeName(const Type& type);
+
+    void writeType(const Type& type);
 
     void writeExtension(const Extension& ext);
 
@@ -118,6 +120,8 @@ protected:
 
     virtual void writeVarInitializer(const Variable& var, const Expression& value);
 
+    const char* getTypePrecision(const Type& type);
+
     void writeTypePrecision(const Type& type);
 
     void writeVarDeclarations(const VarDeclarations& decl, bool global);
@@ -134,7 +138,7 @@ protected:
 
     virtual void writeFunctionCall(const FunctionCall& c);
 
-    void writeConstructor(const Constructor& c);
+    void writeConstructor(const Constructor& c, Precedence parentPrecedence);
 
     void writeFieldAccess(const FieldAccess& f);
 

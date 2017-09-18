@@ -816,15 +816,13 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     SkString vCoords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
 
-    fBaseFrequencyUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                   kVec2f_GrSLType, kDefault_GrSLPrecision,
+    fBaseFrequencyUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                    "baseFrequency");
     const char* baseFrequencyUni = uniformHandler->getUniformCStr(fBaseFrequencyUni);
 
     const char* stitchDataUni = nullptr;
     if (pne.stitchTiles()) {
-        fStitchDataUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
+        fStitchDataUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                     "stitchData");
         stitchDataUni = uniformHandler->getUniformCStr(fStitchDataUni);
     }
@@ -849,29 +847,29 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     const char* inc8bit     = "0.00390625";  // 1.0 / 256.0
     // This is the math to convert the two 16bit integer packed into rgba 8 bit input into a
     // [-1,1] vector and perform a dot product between that vector and the provided vector.
-    const char* dotLattice  = "dot(((%s.ga + %s.rb * float2(%s)) * float2(2.0) - float2(1.0)), %s);";
+    const char* dotLattice  = "dot(((%s.ga + %s.rb * half2(%s)) * half2(2.0) - half2(1.0)), %s);";
 
     // Add noise function
     static const GrShaderVar gPerlinNoiseArgs[] =  {
-        GrShaderVar(chanCoord, kFloat_GrSLType),
-        GrShaderVar(noiseVec, kVec2f_GrSLType)
+        GrShaderVar(chanCoord, kHalf_GrSLType),
+        GrShaderVar(noiseVec, kHalf2_GrSLType)
     };
 
     static const GrShaderVar gPerlinNoiseStitchArgs[] =  {
-        GrShaderVar(chanCoord, kFloat_GrSLType),
-        GrShaderVar(noiseVec, kVec2f_GrSLType),
-        GrShaderVar(stitchData, kVec2f_GrSLType)
+        GrShaderVar(chanCoord, kHalf_GrSLType),
+        GrShaderVar(noiseVec, kHalf2_GrSLType),
+        GrShaderVar(stitchData, kHalf2_GrSLType)
     };
 
     SkString noiseCode;
 
-    noiseCode.appendf("\tfloat4 %s;\n", floorVal);
+    noiseCode.appendf("\thalf4 %s;\n", floorVal);
     noiseCode.appendf("\t%s.xy = floor(%s);\n", floorVal, noiseVec);
-    noiseCode.appendf("\t%s.zw = %s.xy + float2(1.0);\n", floorVal, floorVal);
-    noiseCode.appendf("\tfloat2 %s = fract(%s);\n", fractVal, noiseVec);
+    noiseCode.appendf("\t%s.zw = %s.xy + half2(1.0);\n", floorVal, floorVal);
+    noiseCode.appendf("\thalf2 %s = fract(%s);\n", fractVal, noiseVec);
 
     // smooth curve : t * t * (3 - 2 * t)
-    noiseCode.appendf("\n\tfloat2 %s = %s * %s * (float2(3.0) - float2(2.0) * %s);",
+    noiseCode.appendf("\n\thalf2 %s = %s * %s * (half2(3.0) - half2(2.0) * %s);",
         noiseSmooth, fractVal, fractVal, fractVal);
 
     // Adjust frequencies if we're stitching tiles
@@ -887,28 +885,28 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     }
 
     // Get texture coordinates and normalize
-    noiseCode.appendf("\n\t%s = fract(floor(mod(%s, 256.0)) / float4(256.0));\n",
+    noiseCode.appendf("\n\t%s = fract(floor(mod(%s, 256.0)) / half4(256.0));\n",
         floorVal, floorVal);
 
     // Get permutation for x
     {
         SkString xCoords("");
-        xCoords.appendf("float2(%s.x, 0.5)", floorVal);
+        xCoords.appendf("half2(%s.x, 0.5)", floorVal);
 
-        noiseCode.appendf("\n\tfloat2 %s;\n\t%s.x = ", latticeIdx, latticeIdx);
+        noiseCode.appendf("\n\thalf2 %s;\n\t%s.x = ", latticeIdx, latticeIdx);
         fragBuilder->appendTextureLookup(&noiseCode, args.fTexSamplers[0], xCoords.c_str(),
-                                         kVec2f_GrSLType);
+                                         kHalf2_GrSLType);
         noiseCode.append(".r;");
     }
 
     // Get permutation for x + 1
     {
         SkString xCoords("");
-        xCoords.appendf("float2(%s.z, 0.5)", floorVal);
+        xCoords.appendf("half2(%s.z, 0.5)", floorVal);
 
         noiseCode.appendf("\n\t%s.y = ", latticeIdx);
         fragBuilder->appendTextureLookup(&noiseCode, args.fTexSamplers[0], xCoords.c_str(),
-                                         kVec2f_GrSLType);
+                                         kHalf2_GrSLType);
         noiseCode.append(".r;");
     }
 
@@ -919,21 +917,21 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     // (or 0.484368 here). The following rounding operation prevents these precision issues from
     // affecting the result of the noise by making sure that we only have multiples of 1/255.
     // (Note that 1/255 is about 0.003921569, which is the value used here).
-    noiseCode.appendf("\n\t%s = floor(%s * float2(255.0) + float2(0.5)) * float2(0.003921569);",
+    noiseCode.appendf("\n\t%s = floor(%s * half2(255.0) + half2(0.5)) * half2(0.003921569);",
                       latticeIdx, latticeIdx);
 #endif
 
     // Get (x,y) coordinates with the permutated x
-    noiseCode.appendf("\n\tfloat4 %s = fract(%s.xyxy + %s.yyww);", bcoords, latticeIdx, floorVal);
+    noiseCode.appendf("\n\thalf4 %s = fract(%s.xyxy + %s.yyww);", bcoords, latticeIdx, floorVal);
 
-    noiseCode.appendf("\n\n\tfloat2 %s;", uv);
+    noiseCode.appendf("\n\n\thalf2 %s;", uv);
     // Compute u, at offset (0,0)
     {
         SkString latticeCoords("");
-        latticeCoords.appendf("float2(%s.x, %s)", bcoords, chanCoord);
-        noiseCode.appendf("\n\tfloat4 %s = ", lattice);
+        latticeCoords.appendf("half2(%s.x, %s)", bcoords, chanCoord);
+        noiseCode.appendf("\n\thalf4 %s = ", lattice);
         fragBuilder->appendTextureLookup(&noiseCode, args.fTexSamplers[1], latticeCoords.c_str(),
-                                         kVec2f_GrSLType);
+                                         kHalf2_GrSLType);
         noiseCode.appendf(".bgra;\n\t%s.x = ", uv);
         noiseCode.appendf(dotLattice, lattice, lattice, inc8bit, fractVal);
     }
@@ -942,26 +940,26 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     // Compute v, at offset (-1,0)
     {
         SkString latticeCoords("");
-        latticeCoords.appendf("float2(%s.y, %s)", bcoords, chanCoord);
+        latticeCoords.appendf("half2(%s.y, %s)", bcoords, chanCoord);
         noiseCode.append("\n\tlattice = ");
         fragBuilder->appendTextureLookup(&noiseCode, args.fTexSamplers[1], latticeCoords.c_str(),
-                                         kVec2f_GrSLType);
+                                         kHalf2_GrSLType);
         noiseCode.appendf(".bgra;\n\t%s.y = ", uv);
         noiseCode.appendf(dotLattice, lattice, lattice, inc8bit, fractVal);
     }
 
     // Compute 'a' as a linear interpolation of 'u' and 'v'
-    noiseCode.appendf("\n\tfloat2 %s;", ab);
+    noiseCode.appendf("\n\thalf2 %s;", ab);
     noiseCode.appendf("\n\t%s.x = mix(%s.x, %s.y, %s.x);", ab, uv, uv, noiseSmooth);
 
     noiseCode.appendf("\n\t%s.y -= 1.0;", fractVal);
     // Compute v, at offset (-1,-1)
     {
         SkString latticeCoords("");
-        latticeCoords.appendf("float2(%s.w, %s)", bcoords, chanCoord);
+        latticeCoords.appendf("half2(%s.w, %s)", bcoords, chanCoord);
         noiseCode.append("\n\tlattice = ");
         fragBuilder->appendTextureLookup(&noiseCode, args.fTexSamplers[1], latticeCoords.c_str(),
-                                         kVec2f_GrSLType);
+                                         kHalf2_GrSLType);
         noiseCode.appendf(".bgra;\n\t%s.y = ", uv);
         noiseCode.appendf(dotLattice, lattice, lattice, inc8bit, fractVal);
     }
@@ -970,10 +968,10 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     // Compute u, at offset (0,-1)
     {
         SkString latticeCoords("");
-        latticeCoords.appendf("float2(%s.z, %s)", bcoords, chanCoord);
+        latticeCoords.appendf("half2(%s.z, %s)", bcoords, chanCoord);
         noiseCode.append("\n\tlattice = ");
         fragBuilder->appendTextureLookup(&noiseCode, args.fTexSamplers[1], latticeCoords.c_str(),
-                                         kVec2f_GrSLType);
+                                         kHalf2_GrSLType);
         noiseCode.appendf(".bgra;\n\t%s.x = ", uv);
         noiseCode.appendf(dotLattice, lattice, lattice, inc8bit, fractVal);
     }
@@ -985,28 +983,28 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
 
     SkString noiseFuncName;
     if (pne.stitchTiles()) {
-        fragBuilder->emitFunction(kFloat_GrSLType,
+        fragBuilder->emitFunction(kHalf_GrSLType,
                                   "perlinnoise", SK_ARRAY_COUNT(gPerlinNoiseStitchArgs),
                                   gPerlinNoiseStitchArgs, noiseCode.c_str(), &noiseFuncName);
     } else {
-        fragBuilder->emitFunction(kFloat_GrSLType,
+        fragBuilder->emitFunction(kHalf_GrSLType,
                                   "perlinnoise", SK_ARRAY_COUNT(gPerlinNoiseArgs),
                                   gPerlinNoiseArgs, noiseCode.c_str(), &noiseFuncName);
     }
 
     // There are rounding errors if the floor operation is not performed here
-    fragBuilder->codeAppendf("\n\t\tfloat2 %s = floor(%s.xy) * %s;",
+    fragBuilder->codeAppendf("\n\t\thalf2 %s = floor(%s.xy) * %s;",
                              noiseVec, vCoords.c_str(), baseFrequencyUni);
 
     // Clear the color accumulator
-    fragBuilder->codeAppendf("\n\t\t%s = float4(0.0);", args.fOutputColor);
+    fragBuilder->codeAppendf("\n\t\t%s = half4(0.0);", args.fOutputColor);
 
     if (pne.stitchTiles()) {
         // Set up TurbulenceInitial stitch values.
-        fragBuilder->codeAppendf("\n\t\tfloat2 %s = %s;", stitchData, stitchDataUni);
+        fragBuilder->codeAppendf("\n\t\thalf2 %s = %s;", stitchData, stitchDataUni);
     }
 
-    fragBuilder->codeAppendf("\n\t\tfloat %s = 1.0;", ratio);
+    fragBuilder->codeAppendf("\n\t\thalf %s = 1.0;", ratio);
 
     // Loop over all octaves
     fragBuilder->codeAppendf("for (int octave = 0; octave < %d; ++octave) {", pne.numOctaves());
@@ -1017,7 +1015,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     }
     if (pne.stitchTiles()) {
         fragBuilder->codeAppendf(
-            "float4(\n\t\t\t\t%s(%s, %s, %s),\n\t\t\t\t%s(%s, %s, %s),"
+            "half4(\n\t\t\t\t%s(%s, %s, %s),\n\t\t\t\t%s(%s, %s, %s),"
                  "\n\t\t\t\t%s(%s, %s, %s),\n\t\t\t\t%s(%s, %s, %s))",
             noiseFuncName.c_str(), chanCoordR, noiseVec, stitchData,
             noiseFuncName.c_str(), chanCoordG, noiseVec, stitchData,
@@ -1025,7 +1023,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
             noiseFuncName.c_str(), chanCoordA, noiseVec, stitchData);
     } else {
         fragBuilder->codeAppendf(
-            "float4(\n\t\t\t\t%s(%s, %s),\n\t\t\t\t%s(%s, %s),"
+            "half4(\n\t\t\t\t%s(%s, %s),\n\t\t\t\t%s(%s, %s),"
                  "\n\t\t\t\t%s(%s, %s),\n\t\t\t\t%s(%s, %s))",
             noiseFuncName.c_str(), chanCoordR, noiseVec,
             noiseFuncName.c_str(), chanCoordG, noiseVec,
@@ -1037,18 +1035,18 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     }
     fragBuilder->codeAppendf(" * %s;", ratio);
 
-    fragBuilder->codeAppendf("\n\t\t\t%s *= float2(2.0);", noiseVec);
+    fragBuilder->codeAppendf("\n\t\t\t%s *= half2(2.0);", noiseVec);
     fragBuilder->codeAppendf("\n\t\t\t%s *= 0.5;", ratio);
 
     if (pne.stitchTiles()) {
-        fragBuilder->codeAppendf("\n\t\t\t%s *= float2(2.0);", stitchData);
+        fragBuilder->codeAppendf("\n\t\t\t%s *= half2(2.0);", stitchData);
     }
     fragBuilder->codeAppend("\n\t\t}"); // end of the for loop on octaves
 
     if (pne.type() == SkPerlinNoiseShaderImpl::kFractalNoise_Type) {
         // The value of turbulenceFunctionResult comes from ((turbulenceFunctionResult) + 1) / 2
         // by fractalNoise and (turbulenceFunctionResult) by turbulence.
-        fragBuilder->codeAppendf("\n\t\t%s = %s * float4(0.5) + float4(0.5);",
+        fragBuilder->codeAppendf("\n\t\t%s = %s * half4(0.5) + half4(0.5);",
                                args.fOutputColor,args.fOutputColor);
     }
 
@@ -1056,7 +1054,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("\n\t\t%s = clamp(%s, 0.0, 1.0);", args.fOutputColor, args.fOutputColor);
 
     // Pre-multiply the result
-    fragBuilder->codeAppendf("\n\t\t%s = float4(%s.rgb * %s.aaa, %s.a);\n",
+    fragBuilder->codeAppendf("\n\t\t%s = half4(%s.rgb * %s.aaa, %s.a);\n",
                              args.fOutputColor, args.fOutputColor,
                              args.fOutputColor, args.fOutputColor);
 }
@@ -1235,133 +1233,130 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     SkString vCoords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
 
-    fBaseFrequencyUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                   kVec2f_GrSLType, kDefault_GrSLPrecision,
+    fBaseFrequencyUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                    "baseFrequency");
     const char* baseFrequencyUni = uniformHandler->getUniformCStr(fBaseFrequencyUni);
 
-    fZUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                       kFloat_GrSLType, kDefault_GrSLPrecision,
-                                       "z");
+    fZUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "z");
     const char* zUni = uniformHandler->getUniformCStr(fZUni);
 
     // fade function
     static const GrShaderVar fadeArgs[] =  {
-        GrShaderVar("t", kVec3f_GrSLType)
+        GrShaderVar("t", kHalf3_GrSLType)
     };
     SkString fadeFuncName;
-    fragBuilder->emitFunction(kVec3f_GrSLType, "fade", SK_ARRAY_COUNT(fadeArgs),
+    fragBuilder->emitFunction(kHalf3_GrSLType, "fade", SK_ARRAY_COUNT(fadeArgs),
                               fadeArgs,
                               "return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);",
                               &fadeFuncName);
 
     // perm function
     static const GrShaderVar permArgs[] =  {
-        GrShaderVar("x", kFloat_GrSLType)
+        GrShaderVar("x", kHalf_GrSLType)
     };
     SkString permFuncName;
     SkString permCode("return ");
     // FIXME even though I'm creating these textures with kRepeat_TileMode, they're clamped. Not
     // sure why. Using fract() (here and the next texture lookup) as a workaround.
-    fragBuilder->appendTextureLookup(&permCode, args.fTexSamplers[0], "float2(fract(x / 256.0), 0.0)",
-                                     kVec2f_GrSLType);
+    fragBuilder->appendTextureLookup(&permCode, args.fTexSamplers[0], "highfloat2(fract(x / 256.0), 0.0)",
+                                     kHalf2_GrSLType);
     permCode.append(".r * 255.0;");
-    fragBuilder->emitFunction(kFloat_GrSLType, "perm", SK_ARRAY_COUNT(permArgs), permArgs,
+    fragBuilder->emitFunction(kHalf_GrSLType, "perm", SK_ARRAY_COUNT(permArgs), permArgs,
                               permCode.c_str(), &permFuncName);
 
     // grad function
     static const GrShaderVar gradArgs[] =  {
-        GrShaderVar("x", kFloat_GrSLType),
-        GrShaderVar("p", kVec3f_GrSLType)
+        GrShaderVar("x", kHalf_GrSLType),
+        GrShaderVar("p", kHalf3_GrSLType)
     };
     SkString gradFuncName;
     SkString gradCode("return dot(");
-    fragBuilder->appendTextureLookup(&gradCode, args.fTexSamplers[1], "float2(fract(x / 16.0), 0.0)",
-                                     kVec2f_GrSLType);
-    gradCode.append(".rgb * 255.0 - float3(1.0), p);");
-    fragBuilder->emitFunction(kFloat_GrSLType, "grad", SK_ARRAY_COUNT(gradArgs), gradArgs,
+    fragBuilder->appendTextureLookup(&gradCode, args.fTexSamplers[1], "highfloat2(fract(x / 16.0), 0.0)",
+                                     kHalf2_GrSLType);
+    gradCode.append(".rgb * 255.0 - highfloat3(1.0), p);");
+    fragBuilder->emitFunction(kHalf_GrSLType, "grad", SK_ARRAY_COUNT(gradArgs), gradArgs,
                               gradCode.c_str(), &gradFuncName);
 
     // lerp function
     static const GrShaderVar lerpArgs[] =  {
-        GrShaderVar("a", kFloat_GrSLType),
-        GrShaderVar("b", kFloat_GrSLType),
-        GrShaderVar("w", kFloat_GrSLType)
+        GrShaderVar("a", kHalf_GrSLType),
+        GrShaderVar("b", kHalf_GrSLType),
+        GrShaderVar("w", kHalf_GrSLType)
     };
     SkString lerpFuncName;
-    fragBuilder->emitFunction(kFloat_GrSLType, "lerp", SK_ARRAY_COUNT(lerpArgs), lerpArgs,
+    fragBuilder->emitFunction(kHalf_GrSLType, "lerp", SK_ARRAY_COUNT(lerpArgs), lerpArgs,
                               "return a + w * (b - a);", &lerpFuncName);
 
     // noise function
     static const GrShaderVar noiseArgs[] =  {
-        GrShaderVar("p", kVec3f_GrSLType),
+        GrShaderVar("p", kHalf3_GrSLType),
     };
     SkString noiseFuncName;
     SkString noiseCode;
-    noiseCode.append("float3 P = mod(floor(p), 256.0);");
+    noiseCode.append("half3 P = mod(floor(p), 256.0);");
     noiseCode.append("p -= floor(p);");
-    noiseCode.appendf("float3 f = %s(p);", fadeFuncName.c_str());
-    noiseCode.appendf("float A = %s(P.x) + P.y;", permFuncName.c_str());
-    noiseCode.appendf("float AA = %s(A) + P.z;", permFuncName.c_str());
-    noiseCode.appendf("float AB = %s(A + 1.0) + P.z;", permFuncName.c_str());
-    noiseCode.appendf("float B =  %s(P.x + 1.0) + P.y;", permFuncName.c_str());
-    noiseCode.appendf("float BA = %s(B) + P.z;", permFuncName.c_str());
-    noiseCode.appendf("float BB = %s(B + 1.0) + P.z;", permFuncName.c_str());
-    noiseCode.appendf("float result = %s(", lerpFuncName.c_str());
+    noiseCode.appendf("half3 f = %s(p);", fadeFuncName.c_str());
+    noiseCode.appendf("half A = %s(P.x) + P.y;", permFuncName.c_str());
+    noiseCode.appendf("half AA = %s(A) + P.z;", permFuncName.c_str());
+    noiseCode.appendf("half AB = %s(A + 1.0) + P.z;", permFuncName.c_str());
+    noiseCode.appendf("half B =  %s(P.x + 1.0) + P.y;", permFuncName.c_str());
+    noiseCode.appendf("half BA = %s(B) + P.z;", permFuncName.c_str());
+    noiseCode.appendf("half BB = %s(B + 1.0) + P.z;", permFuncName.c_str());
+    noiseCode.appendf("half result = %s(", lerpFuncName.c_str());
     noiseCode.appendf("%s(%s(%s(%s(AA), p),", lerpFuncName.c_str(), lerpFuncName.c_str(),
                       gradFuncName.c_str(), permFuncName.c_str());
-    noiseCode.appendf("%s(%s(BA), p + float3(-1.0, 0.0, 0.0)), f.x),", gradFuncName.c_str(),
+    noiseCode.appendf("%s(%s(BA), p + half3(-1.0, 0.0, 0.0)), f.x),", gradFuncName.c_str(),
                       permFuncName.c_str());
-    noiseCode.appendf("%s(%s(%s(AB), p + float3(0.0, -1.0, 0.0)),", lerpFuncName.c_str(),
+    noiseCode.appendf("%s(%s(%s(AB), p + half3(0.0, -1.0, 0.0)),", lerpFuncName.c_str(),
                       gradFuncName.c_str(), permFuncName.c_str());
-    noiseCode.appendf("%s(%s(BB), p + float3(-1.0, -1.0, 0.0)), f.x), f.y),",
+    noiseCode.appendf("%s(%s(BB), p + half3(-1.0, -1.0, 0.0)), f.x), f.y),",
                       gradFuncName.c_str(), permFuncName.c_str());
-    noiseCode.appendf("%s(%s(%s(%s(AA + 1.0), p + float3(0.0, 0.0, -1.0)),",
+    noiseCode.appendf("%s(%s(%s(%s(AA + 1.0), p + half3(0.0, 0.0, -1.0)),",
                       lerpFuncName.c_str(), lerpFuncName.c_str(), gradFuncName.c_str(),
                       permFuncName.c_str());
-    noiseCode.appendf("%s(%s(BA + 1.0), p + float3(-1.0, 0.0, -1.0)), f.x),",
+    noiseCode.appendf("%s(%s(BA + 1.0), p + half3(-1.0, 0.0, -1.0)), f.x),",
                       gradFuncName.c_str(), permFuncName.c_str());
-    noiseCode.appendf("%s(%s(%s(AB + 1.0), p + float3(0.0, -1.0, -1.0)),",
+    noiseCode.appendf("%s(%s(%s(AB + 1.0), p + half3(0.0, -1.0, -1.0)),",
                       lerpFuncName.c_str(), gradFuncName.c_str(), permFuncName.c_str());
-    noiseCode.appendf("%s(%s(BB + 1.0), p + float3(-1.0, -1.0, -1.0)), f.x), f.y), f.z);",
+    noiseCode.appendf("%s(%s(BB + 1.0), p + half3(-1.0, -1.0, -1.0)), f.x), f.y), f.z);",
                       gradFuncName.c_str(), permFuncName.c_str());
     noiseCode.append("return result;");
-    fragBuilder->emitFunction(kFloat_GrSLType, "noise", SK_ARRAY_COUNT(noiseArgs), noiseArgs,
+    fragBuilder->emitFunction(kHalf_GrSLType, "noise", SK_ARRAY_COUNT(noiseArgs), noiseArgs,
                               noiseCode.c_str(), &noiseFuncName);
 
     // noiseOctaves function
     static const GrShaderVar noiseOctavesArgs[] =  {
-        GrShaderVar("p", kVec3f_GrSLType)
+        GrShaderVar("p", kHalf3_GrSLType)
     };
     SkString noiseOctavesFuncName;
     SkString noiseOctavesCode;
-    noiseOctavesCode.append("float result = 0.0;");
-    noiseOctavesCode.append("float ratio = 1.0;");
-    noiseOctavesCode.appendf("for (float i = 0.0; i < %d; i++) {", pne.octaves());
+    noiseOctavesCode.append("half result = 0.0;");
+    noiseOctavesCode.append("half ratio = 1.0;");
+    noiseOctavesCode.appendf("for (half i = 0.0; i < %d; i++) {", pne.octaves());
     noiseOctavesCode.appendf("result += %s(p) / ratio;", noiseFuncName.c_str());
     noiseOctavesCode.append("p *= 2.0;");
     noiseOctavesCode.append("ratio *= 2.0;");
     noiseOctavesCode.append("}");
     noiseOctavesCode.append("return (result + 1.0) / 2.0;");
-    fragBuilder->emitFunction(kFloat_GrSLType, "noiseOctaves", SK_ARRAY_COUNT(noiseOctavesArgs),
+    fragBuilder->emitFunction(kHalf_GrSLType, "noiseOctaves", SK_ARRAY_COUNT(noiseOctavesArgs),
                               noiseOctavesArgs, noiseOctavesCode.c_str(), &noiseOctavesFuncName);
 
-    fragBuilder->codeAppendf("float2 coords = %s * %s;", vCoords.c_str(), baseFrequencyUni);
-    fragBuilder->codeAppendf("float r = %s(float3(coords, %s));", noiseOctavesFuncName.c_str(),
+    fragBuilder->codeAppendf("half2 coords = %s * %s;", vCoords.c_str(), baseFrequencyUni);
+    fragBuilder->codeAppendf("half r = %s(half3(coords, %s));", noiseOctavesFuncName.c_str(),
                              zUni);
-    fragBuilder->codeAppendf("float g = %s(float3(coords, %s + 0000.0));",
+    fragBuilder->codeAppendf("half g = %s(half3(coords, %s + 0000.0));",
                              noiseOctavesFuncName.c_str(), zUni);
-    fragBuilder->codeAppendf("float b = %s(float3(coords, %s + 0000.0));",
+    fragBuilder->codeAppendf("half b = %s(half3(coords, %s + 0000.0));",
                              noiseOctavesFuncName.c_str(), zUni);
-    fragBuilder->codeAppendf("float a = %s(float3(coords, %s + 0000.0));",
+    fragBuilder->codeAppendf("half a = %s(half3(coords, %s + 0000.0));",
                              noiseOctavesFuncName.c_str(), zUni);
-    fragBuilder->codeAppendf("%s = float4(r, g, b, a);", args.fOutputColor);
+    fragBuilder->codeAppendf("%s = half4(r, g, b, a);", args.fOutputColor);
 
     // Clamp values
     fragBuilder->codeAppendf("%s = clamp(%s, 0.0, 1.0);", args.fOutputColor, args.fOutputColor);
 
     // Pre-multiply the result
-    fragBuilder->codeAppendf("\n\t\t%s = float4(%s.rgb * %s.aaa, %s.a);\n",
+    fragBuilder->codeAppendf("\n\t\t%s = half4(%s.rgb * %s.aaa, %s.a);\n",
                              args.fOutputColor, args.fOutputColor,
                              args.fOutputColor, args.fOutputColor);
 }

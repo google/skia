@@ -24,7 +24,7 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
                                                                             const char** outName) {
     SkASSERT(name && strlen(name));
     SkASSERT(0 != visibility);
-    SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
+    SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeTemporarilyAcceptsPrecision(type));
 
     UniformInfo& uni = fUniforms.push_back();
     uni.fVariable.setType(type);

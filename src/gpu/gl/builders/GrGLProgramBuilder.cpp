@@ -139,6 +139,9 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         return nullptr;
     }
 
+    if (fFS.fForceHighPrecision) {
+        settings.fForceHighPrecision = true;
+    }
     if (!this->compileAndAttachShaders(fFS, programID, GR_GL_FRAGMENT_SHADER, &shadersToDelete,
                                        settings, &inputs)) {
         this->cleanupProgram(programID, shadersToDelete);

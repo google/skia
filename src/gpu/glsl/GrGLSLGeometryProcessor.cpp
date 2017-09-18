@@ -18,7 +18,8 @@ void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
     vBuilder->transformToNormalizedDeviceSpace(gpArgs.fPositionVar, args.fRTAdjustName);
-    if (kVec2f_GrSLType == gpArgs.fPositionVar.getType()) {
+    if (kHighFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
+        kHalf2_GrSLType == gpArgs.fPositionVar.getType()) {
         args.fVaryingHandler->setNoPerspective();
     }
 }
@@ -39,32 +40,28 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
         uint32_t type = coordTransform->getMatrix().getType();
         type |= localMatrix.getType();
 
-        varyingType = SkToBool(SkMatrix::kPerspective_Mask & type) ? kVec3f_GrSLType :
-                                                                     kVec2f_GrSLType;
-        // Coord transforms are always handled at high precision
-        const GrSLPrecision precision = kHigh_GrSLPrecision;
-
+        varyingType = SkToBool(SkMatrix::kPerspective_Mask & type) ? kHighFloat3_GrSLType :
+                                                                     kHighFloat2_GrSLType;
         const char* uniName;
 
 
         fInstalledTransforms.push_back().fHandle = uniformHandler->addUniform(kVertex_GrShaderFlag,
-                                                                              kMat33f_GrSLType,
-                                                                              precision,
+                                                                              kHighFloat3x3_GrSLType,
                                                                               strUniName.c_str(),
                                                                               &uniName).toIndex();
         SkString strVaryingName;
         strVaryingName.printf("TransformedCoords_%d", i);
 
         GrGLSLVertToFrag v(varyingType);
-        varyingHandler->addVarying(strVaryingName.c_str(), &v, precision);
+        varyingHandler->addVarying(strVaryingName.c_str(), &v, kHigh_GrSLPrecision);
 
-        SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
+        SkASSERT(kHighFloat2_GrSLType == varyingType || kHighFloat3_GrSLType == varyingType);
         handler->specifyCoordsForCurrCoordTransform(SkString(v.fsIn()), varyingType);
 
-        if (kVec2f_GrSLType == varyingType) {
-            vb->codeAppendf("%s = (%s * float3(%s, 1)).xy;", v.vsOut(), uniName, localCoords);
+        if (kHighFloat2_GrSLType == varyingType) {
+            vb->codeAppendf("%s = (%s * highfloat3(%s, 1)).xy;", v.vsOut(), uniName, localCoords);
         } else {
-            vb->codeAppendf("%s = %s * float3(%s, 1);", v.vsOut(), uniName, localCoords);
+            vb->codeAppendf("%s = %s * highfloat3(%s, 1);", v.vsOut(), uniName, localCoords);
         }
         ++i;
     }
@@ -88,8 +85,8 @@ void GrGLSLGeometryProcessor::setTransformDataHelper(const SkMatrix& localMatrix
 void GrGLSLGeometryProcessor::writeOutputPosition(GrGLSLVertexBuilder* vertBuilder,
                                                   GrGPArgs* gpArgs,
                                                   const char* posName) {
-    gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
-    vertBuilder->codeAppendf("float2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
+    gpArgs->fPositionVar.set(kHighFloat2_GrSLType, "pos2");
+    vertBuilder->codeAppendf("highfloat2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
 }
 
 void GrGLSLGeometryProcessor::writeOutputPosition(GrGLSLVertexBuilder* vertBuilder,
@@ -99,21 +96,21 @@ void GrGLSLGeometryProcessor::writeOutputPosition(GrGLSLVertexBuilder* vertBuild
                                                   const SkMatrix& mat,
                                                   UniformHandle* viewMatrixUniform) {
     if (mat.isIdentity()) {
-        gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
-        vertBuilder->codeAppendf("float2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
+        gpArgs->fPositionVar.set(kHighFloat2_GrSLType, "pos2");
+        vertBuilder->codeAppendf("highfloat2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
     } else {
         const char* viewMatrixName;
         *viewMatrixUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
-                                                        kMat33f_GrSLType, kHigh_GrSLPrecision,
+                                                        kHighFloat3x3_GrSLType,
                                                         "uViewM",
                                                         &viewMatrixName);
         if (!mat.hasPerspective()) {
-            gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
-            vertBuilder->codeAppendf("float2 %s = (%s * float3(%s, 1)).xy;",
+            gpArgs->fPositionVar.set(kHighFloat2_GrSLType, "pos2");
+            vertBuilder->codeAppendf("highfloat2 %s = (%s * highfloat3(%s, 1)).xy;",
                                      gpArgs->fPositionVar.c_str(), viewMatrixName, posName);
         } else {
-            gpArgs->fPositionVar.set(kVec3f_GrSLType, "pos3");
-            vertBuilder->codeAppendf("float3 %s = %s * float3(%s, 1);",
+            gpArgs->fPositionVar.set(kHighFloat3_GrSLType, "pos3");
+            vertBuilder->codeAppendf("highfloat3 %s = %s * highfloat3(%s, 1);",
                                      gpArgs->fPositionVar.c_str(), viewMatrixName, posName);
         }
     }

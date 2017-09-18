@@ -38,6 +38,13 @@ public:
         return this->addUniformArray(visibility, type, precision, name, 0, outName);
     }
 
+    UniformHandle addUniform(uint32_t visibility,
+                             GrSLType type,
+                             const char* name,
+                             const char** outName = nullptr) {
+        return this->addUniform(visibility, type, kDefault_GrSLPrecision, name, outName);
+    }
+
     UniformHandle addUniformArray(uint32_t visibility,
                                   GrSLType type,
                                   GrSLPrecision precision,
@@ -47,6 +54,16 @@ public:
         SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
         return this->internalAddUniformArray(visibility, type, precision, name, true, arrayCount,
                                              outName);
+    }
+
+    UniformHandle addUniformArray(uint32_t visibility,
+                                  GrSLType type,
+                                  const char* name,
+                                  int arrayCount,
+                                  const char** outName = nullptr) {
+        SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
+        return this->internalAddUniformArray(visibility, type, kDefault_GrSLPrecision, name, true,
+                                             arrayCount, outName);
     }
 
     virtual const GrShaderVar& getUniformVariable(UniformHandle u) const = 0;
