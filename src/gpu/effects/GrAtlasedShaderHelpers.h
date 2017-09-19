@@ -50,12 +50,12 @@ static void append_multitexture_lookup(GrGLSLPrimitiveProcessor::EmitArgs& args,
     for (int i = 0; i < numTextureSamplers-1; ++i) {
         args.fFragBuilder->codeAppendf("if (%s == %d) { %s = ", texIdx.fsIn(), i, colorName);
         args.fFragBuilder->appendTextureLookup(args.fTexSamplers[i], coordName,
-                                               kHighFloat2_GrSLType);
+                                               kFloat2_GrSLType);
         args.fFragBuilder->codeAppend("; } else ");
     }
     args.fFragBuilder->codeAppendf("{ %s = ", colorName);
     args.fFragBuilder->appendTextureLookup(args.fTexSamplers[numTextureSamplers-1], coordName,
-                                           kHighFloat2_GrSLType);
+                                           kFloat2_GrSLType);
     args.fFragBuilder->codeAppend("; }");
 }
 

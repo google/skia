@@ -13,7 +13,7 @@ half2 prevCenter;
 half2 prevRadii = half2(-1);
 // The ellipse uniform is (center.x, center.y, 1 / rx^2, 1 / ry^2)
 // The last two terms can underflow with halfs, so we use floats.
-uniform highfloat4 ellipse;
+uniform float4 ellipse;
 
 bool useScale = sk_Caps.floatPrecisionVaries;
 layout(when=useScale) uniform half2 scale;

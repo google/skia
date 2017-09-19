@@ -82,7 +82,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
         rtAdjustVisibility |= kGeometry_GrShaderFlag;
     }
     fUniformHandles.fRTAdjustmentUni = this->uniformHandler()->addUniform(rtAdjustVisibility,
-                                                                          kHighFloat4_GrSLType,
+                                                                          kFloat4_GrSLType,
                                                                           "rtAdjustment");
     const char* rtAdjustName =
         this->uniformHandler()->getUniformCStr(fUniformHandles.fRTAdjustmentUni);

@@ -87,7 +87,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
         case kIgnore_Mode: {
             builder->codeAppendf("%s = ", outColor);
             builder->appendTextureLookupAndModulate(inModulateColor, sampler, inCoords.c_str(),
-                                                    kHighFloat2_GrSLType, colorXformHelper);
+                                                    kFloat2_GrSLType, colorXformHelper);
             builder->codeAppend(";");
             break;
         }
@@ -98,7 +98,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
 
             builder->codeAppendf("%s = ", outColor);
             builder->appendTextureLookupAndModulate(inModulateColor, sampler, clampedCoords.c_str(),
-                                                    kHighFloat2_GrSLType, colorXformHelper);
+                                                    kFloat2_GrSLType, colorXformHelper);
             builder->codeAppend(";");
             break;
         }
@@ -117,11 +117,11 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                 builder->codeAppend("half4 outside = half4(0.0, 0.0, 0.0, 0.0);");
                 builder->codeAppend("half4 inside = ");
                 builder->appendTextureLookupAndModulate(inModulateColor, sampler, inCoords.c_str(),
-                                                        kHighFloat2_GrSLType, colorXformHelper);
+                                                        kFloat2_GrSLType, colorXformHelper);
                 builder->codeAppend(";");
 
-                builder->codeAppendf("highfloat x = (%s).x;", inCoords.c_str());
-                builder->codeAppendf("highfloat y = (%s).y;", inCoords.c_str());
+                builder->codeAppendf("float x = (%s).x;", inCoords.c_str());
+                builder->codeAppendf("float y = (%s).y;", inCoords.c_str());
 
                 builder->codeAppendf("x = abs(2.0*(x - %s.x)/(%s.z - %s.x) - 1.0);",
                                      domain, domain, domain);
@@ -138,7 +138,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                 builder->codeAppendf("%s = any(outside) ? half4(0.0, 0.0, 0.0, 0.0) : ",
                                        outColor);
                 builder->appendTextureLookupAndModulate(inModulateColor, sampler, inCoords.c_str(),
-                                                        kHighFloat2_GrSLType, colorXformHelper);
+                                                        kFloat2_GrSLType, colorXformHelper);
                 builder->codeAppend(";");
             }
             break;
@@ -151,7 +151,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
 
             builder->codeAppendf("%s = ", outColor);
             builder->appendTextureLookupAndModulate(inModulateColor, sampler, clampedCoords.c_str(),
-                                                    kHighFloat2_GrSLType, colorXformHelper);
+                                                    kFloat2_GrSLType, colorXformHelper);
             builder->codeAppend(";");
             break;
         }

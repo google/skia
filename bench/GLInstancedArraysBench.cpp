@@ -126,7 +126,7 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
     vshaderTxt.append(
             "void main()\n"
             "{\n"
-                "gl_Position = highfloat4(a_position, 0., 1.);\n"
+                "gl_Position = float4(a_position, 0., 1.);\n"
                 "o_color = a_color;\n"
             "}\n");
 
@@ -149,7 +149,7 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
     fshaderTxt.appendf(
             "void main()\n"
             "{\n"
-                "%s = highfloat4(o_color, 1.0);\n"
+                "%s = float4(o_color, 1.0);\n"
             "}\n", fsOutName);
 
     return CreateProgram(ctx, vshaderTxt.c_str(), fshaderTxt.c_str());

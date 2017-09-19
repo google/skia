@@ -69,7 +69,7 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
     const char* version = shaderCaps->versionDeclString();
 
     // setup vertex shader
-    GrShaderVar aPosition("a_position", kHighFloat4_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrShaderVar aPosition("a_position", kFloat4_GrSLType, GrShaderVar::kIn_TypeModifier);
     SkTArray<GrShaderVar> aVars;
     SkTArray<GrShaderVar> oVars;
 
@@ -109,7 +109,7 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
 
     // Passthrough position as a dummy
     for (uint32_t i = attribs; i < maxAttribs; i++) {
-        vshaderTxt.appendf("%s = highfloat4(0, 0, 0, 1);\n", oVars[i].c_str());
+        vshaderTxt.appendf("%s = float4(0, 0, 0, 1);\n", oVars[i].c_str());
     }
 
     vshaderTxt.append("}\n");
