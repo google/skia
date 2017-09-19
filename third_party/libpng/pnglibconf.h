@@ -213,9 +213,4 @@
 #define PNG_sRGB_PROFILE_CHECKS 2
 /* end of settings */
 
-/* Skia-specific settings */
-#define PNG_PREFIX
-#include "pngprefix.h"
-/* end of Skia-specific settings */
-
 #endif /* PNGLCONF_H */
