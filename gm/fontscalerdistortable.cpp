@@ -52,13 +52,13 @@ protected:
                 SkFontArguments::VariationPosition::Coordinate coordinates[] = {{tag, styleValue}};
                 SkFontArguments::VariationPosition position =
                         { coordinates, SK_ARRAY_COUNT(coordinates) };
-                paint.setTypeface(sk_sp<SkTypeface>(fontMgr->createFromStream(
+                paint.setTypeface(fontMgr->makeFromStream(
 #ifdef SK_SUPPORT_LEGACY_STREAM_API
-                        distortable->duplicate(),
+                        std::unique_ptr<SkStreamAsset>(distortable->duplicate()),
 #else
-                        distortable->duplicate().release(),
+                        distortable->duplicate(),
 #endif
-                        SkFontArguments().setVariationDesignPosition(position))));
+                        SkFontArguments().setVariationDesignPosition(position)));
 
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(SkIntToScalar(30 + i * 100), SkIntToScalar(20));

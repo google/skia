@@ -418,17 +418,17 @@ protected:
         return nullptr;
     }
 
-    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
-        return this->createFromStream(new SkMemoryStream(sk_ref_sp(data)), ttcIndex);
+    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
+        return this->makeFromStream(std::unique_ptr<SkStreamAsset>(new SkMemoryStream(std::move(data))),
+                                    ttcIndex);
     }
 
-    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
+    sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override {
         std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(path);
-        return stream.get() ? this->createFromStream(stream.release(), ttcIndex) : nullptr;
+        return stream.get() ? this->makeFromStream(std::move(stream), ttcIndex) : nullptr;
     }
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
-        std::unique_ptr<SkStreamAsset> stream(bareStream);
+    sk_sp<SkTypeface> onMakeFromStream(std::unique_ptr<SkStreamAsset> stream, int ttcIndex) const override {
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
@@ -436,12 +436,13 @@ protected:
             return nullptr;
         }
         auto data = skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
-        return new SkTypeface_AndroidStream(std::move(data), style, isFixedPitch, name);
+        return sk_sp<SkTypeface>(new SkTypeface_AndroidStream(std::move(data),
+                                                              style, isFixedPitch, name));
     }
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* s, const SkFontArguments& args) const override {
+    sk_sp<SkTypeface> onMakeFromStream(std::unique_ptr<SkStreamAsset> stream,
+                                       const SkFontArguments& args) const override {
         using Scanner = SkTypeface_FreeType::Scanner;
-        std::unique_ptr<SkStreamAsset> stream(s);
         bool isFixedPitch;
         SkFontStyle style;
         SkString name;
@@ -458,10 +459,11 @@ protected:
 
         auto data = skstd::make_unique<SkFontData>(std::move(stream), args.getCollectionIndex(),
                                                    axisValues.get(), axisDefinitions.count());
-        return new SkTypeface_AndroidStream(std::move(data), style, isFixedPitch, name);
+        return sk_sp<SkTypeface>(new SkTypeface_AndroidStream(std::move(data),
+                                                              style, isFixedPitch, name));
     }
 
-    SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData> data) const override {
+    sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData> data) const override {
         SkStreamAsset* stream(data->getStream());
         bool isFixedPitch;
         SkFontStyle style;
@@ -469,18 +471,19 @@ protected:
         if (!fScanner.scanFont(stream, data->getIndex(), &name, &style, &isFixedPitch, nullptr)) {
             return nullptr;
         }
-        return new SkTypeface_AndroidStream(std::move(data), style, isFixedPitch, name);
+        return sk_sp<SkTypeface>(new SkTypeface_AndroidStream(std::move(data),
+                                                              style, isFixedPitch, name));
     }
 
-    SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
+    sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle style) const override {
         if (familyName) {
             // On Android, we must return nullptr when we can't find the requested
             // named typeface so that the system/app can provide their own recovery
             // mechanism. On other platforms we'd provide a typeface from the
             // default family instead.
-            return this->onMatchFamilyStyle(familyName, style);
+            return sk_sp<SkTypeface>(this->onMatchFamilyStyle(familyName, style));
         }
-        return fDefaultStyleSet->matchStyle(style);
+        return sk_sp<SkTypeface>(fDefaultStyleSet->matchStyle(style));
     }
 
 
