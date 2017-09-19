@@ -120,6 +120,244 @@
       "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0091aefa_c9a9e333",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": "This description seems wrong for this version of reset(). Assuming that mask is A8 format, this changes the info\u0027s width, height, colortype, and points the pixmap at the data in the mask. (Also, \"Failing to read the return value generates a compile time warning.\")",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0204e233_5ee8a407",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": ", and SkColorSpace.",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b01ac9a_c8543ac8",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": "... unfinished sentence. (\"as large as width * bytes per pixel\"?)",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "283a8aac_3c4fd7d0",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": "Everything after the comma doesn\u0027t parse correctly for me.",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a999419_8cfc0c8a",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": "... unfinished sentence. \"rowBytes / bytes per pixel\" perhaps?",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a439816_2b4441a7",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": "The @return explains what the SkIRect contains, but I feel like this line should, too? Otherwise it\u0027s not real  helpful.",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bcd5573_d68faf8d",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": "remove \"for each pixel\" here? It reads funny as-is.",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e00f5246_f7f4992f",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": "Is kUnknown the only remaining SkColorType? Might be clearer to just include that case in the above paragraph and remove this one?",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "505a4dd4_ce428c43",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": "\"non-negative\" rather than \"positive\" ?",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c42b04f9_732828df",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": "Same comment as earlier - second half of this sentence reads funny.",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "477d249f_c39b8d09",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": "Given that this is an accessor, rather than a factory or reset() call, I\u0027m not sure this comment is relevant here.",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dba20d3_250ab50a",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": "nit: non-negative (same for all subsequent addr functions)",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f919e14a_2ccb5499",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": "unfinished sentence? Missing remainder of explanation from below.",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72b5e976_bacc99fd",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T21:11:07Z",
+      "side": 1,
+      "message": "Looks like first instance of \"Returns false\" is missing \"if\", and then there\u0027s another instance of \"Returns false if...\" that\u0027s dangling on the end of this paragraph.",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
