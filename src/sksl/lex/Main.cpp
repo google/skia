@@ -98,12 +98,19 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     for (const auto& row : dfa.fTransitions) {
         states = std::max(states, row.size());
     }
-    out << "static int16_t transitions[" << DFA::END_CHAR + 1 << "][" << states << "] = {\n";
-    for (char c = 0; c <= DFA::END_CHAR; ++c) {
+    out << "static int16_t mappings[" << dfa.fCharMappings.size() << "] = {\n    ";
+    const char* separator = "";
+    for (int m : dfa.fCharMappings) {
+        out << separator << std::to_string(m);
+        separator = ", ";
+    }
+    out << "\n};\n";
+    out << "static int16_t transitions[" << dfa.fTransitions.size() << "][" << states << "] = {\n";
+    for (size_t c = 0; c < dfa.fTransitions.size(); ++c) {
         out << "    {";
-        for (size_t i = 0; i < states; ++i) {
-            if ((size_t) c < dfa.fTransitions.size() && i < dfa.fTransitions[c].size()) {
-                out << " " << dfa.fTransitions[c][i] << ",";
+        for (size_t j = 0; j < states; ++j) {
+            if ((size_t) c < dfa.fTransitions.size() && j < dfa.fTransitions[c].size()) {
+                out << " " << dfa.fTransitions[c][j] << ",";
             } else {
                 out << " 0,";
             }
@@ -113,12 +120,12 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     out << "};\n";
     out << "\n";
 
-    out << "static int16_t accepts[" << states << "] = {";
+    out << "static int8_t accepts[" << states << "] = {";
     for (size_t i = 0; i < states; ++i) {
         if (i < dfa.fAccepts.size()) {
             out << " " << dfa.fAccepts[i] << ",";
         } else {
-            out << " -1,";
+            out << " " << INVALID << ",";
         }
     }
     out << " };\n";
@@ -134,7 +141,7 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     out << "    " << token << "::Kind lastAccept = " << token << "::Kind::INVALID;\n";
     out << "    int lastAcceptEnd = startOffset + 1;\n";
     out << "    while (offset < fLength) {\n";
-    out << "        state = transitions[(int) fText[offset]][state];\n";
+    out << "        state = transitions[mappings[(int) fText[offset]]][state];\n";
     out << "        ++offset;\n";
     out << "        if (!state) {\n";
     out << "            break;\n";
