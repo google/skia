@@ -136,6 +136,14 @@ DEF_TEST(Codec_partial, r) {
     test_partial(r, "box.gif");
     test_partial(r, "randPixels.gif", 215);
     test_partial(r, "color_wheel.gif");
+
+    test_partial(r, "CMYK.jpg");
+    test_partial(r, "dog.jpg");
+    test_partial(r, "color_wheel.jpg");
+    test_partial(r, "grayscale.jpg");
+    test_partial(r, "brickwork_normal-map.jpg");
+    test_partial(r, "mandrill_512_q075.jpg");
+    test_partial(r, "mandrill_h1v1.jpg");
 }
 
 // Verify that when decoding an animated gif byte by byte we report the correct

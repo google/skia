@@ -611,9 +611,6 @@ static void push_codec_srcs(Path path) {
     nativeModes.push_back(CodecSrc::kCodecZeroInit_Mode);
     switch (codec->getEncodedFormat()) {
         case SkEncodedImageFormat::kJPEG:
-            nativeModes.push_back(CodecSrc::kScanline_Mode);
-            nativeModes.push_back(CodecSrc::kStripe_Mode);
-            nativeModes.push_back(CodecSrc::kCroppedScanline_Mode);
             supportsNativeScaling = true;
             break;
         case SkEncodedImageFormat::kWEBP:
