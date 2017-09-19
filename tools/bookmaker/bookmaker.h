@@ -880,6 +880,12 @@ public:
         return result;
     }
 
+    template <typename T> T reportError(const char* errorStr) const {
+        TextParser tp(this);
+        tp.reportError(errorStr);
+        return T();
+    }
+
     virtual RootDefinition* rootParent() { SkASSERT(0); return nullptr; }
 
     void setParentIndex() {
@@ -1034,7 +1040,7 @@ public:
         fLinefeeds = 0;
         fSpaces = 0;
         fColumn = 0;
-        fPendingSpace = false;
+        fPendingSpace = 0;
     }
 
     bool parseFile(const char* file, const char* suffix);
@@ -1056,7 +1062,7 @@ public:
         fOut = nullptr;
         fMaxLF = 2;
         fPendingLF = 0;
-        fPendingSpace = false;
+        fPendingSpace = 0;
         nl();
    }
 
@@ -1081,6 +1087,7 @@ public:
             --size;
         }
         if (size <= 0) {
+            fLastChar = '\0';
             return false;
         }
         SkASSERT(size < 16000);
@@ -1088,7 +1095,7 @@ public:
             fMaxLF = 1;
         }
         if (this->leadingPunctuation(data, (size_t) size)) {
-            fPendingSpace = false;
+            fPendingSpace = 0;
         }
         writePending();
         if (fDebugOut) {
@@ -1100,6 +1107,7 @@ public:
         }
         fprintf(fOut, "%.*s", size, data);
         int added = 0;
+        fLastChar = data[size - 1];
         while (size > 0 && '\n' != data[--size]) {
             ++added;
         }
@@ -1126,34 +1134,37 @@ public:
 
     // write a pending space, so that two consecutive calls
     // don't double write, and trailing spaces on lines aren't written
-    void writeSpace() {
+    void writeSpace(int count = 1) {
         SkASSERT(!fPendingLF);
         SkASSERT(!fLinefeeds);
         SkASSERT(fColumn > 0);
         SkASSERT(!fSpaces);
-        fPendingSpace = true;
+        fPendingSpace = count;
     }
 
     void writeString(const char* str) {
-        SkASSERT(strlen(str) > 0);
+        const size_t len = strlen(str);
+        SkASSERT(len > 0);
         SkASSERT(' ' < str[0]);
-        SkASSERT(' ' < str[strlen(str) - 1]);
+        fLastChar = str[len - 1];
+        SkASSERT(' ' < fLastChar);
+        SkASSERT(!strchr(str, '\n'));
         if (this->leadingPunctuation(str, strlen(str))) {
-            fPendingSpace = false;
+            fPendingSpace = 0;
         }
         writePending();
         if (fDebugOut) {
-            if (!strncmp("SK_SUPPORT", str, 10)) {
-                SkDebugf("");
-            }
             SkDebugf("%s", str);
         }
-        SkASSERT(!strchr(str, '\n'));
         fprintf(fOut, "%s", str);
-        fColumn += strlen(str);
+        fColumn += len;
         fSpaces = 0;
         fLinefeeds = 0;
         fMaxLF = 2;
+    }
+
+    void writeString(const string& str) {
+        this->writeString(str.c_str());
     }
 
     void writePending() {
@@ -1178,14 +1189,14 @@ public:
             fColumn = fIndent;
             fSpaces = fIndent;
         }
-        if (fPendingSpace) {
+        for (int index = 0; index < fPendingSpace; ++index) {
             if (fDebugOut) {
                 SkDebugf(" ");
             }
             fprintf(fOut, " ");
             ++fColumn;
-            fPendingSpace = false;
         }
+        fPendingSpace = 0;
     }
 
     unordered_map<string, sk_sp<SkData>> fRawData;
@@ -1193,13 +1204,14 @@ public:
     Definition* fParent;
     FILE* fOut;
     int fLinefeeds;    // number of linefeeds last written, zeroed on non-space
-    int fMaxLF;         // number of linefeeds allowed
-    int fPendingLF;     // number of linefeeds to write (can be suppressed)
-    int fSpaces;        // number of spaces (indent) last written, zeroed on non-space
-    int fColumn;        // current column; number of chars past last linefeed
-    int fIndent;        // desired indention
-    bool fPendingSpace; // a space should preceed the next string or block
-    bool fDebugOut;     // set true to write to std out
+    int fMaxLF;        // number of linefeeds allowed
+    int fPendingLF;    // number of linefeeds to write (can be suppressed)
+    int fSpaces;       // number of spaces (indent) last written, zeroed on non-space
+    int fColumn;       // current column; number of chars past last linefeed
+    int fIndent;       // desired indention
+    int fPendingSpace; // one or two spaces should preceed the next string or block
+    char fLastChar;    // last written
+    bool fDebugOut;    // set true to write to std out
 private:
     typedef TextParser INHERITED;
 };
@@ -1515,8 +1527,12 @@ public:
     bool crossCheck(BmhParser& );
     IClassDefinition* defineClass(const Definition& includeDef, const string& className);
     void dumpClassTokens(IClassDefinition& classDef);
-    void dumpComment(Definition* token);
+    void dumpComment(const Definition& );
+    void dumpEnum(const Definition& );
+    void dumpMethod(const Definition& );
+    void dumpMember(const Definition& );
     bool dumpTokens(const string& directory);
+    bool dumpTokens(const string& directory, const string& skClassName);
     bool findComments(const Definition& includeDef, Definition* markupDef);
 
     Definition* findIncludeObject(const Definition& includeDef, MarkType markType,
@@ -1547,8 +1563,6 @@ public:
 
     static KeyWord FindKey(const char* start, const char* end);
     bool internalName(const Definition& ) const;
-    void keywordEnd();
-    void keywordStart(const char* keyword);
     bool parseChar();
     bool parseComment(const string& filename, const char* start, const char* end, int lineCount,
             Definition* markupDef);
@@ -1635,6 +1649,103 @@ public:
     }
 
     void validate() const;
+
+    void writeDefinition(const Definition& def) {
+        if (def.length() > 1) {
+            this->writeBlock((int) (def.fContentEnd - def.fContentStart), def.fContentStart);
+            this->lf(1);
+        }
+    }
+
+    void writeDefinition(const Definition& def, const string& name, int spaces) {
+        this->writeBlock((int) (def.fContentEnd - def.fContentStart), def.fContentStart);
+        this->writeSpace(spaces);
+        this->writeString(name);
+        this->lf(1);
+    }
+
+    void writeEndTag() {
+        this->lf(1);
+        this->writeString("##");
+        this->lf(1);
+    }
+
+    void writeEndTag(const char* tagType) {
+        this->lf(1);
+        this->writeString(string("#") + tagType + " ##");
+        this->lf(1);
+    }
+
+    void writeEndTag(const char* tagType, const char* tagID, int spaces = 1) {
+        this->lf(1);
+        this->writeString(string("#") + tagType + " " + tagID);
+        this->writeSpace(spaces);
+        this->writeString("##");
+        this->lf(1);
+    }
+
+    void writeEndTag(const char* tagType, const string& tagID, int spaces = 1) {
+        this->writeEndTag(tagType, tagID.c_str(), spaces);
+    }
+
+    void writeTableHeader(const char* col1, size_t pad, const char* col2) {
+        this->lf(1);
+        this->writeString("#Table");
+        this->lf(1);
+        this->writeString("#Legend");
+        this->lf(1);
+        string legend = "# ";
+        legend += col1;
+        if (pad > strlen(col1)) {
+            legend += string(pad - strlen(col1), ' ');
+        }
+        legend += " # ";
+        legend += col2;
+        legend += " ##";
+        this->writeString(legend);
+        this->lf(1);
+        this->writeString("#Legend ##");
+        this->lf(1);
+    }
+
+    void writeTableRow(size_t pad, const string& col1) {
+        this->lf(1);
+        string row = "# " + col1 + string(pad - col1.length(), ' ') + " # ##";
+        this->writeString(row);
+        this->lf(1);
+    }
+
+    void writeTableTrailer() {
+        this->lf(1);
+        this->writeString("#Table ##");
+        this->lf(1);
+    }
+
+    void writeTag(const char* tagType) {
+        this->lf(1);
+        this->writeString("#");
+        this->writeString(tagType);
+    }
+
+    void writeTagNoLF(const char* tagType, const char* tagID) {
+        this->writeString("#");
+        this->writeString(tagType);
+        this->writeSpace();
+        this->writeString(tagID);
+    }
+
+    void writeTagNoLF(const char* tagType, const string& tagID) {
+        this->writeTagNoLF(tagType, tagID.c_str());
+    }
+
+    void writeTag(const char* tagType, const char* tagID) {
+        this->lf(1);
+        this->writeTagNoLF(tagType, tagID);
+    }
+
+    void writeTag(const char* tagType, const string& tagID) {
+        this->writeTag(tagType, tagID.c_str());
+    }
 
 protected:
     static void ValidateKeyWords();
