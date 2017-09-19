@@ -150,9 +150,10 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
 }
 
 void GrBitmapTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
-                                       const GrSamplerState& params) {
-    for (int i = 0; i < kMaxTextures; ++i) {
-        if (proxies[i] && !fTextureSamplers[i].isInitialized()) {
+                                        int startIndex,
+                                        const GrSamplerState& params) {
+    for (int i = startIndex; i < kMaxTextures; ++i) {
+        if (proxies[i]) {
             fTextureSamplers[i].reset(std::move(proxies[i]), params);
             this->addTextureSampler(&fTextureSamplers[i]);
         }
