@@ -64,32 +64,26 @@ private:
 };
 
 /**
- * This pass fixes the corner pixels of a triangle. It erases the (incorrect) coverage that was
- * written at the corners during the previous hull and edge passes, and then approximates the true
- * coverage by sampling the triangle with horizontal lines.
+ * This pass fixes the corner pixels of a triangle. It touches up the simple distance-to-edge
+ * coverage analysis done previously so that it takes into account the region that is outside both
+ * edges at the same time.
  */
 class GrCCPRTriangleCornerProcessor : public GrCCPRTriangleProcessor {
 public:
     GrCCPRTriangleCornerProcessor()
             : INHERITED(CoverageType::kShader)
-            , fEdgeDistance(kHighFloat3_GrSLType)
-            , fDevCoord(kHighFloat2_GrSLType)
-            , fNeighbors(kHighFloat4_GrSLType)
-            , fEdgeDistances(kHighFloat3x3_GrSLType)
-            , fCornerIdx(kShort_GrSLType) {}
+            , fAABoxMatrices("aa_box_matrices", kHighFloat2x2_GrSLType, 2)
+            , fAABoxTranslates("aa_box_translates", kHighFloat2_GrSLType, 2)
+            , fGeoShaderBisects("bisects", kHighFloat2_GrSLType, 2)
+            , fCornerLocationInAABoxes(kHighFloat2x2_GrSLType)
+            , fBisectInAABoxes(kHighFloat2x2_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);
-        varyingHandler->addFlatVarying("edge_distance", &fEdgeDistance, kHigh_GrSLPrecision);
-        varyingHandler->addFlatVarying("devcoord", &fDevCoord, kHigh_GrSLPrecision);
-        varyingHandler->addFlatVarying("neighbors", &fNeighbors, kHigh_GrSLPrecision);
-        varyingHandler->addFlatVarying("edge_distances", &fEdgeDistances, kHigh_GrSLPrecision);
-        varyingHandler->addFlatVarying("corner_idx", &fCornerIdx, kLow_GrSLPrecision);
+        varyingHandler->addVarying("corner_location_in_aa_boxes", &fCornerLocationInAABoxes);
+        varyingHandler->addFlatVarying("bisect_in_aa_boxes", &fBisectInAABoxes);
     }
 
-    void onEmitVertexShader(const GrCCPRCoverageProcessor&, GrGLSLVertexBuilder*,
-                            const TexelBufferHandle& pointsBuffer, const char* atlasOffset,
-                            const char* rtAdjust, GrGPArgs*) const override;
     void onEmitGeometryShader(GrGLSLGeometryBuilder*, const char* emitVertexFn, const char* wind,
                               const char* rtAdjust) const override;
     void emitPerVertexGeometryCode(SkString* fnBody, const char* position, const char* coverage,
@@ -97,11 +91,11 @@ public:
     void emitShaderCoverage(GrGLSLFragmentBuilder*, const char* outputCoverage) const override;
 
 private:
-    GrGLSLVertToGeo fEdgeDistance;
-    GrGLSLVertToGeo fDevCoord;
-    GrGLSLGeoToFrag fNeighbors;
-    GrGLSLGeoToFrag fEdgeDistances;
-    GrGLSLGeoToFrag fCornerIdx;
+    GrShaderVar       fAABoxMatrices;
+    GrShaderVar       fAABoxTranslates;
+    GrShaderVar       fGeoShaderBisects;
+    GrGLSLGeoToFrag   fCornerLocationInAABoxes;
+    GrGLSLGeoToFrag   fBisectInAABoxes;
 
     typedef GrCCPRTriangleProcessor INHERITED;
 };

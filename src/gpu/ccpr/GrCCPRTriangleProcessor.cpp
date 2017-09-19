@@ -64,42 +64,63 @@ void GrCCPRTriangleHullAndEdgeProcessor::onEmitGeometryShader(GrGLSLGeometryBuil
                  maxOutputVertices, 3);
 }
 
-void GrCCPRTriangleCornerProcessor::onEmitVertexShader(const GrCCPRCoverageProcessor& proc,
-                                                       GrGLSLVertexBuilder* v,
-                                                       const TexelBufferHandle& pointsBuffer,
-                                                       const char* atlasOffset,
-                                                       const char* rtAdjust,
-                                                       GrGPArgs* gpArgs) const {
-    this->INHERITED::onEmitVertexShader(proc, v, pointsBuffer, atlasOffset, rtAdjust, gpArgs);
-
-    // Fetch and transform the next point in the triangle.
-    v->codeAppend ("highfloat2 next = ");
-    v->appendTexelFetch(pointsBuffer,
-                        SkStringPrintf("%s[(sk_VertexID+1) %% 3]", proc.instanceAttrib()).c_str());
-    v->codeAppendf(".xy + %s;", atlasOffset);
-
-    // Find the plane that gives distance from the [self -> next] edge, normalized to its AA
-    // bloat width.
-    v->codeAppend ("highfloat2 n = highfloat2(next.y - self.y, self.x - next.x);");
-    v->codeAppendf("highfloat2 d = n * highfloat2x2(self + %f * sign(n), "
-                                                 "self - %f * sign(n));",
-                   kAABloatRadius, kAABloatRadius);
-
-    // Clamp for when n=0. (wind=0 when n=0, so as long as we don't get Inf or NaN we are fine.)
-    v->codeAppendf("%s.xy = n / max(d[0] - d[1], 1e-30);", fEdgeDistance.vsOut());
-    v->codeAppendf("%s.z = -dot(%s.xy, self);", fEdgeDistance.vsOut(), fEdgeDistance.vsOut());
-
-    // Emit device coords to geo shader.
-    v->codeAppendf("%s = self;", fDevCoord.vsOut());
-}
-
 void GrCCPRTriangleCornerProcessor::onEmitGeometryShader(GrGLSLGeometryBuilder* g,
                                                          const char* emitVertexFn, const char* wind,
                                                          const char* rtAdjust) const {
     this->defineInputVertices(g);
 
-    g->codeAppend ("highfloat2 self = in_vertices[sk_InvocationID];");
-    int numVertices = this->emitCornerGeometry(g, emitVertexFn, "self");
+    g->codeAppend ("highfloat2 corner = in_vertices[sk_InvocationID];");
+    g->codeAppend ("highfloat2x2 vectors = highfloat2x2("
+                       "corner - in_vertices[(sk_InvocationID + 2) % 3], "
+                       "corner - in_vertices[(sk_InvocationID + 1) % 3]);");
+
+    // Make sure neither vector is 0 in order to avoid a divide-by-zero. Wind will be zero anyway if
+    // this is the case, so whatever we output won't have any effect as long it isn't NaN or Inf.
+    g->codeAppendf("for (int i = 0; i < 2; ++i) {");
+    g->codeAppendf(    "vectors[i] = any(notEqual(vectors[i], highfloat2(0))) ? "
+                                    "vectors[i] : highfloat2(1);");
+    g->codeAppendf("}");
+
+    // Find the vector that bisects the region outside the incoming edges. Each edge is responsible
+    // to subtract the outside region on its own the side of the bisector.
+    g->codeAppendf("highfloat2 leftdir = normalize(vectors[%s > 0 ? 0 : 1]);", wind);
+    g->codeAppendf("highfloat2 rightdir = normalize(vectors[%s > 0 ? 1 : 0]);", wind);
+    g->codeAppendf("highfloat2 bisect = dot(leftdir, rightdir) >= 0 ? leftdir + rightdir : "
+                                        "highfloat2(leftdir.y - rightdir.y, rightdir.x - leftdir.x);");
+
+    // In ccpr we don't calculate exact geometric pixel coverage. What the distance-to-edge method
+    // actually finds is coverage inside a logical "AA box", one that is rotated inline with the
+    // edge, and in our case, up-scaled to circumscribe the actual pixel. Below we set up
+    // transformations into normalized logical AA box space for both incoming edges. These will tell
+    // the fragment shader where the corner is located within each edge's AA box.
+    g->declareGlobal(fAABoxMatrices);
+    g->declareGlobal(fAABoxTranslates);
+    g->declareGlobal(fGeoShaderBisects);
+    g->codeAppendf("for (int i = 0; i < 2; ++i) {");
+    // The X component runs parallel to the edge (i.e. distance to the corner).
+    g->codeAppendf(    "highfloat2 n = -vectors[%s > 0 ? i : 1 - i];", wind);
+    g->codeAppendf(    "highfloat nwidth = dot(abs(n), bloat) * 2;");
+    g->codeAppendf(    "n /= nwidth;"); // nwidth != 0 because both vectors != 0.
+    g->codeAppendf(    "%s[i][0] = n;", fAABoxMatrices.c_str());
+    g->codeAppendf(    "%s[i][0] = -dot(n, corner) + .5;", fAABoxTranslates.c_str());
+
+    // The Y component runs perpendicular to the edge (i.e. distance-to-edge).
+    // NOTE: once we are back in device space and bloat.x == bloat.y, we will not need to find and
+    // divide by nwidth a second time.
+    g->codeAppendf(    "n = (i == 0) ? highfloat2(-n.y, n.x) : highfloat2(n.y, -n.x);");
+    g->codeAppendf(    "nwidth = dot(abs(n), bloat) * 2;");
+    g->codeAppendf(    "n /= nwidth;");
+    g->codeAppendf(    "%s[i][1] = n;", fAABoxMatrices.c_str());
+    g->codeAppendf(    "%s[i][1] = -dot(n, corner) + .5;", fAABoxTranslates.c_str());
+
+    // Translate the bisector into logical AA box space.
+    // NOTE: Since the region outside two edges of a convex shape is in [180 deg, 360 deg], the
+    // bisector will therefore be in [90 deg, 180 deg]. Or, x >= 0 and y <= 0 in AA box space.
+    g->codeAppendf(    "%s[i] = -bisect * %s[i];",
+                       fGeoShaderBisects.c_str(), fAABoxMatrices.c_str());
+    g->codeAppendf("}");
+
+    int numVertices = this->emitCornerGeometry(g, emitVertexFn, "corner");
 
     g->configure(GrGLSLGeometryBuilder::InputType::kTriangles,
                  GrGLSLGeometryBuilder::OutputType::kTriangleStrip,
@@ -110,86 +131,53 @@ void GrCCPRTriangleCornerProcessor::emitPerVertexGeometryCode(SkString* fnBody,
                                                               const char* position,
                                                               const char* /*coverage*/,
                                                               const char* wind) const {
-    fnBody->appendf("%s.xy = %s[(sk_InvocationID + 1) %% 3];",
-                    fNeighbors.gsOut(), fDevCoord.gsIn());
-    fnBody->appendf("%s.zw = %s[(sk_InvocationID + 2) %% 3];",
-                    fNeighbors.gsOut(), fDevCoord.gsIn());
-    fnBody->appendf("%s = highfloat3x3(%s[(sk_InvocationID + 2) %% 3], "
-                                  "%s[sk_InvocationID], "
-                                  "%s[(sk_InvocationID + 1) %% 3]) * %s;",
-                    fEdgeDistances.gsOut(), fEdgeDistance.gsIn(), fEdgeDistance.gsIn(),
-                    fEdgeDistance.gsIn(), wind);
-
-    // Otherwise, fEdgeDistances = float3x3(...) * sign(wind * rtAdjust.x * rdAdjust.z).
-    GR_STATIC_ASSERT(kTopLeft_GrSurfaceOrigin == GrCCPRCoverageProcessor::kAtlasOrigin);
-
-    fnBody->appendf("%s = sk_InvocationID;", fCornerIdx.gsOut());
+    fnBody->appendf("for (int i = 0; i < 2; ++i) {");
+    fnBody->appendf(    "%s[i] = %s * %s[i] + %s[i];",
+                        fCornerLocationInAABoxes.gsOut(), position, fAABoxMatrices.c_str(),
+                        fAABoxTranslates.c_str());
+    fnBody->appendf(    "%s[i] = %s[i];", fBisectInAABoxes.gsOut(), fGeoShaderBisects.c_str());
+    fnBody->appendf("}");
 }
 
 void GrCCPRTriangleCornerProcessor::emitShaderCoverage(GrGLSLFragmentBuilder* f,
                                                        const char* outputCoverage) const {
-    // FIXME: Adreno breaks if we don't put the frag coord in an intermediate highp variable.
-    f->codeAppendf("highfloat2 fragcoord = sk_FragCoord.xy;");
+    // By the time we reach this shader, the pixel is in the following state:
+    //
+    //   1. The hull shader has emitted a coverage of 1.
+    //   2. Both edges have subtracted the area on their outside.
+    //
+    // This generally works, but it is a problem for corner pixels. There is a region within corner
+    // pixels that is outside both edges at the same time. This means the region has been double
+    // subtracted (once by each edge). The purpose of this shader is to fix these corner pixels.
+    //
+    // More specifically, each edge redoes its coverage analysis so that it only subtracts the
+    // outside area that falls on its own side of the bisector line.
+    //
+    // NOTE: unless the edges fall on multiples of 90 deg from one another, they will have different
+    // AA boxes. (For an explanation of AA boxes, see comments in onEmitGeometryShader.) This means
+    // the coverage analysis will only be approximate. It seems acceptable, but if we want exact
+    // coverage we will need to switch to a more expensive model.
+    f->codeAppendf("%s = 0;", outputCoverage);
 
-    // Approximate coverage by tracking where 4 horizontal lines enter and leave the triangle.
-    GrShaderVar samples("samples", kHighFloat4_GrSLType, GrShaderVar::kNonArray);
-    f->declareGlobal(samples);
-    f->codeAppendf("%s = fragcoord.y + highfloat4(-0.375, -0.125, 0.125, 0.375);", samples.c_str());
+    // Loop through both edges.
+    f->codeAppendf("for (int i = 0; i < 2; ++i) {");
+    f->codeAppendf(    "half2 corner = %s[i];", fCornerLocationInAABoxes.fsIn());
+    f->codeAppendf(    "half2 bisect = %s[i];", fBisectInAABoxes.fsIn());
 
-    GrShaderVar leftedge("leftedge", kHighFloat4_GrSLType, GrShaderVar::kNonArray);
-    f->declareGlobal(leftedge);
-    f->codeAppendf("%s = highfloat4(fragcoord.x - 0.5);", leftedge.c_str());
+    // Find the point at which the bisector exits the logical AA box.
+    // (The inequality works because bisect.x is known >= 0 and bisect.y is known <= 0.)
+    f->codeAppendf(    "half2 d = half2(1 - corner.x, -corner.y);");
+    f->codeAppendf(    "half T = d.y * bisect.x >= d.x * bisect.y ? d.y / bisect.y "
+                                                                 ": d.x / bisect.x;");
+    f->codeAppendf(    "half2 exit = corner + bisect * T;");
 
-    GrShaderVar rightedge("rightedge", kHighFloat4_GrSLType, GrShaderVar::kNonArray);
-    f->declareGlobal(rightedge);
-    f->codeAppendf("%s = highfloat4(fragcoord.x + 0.5);", rightedge.c_str());
+    // These lines combined (and the final multiply by .5) accomplish the following:
+    //   1. Add back the area beyond the corner that was subtracted out previously.
+    //   2. Subtract out the area beyond the corner, but under the bisector.
+    // The other edge will take care of the area on its own side of the bisector.
+    f->codeAppendf(    "%s += (2 - corner.x - exit.x) * corner.y;", outputCoverage);
+    f->codeAppendf(    "%s += (corner.x - 1) * exit.y;", outputCoverage);
+    f->codeAppendf("}");
 
-    SkString sampleEdgeFn;
-    GrShaderVar edgeArg("edge_distance", kHighFloat3_GrSLType, GrShaderVar::kNonArray);
-    f->emitFunction(kVoid_GrSLType, "sampleEdge", 1, &edgeArg, [&]() {
-        SkString b;
-        b.appendf("highfloat m = abs(%s.x) < 1e-3 ? 1e18 : -1 / %s.x;",
-                  edgeArg.c_str(), edgeArg.c_str());
-        b.appendf("highfloat4 edge = m * (%s.y * samples + %s.z);",
-                  edgeArg.c_str(), edgeArg.c_str());
-        b.appendf("if (%s.x <= 1e-3 || (abs(%s.x) < 1e-3 && %s.y > 0)) {",
-                  edgeArg.c_str(), edgeArg.c_str(), edgeArg.c_str());
-        b.appendf(    "%s = max(%s, edge);", leftedge.c_str(), leftedge.c_str());
-        b.append ("} else {");
-        b.appendf(    "%s = min(%s, edge);", rightedge.c_str(), rightedge.c_str());
-        b.append ("}");
-        return b;
-    }().c_str(), &sampleEdgeFn);
-
-    // See if the previous neighbor already handled this pixel.
-    f->codeAppendf("if (all(lessThan(abs(fragcoord - %s.zw), highfloat2(%f)))) {",
-                   fNeighbors.fsIn(), kAABloatRadius);
-    // Handle the case where all 3 corners defer to the previous neighbor.
-    f->codeAppendf(    "if (%s != 0 || !all(lessThan(abs(fragcoord - %s.xy), highfloat2(%f)))) {",
-                       fCornerIdx.fsIn(), fNeighbors.fsIn(), kAABloatRadius);
-    f->codeAppend (        "discard;");
-    f->codeAppend (    "}");
-    f->codeAppend ("}");
-
-    // Erase what the hull and two edges wrote at this corner in previous shaders (the two .5's
-    // for the edges and the -1 for the hull cancel each other out).
-    f->codeAppendf("%s = dot(highfloat3(fragcoord, 1) * highfloat2x3(%s), highfloat2(1));",
-                   outputCoverage, fEdgeDistances.fsIn());
-
-    // Sample the two edges at this corner.
-    f->codeAppendf("%s(%s[0]);", sampleEdgeFn.c_str(), fEdgeDistances.fsIn());
-    f->codeAppendf("%s(%s[1]);", sampleEdgeFn.c_str(), fEdgeDistances.fsIn());
-
-    // Handle the opposite edge if the next neighbor will defer to us.
-    f->codeAppendf("if (all(lessThan(abs(fragcoord - %s.xy), highfloat2(%f)))) {",
-                   fNeighbors.fsIn(), kAABloatRadius);
-    // Erase the coverage the opposite edge wrote to this corner.
-    f->codeAppendf(    "%s += dot(%s[2], highfloat3(fragcoord, 1)) + 0.5;",
-                       outputCoverage, fEdgeDistances.fsIn());
-    // Sample the opposite edge.
-    f->codeAppendf(    "%s(%s[2]);", sampleEdgeFn.c_str(), fEdgeDistances.fsIn());
-    f->codeAppend ("}");
-
-    f->codeAppendf("highfloat4 widths = max(%s - %s, 0);", rightedge.c_str(), leftedge.c_str());
-    f->codeAppendf("%s += dot(widths, highfloat4(0.25));", outputCoverage);
+    f->codeAppendf("%s *= .5;", outputCoverage);
 }
