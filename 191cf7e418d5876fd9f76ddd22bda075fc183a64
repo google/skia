@@ -46,6 +46,30 @@
       "revId": "191cf7e418d5876fd9f76ddd22bda075fc183a64",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db9cf2fc_313e15a1",
+        "filename": "third_party/libpng/pnglibconf.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-19T19:09:47Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "c7e69909_be75cd63",
+      "range": {
+        "startLine": 5,
+        "startChar": 18,
+        "endLine": 5,
+        "endChar": 28
+      },
+      "revId": "191cf7e418d5876fd9f76ddd22bda075fc183a64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
