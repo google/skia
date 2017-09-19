@@ -743,18 +743,17 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
             image->Get(buffer, dng_image::edge_zero);
         } catch (...) {
             *rowsDecoded = i;
-            return kIncompleteInput; 
+            return kIncompleteInput;
         }
 
         if (this->colorXform()) {
             swizzler->swizzle(xformBuffer.get(), &srcRow[0]);
 
             this->applyColorXform(dstRow, xformBuffer.get(), dstInfo.width(), kOpaque_SkAlphaType);
-            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
         } else {
             swizzler->swizzle(dstRow, &srcRow[0]);
-            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
         }
+        dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
     }
     return kSuccess;
 }
