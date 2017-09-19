@@ -13,6 +13,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
+#include "GrTextureProxy.h"
 #include "SkMessageBus.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
@@ -156,6 +157,18 @@ public:
         return resource;
     }
 
+    /*
+     * Associate the provided proxy with the provided unique key.
+     */
+    void assignUniqueKeyToProxy1(const GrUniqueKey&, GrTextureProxy*);
+
+    /**
+     * Find a texture proxy that is associated with the provided unique key.
+     */
+    sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
+
+    void processInvalidProxyUniqueKey(const GrUniqueKey&);
+
     /**
      * Query whether a unique key exists in the cache.
      */
@@ -249,6 +262,8 @@ public:
     // Enumerates all cached resources and dumps their details to traceMemoryDump.
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
+    int numUniqueKeyProxies_TestOnly() const;
+
 private:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Methods accessible via ResourceAccess
@@ -303,6 +318,13 @@ private:
     };
     typedef SkTDynamicHash<GrGpuResource, GrUniqueKey, UniqueHashTraits> UniqueHash;
 
+    struct UniquelyKeyedProxyHashTraits {
+        static const GrUniqueKey& GetKey(const GrTextureProxy& p) { return p.getUniqueKey(); }
+
+        static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
+    };
+    typedef SkTDynamicHash<GrTextureProxy, GrUniqueKey, UniquelyKeyedProxyHashTraits> UniquelyKeyedProxyHash;
+
     static bool CompareTimestamp(GrGpuResource* const& a, GrGpuResource* const& b) {
         return a->cacheAccess().timestamp() < b->cacheAccess().timestamp();
     }
@@ -327,6 +349,9 @@ private:
     ScratchMap                          fScratchMap;
     // This holds all resources that have unique keys.
     UniqueHash                          fUniqueHash;
+    // This holds the texture proxies that have unique keys. The resourceCache does not get a ref
+    // on these proxies but they must send a message to the resourceCache when they are deleted.
+    UniquelyKeyedProxyHash              fUniquelyKeyedProxies;
 
     // our budget, used in purgeAsNeeded()
     int                                 fMaxCount;

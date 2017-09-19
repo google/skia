@@ -10,6 +10,8 @@
 
 #include "GrCaps.h"
 #include "GrGpuResourceCacheAccess.h"
+#include "GrTexture.h"
+#include "GrTextureProxyPriv.h"
 #include "GrTracing.h"
 #include "SkGr.h"
 #include "SkMessageBus.h"
@@ -580,6 +582,8 @@ void GrResourceCache::processInvalidUniqueKeys(
     for (int i = 0; i < msgs.count(); ++i) {
         GrGpuResource* resource = this->findAndRefUniqueResource(msgs[i].key());
         if (resource) {
+            this->processInvalidProxyUniqueKey(msgs[i].key());
+
             resource->resourcePriv().removeUniqueKey();
             resource->unref(); // If this resource is now purgeable, the cache will be notified.
         }
@@ -847,3 +851,43 @@ bool GrResourceCache::isInCache(const GrGpuResource* resource) const {
 }
 
 #endif
+
+void GrResourceCache::assignUniqueKeyToProxy1(const GrUniqueKey& key, GrTextureProxy* proxy) {
+    SkASSERT(key.isValid());
+    SkASSERT(proxy);
+
+    SkASSERT(SkBudgeted::kYes == proxy->isBudgeted()); // only cached resources can have a uniqueKey
+    SkASSERT(!fUniquelyKeyedProxies.find(key));     // multiple proxies can't get the same key
+
+    proxy->texPriv().setUniqueKey(this, key);
+    fUniquelyKeyedProxies.add(proxy);
+}
+
+sk_sp<GrTextureProxy> GrResourceCache::findProxyByUniqueKey(const GrUniqueKey& key,
+                                                             GrSurfaceOrigin origin) {
+
+    sk_sp<GrTextureProxy> result = sk_ref_sp(fUniquelyKeyedProxies.find(key));
+    if (result) {
+        SkASSERT(result->origin() == origin);
+        return result;
+    }
+
+    GrGpuResource* resource = findAndRefUniqueResource(key);
+    if (!resource) {
+        return nullptr;
+    }
+
+    sk_sp<GrTexture> texture(static_cast<GrSurface*>(resource)->asTexture());
+    SkASSERT(texture);
+
+    result = GrSurfaceProxy::MakeWrapped(std::move(texture), origin);
+    SkASSERT(result->getUniqueKey() == key);
+    fUniquelyKeyedProxies.add(result.get());
+    return result;
+}
+
+void GrResourceCache::processInvalidProxyUniqueKey(const GrUniqueKey& key) {
+    SkASSERT(fUniquelyKeyedProxies.find(key));
+    fUniquelyKeyedProxies.remove(key);
+}
+
