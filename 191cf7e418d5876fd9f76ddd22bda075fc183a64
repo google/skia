@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4bcbdc92_bd0c4fb7",
+        "filename": "third_party/libpng/pnglibconf.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-19T17:57:39Z",
+      "side": 1,
+      "message": "We should probably update this file to the 1.6.32 version.",
+      "range": {
+        "startLine": 5,
+        "startChar": 18,
+        "endLine": 5,
+        "endChar": 28
+      },
+      "revId": "191cf7e418d5876fd9f76ddd22bda075fc183a64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
