@@ -454,7 +454,7 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
 
 void GrResourceCache::purgeAsNeeded() {
     SkTArray<GrUniqueKeyInvalidatedMessage> invalidKeyMsgs;
-    fInvalidUniqueKeyInbox.poll(&invalidKeyMsgs);
+    fInvalidUniqueKeyInbox1.poll(&invalidKeyMsgs);
     if (invalidKeyMsgs.count()) {
         this->processInvalidUniqueKeys(invalidKeyMsgs);
     }

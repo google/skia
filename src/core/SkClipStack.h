@@ -83,8 +83,8 @@ public:
 
         ~Element() {
 #if SK_SUPPORT_GPU
-            for (int i = 0; i < fMessages.count(); ++i) {
-                SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(*fMessages[i]);
+            for (int i = 0; i < fMessages1.count(); ++i) {
+                SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(*fMessages1[i]);
             }
 #endif
         }
@@ -183,7 +183,7 @@ public:
          */
         void addResourceInvalidationMessage(
                 std::unique_ptr<GrUniqueKeyInvalidatedMessage> msg) const {
-            fMessages.emplace_back(std::move(msg));
+            fMessages1.emplace_back(std::move(msg));
         }
 #endif
 
@@ -216,7 +216,7 @@ public:
 
         uint32_t fGenID;
 #if SK_SUPPORT_GPU
-        mutable SkTArray<std::unique_ptr<GrUniqueKeyInvalidatedMessage>> fMessages;
+        mutable SkTArray<std::unique_ptr<GrUniqueKeyInvalidatedMessage>> fMessages1;
 #endif
         Element(int saveCount) {
             this->initCommon(saveCount, kReplace_SkClipOp, false);

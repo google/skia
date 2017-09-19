@@ -352,7 +352,7 @@ private:
     bool                                fRequestFlush;
     uint32_t                            fExternalFlushCnt;
 
-    InvalidUniqueKeyInbox               fInvalidUniqueKeyInbox;
+    InvalidUniqueKeyInbox               fInvalidUniqueKeyInbox1;
     FreedGpuResourceInbox               fFreedGpuResourceInbox;
 
     uint32_t                            fContextUniqueID;
