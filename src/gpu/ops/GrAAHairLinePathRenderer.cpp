@@ -800,9 +800,10 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
-                                            &fColor);
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrClampBehavior dstClamp) override {
+        return fHelper.xpRequiresDstTexture(caps, clip, dstClamp,
+                                            GrProcessorAnalysisCoverage::kSingleChannel, &fColor);
     }
 
 private:
