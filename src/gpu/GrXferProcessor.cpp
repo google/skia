@@ -157,12 +157,13 @@ GrXPFactory::AnalysisProperties GrXPFactory::GetAnalysisProperties(
         const GrXPFactory* factory,
         const GrProcessorAnalysisColor& color,
         const GrProcessorAnalysisCoverage& coverage,
-        const GrCaps& caps) {
+        const GrCaps& caps,
+        GrClampBehavior dstClamp) {
     AnalysisProperties result;
     if (factory) {
-        result = factory->analysisProperties(color, coverage, caps);
+        result = factory->analysisProperties(color, coverage, caps, dstClamp);
     } else {
-        result = GrPorterDuffXPFactory::SrcOverAnalysisProperties(color, coverage, caps);
+        result = GrPorterDuffXPFactory::SrcOverAnalysisProperties(color, coverage, caps, dstClamp);
     }
     SkASSERT(!(result & AnalysisProperties::kRequiresDstTexture));
     if ((result & AnalysisProperties::kReadsDstInShader) &&
@@ -179,10 +180,11 @@ sk_sp<const GrXferProcessor> GrXPFactory::MakeXferProcessor(const GrXPFactory* f
                                                             const GrProcessorAnalysisColor& color,
                                                             GrProcessorAnalysisCoverage coverage,
                                                             bool hasMixedSamples,
-                                                            const GrCaps& caps) {
+                                                            const GrCaps& caps,
+                                                            GrClampBehavior dstClamp) {
     SkASSERT(!hasMixedSamples || caps.shaderCaps()->dualSourceBlendingSupport());
     if (factory) {
-        return factory->makeXferProcessor(color, coverage, hasMixedSamples, caps);
+        return factory->makeXferProcessor(color, coverage, hasMixedSamples, caps, dstClamp);
     } else {
         return GrPorterDuffXPFactory::MakeSrcOverXferProcessor(color, coverage, hasMixedSamples,
                                                                caps);
