@@ -14,6 +14,7 @@
 #include <climits>
 #include <memory>
 #include <unordered_map>
+#include <set>
 #include <vector>
 
 /**
@@ -28,6 +29,9 @@
  */
 class NFAtoDFA {
 public:
+    static constexpr char START_CHAR = 9;
+    static constexpr char END_CHAR = 126;
+
     NFAtoDFA(NFA* nfa)
     : fNFA(*nfa) {}
 
@@ -44,11 +48,13 @@ public:
         DFAState* start = getState(DFAState::Label(startStates));
         this->scanState(start);
 
+        this->computeMappings();
+
         int stateCount = 0;
         for (const auto& row : fTransitions) {
             stateCount = std::max(stateCount, (int) row.size());
         }
-        return DFA(fTransitions, fAccepts);
+        return DFA(fCharMappings, fTransitions, fAccepts);
     }
 
 private:
@@ -87,14 +93,14 @@ private:
         }
         std::vector<int>& row = fTransitions[c];
         while (row.size() <= (size_t) start) {
-            row.push_back(-1);
+            row.push_back(INVALID);
         }
         row[start] = next;
     }
 
     void scanState(DFAState* state) {
         state->fIsScanned = true;
-        for (char c = 9; c <= DFA::END_CHAR; ++c) {
+        for (char c = START_CHAR; c <= END_CHAR; ++c) {
             std::vector<int> next;
             int bestAccept = INT_MAX;
             for (int idx : state->fLabel.fStates) {
@@ -113,7 +119,7 @@ private:
             this->addTransition(c, state->fId, nextState->fId);
             if (bestAccept != INT_MAX) {
                 while (fAccepts.size() <= (size_t) nextState->fId) {
-                    fAccepts.push_back(-1);
+                    fAccepts.push_back(INVALID);
                 }
                 fAccepts[nextState->fId] = bestAccept;
             }
@@ -123,8 +129,37 @@ private:
         }
     }
 
+    // collapse rows with the same transitions to a single row. This is common, as each row
+    // represents a character and often there are many characters for which all transitions are
+    // identical (e.g. [0-9] are treated the same way by all lexer rules)
+    void computeMappings() {
+        // mappings[<input row>] = <output row>
+        std::vector<std::vector<int>*> uniques;
+        // this could be done more efficiently, but O(n^2) is plenty fast for our purposes
+        for (size_t i = 0; i < fTransitions.size(); ++i) {
+            int found = -1;
+            for (size_t j = 0; j < uniques.size(); ++j) {
+                if (*uniques[j] == fTransitions[i]) {
+                    found = j;
+                    break;
+                }
+            }
+            if (found == -1) {
+                found = (int) uniques.size();
+                uniques.push_back(&fTransitions[i]);
+            }
+            fCharMappings.push_back(found);
+        }
+        std::vector<std::vector<int>> newTransitions;
+        for (std::vector<int>* row : uniques) {
+            newTransitions.push_back(*row);
+        }
+        fTransitions = newTransitions;
+    }
+
     const NFA& fNFA;
     std::unordered_map<DFAState::Label, std::unique_ptr<DFAState>> fStates;
     std::vector<std::vector<int>> fTransitions;
+    std::vector<int> fCharMappings;
     std::vector<int> fAccepts;
 };

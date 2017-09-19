@@ -24,15 +24,15 @@ int NFA::match(std::string s) const {
             }
         }
         if (!next.size()) {
-            return -1;
+            return INVALID;
         }
         states = next;
     }
-    int accept = -1;
+    int accept = INVALID;
     for (int id : states) {
         if (fStates[id].fKind == NFAState::kAccept_Kind) {
             int result = fStates[id].fData[0];
-            if (accept == -1 || result < accept) {
+            if (accept == INVALID || result < accept) {
                 accept = result;
             }
         }

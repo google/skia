@@ -15,13 +15,18 @@
  * Tables representing a deterministic finite automaton for matching regular expressions.
  */
 struct DFA {
-    DFA(std::vector<std::vector<int>> transitions, std::vector<int> accepts)
-    : fTransitions(transitions)
+    DFA(std::vector<int> charMappings, std::vector<std::vector<int>> transitions,
+        std::vector<int> accepts)
+    : fCharMappings(charMappings)
+    , fTransitions(transitions)
     , fAccepts(accepts) {}
 
-    static constexpr char END_CHAR = 126;
+    // maps chars to the row index of fTransitions, as multiple characters may map to the same row.
+    // starting from state s and looking at char c, the new state is
+    // fTransitions[fCharMappings[c]][s].
+    std::vector<int> fCharMappings;
 
-    // one row per character, one column per state
+    // one row per character mapping, one column per state
     std::vector<std::vector<int>> fTransitions;
 
     // contains, for each state, the token id we should report when matching ends in that state (-1

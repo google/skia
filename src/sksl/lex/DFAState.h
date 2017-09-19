@@ -8,6 +8,8 @@
 #ifndef SKSL_DFASTATE
 #define SKSL_DFASTATE
 
+#include "LexUtil.h"
+
 struct DFAState {
     struct Label {
         std::vector<int> fStates;
@@ -37,7 +39,7 @@ struct DFAState {
     };
 
     DFAState()
-    : fId(-1)
+    : fId(INVALID)
     , fLabel({}) {}
 
     DFAState(int id, Label label)
