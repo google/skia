@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd51724b_b5418cd8",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T19:45:50Z",
+      "side": 1,
+      "message": "Q: Is this supposed to say \"incorrect blending\" ?",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "951690a8_d1374682",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T19:45:50Z",
+      "side": 1,
+      "message": "Line break seems spurious (compared to similar lines above)?\nSame issue on next several diffs.",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abd37fdf_86462d91",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1065,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T19:45:50Z",
+      "side": 1,
+      "message": "\"ASCII in one byte, and all other valid code points in Unicode in multiple bytes.\" ? (The existing wording makes it sound like ASCII aren\u0027t Unicode code points).",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "181cc7a1_1e5aba8b",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1068,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T19:45:50Z",
+      "side": 1,
+      "message": "Spurious linebreak?",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3131e047_341652d8",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 994,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-19T19:45:50Z",
+      "side": 1,
+      "message": "This (pre-existing) comment appears to be truncated? What is the formula for maximum pts storage size?",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
