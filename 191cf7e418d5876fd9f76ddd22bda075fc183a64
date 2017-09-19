@@ -22,6 +22,30 @@
       "revId": "191cf7e418d5876fd9f76ddd22bda075fc183a64",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7e69909_be75cd63",
+        "filename": "third_party/libpng/pnglibconf.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-19T18:36:03Z",
+      "side": 1,
+      "message": "Oh yeah, just in case you don\u0027t know - this file was created by copying scripts/pnglibconf.dfa. It looks like we\u0027ll have no modifications without the prefixing.",
+      "parentUuid": "4bcbdc92_bd0c4fb7",
+      "range": {
+        "startLine": 5,
+        "startChar": 18,
+        "endLine": 5,
+        "endChar": 28
+      },
+      "revId": "191cf7e418d5876fd9f76ddd22bda075fc183a64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
