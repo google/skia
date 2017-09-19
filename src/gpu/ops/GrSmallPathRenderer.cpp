@@ -675,7 +675,7 @@ private:
                     fAtlas->getProxies(), GrSamplerState::ClampBilerp());
             } else {
                 reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(
-                    fAtlas->getProxies(), GrSamplerState::ClampNearest());
+                    fAtlas->getProxies(), gp->numTextureSamplers(), GrSamplerState::ClampNearest());
             }
         }
 

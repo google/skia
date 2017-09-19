@@ -148,7 +148,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
     GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
     GrMaskFormat maskFormat = this->maskFormat();
-    if (gp->numTextureSamplers() != (int)fFontCache->getAtlasPageCount(maskFormat)) {
+    int newTextureCount = fFontCache->getAtlasPageCount(maskFormat) - gp->numTextureSamplers();
+    if (newTextureCount > 0) {
         // During preparation the number of atlas pages has increased.
         // Update the proxies used in the GP to match.
         if (this->usesDistanceFields()) {
@@ -161,7 +162,8 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
             }
         } else {
             reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(
-                fFontCache->getProxies(maskFormat), GrSamplerState::ClampNearest());
+                fFontCache->getProxies(maskFormat), gp->numTextureSamplers(),
+                GrSamplerState::ClampNearest());
         }
     }
 
