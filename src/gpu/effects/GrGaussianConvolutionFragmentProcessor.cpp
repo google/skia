@@ -64,8 +64,8 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
     const GrShaderVar& kernel = uniformHandler->getUniformVariable(fKernelUni);
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
 
-    fragBuilder->codeAppendf("highfloat2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.radius(), imgInc);
-    fragBuilder->codeAppend("highfloat2 coordSampled = half2(0, 0);");
+    fragBuilder->codeAppendf("float2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.radius(), imgInc);
+    fragBuilder->codeAppend("float2 coordSampled = half2(0, 0);");
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     const char* kVecSuffix[4] = {".x", ".y", ".z", ".w"};

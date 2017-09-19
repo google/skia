@@ -85,7 +85,7 @@ void GrVkPipelineStateDataManager::set1iv(UniformHandle u,
 
 void GrVkPipelineStateDataManager::set1f(UniformHandle u, float v0) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kHighFloat_GrSLType || uni.fType == kHalf_GrSLType);
+    SkASSERT(uni.fType == kFloat_GrSLType || uni.fType == kHalf_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
@@ -96,7 +96,7 @@ void GrVkPipelineStateDataManager::set1fv(UniformHandle u,
                                           int arrayCount,
                                           const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kHighFloat_GrSLType || uni.fType == kHalf_GrSLType);
+    SkASSERT(uni.fType == kFloat_GrSLType || uni.fType == kHalf_GrSLType);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
@@ -112,7 +112,7 @@ void GrVkPipelineStateDataManager::set1fv(UniformHandle u,
 
 void GrVkPipelineStateDataManager::set2f(UniformHandle u, float v0, float v1) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kHighFloat2_GrSLType || uni.fType == kHalf2_GrSLType);
+    SkASSERT(uni.fType == kFloat2_GrSLType || uni.fType == kHalf2_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
@@ -124,7 +124,7 @@ void GrVkPipelineStateDataManager::set2fv(UniformHandle u,
                                           int arrayCount,
                                           const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kHighFloat2_GrSLType || uni.fType == kHalf2_GrSLType);
+    SkASSERT(uni.fType == kFloat2_GrSLType || uni.fType == kHalf2_GrSLType);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
@@ -140,7 +140,7 @@ void GrVkPipelineStateDataManager::set2fv(UniformHandle u,
 
 void GrVkPipelineStateDataManager::set3f(UniformHandle u, float v0, float v1, float v2) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kHighFloat3_GrSLType || uni.fType == kHalf3_GrSLType);
+    SkASSERT(uni.fType == kFloat3_GrSLType || uni.fType == kHalf3_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
@@ -152,7 +152,7 @@ void GrVkPipelineStateDataManager::set3fv(UniformHandle u,
                                           int arrayCount,
                                           const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kHighFloat3_GrSLType || uni.fType == kHalf3_GrSLType);
+    SkASSERT(uni.fType == kFloat3_GrSLType || uni.fType == kHalf3_GrSLType);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
@@ -172,7 +172,7 @@ void GrVkPipelineStateDataManager::set4f(UniformHandle u,
                                          float v2,
                                          float v3) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kHighFloat4_GrSLType || uni.fType == kHalf4_GrSLType);
+    SkASSERT(uni.fType == kFloat4_GrSLType || uni.fType == kHalf4_GrSLType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     SkASSERT(sizeof(float) == 4);
@@ -184,7 +184,7 @@ void GrVkPipelineStateDataManager::set4fv(UniformHandle u,
                                           int arrayCount,
                                           const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kHighFloat4_GrSLType || uni.fType == kHalf4_GrSLType);
+    SkASSERT(uni.fType == kFloat4_GrSLType || uni.fType == kHalf4_GrSLType);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
@@ -230,7 +230,7 @@ template<int N> inline void GrVkPipelineStateDataManager::setMatrices(UniformHan
                                                                       int arrayCount,
                                                                      const float matrices[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == kHighFloat2x2_GrSLType + (N - 2) ||
+    SkASSERT(uni.fType == kFloat2x2_GrSLType + (N - 2) ||
              uni.fType == kHalf2x2_GrSLType + (N - 2));
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||

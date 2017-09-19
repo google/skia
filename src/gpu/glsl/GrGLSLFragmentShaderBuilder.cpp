@@ -112,14 +112,14 @@ bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
 }
 
 SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) {
-    if (kHighFloat3_GrSLType != coords.getType() && kHalf3_GrSLType != coords.getType()) {
-        SkASSERT(kHighFloat2_GrSLType == coords.getType() || kHalf2_GrSLType == coords.getType());
+    if (kFloat3_GrSLType != coords.getType() && kHalf3_GrSLType != coords.getType()) {
+        SkASSERT(kFloat2_GrSLType == coords.getType() || kHalf2_GrSLType == coords.getType());
         return coords.getName();
     }
 
     SkString coords2D;
     coords2D.printf("%s_ensure2D", coords.c_str());
-    this->codeAppendf("\thighfloat2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
+    this->codeAppendf("\tfloat2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
                       coords.c_str());
     return coords2D;
 }
@@ -298,9 +298,9 @@ void GrGLSLFragmentShaderBuilder::defineSampleOffsetArray(const char* name, cons
     SkSTArray<16, SkPoint, true> offsets;
     offsets.push_back_n(specs.fEffectiveSampleCnt);
     m.mapPoints(offsets.begin(), specs.fSampleLocations, specs.fEffectiveSampleCnt);
-    this->definitions().appendf("const highfloat2 %s[] = highfloat2[](", name);
+    this->definitions().appendf("const float2 %s[] = float2[](", name);
     for (int i = 0; i < specs.fEffectiveSampleCnt; ++i) {
-        this->definitions().appendf("highfloat2(%f, %f)", offsets[i].x(), offsets[i].y());
+        this->definitions().appendf("float2(%f, %f)", offsets[i].x(), offsets[i].y());
         this->definitions().append(i + 1 != specs.fEffectiveSampleCnt ? ", " : ");\n");
     }
 }

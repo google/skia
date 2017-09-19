@@ -344,20 +344,20 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
     }
     const char* type;
     if (var.fType == *fContext.fFloat_Type) {
-        type = "kHighFloat_GrSLType";
+        type = "kFloat_GrSLType";
     } else if (var.fType == *fContext.fHalf_Type) {
         type = "kHalf_GrSLType";
     } else if (var.fType == *fContext.fFloat2_Type) {
-        type = "kHighFloat2_GrSLType";
+        type = "kFloat2_GrSLType";
     } else if (var.fType == *fContext.fHalf2_Type) {
         type = "kHalf2_GrSLType";
     } else if (var.fType == *fContext.fFloat4_Type) {
-        type = "kHighFloat4_GrSLType";
+        type = "kFloat4_GrSLType";
     } else if (var.fType == *fContext.fHalf4_Type) {
         type = "kHalf4_GrSLType";
     } else if (var.fType == *fContext.fFloat4x4_Type ||
                var.fType == *fContext.fColorSpaceXform_Type) {
-        type = "kHighFloat4x4_GrSLType";
+        type = "kFloat4x4_GrSLType";
     } else if (var.fType == *fContext.fHalf4x4_Type) {
         type = "kHalf4x4_GrSLType";
     } else {

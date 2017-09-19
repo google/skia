@@ -137,7 +137,7 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
                 return "uint";
             }
             else if (type == *fContext.fFloat_Type) {
-                // FIXME: temporary, this goes away when highfloat is renamed back to float
+                // FIXME: temporary, this goes away when float is renamed back to float
                 return "float";
             }
             else {

@@ -889,10 +889,10 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
     const char *rectName;
     const char *profileSizeName;
 
-    const char* floatType = rbe.precision() == kHigh_GrSLPrecision ? "highfloat" : "half";
+    const char* floatType = rbe.precision() == kHigh_GrSLPrecision ? "float" : "half";
     fProxyRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    rbe.precision() == kHigh_GrSLPrecision ?
-                                                             kHighFloat4_GrSLType : kHalf4_GrSLType,
+                                                             kFloat4_GrSLType : kHalf4_GrSLType,
                                                    "proxyRect",
                                                    &rectName);
     fProfileSizeUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
