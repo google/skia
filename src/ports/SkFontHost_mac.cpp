@@ -206,30 +206,28 @@ static CGAffineTransform MatrixToCGAffineTransform(const SkMatrix& matrix) {
  * smoothing is applied a gamma of 2.0 will be used, if not a gamma of 1.0.
  */
 static bool supports_LCD() {
-    static int gSupportsLCD = -1;
-    if (gSupportsLCD >= 0) {
-        return (bool) gSupportsLCD;
-    }
-    uint32_t rgb = 0;
-    UniqueCFRef<CGColorSpaceRef> colorspace(CGColorSpaceCreateDeviceRGB());
-    UniqueCFRef<CGContextRef> cgContext(
-            CGBitmapContextCreate(&rgb, 1, 1, 8, 4, colorspace.get(), BITMAP_INFO_RGB));
-    UniqueCFRef<CTFontRef> ctFont(CTFontCreateWithName(CFSTR("Helvetica"), 16, nullptr));
-    CGContextSetShouldSmoothFonts(cgContext.get(), true);
-    CGContextSetShouldAntialias(cgContext.get(), true);
-    CGContextSetTextDrawingMode(cgContext.get(), kCGTextFill);
-    CGContextSetGrayFillColor(cgContext.get(), 1, 1);
-    CGPoint point = CGPointMake(-1, 0);
-    static const UniChar pipeChar = '|';
-    CGGlyph pipeGlyph;
-    CTFontGetGlyphsForCharacters(ctFont.get(), &pipeChar, &pipeGlyph, 1);
-    CTFontDrawGlyphs(ctFont.get(), &pipeGlyph, &point, 1, cgContext.get());
+    static bool gSupportsLCD = []{
+        uint32_t rgb = 0;
+        UniqueCFRef<CGColorSpaceRef> colorspace(CGColorSpaceCreateDeviceRGB());
+        UniqueCFRef<CGContextRef> cgContext(
+                CGBitmapContextCreate(&rgb, 1, 1, 8, 4, colorspace.get(), BITMAP_INFO_RGB));
+        UniqueCFRef<CTFontRef> ctFont(CTFontCreateWithName(CFSTR("Helvetica"), 16, nullptr));
+        CGContextSetShouldSmoothFonts(cgContext.get(), true);
+        CGContextSetShouldAntialias(cgContext.get(), true);
+        CGContextSetTextDrawingMode(cgContext.get(), kCGTextFill);
+        CGContextSetGrayFillColor(cgContext.get(), 1, 1);
+        CGPoint point = CGPointMake(-1, 0);
+        static const UniChar pipeChar = '|';
+        CGGlyph pipeGlyph;
+        CTFontGetGlyphsForCharacters(ctFont.get(), &pipeChar, &pipeGlyph, 1);
+        CTFontDrawGlyphs(ctFont.get(), &pipeGlyph, &point, 1, cgContext.get());
 
-    uint32_t r = (rgb >> 16) & 0xFF;
-    uint32_t g = (rgb >>  8) & 0xFF;
-    uint32_t b = (rgb >>  0) & 0xFF;
-    gSupportsLCD = (r != g || r != b);
-    return (bool) gSupportsLCD;
+        uint32_t r = (rgb >> 16) & 0xFF;
+        uint32_t g = (rgb >>  8) & 0xFF;
+        uint32_t b = (rgb >>  0) & 0xFF;
+        return (r != g || r != b);
+    }();
+    return gSupportsLCD;
 }
 
 class Offscreen {
