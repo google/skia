@@ -115,7 +115,7 @@ public:
                     args.fVaryingHandler->addPassThroughAttribute(&textureGP.fColors,
                                                                   args.fOutputColor);
                 }
-                args.fFragBuilder->codeAppend("highfloat2 texCoord;");
+                args.fFragBuilder->codeAppend("float2 texCoord;");
                 args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureCoords, "texCoord",
                                                               kHigh_GrSLPrecision);
                 if (textureGP.numTextureSamplers() > 1) {
@@ -134,7 +134,7 @@ public:
                         args.fFragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
                                                                           args.fTexSamplers[i],
                                                                           "texCoord",
-                                                                          kHighFloat2_GrSLType,
+                                                                          kFloat2_GrSLType,
                                                                           &fColorSpaceXformHelper);
                         args.fFragBuilder->codeAppend("; break;");
                     }
@@ -144,11 +144,11 @@ public:
                     args.fFragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
                                                                       args.fTexSamplers[0],
                                                                       "texCoord",
-                                                                      kHighFloat2_GrSLType,
+                                                                      kFloat2_GrSLType,
                                                                       &fColorSpaceXformHelper);
                 }
                 args.fFragBuilder->codeAppend(";");
-                args.fFragBuilder->codeAppendf("%s = highfloat4(1);", args.fOutputCoverage);
+                args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
             }
             GrGLSLColorSpaceXformHelper fColorSpaceXformHelper;
         };

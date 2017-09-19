@@ -214,7 +214,7 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     fPixelSizeUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "PixelSize");
     const char* pixelSizeInc = uniformHandler->getUniformCStr(fPixelSizeUni);
-    fRangeUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHighFloat2_GrSLType, "Range");
+    fRangeUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat2_GrSLType, "Range");
     const char* range = uniformHandler->getUniformCStr(fRangeUni);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -251,12 +251,12 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
     int width = me.width();
 
     // float2 coord = coord2D;
-    fragBuilder->codeAppendf("\t\thighfloat2 coord = %s;\n", coords2D.c_str());
+    fragBuilder->codeAppendf("\t\tfloat2 coord = %s;\n", coords2D.c_str());
     // coord.x -= radius * pixelSize;
     fragBuilder->codeAppendf("\t\tcoord.%s -= %d.0 * %s; \n", dir, me.radius(), pixelSizeInc);
     if (me.useRange()) {
         // highBound = min(highBound, coord.x + (width-1) * pixelSize);
-        fragBuilder->codeAppendf("\t\thighfloat highBound = min(%s.y, coord.%s + %f * %s);",
+        fragBuilder->codeAppendf("\t\tfloat highBound = min(%s.y, coord.%s + %f * %s);",
                                  range, dir, float(width - 1), pixelSizeInc);
         // coord.x = max(lowBound, coord.x);
         fragBuilder->codeAppendf("\t\tcoord.%s = max(%s.x, coord.%s);", dir, range, dir);

@@ -58,7 +58,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                     const TestFP& tfp = args.fFp.cast<TestFP>();
                     GrGLSLFPFragmentBuilder* fb = args.fFragBuilder;
                     SkString imageLoadStr;
-                    fb->codeAppend("highfloat2 coord = sk_FragCoord.xy;");
+                    fb->codeAppend("float2 coord = sk_FragCoord.xy;");
                     fb->appendImageStorageLoad(&imageLoadStr, args.fImageStorages[0],
                                                "int2(coord)");
                     if (GrPixelConfigIsSint(tfp.fImageStorageAccess.peekTexture()->config())) {
