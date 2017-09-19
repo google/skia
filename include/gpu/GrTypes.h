@@ -546,6 +546,16 @@ static inline bool GrPixelConfigIsUnorm(GrPixelConfig config) {
     return false;
 }
 
+enum class GrClampBehavior {
+    kAutomatic,  // Any UNORM type
+    kUnclamped,  // F16 or F32
+};
+
+static inline GrClampBehavior GrPixelConfigClampBehavior(GrPixelConfig config) {
+    return GrPixelConfigIsFloatingPoint(config) ? GrClampBehavior::kUnclamped
+                                                : GrClampBehavior::kAutomatic;
+}
+
 /**
  * Optional bitfield flags that can be set on GrSurfaceDesc (below).
  */
