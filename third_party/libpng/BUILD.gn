@@ -15,42 +15,45 @@ if (skia_use_system_libpng) {
   }
 } else {
   third_party("libpng") {
-    public_include_dirs = [ "." ]
+    public_include_dirs = [
+      ".",
+      "../externals/libpng",
+    ]
 
     defines = []
     deps = [
       "//third_party/zlib",
     ]
     sources = [
-      "png.c",
-      "pngerror.c",
-      "pngget.c",
-      "pngmem.c",
-      "pngpread.c",
-      "pngread.c",
-      "pngrio.c",
-      "pngrtran.c",
-      "pngrutil.c",
-      "pngset.c",
-      "pngtrans.c",
-      "pngwio.c",
-      "pngwrite.c",
-      "pngwtran.c",
-      "pngwutil.c",
+      "../externals/libpng/png.c",
+      "../externals/libpng/pngerror.c",
+      "../externals/libpng/pngget.c",
+      "../externals/libpng/pngmem.c",
+      "../externals/libpng/pngpread.c",
+      "../externals/libpng/pngread.c",
+      "../externals/libpng/pngrio.c",
+      "../externals/libpng/pngrtran.c",
+      "../externals/libpng/pngrutil.c",
+      "../externals/libpng/pngset.c",
+      "../externals/libpng/pngtrans.c",
+      "../externals/libpng/pngwio.c",
+      "../externals/libpng/pngwrite.c",
+      "../externals/libpng/pngwtran.c",
+      "../externals/libpng/pngwutil.c",
     ]
 
     if (current_cpu == "arm" || current_cpu == "arm64") {
       sources += [
-        "arm/arm_init.c",
-        "arm/filter_neon_intrinsics.c",
+        "../externals/libpng/arm/arm_init.c",
+        "../externals/libpng/arm/filter_neon_intrinsics.c",
       ]
     }
 
     if (current_cpu == "x86" || current_cpu == "x64") {
       defines += [ "PNG_INTEL_SSE" ]
       sources += [
-        "contrib/intel/filter_sse2_intrinsics.c",
-        "contrib/intel/intel_init.c",
+        "../externals/libpng/intel/filter_sse2_intrinsics.c",
+        "../externals/libpng/intel/intel_init.c",
       ]
     }
   }
