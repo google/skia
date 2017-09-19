@@ -2258,6 +2258,7 @@ int main(int argc, char** const argv) {
                 return -1;
             }
             if (!FLAGS_tokens.isEmpty()) {
+                includeParser.fDebugOut = FLAGS_stdout;
                 if (includeParser.dumpTokens(FLAGS_tokens[0])) {
                     bmhParser.fWroteOut = true;
                 }
@@ -2290,6 +2291,7 @@ int main(int argc, char** const argv) {
     }
     if (!done && !FLAGS_ref.isEmpty() && FLAGS_examples.isEmpty()) {
         MdOut mdOut(bmhParser);
+        mdOut.fDebugOut = FLAGS_stdout;
         if (mdOut.buildReferences(FLAGS_bmh[0], FLAGS_ref[0])) {
             bmhParser.fWroteOut = true;
         }
@@ -2306,6 +2308,7 @@ int main(int argc, char** const argv) {
         if (!bmhParser.checkExamples()) {
             return -1;
         }
+        bmhParser.fDebugOut = FLAGS_stdout;
         if (!bmhParser.dumpExamples(FLAGS_examples[0])) {
             return -1;
         }
