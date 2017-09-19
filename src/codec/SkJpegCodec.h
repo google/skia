@@ -64,6 +64,11 @@ protected:
         return true;
     }
 
+    Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
+            const SkCodec::Options&) override;
+
+    Result onIncrementalDecode(int*) override;
+
 private:
 
     /*
@@ -122,16 +127,14 @@ private:
     void allocateStorage(const SkImageInfo& dstInfo);
     int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count, const Options&);
 
-    /*
-     * Scanline decoding.
-     */
     SkSampler* getSampler(bool createIfNecessary) override;
-    Result onStartScanlineDecode(const SkImageInfo& dstInfo,
-            const Options& options) override;
-    int onGetScanlines(void* dst, int count, size_t rowBytes) override;
-    bool onSkipScanlines(int count) override;
-
+   /*
+    * Does necessary setup, including setting up the libjpeg and swizzler.
+    */
+    Result prepareToDecode(const SkImageInfo& dstInfo, const Options& opts);
+    void setRange(int firstRow, int lastRow, void* dst, size_t rowBytes);
     std::unique_ptr<JpegDecoderMgr>    fDecoderMgr;
+
 
     // We will save the state of the decompress struct after reading the header.
     // This allows us to safely call onGetScaledDimensions() at any time.
@@ -148,7 +151,16 @@ private:
     SkIRect                            fSwizzlerSubset;
 
     std::unique_ptr<SkSwizzler>        fSwizzler;
-
+    void*                              fDst;
+    size_t                             fDstRowBytes;
+    size_t                             fFirstRow;
+    size_t                             fLastRow;
+    int                                fRowsWrittenToOutput;
+    int                                fLinesSkipped;
+    int                                fRowsNeeded;
+    // True on the first call to onIncrementalDecode. This value is passed to
+    // decodeFrame.
+    bool                               fFirstCallToIncrementalDecode;
     friend class SkRawCodec;
 
     typedef SkCodec INHERITED;
