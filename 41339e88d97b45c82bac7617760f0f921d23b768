@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "301d3410_f9470578",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-19T21:03:14Z",
+      "side": 1,
+      "message": "Given that this is at global scope I\u0027d like the name to somehow indicate this is about blending or alternatively about whether the config goes out of range. Something like renaming to GrBlendClampBehavior. Or maybe enum class GrPixelConfigIsClamped : bool { kNo, kYes }",
+      "range": {
+        "startLine": 549,
+        "startChar": 11,
+        "endLine": 549,
+        "endChar": 26
+      },
+      "revId": "41339e88d97b45c82bac7617760f0f921d23b768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "408ab329_1ff38f67",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-19T21:03:14Z",
+      "side": 1,
+      "message": "Can all this go in GrTypesPriv.h?",
+      "range": {
+        "startLine": 549,
+        "startChar": 0,
+        "endLine": 557,
+        "endChar": 1
+      },
+      "revId": "41339e88d97b45c82bac7617760f0f921d23b768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1d22d668_83e60ed9",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 4
