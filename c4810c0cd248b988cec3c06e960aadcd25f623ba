@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1df845e5_03ced988",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-09-19T19:57:32Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "cd51724b_b5418cd8",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "951690a8_d1374682",
         "filename": "include/core/SkPaint.h",
         "patchSetId": 3
@@ -47,6 +65,24 @@
       "writtenOn": "2017-09-19T19:45:50Z",
       "side": 1,
       "message": "\"ASCII in one byte, and all other valid code points in Unicode in multiple bytes.\" ? (The existing wording makes it sound like ASCII aren\u0027t Unicode code points).",
+      "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b4635be_d871af19",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1065,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-09-19T19:57:32Z",
+      "side": 1,
+      "message": "I think we could skip some of these details, since UTF-8/16/32 are standards and easily looked-up elsewhere.",
+      "parentUuid": "abd37fdf_86462d91",
       "revId": "c4810c0cd248b988cec3c06e960aadcd25f623ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
