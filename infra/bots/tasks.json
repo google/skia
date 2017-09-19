@@ -377,6 +377,12 @@
       ],
       "trigger": "master"
     },
+    "Build-Mac-Clang-x86_64-Release-TSAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Release-TSAN"
+      ]
+    },
     "Build-Win-Clang-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
@@ -2031,6 +2037,12 @@
         "Upload-Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release"
       ]
     },
+    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-TSAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-TSAN"
+      ]
+    },
     "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -2048,6 +2060,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release"
+      ]
+    },
+    "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-TSAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-TSAN"
       ]
     },
     "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs": {
@@ -4370,6 +4388,28 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-x86_64-Release-CommandBuffer",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Mac-Clang-x86_64-Release-TSAN": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac-10.12",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-x86_64-Release-TSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15450,6 +15490,54 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-TSAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:29"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:86"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release-TSAN",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64",
+        "gpu:none",
+        "os:Mac-10.12",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-TSAN",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug": {
       "cipd_packages": [
         {
@@ -15579,6 +15667,53 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-TSAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:29"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:86"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release-TSAN",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:0a2e",
+        "os:Mac-10.12",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-TSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
