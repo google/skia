@@ -7,25 +7,42 @@
 
 #include "GrTextureProxy.h"
 
+#include "GrContext.h"
+#include "GrResourceProvider.h"
 #include "GrTexturePriv.h"
 
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
                                const void* srcData, size_t /*rowBytes*/, uint32_t flags)
         : INHERITED(srcDesc, fit, budgeted, flags)
         , fIsMipMapped(srcDesc.fIsMipMapped)
-        , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy) {
+        , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
+        , fProvider(nullptr) {
     SkASSERT(!srcData);  // currently handled in Make()
 }
 
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
         , fIsMipMapped(fTarget->asTexture()->texturePriv().hasMipMaps())
-        , fMipColorMode(fTarget->asTexture()->texturePriv().mipColorMode()) {
+        , fMipColorMode(fTarget->asTexture()->texturePriv().mipColorMode())
+        , fProvider(nullptr) {
+    if (fTarget->getUniqueKey().isValid()) {
+        fUniqueKey = fTarget->getUniqueKey();
+        fProvider = fTarget->asTexture()->getContext()->resourceProvider();
+    }
+}
+
+GrTextureProxy::~GrTextureProxy() {
+    if (fUniqueKey.isValid()) {
+        fProvider->processInvalidUniqueKey(fUniqueKey);
+    } else {
+        SkASSERT(!fProvider);
+    }
 }
 
 bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (!this->instantiateImpl(resourceProvider, 0, /* needsStencil = */ false,
-                               kNone_GrSurfaceFlags, fIsMipMapped, fMipColorMode)) {
+                               kNone_GrSurfaceFlags, fIsMipMapped, fMipColorMode,
+                               fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
         return false;
     }
 
@@ -79,4 +96,18 @@ size_t GrTextureProxy::onUninstantiatedGpuMemorySize() const {
     // with mip maps but not whether a texture read from the proxy will lazily generate mip maps.
     return GrSurface::ComputeSize(fConfig, fWidth, fHeight, 1, kHasMipMaps,
                                   SkBackingFit::kApprox == fFit);
+}
+
+#include "GrResourceProvider.h"
+
+void GrTextureProxy::setUniqueKey(GrResourceProvider* provider, const GrUniqueKey& key) {
+    SkASSERT(key.isValid());
+    SkASSERT(!fUniqueKey.isValid()); // proxies can only ever get one uniqueKey
+
+    if (fTarget) {
+        provider->assignUniqueKeyToResource(key, fTarget->asTexture());
+    }
+
+    fUniqueKey = key;
+    fProvider = provider;
 }

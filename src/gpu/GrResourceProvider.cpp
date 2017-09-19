@@ -22,6 +22,7 @@
 #include "GrStencilAttachment.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexturePriv.h"
+#include "GrTextureProxyPriv.h"
 #include "../private/GrSingleOwner.h"
 #include "SkGr.h"
 #include "SkMathPriv.h"
@@ -292,7 +293,6 @@ void GrResourceProvider::assignUniqueKeyToTexture(const GrUniqueKey& key, GrText
     this->assignUniqueKeyToResource(key, texture);
 }
 
-// MDB TODO (caching): this side-steps the issue of texture proxies with unique IDs
 void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
     ASSERT_SINGLE_OWNER
     SkASSERT(key.isValid());
@@ -300,25 +300,39 @@ void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextur
         return;
     }
 
-    if (!proxy->instantiate(this)) {
-        return;
-    }
-    GrTexture* texture = proxy->priv().peekTexture();
+    SkASSERT(SkBudgeted::kYes == proxy->isBudgeted()); // only cached resources can have a uniqueKey
+    SkASSERT(!fUniqueKeyProxies.find(key));     // multiple proxies can't get the same key
 
-    this->assignUniqueKeyToResource(key, texture);
+    proxy->texPriv().setUniqueKey(this, key);
+    fUniqueKeyProxies.add(proxy);
 }
 
-// MDB TODO (caching): this side-steps the issue of texture proxies with unique IDs
 sk_sp<GrTextureProxy> GrResourceProvider::findProxyByUniqueKey(const GrUniqueKey& key,
                                                                GrSurfaceOrigin origin) {
     ASSERT_SINGLE_OWNER
 
-    sk_sp<GrTexture> texture(this->findAndRefTextureByUniqueKey(key));
-    if (!texture) {
-        return nullptr;
+    sk_sp<GrTextureProxy> result = sk_ref_sp(fUniqueKeyProxies.find(key));
+    if (result) {
+        SkASSERT(result->origin() == origin);
+        return result;
     }
 
-    return GrSurfaceProxy::MakeWrapped(std::move(texture), origin);
+    sk_sp<GrTexture> texture(this->findAndRefTextureByUniqueKey(key));
+    if (texture) {
+        result = GrSurfaceProxy::MakeWrapped(std::move(texture), origin);
+        SkASSERT(result->getUniqueKey() == key);
+        fUniqueKeyProxies.add(result.get());
+        return result;
+    }
+
+    return nullptr;
+}
+
+void GrResourceProvider::processInvalidUniqueKey(const GrUniqueKey& key) {
+//    ASSERT_SINGLE_OWNER
+
+    SkASSERT(fUniqueKeyProxies.find(key));
+    fUniqueKeyProxies.remove(key);
 }
 
 const GrBuffer* GrResourceProvider::createPatternedIndexBuffer(const uint16_t* pattern,

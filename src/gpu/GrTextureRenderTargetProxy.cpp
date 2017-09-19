@@ -49,7 +49,8 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
     if (!this->instantiateImpl(resourceProvider, this->numStencilSamples(), this->needsStencil(),
-                               kFlags, this->isMipMapped(), this->mipColorMode())) {
+                               kFlags, this->isMipMapped(), this->mipColorMode(),
+                               this->getUniqueKey().isValid() ? &this->getUniqueKey() : nullptr)) {
         return false;
     }
     SkASSERT(fTarget->asRenderTarget());

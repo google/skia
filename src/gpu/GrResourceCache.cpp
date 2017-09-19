@@ -575,11 +575,17 @@ void GrResourceCache::purgeUnlockedResources(size_t bytesToPurge, bool preferScr
     }
 }
 
+#include "GrContext.h"
+#include "GrResourceProvider.h"
+
 void GrResourceCache::processInvalidUniqueKeys(
     const SkTArray<GrUniqueKeyInvalidatedMessage>& msgs) {
     for (int i = 0; i < msgs.count(); ++i) {
         GrGpuResource* resource = this->findAndRefUniqueResource(msgs[i].key());
         if (resource) {
+            GrContext* context = resource->getContext();
+            context->resourceProvider()->processInvalidUniqueKey(msgs[i].key());
+
             resource->resourcePriv().removeUniqueKey();
             resource->unref(); // If this resource is now purgeable, the cache will be notified.
         }
