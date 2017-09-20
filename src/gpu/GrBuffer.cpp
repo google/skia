@@ -70,3 +70,24 @@ void GrBuffer::computeScratchKey(GrScratchKey* key) const {
         ComputeScratchKeyForDynamicVBO(fSizeInBytes, fIntendedType, key);
     }
 }
+
+// We need to tell TSAN that onMap() makes new allocations.
+// If we don't, and the buffer returned overlaps with memory we've used before,
+// it may see this as a use-after-free or possibly a data race.
+#if !defined(__has_feature)
+    #define __has_feature(x) 0
+#endif
+
+#if __has_feature(thread_sanitizer)
+    extern "C" void AnnotateNewMemory(const char*, int, void*, long);
+#else
+    static void AnnotateNewMemory(const char*, int, void*, long) {}
+#endif
+
+void* GrBuffer::map() {
+    if (!fMapPtr) {
+        this->onMap();
+        AnnotateNewMemory(__FILE__, __LINE__, fMapPtr, (long)this->sizeInBytes());
+    }
+    return fMapPtr;
+}

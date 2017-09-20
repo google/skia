@@ -50,12 +50,7 @@ public:
      *
      * @return a pointer to the data or nullptr if the map fails.
      */
-     void* map() {
-         if (!fMapPtr) {
-             this->onMap();
-         }
-         return fMapPtr;
-     }
+     void* map();
 
     /**
      * Unmaps the buffer.
