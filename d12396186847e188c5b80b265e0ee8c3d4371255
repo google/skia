@@ -22,6 +22,30 @@
       "revId": "d12396186847e188c5b80b265e0ee8c3d4371255",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ef121cc_26d014ac",
+        "filename": "src/gpu/GrTextureProxyPriv.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-20T20:00:15Z",
+      "side": 1,
+      "message": "Done. Snapped it to CacheAccess-style nested class.",
+      "parentUuid": "ce95e33b_8eb4be18",
+      "range": {
+        "startLine": 16,
+        "startChar": 6,
+        "endLine": 16,
+        "endChar": 24
+      },
+      "revId": "d12396186847e188c5b80b265e0ee8c3d4371255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
