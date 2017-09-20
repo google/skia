@@ -130,7 +130,7 @@ protected:
     void transferRefs() {
         SkASSERT(fTarget);
 
-        fTarget->fRefCnt += (fRefCnt-1); // don't xfer the proxy's creation ref
+        fTarget->fRefCnt += SkTMax(fRefCnt-1, 0); // don't xfer the proxy's creation ref
         fTarget->fPendingReads += fPendingReads;
         fTarget->fPendingWrites += fPendingWrites;
     }
@@ -173,6 +173,8 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    bool fIsOkayToBeInstantiated = false;
+
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>, GrSurfaceOrigin);
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
 

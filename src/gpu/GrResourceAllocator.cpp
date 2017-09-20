@@ -15,13 +15,22 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
 
+    unsigned int proxyID = proxy->uniqueID().asUInt();
+    int underlyingID = proxy->priv().isInstantiated() ? proxy->underlyingUniqueID().asUInt() : -1;
+
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
         SkASSERT(intvl->fEnd < start);
+        SkDebugf("revising interval { rtpID %d, rtID %d } from [op# %d, op# %d] to [op# %d, op# %d]\n",
+                 proxyID, underlyingID,
+                 intvl->fStart, intvl->fEnd,
+                 intvl->fStart, end);
         intvl->fEnd = end;
         return;
     }
 
+    SkDebugf("adding new interval for { rtpID %d, rtID %d }: [ op# %d, op# %d ]\n",
+             proxyID, underlyingID, start, end);
     // TODO: given the usage pattern an arena allocation scheme would work well here
     Interval* newIntvl = new Interval(proxy, start, end);
 
@@ -117,6 +126,7 @@ void GrResourceAllocator::assign() {
     fIntvlHash.reset(); // we don't need this anymore
     SkDEBUGCODE(fAssigned = true;)
 
+    this->dump();
     while (Interval* cur = fIntvlList.popHead()) {
         this->expire(cur->fStart);
 
@@ -140,9 +150,13 @@ void GrResourceAllocator::dump() {
     unsigned int min = fNumOps+1;
     unsigned int max = 0;
     for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->fNext) {
-        SkDebugf("{ %d,%d }: [%d, %d]\n",
+        SkDebugf("{ %d,%d }: [%d, %d] - pRef:%d rRef:%d R:%d W:%d\n",
                  cur->fProxy->uniqueID().asUInt(), cur->fProxy->underlyingUniqueID().asUInt(),
-                 cur->fStart, cur->fEnd);
+                 cur->fStart, cur->fEnd,
+                 cur->fProxy->getProxyRefCnt_TestOnly(),
+                 cur->fProxy->getBackingRefCnt_TestOnly(),
+                 cur->fProxy->getPendingReadCnt_TestOnly(),
+                 cur->fProxy->getPendingWriteCnt_TestOnly());
         if (min > cur->fStart) {
             min = cur->fStart;
         }
