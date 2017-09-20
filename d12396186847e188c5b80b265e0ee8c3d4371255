@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce95e33b_8eb4be18",
+        "filename": "src/gpu/GrTextureProxyPriv.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-20T19:03:30Z",
+      "side": 1,
+      "message": "Really minor, but for GrGpuResource we have a nested class called \"CacheAccess\" that has the methods only accessible by GrResourceCache. I don\u0027t really care, but if you wanted to make things more consistent you could make that like this or this like that.",
+      "range": {
+        "startLine": 16,
+        "startChar": 6,
+        "endLine": 16,
+        "endChar": 24
+      },
+      "revId": "d12396186847e188c5b80b265e0ee8c3d4371255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
