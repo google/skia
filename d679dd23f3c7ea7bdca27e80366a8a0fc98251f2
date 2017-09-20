@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58fcafda_a282887a",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T17:51:04Z",
+      "side": 1,
+      "message": "Remove parens after rowBytes (it\u0027s an argument here, not a member function call) Similar in second paragraph.",
+      "revId": "d679dd23f3c7ea7bdca27e80366a8a0fc98251f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c62fceb_7ef14087",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T17:51:04Z",
+      "side": 1,
+      "message": "space before \u0027or\u0027",
+      "revId": "d679dd23f3c7ea7bdca27e80366a8a0fc98251f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "287c65c6_1abf720b",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T17:51:04Z",
+      "side": 1,
+      "message": "\u0027lifetime _of_ pixels _is_\u0027 ?",
+      "revId": "d679dd23f3c7ea7bdca27e80366a8a0fc98251f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f774c084_ec1c4ac2",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T17:51:04Z",
+      "side": 1,
+      "message": "Same as above: No parens after rowBytes, space before \u0027or\u0027, \u0027lifetime of pixels is\u0027",
+      "revId": "d679dd23f3c7ea7bdca27e80366a8a0fc98251f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a447fbba_11397ec2",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T17:51:04Z",
+      "side": 1,
+      "message": "No parens on colorSpace",
+      "revId": "d679dd23f3c7ea7bdca27e80366a8a0fc98251f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0288064a_926c76a7",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T17:51:04Z",
+      "side": 1,
+      "message": "\u0027base pixel address\u0027 -\u003e \u0027pixel address at (x, y)\u0027\n\nSame for all x,y variants of this function below.",
+      "revId": "d679dd23f3c7ea7bdca27e80366a8a0fc98251f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "896961ad_96a418a4",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T17:51:04Z",
+      "side": 1,
+      "message": "parens after this-\u003ecolorType? Actually, also after all the references to properties of dstInfo?",
+      "revId": "d679dd23f3c7ea7bdca27e80366a8a0fc98251f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8af8d049_f6033086",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T17:51:04Z",
+      "side": 1,
+      "message": "Use \u0027or\u0027 rather than \u0027||\u0027 here? Every other comment uses prose for that kind of logical statement.\n\nAlso: \u0027scrY\u0027 -\u003e \u0027srcY\u0027 (true in all other variants below)",
+      "revId": "d679dd23f3c7ea7bdca27e80366a8a0fc98251f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1bc23f9_a0516190",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T17:51:04Z",
+      "side": 1,
+      "message": "\u0027false _if_ this-\u003ewidth()...\u0027",
+      "revId": "d679dd23f3c7ea7bdca27e80366a8a0fc98251f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
