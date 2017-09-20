@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2ec8cac_86d368f3",
+        "filename": "src/gpu/ccpr/GrCCPRTriangleProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-20T13:13:09Z",
+      "side": 1,
+      "message": "FYI: Qualcomm\u0027s OpenCL guide says \"Avoid integer divide or modulo, if possible.\"\n\nhttps://developer.qualcomm.com/download/adrenosdk/adreno-opencl-programming-guide.pdf",
+      "range": {
+        "startLine": 74,
+        "startChar": 67,
+        "endLine": 74,
+        "endChar": 68
+      },
+      "revId": "6c6dc32bbac1e36507ba09bcfec81e0ac88d71d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
