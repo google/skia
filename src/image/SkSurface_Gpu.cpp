@@ -225,12 +225,14 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted
                                              const SkImageInfo& info, int sampleCount,
                                              GrSurfaceOrigin origin, const SkSurfaceProps* props) {
     if (!SkSurface_Gpu::Valid(info)) {
+        SkDebugf("Invalid info");
         return nullptr;
     }
 
     sk_sp<SkGpuDevice> device(SkGpuDevice::Make(
             ctx, budgeted, info, sampleCount, origin, props, SkGpuDevice::kClear_InitContents));
     if (!device) {
+        SkDebugf("Could not make device");
         return nullptr;
     }
     return sk_make_sp<SkSurface_Gpu>(std::move(device));

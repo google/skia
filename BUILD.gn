@@ -1555,6 +1555,16 @@ if (skia_enable_tools) {
     ]
   }
 
+  test_app("wasm_test.html") {
+    sources = [
+      "experimental/wasm/main.cpp",
+    ]
+    deps = [
+      ":skia",
+      ":skia.h",
+    ]
+  }
+
   test_app("pathops_unittest") {
     sources = pathops_tests_sources + [
                 rebase_path("tests/skia_test.cpp"),

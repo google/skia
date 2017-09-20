@@ -211,16 +211,19 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     // TODO: move this logic into GrResourceProvider!
     // TODO: share this testing code with check_texture_creation_params
     if (!caps->isConfigTexturable(desc.fConfig)) {
+        SkDebugf("[FAILS HERE] Not texturable\n");
         return nullptr;
     }
 
     bool willBeRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
     if (willBeRT && !caps->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        SkDebugf("Not wilbert\n");
         return nullptr;
     }
 
     // We currently do not support multisampled textures
     if (!willBeRT && desc.fSampleCnt > 0) {
+        SkDebugf("Not multisampled\n");
         return nullptr;
     }
 
@@ -232,6 +235,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     }
 
     if (desc.fWidth > maxSize || desc.fHeight > maxSize || desc.fWidth <= 0 || desc.fHeight <= 0) {
+        SkDebugf("Not rectangle\n");
         return nullptr;
     }
 
@@ -375,7 +379,7 @@ void GrSurfaceProxyPriv::exactify() {
     if (fProxy->fTarget) {
         // The kApprox but already instantiated case. Setting the proxy's width & height to
         // the instantiated width & height could have side-effects going forward, since we're
-        // obliterating the area of interest information. This call (exactify) only used 
+        // obliterating the area of interest information. This call (exactify) only used
         // when converting an SkSpecialImage to an SkImage so the proxy shouldn't be
         // used for additional draws.
         fProxy->fWidth = fProxy->fTarget->width();

@@ -66,7 +66,7 @@ sk_sp<GrContext> create_grcontext(std::ostringstream &driverinfo) {
 
     driverinfo << "EGL " << major << "." << minor << "\n";
     GrGLGetStringProc getString = (GrGLGetStringProc )eglGetProcAddress("glGetString");
-    driverinfo << "GL Versionr: " << getString(GL_VERSION) << "\n";
+    driverinfo << "GL Version: " << getString(GL_VERSION) << "\n";
     driverinfo << "GL Vendor: " << getString(GL_VENDOR) << "\n";
     driverinfo << "GL Renderer: " << getString(GL_RENDERER) << "\n";
     driverinfo << "GL Extensions: " << getString(GL_EXTENSIONS) << "\n";
