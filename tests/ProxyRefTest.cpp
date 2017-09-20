@@ -54,6 +54,10 @@ static void check_refs(skiatest::Reporter* reporter,
                        int32_t expectedBackingRefs,
                        int32_t expectedNumReads,
                        int32_t expectedNumWrites) {
+    REPORTER_ASSERT(reporter, proxy);
+    if (!proxy) {
+        return;
+    }
     REPORTER_ASSERT(reporter, proxy->getProxyRefCnt_TestOnly() == expectedProxyRefs);
     REPORTER_ASSERT(reporter, proxy->getBackingRefCnt_TestOnly() == expectedBackingRefs);
     REPORTER_ASSERT(reporter, proxy->getPendingReadCnt_TestOnly() == expectedNumReads);

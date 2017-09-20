@@ -22,5 +22,6 @@ public:
 };
 
 SkString HumanizeMs(double);
+int HumanizeMs(char*, int len, double);
 
 #endif
