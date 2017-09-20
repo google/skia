@@ -17,7 +17,7 @@
  * This class aims to provide an interface to test multiple implementations of
  * SkBitmapRegionDecoder.
  */
-class SkBitmapRegionDecoder {
+class SK_API SkBitmapRegionDecoder {
 public:
 
     enum Strategy {
