@@ -60,11 +60,7 @@ SkTypeface_Stream::SkTypeface_Stream(std::unique_ptr<SkFontData> fontData,
 
 SkStreamAsset* SkTypeface_Stream::onOpenStream(int* ttcIndex) const {
     *ttcIndex = fData->getIndex();
-#ifdef SK_SUPPORT_LEGACY_STREAM_API
-    return fData->getStream()->duplicate();
-#else
     return fData->getStream()->duplicate().release();
-#endif
 }
 
 std::unique_ptr<SkFontData> SkTypeface_Stream::onMakeFontData() const {
