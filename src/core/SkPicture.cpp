@@ -245,7 +245,7 @@ static sk_sp<SkData> custom_serialize(const SkPicture* picture, const SkSerialPr
         auto data = procs.fPictureProc(const_cast<SkPicture*>(picture), procs.fPictureCtx);
         if (data) {
             size_t size = data->size();
-            if (!sk_64_isS32(size) || size <= 1) {
+            if (!SkTFitsIn<int32_t>(size) || size <= 1) {
                 return SkData::MakeEmpty();
             }
             return data;

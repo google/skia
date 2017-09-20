@@ -12,6 +12,7 @@
 #include "SkMath.h"
 #include "SkRect.h"
 #include "SkSize.h"
+#include "../private/SkTFitsIn.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;
@@ -551,10 +552,10 @@ public:
     */
     size_t minRowBytes() const {
         uint64_t minRowBytes = this->minRowBytes64();
-        if (!sk_64_isS32(minRowBytes)) {
+        if (!SkTFitsIn<int32_t>(minRowBytes)) {
             return 0;
         }
-        return sk_64_asS32(minRowBytes);
+        return SkTo<int32_t>(minRowBytes);
     }
 
     /** Returns byte offset of pixel from pixel base address.

@@ -11,6 +11,7 @@
 #include "SkPoint.h"
 #include "SkSize.h"
 #include "../private/SkSafe32.h"
+#include "../private/SkTFitsIn.h"
 
 struct SkRect;
 
@@ -209,7 +210,7 @@ struct SK_API SkIRect {
             return true;
         }
         // Return true if either exceeds int32_t
-        return !sk_64_isS32(w | h);
+        return !SkTFitsIn<int32_t>(w | h);
     }
 
     /** Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are
