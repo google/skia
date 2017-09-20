@@ -465,7 +465,12 @@ size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
     if (length < kSizeInMemory) {
         return 0;
     }
-
+    // Note that the buffer may be smaller than SkRRect. It is important not to access
+    // bufferAsRRect->fType.
+    const SkRRect* bufferAsRRect = reinterpret_cast<const SkRRect*>(buffer);
+    if (!AreRectAndRadiiValid(bufferAsRRect->fRect, bufferAsRRect->fRadii)) {
+        return 0;
+    }
     // Deserialize rect and corners, then rederive the type tag.
     memcpy(this, buffer, kSizeInMemory);
     this->computeType();
@@ -505,6 +510,10 @@ static bool are_radius_check_predicates_valid(SkScalar rad, SkScalar min, SkScal
 }
 
 bool SkRRect::isValid() const {
+    if (!AreRectAndRadiiValid(fRect, fRadii)) {
+        return false;
+    }
+
     bool allRadiiZero = (0 == fRadii[0].fX && 0 == fRadii[0].fY);
     bool allCornersSquare = (0 == fRadii[0].fX || 0 == fRadii[0].fY);
     bool allRadiiSame = true;
@@ -570,14 +579,19 @@ bool SkRRect::isValid() const {
             break;
     }
 
-    for (int i = 0; i < 4; ++i) {
-        if (!are_radius_check_predicates_valid(fRadii[i].fX, fRect.fLeft, fRect.fRight) ||
-            !are_radius_check_predicates_valid(fRadii[i].fY, fRect.fTop, fRect.fBottom)) {
-            return false;
-        }
-    }
-
     return true;
 }
 
+bool SkRRect::AreRectAndRadiiValid(const SkRect& rect, const SkVector radii[4]) {
+    if (!rect.isFinite()) {
+        return false;
+    }
+    for (int i = 0; i < 4; ++i) {
+        if (!are_radius_check_predicates_valid(radii[i].fX, rect.fLeft, rect.fRight) ||
+            !are_radius_check_predicates_valid(radii[i].fY, rect.fTop, rect.fBottom)) {
+            return false;
+        }
+    }
+    return true;
+}
 ///////////////////////////////////////////////////////////////////////////////
