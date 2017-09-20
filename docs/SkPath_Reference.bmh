@@ -4206,7 +4206,7 @@ four kConic_Verb, and kClose_Verb. Circle begins at
 and continues clockwise if dir is kCW_Direction, counterclockwise if dir is
 kCCW_Direction.
 
-addCircle has no effect if radius is zero or negative.
+Has no effect if radius is zero or negative.
 
 #Param x       center of Circle ##
 #Param y       center of Circle  ##

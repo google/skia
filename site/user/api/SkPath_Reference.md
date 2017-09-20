@@ -3449,7 +3449,7 @@ Add <a href="undocumented#Circle">Circle</a> centered at (<a href="#SkPath_addCi
 four <a href="#SkPath_kConic_Verb">kConic Verb</a>, and <a href="#SkPath_kClose_Verb">kClose Verb</a>. <a href="undocumented#Circle">Circle</a> begins at(<a href="#SkPath_addCircle_x">x</a> + <a href="#SkPath_addCircle_radius">radius</a>, <a href="#SkPath_addCircle_y">y</a>)and continues clockwise if <a href="#SkPath_addCircle_dir">dir</a> is <a href="#SkPath_kCW_Direction">kCW Direction</a>, counterclockwise if <a href="#SkPath_addCircle_dir">dir</a> is
 <a href="#SkPath_kCCW_Direction">kCCW Direction</a>.
 
-<a href="#SkPath_addCircle">addCircle</a> has no effect if <a href="#SkPath_addCircle_radius">radius</a> is zero or negative.
+Has no effect if <a href="#SkPath_addCircle_radius">radius</a> is zero or negative.
 
 ### Parameters
 

@@ -7,6 +7,108 @@
 
 #include "bookmaker.h"
 
+void IncludeWriter::descriptionOut(const Definition* def) {
+    const char* commentStart = def->fContentStart;
+    int commentLen = (int) (def->fContentEnd - commentStart);
+    bool breakOut = false;
+    for (auto prop : def->fChildren) {
+        switch (prop->fMarkType) {
+            case MarkType::kDefinedBy:
+                commentStart = prop->fTerminator;
+                break;
+            case MarkType::kDeprecated: 
+            case MarkType::kPrivate:
+                commentLen = (int) (prop->fStart - commentStart);
+                if (commentLen > 0) {
+                    SkASSERT(commentLen < 1000);
+                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
+                        this->lfcr();
+                    }
+                }
+                commentStart = prop->fContentStart;
+                commentLen = (int) (prop->fContentEnd - commentStart);
+                if (commentLen > 0) {
+                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
+                        this->lfcr();
+                    }
+                }
+                commentStart = prop->fTerminator;
+                commentLen = (int) (def->fContentEnd - commentStart);
+                break;
+            case MarkType::kExperimental:
+                this->writeString("EXPERIMENTAL:");
+                this->writeSpace();
+                commentStart = prop->fContentStart;
+                commentLen = (int) (prop->fContentEnd - commentStart);
+                if (commentLen > 0) {
+                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
+                        this->lfcr();
+                    }
+                }
+                commentStart = prop->fTerminator;
+                commentLen = (int) (def->fContentEnd - commentStart);
+                break;
+            case MarkType::kFormula:
+                commentLen = prop->fStart - commentStart;
+                if (commentLen > 0) {
+                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
+                        this->lfcr();
+                    }
+                }
+                this->writeBlock(prop->length(), prop->fContentStart);
+                commentStart = prop->fTerminator;
+                commentLen = (int) (def->fContentEnd - commentStart);
+                if ('\n' == commentStart[0] && '\n' == commentStart[1]) {
+                    this->lf(2);
+                }
+                break;
+            case MarkType::kToDo:
+                commentLen = (int) (prop->fStart - commentStart);
+                if (commentLen > 0) {
+                    SkASSERT(commentLen < 1000);
+                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
+                        this->lfcr();
+                    }
+                }
+                commentStart = prop->fTerminator;
+                commentLen = (int) (def->fContentEnd - commentStart);
+                break;
+            case MarkType::kList:
+                commentLen = prop->fStart - commentStart;
+                if (commentLen > 0) {
+                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart,
+                            Phrase::kNo)) {
+                        this->lfcr();
+                    }
+                }
+                for (auto row : prop->fChildren) {
+                    SkASSERT(MarkType::kRow == row->fMarkType);
+                    for (auto column : row->fChildren) {
+                        SkASSERT(MarkType::kColumn == column->fMarkType);
+                        this->writeString("-");
+                        this->writeSpace();
+                        this->descriptionOut(column);
+                        this->lf(1);
+                    }
+                }
+                commentStart = prop->fTerminator;
+                commentLen = (int) (def->fContentEnd - commentStart);
+                if ('\n' == commentStart[0] && '\n' == commentStart[1]) {
+                    this->lf(2);
+                }
+                break;
+            default:
+                commentLen = (int) (prop->fStart - commentStart);
+                breakOut = true;
+        }
+        if (breakOut) {
+            break;
+        }
+    }
+    SkASSERT(commentLen > 0 && commentLen < 1500);
+    this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
+}
+
 void IncludeWriter::enumHeaderOut(const RootDefinition* root,
         const Definition& child) {
     const Definition* enumDef = nullptr;
@@ -415,67 +517,7 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
     }
     this->writeCommentHeader();
     fIndent += 4;
-    const char* commentStart = method->fContentStart;
-    int commentLen = (int) (method->fContentEnd - commentStart);
-    bool breakOut = false;
-    for (auto methodProp : method->fChildren) {
-        switch (methodProp->fMarkType) {
-            case MarkType::kDefinedBy:
-                commentStart = methodProp->fTerminator;
-                break;
-            case MarkType::kDeprecated: 
-            case MarkType::kPrivate:
-                commentLen = (int) (methodProp->fStart - commentStart);
-                if (commentLen > 0) {
-                    SkASSERT(commentLen < 1000);
-                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
-                        this->lfcr();
-                    }
-                }
-                commentStart = methodProp->fContentStart;
-                commentLen = (int) (methodProp->fContentEnd - commentStart);
-                if (commentLen > 0) {
-                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
-                        this->lfcr();
-                    }
-                }
-                commentStart = methodProp->fTerminator;
-                commentLen = (int) (method->fContentEnd - commentStart);
-                break;
-            case MarkType::kExperimental:
-                this->writeString("EXPERIMENTAL:");
-                this->writeSpace();
-                commentStart = methodProp->fContentStart;
-                commentLen = (int) (methodProp->fContentEnd - commentStart);
-                if (commentLen > 0) {
-                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
-                        this->lfcr();
-                    }
-                }
-                commentStart = methodProp->fTerminator;
-                commentLen = (int) (method->fContentEnd - commentStart);
-                break;
-            case MarkType::kToDo:
-                commentLen = (int) (methodProp->fStart - commentStart);
-                if (commentLen > 0) {
-                    SkASSERT(commentLen < 1000);
-                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
-                        this->lfcr();
-                    }
-                }
-                commentStart = methodProp->fTerminator;
-                commentLen = (int) (method->fContentEnd - commentStart);
-                break;
-            default:
-                commentLen = (int) (methodProp->fStart - commentStart);
-                breakOut = true;
-        }
-        if (breakOut) {
-            break;
-        }
-    }
-    SkASSERT(commentLen > 0 && commentLen < 1500);
-    this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
+    this->descriptionOut(method);
     // compute indention column
     size_t column = 0;
     bool hasParmReturn = false;
@@ -828,7 +870,8 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             }
             if (Definition::Type::kPunctuation == child.fType &&
                     (Punctuation::kSemicolon == child.fPunctuation ||
-                    Punctuation::kLeftBrace == child.fPunctuation)) {
+                    Punctuation::kLeftBrace == child.fPunctuation ||
+                    (Punctuation::kColon == child.fPunctuation && inConstructor))) {
                 SkASSERT(fContinuation[0] == '(');
                 const char* continueEnd = child.fContentStart;
                 while (continueEnd > fContinuation && isspace(continueEnd[-1])) {
@@ -838,7 +881,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 method = root->find(methodName, RootDefinition::AllowParens::kNo);
                 if (!method) {
                     fLineCount = child.fLineCount;
-                    fclose(fOut);  // so we can see what we've written so far
                     return this->reportError<bool>("method not found");
                 }
                 this->methodOut(method, child);
@@ -852,17 +894,19 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             if (inConstructor) {
                 continue;
             }
-            methodName += "()";
-            method = root->find(methodName, RootDefinition::AllowParens::kNo);
+            method = root->find(methodName + "()", RootDefinition::AllowParens::kNo);
             if (method && MarkType::kDefinedBy == method->fMarkType) {
                 method = method->fParent;
             }
             if (method) {
+                if (method->fCloned) {
+                    clonedMethod = method;
+                    continue;
+                }
                 this->methodOut(method, child);
                 continue;
             }
             fLineCount = child.fLineCount;
-            fclose(fOut);  // so we can see what we've written so far
             return this->reportError<bool>("method not found");
         }
         if (Bracket::kSlashSlash == child.fBracket || Bracket::kSlashStar == child.fBracket) {
@@ -1196,6 +1240,16 @@ string IncludeWriter::resolveMethod(const char* start, const char* end, bool fir
         report.reportError("method should not include references to itself");
         return "";
     }
+    if (fBmhMethod) {
+        for (auto child : fBmhMethod->fChildren) {
+            if (MarkType::kParam != child->fMarkType) {
+                continue;
+            }
+            if (methodname == child->fName) {
+                return "";
+            }
+        }
+    }
     return substitute;
 }
 
@@ -1292,14 +1346,22 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
 }
 
 int IncludeWriter::lookupMethod(const PunctuationState punctuation, const Word word,
-        const int lastSpace, const int run, int lastWrite, const char* data) {
+        const int lastSpace, const int run, int lastWrite, const char* data,
+        bool hasIndirection) {
     int wordStart = lastSpace;
     while (' ' >= data[wordStart]) {
         ++wordStart;
     }
     const int wordEnd = PunctuationState::kDelimiter == punctuation ||
             PunctuationState::kPeriod == punctuation ? run - 1 : run;
-    string temp = this->resolveMethod(&data[wordStart], &data[wordEnd], Word::kFirst == word);
+    string temp;
+    if (hasIndirection && '(' != data[wordEnd - 1]) {
+        // FIXME: hard-coded to assume a.b or a->b is a.b() or a->b().
+        // need to check class a for member b to see if this is so
+        temp = string(&data[wordStart], wordEnd - wordStart) + "()";
+    } else {
+        temp = this->resolveMethod(&data[wordStart], &data[wordEnd], Word::kFirst == word);
+    }
     if (temp.length()) {
         if (wordStart > lastWrite) {
             SkASSERT(data[wordStart - 1] >= ' ');
@@ -1372,9 +1434,11 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
     int lastSpace = -1;
     char c = 0;
     char last;
+    bool embeddedIndirection = false;
     bool embeddedSymbol = false;
     bool hasLower = false;
     bool hasUpper = false;
+    bool hasIndirection = false;
     bool hasSymbol = false;
     while (run < size) {
         last = c;
@@ -1417,7 +1481,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                     case Word::kMixed:
                         if (hasUpper && hasLower && !hasSymbol && lastSpace > 0) {
                             lastWrite = this->lookupMethod(punctuation, word, lastSpace, run,
-                                    lastWrite, data);
+                                    lastWrite, data, hasIndirection && !hasSymbol);
                         }
                         break;
                     default:
@@ -1427,9 +1491,11 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                         (PunctuationState::kStart == punctuation && ' ' >= last) ? 
                         PunctuationState::kStart : PunctuationState::kSpace;
                 word = Word::kStart;
+                embeddedIndirection = false;
                 embeddedSymbol = false;
                 hasLower = false;
                 hasUpper = false;
+                hasIndirection = false;
                 hasSymbol = false;
                 lastSpace = run;
                 break;
@@ -1450,7 +1516,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                     default:
                         SkASSERT(0);
                 }
-                embeddedSymbol = true;
+                embeddedIndirection = true;
                 break;
             case ',': case ';': case ':':
                 switch (word) {
@@ -1471,11 +1537,16 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                 }
                 embeddedSymbol = true;
                 break;
+            case '>':
+                if ('-' == last) {
+                    embeddedIndirection = true;
+                    break;
+                }
             case '\'': // possessive apostrophe isn't treated as delimiting punctation
             case '\"': // quote is passed straight through
             case '=':
             case '!':  // assumed not to be punctuation, but a programming symbol
-            case '&': case '>': case '<': case '{': case '}': case '/': case '*': case '[': case ']':
+            case '&': case '<': case '{': case '}': case '/': case '*': case '[': case ']':
                 word = Word::kMixed;
                 embeddedSymbol = true;
                 break;
@@ -1545,6 +1616,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                         PunctuationState::kDelimiter == punctuation) {
                     word = Word::kMixed;
                 }
+                hasIndirection |= embeddedIndirection;
                 hasSymbol |= embeddedSymbol;
                 break;
             case 'a': case 'b': case 'c': case 'd': case 'e':
@@ -1570,6 +1642,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                 }
                 hasLower = true;
                 punctuation = PunctuationState::kStart;
+                hasIndirection |= embeddedIndirection;
                 hasSymbol |= embeddedSymbol;
                 break;
             default:
@@ -1580,7 +1653,8 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
     if ((word == Word::kCap || word == Word::kFirst || word == Word::kUnderline) && hasLower) {
         lastWrite = this->lookupReference(punctuation, word, start, run, lastWrite, last, data);
     } else if (word == Word::kMixed && hasUpper && hasLower && !hasSymbol && lastSpace > 0) {
-        lastWrite = this->lookupMethod(punctuation, word, lastSpace, run, lastWrite, data);
+        lastWrite = this->lookupMethod(punctuation, word, lastSpace, run, lastWrite, data,
+                hasIndirection && !hasSymbol);
     }
     if (run > lastWrite) {
         if (' ' == data[lastWrite]) {
