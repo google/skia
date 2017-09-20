@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73d6b6f2_f0c216ed",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T21:19:29Z",
+      "side": 1,
+      "message": "Not true: pixmap needs to have been allocated by the caller.",
+      "revId": "1f1c8b6ea4dfa52c7ab48679c944bfe9c490c95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "352b8a9b_284a7196",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T21:19:29Z",
+      "side": 1,
+      "message": "Also not true: bitmap needs to be allocated by the caller.",
+      "revId": "1f1c8b6ea4dfa52c7ab48679c944bfe9c490c95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d050464_949a2955",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T21:19:29Z",
+      "side": 1,
+      "message": "I think we discussed this before, but I really think this should say \u0027Increases the SkRefCnt of shader\u0027. Technically, the additional ref has already happened by this point, but from the caller\u0027s perspective:\n\nSkPaint paint;\nsk_sp\u003cSkShader\u003e shader;\n...\npaint.setShader(shader); // \u003c- This line adds a ref to shader",
+      "revId": "1f1c8b6ea4dfa52c7ab48679c944bfe9c490c95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "698d9022_948c8dfb",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1065,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T21:19:29Z",
+      "side": 1,
+      "message": "Extra space before \u0027.\u0027",
+      "revId": "1f1c8b6ea4dfa52c7ab48679c944bfe9c490c95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98902c52_30b42b83",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1068,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T21:19:29Z",
+      "side": 1,
+      "message": "\u0027encodings\u0027 ?",
+      "revId": "1f1c8b6ea4dfa52c7ab48679c944bfe9c490c95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d777d55_12102a5a",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 919,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T21:19:29Z",
+      "side": 1,
+      "message": "Spurious parens on r.fY?",
+      "revId": "1f1c8b6ea4dfa52c7ab48679c944bfe9c490c95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0ea76ff_c108f8dd",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 920,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T21:19:29Z",
+      "side": 1,
+      "message": "Spurious parens (differently positioned, though).",
+      "revId": "1f1c8b6ea4dfa52c7ab48679c944bfe9c490c95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9aa69304_a81da536",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1017,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T21:19:29Z",
+      "side": 1,
+      "message": "Space (or even newline) after sizeof() and before ConvertConicToQuads.\n\nAlso, \u0027returns quad count used _by_ the approximation\u0027",
+      "revId": "1f1c8b6ea4dfa52c7ab48679c944bfe9c490c95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44f3d923_22904b0e",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1103,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T21:19:29Z",
+      "side": 1,
+      "message": "Too many parens now?",
+      "revId": "1f1c8b6ea4dfa52c7ab48679c944bfe9c490c95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9ae73f4_5c8be19b",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1126,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T21:19:29Z",
+      "side": 1,
+      "message": "Space before \u0027and continues...\u0027",
+      "revId": "1f1c8b6ea4dfa52c7ab48679c944bfe9c490c95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "809f3f8f_d60f507d",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1208,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T21:19:29Z",
+      "side": 1,
+      "message": "Space before \u0027Line segments\u0027 (and maybe put count - 1 in parens)?",
+      "revId": "1f1c8b6ea4dfa52c7ab48679c944bfe9c490c95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
