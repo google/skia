@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7016ea55_018eece2",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-20T14:59:01Z",
+      "side": 1,
+      "message": "i \u003d 0",
+      "revId": "be450607db8a5941e5febe1f3ba9ca6ce3f922af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
