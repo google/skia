@@ -116,7 +116,9 @@ static FILE* gVLog;
 template <typename... Args>
 static void vlog(const char* fmt, Args&&... args) {
     if (gVLog) {
-        fprintf(gVLog, "%s\t", HumanizeMs(SkTime::GetMSecs() - kStartMs).c_str());
+        char s[64];
+        HumanizeMs(s, 64, SkTime::GetMSecs() - kStartMs);
+        fprintf(gVLog, "%s\t", s);
         fprintf(gVLog, fmt, args...);
         fflush(gVLog);
     }
