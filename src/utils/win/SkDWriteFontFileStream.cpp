@@ -86,12 +86,7 @@ bool SkDWriteFontFileStream::rewind() {
     return true;
 }
 
-#ifdef SK_SUPPORT_LEGACY_STREAM_API
-SkDWriteFontFileStream* SkDWriteFontFileStream::duplicate() const
-#else
-SkDWriteFontFileStream* SkDWriteFontFileStream::onDuplicate() const
-#endif
-{
+SkDWriteFontFileStream* SkDWriteFontFileStream::onDuplicate() const {
     return new SkDWriteFontFileStream(fFontFileStream.get());
 }
 
@@ -109,12 +104,7 @@ bool SkDWriteFontFileStream::move(long offset) {
     return seek(fPos + offset);
 }
 
-#ifdef SK_SUPPORT_LEGACY_STREAM_API
-SkDWriteFontFileStream* SkDWriteFontFileStream::fork() const
-#else
-SkDWriteFontFileStream* SkDWriteFontFileStream::onFork() const
-#endif
-{
+SkDWriteFontFileStream* SkDWriteFontFileStream::onFork() const {
     std::unique_ptr<SkDWriteFontFileStream> that(this->duplicate());
     that->seek(fPos);
     return that.release();

@@ -86,11 +86,7 @@ HRESULT StreamFontFileLoader::CreateStreamFromKey(
     IDWriteFontFileStream** fontFileStream)
 {
     SkTScopedComPtr<SkDWriteFontFileStreamWrapper> stream;
-#ifdef SK_SUPPORT_LEGACY_STREAM_API
-    HR(SkDWriteFontFileStreamWrapper::Create(fStream->duplicate(), &stream));
-#else
     HR(SkDWriteFontFileStreamWrapper::Create(fStream->duplicate().release(), &stream));
-#endif
     *fontFileStream = stream.release();
     return S_OK;
 }

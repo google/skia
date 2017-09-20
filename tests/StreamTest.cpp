@@ -249,11 +249,7 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
     }
 
     // Test that attempting to peek beyond the length of the buffer does not prevent rewinding.
-#ifdef SK_SUPPORT_LEGACY_STREAM_API
-    bufferedStream.reset(SkFrontBufferedStream::Create(original.duplicate(), bufferSize));
-#else
     bufferedStream = SkFrontBufferedStream::Make(original.duplicate(), bufferSize);
-#endif
     REPORTER_ASSERT(r, bufferedStream != nullptr);
 
     const size_t bytesToPeek = bufferSize + 1;

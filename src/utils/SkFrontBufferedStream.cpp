@@ -26,14 +26,8 @@ public:
 
     size_t getLength() const override { return fLength; }
 
-#ifdef SK_SUPPORT_LEGACY_STREAM_API
-    SkStreamRewindable* duplicate() const override { return nullptr; }
-#endif
-
 private:
-#ifndef SK_SUPPORT_LEGACY_STREAM_API
     SkStreamRewindable* onDuplicate() const override { return nullptr; }
-#endif
 
     std::unique_ptr<SkStream> fStream;
     const bool                fHasLength;

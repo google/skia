@@ -34,24 +34,16 @@ public:
     size_t getLength() const override;
     const void* getMemoryBase() override;
 
-#ifdef SK_SUPPORT_LEGACY_STREAM_API
-    SkDWriteFontFileStream* duplicate() const override;
-    SkDWriteFontFileStream* fork() const override;
-#else
     std::unique_ptr<SkDWriteFontFileStream> duplicate() const {
         return std::unique_ptr<SkDWriteFontFileStream>(this->onDuplicate());
     }
     std::unique_ptr<SkDWriteFontFileStream> fork() const {
         return std::unique_ptr<SkDWriteFontFileStream>(this->onFork());
     }
-#endif
-
 
 private:
-#ifndef SK_SUPPORT_LEGACY_STREAM_API
     SkDWriteFontFileStream* onDuplicate() const override;
     SkDWriteFontFileStream* onFork() const override;
-#endif
 
     SkTScopedComPtr<IDWriteFontFileStream> fFontFileStream;
     size_t fPos;
