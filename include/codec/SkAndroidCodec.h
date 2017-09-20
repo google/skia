@@ -17,7 +17,7 @@
  *  Abstract interface defining image codec functionality that is necessary for
  *  Android.
  */
-class SkAndroidCodec : SkNoncopyable {
+class SK_API SkAndroidCodec : SkNoncopyable {
 public:
     /**
      *  If this stream represents an encoded image that we know how to decode,

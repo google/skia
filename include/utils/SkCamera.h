@@ -115,7 +115,7 @@ private:
     void doUpdate() const;
 };
 
-class Sk3DView : SkNoncopyable {
+class SK_API Sk3DView : SkNoncopyable {
 public:
     Sk3DView();
     ~Sk3DView();

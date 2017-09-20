@@ -23,7 +23,7 @@ struct SkRect;
  *  allow for clients of the drawable that may want to cache the results, the drawable must
  *  change its generation ID whenever its internal state changes such that it will draw differently.
  */
-class SkDrawable : public SkFlattenable {
+class SK_API SkDrawable : public SkFlattenable {
 public:
     SkDrawable();
 

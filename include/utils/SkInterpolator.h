@@ -12,7 +12,7 @@
 
 #include "SkScalar.h"
 
-class SkInterpolatorBase : SkNoncopyable {
+class SK_API SkInterpolatorBase : SkNoncopyable {
 public:
     enum Result {
         kNormal_Result,
@@ -84,7 +84,7 @@ protected:
 #endif
 };
 
-class SkInterpolator : public SkInterpolatorBase {
+class SK_API SkInterpolator : public SkInterpolatorBase {
 public:
     SkInterpolator();
     SkInterpolator(int elemCount, int frameCount);

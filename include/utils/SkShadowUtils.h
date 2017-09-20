@@ -17,7 +17,7 @@ class SkCanvas;
 class SkPath;
 class SkResourceCache;
 
-class SkShadowUtils {
+class SK_API SkShadowUtils {
 public:
     /**
      * Draw an offset spot shadow and outlining ambient shadow for the given path using a disc

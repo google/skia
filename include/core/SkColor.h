@@ -175,7 +175,7 @@ struct SkPM4f;
 /*
  *  The float values are 0...1 unpremultiplied
  */
-struct SkColor4f {
+struct SK_API SkColor4f {
     float fR;
     float fG;
     float fB;
