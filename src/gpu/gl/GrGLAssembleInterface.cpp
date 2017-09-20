@@ -801,15 +801,17 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(GetRenderbufferParameteriv);
     GET_PROC(RenderbufferStorage);
 
-    GET_PROC_SUFFIX(MapBuffer, OES);
-    GET_PROC_SUFFIX(UnmapBuffer, OES);
-
     if (version >= GR_GL_VER(3,0)) {
         GET_PROC(MapBufferRange);
         GET_PROC(FlushMappedBufferRange);
+        GET_PROC(UnmapBuffer);
     } else if (extensions.has("GL_EXT_map_buffer_range")) {
         GET_PROC_SUFFIX(MapBufferRange, EXT);
         GET_PROC_SUFFIX(FlushMappedBufferRange, EXT);
+        GET_PROC_SUFFIX(UnmapBuffer, OES);
+    } else if (extensions.has("GL_OES_mapbuffer")) {
+        GET_PROC_SUFFIX(MapBuffer, OES);
+        GET_PROC_SUFFIX(UnmapBuffer, OES);
     }
 
     if (extensions.has("GL_EXT_debug_marker")) {
