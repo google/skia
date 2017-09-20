@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "03cca5b9_86894c44",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-20T18:28:07Z",
+      "side": 1,
+      "message": "Yep. It got awkward calling back up to the ResourceProvider to have it update the proxies unique keys.",
+      "parentUuid": "78f5322d_d3067d93",
+      "range": {
+        "startLine": 585,
+        "startChar": 12,
+        "endLine": 585,
+        "endChar": 62
+      },
+      "revId": "78241c3e7510e59e745bedc863147b0e12d6573b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5732a17b_a9c180e5",
         "filename": "src/gpu/GrResourceCache.h",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2017-09-20T18:11:32Z",
       "side": 1,
       "message": "I\u0027m curious whether the proxy handling should all just be at the GrResourceProvider layer given that they don\u0027t interact with budgeting/purging.",
+      "range": {
+        "startLine": 160,
+        "startChar": 4,
+        "endLine": 200,
+        "endChar": 58
+      },
+      "revId": "78241c3e7510e59e745bedc863147b0e12d6573b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cd2f061_3536c203",
+        "filename": "src/gpu/GrResourceCache.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-20T18:28:07Z",
+      "side": 1,
+      "message": "I had it there initially but when I added handling for unique key invalidation it made more sense to consolidate it all to the ResourceCache.",
+      "parentUuid": "5732a17b_a9c180e5",
       "range": {
         "startLine": 160,
         "startChar": 4,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "3c0dbd46_dc68ab9a",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-20T18:28:07Z",
+      "side": 1,
+      "message": "I think the caller would be breaking some of the rules re using unique keys to get in that state. Basically they would\u0027ve had to have created a deferred proxy with a unique key without ever first looking for it in the cache.\n\nI will add an assert that when a unique key is added to a proxy there is no resource with that key in the cache.",
+      "parentUuid": "01309fd9_38ae800e",
+      "range": {
+        "startLine": 110,
+        "startChar": 21,
+        "endLine": 110,
+        "endChar": 36
+      },
+      "revId": "78241c3e7510e59e745bedc863147b0e12d6573b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ee124c91_97809f63",
         "filename": "src/gpu/GrTextureProxyPriv.h",
         "patchSetId": 7
@@ -82,6 +154,30 @@
       "writtenOn": "2017-09-20T18:11:32Z",
       "side": 1,
       "message": "Would it make sense to keep the methods private and friend this?",
+      "range": {
+        "startLine": 13,
+        "startChar": 1,
+        "endLine": 15,
+        "endChar": 55
+      },
+      "revId": "78241c3e7510e59e745bedc863147b0e12d6573b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80521d6d_3591e5ea",
+        "filename": "src/gpu/GrTextureProxyPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-20T18:28:07Z",
+      "side": 1,
+      "message": "Only ResourceCache would need the friending but aren\u0027t the priv classes an attempt to get away from friending?",
+      "parentUuid": "ee124c91_97809f63",
       "range": {
         "startLine": 13,
         "startChar": 1,
@@ -114,6 +210,30 @@
       "revId": "78241c3e7510e59e745bedc863147b0e12d6573b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82cc2d23_4e5f6f35",
+        "filename": "tests/TextureProxyTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-20T18:28:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1160293d_ce61fe9b",
+      "range": {
+        "startLine": 181,
+        "startChar": 38,
+        "endLine": 181,
+        "endChar": 51
+      },
+      "revId": "78241c3e7510e59e745bedc863147b0e12d6573b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
