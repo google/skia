@@ -158,9 +158,11 @@ public:
         return str;
     }
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
         GrColor* color = &fRects.front().fColor;
-        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone, color);
+        return fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped,
+                                            GrProcessorAnalysisCoverage::kNone, color);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
@@ -280,9 +282,11 @@ public:
         return str;
     }
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
         GrColor* color = &fRects.front().fColor;
-        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone, color);
+        return fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped,
+                                            GrProcessorAnalysisCoverage::kNone, color);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }

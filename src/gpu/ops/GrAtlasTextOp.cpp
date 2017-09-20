@@ -44,7 +44,8 @@ GrDrawOp::FixedFunctionFlags GrAtlasTextOp::fixedFunctionFlags() const {
 }
 
 GrDrawOp::RequiresDstTexture GrAtlasTextOp::finalize(const GrCaps& caps,
-                                                     const GrAppliedClip* clip) {
+                                                     const GrAppliedClip* clip,
+                                                     GrPixelConfigIsClamped dstIsClamped) {
     GrProcessorAnalysisCoverage coverage;
     GrProcessorAnalysisColor color;
     if (kColorBitmapMask_MaskType == fMaskType) {
@@ -67,7 +68,7 @@ GrDrawOp::RequiresDstTexture GrAtlasTextOp::finalize(const GrCaps& caps,
             coverage = GrProcessorAnalysisCoverage::kNone;
             break;
     }
-    auto analysis = fProcessors.finalize(color, coverage, clip, false, caps, &fColor);
+    auto analysis = fProcessors.finalize(color, coverage, clip, false, caps, dstIsClamped, &fColor);
     fUsesLocalCoords = analysis.usesLocalCoords();
     fCanCombineOnTouchOrOverlap =
             !analysis.requiresDstTexture() &&

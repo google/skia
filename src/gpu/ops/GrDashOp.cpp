@@ -296,14 +296,16 @@ public:
         return flags;
     }
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
         GrProcessorAnalysisCoverage coverage;
         if (AAMode::kNone == fAAMode && !clip->clipCoverageFragmentProcessor()) {
             coverage = GrProcessorAnalysisCoverage::kNone;
         } else {
             coverage = GrProcessorAnalysisCoverage::kSingleChannel;
         }
-        auto analysis = fProcessorSet.finalize(fColor, coverage, clip, false, caps, &fColor);
+        auto analysis = fProcessorSet.finalize(fColor, coverage, clip, false, caps, dstIsClamped,
+                                               &fColor);
         fDisallowCombineOnTouchOrOverlap = analysis.requiresDstTexture() ||
                                            (fProcessorSet.xferProcessor() &&
                                             fProcessorSet.xferProcessor()->xferBarrierType(caps));

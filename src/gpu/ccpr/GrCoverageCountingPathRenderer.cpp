@@ -117,11 +117,12 @@ GrCoverageCountingPathRenderer::DrawPathsOp::DrawPathsOp(GrCoverageCountingPathR
     this->setBounds(devBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
 }
 
-GrDrawOp::RequiresDstTexture DrawPathsOp::finalize(const GrCaps& caps, const GrAppliedClip* clip) {
+GrDrawOp::RequiresDstTexture DrawPathsOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                                   GrPixelConfigIsClamped dstIsClamped) {
     SingleDraw& onlyDraw = this->getOnlyPathDraw();
-    GrProcessorSet::Analysis analysis = fProcessors.finalize(onlyDraw.fColor,
-                                                        GrProcessorAnalysisCoverage::kSingleChannel,
-                                                        clip, false, caps, &onlyDraw.fColor);
+    GrProcessorSet::Analysis analysis = fProcessors.finalize(
+            onlyDraw.fColor, GrProcessorAnalysisCoverage::kSingleChannel, clip, false, caps,
+            dstIsClamped, &onlyDraw.fColor);
     return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
 }
 

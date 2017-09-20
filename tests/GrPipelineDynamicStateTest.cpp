@@ -119,7 +119,8 @@ public:
 private:
     const char* name() const override { return "GrPipelineDynamicStateTestOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override {
+    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
+                                GrPixelConfigIsClamped) override {
         return RequiresDstTexture::kNo;
     }
     bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override { return false; }

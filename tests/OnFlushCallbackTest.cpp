@@ -64,14 +64,15 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip*) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip*,
+                                GrPixelConfigIsClamped dstIsClamped) override {
         // Set the color to unknown because the subclass may change the color later.
         GrProcessorAnalysisColor gpColor;
         gpColor.setToUnknown();
         // We ignore the clip so pass this rather than the GrAppliedClip param.
         static GrAppliedClip kNoClip;
-        return fHelper.xpRequiresDstTexture(caps, &kNoClip, GrProcessorAnalysisCoverage::kNone,
-                                            &gpColor);
+        return fHelper.xpRequiresDstTexture(caps, &kNoClip, dstIsClamped,
+                                            GrProcessorAnalysisCoverage::kNone, &gpColor);
     }
 
 protected:

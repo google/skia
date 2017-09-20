@@ -37,11 +37,12 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
         static constexpr GrProcessorAnalysisColor kUnknownColor;
         GrColor overrideColor;
         fProcessors.finalize(kUnknownColor, GrProcessorAnalysisCoverage::kNone, clip, false, caps,
-                             &overrideColor);
+                             dstIsClamped, &overrideColor);
         return RequiresDstTexture::kNo;
     }
 

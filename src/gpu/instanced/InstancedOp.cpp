@@ -120,7 +120,8 @@ void InstancedOp::appendParamsTexel(SkScalar x, SkScalar y, SkScalar z) {
     fInfo.fHasParams = true;
 }
 
-GrDrawOp::RequiresDstTexture InstancedOp::finalize(const GrCaps& caps, const GrAppliedClip* clip) {
+GrDrawOp::RequiresDstTexture InstancedOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                                   GrPixelConfigIsClamped dstIsClamped) {
     GrProcessorAnalysisCoverage coverageInput;
     bool isMixedSamples = false;
     if (GrAAType::kCoverage == fInfo.aaType() ||
@@ -132,7 +133,8 @@ GrDrawOp::RequiresDstTexture InstancedOp::finalize(const GrCaps& caps, const GrA
     }
     GrProcessorSet::Analysis analysis =
             fProcessors.finalize(this->getSingleInstance().fColor, coverageInput, clip,
-                                 isMixedSamples, caps, &this->getSingleDraw().fInstance.fColor);
+                                 isMixedSamples, caps, dstIsClamped,
+                                 &this->getSingleDraw().fInstance.fColor);
 
     Draw& draw = this->getSingleDraw(); // This will assert if we have > 1 command.
     SkASSERT(draw.fGeometry.isEmpty());

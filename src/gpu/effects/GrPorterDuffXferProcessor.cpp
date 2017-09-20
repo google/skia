@@ -760,7 +760,7 @@ const GrXPFactory* GrPorterDuffXPFactory::Get(SkBlendMode blendMode) {
 
 sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
         const GrProcessorAnalysisColor& color, GrProcessorAnalysisCoverage coverage,
-        bool hasMixedSamples, const GrCaps& caps) const {
+        bool hasMixedSamples, const GrCaps& caps, GrPixelConfigIsClamped dstIsClamped) const {
     BlendFormula blendFormula;
     bool isLCD = coverage == GrProcessorAnalysisCoverage::kLCD;
     if (isLCD) {
@@ -779,8 +779,10 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
                                   hasMixedSamples, fBlendMode);
     }
 
+    bool needsClamp = SkBlendMode::kPlus == fBlendMode;
     if ((blendFormula.hasSecondaryOutput() && !caps.shaderCaps()->dualSourceBlendingSupport()) ||
-        (isLCD && (SkBlendMode::kSrcOver != fBlendMode /*|| !color.isOpaque()*/))) {
+        (isLCD && (SkBlendMode::kSrcOver != fBlendMode /*|| !color.isOpaque()*/)) ||
+        (needsClamp && (GrPixelConfigIsClamped::kNo == dstIsClamped))) {
         return sk_sp<const GrXferProcessor>(new ShaderPDXferProcessor(hasMixedSamples, fBlendMode,
                                                                       coverage));
     }
@@ -789,7 +791,7 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
 
 static inline GrXPFactory::AnalysisProperties analysis_properties(
         const GrProcessorAnalysisColor& color, const GrProcessorAnalysisCoverage& coverage,
-        const GrCaps& caps, SkBlendMode mode) {
+        const GrCaps& caps, GrPixelConfigIsClamped dstIsClamped, SkBlendMode mode) {
     using AnalysisProperties = GrXPFactory::AnalysisProperties;
     AnalysisProperties props = AnalysisProperties::kNone;
     bool hasCoverage = GrProcessorAnalysisCoverage::kNone != coverage;
@@ -836,6 +838,11 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
         }
     }
 
+    bool needsClamp = SkBlendMode::kPlus == mode;
+    if (needsClamp && (GrPixelConfigIsClamped::kNo == dstIsClamped)) {
+        props |= AnalysisProperties::kReadsDstInShader;
+    }
+
     if (!formula.modifiesDst() || !formula.usesInputColor()) {
         props |= AnalysisProperties::kIgnoresInputColor;
     }
@@ -851,8 +858,9 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
 GrXPFactory::AnalysisProperties GrPorterDuffXPFactory::analysisProperties(
         const GrProcessorAnalysisColor& color,
         const GrProcessorAnalysisCoverage& coverage,
-        const GrCaps& caps) const {
-    return analysis_properties(color, coverage, caps, fBlendMode);
+        const GrCaps& caps,
+        GrPixelConfigIsClamped dstIsClamped) const {
+    return analysis_properties(color, coverage, caps, dstIsClamped, fBlendMode);
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
@@ -939,6 +947,7 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::MakeNoCoverageXP(SkBlendMode
 GrXPFactory::AnalysisProperties GrPorterDuffXPFactory::SrcOverAnalysisProperties(
         const GrProcessorAnalysisColor& color,
         const GrProcessorAnalysisCoverage& coverage,
-        const GrCaps& caps) {
-    return analysis_properties(color, coverage, caps, SkBlendMode::kSrcOver);
+        const GrCaps& caps,
+        GrPixelConfigIsClamped dstIsClamped) {
+    return analysis_properties(color, coverage, caps, dstIsClamped, SkBlendMode::kSrcOver);
 }

@@ -68,7 +68,8 @@ public:
         return GrAATypeIsHW(fInfo.aaType()) ? FixedFunctionFlags::kUsesHWAA
                                             : FixedFunctionFlags::kNone;
     }
-    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override;
+    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
+                                GrPixelConfigIsClamped) override;
 
     // Registers the op with the InstancedRendering list of tracked ops.
     void wasRecorded(GrRenderTargetOpList*) override;

@@ -177,15 +177,16 @@ GrDrawOp::FixedFunctionFlags GrDrawAtlasOp::fixedFunctionFlags() const {
 }
 
 GrDrawOp::RequiresDstTexture GrDrawAtlasOp::finalize(const GrCaps& caps,
-                                                     const GrAppliedClip* clip) {
+                                                     const GrAppliedClip* clip,
+                                                     GrPixelConfigIsClamped dstIsClamped) {
     GrProcessorAnalysisColor gpColor;
     if (this->hasColors()) {
         gpColor.setToUnknown();
     } else {
         gpColor.setToConstant(fColor);
     }
-    auto result =
-            fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone, &gpColor);
+    auto result = fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped,
+                                               GrProcessorAnalysisCoverage::kNone, &gpColor);
     if (gpColor.isConstant(&fColor)) {
         fHasColors = false;
     }
