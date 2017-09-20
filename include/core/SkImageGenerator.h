@@ -89,12 +89,7 @@ public:
 
         SkTransferFunctionBehavior fBehavior;
     };
-    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options* options);
-
-    /**
-     *  Simplified version of getPixels() that uses the default Options.
-     */
-    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
+    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options* options = nullptr);
 
     /**
      *  If decoding to YUV is supported, this returns true.  Otherwise, this

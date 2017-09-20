@@ -30,11 +30,8 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     if (!opts) {
         opts = &defaultOpts;
     }
-    return this->onGetPixels(info, pixels, rowBytes, *opts);
-}
 
-bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
-    return this->getPixels(info, pixels, rowBytes, nullptr);
+    return this->onGetPixels(info, pixels, rowBytes, *opts);
 }
 
 bool SkImageGenerator::queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
