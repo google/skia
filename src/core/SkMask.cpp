@@ -14,8 +14,8 @@
  */
 static int32_t safeMul32(int32_t a, int32_t b) {
     int64_t size = sk_64_mul(a, b);
-    if (size > 0 && sk_64_isS32(size)) {
-        return sk_64_asS32(size);
+    if (size > 0 && SkTFitsIn<int32_t>(size)) {
+        return size;
     }
     return 0;
 }

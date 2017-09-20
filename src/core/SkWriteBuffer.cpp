@@ -151,7 +151,7 @@ void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     }
 
     size_t size = data ? data->size() : 0;
-    if (!sk_64_isS32(size)) {
+    if (!SkTFitsIn<int32_t>(size)) {
         size = 0;   // too big to store
     }
     this->write32(SkToS32(size));   // writing 0 signals failure
@@ -177,7 +177,7 @@ void SkBinaryWriteBuffer::writeTypeface(SkTypeface* obj) {
         auto data = fProcs.fTypefaceProc(obj, fProcs.fTypefaceCtx);
         if (data) {
             size_t size = data->size();
-            if (!sk_64_isS32(size)) {
+            if (!SkTFitsIn<int32_t>(size)) {
                 size = 0;               // fall back to default font
             }
             int32_t ssize = SkToS32(size);
