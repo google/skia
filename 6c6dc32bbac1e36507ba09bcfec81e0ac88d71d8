@@ -22,6 +22,30 @@
       "revId": "6c6dc32bbac1e36507ba09bcfec81e0ac88d71d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59717e71_72e8b7db",
+        "filename": "src/gpu/ccpr/GrCCPRTriangleProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-20T13:33:19Z",
+      "side": 1,
+      "message": "Thanks for pointing that out! I\u0027ll make a separate change that addresses all of the modulos scattered throughout",
+      "parentUuid": "d2ec8cac_86d368f3",
+      "range": {
+        "startLine": 74,
+        "startChar": 67,
+        "endLine": 74,
+        "endChar": 68
+      },
+      "revId": "6c6dc32bbac1e36507ba09bcfec81e0ac88d71d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
