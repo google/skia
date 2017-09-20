@@ -30,7 +30,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     os            = self.m.vars.builder_cfg.get('os',            '')
     target_arch   = self.m.vars.builder_cfg.get('target_arch',   '')
 
-    clang_linux   = str(self.m.vars.slave_dir.join('clang_linux'))
+    clang_linux        = str(self.m.vars.slave_dir.join('clang_linux'))
+    emscripten_sdk     = str(self.m.vars.slave_dir.join('emscripten_sdk'))
     linux_vulkan_sdk   = str(self.m.vars.slave_dir.join('linux_vulkan_sdk'))
     win_toolchain = str(self.m.vars.slave_dir.join(
       't', 'depot_tools', 'win_toolchain', 'vs_files',
@@ -53,6 +54,9 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       cc, cxx = 'gcc-4.8', 'g++-4.8'
     elif compiler == 'GCC':
       cc, cxx = 'gcc', 'g++'
+    elif compiler == 'EMCC':
+      cc   = emscripten_sdk + '/incoming/emcc'
+      cxx  = emscripten_sdk + '/incoming/em++'
 
     if compiler != 'MSVC' and configuration == 'Debug':
       extra_cflags.append('-O1')
@@ -66,6 +70,13 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_cflags.append('-D' + extra_config)
     if extra_config == 'MSAN':
       extra_ldflags.append('-L' + clang_linux + '/msan')
+    if extra_config == 'WebAssembly':
+      extra_cflags.append('-O2')
+      # The "linking" step is the conversion to javascript
+      # The compiler asks us to add an optimization flag there too to
+      # cut down on the local variables, for performance reasons.
+      extra_ldflags.append('-O2')
+
 
     args = {}
 
@@ -113,6 +124,14 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_compile_processors'] = 'true'
     if compiler == 'Clang' and 'Win' in os:
       args['clang_win'] = '"%s"' % self.m.vars.slave_dir.join('clang_win')
+    if 'WebAssembly' in extra_config:
+      args.update({
+        'skia_use_freetype':   'false',
+        'skia_use_fontconfig': 'false',
+        'skia_use_dng_sdk':    'false',
+        'skia_use_icu':        'false',
+        'skia_enable_gpu':     'false',
+      })
 
     sanitize = ''
     if extra_config == 'UBSAN_float_cast_overflow':
@@ -152,7 +171,11 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
       with self.m.env(env):
         self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
-        self._run('ninja', [ninja, '-C', self.out_dir])
+        if 'WebAssembly' in extra_config:
+          # All of dm/nanobench won't build, but these simpler executables should.
+          self._run('ninja', [ninja, '-C', self.out_dir, 'fuzz', 'pathops_unittest'])
+        else:
+          self._run('ninja', [ninja, '-C', self.out_dir])
 
   def copy_extra_build_products(self, swarming_out_dir):
     configuration = self.m.vars.builder_cfg.get('configuration', '')
