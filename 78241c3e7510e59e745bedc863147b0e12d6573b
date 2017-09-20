@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78f5322d_d3067d93",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-20T18:11:32Z",
+      "side": 1,
+      "message": "Is this why proxy handling is in GrResourceCache? If so, seems like a valid reason.",
+      "range": {
+        "startLine": 585,
+        "startChar": 12,
+        "endLine": 585,
+        "endChar": 62
+      },
+      "revId": "78241c3e7510e59e745bedc863147b0e12d6573b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5732a17b_a9c180e5",
+        "filename": "src/gpu/GrResourceCache.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-20T18:11:32Z",
+      "side": 1,
+      "message": "I\u0027m curious whether the proxy handling should all just be at the GrResourceProvider layer given that they don\u0027t interact with budgeting/purging.",
+      "range": {
+        "startLine": 160,
+        "startChar": 4,
+        "endLine": 200,
+        "endChar": 58
+      },
+      "revId": "78241c3e7510e59e745bedc863147b0e12d6573b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01309fd9_38ae800e",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-20T18:11:32Z",
+      "side": 1,
+      "message": "We don\u0027t need to check whether the GrSurface already exists in the cache if the key is set? Or is that not supposed to be possible?",
+      "range": {
+        "startLine": 110,
+        "startChar": 21,
+        "endLine": 110,
+        "endChar": 36
+      },
+      "revId": "78241c3e7510e59e745bedc863147b0e12d6573b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee124c91_97809f63",
+        "filename": "src/gpu/GrTextureProxyPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-20T18:11:32Z",
+      "side": 1,
+      "message": "Would it make sense to keep the methods private and friend this?",
+      "range": {
+        "startLine": 13,
+        "startChar": 1,
+        "endLine": 15,
+        "endChar": 55
+      },
+      "revId": "78241c3e7510e59e745bedc863147b0e12d6573b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1160293d_ce61fe9b",
+        "filename": "tests/TextureProxyTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-20T18:11:32Z",
+      "side": 1,
+      "message": "We shouldn\u0027t use N32, it isn\u0027t always supported on GPU (unextended ES2 on Windows for example).",
+      "range": {
+        "startLine": 181,
+        "startChar": 38,
+        "endLine": 181,
+        "endChar": 51
+      },
+      "revId": "78241c3e7510e59e745bedc863147b0e12d6573b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
