@@ -722,6 +722,70 @@ static void test_issue_2696(skiatest::Reporter* reporter) {
     }
 }
 
+void test_read_rrect(skiatest::Reporter* reporter, const SkRRect& rrect, bool shouldSucceed) {
+    // It would be cleaner to call rrect.writeToMemory into a buffer. However, writeToMemory asserts
+    // that the rrect is valid and our caller may have fiddled with the internals of rrect to make
+    // it invalid.
+    const void* buffer = reinterpret_cast<const void*>(&rrect);
+    SkRRect deserialized;
+    size_t size = deserialized.readFromMemory(buffer, sizeof(SkRRect));
+    if (shouldSucceed) {
+        REPORTER_ASSERT(reporter, size == SkRRect::kSizeInMemory);
+        if (size) {
+           REPORTER_ASSERT(reporter, rrect == deserialized);
+           REPORTER_ASSERT(reporter, rrect.getType() == deserialized.getType());
+        }
+    } else {
+        REPORTER_ASSERT(reporter, !size);
+    }
+}
+
+static void test_read(skiatest::Reporter* reporter) {
+    static const SkRect kRect = {10.f, 10.f, 20.f, 20.f};
+    static const SkRect kNaNRect = {10.f, 10.f, 20.f, SK_ScalarNaN};
+    static const SkRect kInfRect = {10.f, 10.f, SK_ScalarInfinity, 20.f};
+    SkRRect rrect;
+
+    test_read_rrect(reporter, SkRRect::MakeEmpty(), true);
+    test_read_rrect(reporter, SkRRect::MakeRect(kRect), true);
+    // These get coerced to empty.
+    test_read_rrect(reporter, SkRRect::MakeRect(kInfRect), true);
+    test_read_rrect(reporter, SkRRect::MakeRect(kNaNRect), true);
+
+    rrect.setRect(kRect);
+    SkRect* innerRect = reinterpret_cast<SkRect*>(&rrect);
+    SkASSERT(*innerRect == kRect);
+    *innerRect = kInfRect;
+    test_read_rrect(reporter, rrect, false);
+    *innerRect = kNaNRect;
+    test_read_rrect(reporter, rrect, false);
+
+    test_read_rrect(reporter, SkRRect::MakeOval(kRect), true);
+    test_read_rrect(reporter, SkRRect::MakeOval(kInfRect), true);
+    test_read_rrect(reporter, SkRRect::MakeOval(kNaNRect), true);
+    rrect.setOval(kRect);
+    *innerRect = kInfRect;
+    test_read_rrect(reporter, rrect, false);
+    *innerRect = kNaNRect;
+    test_read_rrect(reporter, rrect, false);
+
+    test_read_rrect(reporter, SkRRect::MakeRectXY(kRect, 5.f, 5.f), true);
+    // rrect should scale down the radii to make this legal
+    test_read_rrect(reporter, SkRRect::MakeRectXY(kRect, 5.f, 400.f), true);
+
+    static const SkVector kRadii[4] = {{0.5f, 1.f}, {1.5f, 2.f}, {2.5f, 3.f}, {3.5f, 4.f}};
+    rrect.setRectRadii(kRect, kRadii);
+    test_read_rrect(reporter, rrect, true);
+    SkScalar* innerRadius = reinterpret_cast<SkScalar*>(&rrect) + 6;
+    SkASSERT(*innerRadius == 1.5f);
+    *innerRadius = 400.f;
+    test_read_rrect(reporter, rrect, false);
+    *innerRadius = SK_ScalarInfinity;
+    test_read_rrect(reporter, rrect, false);
+    *innerRadius = SK_ScalarNaN;
+    test_read_rrect(reporter, rrect, false);
+}
+
 DEF_TEST(RoundRect, reporter) {
     test_round_rect_basic(reporter);
     test_round_rect_rects(reporter);
@@ -735,4 +799,5 @@ DEF_TEST(RoundRect, reporter) {
     test_tricky_radii(reporter);
     test_empty_crbug_458524(reporter);
     test_empty(reporter);
+    test_read(reporter);
 }
