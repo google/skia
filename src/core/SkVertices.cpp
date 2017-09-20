@@ -28,7 +28,7 @@ struct SkVertices::Sizes {
         int64_t iSize = (int64_t)indexCount * sizeof(uint16_t);
 
         int64_t total = sizeof(SkVertices) + vSize + tSize + cSize + iSize;
-        if (!sk_64_isS32(total)) {
+        if (!SkTFitsIn<int32_t>(total)) {
             sk_bzero(this, sizeof(*this));
         } else {
             fTotal = SkToSizeT(total);
@@ -216,6 +216,6 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     reader.read(builder.texCoords(), sizes.fTSize);
     reader.read(builder.colors(), sizes.fCSize);
     reader.read(builder.indices(), sizes.fISize);
-    
+
     return builder.detach();
 }

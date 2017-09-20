@@ -117,7 +117,7 @@ static int SkColorTypeShiftPerPixel(SkColorType ct) {
     };
     static_assert(SK_ARRAY_COUNT(gShift) == (size_t)(kLastEnum_SkColorType + 1),
                   "size_mismatch_with_SkColorType_enum");
-    
+
     SkASSERT((size_t)ct < SK_ARRAY_COUNT(gShift));
     return gShift[ct];
 }
@@ -225,7 +225,7 @@ public:
     static SkImageInfo MakeUnknown() {
         return MakeUnknown(0, 0);
     }
-    
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     SkColorType colorType() const { return fColorType; }
@@ -257,7 +257,7 @@ public:
     SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const {
         return Make(fWidth, fHeight, fColorType, newAlphaType, fColorSpace);
     }
-    
+
     SkImageInfo makeColorType(SkColorType newColorType) const {
         return Make(fWidth, fHeight, newColorType, fAlphaType, fColorSpace);
     }
@@ -276,10 +276,10 @@ public:
 
     size_t minRowBytes() const {
         uint64_t minRowBytes = this->minRowBytes64();
-        if (!sk_64_isS32(minRowBytes)) {
+        if (!SkTFitsIn<int32_t>(minRowBytes)) {
             return 0;
         }
-        return sk_64_asS32(minRowBytes);
+        return SkTo<int32_t>(minRowBytes);
     }
 
     size_t computeOffset(int x, int y, size_t rowBytes) const {
@@ -309,10 +309,10 @@ public:
 
     size_t getSafeSize(size_t rowBytes) const {
         int64_t size = this->getSafeSize64(rowBytes);
-        if (!sk_64_isS32(size)) {
+        if (!SkTFitsIn<int32_t>(size)) {
             return 0;
         }
-        return sk_64_asS32(size);
+        return SkTo<int32_t>(size);
     }
 
     bool validRowBytes(size_t rowBytes) const {

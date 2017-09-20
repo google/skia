@@ -139,17 +139,17 @@ bool SkRgnBuilder::init(int maxHeight, int maxTransitions, bool pathIsInverse) {
         count += 10;
     }
 
-    if (count < 0 || !sk_64_isS32(count)) {
+    if (count < 0 || !SkTFitsIn<int32_t>(count)) {
         return false;
     }
-    fStorageCount = sk_64_asS32(count);
+    fStorageCount = SkTo<int32_t>(count);
 
     int64_t size = sk_64_mul(fStorageCount, sizeof(SkRegion::RunType));
-    if (size < 0 || !sk_64_isS32(size)) {
+    if (size < 0 || !SkTFitsIn<int32_t>(size)) {
         return false;
     }
 
-    fStorage = (SkRegion::RunType*)sk_malloc_flags(sk_64_asS32(size), 0);
+    fStorage = (SkRegion::RunType*)sk_malloc_flags(SkTo<int32_t>(size), 0);
     if (nullptr == fStorage) {
         return false;
     }

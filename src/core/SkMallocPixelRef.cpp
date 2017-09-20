@@ -44,7 +44,7 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeDirect(const SkImageInfo& info,
 
     // only want to permit 31bits of rowBytes
     int64_t minRB = (int64_t)info.minRowBytes64();
-    if (minRB < 0 || !sk_64_isS32(minRB)) {
+    if (minRB < 0 || !SkTFitsIn<int32_t>(minRB)) {
         return nullptr;    // allocation will be too large
     }
     if (requestedRowBytes > 0 && (int32_t)requestedRowBytes < minRB) {
@@ -59,11 +59,11 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeDirect(const SkImageInfo& info,
     }
 
     int64_t bigSize = (int64_t)info.height() * rowBytes;
-    if (!sk_64_isS32(bigSize)) {
+    if (!SkTFitsIn<int32_t>(bigSize)) {
         return nullptr;
     }
 
-    size_t size = sk_64_asS32(bigSize);
+    size_t size = SkTo<int32_t>(bigSize);
     SkASSERT(size >= info.getSafeSize(rowBytes));
     void* addr = alloc(size);
     if (nullptr == addr) {

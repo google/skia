@@ -7,6 +7,7 @@
 
 #include "SkMask.h"
 
+#include "SkTFitsIn.h"
 #include "SkMalloc.h"
 
 //#define TRACK_SKMASK_LIFETIME
@@ -16,8 +17,8 @@
  */
 static int32_t safeMul32(int32_t a, int32_t b) {
     int64_t size = sk_64_mul(a, b);
-    if (size > 0 && sk_64_isS32(size)) {
-        return sk_64_asS32(size);
+    if (size > 0 && SkTFitsIn<int32_t>(size)) {
+        return SkTo<int32_t>(size);
     }
     return 0;
 }
@@ -45,7 +46,7 @@ uint8_t* SkMask::AllocImage(size_t size) {
 #ifdef TRACK_SKMASK_LIFETIME
     SkDebugf("SkMask::AllocImage %d\n", gCounter++);
 #endif
-    return (uint8_t*)sk_malloc_throw(SkAlign4(size));
+    return static_cast<uint8_t*>(sk_malloc_throw(size));
 }
 
 /** We explicitly use this allocator for SkBimap pixels, so that we can
