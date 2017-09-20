@@ -152,7 +152,7 @@ public:
         : SkImageGenerator(info)
         , fCtx(SkRef(ctx)) {
 
-        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, info, 0,
+        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0,
                                                              kTopLeft_GrSurfaceOrigin, nullptr));
         if (surface) {
             surface->getCanvas()->clear(0);
@@ -188,7 +188,7 @@ protected:
         sk_sp<GrSurfaceContext> dstContext(fCtx->contextPriv().makeDeferredSurfaceContext(
                                                                             desc,
                                                                             SkBackingFit::kExact,
-                                                                            SkBudgeted::kYes));
+                                                                            SkBudgeted::kNo));
         if (!dstContext) {
             return nullptr;
         }

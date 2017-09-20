@@ -266,6 +266,7 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvid
         if (proxy && originalKey.isValid()) {
             SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
             resourceProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
+            // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
             GrInstallBitmapUniqueKeyInvalidator(originalKey, bitmap.pixelRef());
         }
     }

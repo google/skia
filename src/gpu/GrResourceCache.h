@@ -13,7 +13,6 @@
 #include "GrGpuResourcePriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
-#include "GrTextureProxy.h"
 #include "SkMessageBus.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
@@ -157,48 +156,6 @@ public:
         return resource;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // TextureProxies & GrUniqueKeys
-    //
-    // The two GrResourceCache methods assignUniqueKeyToProxy and findProxyByUniqueKey drive
-    // the behavior of uniqueKeys on proxies.
-    //
-    // assignUniqueKeyToProxy does the following:
-    //    if the proxy is wrapped, it sets the texture & proxy keys & adds the proxy to the hash
-    //    if the proxy is deferred, it just set the unique key on the proxy & adds it to the hash
-    //
-    //    Note that when a deferred proxy with a unique key is instantiated, its unique key will be
-    //    pushed to the backing resource.
-    //
-    //    Futher note, a proxy can only receive a unique key once. It can be removed if Ganesh
-    //    determines that the key will never be used again but, in that case, the proxy should
-    //    never receive another key.
-    //
-    // findProxyByUniqueKey does the following:
-    //    first looks in the UniqueKeyProxy hash table to see if there is already a proxy w/ the key
-    //    failing that it looks in the ResourceCache to see there is a texture with that key
-    //       if so, it will wrap the texture in a proxy, add the proxy to the hash and return it
-    //    failing that it will return null
-
-    /*
-     * Associate the provided proxy with the provided unique key.
-     */
-    void assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
-
-    /**
-     * Find a texture proxy that is associated with the provided unique key.
-     */
-    sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
-
-    /**
-     * Either the proxy attached to the unique key is being deleted (in which case we
-     * don't want it cluttering up the hash table) or the client has indicated that
-     * it will never refer to the unique key again. In either case, remove the key
-     * from the hash table.
-     * Note: this does not, by itself, alter unique key attached to the underlying GrTexture.
-     */
-    void processInvalidProxyUniqueKey(const GrUniqueKey&);
-
     /**
      * Query whether a unique key exists in the cache.
      */
@@ -292,8 +249,6 @@ public:
     // Enumerates all cached resources and dumps their details to traceMemoryDump.
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
-    int numUniqueKeyProxies_TestOnly() const;
-
 private:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Methods accessible via ResourceAccess
@@ -348,13 +303,6 @@ private:
     };
     typedef SkTDynamicHash<GrGpuResource, GrUniqueKey, UniqueHashTraits> UniqueHash;
 
-    struct UniquelyKeyedProxyHashTraits {
-        static const GrUniqueKey& GetKey(const GrTextureProxy& p) { return p.getUniqueKey(); }
-
-        static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
-    };
-    typedef SkTDynamicHash<GrTextureProxy, GrUniqueKey, UniquelyKeyedProxyHashTraits> UniquelyKeyedProxyHash;
-
     static bool CompareTimestamp(GrGpuResource* const& a, GrGpuResource* const& b) {
         return a->cacheAccess().timestamp() < b->cacheAccess().timestamp();
     }
@@ -379,9 +327,6 @@ private:
     ScratchMap                          fScratchMap;
     // This holds all resources that have unique keys.
     UniqueHash                          fUniqueHash;
-    // This holds the texture proxies that have unique keys. The resourceCache does not get a ref
-    // on these proxies but they must send a message to the resourceCache when they are deleted.
-    UniquelyKeyedProxyHash              fUniquelyKeyedProxies;
 
     // our budget, used in purgeAsNeeded()
     int                                 fMaxCount;

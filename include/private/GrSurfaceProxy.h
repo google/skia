@@ -378,7 +378,7 @@ protected:
 
     bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt, bool needsStencil,
                          GrSurfaceFlags flags, bool isMipMapped,
-                         SkDestinationSurfaceColorMode mipColorMode, const GrUniqueKey*);
+                         SkDestinationSurfaceColorMode mipColorMode);
 
     // For wrapped resources, 'fConfig', 'fWidth', 'fHeight', and 'fOrigin; will always be filled in
     // from the wrapped resource.
