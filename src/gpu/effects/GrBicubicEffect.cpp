@@ -75,21 +75,21 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
                             "-9.0 / 18.0,   0.0 / 18.0,   9.0 / 18.0,  0.0 / 18.0,"
                             "15.0 / 18.0, -36.0 / 18.0,  27.0 / 18.0, -6.0 / 18.0,"
                             "-7.0 / 18.0,  21.0 / 18.0, -21.0 / 18.0,  7.0 / 18.0);");
-    fragBuilder->codeAppendf("highfloat2 coord = %s - %s * highfloat2(0.5);", coords2D.c_str(), imgInc);
+    fragBuilder->codeAppendf("float2 coord = %s - %s * float2(0.5);", coords2D.c_str(), imgInc);
     // We unnormalize the coord in order to determine our fractional offset (f) within the texel
     // We then snap coord to a texel center and renormalize. The snap prevents cases where the
     // starting coords are near a texel boundary and accumulations of imgInc would cause us to skip/
     // double hit a texel.
     fragBuilder->codeAppendf("coord /= %s;", imgInc);
-    fragBuilder->codeAppend("highfloat2 f = fract(coord);");
-    fragBuilder->codeAppendf("coord = (coord - f + highfloat2(0.5)) * %s;", imgInc);
+    fragBuilder->codeAppend("float2 f = fract(coord);");
+    fragBuilder->codeAppendf("coord = (coord - f + float2(0.5)) * %s;", imgInc);
     fragBuilder->codeAppend("half4 wx = kMitchellCoefficients * half4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);");
     fragBuilder->codeAppend("half4 wy = kMitchellCoefficients * half4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);");
     fragBuilder->codeAppend("half4 rowColors[4];");
     for (int y = 0; y < 4; ++y) {
         for (int x = 0; x < 4; ++x) {
             SkString coord;
-            coord.printf("coord + %s * highfloat2(%d, %d)", imgInc, x - 1, y - 1);
+            coord.printf("coord + %s * float2(%d, %d)", imgInc, x - 1, y - 1);
             SkString sampleVar;
             sampleVar.printf("rowColors[%d]", x);
             fDomain.sampleTexture(fragBuilder,

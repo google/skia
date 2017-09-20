@@ -140,7 +140,7 @@ public:
             varyingHandler->emitAttributes(qp);
             varyingHandler->addPassThroughAttribute(qp.inColor(), args.fOutputColor);
 
-            GrGLSLVertToFrag uv(kHighFloat2_GrSLType);
+            GrGLSLVertToFrag uv(kFloat2_GrSLType);
             varyingHandler->addVarying("uv", &uv, kHigh_GrSLPrecision);
             vsBuilder->codeAppendf("%s = %s;", uv.vsOut(), qp.inUV()->fName);
 

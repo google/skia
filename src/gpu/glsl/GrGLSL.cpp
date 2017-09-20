@@ -38,20 +38,20 @@ const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
             return "half3";
         case kHalf4_GrSLType:
             return "half4";
-        case kHighFloat_GrSLType:
-            return "highfloat";
-        case kHighFloat2_GrSLType:
-            return "highfloat2";
-        case kHighFloat3_GrSLType:
-            return "highfloat3";
-        case kHighFloat4_GrSLType:
-            return "highfloat4";
+        case kFloat_GrSLType:
+            return "float";
+        case kFloat2_GrSLType:
+            return "float2";
+        case kFloat3_GrSLType:
+            return "float3";
+        case kFloat4_GrSLType:
+            return "float4";
         case kUint2_GrSLType:
             if (shaderCaps->integerSupport()) {
                 return "uint2";
             } else {
                 // uint2 (aka uvec2) isn't supported in GLSL ES 1.00/GLSL 1.20
-                return "highfloat2";
+                return "float2";
             }
         case kInt2_GrSLType:
             return "int2";
@@ -59,12 +59,12 @@ const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
             return "int3";
         case kInt4_GrSLType:
             return "int4";
-        case kHighFloat2x2_GrSLType:
-            return "highfloat2x2";
-        case kHighFloat3x3_GrSLType:
-            return "highfloat3x3";
-        case kHighFloat4x4_GrSLType:
-            return "highfloat4x4";
+        case kFloat2x2_GrSLType:
+            return "float2x2";
+        case kFloat3x3_GrSLType:
+            return "float3x3";
+        case kFloat4x4_GrSLType:
+            return "float4x4";
         case kHalf2x2_GrSLType:
             return "half2x2";
         case kHalf3x3_GrSLType:

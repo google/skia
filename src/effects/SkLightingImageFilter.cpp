@@ -1880,7 +1880,7 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
                               normalBody.c_str(),
                               &normalName);
 
-    fragBuilder->codeAppendf("\t\thighfloat2 coord = %s;\n", coords2D.c_str());
+    fragBuilder->codeAppendf("\t\tfloat2 coord = %s;\n", coords2D.c_str());
     fragBuilder->codeAppend("\t\thalf m[9];\n");
 
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
@@ -2060,7 +2060,7 @@ void GrGLSpecularLightingEffect::emitLightFunc(GrGLSLUniformHandler* uniformHand
     };
     SkString lightBody;
     lightBody.appendf("\thalf3 halfDir = half3(normalize(surfaceToLight + half3(0, 0, 1)));\n");
-    lightBody.appendf("\thighfloat colorScale = %s * pow(dot(normal, halfDir), %s);\n",
+    lightBody.appendf("\tfloat colorScale = %s * pow(dot(normal, halfDir), %s);\n",
                       ks, shininess);
     lightBody.appendf("\thalf3 color = lightColor * clamp(colorScale, 0.0, 1.0);\n");
     lightBody.appendf("\treturn half4(color, max(max(color.r, color.g), color.b));\n");

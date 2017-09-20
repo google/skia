@@ -47,7 +47,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
             "half4 uPosXform;"
             "half4 uTexCoordXform;"
         "};"
-        "layout(location = 0) in highfloat2 inPosition;"
+        "layout(location = 0) in float2 inPosition;"
         "layout(location = 1) out half2 vTexCoord;"
 
         "// Copy Program VS\n"

@@ -72,11 +72,11 @@ class GrCCPRTriangleCornerProcessor : public GrCCPRTriangleProcessor {
 public:
     GrCCPRTriangleCornerProcessor()
             : INHERITED(CoverageType::kShader)
-            , fAABoxMatrices("aa_box_matrices", kHighFloat2x2_GrSLType, 2)
-            , fAABoxTranslates("aa_box_translates", kHighFloat2_GrSLType, 2)
-            , fGeoShaderBisects("bisects", kHighFloat2_GrSLType, 2)
-            , fCornerLocationInAABoxes(kHighFloat2x2_GrSLType)
-            , fBisectInAABoxes(kHighFloat2x2_GrSLType) {}
+            , fAABoxMatrices("aa_box_matrices", kFloat2x2_GrSLType, 2)
+            , fAABoxTranslates("aa_box_translates", kFloat2_GrSLType, 2)
+            , fGeoShaderBisects("bisects", kFloat2_GrSLType, 2)
+            , fCornerLocationInAABoxes(kFloat2x2_GrSLType)
+            , fBisectInAABoxes(kFloat2x2_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);

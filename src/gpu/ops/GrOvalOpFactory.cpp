@@ -119,7 +119,7 @@ private:
 
             // emit attributes
             varyingHandler->emitAttributes(cgp);
-            fragBuilder->codeAppend("highfloat4 circleEdge;");
+            fragBuilder->codeAppend("float4 circleEdge;");
             varyingHandler->addPassThroughAttribute(cgp.fInCircleEdge, "circleEdge",
                                                     kHigh_GrSLPrecision);
             if (cgp.fInClipPlane) {
@@ -152,7 +152,7 @@ private:
                                  cgp.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
 
-            fragBuilder->codeAppend("highfloat d = length(circleEdge.xy);");
+            fragBuilder->codeAppend("float d = length(circleEdge.xy);");
             fragBuilder->codeAppend("half distanceToOuterEdge = circleEdge.z * (1.0 - d);");
             fragBuilder->codeAppend("half edgeAlpha = clamp(distanceToOuterEdge, 0.0, 1.0);");
             if (cgp.fStroke) {

@@ -16,25 +16,25 @@ void GrCCPRTriangleProcessor::onEmitVertexShader(const GrCCPRCoverageProcessor& 
                                                  const TexelBufferHandle& pointsBuffer,
                                                  const char* atlasOffset, const char* rtAdjust,
                                                  GrGPArgs* gpArgs) const {
-    v->codeAppend ("highfloat2 self = ");
+    v->codeAppend ("float2 self = ");
     v->appendTexelFetch(pointsBuffer,
                         SkStringPrintf("%s[sk_VertexID]", proc.instanceAttrib()).c_str());
     v->codeAppendf(".xy + %s;", atlasOffset);
-    gpArgs->fPositionVar.set(kHighFloat2_GrSLType, "self");
+    gpArgs->fPositionVar.set(kFloat2_GrSLType, "self");
 }
 
 void GrCCPRTriangleProcessor::defineInputVertices(GrGLSLGeometryBuilder* g) const {
     // Prepend in_vertices at the start of the shader.
-    g->codePrependf("highfloat3x2 in_vertices = highfloat3x2(sk_in[0].gl_Position.xy, "
-                                                          "sk_in[1].gl_Position.xy, "
-                                                          "sk_in[2].gl_Position.xy);");
+    g->codePrependf("float3x2 in_vertices = float3x2(sk_in[0].gl_Position.xy, "
+                                                    "sk_in[1].gl_Position.xy, "
+                                                    "sk_in[2].gl_Position.xy);");
 }
 
 void GrCCPRTriangleProcessor::emitWind(GrGLSLGeometryBuilder* g, const char* /*rtAdjust*/,
                                        const char* outputWind) const {
     // We will define in_vertices in defineInputVertices.
-    g->codeAppendf("%s = sign(determinant(highfloat2x2(in_vertices[1] - in_vertices[0], "
-                                                      "in_vertices[2] - in_vertices[0])));",
+    g->codeAppendf("%s = sign(determinant(float2x2(in_vertices[1] - in_vertices[0], "
+                                                  "in_vertices[2] - in_vertices[0])));",
                    outputWind);
 }
 
@@ -53,8 +53,8 @@ void GrCCPRTriangleHullAndEdgeProcessor::onEmitGeometryShader(GrGLSLGeometryBuil
     if (GeometryType::kHulls != fGeometryType) {
         g->codeAppend ("int edgeidx0 = sk_InvocationID, "
                            "edgeidx1 = (edgeidx0 + 1) % 3;");
-        g->codeAppendf("highfloat2 edgept0 = in_vertices[%s > 0 ? edgeidx0 : edgeidx1];", wind);
-        g->codeAppendf("highfloat2 edgept1 = in_vertices[%s > 0 ? edgeidx1 : edgeidx0];", wind);
+        g->codeAppendf("float2 edgept0 = in_vertices[%s > 0 ? edgeidx0 : edgeidx1];", wind);
+        g->codeAppendf("float2 edgept1 = in_vertices[%s > 0 ? edgeidx1 : edgeidx0];", wind);
 
         maxOutputVertices += this->emitEdgeGeometry(g, emitVertexFn, "edgept0", "edgept1");
     }
@@ -69,24 +69,23 @@ void GrCCPRTriangleCornerProcessor::onEmitGeometryShader(GrGLSLGeometryBuilder* 
                                                          const char* rtAdjust) const {
     this->defineInputVertices(g);
 
-    g->codeAppend ("highfloat2 corner = in_vertices[sk_InvocationID];");
-    g->codeAppend ("highfloat2x2 vectors = highfloat2x2("
-                       "corner - in_vertices[(sk_InvocationID + 2) % 3], "
-                       "corner - in_vertices[(sk_InvocationID + 1) % 3]);");
+    g->codeAppend ("float2 corner = in_vertices[sk_InvocationID];");
+    g->codeAppend ("float2x2 vectors = float2x2(corner - in_vertices[(sk_InvocationID + 2) % 3], "
+                                               "corner - in_vertices[(sk_InvocationID + 1) % 3]);");
 
     // Make sure neither vector is 0 in order to avoid a divide-by-zero. Wind will be zero anyway if
     // this is the case, so whatever we output won't have any effect as long it isn't NaN or Inf.
     g->codeAppendf("for (int i = 0; i < 2; ++i) {");
-    g->codeAppendf(    "vectors[i] = any(notEqual(vectors[i], highfloat2(0))) ? "
-                                    "vectors[i] : highfloat2(1);");
+    g->codeAppendf(    "vectors[i] = any(notEqual(vectors[i], float2(0))) ? "
+                                    "vectors[i] : float2(1);");
     g->codeAppendf("}");
 
     // Find the vector that bisects the region outside the incoming edges. Each edge is responsible
     // to subtract the outside region on its own the side of the bisector.
-    g->codeAppendf("highfloat2 leftdir = normalize(vectors[%s > 0 ? 0 : 1]);", wind);
-    g->codeAppendf("highfloat2 rightdir = normalize(vectors[%s > 0 ? 1 : 0]);", wind);
-    g->codeAppendf("highfloat2 bisect = dot(leftdir, rightdir) >= 0 ? leftdir + rightdir : "
-                                        "highfloat2(leftdir.y - rightdir.y, rightdir.x - leftdir.x);");
+    g->codeAppendf("float2 leftdir = normalize(vectors[%s > 0 ? 0 : 1]);", wind);
+    g->codeAppendf("float2 rightdir = normalize(vectors[%s > 0 ? 1 : 0]);", wind);
+    g->codeAppendf("float2 bisect = dot(leftdir, rightdir) >= 0 ? leftdir + rightdir : "
+                                        "float2(leftdir.y - rightdir.y, rightdir.x - leftdir.x);");
 
     // In ccpr we don't calculate exact geometric pixel coverage. What the distance-to-edge method
     // actually finds is coverage inside a logical "AA box", one that is rotated inline with the
@@ -98,8 +97,8 @@ void GrCCPRTriangleCornerProcessor::onEmitGeometryShader(GrGLSLGeometryBuilder* 
     g->declareGlobal(fGeoShaderBisects);
     g->codeAppendf("for (int i = 0; i < 2; ++i) {");
     // The X component runs parallel to the edge (i.e. distance to the corner).
-    g->codeAppendf(    "highfloat2 n = -vectors[%s > 0 ? i : 1 - i];", wind);
-    g->codeAppendf(    "highfloat nwidth = dot(abs(n), bloat) * 2;");
+    g->codeAppendf(    "float2 n = -vectors[%s > 0 ? i : 1 - i];", wind);
+    g->codeAppendf(    "float nwidth = dot(abs(n), bloat) * 2;");
     g->codeAppendf(    "n /= nwidth;"); // nwidth != 0 because both vectors != 0.
     g->codeAppendf(    "%s[i][0] = n;", fAABoxMatrices.c_str());
     g->codeAppendf(    "%s[i][0] = -dot(n, corner) + .5;", fAABoxTranslates.c_str());
@@ -107,7 +106,7 @@ void GrCCPRTriangleCornerProcessor::onEmitGeometryShader(GrGLSLGeometryBuilder* 
     // The Y component runs perpendicular to the edge (i.e. distance-to-edge).
     // NOTE: once we are back in device space and bloat.x == bloat.y, we will not need to find and
     // divide by nwidth a second time.
-    g->codeAppendf(    "n = (i == 0) ? highfloat2(-n.y, n.x) : highfloat2(n.y, -n.x);");
+    g->codeAppendf(    "n = (i == 0) ? float2(-n.y, n.x) : float2(n.y, -n.x);");
     g->codeAppendf(    "nwidth = dot(abs(n), bloat) * 2;");
     g->codeAppendf(    "n /= nwidth;");
     g->codeAppendf(    "%s[i][1] = n;", fAABoxMatrices.c_str());

@@ -13,6 +13,9 @@ before handing it over to the graphics driver.
 Differences from GLSL
 =====================
 
+* Precision modifiers are not used. 'float', 'int', and 'uint' are always high
+  precision. New types 'half', 'short', and 'ushort' are medium precision (we
+  do not use low precision).
 * Vector types are named <base type><columns>, so float2 instead of vec2 and
   bool4 instead of bvec4
 * Matrix types are named <base type><columns>x<rows>, so float2x3 instead of
@@ -38,8 +41,6 @@ Differences from GLSL
 * use sk_VertexID instead of gl_VertexID
 * the fragment coordinate is sk_FragCoord, and is always relative to the upper
   left.
-* lowp, mediump, and highp are always permitted (but will only be respected if
-  you run on a device which supports them)
 * you do not need to include ".0" to make a number a float (meaning that
   "float2x, y) * 4" is perfectly legal in SkSL, unlike GLSL where it would often
   have to be expressed "float2x, y) * 4.0". There is no performance penalty for

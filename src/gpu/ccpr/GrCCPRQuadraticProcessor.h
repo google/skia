@@ -24,12 +24,12 @@ class GrCCPRQuadraticProcessor : public GrCCPRCoverageProcessor::PrimitiveProces
 public:
     GrCCPRQuadraticProcessor()
             : INHERITED(CoverageType::kShader)
-            , fCanonicalMatrix("canonical_matrix", kHighFloat3x3_GrSLType, GrShaderVar::kNonArray)
-            , fCanonicalDerivatives("canonical_derivatives", kHighFloat2x2_GrSLType,
+            , fCanonicalMatrix("canonical_matrix", kFloat3x3_GrSLType, GrShaderVar::kNonArray)
+            , fCanonicalDerivatives("canonical_derivatives", kFloat2x2_GrSLType,
                                     GrShaderVar::kNonArray)
-            , fEdgeDistanceEquation("edge_distance_equation", kHighFloat3_GrSLType,
+            , fEdgeDistanceEquation("edge_distance_equation", kFloat3_GrSLType,
                                     GrShaderVar::kNonArray)
-            , fXYD(kHighFloat3_GrSLType) {}
+            , fXYD(kFloat3_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         varyingHandler->addVarying("xyd", &fXYD, kHigh_GrSLPrecision);
@@ -66,7 +66,7 @@ protected:
 class GrCCPRQuadraticHullProcessor : public GrCCPRQuadraticProcessor {
 public:
     GrCCPRQuadraticHullProcessor()
-            : fGradXY(kHighFloat2_GrSLType) {}
+            : fGradXY(kFloat2_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);
@@ -90,10 +90,10 @@ private:
 class GrCCPRQuadraticCornerProcessor : public GrCCPRQuadraticProcessor {
 public:
     GrCCPRQuadraticCornerProcessor()
-            : fEdgeDistanceDerivatives("edge_distance_derivatives", kHighFloat2_GrSLType,
+            : fEdgeDistanceDerivatives("edge_distance_derivatives", kFloat2_GrSLType,
                                        GrShaderVar::kNonArray)
-            , fdXYDdx(kHighFloat3_GrSLType)
-            , fdXYDdy(kHighFloat3_GrSLType) {}
+            , fdXYDdx(kFloat3_GrSLType)
+            , fdXYDdy(kFloat3_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);

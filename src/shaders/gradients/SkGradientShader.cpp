@@ -1359,7 +1359,7 @@ void GrGradientEffect::GLSLProcessor::emitUniforms(GrGLSLUniformHandler* uniform
                                                      "Colors",
                                                      colorCount);
         if (kSingleHardStop_ColorType == ge.fColorType || kThree_ColorType == ge.fColorType) {
-            fExtraStopT = uniformHandler->addUniform(kFragment_GrShaderFlag, kHighFloat4_GrSLType,
+            fExtraStopT = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                      kHigh_GrSLPrecision, "ExtraStopT");
         }
     } else {
@@ -1684,7 +1684,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
     fragBuilder->codeAppendf("half2 coord = half2(%s, %s);", gradientTValue, fsyuni);
     fragBuilder->codeAppendf("%s = ", outputColor);
     fragBuilder->appendTextureLookupAndModulate(inputColor, texSamplers[0], "coord",
-                                                kHighFloat2_GrSLType, &fColorSpaceHelper);
+                                                kFloat2_GrSLType, &fColorSpaceHelper);
     fragBuilder->codeAppend(";");
 }
 

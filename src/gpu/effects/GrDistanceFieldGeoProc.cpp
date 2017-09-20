@@ -45,7 +45,7 @@ public:
 
         const char* atlasSizeInvName;
         fAtlasSizeInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
-                                                          kHighFloat2_GrSLType,
+                                                          kFloat2_GrSLType,
                                                           kHigh_GrSLPrecision,
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
@@ -77,9 +77,9 @@ public:
                              args.fFPCoordTransformHandler);
 
         // add varyings
-        GrGLSLVertToFrag uv(kHighFloat2_GrSLType);
+        GrGLSLVertToFrag uv(kFloat2_GrSLType);
         GrGLSLVertToFrag texIdx(kHalf_GrSLType);
-        GrGLSLVertToFrag st(kHighFloat2_GrSLType);
+        GrGLSLVertToFrag st(kFloat2_GrSLType);
         append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, &st);
 
@@ -92,7 +92,7 @@ public:
             SkToBool(dfTexEffect.getFlags() & kAliased_DistanceFieldEffectFlag);
 
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppendf("highfloat2 uv = %s;\n", uv.fsIn());
+        fragBuilder->codeAppendf("float2 uv = %s;\n", uv.fsIn());
         fragBuilder->codeAppend("half4 texColor;");
         append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
                                    texIdx, "uv", "texColor");
@@ -340,14 +340,14 @@ public:
 
         const char* atlasSizeInvName;
         fAtlasSizeInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
-                                                          kHighFloat2_GrSLType,
+                                                          kFloat2_GrSLType,
                                                           kHigh_GrSLPrecision,
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
 
-        GrGLSLVertToFrag uv(kHighFloat2_GrSLType);
+        GrGLSLVertToFrag uv(kFloat2_GrSLType);
         GrGLSLVertToFrag texIdx(kHalf_GrSLType);
-        GrGLSLVertToFrag st(kHighFloat2_GrSLType);
+        GrGLSLVertToFrag st(kFloat2_GrSLType);
         append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, &st);
 
@@ -371,7 +371,7 @@ public:
                              args.fFPCoordTransformHandler);
 
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppendf("highfloat2 uv = %s;", uv.fsIn());
+        fragBuilder->codeAppendf("float2 uv = %s;", uv.fsIn());
         fragBuilder->codeAppend("half4 texColor;");
         append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
                                    texIdx, "uv", "texColor");
@@ -599,7 +599,7 @@ public:
 
         const char* atlasSizeInvName;
         fAtlasSizeInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
-                                                          kHighFloat2_GrSLType,
+                                                          kFloat2_GrSLType,
                                                           kHigh_GrSLPrecision,
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
@@ -626,13 +626,13 @@ public:
                              args.fFPCoordTransformHandler);
 
         // set up varyings
-        GrGLSLVertToFrag uv(kHighFloat2_GrSLType);
+        GrGLSLVertToFrag uv(kFloat2_GrSLType);
         GrGLSLVertToFrag texIdx(kHalf_GrSLType);
-        GrGLSLVertToFrag st(kHighFloat2_GrSLType);
+        GrGLSLVertToFrag st(kFloat2_GrSLType);
         append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, &st);
 
-        GrGLSLVertToFrag delta(kHighFloat_GrSLType);
+        GrGLSLVertToFrag delta(kFloat_GrSLType);
         varyingHandler->addVarying("Delta", &delta, kHigh_GrSLPrecision);
         if (dfTexEffect.getFlags() & kBGR_DistanceFieldEffectFlag) {
             vertBuilder->codeAppendf("%s = -%s.x/3.0;", delta.vsOut(), atlasSizeInvName);
@@ -649,7 +649,7 @@ public:
 
         // create LCD offset adjusted by inverse of transform
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppendf("highfloat2 uv = %s;\n", uv.fsIn());
+        fragBuilder->codeAppendf("float2 uv = %s;\n", uv.fsIn());
 
         if (isUniformScale) {
 #ifdef SK_VULKAN

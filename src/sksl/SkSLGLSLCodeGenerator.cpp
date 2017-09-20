@@ -136,10 +136,6 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             else if (type == *fContext.fUShort_Type) {
                 return "uint";
             }
-            else if (type == *fContext.fFloat_Type) {
-                // FIXME: temporary, this goes away when highfloat is renamed back to float
-                return "float";
-            }
             else {
                 return type.name();
             }

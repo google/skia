@@ -30,12 +30,12 @@ public:
                 "0.066666666666666666;\n        break;\n}\n@if (sk_Caps.integerSupport) {\n    "
                 "uint x = uint(sk_FragCoord.x);\n    uint y = uint(sk_FragCoord.y);\n    uint m = "
                 "(((((y & 1) << 5 | (x & 1) << 4) | (y & 2) << 2) | (x & 2) << 1) | (y & 4) >> 1) "
-                "| (x & 4) >> 2;\n    value = highfloat(highfloat(half(m)) / 64.0) - 0.4921875;\n} "
-                "else {\n    half4 modValues = half4(mod(sk_FragCoord.xyxy, highfloat4(half4(2.0, "
-                "2.0, 4.0, 4.0))));\n    half4 stepValues = half4(step(highfloat4(modValues), "
-                "highfloat4(half4(1.0, 1.0, 2.0, 2.0))));\n    value = highfloat(dot(stepValues, "
-                "half4(0.5, 0.25, 0.125, 0.0625))) - 0.46875;\n}\n%s = "
-                "half4(clamp(highfloat3(%s.xyz + value * range), 0.0, highfloat(%s.w)), %s.w);\n",
+                "| (x & 4) >> 2;\n    value = float(float(half(m)) / 64.0) - 0.4921875;\n} else "
+                "{\n    half4 modValues = half4(mod(sk_FragCoord.xyxy, float4(half4(2.0, 2.0, 4.0, "
+                "4.0))));\n    half4 stepValues = half4(step(float4(modValues), float4(half4(1.0, "
+                "1.0, 2.0, 2.0))));\n    value = float(dot(stepValues, half4(0.5, 0.25, 0.125, "
+                "0.0625))) - 0.46875;\n}\n%s = half4(clamp(float3(%s.xyz + value * range), 0.0, "
+                "float(%s.w)), %s.w);\n",
                 _outer.rangeType(), args.fOutputColor,
                 args.fInputColor ? args.fInputColor : "half4(1)",
                 args.fInputColor ? args.fInputColor : "half4(1)",

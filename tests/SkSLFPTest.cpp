@@ -250,9 +250,9 @@ DEF_TEST(SkSLFPSections, r) {
          {"cpp section"});
     test(r,
          "@constructorParams { int x, float y, std::vector<float> z }"
-         "in highfloat w;"
+         "in float w;"
          "void main() {"
-         "sk_OutColor = highfloat4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
@@ -353,7 +353,7 @@ DEF_TEST(SkSLFPColorSpaceXform, r) {
          "in uniform sampler2D image;"
          "in uniform colorSpaceXform colorXform;"
          "void main() {"
-         "sk_OutColor = sk_InColor * texture(image, highfloat2(0, 0), colorXform);"
+         "sk_OutColor = sk_InColor * texture(image, float2(0, 0), colorXform);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
@@ -364,7 +364,7 @@ DEF_TEST(SkSLFPColorSpaceXform, r) {
          },
          {
              "fragBuilder->codeAppendf(\"half4 _tmpVar1;%s = %s * %stexture(%s, "
-             "highfloat2(0.0, 0.0)).%s%s;\\n\", args.fOutputColor, args.fInputColor ? args.fInputColor : "
+             "float2(0.0, 0.0)).%s%s;\\n\", args.fOutputColor, args.fInputColor ? args.fInputColor : "
              "\"half4(1)\", fColorSpaceHelper.isValid() ? \"(_tmpVar1 = \" : \"\", "
              "fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(), "
              "fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(), "

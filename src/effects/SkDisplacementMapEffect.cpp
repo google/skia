@@ -573,7 +573,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
         "\t\t%s.rgb = (%s.a < %s) ? half3(0.0) : clamp(%s.rgb / %s.a, 0.0, 1.0);",
         dColor, dColor, nearZero, dColor, dColor);
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[1]);
-    fragBuilder->codeAppendf("\t\thighfloat2 %s = %s + %s*(%s.",
+    fragBuilder->codeAppendf("\t\tfloat2 %s = %s + %s*(%s.",
                              cCoords, coords2D.c_str(), scaleUni, dColor);
 
     switch (displacementMap.xChannelSelector()) {

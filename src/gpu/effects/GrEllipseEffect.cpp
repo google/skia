@@ -25,7 +25,7 @@ public:
         (void)_outer;
         prevRadii = half2(-1.0);
         useScale = sk_Caps.floatPrecisionVaries;
-        fEllipseVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHighFloat4_GrSLType,
+        fEllipseVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                        kDefault_GrSLPrecision, "ellipse");
         if (useScale) {
             fScaleVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
@@ -35,15 +35,14 @@ public:
                 "half2 prevCenter;\nhalf2 prevRadii = half2(%f, %f);\nbool useScale = %s;\nhalf2 d "
                 "= half2(sk_FragCoord.xy - %s.xy);\n@if (useScale) {\n    d *= %s.y;\n}\nhalf2 Z = "
                 "d * half2(%s.zw);\nhalf implicit = dot(Z, d) - 1.0;\nhalf grad_dot = 4.0 * dot(Z, "
-                "Z);\ngrad_dot = half(max(highfloat(grad_dot), 0.0001));\nhalf approx_dist = "
-                "highfloat(implicit) * inversesqrt(highfloat(grad_dot));\n@if (useScale) {\n    "
+                "Z);\ngrad_dot = half(max(float(grad_dot), 0.0001));\nhalf approx_dist = "
+                "float(implicit) * inversesqrt(float(grad_dot));\n@if (useScale) {\n    "
                 "approx_dist *= %s.x;\n}\nhalf alpha;\n@switch (%d) {\n    case 0:\n        alpha "
-                "= half(highfloat(approx_dist) > 0.0 ? 0.0 : 1.0);\n        break;\n    case 1:\n  "
-                "      alpha = half(clamp(0.5 - highfloat(approx_dist), 0.0, 1.0));\n        "
-                "break;\n    case 2:\n        alpha = half(highfloat(approx_dist) > 0.0 ? 1.0 : "
-                "0.0);\n        break;\n    case 3:\n        alpha = half(clamp(0.5 + "
-                "highfloat(approx_dist), 0.0, 1.0));\n        break;\n    default:\n        "
-                "discard;\n}\n%s = %s * alpha;\n",
+                "= half(float(approx_dist) > 0.0 ? 0.0 : 1.0);\n        break;\n    case 1:\n      "
+                "  alpha = half(clamp(0.5 - float(approx_dist), 0.0, 1.0));\n        break;\n    "
+                "case 2:\n        alpha = half(float(approx_dist) > 0.0 ? 1.0 : 0.0);\n        "
+                "break;\n    case 3:\n        alpha = half(clamp(0.5 + float(approx_dist), 0.0, "
+                "1.0));\n        break;\n    default:\n        discard;\n}\n%s = %s * alpha;\n",
                 prevRadii.fX, prevRadii.fY, (useScale ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(fEllipseVar),
                 fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar) : "half2(0)",

@@ -32,12 +32,12 @@ public:
 
         const char* atlasSizeInvName;
         fAtlasSizeInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
-                                                          kHighFloat2_GrSLType,
+                                                          kFloat2_GrSLType,
                                                           kHigh_GrSLPrecision,
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
 
-        GrGLSLVertToFrag uv(kHighFloat2_GrSLType);
+        GrGLSLVertToFrag uv(kFloat2_GrSLType);
         GrGLSLVertToFrag texIdx(kHalf_GrSLType);
         append_index_uv_varyings(args, btgp.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, nullptr);
