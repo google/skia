@@ -291,6 +291,21 @@ protected:
         }
 
         canvas->drawPath(path, fSkeletonPaint);
+
+        if (0) {
+            auto mid = [](SkPoint a, SkPoint b) {
+                return (a + b) * 0.5f;
+            };
+            SkPaint paint;
+            paint.setAntiAlias(true);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setColor(0xFF0000FF);
+            for (int i = 0; i < N; ++i) {
+                int a = (i + 1) % N;
+                int b = (i + 2) % N;
+                canvas->drawLine(mid(fPts[i], fPts[a]), mid(fPts[a], fPts[b]), paint);
+            }
+        }
     }
 
     bool onClick(Click* click) override {
