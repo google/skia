@@ -287,12 +287,14 @@ public:
                                                           const GrProcessorAnalysisColor&,
                                                           GrProcessorAnalysisCoverage,
                                                           bool hasMixedSamples,
-                                                          const GrCaps& caps);
+                                                          const GrCaps& caps,
+                                                          GrPixelConfigIsClamped dstIsClamped);
 
     static AnalysisProperties GetAnalysisProperties(const GrXPFactory*,
                                                     const GrProcessorAnalysisColor&,
                                                     const GrProcessorAnalysisCoverage&,
-                                                    const GrCaps&);
+                                                    const GrCaps&,
+                                                    GrPixelConfigIsClamped);
 
 protected:
     constexpr GrXPFactory() {}
@@ -301,7 +303,8 @@ private:
     virtual sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
                                                            GrProcessorAnalysisCoverage,
                                                            bool hasMixedSamples,
-                                                           const GrCaps&) const = 0;
+                                                           const GrCaps&,
+                                                           GrPixelConfigIsClamped) const = 0;
 
     /**
      * Subclass analysis implementation. This should not return kNeedsDstInTexture as that will be
@@ -309,7 +312,8 @@ private:
      */
     virtual AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                                   const GrProcessorAnalysisCoverage&,
-                                                  const GrCaps&) const = 0;
+                                                  const GrCaps&,
+                                                  GrPixelConfigIsClamped) const = 0;
 };
 #if defined(__GNUC__) || defined(__clang)
 #pragma GCC diagnostic pop

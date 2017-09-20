@@ -38,7 +38,8 @@ public:
         return FixedFunctionFlags::kNone;
     }
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,\
+                                GrPixelConfigIsClamped) override {
         return RequiresDstTexture::kNo;
     }
 

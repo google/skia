@@ -63,6 +63,7 @@ public:
      *                      color from its geometry processor instead.
      */
     GrDrawOp::RequiresDstTexture xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip,
+                                                      GrPixelConfigIsClamped dstIsClamped,
                                                       GrProcessorAnalysisCoverage geometryCoverage,
                                                       GrProcessorAnalysisColor* geometryColor);
 
@@ -72,6 +73,7 @@ public:
      * changed the op must override its geometry processor color output with the new color.
      */
     GrDrawOp::RequiresDstTexture xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*,
+                                                      GrPixelConfigIsClamped dstIsClamped,
                                                       GrProcessorAnalysisCoverage geometryCoverage,
                                                       GrColor* geometryColor);
 

@@ -80,7 +80,8 @@ public:
      * at this time the op must report whether a copy of the destination (or destination texture
      * itself) needs to be provided to the GrXferProcessor when this op executes.
      */
-    virtual RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) = 0;
+    virtual RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
+                                        GrPixelConfigIsClamped) = 0;
 
 protected:
     struct QueuedUpload {

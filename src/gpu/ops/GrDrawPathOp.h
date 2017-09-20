@@ -31,9 +31,10 @@ protected:
         }
         return FixedFunctionFlags::kUsesStencil;
     }
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        return this->doProcessorAnalysis(caps, clip).requiresDstTexture() ? RequiresDstTexture::kYes
-                                                                          : RequiresDstTexture::kNo;
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                GrPixelConfigIsClamped dstIsClamped) override {
+        return this->doProcessorAnalysis(caps, clip, dstIsClamped).requiresDstTexture()
+                ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
     }
 
     void visitProxies(const VisitProxyFunc& func) const override {
@@ -49,10 +50,11 @@ protected:
     uint32_t pipelineSRGBFlags() const { return fPipelineSRGBFlags; }
     inline GrPipeline::InitArgs pipelineInitArgs(const GrOpFlushState&);
     const GrProcessorSet::Analysis& doProcessorAnalysis(const GrCaps& caps,
-                                                        const GrAppliedClip* clip) {
+                                                        const GrAppliedClip* clip,
+                                                        GrPixelConfigIsClamped dstIsClamped) {
         bool isMixedSamples = GrAAType::kMixedSamples == fAAType;
         fAnalysis = fProcessorSet.finalize(fInputColor, GrProcessorAnalysisCoverage::kNone, clip,
-                                           isMixedSamples, caps, &fInputColor);
+                                           isMixedSamples, caps, dstIsClamped, &fInputColor);
         return fAnalysis;
     }
     const GrProcessorSet::Analysis& processorAnalysis() const {

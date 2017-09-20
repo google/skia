@@ -63,7 +63,8 @@ public:
 
         // GrDrawOp overrides.
         FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-        RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override;
+        RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
+                                    GrPixelConfigIsClamped) override;
         void wasRecorded(GrRenderTargetOpList*) override;
         bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
         void onPrepare(GrOpFlushState*) override {}

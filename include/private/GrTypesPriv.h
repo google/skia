@@ -89,6 +89,20 @@ enum class GrAllowMixedSamples { kNo, kYes };
 GrAAType GrChooseAAType(GrAA, GrFSAAType, GrAllowMixedSamples, const GrCaps&);
 
 /**
+ * Some pixel configs are inherently clamped to [0,1], while others can hold values outside of that
+ * range. This is important for blending - the latter category may require manual clamping.
+ */
+enum class GrPixelConfigIsClamped : bool {
+    kNo,   // F16 or F32
+    kYes,  // Any UNORM type
+};
+
+static inline GrPixelConfigIsClamped GrGetPixelConfigIsClamped(GrPixelConfig config) {
+    return GrPixelConfigIsFloatingPoint(config) ? GrPixelConfigIsClamped::kNo
+                                                : GrPixelConfigIsClamped::kYes;
+}
+
+/**
  * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
  * but should be applicable to other shader languages.)
  */
