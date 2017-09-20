@@ -54,10 +54,6 @@ static void check_refs(skiatest::Reporter* reporter,
                        int32_t expectedBackingRefs,
                        int32_t expectedNumReads,
                        int32_t expectedNumWrites) {
-    REPORTER_ASSERT(reporter, proxy);
-    if (!proxy) {
-        return;
-    }
     REPORTER_ASSERT(reporter, proxy->getProxyRefCnt_TestOnly() == expectedProxyRefs);
     REPORTER_ASSERT(reporter, proxy->getBackingRefCnt_TestOnly() == expectedBackingRefs);
     REPORTER_ASSERT(reporter, proxy->getPendingReadCnt_TestOnly() == expectedNumReads);
@@ -102,95 +98,102 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
         // A single write
         {
             sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
+            if (proxy.get()) {
+                GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fWrite(proxy.get());
 
-            GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fWrite(proxy.get());
+                static const int kExpectedReads = 0;
+                static const int kExpectedWrites = 1;
 
-            static const int kExpectedReads = 0;
-            static const int kExpectedWrites = 1;
+                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
 
-            check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                proxy->instantiate(provider);
 
-            proxy->instantiate(provider);
-
-            // In the deferred case, this checks that the refs transfered to the GrSurface
-            check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                // In the deferred case, this checks that the refs transfered to the GrSurface
+                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+            }
         }
 
         // A single read
         {
             sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
+            if (proxy.get()) {
+                GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType> fRead(proxy.get());
 
-            GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType> fRead(proxy.get());
+                static const int kExpectedReads = 1;
+                static const int kExpectedWrites = 0;
 
-            static const int kExpectedReads = 1;
-            static const int kExpectedWrites = 0;
+                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
 
-            check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                proxy->instantiate(provider);
 
-            proxy->instantiate(provider);
-
-            // In the deferred case, this checks that the refs transfered to the GrSurface
-            check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                // In the deferred case, this checks that the refs transfered to the GrSurface
+                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+            }
         }
 
         // A single read/write pair
         {
             sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
+            if (proxy.get()) {
+                GrPendingIOResource<GrSurfaceProxy, kRW_GrIOType> fRW(proxy.get());
 
-            GrPendingIOResource<GrSurfaceProxy, kRW_GrIOType> fRW(proxy.get());
+                static const int kExpectedReads = 1;
+                static const int kExpectedWrites = 1;
 
-            static const int kExpectedReads = 1;
-            static const int kExpectedWrites = 1;
+                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
 
-            check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                proxy->instantiate(provider);
 
-            proxy->instantiate(provider);
-
-            // In the deferred case, this checks that the refs transferred to the GrSurface
-            check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                // In the deferred case, this checks that the refs transferred to the GrSurface
+                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+            }
         }
 
         // Multiple normal refs
         {
             sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
-            proxy->ref();
-            proxy->ref();
+            if (proxy.get()) {
+                proxy->ref();
+                proxy->ref();
 
-            static const int kExpectedReads = 0;
-            static const int kExpectedWrites = 0;
+                static const int kExpectedReads = 0;
+                static const int kExpectedWrites = 0;
 
-            check_refs(reporter, proxy.get(), 3, 3,kExpectedReads, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 3, 3,kExpectedReads, kExpectedWrites);
 
-            proxy->instantiate(provider);
+                proxy->instantiate(provider);
 
-            // In the deferred case, this checks that the refs transferred to the GrSurface
-            check_refs(reporter, proxy.get(), 3, 3, kExpectedReads, kExpectedWrites);
+                // In the deferred case, this checks that the refs transferred to the GrSurface
+                check_refs(reporter, proxy.get(), 3, 3, kExpectedReads, kExpectedWrites);
 
-            proxy->unref();
-            proxy->unref();
+                proxy->unref();
+                proxy->unref();
+            }
         }
 
         // Continue using (reffing) proxy after instantiation
         {
             sk_sp<GrTextureProxy> proxy((*make)(ctxInfo.grContext()));
-            proxy->ref();
+            if (proxy.get()) {
+                proxy->ref();
 
-            GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fWrite(proxy.get());
+                GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fWrite(proxy.get());
 
-            static const int kExpectedWrites = 1;
+                static const int kExpectedWrites = 1;
 
-            check_refs(reporter, proxy.get(), 2, 2, 0, kExpectedWrites);
+                check_refs(reporter, proxy.get(), 2, 2, 0, kExpectedWrites);
 
-            proxy->instantiate(provider);
+                proxy->instantiate(provider);
 
-            // In the deferred case, this checks that the refs transfered to the GrSurface
-            check_refs(reporter, proxy.get(), 2, 2, 0, kExpectedWrites);
+                // In the deferred case, this checks that the refs transfered to the GrSurface
+                check_refs(reporter, proxy.get(), 2, 2, 0, kExpectedWrites);
 
-            proxy->unref();
-            check_refs(reporter, proxy.get(), 1, 1, 0, kExpectedWrites);
+                proxy->unref();
+                check_refs(reporter, proxy.get(), 1, 1, 0, kExpectedWrites);
 
-            GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType> fRead(proxy.get());
-            check_refs(reporter, proxy.get(), 1, 1, 1, kExpectedWrites);
+                GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType> fRead(proxy.get());
+                check_refs(reporter, proxy.get(), 1, 1, 1, kExpectedWrites);
+            }
         }
     }
 }
