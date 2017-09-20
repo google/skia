@@ -12,6 +12,7 @@
 #include "GrSurfaceProxy.h"
 
 class GrCaps;
+class GrResourceCache;
 class GrResourceProvider;
 class GrTextureOpList;
 
@@ -38,6 +39,31 @@ public:
 
     bool isMipMapped() const { return fIsMipMapped; }
 
+    /**
+     * Return the texture proxy's unique key. It will be invalid if the proxy doesn't have one.
+     */
+    const GrUniqueKey& getUniqueKey() const {
+#ifdef SK_DEBUG
+        if (fTarget && fUniqueKey.isValid()) {
+            SkASSERT(fTarget->getUniqueKey().isValid());
+            // It is possible for a non-keyed proxy to have a uniquely keyed resource assigned to
+            // it. This just means that a future user of the resource will be filling it with unique
+            // data. However, if the proxy has a unique key its attached resource should also
+            // have that key.
+            SkASSERT(fUniqueKey == fTarget->getUniqueKey());
+        }
+#endif
+
+        return fUniqueKey;
+    }
+
+    /**
+     * Internal-only helper class used for manipulations of the resource by the cache.
+     */
+    class CacheAccess;
+    inline CacheAccess cacheAccess();
+    inline const CacheAccess cacheAccess() const;
+
 protected:
     friend class GrSurfaceProxy; // for ctors
 
@@ -47,6 +73,8 @@ protected:
     // Wrapped version
     GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 
+    ~GrTextureProxy() override;
+
     SkDestinationSurfaceColorMode mipColorMode() const { return fMipColorMode;  }
 
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
@@ -55,7 +83,14 @@ private:
     bool fIsMipMapped;
     SkDestinationSurfaceColorMode fMipColorMode;
 
+    GrUniqueKey fUniqueKey;
+    GrResourceCache* fCache; // only set when fUniqueKey is valid
+
     size_t onUninstantiatedGpuMemorySize() const override;
+
+    // Methods made available via GrTextureProxy::CacheAccess
+    void setUniqueKey(GrResourceCache*, const GrUniqueKey&);
+    void clearUniqueKey();
 
     // For wrapped proxies the GrTexture pointer is stored in GrIORefProxy.
     // For deferred proxies that pointer will be filled in when we need to instantiate
