@@ -121,11 +121,11 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const char* atlasAdjust;
     fAtlasAdjustUniform = uniHandler->addUniform(
             kVertex_GrShaderFlag,
-            kHighFloat2_GrSLType, "atlas_adjust", &atlasAdjust);
+            kFloat2_GrSLType, "atlas_adjust", &atlasAdjust);
 
     varyingHandler->emitAttributes(proc);
 
-    GrGLSLVertToFrag texcoord(kHighFloat2_GrSLType);
+    GrGLSLVertToFrag texcoord(kFloat2_GrSLType);
     GrGLSLVertToFrag color(kHalf4_GrSLType);
     varyingHandler->addVarying("texcoord", &texcoord, kHigh_GrSLPrecision);
     varyingHandler->addFlatPassThroughAttribute(&proc.getInstanceAttrib(InstanceAttribs::kColor),
@@ -137,41 +137,41 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // Find the intersections of (bloated) devBounds and devBounds45 in order to come up with an
     // octagon that circumscribes the (bloated) path. A vertex is the intersection of two lines:
     // one edge from the path's bounding box and one edge from its 45-degree bounding box.
-    v->codeAppendf("highfloat2x2 N = highfloat2x2(%s);", proc.getEdgeNormsAttrib().fName);
+    v->codeAppendf("float2x2 N = float2x2(%s);", proc.getEdgeNormsAttrib().fName);
 
     // N[0] is the normal for the edge we are intersecting from the regular bounding box, pointing
     // out of the octagon.
-    v->codeAppendf("highfloat2 refpt = (min(N[0].x, N[0].y) < 0) ? %s.xy : %s.zw;",
+    v->codeAppendf("float2 refpt = (min(N[0].x, N[0].y) < 0) ? %s.xy : %s.zw;",
                    proc.getInstanceAttrib(InstanceAttribs::kDevBounds).fName,
                    proc.getInstanceAttrib(InstanceAttribs::kDevBounds).fName);
     v->codeAppendf("refpt += N[0] * %f;", kAABloatRadius); // bloat for AA.
 
     // N[1] is the normal for the edge we are intersecting from the 45-degree bounding box, pointing
     // out of the octagon.
-    v->codeAppendf("highfloat2 refpt45 = (N[1].x < 0) ? %s.xy : %s.zw;",
+    v->codeAppendf("float2 refpt45 = (N[1].x < 0) ? %s.xy : %s.zw;",
                    proc.getInstanceAttrib(InstanceAttribs::kDevBounds45).fName,
                    proc.getInstanceAttrib(InstanceAttribs::kDevBounds45).fName);
-    v->codeAppendf("refpt45 *= highfloat2x2(.5,.5,-.5,.5);"); // transform back to device space.
+    v->codeAppendf("refpt45 *= float2x2(.5,.5,-.5,.5);"); // transform back to device space.
     v->codeAppendf("refpt45 += N[1] * %f;", kAABloatRadius); // bloat for AA.
 
-    v->codeAppend ("highfloat2 K = highfloat2(dot(N[0], refpt), dot(N[1], refpt45));");
-    v->codeAppendf("highfloat2 octocoord = K * inverse(N);");
+    v->codeAppend ("float2 K = float2(dot(N[0], refpt), dot(N[1], refpt45));");
+    v->codeAppendf("float2 octocoord = K * inverse(N);");
 
-    gpArgs->fPositionVar.set(kHighFloat2_GrSLType, "octocoord");
+    gpArgs->fPositionVar.set(kFloat2_GrSLType, "octocoord");
 
     // Convert to atlas coordinates in order to do our texture lookup.
-    v->codeAppendf("highfloat2 atlascoord = octocoord + highfloat2(%s);",
+    v->codeAppendf("float2 atlascoord = octocoord + float2(%s);",
                    proc.getInstanceAttrib(InstanceAttribs::kAtlasOffset).fName);
     if (kTopLeft_GrSurfaceOrigin == proc.atlasProxy()->origin()) {
         v->codeAppendf("%s = atlascoord * %s;", texcoord.vsOut(), atlasAdjust);
     } else {
         SkASSERT(kBottomLeft_GrSurfaceOrigin == proc.atlasProxy()->origin());
-        v->codeAppendf("%s = highfloat2(atlascoord.x * %s.x, 1 - atlascoord.y * %s.y);",
+        v->codeAppendf("%s = float2(atlascoord.x * %s.x, 1 - atlascoord.y * %s.y);",
                        texcoord.vsOut(), atlasAdjust, atlasAdjust);
     }
 
     // Convert to (local) path cordinates.
-    v->codeAppendf("highfloat2 pathcoord = inverse(highfloat2x2(%s)) * (octocoord - %s);",
+    v->codeAppendf("float2 pathcoord = inverse(float2x2(%s)) * (octocoord - %s);",
                    proc.getInstanceAttrib(InstanceAttribs::kViewMatrix).fName,
                    proc.getInstanceAttrib(InstanceAttribs::kViewTranslate).fName);
 
@@ -182,7 +182,7 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLPPFragmentBuilder* f = args.fFragBuilder;
 
     f->codeAppend ("half coverage_count = ");
-    f->appendTextureLookup(args.fTexSamplers[0], texcoord.fsIn(), kHighFloat2_GrSLType);
+    f->appendTextureLookup(args.fTexSamplers[0], texcoord.fsIn(), kFloat2_GrSLType);
     f->codeAppend (".a;");
 
     if (SkPath::kWinding_FillType == proc.fillType()) {

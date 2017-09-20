@@ -1258,7 +1258,7 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     SkString permCode("return ");
     // FIXME even though I'm creating these textures with kRepeat_TileMode, they're clamped. Not
     // sure why. Using fract() (here and the next texture lookup) as a workaround.
-    fragBuilder->appendTextureLookup(&permCode, args.fTexSamplers[0], "highfloat2(fract(x / 256.0), 0.0)",
+    fragBuilder->appendTextureLookup(&permCode, args.fTexSamplers[0], "float2(fract(x / 256.0), 0.0)",
                                      kHalf2_GrSLType);
     permCode.append(".r * 255.0;");
     fragBuilder->emitFunction(kHalf_GrSLType, "perm", SK_ARRAY_COUNT(permArgs), permArgs,
@@ -1271,9 +1271,9 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     };
     SkString gradFuncName;
     SkString gradCode("return dot(");
-    fragBuilder->appendTextureLookup(&gradCode, args.fTexSamplers[1], "highfloat2(fract(x / 16.0), 0.0)",
+    fragBuilder->appendTextureLookup(&gradCode, args.fTexSamplers[1], "float2(fract(x / 16.0), 0.0)",
                                      kHalf2_GrSLType);
-    gradCode.append(".rgb * 255.0 - highfloat3(1.0), p);");
+    gradCode.append(".rgb * 255.0 - float3(1.0), p);");
     fragBuilder->emitFunction(kHalf_GrSLType, "grad", SK_ARRAY_COUNT(gradArgs), gradArgs,
                               gradCode.c_str(), &gradFuncName);
 

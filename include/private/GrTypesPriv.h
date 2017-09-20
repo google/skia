@@ -111,13 +111,13 @@ enum GrSLType {
     kBool_GrSLType,
     kShort_GrSLType,
     kUShort_GrSLType,
-    kHighFloat_GrSLType,
-    kHighFloat2_GrSLType,
-    kHighFloat3_GrSLType,
-    kHighFloat4_GrSLType,
-    kHighFloat2x2_GrSLType,
-    kHighFloat3x3_GrSLType,
-    kHighFloat4x4_GrSLType,
+    kFloat_GrSLType,
+    kFloat2_GrSLType,
+    kFloat3_GrSLType,
+    kFloat4_GrSLType,
+    kFloat2x2_GrSLType,
+    kFloat3x3_GrSLType,
+    kFloat4x4_GrSLType,
     kHalf_GrSLType,
     kHalf2_GrSLType,
     kHalf3_GrSLType,
@@ -184,13 +184,13 @@ static const int kGrSLPrecisionCount = kLast_GrSLPrecision + 1;
 /** Is the shading language type float (including vectors/matrices)? */
 static inline bool GrSLTypeIsFloatType(GrSLType type) {
     switch (type) {
-        case kHighFloat_GrSLType:
-        case kHighFloat2_GrSLType:
-        case kHighFloat3_GrSLType:
-        case kHighFloat4_GrSLType:
-        case kHighFloat2x2_GrSLType:
-        case kHighFloat3x3_GrSLType:
-        case kHighFloat4x4_GrSLType:
+        case kFloat_GrSLType:
+        case kFloat2_GrSLType:
+        case kFloat3_GrSLType:
+        case kFloat4_GrSLType:
+        case kFloat2x2_GrSLType:
+        case kFloat3x3_GrSLType:
+        case kFloat4x4_GrSLType:
         case kHalf_GrSLType:
         case kHalf2_GrSLType:
         case kHalf3_GrSLType:
@@ -234,13 +234,13 @@ static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
             return true;
 
         case kVoid_GrSLType:
-        case kHighFloat_GrSLType:
-        case kHighFloat2_GrSLType:
-        case kHighFloat3_GrSLType:
-        case kHighFloat4_GrSLType:
-        case kHighFloat2x2_GrSLType:
-        case kHighFloat3x3_GrSLType:
-        case kHighFloat4x4_GrSLType:
+        case kFloat_GrSLType:
+        case kFloat2_GrSLType:
+        case kFloat3_GrSLType:
+        case kFloat4_GrSLType:
+        case kFloat2x2_GrSLType:
+        case kFloat3x3_GrSLType:
+        case kFloat4x4_GrSLType:
         case kHalf_GrSLType:
         case kHalf2_GrSLType:
         case kHalf3_GrSLType:
@@ -278,13 +278,13 @@ static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
             return true;
 
         case kVoid_GrSLType:
-        case kHighFloat_GrSLType:
-        case kHighFloat2_GrSLType:
-        case kHighFloat3_GrSLType:
-        case kHighFloat4_GrSLType:
-        case kHighFloat2x2_GrSLType:
-        case kHighFloat3x3_GrSLType:
-        case kHighFloat4x4_GrSLType:
+        case kFloat_GrSLType:
+        case kFloat2_GrSLType:
+        case kFloat3_GrSLType:
+        case kFloat4_GrSLType:
+        case kFloat2x2_GrSLType:
+        case kFloat3x3_GrSLType:
+        case kFloat4x4_GrSLType:
         case kHalf_GrSLType:
         case kHalf2_GrSLType:
         case kHalf3_GrSLType:
@@ -318,13 +318,13 @@ static inline bool GrSLTypeIsImageStorage(GrSLType type) {
             return true;
 
         case kVoid_GrSLType:
-        case kHighFloat_GrSLType:
-        case kHighFloat2_GrSLType:
-        case kHighFloat3_GrSLType:
-        case kHighFloat4_GrSLType:
-        case kHighFloat2x2_GrSLType:
-        case kHighFloat3x3_GrSLType:
-        case kHighFloat4x4_GrSLType:
+        case kFloat_GrSLType:
+        case kFloat2_GrSLType:
+        case kFloat3_GrSLType:
+        case kFloat4_GrSLType:
+        case kFloat2x2_GrSLType:
+        case kFloat3x3_GrSLType:
+        case kFloat4x4_GrSLType:
         case kHalf_GrSLType:
         case kHalf2_GrSLType:
         case kHalf3_GrSLType:
@@ -371,13 +371,13 @@ static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {
         case kBool_GrSLType:
         case kShort_GrSLType:
         case kUShort_GrSLType:
-        case kHighFloat_GrSLType:
-        case kHighFloat2_GrSLType:
-        case kHighFloat3_GrSLType:
-        case kHighFloat4_GrSLType:
-        case kHighFloat2x2_GrSLType:
-        case kHighFloat3x3_GrSLType:
-        case kHighFloat4x4_GrSLType:
+        case kFloat_GrSLType:
+        case kFloat2_GrSLType:
+        case kFloat3_GrSLType:
+        case kFloat4_GrSLType:
+        case kFloat2x2_GrSLType:
+        case kFloat3x3_GrSLType:
+        case kFloat4x4_GrSLType:
         case kHalf_GrSLType:
         case kHalf2_GrSLType:
         case kHalf3_GrSLType:
@@ -403,13 +403,13 @@ static inline bool GrSLTypeTemporarilyAcceptsPrecision(GrSLType type) {
     switch (type) {
         case kShort_GrSLType:
         case kUShort_GrSLType:
-        case kHighFloat_GrSLType:
-        case kHighFloat2_GrSLType:
-        case kHighFloat3_GrSLType:
-        case kHighFloat4_GrSLType:
-        case kHighFloat2x2_GrSLType:
-        case kHighFloat3x3_GrSLType:
-        case kHighFloat4x4_GrSLType:
+        case kFloat_GrSLType:
+        case kFloat2_GrSLType:
+        case kFloat3_GrSLType:
+        case kFloat4_GrSLType:
+        case kFloat2x2_GrSLType:
+        case kFloat3x3_GrSLType:
+        case kFloat4x4_GrSLType:
         case kHalf_GrSLType:
         case kHalf2_GrSLType:
         case kHalf3_GrSLType:
@@ -511,19 +511,19 @@ static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
 static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
     switch (type) {
         case kVec2us_norm_GrVertexAttribType: // fall through
-            return kHighFloat2_GrSLType;
+            return kFloat2_GrSLType;
         case kVec2us_uint_GrVertexAttribType:
             return kUint2_GrSLType;
         case kUByte_GrVertexAttribType:       // fall through
         case kFloat_GrVertexAttribType:
-            return kHighFloat_GrSLType;
+            return kFloat_GrSLType;
         case kVec2f_GrVertexAttribType:
-            return kHighFloat2_GrSLType;
+            return kFloat2_GrSLType;
         case kVec3f_GrVertexAttribType:
-            return kHighFloat3_GrSLType;
+            return kFloat3_GrSLType;
         case kVec4ub_GrVertexAttribType:
         case kVec4f_GrVertexAttribType:
-            return kHighFloat4_GrSLType;
+            return kFloat4_GrSLType;
         case kVec2i_GrVertexAttribType:
             return kInt2_GrSLType;
         case kVec3i_GrVertexAttribType:

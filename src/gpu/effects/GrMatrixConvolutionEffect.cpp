@@ -66,7 +66,7 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     fragBuilder->codeAppend("half4 sum = half4(0, 0, 0, 0);");
-    fragBuilder->codeAppendf("highfloat2 coord = %s - %s * %s;", coords2D.c_str(), kernelOffset, imgInc);
+    fragBuilder->codeAppendf("float2 coord = %s - %s * %s;", coords2D.c_str(), kernelOffset, imgInc);
     fragBuilder->codeAppend("half4 c;");
 
     const char* kVecSuffix[4] = { ".x", ".y", ".z", ".w" };

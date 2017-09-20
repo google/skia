@@ -33,12 +33,12 @@ public:
     GrCCPRCubicProcessor(CubicType cubicType)
             : INHERITED(CoverageType::kShader)
             , fCubicType(cubicType)
-            , fKLMMatrix("klm_matrix", kHighFloat3x3_GrSLType, GrShaderVar::kNonArray,
+            , fKLMMatrix("klm_matrix", kFloat3x3_GrSLType, GrShaderVar::kNonArray,
                          kHigh_GrSLPrecision)
-            , fKLMDerivatives("klm_derivatives", kHighFloat2_GrSLType, 3, kHigh_GrSLPrecision)
-            , fEdgeDistanceEquation("edge_distance_equation", kHighFloat3_GrSLType,
+            , fKLMDerivatives("klm_derivatives", kFloat2_GrSLType, 3, kHigh_GrSLPrecision)
+            , fEdgeDistanceEquation("edge_distance_equation", kFloat3_GrSLType,
                                     GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fKLMD(kHighFloat4_GrSLType) {}
+            , fKLMD(kFloat4_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         varyingHandler->addVarying("klmd", &fKLMD, kHigh_GrSLPrecision);
@@ -71,7 +71,7 @@ class GrCCPRCubicHullProcessor : public GrCCPRCubicProcessor {
 public:
     GrCCPRCubicHullProcessor(CubicType cubicType)
             : INHERITED(cubicType)
-            , fGradMatrix(kHighFloat2x2_GrSLType) {}
+            , fGradMatrix(kFloat2x2_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);
@@ -93,10 +93,10 @@ class GrCCPRCubicCornerProcessor : public GrCCPRCubicProcessor {
 public:
     GrCCPRCubicCornerProcessor(CubicType cubicType)
             : INHERITED(cubicType)
-            , fEdgeDistanceDerivatives("edge_distance_derivatives", kHighFloat2_GrSLType,
+            , fEdgeDistanceDerivatives("edge_distance_derivatives", kFloat2_GrSLType,
                                         GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fdKLMDdx(kHighFloat4_GrSLType)
-            , fdKLMDdy(kHighFloat4_GrSLType) {}
+            , fdKLMDdx(kFloat4_GrSLType)
+            , fdKLMDdy(kFloat4_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);
