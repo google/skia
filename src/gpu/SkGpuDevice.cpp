@@ -100,6 +100,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
                                      const SkSurfaceProps* props, InitContents init) {
     unsigned flags;
     if (!CheckAlphaTypeAndGetFlags(&info, init, &flags)) {
+        SkDebugf("Alpha type or flags not good");
         return nullptr;
     }
 
@@ -107,6 +108,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
                                                                              info, sampleCount,
                                                                              origin, props));
     if (!renderTargetContext) {
+        SkDebugf("Render target context not good.\n");
         return nullptr;
     }
 
@@ -148,10 +150,12 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
                                                                const SkSurfaceProps* surfaceProps) {
     if (kUnknown_SkColorType == origInfo.colorType() ||
         origInfo.width() < 0 || origInfo.height() < 0) {
+        SkDebugf("Bad origInfo\n");
         return nullptr;
     }
 
     if (!context) {
+        SkDebugf("Context was null??\n");
         return nullptr;
     }
 

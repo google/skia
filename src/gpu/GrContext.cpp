@@ -893,6 +893,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
                                                         const SkSurfaceProps* surfaceProps,
                                                         SkBudgeted budgeted) {
     if (this->abandoned()) {
+        SkDebugf("Was abandoned\n");
         return nullptr;
     }
 
@@ -907,6 +908,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
     sk_sp<GrTextureProxy> rtp = GrSurfaceProxy::MakeDeferred(this->resourceProvider(),
                                                              desc, fit, budgeted);
     if (!rtp) {
+        SkDebugf("No rtp\n");
         return nullptr;
     }
 
@@ -915,6 +917,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
                                                  std::move(colorSpace),
                                                  surfaceProps));
     if (!renderTargetContext) {
+        SkDebugf("No renderTargetContext\n");
         return nullptr;
     }
 
