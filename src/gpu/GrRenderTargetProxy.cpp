@@ -53,7 +53,7 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
 
     if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNeedsStencil, kFlags,
                                /* isMipped = */ false,
-                               SkDestinationSurfaceColorMode::kLegacy, nullptr)) {
+                               SkDestinationSurfaceColorMode::kLegacy)) {
         return false;
     }
     SkASSERT(fTarget->asRenderTarget());
