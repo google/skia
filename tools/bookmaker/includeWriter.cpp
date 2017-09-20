@@ -455,6 +455,20 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
                 commentStart = methodProp->fTerminator;
                 commentLen = (int) (method->fContentEnd - commentStart);
                 break;
+            case MarkType::kFormula:
+                commentLen = methodProp->fStart - commentStart;
+                if (commentLen > 0) {
+                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
+                        this->lfcr();
+                    }
+                }
+                this->writeBlock(methodProp->length(), methodProp->fContentStart);
+                commentStart = methodProp->fTerminator;
+                commentLen = (int) (method->fContentEnd - commentStart);
+                if ('\n' == commentStart[0] && '\n' == commentStart[1]) {
+                    this->lf(2);
+                }
+                break;
             case MarkType::kToDo:
                 commentLen = (int) (methodProp->fStart - commentStart);
                 if (commentLen > 0) {
@@ -838,7 +852,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 method = root->find(methodName, RootDefinition::AllowParens::kNo);
                 if (!method) {
                     fLineCount = child.fLineCount;
-                    fclose(fOut);  // so we can see what we've written so far
                     return this->reportError<bool>("method not found");
                 }
                 this->methodOut(method, child);
@@ -852,17 +865,19 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             if (inConstructor) {
                 continue;
             }
-            methodName += "()";
-            method = root->find(methodName, RootDefinition::AllowParens::kNo);
+            method = root->find(methodName + "()", RootDefinition::AllowParens::kNo);
             if (method && MarkType::kDefinedBy == method->fMarkType) {
                 method = method->fParent;
             }
             if (method) {
+                if (method->fCloned) {
+                    clonedMethod = method;
+                    continue;
+                }
                 this->methodOut(method, child);
                 continue;
             }
             fLineCount = child.fLineCount;
-            fclose(fOut);  // so we can see what we've written so far
             return this->reportError<bool>("method not found");
         }
         if (Bracket::kSlashSlash == child.fBracket || Bracket::kSlashStar == child.fBracket) {

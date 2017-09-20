@@ -1682,7 +1682,7 @@ Call restoreToCount with returned value to restore this and subsequent saves.
 
 Draw text on an opaque background so that LCD_Text blends correctly with the
 prior Layer. LCD_Text drawn on a background with transparency may result in
-incorrect banding.
+incorrect blending.
 
 #Param bounds  hint to limit the size of Layer; may be nullptr ##
 #Param paint   graphics state for Layer; may be nullptr ##
@@ -5760,11 +5760,11 @@ If cullRect is outside of Clip, canvas can skip drawing.
 #Param atlas  Image containing sprites ##
 #Param xform  RSXform mappings for sprites in atlas ##
 #Param tex    Rect locations of sprites in atlas ##
-#Param colors  Color, one per sprite, blended with sprite using Blend_Mode; may be nullptr ##
+#Param colors  one per sprite, blended with sprite using Blend_Mode; may be nullptr ##
 #Param count  number of sprites to draw ##
 #Param mode   Blend_Mode combining colors and sprites ##
-#Param cullRect  Rect bounds of transformed sprites for efficient clipping; may be nullptr ##
-#Param paint  Paint Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
+#Param cullRect  bounds of transformed sprites for efficient clipping; may be nullptr ##
+#Param paint  Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
 
 #Example
 #Image 3
@@ -5801,11 +5801,11 @@ If cullRect is outside of Clip, canvas can skip drawing.
 #Param atlas  Image containing sprites ##
 #Param xform  RSXform mappings for sprites in atlas ##
 #Param tex    Rect locations of sprites in atlas ##
-#Param colors  Color, one per sprite, blended with sprite using Blend_Mode; may be nullptr ##
+#Param colors  one per sprite, blended with sprite using Blend_Mode; may be nullptr ##
 #Param count  number of sprites to draw ##
 #Param mode   Blend_Mode combining colors and sprites ##
-#Param cullRect  Rect bounds of transformed sprites for efficient clipping; may be nullptr ##
-#Param paint  Paint Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
+#Param cullRect  bounds of transformed sprites for efficient clipping; may be nullptr ##
+#Param paint  Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
 
 #Example
 #Image 3
@@ -5842,8 +5842,8 @@ If cullRect is outside of Clip, canvas can skip drawing.
 #Param xform  RSXform mappings for sprites in atlas ##
 #Param tex    Rect locations of sprites in atlas ##
 #Param count  number of sprites to draw ##
-#Param cullRect  Rect bounds of transformed sprites for efficient clipping; may be nullptr ##
-#Param paint  Paint Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
+#Param cullRect  bounds of transformed sprites for efficient clipping; may be nullptr ##
+#Param paint  Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
 
 #Example
 #Image 3
@@ -5878,8 +5878,8 @@ If cullRect is outside of Clip, canvas can skip drawing.
 #Param xform  RSXform mappings for sprites in atlas ##
 #Param tex    Rect locations of sprites in atlas ##
 #Param count  number of sprites to draw ##
-#Param cullRect  Rect bounds of transformed sprites for efficient clipping; may be nullptr ##
-#Param paint  Paint Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
+#Param cullRect  bounds of transformed sprites for efficient clipping; may be nullptr ##
+#Param paint  Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
 
 #Example
 #Image 3

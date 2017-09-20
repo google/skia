@@ -367,7 +367,7 @@ void draw(SkCanvas* canvas) {
 
 #Method const SkImageInfo& info() const 
 
-Returns width, height, SkAlphaType, and SkColorType.
+Returns width, height, Alpha_Type, Color_Type, and Color_Space.
 
 #Return reference to ImageInfo  ##
 
@@ -432,7 +432,7 @@ rowBytes: 8 minRowBytes: 4
 
 #Method const void* addr() const 
 
-Returns pixel address, the base corresponding the pixel origin.
+Returns pixel address, the base address corresponding to the pixel origin.
 
 It is up to the Pixmap creator to ensure that pixel address is a useful value.
 
@@ -839,7 +839,7 @@ width: 1000000 height: 1000000 getSafeSize:       0
 
 Returns true if all pixels are opaque. Color_Type determines how pixels
 are encoded, and whether pixel describes Alpha. Returns true for Color_Types
-without alpha for each pixel; for other Color_Types, returns true if all
+without alpha in each pixel; for other Color_Types, returns true if all
 pixels have alpha values equivalent to 1.0 or greater.
 
 For Color_Types kRGB_565_SkColorType or kGray_8_SkColorType: always
@@ -849,7 +849,7 @@ For Color_Type kARGB_4444_SkColorType: returns true if all pixel Alpha values ar
 For kRGBA_F16_SkColorType: returns true if all pixel Alpha values are 1.0 or
 greater.
 
-Returns false for any other Color_Type. 
+Returns false for kUnknown_SkColorType. 
 
 #Return true all pixels have opaque values or Color_Type is opaque  ##
 
@@ -896,8 +896,8 @@ Color_Space in Image_Info is ignored. Some Color precision may be lost in the
 conversion to Unpremultiplied Color; original pixel data may have additional 
 precision.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  pixel converted to Unpremultiplied Color ##
 
@@ -954,8 +954,8 @@ Returns readable pixel address at (x, y).
 Input is not validated: out of bounds values of x or y trigger an assert() if
 built with SK_DEBUG defined. Returns zero if Color_Type is kUnknown_SkColorType.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  readable generic pointer to pixel ##
 
@@ -1134,8 +1134,8 @@ built with SK_DEBUG defined.
 Will trigger an assert() if Color_Type is not kAlpha_8_SkColorType or
 kGray_8_SkColorType, and is built with SK_DEBUG defined.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  readable unsigned 8-bit pointer to pixel at (x, y) ##
 
@@ -1168,8 +1168,8 @@ built with SK_DEBUG defined.
 Will trigger an assert() if Color_Type is not kRGB_565_SkColorType or
 kARGB_4444_SkColorType, and is built with SK_DEBUG defined.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  readable unsigned 16-bit pointer to pixel at (x, y) ##
 
@@ -1202,8 +1202,8 @@ built with SK_DEBUG defined.
 Will trigger an assert() if Color_Type is not kRGBA_8888_SkColorType or
 kBGRA_8888_SkColorType, and is built with SK_DEBUG defined.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  readable unsigned 32-bit pointer to pixel at (x, y) ##
 
@@ -1236,8 +1236,8 @@ built with SK_DEBUG defined.
 Will trigger an assert() if Color_Type is not kRGBA_F16_SkColorType and is built
 with SK_DEBUG defined.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  readable unsigned 64-bit pointer to pixel at (x, y) ##
 
@@ -1273,8 +1273,8 @@ with SK_DEBUG defined.
 Each unsigned 16-bit word represents one color component encoded as a half float.
 Four words correspond to one pixel.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  readable unsigned 16-bit pointer to pixel component at (x, y) ##
 
@@ -1342,8 +1342,8 @@ Returns writable pixel address at (x, y).
 Input is not validated: out of bounds values of x or y trigger an assert() if
 built with SK_DEBUG defined. Returns zero if Color_Type is kUnknown_SkColorType.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  writable generic pointer to pixel ##
 
@@ -1381,8 +1381,8 @@ kGray_8_SkColorType, and is built with SK_DEBUG defined.
 
 One byte corresponds to one pixel.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  writable unsigned 8-bit pointer to pixels ##
 
@@ -1425,8 +1425,8 @@ kARGB_4444_SkColorType, and is built with SK_DEBUG defined.
 
 One word corresponds to one pixel.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  writable unsigned 16-bit pointer to pixel ##
 
@@ -1466,8 +1466,8 @@ kBGRA_8888_SkColorType, and is built with SK_DEBUG defined.
 
 One word corresponds to one pixel.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  writable unsigned 32-bit pointer to pixel ##
 
@@ -1506,8 +1506,8 @@ with SK_DEBUG defined.
 
 One word corresponds to one pixel.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  writable unsigned 64-bit pointer to pixel ##
 
@@ -1541,8 +1541,8 @@ with SK_DEBUG defined.
 Each word represents one color component encoded as a half float.
 Four words correspond to one pixel.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  writable unsigned 16-bit pointer to first component of pixel ##
 
