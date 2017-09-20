@@ -19,7 +19,7 @@
  *  X bytes (inclusive), and the wrapped stream is not necessarily
  *  able to rewind at all.
  */
-class SkFrontBufferedStream {
+class SK_API SkFrontBufferedStream {
 public:
     /**
      *  Creates a new stream that wraps and buffers an SkStream.
