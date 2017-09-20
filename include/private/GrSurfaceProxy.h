@@ -336,6 +336,8 @@ public:
     const GrSurfaceProxyPriv priv() const;
 
 protected:
+    static int gCount;
+
     // Deferred version
     GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
             : fConfig(desc.fConfig)
@@ -349,6 +351,8 @@ protected:
             , fGpuMemorySize(kInvalidGpuMemorySize)
             , fLastOpList(nullptr) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
+        ++gCount;
+        SkDebugf("Create GrSurfaceProxy: %d\n", gCount);
     }
 
     // Wrapped version

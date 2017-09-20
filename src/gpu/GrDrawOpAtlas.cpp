@@ -238,7 +238,6 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
         }
     }
 
-#ifdef SK_GROW_ATLAS
     // If the simple cases fail, try to create a new page and add to it
     if (this->createNewPage()) {
         unsigned int pageIdx = fNumPages-1;
@@ -253,7 +252,6 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
         SkASSERT(false);
         return false;
     }
-#endif
 
     // Try to find a plot that we can perform an inline upload to.
     // We prioritize this upload in reverse order of pages to counterbalance the order above.

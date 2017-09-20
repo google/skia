@@ -20,6 +20,8 @@
 
 #include "SkMathPriv.h"
 
+int GrSurfaceProxy::gCount = 0;
+
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit)
         : INHERITED(std::move(surface))
         , fConfig(fTarget->config())
@@ -33,12 +35,16 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
+    ++gCount;
+    SkDebugf("Create GrSurfaceProxy: %d\n", gCount);
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
     // For this to be deleted the opList that held a ref on it (if there was one) must have been
     // deleted. Which would have cleared out this back pointer.
     SkASSERT(!fLastOpList);
+    --gCount;
+    SkDebugf("Delete GrSurfaceProxy: %d\n", gCount);
 }
 
 static bool attach_stencil_if_needed(GrResourceProvider* resourceProvider,
