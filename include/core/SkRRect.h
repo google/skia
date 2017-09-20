@@ -46,7 +46,7 @@ class SkMatrix;
 */
 class SK_API SkRRect {
 public:
-    SkRRect() { /* unititialized */ }
+    SkRRect() { this->setEmpty(); }
     SkRRect(const SkRRect&) = default;
     SkRRect& operator=(const SkRRect&) = default;
 
@@ -135,7 +135,7 @@ public:
         fRect = rect;
         fRect.sort();
 
-        if (fRect.isEmpty()) {
+        if (fRect.isEmpty() || !fRect.isFinite()) {
             this->setEmpty();
             return;
         }
@@ -178,7 +178,7 @@ public:
         fRect = oval;
         fRect.sort();
 
-        if (fRect.isEmpty()) {
+        if (fRect.isEmpty() || !fRect.isFinite()) {
             this->setEmpty();
             return;
         }
@@ -290,6 +290,7 @@ public:
     bool contains(const SkRect& rect) const;
 
     bool isValid() const;
+    static bool AreRectAndRadiiValid(const SkRect&, const SkVector[4]);
 
     enum {
         kSizeInMemory = 12 * sizeof(SkScalar)
