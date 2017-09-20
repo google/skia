@@ -109,8 +109,12 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 
 bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
                                      bool needsStencil, GrSurfaceFlags flags, bool isMipMapped,
-                                     SkDestinationSurfaceColorMode mipColorMode) {
+                                     SkDestinationSurfaceColorMode mipColorMode,
+                                     const GrUniqueKey* uniqueKey) {
     if (fTarget) {
+        if (uniqueKey) {
+            SkASSERT(fTarget->getUniqueKey() == *uniqueKey);
+        }
         return attach_stencil_if_needed(resourceProvider, fTarget, needsStencil);
     }
 
@@ -118,6 +122,10 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
                                                        flags, isMipMapped, mipColorMode);
     if (!surface) {
         return false;
+    }
+
+    if (uniqueKey) {
+        resourceProvider->assignUniqueKeyToResource(*uniqueKey, surface.get());
     }
 
     this->assign(std::move(surface));
