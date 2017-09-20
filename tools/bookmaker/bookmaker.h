@@ -1841,12 +1841,13 @@ public:
         return 0 == size;
     }
 
+    void descriptionOut(const Definition* def);
     void enumHeaderOut(const RootDefinition* root, const Definition& child);
     void enumMembersOut(const RootDefinition* root, Definition& child);
     void enumSizeItems(const Definition& child);
     int lookupMethod(const PunctuationState punctuation, const Word word,
             const int start, const int run, int lastWrite, 
-            const char* data);
+            const char* data, bool hasIndirection);
     int lookupReference(const PunctuationState punctuation, const Word word,
             const int start, const int run, int lastWrite, const char last, 
             const char* data);
