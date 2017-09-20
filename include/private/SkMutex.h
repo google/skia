@@ -10,14 +10,9 @@
 
 #include "../private/SkSemaphore.h"
 #include "../private/SkThreadID.h"
-#include "SkTSAN.h"
 #include "SkTypes.h"
 
 #define SK_DECLARE_STATIC_MUTEX(name) static SkBaseMutex name;
-
-// We use ANNOTE_RWLOCK_foo() macros in here because TSAN does
-// not intercept Mach semaphore_t calls, and so on Mac can't
-// see that SkMutex is indeed a mutex.
 
 class SkBaseMutex {
 public:
@@ -26,12 +21,10 @@ public:
     void acquire() {
         fSemaphore.wait();
         SkDEBUGCODE(fOwner = SkGetThreadID();)
-        ANNOTATE_RWLOCK_ACQUIRED(&fSemaphore, true);
     }
 
     void release() {
         this->assertHeld();
-        ANNOTATE_RWLOCK_RELEASED(&fSemaphore, true);
         SkDEBUGCODE(fOwner = kIllegalThreadID;)
         fSemaphore.signal();
     }
@@ -47,11 +40,8 @@ protected:
 
 class SkMutex : public SkBaseMutex {
 public:
-    SkMutex() { ANNOTATE_RWLOCK_CREATE(&fSemaphore); }
-    ~SkMutex() {
-        ANNOTATE_RWLOCK_DESTROY(&fSemaphore);
-        fSemaphore.cleanup();
-    }
+    using SkBaseMutex::SkBaseMutex;
+    ~SkMutex() { fSemaphore.cleanup(); }
 };
 
 class SkAutoMutexAcquire {
