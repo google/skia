@@ -263,6 +263,30 @@
     },
     {
       "key": {
+        "uuid": "d1098e9a_072965f9",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-21T16:14:59Z",
+      "side": 1,
+      "message": "Changed none -\u003e wasm",
+      "parentUuid": "bf5fec1e_084969c2",
+      "range": {
+        "startLine": 36,
+        "startChar": 22,
+        "endLine": 36,
+        "endChar": 26
+      },
+      "revId": "e2cdec4e4ff53cdb5c0b93100b04a1d33623d463",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "587a3bea_07961d3a",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 8
@@ -283,6 +307,30 @@
       "revId": "e2cdec4e4ff53cdb5c0b93100b04a1d33623d463",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e04a3c22_2ff52680",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-21T16:14:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "587a3bea_07961d3a",
+      "range": {
+        "startLine": 75,
+        "startChar": 6,
+        "endLine": 75,
+        "endChar": 56
+      },
+      "revId": "e2cdec4e4ff53cdb5c0b93100b04a1d33623d463",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
