@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d1ebef3_138750ec",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2087,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-21T16:13:00Z",
+      "side": 1,
+      "message": "Fix assert message ?",
+      "revId": "50c27ef6241bdb536866ee34d31f76c94ff51b00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50175ddd_7a8a81a3",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2089,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-21T16:13:00Z",
+      "side": 1,
+      "message": "// packed header, path, start index\n\n?",
+      "revId": "50c27ef6241bdb536866ee34d31f76c94ff51b00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e867a89_aa242eeb",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2147,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-21T16:13:00Z",
+      "side": 1,
+      "message": "SkDEBUGCODE(this-\u003evalidate();) ?",
+      "revId": "50c27ef6241bdb536866ee34d31f76c94ff51b00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87e1ccfa_5e4e9935",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-21T16:13:00Z",
+      "side": 1,
+      "message": "Can we just do this in place ?",
+      "revId": "50c27ef6241bdb536866ee34d31f76c94ff51b00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
