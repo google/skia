@@ -1190,51 +1190,53 @@ if (skia_enable_tools) {
     ]
   }
 
-  test_lib("views") {
-    public_include_dirs = [ "include/views" ]
-    sources = [
-      "src/views/SkEvent.cpp",
-      "src/views/SkEventSink.cpp",
-      "src/views/SkOSMenu.cpp",
-      "src/views/SkTagList.cpp",
-      "src/views/SkTouchGesture.cpp",
-      "src/views/SkView.cpp",
-      "src/views/SkViewPriv.cpp",
-    ]
-    libs = []
-    deps = []
-    if (!is_android) {
-      sources += [ "src/views/SkWindow.cpp" ]
-    }
-    if (is_linux) {
-      public_include_dirs += [ "src/views/unix" ]
-      sources += [
-        "src/views/unix/SkOSWindow_Unix.cpp",
-        "src/views/unix/keysym2ucs.c",
+  if (target_cpu != "wasm") {
+    test_lib("views") {
+      public_include_dirs = [ "include/views" ]
+      sources = [
+        "src/views/SkEvent.cpp",
+        "src/views/SkEventSink.cpp",
+        "src/views/SkOSMenu.cpp",
+        "src/views/SkTagList.cpp",
+        "src/views/SkTouchGesture.cpp",
+        "src/views/SkView.cpp",
+        "src/views/SkViewPriv.cpp",
       ]
-      libs += [
-        "GL",
-        "X11",
-      ]
-    } else if (is_mac) {
-      sources += [
-        "src/views/mac/SkEventNotifier.mm",
-        "src/views/mac/SkNSView.mm",
-        "src/views/mac/SkOSWindow_Mac.mm",
-        "src/views/mac/SkTextFieldCell.m",
-      ]
-      libs += [
-        "QuartzCore.framework",
-        "Cocoa.framework",
-        "Foundation.framework",
-      ]
-    } else if (is_win) {
-      sources += [ "src/views/win/SkOSWindow_win.cpp" ]
-    } else if (is_ios) {
-      sources += [ "src/views/mac/SkEventNotifier.mm" ]
-    }
-    if (skia_use_angle) {
-      deps += [ "//third_party/angle2" ]
+      libs = []
+      deps = []
+      if (!is_android) {
+        sources += [ "src/views/SkWindow.cpp" ]
+      }
+      if (is_linux) {
+        public_include_dirs += [ "src/views/unix" ]
+        sources += [
+          "src/views/unix/SkOSWindow_Unix.cpp",
+          "src/views/unix/keysym2ucs.c",
+        ]
+        libs += [
+          "GL",
+          "X11",
+        ]
+      } else if (is_mac) {
+        sources += [
+          "src/views/mac/SkEventNotifier.mm",
+          "src/views/mac/SkNSView.mm",
+          "src/views/mac/SkOSWindow_Mac.mm",
+          "src/views/mac/SkTextFieldCell.m",
+        ]
+        libs += [
+          "QuartzCore.framework",
+          "Cocoa.framework",
+          "Foundation.framework",
+        ]
+      } else if (is_win) {
+        sources += [ "src/views/win/SkOSWindow_win.cpp" ]
+      } else if (is_ios) {
+        sources += [ "src/views/mac/SkEventNotifier.mm" ]
+      }
+      if (skia_use_angle) {
+        deps += [ "//third_party/angle2" ]
+      }
     }
   }
 
@@ -1292,58 +1294,59 @@ if (skia_enable_tools) {
     ]
   }
 
-  import("gn/samples.gni")
-  test_lib("samples") {
-    public_include_dirs = [ "samplecode" ]
-    include_dirs = [ "experimental" ]
-    sources = samples_sources + [
-                "experimental/SkSetPoly3To3.cpp",
-                "experimental/SkSetPoly3To3_A.cpp",
-                "experimental/SkSetPoly3To3_D.cpp",
+  if (target_cpu != "wasm") {
+    import("gn/samples.gni")
+    test_lib("samples") {
+      public_include_dirs = [ "samplecode" ]
+      include_dirs = [ "experimental" ]
+      sources = samples_sources + [
+                  "experimental/SkSetPoly3To3.cpp",
+                  "experimental/SkSetPoly3To3_A.cpp",
+                  "experimental/SkSetPoly3To3_D.cpp",
 
-                # Relocating these files here, so that clients don't try to build them while they're
-                # still in active development. Clang's thread safety analysis gets tripped up by
-                # conditional locks.
-                "src/core/SkThreadedBMPDevice.cpp",
-                "src/core/SkThreadedBMPDevice.h",
-              ]
-    deps = [
-      ":experimental_svg_model",
-      ":flags",
-      ":gm",
-      ":tool_utils",
-      ":views",
-      ":xml",
-    ]
+                  # Relocating these files here, so that clients don't try to build them while they're
+                  # still in active development. Clang's thread safety analysis gets tripped up by
+                  # conditional locks.
+                  "src/core/SkThreadedBMPDevice.cpp",
+                  "src/core/SkThreadedBMPDevice.h",
+                ]
+      deps = [
+        ":experimental_svg_model",
+        ":flags",
+        ":gm",
+        ":tool_utils",
+        ":views",
+        ":xml",
+      ]
 
-    if (skia_use_lua) {
-      sources += [ "samplecode/SampleLua.cpp" ]
-      deps += [
-        ":lua",
-        "//third_party/lua",
+      if (skia_use_lua) {
+        sources += [ "samplecode/SampleLua.cpp" ]
+        deps += [
+          ":lua",
+          "//third_party/lua",
+        ]
+      }
+    }
+    test_app("dm") {
+      sources = [
+        "dm/DM.cpp",
+        "dm/DMJsonWriter.cpp",
+        "dm/DMSrcSink.cpp",
+      ]
+      include_dirs = [ "tests" ]
+      deps = [
+        ":common_flags",
+        ":experimental_svg_model",
+        ":flags",
+        ":gm",
+        ":gpu_tool_utils",
+        ":skia",
+        ":tests",
+        ":tool_utils",
+        "//third_party/jsoncpp",
+        "//third_party/libpng",
       ]
     }
-  }
-
-  test_app("dm") {
-    sources = [
-      "dm/DM.cpp",
-      "dm/DMJsonWriter.cpp",
-      "dm/DMSrcSink.cpp",
-    ]
-    include_dirs = [ "tests" ]
-    deps = [
-      ":common_flags",
-      ":experimental_svg_model",
-      ":flags",
-      ":gm",
-      ":gpu_tool_utils",
-      ":skia",
-      ":tests",
-      ":tool_utils",
-      "//third_party/jsoncpp",
-      "//third_party/libpng",
-    ]
   }
 
   test_app("ok") {
@@ -1363,7 +1366,6 @@ if (skia_enable_tools) {
       ":tool_utils",
     ]
   }
-
   test_app("nanobench") {
     sources = [
       "bench/nanobench.cpp",
@@ -1434,7 +1436,7 @@ if (skia_enable_tools) {
   }
 
   # We can't yet build ICU on iOS or Windows.
-  if (!is_ios && !is_win) {
+  if (!is_ios && !is_win && target_cpu != "wasm") {
     test_app("sktexttopdf-hb") {
       sources = [
         "tools/shape/SkShaper_harfbuzz.cpp",
@@ -1502,7 +1504,7 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (!is_ios) {
+  if (!is_ios && target_cpu != "wasm") {
     test_app("skiaserve") {
       sources = [
         "tools/skiaserve/Request.cpp",
