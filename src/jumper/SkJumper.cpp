@@ -43,11 +43,14 @@ static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
         static void log_missing(SkRasterPipeline::StockStage st) {
             static SkOnce once;
             once([] { atexit([] {
+                int total = 0;
                 for (int i = 0; i < kNumStages; i++) {
                     if (int count = gMissingStageCounters[i].load()) {
                         SkDebugf("%7d\t%s\n", count, kStageNames[i]);
+                        total += count;
                     }
                 }
+                SkDebugf("%7d total\n", total);
             }); });
 
             gMissingStageCounters[st]++;
