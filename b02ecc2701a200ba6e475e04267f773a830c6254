@@ -34,6 +34,24 @@
       "revId": "b02ecc2701a200ba6e475e04267f773a830c6254",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4eccf55e_45564747",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-21T18:05:20Z",
+      "side": 1,
+      "message": "Are you and it using the same emcc --version?",
+      "parentUuid": "1865c229_4f115fcd",
+      "revId": "b02ecc2701a200ba6e475e04267f773a830c6254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
