@@ -172,6 +172,16 @@ void SkPaintFilterCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix
     }
 }
 
+void SkPaintFilterCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
+    // There is no paint to filter in this case, but we can still filter on type.
+    // Subclasses need to unroll the drawable explicity (by overriding this method) in
+    // order to actually filter nested content.
+    AutoPaintFilter apf(this, kDrawable_Type, nullptr);
+    if (apf.shouldDraw()) {
+        this->INHERITED::onDrawDrawable(drawable, matrix);
+    }
+}
+
 void SkPaintFilterCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                                      const SkPaint& paint) {
     AutoPaintFilter apf(this, kText_Type, paint);
