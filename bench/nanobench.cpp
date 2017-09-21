@@ -1284,6 +1284,16 @@ int main(int argc, char** argv) {
                 ? setup_gpu_bench(target, bench.get(), maxFrameLag)
                 : setup_cpu_bench(overhead, target, bench.get());
 
+            if (runs == 0 && FLAGS_ms < 1000) {
+                // Run the first bench for 1000ms to warm up the nanobench if FLAGS_ms < 1000.
+                // Otherwise, the first few benches' measurements will be inaccurate.
+                samples.reset();
+                auto stop = now_ms() + 1000;
+                do {
+                    samples.push_back(time(loops, bench.get(), target) / loops);
+                } while (now_ms() < stop);
+            }
+
             if (FLAGS_ms) {
                 samples.reset();
                 auto stop = now_ms() + FLAGS_ms;
