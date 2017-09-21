@@ -46,6 +46,30 @@
       "revId": "dc6e0757799da2d6d453e6c6d792ba0da3d905cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4b4537d_367e39bd",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-21T15:17:44Z",
+      "side": 1,
+      "message": "Just to be clear, I think you can just leave this line out.  The other two make sense.",
+      "parentUuid": "49283126_2b5a9ac4",
+      "range": {
+        "startLine": 74,
+        "startChar": 26,
+        "endLine": 74,
+        "endChar": 31
+      },
+      "revId": "dc6e0757799da2d6d453e6c6d792ba0da3d905cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
