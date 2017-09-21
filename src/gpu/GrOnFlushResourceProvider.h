@@ -9,6 +9,7 @@
 #define GrOnFlushResourceProvider_DEFINED
 
 #include "GrTypes.h"
+#include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
@@ -45,7 +46,7 @@ public:
      * Called once flushing is complete and all ops indicated by preFlush have been executed and
      * released.
      */
-    virtual void postFlush() {}
+    virtual void postFlush(GrDrawOpUploadToken nextTokenToFlush) {}
 
 private:
     typedef SkRefCnt INHERITED;
