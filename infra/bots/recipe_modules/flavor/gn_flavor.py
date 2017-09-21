@@ -30,7 +30,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     os            = self.m.vars.builder_cfg.get('os',            '')
     target_arch   = self.m.vars.builder_cfg.get('target_arch',   '')
 
-    clang_linux   = str(self.m.vars.slave_dir.join('clang_linux'))
+    clang_linux        = str(self.m.vars.slave_dir.join('clang_linux'))
+    emscripten_sdk     = str(self.m.vars.slave_dir.join('emscripten_sdk'))
     linux_vulkan_sdk   = str(self.m.vars.slave_dir.join('linux_vulkan_sdk'))
     win_toolchain = str(self.m.vars.slave_dir.join(
       't', 'depot_tools', 'win_toolchain', 'vs_files',
@@ -53,6 +54,10 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       cc, cxx = 'gcc-4.8', 'g++-4.8'
     elif compiler == 'GCC':
       cc, cxx = 'gcc', 'g++'
+    elif compiler == 'EMCC':
+      cc   = emscripten_sdk + '/emscripten/incoming/emcc'
+      cxx  = emscripten_sdk + '/emscripten/incoming/em++'
+      extra_cflags.append('-Wno-unknown-warning-option')
 
     if compiler != 'MSVC' and configuration == 'Debug':
       extra_cflags.append('-O1')
@@ -113,6 +118,14 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_compile_processors'] = 'true'
     if compiler == 'Clang' and 'Win' in os:
       args['clang_win'] = '"%s"' % self.m.vars.slave_dir.join('clang_win')
+    if target_arch == 'wasm':
+      args.update({
+        'skia_use_freetype':   'false',
+        'skia_use_fontconfig': 'false',
+        'skia_use_dng_sdk':    'false',
+        'skia_use_icu':        'false',
+        'skia_enable_gpu':     'false',
+      })
 
     sanitize = ''
     if extra_config == 'UBSAN_float_cast_overflow':
@@ -149,6 +162,9 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         self._py(
             'fetch-clang-format',
             self.m.vars.skia_dir.join('bin', 'fetch-clang-format'))
+      if target_arch == 'wasm':
+        fastcomp = emscripten_sdk + '/clang/fastcomp/build_incoming_64/bin'
+        env['PATH'] = '%s:%%(PATH)s' % fastcomp
 
       with self.m.env(env):
         self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])

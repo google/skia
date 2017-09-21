@@ -438,6 +438,13 @@ config("release") {
     } else {
       ldflags = [ "-Wl,--gc-sections" ]
     }
+    if (target_cpu == "wasm") {
+      # The compiler asks us to add an optimization flag to both cflags
+      # and ldflags to cut down on the local variables,
+      # for performance reasons.
+      # The "linking" step is the conversion to javascript.
+      ldflags += [ "-O3" ]
+    }
   }
   defines = [ "NDEBUG" ]
 }
