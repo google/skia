@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5433336_51247ec0",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-21T14:52:15Z",
+      "side": 1,
+      "message": "Why drop from Release\u0027s default -O3 to -O2?",
+      "range": {
+        "startLine": 74,
+        "startChar": 26,
+        "endLine": 74,
+        "endChar": 31
+      },
+      "revId": "dc6e0757799da2d6d453e6c6d792ba0da3d905cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
