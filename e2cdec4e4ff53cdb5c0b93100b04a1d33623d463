@@ -191,6 +191,30 @@
     },
     {
       "key": {
+        "uuid": "38bf656e_a5d0cde5",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-21T15:24:00Z",
+      "side": 1,
+      "message": "I\u0027m not familiar with the GN files, but target_arch\u003dnone doesn\u0027t make any sense to me.  We\u0027re always building for some target architecture.",
+      "parentUuid": "c8cc15bd_e34c1e9c",
+      "range": {
+        "startLine": 36,
+        "startChar": 22,
+        "endLine": 36,
+        "endChar": 26
+      },
+      "revId": "e2cdec4e4ff53cdb5c0b93100b04a1d33623d463",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "587a3bea_07961d3a",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 8
