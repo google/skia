@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "46ff65ac_8f9f0b90",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 12
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-21T17:16:47Z",
+      "side": 1,
+      "message": "Right, I agree no one should ever be using Debug WASM builds.  That\u0027s all the more reason we should not set -O3 here... it\u0027s pretending to be important.",
+      "parentUuid": "40bfa250_a8c254b0",
+      "range": {
+        "startLine": 159,
+        "startChar": 3,
+        "endLine": 159,
+        "endChar": 23
+      },
+      "revId": "adda9ed55d2f54c725f745db321e821f8285bcf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ac1f5910_7799c7a4",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 12
