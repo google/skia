@@ -526,6 +526,12 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc,
                                              SkBackingFit::kApprox, SkBudgeted::kYes);
 
+        // TODO: I believe the assignUniqueKeyToProxy below used to instantiate the proxy before
+        // the draw that used the result was being flushed, so the upload was succeeding. With 
+        // assignUniqueKeyToProxy no longer forcing an instantiation it will have to happen
+        // explicitly elsewhere.
+        proxy->instantiate(context->resourceProvider());
+
         auto uploader = skstd::make_unique<GrMaskUploaderPrepareCallback<ClipMaskData>>(
                 proxy, reducedClip);
         GrMaskUploaderPrepareCallback<ClipMaskData>* uploaderRaw = uploader.get();
