@@ -83,6 +83,7 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**);
     M(load_a8)   M(load_a8_dst)   M(store_a8)   \
     M(load_g8)   M(load_g8_dst)                 \
     M(load_565)  M(load_565_dst)  M(store_565)  \
+    M(load_4444) M(load_4444_dst) M(store_4444) \
     M(swap_rb)           \
     M(srcover_rgba_8888) \
     M(lerp_1_float)      \
