@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9373a7e1_7e646ad4",
+        "filename": "BUILD.gn",
+        "patchSetId": 13
+      },
+      "lineNbr": 1396,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-21T17:19:41Z",
+      "side": 1,
+      "message": "What target_os do we see with wasm.  As written this expression doesn\u0027t make sense... wasm is portable, no?  Like, shouldn\u0027t target_cpu \u003d\u003d \"wasm\" imply all the is_foo to be false?",
+      "range": {
+        "startLine": 1396,
+        "startChar": 2,
+        "endLine": 1396,
+        "endChar": 63
+      },
+      "revId": "13a65df6d70480fe31a1984cf07c969507403bf3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
