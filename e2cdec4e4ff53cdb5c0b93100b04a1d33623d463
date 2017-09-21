@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d9ca127e_ce2d9911",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-21T15:17:37Z",
+      "side": 1,
+      "message": "We could, but there is no use for them atm.  They are a stand in\nuntil Joe or Cary comes up with the SkPath part that actually\nis meant for it.",
+      "parentUuid": "8cb1c794_a7a2d817",
+      "range": {
+        "startLine": 11,
+        "startChar": 11,
+        "endLine": 12,
+        "endChar": 16
+      },
+      "revId": "e2cdec4e4ff53cdb5c0b93100b04a1d33623d463",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b0e0e0e1_15687a5e",
         "filename": "infra/bots/assets/asset_utils.py",
         "patchSetId": 8
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "499820db_c6a8d0d4",
+        "filename": "infra/bots/assets/asset_utils.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-21T15:17:37Z",
+      "side": 1,
+      "message": "Yeah.  It defaults to 5 minutes and timed out on me. Since zipping and uploading the asset takes 23 minutes or so, it was very frustrating to have it time out on the verification step.  \n\nIt probably only needs to be 5-10 minutes or so for the biggest CIPD asset, but I\u0027d rather it not fail.",
+      "parentUuid": "b0e0e0e1_15687a5e",
+      "range": {
+        "startLine": 126,
+        "startChar": 33,
+        "endLine": 126,
+        "endChar": 41
+      },
+      "revId": "e2cdec4e4ff53cdb5c0b93100b04a1d33623d463",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d1939fea_17ff3974",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 8
@@ -59,6 +107,30 @@
       "writtenOn": "2017-09-21T15:11:10Z",
       "side": 1,
       "message": "Does it make sense for this to be WASM?  Then we wouldn\u0027t need the WebAssembly extra_config.",
+      "range": {
+        "startLine": 36,
+        "startChar": 22,
+        "endLine": 36,
+        "endChar": 26
+      },
+      "revId": "e2cdec4e4ff53cdb5c0b93100b04a1d33623d463",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6690de68_3bb48c48",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-21T15:17:37Z",
+      "side": 1,
+      "message": "Not really.  We have a GN rule for target_cpu\u003d\"none\" and that works for WASM.  No need in my mind to have 2 different but same configs.  Plus, I think WebAssembly is a bit more readable than WASM, but too long for the architecture slot.",
+      "parentUuid": "d1939fea_17ff3974",
       "range": {
         "startLine": 36,
         "startChar": 22,
