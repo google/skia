@@ -2384,6 +2384,7 @@ enum <a href="#SkPaint_Cap">Cap</a> {
 <a href="#SkPaint_kLast_Cap">kLast Cap</a> = <a href="#SkPaint_kSquare_Cap">kSquare Cap</a>,
 <a href="#SkPaint_kDefault_Cap">kDefault Cap</a> = <a href="#SkPaint_kButt_Cap">kButt Cap</a>,
 };
+
 static constexpr int <a href="#SkPaint_kCapCount">kCapCount</a> = <a href="#SkPaint_kLast_Cap">kLast Cap</a> + 1;</pre>
 
 <a href="#Stroke_Cap">Stroke Cap</a> draws at the beginning and end of an open <a href="#Contour">Path Contour</a>.
@@ -2528,6 +2529,7 @@ enum <a href="#SkPaint_Join">Join</a> {
 <a href="#SkPaint_kLast_Join">kLast Join</a> = <a href="#SkPaint_kBevel_Join">kBevel Join</a>,
 <a href="#SkPaint_kDefault_Join">kDefault Join</a> = <a href="#SkPaint_kMiter_Join">kMiter Join</a>,
 };
+
 static constexpr int <a href="#SkPaint_kJoinCount">kJoinCount</a> = <a href="#SkPaint_kLast_Join">kLast Join</a> + 1;</pre>
 
 <a href="#SkPaint_Join">Join</a> specifies how corners are drawn when a shape is stroked. <a href="#SkPaint_Join">Join</a>
@@ -2826,7 +2828,7 @@ void setShader(sk_sp<SkShader> shader)
 Optional colors used when filling a path, such as a gradient.
 
 Sets <a href="undocumented#Shader">Shader</a> to <a href="#SkPaint_setShader_shader">shader</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous <a href="undocumented#Shader">Shader</a>.
-Does not alter <a href="#SkPaint_setShader_shader">shader</a> <a href="undocumented#Reference_Count">Reference Count</a>.
+Increments <a href="#SkPaint_setShader_shader">shader</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Parameters
 
@@ -2917,9 +2919,10 @@ color filter unique: false
 void setColorFilter(sk_sp<SkColorFilter> colorFilter)
 </pre>
 
-Sets <a href="undocumented#Color_Filter">Color Filter</a> to filter, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous <a href="undocumented#Color_Filter">Color Filter</a>. 
-Pass nullptr to clear <a href="undocumented#Color_Filter">Color Filter</a>.
-Does not alter filter <a href="undocumented#Reference_Count">Reference Count</a>.
+Sets <a href="undocumented#Color_Filter">Color Filter</a> to filter, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
+<a href="undocumented#Color_Filter">Color Filter</a>. Pass nullptr to clear <a href="undocumented#Color_Filter">Color Filter</a>.
+
+Increments filter <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Parameters
 
@@ -3114,10 +3117,10 @@ path effect unique: false
 void setPathEffect(sk_sp<SkPathEffect> pathEffect)
 </pre>
 
-Sets <a href="undocumented#Path_Effect">Path Effect</a> to <a href="#SkPaint_setPathEffect_pathEffect">pathEffect</a>, 
-decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous <a href="undocumented#Path_Effect">Path Effect</a>. 
-Pass nullptr to leave the path geometry unaltered.
-Does not alter <a href="#SkPaint_setPathEffect_pathEffect">pathEffect</a> <a href="undocumented#Reference_Count">Reference Count</a>.
+Sets <a href="undocumented#Path_Effect">Path Effect</a> to <a href="#SkPaint_setPathEffect_pathEffect">pathEffect</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
+<a href="undocumented#Path_Effect">Path Effect</a>. Pass nullptr to leave the path geometry unaltered.
+
+Increments <a href="#SkPaint_setPathEffect_pathEffect">pathEffect</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Parameters
 
@@ -3136,8 +3139,10 @@ replace <a href="SkPath_Reference#Path">Path</a> with a modification when drawn<
 <a href="undocumented#Mask_Filter">Mask Filter</a> uses coverage of the shape drawn to create <a href="undocumented#Mask_Alpha">Mask Alpha</a>.
 <a href="undocumented#Mask_Filter">Mask Filter</a> operates at a lower level than <a href="undocumented#Rasterizer">Rasterizer</a>; <a href="undocumented#Mask_Filter">Mask Filter</a> takes a <a href="undocumented#Mask">Mask</a>,
 and returns a <a href="undocumented#Mask">Mask</a>.
-<a href="undocumented#Mask_Filter">Mask Filter</a> may change the geometry and transparency of the shape, such as creating a blur effect.
-Set <a href="undocumented#Mask_Filter">Mask Filter</a> to nullptr to prevent <a href="undocumented#Mask_Filter">Mask Filter</a> from modifying the draw.
+
+<a href="undocumented#Mask_Filter">Mask Filter</a> may change the geometry and transparency of the shape, such as
+creating a blur effect. Set <a href="undocumented#Mask_Filter">Mask Filter</a> to nullptr to prevent <a href="undocumented#Mask_Filter">Mask Filter</a> from
+modifying the draw.
 
 ### Example
 
@@ -3180,6 +3185,7 @@ sk_sp<SkMaskFilter> refMaskFilter() const
 </pre>
 
 Returns <a href="undocumented#Mask_Filter">Mask Filter</a> if set, or nullptr.
+
 Increases <a href="undocumented#Mask_Filter">Mask Filter</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Return Value
@@ -3208,11 +3214,12 @@ mask filter unique: false
 void setMaskFilter(sk_sp<SkMaskFilter> maskFilter)
 </pre>
 
-Sets <a href="undocumented#Mask_Filter">Mask Filter</a> to <a href="#SkPaint_setMaskFilter_maskFilter">maskFilter</a>,
-decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous <a href="undocumented#Mask_Filter">Mask Filter</a>. 
-Pass nullptr to clear <a href="undocumented#Mask_Filter">Mask Filter</a> and leave <a href="undocumented#Mask_Filter">Mask Filter</a> effect on <a href="undocumented#Mask_Alpha">Mask Alpha</a> unaltered.
+Sets <a href="undocumented#Mask_Filter">Mask Filter</a> to <a href="#SkPaint_setMaskFilter_maskFilter">maskFilter</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
+<a href="undocumented#Mask_Filter">Mask Filter</a>. Pass nullptr to clear <a href="undocumented#Mask_Filter">Mask Filter</a> and leave <a href="undocumented#Mask_Filter">Mask Filter</a> effect on
+<a href="undocumented#Mask_Alpha">Mask Alpha</a> unaltered.
+
 Does not affect <a href="undocumented#Rasterizer">Rasterizer</a>.
-Does not alter <a href="#SkPaint_setMaskFilter_maskFilter">maskFilter</a> <a href="undocumented#Reference_Count">Reference Count</a>.
+Increments <a href="#SkPaint_setMaskFilter_maskFilter">maskFilter</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Parameters
 
@@ -3245,7 +3252,7 @@ SkTypeface* getTypeface() const
 </pre>
 
 Returns <a href="undocumented#Typeface">Typeface</a> if set, or nullptr.
-Does not alter <a href="undocumented#Typeface">Typeface</a> <a href="undocumented#Reference_Count">Reference Count</a>.
+Increments <a href="undocumented#Typeface">Typeface</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Return Value
 
@@ -3301,10 +3308,9 @@ typeface1 == typeface2
 void setTypeface(sk_sp<SkTypeface> typeface)
 </pre>
 
-Sets <a href="undocumented#Typeface">Typeface</a> to <a href="#SkPaint_setTypeface_typeface">typeface</a>,
-decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous <a href="undocumented#Typeface">Typeface</a>. 
-Pass nullptr to clear <a href="undocumented#Typeface">Typeface</a> and use the default <a href="#SkPaint_setTypeface_typeface">typeface</a>.
-Does not alter <a href="#SkPaint_setTypeface_typeface">typeface</a> <a href="undocumented#Reference_Count">Reference Count</a>.
+Sets <a href="undocumented#Typeface">Typeface</a> to <a href="#SkPaint_setTypeface_typeface">typeface</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous <a href="undocumented#Typeface">Typeface</a>. 
+Pass nullptr to clear <a href="undocumented#Typeface">Typeface</a> and use the default <a href="#SkPaint_setTypeface_typeface">typeface</a>. Increments
+<a href="#SkPaint_setTypeface_typeface">typeface</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Parameters
 
@@ -3323,9 +3329,11 @@ font and style used to draw text</td>
 <a href="undocumented#Rasterizer">Rasterizer</a> controls how shapes are converted to <a href="undocumented#Mask_Alpha">Mask Alpha</a>. 
 <a href="undocumented#Rasterizer">Rasterizer</a> operates at a higher level than <a href="undocumented#Mask_Filter">Mask Filter</a>; <a href="undocumented#Rasterizer">Rasterizer</a> takes a <a href="SkPath_Reference#Path">Path</a>,
 and returns a <a href="undocumented#Mask">Mask</a>.
+
 <a href="undocumented#Rasterizer">Rasterizer</a> may change the geometry and transparency of the shape, such as
 creating a shadow effect. <a href="undocumented#Rasterizer">Rasterizer</a> forms the base of <a href="#Layer">Rasterizer Layer</a>, which
 creates effects like embossing and outlining.
+
 <a href="undocumented#Rasterizer">Rasterizer</a> applies to <a href="undocumented#Rect">Rect</a>, <a href="undocumented#Region">Region</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="#Arc">Arcs</a>, <a href="#Circle">Circles</a>, <a href="#Oval">Ovals</a>,
 <a href="SkPath_Reference#Path">Path</a>, and <a href="undocumented#Text">Text</a>.
 
@@ -3398,11 +3406,12 @@ rasterizer unique: false
 void setRasterizer(sk_sp<SkRasterizer> rasterizer)
 </pre>
 
-Sets <a href="undocumented#Rasterizer">Rasterizer</a> to <a href="#SkPaint_setRasterizer_rasterizer">rasterizer</a>,
-decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous <a href="undocumented#Rasterizer">Rasterizer</a>. 
-Pass nullptr to clear <a href="undocumented#Rasterizer">Rasterizer</a> and leave <a href="undocumented#Rasterizer">Rasterizer</a> effect on <a href="undocumented#Mask_Alpha">Mask Alpha</a> unaltered.
+Sets <a href="undocumented#Rasterizer">Rasterizer</a> to <a href="#SkPaint_setRasterizer_rasterizer">rasterizer</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
+<a href="undocumented#Rasterizer">Rasterizer</a>. Pass nullptr to clear <a href="undocumented#Rasterizer">Rasterizer</a> and leave <a href="undocumented#Rasterizer">Rasterizer</a> effect on
+<a href="undocumented#Mask_Alpha">Mask Alpha</a> unaltered.
+
 Does not affect <a href="undocumented#Mask_Filter">Mask Filter</a>.
-Does not alter <a href="#SkPaint_setRasterizer_rasterizer">rasterizer</a> <a href="undocumented#Reference_Count">Reference Count</a>.
+Increments <a href="#SkPaint_setRasterizer_rasterizer">rasterizer</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Parameters
 
@@ -3421,6 +3430,7 @@ how geometry is converted to <a href="undocumented#Mask_Alpha">Mask Alpha</a></t
 <a href="undocumented#Image_Filter">Image Filter</a> operates on the pixel representation of the shape, as modified by <a href="#Paint">Paint</a>
 with <a href="undocumented#Blend_Mode">Blend Mode</a> set to <a href="#SkBlendMode_kSrcOver">SkBlendMode::kSrcOver</a>. <a href="undocumented#Image_Filter">Image Filter</a> creates a new bitmap,
 which is drawn to the device using the set <a href="undocumented#Blend_Mode">Blend Mode</a>.
+
 <a href="undocumented#Image_Filter">Image Filter</a> is higher level than <a href="undocumented#Mask_Filter">Mask Filter</a>; for instance, an <a href="undocumented#Image_Filter">Image Filter</a>
 can operate on all channels of <a href="undocumented#Color">Color</a>, while <a href="undocumented#Mask_Filter">Mask Filter</a> generates <a href="#Alpha">Alpha</a> only.
 <a href="undocumented#Image_Filter">Image Filter</a> operates independently of and can be used in combination with
@@ -3495,12 +3505,12 @@ image filter unique: false
 void setImageFilter(sk_sp<SkImageFilter> imageFilter)
 </pre>
 
-Sets <a href="undocumented#Image_Filter">Image Filter</a> to <a href="#SkPaint_setImageFilter_imageFilter">imageFilter</a>,
-decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous <a href="undocumented#Image_Filter">Image Filter</a>. 
-Pass nullptr to clear <a href="undocumented#Image_Filter">Image Filter</a>, and remove <a href="undocumented#Image_Filter">Image Filter</a> effect
+Sets <a href="undocumented#Image_Filter">Image Filter</a> to <a href="#SkPaint_setImageFilter_imageFilter">imageFilter</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
+<a href="undocumented#Image_Filter">Image Filter</a>. Pass nullptr to clear <a href="undocumented#Image_Filter">Image Filter</a>, and remove <a href="undocumented#Image_Filter">Image Filter</a> effect
 on drawing.
+
 Does not affect <a href="undocumented#Rasterizer">Rasterizer</a> or <a href="undocumented#Mask_Filter">Mask Filter</a>.
-Does not alter <a href="#SkPaint_setImageFilter_imageFilter">imageFilter</a> <a href="undocumented#Reference_Count">Reference Count</a>.
+Increments <a href="#SkPaint_setImageFilter_imageFilter">imageFilter</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Parameters
 
@@ -3518,6 +3528,7 @@ how <a href="undocumented#Image">Image</a> is sampled when transformed</td>
 # <a name="Draw_Looper_Methods"></a> Draw Looper Methods
 <a href="undocumented#Draw_Looper">Draw Looper</a> sets a modifier that communicates state from one <a href="undocumented#Draw_Layer">Draw Layer</a>
 to another to construct the draw.
+
 <a href="undocumented#Draw_Looper">Draw Looper</a> draws one or more times, modifying the canvas and paint each time.
 <a href="undocumented#Draw_Looper">Draw Looper</a> may be used to draw multiple colors or create a colored shadow.
 Set <a href="undocumented#Draw_Looper">Draw Looper</a> to nullptr to prevent <a href="undocumented#Draw_Looper">Draw Looper</a> from modifying the draw. 
@@ -3608,10 +3619,11 @@ Deprecated.
 void setDrawLooper(sk_sp<SkDrawLooper> drawLooper)
 </pre>
 
-Sets <a href="undocumented#Draw_Looper">Draw Looper</a> to <a href="#SkPaint_setDrawLooper_drawLooper">drawLooper</a>,
-decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous <a href="#SkPaint_setDrawLooper_drawLooper">drawLooper</a>. 
-Pass nullptr to clear <a href="undocumented#Draw_Looper">Draw Looper</a> and leave <a href="undocumented#Draw_Looper">Draw Looper</a> effect on drawing unaltered.
-Does not alter <a href="#SkPaint_setDrawLooper_drawLooper">drawLooper</a> <a href="undocumented#Reference_Count">Reference Count</a>.
+Sets <a href="undocumented#Draw_Looper">Draw Looper</a> to <a href="#SkPaint_setDrawLooper_drawLooper">drawLooper</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
+<a href="#SkPaint_setDrawLooper_drawLooper">drawLooper</a>.  Pass nullptr to clear <a href="undocumented#Draw_Looper">Draw Looper</a> and leave <a href="undocumented#Draw_Looper">Draw Looper</a> effect on
+drawing unaltered.
+
+Increments <a href="#SkPaint_setDrawLooper_drawLooper">drawLooper</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Parameters
 
@@ -3940,18 +3952,18 @@ enum <a href="#SkPaint_TextEncoding">TextEncoding</a> {
 <a href="#SkPaint_kGlyphID_TextEncoding">kGlyphID TextEncoding</a>,
 };</pre>
 
-<a href="#SkPaint_TextEncoding">TextEncoding</a> determines whether text specifies character codes and their encoded size,
-or glyph indices. Character codes use the encoding specified by the<a href="undocumented#Unicode">Unicode</a> standard.
+<a href="#SkPaint_TextEncoding">TextEncoding</a> determines whether text specifies character codes and their encoded
+size, or glyph indices. Character codes use the encoding specified by the<a href="undocumented#Unicode">Unicode</a> standard.
+
 Character codes encoded size are specified by <a href="undocumented#UTF_8">UTF-8</a>, <a href="undocumented#UTF_16">UTF-16</a>, or <a href="undocumented#UTF_32">UTF-32</a>.
-All character encoding are able to represent all of <a href="undocumented#Unicode">Unicode</a>, differing only
+All character encodings are able to represent all of <a href="undocumented#Unicode">Unicode</a>, differing only
 in the total storage required.
 
-<a href="undocumented#UTF_8">UTF-8</a> (<a href="undocumented#RFC">RFC</a> 3629)is made up of 8-bit bytes, 
-and encodes <a href="undocumented#ASCII">ASCII</a> in one byte, and all valid code points in <a href="undocumented#Unicode">Unicode</a> in multiple
-bytes.<a href="undocumented#UTF_16">UTF-16</a> (<a href="undocumented#RFC">RFC</a> 2781)uses one or two 16-bit words, 
-and encodes <a href="undocumented#Unicode">Unicode</a> ranges 0x0000 to 0xD7FF and 0xE000 to 0xFFFF in one 
-word.<a href="undocumented#UTF_32">UTF-32</a>describes
-a 32-bit word, which encodes all code points in <a href="undocumented#Unicode">Unicode</a>.
+<a href="undocumented#UTF_8">UTF-8</a> (<a href="undocumented#RFC">RFC</a> 3629)encodes each character as one or more 8-bit bytes.
+
+<a href="undocumented#UTF_16">UTF-16</a> (<a href="undocumented#RFC">RFC</a> 2781)encodes each character as one or two 16-bit words.
+
+<a href="undocumented#UTF_32">UTF-32</a>encodes each character as one 32-bit word.
 
 <a href="undocumented#Font_Manager">Font Manager</a> uses font data to convert character code points into glyph indices. 
 A glyph index is a 16-bit word.

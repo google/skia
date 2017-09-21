@@ -1119,8 +1119,10 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kTime:
         case MarkType::kVolatile:
         case MarkType::kWidth:
-            if (hasEnd) {
+            if (hasEnd && MarkType::kAnchor != markType) {
                 return this->reportError<bool>("one liners omit end element");
+            } else if (!hasEnd && MarkType::kAnchor == markType) {
+                return this->reportError<bool>("anchor line must have end element last");
             }
             fMarkup.emplace_front(markType, defStart, fLineCount, fParent);
             definition = &fMarkup.front();

@@ -2626,7 +2626,7 @@ A 90 degree circular arc has the weight
 #Formula
 1 / sqrt(2)
 ##
- .
+.
 ##
 void draw(SkCanvas* canvas) {
     const char* verbNames[] = { "move", "line", "quad", "conic", "cubic", "close", "done" };
@@ -3812,6 +3812,7 @@ next Quad. Maximum pts storage size is given by:
 #Formula
 (1 + 2 * (1 << pow2)) * sizeof(SkPoint)
 ##
+
 ConvertConicToQuads returns Quad count used the approximation, which may be smaller
 than the number requested.
  
@@ -4203,10 +4204,10 @@ four kConic_Verb, and kClose_Verb. Circle begins at
 #Formula
 (x + radius, y)
 ##
-and continues clockwise if dir is kCW_Direction, counterclockwise if dir is
+, continuing clockwise if dir is kCW_Direction, and counterclockwise if dir is
 kCCW_Direction.
 
-addCircle has no effect if radius is zero or negative.
+Has no effect if radius is zero or negative.
 
 #Param x       center of Circle ##
 #Param y       center of Circle  ##
@@ -4469,13 +4470,10 @@ void draw(SkCanvas* canvas) {
 
 #Method void addPoly(const SkPoint pts[], int count, bool close)
 
-Add Contour created from Line array, adding
-#Formula
-count - 1 
-##
-Line segments. Contour added starts at pts[0], then adds a line
-for every additional Point in pts array. If close is true,
-appends kClose_Verb to Path, connecting pts[count - 1] and pts[0].
+Add Contour created from Line array, adding (count - 1) Line segments.
+Contour added starts at pts[0], then adds a line for every additional Point
+in pts array. If close is true,appends kClose_Verb to Path, connecting
+pts[count - 1] and pts[0].
 
 If count is zero, append kMove_Verb to path.
 Has no effect if count is less than one.
@@ -5125,7 +5123,9 @@ directly compiled as C++ code. Floating point values are written
 in hexadecimal to preserve their exact bit pattern. The output reconstructs the
 original Path.
 
-Use instead of dump() when submitting #A bug reports against Skia # http://bug.skia.org ##.
+Use instead of dump() when submitting 
+#A bug reports against Skia # http://bug.skia.org ##
+.
 Slight value changes in Point_Array may cause the bug to disappear.
 
 #Example

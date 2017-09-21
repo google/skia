@@ -982,11 +982,10 @@ ignored. Source rectangle corners are (srcX, srcY) and
 #Formula
 (this->imageInfo.width(), this->imageInfo.height())
 ##
-. Destination rectangle corners are (0, 0) and 
-#Formula
-(dstInfo.width(), dstInfo.height())
-##
-. Copies each readable pixel intersecting both rectangles, without scaling,
+.
+
+Destination rectangle corners are (0, 0) and (bitmap.width(), bitmap.height()).
+Copies each readable pixel intersecting both rectangles, without scaling,
 converting to dstInfo.colorType() and dstInfo.alphaType() if required.
 
 Pixels are readable when Device is raster, or backed by a GPU.
@@ -1078,11 +1077,10 @@ ignored. Source rectangle corners are (srcX, srcY) and
 #Formula
 (this->imageInfo.width(), this->imageInfo.height())
 ##
-. Destination rectangle are (0, 0) and 
-#Formula
-(pixmap.width(), pixmap.height())
-##
-. Copies each readable pixel intersecting both rectangles, without scaling,
+. 
+
+Destination rectangle corners are (0, 0) and (bitmap.width(), bitmap.height()).
+Copies each readable pixel intersecting both rectangles, without scaling,
 converting to pixmap.colorType() and pixmap.alphaType() if required.
 
 Pixels are readable when Device is raster, or backed by a GPU.
@@ -1090,7 +1088,7 @@ Pixels are not readable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
 class like SkDumpCanvas.
 
-Allocates pixel storage in pixmap if needed.
+Caller must allocate pixel storage in pixmap if needed.
 
 Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
 do not match. Only pixels within both source and destination rectangles
@@ -1145,7 +1143,9 @@ ignored. Source rectangle corners are (srcX, srcY) and
 #Formula
 (this->imageInfo.width(), this->imageInfo.height())
 ##
-. Destination rectangle corners are (0, 0) and (bitmap.width(), bitmap.height()).
+. 
+
+Destination rectangle corners are (0, 0) and (bitmap.width(), bitmap.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to bitmap.colorType() and bitmap.alphaType() if required.
 
@@ -1154,7 +1154,7 @@ Pixels are not readable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
 class like SkDumpCanvas.
 
-Allocates pixel storage in bitmap if needed.
+Caller must allocate pixel storage in bitmap if needed.
 
 Bitmap values are converted only if Image_Color_Type and Image_Alpha_Type
 do not match. Only pixels within both source and destination rectangles
@@ -1210,8 +1210,10 @@ Destination rectangle corners are (x, y) and
 #Formula
 (this->imageInfo.width(), this->imageInfo.height())
 ##
-. Copies each readable pixel
-intersecting both rectangles, without scaling, converting to
+.
+
+Copies each readable pixel intersecting both rectangles, without scaling,
+converting to
 #Formula
 this->imageInfo.colorType()
 ##
@@ -1237,15 +1239,8 @@ Does not copy, and returns false if:
 
 #List
 # Source and destination rectangles do not intersect. ##
-# pixels could not be converted to 
-#Formula
-this->imageInfo.colorType()
-##
-or
-#Formula
-this->imageInfo.alphaType()
-##
-. ##
+# pixels could not be converted to this->imageInfo.colorType() or
+this->imageInfo.alphaType(). ##
 # Canvas pixels are not writable; for instance, Canvas is document-based. ##
 # rowBytes is too small to contain one row of pixels. ##
 ##
@@ -1278,17 +1273,16 @@ this->imageInfo.alphaType()
 #Method bool writePixels(const SkBitmap& bitmap, int x, int y)
 
 Copies rectangle from pixels to Canvas. Matrix and Clip are ignored.
-Source rectangle corners are (0, 0) and 
-#Formula
-(bitmap.width(), bitmap.height())
-##
-.
+Source rectangle corners are (0, 0) and (bitmap.width(), bitmap.height()).
+
 Destination rectangle corners are (x, y) and
 #Formula
 (this->imageInfo.width(), this->imageInfo.height())
 ##
-. Copies each readable pixel
-intersecting both rectangles, without scaling, converting to
+.
+
+Copies each readable pixel intersecting both rectangles, without scaling,
+converting to
 #Formula
 this->imageInfo.colorType()
 ##
@@ -1315,15 +1309,8 @@ Does not copy, and returns false if:
 #List
 # Source and destination rectangles do not intersect. ##
 # bitmap does not have allocated pixels. ##
-# bitmap pixels could not be converted to 
-#Formula
-this->imageInfo.colorType()
-##
-or
-#Formula
-this->imageInfo.alphaType()
-##
-. ##
+# bitmap pixels could not be converted to this->imageInfo.colorType() or
+this->imageInfo.alphaType(). ##
 # Canvas pixels are not writable; for instance, Canvas is document based. ##
 # bitmap pixels are inaccessible; for instance, bitmap wraps a texture. ##
 ##
@@ -1682,7 +1669,7 @@ Call restoreToCount with returned value to restore this and subsequent saves.
 
 Draw text on an opaque background so that LCD_Text blends correctly with the
 prior Layer. LCD_Text drawn on a background with transparency may result in
-incorrect banding.
+incorrect blending.
 
 #Param bounds  hint to limit the size of Layer; may be nullptr ##
 #Param paint   graphics state for Layer; may be nullptr ##
@@ -4760,6 +4747,7 @@ void draw(SkCanvas* canvas) {
         (fXCount + 1) * (fYCount + 1)
     ##
         .
+
         Array entries correspond to the rectangular grid entries, ascending
         left to right and then top to bottom.
     ##
@@ -5760,11 +5748,11 @@ If cullRect is outside of Clip, canvas can skip drawing.
 #Param atlas  Image containing sprites ##
 #Param xform  RSXform mappings for sprites in atlas ##
 #Param tex    Rect locations of sprites in atlas ##
-#Param colors  Color, one per sprite, blended with sprite using Blend_Mode; may be nullptr ##
+#Param colors  one per sprite, blended with sprite using Blend_Mode; may be nullptr ##
 #Param count  number of sprites to draw ##
 #Param mode   Blend_Mode combining colors and sprites ##
-#Param cullRect  Rect bounds of transformed sprites for efficient clipping; may be nullptr ##
-#Param paint  Paint Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
+#Param cullRect  bounds of transformed sprites for efficient clipping; may be nullptr ##
+#Param paint  Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
 
 #Example
 #Image 3
@@ -5801,11 +5789,11 @@ If cullRect is outside of Clip, canvas can skip drawing.
 #Param atlas  Image containing sprites ##
 #Param xform  RSXform mappings for sprites in atlas ##
 #Param tex    Rect locations of sprites in atlas ##
-#Param colors  Color, one per sprite, blended with sprite using Blend_Mode; may be nullptr ##
+#Param colors  one per sprite, blended with sprite using Blend_Mode; may be nullptr ##
 #Param count  number of sprites to draw ##
 #Param mode   Blend_Mode combining colors and sprites ##
-#Param cullRect  Rect bounds of transformed sprites for efficient clipping; may be nullptr ##
-#Param paint  Paint Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
+#Param cullRect  bounds of transformed sprites for efficient clipping; may be nullptr ##
+#Param paint  Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
 
 #Example
 #Image 3
@@ -5842,8 +5830,8 @@ If cullRect is outside of Clip, canvas can skip drawing.
 #Param xform  RSXform mappings for sprites in atlas ##
 #Param tex    Rect locations of sprites in atlas ##
 #Param count  number of sprites to draw ##
-#Param cullRect  Rect bounds of transformed sprites for efficient clipping; may be nullptr ##
-#Param paint  Paint Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
+#Param cullRect  bounds of transformed sprites for efficient clipping; may be nullptr ##
+#Param paint  Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
 
 #Example
 #Image 3
@@ -5878,8 +5866,8 @@ If cullRect is outside of Clip, canvas can skip drawing.
 #Param xform  RSXform mappings for sprites in atlas ##
 #Param tex    Rect locations of sprites in atlas ##
 #Param count  number of sprites to draw ##
-#Param cullRect  Rect bounds of transformed sprites for efficient clipping; may be nullptr ##
-#Param paint  Paint Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
+#Param cullRect  bounds of transformed sprites for efficient clipping; may be nullptr ##
+#Param paint  Color_Filter, Image_Filter, Blend_Mode, and so on; may be nullptr ##
 
 #Example
 #Image 3
