@@ -45,7 +45,12 @@ uint8_t* SkMask::AllocImage(size_t size) {
 #ifdef TRACK_SKMASK_LIFETIME
     SkDebugf("SkMask::AllocImage %d\n", gCounter++);
 #endif
-    return (uint8_t*)sk_malloc_throw(SkAlign4(size));
+    size_t aligned_size = std::numeric_limits<size_t>::max();
+    // Expand size to next multiple of four.
+    if (std::numeric_limits<size_t>::max() - 4 >= size) {
+        aligned_size = (size + 3) & ~static_cast<size_t>(3);
+    }
+    return static_cast<uint8_t*>(sk_malloc_throw(aligned_size));
 }
 
 /** We explicitly use this allocator for SkBimap pixels, so that we can
