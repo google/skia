@@ -152,6 +152,16 @@ config("default") {
     ldflags += [ "-m32" ]
   }
 
+  if (target_cpu == "wasm") {
+    # The compiler asks us to add an optimization flag to both cflags
+    # and ldflags to cut down on the local variables,
+    # for performance reasons.
+    cflags += [ "-O3" ]
+
+    # The "linking" step is the conversion to javascript.
+    ldflags += [ "-O3" ]
+  }
+
   if (malloc != "" && !is_win) {
     cflags += [
       "-fno-builtin-malloc",

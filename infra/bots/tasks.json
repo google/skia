@@ -204,6 +204,12 @@
         "Build-Debian9-Clang-x86_64-Release-Vulkan"
       ]
     },
+    "Build-Debian9-EMCC-wasm-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-EMCC-wasm-Release"
+      ]
+    },
     "Build-Debian9-GCC-arm-Debug-Chromecast": {
       "priority": 0.8,
       "tasks": [
@@ -3717,6 +3723,36 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Debian9-Clang-x86_64-Release-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-EMCC-wasm-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/emscripten_sdk",
+          "path": "emscripten_sdk",
+          "version": "version:1"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-EMCC-wasm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",

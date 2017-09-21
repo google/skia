@@ -479,6 +479,9 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		if strings.Contains(name, "Vulkan") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_sdk"))
 		}
+		if strings.Contains(name, "EMCC") {
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("emscripten_sdk"))
+		}
 	} else if strings.Contains(name, "Win") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("win_toolchain"))
 		if strings.Contains(name, "Clang") {
