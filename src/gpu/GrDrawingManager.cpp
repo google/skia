@@ -188,6 +188,8 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         fOpLists[i]->prepare(&fFlushState);
     }
 
+    GrDrawOpUploadToken startFlush = fFlushState.nextTokenToFlush();
+
     // Upload all data to the GPU
     fFlushState.preIssueDraws();
 
@@ -209,12 +211,13 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                                                                    backendSemaphores);
 
     fFlushState.reset();
+
     // We always have to notify the cache when it requested a flush so it can reset its state.
     if (flushed || type == GrResourceCache::FlushType::kCacheRequested) {
         fContext->getResourceCache()->notifyFlushOccurred(type);
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush();
+        onFlushCBObject->postFlush(fFlushState.nextTokenToFlush());
     }
     fFlushing = false;
 

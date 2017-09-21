@@ -9,6 +9,7 @@
 #define GrSmallPathRenderer_DEFINED
 
 #include "GrDrawOpAtlas.h"
+#include "GrOnFlushResourceProvider.h"
 #include "GrPathRenderer.h"
 #include "GrRect.h"
 #include "GrShape.h"
@@ -18,13 +19,23 @@
 
 class GrContext;
 
-class GrSmallPathRenderer : public GrPathRenderer {
+class GrSmallPathRenderer : public GrPathRenderer
+                          , public GrOnFlushCallbackObject {
 public:
     GrSmallPathRenderer();
     ~GrSmallPathRenderer() override;
 
     class SmallPathOp;
     struct PathTestStruct;
+
+    void preFlush(GrOnFlushResourceProvider*, const uint32_t*, int,
+                  SkTArray<sk_sp<GrRenderTargetContext>>*) override {}
+
+    void postFlush(GrDrawOpUploadToken nextTokenToFlush) override {
+        if (fAtlas) {
+            fAtlas->compact(nextTokenToFlush);
+        }
+    }
 
 private:
     StencilSupport onGetStencilSupport(const GrShape&) const override {
