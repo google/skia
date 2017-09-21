@@ -1,7 +1,8 @@
 {
   'variables': {
     'command': [
-      '../../../recipe_bundle/recipes.bat', 'run', '--timestamps',
+      #'../../../recipe_bundle/recipes.bat', 'run', '--timestamps',
+      'python', 'recipe_wrapper.py', 'run', '--timestamps',
     ],
   },
 }
