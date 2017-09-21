@@ -108,7 +108,7 @@ static inline int sk_float_saturate2int(float x) {
 // Cast double to float, ignoring any warning about too-large finite values being cast to float.
 // Clang thinks this is undefined, but it's actually implementation defined to return either
 // the largest float or infinity (one of the two bracketing representable floats).  Good enough!
-#if defined(__clang__)
+#if defined(__clang__) && (__clang_major__ * 1000 + __clang_minor__) >= 3007
 __attribute__((no_sanitize("float-cast-overflow")))
 #endif
 static inline float sk_double_to_float(double x) {
