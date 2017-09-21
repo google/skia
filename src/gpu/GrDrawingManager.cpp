@@ -357,19 +357,11 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
 
     if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
         GrFSAAType::kNone != rtp->fsaaType()) {
-        // TODO: defer stencil buffer attachment for PathRenderingDrawContext
-        if (!rtp->instantiate(fContext->resourceProvider())) {
-            return nullptr;
-        }
-        GrRenderTarget* rt = rtp->priv().peekRenderTarget();
 
-        GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt);
-        if (sb) {
-            return sk_sp<GrRenderTargetContext>(new GrPathRenderingRenderTargetContext(
-                                                        fContext, this, std::move(rtp),
-                                                        std::move(colorSpace), surfaceProps,
-                                                        fContext->getAuditTrail(), fSingleOwner));
-        }
+        return sk_sp<GrRenderTargetContext>(new GrPathRenderingRenderTargetContext(
+                                                    fContext, this, std::move(rtp),
+                                                    std::move(colorSpace), surfaceProps,
+                                                    fContext->getAuditTrail(), fSingleOwner));
     }
 
     return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext, this, std::move(rtp),

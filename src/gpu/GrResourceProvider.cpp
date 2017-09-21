@@ -433,10 +433,10 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     return buffer;
 }
 
-GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
+bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
     SkASSERT(rt);
     if (rt->renderTargetPriv().getStencilAttachment()) {
-        return rt->renderTargetPriv().getStencilAttachment();
+        return true;
     }
 
     if (!rt->wasDestroyed() && rt->canAttemptStencilAttachment()) {
@@ -475,7 +475,7 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
 #endif
         }
     }
-    return rt->renderTargetPriv().getStencilAttachment();
+    return SkToBool(rt->renderTargetPriv().getStencilAttachment());
 }
 
 sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(

@@ -16,6 +16,7 @@
 #include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrGpuResourcePriv.h"
+#include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrTest.h"
@@ -90,119 +91,104 @@ static bool is_rendering_and_not_angle_es3(sk_gpu_test::GrContextFactory::Contex
     return sk_gpu_test::GrContextFactory::IsRenderingContext(type);
 }
 
+static GrStencilAttachment* get_SB(GrRenderTarget* rt) {
+    return rt->renderTargetPriv().getStencilAttachment();
+}
+
+static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
+                                               int size, int sampleCount, SkBudgeted budgeted) {
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+    desc.fWidth = size;
+    desc.fHeight = size;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    desc.fSampleCnt = sampleCount;
+
+    sk_sp<GrTexture> tex(provider->createTexture(desc, budgeted));
+    if (!tex || !tex->asRenderTarget()) {
+        return nullptr;
+    }
+
+    if (!provider->attachStencilAttachment(tex->asRenderTarget())) {
+        return nullptr;
+    }
+    SkASSERT(get_SB(tex->asRenderTarget()));
+
+    return sk_ref_sp(tex->asRenderTarget());
+}
+
 // This currently fails on ES3 ANGLE contexts
 DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angle_es3, reporter,
                          ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrSurfaceDesc smallDesc;
-    smallDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    smallDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-    smallDesc.fWidth = 4;
-    smallDesc.fHeight = 4;
-    smallDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    smallDesc.fSampleCnt = 0;
-
     if (context->caps()->avoidStencilBuffers()) {
         return;
     }
-    GrResourceProvider* resourceProvider = context->resourceProvider();
-    // Test that two budgeted RTs with the same desc share a stencil buffer.
-    sk_sp<GrTexture> smallRT0(resourceProvider->createTexture(smallDesc, SkBudgeted::kYes));
-    if (smallRT0 && smallRT0->asRenderTarget()) {
-        resourceProvider->attachStencilAttachment(smallRT0->asRenderTarget());
+
+    GrResourceProvider* provider = context->resourceProvider();
+
+    sk_sp<GrRenderTarget> smallRT0 = create_RT_with_SB(provider, 4, 0, SkBudgeted::kYes);
+    REPORTER_ASSERT(reporter, smallRT0);
+
+    {
+       // Two budgeted RTs with the same desc should share a stencil buffer.
+        sk_sp<GrRenderTarget> smallRT1 = create_RT_with_SB(provider, 4, 0, SkBudgeted::kYes);
+        REPORTER_ASSERT(reporter, smallRT1);
+
+        REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) == get_SB(smallRT1.get()));
     }
 
-    sk_sp<GrTexture> smallRT1(resourceProvider->createTexture(smallDesc, SkBudgeted::kYes));
-    if (smallRT1 && smallRT1->asRenderTarget()) {
-        resourceProvider->attachStencilAttachment(smallRT1->asRenderTarget());
+    {
+        // An unbudgeted RT with the same desc should also share.
+        sk_sp<GrRenderTarget> smallRT2 = create_RT_with_SB(provider, 4, 0, SkBudgeted::kNo);
+        REPORTER_ASSERT(reporter, smallRT2);
+
+        REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) == get_SB(smallRT2.get()));
     }
 
-    REPORTER_ASSERT(reporter,
-                    smallRT0 && smallRT1 &&
-                    smallRT0->asRenderTarget() && smallRT1->asRenderTarget() &&
-                    resourceProvider->attachStencilAttachment(smallRT0->asRenderTarget()) ==
-                    resourceProvider->attachStencilAttachment(smallRT1->asRenderTarget()));
+    {
+        // An RT with a much larger size should not share.
+        sk_sp<GrRenderTarget> bigRT = create_RT_with_SB(provider, 400, 0, SkBudgeted::kNo);
+        REPORTER_ASSERT(reporter, bigRT);
 
-    // An unbudgeted RT with the same desc should also share.
-    sk_sp<GrTexture> smallRT2(resourceProvider->createTexture(smallDesc, SkBudgeted::kNo));
-    if (smallRT2 && smallRT2->asRenderTarget()) {
-        resourceProvider->attachStencilAttachment(smallRT2->asRenderTarget());
+        REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) != get_SB(bigRT.get()));
     }
-    REPORTER_ASSERT(reporter,
-                    smallRT0 && smallRT2 &&
-                    smallRT0->asRenderTarget() && smallRT2->asRenderTarget() &&
-                    resourceProvider->attachStencilAttachment(smallRT0->asRenderTarget()) ==
-                    resourceProvider->attachStencilAttachment(smallRT2->asRenderTarget()));
 
-    // An RT with a much larger size should not share.
-    GrSurfaceDesc bigDesc;
-    bigDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    bigDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-    bigDesc.fWidth = 400;
-    bigDesc.fHeight = 200;
-    bigDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    bigDesc.fSampleCnt = 0;
-    sk_sp<GrTexture> bigRT(resourceProvider->createTexture(bigDesc, SkBudgeted::kNo));
-    if (bigRT && bigRT->asRenderTarget()) {
-        resourceProvider->attachStencilAttachment(bigRT->asRenderTarget());
-    }
-    REPORTER_ASSERT(reporter,
-                    smallRT0 && bigRT &&
-                    smallRT0->asRenderTarget() && bigRT->asRenderTarget() &&
-                    resourceProvider->attachStencilAttachment(smallRT0->asRenderTarget()) !=
-                    resourceProvider->attachStencilAttachment(bigRT->asRenderTarget()));
-
-    int supportedSampleCount = context->caps()->getSampleCount(4, smallDesc.fConfig);
-    if (supportedSampleCount > 0) {
+    int smallSampleCount = context->caps()->getSampleCount(4, kRGBA_8888_GrPixelConfig);
+    if (smallSampleCount > 0) {
         // An RT with a different sample count should not share.
-        GrSurfaceDesc smallMSAADesc = smallDesc;
-        smallMSAADesc.fSampleCnt = supportedSampleCount;
-        sk_sp<GrTexture> smallMSAART0(resourceProvider->createTexture(smallMSAADesc,
-                                                                      SkBudgeted::kNo));
-        if (smallMSAART0 && smallMSAART0->asRenderTarget()) {
-            resourceProvider->attachStencilAttachment(smallMSAART0->asRenderTarget());
-        }
+        sk_sp<GrRenderTarget> smallMSAART0 = create_RT_with_SB(provider, 4, smallSampleCount,
+                                                               SkBudgeted::kNo);
 #ifdef SK_BUILD_FOR_ANDROID
         if (!smallMSAART0) {
             // The nexus player seems to fail to create MSAA textures.
             return;
         }
+#else
+        REPORTER_ASSERT(reporter, smallMSAART0);
 #endif
-        REPORTER_ASSERT(reporter,
-                        smallRT0 && smallMSAART0 &&
-                        smallRT0->asRenderTarget() && smallMSAART0->asRenderTarget() &&
-                        resourceProvider->attachStencilAttachment(smallRT0->asRenderTarget()) !=
-                        resourceProvider->attachStencilAttachment(smallMSAART0->asRenderTarget()));
-        // A second MSAA RT should share with the first MSAA RT.
-        sk_sp<GrTexture> smallMSAART1(resourceProvider->createTexture(smallMSAADesc,
-                                                                      SkBudgeted::kNo));
-        if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
-            resourceProvider->attachStencilAttachment(smallMSAART1->asRenderTarget());
+
+        REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) != get_SB(smallMSAART0.get()));
+
+        {
+            // A second MSAA RT should share with the first MSAA RT.
+            sk_sp<GrRenderTarget> smallMSAART1 = create_RT_with_SB(provider, 4, smallSampleCount,
+                                                                   SkBudgeted::kNo);
+            REPORTER_ASSERT(reporter, smallMSAART1);
+
+            REPORTER_ASSERT(reporter, get_SB(smallMSAART0.get()) == get_SB(smallMSAART1.get()));
         }
-        REPORTER_ASSERT(reporter,
-                        smallMSAART0 && smallMSAART1 &&
-                        smallMSAART0->asRenderTarget() &&
-                        smallMSAART1->asRenderTarget() &&
-                        resourceProvider->attachStencilAttachment(smallMSAART0->asRenderTarget()) ==
-                        resourceProvider->attachStencilAttachment(smallMSAART1->asRenderTarget()));
+
         // But not one with a larger sample count should not. (Also check that the request for 4
         // samples didn't get rounded up to >= 8 or else they could share.).
-        supportedSampleCount = context->caps()->getSampleCount(8, smallDesc.fConfig);
-        if (supportedSampleCount != smallMSAADesc.fSampleCnt &&
-            smallMSAART0 && smallMSAART0->asRenderTarget()) {
-            smallMSAADesc.fSampleCnt = supportedSampleCount;
-            smallMSAART1 = resourceProvider->createTexture(smallMSAADesc, SkBudgeted::kNo);
-            sk_sp<GrTexture> smallMSAART1(
-                resourceProvider->createTexture(smallMSAADesc, SkBudgeted::kNo));
-            if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
-                resourceProvider->attachStencilAttachment(smallMSAART1->asRenderTarget());
-            }
-            REPORTER_ASSERT(reporter,
-                        smallMSAART0 && smallMSAART1 &&
-                        smallMSAART0->asRenderTarget() &&
-                        smallMSAART1->asRenderTarget() &&
-                        resourceProvider->attachStencilAttachment(smallMSAART0->asRenderTarget()) !=
-                        resourceProvider->attachStencilAttachment(smallMSAART1->asRenderTarget()));
+        int bigSampleCount = context->caps()->getSampleCount(8, kRGBA_8888_GrPixelConfig);
+        if (bigSampleCount != smallSampleCount) {
+            sk_sp<GrRenderTarget> smallMSAART2 = create_RT_with_SB(provider, 4, bigSampleCount,
+                                                                   SkBudgeted::kNo);
+            REPORTER_ASSERT(reporter, smallMSAART2);
+
+            REPORTER_ASSERT(reporter, get_SB(smallMSAART0.get()) != get_SB(smallMSAART2.get()));
         }
     }
 }
