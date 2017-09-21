@@ -16,6 +16,24 @@
       "revId": "b02ecc2701a200ba6e475e04267f773a830c6254",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1865c229_4f115fcd",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-21T18:04:16Z",
+      "side": 1,
+      "message": "It\u0027s a product of the environment variables, I think.  My local machine is set up \"properly\", using CIPD to bring in is \"improper\" and something is amiss.  I don\u0027t understand the emscripten toolchain well enough to tell you more than that.",
+      "parentUuid": "8295682a_95951f7c",
+      "revId": "b02ecc2701a200ba6e475e04267f773a830c6254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
