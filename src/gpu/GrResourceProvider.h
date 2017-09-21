@@ -199,10 +199,10 @@ public:
 
 
     /**
-     * If passed in render target already has a stencil buffer, return it. Otherwise attempt to
-     * attach one.
+     * If passed in render target already has a stencil buffer, return true. Otherwise attempt to
+     * attach one and return true on success.
      */
-    GrStencilAttachment* attachStencilAttachment(GrRenderTarget* rt);
+    bool attachStencilAttachment(GrRenderTarget* rt);
 
      /**
       * Wraps an existing texture with a GrRenderTarget object. This is useful when the provided

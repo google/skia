@@ -207,8 +207,7 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
                                                          kCoverRect.width() + padRight,
                                                          kCoverRect.height() + padBottom,
                                                          kAlpha_8_GrPixelConfig, nullptr));
-    if (!maskRTC ||
-        !ctx->resourceProvider()->attachStencilAttachment(maskRTC->accessRenderTarget())) {
+    if (!maskRTC) {
         return;
     }
 
@@ -235,10 +234,6 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
 void WindowRectanglesMaskGM::visualizeStencilMask(GrContext* ctx, GrRenderTargetContext* rtc,
                                                   const GrReducedClip& reducedClip,
                                                   GrPaint&& paint) {
-    if (!ctx->resourceProvider()->attachStencilAttachment(rtc->accessRenderTarget())) {
-        return;
-    }
-
     // Draw a checker pattern into the stencil buffer so we can visualize the regions left untouched
     // by the clip mask generation.
     this->stencilCheckerboard(rtc, false);
