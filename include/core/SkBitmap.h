@@ -234,7 +234,7 @@ public:
                                  fInfo.width(), fInfo.height());
     }
 
-    bool setInfo(const SkImageInfo&, size_t rowBytes = 0);
+    bool setInfo(const SkImageInfo& imageInfo, size_t rowBytes = 0);
 
     enum AllocFlags {
         kZeroPixels_AllocFlag   = 1 << 0,
@@ -295,7 +295,7 @@ public:
      *  If specified, the releaseProc will always be called, even on failure. It is also possible
      *  for success but the releaseProc is immediately called (e.g. valid Info but NULL pixels).
      */
-    bool installPixels(const SkImageInfo&, void* pixels, size_t rowBytes,
+    bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                        void (*releaseProc)(void* addr, void* context), void* context);
 
     /**
@@ -312,14 +312,14 @@ public:
      *  that the specified pixels are valid for the lifetime of the created bitmap
      *  (and its pixelRef).
      */
-    bool installPixels(const SkPixmap&);
+    bool installPixels(const SkPixmap& pixmap);
 
     /**
      *  Calls installPixels() with the value in the SkMask. The caller must
      *  ensure that the specified mask pixels are valid for the lifetime
      *  of the created bitmap (and its pixelRef).
      */
-    bool installMaskPixels(const SkMask&);
+    bool installMaskPixels(const SkMask& mask);
 
     /** Use this to assign a new pixel address for an existing bitmap. This
         will automatically release any pixelref previously installed. Only call
@@ -327,7 +327,7 @@ public:
 
         @param pixels   Address for the pixels, managed by the caller.
     */
-    void setPixels(void* p);
+    void setPixels(void* pixels);
 
     /** Use the standard HeapAllocator to create the pixelref that manages the
         pixel memory. It will be sized based on the current ImageInfo.
@@ -387,7 +387,7 @@ public:
      * a bitmap that encompases the entire pixels of the pixelref, these will
      * be (0,0).
      */
-    void setPixelRef(sk_sp<SkPixelRef>, int dx, int dy);
+    void setPixelRef(sk_sp<SkPixelRef> pixelRef, int dx, int dy);
 
     /** Call this to be sure that the bitmap is valid enough to be drawn (i.e.
         it has non-null pixels).
@@ -596,7 +596,7 @@ public:
      *  Note: if this returns true, the results (in the pixmap) are only valid until the bitmap
      *  is changed in any way, in which case the results are invalid.
      */
-    bool peekPixels(SkPixmap*) const;
+    bool peekPixels(SkPixmap* pixmap) const;
 
     SkDEBUGCODE(void validate() const;)
 
@@ -606,7 +606,7 @@ public:
             colortype. Return true on success, where success means either setPixels
             or setPixelRef was called.
         */
-        virtual bool allocPixelRef(SkBitmap*) = 0;
+        virtual bool allocPixelRef(SkBitmap* bitmap) = 0;
     private:
         typedef SkRefCnt INHERITED;
     };
@@ -617,7 +617,7 @@ public:
     */
     class HeapAllocator : public Allocator {
     public:
-        bool allocPixelRef(SkBitmap*) override;
+        bool allocPixelRef(SkBitmap* bitmap) override;
     };
 
     SK_TO_STRING_NONVIRT()
