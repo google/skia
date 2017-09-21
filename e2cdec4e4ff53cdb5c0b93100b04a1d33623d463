@@ -164,6 +164,30 @@
       "revId": "e2cdec4e4ff53cdb5c0b93100b04a1d33623d463",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8cc15bd_e34c1e9c",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-21T15:20:29Z",
+      "side": 1,
+      "message": "If WASM matters, we\u0027ll almost certainly want to distinguish \"none\" and \"WASM\" in GN.\n\nEven today, the -O2 linker flag really belongs in GN, not in the bot script.\nIf you build for WASM today locally, you want that -O2, right?",
+      "parentUuid": "f3946799_acc330e5",
+      "range": {
+        "startLine": 36,
+        "startChar": 22,
+        "endLine": 36,
+        "endChar": 26
+      },
+      "revId": "e2cdec4e4ff53cdb5c0b93100b04a1d33623d463",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
