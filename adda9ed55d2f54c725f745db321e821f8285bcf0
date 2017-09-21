@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "40bfa250_a8c254b0",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 12
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-21T17:14:41Z",
+      "side": 1,
+      "message": "WASM doesn\u0027t yield stacktraces anyway.  I don\u0027t think Debug+WASM is a combination that will be much use because of that.  Unless there are other uses for less optimization that I\u0027m not aware of.",
+      "parentUuid": "c7561bad_c93ec698",
+      "range": {
+        "startLine": 159,
+        "startChar": 3,
+        "endLine": 159,
+        "endChar": 23
+      },
+      "revId": "adda9ed55d2f54c725f745db321e821f8285bcf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ac1f5910_7799c7a4",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 12
@@ -132,6 +156,30 @@
       "side": 1,
       "message": "That doesn\u0027t make sense and is definitely worth sorting out.",
       "parentUuid": "b6517e87_0cfa17e3",
+      "range": {
+        "startLine": 60,
+        "startChar": 27,
+        "endLine": 60,
+        "endChar": 54
+      },
+      "revId": "adda9ed55d2f54c725f745db321e821f8285bcf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2620c46a_91bd67d6",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-21T17:14:41Z",
+      "side": 1,
+      "message": "Ah, it\u0027s because of the path hackery I do with the toolchain.  It\u0027s a different setup than on my desktop.",
+      "parentUuid": "91507ae8_ccc0456c",
       "range": {
         "startLine": 60,
         "startChar": 27,
