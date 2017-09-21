@@ -192,18 +192,11 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
         backendTex.height() > this->caps()->maxRenderTargetSize()) {
         return nullptr;
     }
-    sk_sp<GrTexture> tex =
-            this->onWrapRenderableBackendTexture(backendTex, sampleCnt, ownership);
+    sk_sp<GrTexture> tex = this->onWrapRenderableBackendTexture(backendTex, sampleCnt, ownership);
     if (!tex) {
         return nullptr;
     }
     SkASSERT(tex->asRenderTarget());
-    if (!this->caps()->avoidStencilBuffers()) {
-        // TODO: defer this and attach dynamically
-        if (!fContext->resourceProvider()->attachStencilAttachment(tex->asRenderTarget())) {
-            return nullptr;
-        }
-    }
     return tex;
 }
 
