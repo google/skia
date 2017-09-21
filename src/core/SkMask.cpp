@@ -45,7 +45,7 @@ uint8_t* SkMask::AllocImage(size_t size) {
 #ifdef TRACK_SKMASK_LIFETIME
     SkDebugf("SkMask::AllocImage %d\n", gCounter++);
 #endif
-    return (uint8_t*)sk_malloc_throw(SkAlign4(size));
+    return static_cast<uint8_t*>(sk_malloc_throw(size));
 }
 
 /** We explicitly use this allocator for SkBimap pixels, so that we can
