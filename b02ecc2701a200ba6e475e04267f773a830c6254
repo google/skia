@@ -52,6 +52,24 @@
       "revId": "b02ecc2701a200ba6e475e04267f773a830c6254",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "723d5b47_e2cd4aea",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-21T18:08:43Z",
+      "side": 1,
+      "message": "Yes, I zipped mine up and shipped it via CIPD",
+      "parentUuid": "4eccf55e_45564747",
+      "revId": "b02ecc2701a200ba6e475e04267f773a830c6254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
