@@ -1544,7 +1544,9 @@ Glyphs to position below the preceding glyph.
 Skia can translate text character codes as a series of Glyphs, but does not implement
 font substitution, 
 textual substitution, line layout, or contextual spacing like Kerning pairs. Use
-a text shaping engine like #A HarfBuzz # http://harfbuzz.org/ ## to translate text runs
+a text shaping engine like
+#A HarfBuzz # http://harfbuzz.org/ ##
+ to translate text runs
 into glyph series.
 
 Vertical_Text is clear if text is drawn left to right or set if drawn from top to bottom.
@@ -2380,6 +2382,7 @@ Here are some miter limits and the angles that triggers them.
         kLast_Cap = kSquare_Cap,
         kDefault_Cap = kButt_Cap,
     };
+
     static constexpr int kCapCount = kLast_Cap + 1;
 ##
 
@@ -2523,6 +2526,7 @@ the following curve, the pair of curves meet at Stroke_Join.
         kLast_Join = kBevel_Join,
         kDefault_Join = kMiter_Join,
     };
+
     static constexpr int kJoinCount = kLast_Join + 1;
 ##
 
@@ -2839,7 +2843,7 @@ void draw(SkCanvas* canvas) {
     Optional colors used when filling a path, such as a gradient.
 
     Sets Shader to shader, decreasing Reference_Count of the previous Shader.
-    Does not alter shader Reference_Count.
+    Increments shader Reference_Count by one.
 
     #Param shader  how geometry is filled with color; if nullptr, Color is used instead ##
 
@@ -2930,9 +2934,10 @@ void draw(SkCanvas* canvas) {
 
 #Method void setColorFilter(sk_sp<SkColorFilter> colorFilter)
 
-    Sets Color_Filter to filter, decreasing Reference_Count of the previous Color_Filter. 
-    Pass nullptr to clear Color_Filter.
-    Does not alter filter Reference_Count.
+Sets Color_Filter to filter, decreasing Reference_Count of the previous
+Color_Filter. Pass nullptr to clear Color_Filter.
+
+Increments filter Reference_Count by one.
 
     #Param colorFilter  Color_Filter to apply to subsequent draw ##
 
@@ -3119,10 +3124,10 @@ If Paint has no Path_Effect, the path geometry is unaltered when filled or strok
 
 #Method void setPathEffect(sk_sp<SkPathEffect> pathEffect)
 
-    Sets Path_Effect to pathEffect, 
-    decreasing Reference_Count of the previous Path_Effect. 
-    Pass nullptr to leave the path geometry unaltered.
-    Does not alter pathEffect Reference_Count.
+Sets Path_Effect to pathEffect, decreasing Reference_Count of the previous
+Path_Effect. Pass nullptr to leave the path geometry unaltered.
+
+Increments pathEffect Reference_Count by one.
 
     #Param pathEffect  replace Path with a modification when drawn ##
 
@@ -3143,8 +3148,10 @@ If Paint has no Path_Effect, the path geometry is unaltered when filled or strok
 Mask_Filter uses coverage of the shape drawn to create Mask_Alpha.
 Mask_Filter operates at a lower level than Rasterizer; Mask_Filter takes a Mask,
 and returns a Mask.
-Mask_Filter may change the geometry and transparency of the shape, such as creating a blur effect.
-Set Mask_Filter to nullptr to prevent Mask_Filter from modifying the draw.
+
+Mask_Filter may change the geometry and transparency of the shape, such as
+creating a blur effect. Set Mask_Filter to nullptr to prevent Mask_Filter from
+modifying the draw.
 
 #Example
     void draw(SkCanvas* canvas) {
@@ -3180,6 +3187,7 @@ Set Mask_Filter to nullptr to prevent Mask_Filter from modifying the draw.
 #Method sk_sp<SkMaskFilter> refMaskFilter() const
 
     Returns Mask_Filter if set, or nullptr.
+
     Increases Mask_Filter Reference_Count by one.
     
     #Return  Mask_Filter if previously set, nullptr otherwise ##
@@ -3203,11 +3211,12 @@ Set Mask_Filter to nullptr to prevent Mask_Filter from modifying the draw.
 
 #Method void setMaskFilter(sk_sp<SkMaskFilter> maskFilter)
 
-    Sets Mask_Filter to maskFilter,
-    decreasing Reference_Count of the previous Mask_Filter. 
-    Pass nullptr to clear Mask_Filter and leave Mask_Filter effect on Mask_Alpha unaltered.
-    Does not affect Rasterizer.
-    Does not alter maskFilter Reference_Count.
+Sets Mask_Filter to maskFilter, decreasing Reference_Count of the previous
+Mask_Filter. Pass nullptr to clear Mask_Filter and leave Mask_Filter effect on
+Mask_Alpha unaltered.
+
+Does not affect Rasterizer.
+Increments maskFilter Reference_Count by one.
 
     #Param maskFilter   modifies clipping mask generated from drawn geometry ##
 
@@ -3249,7 +3258,7 @@ implementation.
 #Method SkTypeface* getTypeface() const
 
     Returns Typeface if set, or nullptr.
-    Does not alter Typeface Reference_Count.
+    Increments Typeface Reference_Count by one.
     
     #Return  Typeface if previously set, nullptr otherwise ##
 
@@ -3298,10 +3307,9 @@ implementation.
 
 #Method void setTypeface(sk_sp<SkTypeface> typeface)
 
-    Sets Typeface to typeface,
-    decreasing Reference_Count of the previous Typeface. 
-    Pass nullptr to clear Typeface and use the default typeface.
-    Does not alter typeface Reference_Count.
+Sets Typeface to typeface, decreasing Reference_Count of the previous Typeface. 
+Pass nullptr to clear Typeface and use the default typeface. Increments
+typeface Reference_Count by one.
 
     #Param typeface  font and style used to draw text ##
 
@@ -3325,9 +3333,11 @@ implementation.
 Rasterizer controls how shapes are converted to Mask_Alpha. 
 Rasterizer operates at a higher level than Mask_Filter; Rasterizer takes a Path,
 and returns a Mask.
+
 Rasterizer may change the geometry and transparency of the shape, such as
 creating a shadow effect. Rasterizer forms the base of Rasterizer_Layer, which
 creates effects like embossing and outlining.
+
 Rasterizer applies to Rect, Region, Round_Rect, Arcs, Circles, Ovals,
 Path, and Text.
 
@@ -3415,11 +3425,12 @@ Path, and Text.
 
 #Method void setRasterizer(sk_sp<SkRasterizer> rasterizer)
 
-    Sets Rasterizer to rasterizer,
-    decreasing Reference_Count of the previous Rasterizer. 
-    Pass nullptr to clear Rasterizer and leave Rasterizer effect on Mask_Alpha unaltered.
-    Does not affect Mask_Filter.
-    Does not alter rasterizer Reference_Count.
+Sets Rasterizer to rasterizer, decreasing Reference_Count of the previous
+Rasterizer. Pass nullptr to clear Rasterizer and leave Rasterizer effect on
+Mask_Alpha unaltered.
+
+Does not affect Mask_Filter.
+Increments rasterizer Reference_Count by one.
 
     #Param rasterizer  how geometry is converted to Mask_Alpha ##
 
@@ -3448,6 +3459,7 @@ Path, and Text.
 Image_Filter operates on the pixel representation of the shape, as modified by Paint
 with Blend_Mode set to SkBlendMode::kSrcOver. Image_Filter creates a new bitmap,
 which is drawn to the device using the set Blend_Mode.
+
 Image_Filter is higher level than Mask_Filter; for instance, an Image_Filter
 can operate on all channels of Color, while Mask_Filter generates Alpha only.
 Image_Filter operates independently of and can be used in combination with
@@ -3520,12 +3532,12 @@ Mask_Filter and Rasterizer.
 
 #Method void setImageFilter(sk_sp<SkImageFilter> imageFilter)
 
-    Sets Image_Filter to imageFilter,
-    decreasing Reference_Count of the previous Image_Filter. 
-    Pass nullptr to clear Image_Filter, and remove Image_Filter effect
-    on drawing.
-    Does not affect Rasterizer or Mask_Filter.
-    Does not alter imageFilter Reference_Count.
+Sets Image_Filter to imageFilter, decreasing Reference_Count of the previous
+Image_Filter. Pass nullptr to clear Image_Filter, and remove Image_Filter effect
+on drawing.
+
+Does not affect Rasterizer or Mask_Filter.
+Increments imageFilter Reference_Count by one.
 
     #Param imageFilter  how Image is sampled when transformed ##
 
@@ -3556,6 +3568,7 @@ Mask_Filter and Rasterizer.
 
 Draw_Looper sets a modifier that communicates state from one Draw_Layer
 to another to construct the draw.
+
 Draw_Looper draws one or more times, modifying the canvas and paint each time.
 Draw_Looper may be used to draw multiple colors or create a colored shadow.
 Set Draw_Looper to nullptr to prevent Draw_Looper from modifying the draw. 
@@ -3641,10 +3654,11 @@ Deprecated.
 
 #Method void setDrawLooper(sk_sp<SkDrawLooper> drawLooper)
 
-    Sets Draw_Looper to drawLooper,
-    decreasing Reference_Count of the previous drawLooper. 
-    Pass nullptr to clear Draw_Looper and leave Draw_Looper effect on drawing unaltered.
-    Does not alter drawLooper Reference_Count.
+Sets Draw_Looper to drawLooper, decreasing Reference_Count of the previous
+drawLooper.  Pass nullptr to clear Draw_Looper and leave Draw_Looper effect on
+drawing unaltered.
+
+Increments drawLooper Reference_Count by one.
 
     #Param drawLooper  iterates through drawing one or more time, altering Paint ##
 
@@ -3992,19 +4006,23 @@ Text_Skew_X defaults to 0.
     };
 ##
 
-TextEncoding determines whether text specifies character codes and their encoded size,
-or glyph indices. Character codes use the encoding specified by the 
-#A Unicode standard # http://unicode.org/standard/standard.html ##.
+TextEncoding determines whether text specifies character codes and their encoded
+size, or glyph indices. Character codes use the encoding specified by the
+#A Unicode standard # http://unicode.org/standard/standard.html ##
+.
+
 Character codes encoded size are specified by UTF-8, UTF-16, or UTF-32.
-All character encoding are able to represent all of Unicode, differing only
+All character encodings are able to represent all of Unicode, differing only
 in the total storage required.
 
-#A UTF-8 (RFC 3629) # https://tools.ietf.org/html/rfc3629 ## is made up of 8-bit bytes, 
-and encodes ASCII in one byte, and all valid code points in Unicode in multiple
-bytes. #A UTF-16 (RFC 2781) # https://tools.ietf.org/html/rfc2781 ## uses one or two 16-bit words, 
-and encodes Unicode ranges 0x0000 to 0xD7FF and 0xE000 to 0xFFFF in one 
-word. #A UTF-32 # http://www.unicode.org/versions/Unicode5.0.0/ch03.pdf ## describes
-a 32-bit word, which encodes all code points in Unicode.
+#A UTF-8 (RFC 3629) # https://tools.ietf.org/html/rfc3629 ##
+ encodes each character as one or more 8-bit bytes.
+
+#A UTF-16 (RFC 2781) # https://tools.ietf.org/html/rfc2781 ##
+ encodes each character as one or two 16-bit words.
+
+#A UTF-32 # http://www.unicode.org/versions/Unicode5.0.0/ch03.pdf ##
+ encodes each character as one 32-bit word.
 
 Font_Manager uses font data to convert character code points into glyph indices. 
 A glyph index is a 16-bit word.

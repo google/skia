@@ -3446,10 +3446,11 @@ void addCircle(SkScalar x, SkScalar y, SkScalar radius,
 </pre>
 
 Add <a href="undocumented#Circle">Circle</a> centered at (<a href="#SkPath_addCircle_x">x</a>, <a href="#SkPath_addCircle_y">y</a>) of size <a href="#SkPath_addCircle_radius">radius</a> to <a href="#Path">Path</a>, appending <a href="#SkPath_kMove_Verb">kMove Verb</a>,
-four <a href="#SkPath_kConic_Verb">kConic Verb</a>, and <a href="#SkPath_kClose_Verb">kClose Verb</a>. <a href="undocumented#Circle">Circle</a> begins at(<a href="#SkPath_addCircle_x">x</a> + <a href="#SkPath_addCircle_radius">radius</a>, <a href="#SkPath_addCircle_y">y</a>)and continues clockwise if <a href="#SkPath_addCircle_dir">dir</a> is <a href="#SkPath_kCW_Direction">kCW Direction</a>, counterclockwise if <a href="#SkPath_addCircle_dir">dir</a> is
+four <a href="#SkPath_kConic_Verb">kConic Verb</a>, and <a href="#SkPath_kClose_Verb">kClose Verb</a>. <a href="undocumented#Circle">Circle</a> begins at(<a href="#SkPath_addCircle_x">x</a> + <a href="#SkPath_addCircle_radius">radius</a>, <a href="#SkPath_addCircle_y">y</a>), 
+continuing clockwise if <a href="#SkPath_addCircle_dir">dir</a> is <a href="#SkPath_kCW_Direction">kCW Direction</a>, and counterclockwise if <a href="#SkPath_addCircle_dir">dir</a> is
 <a href="#SkPath_kCCW_Direction">kCCW Direction</a>.
 
-<a href="#SkPath_addCircle">addCircle</a> has no effect if <a href="#SkPath_addCircle_radius">radius</a> is zero or negative.
+Has no effect if <a href="#SkPath_addCircle_radius">radius</a> is zero or negative.
 
 ### Parameters
 
@@ -3693,9 +3694,10 @@ index of initial point of <a href="undocumented#Round_Rect">Round Rect</a></td>
 void addPoly(const SkPoint pts[], int count, bool close)
 </pre>
 
-Add <a href="#Contour">Contour</a> created from <a href="undocumented#Line">Line</a> array, adding<a href="#SkPath_addPoly_count">count</a> - 1<a href="undocumented#Line">Line</a> segments. <a href="#Contour">Contour</a> added starts at <a href="#SkPath_addPoly_pts">pts</a>[0], then adds a line
-for every additional <a href="undocumented#Point">Point</a> in <a href="#SkPath_addPoly_pts">pts</a> array. If <a href="#SkPath_close">close</a> is true,
-appends <a href="#SkPath_kClose_Verb">kClose Verb</a> to <a href="#Path">Path</a>, connecting <a href="#SkPath_addPoly_pts">pts</a>[<a href="#SkPath_addPoly_count">count</a> - 1] and <a href="#SkPath_addPoly_pts">pts</a>[0].
+Add <a href="#Contour">Contour</a> created from <a href="undocumented#Line">Line</a> array, adding (<a href="#SkPath_addPoly_count">count</a> - 1) <a href="undocumented#Line">Line</a> segments.
+<a href="#Contour">Contour</a> added starts at <a href="#SkPath_addPoly_pts">pts</a>[0], then adds a line for every additional <a href="undocumented#Point">Point</a>
+in <a href="#SkPath_addPoly_pts">pts</a> array. If <a href="#SkPath_close">close</a> is true,appends <a href="#SkPath_kClose_Verb">kClose Verb</a> to <a href="#Path">Path</a>, connecting
+<a href="#SkPath_addPoly_pts">pts</a>[<a href="#SkPath_addPoly_count">count</a> - 1] and <a href="#SkPath_addPoly_pts">pts</a>[0].
 
 If <a href="#SkPath_addPoly_count">count</a> is zero, append <a href="#SkPath_kMove_Verb">kMove Verb</a> to path.
 Has no effect if <a href="#SkPath_addPoly_count">count</a> is less than one.
@@ -4315,6 +4317,7 @@ in hexadecimal to preserve their exact bit pattern. The output reconstructs the
 original <a href="#Path">Path</a>.
 
 Use instead of <a href="#SkPath_dump_2">dump</a> when submittingbug reports against <a href="undocumented#Skia">Skia</a>.
+
 Slight value changes in <a href="#Point_Array">Point Array</a> may cause the bug to disappear.
 
 ### Example
