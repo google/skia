@@ -530,6 +530,7 @@ if (is_win) {
     # assembler situation is figured out, https://crbug.com/762167
     skia_core_defines += [ "SK_JUMPER_USE_ASSEMBLY=0" ]
   }
-} else {
+} else if (target_cpu == "arm" || target_cpu == "arm64" ||
+           target_cpu == "x86" || target_cpu == "x64") {
   skia_core_sources += [ "$_src/jumper/SkJumper_generated.S" ]
 }

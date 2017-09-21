@@ -33,6 +33,7 @@
   "Build-Debian9-Clang-x86_64-Release-TSAN",
   "Build-Debian9-Clang-x86_64-Release-UBSAN_float_cast_overflow",
   "Build-Debian9-Clang-x86_64-Release-Vulkan",
+  "Build-Debian9-EMCC-wasm-Release",
   "Build-Debian9-GCC-arm-Debug-Chromecast",
   "Build-Debian9-GCC-arm-Release-Chromecast",
   "Build-Debian9-GCC-x86-Debug",

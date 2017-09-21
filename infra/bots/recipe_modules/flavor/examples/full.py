@@ -61,6 +61,7 @@ TEST_BUILDERS = [
   'Build-Ubuntu-Clang-x86_64-Release-Mini',
   'Build-Ubuntu-Clang-x86_64-Release-Shared',
   'Build-Ubuntu-Clang-x86_64-Release-Vulkan',
+  'Build-Ubuntu-EMCC-wasm-Release',
   'Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
   'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
   'Build-Ubuntu-GCC-x86_64-Release-Fast',
