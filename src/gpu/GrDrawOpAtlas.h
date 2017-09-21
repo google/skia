@@ -186,6 +186,8 @@ public:
         }
     }
 
+    void compact(GrDrawOpUploadToken nextTokenToFlush);
+
     static constexpr auto kGlyphMaxDim = 256;
     static bool GlyphTooLargeForAtlas(int width, int height) {
         return width > kGlyphMaxDim || height > kGlyphMaxDim;
@@ -240,6 +242,10 @@ private:
         void uploadToTexture(GrDrawOp::WritePixelsFn&, GrTextureProxy*);
         void resetRects();
 
+        int unusedCount() { return fUnusedCount; }
+        void resetUnusedCount() { fUnusedCount = 0; }
+        void incUnusedCount() { fUnusedCount++; }
+
     private:
         Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY, int width, int height,
              GrPixelConfig config);
@@ -265,6 +271,7 @@ private:
 
         GrDrawOpUploadToken   fLastUpload;
         GrDrawOpUploadToken   fLastUse;
+        int                   fUnusedCount;
 
         struct {
             const uint32_t fPageIndex : 16;
@@ -326,6 +333,7 @@ private:
     SkDEBUGCODE(uint32_t  fNumPlots;)
 
     uint64_t              fAtlasGeneration;
+    GrDrawOpUploadToken   fPrevFlushToken;
 
     struct EvictionData {
         EvictionFunc fFunc;

@@ -147,6 +147,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width
         , fTextureWidth(width)
         , fTextureHeight(height)
         , fAtlasGeneration(kInvalidAtlasGeneration + 1)
+        , fPrevFlushToken(GrDrawOpUploadToken::AlreadyFlushedToken())
         , fNumPages(0) {
 
     fPlotWidth = fTextureWidth / numPlotsX;
@@ -306,6 +307,72 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
 
     fAtlasGeneration++;
     return true;
+}
+
+void GrDrawOpAtlas::compact(GrDrawOpUploadToken nextTokenToFlush) {
+    static constexpr auto kRecentlyUsedCount = 5;
+
+    if (fNumPages <= 1) {
+        return;
+    }
+
+    // count available plots in other pages
+    PlotList::Iter plotIter;
+    Plot* plot;
+    int availablePlots = 0;
+    for (uint32_t pageIndex = 0; pageIndex < fNumPages - 1; ++pageIndex) {
+        plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
+        while ((plot = plotIter.get())) {
+            if (plot->lastUseToken().inInterval(fPrevFlushToken, nextTokenToFlush)) {
+                plot->resetUnusedCount();
+            } else {
+                plot->incUnusedCount();
+            }
+            if (plot->unusedCount() > kRecentlyUsedCount) {
+                ++availablePlots;
+            }
+
+            plotIter.next();
+        }
+    }
+
+    // if room, try to evict
+    uint32_t lastPageIndex = fNumPages-1;
+    plotIter.init(fPages[lastPageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
+    int usedPlots = 0;
+    while ((plot = plotIter.get())) {
+        // if plot used last flush
+        if (plot->lastUseToken().inInterval(fPrevFlushToken, nextTokenToFlush)) {
+            plot->resetUnusedCount();
+        } else {
+            plot->incUnusedCount();
+        }
+
+        if (plot->unusedCount() <= kRecentlyUsedCount) {
+            usedPlots++;
+            if (availablePlots) {
+                this->processEviction(plot->id());
+                plot->resetRects();
+                --availablePlots;
+            }
+        } else {
+            this->processEviction(plot->id());
+            plot->resetRects();
+        }
+        plotIter.next();
+    }
+
+    // delete page if not used recently
+    if (!usedPlots) {
+        // clean out the plots
+        fPages[lastPageIndex].fPlotList.reset();
+        fPages[lastPageIndex].fPlotArray.reset(nullptr);
+        // remove ref to texture proxy
+        fProxies[lastPageIndex].reset(nullptr);
+        --fNumPages;
+    }
+
+    fPrevFlushToken = nextTokenToFlush;
 }
 
 bool GrDrawOpAtlas::createNewPage() {
