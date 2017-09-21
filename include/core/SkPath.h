@@ -17,6 +17,22 @@ class SkRRect;
 class SkWStream;
 
 /** \class SkPath
+    SkPath contain geometry. SkPath may be empty, or contain one or more SkPath::Verb that
+    outline a figure. SkPath always starts with a move verb to a Cartesian
+    coordinate, and may be followed by additional verbs that add lines or curves.
+    Adding a close verb makes the geometry into a continuous loop, a closed contour.
+    SkPath may contain any number of contours, each beginning with a move verb.
+
+    SkPath contours may contain only a move verb, or may also contain lines,
+    quadratic beziers, conics, and cubic beziers. SkPath contours may be open or
+    closed.
+
+    When used to draw a filled area, SkPath describes whether the fill is inside or
+    outside the geometry. SkPath also describes the winding rule used to fill
+    overlapping contours.
+
+    Internally, SkPath lazily computes metrics likes bounds and convexity. Call
+    SkPath::updateBoundsCache to make SkPath thread safe.
 */
 class SK_API SkPath {
 public:
@@ -112,6 +128,15 @@ enum Direction {
         Copy verb array and weights to out,
         and set out SkPoint arrays to a weighted average of this SkPoint arrays and ending
         SkPoint arrays, using the formula:
+        (this->points * weight) + ending->points * (1 - weight)
+
+        weight is most useful when between zero (ending SkPoint arrays) and
+        one (this Point_Array); will work with values outside of this
+        range.
+
+        interpolate() returns false and leaves out unchanged if SkPoint arrays is not
+        the same size as ending SkPoint arrays. Call isInterpolatable() to check SkPath
+        compatibility prior to calling interpolate().
 
         @param ending  SkPoint arrays averaged with this SkPoint arrays
         @param weight  contribution of ending SkPoint arrays, and
@@ -406,9 +431,9 @@ enum Direction {
         Quad with no length or that moves a very short distance is degenerate; it is
         treated as a point.
 
-        @param p1     Quad start point
-        @param p2     Quad control point
-        @param p3     Quad end point
+        @param p1     quad start point
+        @param p2     quad control point
+        @param p3     quad end point
         @param exact  if true, returns true only if p1, p2, and p3 are equal;
                       if false, returns true if p1, p2, and p3 are equal or nearly equal
         @return       true if quad is degenerate; its length is effectively zero
@@ -423,10 +448,10 @@ enum Direction {
         Cubic with no length or that moves a very short distance is degenerate; it is
         treated as a point.
 
-        @param p1     Cubic start point
-        @param p2     Cubic control point 1
-        @param p3     Cubic control point 2
-        @param p4     Cubic end point
+        @param p1     cubic start point
+        @param p2     cubic control point 1
+        @param p3     cubic control point 2
+        @param p4     cubic end point
         @param exact  if true, returns true only if p1, p2, p3, and p4 are equal;
                       if false, returns true if p1, p2, p3, and p4 are equal or nearly equal
         @return       true if cubic is degenerate; its length is effectively zero
@@ -918,6 +943,19 @@ enum Direction {
     /** Append arc to SkPath, relative to last SkPath SkPoint. Arc is implemented by one or
         more conic, weighted to describe part of oval with radii (rx, ry) rotated by
         xAxisRotate degrees. Arc curves from last SkPath SkPoint (x0, y0) to end SkPoint
+        (x0 + dx, y0 + dy), choosing one of four possible routes: clockwise or
+        counterclockwise, and smaller or larger. If SkPath is empty, the start arc SkPoint
+        is (0, 0).
+
+        Arc sweep is always less than 360 degrees. arcTo() appends line to end SkPoint
+        if either radii are zero, or if last SkPath SkPoint equals end SkPoint.
+        arcTo() scales radii (rx, ry) to fit last SkPath SkPoint and end SkPoint if both are
+        greater than zero but too small to describe an arc.
+
+        arcTo() appends up to four conic curves.
+        arcTo() implements the functionality of svg arc, although SVG "sweep-flag" value is
+        opposite the integer value of sweep; SVG "sweep-flag" uses 1 for clockwise, while
+        kCW_Direction cast to int is zero.
 
         @param rx           radius in x before x-axis rotation
         @param ry           radius in y before x-axis rotation
@@ -976,13 +1014,24 @@ enum Direction {
         Maximum quad count is 2 to the pow2.
         Every third point in array shares last SkPoint of previous quad and first SkPoint of
         next quad. Maximum pts storage size is given by:
+        (1 + 2 * (1 << pow2)) * sizeof(SkPoint)
 
-        @param p0    Conic start SkPoint
-        @param p1    Conic control SkPoint
-        @param p2    Conic end SkPoint
-        @param w     Conic weight
+        ConvertConicToQuads returns quad count used the approximation, which may be smaller
+        than the number requested.
+
+        conic weight determines the amount of influence conic control point has on the curve.
+        w less than one represents an elliptical section. w greater than one represents
+        a hyperbolic section. w equal to one represents a parabolic section.
+
+        Two quad curves are sufficient to approximate an elliptical conic with a sweep
+        of up to 90 degrees; in this case, set pow2 to one.
+
+        @param p0    conic start SkPoint
+        @param p1    conic control SkPoint
+        @param p2    conic end SkPoint
+        @param w     conic weight
         @param pts   storage for quad array
-        @param pow2  Quad count, as power of two, normally 0 to 5 (1 to 32 quad curves)
+        @param pow2  quad count, as power of two, normally 0 to 5 (1 to 32 quad curves)
         @return      number of quad curves written to pts
     */
     static int ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
@@ -1076,6 +1125,10 @@ enum Direction {
 
     /** Add circle centered at (x, y) of size radius to SkPath, appending kMove_Verb,
         four kConic_Verb, and kClose_Verb. Circle begins at
+        (x + radius, y), continuing clockwise if dir is kCW_Direction, and counterclockwise if dir is
+        kCCW_Direction.
+
+        Has no effect if radius is zero or negative.
 
         @param x       center of circle
         @param y       center of circle
@@ -1153,7 +1206,13 @@ enum Direction {
     */
     void addRRect(const SkRRect& rrect, Direction dir, unsigned start);
 
-    /** Add contour created from line array, adding
+    /** Add contour created from line array, adding (count - 1) line segments.
+        Contour added starts at pts[0], then adds a line for every additional SkPoint
+        in pts array. If close is true,appends kClose_Verb to SkPath, connecting
+        pts[count - 1] and pts[0].
+
+        If count is zero, append kMove_Verb to path.
+        Has no effect if count is less than one.
 
         @param pts    array of line sharing end and start SkPoint
         @param count  length of SkPoint array
@@ -1235,12 +1294,10 @@ enum Direction {
     */
     void offset(SkScalar dx, SkScalar dy, SkPath* dst) const;
 
-    /** Offset SkPoint arrays by (dx, dy). Offset SkPath replaces dst.
-        If dst is nullptr, SkPath is replaced by offset data.
+    /** Offset SkPoint arrays by (dx, dy). SkPath is replaced by offset data.
 
-        @param dx   offset added to SkPoint arrays x coordinates
-        @param dy   offset added to SkPoint arrays y coordinates
-        @param dst  overwritten, translated copy of SkPath; may be nullptr
+        @param dx  offset added to SkPoint arrays x coordinates
+        @param dy  offset added to SkPoint arrays y coordinates
     */
     void offset(SkScalar dx, SkScalar dy) {
         this->offset(dx, dy, this);
@@ -1258,11 +1315,9 @@ enum Direction {
 
     /** Transform verb array, SkPoint arrays, and weight by matrix.
         transform may change SkPath::Verb and increase their number.
-        Transformed SkPath replaces dst; if dst is nullptr, original data
-        is replaced.
+        SkPath is replaced by transformed data.
 
         @param matrix  SkMatrix to apply to SkPath
-        @param dst     overwritten, transformed copy of SkPath; may be nullptr
     */
     void transform(const SkMatrix& matrix) {
         this->transform(matrix, this);
@@ -1352,6 +1407,9 @@ enum Direction {
     };
 
     /** \class SkPath::Iter
+        Iterates through verb array, and associated SkPoint arrays and conic weight.
+        Provides options to treat open contours as closed, and to ignore
+        degenerate data.
     */
     class SK_API Iter {
 
@@ -1360,7 +1418,7 @@ enum Direction {
         /** Initializes iter with an empty SkPath. next() on iter returns kDone_Verb.
             Call setPath to initialize iter at a later time.
 
-            @return  Iter of empty SkPath
+            @return  iter of empty SkPath
         */
         Iter();
 
@@ -1370,7 +1428,7 @@ enum Direction {
 
             @param path        SkPath to iterate
             @param forceClose  true if open contours generate kClose_Verb
-            @return            Iter of path
+            @return            iter of path
         */
         Iter(const SkPath& path, bool forceClose);
 
@@ -1454,6 +1512,8 @@ enum Direction {
     };
 
     /** \class SkPath::RawIter
+        Iterates through verb array, and associated SkPoint arrays and conic weight.
+        verb array, SkPoint arrays, and conic weight are returned unaltered.
     */
     class SK_API RawIter {
 
@@ -1539,14 +1599,10 @@ enum Direction {
     */
     void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const;
 
-    /** Writes text representation of SkPath to stream. If stream is nullptr, dump() writes to
-        standard output. Set forceClose to true to get
-        edges used to fill SkPath. Set dumpAsHex true to get exact binary representations
-        of floating point numbers used in SkPoint arrays and conic weights.
-
-        @param stream      writable SkFlattenable receiving SkPath text representation; may be nullptr
-        @param forceClose  true if missing kClose_Verb is output
-        @param dumpAsHex   true if SkScalar values are written as hexadecimal
+    /** Writes text representation of SkPath to standard output. The representation may be
+        directly compiled as C++ code. Floating point values are written
+        with limited precision; it may not be possible to reconstruct original SkPath
+        from output.
     */
     void dump() const;
 
@@ -1617,7 +1673,7 @@ enum Direction {
         array dimensions.
 
         @return  true if SkPath data is consistent
-     */
+    */
     bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
 #else
     bool isValid() const { return this->isValidImpl(); }
