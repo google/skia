@@ -4,7 +4,7 @@
   ],
   'variables': {
     'command': [
-      'python', 'recipes.py', '--package', '../config/recipes.cfg', 'run', '--timestamps',
+      'python', 'recipe_wrapper.py', '--package', '../config/recipes.cfg', 'run', '--timestamps',
     ],
     'files': [
       '../config/recipes.cfg',
