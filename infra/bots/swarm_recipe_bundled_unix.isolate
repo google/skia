@@ -1,7 +1,11 @@
 {
   'variables': {
     'command': [
-      '../../../recipe_bundle/recipes', 'run', '--timestamps',
+      #'../../../recipe_bundle/recipes', 'run', '--timestamps',
+      'python', 'recipe_wrapper.py', 'run', '--timestamps',
+    ],
+    'files': [
+      'recipe_wrapper.py',
     ],
   },
 }
