@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cb1c794_a7a2d817",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-21T15:11:10Z",
+      "side": 1,
+      "message": "Couldn\u0027t we add the build products we do produce to the whitelist so that they get uploaded?",
+      "range": {
+        "startLine": 11,
+        "startChar": 11,
+        "endLine": 12,
+        "endChar": 16
+      },
+      "revId": "e2cdec4e4ff53cdb5c0b93100b04a1d33623d463",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0e0e0e1_15687a5e",
+        "filename": "infra/bots/assets/asset_utils.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-21T15:11:10Z",
+      "side": 1,
+      "message": "This is, like, long!",
+      "range": {
+        "startLine": 126,
+        "startChar": 33,
+        "endLine": 126,
+        "endChar": 41
+      },
+      "revId": "e2cdec4e4ff53cdb5c0b93100b04a1d33623d463",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1939fea_17ff3974",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-21T15:11:10Z",
+      "side": 1,
+      "message": "Does it make sense for this to be WASM?  Then we wouldn\u0027t need the WebAssembly extra_config.",
+      "range": {
+        "startLine": 36,
+        "startChar": 22,
+        "endLine": 36,
+        "endChar": 26
+      },
+      "revId": "e2cdec4e4ff53cdb5c0b93100b04a1d33623d463",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
