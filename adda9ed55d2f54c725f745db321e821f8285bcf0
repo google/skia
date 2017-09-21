@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "c7561bad_c93ec698",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 12
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-21T17:04:30Z",
+      "side": 1,
+      "message": "That kind of defeats the point of Debug builds... they won\u0027t be any different from Release builds.",
+      "parentUuid": "e9418041_34f2b037",
+      "range": {
+        "startLine": 159,
+        "startChar": 3,
+        "endLine": 159,
+        "endChar": 23
+      },
+      "revId": "adda9ed55d2f54c725f745db321e821f8285bcf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ac1f5910_7799c7a4",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 12
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "I didn\u0027t see it locally, only on the bots, using the exact same toolchaing.  Not sure why.\n\nWe could detect emcc in a similar route, if we wanted.",
       "parentUuid": "ac1f5910_7799c7a4",
+      "range": {
+        "startLine": 60,
+        "startChar": 27,
+        "endLine": 60,
+        "endChar": 54
+      },
+      "revId": "adda9ed55d2f54c725f745db321e821f8285bcf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91507ae8_ccc0456c",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-21T17:04:30Z",
+      "side": 1,
+      "message": "That doesn\u0027t make sense and is definitely worth sorting out.",
+      "parentUuid": "b6517e87_0cfa17e3",
       "range": {
         "startLine": 60,
         "startChar": 27,
