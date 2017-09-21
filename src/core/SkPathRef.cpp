@@ -234,6 +234,19 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
         return nullptr;
     }
 
+    /**
+     * The layout of the path serialized data is:
+     * int32_t    packed
+     * uin32_t    gen id
+     * uint32_t   verb count
+     * uint32_t   point count
+     * uint32_t   conic count
+     * uint8_t[]  verbs
+     * SkPoint[]  points
+     * SkScalar[] conic weights
+     * SkRect     bounds
+     */
+
     ref->fIsFinite = (packed >> kIsFinite_SerializationShift) & 1;
     uint8_t segmentMask = (packed >> kSegmentMask_SerializationShift) & 0xF;
     bool isOval  = (packed >> kIsOval_SerializationShift) & 1;
