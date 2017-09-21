@@ -10,7 +10,9 @@ Visual_Studio
 
 How to use the Bookmaker utility.
 
-Install #A Go # https://golang.org/doc/install ## if needed.  
+Install
+#A Go # https://golang.org/doc/install ##
+ if needed.  
 Get the fiddle command line interface tool.
 By default this will appear in your home directory.
 
@@ -132,7 +134,9 @@ to write the updated SkXXX.h to the current directory.
 
 #Subtopic Bugs
 
-Bookmaker bugs are tracked #A here # bug.skia.org/6898 ##.
+Bookmaker bugs are tracked
+#A here # bug.skia.org/6898 ##
+.
 
 ##
 

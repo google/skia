@@ -126,16 +126,13 @@ width: 25  height: 35  color: kRGBA_8888_SkColorType  alpha: kOpaque_SkAlphaType
 #Method SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes)
         
 Creates Pixmap from info width, height, SkAlphaType, and SkColorType.
-addr points to pixels, or nullptr. rowBytes should be
-#Formula
-info.width() * info.bytesPerPixel()
-##
-or larger.
+addr points to pixels, or nullptr. rowBytes should be info.width() times
+info.bytesPerPixel(), or larger.
 
 No parameter checking is performed; it is up to the caller to ensure that
 addr and rowBytes agree with info.  
 
-The memory lifetime pixels are managed by the caller. When Pixmap goes
+The memory lifetime of pixels is managed by the caller. When Pixmap goes
 out of scope, addr is unaffected.
 
 Pixmap may be later modified by reset() to change its size, pixel type, or
@@ -209,11 +206,8 @@ width:  0  height:  0  color: kUnknown_SkColorType  alpha: kUnknown_SkAlphaType
 
 Sets width, height, SkAlphaType, and SkColorType from info.
 Sets pixel address from addr, which may be nullptr. 
-Sets row bytes from rowBytes, which should be
-#Formula
-info.width() * info.bytesPerPixel()
-##
-or larger.
+Sets row bytes from rowBytes, which should be info.width() times
+info.bytesPerPixel(), or larger.
 
 Does not check addr. Asserts if built with SK_DEBUG defined and if rowBytes is
 too small to hold one row of pixels.  
@@ -257,7 +251,7 @@ void draw(SkCanvas* canvas) {
 
 Changes Color_Space in Image_Info; preserves width, height, SkAlphaType, and
 SkColorType in Image, and leaves pixel address and row bytes unchanged.
-colorSpace reference count is incremented.
+Color_Space reference count is incremented.
 
 #Param colorSpace  Color_Space moved to Image_Info ##
 
@@ -367,7 +361,7 @@ void draw(SkCanvas* canvas) {
 
 #Method const SkImageInfo& info() const 
 
-Returns width, height, SkAlphaType, and SkColorType.
+Returns width, height, Alpha_Type, Color_Type, and Color_Space.
 
 #Return reference to ImageInfo  ##
 
@@ -432,7 +426,7 @@ rowBytes: 8 minRowBytes: 4
 
 #Method const void* addr() const 
 
-Returns pixel address, the base corresponding the pixel origin.
+Returns pixel address, the base address corresponding to the pixel origin.
 
 It is up to the Pixmap creator to ensure that pixel address is a useful value.
 
@@ -839,7 +833,7 @@ width: 1000000 height: 1000000 getSafeSize:       0
 
 Returns true if all pixels are opaque. Color_Type determines how pixels
 are encoded, and whether pixel describes Alpha. Returns true for Color_Types
-without alpha for each pixel; for other Color_Types, returns true if all
+without alpha in each pixel; for other Color_Types, returns true if all
 pixels have alpha values equivalent to 1.0 or greater.
 
 For Color_Types kRGB_565_SkColorType or kGray_8_SkColorType: always
@@ -849,7 +843,7 @@ For Color_Type kARGB_4444_SkColorType: returns true if all pixel Alpha values ar
 For kRGBA_F16_SkColorType: returns true if all pixel Alpha values are 1.0 or
 greater.
 
-Returns false for any other Color_Type. 
+Returns false for kUnknown_SkColorType. 
 
 #Return true all pixels have opaque values or Color_Type is opaque  ##
 
@@ -896,8 +890,8 @@ Color_Space in Image_Info is ignored. Some Color precision may be lost in the
 conversion to Unpremultiplied Color; original pixel data may have additional 
 precision.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  pixel converted to Unpremultiplied Color ##
 
@@ -954,8 +948,8 @@ Returns readable pixel address at (x, y).
 Input is not validated: out of bounds values of x or y trigger an assert() if
 built with SK_DEBUG defined. Returns zero if Color_Type is kUnknown_SkColorType.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  readable generic pointer to pixel ##
 
@@ -1134,8 +1128,8 @@ built with SK_DEBUG defined.
 Will trigger an assert() if Color_Type is not kAlpha_8_SkColorType or
 kGray_8_SkColorType, and is built with SK_DEBUG defined.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  readable unsigned 8-bit pointer to pixel at (x, y) ##
 
@@ -1168,8 +1162,8 @@ built with SK_DEBUG defined.
 Will trigger an assert() if Color_Type is not kRGB_565_SkColorType or
 kARGB_4444_SkColorType, and is built with SK_DEBUG defined.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  readable unsigned 16-bit pointer to pixel at (x, y) ##
 
@@ -1202,8 +1196,8 @@ built with SK_DEBUG defined.
 Will trigger an assert() if Color_Type is not kRGBA_8888_SkColorType or
 kBGRA_8888_SkColorType, and is built with SK_DEBUG defined.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  readable unsigned 32-bit pointer to pixel at (x, y) ##
 
@@ -1236,8 +1230,8 @@ built with SK_DEBUG defined.
 Will trigger an assert() if Color_Type is not kRGBA_F16_SkColorType and is built
 with SK_DEBUG defined.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  readable unsigned 64-bit pointer to pixel at (x, y) ##
 
@@ -1273,8 +1267,8 @@ with SK_DEBUG defined.
 Each unsigned 16-bit word represents one color component encoded as a half float.
 Four words correspond to one pixel.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  readable unsigned 16-bit pointer to pixel component at (x, y) ##
 
@@ -1342,8 +1336,8 @@ Returns writable pixel address at (x, y).
 Input is not validated: out of bounds values of x or y trigger an assert() if
 built with SK_DEBUG defined. Returns zero if Color_Type is kUnknown_SkColorType.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  writable generic pointer to pixel ##
 
@@ -1375,14 +1369,14 @@ pixmap.getColor(1, 2) == 0xFFFFFFFF
 
 #Method uint8_t* writable_addr8(int x, int y) const 
 
-Returns writable base pixel address. Result is addressable as unsigned 8-bit bytes.
-Will trigger an assert() if Color_Type is not kAlpha_8_SkColorType or
-kGray_8_SkColorType, and is built with SK_DEBUG defined.
+Returns writable pixel address at (x, y). Result is addressable as unsigned
+8-bit bytes. Will trigger an assert() if Color_Type is not kAlpha_8_SkColorType
+or kGray_8_SkColorType, and is built with SK_DEBUG defined.
 
 One byte corresponds to one pixel.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  writable unsigned 8-bit pointer to pixels ##
 
@@ -1419,14 +1413,14 @@ void draw(SkCanvas* canvas) {
 
 #Method uint16_t* writable_addr16(int x, int y) const 
 
-Returns writable_addr base pixel address. Result is addressable as unsigned 16-bit words.
-Will trigger an assert() if Color_Type is not kRGB_565_SkColorType or
-kARGB_4444_SkColorType, and is built with SK_DEBUG defined.
+Returns writable_addr pixel address at (x, y). Result is addressable as unsigned
+16-bit words. Will trigger an assert() if Color_Type is not kRGB_565_SkColorType
+or kARGB_4444_SkColorType, and is built with SK_DEBUG defined.
 
 One word corresponds to one pixel.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  writable unsigned 16-bit pointer to pixel ##
 
@@ -1460,14 +1454,15 @@ The low nibble of the 16-bit word is Alpha.
 
 #Method uint32_t* writable_addr32(int x, int y) const 
 
-Returns writable base pixel address. Result is addressable as unsigned 32-bit words.
-Will trigger an assert() if Color_Type is not kRGBA_8888_SkColorType or
-kBGRA_8888_SkColorType, and is built with SK_DEBUG defined.
+Returns writable pixel address at (x, y). Result is addressable as unsigned
+32-bit words. Will trigger an assert() if Color_Type is not
+kRGBA_8888_SkColorType or kBGRA_8888_SkColorType, and is built with SK_DEBUG
+defined.
 
 One word corresponds to one pixel.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  writable unsigned 32-bit pointer to pixel ##
 
@@ -1500,14 +1495,14 @@ One word corresponds to one pixel.
 
 #Method uint64_t* writable_addr64(int x, int y) const 
 
-Returns writable base pixel address. Result is addressable as unsigned 64-bit words.
-Will trigger an assert() if Color_Type is not kRGBA_F16_SkColorType and is built
-with SK_DEBUG defined.
+Returns writable pixel address at (x, y). Result is addressable as unsigned
+64-bit words. Will trigger an assert() if Color_Type is not
+kRGBA_F16_SkColorType and is built with SK_DEBUG defined.
 
 One word corresponds to one pixel.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  writable unsigned 64-bit pointer to pixel ##
 
@@ -1534,15 +1529,15 @@ One word corresponds to one pixel.
 
 #Method uint16_t* writable_addrF16(int x, int y) const 
 
-Returns writable base pixel address. Result is addressable as unsigned 16-bit words.
-Will trigger an assert() if Color_Type is not kRGBA_F16_SkColorType and is built
-with SK_DEBUG defined.
+Returns writable pixel address at (x, y). Result is addressable as unsigned
+16-bit words. Will trigger an assert() if Color_Type is not
+kRGBA_F16_SkColorType and is built with SK_DEBUG defined.
 
 Each word represents one color component encoded as a half float.
 Four words correspond to one pixel.
 
-#Param x  positive column index less than width() ##
-#Param y  positive row index less than height() ##
+#Param x  column index, zero or greater, and less than width() ##
+#Param y  row index, zero or greater, and less than height() ##
 
 #Return  writable unsigned 16-bit pointer to first component of pixel ##
 
@@ -1584,12 +1579,13 @@ is drawn after overwriting bottom half float color with top half float color.
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY, SkTransferFunctionBehavior behavior) const
 
-Copies a Rect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not
-exceed
+Copies a Rect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not exceed
 #Formula
 (this->width(), this->height())
 ##
-. dstInfo specifies width, height, Color_Type, Alpha_Type, and 
+. 
+
+dstInfo specifies width, height, Color_Type, Alpha_Type, and 
 Color_Space of destination. dstRowBytes specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
 dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes.
@@ -1604,7 +1600,11 @@ false if pixel conversion is not possible.
 srcX and srcY may be negative to copy only top or left of source. Returns
 false if width() or height() is zero or negative. Returns false if 
 #Formula
-abs(srcX) >= this->width() || abs(scrY) >= this->height()
+abs(srcX) >= this->width()
+##
+, or if
+#Formula
+abs(srcY) >= this->height()
 ##
 .
 
@@ -1663,7 +1663,9 @@ exceed
 #Formula
 (this->width(), this->height())
 ##
-. dstInfo specifies width, height, Color_Type, Alpha_Type, and 
+.
+
+dstInfo specifies width, height, Color_Type, Alpha_Type, and 
 Color_Space of destination. dstRowBytes specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
 dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes.
@@ -1728,7 +1730,9 @@ exceed
 #Formula
 (this->width(), this->height())
 ##
-. dstInfo specifies width, height, Color_Type, Alpha_Type, and 
+.
+
+dstInfo specifies width, height, Color_Type, Alpha_Type, and 
 Color_Space of destination. dstRowBytes specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
 dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes.
@@ -1743,7 +1747,11 @@ false if pixel conversion is not possible.
 srcX and srcY may be negative to copy only top or left of source. Returns
 false if this->width() or this->height() is zero or negative. Returns false if 
 #Formula
-abs(srcX) >= this->width() || abs(scrY) >= this->height()
+abs(srcX) >= this->width()
+##
+, or if
+#Formula
+abs(srcY) >= this->height()
 ##
 .
 
@@ -1801,7 +1809,11 @@ false if pixel conversion is not possible.
 srcX and srcY may be negative to copy only top or left of source. Returns
 false this->width() or this->height() is zero or negative. Returns false if 
 #Formula
-abs(srcX) >= this->width() || abs(scrY) >= this->height()
+abs(srcX) >= this->width()
+##
+, or if
+#Formula
+abs(srcY) >= this->height()
 ##
 .
 

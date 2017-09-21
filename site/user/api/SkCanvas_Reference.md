@@ -877,8 +877,9 @@ bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
 </pre>
 
 Copies rectangle of pixels from <a href="#Canvas">Canvas</a> into <a href="#SkCanvas_readPixels_dstPixels">dstPixels</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are
-ignored. Source rectangle corners are (<a href="#SkCanvas_readPixels_srcX">srcX</a>, <a href="#SkCanvas_readPixels_srcY">srcY</a>) and(this-><a href="#SkCanvas_imageInfo">imageInfo</a>.width(), this-><a href="#SkCanvas_imageInfo">imageInfo</a>.height()). 
-Destination rectangle corners are (0, 0) and(<a href="#SkCanvas_readPixels_dstInfo">dstInfo</a>.width(), <a href="#SkCanvas_readPixels_dstInfo">dstInfo</a>.height()). 
+ignored. Source rectangle corners are (<a href="#SkCanvas_readPixels_srcX">srcX</a>, <a href="#SkCanvas_readPixels_srcY">srcY</a>) and(this-><a href="#SkCanvas_imageInfo">imageInfo</a>.width(), this-><a href="#SkCanvas_imageInfo">imageInfo</a>.height()).
+
+Destination rectangle corners are (0, 0) and (bitmap.width(), bitmap.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkCanvas_readPixels_dstInfo">dstInfo</a>.colorType() and <a href="#SkCanvas_readPixels_dstInfo">dstInfo</a>.alphaType() if required.
 
@@ -958,7 +959,8 @@ bool readPixels(const SkPixmap& pixmap, int srcX, int srcY)
 
 Copies rectangle of pixels from <a href="#Canvas">Canvas</a> into <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are
 ignored. Source rectangle corners are (<a href="#SkCanvas_readPixels_2_srcX">srcX</a>, <a href="#SkCanvas_readPixels_2_srcY">srcY</a>) and(this-><a href="#SkCanvas_imageInfo">imageInfo</a>.width(), this-><a href="#SkCanvas_imageInfo">imageInfo</a>.height()). 
-Destination rectangle are (0, 0) and(<a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.width(), <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.height()). 
+
+Destination rectangle corners are (0, 0) and (bitmap.width(), bitmap.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.colorType() and <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.alphaType() if required.
 
@@ -967,7 +969,7 @@ Pixels are not readable when <a href="#SkCanvas">SkCanvas</a> is returned by <a 
 returned by <a href="#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
 class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
-Allocates pixel storage in <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a> if needed.
+Caller must allocate pixel storage in <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a> if needed.
 
 <a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="#Color_Type">Image Color Type</a> and <a href="#Alpha_Type">Image Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
@@ -1026,6 +1028,7 @@ bool readPixels(const SkBitmap& bitmap, int srcX, int srcY)
 
 Copies rectangle of pixels from <a href="#Canvas">Canvas</a> into <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are
 ignored. Source rectangle corners are (<a href="#SkCanvas_readPixels_3_srcX">srcX</a>, <a href="#SkCanvas_readPixels_3_srcY">srcY</a>) and(this-><a href="#SkCanvas_imageInfo">imageInfo</a>.width(), this-><a href="#SkCanvas_imageInfo">imageInfo</a>.height()). 
+
 Destination rectangle corners are (0, 0) and (<a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.width(), <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.colorType() and <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.alphaType() if required.
@@ -1035,7 +1038,7 @@ Pixels are not readable when <a href="#SkCanvas">SkCanvas</a> is returned by <a 
 returned by <a href="#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
 class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
-Allocates pixel storage in <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a> if needed.
+Caller must allocate pixel storage in <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a> if needed.
 
 <a href="undocumented#Bitmap">Bitmap</a> values are converted only if <a href="#Color_Type">Image Color Type</a> and <a href="#Alpha_Type">Image Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
@@ -1098,9 +1101,10 @@ bool writePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
 
 Copies rectangle from <a href="#SkCanvas_writePixels_pixels">pixels</a> to <a href="#Canvas">Canvas</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are ignored.
 Source rectangle corners are (0, 0) and (<a href="#SkCanvas_writePixels_info">info</a>.width(), <a href="#SkCanvas_writePixels_info">info</a>.height()).
-Destination rectangle corners are (<a href="#SkCanvas_writePixels_x">x</a>, <a href="#SkCanvas_writePixels_y">y</a>) and(this-><a href="#SkCanvas_imageInfo">imageInfo</a>.width(), this-><a href="#SkCanvas_imageInfo">imageInfo</a>.height()). 
-Copies each readable pixel
-intersecting both rectangles, without scaling, converting tothis-><a href="#SkCanvas_imageInfo">imageInfo</a>.colorType()andthis-><a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType()if required.
+Destination rectangle corners are (<a href="#SkCanvas_writePixels_x">x</a>, <a href="#SkCanvas_writePixels_y">y</a>) and(this-><a href="#SkCanvas_imageInfo">imageInfo</a>.width(), this-><a href="#SkCanvas_imageInfo">imageInfo</a>.height()).
+
+Copies each readable pixel intersecting both rectangles, without scaling,
+converting tothis-><a href="#SkCanvas_imageInfo">imageInfo</a>.colorType()andthis-><a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType()if required.
 
 Pixels are writable when <a href="undocumented#Device">Device</a> is raster, or backed by a <a href="undocumented#GPU">GPU</a>.
 Pixels are not writable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
@@ -1118,7 +1122,8 @@ Does not copy, and returns false if:
 
 <table>  <tr>
     <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
-    <td><a href="#SkCanvas_writePixels_pixels">pixels</a> could not be converted tothis-><a href="#SkCanvas_imageInfo">imageInfo</a>.colorType()orthis-><a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType().</td>  </tr>  <tr>
+    <td><a href="#SkCanvas_writePixels_pixels">pixels</a> could not be converted to this-><a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() or
+this-><a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType().</td>  </tr>  <tr>
     <td><a href="#Canvas">Canvas</a> <a href="#SkCanvas_writePixels_pixels">pixels</a> are not writable; for instance, <a href="#Canvas">Canvas</a> is document-based.</td>  </tr>  <tr>
     <td><a href="#SkCanvas_writePixels_rowBytes">rowBytes</a> is too small to contain one row of <a href="#SkCanvas_writePixels_pixels">pixels</a>.</td>  </tr>
 </table>
@@ -1157,11 +1162,12 @@ bool writePixels(const SkBitmap& bitmap, int x, int y)
 </pre>
 
 Copies rectangle from pixels to <a href="#Canvas">Canvas</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are ignored.
-Source rectangle corners are (0, 0) and(<a href="#SkCanvas_writePixels_2_bitmap">bitmap</a>.width(), <a href="#SkCanvas_writePixels_2_bitmap">bitmap</a>.height()).
+Source rectangle corners are (0, 0) and (<a href="#SkCanvas_writePixels_2_bitmap">bitmap</a>.width(), <a href="#SkCanvas_writePixels_2_bitmap">bitmap</a>.height()).
 
-Destination rectangle corners are (<a href="#SkCanvas_writePixels_2_x">x</a>, <a href="#SkCanvas_writePixels_2_y">y</a>) and(this-><a href="#SkCanvas_imageInfo">imageInfo</a>.width(), this-><a href="#SkCanvas_imageInfo">imageInfo</a>.height()). 
-Copies each readable pixel
-intersecting both rectangles, without scaling, converting tothis-><a href="#SkCanvas_imageInfo">imageInfo</a>.colorType()andthis-><a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType()if required.
+Destination rectangle corners are (<a href="#SkCanvas_writePixels_2_x">x</a>, <a href="#SkCanvas_writePixels_2_y">y</a>) and(this-><a href="#SkCanvas_imageInfo">imageInfo</a>.width(), this-><a href="#SkCanvas_imageInfo">imageInfo</a>.height()).
+
+Copies each readable pixel intersecting both rectangles, without scaling,
+converting tothis-><a href="#SkCanvas_imageInfo">imageInfo</a>.colorType()andthis-><a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType()if required.
 
 Pixels are writable when <a href="undocumented#Device">Device</a> is raster, or backed by a <a href="undocumented#GPU">GPU</a>.
 Pixels are not writable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
@@ -1180,7 +1186,8 @@ Does not copy, and returns false if:
 <table>  <tr>
     <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
     <td><a href="#SkCanvas_writePixels_2_bitmap">bitmap</a> does not have allocated pixels.</td>  </tr>  <tr>
-    <td><a href="#SkCanvas_writePixels_2_bitmap">bitmap</a> pixels could not be converted tothis-><a href="#SkCanvas_imageInfo">imageInfo</a>.colorType()orthis-><a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType().</td>  </tr>  <tr>
+    <td><a href="#SkCanvas_writePixels_2_bitmap">bitmap</a> pixels could not be converted to this-><a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() or
+this-><a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType().</td>  </tr>  <tr>
     <td><a href="#Canvas">Canvas</a> pixels are not writable; for instance, <a href="#Canvas">Canvas</a> is document based.</td>  </tr>  <tr>
     <td><a href="#SkCanvas_writePixels_2_bitmap">bitmap</a> pixels are inaccessible; for instance, <a href="#SkCanvas_writePixels_2_bitmap">bitmap</a> wraps a texture.</td>  </tr>
 </table>
@@ -1482,7 +1489,7 @@ Call <a href="#SkCanvas_restoreToCount">restoreToCount</a> with returned value t
 
 Draw text on an opaque background so that <a href="SkPaint_Reference#LCD_Text">LCD Text</a> blends correctly with the
 prior <a href="#Layer">Layer</a>. <a href="SkPaint_Reference#LCD_Text">LCD Text</a> drawn on a background with transparency may result in
-incorrect banding.
+incorrect blending.
 
 ### Parameters
 
@@ -4059,6 +4066,7 @@ grid entries.
 
 Optional array of <a href="#SkCanvas_Lattice_Flags">Flags</a>, one per rectangular grid entry:
 array length must be(        <a href="#SkCanvas_Lattice_fXCount">fXCount</a> + 1) * (<a href="#SkCanvas_Lattice_fYCount">fYCount</a> + 1).
+
 Array entries correspond to the rectangular grid entries, ascending
 left to right and then top to bottom.
 
@@ -4903,15 +4911,15 @@ If <a href="#SkCanvas_drawAtlas_cullRect">cullRect</a> is outside of <a href="#C
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_tex"> <code><strong>tex </strong></code> </a></td> <td>
 <a href="undocumented#Rect">Rect</a> locations of sprites in <a href="#SkCanvas_drawAtlas_atlas">atlas</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_colors"> <code><strong>colors </strong></code> </a></td> <td>
-<a href="undocumented#Color">Color</a>, one per sprite, blended with sprite using <a href="undocumented#Blend_Mode">Blend Mode</a>; may be nullptr</td>
+one per sprite, blended with sprite using <a href="undocumented#Blend_Mode">Blend Mode</a>; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_count"> <code><strong>count </strong></code> </a></td> <td>
 number of sprites to draw</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_mode"> <code><strong>mode </strong></code> </a></td> <td>
 <a href="undocumented#Blend_Mode">Blend Mode</a> combining <a href="#SkCanvas_drawAtlas_colors">colors</a> and sprites</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_cullRect"> <code><strong>cullRect </strong></code> </a></td> <td>
-<a href="undocumented#Rect">Rect</a> bounds of transformed sprites for efficient clipping; may be nullptr</td>
+bounds of transformed sprites for efficient clipping; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_paint"> <code><strong>paint </strong></code> </a></td> <td>
-<a href="SkPaint_Reference#Paint">Paint</a> <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>, and so on; may be nullptr</td>
+<a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>, and so on; may be nullptr</td>
   </tr>
 </table>
 
@@ -4946,15 +4954,15 @@ If <a href="#SkCanvas_drawAtlas_2_cullRect">cullRect</a> is outside of <a href="
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_2_tex"> <code><strong>tex </strong></code> </a></td> <td>
 <a href="undocumented#Rect">Rect</a> locations of sprites in <a href="#SkCanvas_drawAtlas_2_atlas">atlas</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_2_colors"> <code><strong>colors </strong></code> </a></td> <td>
-<a href="undocumented#Color">Color</a>, one per sprite, blended with sprite using <a href="undocumented#Blend_Mode">Blend Mode</a>; may be nullptr</td>
+one per sprite, blended with sprite using <a href="undocumented#Blend_Mode">Blend Mode</a>; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_2_count"> <code><strong>count </strong></code> </a></td> <td>
 number of sprites to draw</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_2_mode"> <code><strong>mode </strong></code> </a></td> <td>
 <a href="undocumented#Blend_Mode">Blend Mode</a> combining <a href="#SkCanvas_drawAtlas_2_colors">colors</a> and sprites</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_2_cullRect"> <code><strong>cullRect </strong></code> </a></td> <td>
-<a href="undocumented#Rect">Rect</a> bounds of transformed sprites for efficient clipping; may be nullptr</td>
+bounds of transformed sprites for efficient clipping; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_2_paint"> <code><strong>paint </strong></code> </a></td> <td>
-<a href="SkPaint_Reference#Paint">Paint</a> <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>, and so on; may be nullptr</td>
+<a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>, and so on; may be nullptr</td>
   </tr>
 </table>
 
@@ -4989,9 +4997,9 @@ If <a href="#SkCanvas_drawAtlas_3_cullRect">cullRect</a> is outside of <a href="
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_3_count"> <code><strong>count </strong></code> </a></td> <td>
 number of sprites to draw</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_3_cullRect"> <code><strong>cullRect </strong></code> </a></td> <td>
-<a href="undocumented#Rect">Rect</a> bounds of transformed sprites for efficient clipping; may be nullptr</td>
+bounds of transformed sprites for efficient clipping; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_3_paint"> <code><strong>paint </strong></code> </a></td> <td>
-<a href="SkPaint_Reference#Paint">Paint</a> <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>, and so on; may be nullptr</td>
+<a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>, and so on; may be nullptr</td>
   </tr>
 </table>
 
@@ -5027,9 +5035,9 @@ If <a href="#SkCanvas_drawAtlas_4_cullRect">cullRect</a> is outside of <a href="
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_4_count"> <code><strong>count </strong></code> </a></td> <td>
 number of sprites to draw</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_4_cullRect"> <code><strong>cullRect </strong></code> </a></td> <td>
-<a href="undocumented#Rect">Rect</a> bounds of transformed sprites for efficient clipping; may be nullptr</td>
+bounds of transformed sprites for efficient clipping; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkCanvas_drawAtlas_4_paint"> <code><strong>paint </strong></code> </a></td> <td>
-<a href="SkPaint_Reference#Paint">Paint</a> <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>, and so on; may be nullptr</td>
+<a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>, and so on; may be nullptr</td>
   </tr>
 </table>
 

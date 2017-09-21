@@ -119,12 +119,13 @@ SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes)
 </pre>
 
 Creates <a href="#Pixmap">Pixmap</a> from <a href="#SkPixmap_info">info</a> <a href="#SkPixmap_width">width</a>, <a href="#SkPixmap_height">height</a>, <a href="undocumented#SkAlphaType">SkAlphaType</a>, and <a href="undocumented#SkColorType">SkColorType</a>.
-<a href="#SkPixmap_addr">addr</a> points to pixels, or nullptr. <a href="#SkPixmap_rowBytes">rowBytes</a> should be<a href="#SkPixmap_info">info</a>.<a href="#SkPixmap_width">width</a> * <a href="#SkPixmap_info">info</a>.bytesPerPixel()or larger.
+<a href="#SkPixmap_addr">addr</a> points to pixels, or nullptr. <a href="#SkPixmap_rowBytes">rowBytes</a> should be <a href="#SkPixmap_info">info</a>.<a href="#SkPixmap_width">width</a> times
+<a href="#SkPixmap_info">info</a>.bytesPerPixel(), or larger.
 
 No parameter checking is performed; it is up to the caller to ensure that
 <a href="#SkPixmap_addr">addr</a> and <a href="#SkPixmap_rowBytes">rowBytes</a> agree with <a href="#SkPixmap_info">info</a>.  
 
-The memory lifetime pixels are managed by the caller. When <a href="#Pixmap">Pixmap</a> goes
+The memory lifetime of pixels is managed by the caller. When <a href="#Pixmap">Pixmap</a> goes
 out of scope, <a href="#SkPixmap_addr">addr</a> is unaffected.
 
 <a href="#Pixmap">Pixmap</a> may be later modified by <a href="#SkPixmap_reset">reset</a> to change its size, pixel type, or
@@ -203,7 +204,8 @@ void reset(const SkImageInfo& info, const void* addr, size_t rowBytes)
 
 Sets <a href="#SkPixmap_width">width</a>, <a href="#SkPixmap_height">height</a>, <a href="undocumented#SkAlphaType">SkAlphaType</a>, and <a href="undocumented#SkColorType">SkColorType</a> from <a href="#SkPixmap_info">info</a>.
 Sets pixel address from <a href="#SkPixmap_addr">addr</a>, which may be nullptr. 
-Sets row bytes from <a href="#SkPixmap_rowBytes">rowBytes</a>, which should be<a href="#SkPixmap_info">info</a>.<a href="#SkPixmap_width">width</a> * <a href="#SkPixmap_info">info</a>.bytesPerPixel()or larger.
+Sets row bytes from <a href="#SkPixmap_rowBytes">rowBytes</a>, which should be <a href="#SkPixmap_info">info</a>.<a href="#SkPixmap_width">width</a> times
+<a href="#SkPixmap_info">info</a>.bytesPerPixel(), or larger.
 
 Does not check <a href="#SkPixmap_addr">addr</a>. Asserts if built with <a href="undocumented#SK_DEBUG">SK DEBUG</a> defined and if <a href="#SkPixmap_rowBytes">rowBytes</a> is
 too small to hold one row of pixels.  
@@ -241,7 +243,7 @@ void setColorSpace(sk_sp<SkColorSpace> colorSpace)
 
 Changes <a href="undocumented#Color_Space">Color Space</a> in <a href="#Info">Image Info</a>; preserves <a href="#SkPixmap_width">width</a>, <a href="#SkPixmap_height">height</a>, <a href="undocumented#SkAlphaType">SkAlphaType</a>, and
 <a href="undocumented#SkColorType">SkColorType</a> in <a href="undocumented#Image">Image</a>, and leaves pixel address and row bytes unchanged.
-<a href="#SkPixmap_colorSpace">colorSpace</a> reference count is incremented.
+<a href="undocumented#Color_Space">Color Space</a> reference count is incremented.
 
 ### Parameters
 
@@ -355,7 +357,7 @@ true if intersection of <a href="#Pixmap">Pixmap</a> and <a href="#SkPixmap_extr
 const SkImageInfo& info() const
 </pre>
 
-Returns <a href="#SkPixmap_width">width</a>, <a href="#SkPixmap_height">height</a>, <a href="undocumented#SkAlphaType">SkAlphaType</a>, and <a href="undocumented#SkColorType">SkColorType</a>.
+Returns <a href="#SkPixmap_width">width</a>, <a href="#SkPixmap_height">height</a>, <a href="undocumented#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Type">Color Type</a>, and <a href="undocumented#Color_Space">Color Space</a>.
 
 ### Return Value
 
@@ -421,7 +423,7 @@ rowBytes: 8 minRowBytes: 4
 const void* addr() const
 </pre>
 
-Returns pixel address, the base corresponding the pixel origin.
+Returns pixel address, the base address corresponding to the pixel origin.
 
 It is up to the <a href="#Pixmap">Pixmap</a> creator to ensure that pixel address is a useful value.
 
@@ -886,7 +888,7 @@ bool computeIsOpaque() const
 
 Returns true if all pixels are opaque. <a href="undocumented#Color_Type">Color Type</a> determines how pixels
 are encoded, and whether pixel describes <a href="#Alpha">Alpha</a>. Returns true for <a href="undocumented#Color_Type">Color Types</a>
-without alpha for each pixel; for other <a href="undocumented#Color_Type">Color Types</a>, returns true if all
+without alpha in each pixel; for other <a href="undocumented#Color_Type">Color Types</a>, returns true if all
 pixels have alpha values equivalent to 1.0 or greater.
 
 For <a href="undocumented#Color_Type">Color Types</a> <a href="undocumented#SkColorType">kRGB 565 SkColorType</a> or <a href="undocumented#SkColorType">kGray 8 SkColorType</a>: always
@@ -896,7 +898,7 @@ For <a href="undocumented#Color_Type">Color Type</a> <a href="undocumented#SkCol
 For <a href="undocumented#SkColorType">kRGBA F16 SkColorType</a>: returns true if all pixel <a href="#Alpha">Alpha</a> values are 1.0 or
 greater.
 
-Returns false for any other <a href="undocumented#Color_Type">Color Type</a>. 
+Returns false for <a href="undocumented#SkColorType">kUnknown SkColorType</a>. 
 
 ### Return Value
 
@@ -945,9 +947,9 @@ precision.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPixmap_getColor_x"> <code><strong>x </strong></code> </a></td> <td>
-positive column index less than <a href="#SkPixmap_width">width</a></td>
+column index, zero or greater, and less than <a href="#SkPixmap_width">width</a></td>
   </tr>  <tr>    <td><a name="SkPixmap_getColor_y"> <code><strong>y </strong></code> </a></td> <td>
-positive row index less than <a href="#SkPixmap_height">height</a></td>
+row index, zero or greater, and less than <a href="#SkPixmap_height">height</a></td>
   </tr>
 </table>
 
@@ -996,9 +998,9 @@ built with <a href="undocumented#SK_DEBUG">SK DEBUG</a> defined. Returns zero if
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPixmap_addr_2_x"> <code><strong>x </strong></code> </a></td> <td>
-positive column index less than <a href="#SkPixmap_width">width</a></td>
+column index, zero or greater, and less than <a href="#SkPixmap_width">width</a></td>
   </tr>  <tr>    <td><a name="SkPixmap_addr_2_y"> <code><strong>y </strong></code> </a></td> <td>
-positive row index less than <a href="#SkPixmap_height">height</a></td>
+row index, zero or greater, and less than <a href="#SkPixmap_height">height</a></td>
   </tr>
 </table>
 
@@ -1215,9 +1217,9 @@ Will trigger an assert() if <a href="undocumented#Color_Type">Color Type</a> is 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPixmap_addr8_2_x"> <code><strong>x </strong></code> </a></td> <td>
-positive column index less than <a href="#SkPixmap_width">width</a></td>
+column index, zero or greater, and less than <a href="#SkPixmap_width">width</a></td>
   </tr>  <tr>    <td><a name="SkPixmap_addr8_2_y"> <code><strong>y </strong></code> </a></td> <td>
-positive row index less than <a href="#SkPixmap_height">height</a></td>
+row index, zero or greater, and less than <a href="#SkPixmap_height">height</a></td>
   </tr>
 </table>
 
@@ -1258,9 +1260,9 @@ Will trigger an assert() if <a href="undocumented#Color_Type">Color Type</a> is 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPixmap_addr16_2_x"> <code><strong>x </strong></code> </a></td> <td>
-positive column index less than <a href="#SkPixmap_width">width</a></td>
+column index, zero or greater, and less than <a href="#SkPixmap_width">width</a></td>
   </tr>  <tr>    <td><a name="SkPixmap_addr16_2_y"> <code><strong>y </strong></code> </a></td> <td>
-positive row index less than <a href="#SkPixmap_height">height</a></td>
+row index, zero or greater, and less than <a href="#SkPixmap_height">height</a></td>
   </tr>
 </table>
 
@@ -1301,9 +1303,9 @@ Will trigger an assert() if <a href="undocumented#Color_Type">Color Type</a> is 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPixmap_addr32_2_x"> <code><strong>x </strong></code> </a></td> <td>
-positive column index less than <a href="#SkPixmap_width">width</a></td>
+column index, zero or greater, and less than <a href="#SkPixmap_width">width</a></td>
   </tr>  <tr>    <td><a name="SkPixmap_addr32_2_y"> <code><strong>y </strong></code> </a></td> <td>
-positive row index less than <a href="#SkPixmap_height">height</a></td>
+row index, zero or greater, and less than <a href="#SkPixmap_height">height</a></td>
   </tr>
 </table>
 
@@ -1340,9 +1342,9 @@ with <a href="undocumented#SK_DEBUG">SK DEBUG</a> defined.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPixmap_addr64_2_x"> <code><strong>x </strong></code> </a></td> <td>
-positive column index less than <a href="#SkPixmap_width">width</a></td>
+column index, zero or greater, and less than <a href="#SkPixmap_width">width</a></td>
   </tr>  <tr>    <td><a name="SkPixmap_addr64_2_y"> <code><strong>y </strong></code> </a></td> <td>
-positive row index less than <a href="#SkPixmap_height">height</a></td>
+row index, zero or greater, and less than <a href="#SkPixmap_height">height</a></td>
   </tr>
 </table>
 
@@ -1386,9 +1388,9 @@ Four words correspond to one pixel.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPixmap_addrF16_2_x"> <code><strong>x </strong></code> </a></td> <td>
-positive column index less than <a href="#SkPixmap_width">width</a></td>
+column index, zero or greater, and less than <a href="#SkPixmap_width">width</a></td>
   </tr>  <tr>    <td><a name="SkPixmap_addrF16_2_y"> <code><strong>y </strong></code> </a></td> <td>
-positive row index less than <a href="#SkPixmap_height">height</a></td>
+row index, zero or greater, and less than <a href="#SkPixmap_height">height</a></td>
   </tr>
 </table>
 
@@ -1461,9 +1463,9 @@ built with <a href="undocumented#SK_DEBUG">SK DEBUG</a> defined. Returns zero if
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPixmap_writable_addr_2_x"> <code><strong>x </strong></code> </a></td> <td>
-positive column index less than <a href="#SkPixmap_width">width</a></td>
+column index, zero or greater, and less than <a href="#SkPixmap_width">width</a></td>
   </tr>  <tr>    <td><a name="SkPixmap_writable_addr_2_y"> <code><strong>y </strong></code> </a></td> <td>
-positive row index less than <a href="#SkPixmap_height">height</a></td>
+row index, zero or greater, and less than <a href="#SkPixmap_height">height</a></td>
   </tr>
 </table>
 
@@ -1498,18 +1500,18 @@ pixmap.getColor(1, 2) == 0xFFFFFFFF
 uint8_t* writable_addr8(int x, int y) const
 </pre>
 
-Returns writable base pixel address. Result is addressable as unsigned 8-bit bytes.
-Will trigger an assert() if <a href="undocumented#Color_Type">Color Type</a> is not <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a> or
-<a href="undocumented#SkColorType">kGray 8 SkColorType</a>, and is built with <a href="undocumented#SK_DEBUG">SK DEBUG</a> defined.
+Returns writable pixel address at (<a href="#SkPixmap_writable_addr8_x">x</a>, <a href="#SkPixmap_writable_addr8_y">y</a>). Result is addressable as unsigned
+8-bit bytes. Will trigger an assert() if <a href="undocumented#Color_Type">Color Type</a> is not <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>
+or <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, and is built with <a href="undocumented#SK_DEBUG">SK DEBUG</a> defined.
 
 One byte corresponds to one pixel.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPixmap_writable_addr8_x"> <code><strong>x </strong></code> </a></td> <td>
-positive column index less than <a href="#SkPixmap_width">width</a></td>
+column index, zero or greater, and less than <a href="#SkPixmap_width">width</a></td>
   </tr>  <tr>    <td><a name="SkPixmap_writable_addr8_y"> <code><strong>y </strong></code> </a></td> <td>
-positive row index less than <a href="#SkPixmap_height">height</a></td>
+row index, zero or greater, and less than <a href="#SkPixmap_height">height</a></td>
   </tr>
 </table>
 
@@ -1536,18 +1538,18 @@ pixel memory is safer.</div></fiddle-embed></div>
 uint16_t* writable_addr16(int x, int y) const
 </pre>
 
-Returns <a href="#SkPixmap_writable_addr">writable addr</a> base pixel address. Result is addressable as unsigned 16-bit words.
-Will trigger an assert() if <a href="undocumented#Color_Type">Color Type</a> is not <a href="undocumented#SkColorType">kRGB 565 SkColorType</a> or
-<a href="undocumented#SkColorType">kARGB 4444 SkColorType</a>, and is built with <a href="undocumented#SK_DEBUG">SK DEBUG</a> defined.
+Returns <a href="#SkPixmap_writable_addr">writable addr</a> pixel address at (<a href="#SkPixmap_writable_addr16_x">x</a>, <a href="#SkPixmap_writable_addr16_y">y</a>). Result is addressable as unsigned
+16-bit words. Will trigger an assert() if <a href="undocumented#Color_Type">Color Type</a> is not <a href="undocumented#SkColorType">kRGB 565 SkColorType</a>
+or <a href="undocumented#SkColorType">kARGB 4444 SkColorType</a>, and is built with <a href="undocumented#SK_DEBUG">SK DEBUG</a> defined.
 
 One word corresponds to one pixel.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPixmap_writable_addr16_x"> <code><strong>x </strong></code> </a></td> <td>
-positive column index less than <a href="#SkPixmap_width">width</a></td>
+column index, zero or greater, and less than <a href="#SkPixmap_width">width</a></td>
   </tr>  <tr>    <td><a name="SkPixmap_writable_addr16_y"> <code><strong>y </strong></code> </a></td> <td>
-positive row index less than <a href="#SkPixmap_height">height</a></td>
+row index, zero or greater, and less than <a href="#SkPixmap_height">height</a></td>
   </tr>
 </table>
 
@@ -1573,18 +1575,19 @@ The low nibble of the 16-bit word is <a href="#Alpha">Alpha</a>.</div></fiddle-e
 uint32_t* writable_addr32(int x, int y) const
 </pre>
 
-Returns writable base pixel address. Result is addressable as unsigned 32-bit words.
-Will trigger an assert() if <a href="undocumented#Color_Type">Color Type</a> is not <a href="undocumented#SkColorType">kRGBA 8888 SkColorType</a> or
-<a href="undocumented#SkColorType">kBGRA 8888 SkColorType</a>, and is built with <a href="undocumented#SK_DEBUG">SK DEBUG</a> defined.
+Returns writable pixel address at (<a href="#SkPixmap_writable_addr32_x">x</a>, <a href="#SkPixmap_writable_addr32_y">y</a>). Result is addressable as unsigned
+32-bit words. Will trigger an assert() if <a href="undocumented#Color_Type">Color Type</a> is not
+<a href="undocumented#SkColorType">kRGBA 8888 SkColorType</a> or <a href="undocumented#SkColorType">kBGRA 8888 SkColorType</a>, and is built with <a href="undocumented#SK_DEBUG">SK DEBUG</a>
+defined.
 
 One word corresponds to one pixel.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPixmap_writable_addr32_x"> <code><strong>x </strong></code> </a></td> <td>
-positive column index less than <a href="#SkPixmap_width">width</a></td>
+column index, zero or greater, and less than <a href="#SkPixmap_width">width</a></td>
   </tr>  <tr>    <td><a name="SkPixmap_writable_addr32_y"> <code><strong>y </strong></code> </a></td> <td>
-positive row index less than <a href="#SkPixmap_height">height</a></td>
+row index, zero or greater, and less than <a href="#SkPixmap_height">height</a></td>
   </tr>
 </table>
 
@@ -1609,18 +1612,18 @@ writable unsigned 32-bit pointer to pixel
 uint64_t* writable_addr64(int x, int y) const
 </pre>
 
-Returns writable base pixel address. Result is addressable as unsigned 64-bit words.
-Will trigger an assert() if <a href="undocumented#Color_Type">Color Type</a> is not <a href="undocumented#SkColorType">kRGBA F16 SkColorType</a> and is built
-with <a href="undocumented#SK_DEBUG">SK DEBUG</a> defined.
+Returns writable pixel address at (<a href="#SkPixmap_writable_addr64_x">x</a>, <a href="#SkPixmap_writable_addr64_y">y</a>). Result is addressable as unsigned
+64-bit words. Will trigger an assert() if <a href="undocumented#Color_Type">Color Type</a> is not
+<a href="undocumented#SkColorType">kRGBA F16 SkColorType</a> and is built with <a href="undocumented#SK_DEBUG">SK DEBUG</a> defined.
 
 One word corresponds to one pixel.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPixmap_writable_addr64_x"> <code><strong>x </strong></code> </a></td> <td>
-positive column index less than <a href="#SkPixmap_width">width</a></td>
+column index, zero or greater, and less than <a href="#SkPixmap_width">width</a></td>
   </tr>  <tr>    <td><a name="SkPixmap_writable_addr64_y"> <code><strong>y </strong></code> </a></td> <td>
-positive row index less than <a href="#SkPixmap_height">height</a></td>
+row index, zero or greater, and less than <a href="#SkPixmap_height">height</a></td>
   </tr>
 </table>
 
@@ -1645,9 +1648,9 @@ writable unsigned 64-bit pointer to pixel
 uint16_t* writable_addrF16(int x, int y) const
 </pre>
 
-Returns writable base pixel address. Result is addressable as unsigned 16-bit words.
-Will trigger an assert() if <a href="undocumented#Color_Type">Color Type</a> is not <a href="undocumented#SkColorType">kRGBA F16 SkColorType</a> and is built
-with <a href="undocumented#SK_DEBUG">SK DEBUG</a> defined.
+Returns writable pixel address at (<a href="#SkPixmap_writable_addrF16_x">x</a>, <a href="#SkPixmap_writable_addrF16_y">y</a>). Result is addressable as unsigned
+16-bit words. Will trigger an assert() if <a href="undocumented#Color_Type">Color Type</a> is not
+<a href="undocumented#SkColorType">kRGBA F16 SkColorType</a> and is built with <a href="undocumented#SK_DEBUG">SK DEBUG</a> defined.
 
 Each word represents one color component encoded as a half float.
 Four words correspond to one pixel.
@@ -1655,9 +1658,9 @@ Four words correspond to one pixel.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPixmap_writable_addrF16_x"> <code><strong>x </strong></code> </a></td> <td>
-positive column index less than <a href="#SkPixmap_width">width</a></td>
+column index, zero or greater, and less than <a href="#SkPixmap_width">width</a></td>
   </tr>  <tr>    <td><a name="SkPixmap_writable_addrF16_y"> <code><strong>y </strong></code> </a></td> <td>
-positive row index less than <a href="#SkPixmap_height">height</a></td>
+row index, zero or greater, and less than <a href="#SkPixmap_height">height</a></td>
   </tr>
 </table>
 
@@ -1686,8 +1689,8 @@ bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                 int srcX, int srcY, SkTransferFunctionBehavior behavior) const
 </pre>
 
-Copies a <a href="undocumented#Rect">Rect</a> of pixels to <a href="#SkPixmap_readPixels_dstPixels">dstPixels</a>. Copy starts at (<a href="#SkPixmap_readPixels_srcX">srcX</a>, <a href="#SkPixmap_readPixels_srcY">srcY</a>), and does not
-exceed(this-><a href="#SkPixmap_width">width</a>, this-><a href="#SkPixmap_height">height</a>). 
+Copies a <a href="undocumented#Rect">Rect</a> of pixels to <a href="#SkPixmap_readPixels_dstPixels">dstPixels</a>. Copy starts at (<a href="#SkPixmap_readPixels_srcX">srcX</a>, <a href="#SkPixmap_readPixels_srcY">srcY</a>), and does not exceed(this-><a href="#SkPixmap_width">width</a>, this-><a href="#SkPixmap_height">height</a>). 
+
 <a href="#SkPixmap_readPixels_dstInfo">dstInfo</a> specifies <a href="#SkPixmap_width">width</a>, <a href="#SkPixmap_height">height</a>, <a href="undocumented#Color_Type">Color Type</a>, <a href="undocumented#Alpha_Type">Alpha Type</a>, and 
 <a href="undocumented#Color_Space">Color Space</a> of destination. <a href="#SkPixmap_readPixels_dstRowBytes">dstRowBytes</a> specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
@@ -1700,7 +1703,8 @@ If this-><a href="#SkPixmap_alphaType">alphaType</a> is <a href="undocumented#Sk
 match. If this-><a href="#SkPixmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkPixmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkPixmap_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
 <a href="#SkPixmap_readPixels_srcX">srcX</a> and <a href="#SkPixmap_readPixels_srcY">srcY</a> may be negative to copy only top or left of source. Returns
-false if <a href="#SkPixmap_width">width</a> or <a href="#SkPixmap_height">height</a> is zero or negative. Returns false ifabs(srcX) >= this-><a href="#SkPixmap_width">width</a> || abs(scrY) >= this-><a href="#SkPixmap_height">height</a>.
+false if <a href="#SkPixmap_width">width</a> or <a href="#SkPixmap_height">height</a> is zero or negative. Returns false ifabs(srcX) >= this-><a href="#SkPixmap_width">width</a>, 
+or ifabs(srcY) >= this-><a href="#SkPixmap_height">height</a>.
 
 If <a href="#SkPixmap_readPixels_behavior">behavior</a> is <a href="#SkTransferFunctionBehavior_kRespect">SkTransferFunctionBehavior::kRespect</a>: converts source
 pixels to a linear space before converting to <a href="#SkPixmap_readPixels_dstInfo">dstInfo</a>.
@@ -1744,7 +1748,8 @@ bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes)
 </pre>
 
 Copies a <a href="undocumented#Rect">Rect</a> of pixels to <a href="#SkPixmap_readPixels_2_dstPixels">dstPixels</a>. Copy starts at (0, 0), and does not
-exceed(this-><a href="#SkPixmap_width">width</a>, this-><a href="#SkPixmap_height">height</a>). 
+exceed(this-><a href="#SkPixmap_width">width</a>, this-><a href="#SkPixmap_height">height</a>).
+
 <a href="#SkPixmap_readPixels_2_dstInfo">dstInfo</a> specifies <a href="#SkPixmap_width">width</a>, <a href="#SkPixmap_height">height</a>, <a href="undocumented#Color_Type">Color Type</a>, <a href="undocumented#Alpha_Type">Alpha Type</a>, and 
 <a href="undocumented#Color_Space">Color Space</a> of destination. <a href="#SkPixmap_readPixels_2_dstRowBytes">dstRowBytes</a> specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
@@ -1791,7 +1796,8 @@ bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
 </pre>
 
 Copies a <a href="undocumented#Rect">Rect</a> of pixels to <a href="#SkPixmap_readPixels_3_dstPixels">dstPixels</a>. Copy starts at (<a href="#SkPixmap_readPixels_3_srcX">srcX</a>, <a href="#SkPixmap_readPixels_3_srcY">srcY</a>), and does not
-exceed(this-><a href="#SkPixmap_width">width</a>, this-><a href="#SkPixmap_height">height</a>). 
+exceed(this-><a href="#SkPixmap_width">width</a>, this-><a href="#SkPixmap_height">height</a>).
+
 <a href="#SkPixmap_readPixels_3_dstInfo">dstInfo</a> specifies <a href="#SkPixmap_width">width</a>, <a href="#SkPixmap_height">height</a>, <a href="undocumented#Color_Type">Color Type</a>, <a href="undocumented#Alpha_Type">Alpha Type</a>, and 
 <a href="undocumented#Color_Space">Color Space</a> of destination. <a href="#SkPixmap_readPixels_3_dstRowBytes">dstRowBytes</a> specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
@@ -1804,7 +1810,8 @@ If this-><a href="#SkPixmap_alphaType">alphaType</a> is <a href="undocumented#Sk
 match. If this-><a href="#SkPixmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkPixmap_readPixels_3_dstInfo">dstInfo</a>.<a href="#SkPixmap_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
 <a href="#SkPixmap_readPixels_3_srcX">srcX</a> and <a href="#SkPixmap_readPixels_3_srcY">srcY</a> may be negative to copy only top or left of source. Returns
-false if this-><a href="#SkPixmap_width">width</a> or this-><a href="#SkPixmap_height">height</a> is zero or negative. Returns false ifabs(srcX) >= this-><a href="#SkPixmap_width">width</a> || abs(scrY) >= this-><a href="#SkPixmap_height">height</a>.
+false if this-><a href="#SkPixmap_width">width</a> or this-><a href="#SkPixmap_height">height</a> is zero or negative. Returns false ifabs(srcX) >= this-><a href="#SkPixmap_width">width</a>, 
+or ifabs(srcY) >= this-><a href="#SkPixmap_height">height</a>.
 
 ### Parameters
 
@@ -1852,7 +1859,8 @@ If this-><a href="#SkPixmap_alphaType">alphaType</a> is <a href="undocumented#Sk
 match. If this-><a href="#SkPixmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkPixmap_readPixels_4_dst">dst</a>.<a href="#SkPixmap_info">info</a>.<a href="#SkPixmap_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
 <a href="#SkPixmap_readPixels_4_srcX">srcX</a> and <a href="#SkPixmap_readPixels_4_srcY">srcY</a> may be negative to copy only top or left of source. Returns
-false this-><a href="#SkPixmap_width">width</a> or this-><a href="#SkPixmap_height">height</a> is zero or negative. Returns false ifabs(srcX) >= this-><a href="#SkPixmap_width">width</a> || abs(scrY) >= this-><a href="#SkPixmap_height">height</a>.
+false this-><a href="#SkPixmap_width">width</a> or this-><a href="#SkPixmap_height">height</a> is zero or negative. Returns false ifabs(srcX) >= this-><a href="#SkPixmap_width">width</a>, 
+or ifabs(srcY) >= this-><a href="#SkPixmap_height">height</a>.
 
 ### Parameters
 
