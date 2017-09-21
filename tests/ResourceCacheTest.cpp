@@ -129,12 +129,16 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     GrResourceProvider* provider = context->resourceProvider();
 
     sk_sp<GrRenderTarget> smallRT0 = create_RT_with_SB(provider, 4, 0, SkBudgeted::kYes);
-    REPORTER_ASSERT(reporter, smallRT0);
+    if (!smallRT0) {
+        return;
+    }
 
     {
        // Two budgeted RTs with the same desc should share a stencil buffer.
         sk_sp<GrRenderTarget> smallRT1 = create_RT_with_SB(provider, 4, 0, SkBudgeted::kYes);
-        REPORTER_ASSERT(reporter, smallRT1);
+        if (!smallRT1) {
+            return;
+        }
 
         REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) == get_SB(smallRT1.get()));
     }
@@ -142,7 +146,9 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     {
         // An unbudgeted RT with the same desc should also share.
         sk_sp<GrRenderTarget> smallRT2 = create_RT_with_SB(provider, 4, 0, SkBudgeted::kNo);
-        REPORTER_ASSERT(reporter, smallRT2);
+        if (!smallRT2) {
+            return;
+        }
 
         REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) == get_SB(smallRT2.get()));
     }
@@ -150,7 +156,9 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     {
         // An RT with a much larger size should not share.
         sk_sp<GrRenderTarget> bigRT = create_RT_with_SB(provider, 400, 0, SkBudgeted::kNo);
-        REPORTER_ASSERT(reporter, bigRT);
+        if (!bigRT) {
+            return;
+        }
 
         REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) != get_SB(bigRT.get()));
     }
@@ -160,14 +168,9 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
         // An RT with a different sample count should not share.
         sk_sp<GrRenderTarget> smallMSAART0 = create_RT_with_SB(provider, 4, smallSampleCount,
                                                                SkBudgeted::kNo);
-#ifdef SK_BUILD_FOR_ANDROID
         if (!smallMSAART0) {
-            // The nexus player seems to fail to create MSAA textures.
             return;
         }
-#else
-        REPORTER_ASSERT(reporter, smallMSAART0);
-#endif
 
         REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) != get_SB(smallMSAART0.get()));
 
@@ -175,7 +178,9 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
             // A second MSAA RT should share with the first MSAA RT.
             sk_sp<GrRenderTarget> smallMSAART1 = create_RT_with_SB(provider, 4, smallSampleCount,
                                                                    SkBudgeted::kNo);
-            REPORTER_ASSERT(reporter, smallMSAART1);
+            if (!smallMSAART1) {
+                return;
+            }
 
             REPORTER_ASSERT(reporter, get_SB(smallMSAART0.get()) == get_SB(smallMSAART1.get()));
         }
@@ -186,7 +191,9 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
         if (bigSampleCount != smallSampleCount) {
             sk_sp<GrRenderTarget> smallMSAART2 = create_RT_with_SB(provider, 4, bigSampleCount,
                                                                    SkBudgeted::kNo);
-            REPORTER_ASSERT(reporter, smallMSAART2);
+            if (!smallMSAART2) {
+                return;
+            }
 
             REPORTER_ASSERT(reporter, get_SB(smallMSAART0.get()) != get_SB(smallMSAART2.get()));
         }
