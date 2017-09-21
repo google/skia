@@ -305,6 +305,12 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                 return false;
             }
 
+            // TODO: I believe the assignUniqueKeyToProxy below used to instantiate the proxy before
+            // before the draw that used the result was being flushed, so the upload was succeeding.
+            // With assignUniqueKeyToProxy no longer forcing an instantiation it will have to happen
+            // explicitly elsewhere.
+            proxy->instantiate(fResourceProvider);
+
             auto uploader = skstd::make_unique<GrMaskUploaderPrepareCallback<SoftwarePathData>>(
                     proxy, *boundsForMask, *args.fViewMatrix, *args.fShape, aa);
             GrMaskUploaderPrepareCallback<SoftwarePathData>* uploaderRaw = uploader.get();
