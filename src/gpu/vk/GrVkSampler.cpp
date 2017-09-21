@@ -82,12 +82,13 @@ uint16_t GrVkSampler::GenerateKey(const GrSamplerState& samplerState, uint32_t m
     const int kTileModeYShift = 4;
     const int kMipLevelShift = 6;
 
+    SkASSERT(static_cast<int>(samplerState.filter()) <= 3);
     uint16_t key = static_cast<uint16_t>(samplerState.filter());
 
-    SkASSERT(static_cast<int>(samplerState.filter()) <= 3);
+    SkASSERT(static_cast<int>(samplerState.wrapModeX()) <= 4);
     key |= (static_cast<uint16_t>(samplerState.wrapModeX()) << kTileModeXShift);
 
-    GR_STATIC_ASSERT(SkShader::kTileModeCount <= 4);
+    SkASSERT(static_cast<int>(samplerState.wrapModeY()) <= 4);
     key |= (static_cast<uint16_t>(samplerState.wrapModeY()) << kTileModeYShift);
 
     SkASSERT(maxMipLevel < 1024);
