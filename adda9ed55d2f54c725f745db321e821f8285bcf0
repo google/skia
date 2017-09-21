@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e9418041_34f2b037",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 12
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-21T16:59:13Z",
+      "side": 1,
+      "message": "I have it here because we want it in both Debug and Release builds.",
+      "parentUuid": "771d8c89_6c95cf37",
+      "range": {
+        "startLine": 159,
+        "startChar": 3,
+        "endLine": 159,
+        "endChar": 23
+      },
+      "revId": "adda9ed55d2f54c725f745db321e821f8285bcf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ac1f5910_7799c7a4",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 12
@@ -36,6 +60,30 @@
       "writtenOn": "2017-09-21T16:28:14Z",
       "side": 1,
       "message": "Wouldn\u0027t we need this set locally if we were doing a build not on a bot?  Seems like it should be in GN.\n\nWe do a similar thing for Clang in \":warnings\" in gn/BUILD.gn by looking at is_clang, which in turn is defined in gn/BUILDCONFIG.gn.  Can we detect emcc similarly?",
+      "range": {
+        "startLine": 60,
+        "startChar": 27,
+        "endLine": 60,
+        "endChar": 54
+      },
+      "revId": "adda9ed55d2f54c725f745db321e821f8285bcf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6517e87_0cfa17e3",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-21T16:59:13Z",
+      "side": 1,
+      "message": "I didn\u0027t see it locally, only on the bots, using the exact same toolchaing.  Not sure why.\n\nWe could detect emcc in a similar route, if we wanted.",
+      "parentUuid": "ac1f5910_7799c7a4",
       "range": {
         "startLine": 60,
         "startChar": 27,
@@ -68,6 +116,30 @@
       "revId": "adda9ed55d2f54c725f745db321e821f8285bcf0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a62254d4_b54e4434",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-21T16:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a9d8462_9aaec1c0",
+      "range": {
+        "startLine": 172,
+        "startChar": 9,
+        "endLine": 175,
+        "endChar": 58
+      },
+      "revId": "adda9ed55d2f54c725f745db321e821f8285bcf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
