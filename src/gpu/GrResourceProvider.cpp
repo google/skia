@@ -352,12 +352,20 @@ const GrBuffer* GrResourceProvider::createQuadIndexBuffer() {
 int GrResourceProvider::QuadCountOfQuadBuffer() { return kMaxQuads; }
 
 sk_sp<GrPath> GrResourceProvider::createPath(const SkPath& path, const GrStyle& style) {
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
     SkASSERT(this->gpu()->pathRendering());
     return this->gpu()->pathRendering()->createPath(path, style);
 }
 
 sk_sp<GrPathRange> GrResourceProvider::createPathRange(GrPathRange::PathGenerator* gen,
                                                        const GrStyle& style) {
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
     SkASSERT(this->gpu()->pathRendering());
     return this->gpu()->pathRendering()->createPathRange(gen, style);
 }
