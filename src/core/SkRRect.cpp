@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include "SkRRect.h"
+#include "SkBuffer.h"
 #include "SkMatrix.h"
 #include "SkScaleToSides.h"
 
@@ -461,6 +462,11 @@ size_t SkRRect::writeToMemory(void* buffer) const {
     return kSizeInMemory;
 }
 
+void SkRRect::writeToBuffer(SkWBuffer* buffer) const {
+    // Serialize only the rect and corners, but not the derived type tag.
+    buffer->write(this, kSizeInMemory);
+}
+
 size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
     if (length < kSizeInMemory) {
         return 0;
@@ -476,6 +482,20 @@ size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
     this->computeType();
 
     return kSizeInMemory;
+}
+
+bool SkRRect::readFromBuffer(SkRBuffer* buffer) {
+    if (buffer->available() < kSizeInMemory) {
+        return false;
+    }
+    SkRRect readData;
+    buffer->read(&readData, kSizeInMemory);
+    if (!AreRectAndRadiiValid(readData.fRect, readData.fRadii)) {
+        return false;
+    }
+    memcpy(this, &readData, kSizeInMemory);
+    this->computeType();
+    return true;
 }
 
 #include "SkString.h"
