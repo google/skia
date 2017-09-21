@@ -239,6 +239,30 @@
     },
     {
       "key": {
+        "uuid": "bf5fec1e_084969c2",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-09-21T15:28:33Z",
+      "side": 1,
+      "message": "Did a couple quick code searches... looks like the precedent is to call this \"wasm\".",
+      "parentUuid": "6b7c7fdf_444c2955",
+      "range": {
+        "startLine": 36,
+        "startChar": 22,
+        "endLine": 36,
+        "endChar": 26
+      },
+      "revId": "e2cdec4e4ff53cdb5c0b93100b04a1d33623d463",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "587a3bea_07961d3a",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 8
