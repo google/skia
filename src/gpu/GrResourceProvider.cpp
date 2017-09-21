@@ -321,11 +321,8 @@ const GrBuffer* GrResourceProvider::createPatternedIndexBuffer(const uint16_t* p
     if (!buffer) {
         return nullptr;
     }
-    uint16_t* data = (uint16_t*) buffer->map();
-    bool useTempData = (nullptr == data);
-    if (useTempData) {
-        data = new uint16_t[reps * patternSize];
-    }
+
+    SkAutoTArray<uint16_t> data(reps * patternSize);
     for (int i = 0; i < reps; ++i) {
         int baseIdx = i * patternSize;
         uint16_t baseVert = (uint16_t)(i * vertCount);
@@ -333,15 +330,12 @@ const GrBuffer* GrResourceProvider::createPatternedIndexBuffer(const uint16_t* p
             data[baseIdx+j] = baseVert + pattern[j];
         }
     }
-    if (useTempData) {
-        if (!buffer->updateData(data, bufferSize)) {
-            buffer->unref();
-            return nullptr;
-        }
-        delete[] data;
-    } else {
-        buffer->unmap();
+
+    if (!buffer->updateData(data.get(), bufferSize)) {
+        buffer->unref();
+        return nullptr;
     }
+
     this->assignUniqueKeyToResource(key, buffer);
     return buffer;
 }
