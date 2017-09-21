@@ -48,10 +48,17 @@ size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
 bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
+    const GrUniqueKey& key = this->getUniqueKey();
+
     if (!this->instantiateImpl(resourceProvider, this->numStencilSamples(), this->needsStencil(),
-                               kFlags, this->isMipMapped(), this->mipColorMode())) {
+                               kFlags, this->isMipMapped(), this->mipColorMode(),
+                               key.isValid() ? &key : nullptr)) {
         return false;
     }
+    if (key.isValid()) {
+        SkASSERT(key == this->getUniqueKey());
+    }
+
     SkASSERT(fTarget->asRenderTarget());
     SkASSERT(fTarget->asTexture());
 

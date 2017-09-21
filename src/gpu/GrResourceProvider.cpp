@@ -292,7 +292,6 @@ void GrResourceProvider::assignUniqueKeyToTexture(const GrUniqueKey& key, GrText
     this->assignUniqueKeyToResource(key, texture);
 }
 
-// MDB TODO (caching): this side-steps the issue of texture proxies with unique IDs
 void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
     ASSERT_SINGLE_OWNER
     SkASSERT(key.isValid());
@@ -300,25 +299,13 @@ void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextur
         return;
     }
 
-    if (!proxy->instantiate(this)) {
-        return;
-    }
-    GrTexture* texture = proxy->priv().peekTexture();
-
-    this->assignUniqueKeyToResource(key, texture);
+    fCache->assignUniqueKeyToProxy(key, proxy);
 }
 
-// MDB TODO (caching): this side-steps the issue of texture proxies with unique IDs
 sk_sp<GrTextureProxy> GrResourceProvider::findProxyByUniqueKey(const GrUniqueKey& key,
                                                                GrSurfaceOrigin origin) {
     ASSERT_SINGLE_OWNER
-
-    sk_sp<GrTexture> texture(this->findAndRefTextureByUniqueKey(key));
-    if (!texture) {
-        return nullptr;
-    }
-
-    return GrSurfaceProxy::MakeWrapped(std::move(texture), origin);
+    return this->isAbandoned() ? nullptr : fCache->findProxyByUniqueKey(key, origin);
 }
 
 const GrBuffer* GrResourceProvider::createPatternedIndexBuffer(const uint16_t* pattern,
