@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "771d8c89_6c95cf37",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 12
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-21T16:28:14Z",
+      "side": 1,
+      "message": "I\u0027m still not sure I get why you\u0027re adding this to cflags... in Release builds, cflags will already contain -O3.\n\nI would think we\u0027d want just\n\n  if (target_cpu \u003d\u003d \"wasm\") {   # or really, if (is_emcc)\n    ldflags +\u003d [ \"-O3\" ]\n  }\n\nadded to \":release\"?",
+      "range": {
+        "startLine": 159,
+        "startChar": 3,
+        "endLine": 159,
+        "endChar": 23
+      },
+      "revId": "adda9ed55d2f54c725f745db321e821f8285bcf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac1f5910_7799c7a4",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-21T16:28:14Z",
+      "side": 1,
+      "message": "Wouldn\u0027t we need this set locally if we were doing a build not on a bot?  Seems like it should be in GN.\n\nWe do a similar thing for Clang in \":warnings\" in gn/BUILD.gn by looking at is_clang, which in turn is defined in gn/BUILDCONFIG.gn.  Can we detect emcc similarly?",
+      "range": {
+        "startLine": 60,
+        "startChar": 27,
+        "endLine": 60,
+        "endChar": 54
+      },
+      "revId": "adda9ed55d2f54c725f745db321e821f8285bcf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a9d8462_9aaec1c0",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-21T16:28:14Z",
+      "side": 1,
+      "message": "This too is not bot specific.  You ought to be able to control this in GN also, e.g.\n\n  if (target_cpu !\u003d \"wasm\") {\n    test_app(\"dm\") {\n       ...\n    }\n  }\n\nThat way local builds will try to build everything possible and nothing impossible too.",
+      "range": {
+        "startLine": 172,
+        "startChar": 9,
+        "endLine": 175,
+        "endChar": 58
+      },
+      "revId": "adda9ed55d2f54c725f745db321e821f8285bcf0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
