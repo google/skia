@@ -1682,20 +1682,25 @@ enum Direction {
 
 private:
     enum SerializationOffsets {
-        // 1 free bit at 29
-        kUnused1_SerializationShift = 28,    // 1 free bit
-        kDirection_SerializationShift = 26, // requires 2 bits
+        kType_SerializationShift = 28,       // requires 4 bits
+        kDirection_SerializationShift = 26,  // requires 2 bits
         kIsVolatile_SerializationShift = 25, // requires 1 bit
         // 1 free bit at 24
-        kConvexity_SerializationShift = 16, // requires 8 bits
-        kFillType_SerializationShift = 8,   // requires 8 bits
+        kConvexity_SerializationShift = 16,  // requires 8 bits
+        kFillType_SerializationShift = 8,    // requires 8 bits
         // low-8-bits are version
     };
 
     enum SerializationVersions {
         kPathPrivFirstDirection_Version = 1,
         kPathPrivLastMoveToIndex_Version = 2,
-        kCurrent_Version = 2
+        kPathPrivTypeEnumVersion = 3,
+        kCurrent_Version = 3
+    };
+
+    enum SerializationType {
+        kGeneral = 0,
+        kRRect = 1
     };
 
     sk_sp<SkPathRef>                                   fPathRef;
@@ -1716,6 +1721,9 @@ private:
      *  Doesn't change fGenerationID or fSourcePath on Android.
      */
     void copyFields(const SkPath& that);
+
+    size_t writeToMemoryAsRRect(int32_t packedHeader, void* buffer) const;
+    size_t readFromMemoryAsRRect(const void* buffer) const;
 
     friend class Iter;
     friend class SkPathPriv;

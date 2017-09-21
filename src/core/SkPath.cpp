@@ -2040,22 +2040,56 @@ SkPath::Verb SkPath::Iter::doNext(SkPoint ptsParam[4]) {
     Format in compressed buffer: [ptCount, verbCount, pts[], verbs[]]
 */
 
-size_t SkPath::writeToMemory(void* storage) const {
-    SkDEBUGCODE(this->validate();)
-
-    if (nullptr == storage) {
-        const int byteCount = sizeof(int32_t) * 2 + fPathRef->writeSize();
-        return SkAlign4(byteCount);
+size_t SkPath::writeToMemoryAsRRect(int32_t packedHeader, void* storage) const {
+    SkRect oval;
+    SkRRect rrect;
+    bool isCCW;
+    unsigned start;
+    if (fPathRef->isOval(&oval, &isCCW, &start)) {
+        rrect.setOval(oval);
+        // Convert to rrect start indices.
+        start *= 2;
+    } else if (!fPathRef->isRRect(&rrect, &isCCW, &start)) {
+        return false;
+    }
+    if (!storage) {
+        // packed header, rrect, start index.
+        return sizeof(int32_t) + SkRRect::kSizeInMemory + sizeof(int32_t);
     }
 
-    SkWBuffer   buffer(storage);
+    SkWBuffer buffer(storage);
+    // Rewrite header's first direction based on rrect direction.
+    uint8_t firstDir = isCCW ? SkPathPriv::kCCW_FirstDirection : SkPathPriv::kCW_FirstDirection;
+    packedHeader &= ~(0x3 << kDirection_SerializationShift);
+    packedHeader |= firstDir << kDirection_SerializationShift;
+    packedHeader |= SerializationType::kRRect << kType_SerializationShift;
+    buffer.write32(packedHeader);
+    rrect.writeToBuffer(&buffer);
+    buffer.write32(SkToS32(start));
+    buffer.padToAlign4();
+    return buffer.pos();
+}
+
+size_t SkPath::writeToMemory(void* storage) const {
+    SkDEBUGCODE(this->validate();)
 
     int32_t packed = (fConvexity << kConvexity_SerializationShift) |
                      (fFillType << kFillType_SerializationShift) |
                      (fFirstDirection << kDirection_SerializationShift) |
                      (fIsVolatile << kIsVolatile_SerializationShift) |
                      kCurrent_Version;
+    if (size_t bytes = this->writeToMemoryAsRRect(packed, storage)) {
+        return bytes;
+    }
 
+    SkWBuffer   buffer(storage);
+
+    static_assert(0 == SerializationType::kGeneral, "packed has zero in type bits");
+    if (nullptr == storage) {
+        // packed header, pathref, start index
+        const int byteCount = sizeof(int32_t) * 2 + fPathRef->writeSize();
+        return SkAlign4(byteCount);
+    }
     buffer.write32(packed);
     buffer.write32(fLastMoveToIndex);
 
@@ -2081,13 +2115,51 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     }
 
     unsigned version = packed & 0xFF;
+    uint8_t dir = (packed >> kDirection_SerializationShift) & 0x3;
+    FillType fillType = static_cast<FillType>((packed >> kFillType_SerializationShift) & 0x3);
+    if (version >= kPathPrivTypeEnumVersion) {
+        SerializationType type =
+                static_cast<SerializationType>((packed >> kType_SerializationShift) & 0xF);
+        switch (type) {
+            case SerializationType::kRRect: {
+                Direction rrectDir;
+                SkRRect rrect;
+                int32_t start;
+                switch (dir) {
+                    case SkPathPriv::kCW_FirstDirection:
+                        rrectDir = kCW_Direction;
+                        break;
+                    case SkPathPriv::kCCW_FirstDirection:
+                        rrectDir = kCCW_Direction;
+                        break;
+                    default:
+                        return 0;
+                }
+                if (!rrect.readFromBuffer(&buffer)) {
+                    return 0;
+                }
+                if (!buffer.readS32(&start) || start != SkTPin(start, 0, 7)) {
+                    return 0;
+                }
+                this->reset();
+                this->addRRect(rrect, rrectDir, SkToUInt(start));
+                this->setFillType(fillType);
+                buffer.skipToAlign4();
+                return buffer.pos();
+            }
+            case SerializationType::kGeneral:
+                // Fall through to general path deserialization
+                break;
+            default:
+                return 0;
+        }
+    }
     if (version >= kPathPrivLastMoveToIndex_Version && !buffer.readS32(&fLastMoveToIndex)) {
         return 0;
     }
 
     fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
-    fFillType = (packed >> kFillType_SerializationShift) & 0x3;
-    uint8_t dir = (packed >> kDirection_SerializationShift) & 0x3;
+    fFillType = fillType;
     fIsVolatile = (packed >> kIsVolatile_SerializationShift) & 0x1;
     SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer);
     if (!pathRef) {

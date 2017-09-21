@@ -13,6 +13,8 @@
 
 class SkPath;
 class SkMatrix;
+class SkRBuffer;
+class SkWBuffer;
 
 // Path forward:
 //   core work
@@ -302,6 +304,7 @@ public:
      *  a multiple of 4. Return kSizeInMemory.
      */
     size_t writeToMemory(void* buffer) const;
+    void writeToBuffer(SkWBuffer*) const;
 
     /**
      * Reads the rrect from the specified buffer
@@ -315,6 +318,7 @@ public:
      *         0 if there was not enough memory available
      */
     size_t readFromMemory(const void* buffer, size_t length);
+    bool readFromBuffer(SkRBuffer*);
 
     /**
      *  Transform by the specified matrix, and put the result in dst.
