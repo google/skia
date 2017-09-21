@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2386b6b4_fbb31653",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2087,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-21T16:30:25Z",
+      "side": 1,
+      "message": "changed it to \"packed has zero in type bits\".",
+      "parentUuid": "8d1ebef3_138750ec",
+      "revId": "50c27ef6241bdb536866ee34d31f76c94ff51b00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "50175ddd_7a8a81a3",
         "filename": "src/core/SkPath.cpp",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "50c27ef6241bdb536866ee34d31f76c94ff51b00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fb0cf24_03e05877",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2089,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-21T16:30:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50175ddd_7a8a81a3",
+      "revId": "50c27ef6241bdb536866ee34d31f76c94ff51b00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "a10c4db6_75df3431",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2147,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-21T16:30:25Z",
+      "side": 1,
+      "message": "addRRect() already calls validate() at the end.",
+      "parentUuid": "6e867a89_aa242eeb",
+      "revId": "50c27ef6241bdb536866ee34d31f76c94ff51b00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "87e1ccfa_5e4e9935",
         "filename": "src/core/SkRRect.cpp",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2017-09-21T16:13:00Z",
       "side": 1,
       "message": "Can we just do this in place ?",
+      "revId": "50c27ef6241bdb536866ee34d31f76c94ff51b00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5ba7a00_8c4be8b6",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-21T16:30:25Z",
+      "side": 1,
+      "message": "In which place? SkRBuffer doesn\u0027t provide raw accesss to the data. I don\u0027t want to overwrite \"this\" if we fail.",
+      "parentUuid": "87e1ccfa_5e4e9935",
       "revId": "50c27ef6241bdb536866ee34d31f76c94ff51b00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
