@@ -22,6 +22,30 @@
       "revId": "dc6e0757799da2d6d453e6c6d792ba0da3d905cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49283126_2b5a9ac4",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-09-21T15:11:18Z",
+      "side": 1,
+      "message": "Just a left over from copy-pasting the example.  I\u0027ll try O3, since we don\u0027t get a stacktrace in any mode.",
+      "parentUuid": "d5433336_51247ec0",
+      "range": {
+        "startLine": 74,
+        "startChar": 26,
+        "endLine": 74,
+        "endChar": 31
+      },
+      "revId": "dc6e0757799da2d6d453e6c6d792ba0da3d905cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
