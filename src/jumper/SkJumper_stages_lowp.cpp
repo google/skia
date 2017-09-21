@@ -425,6 +425,44 @@ STAGE(store_565, const SkJumper_MemoryCtx* ctx) {
     store_565(ptr_at_xy<uint16_t>(ctx, x,y), tail, r,g,b);
 }
 
+SI void load_4444(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
+    // Format for 4444 buffers: 16|rrrr gggg bbbb aaaa|0
+    U16 rgba = load<U16>(ptr, tail);
+    U16 R = (rgba >> 12) & 15,
+        G = (rgba >>  8) & 15,
+        B = (rgba >>  4) & 15,
+        A = (rgba >>  0) & 15;
+
+    // Scale from [0,15] to [0,255].
+    *r = R | (R << 4);
+    *g = G | (G << 4);
+    *b = B | (B << 4);
+    *a = A | (A << 4);
+}
+SI void store_4444(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
+    // Select the top 4 bits of each channel.
+    U16 R = r >> 4,
+        G = g >> 4,
+        B = b >> 4,
+        A = a >> 4;
+
+    // Pack them back into 16|rrrr gggg bbbb aaaa|0
+    store(ptr, tail, R << 12
+                   | G <<  8
+                   | B <<  4
+                   | A <<  0);
+}
+
+STAGE(load_4444, const SkJumper_MemoryCtx* ctx) {
+    load_4444(ptr_at_xy<const uint16_t>(ctx, x,y), tail, &r,&g,&b,&a);
+}
+STAGE(load_4444_dst, const SkJumper_MemoryCtx* ctx) {
+    load_4444(ptr_at_xy<const uint16_t>(ctx, x,y), tail, &dr,&dg,&db,&da);
+}
+STAGE(store_4444, const SkJumper_MemoryCtx* ctx) {
+    store_4444(ptr_at_xy<uint16_t>(ctx, x,y), tail, r,g,b,a);
+}
+
 // ~~~~~~ 8-bit memory loads and stores ~~~~~~ //
 
 SI U16 load_8(const uint8_t* ptr, size_t tail) {
