@@ -318,12 +318,12 @@ public:
 
 private:
     enum SerializationOffsets {
-        kRRectOrOvalStartIdx_SerializationShift = 28,  // requires 3 bits
-        kRRectOrOvalIsCCW_SerializationShift = 27,     // requires 1 bit
-        kIsRRect_SerializationShift = 26,              // requires 1 bit
-        kIsFinite_SerializationShift = 25,             // requires 1 bit
-        kIsOval_SerializationShift = 24,               // requires 1 bit
-        kSegmentMask_SerializationShift = 0            // requires 4 bits
+        kLegacyRRectOrOvalStartIdx_SerializationShift = 28, // requires 3 bits, ignored.
+        kLegacyRRectOrOvalIsCCW_SerializationShift = 27,    // requires 1 bit, ignored.
+        kLegacyIsRRect_SerializationShift = 26,             // requires 1 bit, ignored.
+        kIsFinite_SerializationShift = 25,                  // requires 1 bit
+        kLegacyIsOval_SerializationShift = 24,              // requires 1 bit, ignored.
+        kSegmentMask_SerializationShift = 0                 // requires 4 bits
     };
 
     SkPathRef() {
