@@ -87,7 +87,7 @@ public:
     */
     SkPaint(const SkPaint& paint);
 
-    /** Implements a move constructor to avoid incrementing the reference counts
+    /** Implements a move constructor to avoid increasing the reference counts
         of objects referenced by the paint.
 
         After the call, paint is undefined, and can be safely destructed.
@@ -115,7 +115,7 @@ public:
     */
     SkPaint& operator=(const SkPaint& paint);
 
-    /** Moves the paint to avoid incrementing the reference counts
+    /** Moves the paint to avoid increasing the reference counts
         of objects referenced by the paint parameter. Objects containing SkRefCnt in the
         prior destination are decreased by one; those objects are deleted if the resulting count
         is zero.
@@ -567,20 +567,20 @@ public:
         Use helpers SkColorGetA(), SkColorGetR(), SkColorGetG(), and SkColorGetB() to extract
         a color component.
 
-        @return  Unpremultiplied ARGB
+        @return  unpremultiplied ARGB
     */
     SkColor getColor() const { return fColor; }
 
     /** Sets alpha and RGB used when stroking and filling. The color is a 32-bit value,
         unpremultiplied, packing 8-bit components for alpha, red, blue, and green.
 
-        @param color  Unpremultiplied ARGB
+        @param color  unpremultiplied ARGB
     */
     void setColor(SkColor color);
 
     /** Retrieves alpha from the color used when stroking and filling.
 
-        @return  Alpha ranging from zero, fully transparent, to 255, fully opaque
+        @return  alpha ranging from zero, fully transparent, to 255, fully opaque
     */
     uint8_t getAlpha() const { return SkToU8(SkColorGetA(fColor)); }
 
@@ -590,7 +590,7 @@ public:
         a set to zero makes color fully transparent; a set to 255 makes color
         fully opaque.
 
-        @param a  Alpha component of color
+        @param a  alpha component of color
     */
     void setAlpha(U8CPU a);
 
@@ -760,8 +760,8 @@ public:
 
     /** Optional colors used when filling a path, such as a gradient.
 
-        Sets SkShader to shader, decrementing SkRefCnt of the previous SkShader.
-        Does not alter shader SkRefCnt.
+        Sets SkShader to shader, decreasing SkRefCnt of the previous SkShader.
+        Increments shader SkRefCnt by one.
 
         @param shader  how geometry is filled with color; if nullptr, color is used instead
     */
@@ -781,9 +781,10 @@ public:
     */
     sk_sp<SkColorFilter> refColorFilter() const;
 
-    /** Sets SkColorFilter to filter, decrementing SkRefCnt of the previous SkColorFilter.
-        Pass nullptr to clear SkColorFilter.
-        Does not alter filter SkRefCnt.
+    /** Sets SkColorFilter to filter, decreasing SkRefCnt of the previous
+        SkColorFilter. Pass nullptr to clear SkColorFilter.
+
+        Increments filter SkRefCnt by one.
 
         @param colorFilter  SkColorFilter to apply to subsequent draw
     */
@@ -823,10 +824,10 @@ public:
     */
     sk_sp<SkPathEffect> refPathEffect() const;
 
-    /** Sets SkPathEffect to pathEffect,
-        decrementing SkRefCnt of the previous SkPathEffect.
-        Pass nullptr to leave the path geometry unaltered.
-        Does not alter pathEffect SkRefCnt.
+    /** Sets SkPathEffect to pathEffect, decreasing SkRefCnt of the previous
+        SkPathEffect. Pass nullptr to leave the path geometry unaltered.
+
+        Increments pathEffect SkRefCnt by one.
 
         @param pathEffect  replace SkPath with a modification when drawn
     */
@@ -840,24 +841,26 @@ public:
     SkMaskFilter* getMaskFilter() const { return fMaskFilter.get(); }
 
     /** Returns SkMaskFilter if set, or nullptr.
+
         Increases SkMaskFilter SkRefCnt by one.
 
         @return  SkMaskFilter if previously set, nullptr otherwise
     */
     sk_sp<SkMaskFilter> refMaskFilter() const;
 
-    /** Sets SkMaskFilter to maskFilter,
-        decrementing SkRefCnt of the previous SkMaskFilter.
-        Pass nullptr to clear SkMaskFilter and leave SkMaskFilter effect on mask alpha unaltered.
+    /** Sets SkMaskFilter to maskFilter, decreasing SkRefCnt of the previous
+        SkMaskFilter. Pass nullptr to clear SkMaskFilter and leave SkMaskFilter effect on
+        mask alpha unaltered.
+
         Does not affect SkRasterizer.
-        Does not alter maskFilter SkRefCnt.
+        Increments maskFilter SkRefCnt by one.
 
         @param maskFilter  modifies clipping mask generated from drawn geometry
     */
     void setMaskFilter(sk_sp<SkMaskFilter> maskFilter);
 
     /** Returns SkTypeface if set, or nullptr.
-        Does not alter SkTypeface SkRefCnt.
+        Increments SkTypeface SkRefCnt by one.
 
         @return  SkTypeface if previously set, nullptr otherwise
     */
@@ -869,10 +872,9 @@ public:
     */
     sk_sp<SkTypeface> refTypeface() const;
 
-    /** Sets SkTypeface to typeface,
-        decrementing SkRefCnt of the previous SkTypeface.
-        Pass nullptr to clear SkTypeface and use the default typeface.
-        Does not alter typeface SkRefCnt.
+    /** Sets SkTypeface to typeface, decreasing SkRefCnt of the previous SkTypeface.
+        Pass nullptr to clear SkTypeface and use the default typeface. Increments
+        typeface SkRefCnt by one.
 
         @param typeface  font and style used to draw text
     */
@@ -892,11 +894,12 @@ public:
     */
     sk_sp<SkRasterizer> refRasterizer() const;
 
-    /** Sets SkRasterizer to rasterizer,
-        decrementing SkRefCnt of the previous SkRasterizer.
-        Pass nullptr to clear SkRasterizer and leave SkRasterizer effect on mask alpha unaltered.
+    /** Sets SkRasterizer to rasterizer, decreasing SkRefCnt of the previous
+        SkRasterizer. Pass nullptr to clear SkRasterizer and leave SkRasterizer effect on
+        mask alpha unaltered.
+
         Does not affect SkMaskFilter.
-        Does not alter rasterizer SkRefCnt.
+        Increments rasterizer SkRefCnt by one.
 
         @param rasterizer  how geometry is converted to mask alpha
     */
@@ -916,12 +919,12 @@ public:
     */
     sk_sp<SkImageFilter> refImageFilter() const;
 
-    /** Sets SkImageFilter to imageFilter,
-        decrementing SkRefCnt of the previous SkImageFilter.
-        Pass nullptr to clear SkImageFilter, and remove SkImageFilter effect
+    /** Sets SkImageFilter to imageFilter, decreasing SkRefCnt of the previous
+        SkImageFilter. Pass nullptr to clear SkImageFilter, and remove SkImageFilter effect
         on drawing.
+
         Does not affect SkRasterizer or SkMaskFilter.
-        Does not alter imageFilter SkRefCnt.
+        Increments imageFilter SkRefCnt by one.
 
         @param imageFilter  how SkImage is sampled when transformed
     */
@@ -948,10 +951,11 @@ public:
     */
     SkDrawLooper* getLooper() const { return fDrawLooper.get(); }
 
-    /** Sets SkDrawLooper to drawLooper,
-        decrementing SkRefCnt of the previous drawLooper.
-        Pass nullptr to clear SkDrawLooper and leave SkDrawLooper effect on drawing unaltered.
-        Does not alter drawLooper SkRefCnt.
+    /** Sets SkDrawLooper to drawLooper, decreasing SkRefCnt of the previous
+        drawLooper.  Pass nullptr to clear SkDrawLooper and leave SkDrawLooper effect on
+        drawing unaltered.
+
+        Increments drawLooper SkRefCnt by one.
 
         @param drawLooper  iterates through drawing one or more time, altering SkPaint
     */
@@ -1057,14 +1061,12 @@ public:
     void setTextSkewX(SkScalar skewX);
 
     /** \enum SkPaint::TextEncoding
-        TextEncoding determines whether text specifies character codes and their encoded size,
-        or glyph indices. Character codes use the encoding specified by the Unicode standard .
+        TextEncoding determines whether text specifies character codes and their encoded
+        size, or glyph indices. Character codes use the encoding specified by the Unicode standard.
+
         Character codes encoded size are specified by UTF-8, UTF-16, or UTF-32.
-        All character encoding are able to represent all of Unicode, differing only
-        in the total storage required. UTF-8 (RFC 3629) is made up of 8-bit bytes,
-        and is a superset of ASCII. UTF-16 (RFC 2781) is made up of 16-bit words,
-        and is a superset of Unicode ranges 0x0000 to 0xD7FF and 0xE000 to 0xFFFF. UTF-32 is
-        made up of 32-bit words, and is a superset of Unicode.
+        All character encodings are able to represent all of Unicode, differing only
+        in the total storage required. UTF-8 (RFC 3629) encodes each character as one or more 8-bit bytes. UTF-16 (RFC 2781) encodes each character as one or two 16-bit words. UTF-32 encodes each character as one 32-bit word.
 
         font manager uses font data to convert character code points into glyph indices.
         A glyph index is a 16-bit word.
@@ -1110,11 +1112,6 @@ public:
     */
     struct FontMetrics {
 
-        /** \enum SkPaint::FontMetrics::FontMetricsFlags
-            FontMetricsFlags are set in fFlags when underline and strikeout metrics are valid;
-            the underline or strikeout metric may be valid and zero.
-            Fonts with embedded bitmaps may not have valid underline or strikeout metrics.
-        */
         enum FontMetricsFlags {
             kUnderlineThicknessIsValid_Flag = 1 << 0, //!< Set if fUnderlineThickness is valid.
             kUnderlinePositionIsValid_Flag  = 1 << 1, //!< Set if fUnderlinePosition is valid.
@@ -1540,7 +1537,7 @@ public:
 
         intervals are cached to improve performance for multiple calls.
 
-        @param blob       Glyphs, positions, and text paint attributes
+        @param blob       glyphs, positions, and text paint attributes
         @param bounds     lower and upper line parallel to the advance
         @param intervals  returned intersections; may be nullptr
         @return           number of intersections; may be zero
