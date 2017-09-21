@@ -5,15 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "ProcStats.h"
 #include "SkEventTracingPriv.h"
 #include "SkImage.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkPngEncoder.h"
 #include "SkTraceEvent.h"
-#include "ProcStats.h"
+#include "SkTypeface.h"
 #include "Timer.h"
 #include "ok.h"
+#include "sk_tool_utils.h"
 #include <chrono>
 #include <regex>
 
@@ -49,10 +51,10 @@ struct ViaPic : Dst {
         rec.beginRecording(SkRect::MakeSize(SkSize::Make(src->size())),
                            rtree ? &factory : nullptr);
 
-        for (auto status = src->draw(rec.getRecordingCanvas()); status != Status::OK; ) {
+        for (Status status = src->draw(rec.getRecordingCanvas()); status != Status::OK; ) {
             return status;
         }
-        auto pic = rec.finishRecordingAsPicture();
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
 
         return target->draw(proxy(src, [=](SkCanvas* canvas) {
             pic->playback(canvas);
@@ -65,6 +67,55 @@ struct ViaPic : Dst {
     }
 };
 static Register via_pic{"via_pic", "record then play back an SkPicture", ViaPic::Create};
+
+// When deserializing, we need to hook this to intercept "Toy Liberation ..."
+// typefaces and return our portable test typeface.
+extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char[], SkFontStyle);
+
+struct ViaSkp : Dst {
+    std::unique_ptr<Dst> target;
+    bool                 rtree = false;
+
+    static std::unique_ptr<Dst> Create(Options options, std::unique_ptr<Dst> dst) {
+        gCreateTypefaceDelegate = [](const char name[], SkFontStyle style) -> sk_sp<SkTypeface> {
+            if (name == strstr(name, "Toy Liberation")) {
+                return sk_tool_utils::create_portable_typeface(name, style);
+            }
+            return nullptr;
+        };
+
+        ViaSkp via;
+        via.target = std::move(dst);
+        if (options("bbh") == "rtree") { via.rtree = true; }
+        return move_unique(via);
+    }
+
+    Status draw(Src* src) override {
+        TRACE_EVENT0("ok", TRACE_FUNC);
+        SkRTreeFactory factory;
+        SkPictureRecorder rec;
+        rec.beginRecording(SkRect::MakeSize(SkSize::Make(src->size())),
+                           rtree ? &factory : nullptr);
+
+        for (Status status = src->draw(rec.getRecordingCanvas()); status != Status::OK; ) {
+            return status;
+        }
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+
+        // Serialize and deserialize.
+        pic = SkPicture::MakeFromData(pic->serialize().get());
+
+        return target->draw(proxy(src, [=](SkCanvas* canvas) {
+            pic->playback(canvas);
+            return Status::OK;
+        }).get());
+    }
+
+    sk_sp<SkImage> image() override {
+        return target->image();
+    }
+};
+static Register via_skp{"via_skp", "serialize and deserialize an .skp", ViaSkp::Create};
 
 struct Png : Dst {
     std::unique_ptr<Dst> target;
