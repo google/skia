@@ -282,6 +282,13 @@ void SkNWayCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matri
     }
 }
 
+void SkNWayCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawDrawable(drawable, matrix);
+    }
+}
+
 void SkNWayCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
                                         const SkPaint& paint) {
     Iter iter(fList);

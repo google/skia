@@ -34,6 +34,7 @@ public:
         kOval_Type,
         kPath_Type,
         kPicture_Type,
+        kDrawable_Type,
         kText_Type,
         kTextBlob_Type,
         kVertices_Type,
@@ -79,6 +80,7 @@ protected:
                              const SkPoint texCoords[4], SkBlendMode,
                              const SkPaint& paint) override;
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+    void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
 
     void onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                     const SkPaint&) override;

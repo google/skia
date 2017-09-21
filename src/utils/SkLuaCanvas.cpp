@@ -307,6 +307,12 @@ void SkLuaCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix
     this->INHERITED::onDrawPicture(picture, matrix, paint);
 }
 
+void SkLuaCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
+    AUTO_LUA("drawDrawable");
+    // call through so we can see the nested ops
+    this->INHERITED::onDrawDrawable(drawable, matrix);
+}
+
 void SkLuaCanvas::onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint& paint) {
     AUTO_LUA("drawVertices");
     lua.pushPaint(paint, "paint");
