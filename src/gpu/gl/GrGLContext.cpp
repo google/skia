@@ -44,6 +44,8 @@ GrGLContext* GrGLContext::Create(const GrGLInterface* interface, const GrContext
 
     args.fRenderer = GrGLGetRendererFromString(renderer);
 
+    GrGLGetANGLEInfoFromString(renderer, &args.fANGLEBackend, &args.fANGLEVendor,
+                               &args.fANGLERenderer);
     /*
      * Qualcomm drivers for the 3xx series have a horrendous bug with some drivers. Though they
      * claim to support GLES 3.00, some perfectly valid GLSL300 shaders will only compile with
@@ -83,6 +85,9 @@ GrGLContextInfo::GrGLContextInfo(const ConstructorArgs& args) {
     fRenderer = args.fRenderer;
     fDriver = args.fDriver;
     fDriverVersion = args.fDriverVersion;
+    fANGLEBackend = args.fANGLEBackend;
+    fANGLEVendor = args.fANGLEVendor;
+    fANGLERenderer = args.fANGLERenderer;
 
     fGLCaps = sk_make_sp<GrGLCaps>(*args.fContextOptions, *this, fInterface.get());
 }
