@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47b04cb5_b00fdc3a",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T13:48:24Z",
+      "side": 1,
+      "message": "// comments ?\nHow arrived at. What it does.",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90d867c9_2cc763e5",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T13:48:24Z",
+      "side": 1,
+      "message": "Update fPrevFlushToken for consistency ?",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90f4b9f9_52cbdac1",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T13:48:24Z",
+      "side": 1,
+      "message": "other pages -\u003e all the pages except the last one (the potential compactee) ?\navailable -\u003e recently unused ?",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5834db3a_0e733fe1",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T13:48:24Z",
+      "side": 1,
+      "message": "Move \"Plot*\" to here ?",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5052337_33fe6645",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T13:48:24Z",
+      "side": 1,
+      "message": "// the idea here is that any recently used plots in the last texture would be better placed in one of the earlier textures (if they have room)\n\n?",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7555da8_87c3596f",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T13:48:24Z",
+      "side": 1,
+      "message": "// We proactively evict unused plots from the extra textures in order to try to compact in the earlier tiles \n\n?",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68da0827_21bf6f99",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T13:48:24Z",
+      "side": 1,
+      "message": "Won\u0027t the last texture always be completely evicted after the prior loop ?",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27df4992_35434641",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T13:48:24Z",
+      "side": 1,
+      "message": "// comment ?",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6dde711c_c5df41f0",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T13:48:24Z",
+      "side": 1,
+      "message": "// comment ?",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
