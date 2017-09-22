@@ -461,7 +461,7 @@ inset address:  0x7f2a440fb210
 
 Returns pixel count in each pixel row. Should be equal or less than:
 #Formula
-rowBytes() / info.bytesPerPixel()
+rowBytes() / info().bytesPerPixel()
 ##
 . 
 
@@ -476,7 +476,7 @@ pixmap width: 16  info width: 16
 ##
 ##
 
-#SeeAlso height()
+#SeeAlso height() SkImageInfo::width()
 
 ##
 
