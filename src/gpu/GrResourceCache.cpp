@@ -910,4 +910,3 @@ void GrResourceCache::processInvalidProxyUniqueKey(const GrUniqueKey& key) {
         proxy->cacheAccess().clearUniqueKey();
     }
 }
-
