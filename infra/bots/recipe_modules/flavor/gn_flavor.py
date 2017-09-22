@@ -204,6 +204,11 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # Find the MSAN-built libc++.
       env['LD_LIBRARY_PATH'] = clang_linux + '/msan'
 
+    if 'TSAN' == extra_config:
+      # We don't care about malloc(), fprintf, etc. used in signal handlers.
+      # If we're in a signal handler, we're already crashing...
+      env['TSAN_OPTIONS'] = 'report_signal_unsafe=0'
+
     to_symbolize = ['dm', 'nanobench']
     if name in to_symbolize and self.m.vars.is_linux:
       # Convert path objects or placeholders into strings such that they can
