@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5c9b7666_74fe83aa",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-22T14:57:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47b04cb5_b00fdc3a",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "90d867c9_2cc763e5",
         "filename": "src/gpu/GrDrawOpAtlas.cpp",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17c409d3_94838229",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-22T14:57:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90d867c9_2cc763e5",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "f102a571_b9685eea",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-22T14:57:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90f4b9f9_52cbdac1",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5834db3a_0e733fe1",
         "filename": "src/gpu/GrDrawOpAtlas.cpp",
         "patchSetId": 4
@@ -67,6 +121,24 @@
       "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82acccc2_c09b51d2",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-22T14:57:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5834db3a_0e733fe1",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "4e0bc6f4_a2607e76",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-22T14:57:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5052337_33fe6645",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b7555da8_87c3596f",
         "filename": "src/gpu/GrDrawOpAtlas.cpp",
         "patchSetId": 4
@@ -101,6 +191,24 @@
       "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d59579e0_8c9a0da5",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-22T14:57:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7555da8_87c3596f",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "4307a227_d74901a4",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-22T14:57:51Z",
+      "side": 1,
+      "message": "That just clears out the plot rectanizer and lets any glyphs/paths using it that they need to re-upload. It doesn\u0027t delete the texture or any of the other data.",
+      "parentUuid": "68da0827_21bf6f99",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "27df4992_35434641",
         "filename": "src/gpu/GrDrawOpAtlas.h",
         "patchSetId": 4
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "755197d6_11ce0cc1",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-22T14:57:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27df4992_35434641",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6dde711c_c5df41f0",
         "filename": "src/gpu/GrDrawOpAtlas.h",
         "patchSetId": 4
@@ -152,6 +296,24 @@
       "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "851af182_08ea3159",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-22T14:57:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6dde711c_c5df41f0",
+      "revId": "de9f4aa4663c1d284f46c4eb18c7bbc41a5bc3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
