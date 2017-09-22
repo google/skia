@@ -68,7 +68,7 @@ sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvi
 }
 
 void GrTextureProxy::setMipColorMode(SkDestinationSurfaceColorMode colorMode) {
-    SkASSERT(fTarget || fTarget->asTexture());
+    SkASSERT(fTarget && fTarget->asTexture());
 
     if (fTarget) {
         fTarget->asTexture()->texturePriv().setMipColorMode(colorMode);
