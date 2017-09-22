@@ -28,7 +28,7 @@ TEST_BUILDERS = [
   'Build-Win-MSVC-x86_64-Release-Vulkan',
   'Housekeeper-Weekly-RecreateSKPs',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug',
-  'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN',
+  'Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-ASAN',
 ]
 
 
