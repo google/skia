@@ -2183,7 +2183,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
                 fFirstDirection = SkPathPriv::kCCW_FirstDirection;
                 break;
             default:
-                SkASSERT(false);
+                return 0;
         }
     } else {
         fFirstDirection = dir;
