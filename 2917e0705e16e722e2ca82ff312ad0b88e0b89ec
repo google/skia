@@ -16,6 +16,24 @@
       "revId": "2917e0705e16e722e2ca82ff312ad0b88e0b89ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2371d2d_3c00a165",
+        "filename": "src/core/SkMask.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-22T03:04:03Z",
+      "side": 1,
+      "message": "If size and adjustment were signed, overflow would be undefined and the compiler would be free to assume this is always true.\n\nBut size_t is unsigned, and so defined to wrap.  This condition is not always true.",
+      "parentUuid": "dbec6dbe_e57b21ce",
+      "revId": "2917e0705e16e722e2ca82ff312ad0b88e0b89ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
