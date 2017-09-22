@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55ed552c_f11791b8",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-22T15:01:55Z",
+      "side": 0,
+      "message": "If I understand correctly, now the tools aren\u0027t statically linking libskia, they\u0027re just a superset of libskia? I take it this fixes the libsfntly ordering issue in a different way?",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 72
+      },
+      "revId": "1e3b79e0c6480ea7e372ec4e5a2c5e11a03a845d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5677b15_edee22ad",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-22T15:01:55Z",
+      "side": 1,
+      "message": "Does \"deps\" in this context (and elsewhere in the file) mean \"dependencies\"? Or something else? It seems like it\u0027s more than dependencies.",
+      "range": {
+        "startLine": 90,
+        "startChar": 21,
+        "endLine": 90,
+        "endChar": 25
+      },
+      "revId": "03fb97a7412314f94bd6e5d6755202456d8ad061",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
