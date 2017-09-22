@@ -12,6 +12,8 @@
 #include "GrSurfaceProxy.h"
 
 class GrCaps;
+class GrDeferredProxyUploader;
+class GrOpFlushState;
 class GrResourceCache;
 class GrResourceProvider;
 class GrTextureOpList;
@@ -26,6 +28,10 @@ public:
     bool instantiate(GrResourceProvider*) override;
 
     void setMipColorMode(SkDestinationSurfaceColorMode colorMode);
+
+    void setDeferredUploader(std::unique_ptr<GrDeferredProxyUploader>);
+    void prepareUpload(GrOpFlushState*);
+    void resetDeferredUploader();
 
     GrSamplerState::Filter highestFilterMode() const;
 
@@ -85,6 +91,10 @@ private:
 
     GrUniqueKey fUniqueKey;
     GrResourceCache* fCache; // only set when fUniqueKey is valid
+
+    // Only used for proxies whose contents are being prepared on a worker thread
+    std::unique_ptr<GrDeferredProxyUploader> fDeferredUploader;
+    bool fNeedsUpload;
 
     size_t onUninstantiatedGpuMemorySize() const override;
 

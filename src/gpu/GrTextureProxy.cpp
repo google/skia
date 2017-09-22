@@ -8,6 +8,7 @@
 #include "GrTextureProxy.h"
 
 #include "GrContext.h"
+#include "GrPrepareCallback.h"
 #include "GrResourceCache.h"
 
 #include "GrTexturePriv.h"
@@ -17,7 +18,9 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, S
         : INHERITED(srcDesc, fit, budgeted, flags)
         , fIsMipMapped(srcDesc.fIsMipMapped)
         , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
-        , fCache(nullptr) {
+        , fCache(nullptr)
+        , fDeferredUploader(nullptr)
+        , fNeedsUpload(false) {
     SkASSERT(!srcData);  // currently handled in Make()
 }
 
@@ -25,7 +28,9 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
         , fIsMipMapped(fTarget->asTexture()->texturePriv().hasMipMaps())
         , fMipColorMode(fTarget->asTexture()->texturePriv().mipColorMode())
-        , fCache(nullptr) {
+        , fCache(nullptr)
+        , fDeferredUploader(nullptr)
+        , fNeedsUpload(false) {
     if (fTarget->getUniqueKey().isValid()) {
         fUniqueKey = fTarget->getUniqueKey();
         fCache = fTarget->asTexture()->getContext()->getResourceCache();
@@ -75,6 +80,37 @@ void GrTextureProxy::setMipColorMode(SkDestinationSurfaceColorMode colorMode) {
     }
 
     fMipColorMode = colorMode;
+}
+
+void GrTextureProxy::setDeferredUploader(std::unique_ptr<GrDeferredProxyUploader> uploader) {
+    SkASSERT(!fDeferredUploader && !fNeedsUpload);
+    fDeferredUploader = std::move(uploader);
+    fNeedsUpload = true;
+}
+
+void GrTextureProxy::prepareUpload(GrOpFlushState* flushState) {
+    // Should only be called if we were (at some point) associated with deferred prepare
+    SkASSERT(fDeferredUploader);
+
+    // Another op list (or even another op in the same op list) may have already handled this
+    if (fNeedsUpload) {
+        (*fDeferredUploader)(flushState, this);
+
+        // We can't just free fDeferredUploader, because it (probably) scheduled an ASAP upload,
+        // and that's referring to the data owned by the uploader.
+        fNeedsUpload = false;
+    }
+}
+
+void GrTextureProxy::resetDeferredUploader() {
+    // We'd like to assert that we had a deferred uploader at some point, but it may have already
+    // been reset (if this proxy is being reused). We'd also like to assert that we don't have an
+    // outstanding upload (ie fNeedsUpload == false). However, if an op list fails to instantiate,
+    // it will never be prepared before destruction...
+    //
+    // Although, in that case, what happens if one op list fails to instantiate, destroys the
+    // uploader object, and then a subsequent op list tries to use that proxy again? Bleh.
+    fDeferredUploader.reset();
 }
 
 // This method parallels the highest_filter_mode functions in GrGLTexture & GrVkTexture.

@@ -428,7 +428,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
 namespace {
 
 /**
- * Payload class for use with GrMaskUploaderPrepareCallback. The clip mask code renders multiple
+ * Payload class for use with GrTDeferredProxyUploader. The clip mask code renders multiple
  * elements, each storing their own AA setting (and already transformed into device space). This
  * stores all of the information needed by the worker thread to draw all clip elements (see below,
  * in createSoftwareClipMask).
@@ -532,9 +532,8 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         // explicitly elsewhere.
         proxy->instantiate(context->resourceProvider());
 
-        auto uploader = skstd::make_unique<GrMaskUploaderPrepareCallback<ClipMaskData>>(
-                proxy, reducedClip);
-        GrMaskUploaderPrepareCallback<ClipMaskData>* uploaderRaw = uploader.get();
+        auto uploader = skstd::make_unique<GrTDeferredProxyUploader<ClipMaskData>>(reducedClip);
+        GrTDeferredProxyUploader<ClipMaskData>* uploaderRaw = uploader.get();
         auto drawAndUploadMask = [uploaderRaw, maskSpaceIBounds] {
             TRACE_EVENT0("skia", "Threaded SW Clip Mask Render");
             GrSWMaskHelper helper(uploaderRaw->getPixels());
@@ -549,7 +548,8 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         };
 
         taskGroup->add(std::move(drawAndUploadMask));
-        renderTargetContext->getOpList()->addPrepareCallback(std::move(uploader));
+        proxy->setDeferredUploader(std::move(uploader));
+        renderTargetContext->getOpList()->addDeferredProxy(proxy.get());
     } else {
         GrSWMaskHelper helper;
         if (!helper.init(maskSpaceIBounds)) {
