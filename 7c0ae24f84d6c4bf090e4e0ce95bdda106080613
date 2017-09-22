@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0be04c35_bb357aee",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-22T14:27:29Z",
+      "side": 1,
+      "message": "nit: I think this has gone over 100 characters, and we try to keep each line under 100.",
+      "range": {
+        "startLine": 92,
+        "startChar": 100,
+        "endLine": 92,
+        "endChar": 9
+      },
+      "revId": "7c0ae24f84d6c4bf090e4e0ce95bdda106080613",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
