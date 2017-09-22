@@ -52,6 +52,11 @@ public:
     void assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
 
     /*
+     * Removes a proxy from the hash, so it will no longer be findable.
+     */
+    void clearUniqueKeyOnProxy(GrTextureProxy*);
+
+    /*
      * Finds a proxy by unique key.
      */
     sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);

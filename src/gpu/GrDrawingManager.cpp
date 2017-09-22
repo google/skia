@@ -179,6 +179,8 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 #endif
 
     for (int i = 0; i < fOpLists.count(); ++i) {
+        fOpLists[i]->instantiateDeferredProxies(fContext->resourceProvider());
+
         if (!fOpLists[i]->instantiate(fContext->resourceProvider())) {
             SkDebugf("OpList failed to instantiate.\n");
             fOpLists[i] = nullptr;

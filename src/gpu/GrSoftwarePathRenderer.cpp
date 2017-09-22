@@ -175,7 +175,7 @@ static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context
 namespace {
 
 /**
- * Payload class for use with GrMaskUploaderPrepareCallback. The software path renderer only draws
+ * Payload class for use with GrTDeferredProxyUploader. The software path renderer only draws
  * a single path into the mask texture. This stores all of the information needed by the worker
  * thread's call to drawShape (see below, in onDrawPath).
  */
@@ -305,15 +305,9 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                 return false;
             }
 
-            // TODO: I believe the assignUniqueKeyToProxy below used to instantiate the proxy before
-            // before the draw that used the result was being flushed, so the upload was succeeding.
-            // With assignUniqueKeyToProxy no longer forcing an instantiation it will have to happen
-            // explicitly elsewhere.
-            proxy->instantiate(fResourceProvider);
-
-            auto uploader = skstd::make_unique<GrMaskUploaderPrepareCallback<SoftwarePathData>>(
-                    proxy, *boundsForMask, *args.fViewMatrix, *args.fShape, aa);
-            GrMaskUploaderPrepareCallback<SoftwarePathData>* uploaderRaw = uploader.get();
+            auto uploader = skstd::make_unique<GrTDeferredProxyUploader<SoftwarePathData>>(
+                    *boundsForMask, *args.fViewMatrix, *args.fShape, aa);
+            GrTDeferredProxyUploader<SoftwarePathData>* uploaderRaw = uploader.get();
 
             auto drawAndUploadMask = [uploaderRaw] {
                 TRACE_EVENT0("skia", "Threaded SW Mask Render");
@@ -326,9 +320,10 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                     SkDEBUGFAIL("Unable to allocate SW mask.");
                 }
                 uploaderRaw->getSemaphore()->signal();
+                uploaderRaw->freeData();
             };
             taskGroup->add(std::move(drawAndUploadMask));
-            args.fRenderTargetContext->getOpList()->addPrepareCallback(std::move(uploader));
+            proxy->setDeferredUploader(std::move(uploader));
         } else {
             GrSWMaskHelper helper;
             if (!helper.init(*boundsForMask)) {
@@ -346,6 +341,10 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             fResourceProvider->assignUniqueKeyToProxy(maskKey, proxy.get());
         }
     }
+    if (proxy->isDeferred()) {
+        args.fRenderTargetContext->getOpList()->addDeferredProxy(proxy.get());
+    }
+
     if (inverseFilled) {
         DrawAroundInvPath(args.fRenderTargetContext, GrPaint::Clone(args.fPaint),
                           *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix, devClipBounds,
