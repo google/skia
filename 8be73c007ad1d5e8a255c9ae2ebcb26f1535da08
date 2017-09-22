@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8212f97_ece301bd",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T15:13:18Z",
+      "side": 1,
+      "message": "to -\u003e too ?",
+      "revId": "8be73c007ad1d5e8a255c9ae2ebcb26f1535da08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
