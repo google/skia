@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "929f4765_9a80605b",
+        "filename": "experimental/gmrunner/build.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-09-22T19:36:42Z",
+      "side": 1,
+      "message": "This is here temporarily and to illustrate how this is built. \nThis should probably be included in the app gradle file.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 1
+      },
+      "revId": "35dc2ab4af7873efb8e8e1abfd5cc4e88ef515e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "022912fb_390d05c5",
+        "filename": "experimental/gmrunner/gmrunner.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-09-22T19:36:42Z",
+      "side": 1,
+      "message": "These values are most likely wrong. Any suggestions are greatly appreciated. \nIt would also be helpful to have a switch that allows to turn workarounds for driver \nbugs on/off.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 1
+      },
+      "revId": "35dc2ab4af7873efb8e8e1abfd5cc4e88ef515e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f26816e_9c4c5791",
+        "filename": "experimental/gmrunner/gmrunner.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-09-22T19:36:42Z",
+      "side": 1,
+      "message": "The output image is expected to be unpremultiplied ARGB. I am pretty certain this is wrong, please point me the best way todo this conversion.",
+      "range": {
+        "startLine": 89,
+        "startChar": 2,
+        "endLine": 89,
+        "endChar": 6
+      },
+      "revId": "35dc2ab4af7873efb8e8e1abfd5cc4e88ef515e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
