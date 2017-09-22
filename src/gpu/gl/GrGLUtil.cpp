@@ -273,6 +273,12 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
     return kOther_GrGLVendor;
 }
 
+static bool is_renderer_angle(const char* rendererString) {
+    static constexpr char kHeader[] = "ANGLE ";
+    static constexpr size_t kHeaderLength = SK_ARRAY_COUNT(kHeader) - 1;
+    return 0 == strncmp(rendererString, kHeader, kHeaderLength);
+}
+
 GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
     if (rendererString) {
         if (0 == strcmp(rendererString, "NVIDIA Tegra 3")) {
@@ -340,12 +346,34 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
         if (0 == strncmp(rendererString, kMaliTStr, SK_ARRAY_COUNT(kMaliTStr) - 1)) {
             return kMaliT_GrGLRenderer;
         }
-        static const char kANGLEStr[] = "ANGLE";
-        if (0 == strncmp(rendererString, kANGLEStr, SK_ARRAY_COUNT(kANGLEStr) - 1)) {
+        if (is_renderer_angle(rendererString)) {
             return kANGLE_GrGLRenderer;
         }
     }
     return kOther_GrGLRenderer;
+}
+
+void GrGLGetANGLEInfoFromString(const char* rendererString, GrGLANGLEBackend* backend,
+                                GrGLANGLEVendor* vendor, GrGLANGLERenderer* renderer) {
+    *backend = GrGLANGLEBackend::kUnknown;
+    *vendor = GrGLANGLEVendor::kUnknown;
+    *renderer = GrGLANGLERenderer::kUnknown;
+    if (!is_renderer_angle(rendererString)) {
+        return;
+    }
+    if (strstr(rendererString, "Intel")) {
+        *vendor = GrGLANGLEVendor::kIntel;
+    }
+    if (strstr(rendererString, "HD Graphics 4000") || strstr(rendererString, "HD Graphics 2500")) {
+        *renderer = GrGLANGLERenderer::kIvyBridge;
+    }
+    if (strstr(rendererString, "Direct3D11")) {
+        *backend = GrGLANGLEBackend::kD3D11;
+    } else if (strstr(rendererString, "Direct3D9")) {
+        *backend = GrGLANGLEBackend::kD3D9;
+    } else if (strstr(rendererString, "OpenGL")) {
+        *backend = GrGLANGLEBackend::kOpenGL;
+    }
 }
 
 GrGLVersion GrGLGetVersion(const GrGLInterface* gl) {
