@@ -26,14 +26,29 @@ struct GrDrawOpAtlasConfig {
 };
 
 /**
- * This class manages an atlas texture on behalf of GrDrawOps. The draw ops that use the atlas
- * perform texture uploads when preparing their draws during flush. The class provides facilities
- * for using GrDrawOpUploadToken to detect data hazards. Op's uploads are performed in "asap" mode
- * until it is impossible to add data without overwriting texels read by draws that have not yet
- * executed on the gpu. At that point the uploads are performed "inline" between draws. If a single
- * draw would use enough subimage space to overflow the atlas texture then the atlas will fail to
- * add a subimage. This gives the op the chance to end the draw and begin a new one. Additional
- * uploads will then succeed in inline mode.
+ * This class manages one or more atlas textures on behalf of GrDrawOps. The draw ops that use the
+ * atlas perform texture uploads when preparing their draws during flush. The class provides
+ * facilities for using GrDrawOpUploadToken to detect data hazards. Op's uploads are performed in
+ * "asap" mode until it is impossible to add data without overwriting texels read by draws that
+ * have not yet executed on the gpu. At that point, the atlas will attempt to allocate a new
+ * atlas texture (or "page") of the same size, up to a maximum number of textures, and upload
+ * to that texture. If that's not possible, the uploads are performed "inline" between draws. If a
+ * single draw would use enough subimage space to overflow the atlas texture then the atlas will
+ * fail to add a subimage. This gives the op the chance to end the draw and begin a new one.
+ * Additional uploads will then succeed in inline mode.
+ *
+ * When the atlas has multiple pages, new uploads are prioritized to the lower index pages, i.e.,
+ * it will try to upload to page 0 before page 1 or 2. To keep the atlas from continually using
+ * excess space, periodic garbage collection is needed to shift data from the higher index pages to
+ * the lower ones, and then eventually remove any pages that are no longer in use. "In use" is
+ * determined by using the GrDrawUploadToken system: After a flush each subarea of the page
+ * is checked to see whether it was used in that flush; if it is not, a counter is incremented.
+ * Once that counter reaches a threshold that subarea is considered to be no longer in use.
+ *
+ * Garbage collection is initiated by the GrDrawOpAtlas's client via the compact() method. One
+ * solution is to make the client a subclass of GrOnFlushCallbackObject, register it with the
+ * GrContext via addOnFlushCallbackObject(), and the client's postFlush() method calls compact()
+ * and passes in the given GrDrawUploadToken.
  */
 class GrDrawOpAtlas {
 public:
@@ -186,6 +201,8 @@ public:
         }
     }
 
+    void compact(GrDrawOpUploadToken startTokenForNextFlush);
+
     static constexpr auto kGlyphMaxDim = 256;
     static bool GlyphTooLargeForAtlas(int width, int height) {
         return width > kGlyphMaxDim || height > kGlyphMaxDim;
@@ -240,6 +257,10 @@ private:
         void uploadToTexture(GrDrawOp::WritePixelsFn&, GrTextureProxy*);
         void resetRects();
 
+        int flushesSinceLastUsed() { return fFlushesSinceLastUse; }
+        void resetFlushesSinceLastUsed() { fFlushesSinceLastUse = 0; }
+        void incFlushesSinceLastUsed() { fFlushesSinceLastUse++; }
+
     private:
         Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY, int width, int height,
              GrPixelConfig config);
@@ -265,6 +286,8 @@ private:
 
         GrDrawOpUploadToken   fLastUpload;
         GrDrawOpUploadToken   fLastUse;
+        // the number of flushes since this plot has been last used
+        int                   fFlushesSinceLastUse;
 
         struct {
             const uint32_t fPageIndex : 16;
@@ -310,10 +333,12 @@ private:
         fPages[pageIdx].fPlotList.remove(plot);
         fPages[pageIdx].fPlotList.addToHead(plot);
 
-        // TODO: make page MRU
+        // No MRU update for pages -- since we will always try to add from
+        // the front and remove from the back there is no need for MRU.
     }
 
     bool createNewPage();
+    void deleteLastPage();
 
     inline void processEviction(AtlasID);
 
@@ -326,6 +351,8 @@ private:
     SkDEBUGCODE(uint32_t  fNumPlots;)
 
     uint64_t              fAtlasGeneration;
+    // nextTokenToFlush() value at the end of the previous flush
+    GrDrawOpUploadToken   fPrevFlushToken;
 
     struct EvictionData {
         EvictionFunc fFunc;

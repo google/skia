@@ -36,6 +36,7 @@ GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, uint64_t genID, int offX
                           int width, int height, GrPixelConfig config)
         : fLastUpload(GrDrawOpUploadToken::AlreadyFlushedToken())
         , fLastUse(GrDrawOpUploadToken::AlreadyFlushedToken())
+        , fFlushesSinceLastUse(0)
         , fPageIndex(pageIndex)
         , fPlotIndex(plotIndex)
         , fGenID(genID)
@@ -147,6 +148,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width
         , fTextureWidth(width)
         , fTextureHeight(height)
         , fAtlasGeneration(kInvalidAtlasGeneration + 1)
+        , fPrevFlushToken(GrDrawOpUploadToken::AlreadyFlushedToken())
         , fNumPages(0) {
 
     fPlotWidth = fTextureWidth / numPlotsX;
@@ -308,6 +310,84 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     return true;
 }
 
+void GrDrawOpAtlas::compact(GrDrawOpUploadToken startTokenForNextFlush) {
+    // Number of atlas-related flushes beyond which we consider a plot to no longer be in use.
+    //
+    // This value is somewhat arbitrary -- the idea is to keep it low enough that
+    // a page with unused plots will get removed reasonably quickly, but allow it
+    // to hang around for a bit in case it's needed. The assumption is that flushes
+    // are rare; i.e., we are not continually refreshing the frame.
+    static constexpr auto kRecentlyUsedCount = 8;
+
+    if (fNumPages <= 1) {
+        fPrevFlushToken = startTokenForNextFlush;
+        return;
+    }
+
+    // For all plots, update number of flushes since used, and check to see if there
+    // are any in the first pages that the last page can safely upload to.
+    PlotList::Iter plotIter;
+    int availablePlots = 0;
+    uint32_t lastPageIndex = fNumPages-1;
+    bool atlasUsedThisFlush = false;
+    for (uint32_t pageIndex = 0; pageIndex < fNumPages; ++pageIndex) {
+        plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
+        while (Plot* plot = plotIter.get()) {
+            // Update number of flushes since plot was last used
+            if (plot->lastUseToken().inInterval(fPrevFlushToken, startTokenForNextFlush)) {
+                plot->resetFlushesSinceLastUsed();
+                atlasUsedThisFlush = true;
+            } else {
+                plot->incFlushesSinceLastUsed();
+            }
+
+            // Count plots we can potentially upload to in all pages except the last one
+            // (the potential compactee).
+            if (pageIndex < lastPageIndex && plot->flushesSinceLastUsed() > kRecentlyUsedCount) {
+                ++availablePlots;
+            }
+
+            plotIter.next();
+        }
+    }
+
+    // We only try to compact if the atlas was used in the recently completed flush.
+    // TODO: consider if we should also do this if it's been a long time since the last atlas use
+    if (atlasUsedThisFlush) {
+        // Count recently used plots in the last page and evict them if there's available space
+        // in earlier pages. Since we prioritize uploading to the first pages, this will eventually
+        // clear out usage of this page unless we have a large need.
+        plotIter.init(fPages[lastPageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
+        int usedPlots = 0;
+        while (Plot* plot = plotIter.get()) {
+            // If this plot was used recently
+            if (plot->flushesSinceLastUsed() <= kRecentlyUsedCount) {
+                usedPlots++;
+                // see if there's room in an earlier page and if so evict.
+                // We need to be somewhat harsh here so that one plot that is consistently in use
+                // doesn't end up locking the page in memory.
+                if (availablePlots) {
+                    this->processEviction(plot->id());
+                    plot->resetRects();
+                    --availablePlots;
+                }
+            } else {
+                // otherwise if aged out just evict it.
+                this->processEviction(plot->id());
+                plot->resetRects();
+            }
+            plotIter.next();
+        }
+
+        // If none of the plots in the last page have been used recently, delete it.
+        if (!usedPlots) {
+            this->deleteLastPage();
+        }
+    }
+
+    fPrevFlushToken = startTokenForNextFlush;
+}
+
 bool GrDrawOpAtlas::createNewPage() {
     if (fNumPages == kMaxPages) {
         return false;
@@ -359,4 +439,14 @@ bool GrDrawOpAtlas::createNewPage() {
 
     fNumPages++;
     return true;
+}
+
+inline void GrDrawOpAtlas::deleteLastPage() {
+    uint32_t lastPageIndex = fNumPages - 1;
+    // clean out the plots
+    fPages[lastPageIndex].fPlotList.reset();
+    fPages[lastPageIndex].fPlotArray.reset(nullptr);
+    // remove ref to texture proxy
+    fProxies[lastPageIndex].reset(nullptr);
+    --fNumPages;
 }
