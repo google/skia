@@ -45,6 +45,210 @@
       "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad517caf_b366c58d",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T15:45:06Z",
+      "side": 1,
+      "message": "??",
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "359c592b_284c04fe",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T15:45:06Z",
+      "side": 1,
+      "message": "Update the count of the number of flushes since each plot was used.",
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00012bde_7c65989d",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T15:45:06Z",
+      "side": 1,
+      "message": "Do we even need to store the fPrevFlushToken? Could we pass in the equivalent of -1 ?",
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4e12812_54696acc",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T15:45:06Z",
+      "side": 1,
+      "message": "// We need to be a bit harsh here so that one plot that is consistently used doesn\u0027t end up locking the page in memory.\n\n?",
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32fb15ef_0773eddc",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T15:45:06Z",
+      "side": 1,
+      "message": "Maybe make a deletePage method and plunk it next to createNewPage ?",
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91102983_3f843309",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T15:45:06Z",
+      "side": 1,
+      "message": "Maybe fFlushesSinceLastUse ?",
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df07d140_b11274ac",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T15:45:06Z",
+      "side": 1,
+      "message": "// This is because we will always try to add from the front and remove from the back to there is no need for MRU.\n\n?",
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3600531f_387c2b74",
+        "filename": "src/gpu/GrOnFlushResourceProvider.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T15:45:06Z",
+      "side": 1,
+      "message": "class GrDrawOpUploadToken; ?",
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59d2200a_6d04520f",
+        "filename": "src/gpu/GrOnFlushResourceProvider.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T15:45:06Z",
+      "side": 1,
+      "message": "Explain nextTokenToFlush here ?\n\nCould it have a better name: currentMaxToken, prevFlushToken, lastTokenInPriorFlush ?",
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12bb3f4f_4a7743e2",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T15:45:06Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4cf3bdf_b1438dba",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T15:45:06Z",
+      "side": 1,
+      "message": "Why the drawing manager ?",
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af1a940e_cbe42f26",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-22T15:45:06Z",
+      "side": 1,
+      "message": "Maybe have the block comment about the whole growing \u0026 shrinking system here?\nAlso explain why it is a GrOnFlushCallbackObject - i.e., it gets a chance to perform work immediately after a flush (via postFlush).",
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
