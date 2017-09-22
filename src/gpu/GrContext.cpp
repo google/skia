@@ -205,7 +205,6 @@ bool GrContext::init(const GrContextOptions& options) {
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions, &fSingleOwner));
 
     fAtlasGlyphCache = new GrAtlasGlyphCache(this, options.fGlyphCacheTextureMaximumBytes);
-    this->contextPriv().addOnFlushCallbackObject(fAtlasGlyphCache);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB, this));
 

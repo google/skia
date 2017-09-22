@@ -63,9 +63,7 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
         fChain.push_back(sk_make_sp<GrAALinearizingConvexPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
-        auto spr = sk_make_sp<GrSmallPathRenderer>();
-        context->contextPriv().addOnFlushCallbackObject(spr.get());
-        fChain.push_back(spr);
+        fChain.push_back(sk_make_sp<GrSmallPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTessellating) {
         fChain.push_back(sk_make_sp<GrTessellatingPathRenderer>());
