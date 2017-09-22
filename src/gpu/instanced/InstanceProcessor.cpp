@@ -43,13 +43,13 @@ GrCaps::InstancedSupport InstanceProcessor::CheckSupport(const GrShaderCaps& sha
 InstanceProcessor::InstanceProcessor(OpInfo opInfo, GrBuffer* paramsBuffer) : fOpInfo(opInfo) {
     this->initClassID<InstanceProcessor>();
 
-    this->addVertexAttrib("shapeCoords", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
+    this->addVertexAttrib("shapeCoords", kFloat2_GrVertexAttribType);
     this->addVertexAttrib("vertexAttrs", kInt_GrVertexAttribType);
     this->addVertexAttrib("instanceInfo", kUint_GrVertexAttribType);
-    this->addVertexAttrib("shapeMatrixX", kVec3f_GrVertexAttribType, kHigh_GrSLPrecision);
-    this->addVertexAttrib("shapeMatrixY", kVec3f_GrVertexAttribType, kHigh_GrSLPrecision);
-    this->addVertexAttrib("color", kVec4f_GrVertexAttribType, kLow_GrSLPrecision);
-    this->addVertexAttrib("localRect", kVec4f_GrVertexAttribType, kHigh_GrSLPrecision);
+    this->addVertexAttrib("shapeMatrixX", kFloat3_GrVertexAttribType);
+    this->addVertexAttrib("shapeMatrixY", kFloat3_GrVertexAttribType);
+    this->addVertexAttrib("color", kHalf4_GrVertexAttribType);
+    this->addVertexAttrib("localRect", kFloat4_GrVertexAttribType);
 
     GR_STATIC_ASSERT(0 == (int)Attrib::kShapeCoords);
     GR_STATIC_ASSERT(1 == (int)Attrib::kVertexAttrs);
