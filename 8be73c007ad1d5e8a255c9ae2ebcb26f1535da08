@@ -16,6 +16,24 @@
       "revId": "8be73c007ad1d5e8a255c9ae2ebcb26f1535da08",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59b27c64_3cf7b0da",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-22T15:34:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8212f97_ece301bd",
+      "revId": "8be73c007ad1d5e8a255c9ae2ebcb26f1535da08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
