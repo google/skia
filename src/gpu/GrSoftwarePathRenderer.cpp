@@ -175,7 +175,7 @@ static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context
 namespace {
 
 /**
- * Payload class for use with GrMaskUploaderPrepareCallback. The software path renderer only draws
+ * Payload class for use with GrTDeferredProxyUploader. The software path renderer only draws
  * a single path into the mask texture. This stores all of the information needed by the worker
  * thread's call to drawShape (see below, in onDrawPath).
  */
@@ -305,9 +305,9 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                 return false;
             }
 
-            auto uploader = skstd::make_unique<GrMaskUploaderPrepareCallback<SoftwarePathData>>(
-                    proxy, *boundsForMask, *args.fViewMatrix, *args.fShape, aa);
-            GrMaskUploaderPrepareCallback<SoftwarePathData>* uploaderRaw = uploader.get();
+            auto uploader = skstd::make_unique<GrTDeferredProxyUploader<SoftwarePathData>>(
+                    *boundsForMask, *args.fViewMatrix, *args.fShape, aa);
+            GrTDeferredProxyUploader<SoftwarePathData>* uploaderRaw = uploader.get();
 
             auto drawAndUploadMask = [uploaderRaw] {
                 TRACE_EVENT0("skia", "Threaded SW Mask Render");
@@ -322,7 +322,8 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                 uploaderRaw->getSemaphore()->signal();
             };
             taskGroup->add(std::move(drawAndUploadMask));
-            args.fRenderTargetContext->getOpList()->addPrepareCallback(std::move(uploader));
+            proxy->setDeferredUploader(std::move(uploader));
+            args.fRenderTargetContext->getOpList()->addDeferredProxy(proxy.get());
         } else {
             GrSWMaskHelper helper;
             if (!helper.init(*boundsForMask)) {
@@ -340,6 +341,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             fResourceProvider->assignUniqueKeyToProxy(maskKey, proxy.get());
         }
     }
+    // TODO: Need to addDeferredProxy for cache hit here
     if (inverseFilled) {
         DrawAroundInvPath(args.fRenderTargetContext, GrPaint::Clone(args.fPaint),
                           *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix, devClipBounds,

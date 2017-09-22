@@ -56,18 +56,23 @@ void GrOpList::reset() {
         fTarget.get()->setLastOpList(nullptr);
     }
 
+    // It's now safe for any deferred proxies to free their "uploader" objects
+    for (auto proxy : fDeferredProxies) {
+        proxy->resetDeferredUploader();
+    }
+    fDeferredProxies.reset();
+
     fTarget.reset();
-    fPrepareCallbacks.reset();
     fAuditTrail = nullptr;
 }
 
-void GrOpList::addPrepareCallback(std::unique_ptr<GrPrepareCallback> callback) {
-    fPrepareCallbacks.push_back(std::move(callback));
+void GrOpList::addDeferredProxy(GrTextureProxy* proxy) {
+    fDeferredProxies.push_back(proxy);
 }
 
 void GrOpList::prepare(GrOpFlushState* flushState) {
-    for (int i = 0; i < fPrepareCallbacks.count(); ++i) {
-        (*fPrepareCallbacks[i])(flushState);
+    for (auto proxy : fDeferredProxies) {
+        proxy->prepareUpload(flushState);
     }
 
     this->onPrepare(flushState);
