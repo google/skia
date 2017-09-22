@@ -98,7 +98,7 @@ func internalHardwareLabel(parts map[string]string) *int {
 // instances.
 func linuxGceDimensions() []string {
 	return []string{
-		"cpu:x86-64-avx2",
+		"cpu:x86-64-Haswell_GCE",
 		"gpu:none",
 		fmt.Sprintf("os:%s", DEFAULT_OS_DEBIAN),
 		fmt.Sprintf("pool:%s", CONFIG.Pool),
@@ -248,23 +248,14 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		} else if parts["cpu_or_gpu"] == "CPU" {
 			d["gpu"] = "none"
 			cpu, ok := map[string]string{
-				"AVX":  "x86-64",
-				"AVX2": "x86-64-avx2",
-				"SSE4": "x86-64",
+				"E5_2670":     "x86-64-E5-2670",
+				"E5_2697_v2":  "x86-64-E5-2697_v2",
+				"Haswell_GCE": "x86-64-Haswell_GCE",
 			}[parts["cpu_or_gpu_value"]]
 			if !ok {
 				glog.Fatalf("Entry %q not found in CPU mapping.", parts["cpu_or_gpu_value"])
 			}
 			d["cpu"] = cpu
-			if strings.Contains(parts["os"], "Win") && parts["cpu_or_gpu_value"] == "AVX2" {
-				// AVX2 is not correctly detected on Windows. Fall back on other
-				// dimensions to ensure that we correctly target machines which we know
-				// have AVX2 support.
-				d["cpu"] = "x86-64"
-				if parts["model"] != "GCE" {
-					glog.Fatalf("Please double-check that %q supports AVX2 and update this assertion.", parts["model"])
-				}
-			}
 		} else {
 			if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
@@ -338,11 +329,17 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				glog.Fatalf("Unknown GPU mapping for OS %q.", parts["os"])
 			}
 		}
-	} else {
+	} else if parts["role"] == "Build" {
 		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_DEBIAN {
 			return linuxGceDimensions()
+		} else if parts["os"] == "Mac" {
+			d["cpu"] = "x86-64-E5-2697_v2"
+		} else if parts["os"] == "Win" {
+			d["cpu"] = "x86-64-Haswell_GCE"
 		}
+	} else {
+		glog.Fatalf("No dimension mapping for role %q.", parts["role"])
 	}
 
 	rv := make([]string, 0, len(d))
