@@ -3,11 +3,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\skp\\VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -17,12 +17,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
       "42",
-      "[START_DIR]/tmp/SKP_VERSION"
+      "[START_DIR]\\tmp\\SKP_VERSION"
     ],
     "infra_step": true,
     "name": "write SKP_VERSION"
@@ -31,11 +31,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\skimage\\VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -45,12 +45,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
       "42",
-      "[START_DIR]/tmp/SK_IMAGE_VERSION"
+      "[START_DIR]\\tmp\\SK_IMAGE_VERSION"
     ],
     "infra_step": true,
     "name": "write SK_IMAGE_VERSION"
@@ -59,11 +59,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
+      "[START_DIR]\\skia\\infra\\bots\\assets\\svg\\VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -73,12 +73,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
       "42",
-      "[START_DIR]/tmp/SVG_VERSION"
+      "[START_DIR]\\tmp\\SVG_VERSION"
     ],
     "infra_step": true,
     "name": "write SVG_VERSION"
@@ -87,11 +87,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release\\data"
     ],
     "infra_step": true,
     "name": "rmtree data"
@@ -100,13 +100,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release\\data"
     ],
     "infra_step": true,
     "name": "makedirs data"
@@ -141,20 +141,15 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
-      "[START_DIR]",
-      "catchsegv",
-      "[START_DIR]/out/Release/nanobench",
+      "[START_DIR]\\out\\Release_x64\\nanobench",
       "-i",
-      "[START_DIR]/skia/resources",
+      "[START_DIR]\\skia\\resources",
       "--skps",
-      "[START_DIR]/skp",
+      "[START_DIR]\\skp",
       "--images",
-      "[START_DIR]/skimage/nanobench",
+      "[START_DIR]\\skimage\\nanobench",
       "--svgs",
-      "[START_DIR]/svg",
+      "[START_DIR]\\svg",
       "--pre_log",
       "--scales",
       "1.0",
@@ -187,7 +182,7 @@
       "~inc0.webp",
       "~inc1.webp",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release/data/nanobench_abc123_1337000001.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release\\data\\nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -199,36 +194,35 @@
       "arch",
       "x86_64",
       "compiler",
-      "Clang",
+      "MSVC",
       "cpu_or_gpu",
       "CPU",
       "cpu_or_gpu_value",
-      "AVX2",
+      "Haswell_GCE",
       "model",
       "GCE",
       "os",
-      "Ubuntu"
+      "Win2k8"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]\\out"
     },
-    "name": "symbolized nanobench"
+    "name": "nanobench"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release\\data"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
