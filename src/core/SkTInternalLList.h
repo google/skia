@@ -45,6 +45,11 @@ public:
         , fTail(nullptr) {
     }
 
+    void reset() {
+        fHead = nullptr;
+        fTail = nullptr;
+    }
+
     void remove(T* entry) {
         SkASSERT(fHead && fTail);
         SkASSERT(this->isInList(entry));
