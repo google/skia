@@ -30,6 +30,9 @@ public:
     GrGLSLGeneration glslGeneration() const { return fGLSLGeneration; }
     GrGLVendor vendor() const { return fVendor; }
     GrGLRenderer renderer() const { return fRenderer; }
+    GrGLANGLEBackend angleBackend() const { return fANGLEBackend; }
+    GrGLANGLEVendor angleVendor() const { return fANGLEVendor; }
+    GrGLANGLERenderer angleRenderer() const { return fANGLERenderer; }
     /** What driver is running our GL implementation? This is not necessarily related to the vendor.
         (e.g. Intel GPU being driven by Mesa) */
     GrGLDriver driver() const { return fDriver; }
@@ -53,6 +56,9 @@ protected:
         GrGLRenderer                        fRenderer;
         GrGLDriver                          fDriver;
         GrGLDriverVersion                   fDriverVersion;
+        GrGLANGLEBackend                    fANGLEBackend;
+        GrGLANGLEVendor                     fANGLEVendor;
+        GrGLANGLERenderer                   fANGLERenderer;
         const  GrContextOptions*            fContextOptions;
     };
 
@@ -65,6 +71,9 @@ protected:
     GrGLRenderer               fRenderer;
     GrGLDriver                 fDriver;
     GrGLDriverVersion          fDriverVersion;
+    GrGLANGLEBackend           fANGLEBackend;
+    GrGLANGLEVendor            fANGLEVendor;
+    GrGLANGLERenderer          fANGLERenderer;
     sk_sp<GrGLCaps>            fGLCaps;
 };
 
