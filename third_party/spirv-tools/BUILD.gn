@@ -148,7 +148,7 @@ action("spirv_build_version") {
     "../externals/spirv-tools/CHANGES",
   ]
   outputs = [
-    "$root_out_dir/spirv-tools/build.inc",
+    "$root_out_dir/spirv-tools/build-version.inc",
   ]
   args = [
     rebase_path("../externals/spirv-tools", root_build_dir),
