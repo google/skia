@@ -80,13 +80,14 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android',
   'Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release',
-  'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN',
-  'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-MSAN',
-  'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow',
-  'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs',
-  'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release',
-  ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-'
-   'Valgrind_AbandonGpuContext'),
+  'Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-MSAN',
+  'Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-ASAN',
+  ('Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release'
+   '-UBSAN_float_cast_overflow'),
+  'Perf-Ubuntu14-GCC-GCE-CPU-Sandy_Bridge_GCE-x86_64-Release-CT_BENCH_1k_SKPs',
+  'Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release',
+  ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
+   '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug',
   'Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug',
 ]
@@ -112,7 +113,7 @@ def GenTests(api):
           stdout=api.raw_io.output('192.168.1.2:5555'))
     yield test
 
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release'
+  builder = 'Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release'
   yield (
       api.test('exceptions') +
       api.properties(buildername=builder,
