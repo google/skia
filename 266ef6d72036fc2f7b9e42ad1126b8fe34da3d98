@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b49e09e3_9ea498e4",
+        "filename": "src/gpu/effects/GrBezierEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-22T22:17:24Z",
+      "side": 0,
+      "message": "Seems this should be float, but looks like it was mediump previously. But who knows? Now it\u0027s obvious it\u0027s a half!",
+      "range": {
+        "startLine": 246,
+        "startChar": 61,
+        "endLine": 246,
+        "endChar": 86
+      },
+      "revId": "266ef6d72036fc2f7b9e42ad1126b8fe34da3d98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "452172a1_2b34f66c",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-22T22:17:24Z",
+      "side": 0,
+      "message": "\"highp unsigned short\"... Loving this change.",
+      "range": {
+        "startLine": 254,
+        "startChar": 46,
+        "endLine": 254,
+        "endChar": 65
+      },
+      "revId": "266ef6d72036fc2f7b9e42ad1126b8fe34da3d98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5605ed86_9f30106d",
+        "filename": "src/gpu/ccpr/GrCCPRPathProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-22T22:17:24Z",
+      "side": 1,
+      "message": "Yay!",
+      "revId": "49513a792f83f8b370040cb1c5615e1b14a0058f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8bc71bd8_26ac7d63",
+        "filename": "src/gpu/gl/GrGLVertexArray.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-22T22:17:24Z",
+      "side": 1,
+      "message": "We should name this kUByte_norm_GrVertexAttribType To communicate the fact that it will be reinterpreted as a 0..1 float.",
+      "range": {
+        "startLine": 44,
+        "startChar": 13,
+        "endLine": 44,
+        "endChar": 38
+      },
+      "revId": "49513a792f83f8b370040cb1c5615e1b14a0058f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c08a5e76_0a4a2c5d",
+        "filename": "src/gpu/gl/GrGLVertexArray.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-22T22:17:24Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 46,
+        "startChar": 13,
+        "endLine": 46,
+        "endChar": 39
+      },
+      "revId": "49513a792f83f8b370040cb1c5615e1b14a0058f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9640900c_6b3e6751",
+        "filename": "src/gpu/gl/GrGLVertexArray.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-22T22:17:24Z",
+      "side": 1,
+      "message": "Why do we check shaderCaps-\u003eintegerSupport() here but not for regular ints? :-\\ Obviously you didn\u0027t do this with your change but we should fix it eventually. This should just return true. If the caller wants to use shorts it\u0027s on them to check the caps.",
+      "range": {
+        "startLine": 93,
+        "startChar": 19,
+        "endLine": 93,
+        "endChar": 45
+      },
+      "revId": "49513a792f83f8b370040cb1c5615e1b14a0058f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25a7d1c3_0f261e16",
+        "filename": "src/gpu/ops/GrDashOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-22T22:17:24Z",
+      "side": 1,
+      "message": "Looks like you fixed a bug here.",
+      "range": {
+        "startLine": 986,
+        "startChar": 55,
+        "endLine": 986,
+        "endChar": 81
+      },
+      "revId": "49513a792f83f8b370040cb1c5615e1b14a0058f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7d717cf7_90af0407",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-22T22:17:24Z",
+      "side": 1,
+      "message": "Half?",
+      "revId": "49513a792f83f8b370040cb1c5615e1b14a0058f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
