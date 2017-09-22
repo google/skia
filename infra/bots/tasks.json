@@ -878,82 +878,82 @@
         "Upload-Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release"
       ]
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug"
+        "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug"
       ]
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-ASAN": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN"
+        "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-ASAN"
       ]
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-MSAN": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN"
+        "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-MSAN"
       ]
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-UBSAN_float_cast_overflow": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow"
+        "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-UBSAN_float_cast_overflow"
       ]
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Upload-Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release"
       ]
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-ASAN": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN"
+        "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-ASAN"
       ]
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast"
+        "Upload-Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast"
       ]
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER"
+        "Upload-Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER"
       ]
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-UBSAN_float_cast_overflow": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow"
+        "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-UBSAN_float_cast_overflow"
       ]
     },
-    "Perf-Debian9-GCC-GCE-CPU-AVX2-x86-Debug": {
+    "Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Debian9-GCC-GCE-CPU-AVX2-x86-Debug"
+        "Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86-Debug"
       ]
     },
-    "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug"
+        "Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug"
       ]
     },
-    "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
+    "Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
+        "Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
       ]
     },
-    "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release": {
+    "Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release"
+        "Upload-Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release"
       ]
     },
     "Perf-Debian9-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
@@ -980,16 +980,16 @@
         "Upload-Perf-Debian9-GCC-ShuttleA-GPU-GTX960-x86_64-Release"
       ]
     },
-    "Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug": {
+    "Perf-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug"
+        "Perf-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Debug"
       ]
     },
-    "Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release": {
+    "Perf-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release"
+        "Upload-Perf-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release"
       ]
     },
     "Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug": {
@@ -1011,10 +1011,10 @@
       ],
       "trigger": "master"
     },
-    "Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs": {
+    "Perf-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Release-CT_BENCH_1k_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs"
+        "Perf-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Release-CT_BENCH_1k_SKPs"
       ]
     },
     "Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs": {
@@ -1461,88 +1461,88 @@
         "Upload-Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan"
       ]
     },
-    "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Perf-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug"
+        "Perf-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug"
       ]
     },
-    "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Perf-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Upload-Perf-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release"
       ]
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug": {
+    "Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug"
+        "Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Debug"
       ]
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug"
+        "Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug"
       ]
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI": {
+    "Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug-GDI": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI"
+        "Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug-GDI"
       ]
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
+    "Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release"
+        "Upload-Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release"
       ]
     },
-    "Perf-Win7-MSVC-Golo-CPU-AVX-x86-Debug": {
+    "Perf-Win7-MSVC-Golo-CPU-E5_2670-x86-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win7-MSVC-Golo-CPU-AVX-x86-Debug"
+        "Perf-Win7-MSVC-Golo-CPU-E5_2670-x86-Debug"
       ]
     },
-    "Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug": {
+    "Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug"
+        "Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug"
       ]
     },
-    "Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI": {
+    "Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI"
+        "Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI"
       ]
     },
-    "Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Release": {
+    "Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Release"
+        "Upload-Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release"
       ]
     },
-    "Perf-Win8-MSVC-Golo-CPU-AVX-x86-Debug": {
+    "Perf-Win8-MSVC-Golo-CPU-E5_2670-x86-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win8-MSVC-Golo-CPU-AVX-x86-Debug"
+        "Perf-Win8-MSVC-Golo-CPU-E5_2670-x86-Debug"
       ]
     },
-    "Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug": {
+    "Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug"
+        "Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug"
       ]
     },
-    "Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI": {
+    "Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI"
+        "Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI"
       ]
     },
-    "Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Release": {
+    "Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Release"
+        "Upload-Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release"
       ]
     },
     "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug": {
@@ -1905,106 +1905,106 @@
         "Upload-Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug"
+        "Upload-Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-ASAN": {
       "priority": 0.8,
       "tasks": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN"
+        "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-ASAN"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-MSAN": {
       "priority": 0.8,
       "tasks": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN"
+        "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-MSAN"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-UBSAN_float_cast_overflow": {
       "priority": 0.8,
       "tasks": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow"
+        "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-UBSAN_float_cast_overflow"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Upload-Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-ASAN": {
       "priority": 0.8,
       "tasks": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN"
+        "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-ASAN"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast"
+        "Upload-Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE2": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2"
+        "Upload-Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE2"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE41": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41"
+        "Upload-Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE41"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER"
+        "Upload-Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-TSAN": {
       "priority": 0.8,
       "tasks": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN"
+        "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-TSAN"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-UBSAN_float_cast_overflow": {
       "priority": 0.8,
       "tasks": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow"
+        "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-UBSAN_float_cast_overflow"
       ]
     },
-    "Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug": {
+    "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug"
+        "Upload-Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86-Debug"
       ]
     },
-    "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug"
+        "Upload-Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug"
       ]
     },
-    "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
+    "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
+        "Upload-Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
       ]
     },
-    "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release": {
+    "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release"
+        "Upload-Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release"
       ]
     },
-    "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD": {
+    "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release-SKNX_NO_SIMD": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD"
+        "Upload-Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release-SKNX_NO_SIMD"
       ]
     },
     "Test-Debian9-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
@@ -2031,22 +2031,22 @@
         "Upload-Test-Debian9-GCC-ShuttleA-GPU-GTX960-x86_64-Release"
       ]
     },
-    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug": {
+    "Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug"
+        "Upload-Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Debug"
       ]
     },
-    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release": {
+    "Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release"
+        "Upload-Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release"
       ]
     },
-    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-TSAN": {
+    "Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release-TSAN": {
       "priority": 0.8,
       "tasks": [
-        "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-TSAN"
+        "Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release-TSAN"
       ]
     },
     "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug": {
@@ -2074,23 +2074,22 @@
         "Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-TSAN"
       ]
     },
-    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs": {
+    "Test-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Debug-CT_DM_100k_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs"
+        "Test-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Debug-CT_DM_100k_SKPs"
       ]
     },
-    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs": {
+    "Test-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Debug-CT_DM_1m_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs"
-      ],
-      "trigger": "weekly"
+        "Test-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Debug-CT_DM_1m_SKPs"
+      ]
     },
-    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs": {
+    "Test-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Debug-CT_IMG_DECODE_100k_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs"
+        "Test-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Debug-CT_IMG_DECODE_100k_SKPs"
       ]
     },
     "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug": {
@@ -2525,124 +2524,124 @@
         "Upload-Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-Vulkan"
       ]
     },
-    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug"
+        "Upload-Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug"
       ]
     },
-    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Upload-Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release"
       ]
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug": {
+    "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug"
+        "Upload-Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Debug"
       ]
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release": {
+    "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release"
+        "Upload-Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Release"
       ]
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug"
+        "Upload-Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug"
       ]
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI": {
+    "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug-GDI": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI"
+        "Upload-Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug-GDI"
       ]
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
+    "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release"
+        "Upload-Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release"
       ]
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI": {
+    "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release-GDI": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI"
+        "Upload-Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release-GDI"
       ]
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug": {
+    "Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug"
+        "Upload-Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Debug"
       ]
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release": {
+    "Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release"
+        "Upload-Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Release"
       ]
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug": {
+    "Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug"
+        "Upload-Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug"
       ]
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI": {
+    "Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI"
+        "Upload-Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI"
       ]
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release": {
+    "Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release"
+        "Upload-Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release"
       ]
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release-GDI": {
+    "Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release-GDI"
+        "Upload-Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI"
       ]
     },
-    "Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug": {
+    "Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug"
+        "Upload-Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Debug"
       ]
     },
-    "Test-Win8-MSVC-Golo-CPU-AVX-x86-Release": {
+    "Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win8-MSVC-Golo-CPU-AVX-x86-Release"
+        "Upload-Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Release"
       ]
     },
-    "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug": {
+    "Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug"
+        "Upload-Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug"
       ]
     },
-    "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI": {
+    "Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI"
+        "Upload-Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI"
       ]
     },
-    "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release": {
+    "Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release"
+        "Upload-Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release"
       ]
     },
-    "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release-GDI": {
+    "Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release-GDI"
+        "Upload-Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI"
       ]
     },
     "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug": {
@@ -7031,7 +7030,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7054,7 +7053,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -7066,7 +7065,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7079,7 +7078,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-ASAN": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7107,7 +7106,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -7119,7 +7118,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN",
+        "buildername=Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7132,7 +7131,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-MSAN": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7160,7 +7159,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -7172,7 +7171,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN",
+        "buildername=Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-MSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7185,7 +7184,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-UBSAN_float_cast_overflow": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7213,7 +7212,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -7225,7 +7224,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow",
+        "buildername=Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-UBSAN_float_cast_overflow",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7238,7 +7237,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7261,7 +7260,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -7273,7 +7272,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7286,7 +7285,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-ASAN": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7314,7 +7313,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -7326,7 +7325,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN",
+        "buildername=Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7339,7 +7338,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7362,7 +7361,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -7374,7 +7373,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
+        "buildername=Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7387,7 +7386,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7410,7 +7409,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -7422,7 +7421,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER",
+        "buildername=Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7435,7 +7434,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow": {
+    "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-UBSAN_float_cast_overflow": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7463,7 +7462,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -7475,7 +7474,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow",
+        "buildername=Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-UBSAN_float_cast_overflow",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7488,7 +7487,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Debian9-GCC-GCE-CPU-AVX2-x86-Debug": {
+    "Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7511,7 +7510,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -7523,7 +7522,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-GCC-GCE-CPU-AVX2-x86-Debug",
+        "buildername=Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7536,7 +7535,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7559,7 +7558,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -7571,7 +7570,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7584,7 +7583,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
+    "Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7607,7 +7606,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -7619,7 +7618,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
+        "buildername=Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7632,7 +7631,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release": {
+    "Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7655,7 +7654,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -7667,7 +7666,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7868,7 +7867,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug": {
+    "Perf-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7891,7 +7890,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.12",
         "pool:Skia"
@@ -7903,7 +7902,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug",
+        "buildername=Perf-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7916,7 +7915,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release": {
+    "Perf-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -7939,7 +7938,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.12",
         "pool:Skia"
@@ -7951,7 +7950,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release",
+        "buildername=Perf-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -8105,7 +8104,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs": {
+    "Perf-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Release-CT_BENCH_1k_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
         "os:Debian-9.1"
@@ -8116,7 +8115,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs",
+        "buildername=Perf-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Release-CT_BENCH_1k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -11708,7 +11707,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Perf-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -11731,7 +11730,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -11743,7 +11742,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Perf-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -11756,7 +11755,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Perf-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -11779,7 +11778,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -11791,7 +11790,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Perf-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -11804,7 +11803,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug": {
+    "Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -11827,7 +11826,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -11839,7 +11838,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
+        "buildername=Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -11852,7 +11851,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -11875,7 +11874,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -11887,7 +11886,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -11900,7 +11899,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI": {
+    "Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug-GDI": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -11923,7 +11922,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -11935,7 +11934,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
+        "buildername=Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -11948,7 +11947,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
+    "Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -11971,7 +11970,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -11983,7 +11982,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -11996,7 +11995,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win7-MSVC-Golo-CPU-AVX-x86-Debug": {
+    "Perf-Win7-MSVC-Golo-CPU-E5_2670-x86-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12019,7 +12018,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
@@ -12031,7 +12030,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win7-MSVC-Golo-CPU-AVX-x86-Debug",
+        "buildername=Perf-Win7-MSVC-Golo-CPU-E5_2670-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12044,7 +12043,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug": {
+    "Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12067,7 +12066,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
@@ -12079,7 +12078,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug",
+        "buildername=Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12092,7 +12091,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI": {
+    "Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12115,7 +12114,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
@@ -12127,7 +12126,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI",
+        "buildername=Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12140,7 +12139,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Release": {
+    "Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12163,7 +12162,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
@@ -12175,7 +12174,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Release",
+        "buildername=Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12188,7 +12187,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win8-MSVC-Golo-CPU-AVX-x86-Debug": {
+    "Perf-Win8-MSVC-Golo-CPU-E5_2670-x86-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12211,7 +12210,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
@@ -12223,7 +12222,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win8-MSVC-Golo-CPU-AVX-x86-Debug",
+        "buildername=Perf-Win8-MSVC-Golo-CPU-E5_2670-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12236,7 +12235,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug": {
+    "Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12259,7 +12258,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
@@ -12271,7 +12270,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug",
+        "buildername=Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12284,7 +12283,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI": {
+    "Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12307,7 +12306,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
@@ -12319,7 +12318,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI",
+        "buildername=Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12332,7 +12331,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Release": {
+    "Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12355,7 +12354,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
@@ -12367,7 +12366,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Release",
+        "buildername=Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14396,7 +14395,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14419,7 +14418,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -14431,7 +14430,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14444,7 +14443,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-ASAN": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14472,7 +14471,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -14484,7 +14483,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14497,7 +14496,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-MSAN": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14525,7 +14524,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -14537,7 +14536,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-MSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14550,7 +14549,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-UBSAN_float_cast_overflow": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14578,7 +14577,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -14590,7 +14589,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug-UBSAN_float_cast_overflow",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14603,7 +14602,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14626,7 +14625,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -14638,7 +14637,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14651,7 +14650,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-ASAN": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14679,7 +14678,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -14691,7 +14690,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-ASAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14704,7 +14703,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14727,7 +14726,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -14739,7 +14738,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14752,7 +14751,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE2": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14775,7 +14774,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -14787,7 +14786,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE2",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14800,7 +14799,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE41": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14823,7 +14822,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -14835,7 +14834,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE41",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14848,7 +14847,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14871,7 +14870,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -14883,7 +14882,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14896,7 +14895,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-TSAN": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14924,7 +14923,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -14936,7 +14935,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-TSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14949,7 +14948,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow": {
+    "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-UBSAN_float_cast_overflow": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -14977,7 +14976,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -14989,7 +14988,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-UBSAN_float_cast_overflow",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15002,7 +15001,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug": {
+    "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -15025,7 +15024,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -15037,7 +15036,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug",
+        "buildername=Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15050,7 +15049,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -15073,7 +15072,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -15085,7 +15084,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15098,7 +15097,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
+    "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -15121,7 +15120,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -15133,7 +15132,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
+        "buildername=Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15146,7 +15145,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release": {
+    "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -15169,7 +15168,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -15181,7 +15180,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15194,7 +15193,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD": {
+    "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release-SKNX_NO_SIMD": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -15217,7 +15216,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
@@ -15229,7 +15228,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD",
+        "buildername=Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release-SKNX_NO_SIMD",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15430,7 +15429,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug": {
+    "Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -15453,7 +15452,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.12",
         "pool:Skia"
@@ -15465,7 +15464,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug",
+        "buildername=Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15478,7 +15477,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release": {
+    "Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -15501,7 +15500,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.12",
         "pool:Skia"
@@ -15513,7 +15512,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release",
+        "buildername=Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15526,7 +15525,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-TSAN": {
+    "Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release-TSAN": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -15549,7 +15548,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.12",
         "pool:Skia"
@@ -15561,7 +15560,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-TSAN",
+        "buildername=Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release-TSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15762,7 +15761,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs": {
+    "Test-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Debug-CT_DM_100k_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
         "os:Debian-9.1"
@@ -15773,7 +15772,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs",
+        "buildername=Test-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Debug-CT_DM_100k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15785,7 +15784,7 @@
       "isolate": "ct_skps_skia.isolate",
       "priority": 0.8
     },
-    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs": {
+    "Test-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Debug-CT_DM_1m_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
         "os:Debian-9.1"
@@ -15796,7 +15795,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs",
+        "buildername=Test-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Debug-CT_DM_1m_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15808,7 +15807,7 @@
       "isolate": "ct_skps_skia.isolate",
       "priority": 0.8
     },
-    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs": {
+    "Test-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Debug-CT_IMG_DECODE_100k_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
         "os:Debian-9.1"
@@ -15819,7 +15818,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs",
+        "buildername=Test-Ubuntu14-GCC-GCE-CPU-Any-x86_64-Debug-CT_IMG_DECODE_100k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19351,7 +19350,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19374,7 +19373,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -19386,7 +19385,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19399,7 +19398,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19422,7 +19421,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -19434,7 +19433,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19447,7 +19446,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug": {
+    "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19470,7 +19469,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -19482,7 +19481,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
+        "buildername=Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19495,7 +19494,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release": {
+    "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19518,7 +19517,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -19530,7 +19529,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release",
+        "buildername=Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19543,7 +19542,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19566,7 +19565,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -19578,7 +19577,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19591,7 +19590,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI": {
+    "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug-GDI": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19614,7 +19613,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -19626,7 +19625,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
+        "buildername=Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19639,7 +19638,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
+    "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19662,7 +19661,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -19674,7 +19673,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19687,7 +19686,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI": {
+    "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release-GDI": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19710,7 +19709,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
@@ -19722,7 +19721,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI",
+        "buildername=Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19735,7 +19734,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug": {
+    "Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19758,7 +19757,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
@@ -19770,7 +19769,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug",
+        "buildername=Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19783,7 +19782,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release": {
+    "Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19806,7 +19805,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
@@ -19818,7 +19817,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release",
+        "buildername=Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19831,7 +19830,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug": {
+    "Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19854,7 +19853,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
@@ -19866,7 +19865,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug",
+        "buildername=Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19879,7 +19878,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI": {
+    "Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19902,7 +19901,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
@@ -19914,7 +19913,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI",
+        "buildername=Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19927,7 +19926,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release": {
+    "Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19950,7 +19949,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
@@ -19962,7 +19961,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release",
+        "buildername=Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19975,7 +19974,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release-GDI": {
+    "Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19998,7 +19997,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
@@ -20010,7 +20009,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release-GDI",
+        "buildername=Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20023,7 +20022,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug": {
+    "Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -20046,7 +20045,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
@@ -20058,7 +20057,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug",
+        "buildername=Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20071,7 +20070,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win8-MSVC-Golo-CPU-AVX-x86-Release": {
+    "Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -20094,7 +20093,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
@@ -20106,7 +20105,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86-Release",
+        "buildername=Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20119,7 +20118,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug": {
+    "Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -20142,7 +20141,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
@@ -20154,7 +20153,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug",
+        "buildername=Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20167,7 +20166,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI": {
+    "Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -20190,7 +20189,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
@@ -20202,7 +20201,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI",
+        "buildername=Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20215,7 +20214,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release": {
+    "Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -20238,7 +20237,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
@@ -20250,7 +20249,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release",
+        "buildername=Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20263,7 +20262,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release-GDI": {
+    "Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -20286,7 +20285,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "cpu:x86-64",
+        "cpu:x86-64-E5-2670",
         "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
@@ -20298,7 +20297,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release-GDI",
+        "buildername=Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -21238,9 +21237,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Upload-Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "dependencies": [
-        "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -21253,7 +21252,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -21265,9 +21264,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
+    "Upload-Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast": {
       "dependencies": [
-        "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast"
+        "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -21280,7 +21279,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
+        "buildername=Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -21292,9 +21291,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER": {
+    "Upload-Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER": {
       "dependencies": [
-        "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER"
+        "Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -21307,7 +21306,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER",
+        "buildername=Perf-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -21319,9 +21318,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release": {
+    "Upload-Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "dependencies": [
-        "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release"
+        "Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -21334,7 +21333,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Perf-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -21400,9 +21399,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release": {
+    "Upload-Perf-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release": {
       "dependencies": [
-        "Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release"
+        "Perf-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -21415,7 +21414,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release",
+        "buildername=Perf-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22399,9 +22398,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Upload-Perf-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "dependencies": [
-        "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Perf-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -22414,7 +22413,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Perf-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22426,9 +22425,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
+    "Upload-Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "dependencies": [
-        "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release"
+        "Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -22441,7 +22440,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Perf-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22453,9 +22452,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Release": {
+    "Upload-Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release": {
       "dependencies": [
-        "Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Release"
+        "Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -22468,7 +22467,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Win7-MSVC-Golo-CPU-AVX-x86_64-Release",
+        "buildername=Perf-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22480,9 +22479,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Release": {
+    "Upload-Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release": {
       "dependencies": [
-        "Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Release"
+        "Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -22495,7 +22494,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Win8-MSVC-Golo-CPU-AVX-x86_64-Release",
+        "buildername=Perf-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24046,9 +24045,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Upload-Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "dependencies": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug"
+        "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -24061,7 +24060,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24073,9 +24072,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Upload-Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "dependencies": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -24088,7 +24087,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24100,9 +24099,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast": {
+    "Upload-Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast": {
       "dependencies": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast"
+        "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -24115,7 +24114,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-Fast",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-Fast",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24127,9 +24126,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2": {
+    "Upload-Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE2": {
       "dependencies": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2"
+        "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE2"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -24142,7 +24141,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE2",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE2",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24154,9 +24153,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41": {
+    "Upload-Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE41": {
       "dependencies": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41"
+        "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE41"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -24169,7 +24168,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_CPU_LIMIT_SSE41",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_CPU_LIMIT_SSE41",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24181,9 +24180,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER": {
+    "Upload-Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER": {
       "dependencies": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER"
+        "Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -24196,7 +24195,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER",
+        "buildername=Test-Debian9-Clang-GCE-CPU-Haswell_GCE-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24208,9 +24207,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug": {
+    "Upload-Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86-Debug": {
       "dependencies": [
-        "Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug"
+        "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -24223,7 +24222,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug",
+        "buildername=Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24235,9 +24234,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Upload-Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "dependencies": [
-        "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug"
+        "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -24250,7 +24249,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24262,9 +24261,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
+    "Upload-Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE": {
       "dependencies": [
-        "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
+        "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -24277,7 +24276,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
+        "buildername=Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24289,9 +24288,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release": {
+    "Upload-Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "dependencies": [
-        "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release"
+        "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -24304,7 +24303,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24316,9 +24315,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD": {
+    "Upload-Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release-SKNX_NO_SIMD": {
       "dependencies": [
-        "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD"
+        "Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release-SKNX_NO_SIMD"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -24331,7 +24330,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD",
+        "buildername=Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86_64-Release-SKNX_NO_SIMD",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24451,9 +24450,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug": {
+    "Upload-Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Debug": {
       "dependencies": [
-        "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug"
+        "Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -24466,7 +24465,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug",
+        "buildername=Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24478,9 +24477,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release": {
+    "Upload-Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release": {
       "dependencies": [
-        "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release"
+        "Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -24493,7 +24492,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release",
+        "buildername=Test-Mac-Clang-MacMini7.1-CPU-E5_2697_v2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26260,9 +26259,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Upload-Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "dependencies": [
-        "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug"
+        "Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26275,7 +26274,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26287,9 +26286,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Upload-Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "dependencies": [
-        "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26302,7 +26301,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Test-Win2k8-Clang-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26314,9 +26313,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug": {
+    "Upload-Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Debug": {
       "dependencies": [
-        "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug"
+        "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26329,7 +26328,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
+        "buildername=Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26341,9 +26340,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release": {
+    "Upload-Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Release": {
       "dependencies": [
-        "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release"
+        "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26356,7 +26355,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release",
+        "buildername=Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26368,9 +26367,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Upload-Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug": {
       "dependencies": [
-        "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug"
+        "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26383,7 +26382,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26395,9 +26394,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI": {
+    "Upload-Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug-GDI": {
       "dependencies": [
-        "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI"
+        "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug-GDI"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26410,7 +26409,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-GDI",
+        "buildername=Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26422,9 +26421,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
+    "Upload-Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release": {
       "dependencies": [
-        "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release"
+        "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26437,7 +26436,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26449,9 +26448,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI": {
+    "Upload-Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release-GDI": {
       "dependencies": [
-        "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI"
+        "Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release-GDI"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26464,7 +26463,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-GDI",
+        "buildername=Test-Win2k8-MSVC-GCE-CPU-Haswell_GCE-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26476,9 +26475,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug": {
+    "Upload-Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Debug": {
       "dependencies": [
-        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug"
+        "Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26491,7 +26490,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug",
+        "buildername=Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26503,9 +26502,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release": {
+    "Upload-Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Release": {
       "dependencies": [
-        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release"
+        "Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26518,7 +26517,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release",
+        "buildername=Test-Win7-MSVC-Golo-CPU-E5_2670-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26530,9 +26529,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug": {
+    "Upload-Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug": {
       "dependencies": [
-        "Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug"
+        "Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26545,7 +26544,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug",
+        "buildername=Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26557,9 +26556,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI": {
+    "Upload-Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI": {
       "dependencies": [
-        "Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI"
+        "Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26572,7 +26571,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI",
+        "buildername=Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26584,9 +26583,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release": {
+    "Upload-Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release": {
       "dependencies": [
-        "Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release"
+        "Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26599,7 +26598,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release",
+        "buildername=Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26611,9 +26610,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release-GDI": {
+    "Upload-Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI": {
       "dependencies": [
-        "Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release-GDI"
+        "Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26626,7 +26625,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86_64-Release-GDI",
+        "buildername=Test-Win7-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26638,9 +26637,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug": {
+    "Upload-Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Debug": {
       "dependencies": [
-        "Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug"
+        "Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26653,7 +26652,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug",
+        "buildername=Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26665,9 +26664,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win8-MSVC-Golo-CPU-AVX-x86-Release": {
+    "Upload-Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Release": {
       "dependencies": [
-        "Test-Win8-MSVC-Golo-CPU-AVX-x86-Release"
+        "Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26680,7 +26679,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86-Release",
+        "buildername=Test-Win8-MSVC-Golo-CPU-E5_2670-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26692,9 +26691,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug": {
+    "Upload-Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug": {
       "dependencies": [
-        "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug"
+        "Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26707,7 +26706,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug",
+        "buildername=Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26719,9 +26718,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI": {
+    "Upload-Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI": {
       "dependencies": [
-        "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI"
+        "Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26734,7 +26733,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Debug-GDI",
+        "buildername=Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26746,9 +26745,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release": {
+    "Upload-Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release": {
       "dependencies": [
-        "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release"
+        "Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26761,7 +26760,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release",
+        "buildername=Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26773,9 +26772,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release-GDI": {
+    "Upload-Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI": {
       "dependencies": [
-        "Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release-GDI"
+        "Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -26788,7 +26787,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win8-MSVC-Golo-CPU-AVX-x86_64-Release-GDI",
+        "buildername=Test-Win8-MSVC-Golo-CPU-E5_2670-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
