@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47c1e7c8_7b93f79d",
+        "filename": "infra/bots/recipes/test.expected/Test-Debian9-GCC-GCE-CPU-Haswell_GCE-x86-Debug.json",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-22T20:34:56Z",
+      "side": 1,
+      "message": "I don\u0027t know why gerrit thinks this was copied from the x86_64 file. It\u0027s closer to the x86 file.",
+      "revId": "fb5a3620a1aa9f7496fa4fb3a8a53f837e22ca17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
