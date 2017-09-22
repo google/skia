@@ -63,7 +63,7 @@ def main():
     # Add Nanobench specific arguments.
     config = '8888'
     cpu_or_gpu = 'CPU'
-    cpu_or_gpu_value = 'AVX2'
+    cpu_or_gpu_value = 'Sandy_Bridge_GCE'
     if 'GPU' in args.builder:
       config = 'gl'
       cpu_or_gpu = 'GPU'

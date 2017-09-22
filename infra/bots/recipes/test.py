@@ -243,7 +243,7 @@ def dm_flags(api, bot):
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     # Don't run the 'svgparse_*' svgs on GPU.
     blacklist('_ svg _ svgparse_')
-  elif bot == 'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN':
+  elif 'GCE' in bot and 'CPU' in bot and 'Debug' in bot and 'ASAN' in bot:
     # Only run the CPU SVGs on 8888.
     blacklist('~8888 svg _ _')
   else:
