@@ -1513,3 +1513,19 @@ DEF_TEST(Codec_EncodeICC, r) {
     test_encode_icc(r, SkEncodedImageFormat::kJPEG, SkTransferFunctionBehavior::kIgnore);
     test_encode_icc(r, SkEncodedImageFormat::kWEBP, SkTransferFunctionBehavior::kIgnore);
 }
+
+DEF_TEST(Codec_webp_rowsDecoded, r) {
+    sk_sp<SkData> data(GetResourceAsData("baby_tux.webp"));
+    if (!data) {
+        return;
+    }
+
+    sk_sp<SkData> subset = SkData::MakeSubset(data.get(), 0, 5000);
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(std::move(subset));
+    if (!codec) {
+        ERRORF(r, "no codec");
+        return;
+    }
+
+    test_info(r, codec.get(), codec->getInfo(), SkCodec::kInvalidInput, nullptr);
+}
