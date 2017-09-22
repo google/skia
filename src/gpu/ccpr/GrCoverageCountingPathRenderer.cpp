@@ -387,7 +387,7 @@ void DrawPathsOp::onExecute(GrOpFlushState* flushState) {
     SkASSERT(baseInstance == fBaseInstance + fDebugInstanceCount - fDebugSkippedInstances);
 }
 
-void GrCoverageCountingPathRenderer::postFlush(GrDrawOpUploadToken) {
+void GrCoverageCountingPathRenderer::postFlush() {
     SkASSERT(fFlushing);
     fPerFlushAtlases.reset();
     fPerFlushInstanceBuffer.reset();

@@ -11,7 +11,6 @@
 #include "GrCaps.h"
 #include "GrDrawOpAtlas.h"
 #include "GrGlyph.h"
-#include "GrOnFlushResourceProvider.h"
 #include "SkArenaAlloc.h"
 #include "SkGlyphCache.h"
 #include "SkTDynamicHash.h"
@@ -109,10 +108,10 @@ private:
  * though this is more or less transparent to the client(aside from atlasGeneration, described
  * below).
  */
-class GrAtlasGlyphCache : public GrOnFlushCallbackObject {
+class GrAtlasGlyphCache {
 public:
     GrAtlasGlyphCache(GrContext*, float maxTextureBytes);
-    ~GrAtlasGlyphCache() override;
+    ~GrAtlasGlyphCache();
     // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
     // another client of the cache may cause the strike to be purged while it is still reffed.
     // Therefore, the caller must check GrAtlasTextStrike::isAbandoned() if there are other
@@ -180,17 +179,6 @@ public:
     // changes every time something is removed from the texture backing store.
     uint64_t atlasGeneration(GrMaskFormat format) const {
         return this->getAtlas(format)->atlasGeneration();
-    }
-
-    void preFlush(GrOnFlushResourceProvider*, const uint32_t*, int,
-                  SkTArray<sk_sp<GrRenderTargetContext>>*) override {}
-
-    void postFlush(GrDrawOpUploadToken startTokenForNextFlush) override {
-        for (int i = 0; i < kMaskFormatCount; ++i) {
-            if (fAtlases[i]) {
-                fAtlases[i]->compact(startTokenForNextFlush);
-            }
-        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
