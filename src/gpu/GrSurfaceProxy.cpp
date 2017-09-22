@@ -63,7 +63,6 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
                                                 int sampleCnt, bool needsStencil,
                                                 GrSurfaceFlags flags, bool isMipMapped,
                                                 SkDestinationSurfaceColorMode mipColorMode) const {
-
     GrSurfaceDesc desc;
     desc.fFlags = flags;
     if (fNeedsClear) {
@@ -95,7 +94,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
     return surface;
 }
 
-void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
+void GrSurfaceProxy::assign1(sk_sp<GrSurface> surface) {
     SkASSERT(!fTarget && surface);
     fTarget = surface.release();
     this->INHERITED::transferRefs();
@@ -128,7 +127,16 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
         resourceProvider->assignUniqueKeyToResource(*uniqueKey, surface.get());
     }
 
-    this->assign(std::move(surface));
+#if 0
+    SkDebugf("assign: %d -> %d -- pRef:%d rRef:%d R:%d W:%d\n",
+             this->uniqueID().asUInt(), this->underlyingUniqueID().asUInt(),
+             this->getProxyRefCnt_TestOnly(),
+             this->getBackingRefCnt_TestOnly(),
+             this->getPendingReadCnt_TestOnly(),
+             this->getPendingWriteCnt_TestOnly());
+#endif
+
+    this->assign1(std::move(surface));
     return true;
 }
 

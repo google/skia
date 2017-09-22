@@ -272,6 +272,8 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
         textureBindings.push_back(&dstTextureSampler);
     }
 
+    dstTextureSampler.fHandled = true;
+
     // Get new descriptor sets
     if (fNumSamplers) {
         if (fSamplerDescriptorSet) {

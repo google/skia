@@ -617,7 +617,8 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         if (tempRTC) {
             SkMatrix textureMatrix = SkMatrix::MakeTrans(SkIntToScalar(left), SkIntToScalar(top));
             sk_sp<GrTextureProxy> proxy = src->asTextureProxyRef();
-            auto fp = GrSimpleTextureEffect::Make(std::move(proxy), nullptr, textureMatrix);
+            proxy->fIsOkayToBeInstantiated = true; // we already manually instantiated this above
+            auto fp = GrSimpleTextureEffect::Make(proxy, nullptr, textureMatrix);
             if (unpremulOnGpu) {
                 fp = fContext->createPMToUPMEffect(std::move(fp), useConfigConversionEffect);
                 // We no longer need to do this on CPU after the read back.
@@ -636,6 +637,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
             tempRTC->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect,
                                 nullptr);
             proxyToRead = tempRTC->asTextureProxyRef();
+            proxy->fIsOkayToBeInstantiated = false;
             left = 0;
             top = 0;
             didTempDraw = true;

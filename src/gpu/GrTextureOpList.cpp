@@ -110,7 +110,14 @@ bool GrTextureOpList::copySurface(const GrCaps& caps,
 }
 
 void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
+    SkASSERT(!this->isInstantiated());
+
     unsigned int cur = alloc->numOps();
+
+    SkDebugf("----------------------------------------\n");
+    SkDebugf("gather for texture opList #%d { %d,%d }: %s\n", this->uniqueID(),
+                                                  fTarget.get()->uniqueID().asUInt(),
+                                                  fTarget.get()->underlyingUniqueID().asUInt());
 
     // Add the interval for all the writes to this opList's target
     alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);
@@ -122,10 +129,12 @@ void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
         SkASSERT(alloc->curOp() == cur+i);
 
         const GrOp* op = fRecordedOps[i].get(); // only diff from the GrRenderTargetOpList version
+        SkDebugf("opList #%d (%s): %d\n", this->uniqueID(), op->name(), cur+i);
         op->visitProxies(gather);
 
         alloc->incOps();
     }
+    SkDebugf("----------------------------------------\n");
 }
 
 void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op) {

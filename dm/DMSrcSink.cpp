@@ -1528,6 +1528,8 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                       const GrContextOptions& baseOptions) const {
     GrContextOptions grOptions = baseOptions;
 
+    const char* name = _strdup(src.name().c_str());
+
     src.modifyGrContextOptions(&grOptions);
 
     GrContextFactory factory(grOptions);
