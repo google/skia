@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aedd174e_77f70b27",
+        "filename": "infra/bots/ct/run_ct_skps.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-22T21:49:37Z",
+      "side": 1,
+      "message": "Sandy Bridge is not AVX2.  Is that okay?",
+      "range": {
+        "startLine": 66,
+        "startChar": 24,
+        "endLine": 66,
+        "endChar": 40
+      },
+      "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b8759fd_2278bcbe",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-22T21:49:37Z",
+      "side": 1,
+      "message": "Can we not just call these Sandy Bridge and Ivy Bridge?",
+      "range": {
+        "startLine": 251,
+        "startChar": 5,
+        "endLine": 251,
+        "endChar": 12
+      },
+      "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
