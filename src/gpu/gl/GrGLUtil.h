@@ -72,6 +72,23 @@ enum GrGLDriver {
     kUnknown_GrGLDriver
 };
 
+enum class GrGLANGLEBackend {
+    kUnknown,
+    kD3D9,
+    kD3D11,
+    kOpenGL
+};
+
+enum class GrGLANGLEVendor {
+    kUnknown,
+    kIntel
+};
+
+enum class GrGLANGLERenderer{
+    kUnknown,
+    kIvyBridge
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -134,6 +151,8 @@ GrGLStandard GrGLGetStandardInUseFromString(const char* versionString);
 GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString);
 GrGLVendor GrGLGetVendorFromString(const char* vendorString);
 GrGLRenderer GrGLGetRendererFromString(const char* rendererString);
+void GrGLGetANGLEInfoFromString(const char* rendererString, GrGLANGLEBackend*,
+                                GrGLANGLEVendor*, GrGLANGLERenderer*);
 
 void GrGLGetDriverInfo(GrGLStandard standard,
                        GrGLVendor vendor,
@@ -147,7 +166,6 @@ GrGLVersion GrGLGetVersion(const GrGLInterface*);
 GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface*);
 GrGLVendor GrGLGetVendor(const GrGLInterface*);
 GrGLRenderer GrGLGetRenderer(const GrGLInterface*);
-
 
 /**
  * Helpers for glGetError()
