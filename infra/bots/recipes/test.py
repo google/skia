@@ -523,10 +523,14 @@ def dm_flags(api, bot):
     match.extend(['~Once', '~Shared'])  # Not sure what's up with these tests.
 
   if 'TSAN' in bot:
-    args.extend(['--gpuThreads', '8'])
     match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots.
     match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
                   '~RGB565TextureTest'])
+
+  # By default, we test with GPU threading enabled. Leave PixelC devices
+  # running without threads, just to get some coverage of that code path.
+  if 'PixelC' in bot:
+    args.extend(['--gpuThreads', '0'])
 
   if 'float_cast_overflow' in bot and 'CPU' in bot:
     # skia:4632
