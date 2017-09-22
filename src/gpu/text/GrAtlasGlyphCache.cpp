@@ -7,7 +7,9 @@
 
 #include "GrAtlasGlyphCache.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrDistanceFieldGenFromVector.h"
+#include "GrDrawingManager.h"
 #include "GrGpu.h"
 #include "GrRectanizer.h"
 

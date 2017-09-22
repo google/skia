@@ -214,7 +214,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         fContext->getResourceCache()->notifyFlushOccurred(type);
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush();
+        onFlushCBObject->postFlush(fFlushState.nextTokenToFlush());
     }
     fFlushing = false;
 
