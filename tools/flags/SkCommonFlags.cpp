@@ -56,8 +56,8 @@ DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 DEFINE_int32_2(threads, j, -1, "Run threadsafe tests on a threadpool with this many extra threads, "
                                "defaulting to one extra thread per core.");
 
-DEFINE_int32(gpuThreads, 0, "Create this many extra threads to assist with GPU work, "
-                            "including software path rendering.");
+DEFINE_int32(gpuThreads, 2, "Create this many extra threads to assist with GPU work, "
+                            "including software path rendering. Defaults to two.");
 
 DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
 

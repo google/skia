@@ -126,6 +126,11 @@ def nanobench_flags(api, bot):
   args.append('--config')
   args.extend(configs)
 
+  # By default, we test with GPU threading enabled. Leave PixelC devices
+  # running without threads, just to get some coverage of that code path.
+  if 'PixelC' in bot:
+    args.extend(['--gpuThreads', '0'])
+
   if 'Valgrind' in bot:
     # Don't care about Valgrind performance.
     args.extend(['--loops',   '1'])
