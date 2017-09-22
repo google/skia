@@ -73,8 +73,8 @@ struct SkJumper_Engine;
     M(parametric_a) M(gamma)                                     \
     M(table_r) M(table_g) M(table_b) M(table_a)                  \
     M(lab_to_xyz)                                                \
-    M(clamp_x)   M(mirror_x)   M(repeat_x)                       \
-    M(clamp_y)   M(mirror_y)   M(repeat_y)                       \
+                 M(mirror_x)   M(repeat_x)                       \
+                 M(mirror_y)   M(repeat_y)                       \
     M(clamp_x_1) M(mirror_x_1) M(repeat_x_1)                     \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)  \
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)  \
