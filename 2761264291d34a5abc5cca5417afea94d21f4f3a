@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb0b2267_f445b994",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-22T15:33:27Z",
+      "side": 1,
+      "message": "This could wind up being a problem in Chrome with partial raster, e.g. a blinking cursor.",
+      "range": {
+        "startLine": 320,
+        "startChar": 4,
+        "endLine": 320,
+        "endChar": 48
+      },
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb768e6a_9b1420cc",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-09-22T15:33:27Z",
+      "side": 1,
+      "message": "rm?",
+      "range": {
+        "startLine": 330,
+        "startChar": 4,
+        "endLine": 330,
+        "endChar": 5
+      },
+      "revId": "2761264291d34a5abc5cca5417afea94d21f4f3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
