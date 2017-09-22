@@ -546,18 +546,16 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
     PlanningInterface* planW = make_plan(&alloc, fSigmaW);
     PlanningInterface* planH = make_plan(&alloc, fSigmaH);
 
-    size_t borderW = planW->border();
-    size_t borderH = planH->border();
+    SkSafeSize borderW{planW->border()};
+    SkSafeSize borderH{planH->border()};
 
-    auto srcW = SkTo<size_t>(src.fBounds.width());
-    auto srcH = SkTo<size_t>(src.fBounds.height());
+    auto srcW = SkSafeWidth(src);
+    auto srcH = SkSafeHeight(src);
 
-    SkSafeMath safe;
+    auto dstW = borderW + srcW + borderW;
+    auto dstH = borderH + srcH + borderH;
 
-    // size_t dstW = srcW + 2 * borderW;
-    size_t dstW = safe.add(srcW, safe.add(borderW, borderW));
-    //size_t dstH = srcH + 2 * borderH;
-    size_t dstH = safe.add(srcH, safe.add(borderH, borderH));
+    auto dstSize = dstW * dstH;
 
     dst->fBounds.set(0, 0, dstW, dstH);
     dst->fBounds.offset(src.fBounds.x(), src.fBounds.y());
@@ -571,49 +569,53 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         return {SkTo<int32_t>(borderW), SkTo<int32_t>(borderH)};
     }
 
-    size_t toAlloc = safe.mul(dstW, dstH);
-    if (!safe) {
+    if (!dstSize.ok()) {
         dst->fBounds = SkIRect::MakeEmpty();
         // There is no border offset because we are not drawing.
         return {0, 0};
     }
-    dst->fImage = SkMask::AllocImage(toAlloc);
+
+    auto roundedDstSize = dstSize.roundUp<uint32_t>();
+    dst->fImage = roundedDstSize.makeArrayFromSize<uint8_t>();
 
     auto bufferSize = std::max(planW->bufferSize(), planH->bufferSize());
     auto buffer = alloc.makeArrayDefault<uint32_t>(bufferSize);
 
     if (planW->needsBlur() && planH->needsBlur()) {
         // Blur both directions.
-        size_t tmpW = srcH;
-        size_t tmpH = dstW;
 
-        auto tmp = alloc.makeArrayDefault<uint8_t>(tmpW * tmpH);
+        auto tmpW = srcH;
+        auto tmpH = dstW;
+        auto tmpSize = tmpW * tmpH;
+
+        auto tmp = alloc.makeArrayDefault<uint8_t>(tmpSize);
 
         // Blur horizontally, and transpose.
         auto scanW = planW->makeBlurScan(&alloc, srcW, buffer);
         size_t y = 0;
-        if (scanW->canBlur4() && srcH > 4) {
-            for (;y + 4 <= srcH; y += 4) {
+        size_t limitH = srcH;
+        if (scanW->canBlur4() && limitH > 4) {
+            for (;y + 4 <= limitH; y += 4) {
                 auto srcStart = &src.fImage[y * src.fRowBytes];
                 auto tmpStart = &tmp[y];
                 scanW->blur4Transpose(srcStart, src.fRowBytes, srcStart + srcW,
-                                      tmpStart, tmpW, tmpStart + tmpW * tmpH);
+                                      tmpStart, tmpW, tmpStart + tmpSize);
             }
         }
 
-        for (;y < srcH; y++) {
+        for (;y < limitH; y++) {
             auto srcStart = &src.fImage[y * src.fRowBytes];
             auto tmpStart = &tmp[y];
             scanW->blur(srcStart,    1, srcStart + srcW,
-                        tmpStart, tmpW, tmpStart + tmpW * tmpH);
+                        tmpStart, tmpW, tmpStart + tmpSize);
         }
-
 
         // Blur vertically (scan in memory order because of the transposition),
         // and transpose back to the original orientation.
         auto scanH = planH->makeBlurScan(&alloc, tmpW, buffer);
         y = 0;
-        if (scanH->canBlur4() && tmpH > 4) {
+        limitH = tmpH;
+        if (scanH->canBlur4() && 4 < tmpH) {
             for (;y + 4 <= tmpH; y += 4) {
                 auto tmpStart = &tmp[y * tmpW];
                 auto dstStart = &dst->fImage[y];
@@ -661,7 +663,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         }
     }
 
-    return {SkTo<int32_t>(borderW), SkTo<int32_t>(borderH)};
+    return {borderW, borderH};
 }
 
 

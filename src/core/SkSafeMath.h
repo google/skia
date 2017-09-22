@@ -5,6 +5,13 @@
  * found in the LICENSE file.
  */
 
+
+#include <cstddef>
+#include <limits>
+#include <memory>
+
+#include "SkMask.h"
+
 #ifndef SkSafeMath_DEFINED
 #define SkSafeMath_DEFINED
 
@@ -65,5 +72,90 @@ private:
     }
     bool fOK = true;
 };
+
+class SkSafeSize {
+public:
+    template <typename V, typename = typename std::enable_if<
+        std::is_convertible<V, size_t>::value>::type>
+    explicit constexpr SkSafeSize(V v) : size_{CheckValue(v)} {}
+
+    size_t size() { return size_; }
+
+    SkSafeSize operator+(const SkSafeSize& r) const {
+        size_t possibleAnswer = this->size_ + r.size_;
+        if (possibleAnswer >= size_) {
+            return SkSafeSize{possibleAnswer};
+        }
+        return Overflow();
+    }
+
+    SkSafeSize operator*(const SkSafeSize& r) const;
+
+    template <typename T>
+    SkSafeSize roundUp() {
+        size_t mask = alignof(T);
+        if (size_ + mask >= size_) {
+            return SkSafeSize{(size_ + mask) & ~mask};
+        }
+        return Overflow();
+    }
+
+    bool ok() const { return size_ != kMaxSize; }
+    explicit operator bool() const { return ok(); }
+    template <typename T>
+    operator T() const {return static_cast<T>(size_);}
+    operator int() const {return static_cast<int>(size_);}
+/*
+    operator size_t() const {return size_;}
+    operator int32_t() const {
+        if (size_ > std::numeric_limits<int32_t>::max()) {
+            return std::numeric_limits<int32_t>::max();
+        }
+        return static_cast<int32_t>(size_);
+    }
+    operator long() const {
+        return static_cast<long>(size_);
+    }
+    */
+
+    template<typename T>
+    T* makeArrayFromSize() {
+        return new T[size_];
+    }
+
+    template<typename T>
+    T* makeArrayFromSizeInitialized() {
+        return new T[size_]();
+    }
+
+    template<typename T>
+    std::unique_ptr<T[]> makeUniquePtrFromSize() {
+        return std::unique_ptr<T[]>(makeArrayFromSize<T[]>());
+    }
+
+private:
+    static constexpr size_t kMaxSize = std::numeric_limits<size_t>::max() >> 1;
+    template <typename V>
+    static size_t CheckValue(V v) {
+        if (SkTFitsIn<size_t>(v)) {
+            return static_cast<size_t>(v);
+        }
+        return kMaxSize;
+    }
+    static SkSafeSize Overflow() { return SkSafeSize{kMaxSize}; }
+    size_t size_{0};
+};
+
+inline SkSafeSize SkSafeWidth(const SkMask& mask) {
+    return SkSafeSize{mask.fBounds.width()};
+}
+
+inline SkSafeSize SkSafeHeight(const SkMask& mask) {
+    return SkSafeSize{mask.fBounds.height()};
+}
+
+inline SkSafeSize SkSafeRowBytes(const SkMask& mask) {
+    return SkSafeSize{mask.fRowBytes};
+}
 
 #endif//SkSafeMath_DEFINED

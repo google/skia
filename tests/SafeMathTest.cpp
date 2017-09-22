@@ -49,3 +49,38 @@ DEF_TEST(SafeMath, r) {
         REPORTER_ASSERT(r, !safe);
     }
 }
+
+
+static constexpr size_t kMax = std::numeric_limits<size_t>::max();
+static constexpr size_t kBig = kMax - 2;
+
+DEF_TEST(SafeSize, r) {
+    {
+        SkSafeSize s{5};
+        REPORTER_ASSERT(r, s.ok());
+    }
+    {
+        SkSafeSize s{-5};
+        REPORTER_ASSERT(r, !s.ok());
+    }
+
+    {
+        SkSafeSize s{5}, t{5};
+        REPORTER_ASSERT(r, (s + t).ok());
+    }
+
+    {
+        SkSafeSize s{5}, t{kBig};
+        REPORTER_ASSERT(r, !(s + t).ok());
+    }
+
+    {
+        SkSafeSize s{5}, t{5};
+        REPORTER_ASSERT(r, (s * t).ok());
+    }
+
+    {
+        SkSafeSize s{5}, t{kBig};
+        REPORTER_ASSERT(r, !(s * t).ok());
+    }
+}
