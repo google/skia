@@ -67,16 +67,6 @@ sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvi
     return surface;
 }
 
-void GrTextureProxy::setMipColorMode(SkDestinationSurfaceColorMode colorMode) {
-    SkASSERT(fTarget || fTarget->asTexture());
-
-    if (fTarget) {
-        fTarget->asTexture()->texturePriv().setMipColorMode(colorMode);
-    }
-
-    fMipColorMode = colorMode;
-}
-
 // This method parallels the highest_filter_mode functions in GrGLTexture & GrVkTexture.
 GrSamplerState::Filter GrTextureProxy::highestFilterMode() const {
     if (fTarget) {
