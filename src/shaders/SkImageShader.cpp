@@ -324,9 +324,11 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     misc->paint_color = SkColor4f_from_SkColor(rec.fPaint.getColor(), rec.fDstCS);
     p->append_matrix(alloc, matrix);
 
-    auto gather = alloc->make<SkJumper_MemoryCtx>();
+    auto gather = alloc->make<SkJumper_GatherCtx>();
     gather->pixels = pm.writable_addr();  // Don't worry, we won't write to it.
     gather->stride = pm.rowBytesAsPixels();
+    gather->width  = pm.width();
+    gather->height = pm.height();
 
     auto limit_x = alloc->make<SkJumper_TileCtx>(),
          limit_y = alloc->make<SkJumper_TileCtx>();
@@ -337,12 +339,12 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
 
     auto append_tiling_and_gather = [&] {
         switch (fTileModeX) {
-            case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x,  limit_x); break;
+            case kClamp_TileMode:  /* The gather_xxx stage will clamp for us. */   break;
             case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit_x); break;
             case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit_x); break;
         }
         switch (fTileModeY) {
-            case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_y,  limit_y); break;
+            case kClamp_TileMode:  /* The gather_xxx stage will clamp for us. */   break;
             case kMirror_TileMode: p->append(SkRasterPipeline::mirror_y, limit_y); break;
             case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, limit_y); break;
         }

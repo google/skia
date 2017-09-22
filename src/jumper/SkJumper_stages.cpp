@@ -210,7 +210,14 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
 
 // Used by gather_ stages to calculate the base pointer and a vector of indices to load.
 template <typename T>
-SI U32 ix_and_ptr(T** ptr, const SkJumper_MemoryCtx* ctx, F x, F y) {
+SI U32 ix_and_ptr(T** ptr, const SkJumper_GatherCtx* ctx, F x, F y) {
+    auto clamp = [](F v, F limit) {
+        limit = bit_cast<F>( bit_cast<U32>(limit) - 1 );  // Exclusive -> inclusive.
+        return min(max(0, v), limit);
+    };
+    x = clamp(x, ctx->width);
+    y = clamp(y, ctx->height);
+
     *ptr = (const T*)ctx->pixels;
     return trunc_(y)*ctx->stride + trunc_(x);
 }
@@ -1072,30 +1079,17 @@ STAGE(store_f32) {
     store4(ptr,tail, r,g,b,a);
 }
 
-SI F ulp_before(F f) {
-    U32 bits = -1 + unaligned_load<U32>(&f);
-    return unaligned_load<F>(&bits);
-}
-
-// We make sure to funnel all three tilers through exclusive_clamp() so that we're guaranteed
-// to be in [0,ctx->scale), even in the presence of bugs or floating point precision issues.
-SI F exclusive_clamp(F v, const SkJumper_TileCtx* ctx) {
-    v = max(0,v);
-    return min(v, ulp_before(ctx->scale));
-}
 SI F exclusive_repeat(F v, const SkJumper_TileCtx* ctx) {
-    v = v - floor_(v*ctx->invScale)*ctx->scale;
-    return exclusive_clamp(v, ctx);
+    return v - floor_(v*ctx->invScale)*ctx->scale;
 }
 SI F exclusive_mirror(F v, const SkJumper_TileCtx* ctx) {
     auto limit = ctx->scale;
     auto invLimit = ctx->invScale;
-    v = abs_( (v-limit) - (limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
-    return exclusive_clamp(v, ctx);
+    return abs_( (v-limit) - (limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
 }
-// Clamp x or y to [0,limit) == [0,limit - 1 ulp] (think, sampling from images).
-STAGE(clamp_x)  { r = exclusive_clamp (r, (const SkJumper_TileCtx*)ctx); }
-STAGE(clamp_y)  { g = exclusive_clamp (g, (const SkJumper_TileCtx*)ctx); }
+// Tile x or y to [0,limit) == [0,limit - 1 ulp] (think, sampling from images).
+// The gather stages will hard clamp the output of these stages to [0,limit)...
+// we just need to do the basic repeat or mirroring.
 STAGE(repeat_x) { r = exclusive_repeat(r, (const SkJumper_TileCtx*)ctx); }
 STAGE(repeat_y) { g = exclusive_repeat(g, (const SkJumper_TileCtx*)ctx); }
 STAGE(mirror_x) { r = exclusive_mirror(r, (const SkJumper_TileCtx*)ctx); }

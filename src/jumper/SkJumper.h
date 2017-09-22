@@ -62,6 +62,13 @@ struct SkJumper_MemoryCtx {
     int   stride;
 };
 
+struct SkJumper_GatherCtx {
+    void* pixels;
+    int   stride;
+    float width,
+          height;
+};
+
 // State shared by save_xy, accumulate, and bilinear_* / bicubic_*.
 struct SkJumper_SamplerCtx {
     float      x[SkJumper_kMaxStride];
