@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9e0dc4d2_3fca5dc4",
+        "filename": "infra/bots/ct/run_ct_skps.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-23T15:06:04Z",
+      "side": 1,
+      "message": "We were previously lying to Perf.",
+      "parentUuid": "aedd174e_77f70b27",
+      "range": {
+        "startLine": 66,
+        "startChar": 24,
+        "endLine": 66,
+        "endChar": 40
+      },
+      "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b8759fd_2278bcbe",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 11
@@ -45,6 +69,30 @@
       "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6070b3bf_632adae9",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-23T15:06:04Z",
+      "side": 1,
+      "message": "/shrug. We are as specific as we can be for the GPU, so it seems odd to be generic for the CPU, particularly for Perf. We use the gen codename when we don\u0027t have a more specific name, e.g. IntelBayTrail for GPU and Haswell_GCE for CPU.",
+      "parentUuid": "4b8759fd_2278bcbe",
+      "range": {
+        "startLine": 251,
+        "startChar": 5,
+        "endLine": 251,
+        "endChar": 12
+      },
+      "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
