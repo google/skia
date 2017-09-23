@@ -195,7 +195,8 @@ def dm_flags(api, bot):
       configs = [x.replace(old, new) for x in configs]
       # We also test non-msaa instanced.
       configs.append(new)
-    elif 'MacMini7.1' in bot:
+    elif 'MacMini7.1' in bot and 'TSAN' not in bot:
+      # The TSAN bot disables GL buffer mapping which is required for inst.
       configs.extend([gl_prefix + 'inst'])
 
     # CommandBuffer bot *only* runs the command_buffer config.
