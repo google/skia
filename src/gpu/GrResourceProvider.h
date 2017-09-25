@@ -165,22 +165,18 @@ public:
 
     /** These flags govern which scratch resources we are allowed to return */
     enum Flags {
-        kExact_Flag           = 0x1,
-
         /** If the caller intends to do direct reads/writes to/from the CPU then this flag must be
          *  set when accessing resources during a GrOpList flush. This includes the execution of
          *  GrOp objects. The reason is that these memory operations are done immediately and
          *  will occur out of order WRT the operations being flushed.
          *  Make this automatic: https://bug.skia.org/4156
          */
-        kNoPendingIO_Flag     = 0x2,
-
-        kNoCreate_Flag        = 0x4,
+        kNoPendingIO_Flag     = 0x1,
 
         /** Normally the caps may indicate a preference for client-side buffers. Set this flag when
          *  creating a buffer to guarantee it resides in GPU memory.
          */
-        kRequireGpuMemory_Flag = 0x8,
+        kRequireGpuMemory_Flag = 0x2,
     };
 
     /**
@@ -258,6 +254,8 @@ private:
     GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
     void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture);
 
+    // Attempts to find a resource in the cache that exactly matches the GrSurfaceDesc. Failing that
+    // it returns null. If non-null, the resulting texture is always budgeted.
     sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
 
     /*
