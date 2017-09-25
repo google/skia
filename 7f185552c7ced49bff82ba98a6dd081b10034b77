@@ -259,6 +259,30 @@
       "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5758ab1d_8cac04d8",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-25T14:44:40Z",
+      "side": 1,
+      "message": "I think the underscore makes sense in \"E5_2670\".  I just think \"SandyBridge\" looks nicer than \"Sandy_Bridge\"",
+      "parentUuid": "2caedb9c_0d59581c",
+      "range": {
+        "startLine": 346,
+        "startChar": 29,
+        "endLine": 346,
+        "endChar": 45
+      },
+      "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
