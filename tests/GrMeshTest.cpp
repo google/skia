@@ -285,14 +285,14 @@ public:
         , fVertex(nullptr)
         , fColor(nullptr) {
         if (instanced) {
-            fInstanceLocation = &this->addInstanceAttrib("location", kVec2f_GrVertexAttribType);
+            fInstanceLocation = &this->addInstanceAttrib("location", kHalf2_GrVertexAttribType);
             if (hasVertexBuffer) {
-                fVertex = &this->addVertexAttrib("vertex", kVec2f_GrVertexAttribType);
+                fVertex = &this->addVertexAttrib("vertex", kHalf2_GrVertexAttribType);
             }
-            fColor = &this->addInstanceAttrib("color", kVec4ub_GrVertexAttribType);
+            fColor = &this->addInstanceAttrib("color", kUByte4_norm_GrVertexAttribType);
         } else {
-            fVertex = &this->addVertexAttrib("vertex", kVec2f_GrVertexAttribType);
-            fColor = &this->addVertexAttrib("color", kVec4ub_GrVertexAttribType);
+            fVertex = &this->addVertexAttrib("vertex", kHalf2_GrVertexAttribType);
+            fColor = &this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
         }
         this->initClassID<GrMeshTestProcessor>();
     }

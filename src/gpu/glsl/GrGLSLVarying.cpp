@@ -69,8 +69,7 @@ void GrGLSLVaryingHandler::emitAttributes(const GrGeometryProcessor& gp) {
         this->addAttribute(GrShaderVar(attr.fName,
                                        GrVertexAttribTypeToSLType(attr.fType),
                                        GrShaderVar::kIn_TypeModifier,
-                                       GrShaderVar::kNonArray,
-                                       attr.fPrecision));
+                                       GrShaderVar::kNonArray));
     }
 }
 

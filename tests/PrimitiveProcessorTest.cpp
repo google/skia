@@ -60,7 +60,7 @@ private:
                     fAttribNames.push_back().printf("attr%d", i);
                 }
                 for (auto i = 0; i < numAttribs; ++i) {
-                    this->addVertexAttrib(fAttribNames[i].c_str(), kVec2f_GrVertexAttribType);
+                    this->addVertexAttrib(fAttribNames[i].c_str(), kFloat2_GrVertexAttribType);
                 }
             }
             const char* name() const override { return "Dummy GP"; }

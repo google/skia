@@ -43,8 +43,7 @@ const char* GrCCPRCoverageProcessor::GetProcessorName(Mode mode) {
 
 GrCCPRCoverageProcessor::GrCCPRCoverageProcessor(Mode mode, GrBuffer* pointsBuffer)
         : fMode(mode)
-        , fInstanceAttrib(this->addInstanceAttrib("instance", InstanceArrayFormat(mode),
-                                                  kHigh_GrSLPrecision)) {
+        , fInstanceAttrib(this->addInstanceAttrib("instance", InstanceArrayFormat(mode))) {
     fPointsBufferAccess.reset(kRG_float_GrPixelConfig, pointsBuffer, kVertex_GrShaderFlag);
     this->addBufferAccess(&fPointsBufferAccess);
 

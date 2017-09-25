@@ -130,17 +130,15 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
         , fInColor(nullptr)
         , fMaskFormat(format) {
     this->initClassID<GrBitmapTextGeoProc>();
-    fInPosition =
-            &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
+    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
 
     bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat ||
                           kA565_GrMaskFormat == fMaskFormat;
     if (hasVertexColor) {
-        fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
+        fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
     }
 
-    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_uint_GrVertexAttribType,
-                                              kHigh_GrSLPrecision);
+    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kUShort2_GrVertexAttribType);
     for (int i = 0; i < kMaxTextures; ++i) {
         if (proxies[i]) {
             fTextureSamplers[i].reset(std::move(proxies[i]), params);

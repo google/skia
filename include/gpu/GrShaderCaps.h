@@ -81,7 +81,7 @@ public:
     int imageLoadStoreSupport() const { return fImageLoadStoreSupport; }
 
     /**
-    * Get the precision info for a variable of type kFloat_GrSLType, kVec2f_GrSLType, etc in a
+    * Get the precision info for a variable of type kFloat_GrSLType, kFloat2_GrSLType, etc in a
     * given shader type. If the shader type is not supported or the precision level is not
     * supported in that shader type then the returned struct will report false when supported() is
     * called.

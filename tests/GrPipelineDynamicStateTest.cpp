@@ -59,8 +59,8 @@ struct Vertex {
 class GrPipelineDynamicStateTestProcessor : public GrGeometryProcessor {
 public:
     GrPipelineDynamicStateTestProcessor()
-        : fVertex(this->addVertexAttrib("vertex", kVec2f_GrVertexAttribType))
-        , fColor(this->addVertexAttrib("color", kVec4ub_GrVertexAttribType)) {
+        : fVertex(this->addVertexAttrib("vertex", kHalf2_GrVertexAttribType))
+        , fColor(this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType)) {
         this->initClassID<GrPipelineDynamicStateTestProcessor>();
     }
 

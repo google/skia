@@ -49,7 +49,6 @@ public:
         const char*          fName;
         GrVertexAttribType   fType;
         int                  fOffsetInRecord;
-        GrSLPrecision        fPrecision;
         InputRate            fInputRate;
     };
 
@@ -118,19 +117,13 @@ protected:
     /**
      * Subclasses call these from their constructor to register vertex and instance attributes.
      */
-    const Attribute& addVertexAttrib(const char* name, GrVertexAttribType type,
-                                     GrSLPrecision precision = kDefault_GrSLPrecision) {
-        precision = (kDefault_GrSLPrecision == precision) ? kMedium_GrSLPrecision : precision;
-        fAttribs.push_back() = {name, type, fVertexStride, precision,
-                                Attribute::InputRate::kPerVertex};
+    const Attribute& addVertexAttrib(const char* name, GrVertexAttribType type) {
+        fAttribs.push_back() = {name, type, fVertexStride, Attribute::InputRate::kPerVertex};
         fVertexStride += static_cast<int>(SkAlign4(GrVertexAttribTypeSize(type)));
         return fAttribs.back();
     }
-    const Attribute& addInstanceAttrib(const char* name, GrVertexAttribType type,
-                                       GrSLPrecision precision = kDefault_GrSLPrecision) {
-        precision = (kDefault_GrSLPrecision == precision) ? kMedium_GrSLPrecision : precision;
-        fAttribs.push_back() = {name, type, fInstanceStride, precision,
-                                Attribute::InputRate::kPerInstance};
+    const Attribute& addInstanceAttrib(const char* name, GrVertexAttribType type) {
+        fAttribs.push_back() = {name, type, fInstanceStride, Attribute::InputRate::kPerInstance};
         fInstanceStride += static_cast<int>(SkAlign4(GrVertexAttribTypeSize(type)));
         return fAttribs.back();
     }

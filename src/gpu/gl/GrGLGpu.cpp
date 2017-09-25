@@ -3811,7 +3811,7 @@ void GrGLGpu::clearStencilClipAsDraw(const GrFixedClip& clip, bool insideStencil
 
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
     attribs->enableVertexArrays(this, 1);
-    attribs->set(this, 0, fStencilClipClearArrayBuffer.get(), kVec2f_GrVertexAttribType,
+    attribs->set(this, 0, fStencilClipClearArrayBuffer.get(), kHalf2_GrVertexAttribType,
                  2 * sizeof(GrGLfloat), 0);
 
     GrXferProcessor::BlendInfo blendInfo;
@@ -3864,7 +3864,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
 
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
     attribs->enableVertexArrays(this, 1);
-    attribs->set(this, 0, fCopyProgramArrayBuffer.get(), kVec2f_GrVertexAttribType,
+    attribs->set(this, 0, fCopyProgramArrayBuffer.get(), kHalf2_GrVertexAttribType,
                  2 * sizeof(GrGLfloat), 0);
 
     // dst rect edges in NDC (-1 to 1)
@@ -4095,7 +4095,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
 
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
     attribs->enableVertexArrays(this, 1);
-    attribs->set(this, 0, fMipmapProgramArrayBuffer.get(), kVec2f_GrVertexAttribType,
+    attribs->set(this, 0, fMipmapProgramArrayBuffer.get(), kHalf2_GrVertexAttribType,
                  2 * sizeof(GrGLfloat), 0);
 
     // Set "simple" state once:

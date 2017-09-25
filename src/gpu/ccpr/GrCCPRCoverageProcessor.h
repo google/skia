@@ -73,7 +73,7 @@ public:
         kLoopCorners
     };
     static constexpr GrVertexAttribType InstanceArrayFormat(Mode mode) {
-        return mode < Mode::kQuadraticHulls ? kVec4i_GrVertexAttribType : kVec2i_GrVertexAttribType;
+        return mode < Mode::kQuadraticHulls ? kInt4_GrVertexAttribType : kInt2_GrVertexAttribType;
     }
     static const char* GetProcessorName(Mode);
 
@@ -81,7 +81,7 @@ public:
 
     const char* instanceAttrib() const { return fInstanceAttrib.fName; }
     int atlasOffsetIdx() const {
-        return kVec4i_GrVertexAttribType == InstanceArrayFormat(fMode) ? 3 : 1;
+        return kInt4_GrVertexAttribType == InstanceArrayFormat(fMode) ? 3 : 1;
     }
     const char* name() const override { return GetProcessorName(fMode); }
     SkString dumpInfo() const override {
