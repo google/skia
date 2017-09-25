@@ -13,6 +13,8 @@
 #include "SkOpEdgeBuilder.h"
 // #include "SkPathOpsSimplifyAA.h"
 // #include "SkPathStroker.h"
+#include "SkPathMeasure.h"
+#include "SkStrokeRec.h"
 #include "SkView.h"
 
 #if 0
@@ -485,7 +487,7 @@ static void construct_path(SkPath& path) {
 }
 
 struct ButtonPaints {
-    static const int kMaxStateCount = 3;
+    static const int kMaxStateCount = 4;
     SkPaint fDisabled;
     SkPaint fStates[kMaxStateCount];
     SkPaint fLabel;
@@ -810,6 +812,7 @@ class AAGeometryView : public SampleView {
     Button fInOutButton;
     SkTArray<Stroke> fStrokes;
     PathUndo* fUndo;
+    SkScalar fBallInterval;
     int fActivePt;
     int fActiveVerb;
     bool fHandlePathMove;
@@ -832,11 +835,12 @@ public:
         , fDeleteButton('x')
         , fFillButton('p')
         , fSkeletonButton('s')
-        , fFilterButton('f', 3)
+        , fFilterButton('f', 4)
         , fBisectButton('b')
         , fJoinButton('j')
         , fInOutButton('|')
         , fUndo(nullptr)
+        , fBallInterval(5)
         , fActivePt(-1)
         , fActiveVerb(-1)
         , fHandlePathMove(true)
@@ -1047,16 +1051,29 @@ public:
         SkScalar lastLen = lastVector.length();
         SkVector nextV = vector;
         SkScalar nextLen = vector.length();
+        SkScalar hypLen;
         if (lastLen < nextLen) {
             lastV.setLength(nextLen);
+            hypLen = nextLen;
         } else {
             nextV.setLength(lastLen);
+            hypLen = lastLen;
         }
 
-        SkVector bisect = { (lastV.fX + nextV.fX) / 2, (lastV.fY + nextV.fY) / 2 };
-        bisect.setLength(fWidthControl.fValLo * 2);
+        SkVector bisect = { lastV.fX + nextV.fX, lastV.fY + nextV.fY };
+        SkVector angleOpp = lastV - nextV;
+        angleOpp.scale(0.5);
+        SkScalar oppLen = angleOpp.length();
+        SkScalar oppSin = oppLen / hypLen;
+        bisect.setLength(fWidthControl.fValLo * hypLen / oppLen);
         if (fBisectButton.enabled()) {
-            canvas->drawLine(pt, pt + bisect, fSkeletonPaint);
+            SkPoint bisectEnd = pt + bisect;
+            canvas->drawLine(pt, bisectEnd, fSkeletonPaint);
+            canvas->drawLine(bisectEnd, bisectEnd + lastV, fSkeletonPaint);
+            canvas->drawLine(bisectEnd, bisectEnd + nextV, fSkeletonPaint);
+            SkPoint bisectStart = pt - bisect;
+            canvas->drawLine(bisectStart, bisectStart + lastV, fSkeletonPaint);
+            canvas->drawLine(bisectStart, bisectStart + nextV, fSkeletonPaint);
         }
         lastV.setLength(fWidthControl.fValLo);
         if (fBisectButton.enabled()) {
@@ -1518,15 +1535,7 @@ public:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
-#if 0
-        SkDEBUGCODE(SkDebugStrokeGlobals debugGlobals);
-        SkOpAA aaResult(fPath, fWidthControl.fValLo, fResControl.fValLo
-                SkDEBUGPARAMS(&debugGlobals));
-#endif
-        SkPath strokePath;
-//        aaResult.simplify(&strokePath);
-        canvas->drawPath(strokePath, fSkeletonPaint);
+    void draw_coverage(SkCanvas* canvas) {
         SkRect bounds = fPath.getBounds();
         SkScalar radius = fWidthControl.fValLo;
         int w = (int) (bounds.fRight + radius + 1);
@@ -1547,6 +1556,56 @@ public:
             canvas->drawBitmap(filteredMap, 0, 0, &fCoveragePaint);
         } else if (fFilterButton.enabled()) {
             canvas->drawBitmap(distMap, 0, 0, &fCoveragePaint);
+        }
+    }
+
+    void draw_ball(SkCanvas* canvas) {
+        // get dash positions along path
+        // for each color in gradient
+        // draw ball at the desired diameter and translucency to its own bitmap
+        // keep max value
+        // compute partial pixel coverage as well
+        SkPath fWidth;
+        fWidth.moveTo(0, .3f);
+        fWidth.lineTo(1, .3f);
+        fWidth.quadTo(1.5f, .6f, 2, .3f);
+        fWidth.quadTo(2.5f, .8f, 3, .4f);
+        fWidth.quadTo(3.5f, .9f, 4, .3f);
+        fWidth.lineTo(5, .3f);
+        SkPathMeasure measure(fPath, false);
+        SkPathMeasure wMeasure(fWidth, false);
+        SkScalar length = measure.getLength();
+        SkScalar wLength = wMeasure.getLength();
+        SkPaint paint(fCoveragePaint);
+        for (SkScalar interval = 0; interval < length; interval += fBallInterval) {
+            SkPoint position;
+            if (!measure.getPosTan(interval, &position, nullptr)) {
+                break;
+            }
+            SkPoint wPos;
+            wMeasure.getPosTan(interval * wLength / length, &wPos, nullptr);
+            int r = (int) (255 * interval * 4 / length) % 510;
+            if (r > 255) r = 510 - r;
+            int g = (int) (255 * wPos.fY * 6) % 510;
+            if (g > 255) g = 510 - g;
+            paint.setARGB(0xFF,  SkTMin(255, r), SkTMin(255, g), 0);
+            canvas->drawCircle(position, fWidthControl.fValLo * wPos.fY, paint);
+        }
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+#if 0
+        SkDEBUGCODE(SkDebugStrokeGlobals debugGlobals);
+        SkOpAA aaResult(fPath, fWidthControl.fValLo, fResControl.fValLo
+                SkDEBUGPARAMS(&debugGlobals));
+#endif
+        SkPath strokePath;
+//        aaResult.simplify(&strokePath);
+        canvas->drawPath(strokePath, fSkeletonPaint);
+        if (fFilterButton.fState == 1 || fFillButton.fState == 2) {
+            draw_coverage(canvas);
+        } else if (fFilterButton.fState == 3) {
+            draw_ball(canvas);
         }
         if (fSkeletonButton.enabled()) {
             canvas->drawPath(fPath, fActiveVerb >= 0 ? fLightSkeletonPaint : fSkeletonPaint);
