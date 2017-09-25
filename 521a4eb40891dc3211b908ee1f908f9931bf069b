@@ -22,6 +22,30 @@
       "revId": "521a4eb40891dc3211b908ee1f908f9931bf069b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb058f87_d035115a",
+        "filename": "samplecode/SampleApp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 944,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-25T18:55:48Z",
+      "side": 1,
+      "message": "Done, thanks! I forgot that convention again -_-...",
+      "parentUuid": "eb0207a2_9712c42a",
+      "range": {
+        "startLine": 944,
+        "startChar": 8,
+        "endLine": 944,
+        "endChar": 19
+      },
+      "revId": "521a4eb40891dc3211b908ee1f908f9931bf069b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
