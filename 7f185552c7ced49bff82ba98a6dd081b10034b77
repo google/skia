@@ -93,6 +93,52 @@
       "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2227e7a8_43e74486",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-25T11:26:44Z",
+      "side": 1,
+      "message": "Is there a difference between Haswell on GCE and on desktop?  We already have GCE in the name.",
+      "range": {
+        "startLine": 147,
+        "startChar": 30,
+        "endLine": 147,
+        "endChar": 41
+      },
+      "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9849cdee_5a3a3e71",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-25T11:26:44Z",
+      "side": 1,
+      "message": "I\u0027m nit picking, but the underscores here are making me sad.",
+      "range": {
+        "startLine": 346,
+        "startChar": 29,
+        "endLine": 346,
+        "endChar": 45
+      },
+      "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
