@@ -254,6 +254,8 @@ private:
     int fThreads = 0;
     std::unique_ptr<SkExecutor> fExecutor;
 
+    int fMeasureMS; // the number of milliseconds to measure the FPS before we close the SampleApp
+
     void loadView(SkView*);
     void updateTitle();
     bool getRawTitle(SkString*);
