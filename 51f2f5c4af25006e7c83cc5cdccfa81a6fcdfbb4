@@ -1,0 +1,349 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a9450a0_903567fe",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "Let\u0027s update this method. SkCodec now stores the options and dstInfo, so you can just access them here with dstInfo() and options(). Those parameters can be removed. You now store the dst and rowBytes as fDst and fDstRowBytes, so again there is no need for those parameters. I think the only parameter left that you need is count.",
+      "range": {
+        "startLine": 498,
+        "startChar": 17,
+        "endLine": 499,
+        "endChar": 46
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25cb2319_6ae722db",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "Now that we care about continuing a decode, we need to handle this differently. If there was a longjmp, we should keep track of that somehow so we don\u0027t try to continue decoding. We should also return kErrorInInput rather than kIncompleteInput.",
+      "range": {
+        "startLine": 502,
+        "startChar": 8,
+        "endLine": 502,
+        "endChar": 16
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82675d2c_29ef17b6",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "I think you want to do this inside onIncrementalDecode, rather than here. With it here, I don\u0027t think you\u0027ll continue to read if more data is provided.",
+      "range": {
+        "startLine": 769,
+        "startChar": 21,
+        "endLine": 769,
+        "endChar": 39
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20334dd2_20a3ca0d",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "I\u0027m not sure it\u0027s helpful to have a separate method for this. (SkPngCodec has a method because it\u0027s called from more than one place.)",
+      "range": {
+        "startLine": 785,
+        "startChar": 4,
+        "endLine": 785,
+        "endChar": 12
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68d28c55_6c7bab5a",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "This name is confusing. This is the number of lines we have not yet skipped. Maybe this should be something like \"fLinesToSkip\"?",
+      "range": {
+        "startLine": 806,
+        "startChar": 8,
+        "endLine": 806,
+        "endChar": 21
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05062905_7939e993",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "Please add a fixme here, as this does not work for suspending data sources:\n\n// FIXME: This does not work for suspending data sources. skbug.com/4036\n\nThis won\u0027t be a problem for Chromium, which doesn\u0027t try to take advantage of skipping scanlines.",
+      "range": {
+        "startLine": 807,
+        "startChar": 25,
+        "endLine": 807,
+        "endChar": 44
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f62e86f7_09133ed8",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "nit: formatting\n\nWe put a space between \"if\" and \"(\", and put braces around this code:\n\n    if (fLinesSkipped) {\n        return kIncompleteInput;\n    }\n\nWe also need to set \"rowsDecoded\"",
+      "range": {
+        "startLine": 808,
+        "startChar": 8,
+        "endLine": 809,
+        "endChar": 45
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7756b27_c14e7571",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "readRows does a lot of setup, and takes care of looping if we want consecutive rows. Maybe it would be worth it to special case when sampleY \u003d\u003d 1?",
+      "range": {
+        "startLine": 814,
+        "startChar": 19,
+        "endLine": 814,
+        "endChar": 27
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "508b6e79_9ad9c6a6",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 816,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "This needs a space: \"if (\"",
+      "range": {
+        "startLine": 816,
+        "startChar": 12,
+        "endLine": 816,
+        "endChar": 15
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1321e21e_61029851",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 824,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "Please add braces.",
+      "range": {
+        "startLine": 823,
+        "startChar": 8,
+        "endLine": 824,
+        "endChar": 18
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e03e99c_cc2207a6",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "Need to set rowsDecoded.",
+      "range": {
+        "startLine": 829,
+        "startChar": 12,
+        "endLine": 829,
+        "endChar": 44
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1522768_910bb85e",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 31
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "This comment is not necessary.",
+      "range": {
+        "startLine": 132,
+        "startChar": 6,
+        "endLine": 132,
+        "endChar": 74
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ab81440_e3673c45",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 31
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "Let\u0027s lose this comment. The variable name is self-explanatory.",
+      "range": {
+        "startLine": 160,
+        "startChar": 4,
+        "endLine": 161,
+        "endChar": 19
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea25a1d5_c79535ae",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "I think in this case, we\u0027ll end up with an SkJpegCodec, which is why you switched supportsScanlineDecoding from true to false. So I think you should add a \"true\" to the end for \"supportsNewScanlineDecoding\" to test incrementalDecode.",
+      "range": {
+        "startLine": 527,
+        "startChar": 4,
+        "endLine": 527,
+        "endChar": 83
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96c8a511_d537e366",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 1,
+      "message": "This seems a little suspicious to me. We only have half the data, but it\u0027s now enough to decode the full image?",
+      "range": {
+        "startLine": 972,
+        "startChar": 63,
+        "endLine": 972,
+        "endChar": 90
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

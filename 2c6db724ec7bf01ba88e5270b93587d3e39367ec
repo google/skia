@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53ab7f1d_82172e9e",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 0,
+      "message": "Hmm, I think you want to leave this one. It looks like kScanline_Mode will test incrementalDecode for files that end in \"jpeg\" (etc) now.",
+      "range": {
+        "startLine": 614,
+        "startChar": 44,
+        "endLine": 614,
+        "endChar": 58
+      },
+      "revId": "2c6db724ec7bf01ba88e5270b93587d3e39367ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bae3ee9a_3fe6f11c",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 0,
+      "message": "This is the only place we use kStripeMode, so we should be able to delete it.",
+      "range": {
+        "startLine": 615,
+        "startChar": 44,
+        "endLine": 615,
+        "endChar": 56
+      },
+      "revId": "2c6db724ec7bf01ba88e5270b93587d3e39367ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5ab7d5f_2ccd0342",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T19:43:47Z",
+      "side": 0,
+      "message": "Same here.",
+      "range": {
+        "startLine": 616,
+        "startChar": 44,
+        "endLine": 616,
+        "endChar": 65
+      },
+      "revId": "2c6db724ec7bf01ba88e5270b93587d3e39367ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
