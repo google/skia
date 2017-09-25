@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "13556ca1_487e4eac",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-25T12:22:17Z",
+      "side": 1,
+      "message": "In practice \"SandyBridge\" or \"IvyBridge\" is much more informative than model number.  That rarely matters, but we\u0027d have to look it up every time to the thing we care about, the processor family codename.",
+      "parentUuid": "6070b3bf_632adae9",
+      "range": {
+        "startLine": 251,
+        "startChar": 5,
+        "endLine": 251,
+        "endChar": 12
+      },
+      "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2227e7a8_43e74486",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 11
@@ -107,6 +131,30 @@
       "writtenOn": "2017-09-25T11:26:44Z",
       "side": 1,
       "message": "Is there a difference between Haswell on GCE and on desktop?  We already have GCE in the name.",
+      "range": {
+        "startLine": 147,
+        "startChar": 30,
+        "endLine": 147,
+        "endChar": 41
+      },
+      "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80879010_5b247b75",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-25T12:22:17Z",
+      "side": 1,
+      "message": "No, not interestingly so.  I\u0027d prefer \"Haswell\" here.",
+      "parentUuid": "2227e7a8_43e74486",
       "range": {
         "startLine": 147,
         "startChar": 30,
