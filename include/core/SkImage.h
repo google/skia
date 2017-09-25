@@ -427,6 +427,17 @@ public:
      */
     static sk_sp<SkImage> MakeFromDeferredTextureImageData(GrContext*, const void*, SkBudgeted);
 
+    /**
+     * Returns a GrBackendTexture with the contents of the provided image. This texture is owned
+     * by the caller, and Skia will not destroy it.
+     *
+     * Note that if the SkImage is both texture backed and Unowned (the only reference is
+     * std::moved into this function), Skia can return the texture directly, avoiding any
+     * conversions or copies.
+     */
+    static GrBackendTexture MakeBackendTextureFromSkImage(sk_sp<SkImage>);
+
+
     // Helper functions to convert to SkBitmap
 
     enum LegacyBitmapMode {

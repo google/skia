@@ -914,6 +914,21 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+GrBackendTexture SkImage::MakeBackendTextureFromSkImage(GrContext* ctx, sk_sp<SkImage> image) {
+    if (!image->isTextureBacked()) {
+        // Ensure we have a texture backed image.
+        image = image->makeTextureImage(ctx, image->colorSpace());
+    }
+
+    // Ask the GrTexture to return an unowned backend object. If the image is unique we can
+    // take ownership of the existng texture.
+    bool take_ownership = image->unique();
+    GrTexturePriv* texture_priv = image->getTexture()->texturePriv();
+    return texture_priv->makeBackendTexture(take_ownership);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo& info,
                                               const GrMipLevel texels[], int mipLevelCount,
                                               SkBudgeted budgeted,
