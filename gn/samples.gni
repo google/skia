@@ -38,6 +38,7 @@ samples_sources = [
   "$_samplecode/SampleColorFilter.cpp",
   "$_samplecode/SampleComplexClip.cpp",
   "$_samplecode/SampleConcavePaths.cpp",
+  "$_samplecode/SampleCowboy.cpp",
   "$_samplecode/SampleDegenerateTwoPtRadials.cpp",
   "$_samplecode/SampleDither.cpp",
   "$_samplecode/SampleEffects.cpp",
