@@ -15,11 +15,10 @@
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
                                const void* srcData, size_t /*rowBytes*/, uint32_t flags)
         : INHERITED(srcDesc, fit, budgeted, flags)
-        , fIsMipMapped(srcDesc.fIsMipMapped)
+        , fIsMipMapped(false)
         , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
         , fCache(nullptr) {
     SkASSERT(!srcData);  // currently handled in Make()
-    SkASSERT(!fIsMipMapped);
 }
 
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)

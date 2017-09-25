@@ -186,7 +186,6 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         // the subregion into the base layer and then let the GPU generate the rest of the mip
         // levels.
         SkASSERT(!proxy->isMipMapped());
-        desc.fIsMipMapped = false;
 
         sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeDeferredSurfaceContext(
             desc, SkBackingFit::kExact, SkBudgeted::kYes));
