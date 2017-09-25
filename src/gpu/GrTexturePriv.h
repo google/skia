@@ -60,6 +60,9 @@ public:
                                   bool isRenderTarget, int sampleCnt,
                                   bool isMipMapped, GrScratchKey* key);
 
+    GrBackendTexture makeBackendTexture(bool take_ownership) {
+        return fTexture->onMakeBackendTexture(take_ownership);
+    }
 
 private:
     GrTexturePriv(GrTexture* texture) : fTexture(texture) { }

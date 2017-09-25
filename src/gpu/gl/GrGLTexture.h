@@ -94,6 +94,8 @@ private:
         }
     }
 
+    GrBackendTexture onMakeBackendTexture(bool);
+
     TexParams                       fTexParams;
     GrGpu::ResetTimestamp           fTexParamsTimestamp;
     // Holds the texture target and ID. A pointer to this may be shared to external clients for
