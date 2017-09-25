@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fed707d8_9153767f",
+        "filename": "src/core/SkBlitter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-25T15:12:58Z",
+      "side": 1,
+      "message": "Being required to pass both rect and rect.roundOut() is an unusual API.\n\nI think I\u0027d prefer to land slower code than code requiring this change.",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 74,
+        "endChar": 68
+      },
+      "revId": "71c51373b2b6020eb6f9c3f70bf5a93bee0f642c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
