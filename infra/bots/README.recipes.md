@@ -691,9 +691,9 @@ Return a list of targets to build, depending on the builder type.
 &mdash; **def [RunSteps](/infra/bots/recipe_modules/ct/examples/full.py#12)(api):**
 ### *recipes* / [ct\_skps](/infra/bots/recipes/ct_skps.py)
 
-[DEPS](/infra/bots/recipes/ct_skps.py#9): [depot\_tools/gsutil][depot_tools/recipe_modules/gsutil], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [core](#recipe_modules-core), [ct](#recipe_modules-ct), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [skia\_swarming](#recipe_modules-skia_swarming), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipes/ct_skps.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [core](#recipe_modules-core), [ct](#recipe_modules-ct), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [skia\_swarming](#recipe_modules-skia_swarming), [vars](#recipe_modules-vars)
 
-&mdash; **def [RunSteps](/infra/bots/recipes/ct_skps.py#44)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/ct_skps.py#43)(api):**
 ### *recipes* / [env:examples/full](/infra/bots/recipe_modules/env/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/env/examples/full.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/step][recipe_engine/recipe_modules/step], [env](#recipe_modules-env)
@@ -755,20 +755,20 @@ Return a list of targets to build, depending on the builder type.
 
 [DEPS](/infra/bots/recipes/perf.py#12): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [core](#recipe_modules-core), [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
-&mdash; **def [RunSteps](/infra/bots/recipes/perf.py#351)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/perf.py#356)(api):**
 
 &mdash; **def [nanobench\_flags](/infra/bots/recipes/perf.py#29)(api, bot):**
 
-&mdash; **def [perf\_steps](/infra/bots/recipes/perf.py#237)(api):**
+&mdash; **def [perf\_steps](/infra/bots/recipes/perf.py#242)(api):**
 
 Run Skia benchmarks.
 ### *recipes* / [recreate\_skps](/infra/bots/recipes/recreate_skps.py)
 
-[DEPS](/infra/bots/recipes/recreate_skps.py#9): [depot\_tools/gclient][depot_tools/recipe_modules/gclient], [depot\_tools/gsutil][depot_tools/recipe_modules/gsutil], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [core](#recipe_modules-core), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipes/recreate_skps.py#9): [depot\_tools/gclient][depot_tools/recipe_modules/gclient], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [core](#recipe_modules-core), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 Recipe for the Skia RecreateSKPs Bot.
 
-&mdash; **def [RunSteps](/infra/bots/recipes/recreate_skps.py#59)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/recreate_skps.py#58)(api):**
 ### *recipes* / [run:examples/full](/infra/bots/recipe_modules/run/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/run/examples/full.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
@@ -804,17 +804,17 @@ benchmark Skia using skpbench.
 
 [DEPS](/infra/bots/recipes/test.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [core](#recipe_modules-core), [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
-&mdash; **def [RunSteps](/infra/bots/recipes/test.py#861)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/test.py#865)(api):**
 
 &mdash; **def [dm\_flags](/infra/bots/recipes/test.py#27)(api, bot):**
 
-&mdash; **def [key\_params](/infra/bots/recipes/test.py#687)(api):**
+&mdash; **def [key\_params](/infra/bots/recipes/test.py#691)(api):**
 
 Build a unique key from the builder name (as a list).
 
 E.g.  arch x86 gpu GeForce320M mode MacMini4.1 os Mac10.6
 
-&mdash; **def [test\_steps](/infra/bots/recipes/test.py#704)(api):**
+&mdash; **def [test\_steps](/infra/bots/recipes/test.py#708)(api):**
 
 Run the DM test.
 ### *recipes* / [update\_meta\_config](/infra/bots/recipes/update_meta_config.py)
