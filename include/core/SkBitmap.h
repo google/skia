@@ -135,7 +135,7 @@ public:
      *  that all bitmaps that might be sharing (subsets of) the pixels will
      *  be affected.
      */
-    bool setAlphaType(SkAlphaType);
+    bool setAlphaType(SkAlphaType alphaType);
 
     /** Return the address of the pixels for this SkBitmap.
     */
