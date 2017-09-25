@@ -22,6 +22,30 @@
       "revId": "1e3b79e0c6480ea7e372ec4e5a2c5e11a03a845d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b5b899c_4abe0866",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-25T13:14:26Z",
+      "side": 0,
+      "message": "The tools are statically linking skia, but we don\u0027t hit the ordering issue due to \"group_static_libs\"",
+      "parentUuid": "55ed552c_f11791b8",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 72
+      },
+      "revId": "1e3b79e0c6480ea7e372ec4e5a2c5e11a03a845d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

@@ -22,6 +22,30 @@
       "revId": "03fb97a7412314f94bd6e5d6755202456d8ad061",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "beabe08b_78b4987d",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-25T13:14:26Z",
+      "side": 1,
+      "message": "This is the dependencies that are needed to both compile libskia.a and that are also needed by any other library (e.g. libhwui) that is trying to include libskia.",
+      "parentUuid": "a5677b15_edee22ad",
+      "range": {
+        "startLine": 90,
+        "startChar": 21,
+        "endLine": 90,
+        "endChar": 25
+      },
+      "revId": "03fb97a7412314f94bd6e5d6755202456d8ad061",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
