@@ -17,6 +17,10 @@
 #include "SkSurface.h"
 #include "SkClipOpPriv.h"
 
+uint32_t GrShape::testingOnly_getOriginalGenerationID() const {
+    return fOriginalPath.getGenerationID();
+}
+
 using Key = SkTArray<uint32_t>;
 
 static bool make_key(Key* key, const GrShape& shape) {
@@ -492,6 +496,13 @@ private:
         make_key(&fAppliedPEKey, fAppliedPE);
         make_key(&fAppliedPEThenStrokeKey, fAppliedPEThenStroke);
         make_key(&fAppliedFullKey, fAppliedFull);
+
+        // All shapes should report the same "original" path, so that path renderers can get to it
+        // if necessary.
+        uint32_t baseGenID = fBase.testingOnly_getOriginalGenerationID();
+        REPORTER_ASSERT(r, baseGenID == fAppliedPE.testingOnly_getOriginalGenerationID());
+        REPORTER_ASSERT(r, baseGenID == fAppliedPEThenStroke.testingOnly_getOriginalGenerationID());
+        REPORTER_ASSERT(r, baseGenID == fAppliedFull.testingOnly_getOriginalGenerationID());
 
         // Applying the path effect and then the stroke should always be the same as applying
         // both in one go.

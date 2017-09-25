@@ -46,7 +46,7 @@ public:
 
     explicit GrShape(const SkRect& rect) : GrShape(rect, GrStyle::SimpleFill()) {}
 
-    GrShape(const SkPath& path, const GrStyle& style) : fStyle(style) {
+    GrShape(const SkPath& path, const GrStyle& style) : fStyle(style), fOriginalPath(path) {
         this->initType(Type::kPath, &path);
         this->attemptToSimplifyPath();
     }
@@ -91,7 +91,7 @@ public:
         this->attemptToSimplifyRRect();
     }
 
-    GrShape(const SkPath& path, const SkPaint& paint) : fStyle(paint) {
+    GrShape(const SkPath& path, const SkPaint& paint) : fStyle(paint), fOriginalPath(path) {
         this->initType(Type::kPath, &path);
         this->attemptToSimplifyPath();
     }
@@ -365,6 +365,18 @@ public:
      */
     void writeUnstyledKey(uint32_t* key) const;
 
+    /**
+     * Adds a listener to the *original* path. Typically used to invalidate cached resources when
+     * a path is no longer in-use. If the shape started out as something other than a path, this
+     * does nothing (but will delete the listener).
+     */
+    void addGenIDChangeListener(SkPathRef::GenIDChangeListener* listener) const;
+
+    /**
+     * Gets the generation ID of the *original* path. This is only exposed for unit tests.
+     */
+    uint32_t testingOnly_getOriginalGenerationID() const;
+
 private:
 
     enum class Type {
@@ -492,6 +504,7 @@ private:
         } fLineData;
     };
     GrStyle                     fStyle;
+    SkPath                      fOriginalPath;
     SkAutoSTArray<8, uint32_t>  fInheritedKey;
 };
 #endif
