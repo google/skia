@@ -46,8 +46,7 @@ static SkScalar drawCharacter(SkCanvas* canvas, uint32_t character, SkScalar x,
     // it expects to get the same glyph when following this pattern.
     SkString familyName;
     typeface->getFamilyName(&familyName);
-    paint.setTypeface(sk_sp<SkTypeface>(fm->legacyCreateTypeface(familyName.c_str(),
-                                                                 typeface->fontStyle())));
+    paint.setTypeface(fm->legacyMakeTypeface(familyName.c_str(), typeface->fontStyle()));
     return drawString(canvas, ch, x, y, paint) + 20;
 }
 
