@@ -526,9 +526,11 @@ static PlanningInterface* make_plan(SkArenaAlloc* alloc, double sigma) {
     return plan;
 };
 
+// N.B. 135 is the larges sigma that will not cause a buffer full of 255 mask values to overflow
+// using the Gauss filter.
 SkMaskBlurFilter::SkMaskBlurFilter(double sigmaW, double sigmaH)
-    : fSigmaW{std::max(sigmaW, 0.0)}
-    , fSigmaH{std::max(sigmaH, 0.0)}
+    : fSigmaW{std::min(std::max(sigmaW, 0.0), 135.0)}
+    , fSigmaH{std::min(std::max(sigmaH, 0.0), 135.0)}
 {
     SkASSERT(sigmaW >= 0);
     SkASSERT(sigmaH >= 0);
