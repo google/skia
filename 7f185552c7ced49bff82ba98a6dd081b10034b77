@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "88724081_56ca32d9",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-25T14:39:58Z",
+      "side": 1,
+      "message": "The processor family is often what we\u0027re interested in, but I think we\u0027re also often interested in whether it supports SSE41, AVX, AVX2, AVX512, etc. The family isn\u0027t enough info to determine that, since often Pentiums and Celerons support fewer extensions than the other brands. E.g. these two are both Sandy Bridge but only one has AVX:\nhttps://ark.intel.com/products/53478/Intel-Core-i7-2960XM-Processor-Extreme-Edition-8M-Cache-up-to-3_70-GHz\nhttps://ark.intel.com/products/69360/Intel-Pentium-Processor-997-2M-Cache-1_60-GHz",
+      "parentUuid": "13556ca1_487e4eac",
+      "range": {
+        "startLine": 251,
+        "startChar": 5,
+        "endLine": 251,
+        "endChar": 12
+      },
+      "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2227e7a8_43e74486",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 11
@@ -167,6 +191,30 @@
     },
     {
       "key": {
+        "uuid": "03cc27de_420a171c",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-25T14:39:58Z",
+      "side": 1,
+      "message": "On GCE, the CPU is virtualized. We have no information on whether \"Haswell\" means the same thing on different VMs. It\u0027s possible that GCE reports the CPU is Haswell even if it\u0027s emulated on Sandy Bridge or Skylake (although I think that\u0027s unlikely).\n\nIn practice, my guess is that within a particular datacenter, all Haswell CPUs are identical, and the CPU platform reported by GCE reflects the physical CPU. I don\u0027t know how zones map to datacenters, though.\n\nAnyhoo, I\u0027ll remove GCE from the job name since it doesn\u0027t provide any new information.",
+      "parentUuid": "80879010_5b247b75",
+      "range": {
+        "startLine": 147,
+        "startChar": 30,
+        "endLine": 147,
+        "endChar": 41
+      },
+      "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9849cdee_5a3a3e71",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 11
@@ -178,6 +226,30 @@
       "writtenOn": "2017-09-25T11:26:44Z",
       "side": 1,
       "message": "I\u0027m nit picking, but the underscores here are making me sad.",
+      "range": {
+        "startLine": 346,
+        "startChar": 29,
+        "endLine": 346,
+        "endChar": 45
+      },
+      "revId": "7f185552c7ced49bff82ba98a6dd081b10034b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2caedb9c_0d59581c",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 11
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-25T14:39:58Z",
+      "side": 1,
+      "message": "I will remove the underscores where there\u0027s no ambiguity. I\u0027m a bit conflicted about \"E52697v2\" and \"E52670\". Google finds exactly what I meant, but it\u0027s a hot mess.",
+      "parentUuid": "9849cdee_5a3a3e71",
       "range": {
         "startLine": 346,
         "startChar": 29,
