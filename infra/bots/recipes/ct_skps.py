@@ -9,7 +9,6 @@ import math
 DEPS = [
   'core',
   'ct',
-  'depot_tools/gsutil',
   'flavor',
   'recipe_engine/context',
   'recipe_engine/file',
@@ -219,18 +218,13 @@ def RunSteps(api):
         output_dir = api.skia_swarming.tasks_output_dir.join(
             task.title).join('0')
         utc = api.time.utcnow()
-        gs_dest_dir = 'ct/%s/%d/%02d/%02d/%02d/' % (
+        gs_dest_dir = 'gs://skia-perf/ct/%s/%d/%02d/%02d/%02d/' % (
             ct_page_type, utc.year, utc.month, utc.day, utc.hour)
         for json_output in api.file.listdir(
             'listdir output dir', output_dir, test_data=['file 1', 'file 2']):
           with api.context(env=env):
-            api.gsutil.upload(
-                name='upload json output',
-                source=json_output,
-                bucket='skia-perf',
-                dest=gs_dest_dir,
-                args=['-R']
-            )
+            cmd = ['gsutil', 'cp', '-R', json_output, gs_dest_dir]
+            api.step('upload json output', cmd=cmd, infra_step=True)
 
     except api.step.StepFailure as e:
       # Add SKP links for convenience.

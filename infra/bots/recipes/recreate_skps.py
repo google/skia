@@ -9,7 +9,6 @@
 DEPS = [
   'core',
   'depot_tools/gclient',
-  'depot_tools/gsutil',
   'infra',
   'recipe_engine/context',
   'recipe_engine/file',
@@ -47,8 +46,8 @@ class DownloadGitCookies(object):
     self._api = api
 
   def __enter__(self):
-    gsutil_args = ['cp', self._gs_path, self._local_path]
-    self._api.gsutil(gsutil_args, use_retry_wrapper=False)
+    cmd = ['gsutil', 'cp', self._gs_path, self._local_path]
+    self._api.step('download gitcookies', cmd=cmd, infra_step=True)
 
   def __exit__(self, exc_type, _value, _traceback):
     if self._api.path.exists(self._local_path):

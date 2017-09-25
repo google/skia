@@ -245,16 +245,13 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
-      "--",
+      "gsutil",
       "cp",
       "gs://skia-buildbots/artifacts/server/.gitcookies_update-skps",
       "[START_DIR]/update_skps.git_cookies"
     ],
     "infra_step": true,
-    "name": "gsutil cp"
+    "name": "download gitcookies"
   },
   {
     "cmd": [
