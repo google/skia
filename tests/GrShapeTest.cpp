@@ -493,6 +493,13 @@ private:
         make_key(&fAppliedPEThenStrokeKey, fAppliedPEThenStroke);
         make_key(&fAppliedFullKey, fAppliedFull);
 
+        // All shapes should report the same "original" path, so that path renderers can get to it
+        // if necessary.
+        uint32_t baseGenID = fBase.getOriginalGenerationID();
+        REPORTER_ASSERT(r, baseGenID == fAppliedPE.getOriginalGenerationID());
+        REPORTER_ASSERT(r, baseGenID == fAppliedPEThenStroke.getOriginalGenerationID());
+        REPORTER_ASSERT(r, baseGenID == fAppliedFull.getOriginalGenerationID());
+
         // Applying the path effect and then the stroke should always be the same as applying
         // both in one go.
         REPORTER_ASSERT(r, fAppliedPEThenStrokeKey == fAppliedFullKey);
