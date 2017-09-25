@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "736c5714_496c1c4d",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-09-25T04:33:42Z",
+      "side": 1,
+      "message": "This isn\u0027t a thing :D - I assume Skia has a straightforward way to copy textures, but couldn\u0027t find it...",
+      "range": {
+        "startLine": 140,
+        "startChar": 40,
+        "endLine": 140,
+        "endChar": 51
+      },
+      "revId": "7adf778ca16d98365848ff6e5467e78d3957e1a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
