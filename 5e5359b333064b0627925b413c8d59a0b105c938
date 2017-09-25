@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f7b0c9e_2930ca11",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-09-25T20:54:36Z",
+      "side": 1,
+      "message": "typo: largest",
+      "range": {
+        "startLine": 529,
+        "startChar": 19,
+        "endLine": 529,
+        "endChar": 25
+      },
+      "revId": "5e5359b333064b0627925b413c8d59a0b105c938",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "625ab719_542f06bf",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-09-25T20:54:36Z",
+      "side": 1,
+      "message": "Can you add more details on how you arrive to this value?  Or better yet, can you inline the calculation instead of hardcoding the result?",
+      "range": {
+        "startLine": 529,
+        "startChar": 8,
+        "endLine": 529,
+        "endChar": 11
+      },
+      "revId": "5e5359b333064b0627925b413c8d59a0b105c938",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f26e764e_29420985",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-09-25T20:54:36Z",
+      "side": 1,
+      "message": "nit: SkTPin?",
+      "range": {
+        "startLine": 532,
+        "startChar": 14,
+        "endLine": 532,
+        "endChar": 31
+      },
+      "revId": "5e5359b333064b0627925b413c8d59a0b105c938",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84f915c3_1696a9dc",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-09-25T20:54:36Z",
+      "side": 1,
+      "message": "ditto.",
+      "range": {
+        "startLine": 533,
+        "startChar": 14,
+        "endLine": 533,
+        "endChar": 32
+      },
+      "revId": "5e5359b333064b0627925b413c8d59a0b105c938",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
