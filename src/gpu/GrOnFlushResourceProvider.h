@@ -9,6 +9,7 @@
 #define GrOnFlushResourceProvider_DEFINED
 
 #include "GrTypes.h"
+#include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
@@ -43,9 +44,14 @@ public:
 
     /**
      * Called once flushing is complete and all ops indicated by preFlush have been executed and
-     * released.
+     * released. startTokenForNextFlush can be used to track resources used in the current flush.
      */
-    virtual void postFlush() {}
+    virtual void postFlush(GrDrawOpUploadToken startTokenForNextFlush) {}
+
+    /**
+      * Tells the calback owner to hold onto this object when freeing GPU resources
+      */
+    virtual bool retainOnFreeGpuResources() { return false; }
 
 private:
     typedef SkRefCnt INHERITED;
