@@ -84,7 +84,7 @@ TEST_BUILDERS = [
   'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-MSAN',
   'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN',
   'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow',
-  'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs',
+  'Perf-Ubuntu14-GCC-GCE-CPU-AVX-x86_64-Release-CT_BENCH_1k_SKPs',
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release',
   ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-'
    'Valgrind_AbandonGpuContext'),
