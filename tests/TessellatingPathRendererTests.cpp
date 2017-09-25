@@ -13,6 +13,7 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrResourceCache.h"
 #include "SkGradientShader.h"
 #include "SkShaderBase.h"
 #include "effects/GrPorterDuffXferProcessor.h"
@@ -389,7 +390,8 @@ static void test_path(GrContext* ctx,
                       const SkPath& path,
                       const SkMatrix& matrix = SkMatrix::I(),
                       GrAAType aaType = GrAAType::kNone,
-                      std::unique_ptr<GrFragmentProcessor> fp = nullptr) {
+                      std::unique_ptr<GrFragmentProcessor> fp = nullptr,
+                      GrStyle style = GrStyle(SkStrokeRec::kFill_InitStyle)) {
     GrTessellatingPathRenderer tess;
 
     GrPaint paint;
@@ -401,8 +403,11 @@ static void test_path(GrContext* ctx,
     GrNoClip noClip;
     SkIRect clipConservativeBounds = SkIRect::MakeWH(renderTargetContext->width(),
                                                      renderTargetContext->height());
-    GrStyle style(SkStrokeRec::kFill_InitStyle);
     GrShape shape(path, style);
+    if (shape.style().applies()) {
+        SkScalar styleScale = GrStyle::MatrixToScaleFactor(matrix);
+        shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, styleScale);
+    }
     GrPathRenderer::DrawPathArgs args{ctx,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
@@ -459,4 +464,67 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_23());
     test_path(ctx, rtc.get(), create_path_24());
 }
+
+DEF_GPUTEST(TessellatingPathRendererCacheTest, reporter, factory) {
+    sk_sp<GrContext> ctx = GrContext::MakeMock(nullptr);
+    ctx->setResourceCacheLimits(100, 10000);
+    GrResourceCache* cache = ctx->getResourceCache();
+
+    sk_sp<GrRenderTargetContext> rtc(ctx->makeDeferredRenderTargetContext(
+            SkBackingFit::kApprox, 800, 800, kRGBA_8888_GrPixelConfig, nullptr, 0,
+            kTopLeft_GrSurfaceOrigin));
+    if (!rtc) {
+        return;
+    }
+
+    {
+        SkPath path = create_path_0();
+
+        // Initially, cache only has the render target context
+        REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+
+        // Draw the path, which should add a VB to the cache
+        test_path(ctx.get(), rtc.get(), path);
+        ctx->flush();
+        REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
+
+        // Nothing should be purgeable yet
+        cache->purgeAsNeeded();
+        REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
+
+        // Reset the path to change the GenID, which should invalidate the VB, and make it purgeable
+        path.reset();
+        cache->purgeAsNeeded();
+        REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+    }
+
+    {
+        // Now try a harder case - a shape with a style that applies. This needs to attach the
+        // invalidation logic to the original path, not the modified path produced by the style.
+        SkPath path = create_path_0();
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(1);
+        GrStyle style(paint);
+
+        // Initially, cache only has the render target context
+        REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+
+        // Draw the path, which should add a VB to the cache
+        test_path(ctx.get(), rtc.get(), path, SkMatrix::I(), GrAAType::kNone, nullptr, style);
+        ctx->flush();
+        REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
+
+        // Nothing should be purgeable yet
+        cache->purgeAsNeeded();
+        REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
+
+        // Reset the path to change the GenID, which should invalidate the VB, and make it purgeable
+        path.reset();
+        cache->purgeAsNeeded();
+        REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+    }
+
+}
+
 #endif
