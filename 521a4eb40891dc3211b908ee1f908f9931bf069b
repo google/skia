@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb0207a2_9712c42a",
+        "filename": "samplecode/SampleApp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 944,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-25T18:53:08Z",
+      "side": 1,
+      "message": "Probably this-\u003etoggleFPS()?",
+      "range": {
+        "startLine": 944,
+        "startChar": 8,
+        "endLine": 944,
+        "endChar": 19
+      },
+      "revId": "521a4eb40891dc3211b908ee1f908f9931bf069b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
