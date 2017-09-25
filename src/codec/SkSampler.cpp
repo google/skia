@@ -15,7 +15,7 @@ void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
     SkASSERT(dst != nullptr);
 
     // Calculate bytes to fill.  We use getSafeSize since the last row may not be padded.
-    const size_t bytesToFill = info.getSafeSize(rowBytes);
+    const size_t bytesToFill = info.getSize(rowBytes);
     const int width = info.width();
     const int numRows = info.height();
 
