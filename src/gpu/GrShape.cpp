@@ -9,6 +9,7 @@
 
 GrShape& GrShape::operator=(const GrShape& that) {
     fStyle = that.fStyle;
+    fOriginalPath = that.fOriginalPath;
     this->changeType(that.fType, Type::kPath == that.fType ? &that.path() : nullptr);
     switch (fType) {
         case Type::kEmpty:
@@ -66,6 +67,7 @@ GrShape GrShape::MakeFilled(const GrShape& original, FillInversion inversion) {
         return original;
     }
     GrShape result;
+    result.fOriginalPath = original.fOriginalPath;
     switch (original.fType) {
         case Type::kRRect:
             result.fType = original.fType;
@@ -324,7 +326,11 @@ void GrShape::setInheritedKey(const GrShape &parent, GrStyle::Apply apply, SkSca
     }
 }
 
-GrShape::GrShape(const GrShape& that) : fStyle(that.fStyle) {
+void GrShape::addGenIDChangeListener(SkPathRef::GenIDChangeListener* listener) const {
+    SkPathPriv::AddGenIDChangeListener(fOriginalPath, listener);
+}
+
+GrShape::GrShape(const GrShape& that) : fStyle(that.fStyle), fOriginalPath(that.fOriginalPath) {
     const SkPath* thatPath = Type::kPath == that.fType ? &that.fPathData.fPath : nullptr;
     this->initType(that.fType, thatPath);
     switch (fType) {
@@ -380,6 +386,7 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
                                                  scale)) {
             tmpParent.init(*srcForPathEffect, GrStyle(strokeRec, nullptr));
             *this = tmpParent.get()->applyStyle(apply, scale);
+            fOriginalPath = parent.fOriginalPath;
             return;
         }
         // A path effect has access to change the res scale but we aren't expecting it to and it
@@ -430,6 +437,7 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
                                                  scale));
         fStyle.resetToInitStyle(fillOrHairline);
     }
+    fOriginalPath = parent.fOriginalPath;
     this->attemptToSimplifyPath();
     this->setInheritedKey(*parentForKey, apply, scale);
 }
