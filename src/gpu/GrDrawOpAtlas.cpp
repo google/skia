@@ -218,10 +218,13 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
             }
             plotIter.next();
         }
+    }
 
-        // If the above fails, then see if the least recently refed plot has already been
-        // flushed to the gpu
-        plot = fPages[pageIdx].fPlotList.tail();
+    // If the above fails, then see if the least recently used plot per page has already been
+    // flushed to the gpu.
+    // As before we prioritize this upload to the first pages, not the most recently used.
+    for (unsigned int pageIdx = 0; pageIdx < fNumPages; ++pageIdx) {
+        Plot* plot = fPages[pageIdx].fPlotList.tail();
         SkASSERT(plot);
         if (target->hasDrawBeenFlushed(plot->lastUseToken())) {
             this->processEviction(plot->id());
