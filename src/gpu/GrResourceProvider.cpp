@@ -77,7 +77,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
                                                    SkDestinationSurfaceColorMode mipColorMode) {
     ASSERT_SINGLE_OWNER
 
-    SkASSERT(mipLevelCount >= 1);
+    SkASSERT(mipLevelCount > 1);
+    SkASSERT(desc.fIsMipMapped);
 
     if (this->isAbandoned()) {
         return nullptr;
@@ -97,6 +98,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
 
 sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
                                                      SkBudgeted budgeted, uint32_t flags) {
+    SkASSERT(!desc.fIsMipMapped);
     sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
     if (tex && SkBudgeted::kNo == budgeted) {
         tex->resourcePriv().makeUnbudgeted();
@@ -119,6 +121,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
                                                              SkBudgeted budgeted,
                                                              const GrMipLevel& mipLevel) {
     ASSERT_SINGLE_OWNER
+    SkASSERT(!desc.fIsMipMapped);
 
     if (this->isAbandoned()) {
         return nullptr;
@@ -178,6 +181,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
                                                          uint32_t flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(0 == flags || kNoPendingIO_Flag == flags);
+    SkASSERT(!desc.fIsMipMapped);
 
     if (this->isAbandoned()) {
         return nullptr;

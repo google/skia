@@ -19,6 +19,7 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, S
         , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
         , fCache(nullptr) {
     SkASSERT(!srcData);  // currently handled in Make()
+    SkASSERT(!fIsMipMapped);
 }
 
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
