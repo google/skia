@@ -97,7 +97,6 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
 
 sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
                                                      SkBudgeted budgeted, uint32_t flags) {
-    flags |= kExact_Flag | kNoCreate_Flag;
     sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
     if (tex && SkBudgeted::kNo == budgeted) {
         tex->resourcePriv().makeUnbudgeted();
@@ -188,49 +187,51 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
-    return this->refScratchTexture(desc, flags);
+    SkTCopyOnFirstWrite<GrSurfaceDesc> copyDesc(desc);
+
+    // bin by pow2 with a reasonable min
+    if (!SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
+        (fGpu->caps()->reuseScratchTextures() || (desc.fFlags & kRenderTarget_GrSurfaceFlag))) {
+        GrSurfaceDesc* wdesc = copyDesc.writable();
+        wdesc->fWidth  = SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fWidth));
+        wdesc->fHeight = SkTMax(kMinScratchTextureSize, GrNextPow2(desc.fHeight));
+    }
+
+    if (auto tex = this->refScratchTexture(*copyDesc, flags)) {
+        return tex;
+    }
+
+    return fGpu->createTexture(*copyDesc, SkBudgeted::kYes);
 }
 
-sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
+sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc,
                                                        uint32_t flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
-    SkASSERT(validate_desc(inDesc, *fCaps));
-
-    SkTCopyOnFirstWrite<GrSurfaceDesc> desc(inDesc);
+    SkASSERT(validate_desc(desc, *fCaps));
 
     // We could make initial clears work with scratch textures but it is a rare case so we just opt
     // to fall back to making a new texture.
-    if (!SkToBool(inDesc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
-        (fGpu->caps()->reuseScratchTextures() || (desc->fFlags & kRenderTarget_GrSurfaceFlag))) {
-        if (!(kExact_Flag & flags)) {
-            // bin by pow2 with a reasonable min
-            GrSurfaceDesc* wdesc = desc.writable();
-            wdesc->fWidth  = SkTMax(kMinScratchTextureSize, GrNextPow2(desc->fWidth));
-            wdesc->fHeight = SkTMax(kMinScratchTextureSize, GrNextPow2(desc->fHeight));
-        }
+    if (!SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag) &&
+        (fGpu->caps()->reuseScratchTextures() || (desc.fFlags & kRenderTarget_GrSurfaceFlag))) {
 
         GrScratchKey key;
-        GrTexturePriv::ComputeScratchKey(*desc, &key);
+        GrTexturePriv::ComputeScratchKey(desc, &key);
         uint32_t scratchFlags = 0;
         if (kNoPendingIO_Flag & flags) {
             scratchFlags = GrResourceCache::kRequireNoPendingIO_ScratchFlag;
-        } else  if (!(desc->fFlags & kRenderTarget_GrSurfaceFlag)) {
+        } else  if (!(desc.fFlags & kRenderTarget_GrSurfaceFlag)) {
             // If it is not a render target then it will most likely be populated by
             // writePixels() which will trigger a flush if the texture has pending IO.
             scratchFlags = GrResourceCache::kPreferNoPendingIO_ScratchFlag;
         }
         GrGpuResource* resource = fCache->findAndRefScratchResource(key,
-                                                                   GrSurface::WorstCaseSize(*desc),
-                                                                   scratchFlags);
+                                                                    GrSurface::WorstCaseSize(desc),
+                                                                    scratchFlags);
         if (resource) {
             GrSurface* surface = static_cast<GrSurface*>(resource);
             return sk_sp<GrTexture>(surface->asTexture());
         }
-    }
-
-    if (!(kNoCreate_Flag & flags)) {
-        return fGpu->createTexture(*desc, SkBudgeted::kYes);
     }
 
     return nullptr;
