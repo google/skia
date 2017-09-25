@@ -7,6 +7,7 @@
 
 #include "SampleApp.h"
 
+#include "SkCommonFlags.h"
 #include "OverView.h"
 #include "Resources.h"
 #include "SampleCode.h"
@@ -757,6 +758,10 @@ DEFINE_pathrenderer_flag;
 DEFINE_int32(msaa, 0, "Request multisampling with this count.");
 DEFINE_bool(deepColor, false, "Request deep color (10-bit/channel or more) display buffer.");
 #endif
+DEFINE_int32(backendTiles, 0, "Number of tiles in the experimental threaded backend.");
+DEFINE_int32(backendThreads, 0, "Number of threads in the experimental threaded backend.");
+DEFINE_int32(measureMS, 0, "Number of miliseconds to measure the FPS before closing the SampleApp. "
+                           "If it's 0, we won't measure the FPS or close SampleApp automatically.");
 
 #include "SkTaskGroup.h"
 
@@ -923,6 +928,22 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fSaveToPdf = false;
     fSaveToSKP = false;
 
+    gSkUseAnalyticAA = FLAGS_analyticAA;
+    gSkUseDeltaAA = FLAGS_deltaAA;
+    if (FLAGS_forceAnalyticAA) {
+        gSkForceAnalyticAA = true;
+    }
+    if (FLAGS_forceDeltaAA) {
+        gSkForceDeltaAA = true;
+    }
+    fTiles = FLAGS_backendTiles;
+    fThreads = FLAGS_backendThreads;
+    fMeasureMS = FLAGS_measureMS;
+    if (FLAGS_measureMS > 0) {
+        SkASSERT(fMeasureFPS == false);
+        toggleFPS();
+    }
+
     if (true) {
         fPipeSerializer.setTypefaceSerializer(new SampleTFSerializer);
         fPipeDeserializer.setTypefaceDeserializer(new SampleTFDeserializer);
@@ -1042,6 +1063,10 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 }
 
 SampleWindow::~SampleWindow() {
+    if (fMeasureFPS) {
+        SkDebugf("Average frame time of the last slide: %.4f ms\n",
+                 fCumulativeFPS_Time / (float)SkTMax(1, fCumulativeFPS_Count));
+    }
     SkSafeUnref(fDevManager);
 }
 
@@ -2261,6 +2286,10 @@ bool SampleWindow::getRawTitle(SkString* title) {
 }
 
 void SampleWindow::updateTitle() {
+    if (fMeasureMS > 0 && (int)gAnimTimer.msec() > fMeasureMS) {
+        this->closeWindow();
+    }
+
     SkString title;
     if (!this->getRawTitle(&title)) {
         title.set("<unknown>");
