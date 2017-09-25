@@ -1513,3 +1513,24 @@ DEF_TEST(Codec_EncodeICC, r) {
     test_encode_icc(r, SkEncodedImageFormat::kJPEG, SkTransferFunctionBehavior::kIgnore);
     test_encode_icc(r, SkEncodedImageFormat::kWEBP, SkTransferFunctionBehavior::kIgnore);
 }
+
+DEF_TEST(Codec_webp_rowsDecoded, r) {
+    const char* path = "baby_tux.webp";
+    sk_sp<SkData> data(GetResourceAsData(path));
+    if (!data) {
+        return;
+    }
+
+    // Truncate this file so that the header is available but no rows can be
+    // decoded. This should create a codec but fail to decode.
+    size_t truncatedSize = 5000;
+    sk_sp<SkData> subset = SkData::MakeSubset(data.get(), 0, truncatedSize);
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(std::move(subset));
+    if (!codec) {
+        ERRORF(r, "Failed to create a codec for %s truncated to only %lu bytes",
+               path, truncatedSize);
+        return;
+    }
+
+    test_info(r, codec.get(), codec->getInfo(), SkCodec::kInvalidInput, nullptr);
+}
