@@ -16,6 +16,47 @@
       "revId": "75cce0789151908012e2da620e45df3f722b0c1e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8226798_69908928",
+        "filename": "infra/bots/README.recipes.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-25T13:19:36Z",
+      "side": 1,
+      "message": "It\u0027s tracking usage of recipe DEPS, among other things.",
+      "parentUuid": "cb59ed05_84bcd558",
+      "revId": "75cce0789151908012e2da620e45df3f722b0c1e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19ac4a1e_f6b3caa8",
+        "filename": "infra/bots/recipes/ct_skps.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-25T13:19:36Z",
+      "side": 1,
+      "message": "Nit: extra space.",
+      "range": {
+        "startLine": 226,
+        "startChar": 16,
+        "endLine": 226,
+        "endChar": 17
+      },
+      "revId": "75cce0789151908012e2da620e45df3f722b0c1e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
