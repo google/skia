@@ -199,11 +199,15 @@ def RunSteps(api):
   tasks_to_swarm_hashes.sort()
 
   # Trigger all swarming tasks.
-  dimensions={'os': 'Ubuntu-14.04', 'cpu': 'x86-64', 'pool': 'Chrome'}
+  dimensions={'os': 'Ubuntu-14.04'}
   if 'GPU' in buildername:
+    dimensions['cpu'] = 'x86-64-E3-1230_v5'
     dimensions['gpu'] = '10de:104a'
     # See crbug.com/700053
     dimensions['pool'] = 'Chrome-GPU'
+  else:
+    dimensions['cpu'] = 'x86-64-Broadwell_GCE'
+    dimensions['pool'] = 'Chrome'
   tasks = api.skia_swarming.trigger_swarming_tasks(
       tasks_to_swarm_hashes, dimensions=dimensions, io_timeout=40*60)
 
