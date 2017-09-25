@@ -401,7 +401,8 @@ width() * info().bytesPerPixel()
 ##
 .
 
-It is up to the Pixmap creator to ensure that row bytes is a useful value.
+Returns zero if colorType is kUnknown_SkColorType.
+It is up to the Bitmap creator to ensure that row bytes is a useful value.
 
 #Return  byte length of pixel row ##
 
@@ -461,7 +462,7 @@ inset address:  0x7f2a440fb210
 
 Returns pixel count in each pixel row. Should be equal or less than:
 #Formula
-rowBytes() / info.bytesPerPixel()
+rowBytes() / info().bytesPerPixel()
 ##
 . 
 
@@ -476,7 +477,7 @@ pixmap width: 16  info width: 16
 ##
 ##
 
-#SeeAlso height()
+#SeeAlso height() SkImageInfo::width()
 
 ##
 
@@ -489,15 +490,14 @@ Returns pixel row count.
 #Return  pixel height in Image_Info ##
 
 #Example
-    SkImageInfo info = SkImageInfo::MakeA8(16, 32);
-    SkPixmap pixmap(info, nullptr, 64);
+    SkPixmap pixmap(SkImageInfo::MakeA8(16, 32), nullptr, 64);
     SkDebugf("pixmap height: %d  info height: %d\n", pixmap.height(), info.height());
 #StdOut
 pixmap height: 32  info height: 32
 ##
 ##
 
-#SeeAlso width()
+#SeeAlso width() ImageInfo::height()
 
 ##
 
@@ -521,7 +521,7 @@ color type: kAlpha_SkColorType
 ##
 ##
 
-#SeeAlso alphaType()
+#SeeAlso alphaType() SkImageInfo::colorType
 
 ##
 
@@ -543,7 +543,7 @@ alpha type: kPremul_SkAlphaType
 ##
 ##
 
-#SeeAlso colorType()
+#SeeAlso colorType() SkImageInfo::alphaType
 
 ##
 
@@ -551,9 +551,11 @@ alpha type: kPremul_SkAlphaType
 
 #Method SkColorSpace* colorSpace() const 
 
-Returns Color_Space associated with Image_Info.
+Returns Color_Space associated with Image_Info. The
+reference count of Color_Space is unchanged. The returned Color_Space is
+immutable.
 
-#Return Color_Space in Image_Info ##
+#Return Color_Space, the range of colors, in Image_Info ##
 
 #Example
 #Description
@@ -572,7 +574,7 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 ##
 ##
 
-#SeeAlso Color_Space
+#SeeAlso Color_Space SkImageInfo::colorSpace
 
 ##
 
@@ -581,7 +583,8 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 #Method bool isOpaque() const 
 
 Returns true if Alpha_Type is kOpaque_SkAlphaType.
-Does not check if Color_Type allows Alpha, or Alpha in pixel values.
+Does not check if Color_Type allows Alpha, or if any pixel value has
+transparency.
 
 #Return true if Image_Info has opaque Alpha_Type ##
 
