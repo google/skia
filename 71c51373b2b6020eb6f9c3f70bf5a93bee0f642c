@@ -22,6 +22,30 @@
       "revId": "71c51373b2b6020eb6f9c3f70bf5a93bee0f642c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5ad9232_84ee3d6f",
+        "filename": "src/core/SkBlitter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-25T15:16:03Z",
+      "side": 1,
+      "message": "This is actually the slower code.\n\nThe faster code sends only SkRect, so blitFatAntiRect will re-compute the round-out SkIRect bounds.",
+      "parentUuid": "fed707d8_9153767f",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 74,
+        "endChar": 68
+      },
+      "revId": "71c51373b2b6020eb6f9c3f70bf5a93bee0f642c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
