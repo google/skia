@@ -16,6 +16,24 @@
       "revId": "5d39f72877fd22e8fd90e93cf09a7ab3d03eb555",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dde03631_15ac2931",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-25T15:17:39Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "b586fea2_87d65868",
+      "revId": "5d39f72877fd22e8fd90e93cf09a7ab3d03eb555",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
