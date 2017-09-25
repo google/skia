@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "6c6274fb_9cef08bd",
+        "filename": "src/gpu/gl/GrGLVertexArray.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-09-25T14:09:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8bc71bd8_26ac7d63",
+      "range": {
+        "startLine": 44,
+        "startChar": 13,
+        "endLine": 44,
+        "endChar": 38
+      },
+      "revId": "49513a792f83f8b370040cb1c5615e1b14a0058f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c08a5e76_0a4a2c5d",
         "filename": "src/gpu/gl/GrGLVertexArray.cpp",
         "patchSetId": 2
@@ -65,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "b35ad4db_f8379752",
+        "filename": "src/gpu/gl/GrGLVertexArray.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-09-25T14:09:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c08a5e76_0a4a2c5d",
+      "range": {
+        "startLine": 46,
+        "startChar": 13,
+        "endLine": 46,
+        "endChar": 39
+      },
+      "revId": "49513a792f83f8b370040cb1c5615e1b14a0058f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9640900c_6b3e6751",
         "filename": "src/gpu/gl/GrGLVertexArray.cpp",
         "patchSetId": 2
@@ -76,6 +124,30 @@
       "writtenOn": "2017-09-22T22:17:24Z",
       "side": 1,
       "message": "Why do we check shaderCaps-\u003eintegerSupport() here but not for regular ints? :-\\ Obviously you didn\u0027t do this with your change but we should fix it eventually. This should just return true. If the caller wants to use shorts it\u0027s on them to check the caps.",
+      "range": {
+        "startLine": 93,
+        "startChar": 19,
+        "endLine": 93,
+        "endChar": 45
+      },
+      "revId": "49513a792f83f8b370040cb1c5615e1b14a0058f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17cf4e92_ce3aa06a",
+        "filename": "src/gpu/gl/GrGLVertexArray.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-09-25T14:09:50Z",
+      "side": 1,
+      "message": "I suspect it\u0027s based on the logic at GrGLSL.cpp:50, where kUint2_GrSLType becomes either \"uint2\" or \"float2\" depending on the presence of integer support. I don\u0027t know the background behind this, either - I feel like we should probably have a different type (\"UInt2OrFloat2\" or something) to represent that concept if it\u0027s really necessary.",
+      "parentUuid": "9640900c_6b3e6751",
       "range": {
         "startLine": 93,
         "startChar": 19,
@@ -111,6 +183,30 @@
     },
     {
       "key": {
+        "uuid": "85832f29_465e221c",
+        "filename": "src/gpu/ops/GrDashOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-09-25T14:09:50Z",
+      "side": 1,
+      "message": "I\u0027ve been trying to correct all of the position variables to be float as I\u0027ve gone through this. Unfortunately dings us on perf a bit, but should be worthwhile.",
+      "parentUuid": "25a7d1c3_0f261e16",
+      "range": {
+        "startLine": 986,
+        "startChar": 55,
+        "endLine": 986,
+        "endChar": 81
+      },
+      "revId": "49513a792f83f8b370040cb1c5615e1b14a0058f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7d717cf7_90af0407",
         "filename": "src/gpu/vk/GrVkPipeline.cpp",
         "patchSetId": 2
@@ -125,6 +221,24 @@
       "revId": "49513a792f83f8b370040cb1c5615e1b14a0058f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79317009_6803b3ca",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-09-25T14:09:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7d717cf7_90af0407",
+      "revId": "49513a792f83f8b370040cb1c5615e1b14a0058f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
