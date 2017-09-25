@@ -44,6 +44,8 @@ void GrDrawingManager::cleanup() {
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
     SkSafeSetNull(fSoftwarePathRenderer);
+
+    fOnFlushCBObjects.reset();
 }
 
 GrDrawingManager::~GrDrawingManager() {
@@ -65,6 +67,12 @@ void GrDrawingManager::freeGpuResources() {
     SkSafeSetNull(fSoftwarePathRenderer);
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->freeGpuResources();
+    }
+
+    for (int i = fOnFlushCBObjects.count()-1; i >= 0; --i) {
+        if (!fOnFlushCBObjects[i]->retainOnFreeGpuResources()) {
+            fOnFlushCBObjects.removeShuffle(i);
+        }
     }
 }
 
@@ -214,7 +222,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         fContext->getResourceCache()->notifyFlushOccurred(type);
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush();
+        onFlushCBObject->postFlush(fFlushState.nextTokenToFlush());
     }
     fFlushing = false;
 
