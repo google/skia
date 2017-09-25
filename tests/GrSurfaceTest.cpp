@@ -125,7 +125,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 texels[i].fPixels = pixelData.get();
                 texels[i].fRowBytes = rowBytes >> i;
             }
-            desc.fIsMipMapped = true;
             sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferredMipMap(resourceProvider,
                                                                              desc, SkBudgeted::kNo,
                                                                              texels.get(),
@@ -135,7 +134,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                              caps->mipMapSupport() &&
                              !GrPixelConfigIsSint(desc.fConfig)));
 
-            desc.fIsMipMapped = false;
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
             tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
             REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigRenderable(config, false));
@@ -168,7 +166,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                 continue;
             }
             desc.fFlags |= rt ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
-            desc.fIsMipMapped = false;
             for (GrSurfaceOrigin origin :
                  {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
                 desc.fOrigin = origin;

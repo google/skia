@@ -1668,7 +1668,6 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrResourceProvider* provider,
     desc.fHeight = height;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCnt;
-    desc.fIsMipMapped = true;
 
     return GrSurfaceProxy::MakeDeferredMipMap(provider, desc, SkBudgeted::kYes,
                                               texels.get(), mipLevelCount);
