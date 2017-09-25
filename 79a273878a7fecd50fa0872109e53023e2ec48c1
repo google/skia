@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08a35cac_a07862d6",
+        "filename": "tests/PathRendererCacheTests.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-25T21:01:52Z",
+      "side": 1,
+      "message": "The first sentence seems incomplete ...",
+      "revId": "79a273878a7fecd50fa0872109e53023e2ec48c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
