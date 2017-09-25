@@ -142,12 +142,12 @@ protected:
                                             SkUnichar character) const override;
     SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
                                  const SkFontStyle& fontStyle) const override;
-    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override;
-    sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>, int ttcIndex) const override;
-    sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>, const SkFontArguments&) const override;
-    sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData> data) const override;
-    sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override;
-    sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle style) const override;
+    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override;
+    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override;
+    SkTypeface* onCreateFromStream(SkStreamAsset* s, const SkFontArguments& args) const override;
+    SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData> data) const override;
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override;
+    SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override;
 
 private:
     Families fFamilies;

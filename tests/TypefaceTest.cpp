@@ -109,7 +109,7 @@ DEF_TEST(TypefaceAxes, reporter) {
     SkFontArguments params;
     params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
     // TODO: if axes are set and the back-end doesn't support them, should we create the typeface?
-    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
+    sk_sp<SkTypeface> typeface(fm->createFromStream(distortable.release(), params));
 
     int count = typeface->getVariationDesignPosition(nullptr, 0);
     if (count == -1) {
@@ -140,7 +140,7 @@ DEF_TEST(TypefaceVariationIndex, reporter) {
     SkFontArguments params;
     // The first named variation position in Distortable is 'Thin'.
     params.setCollectionIndex(0x00010000);
-    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
+    sk_sp<SkTypeface> typeface(fm->createFromStream(distortable.release(), params));
     if (!typeface) {
         // FreeType is the only weird thing that supports this, Skia just needs to make sure if it
         // gets one of these things make sense.

@@ -111,7 +111,7 @@ SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& i
     if (dataTypeface.get() != nullptr) {
         std::unique_ptr<SkStreamAsset> stream(dataTypeface->openStream(nullptr));
         if (stream.get() != nullptr) {
-            return fImpl->makeFromStream(std::move(stream), dataTypefaceIndex).release();
+            return fImpl->createFromStream(stream.release(), dataTypefaceIndex);
         }
     }
 
@@ -121,7 +121,7 @@ SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& i
         return nullptr;
     }
 
-    sk_sp<SkTypeface> typeface(fImpl->makeFromStream(std::move(stream), id.fTtcIndex));
+    sk_sp<SkTypeface> typeface(fImpl->createFromStream(stream.release(), id.fTtcIndex));
     if (typeface.get() == nullptr) {
         return nullptr;
     }
@@ -158,21 +158,20 @@ SkTypeface* SkFontMgr_Indirect::onMatchFaceStyle(const SkTypeface* familyMember,
     return this->matchFamilyStyle(familyName.c_str(), fontStyle);
 }
 
-sk_sp<SkTypeface> SkFontMgr_Indirect::onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
-                                                            int ttcIndex) const {
-    return fImpl->makeFromStream(std::move(stream), ttcIndex);
+SkTypeface* SkFontMgr_Indirect::onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const {
+    return fImpl->createFromStream(stream, ttcIndex);
 }
 
-sk_sp<SkTypeface> SkFontMgr_Indirect::onMakeFromFile(const char path[], int ttcIndex) const {
-    return fImpl->makeFromFile(path, ttcIndex);
+SkTypeface* SkFontMgr_Indirect::onCreateFromFile(const char path[], int ttcIndex) const {
+    return fImpl->createFromFile(path, ttcIndex);
 }
 
-sk_sp<SkTypeface> SkFontMgr_Indirect::onMakeFromData(sk_sp<SkData> data, int ttcIndex) const {
-    return fImpl->makeFromData(std::move(data), ttcIndex);
+SkTypeface* SkFontMgr_Indirect::onCreateFromData(SkData* data, int ttcIndex) const {
+    return fImpl->createFromData(data, ttcIndex);
 }
 
-sk_sp<SkTypeface> SkFontMgr_Indirect::onLegacyMakeTypeface(const char familyName[],
-                                                           SkFontStyle style) const {
+SkTypeface* SkFontMgr_Indirect::onLegacyCreateTypeface(const char familyName[],
+                                                       SkFontStyle style) const {
     sk_sp<SkTypeface> face(this->matchFamilyStyle(familyName, style));
 
     if (nullptr == face.get()) {
@@ -184,5 +183,5 @@ sk_sp<SkTypeface> SkFontMgr_Indirect::onLegacyMakeTypeface(const char familyName
         face.reset(this->createTypefaceFromFontId(fontId));
     }
 
-    return face;
+    return face.release();
 }

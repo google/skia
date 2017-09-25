@@ -1894,7 +1894,7 @@ static HANDLE activate_font(SkData* fontData) {
 }
 
 // Does not affect ownership of stream.
-static sk_sp<SkTypeface> create_from_stream(std::unique_ptr<SkStreamAsset> stream) {
+static SkTypeface* create_from_stream(SkStreamAsset* stream) {
     // Create a unique and unpredictable font name.
     // Avoids collisions and access from CSS.
     char familyName[BASE64_GUID_ID_LEN];
@@ -1904,7 +1904,7 @@ static sk_sp<SkTypeface> create_from_stream(std::unique_ptr<SkStreamAsset> strea
     }
 
     // Change the name of the font.
-    sk_sp<SkData> rewrittenFontData(SkOTUtils::RenameFont(stream.get(), familyName, familyNameSize-1));
+    sk_sp<SkData> rewrittenFontData(SkOTUtils::RenameFont(stream, familyName, familyNameSize-1));
     if (nullptr == rewrittenFontData.get()) {
         return nullptr;
     }
@@ -1919,7 +1919,7 @@ static sk_sp<SkTypeface> create_from_stream(std::unique_ptr<SkStreamAsset> strea
     LOGFONT lf;
     logfont_for_name(familyName, &lf);
 
-    return sk_sp<SkTypeface>(SkCreateFontMemResourceTypefaceFromLOGFONT(lf, fontReference));
+    return SkCreateFontMemResourceTypefaceFromLOGFONT(lf, fontReference);
 }
 
 SkStreamAsset* LogFontTypeface::onOpenStream(int* ttcIndex) const {
@@ -2449,27 +2449,25 @@ protected:
         return this->matchFamilyStyle(familyName.c_str(), fontstyle);
     }
 
-    sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
-                                            int ttcIndex) const override {
+    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
+        std::unique_ptr<SkStreamAsset> stream(bareStream);
         if (ttcIndex != 0) {
             return nullptr;
         }
-        return create_from_stream(std::move(stream));
+        return create_from_stream(stream.get());
     }
 
-    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
+    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
         // could be in base impl
-        return this->makeFromStream(std::unique_ptr<SkStreamAsset>(new SkMemoryStream(std::move(data))),
-                                    ttcIndex);
+        return this->createFromStream(new SkMemoryStream(sk_ref_sp(data)), ttcIndex);
     }
 
-    sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override {
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
         // could be in base impl
-        auto stream = SkStream::MakeFromFile(path);
-        return stream ? this->makeFromStream(std::move(stream), ttcIndex) : nullptr;
+        return this->createFromStream(SkStream::MakeFromFile(path).release(), ttcIndex);
     }
 
-    sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle style) const override {
+    SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
         LOGFONT lf;
         if (nullptr == familyName) {
             lf = get_default_font();
@@ -2479,7 +2477,7 @@ protected:
 
         lf.lfWeight = style.weight();
         lf.lfItalic = style.slant() == SkFontStyle::kUpright_Slant ? FALSE : TRUE;
-        return sk_sp<SkTypeface>(SkCreateTypefaceFromLOGFONT(lf));
+        return SkCreateTypefaceFromLOGFONT(lf);
     }
 
 private:
