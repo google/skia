@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edf1d92b_f9522dc8",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-25T15:32:44Z",
+      "side": 1,
+      "message": "Add \u0027 \u0027s ?",
+      "revId": "614269fcfaee35d674966b270d6b6682c14b6585",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bc7503a_7b1c3840",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-25T15:32:44Z",
+      "side": 1,
+      "message": "// refScratchTexture attempts to find a resource in the cache that exactly matches \u0027desc\u0027. Failing that it returns null. If non-null, the resulting texture is always budgeted.\n\n?",
+      "revId": "614269fcfaee35d674966b270d6b6682c14b6585",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
