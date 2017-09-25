@@ -454,7 +454,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
     const int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
     const size_t rowBytes = size.width() * bpp;
-    const size_t safeSize = decodeInfo.getSafeSize(rowBytes);
+    const size_t safeSize = decodeInfo.getSize(rowBytes);
     SkAutoMalloc pixels(safeSize);
 
     SkCodec::Options options;
