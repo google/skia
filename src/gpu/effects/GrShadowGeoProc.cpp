@@ -65,10 +65,9 @@ private:
 
 GrRRectShadowGeoProc::GrRRectShadowGeoProc() {
     this->initClassID<GrRRectShadowGeoProc>();
-    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
-                                         kHigh_GrSLPrecision);
-    fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
-    fInShadowParams = &this->addVertexAttrib("inShadowParams", kVec4f_GrVertexAttribType);
+    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+    fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
+    fInShadowParams = &this->addVertexAttrib("inShadowParams", kHalf4_GrVertexAttribType);
 }
 
 GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShaderCaps&) const {

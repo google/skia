@@ -241,9 +241,8 @@ GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t 
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
     this->initClassID<GrConicEffect>();
-    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
-                                         kHigh_GrSLPrecision);
-    fInConicCoeffs = &this->addVertexAttrib("inConicCoeffs", kVec4f_GrVertexAttribType);
+    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+    fInConicCoeffs = &this->addVertexAttrib("inConicCoeffs", kHalf4_GrVertexAttribType);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -444,9 +443,8 @@ GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t co
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
     this->initClassID<GrQuadEffect>();
-    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
-                                                   kHigh_GrSLPrecision);
-    fInHairQuadEdge = &this->addVertexAttrib("inHairQuadEdge", kVec4f_GrVertexAttribType);
+    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+    fInHairQuadEdge = &this->addVertexAttrib("inHairQuadEdge", kHalf4_GrVertexAttribType);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -670,8 +668,7 @@ GrCubicEffect::GrCubicEffect(GrColor color, const SkMatrix& viewMatrix, const Sk
     , fDevKLMMatrix(devKLMMatrix)
     , fEdgeType(edgeType) {
     this->initClassID<GrCubicEffect>();
-    fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
-                                         kHigh_GrSLPrecision);
+    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
 }
 
 //////////////////////////////////////////////////////////////////////////////

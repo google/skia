@@ -51,14 +51,14 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTextureProxy> atlas,
                                          SkPath::FillType fillType, const GrShaderCaps& shaderCaps)
         : fFillType(fillType) {
-    this->addInstanceAttrib("devbounds", kVec4f_GrVertexAttribType, kHigh_GrSLPrecision);
-    this->addInstanceAttrib("devbounds45", kVec4f_GrVertexAttribType, kHigh_GrSLPrecision);
-    this->addInstanceAttrib("view_matrix", kVec4f_GrVertexAttribType, kHigh_GrSLPrecision);
-    this->addInstanceAttrib("view_translate", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
+    this->addInstanceAttrib("devbounds", kFloat4_GrVertexAttribType);
+    this->addInstanceAttrib("devbounds45", kFloat4_GrVertexAttribType);
+    this->addInstanceAttrib("view_matrix", kFloat4_GrVertexAttribType);
+    this->addInstanceAttrib("view_translate", kFloat2_GrVertexAttribType);
     // FIXME: this could be a vector of two shorts if it were supported by Ganesh.
-    // Note: this should be doable now with kVec2us_uint_GrVertexAttribType
-    this->addInstanceAttrib("atlas_offset", kVec2i_GrVertexAttribType, kHigh_GrSLPrecision);
-    this->addInstanceAttrib("color", kVec4ub_GrVertexAttribType, kLow_GrSLPrecision);
+    // Note: this should be doable now with kUShort2_GrVertexAttribType
+    this->addInstanceAttrib("atlas_offset", kInt2_GrVertexAttribType);
+    this->addInstanceAttrib("color", kUByte4_norm_GrVertexAttribType);
 
     SkASSERT(offsetof(Instance, fDevBounds) ==
              this->getInstanceAttrib(InstanceAttribs::kDevBounds).fOffsetInRecord);
@@ -76,7 +76,7 @@ GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTexture
 
     GR_STATIC_ASSERT(6 == kNumInstanceAttribs);
 
-    this->addVertexAttrib("edge_norms", kVec4f_GrVertexAttribType, kHigh_GrSLPrecision);
+    this->addVertexAttrib("edge_norms", kFloat4_GrVertexAttribType);
 
     fAtlasAccess.reset(std::move(atlas), GrSamplerState::Filter::kNearest,
                        GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag);

@@ -177,8 +177,7 @@ private:
             : fColorSpaceXform(std::move(csxf)) {
         SkASSERT(proxyCnt > 0 && samplerCnt >= proxyCnt);
         this->initClassID<TextureGeometryProcessor>();
-        fPositions =
-                this->addVertexAttrib("position", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
+        fPositions = this->addVertexAttrib("position", kFloat2_GrVertexAttribType);
         fSamplers[0].reset(std::move(proxies[0]), filters[0]);
         this->addTextureSampler(&fSamplers[0]);
         for (int i = 1; i < proxyCnt; ++i) {
@@ -199,9 +198,8 @@ private:
             fTextureIdx = this->addVertexAttrib("textureIdx", kInt_GrVertexAttribType);
         }
 
-        fTextureCoords = this->addVertexAttrib("textureCoords", kVec2f_GrVertexAttribType,
-                                               kHigh_GrSLPrecision);
-        fColors = this->addVertexAttrib("color", kVec4ub_GrVertexAttribType);
+        fTextureCoords = this->addVertexAttrib("textureCoords", kFloat2_GrVertexAttribType);
+        fColors = this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
     }
 
     Attribute fPositions;

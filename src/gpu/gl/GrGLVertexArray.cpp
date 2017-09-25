@@ -21,25 +21,33 @@ static AttribLayout attrib_layout(GrVertexAttribType type) {
     switch (type) {
         case kFloat_GrVertexAttribType:
             return {false, 1, GR_GL_FLOAT};
-        case kVec2f_GrVertexAttribType:
+        case kFloat2_GrVertexAttribType:
             return {false, 2, GR_GL_FLOAT};
-        case kVec3f_GrVertexAttribType:
+        case kFloat3_GrVertexAttribType:
             return {false, 3, GR_GL_FLOAT};
-        case kVec4f_GrVertexAttribType:
+        case kFloat4_GrVertexAttribType:
             return {false, 4, GR_GL_FLOAT};
-        case kVec2i_GrVertexAttribType:
+        case kHalf_GrVertexAttribType:
+            return {false, 1, GR_GL_FLOAT};
+        case kHalf2_GrVertexAttribType:
+            return {false, 2, GR_GL_FLOAT};
+        case kHalf3_GrVertexAttribType:
+            return {false, 3, GR_GL_FLOAT};
+        case kHalf4_GrVertexAttribType:
+            return {false, 4, GR_GL_FLOAT};
+        case kInt2_GrVertexAttribType:
             return {false, 2, GR_GL_INT};
-        case kVec3i_GrVertexAttribType:
+        case kInt3_GrVertexAttribType:
             return {false, 3, GR_GL_INT};
-        case kVec4i_GrVertexAttribType:
+        case kInt4_GrVertexAttribType:
             return {false, 4, GR_GL_INT};
-        case kUByte_GrVertexAttribType:
+        case kUByte_norm_GrVertexAttribType:
             return {true, 1, GR_GL_UNSIGNED_BYTE};
-        case kVec4ub_GrVertexAttribType:
+        case kUByte4_norm_GrVertexAttribType:
             return {true, 4, GR_GL_UNSIGNED_BYTE};
-        case kVec2us_norm_GrVertexAttribType:
+        case kUShort2_norm_GrVertexAttribType:
             return {true, 2, GR_GL_UNSIGNED_SHORT};
-        case kVec2us_uint_GrVertexAttribType:
+        case kUShort2_GrVertexAttribType:
             return {false, 2, GR_GL_UNSIGNED_SHORT};
         case kInt_GrVertexAttribType:
             return {false, 1, GR_GL_INT};
@@ -55,25 +63,33 @@ static bool GrVertexAttribTypeIsIntType(const GrShaderCaps* shaderCaps,
     switch (type) {
         case kFloat_GrVertexAttribType:
             return false;
-        case kVec2f_GrVertexAttribType:
+        case kFloat2_GrVertexAttribType:
             return false;
-        case kVec3f_GrVertexAttribType:
+        case kFloat3_GrVertexAttribType:
             return false;
-        case kVec4f_GrVertexAttribType:
+        case kFloat4_GrVertexAttribType:
             return false;
-        case kVec2i_GrVertexAttribType:
+        case kHalf_GrVertexAttribType:
+            return false;
+        case kHalf2_GrVertexAttribType:
+            return false;
+        case kHalf3_GrVertexAttribType:
+            return false;
+        case kHalf4_GrVertexAttribType:
+            return false;
+        case kInt2_GrVertexAttribType:
             return true;
-        case kVec3i_GrVertexAttribType:
+        case kInt3_GrVertexAttribType:
             return true;
-        case kVec4i_GrVertexAttribType:
+        case kInt4_GrVertexAttribType:
             return true;
-        case kUByte_GrVertexAttribType:
+        case kUByte_norm_GrVertexAttribType:
             return false;
-        case kVec4ub_GrVertexAttribType:
+        case kUByte4_norm_GrVertexAttribType:
             return false;
-        case kVec2us_norm_GrVertexAttribType:
+        case kUShort2_norm_GrVertexAttribType:
             return false;
-        case kVec2us_uint_GrVertexAttribType:
+        case kUShort2_GrVertexAttribType:
             return shaderCaps->integerSupport();
         case kInt_GrVertexAttribType:
             return true;

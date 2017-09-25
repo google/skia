@@ -256,18 +256,16 @@ private:
             , fLocalCoordsWillBeRead(localCoordsWillBeRead)
             , fColorSpaceXform(std::move(colorSpaceXform)) {
         this->initClassID<DefaultGeoProc>();
-        fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
-                                             kHigh_GrSLPrecision);
+        fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
         if (fFlags & kColorAttribute_GPFlag) {
-            fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
+            fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
         }
         if (fFlags & kLocalCoordAttribute_GPFlag) {
-            fInLocalCoords = &this->addVertexAttrib("inLocalCoord", kVec2f_GrVertexAttribType,
-                                                    kHigh_GrSLPrecision);
+            fInLocalCoords = &this->addVertexAttrib("inLocalCoord", kFloat2_GrVertexAttribType);
             this->setHasExplicitLocalCoords();
         }
         if (fFlags & kCoverageAttribute_GPFlag) {
-            fInCoverage = &this->addVertexAttrib("inCoverage", kFloat_GrVertexAttribType);
+            fInCoverage = &this->addVertexAttrib("inCoverage", kHalf_GrVertexAttribType);
         }
     }
 
