@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10e9b983_d04a9a55",
+        "filename": "tests/PathRendererCacheTests.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-25T20:13:19Z",
+      "side": 1,
+      "message": "// Test that deleting the original path invalidates the VBs cached by the tesselating path renderer ?",
+      "revId": "90d60ceddff1899a2af0470c2158230712b9ed2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
