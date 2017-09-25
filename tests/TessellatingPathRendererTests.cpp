@@ -13,6 +13,7 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrResourceCache.h"
 #include "SkGradientShader.h"
 #include "SkShaderBase.h"
 #include "effects/GrPorterDuffXferProcessor.h"
@@ -459,4 +460,33 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_23());
     test_path(ctx, rtc.get(), create_path_24());
 }
+
+DEF_GPUTEST(TessellatingPathRendererCacheTest, reporter, factory) {
+    sk_sp<GrContext> ctx = GrContext::MakeMock(nullptr);
+    ctx->setResourceCacheLimits(100, 10000);
+    GrResourceCache* cache = ctx->getResourceCache();
+
+    sk_sp<GrRenderTargetContext> rtc(ctx->makeDeferredRenderTargetContext(
+            SkBackingFit::kApprox, 800, 800, kRGBA_8888_GrPixelConfig, nullptr, 0,
+            kTopLeft_GrSurfaceOrigin));
+    if (!rtc) {
+        return;
+    }
+
+    SkPath path = create_path_0();
+
+    // Initially, cache only has the render target context
+    REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+
+    // Draw the path, which should add a VB to the cache
+    test_path(ctx.get(), rtc.get(), path);
+    ctx->flush();
+    REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
+
+    // Reset the path (to change the GenID), which should send an invalidation message, removing VB
+    path.reset();
+    cache->purgeAsNeeded();
+    REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+}
+
 #endif
