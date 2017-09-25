@@ -42,6 +42,15 @@ static inline SkColor SkColorSetARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
         (static_cast<U8CPU>(g) << 8) | \
         (static_cast<U8CPU>(b) << 0))
 
+template <U8CPU a, U8CPU r, U8CPU g, U8CPU b>
+struct SkColorSetARGBTemplate {
+  static_assert(a <= 255, "Invalid Alpha");
+  static_assert(r <= 255, "Invalid Red");
+  static_assert(g <= 255, "Invalid Green");
+  static_assert(b <= 255, "Invalid Blue");
+  static constexpr SkColor value() { return SkColorSetARGBMacro(a, r, g, b); }
+};
+
 /** gcc will generate static initializers for code of this form:
  * static const SkColor kMyColor = SkColorSetARGB(0xFF, 0x01, 0x02, 0x03)
  * if SkColorSetARGB() is a static inline, but not if it's a macro.
@@ -56,6 +65,10 @@ static inline SkColor SkColorSetARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
     of 0xFF for alpha (fully opaque)
 */
 #define SkColorSetRGB(r, g, b)  SkColorSetARGB(0xFF, r, g, b)
+
+/** Version of SkColorSet[A]RGB() that can be used to initialize constexpr. */
+#define SkColorConstARGB(a, r, g, b) (SkColorSetARGBTemplate<a, r, g, b>::value())
+#define SkColorConstRGB(r, g, b) (SkColorSetARGBTemplate<0xFF, r, g, b>::value())
 
 /** return the alpha byte from a SkColor value */
 #define SkColorGetA(color)      (((color) >> 24) & 0xFF)
