@@ -545,15 +545,15 @@ static bool find_by_CTFontRef(SkTypeface* cached, void* context) {
 }
 
 /** Creates a typeface, searching the cache if isLocalStream is false. */
-static sk_sp<SkTypeface> create_from_CTFontRef(UniqueCFRef<CTFontRef> font,
-                                               UniqueCFRef<CFTypeRef> resource,
-                                               bool isLocalStream) {
+static SkTypeface* create_from_CTFontRef(UniqueCFRef<CTFontRef> font,
+                                         UniqueCFRef<CFTypeRef> resource,
+                                         bool isLocalStream) {
     SkASSERT(font);
 
     if (!isLocalStream) {
         SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_by_CTFontRef, (void*)font.get());
         if (face) {
-            return sk_sp<SkTypeface>(face);
+            return face;
         }
     }
 
@@ -567,11 +567,11 @@ static sk_sp<SkTypeface> create_from_CTFontRef(UniqueCFRef<CTFontRef> font,
     if (!isLocalStream) {
         SkTypefaceCache::Add(face);
     }
-    return sk_sp<SkTypeface>(face);
+    return face;
 }
 
 /** Creates a typeface from a descriptor, searching the cache. */
-static sk_sp<SkTypeface> create_from_desc(CTFontDescriptorRef desc) {
+static SkTypeface* create_from_desc(CTFontDescriptorRef desc) {
     UniqueCFRef<CTFontRef> ctFont(CTFontCreateWithFontDescriptor(desc, 0, nullptr));
     if (!ctFont) {
         return nullptr;
@@ -646,7 +646,7 @@ static UniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyName[
 }
 
 /** Creates a typeface from a name, searching the cache. */
-static sk_sp<SkTypeface> create_from_name(const char familyName[], const SkFontStyle& style) {
+static SkTypeface* create_from_name(const char familyName[], const SkFontStyle& style) {
     UniqueCFRef<CTFontDescriptorRef> desc = create_descriptor(familyName, style);
     if (!desc) {
         return nullptr;
@@ -666,7 +666,7 @@ SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef font, CFTypeRef resource) {
     }
     return create_from_CTFontRef(UniqueCFRef<CTFontRef>(font),
                                  UniqueCFRef<CFTypeRef>(resource),
-                                 false).release();
+                                 false);
 }
 
 static const char* map_css_names(const char* name) {
@@ -1394,8 +1394,7 @@ void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element
 
 // Returns nullptr on failure
 // Call must still manage its ownership of provider
-static sk_sp<SkTypeface> create_from_dataProvider(UniqueCFRef<CGDataProviderRef> provider,
-                                                  int ttcIndex) {
+static SkTypeface* create_from_dataProvider(UniqueCFRef<CGDataProviderRef> provider, int ttcIndex) {
     if (ttcIndex != 0) {
         return nullptr;
     }
@@ -2263,14 +2262,14 @@ public:
         SkASSERT((unsigned)index < (unsigned)CFArrayGetCount(fArray.get()));
         CTFontDescriptorRef desc = (CTFontDescriptorRef)CFArrayGetValueAtIndex(fArray.get(), index);
 
-        return create_from_desc(desc).release();
+        return create_from_desc(desc);
     }
 
     SkTypeface* matchStyle(const SkFontStyle& pattern) override {
         if (0 == fCount) {
             return nullptr;
         }
-        return create_from_desc(findMatchingDesc(pattern)).release();
+        return create_from_desc(findMatchingDesc(pattern));
     }
 
 private:
@@ -2366,7 +2365,7 @@ protected:
     SkTypeface* onMatchFamilyStyle(const char familyName[],
                                    const SkFontStyle& style) const override {
         UniqueCFRef<CTFontDescriptorRef> desc = create_descriptor(familyName, style);
-        return create_from_desc(desc.get()).release();
+        return create_from_desc(desc.get());
     }
 
     SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
@@ -2389,7 +2388,7 @@ protected:
         CFRange range = CFRangeMake(0, CFStringGetLength(string.get()));  // in UniChar units.
         UniqueCFRef<CTFontRef> fallbackFont(
                 CTFontCreateForString(currentFont.get(), string.get(), range));
-        return create_from_CTFontRef(std::move(fallbackFont), nullptr, false).release();
+        return create_from_CTFontRef(std::move(fallbackFont), nullptr, false);
     }
 
     SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
@@ -2397,16 +2396,16 @@ protected:
         return nullptr;
     }
 
-    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
-        UniqueCFRef<CGDataProviderRef> pr(SkCreateDataProviderFromData(std::move(data)));
+    SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
+        UniqueCFRef<CGDataProviderRef> pr(SkCreateDataProviderFromData(sk_ref_sp(data)));
         if (!pr) {
             return nullptr;
         }
         return create_from_dataProvider(std::move(pr), ttcIndex);
     }
 
-    sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
-                                            int ttcIndex) const override {
+    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
+        std::unique_ptr<SkStreamAsset> stream(bareStream);
         UniqueCFRef<CGDataProviderRef> pr(SkCreateDataProviderFromStream(std::move(stream)));
         if (!pr) {
             return nullptr;
@@ -2502,8 +2501,8 @@ protected:
         }
         return std::move(dict);
     }
-    sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> s,
-                                           const SkFontArguments& args) const override {
+    SkTypeface* onCreateFromStream(SkStreamAsset* bs, const SkFontArguments& args) const override {
+        std::unique_ptr<SkStreamAsset> s(bs);
         if (args.getCollectionIndex() != 0) {
             return nullptr;
         }
@@ -2589,7 +2588,7 @@ protected:
         }
         return std::move(dict);
     }
-    sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData> fontData) const override {
+    SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData> fontData) const override {
         if (fontData->getIndex() != 0) {
             return nullptr;
         }
@@ -2622,7 +2621,7 @@ protected:
         return create_from_CTFontRef(std::move(ct), std::move(cg), true);
     }
 
-    sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override {
+    SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
         UniqueCFRef<CGDataProviderRef> pr(CGDataProviderCreateWithFilename(path));
         if (!pr) {
             return nullptr;
@@ -2630,12 +2629,12 @@ protected:
         return create_from_dataProvider(std::move(pr), ttcIndex);
     }
 
-    sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle style) const override {
+    SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {
         if (familyName) {
             familyName = map_css_names(familyName);
         }
 
-        sk_sp<SkTypeface> face = create_from_name(familyName, style);
+        SkTypeface* face = create_from_name(familyName, style);
         if (face) {
             return face;
         }
@@ -2644,9 +2643,9 @@ protected:
         static SkOnce lookupDefault;
         static const char FONT_DEFAULT_NAME[] = "Lucida Sans";
         lookupDefault([]{
-            gDefaultFace = create_from_name(FONT_DEFAULT_NAME, SkFontStyle()).release();
+            gDefaultFace = create_from_name(FONT_DEFAULT_NAME, SkFontStyle());
         });
-        return sk_ref_sp(gDefaultFace);
+        return SkSafeRef(gDefaultFace);
     }
 };
 
