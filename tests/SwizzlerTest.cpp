@@ -28,7 +28,7 @@ static void check_fill(skiatest::Reporter* r,
     // to test on different memory alignments.  If offset is nonzero, we need to increase the
     // size of the memory we allocate in order to make sure that we have enough.  We are
     // still allocating the smallest possible size.
-    const size_t totalBytes = imageInfo.getSafeSize(rowBytes) + offset;
+    const size_t totalBytes = imageInfo.computeByteSize(rowBytes) + offset;
 
     // Create fake image data where every byte has a value of 0
     std::unique_ptr<uint8_t[]> storage(new uint8_t[totalBytes]);
