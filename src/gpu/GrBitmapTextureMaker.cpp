@@ -8,8 +8,10 @@
 #include "GrBitmapTextureMaker.h"
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "GrResourceProvider.h"
+#include "GrSurfaceContext.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkPixelRef.h"
@@ -34,17 +36,29 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> proxy;
+    sk_sp<GrTextureProxy> originalProxy;
 
     if (fOriginalKey.isValid()) {
-        proxy = this->context()->resourceProvider()->findOrCreateProxyByUniqueKey(
-                                                          fOriginalKey, kTopLeft_GrSurfaceOrigin);
-        if (proxy) {
-            return proxy;
+        originalProxy = this->context()->resourceProvider()->findOrCreateProxyByUniqueKey(
+                                                            fOriginalKey, kTopLeft_GrSurfaceOrigin);
+        if (originalProxy && (!willBeMipped || originalProxy->isMipMapped())) {
+            return originalProxy;
         }
     }
+
+    sk_sp<GrTextureProxy> proxy;
     if (willBeMipped) {
-        proxy = GrGenerateMipMapsAndUploadToTextureProxy(this->context(), fBitmap, dstColorSpace);
+        bool skipBaseMipLevel = nullptr != originalProxy.get();
+        proxy = GrGenerateMipMapsAndUploadToTextureProxy(this->context(), fBitmap, dstColorSpace,
+                                                         skipBaseMipLevel);
+        if (originalProxy) {
+            // If we have an unmipped version of the original texture we only upload the cpu mips
+            // for the non base levels. We then copy the base level from the original on the gpu.
+            sk_sp<GrSurfaceContext> sContext =
+                    this->context()->contextPriv().makeWrappedSurfaceContext(proxy, nullptr);
+            SkASSERT(sContext);
+            SkAssertResult(sContext->copy(originalProxy.get(), true));
+        }
     }
     if (!proxy) {
         proxy = GrUploadBitmapToTextureProxy(this->context()->resourceProvider(), fBitmap,
@@ -52,6 +66,10 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
     }
     if (proxy && fOriginalKey.isValid()) {
         SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
+        if (originalProxy) {
+            this->context()->resourceProvider()->removeUniqueKeyFromProxy(fOriginalKey,
+                                                                          originalProxy.get());
+        }
         this->context()->resourceProvider()->assignUniqueKeyToProxy(fOriginalKey, proxy.get());
         GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
     }

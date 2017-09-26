@@ -92,10 +92,11 @@ bool GrTextureOpList::copySurface(const GrCaps& caps,
                                   GrSurfaceProxy* dst,
                                   GrSurfaceProxy* src,
                                   const SkIRect& srcRect,
-                                  const SkIPoint& dstPoint) {
+                                  const SkIPoint& dstPoint,
+                                  bool markMipsAsValid) {
     SkASSERT(dst == fTarget.get());
 
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint, markMipsAsValid);
     if (!op) {
         return false;
     }

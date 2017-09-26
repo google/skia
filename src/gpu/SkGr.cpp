@@ -163,7 +163,8 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
 
 sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
                                                                const SkBitmap& bitmap,
-                                                               SkColorSpace* dstColorSpace) {
+                                                               SkColorSpace* dstColorSpace,
+                                                               bool skipBaseMipLevel) {
     SkDestinationSurfaceColorMode colorMode = dstColorSpace
         ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
         : SkDestinationSurfaceColorMode::kLegacy;
@@ -210,6 +211,10 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
         mipmaps->getLevel(i - 1, &generatedMipLevel);
         texels[i].fPixels = generatedMipLevel.fPixmap.addr();
         texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
+    }
+
+    if (skipBaseMipLevel) {
+        texels[0].fPixels = nullptr;
     }
 
     return GrSurfaceProxy::MakeDeferredMipMap(ctx->resourceProvider(),
