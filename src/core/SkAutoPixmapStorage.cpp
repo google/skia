@@ -29,7 +29,7 @@ size_t SkAutoPixmapStorage::AllocSize(const SkImageInfo& info, size_t* rowBytes)
     if (rowBytes) {
         *rowBytes = rb;
     }
-    return info.getSafeSize(rb);
+    return info.computeByteSize(rb);
 }
 
 bool SkAutoPixmapStorage::tryAlloc(const SkImageInfo& info) {
@@ -58,7 +58,7 @@ const SkData* SkAutoPixmapStorage::detachPixelsAsData() {
         return nullptr;
     }
 
-    auto data = SkData::MakeFromMalloc(fStorage, this->getSafeSize());
+    auto data = SkData::MakeFromMalloc(fStorage, this->computeByteSize());
     fStorage = nullptr;
     this->INHERITED::reset();
 
