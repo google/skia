@@ -526,9 +526,21 @@ static PlanningInterface* make_plan(SkArenaAlloc* alloc, double sigma) {
     return plan;
 };
 
+// NB 136 is the largest sigma that will not cause a buffer full of 255 mask values to overflow
+// using the Gauss filter. It also limits the size of buffers used hold intermediate values.
+// Explanation of maximums:
+//   sum0 = window * 255
+//   sum1 = window * sum0 -> window * window * 255
+//   sum2 = window * sum1 -> window * window * window * 255 -> window^3 * 255
+//
+//   The value window^3 * 255 must fit in a uint32_t. So,
+//      window^3 < 2^32. window = 255.
+//
+//   window = floor(sigma * 3 * sqrt(2 * kPi) / 4 + 0.5)
+//   For window <= 255, the largest value for sigma is 136.
 SkMaskBlurFilter::SkMaskBlurFilter(double sigmaW, double sigmaH)
-    : fSigmaW{std::max(sigmaW, 0.0)}
-    , fSigmaH{std::max(sigmaH, 0.0)}
+    : fSigmaW{SkTPin(sigmaW, 0.0, 136.0)}
+    , fSigmaH{SkTPin(sigmaH, 0.0, 136.0)}
 {
     SkASSERT(sigmaW >= 0);
     SkASSERT(sigmaH >= 0);
