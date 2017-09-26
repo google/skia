@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cb2a0b3a_21f8925f",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-09-26T14:51:36Z",
+      "side": 1,
+      "message": "Don\u0027t have a great answer (yet) for the check-for-zero part. Herb and Mike have some ideas from the standards work...\n\nI think the new name should clarify that the computed size is independent of the allocation state.",
+      "parentUuid": "19acfc7f_bffaf679",
+      "revId": "f7e25709fa0e676dbdd002c5fc9cc87902657b0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb03bf61_97972e5a",
         "filename": "include/core/SkBitmap.h",
         "patchSetId": 3
@@ -39,6 +57,30 @@
       "revId": "f7e25709fa0e676dbdd002c5fc9cc87902657b0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "707bd70e_304380d1",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-09-26T14:51:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb03bf61_97972e5a",
+      "range": {
+        "startLine": 148,
+        "startChar": 11,
+        "endLine": 148,
+        "endChar": 18
+      },
+      "revId": "f7e25709fa0e676dbdd002c5fc9cc87902657b0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
