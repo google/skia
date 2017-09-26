@@ -52,9 +52,21 @@ public:
     void assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
 
     /*
+     * Removes a unique key from a proxy. If the proxy has already been instantiated, it will
+     * also remove the unique key from the target GrSurface.
+     */
+    void removeUniqueKeyFromProxy(const GrUniqueKey&, GrTextureProxy*);
+
+    /*
      * Finds a proxy by unique key.
      */
     sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
+
+    /*
+     * Finds a proxy by unique key or creates a new one that wraps a resource matching the unique
+     * key.
+     */
+    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
 
     ///////////////////////////////////////////////////////////////////////////
     // Textures

@@ -852,6 +852,15 @@ bool GrResourceCache::isInCache(const GrGpuResource* resource) const {
 
 #endif
 
+void GrResourceCache::adoptUniqueKeyFromSurface(GrTextureProxy* proxy, const GrSurface* surf) {
+    SkASSERT(surf->getUniqueKey().isValid());
+    proxy->cacheAccess().setUniqueKey(this, surf->getUniqueKey());
+    SkASSERT(proxy->getUniqueKey() == surf->getUniqueKey());
+    // multiple proxies can't get the same key
+    SkASSERT(!fUniquelyKeyedProxies.find(surf->getUniqueKey()));
+    fUniquelyKeyedProxies.add(proxy);
+}
+
 void GrResourceCache::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
     SkASSERT(key.isValid());
     SkASSERT(proxy);
@@ -884,6 +893,14 @@ sk_sp<GrTextureProxy> GrResourceCache::findProxyByUniqueKey(const GrUniqueKey& k
     sk_sp<GrTextureProxy> result = sk_ref_sp(fUniquelyKeyedProxies.find(key));
     if (result) {
         SkASSERT(result->origin() == origin);
+    }
+    return result;
+}
+
+sk_sp<GrTextureProxy> GrResourceCache::findOrCreateProxyByUniqueKey(const GrUniqueKey& key,
+                                                                    GrSurfaceOrigin origin) {
+    sk_sp<GrTextureProxy> result = this->findProxyByUniqueKey(key, origin);
+    if (result) {
         return result;
     }
 
@@ -897,7 +914,8 @@ sk_sp<GrTextureProxy> GrResourceCache::findProxyByUniqueKey(const GrUniqueKey& k
 
     result = GrSurfaceProxy::MakeWrapped(std::move(texture), origin);
     SkASSERT(result->getUniqueKey() == key);
-    fUniquelyKeyedProxies.add(result.get());
+    // MakeWrapped should've added this for us
+    SkASSERT(fUniquelyKeyedProxies.find(key));
     return result;
 }
 
@@ -906,8 +924,24 @@ void GrResourceCache::processInvalidProxyUniqueKey(const GrUniqueKey& key) {
     // will not be in 'fUniquelyKeyedProxies'.
     GrTextureProxy* proxy = fUniquelyKeyedProxies.find(key);
     if (proxy) {
-        fUniquelyKeyedProxies.remove(key);
-        proxy->cacheAccess().clearUniqueKey();
+        this->processInvalidProxyUniqueKey(key, proxy, false);
+    }
+}
+
+void GrResourceCache::processInvalidProxyUniqueKey(const GrUniqueKey& key, GrTextureProxy* proxy,
+                                                   bool invalidateSurface) {
+    SkASSERT(proxy);
+    SkASSERT(proxy->getUniqueKey().isValid());
+    SkASSERT(proxy->getUniqueKey() == key);
+
+    fUniquelyKeyedProxies.remove(key);
+    proxy->cacheAccess().clearUniqueKey();
+
+    if (invalidateSurface && proxy->priv().isInstantiated()) {
+        GrSurface* surface = proxy->priv().peekSurface();
+        if (surface) {
+            surface->resourcePriv().removeUniqueKey();
+        }
     }
 }
 
