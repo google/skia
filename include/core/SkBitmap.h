@@ -141,10 +141,13 @@ public:
     */
     void* getPixels() const { return fPixels; }
 
-    /** Return the byte size of the pixels, based on the height and rowBytes.
-        Note this truncates the result to 32bits. Call getSize64() to detect
-        if the real size exceeds 32bits.
-    */
+    /**
+     *  Returns the size (in bytes) of the bitmap's image buffer.
+     *  If the calculation overflows, or if the height is 0, this returns 0.
+     */
+    size_t computeByteSize() const { return fInfo.computeByteSize(fRowBytes); }
+
+#ifdef SK_SUPPORT_LEGACY_SAFESIZE64
     size_t getSize() const { return fInfo.height() * fRowBytes; }
 
     /** Return the number of bytes from the pointer returned by getPixels()
@@ -168,6 +171,7 @@ public:
     int64_t computeSafeSize64() const {
         return fInfo.getSafeSize64(fRowBytes);
     }
+#endif
 
     /** Returns true if this bitmap is marked as immutable, meaning that the
         contents of its pixels will not change for the lifetime of the bitmap.

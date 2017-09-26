@@ -422,7 +422,10 @@ sk_sp<SkImage> SkImageMakeRasterCopyAndAssignColorSpace(const SkImage* src,
     }
 
     size_t rowBytes = info.minRowBytes();
-    size_t size = info.getSafeSize(rowBytes);
+    size_t size = info.computeByteSize(rowBytes);
+    if (size == 0) {
+        return nullptr;
+    }
     auto data = SkData::MakeUninitialized(size);
     if (!data) {
         return nullptr;

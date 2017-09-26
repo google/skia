@@ -160,7 +160,7 @@ public:
 
     const Key& getKey() const override { return fKey; }
     size_t bytesUsed() const override {
-        return sizeof(fKey) + fInfo.getSafeSize(fRowBytes);
+        return sizeof(fKey) + fInfo.computeByteSize(fRowBytes);
     }
     bool canBePurged() override {
         SkAutoMutexAcquire ama(fMutex);
@@ -289,7 +289,7 @@ SkBitmapCache::RecPtr SkBitmapCache::Alloc(const SkBitmapCacheDesc& desc, const 
     }
 
     const size_t rb = info.minRowBytes();
-    size_t size = info.getSafeSize(rb);
+    size_t size = info.computeByteSize(rb);
     if (0 == size) {
         return nullptr;
     }
