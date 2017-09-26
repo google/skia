@@ -378,19 +378,20 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan',
-  'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android',
+  'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench',
   'Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug',
   'Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow',
+  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release',
   'Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release',
-  'Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-CommandBuffer',
-  'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release',
-  'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
-  ('Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind' +
-  '_AbandonGpuContext'),
+  'Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-CommandBuffer',
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release',
+  ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
+   '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
+  ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
+   '-Valgrind_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE',
   'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE',
   'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan',
@@ -398,7 +399,7 @@ TEST_BUILDERS = [
   'Perf-Win10-MSVC-SurfacePro2017-GPU-IntelHD615-x86_64-Release-ANGLE',
   'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug',
   'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release',
-  'Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release'
+  'Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release',
 ]
 
 
@@ -463,7 +464,7 @@ def GenTests(api):
     )
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-CPU-SSE4-x86-Debug-Android'
+  builder = 'Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android'
   yield (
     api.test('failed_push') +
     api.properties(buildername=builder,

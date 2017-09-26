@@ -224,16 +224,16 @@
       "gitHash",
       "abc123",
       "builder",
-      "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug",
+      "Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug",
       "swarming_bot_id",
-      "",
+      "skia-bot-123",
       "swarming_task_id",
-      "",
+      "123456",
       "--svgs",
       "[START_DIR]/svg",
       "--key",
       "arch",
-      "x86_64",
+      "x86",
       "compiler",
       "GCC",
       "configuration",
@@ -253,6 +253,8 @@
       "--dont_write",
       "pdf",
       "--randomProcessorTest",
+      "--threads",
+      "4",
       "--nogpu",
       "--config",
       "8888",
@@ -558,16 +560,11 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
-    "name": "symbolized dm",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_FAILURE@@@"
-    ]
+    "name": "symbolized dm"
   },
   {
     "name": "$result",
-    "reason": "Failed build steps: symbolized dm, symbolized dm",
     "recipe_result": null,
-    "status_code": 1
+    "status_code": 0
   }
 ]

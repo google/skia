@@ -102,10 +102,6 @@ def dm_flags(api, bot):
       configs.extend(mode + '-8888' for mode in
                      ['serialize', 'tiles_rt', 'pic'])
 
-    if 'Ci20' in bot:
-      # This bot is really slow, cut it down to just 8888.
-      configs = ['8888']
-
     # This bot only differs from vanilla CPU bots in 8888 config.
     if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
       configs = ['8888', 'srgb']
@@ -431,8 +427,8 @@ def dm_flags(api, bot):
     blacklist([ 'tiles_rt-8888', 'gm', '_', test])
 
   # Extensions for RAW images
-  r = ["arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
-       "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW"]
+  r = ['arw', 'cr2', 'dng', 'nef', 'nrw', 'orf', 'raf', 'rw2', 'pef', 'srw',
+       'ARW', 'CR2', 'DNG', 'NEF', 'NRW', 'ORF', 'RAF', 'RW2', 'PEF', 'SRW']
 
   # skbug.com/4888
   # Blacklist RAW images (and a few large PNGs) on GPU bots
@@ -659,12 +655,6 @@ def dm_flags(api, bot):
   if 'IntelBayTrail' in bot and api.vars.is_linux:
     match.append('~ImageStorageLoad') # skia:6358
 
-  if 'Ci20' in bot:
-    match.append('~Codec_Dimensions') # skia:6477
-    match.append('~FontMgrAndroidParser') # skia:6478
-    match.append('~PathOpsSimplify') # skia:6479
-    blacklist(['_', 'gm', '_', 'fast_slow_blurimagefilter']) # skia:6480
-
   if 'PowerVRGX6250' in bot:
     match.append('~gradients_view_perspective_nodither') #skia:6972
 
@@ -882,57 +872,54 @@ def RunSteps(api):
 
 TEST_BUILDERS = [
   'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android',
-  'Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android',
   'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android',
   'Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android',
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android',
-  "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_CCPR",
+  'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_CCPR',
   'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android',
   'Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan',
-  'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan',
-  'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_CCPR',
   'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android',
-  'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-Android',
+  'Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-Android',
   'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan',
   'Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android',
+  'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_CCPR',
+  'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan',
   'Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug',
   'Test-ChromeOS-Clang-Chromebook_CB5_312T-GPU-PowerVRGX6250-arm-Debug',
   'Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow',
+  ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release'
+   '-SK_FORCE_RASTER_PIPELINE_BLITTER'),
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN',
+  'Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug',
+  'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug',
+  ('Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug'
+   '-SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
   'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release',
   'Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-CommandBuffer',
-  'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN',
-  'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN',
-  'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN',
-  'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug',
-  'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow',
-  'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
-  ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind' +
-   '_AbandonGpuContext'),
-  ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind' +
-   '_PreAbandonGpuContext'),
-  ('Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_' +
-    'SCALEDIMAGECACHE'),
   'Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug',
   'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release',
   'Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug',
-  ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-Valgrind' +
-   '_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41'),
-  'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug',
+  ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
+   '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
+  ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
+   '-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41'),
+  ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
+   '-Valgrind_SK_CPU_LIMIT_SSE41'),
   'Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan',
-  ('Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-'
-   'ReleaseAndAbandonGpuContext'),
+  ('Test-Win10-MSVC-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release'
+   '-ReleaseAndAbandonGpuContext'),
   'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE',
   'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
   'Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE',
   'Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan',
-  'Test-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release',
-  ('Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-'
-   'SK_FORCE_RASTER_PIPELINE_BLITTER'),
+  'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug',
+  'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release',
 ]
 
 
@@ -1000,7 +987,7 @@ def GenTests(api):
     )
   )
 
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug'
+  builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug'
   yield (
     api.test('failed_dm') +
     api.properties(buildername=builder,
@@ -1020,7 +1007,7 @@ def GenTests(api):
     api.step_data('symbolized dm', retcode=1)
   )
 
-  builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android'
+  builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android'
   yield (
     api.test('failed_get_hashes') +
     api.properties(buildername=builder,
@@ -1040,7 +1027,7 @@ def GenTests(api):
     api.step_data('get uninteresting hashes', retcode=1)
   )
 
-  builder = 'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Debug-Android'
+  builder = 'Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android'
   yield (
     api.test('failed_push') +
     api.properties(buildername=builder,

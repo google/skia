@@ -55,41 +55,41 @@ def RunSteps(api):
 
 TEST_BUILDERS = [
   'Build-Debian9-Clang-arm-Release-Android_API26',
+  'Build-Debian9-Clang-x86_64-Release-Fast',
+  'Build-Debian9-Clang-x86_64-Release-Mini',
+  'Build-Debian9-Clang-x86_64-Release-Vulkan',
+  'Build-Debian9-EMCC-wasm-Release',
+  'Build-Debian9-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
+  'Build-Debian9-GCC-x86_64-Release-ANGLE',
+  'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
+  'Build-Debian9-GCC-x86_64-Release-Mesa',
+  'Build-Debian9-GCC-x86_64-Release-NoGPU',
+  'Build-Debian9-GCC-x86_64-Release-PDFium',
+  'Build-Debian9-GCC-x86_64-Release-PDFium_SkiaPaths',
+  'Build-Debian9-GCC-x86_64-Release-Shared',
   'Build-Mac-Clang-arm64-Debug-Android_Vulkan',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Mac-Clang-x86_64-Debug-Metal',
-  'Build-Ubuntu-Clang-x86_64-Release-Mini',
-  'Build-Ubuntu-Clang-x86_64-Release-Shared',
-  'Build-Ubuntu-Clang-x86_64-Release-Vulkan',
-  'Build-Ubuntu-EMCC-wasm-Release',
-  'Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
-  'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
-  'Build-Ubuntu-GCC-x86_64-Release-Fast',
-  'Build-Ubuntu-GCC-x86_64-Release-Flutter_Android',
-  'Build-Ubuntu-GCC-x86_64-Release-Mesa',
-  'Build-Ubuntu-GCC-x86_64-Release-PDFium',
-  'Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths',
   'Build-Win-Clang-arm64-Release-Android',
   'Build-Win-Clang-x86_64-Release',
+  'Build-Win-MSVC-x86-Debug-Exceptions',
   'Build-Win-MSVC-x86_64-Debug-GDI',
-  'Build-Win-MSVC-x86_64-Debug-NoGPU',
-  'Build-Win-MSVC-x86_64-Release-Exceptions',
   'Build-Win-MSVC-x86_64-Release-Vulkan',
   'Housekeeper-PerCommit-CheckGeneratedFiles',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android',
   'Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android',
   'Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release',
-  'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN',
-  'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-MSAN',
-  'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN',
-  'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow',
+  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN',
+  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN',
+  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow',
   'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs',
-  'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release',
-  ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-'
-   'Valgrind_AbandonGpuContext'),
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN',
+  'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release',
+  ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
+   '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug',
-  'Test-iOS-Clang-iPadMini4-GPU-GX6450-arm64-Debug',
+  'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug',
 ]
 
 
@@ -113,7 +113,7 @@ def GenTests(api):
           stdout=api.raw_io.output('192.168.1.2:5555'))
     yield test
 
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release'
+  builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release'
   yield (
       api.test('exceptions') +
       api.properties(buildername=builder,
