@@ -2534,15 +2534,6 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     return new SampleWindow(hwnd, argc, argv, nullptr);
 }
 
-// FIXME: this should be in a header
-void get_preferred_size(int* x, int* y, int* width, int* height);
-void get_preferred_size(int* x, int* y, int* width, int* height) {
-    *x = 10;
-    *y = 50;
-    *width = 640;
-    *height = 480;
-}
-
 #ifdef SK_BUILD_FOR_IOS
 #include "SkApplication.h"
 IOS_launch_type set_cmd_line_args(int , char *[], const char* resourceDir) {

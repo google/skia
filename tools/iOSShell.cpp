@@ -77,15 +77,6 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
 }
 
 // FIXME: this should be in a header
-void get_preferred_size(int* x, int* y, int* width, int* height);
-void get_preferred_size(int* x, int* y, int* width, int* height) {
-    *x = 10;
-    *y = 50;
-    *width = 640;
-    *height = 480;
-}
-
-// FIXME: this should be in a header
 void application_init();
 void application_init() {
     SkGraphics::Init();
