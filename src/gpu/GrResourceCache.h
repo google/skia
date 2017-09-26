@@ -160,7 +160,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // TextureProxies & GrUniqueKeys
     //
-    // The two GrResourceCache methods assignUniqueKeyToProxy and findProxyByUniqueKey drive
+    // The two GrResourceCache methods assignUniqueKeyToProxy and findOrCreateProxyByUniqueKey drive
     // the behavior of uniqueKeys on proxies.
     //
     // assignUniqueKeyToProxy does the following:
@@ -174,7 +174,7 @@ public:
     //    determines that the key will never be used again but, in that case, the proxy should
     //    never receive another key.
     //
-    // findProxyByUniqueKey does the following:
+    // findOrCreateProxyByUniqueKey does the following:
     //    first looks in the UniqueKeyProxy hash table to see if there is already a proxy w/ the key
     //    failing that it looks in the ResourceCache to see there is a texture with that key
     //       if so, it will wrap the texture in a proxy, add the proxy to the hash and return it
@@ -185,10 +185,23 @@ public:
      */
     void assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
 
+    /*
+     * Sets the unique key of the provided proxy to the unique key of the surface. The surface must
+     * have a valid unique key.
+     */
+    void adoptUniqueKeyFromSurface(GrTextureProxy* proxy, const GrSurface*);
+
     /**
      * Find a texture proxy that is associated with the provided unique key.
      */
     sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
+
+    /**
+     * Find a texture proxy that is associated with the provided unique key. If not proxy is found,
+     * try to find a resources that is associated with the unique key and create a proxy that wraps
+     * it.
+     */
+    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
 
     /**
      * Either the proxy attached to the unique key is being deleted (in which case we
@@ -198,6 +211,13 @@ public:
      * Note: this does not, by itself, alter unique key attached to the underlying GrTexture.
      */
     void processInvalidProxyUniqueKey(const GrUniqueKey&);
+
+    /**
+     * Same as above, but you can pass in a GrTextureProxy to save having to search for it. The
+     * GrUniqueKey of the proxy must be valid and it must match the passed in key. This function
+     * also gives the option to invalidate the GrUniqueKey on the underlying GrTexture.
+     */
+    void processInvalidProxyUniqueKey(const GrUniqueKey&, GrTextureProxy*, bool invalidateSurface);
 
     /**
      * Query whether a unique key exists in the cache.

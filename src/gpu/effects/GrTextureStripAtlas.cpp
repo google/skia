@@ -207,7 +207,7 @@ void GrTextureStripAtlas::lockTexture() {
     builder[0] = static_cast<uint32_t>(fCacheKey);
     builder.finish();
 
-    sk_sp<GrTextureProxy> proxy = fDesc.fContext->resourceProvider()->findProxyByUniqueKey(
+    sk_sp<GrTextureProxy> proxy = fDesc.fContext->resourceProvider()->findOrCreateProxyByUniqueKey(
                                                                 key, kTopLeft_GrSurfaceOrigin);
     if (!proxy) {
         GrSurfaceDesc texDesc;

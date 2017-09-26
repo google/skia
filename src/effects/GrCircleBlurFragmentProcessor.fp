@@ -224,7 +224,7 @@ uniform half4 circleData;
         builder.finish();
 
         sk_sp<GrTextureProxy> blurProfile =
-                              resourceProvider->findProxyByUniqueKey(key, kTopLeft_GrSurfaceOrigin);
+                      resourceProvider->findOrCreateProxyByUniqueKey(key, kTopLeft_GrSurfaceOrigin);
         if (!blurProfile) {
             static constexpr int kProfileTextureWidth = 512;
             GrSurfaceDesc texDesc;
