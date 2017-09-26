@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d17b175d_dc53a7cc",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 904,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T15:06:36Z",
+      "side": 1,
+      "message": "SkASSERT(result-\u003eorigin() \u003d\u003d origin); ?",
+      "revId": "9b4cc9ea7a05f6fe5dcbf0381b4d2684fa57afa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f5a0363_c1c77a3e",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 917,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T15:06:36Z",
+      "side": 1,
+      "message": "// MakeWrapped should\u0027ve added this for us ?",
+      "revId": "9b4cc9ea7a05f6fe5dcbf0381b4d2684fa57afa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ec4b7cb_22c646fb",
+        "filename": "src/gpu/GrResourceCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T15:06:36Z",
+      "side": 1,
+      "message": "four ... adoptUniqueKeyFromSurface \u0026 findProxyByUniqueKey",
+      "revId": "9b4cc9ea7a05f6fe5dcbf0381b4d2684fa57afa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ffdee8c_b8509162",
+        "filename": "src/gpu/GrResourceCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T15:06:36Z",
+      "side": 1,
+      "message": "Dox for adoptUniqueKeyFromSurface",
+      "revId": "9b4cc9ea7a05f6fe5dcbf0381b4d2684fa57afa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1c9b43c_34dca0fd",
+        "filename": "src/gpu/GrResourceCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T15:06:36Z",
+      "side": 1,
+      "message": "// findProxyUniqueKey is similar to findOrCreateProxyByUnique but it only looks for a pre-existing uniquely keyed proxy. It will not look for a preexisting GrSurface with the unique key!!\n\n?",
+      "revId": "9b4cc9ea7a05f6fe5dcbf0381b4d2684fa57afa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6a56912_a482d3f9",
+        "filename": "src/gpu/GrResourceCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T15:06:36Z",
+      "side": 1,
+      "message": "// It will not look for a GrSurface that has the unique key.\n\n?",
+      "revId": "9b4cc9ea7a05f6fe5dcbf0381b4d2684fa57afa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53d6e37a_00abf8b7",
+        "filename": "src/gpu/GrResourceCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T15:06:36Z",
+      "side": 1,
+      "message": "can or must ?",
+      "revId": "9b4cc9ea7a05f6fe5dcbf0381b4d2684fa57afa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7b399b8_85808489",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T15:06:36Z",
+      "side": 1,
+      "message": "to a -\u003e from a ?",
+      "revId": "9b4cc9ea7a05f6fe5dcbf0381b4d2684fa57afa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e327fff_9f305826",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T15:06:36Z",
+      "side": 1,
+      "message": "Finds -\u003e Find or create -\u003e creates ?",
+      "revId": "9b4cc9ea7a05f6fe5dcbf0381b4d2684fa57afa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
