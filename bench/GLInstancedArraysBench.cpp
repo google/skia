@@ -126,7 +126,7 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
     vshaderTxt.append(
             "void main()\n"
             "{\n"
-                "gl_Position = float4(a_position, 0., 1.);\n"
+                "sk_Position = float4(a_position, 0., 1.);\n"
                 "o_color = a_color;\n"
             "}\n");
 

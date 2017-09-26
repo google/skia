@@ -101,7 +101,7 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
     vshaderTxt.append(
             "void main()\n"
             "{\n"
-                "gl_Position = a_position;\n");
+                "sk_Position = a_position;\n");
 
     for (uint32_t i = 0; i < attribs; i++) {
         vshaderTxt.appendf("%s = %s;\n", oVars[i].c_str(), aVars[i].c_str());

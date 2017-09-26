@@ -145,7 +145,7 @@ void PrimitiveProcessor::emitGeometryShader(const GrCCPRCoverageProcessor& proc,
             fnBody.appendf("%s = %s * %s;",
                            fFragCoverageTimesWind.gsOut(), coverage, fGeomWind.c_str());
         }
-        fnBody.append ("gl_Position = float4(position, 0, 1);");
+        fnBody.append ("sk_Position = float4(position, 0, 1);");
         fnBody.append ("EmitVertex();");
         return fnBody;
     }().c_str(), &emitVertexFn);

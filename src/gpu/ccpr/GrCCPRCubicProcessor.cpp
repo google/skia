@@ -46,10 +46,10 @@ void GrCCPRCubicProcessor::emitWind(GrGLSLGeometryBuilder* g, const char* rtAdju
 void GrCCPRCubicProcessor::onEmitGeometryShader(GrGLSLGeometryBuilder* g, const char* emitVertexFn,
                                                 const char* wind, const char* rtAdjust) const {
     // Prepend bezierpts at the start of the shader.
-    g->codePrependf("float4x2 bezierpts = float4x2(sk_in[0].gl_Position.xy, "
-                                                          "sk_in[1].gl_Position.xy, "
-                                                          "sk_in[2].gl_Position.xy, "
-                                                          "sk_in[3].gl_Position.xy);");
+    g->codePrependf("float4x2 bezierpts = float4x2(sk_in[0].sk_Position.xy, "
+                                                          "sk_in[1].sk_Position.xy, "
+                                                          "sk_in[2].sk_Position.xy, "
+                                                          "sk_in[3].sk_Position.xy);");
 
     // Evaluate the cubic at T=.5 for an mid-ish point.
     g->codeAppendf("float2 midpoint = bezierpts * float4(.125, .375, .375, .125);");

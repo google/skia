@@ -38,6 +38,8 @@ Differences from GLSL
   'do_something_else();', depending on whether that cap is enabled or not.
 * no #version statement is required, and it will be ignored if present
 * the output color is sk_FragColor (do not declare it)
+* use sk_Position instead of gl_Position
+* use sk_PointSize instead of gl_PointSize
 * use sk_VertexID instead of gl_VertexID
 * the fragment coordinate is sk_FragCoord, and is always relative to the upper
   left.

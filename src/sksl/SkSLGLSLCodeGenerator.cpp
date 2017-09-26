@@ -480,7 +480,14 @@ void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
             this->write("gl_ClipDistance");
             break;
         default:
-            this->write(f.fBase->fType.fields()[f.fFieldIndex].fName);
+            StringFragment name = f.fBase->fType.fields()[f.fFieldIndex].fName;
+            if (name == "sk_Position") {
+                this->write("gl_Position");
+            } else if (name == "sk_PointSize") {
+                this->write("gl_PointSize");
+            } else {
+                this->write(f.fBase->fType.fields()[f.fFieldIndex].fName);
+            }
     }
 }
 
