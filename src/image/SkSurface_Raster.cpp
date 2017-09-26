@@ -162,7 +162,7 @@ void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
             fBitmap.allocPixels();
             SkASSERT(prev.info() == fBitmap.info());
             SkASSERT(prev.rowBytes() == fBitmap.rowBytes());
-            memcpy(fBitmap.getPixels(), prev.getPixels(), fBitmap.getSafeSize());
+            memcpy(fBitmap.getPixels(), prev.getPixels(), fBitmap.computeByteSize());
         }
         SkASSERT(fBitmap.rowBytes() == fRowBytes);  // be sure we always use the same value
 
