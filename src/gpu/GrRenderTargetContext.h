@@ -143,7 +143,8 @@ public:
      */
     void drawTextureAffine(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter,
                            GrColor, const SkRect& srcRect, const SkRect& dstRect,
-                           const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>);
+                           const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>,
+                           const SkMatrix& textureMatrix);
 
     /**
      * Draw a roundrect using a paint.
