@@ -70,6 +70,18 @@ static SkColorType stored_to_live(unsigned stored) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "SkSafeMath.h"
+
+size_t SkImageInfo::computeByteSize(size_t rowBytes) const {
+    if (0 == fHeight) {
+        return 0;
+    }
+    SkSafeMath safe;
+    size_t bytes = safe.add(safe.mul(fHeight - 1, rowBytes),
+                            safe.mul(fWidth, this->bytesPerPixel()));
+    return safe ? bytes : 0;
+}
+
 static bool alpha_type_is_valid(SkAlphaType alphaType) {
     return (alphaType >= kUnknown_SkAlphaType) && (alphaType <= kLastEnum_SkAlphaType);
 }
