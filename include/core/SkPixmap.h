@@ -206,6 +206,7 @@ public:
     */
     int shiftPerPixel() const { return fInfo.shiftPerPixel(); }
 
+#ifdef SK_SUPPORT_LEGACY_SAFESIZE64
     /** Returns conservative memory required for pixel storage.
         Includes unused memory on last row when rowBytesAsPixels() exceeds width().
 
@@ -228,6 +229,13 @@ public:
         @return  exact pixel storage size if size fits in signed 32 bits
     */
     size_t getSafeSize() const { return fInfo.getSafeSize(fRowBytes); }
+#endif
+
+    /**
+     *  Returns the size (in bytes) of the pixmap's image buffer.
+     *  If the calculation overflows, or if the height is 0, this returns 0.
+     */
+    size_t computeByteSize() const { return fInfo.computeByteSize(fRowBytes); }
 
     /** Returns true if all pixels are opaque. SkColorType determines how pixels
         are encoded, and whether pixel describes alpha. Returns true for SkColorType

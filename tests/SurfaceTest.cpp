@@ -50,7 +50,7 @@ static sk_sp<SkSurface> create_direct_surface(SkAlphaType at = kPremul_SkAlphaTy
         *requestedInfo = info;
     }
     const size_t rowBytes = info.minRowBytes();
-    void* storage = sk_malloc_throw(info.getSafeSize(rowBytes));
+    void* storage = sk_malloc_throw(info.computeByteSize(rowBytes));
     return SkSurface::MakeRasterDirectReleaseProc(info, storage, rowBytes,
                                                   release_direct_surface_storage,
                                                   storage);
@@ -565,7 +565,7 @@ DEF_TEST(surface_rowbytes, reporter) {
     // Try some illegal rowByte values
     auto s = SkSurface::MakeRaster(info, 396, nullptr);    // needs to be at least 400
     REPORTER_ASSERT(reporter, nullptr == s);
-    s = SkSurface::MakeRaster(info, 1 << 30, nullptr); // allocation to large
+    s = SkSurface::MakeRaster(info, std::numeric_limits<size_t>::max(), nullptr);
     REPORTER_ASSERT(reporter, nullptr == s);
 }
 

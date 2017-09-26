@@ -38,7 +38,7 @@ void AndroidCodecBench::onDelayedSetup() {
         fInfo = fInfo.makeAlphaType(kPremul_SkAlphaType);
     }
 
-    fPixelStorage.reset(fInfo.getSafeSize(fInfo.minRowBytes()));
+    fPixelStorage.reset(fInfo.computeMinByteSize());
 }
 
 void AndroidCodecBench::onDraw(int n, SkCanvas* canvas) {
