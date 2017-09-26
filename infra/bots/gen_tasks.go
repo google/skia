@@ -342,6 +342,12 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_DEBIAN {
 			return linuxGceDimensions()
+		} else if d["os"] == "Windows-2008ServerR2-SP1" {
+			// Windows builders.
+			d["cpu"] = "x86-64-Haswell_GCE"
+		} else if d["os"] == "Mac-10.12" {
+			// Mac builders.
+			d["cpu"] = "x86-64-E5-2697_v2"
 		}
 	}
 
