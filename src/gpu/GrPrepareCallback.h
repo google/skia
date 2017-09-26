@@ -17,72 +17,73 @@
 class GrTextureProxy;
 
 /**
- * An instance of any class derived from GrPrepareCallback can be passed to
- * GrOpList::addPrepareCallback. At flush time, all callbacks (on op lists being flushed) will be
- * invoked (via operator()). Note that the callback receives the GrOpFlushState, so it can trigger
- * ASAP uploads (similar to an Op's onPrepare).
- *
- * All callbacks are invoked at the beginning of flush, before prepare is called.
+ * GrDeferredProxyUploader assists with threaded generation of textures. Currently used by both
+ * software clip masks, and the software path renderer. The calling code typically needs to store
+ * some additional data (T) for use on the worker thread. GrTDeferredProxyUploader allows storing
+ * such data. A worker thread uses that data to populate fPixels. This object's operator() is
+ * invoked at flush time, and handles scheduling the texture upload.
  */
-class GrPrepareCallback : SkNoncopyable {
+class GrDeferredProxyUploader : public SkNoncopyable {
 public:
-    virtual ~GrPrepareCallback() {}
-    virtual void operator()(GrOpFlushState*) = 0;
-};
+    GrDeferredProxyUploader() : fScheduledUpload(false), fWaited(false) {}
 
-/**
- * GrMaskUploaderPrepareCallback assists with threaded generation of mask textures. Currently used
- * by both software clip masks, and the software path renderer. The calling code typically needs
- * to store some additional data (T) for use on the worker thread. That payload is accessed by the
- * worker thread to populate the mask in fPixels (using GrSWMaskHelper). This callback's operator()
- * handles scheduling the texture upload at flush time.
- */
-template <typename T>
-class GrMaskUploaderPrepareCallback : public GrPrepareCallback {
-public:
-    template <typename... Args>
-    GrMaskUploaderPrepareCallback(sk_sp<GrTextureProxy> proxy, Args&&... args)
-            : fProxy(std::move(proxy))
-            , fWaited(false)
-            , fData(std::forward<Args>(args)...) {}
-
-    ~GrMaskUploaderPrepareCallback() override {
+    virtual ~GrDeferredProxyUploader() {
         if (!fWaited) {
             // This can happen if our owning op list fails to instantiate (so it never prepares)
             fPixelsReady.wait();
         }
     }
 
-    void operator()(GrOpFlushState* flushState) override {
-        auto uploadMask = [this](GrDrawOp::WritePixelsFn& writePixelsFn) {
+    void operator()(GrOpFlushState* flushState, GrTextureProxy* proxy) {
+        if (fScheduledUpload) {
+            // Multiple references to the owning proxy may have caused us to already execute
+            return;
+        }
+
+        auto uploadMask = [this, proxy](GrDrawOp::WritePixelsFn& writePixelsFn) {
             this->fPixelsReady.wait();
             this->fWaited = true;
             // If the worker thread was unable to allocate pixels, this check will fail, and we'll
             // end up drawing with an uninitialized mask texture, but at least we won't crash.
             if (this->fPixels.addr()) {
-                writePixelsFn(this->fProxy.get(), 0, 0,
-                              this->fPixels.width(), this->fPixels.height(),
-                              kAlpha_8_GrPixelConfig,
-                              this->fPixels.addr(), this->fPixels.rowBytes());
+                writePixelsFn(proxy, 0, 0, this->fPixels.width(), this->fPixels.height(),
+                              proxy->config(), this->fPixels.addr(), this->fPixels.rowBytes());
                 // Free this memory immediately, so it can be recycled. This avoids memory pressure
                 // when there is a large amount of threaded work still running during flush.
                 this->fPixels.reset();
             }
+            // Upload has finished, so tell the proxy to release this GrDeferredProxyUploader
+            proxy->resetDeferredUploader();
         };
         flushState->addASAPUpload(std::move(uploadMask));
+        fScheduledUpload = true;
     }
 
     SkAutoPixmapStorage* getPixels() { return &fPixels; }
     SkSemaphore* getSemaphore() { return &fPixelsReady; }
-    T& data() { return fData; }
 
 private:
-    sk_sp<GrTextureProxy> fProxy;
     SkAutoPixmapStorage fPixels;
     SkSemaphore fPixelsReady;
+    bool fScheduledUpload;
     bool fWaited;
+};
 
-    T fData;
+template <typename T>
+class GrTDeferredProxyUploader : public GrDeferredProxyUploader {
+public:
+    template <typename... Args>
+    GrTDeferredProxyUploader(Args&&... args)
+        : fData(skstd::make_unique<T>(std::forward<Args>(args)...)) {
+    }
+
+    T& data() { return *fData; }
+    void freeData() {
+        fData.reset();
+    }
+
+private:
+    std::unique_ptr<T> fData;
 };
 
 #endif

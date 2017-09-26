@@ -23,7 +23,6 @@
 class GrAuditTrail;
 class GrCaps;
 class GrOpFlushState;
-class GrPrepareCallback;
 class GrRenderTargetOpList;
 class GrResourceAllocator;
 class GrResourceProvider;
@@ -59,7 +58,8 @@ public:
 
     virtual void reset();
 
-    void addPrepareCallback(std::unique_ptr<GrPrepareCallback> callback);
+    void addDeferredProxy(GrTextureProxy* proxy);
+    void instantiateDeferredProxies(GrResourceProvider* resourceProvider);
 
     // TODO: in an MDB world, where the OpLists don't allocate GPU resources, it seems like
     // these could go away
@@ -181,8 +181,8 @@ private:
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
     SkSTArray<1, GrOpList*, true> fDependencies;
 
-    // These are used rarely, most clients never produce any
-    SkTArray<std::unique_ptr<GrPrepareCallback>> fPrepareCallbacks;
+    // List of texture proxies whose contents are being prepared on a worker thread
+    SkTArray<GrTextureProxy*, true> fDeferredProxies;
 
     typedef SkRefCnt INHERITED;
 };
