@@ -43,19 +43,23 @@ public:
 
     /*
      * Copy 'src' into the proxy backing this context
-     * @param src       src of pixels
-     * @param srcRect   the subset of 'src' to copy
-     * @param dstPoint  the origin of the 'srcRect' in the destination coordinate space
-     * @return          true if the copy succeeded; false otherwise
+     * @param src             src of pixels
+     * @param srcRect         the subset of 'src' to copy
+     * @param dstPoint        the origin of the 'srcRect' in the destination coordinate space
+     * @param markMipsAsValid signal to manually set the mip status to valid after copy is done.
+     *                        This is used for when we are just copying the base level of a mip and
+     *                        have manually upload the other levels.
+     * @return                true if the copy succeeded; false otherwise
      *
      * Note: Notionally, 'srcRect' is clipped to 'src's extent with 'dstPoint' being adjusted.
      *       Then the 'srcRect' offset by 'dstPoint' is clipped against the dst's extent.
      *       The end result is only valid src pixels and dst pixels will be touched but the copied
      *       regions will not be shifted.
      */
-    bool copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
+    bool copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint,
+              bool markMipsAsValid = false);
 
-    bool copy(GrSurfaceProxy* src) {
+    bool copy(GrSurfaceProxy* src, bool markMipsAsValid = false) {
         return this->copy(src,
                           SkIRect::MakeWH(src->width(), src->height()),
                           SkIPoint::Make(0, 0));
