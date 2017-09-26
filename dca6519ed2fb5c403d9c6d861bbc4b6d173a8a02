@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2898aba3_174bd1b3",
+        "filename": "src/core/SkImageInfo.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-09-26T15:19:02Z",
+      "side": 1,
+      "message": "Should we guard against rowBytes \u003c this-\u003eminRowBytes() also?",
+      "revId": "dca6519ed2fb5c403d9c6d861bbc4b6d173a8a02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

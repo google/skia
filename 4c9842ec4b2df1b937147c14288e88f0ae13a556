@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6276823b_0725f3d4",
+        "filename": "tests/DrawBitmapRectTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-09-26T15:19:02Z",
+      "side": 0,
+      "message": "Why drop this test?",
+      "revId": "4c9842ec4b2df1b937147c14288e88f0ae13a556",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
