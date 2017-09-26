@@ -762,14 +762,14 @@ DEFINE_int32(backendTiles, 0, "Number of tiles in the experimental threaded back
 DEFINE_int32(backendThreads, 0, "Number of threads in the experimental threaded backend.");
 DEFINE_int32(measureMS, 0, "Number of miliseconds to measure the FPS before closing the SampleApp. "
                            "If it's 0, we won't measure the FPS or close SampleApp automatically.");
+DEFINE_int32(width,  500, "Width of the window");
+DEFINE_int32(height, 500, "Height of the window");
 
 #include "SkTaskGroup.h"
 
 SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager)
-    : INHERITED(hwnd)
+    : INHERITED(hwnd, FLAGS_width, FLAGS_height)
     , fDevManager(nullptr) {
-
-    SkCommandLineFlags::Parse(argc, argv);
 
     fCurrIndex = -1;
 
@@ -2528,6 +2528,8 @@ static void test() {
 // FIXME: this should be in a header
 SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv);
 SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
+
     if (false) { // avoid bit rot, suppress warning
         test();
     }
