@@ -16,6 +16,24 @@
       "revId": "dca6519ed2fb5c403d9c6d861bbc4b6d173a8a02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9166e2d_05834518",
+        "filename": "src/core/SkImageInfo.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-09-26T15:22:40Z",
+      "side": 1,
+      "message": "That is what validRowBytes() returns. Not sure we should \"enforce\" that here or not. We actually have some unittests that pass in bad rowBytes values, to see behavior down the road. We could decide to check for this, or assert it, but that would be a new behavior not present in the old version.",
+      "parentUuid": "2898aba3_174bd1b3",
+      "revId": "dca6519ed2fb5c403d9c6d861bbc4b6d173a8a02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
