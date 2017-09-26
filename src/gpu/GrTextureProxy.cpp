@@ -8,6 +8,7 @@
 #include "GrTextureProxy.h"
 
 #include "GrContext.h"
+#include "GrPrepareCallback.h"
 #include "GrResourceCache.h"
 
 #include "GrTexturePriv.h"
@@ -17,7 +18,9 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, S
         : INHERITED(srcDesc, fit, budgeted, flags)
         , fIsMipMapped(false)
         , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
-        , fCache(nullptr) {
+        , fCache(nullptr)
+        , fDeferredUploader(nullptr)
+        , fNeedsUpload(false) {
     SkASSERT(!srcData);  // currently handled in Make()
 }
 
@@ -25,7 +28,9 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
         , fIsMipMapped(fTarget->asTexture()->texturePriv().hasMipMaps())
         , fMipColorMode(fTarget->asTexture()->texturePriv().mipColorMode())
-        , fCache(nullptr) {
+        , fCache(nullptr)
+        , fDeferredUploader(nullptr)
+        , fNeedsUpload(false) {
     if (fTarget->getUniqueKey().isValid()) {
         fCache = fTarget->asTexture()->getContext()->getResourceCache();
         fCache->adoptUniqueKeyFromSurface(this, fTarget);
@@ -44,9 +49,13 @@ GrTextureProxy::~GrTextureProxy() {
 }
 
 bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
+    GrUniqueKey key;
+    if (fUniqueKey.isValid()) {
+        key = fUniqueKey;
+    }
     if (!this->instantiateImpl(resourceProvider, 0, /* needsStencil = */ false,
                                kNone_GrSurfaceFlags, fIsMipMapped, fMipColorMode,
-                               fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
+                               key.isValid() ? &key : nullptr)) {
         return false;
     }
 
@@ -65,6 +74,31 @@ sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvi
 
     SkASSERT(surface->asTexture());
     return surface;
+}
+
+void GrTextureProxy::setDeferredUploader(std::unique_ptr<GrDeferredProxyUploader> uploader) {
+    SkASSERT(!fDeferredUploader && !fNeedsUpload);
+    fDeferredUploader = std::move(uploader);
+    fNeedsUpload = true;
+}
+
+void GrTextureProxy::prepareUpload(GrOpFlushState* flushState) {
+    // Should only be called if we were (at some point) associated with deferred prepare
+    SkASSERT(fDeferredUploader);
+
+    // Another op list (or even another op in the same op list) may have already handled this
+    if (fTarget && fNeedsUpload) {
+        (*fDeferredUploader)(flushState, this);
+
+        // We can't just free fDeferredUploader, because it (probably) scheduled an ASAP upload,
+        // and that's referring to the data owned by the uploader.
+        fNeedsUpload = false;
+    }
+}
+
+void GrTextureProxy::resetDeferredUploader() {
+    SkASSERT(fDeferredUploader && !fNeedsUpload);
+    fDeferredUploader.reset();
 }
 
 // This method parallels the highest_filter_mode functions in GrGLTexture & GrVkTexture.
