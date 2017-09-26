@@ -151,8 +151,8 @@ DEF_TEST(SkRecordingAccuracyXfermode, reporter) {
         const SkBitmap& goldenBM = golden.recordAndReplay(drawer, clip, mode);
         const SkBitmap& pictureBM = picture.recordAndReplay(drawer, clip, mode);
 
-        size_t pixelsSize = goldenBM.getSize();
-        REPORTER_ASSERT(reporter, pixelsSize == pictureBM.getSize());
+        size_t pixelsSize = goldenBM.computeByteSize();
+        REPORTER_ASSERT(reporter, pixelsSize == pictureBM.computeByteSize());
 
         // The pixel arrays should match.
 #if FINEGRAIN
