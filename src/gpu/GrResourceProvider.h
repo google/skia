@@ -264,7 +264,6 @@ public:
 
 private:
     GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
-    void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture);
 
     // Attempts to find a resource in the cache that exactly matches the GrSurfaceDesc. Failing that
     // it returns null. If non-null, the resulting texture is always budgeted.

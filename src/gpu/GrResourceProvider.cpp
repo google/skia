@@ -296,11 +296,6 @@ GrTexture* GrResourceProvider::findAndRefTextureByUniqueKey(const GrUniqueKey& k
     return nullptr;
 }
 
-void GrResourceProvider::assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture) {
-    SkASSERT(key.isValid());
-    this->assignUniqueKeyToResource(key, texture);
-}
-
 void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
     ASSERT_SINGLE_OWNER
     SkASSERT(key.isValid());
