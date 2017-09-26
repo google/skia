@@ -3503,8 +3503,8 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
         "// Copy Program VS\n"
         "void main() {"
         "  v_texCoord = a_vertex.xy * u_texCoordXform.xy + u_texCoordXform.zw;"
-        "  gl_Position.xy = a_vertex * u_posXform.xy + u_posXform.zw;"
-        "  gl_Position.zw = half2(0, 1);"
+        "  sk_Position.xy = a_vertex * u_posXform.xy + u_posXform.zw;"
+        "  sk_Position.zw = half2(0, 1);"
         "}"
     );
 
@@ -3618,8 +3618,8 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     vshaderTxt.append(
         "// Mipmap Program VS\n"
         "void main() {"
-        "  gl_Position.xy = a_vertex * half2(2, 2) - half2(1, 1);"
-        "  gl_Position.zw = half2(0, 1);"
+        "  sk_Position.xy = a_vertex * half2(2, 2) - half2(1, 1);"
+        "  sk_Position.zw = half2(0, 1);"
     );
 
     // Insert texture coordinate computation:
@@ -3748,7 +3748,7 @@ bool GrGLGpu::createStencilClipClearProgram() {
     vshaderTxt.append(
             "// Stencil Clip Clear Program VS\n"
             "void main() {"
-            "  gl_Position = float4(a_vertex.x, a_vertex.y, 0, 1);"
+            "  sk_Position = float4(a_vertex.x, a_vertex.y, 0, 1);"
             "}");
 
     SkString fshaderTxt(version);

@@ -17,9 +17,9 @@ namespace SkSL {
 /**
  * An interface block, as in:
  *
- * out gl_PerVertex {
- *   layout(builtin=0) float4 gl_Position;
- *   layout(builtin=1) float gl_PointSize;
+ * out sk_PerVertex {
+ *   layout(builtin=0) float4 sk_Position;
+ *   layout(builtin=1) float sk_PointSize;
  * };
  *
  * At the IR level, this is represented by a single variable of struct type.

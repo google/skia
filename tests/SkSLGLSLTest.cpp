@@ -1076,9 +1076,9 @@ DEF_TEST(SkSLGeometry, r) {
          "layout(invocations = 2) in;"
          "layout(line_strip, max_vertices = 2) out;"
          "void main() {"
-         "gl_Position = sk_in[0].gl_Position + float4(-0.5, 0, 0, sk_InvocationID);"
+         "sk_Position = sk_in[0].sk_Position + float4(-0.5, 0, 0, sk_InvocationID);"
          "EmitVertex();"
-         "gl_Position = sk_in[0].gl_Position + float4(0.5, 0, 0, sk_InvocationID);"
+         "sk_Position = sk_in[0].sk_Position + float4(0.5, 0, 0, sk_InvocationID);"
          "EmitVertex();"
          "EndPrimitive();"
          "}",
@@ -1427,11 +1427,11 @@ DEF_TEST(SkSLInvocations, r) {
          "layout(invocations = 2) in;"
          "layout(line_strip, max_vertices = 2) out;"
          "void test() {"
-         "gl_Position = sk_in[0].gl_Position + float4(0.5, 0, 0, sk_InvocationID);"
+         "sk_Position = sk_in[0].sk_Position + float4(0.5, 0, 0, sk_InvocationID);"
          "EmitVertex();"
          "}"
          "void main() {"
-         "gl_Position = sk_in[0].gl_Position + float4(-0.5, 0, 0, sk_InvocationID);"
+         "sk_Position = sk_in[0].sk_Position + float4(-0.5, 0, 0, sk_InvocationID);"
          "EmitVertex();"
          "}",
          *SkSL::ShaderCapsFactory::MustImplementGSInvocationsWithLoop(),
