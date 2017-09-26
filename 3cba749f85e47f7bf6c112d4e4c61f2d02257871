@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f7904b55_f460fbe3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-26T13:35:55Z",
+      "side": 1,
+      "message": "Ok, I see the Chromium bug here: 765590. Maybe reference that here, too?",
+      "parentUuid": "499ce190_88aa9a33",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 8
+      },
+      "revId": "3cba749f85e47f7bf6c112d4e4c61f2d02257871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7079c559_9db4b812",
         "filename": "third_party/gif/SkGifImageReader.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-09-26T13:15:40Z",
       "side": 1,
       "message": "As you\u0027ve written this method, you no longer reference localColors, and isLocalColormapDefined is only used for determining whether we do some assert checks. (i.e. you could drop those two parameters and return true here, or return transparentPixel \u003e\u003d 0 above.)\n\nBut I don\u0027t think that\u0027s quite what you want. What you really want to know is whether there is a possibility for invalid palette indices. That\u0027s sort of what the first if statement in this method is checking. If there is no local color map, and the global color map is empty, all indices are invalid. A broader way of looking at that is, is the color map full? Something like\n\n  return ((transparentPixel \u003e\u003d 0 \u0026\u0026 transparentPixel \u003c numColors) || (numColors \u003c maxColors));\n\nWhere numColors is the actual number of colors in the (local or global, depending on which is being used) color map, and maxColors is the max number of indices based on the number of bits per pixel used to represent an index. At most it can be 256 for 8 bit indices, but I think GIFs can also be encoded with 4 bit indices.\n\nThe unfortunate result of this change is that images which are properly encoded may be incorrectly marked as having alpha, in order to \"correctly\" support images that were improperly encoded. Making this change seems akin to going back and correcting the alpha (which would fix this unfortunate result), which Skia has decided not to do, prioritizing correct images over incorrect ones.\n\nI see the bug you filed; it gives a sample image, but I cannot spot the error. Is the problem that we \"incorrectly\" marked a frame as opaque and it draws incorrectly? (e.g. shows a black pixel when it \"should have\" shown transparent - i.e. a prior frame or the background)",
+      "range": {
+        "startLine": 862,
+        "startChar": 8,
+        "endLine": 862,
+        "endChar": 30
+      },
+      "revId": "3cba749f85e47f7bf6c112d4e4c61f2d02257871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42adfcee_427f96f3",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-26T13:35:55Z",
+      "side": 1,
+      "message": "Ok, just looked at crbug.com/765590 and I see the problem in the video. (I\u0027m on an old version of Chrome so I didn\u0027t see the problem by just opening the image in Chrome.)\n\nIt\u0027s interesting that this image specified a transparent index that is not valid, and then used it. (As opposed to say, not specifying a transparent index and then arbitrarily using indices between 64 and 255 any time it wanted to have transparency.)\n\nA more conservative fix here would just be\n\n  return transparentPixel \u003e\u003d 0 \u0026\u0026 transparentPixel \u003c maxColors;\n\nThat would fix this particular image, with less false positives (e.g. marking frames without transparent pixels as having alpha even though they have no transparentPixel, just because they have small color maps). It would still leave other (more?) broken images broken.\n\nThe other side of the fix might be to fix broken encoders out there in the world? Wouldn\u0027t correct existing images, though.",
+      "parentUuid": "7079c559_9db4b812",
       "range": {
         "startLine": 862,
         "startChar": 8,
