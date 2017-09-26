@@ -198,6 +198,14 @@ inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
     return true;
 }
 
+// Number of atlas-related flushes beyond which we consider a plot to no longer be in use.
+//
+// This value is somewhat arbitrary -- the idea is to keep it low enough that
+// a page with unused plots will get removed reasonably quickly, but allow it
+// to hang around for a bit in case it's needed. The assumption is that flushes
+// are rare; i.e., we are not continually refreshing the frame.
+static constexpr auto kRecentlyUsedCount = 8;
+
 bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width, int height,
                                const void* image, SkIPoint16* loc) {
     if (width > fPlotWidth || height > fPlotHeight) {
@@ -228,7 +236,8 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     for (unsigned int pageIdx = 0; pageIdx < fNumPages; ++pageIdx) {
         Plot* plot = fPages[pageIdx].fPlotList.tail();
         SkASSERT(plot);
-        if (target->hasDrawBeenFlushed(plot->lastUseToken())) {
+        if (target->hasDrawBeenFlushed(plot->lastUseToken()) &&
+            plot->flushesSinceLastUsed() >= kRecentlyUsedCount) {
             this->processEviction(plot->id());
             plot->resetRects();
             SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
@@ -237,7 +246,6 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
             if (!this->updatePlot(target, id, plot)) {
                 return false;
             }
-
             fAtlasGeneration++;
             return true;
         }
@@ -314,14 +322,6 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
 }
 
 void GrDrawOpAtlas::compact(GrDrawOpUploadToken startTokenForNextFlush) {
-    // Number of atlas-related flushes beyond which we consider a plot to no longer be in use.
-    //
-    // This value is somewhat arbitrary -- the idea is to keep it low enough that
-    // a page with unused plots will get removed reasonably quickly, but allow it
-    // to hang around for a bit in case it's needed. The assumption is that flushes
-    // are rare; i.e., we are not continually refreshing the frame.
-    static constexpr auto kRecentlyUsedCount = 8;
-
     if (fNumPages <= 1) {
         fPrevFlushToken = startTokenForNextFlush;
         return;
@@ -340,7 +340,7 @@ void GrDrawOpAtlas::compact(GrDrawOpUploadToken startTokenForNextFlush) {
             if (plot->lastUseToken().inInterval(fPrevFlushToken, startTokenForNextFlush)) {
                 plot->resetFlushesSinceLastUsed();
                 atlasUsedThisFlush = true;
-            } else {
+            } else if (atlasUsedThisFlush) {
                 plot->incFlushesSinceLastUsed();
             }
 
@@ -355,8 +355,8 @@ void GrDrawOpAtlas::compact(GrDrawOpUploadToken startTokenForNextFlush) {
     }
 
     // We only try to compact if the atlas was used in the recently completed flush.
-    // This is to handle the case where a lot of text rendering has occurred but then just a
-    // blinking cursor is drawn.
+    // This is to handle the case where a lot of text or path rendering has occurred but then just
+    // a blinking cursor is drawn.
     // TODO: consider if we should also do this if it's been a long time since the last atlas use
     if (atlasUsedThisFlush) {
         // Count recently used plots in the last page and evict them if there's available space
