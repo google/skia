@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62095024_e5a3ee1b",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-26T15:54:24Z",
+      "side": 1,
+      "message": "Please just remove this variable and use fDst directly. Having two variables makes this code harder to follow and does not add any benefit that I can see.",
+      "range": {
+        "startLine": 492,
+        "startChar": 4,
+        "endLine": 492,
+        "endChar": 20
+      },
+      "revId": "b9ac2b529aac9504cb46de9b8382f91b6e5c76dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "541306f2_f1ec0b3e",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-26T15:54:24Z",
+      "side": 1,
+      "message": "This isn\u0027t quite what we want. We return the total number of rows that have been decoded. i.e. fRowsWrittenToOutput.",
+      "range": {
+        "startLine": 496,
+        "startChar": 9,
+        "endLine": 496,
+        "endChar": 20
+      },
+      "revId": "b9ac2b529aac9504cb46de9b8382f91b6e5c76dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "347d3e3c_5dec763e",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-26T15:54:24Z",
+      "side": 1,
+      "message": "This condition is a little funny. It only matters the first time we enter the loop, because we exit the loop down below. And the only reason it would matter the first time is if the caller calls incorrectly, which might be caught by readRows. Can this be while(true) instead?",
+      "range": {
+        "startLine": 815,
+        "startChar": 11,
+        "endLine": 815,
+        "endChar": 45
+      },
+      "revId": "b9ac2b529aac9504cb46de9b8382f91b6e5c76dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
