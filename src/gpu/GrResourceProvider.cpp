@@ -187,6 +187,10 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
         return nullptr;
     }
 
+    if (auto tex = this->refScratchTexture(desc, flags)) {
+        return tex;
+    }
+
     SkTCopyOnFirstWrite<GrSurfaceDesc> copyDesc(desc);
 
     // bin by pow2 with a reasonable min
