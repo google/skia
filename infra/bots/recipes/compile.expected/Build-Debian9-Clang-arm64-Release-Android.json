@@ -9,7 +9,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]/flutter"
+      "[CUSTOM_/_B_WORK]"
     ],
     "infra_step": true,
     "name": "makedirs checkout_path"
@@ -22,10 +22,10 @@
       "--json-output",
       "/path/to/tmp/json",
       "remove",
-      "[CUSTOM_/_B_WORK]/flutter/.gclient_entries"
+      "[CUSTOM_/_B_WORK]/.gclient_entries"
     ],
     "infra_step": true,
-    "name": "remove [CUSTOM_/_B_WORK]/flutter/.gclient_entries"
+    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries"
   },
   {
     "cmd": [
@@ -33,27 +33,21 @@
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
       "--spec-path",
-      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': True, 'name': 'src/flutter', 'url': 'https://github.com/flutter/engine.git'}]\ntarget_os = ['android']",
+      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
       "--patch_root",
-      "src/third_party/skia",
+      "skia",
       "--revision_mapping_file",
-      "{\"got_flutter_revision\": \"src/flutter\", \"got_revision\": \"src/third_party/skia\"}",
+      "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
       "[CUSTOM_/_B_CACHE]",
       "--cleanup-dir",
       "[CLEANUP]/bot_update",
-      "--gerrit_repo",
-      "https://skia.googlesource.com/skia.git",
-      "--gerrit_ref",
-      "refs/changes/89/456789/12",
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
-      "src/flutter@origin/master",
-      "--revision",
-      "src/third_party/skia@abc123"
+      "skia@abc123"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/flutter",
+    "cwd": "[CUSTOM_/_B_WORK]",
     "env_prefixes": {
       "PATH": [
         "RECIPE_PACKAGE_REPO[depot_tools]"
@@ -66,102 +60,87 @@
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"did_run\": true, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"fixed_revisions\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"src/flutter\": \"origin/master\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"src/third_party/skia\": \"abc123\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"skia\": \"abc123\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"manifest\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"src/flutter\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"repository\": \"https://fake.org/src/flutter.git\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"revision\": \"9221bca00ddbd888260084def81f09543281b952\"@@@",
-      "@@@STEP_LOG_LINE@json.output@    }, @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"src/third_party/skia\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"repository\": \"https://fake.org/src/third_party/skia.git\", @@@",
-      "@@@STEP_LOG_LINE@json.output@      \"revision\": \"d9c4a4d173a97ef2832b65636b4200bb93ea8ee1\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"skia\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"repository\": \"https://fake.org/skia.git\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"patch_failure\": false, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"patch_root\": \"src/third_party/skia\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"patch_root\": \"skia\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"properties\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"got_flutter_revision\": \"9221bca00ddbd888260084def81f09543281b952\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"got_flutter_revision_cp\": \"refs/heads/master@{#84512}\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"got_revision\": \"d9c4a4d173a97ef2832b65636b4200bb93ea8ee1\", @@@",
-      "@@@STEP_LOG_LINE@json.output@    \"got_revision_cp\": \"refs/heads/master@{#143121}\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"got_revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\", @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"got_revision_cp\": \"refs/heads/master@{#164710}\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"root\": \"src/flutter\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"root\": \"skia\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"step_text\": \"Some step text\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
-      "@@@SET_BUILD_PROPERTY@got_flutter_revision@\"9221bca00ddbd888260084def81f09543281b952\"@@@",
-      "@@@SET_BUILD_PROPERTY@got_flutter_revision_cp@\"refs/heads/master@{#84512}\"@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision@\"d9c4a4d173a97ef2832b65636b4200bb93ea8ee1\"@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision_cp@\"refs/heads/master@{#143121}\"@@@"
+      "@@@SET_BUILD_PROPERTY@got_revision@\"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision_cp@\"refs/heads/master@{#164710}\"@@@"
     ]
-  },
-  {
-    "cmd": [
-      "gclient",
-      "runhooks"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-Flutter_Android"
-    },
-    "name": "runhook"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "[CUSTOM_/_B_WORK]/flutter/src/out/android_release"
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CC": "/usr/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm64-Release-Android"
+    },
     "infra_step": true,
-    "name": "rmtree android_release"
+    "name": "fetch-gn"
   },
   {
     "cmd": [
-      "flutter/tools/gn",
-      "--runtime-mode=release",
-      "--android"
+      "[CUSTOM_/_B_WORK]/skia/bin/gn",
+      "gen",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm64-Release-Android/Release",
+      "--args=is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" target_cpu=\"arm64\""
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-Flutter_Android"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm64-Release-Android"
     },
-    "name": "gn_gen"
+    "name": "gn gen"
   },
   {
     "cmd": [
       "ninja",
       "-C",
-      "out/android_release",
-      "-j100"
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm64-Release-Android/Release"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/flutter/src",
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
+      "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-Flutter_Android"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm64-Release-Android"
     },
-    "name": "build_flutter"
+    "name": "ninja"
   },
   {
     "cmd": [
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'lib/*.so', 'iOSShell.app', 'iOSShell.ipa', 'visualbench', 'visualbench.exe', 'vulkan-1.dll']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[CUSTOM_/_B_WORK]/flutter/src/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-Flutter_Android/Release",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm64-Release-Android/Release",
       "[CUSTOM_[SWARM_OUT_DIR]]/out/Release"
     ],
     "infra_step": true,

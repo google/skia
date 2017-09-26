@@ -22,13 +22,13 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
+  'Build-Debian9-GCC-x86_64-Release-PDFium',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
-  'Build-Ubuntu-GCC-x86_64-Release-Flutter_Android',
-  'Build-Ubuntu-GCC-x86_64-Release-PDFium',
   'Build-Win-MSVC-x86_64-Release-Vulkan',
   'Housekeeper-Weekly-RecreateSKPs',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug',
-  'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN',
+  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN',
 ]
 
 

@@ -9,7 +9,7 @@ DEPS = [
 
 
 def RunSteps(api):
-  name = 'Build-Ubuntu-Clang-x64-Release-Android'
+  name = 'Build-Debian9-Clang-x64-Release-Android'
   d = api.builder_name_schema.DictForBuilderName(name)
   got = api.builder_name_schema.MakeBuilderName(**d)
   assert got == name
@@ -34,7 +34,7 @@ def RunSteps(api):
   try:
     api.builder_name_schema.MakeBuilderName(
         role='Build',
-        os='Ubuntu',
+        os='Debian9',
         compiler='Clang',
         target_arch='x64',
         configuration='Release',
@@ -49,13 +49,13 @@ def RunSteps(api):
 
   try:
     api.builder_name_schema.DictForBuilderName(
-        'Build-Ubuntu-Clang-x64-Release-Android-Bogus')
+        'Build-Debian9-Clang-x64-Release-Android-Bogus')
   except ValueError:
     pass
 
   try:
     api.builder_name_schema.DictForBuilderName(
-        'Bogus-Ubuntu-Clang-x64-Release-Android')
+        'Bogus-Debian9-Clang-x64-Release-Android')
   except ValueError:
     pass
 

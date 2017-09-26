@@ -54,7 +54,7 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug'
+  builder = 'Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug'
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,
@@ -63,7 +63,6 @@ def GenTests(api):
                    path_config='kitchen')
   )
 
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug'
   yield (
     api.test('trybot') +
     api.properties(buildername=builder,

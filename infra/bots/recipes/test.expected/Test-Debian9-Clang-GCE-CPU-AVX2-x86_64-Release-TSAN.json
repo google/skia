@@ -87,98 +87,6 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
-    ],
-    "infra_step": true,
-    "name": "rmtree dm"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
-    ],
-    "infra_step": true,
-    "name": "makedirs dm"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/tmp"
-    ],
-    "infra_step": true,
-    "name": "makedirs tmp_dir"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = 'https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt'\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[1], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
-      "[START_DIR]/tmp/uninteresting_hashes.txt"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "get uninteresting hashes",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import contextlib@@@",
-      "@@@STEP_LOG_LINE@python.inline@import math@@@",
-      "@@@STEP_LOG_LINE@python.inline@import socket@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@import urllib2@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@HASHES_URL = 'https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt'@@@",
-      "@@@STEP_LOG_LINE@python.inline@RETRIES = 5@@@",
-      "@@@STEP_LOG_LINE@python.inline@TIMEOUT = 60@@@",
-      "@@@STEP_LOG_LINE@python.inline@WAIT_BASE = 15@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@socket.setdefaulttimeout(TIMEOUT)@@@",
-      "@@@STEP_LOG_LINE@python.inline@for retry in range(RETRIES):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    with contextlib.closing(@@@",
-      "@@@STEP_LOG_LINE@python.inline@        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      hashes = w.read()@@@",
-      "@@@STEP_LOG_LINE@python.inline@      with open(sys.argv[1], 'w') as f:@@@",
-      "@@@STEP_LOG_LINE@python.inline@        f.write(hashes)@@@",
-      "@@@STEP_LOG_LINE@python.inline@        break@@@",
-      "@@@STEP_LOG_LINE@python.inline@  except Exception as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print e@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if retry == RETRIES:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      raise@@@",
-      "@@@STEP_LOG_LINE@python.inline@    waittime = WAIT_BASE * math.pow(2, retry)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print 'Retry in %d seconds.' % waittime@@@",
-      "@@@STEP_LOG_LINE@python.inline@    time.sleep(waittime)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
     "name": "get swarming bot id",
@@ -209,8 +117,7 @@
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
-      "catchsegv",
-      "[START_DIR]/out/Debug/dm",
+      "[START_DIR]/out/Release/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
       "--skps",
@@ -224,32 +131,30 @@
       "gitHash",
       "abc123",
       "builder",
-      "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug",
+      "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN",
       "swarming_bot_id",
-      "",
+      "skia-bot-123",
       "swarming_task_id",
-      "",
+      "123456",
       "--svgs",
       "[START_DIR]/svg",
       "--key",
       "arch",
       "x86_64",
       "compiler",
-      "GCC",
+      "Clang",
       "configuration",
-      "Debug",
+      "Release",
       "cpu_or_gpu",
       "CPU",
       "cpu_or_gpu_value",
       "AVX2",
+      "extra_config",
+      "TSAN",
       "model",
       "GCE",
       "os",
       "Debian9",
-      "--uninterestingHashesFile",
-      "[START_DIR]/tmp/uninteresting_hashes.txt",
-      "--writePath",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm",
       "--dont_write",
       "pdf",
       "--randomProcessorTest",
@@ -549,25 +454,25 @@
       "gm",
       "_",
       "complexclip4_aa",
+      "--match",
+      "~ReadWriteAlpha",
+      "~RGBA4444TextureTest",
+      "~RGB565TextureTest",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Debug",
+      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/clang_linux/bin",
+      "SKIA_OUT": "[START_DIR]/out",
+      "TSAN_OPTIONS": "report_signal_unsafe=0"
     },
-    "name": "symbolized dm",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_FAILURE@@@"
-    ]
+    "name": "symbolized dm"
   },
   {
     "name": "$result",
-    "reason": "Failed build steps: symbolized dm, symbolized dm",
     "recipe_result": null,
-    "status_code": 1
+    "status_code": 0
   }
 ]
