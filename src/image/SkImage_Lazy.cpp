@@ -753,7 +753,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
 
     // 1. Check the cache for a pre-existing one
     if (key.isValid()) {
-        if (sk_sp<GrTextureProxy> proxy = ctx->resourceProvider()->findProxyByUniqueKey(
+        if (sk_sp<GrTextureProxy> proxy = ctx->resourceProvider()->findOrCreateProxyByUniqueKey(
                                                                 key, kTopLeft_GrSurfaceOrigin)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kPreExisting_LockTexturePath,
                                      kLockTexturePathCount);

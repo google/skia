@@ -28,8 +28,8 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         , fMipColorMode(fTarget->asTexture()->texturePriv().mipColorMode())
         , fCache(nullptr) {
     if (fTarget->getUniqueKey().isValid()) {
-        fUniqueKey = fTarget->getUniqueKey();
         fCache = fTarget->asTexture()->getContext()->getResourceCache();
+        fCache->adoptUniqueKeyFromSurface(this, fTarget);
     }
 }
 
@@ -38,7 +38,7 @@ GrTextureProxy::~GrTextureProxy() {
     // at this point. Zero out the pointer so the cache invalidation code doesn't try to use it.
     fTarget = nullptr;
     if (fUniqueKey.isValid()) {
-        fCache->processInvalidProxyUniqueKey(fUniqueKey);
+        fCache->processInvalidProxyUniqueKey(fUniqueKey, this, false);
     } else {
         SkASSERT(!fCache);
     }
@@ -97,8 +97,7 @@ void GrTextureProxy::setUniqueKey(GrResourceCache* cache, const GrUniqueKey& key
     SkASSERT(key.isValid());
     SkASSERT(!fUniqueKey.isValid()); // proxies can only ever get one uniqueKey
 
-    if (fTarget) {
-        SkASSERT(!fTarget->getUniqueKey().isValid());
+    if (fTarget && !fTarget->getUniqueKey().isValid()) {
         fTarget->resourcePriv().setUniqueKey(key);
         SkASSERT(fTarget->getUniqueKey() == key);
     }

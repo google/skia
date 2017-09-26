@@ -50,7 +50,7 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerSt
         } else {
             origOrigin = kTopLeft_GrSurfaceOrigin;
         }
-        sk_sp<GrTextureProxy> result(fContext->resourceProvider()->findProxyByUniqueKey(
+        sk_sp<GrTextureProxy> result(fContext->resourceProvider()->findOrCreateProxyByUniqueKey(
                                                                             copyKey, origOrigin));
         if (result) {
             return result;
