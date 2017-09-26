@@ -372,7 +372,6 @@ template <typename T> static constexpr const T& SkTPin(const T& value, const T& 
     return SkTMax(SkTMin(value, max), min);
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
