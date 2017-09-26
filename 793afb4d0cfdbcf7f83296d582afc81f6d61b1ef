@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41e6c8eb_88da4c81",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T13:03:46Z",
+      "side": 1,
+      "message": "// This is to deal with the case where a lot of text rendering has occurred but then just a blinking cursor is drawn.\n\n?",
+      "revId": "793afb4d0cfdbcf7f83296d582afc81f6d61b1ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d935d29a_a1da7ce7",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T13:03:46Z",
+      "side": 1,
+      "message": "// This is safe bc we\u0027re reverse iterating.\n\n?",
+      "revId": "793afb4d0cfdbcf7f83296d582afc81f6d61b1ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b87b26c6_1c707b01",
+        "filename": "src/gpu/GrOnFlushResourceProvider.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T13:03:46Z",
+      "side": 1,
+      "message": "*callback\n\nWould it be more consistent with our API if we passed the ownership in to addOnFlushCallbackObject ?\n\n// In particular, freeGPUResources deletes all the path renderers. Any OnFlushCallbackObject associated with a path renderer will need to be deleted.\n\n?",
+      "revId": "793afb4d0cfdbcf7f83296d582afc81f6d61b1ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f81f82e_62e032e6",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T13:03:46Z",
+      "side": 1,
+      "message": "// GrOnFlushCallbackObject overrides\n// Note: because this class is associated with a path renderer we want it to be removed from the list of active OnFlushBackkbackObjects in an freeGpuResources call (i.e., we accept the default retainOnFreeGpuResources implementation).\n\n?",
+      "revId": "793afb4d0cfdbcf7f83296d582afc81f6d61b1ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c7065fd_86965d3d",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-26T13:03:46Z",
+      "side": 1,
+      "message": "// The AtlasGlyph cache always survives freeGpuResources so we want it to remain in the active OnFlushCallbackObject list\n\n?",
+      "revId": "793afb4d0cfdbcf7f83296d582afc81f6d61b1ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
