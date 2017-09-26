@@ -860,14 +860,14 @@ bool SkGifImageReader::hasTransparency(int transparentPixel, bool isLocalColorma
     }
 
     if (isLocalColormapDefined) {
-        return transparentPixel < localColors;
+        return true;
     }
 
     // If there is a global color table, it will be parsed before reaching
     // here. If its numColors is set, it will be defined.
     SkASSERT(globalColors > 0);
     SkASSERT(m_globalColorMap.isDefined());
-    return transparentPixel < globalColors;
+    return true;
 }
 
 void SkGifImageReader::addFrameIfNecessary()
