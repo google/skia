@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19acfc7f_bffaf679",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-09-26T13:54:39Z",
+      "side": 1,
+      "message": "So no way to disambiguate empty bitmaps vs. overflow?  Makes me a bit nervous, but clients can always check the former condition explicitly.\n\nMaybe also worth noting: this can never overflow if the bitmap storage is already allocated.",
+      "revId": "f7e25709fa0e676dbdd002c5fc9cc87902657b0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb03bf61_97972e5a",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-09-26T13:54:39Z",
+      "side": 1,
+      "message": "Since we\u0027re changing the API, how about getByteSize() or getStorageSize()? getSize() seems easy to confuse with something that returns {w, h}.",
+      "range": {
+        "startLine": 148,
+        "startChar": 11,
+        "endLine": 148,
+        "endChar": 18
+      },
+      "revId": "f7e25709fa0e676dbdd002c5fc9cc87902657b0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
