@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "d86a0158_5aaf316b",
+        "filename": "src/gpu/GrOnFlushResourceProvider.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-26T13:21:38Z",
+      "side": 1,
+      "message": "I\u0027m not sure what you mean by \"Would it be more consistent with our API if we passed the ownership into addOnFlushCallbackObject?\"",
+      "parentUuid": "b87b26c6_1c707b01",
+      "revId": "793afb4d0cfdbcf7f83296d582afc81f6d61b1ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8f81f82e_62e032e6",
         "filename": "src/gpu/ops/GrSmallPathRenderer.h",
         "patchSetId": 7
