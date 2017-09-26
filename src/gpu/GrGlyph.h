@@ -16,8 +16,6 @@
 #include "SkFixed.h"
 #include "SkPath.h"
 
-class GrPlot;
-
 /*  Need this to be quad-state:
     - complete w/ image
     - just metrics
