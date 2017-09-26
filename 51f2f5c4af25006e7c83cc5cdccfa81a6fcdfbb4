@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1643330a_a76cdd6f",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "9a9450a0_903567fe",
+      "range": {
+        "startLine": 498,
+        "startChar": 17,
+        "endLine": 499,
+        "endChar": 46
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "25cb2319_6ae722db",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 31
@@ -36,6 +60,30 @@
       "writtenOn": "2017-09-25T19:43:47Z",
       "side": 1,
       "message": "Now that we care about continuing a decode, we need to handle this differently. If there was a longjmp, we should keep track of that somehow so we don\u0027t try to continue decoding. We should also return kErrorInInput rather than kIncompleteInput.",
+      "range": {
+        "startLine": 502,
+        "startChar": 8,
+        "endLine": 502,
+        "endChar": 16
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e887ffd_d43c2650",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "25cb2319_6ae722db",
       "range": {
         "startLine": 502,
         "startChar": 8,
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "0375f152_c5c5bcf7",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "In futur we can move this setRange to base class(SkCodec) sothat it can commonly use for all codec",
+      "parentUuid": "20334dd2_20a3ca0d",
+      "range": {
+        "startLine": 785,
+        "startChar": 4,
+        "endLine": 785,
+        "endChar": 12
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "68d28c55_6c7bab5a",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 31
@@ -105,6 +177,30 @@
       "writtenOn": "2017-09-25T19:43:47Z",
       "side": 1,
       "message": "This name is confusing. This is the number of lines we have not yet skipped. Maybe this should be something like \"fLinesToSkip\"?",
+      "range": {
+        "startLine": 806,
+        "startChar": 8,
+        "endLine": 806,
+        "endChar": 21
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dcb3872_60ec2d97",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "68d28c55_6c7bab5a",
       "range": {
         "startLine": 806,
         "startChar": 8,
@@ -140,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "7d0d6c9f_c14bce92",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "05062905_7939e993",
+      "range": {
+        "startLine": 807,
+        "startChar": 25,
+        "endLine": 807,
+        "endChar": 44
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f62e86f7_09133ed8",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 31
@@ -151,6 +271,30 @@
       "writtenOn": "2017-09-25T19:43:47Z",
       "side": 1,
       "message": "nit: formatting\n\nWe put a space between \"if\" and \"(\", and put braces around this code:\n\n    if (fLinesSkipped) {\n        return kIncompleteInput;\n    }\n\nWe also need to set \"rowsDecoded\"",
+      "range": {
+        "startLine": 808,
+        "startChar": 8,
+        "endLine": 809,
+        "endChar": 45
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "502bbf06_73f559de",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "f62e86f7_09133ed8",
       "range": {
         "startLine": 808,
         "startChar": 8,
@@ -186,6 +330,30 @@
     },
     {
       "key": {
+        "uuid": "384a2c0b_1df3698e",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "Not able to understand this",
+      "parentUuid": "a7756b27_c14e7571",
+      "range": {
+        "startLine": 814,
+        "startChar": 19,
+        "endLine": 814,
+        "endChar": 27
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "508b6e79_9ad9c6a6",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 31
@@ -197,6 +365,30 @@
       "writtenOn": "2017-09-25T19:43:47Z",
       "side": 1,
       "message": "This needs a space: \"if (\"",
+      "range": {
+        "startLine": 816,
+        "startChar": 12,
+        "endLine": 816,
+        "endChar": 15
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "866e79a7_4be98e7b",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 816,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "508b6e79_9ad9c6a6",
       "range": {
         "startLine": 816,
         "startChar": 12,
@@ -232,6 +424,30 @@
     },
     {
       "key": {
+        "uuid": "8fb73d81_b6dc5cac",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 824,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "1321e21e_61029851",
+      "range": {
+        "startLine": 823,
+        "startChar": 8,
+        "endLine": 824,
+        "endChar": 18
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1e03e99c_cc2207a6",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 31
@@ -243,6 +459,30 @@
       "writtenOn": "2017-09-25T19:43:47Z",
       "side": 1,
       "message": "Need to set rowsDecoded.",
+      "range": {
+        "startLine": 829,
+        "startChar": 12,
+        "endLine": 829,
+        "endChar": 44
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d39bc45_ae0feea8",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "1e03e99c_cc2207a6",
       "range": {
         "startLine": 829,
         "startChar": 12,
@@ -278,6 +518,30 @@
     },
     {
       "key": {
+        "uuid": "49d3c1f5_4d6d2ad4",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 31
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "f1522768_910bb85e",
+      "range": {
+        "startLine": 132,
+        "startChar": 6,
+        "endLine": 132,
+        "endChar": 74
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5ab81440_e3673c45",
         "filename": "src/codec/SkJpegCodec.h",
         "patchSetId": 31
@@ -289,6 +553,30 @@
       "writtenOn": "2017-09-25T19:43:47Z",
       "side": 1,
       "message": "Let\u0027s lose this comment. The variable name is self-explanatory.",
+      "range": {
+        "startLine": 160,
+        "startChar": 4,
+        "endLine": 161,
+        "endChar": 19
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21c1d1b9_7c215b54",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 31
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "5ab81440_e3673c45",
       "range": {
         "startLine": 160,
         "startChar": 4,
@@ -324,6 +612,30 @@
     },
     {
       "key": {
+        "uuid": "5676bbbb_975ae7f3",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "ea25a1d5_c79535ae",
+      "range": {
+        "startLine": 527,
+        "startChar": 4,
+        "endLine": 527,
+        "endChar": 83
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "96c8a511_d537e366",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 31
@@ -335,6 +647,30 @@
       "writtenOn": "2017-09-25T19:43:47Z",
       "side": 1,
       "message": "This seems a little suspicious to me. We only have half the data, but it\u0027s now enough to decode the full image?",
+      "range": {
+        "startLine": 972,
+        "startChar": 63,
+        "endLine": 972,
+        "endChar": 90
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9a11beb_e2bdae14",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-09-26T04:55:15Z",
+      "side": 1,
+      "message": "I will check this",
+      "parentUuid": "96c8a511_d537e366",
       "range": {
         "startLine": 972,
         "startChar": 63,
