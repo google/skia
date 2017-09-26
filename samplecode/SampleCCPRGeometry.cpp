@@ -375,9 +375,6 @@ bool CCPRGeometryView::onQuery(SkEvent* evt) {
     if (SampleCode::CharQ(*evt, &unichar)) {
         if (unichar >= '1' && unichar <= '7') {
             fMode = Mode(unichar - '1');
-            if (fMode >= Mode::kCombinedTriangleHullsAndEdges) {
-                fMode = Mode(int(fMode) + 1);
-            }
             if (fMode >= Mode::kLoopHulls) {
                 // '6' -> kSerpentineHulls, '7' -> kSerpentineCorners. updateGpuData converts to
                 // kLoop* if needed.

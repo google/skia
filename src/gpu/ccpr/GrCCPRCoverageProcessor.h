@@ -60,7 +60,6 @@ public:
         // Triangles.
         kTriangleHulls,
         kTriangleEdges,
-        kCombinedTriangleHullsAndEdges,
         kTriangleCorners,
 
         // Quadratics.
