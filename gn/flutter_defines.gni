@@ -2,4 +2,7 @@
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-flutter_defines = [ "SK_SUPPORT_LEGACY_IMAGE_ENCODE_API" ]
+flutter_defines = [
+  "SK_SUPPORT_LEGACY_IMAGE_ENCODE_API",
+  "SK_SUPPORT_LEGACY_FONTMGR_API",
+]
