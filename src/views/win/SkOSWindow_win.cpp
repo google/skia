@@ -29,8 +29,8 @@
 #include <EGL/eglext.h>
 #endif // SK_ANGLE
 
-const int kDefaultWindowWidth = 500;
-const int kDefaultWindowHeight = 500;
+const int kDefaultWindowWidth = 1600;
+const int kDefaultWindowHeight = 1600;
 
 #define GL_CALL(IFACE, X)                                 \
     SkASSERT(IFACE);                                      \

@@ -1755,6 +1755,9 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
+    if (paint.getStyle()!=SkPaint::kFill_Style) {
+        return;
+    }
     this->onDrawPath(path, paint);
 }
 
