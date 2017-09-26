@@ -311,6 +311,12 @@ void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextur
     fCache->assignUniqueKeyToProxy(key, proxy);
 }
 
+void GrResourceProvider::clearUniqueKeyOnProxy(GrTextureProxy* proxy) {
+    if (proxy && proxy->getUniqueKey().isValid()) {
+        fCache->processInvalidProxyUniqueKey(proxy->getUniqueKey());
+    }
+}
+
 sk_sp<GrTextureProxy> GrResourceProvider::findProxyByUniqueKey(const GrUniqueKey& key,
                                                                GrSurfaceOrigin origin) {
     ASSERT_SINGLE_OWNER

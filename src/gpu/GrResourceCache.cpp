@@ -944,4 +944,3 @@ void GrResourceCache::processInvalidProxyUniqueKey(const GrUniqueKey& key, GrTex
         }
     }
 }
-
