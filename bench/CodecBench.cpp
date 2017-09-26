@@ -43,7 +43,7 @@ void CodecBench::onDelayedSetup() {
                             .makeAlphaType(fAlphaType)
                             .makeColorSpace(nullptr);
 
-    fPixelStorage.reset(fInfo.computeMinByteSize());
+    fPixelStorage.reset(fInfo.getSafeSize(fInfo.minRowBytes()));
 }
 
 void CodecBench::onDraw(int n, SkCanvas* canvas) {
