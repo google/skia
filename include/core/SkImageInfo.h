@@ -300,6 +300,7 @@ public:
     void unflatten(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const;
 
+#ifdef SK_SUPPORT_LEGACY_SAFESIZE64
     int64_t getSafeSize64(size_t rowBytes) const {
         if (0 == fHeight) {
             return 0;
@@ -313,6 +314,22 @@ public:
             return 0;
         }
         return sk_64_asS32(size);
+    }
+#endif
+
+    /**
+     *  Returns the size (in bytes) of the image buffer that this info needs, given the specified
+     *  rowBytes. The rowBytes must be >= this->minRowBytes().
+     *  If the calculation overflows, or if the height is 0, this returns 0.
+     */
+    size_t computeByteSize(size_t rowBytes) const;
+
+    /**
+     *  Returns the minimum size (in bytes) of the image buffer that this info needs.
+     *  If the calculation overflows, or if the height is 0, this returns 0.
+     */
+    size_t computeMinByteSize() const {
+        return this->computeByteSize(this->minRowBytes());
     }
 
     bool validRowBytes(size_t rowBytes) const {
