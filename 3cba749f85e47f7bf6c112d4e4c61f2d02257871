@@ -93,6 +93,30 @@
       "revId": "3cba749f85e47f7bf6c112d4e4c61f2d02257871",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5253ec29_6430152e",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2017-09-26T21:07:28Z",
+      "side": 1,
+      "message": "**This section assumes we want to handle this case. I\u0027m open to the idea of not handling it.**\n\n\u003e A broader way of looking at that is, is the color map full?\n\u003e return transparentPixel \u003e\u003d 0 \u0026\u0026 transparentPixel \u003c maxColors;\n\nThat\u0027s not quite what was happening here. The palette was 64 colors and the image was asking for the 65th color. So the palette was full. If maxColors is 64 this wouldn\u0027t return true, which is what is required to fix this image.\n\n\u003e At most it can be 256 for 8 bit indices, but I think GIFs can also be encoded with 4 bit indices.\n\nGif supports 8-bit indices. This technique only works when the palette *isn\u0027t* 8-bit so the 8-bit palette index can be beyond the end of the palette size. It effectively gives those images one extra color.\n\n\nThe way I see it, there are effectively 2 cases: valid index and out-of-bounds index.\nreturn transparentPixel \u003e\u003d 0 \u0026\u0026 transparentPixel \u003c maxColors; will make sure the index is valid, but return false for out-of-bound indices.\nreturn transparentPixel \u003e\u003d 0 \u0026\u0026 transparentPixel \u003e\u003d maxColors; will handle the out-of-bounds indices.\nSince we are checking less-than and greater-than-or-equal-to maxColors, we can just drop that part and return transparentPixel \u003e\u003d 0. And that is exactly what the second branch in this function does.\n\n\nI feel like the safest option would be to make sure the pixel\u0027s index matches the specified transparent index (whether valid or not). But as mentioned in a comment [1] this function gets called before the transparent index is known sometimes. So we cannot rely on that. If we want to handle this case, we are forced to assume any 0-255 value for transparentPixel could indeed be transparent.\n\n[1] https://cs.chromium.org/chromium/src/third_party/skia/third_party/gif/SkGifImageReader.h?type\u003dcs\u0026q\u003dSkGifImageReader::hasTransparency\u0026sq\u003dpackage:chromium\u0026l\u003d367\n\n\n\n**This section debates whether or not we want to support it at all**\nThe gif spec clearly says it is invalid to use a color outside the palette index range:\nhttps://www.w3.org/Graphics/GIF/spec-gif89a.txt\n§22. Table Based Image Data.\n\"Each index must be within the range of the size of the active color table, starting at 0.\"\nIt couldn\u0027t have been more explicit about this technique being invalid.\n\nSo on one hand, it might be perfectly fair to display these images incorrectly.\nPlus, this technique only works if the image is using a palette smaller then 256 entries. Maybe the impact is small.\n\nBut on the other hand, we diverge from the gif spec in a number of ways. One of them is the canvas size vs. image size. What a gif truly means now-a-days has diverged from the spec. Especially since it seems other browsers agree on this behavior (I tested Edge, FF, and old Chrome). The example image is invalid as far as the gif spec but is valid according to the defacto standard all the browsers had agreed upon.\n\nPros:\nThe technique allows an image to effectively have one extra color in its palette.\n\nCons:\nIf we are looking for an invalid palette index, we need to check out-of-bounds AND not-equal-to the transparent index.\nWhen we don\u0027t know the transparent index (such as here) we have to assume any value 0-255 could be valid. Elsewhere, we check if the frame\u0027s rect is viable for transparency and if the frame depends on another. So it would take multiple \"incorrect\" encoding mistakes to all happen in order for this to cause extra work.\n\nAt the end of the day, I think this image meets the defacto standard and isn\u0027t \"incorrect\".",
+      "parentUuid": "42adfcee_427f96f3",
+      "range": {
+        "startLine": 862,
+        "startChar": 8,
+        "endLine": 862,
+        "endChar": 30
+      },
+      "revId": "3cba749f85e47f7bf6c112d4e4c61f2d02257871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
