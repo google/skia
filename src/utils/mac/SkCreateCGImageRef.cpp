@@ -132,7 +132,7 @@ CGImageRef SkCreateCGImageRefWithColorspace(const SkBitmap& bm,
 
     const int w = bitmap->width();
     const int h = bitmap->height();
-    const size_t s = bitmap->computeByteSize();
+    const size_t s = bitmap->getSize();
 
     // our provider "owns" the bitmap*, and will take care of deleting it
     CGDataProviderRef dataRef = CGDataProviderCreateWithData(bitmap, bitmap->getPixels(), s,
