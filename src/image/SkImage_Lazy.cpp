@@ -812,7 +812,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
     if (this->lockAsBitmap(&bitmap, chint, format, genPixelsInfo, behavior)) {
         sk_sp<GrTextureProxy> proxy;
         if (willBeMipped) {
-            proxy = GrGenerateMipMapsAndUploadToTextureProxy(ctx, bitmap, dstColorSpace);
+            proxy = GrGenerateMipMapsAndUploadToTextureProxy(ctx, bitmap, dstColorSpace, false);
         }
         if (!proxy) {
             proxy = GrUploadBitmapToTextureProxy(ctx->resourceProvider(), bitmap, dstColorSpace);

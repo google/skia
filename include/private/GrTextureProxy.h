@@ -25,6 +25,8 @@ public:
     // Actually instantiate the backing texture, if necessary
     bool instantiate(GrResourceProvider*) override;
 
+    void setMipMapsAsValid();
+
     GrSamplerState::Filter highestFilterMode() const;
 
     GrSLType imageStorageType() const {

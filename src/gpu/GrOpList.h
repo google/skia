@@ -48,7 +48,8 @@ public:
                              GrSurfaceProxy* dst,
                              GrSurfaceProxy* src,
                              const SkIRect& srcRect,
-                             const SkIPoint& dstPoint) = 0;
+                             const SkIPoint& dstPoint,
+                             bool markMipsAsValid) = 0;
 
     virtual void makeClosed(const GrCaps&) {
         if (!this->isClosed()) {

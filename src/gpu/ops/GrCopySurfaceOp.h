@@ -17,7 +17,8 @@ public:
 
     static std::unique_ptr<GrOp> Make(GrSurfaceProxy* dst, GrSurfaceProxy* src,
                                       const SkIRect& srcRect,
-                                      const SkIPoint& dstPoint);
+                                      const SkIPoint& dstPoint,
+                                      bool markMipsAsValid);
 
     const char* name() const override { return "CopySurface"; }
 
@@ -40,12 +41,14 @@ public:
 
 private:
     GrCopySurfaceOp(GrSurfaceProxy* dst, GrSurfaceProxy* src,
-                    const SkIRect& srcRect, const SkIPoint& dstPoint)
+                    const SkIRect& srcRect, const SkIPoint& dstPoint,
+                    bool markMipsAsValid)
             : INHERITED(ClassID())
             , fDst(dst)
             , fSrc(src)
             , fSrcRect(srcRect)
-            , fDstPoint(dstPoint) {
+            , fDstPoint(dstPoint)
+            , fMarkMipsAsValid(markMipsAsValid) {
         SkRect bounds =
                 SkRect::MakeXYWH(SkIntToScalar(dstPoint.fX), SkIntToScalar(dstPoint.fY),
                                  SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));
@@ -64,6 +67,7 @@ private:
     GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType>  fSrc;
     SkIRect                                              fSrcRect;
     SkIPoint                                             fDstPoint;
+    bool                                                 fMarkMipsAsValid;
 
     typedef GrOp INHERITED;
 };
