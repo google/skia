@@ -9,6 +9,7 @@
 #define GrSmallPathRenderer_DEFINED
 
 #include "GrDrawOpAtlas.h"
+#include "GrOnFlushResourceProvider.h"
 #include "GrPathRenderer.h"
 #include "GrRect.h"
 #include "GrShape.h"
@@ -18,13 +19,28 @@
 
 class GrContext;
 
-class GrSmallPathRenderer : public GrPathRenderer {
+class GrSmallPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
 public:
     GrSmallPathRenderer();
     ~GrSmallPathRenderer() override;
 
     class SmallPathOp;
     struct PathTestStruct;
+
+    // GrOnFlushCallbackObject overrides
+    //
+    // Note: because this class is associated with a path renderer we want it to be removed from
+    // the list of active OnFlushBackkbackObjects in an freeGpuResources call (i.e., we accept the
+    // default retainOnFreeGpuResources implementation).
+
+    void preFlush(GrOnFlushResourceProvider*, const uint32_t*, int,
+                  SkTArray<sk_sp<GrRenderTargetContext>>*) override {}
+
+    void postFlush(GrDrawOpUploadToken startTokenForNextFlush) override {
+        if (fAtlas) {
+            fAtlas->compact(startTokenForNextFlush);
+        }
+    }
 
 private:
     StencilSupport onGetStencilSupport(const GrShape&) const override {

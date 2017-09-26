@@ -33,6 +33,10 @@ public:
         return fSequenceNumber == that.fSequenceNumber;
     }
     bool operator!=(const GrDrawOpUploadToken& that) const { return !(*this == that); }
+    bool inInterval(const GrDrawOpUploadToken& start, const GrDrawOpUploadToken& finish) {
+        return fSequenceNumber >= start.fSequenceNumber &&
+               fSequenceNumber <= finish.fSequenceNumber;
+    }
 
 private:
     GrDrawOpUploadToken();
