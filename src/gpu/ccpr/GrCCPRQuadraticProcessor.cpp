@@ -45,9 +45,9 @@ void GrCCPRQuadraticProcessor::onEmitGeometryShader(GrGLSLGeometryBuilder* g,
                                                     const char* emitVertexFn, const char* wind,
                                                     const char* rtAdjust) const {
     // Prepend bezierpts at the start of the shader.
-    g->codePrependf("float3x2 bezierpts = float3x2(sk_in[0].gl_Position.xy, "
-                                                  "sk_in[1].gl_Position.xy, "
-                                                  "sk_in[2].gl_Position.xy);");
+    g->codePrependf("float3x2 bezierpts = float3x2(sk_in[0].sk_Position.xy, "
+                                                  "sk_in[1].sk_Position.xy, "
+                                                  "sk_in[2].sk_Position.xy);");
 
     g->declareGlobal(fCanonicalMatrix);
     g->codeAppendf("%s = float3x3(0.0, 0, 1, "

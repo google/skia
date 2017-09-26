@@ -25,9 +25,9 @@ void GrCCPRTriangleProcessor::onEmitVertexShader(const GrCCPRCoverageProcessor& 
 
 void GrCCPRTriangleProcessor::defineInputVertices(GrGLSLGeometryBuilder* g) const {
     // Prepend in_vertices at the start of the shader.
-    g->codePrependf("float3x2 in_vertices = float3x2(sk_in[0].gl_Position.xy, "
-                                                    "sk_in[1].gl_Position.xy, "
-                                                    "sk_in[2].gl_Position.xy);");
+    g->codePrependf("float3x2 in_vertices = float3x2(sk_in[0].sk_Position.xy, "
+                                                    "sk_in[1].sk_Position.xy, "
+                                                    "sk_in[2].sk_Position.xy);");
 }
 
 void GrCCPRTriangleProcessor::emitWind(GrGLSLGeometryBuilder* g, const char* /*rtAdjust*/,

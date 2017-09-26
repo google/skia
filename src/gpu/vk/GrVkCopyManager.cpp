@@ -53,8 +53,8 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
         "// Copy Program VS\n"
         "void main() {"
             "vTexCoord = inPosition * uTexCoordXform.xy + uTexCoordXform.zw;"
-            "gl_Position.xy = inPosition * uPosXform.xy + uPosXform.zw;"
-            "gl_Position.zw = half2(0, 1);"
+            "sk_Position.xy = inPosition * uPosXform.xy + uPosXform.zw;"
+            "sk_Position.zw = half2(0, 1);"
         "}"
     );
 
