@@ -22,8 +22,6 @@ const char* GrCCPRCoverageProcessor::GetProcessorName(Mode mode) {
             return "GrCCPRTriangleHullAndEdgeProcessor (hulls)";
         case Mode::kTriangleEdges:
             return "GrCCPRTriangleHullAndEdgeProcessor (edges)";
-        case Mode::kCombinedTriangleHullsAndEdges:
-            return "GrCCPRTriangleHullAndEdgeProcessor (combined hulls & edges)";
         case Mode::kTriangleCorners:
             return "GrCCPRTriangleCornerProcessor";
         case Mode::kQuadraticHulls:
@@ -68,8 +66,6 @@ GrGLSLPrimitiveProcessor* GrCCPRCoverageProcessor::createGLSLInstance(const GrSh
             return new GrCCPRTriangleHullAndEdgeProcessor(GeometryType::kHulls);
         case Mode::kTriangleEdges:
             return new GrCCPRTriangleHullAndEdgeProcessor(GeometryType::kEdges);
-        case Mode::kCombinedTriangleHullsAndEdges:
-            return new GrCCPRTriangleHullAndEdgeProcessor(GeometryType::kHullsAndEdges);
         case Mode::kTriangleCorners:
             return new GrCCPRTriangleCornerProcessor();
         case Mode::kQuadraticHulls:

@@ -396,7 +396,9 @@ void GrCCPRCoverageOp::onExecute(GrOpFlushState* flushState) {
 
     // Triangles.
     auto constexpr kTrianglesGrPrimitiveType = GrCCPRCoverageProcessor::kTrianglesGrPrimitiveType;
-    this->drawMaskPrimitives(flushState, pipeline, Mode::kCombinedTriangleHullsAndEdges,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kTriangleHulls,
+                             kTrianglesGrPrimitiveType, 3, &PrimitiveTallies::fTriangles);
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kTriangleEdges,
                              kTrianglesGrPrimitiveType, 3, &PrimitiveTallies::fTriangles);
     this->drawMaskPrimitives(flushState, pipeline, Mode::kTriangleCorners,
                              kTrianglesGrPrimitiveType, 3, &PrimitiveTallies::fTriangles);
