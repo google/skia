@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7d7f253_8b57f0c7",
+        "filename": "infra/bots/recipes/compile.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 0,
+      "message": "MSAN is only Clang, which is already here",
+      "revId": "4c9842ec4b2df1b937147c14288e88f0ae13a556",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "be569af7_d2cf6248",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 0,
+      "message": "Ci20 is dead forever. Bugs below closed.",
+      "revId": "4c9842ec4b2df1b937147c14288e88f0ae13a556",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d3138f1_f3fbbcf6",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 904,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 0,
+      "message": "duplicate with Debian9 below",
+      "revId": "4c9842ec4b2df1b937147c14288e88f0ae13a556",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98a0eb33_22f574ef",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 0,
+      "message": "duplicate with QuadroP400 below",
+      "revId": "4c9842ec4b2df1b937147c14288e88f0ae13a556",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

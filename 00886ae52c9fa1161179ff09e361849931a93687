@@ -1,0 +1,299 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be51cbf0_872c0ea1",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.expected/Build-Debian9-Clang-x86_64-Release-Fast.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "Diff from old Fast here: https://paste.googleplex.com/6167657199960064",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "72dfd843_47645c27",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.expected/Build-Debian9-GCC-x86_64-Release-NoGPU.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "Diff from previous NoGPU here: https://paste.googleplex.com/6167657199960064",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dca24343_620481b7",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.expected/Build-Debian9-GCC-x86_64-Release-Shared.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "Diff from previous Shared here: https://paste.googleplex.com/6167657199960064",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4284f1b6_30d33cde",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.expected/Build-Win-MSVC-x86-Debug-Exceptions.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "Diff from previous Exceptions here: https://paste.googleplex.com/6167657199960064",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa9a0445_f7d6703b",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "Fast is only Clang",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "27fec56d_c434e1d2",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "NoGPU is only Linux",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "180d9f7c_35457dee",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "Shared is only GCC",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab6eaabc_0986b825",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "Exceptions is only Debug",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e7c0a0b1_db39363a",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "MSAN is only Debug",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b974ae7_5a70dd51",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "TSAN is only Test",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e4b8381_3e3c5dae",
+        "filename": "infra/bots/recipes/compile.expected/Build-Debian9-Clang-x86_64-Release-Fast.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "Diff from previous Fast is here: https://paste.googleplex.com/6167657199960064",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d5084c4_cc49dca8",
+        "filename": "infra/bots/recipes/compile.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "Fast is only Clang",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a778ebd0_6a6b802e",
+        "filename": "infra/bots/recipes/perf.expected/Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-CommandBuffer.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "Diff from previous CommandBuffer here: https://paste.googleplex.com/6167657199960064",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a8f5199_7661b244",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "PixelC Perf GPU is only Skpbench",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e0695716_d74148f2",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "CommandBuffer is only Release",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b232d73e_0ed4d191",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "Just changed \" to \u0027 for consistency.",
+      "range": {
+        "startLine": 430,
+        "startChar": 0,
+        "endLine": 432,
+        "endChar": 0
+      },
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "59ccac47_47085704",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-26T19:28:00Z",
+      "side": 1,
+      "message": "Test Nexus7 is only Release",
+      "revId": "00886ae52c9fa1161179ff09e361849931a93687",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
