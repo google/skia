@@ -50,14 +50,10 @@ Tips for troopers
 - Install the Skia trooper Chrome extension (available [here](https://chrome.google.com/webstore/a/google.com/detail/alerts-for-skia-troopers/fpljhfiomnfioecagooiekldeolcpief)) to be able to see alerts quickly in the browser.
 
 - Where machines are located:
-  - Machine name like "skia-gce-NNN", "ct-gce-NNN" -> GCE
-  - Machine name ends with "a3", "a4", "m3" -> Chrome Golo
+  - Machine name like "skia-gce-NNN", "skia-i-gce-NNN", "ct-gce-NNN", "skia-ct-gce-NNN", "ct-xxx-builder-NNN" -> GCE
+  - Machine name ends with "a9", "m3" -> Chrome Golo/Labs
   - Machine name ends with "m5" -> CT bare-metal bots in Chrome Golo
-  - Machine name starts with "skiabot-" -> Chapel Hill lab
-  - Machine name starts with "win8" -> Chapel Hill lab (Windows machine
-    names can't be very long, so the "skiabot-shuttle-" prefix is dropped.)
-  - slave11-c3 is a Chrome infra GCE machine (not to be confused with the Skia
-    Buildbots GCE, which we refer to as simply "GCE")
+  - Machine name starts with "skia-e-", "skia-i-" (other than "skia-i-gce-NNN"), "skia-rpi-" -> Chapel Hill lab
 
 - The [chrome-infra hangout](https://goto.google.com/cit-hangout) is useful for
   questions regarding bots managed by the Chrome Infra team and to get
@@ -76,23 +72,12 @@ Tips for troopers
   username is chrome-bot and the password can be found on
   [Valentine](https://valentine.corp.google.com/) as "chrome-bot (Win GCE)".
 
+- To log in to other bots, see the [Skolo maintenance doc](https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.2nq3yd1axg0n) remote access section.
+
 - If there is a problem with a bot in the Chrome Golo or Chrome infra GCE, the
   best course of action is to
   [file a bug](https://code.google.com/p/chromium/issues/entry?template=Build%20Infrastructure)
-  with the Chrome infra team. But if you know what you're doing:
-  - To access bots in the Chrome Golo,
-    [follow these instructions](https://chrome-internal.googlesource.com/infra/infra_internal/+/master/doc/ssh.md).
-    - Machine name ends with "a3" or "a4" -> ssh command looks like `ssh
-      build3-a3.chrome`
-    - Machine name ends with "m3" -> ssh command looks like `ssh build5-m3.golo`
-    - Machine name ends with "m5" -> ssh command looks like `ssh build1-m5.golo`.
-      [Example bug](https://bugs.chromium.org/p/chromium/issues/detail?id=638193) to file to Infra Labs.
-    - For MacOS and Windows bots, you will be prompted for a password, which is
-      stored on [Valentine](https://valentine.corp.google.com/) as "Chrome Golo,
-      Perf, GPU bots - chrome-bot".
-  - To access bots in the Chrome infra GCE -> command looks like `gcutil
-    --project=google.com:chromecompute ssh --ssh_user=default slave11-c3` (or
-    use the ccompute ssh script from the infra_internal repo).
+  with the Chrome infra team.
 
 - Read over the [Skolo maintenance doc](https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit) for more detail on
   dealing with device alerts.
