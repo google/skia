@@ -49,11 +49,11 @@ public:
     virtual void postFlush(GrDrawOpUploadToken startTokenForNextFlush) {}
 
     /**
-      * Tells the callback owner to hold onto this object when freeing GPU resources
-      *
-      * In particular, GrDrawingManager::freeGPUResources() deletes all the path renderers.
-      * Any OnFlushCallbackObject associated with a path renderer will need to be deleted.
-      */
+     * Tells the callback owner to hold onto this object when freeing GPU resources
+     *
+     * In particular, GrDrawingManager::freeGPUResources() deletes all the path renderers.
+     * Any OnFlushCallbackObject associated with a path renderer will need to be deleted.
+     */
     virtual bool retainOnFreeGpuResources() { return false; }
 
 private:

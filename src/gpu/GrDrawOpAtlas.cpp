@@ -198,6 +198,14 @@ inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
     return true;
 }
 
+// Number of atlas-related flushes beyond which we consider a plot to no longer be in use.
+//
+// This value is somewhat arbitrary -- the idea is to keep it low enough that
+// a page with unused plots will get removed reasonably quickly, but allow it
+// to hang around for a bit in case it's needed. The assumption is that flushes
+// are rare; i.e., we are not continually refreshing the frame.
+static constexpr auto kRecentlyUsedCount = 8;
+
 bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width, int height,
                                const void* image, SkIPoint16* loc) {
     if (width > fPlotWidth || height > fPlotHeight) {
@@ -223,12 +231,15 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     }
 
     // If the above fails, then see if the least recently used plot per page has already been
-    // flushed to the gpu.
+    // flushed to the gpu if we're at max page allocation, or if the plot has aged out otherwise.
+    // We wait until we've grown to the full number of pages to begin evicting already flushed
+    // plots so that we can maximize the opportunity for reuse.
     // As before we prioritize this upload to the first pages, not the most recently used.
     for (unsigned int pageIdx = 0; pageIdx < fNumPages; ++pageIdx) {
         Plot* plot = fPages[pageIdx].fPlotList.tail();
         SkASSERT(plot);
-        if (target->hasDrawBeenFlushed(plot->lastUseToken())) {
+        if ((fNumPages == kMaxPages && target->hasDrawBeenFlushed(plot->lastUseToken())) ||
+            plot->flushesSinceLastUsed() >= kRecentlyUsedCount) {
             this->processEviction(plot->id());
             plot->resetRects();
             SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
@@ -237,7 +248,6 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
             if (!this->updatePlot(target, id, plot)) {
                 return false;
             }
-
             fAtlasGeneration++;
             return true;
         }
@@ -314,40 +324,21 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
 }
 
 void GrDrawOpAtlas::compact(GrDrawOpUploadToken startTokenForNextFlush) {
-    // Number of atlas-related flushes beyond which we consider a plot to no longer be in use.
-    //
-    // This value is somewhat arbitrary -- the idea is to keep it low enough that
-    // a page with unused plots will get removed reasonably quickly, but allow it
-    // to hang around for a bit in case it's needed. The assumption is that flushes
-    // are rare; i.e., we are not continually refreshing the frame.
-    static constexpr auto kRecentlyUsedCount = 8;
-
     if (fNumPages <= 1) {
         fPrevFlushToken = startTokenForNextFlush;
         return;
     }
 
-    // For all plots, update number of flushes since used, and check to see if there
-    // are any in the first pages that the last page can safely upload to.
+    // For all plots, reset number of flushes since used if used this frame.
     PlotList::Iter plotIter;
-    int availablePlots = 0;
-    uint32_t lastPageIndex = fNumPages-1;
     bool atlasUsedThisFlush = false;
     for (uint32_t pageIndex = 0; pageIndex < fNumPages; ++pageIndex) {
         plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
         while (Plot* plot = plotIter.get()) {
-            // Update number of flushes since plot was last used
+            // Reset number of flushes since used
             if (plot->lastUseToken().inInterval(fPrevFlushToken, startTokenForNextFlush)) {
                 plot->resetFlushesSinceLastUsed();
                 atlasUsedThisFlush = true;
-            } else {
-                plot->incFlushesSinceLastUsed();
-            }
-
-            // Count plots we can potentially upload to in all pages except the last one
-            // (the potential compactee).
-            if (pageIndex < lastPageIndex && plot->flushesSinceLastUsed() > kRecentlyUsedCount) {
-                ++availablePlots;
             }
 
             plotIter.next();
@@ -355,16 +346,47 @@ void GrDrawOpAtlas::compact(GrDrawOpUploadToken startTokenForNextFlush) {
     }
 
     // We only try to compact if the atlas was used in the recently completed flush.
-    // This is to handle the case where a lot of text rendering has occurred but then just a
-    // blinking cursor is drawn.
+    // This is to handle the case where a lot of text or path rendering has occurred but then just
+    // a blinking cursor is drawn.
     // TODO: consider if we should also do this if it's been a long time since the last atlas use
     if (atlasUsedThisFlush) {
+        int availablePlots = 0;
+        uint32_t lastPageIndex = fNumPages - 1;
+
+        // For all plots but the last one, update number of flushes since used, and check to see
+        // if there are any in the first pages that the last page can safely upload to.
+        for (uint32_t pageIndex = 0; pageIndex < lastPageIndex; ++pageIndex) {
+            plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
+            while (Plot* plot = plotIter.get()) {
+                // Update number of flushes since plot was last used
+                // We only increment the 'sinceLastUsed' count for flushes where the atlas was used
+                // to avoid deleting everything when we return to text drawing in the blinking
+                // cursor case
+                if (!plot->lastUseToken().inInterval(fPrevFlushToken, startTokenForNextFlush)) {
+                    plot->incFlushesSinceLastUsed();
+                }
+
+                // Count plots we can potentially upload to in all pages except the last one
+                // (the potential compactee).
+                if (plot->flushesSinceLastUsed() > kRecentlyUsedCount) {
+                    ++availablePlots;
+                }
+
+                plotIter.next();
+            }
+        }
+
         // Count recently used plots in the last page and evict them if there's available space
         // in earlier pages. Since we prioritize uploading to the first pages, this will eventually
         // clear out usage of this page unless we have a large need.
         plotIter.init(fPages[lastPageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
         int usedPlots = 0;
         while (Plot* plot = plotIter.get()) {
+            // Update number of flushes since plot was last used
+            if (!plot->lastUseToken().inInterval(fPrevFlushToken, startTokenForNextFlush)) {
+                plot->incFlushesSinceLastUsed();
+            }
+
             // If this plot was used recently
             if (plot->flushesSinceLastUsed() <= kRecentlyUsedCount) {
                 usedPlots++;
