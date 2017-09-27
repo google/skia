@@ -195,9 +195,11 @@ public:
         int count = updater.fPlotsToUpdate.count();
         for (int i = 0; i < count; i++) {
             const BulkUseTokenUpdater::PlotData& pd = updater.fPlotsToUpdate[i];
-            Plot* plot = fPages[pd.fPageIndex].fPlotArray[pd.fPlotIndex].get();
-            this->makeMRU(plot, pd.fPageIndex);
-            plot->setLastUseToken(token);
+            if (pd.fPageIndex < fNumPages) {
+                Plot* plot = fPages[pd.fPageIndex].fPlotArray[pd.fPlotIndex].get();
+                this->makeMRU(plot, pd.fPageIndex);
+                plot->setLastUseToken(token);
+            }
         }
     }
 
