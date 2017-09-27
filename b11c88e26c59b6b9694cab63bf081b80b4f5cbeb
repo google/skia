@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a23d6cc_1304d614",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-27T16:23:58Z",
+      "side": 1,
+      "message": "// We wait until we\u0027ve grown to the full number of pages to begin evicting already flushed plots so that we can maximize the opportunity for reuse.\n\n?",
+      "revId": "b11c88e26c59b6b9694cab63bf081b80b4f5cbeb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "116edea9_651ffded",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-27T16:23:58Z",
+      "side": 1,
+      "message": "Can both availablePlots and lastPageIndex be moved down into the \"if (atlasUsedThisFlush)\" block?",
+      "revId": "b11c88e26c59b6b9694cab63bf081b80b4f5cbeb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ef92cd1_229f44a3",
+        "filename": "src/gpu/GrDrawOpAtlas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-27T16:23:58Z",
+      "side": 1,
+      "message": "// We only increment the \u0027sinceLastUsed\u0027 count for flushes where the atlas was used to avoid deleting everything when we return to text drawing in the blinking cursor case\n\n?",
+      "revId": "b11c88e26c59b6b9694cab63bf081b80b4f5cbeb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
