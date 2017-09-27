@@ -10,11 +10,11 @@
 #include "SkJumper_vectors.h"  // F, I32, U32, U16, U8, cast(), expand()
 
 // Our fundamental vector depth is our pixel stride.
-static const size_t kStride = sizeof(F) / sizeof(float);
+static const size_t N = sizeof(F) / sizeof(float);
 
 // A reminder:
-// When defined(JUMPER_IS_SCALAR), F, I32, etc. are normal scalar types and kStride is 1.
-// When not, F, I32, etc. are kStride-depp Clang ext_vector_type vectors of the appropriate type.
+// When defined(JUMPER_IS_SCALAR), F, I32, etc. are normal scalar types and N is 1.
+// When not, F, I32, etc. are N-deep Clang ext_vector_type vectors of the appropriate type.
 
 // A little wrapper macro to name Stages differently depending on the instruction set.
 // That lets us link together several options.
@@ -35,9 +35,9 @@ static const size_t kStride = sizeof(F) / sizeof(float);
 #endif
 
 // We're finally going to get to what a Stage function looks like!
-//    tail == 0 ~~> work on a full kStride pixels
+//    tail == 0 ~~> work on a full N pixels
 //    tail != 0 ~~> work on only the first tail pixels
-// tail is always < kStride.
+// tail is always < N.
 
 #if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
     // On 32-bit x86 we've only got 8 xmm registers, so we keep the 4 hottest (r,g,b,a)
@@ -73,9 +73,9 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t y
     for (; y < ylimit; y++) {
     #if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
         Params params = { x0,y,0, v,v,v,v };
-        while (params.x + kStride <= xlimit) {
+        while (params.x + N <= xlimit) {
             start(&params,program, v,v,v,v);
-            params.x += kStride;
+            params.x += N;
         }
         if (size_t tail = xlimit - params.x) {
             params.tail = tail;
@@ -83,9 +83,9 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t y
         }
     #else
         x = x0;
-        while (x + kStride <= xlimit) {
+        while (x + N <= xlimit) {
             start(0,program,x,y,    v,v,v,v, v,v,v,v);
-            x += kStride;
+            x += N;
         }
         if (size_t tail = xlimit - x) {
             start(tail,program,x,y, v,v,v,v, v,v,v,v);
@@ -141,7 +141,7 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t y
 template <typename V, typename T>
 SI V load(const T* src, size_t tail) {
 #if !defined(JUMPER_IS_SCALAR)
-    __builtin_assume(tail < kStride);
+    __builtin_assume(tail < N);
     if (__builtin_expect(tail, 0)) {
         V v{};  // Any inactive lanes are zeroed.
         switch (tail) {
@@ -162,7 +162,7 @@ SI V load(const T* src, size_t tail) {
 template <typename V, typename T>
 SI void store(T* dst, V v, size_t tail) {
 #if !defined(JUMPER_IS_SCALAR)
-    __builtin_assume(tail < kStride);
+    __builtin_assume(tail < N);
     if (__builtin_expect(tail, 0)) {
         switch (tail) {
             case 7: dst[6] = v[6];
@@ -292,19 +292,19 @@ STAGE(white_color) {
 // load registers r,g,b,a from context (mirrors store_rgba)
 STAGE(load_rgba) {
     auto ptr = (const float*)ctx;
-    r = unaligned_load<F>(ptr + 0*kStride);
-    g = unaligned_load<F>(ptr + 1*kStride);
-    b = unaligned_load<F>(ptr + 2*kStride);
-    a = unaligned_load<F>(ptr + 3*kStride);
+    r = unaligned_load<F>(ptr + 0*N);
+    g = unaligned_load<F>(ptr + 1*N);
+    b = unaligned_load<F>(ptr + 2*N);
+    a = unaligned_load<F>(ptr + 3*N);
 }
 
 // store registers r,g,b,a into context (mirrors load_rgba)
 STAGE(store_rgba) {
     auto ptr = (float*)ctx;
-    unaligned_store(ptr + 0*kStride, r);
-    unaligned_store(ptr + 1*kStride, g);
-    unaligned_store(ptr + 2*kStride, b);
-    unaligned_store(ptr + 3*kStride, a);
+    unaligned_store(ptr + 0*N, r);
+    unaligned_store(ptr + 1*N, g);
+    unaligned_store(ptr + 2*N, b);
+    unaligned_store(ptr + 3*N, a);
 }
 
 // Most blend modes apply the same logic to each channel.
@@ -1471,7 +1471,7 @@ STAGE(bicubic_p3y) { bicubic_y<+3>(ctx, &g); }
 STAGE(callback) {
     auto c = (SkJumper_CallbackCtx*)ctx;
     store4(c->rgba,0, r,g,b,a);
-    c->fn(c, tail ? tail : kStride);
+    c->fn(c, tail ? tail : N);
     load4(c->read_from,0, &r,&g,&b,&a);
 }
 
