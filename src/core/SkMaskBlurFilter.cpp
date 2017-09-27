@@ -283,6 +283,7 @@ private:
         Sk4u* const    fBuffer;
         Sk4u* const    fBufferEnd;
     };
+
 private:
     uint32_t fOuterWeight;
     uint32_t fInnerWeight;
