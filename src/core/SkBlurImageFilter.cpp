@@ -10,6 +10,7 @@
 #include "SkAutoPixmapStorage.h"
 #include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
+#include "SkTFitsIn.h"
 #include "SkGpuBlurUtils.h"
 #include "SkOpts.h"
 #include "SkReadBuffer.h"
@@ -22,7 +23,7 @@
 #include "SkGr.h"
 #endif
 
-class SkBlurImageFilterImpl : public SkImageFilter {
+class SkBlurImageFilterImpl final : public SkImageFilter {
 public:
     SkBlurImageFilterImpl(SkScalar sigmaX,
                       SkScalar sigmaY,
@@ -43,11 +44,23 @@ protected:
     SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
 
 private:
-    SkSize   fSigma;
-    SkBlurImageFilter::TileMode fTileMode;
     typedef SkImageFilter INHERITED;
-
     friend class SkImageFilter;
+
+    #if SK_SUPPORT_GPU
+    sk_sp<SkSpecialImage> hardwareFilter(
+            SkSpecialImage* source,
+            SkVector sigma, const sk_sp<SkSpecialImage>& input,
+            SkIRect inputBounds, SkIRect dstBounds) const;
+    #endif
+
+    sk_sp<SkSpecialImage> softwareFilter(
+            SkSpecialImage* source,
+            SkVector sigma, const sk_sp<SkSpecialImage>& input,
+            SkIRect inputBounds, SkIRect dstBounds) const;
+
+    SkSize                      fSigma;
+    SkBlurImageFilter::TileMode fTileMode;
 };
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkImageFilter)
@@ -162,6 +175,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
     SkIRect inputBounds = SkIRect::MakeXYWH(inputOffset.fX, inputOffset.fY,
                                             input->width(), input->height());
 
+    // Calculate the destination bounds.
     SkIRect dstBounds;
     if (!this->applyCropRect(this->mapContext(ctx), inputBounds, &dstBounds)) {
         return nullptr;
@@ -170,83 +184,99 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         return nullptr;
     }
 
+    // Set the offset in preparation to make all rectangles relative to the inputOffset.
+    offset->fX = dstBounds.fLeft;
+    offset->fY = dstBounds.fTop;
+
+    // Make all bounds relative to the inputOffset.
+    inputBounds.offset(-inputOffset);
+    dstBounds.offset(-inputOffset);
+
     const SkVector sigma = map_sigma(fSigma, ctx.ctm());
+    if (sigma.x() < 0 || sigma.y() < 0) {
+        return nullptr;
+    }
+
+    // If both sigmas will result in a zero width window, there is nothing to do.
+    // N[Solve[sigma*3*Sqrt[2 Pi]/4 == 1/2, sigma], 16]
+    static constexpr double kZeroWindow = 0.2659615202676218;
+    if (sigma.x() < kZeroWindow && sigma.y() < kZeroWindow) {
+        return input->makeSubset(inputBounds);
+    }
 
 #if SK_SUPPORT_GPU
     if (source->isTextureBacked()) {
-        GrContext* context = source->getContext();
-
         // Ensure the input is in the destination's gamut. This saves us from having to do the
         // xform during the filter itself.
         input = ImageToColorSpace(input.get(), ctx.outputProperties());
 
-        sk_sp<GrTextureProxy> inputTexture(input->asTextureProxyRef(context));
-        if (!inputTexture) {
-            return nullptr;
-        }
-
-        if (0 == sigma.x() && 0 == sigma.y()) {
-            offset->fX = inputBounds.x();
-            offset->fY = inputBounds.y();
-            return input->makeSubset(inputBounds.makeOffset(-inputOffset.x(),
-                                                            -inputOffset.y()));
-        }
-
-        offset->fX = dstBounds.fLeft;
-        offset->fY = dstBounds.fTop;
-        inputBounds.offset(-inputOffset);
-        dstBounds.offset(-inputOffset);
-        // Typically, we would create the RTC with the output's color space (from ctx), but we
-        // always blur in the PixelConfig of the *input*. Those might not be compatible (if they
-        // have different transfer functions). We've already guaranteed that those color spaces
-        // have the same gamut, so in this case, we do everything in the input's color space.
-        sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(
-                                                                context,
-                                                                std::move(inputTexture),
-                                                                sk_ref_sp(input->getColorSpace()),
-                                                                dstBounds,
-                                                                inputBounds,
-                                                                sigma.x(),
-                                                                sigma.y(),
-                                                                to_texture_domain_mode(fTileMode)));
-        if (!renderTargetContext) {
-            return nullptr;
-        }
-
-        return SkSpecialImage::MakeDeferredFromGpu(context,
-                                                   SkIRect::MakeWH(dstBounds.width(),
-                                                                   dstBounds.height()),
-                                                   kNeedNewImageUniqueID_SpecialImage,
-                                                   renderTargetContext->asTextureProxyRef(),
-                                                   renderTargetContext->refColorSpace(),
-                                                   &source->props());
+        return this->hardwareFilter(
+            source, sigma, input, inputBounds, dstBounds);
     }
+    #endif
+
+    #if defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
+    return this->softwareFilter(source, sigma, input, inputBounds, dstBounds);
+    #else
+    // The new code will go here.
+    return this->softwareFilter(source, sigma, input, inputBounds, dstBounds);
+    #endif
+}
+
+#if SK_SUPPORT_GPU
+sk_sp<SkSpecialImage> SkBlurImageFilterImpl::hardwareFilter(
+    SkSpecialImage* source,
+    SkVector sigma, const sk_sp<SkSpecialImage>& input,
+    SkIRect inputBounds, SkIRect dstBounds) const
+{
+    GrContext* context = source->getContext();
+
+    sk_sp<GrTextureProxy> inputTexture(input->asTextureProxyRef(context));
+    if (!inputTexture) {
+        return nullptr;
+    }
+
+    // Typically, we would create the RTC with the output's color space (from ctx), but we
+    // always blur in the PixelConfig of the *input*. Those might not be compatible (if they
+    // have different transfer functions). We've already guaranteed that those color spaces
+    // have the same gamut, so in this case, we do everything in the input's color space.
+    sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(
+        context,
+        std::move(inputTexture),
+        sk_ref_sp(input->getColorSpace()),
+        dstBounds,
+        inputBounds,
+        sigma.x(),
+        sigma.y(),
+        to_texture_domain_mode(fTileMode)));
+    if (!renderTargetContext) {
+        return nullptr;
+    }
+
+    return SkSpecialImage::MakeDeferredFromGpu(context,
+                                               SkIRect::MakeWH(dstBounds.width(),
+                                                               dstBounds.height()),
+                                               kNeedNewImageUniqueID_SpecialImage,
+                                               renderTargetContext->asTextureProxyRef(),
+                                               renderTargetContext->refColorSpace(),
+                                               &source->props());
+}
 #endif
 
+sk_sp<SkSpecialImage> SkBlurImageFilterImpl::softwareFilter(
+    SkSpecialImage* source,
+    SkVector sigma, const sk_sp<SkSpecialImage>& input,
+    SkIRect inputBounds, SkIRect dstBounds) const
+{
     // TODO: Implement CPU backend for different fTileMode.
     int kernelSizeX, kernelSizeX3, lowOffsetX, highOffsetX;
     int kernelSizeY, kernelSizeY3, lowOffsetY, highOffsetY;
     get_box3_params(sigma.x(), &kernelSizeX, &kernelSizeX3, &lowOffsetX, &highOffsetX);
     get_box3_params(sigma.y(), &kernelSizeY, &kernelSizeY3, &lowOffsetY, &highOffsetY);
 
-    if (kernelSizeX < 0 || kernelSizeY < 0) {
-        return nullptr;
-    }
-
-    if (kernelSizeX == 0 && kernelSizeY == 0) {
-        offset->fX = inputBounds.x();
-        offset->fY = inputBounds.y();
-        return input->makeSubset(inputBounds.makeOffset(-inputOffset.x(),
-                                                        -inputOffset.y()));
-    }
-
     SkBitmap inputBM;
 
-    if (!input->getROPixels(&inputBM)) {
-        return nullptr;
-    }
-
-    if (inputBM.colorType() != kN32_SkColorType) {
+    if (!input->getROPixels(&inputBM) && inputBM.colorType() != kN32_SkColorType) {
         return nullptr;
     }
 
@@ -258,19 +288,22 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         return nullptr;
     }
 
-    offset->fX = dstBounds.fLeft;
-    offset->fY = dstBounds.fTop;
-    SkPMColor* t = tmp.getAddr32(0, 0);
-    SkPMColor* d = dst.getAddr32(0, 0);
-    int w = dstBounds.width(), h = dstBounds.height();
-    const SkPMColor* s = inputBM.getAddr32(inputBounds.x() - inputOffset.x(),
-                                           inputBounds.y() - inputOffset.y());
+    // Get ready to blur.
+    const SkPMColor* s = inputBM.getAddr32(inputBounds.x(), inputBounds.y());
+          SkPMColor* t = tmp.getAddr32(0, 0);
+          SkPMColor* d = dst.getAddr32(0, 0);
+
+    // Shift everything from being relative to the orignal input bounds to the destination bounds.
     inputBounds.offset(-dstBounds.x(), -dstBounds.y());
     dstBounds.offset(-dstBounds.x(), -dstBounds.y());
+
+    int w  = dstBounds.width(),
+        h  = dstBounds.height(),
+        sw = inputBM.rowBytesAsPixels();
+
     SkIRect inputBoundsT = SkIRect::MakeLTRB(inputBounds.top(), inputBounds.left(),
                                              inputBounds.bottom(), inputBounds.right());
     SkIRect dstBoundsT = SkIRect::MakeWH(dstBounds.height(), dstBounds.width());
-    int sw = int(inputBM.rowBytes() >> 2);
 
     /**
      *
@@ -307,8 +340,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         SkOpts::box_blur_xy(t,  h,  dstBoundsT,   d, kernelSizeY3, highOffsetY, highOffsetY, h, w);
     }
 
-    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(),
-                                                          dstBounds.height()),
+    return SkSpecialImage::MakeFromRaster(SkIRect::MakeSize(dstBounds.size()),
                                           dst, &source->props());
 }
 
