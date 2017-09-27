@@ -204,7 +204,8 @@
       "retry",
       "fetch",
       "origin",
-      "master"
+      "master",
+      "--progress"
     ],
     "cwd": "[START_DIR]/swarming.client",
     "env": {
