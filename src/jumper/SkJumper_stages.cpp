@@ -55,11 +55,6 @@ static const size_t N = sizeof(F) / sizeof(float);
     using Stage = void(size_t tail, void** program, size_t x, size_t y, F,F,F,F, F,F,F,F);
 #endif
 
-#if defined(JUMPER_IS_AVX) || defined(JUMPER_IS_AVX2)
-    // We really want to make sure all paths go through this function's (implicit) vzeroupper.
-    // If they don't, we'll experience severe slowdowns when we first use SSE instructions again.
-    __attribute__((disable_tail_calls))
-#endif
 MAYBE_MSABI
 extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t ylimit,
                                      void** program) {
