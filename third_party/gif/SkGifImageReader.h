@@ -198,7 +198,6 @@ class SkGIFFrameContext : public SkFrame {
 public:
     SkGIFFrameContext(SkGifImageReader* reader, int id)
         : INHERITED(id)
-        , m_owner(reader)
         , m_transparentPixel(SkGIFColorMap::kNotFound)
         , m_dataSize(0)
         , m_progressiveDisplay(false)
@@ -251,9 +250,6 @@ protected:
     bool onReportsAlpha() const override;
 
 private:
-    // Unowned pointer to the object that owns this frame.
-    const SkGifImageReader* m_owner;
-
     int m_transparentPixel; // Index of transparent pixel. Value is kNotFound if there is no transparent pixel.
     int m_dataSize;
 
@@ -360,11 +356,6 @@ public:
     sk_sp<SkColorTable> getColorTable(SkColorType dstColorType, int index);
 
     bool firstFrameHasAlpha() const { return m_firstFrameHasAlpha; }
-
-    // Helper function that returns whether an SkGIFFrameContext has transparency.
-    // This method is sometimes called before creating one/parsing its color map,
-    // so it cannot rely on SkGIFFrameContext::transparentPixel or ::localColorMap().
-    bool hasTransparency(int transPix, bool hasLocalColorMap, int localMapColors) const;
 
 protected:
     const SkFrame* onGetFrame(int i) const override {
