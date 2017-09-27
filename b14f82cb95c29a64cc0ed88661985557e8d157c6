@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bc26bb22_ff41181e",
+        "filename": "site/dev/sheriffing/trooper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-09-27T14:59:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1278f1cb_1c1c1bbc",
+      "range": {
+        "startLine": 34,
+        "startChar": 194,
+        "endLine": 34,
+        "endChar": 218
+      },
+      "revId": "b14f82cb95c29a64cc0ed88661985557e8d157c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "55745e51_9a13bc70",
         "filename": "site/dev/sheriffing/trooper.md",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2017-09-27T14:52:32Z",
       "side": 1,
       "message": "Several of these need to be updated. I can do it in another CL if you want.",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 53
+      },
+      "revId": "b14f82cb95c29a64cc0ed88661985557e8d157c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2542750f_b8b15651",
+        "filename": "site/dev/sheriffing/trooper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-09-27T14:59:28Z",
+      "side": 1,
+      "message": "Please do. Thanks.",
+      "parentUuid": "55745e51_9a13bc70",
       "range": {
         "startLine": 54,
         "startChar": 0,
@@ -68,6 +116,30 @@
       "revId": "b14f82cb95c29a64cc0ed88661985557e8d157c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c5bf9ba_475eed5c",
+        "filename": "site/dev/sheriffing/trooper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-09-27T14:59:28Z",
+      "side": 1,
+      "message": "That page does not look up-to-date. I added a link to skolo maintenance doc here but did not delete that page yet.\nLooks like Eric and you mainly populated that page. I can delete it if you both agree. That can be in a separate CL as well.",
+      "parentUuid": "9d1cfc3f_804e073e",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 78
+      },
+      "revId": "b14f82cb95c29a64cc0ed88661985557e8d157c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
