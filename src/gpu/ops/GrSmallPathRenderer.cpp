@@ -455,7 +455,7 @@ private:
                                                   devPathBounds.height()))) {
                 return false;
             }
-            sk_bzero(dst.writable_addr(), dst.computeByteSize());
+            sk_bzero(dst.writable_addr(), dst.getSafeSize());
 
             // rasterize path
             SkPaint paint;
@@ -562,7 +562,7 @@ private:
                                               devPathBounds.height()))) {
             return false;
         }
-        sk_bzero(dst.writable_addr(), dst.computeByteSize());
+        sk_bzero(dst.writable_addr(), dst.getSafeSize());
 
         // rasterize path
         SkPaint paint;

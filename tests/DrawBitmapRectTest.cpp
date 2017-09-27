@@ -144,10 +144,9 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
 
     SkBitmap bm;
     if (bm.tryAllocN32Pixels(width, height)) {
-        bm.eraseColor(SK_ColorRED);
-    } else {
-        shouldBeDrawn = false;
+        // allow this to fail silently, to test the code downstream
     }
+    bm.eraseColor(SK_ColorRED);
 
     matrix.setAll(0.0078740157f,
                   0,
@@ -180,7 +179,7 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
  *     sign-extension bleed when packing the two values (X,Y) into our 32bit
  *     slot.
  *
- *  This tests exercises the original setup, plus 2 more to ensure that we can,
+ *  This tests exercises the original setup, plus 3 more to ensure that we can,
  *  in fact, handle bitmaps at 64K-1 (assuming we don't exceed the total
  *  memory allocation limit).
  */
@@ -193,6 +192,7 @@ static void test_giantrepeat_crbug118018(skiatest::Reporter* reporter) {
         { 0x1b294, 0x7f,  false },   // crbug 118018 (width exceeds 64K)
         { 0xFFFF, 0x7f,    true },   // should draw, test max width
         { 0x7f, 0xFFFF,    true },   // should draw, test max height
+        { 0xFFFF, 0xFFFF, false },   // allocation fails (too much RAM)
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gTests); ++i) {

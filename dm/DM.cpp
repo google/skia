@@ -1128,9 +1128,9 @@ struct Task {
                             SkBitmap swizzle;
                             SkAssertResult(sk_tool_utils::copy_to(&swizzle, kRGBA_8888_SkColorType,
                                                                   bitmap));
-                            hash.write(swizzle.getPixels(), swizzle.computeByteSize());
+                            hash.write(swizzle.getPixels(), swizzle.getSize());
                         } else {
-                            hash.write(bitmap.getPixels(), bitmap.computeByteSize());
+                            hash.write(bitmap.getPixels(), bitmap.getSize());
                         }
                     }
                     SkMD5::Digest digest;
