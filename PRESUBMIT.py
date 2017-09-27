@@ -74,6 +74,9 @@ def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
 
 def _PythonChecks(input_api, output_api):
   """Run checks on any modified Python files."""
+  pylint_disabled_files = (
+      'infra/bots/recipes.py',
+  )
   pylint_disabled_warnings = (
       'F0401',  # Unable to import.
       'E0611',  # No name in module.
@@ -91,7 +94,8 @@ def _PythonChecks(input_api, output_api):
   for affected_file in input_api.AffectedSourceFiles(None):
     affected_file_path = affected_file.LocalPath()
     if affected_file_path.endswith('.py'):
-      affected_python_files.append(affected_file_path)
+      if affected_file_path not in pylint_disabled_files:
+        affected_python_files.append(affected_file_path)
   return input_api.canned_checks.RunPylint(
       input_api, output_api,
       disabled_warnings=pylint_disabled_warnings,

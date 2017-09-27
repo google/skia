@@ -17,7 +17,8 @@
       "retry",
       "fetch",
       "origin",
-      "abc123"
+      "abc123",
+      "--progress"
     ],
     "cwd": "[START_DIR]/swarming.client",
     "env": {

@@ -21,7 +21,8 @@
       "retry",
       "fetch",
       "origin",
-      "sample_sha"
+      "sample_sha",
+      "--progress"
     ],
     "cwd": "[START_DIR]/swarming.client",
     "env": {
