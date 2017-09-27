@@ -24,5 +24,5 @@ namespace GrTextureOp {
 std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy>, GrSamplerState::Filter, GrColor,
                                const SkRect& srcRect, const SkRect& dstRect,
                                const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>,
-                               bool allowSRGBInputs);
+                               bool allowSRGBInputs, const SkMatrix& textureMatrix);
 }

@@ -1282,7 +1282,8 @@ void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y, const 
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
         this->drawPinnedTextureProxy(std::move(proxy), pinnedUniqueID, as_IB(image)->colorSpace(),
                                      image->alphaType(), nullptr, nullptr,
-                                     SkCanvas::kFast_SrcRectConstraint, viewMatrix, paint);
+                                     SkCanvas::kFast_SrcRectConstraint, viewMatrix, paint,
+                                     image->mTextureMatrix);
         return;
     }
     SkBitmap bm;
@@ -1317,7 +1318,8 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const S
     }
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
         this->drawPinnedTextureProxy(std::move(proxy), pinnedUniqueID, as_IB(image)->colorSpace(),
-                                     image->alphaType(), src, &dst, constraint, this->ctm(), paint);
+                                     image->alphaType(), src, &dst, constraint, this->ctm(), paint,
+                                     image->mTextureMatrix);
         return;
     }
     SkBitmap bm;

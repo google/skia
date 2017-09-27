@@ -785,7 +785,8 @@ void GrRenderTargetContext::drawTextureAffine(const GrClip& clip, sk_sp<GrTextur
                                               GrSamplerState::Filter filter, GrColor color,
                                               const SkRect& srcRect, const SkRect& dstRect,
                                               const SkMatrix& viewMatrix,
-                                              sk_sp<GrColorSpaceXform> colorSpaceXform) {
+                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                              const SkMatrix& textureMatrix) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -804,7 +805,7 @@ void GrRenderTargetContext::drawTextureAffine(const GrClip& clip, sk_sp<GrTextur
     bool allowSRGB = SkToBool(this->getColorSpace());
     this->addDrawOp(clip, GrTextureOp::Make(std::move(proxy), filter, color, clippedSrcRect,
                                             clippedDstRect, viewMatrix, std::move(colorSpaceXform),
-                                            allowSRGB));
+                                            allowSRGB, textureMatrix));
 }
 
 void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
