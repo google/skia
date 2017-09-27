@@ -361,11 +361,6 @@ public:
 
     bool firstFrameHasAlpha() const { return m_firstFrameHasAlpha; }
 
-    // Helper function that returns whether an SkGIFFrameContext has transparency.
-    // This method is sometimes called before creating one/parsing its color map,
-    // so it cannot rely on SkGIFFrameContext::transparentPixel or ::localColorMap().
-    bool hasTransparency(int transPix, bool hasLocalColorMap, int localMapColors) const;
-
 protected:
     const SkFrame* onGetFrame(int i) const override {
         return static_cast<const SkFrame*>(this->frameContext(i));
