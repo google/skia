@@ -33,6 +33,24 @@
       "revId": "670889800d9d97d45d72a107a11170e6af65a326",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15e29c59_e481afa4",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T19:21:59Z",
+      "side": 1,
+      "message": "self._test_data.enabled should tell you that.",
+      "parentUuid": "5f3b46f7_324c3d47",
+      "revId": "670889800d9d97d45d72a107a11170e6af65a326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
