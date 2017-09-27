@@ -518,7 +518,7 @@ sk_sp<SkImage> SkImage::makeNonTextureImage() const {
     }
     SkImageInfo info = as_IB(this)->onImageInfo();
     size_t rowBytes = info.minRowBytes();
-    size_t size = info.computeByteSize(rowBytes);
+    size_t size = info.getSafeSize(rowBytes);
     auto data = SkData::MakeUninitialized(size);
     if (!data) {
         return nullptr;
@@ -667,7 +667,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     size_t pixelSize = 0;
     if (!isScaled && this->peekPixels(&pixmap) && pixmap.info().colorType() == dstColorType) {
         info = pixmap.info();
-        pixelSize = SkAlign8(pixmap.computeByteSize());
+        pixelSize = SkAlign8(pixmap.getSafeSize());
         if (!dstColorSpace) {
             pixmap.setColorSpace(nullptr);
             info = info.makeColorSpace(nullptr);
@@ -773,7 +773,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     void* pixels = pixelsAsCharPtr;
 
     memcpy(reinterpret_cast<void*>(SkAlign8(reinterpret_cast<uintptr_t>(pixelsAsCharPtr))),
-                                   pixmap.addr(), pixmap.computeByteSize());
+                                   pixmap.addr(), pixmap.getSafeSize());
 
     // If the context has sRGB support, and we're intending to render to a surface with an attached
     // color space, and the image has an sRGB-like color space attached, then use our gamma (sRGB)
@@ -824,7 +824,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     }
 
     // Fill in the mipmap levels if they exist
-    char* mipLevelPtr = pixelsAsCharPtr + SkAlign8(pixmap.computeByteSize());
+    char* mipLevelPtr = pixelsAsCharPtr + SkAlign8(pixmap.getSafeSize());
 
     if (useMipMaps) {
         static_assert(std::is_standard_layout<MipMapLevelData>::value,
@@ -845,10 +845,13 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
             // Make sure the mipmap data starts before the end of the buffer
             SkASSERT(mipLevelPtr < bufferAsCharPtr + pixelOffset + pixelSize);
             // Make sure the mipmap data ends before the end of the buffer
-            SkASSERT(mipLevelPtr + mipLevel.fPixmap.computeByteSize() <=
+            SkASSERT(mipLevelPtr + mipLevel.fPixmap.getSafeSize() <=
                      bufferAsCharPtr + pixelOffset + pixelSize);
 
-            memcpy(mipLevelPtr, mipLevel.fPixmap.addr(), mipLevel.fPixmap.computeByteSize());
+            // getSafeSize includes rowbyte padding except for the last row,
+            // right?
+
+            memcpy(mipLevelPtr, mipLevel.fPixmap.addr(), mipLevel.fPixmap.getSafeSize());
 
             memcpy(bufferAsCharPtr + offsetof(DeferredTextureImage, fMipMapLevelData) +
                    sizeof(MipMapLevelData) * (generatedMipLevelIndex + 1) +
@@ -858,7 +861,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
                    sizeof(MipMapLevelData) * (generatedMipLevelIndex + 1) +
                    offsetof(MipMapLevelData, fRowBytes), &rowBytes, sizeof(rowBytes));
 
-            mipLevelPtr += SkAlign8(mipLevel.fPixmap.computeByteSize());
+            mipLevelPtr += SkAlign8(mipLevel.fPixmap.getSafeSize());
         }
     }
     return size;
