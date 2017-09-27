@@ -13,6 +13,7 @@
 
 class SkOSWindow : public SkWindow {
 public:
+    SkOSWindow(void* hwnd, int w, int h);
     SkOSWindow(void* hwnd);
     ~SkOSWindow();
     void*   getHWND() const { return fHWND; }
@@ -48,6 +49,8 @@ protected:
     virtual void onSetTitle(const char[]);
 
 private:
+    void    init(void* hwnd, int w, int h);
+
     void*   fHWND;
     bool    fInvalEventIsPending;
     void*   fNotifier;

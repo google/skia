@@ -14,13 +14,25 @@
 #import  "SkEventNotifier.h"
 #define  kINVAL_NSVIEW_EventType "inval-nsview"
 
+static constexpr int DEFAULT_W = 500;
+static constexpr int DEFAULT_H = 500;
+
 static_assert(SK_SUPPORT_GPU, "not_implemented_for_non_gpu_build");
 
+SkOSWindow::SkOSWindow(void* hwnd, int w, int h): fHWND(hwnd) {
+    this->init(hwnd, w, h);
+}
+
 SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd) {
+    this->init(hWnd, DEFAULT_W, DEFAULT_H);
+}
+
+void SkOSWindow::init(void* hwnd, int w, int h) {
     fInvalEventIsPending = false;
     fGLContext = NULL;
     fNotifier = [[SkEventNotifier alloc] init];
 }
+
 SkOSWindow::~SkOSWindow() {
     [(SkEventNotifier*)fNotifier release];
 }

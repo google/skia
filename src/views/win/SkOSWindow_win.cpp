@@ -48,10 +48,18 @@ void post_skwinevent(HWND hwnd)
 SkTHashMap<void*, SkOSWindow*> SkOSWindow::gHwndToOSWindowMap;
 
 SkOSWindow::SkOSWindow(const void* winInit) {
+    this->init(winInit, kDefaultWindowWidth, kDefaultWindowHeight);
+}
+
+SkOSWindow::SkOSWindow(const void* winInit, int w, int h) {
+    this->init(winInit, w, h);
+}
+
+void SkOSWindow::init(const void* winInit, int w, int h) {
     fWinInit = *(const WindowInit*)winInit;
 
     fHWND = CreateWindow(fWinInit.fClass, NULL, WS_OVERLAPPEDWINDOW,
-                         CW_USEDEFAULT, 0, kDefaultWindowWidth, kDefaultWindowHeight, NULL, NULL,
+                         CW_USEDEFAULT, 0, w, h, NULL, NULL,
                          fWinInit.fInstance, NULL);
     gHwndToOSWindowMap.set(fHWND, this);
 #if SK_SUPPORT_GPU

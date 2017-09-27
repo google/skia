@@ -26,6 +26,7 @@ public:
     };
 
     SkOSWindow(const void* winInit);
+    SkOSWindow(const void* winInit, int w, int h);
     virtual ~SkOSWindow();
 
     static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
@@ -87,6 +88,7 @@ private:
     void*               fHWND;
 
     void                doPaint(void* ctx);
+    void                init(const void* winInit, int w, int h);
 
 #if SK_SUPPORT_GPU
     void*               fHGLRC;
