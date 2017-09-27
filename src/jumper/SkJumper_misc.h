@@ -65,7 +65,7 @@ SI void* load_and_inc(void**& program) {
 
 // Lazily resolved on first cast.  Does nothing if cast to Ctx::None.
 struct Ctx {
-    using None = decltype(nullptr);
+    struct None {};
 
     void*   ptr;
     void**& program;
@@ -77,7 +77,7 @@ struct Ctx {
         if (!ptr) { ptr = load_and_inc(program); }
         return (T*)ptr;
     }
-    operator None() { return nullptr; }
+    operator None() { return None{}; }
 };
 
 #endif//SkJumper_misc_DEFINED
