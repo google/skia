@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "634b3e55_16ed2ce2",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5870
+      },
+      "writtenOn": "2017-09-27T20:38:40Z",
+      "side": 1,
+      "message": "Pretty much every change in this file is an unfortunate consequence.\nThis gives us a rough idea of the cost of supporting out-of-bound palette indices.\n\n\nMore frames are reported as having alpha, and thus go down a different code path. But didn\u0027t we already take a look and determine the CPU cost of this is negligible?\n\nAlso some frames suddenly have a dependency. This means keeping those prior frames in cache. Or if they were emergency purged, re-decoding when we wouldn\u0027t have needed to.\n\nSince other frames have a dependency, we could effectively stay stable at always needing 2 frames of memory. Being able to purge when there is no prior frame required is a very temporary memory savings since the next frame may depend on this one and bring us back up to 2 frames of memory. So I\u0027m not worried about the memory usage.\n\nThe case of re-decoding during emergency purge is interesting though. It has implications when skipping forward in time. For example, if we switch to another tab and switch back we need to jump forward in the animation. Previously, we could have started at the nearest non-dependent frame. But now that frame is marked as dependent. This is a pretty real cost. But I think we agreed to (and are already working on?) being more liberal with \"pausing\" animations. So this cost might already be mitigated. And a theoretical emergency purge by nature should be rare anyway.\n\n\nSo I think overall I\u0027m okay with these unfortunate consequences in this file.",
+      "range": {
+        "startLine": 91,
+        "startChar": 24,
+        "endLine": 91,
+        "endChar": 25
+      },
+      "revId": "f07a82ed6f9a0e61b0d55c3dd2f419c2526c6b91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -141,6 +141,30 @@
       "revId": "3cba749f85e47f7bf6c112d4e4c61f2d02257871",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dfad312_47552a2e",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 5870
+      },
+      "writtenOn": "2017-09-27T20:38:40Z",
+      "side": 1,
+      "message": "\u003e Well, that would mean checking each pixel individually, which we\u0027d prefer not to do.\n\nI agree.\n\n\u003e I\u0027d still prefer we simplify this method. It no longer even needs to be a member.\n\nDone. That cleaned up a bit, such as the member to track the owner.",
+      "parentUuid": "6317a676_cf263199",
+      "range": {
+        "startLine": 862,
+        "startChar": 8,
+        "endLine": 862,
+        "endChar": 30
+      },
+      "revId": "3cba749f85e47f7bf6c112d4e4c61f2d02257871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
