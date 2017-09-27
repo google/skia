@@ -27,6 +27,7 @@ class SkEvent;
 @property (nonatomic, assign) id<SkNSViewOptionsDelegate> fOptionsDelegate;
 
 - (id)initWithDefaults;
+- (void)setNSViewSize:(NSSize)size;
 - (void)setUpWindow;
 - (void)resizeSkView:(NSSize)newSize;
 - (void)setSkTitle:(const char*)title;
