@@ -221,7 +221,7 @@ enum Direction {
         Initially SkPath Convexity is kUnknown_Convexity. SkPath Convexity is computed
         if needed by destination SkSurface.
     */
-    enum Convexity {
+    enum Convexity : uint8_t {
         kUnknown_Convexity, //!< Indicates Convexity has not been determined.
 
         /** SkPath has one contour made of a simple geometry without indentations. */
@@ -236,11 +236,10 @@ enum Direction {
         @return  computed or stored SkPath::Convexity
     */
     Convexity getConvexity() const {
-        if (kUnknown_Convexity != fConvexity) {
-            return static_cast<Convexity>(fConvexity);
-        } else {
-            return this->internalGetConvexity();
+        for (Convexity convexity = fConvexity.load(); kUnknown_Convexity != convexity; ) {
+            return convexity;
         }
+        return this->internalGetConvexity();
     }
 
     /** Returns last computed SkPath::Convexity, or kUnknown_Convexity if
@@ -1703,12 +1702,12 @@ private:
         kRRect = 1
     };
 
-    sk_sp<SkPathRef>                                   fPathRef;
-    int                                                fLastMoveToIndex;
-    uint8_t                                            fFillType;
-    mutable uint8_t                                    fConvexity;
-    mutable SkAtomic<uint8_t, sk_memory_order_relaxed> fFirstDirection;// SkPathPriv::FirstDirection
-    SkBool8                                            fIsVolatile;
+    sk_sp<SkPathRef>                                     fPathRef;
+    int                                                  fLastMoveToIndex;
+    uint8_t                                              fFillType;
+    mutable SkAtomic<Convexity, sk_memory_order_relaxed> fConvexity;
+    mutable SkAtomic<uint8_t, sk_memory_order_relaxed>   fFirstDirection;// SkPathPriv::FirstDirection
+    SkBool8                                              fIsVolatile;
 
     /** Resets all fields other than fPathRef to their initial 'empty' values.
      *  Assumes the caller has already emptied fPathRef.

@@ -175,10 +175,11 @@ void SkPath::copyFields(const SkPath& that) {
     //fPathRef is assumed to have been set by the caller.
     fLastMoveToIndex = that.fLastMoveToIndex;
     fFillType        = that.fFillType;
-    fConvexity       = that.fConvexity;
-    // Simulate fFirstDirection  = that.fFirstDirection;
-    fFirstDirection.store(that.fFirstDirection.load());
     fIsVolatile      = that.fIsVolatile;
+
+    // Non-atomic assignment of atomic values.
+    fConvexity     .store(that.fConvexity     .load());
+    fFirstDirection.store(that.fFirstDirection.load());
 }
 
 bool operator==(const SkPath& a, const SkPath& b) {
@@ -193,12 +194,16 @@ void SkPath::swap(SkPath& that) {
         fPathRef.swap(that.fPathRef);
         SkTSwap<int>(fLastMoveToIndex, that.fLastMoveToIndex);
         SkTSwap<uint8_t>(fFillType, that.fFillType);
-        SkTSwap<uint8_t>(fConvexity, that.fConvexity);
-        // Simulate SkTSwap<uint8_t>(fFirstDirection, that.fFirstDirection);
-        uint8_t temp = fFirstDirection;
-        fFirstDirection.store(that.fFirstDirection.load());
-        that.fFirstDirection.store(temp);
         SkTSwap<SkBool8>(fIsVolatile, that.fIsVolatile);
+
+        // Non-atomic swaps of atomic values.
+        Convexity c = fConvexity.load();
+        fConvexity.store(that.fConvexity.load());
+        that.fConvexity.store(c);
+
+        uint8_t fd = fFirstDirection.load();
+        fFirstDirection.store(that.fFirstDirection.load());
+        that.fFirstDirection.store(fd);
     }
 }
 
@@ -1742,7 +1747,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
 
         if (this != dst) {
             dst->fFillType = fFillType;
-            dst->fConvexity = fConvexity;
+            dst->fConvexity.store(fConvexity);
             dst->fIsVolatile = fIsVolatile;
         }
 
@@ -2158,7 +2163,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
         return 0;
     }
 
-    fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
+    fConvexity.store( (Convexity)((packed >> kConvexity_SerializationShift) & 0xFF) );
     fFillType = fillType;
     fIsVolatile = (packed >> kIsVolatile_SerializationShift) & 0x1;
     SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer);
@@ -3550,7 +3555,7 @@ SkRect SkPath::computeTightBounds() const {
     if (this->getSegmentMasks() == SkPath::kLine_SegmentMask) {
         return this->getBounds();
     }
-    
+
     SkPoint extremas[5]; // big enough to hold worst-case curve type (cubic) extremas + 1
     SkPoint pts[4];
     SkPath::RawIter iter(*this);
