@@ -5,6 +5,8 @@
 
 # pylint: disable=W0201
 
+import json
+import os
 
 from recipe_engine import recipe_api
 
@@ -12,6 +14,32 @@ from recipe_engine import recipe_api
 CONFIG_DEBUG = 'Debug'
 CONFIG_RELEASE = 'Release'
 
+_CACHED_ALLOWED_BUILDER_NAMES = None
+
+def _allowed_builder_names():
+  global _CACHED_ALLOWED_BUILDER_NAMES
+  if not _CACHED_ALLOWED_BUILDER_NAMES:  # pragma: no cover
+    infra_bots_path = os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.realpath(__file__))))
+    tasks_json_path = os.path.join(infra_bots_path, 'tasks.json')
+    extra_builder_names_path = os.path.join(infra_bots_path,
+                                            'extra-builder-names.txt')
+    allowed_builder_names = []
+    with open(tasks_json_path) as f:
+      tasks = json.load(f)
+      allowed_builder_names.extend(tasks['tasks'].keys())
+    with open(extra_builder_names_path) as f:
+      for line in f:
+        line = line.strip()
+        if line:
+          allowed_builder_names.append(line)
+    _CACHED_ALLOWED_BUILDER_NAMES = set(allowed_builder_names)
+  return _CACHED_ALLOWED_BUILDER_NAMES
+
+
+def _check_builder_name(builder_name):
+  if builder_name not in _allowed_builder_names():
+    raise ValueError(builder_name)  # pragma: no cover
 
 class SkiaVarsApi(recipe_api.RecipeApi):
 
@@ -25,6 +53,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     """Prepare the variables."""
     # Setup
     self.builder_name = self.m.properties['buildername']
+
+    _check_builder_name(self.builder_name)
 
     self.slave_dir = self.m.path['start_dir']
     self.checkout_root = self.slave_dir
@@ -211,4 +241,3 @@ print os.environ.get('SWARMING_TASK_ID', '')
 ''',
           stdout=self.m.raw_io.output()).stdout.rstrip()
     return self._swarming_task_id
-

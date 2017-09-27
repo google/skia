@@ -10,7 +10,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-Android_Vulkan"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-Android"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -19,15 +19,15 @@
     "cmd": [
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-Android_Vulkan/Debug",
-      "--args=extra_cflags=[\"-O1\"] ndk=\"[START_DIR]/android_ndk_darwin\" ndk_api=24 skia_enable_vulkan_debug_layers=false target_cpu=\"arm64\""
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-Android/Debug",
+      "--args=extra_cflags=[\"-O1\"] ndk=\"[START_DIR]/android_ndk_darwin\" target_cpu=\"arm64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-Android_Vulkan"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-Android"
     },
     "name": "gn gen"
   },
@@ -35,14 +35,14 @@
     "cmd": [
       "ninja",
       "-C",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-Android_Vulkan/Debug"
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-Android/Debug"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-Android_Vulkan"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-Android"
     },
     "name": "ninja"
   },

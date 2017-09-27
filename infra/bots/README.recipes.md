@@ -632,25 +632,25 @@ Does nothing if script's version is already known.
 
 [DEPS](/infra/bots/recipe_modules/vars/__init__.py#5): [depot\_tools/bot\_update][depot_tools/recipe_modules/bot_update], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [builder\_name\_schema](#recipe_modules-builder_name_schema)
 
-#### **class [SkiaVarsApi](/infra/bots/recipe_modules/vars/api.py#16)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [SkiaVarsApi](/infra/bots/recipe_modules/vars/api.py#42)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-&emsp; **@property**<br>&mdash; **def [is\_linux](/infra/bots/recipe_modules/vars/api.py#151)(self):**
+&emsp; **@property**<br>&mdash; **def [is\_linux](/infra/bots/recipe_modules/vars/api.py#179)(self):**
 
-&mdash; **def [make\_path](/infra/bots/recipe_modules/vars/api.py#18)(self, \*path):**
+&mdash; **def [make\_path](/infra/bots/recipe_modules/vars/api.py#44)(self, \*path):**
 
 Return a Path object for the given path.
 
-&mdash; **def [setup](/infra/bots/recipe_modules/vars/api.py#24)(self):**
+&mdash; **def [setup](/infra/bots/recipe_modules/vars/api.py#50)(self):**
 
 Prepare the variables.
 
-&emsp; **@property**<br>&mdash; **def [swarming\_bot\_id](/infra/bots/recipe_modules/vars/api.py#193)(self):**
+&emsp; **@property**<br>&mdash; **def [swarming\_bot\_id](/infra/bots/recipe_modules/vars/api.py#221)(self):**
 
-&emsp; **@property**<br>&mdash; **def [swarming\_task\_id](/infra/bots/recipe_modules/vars/api.py#204)(self):**
+&emsp; **@property**<br>&mdash; **def [swarming\_task\_id](/infra/bots/recipe_modules/vars/api.py#232)(self):**
 
-&emsp; **@property**<br>&mdash; **def [upload\_dm\_results](/infra/bots/recipe_modules/vars/api.py#155)(self):**
+&emsp; **@property**<br>&mdash; **def [upload\_dm\_results](/infra/bots/recipe_modules/vars/api.py#183)(self):**
 
-&emsp; **@property**<br>&mdash; **def [upload\_perf\_results](/infra/bots/recipe_modules/vars/api.py#173)(self):**
+&emsp; **@property**<br>&mdash; **def [upload\_perf\_results](/infra/bots/recipe_modules/vars/api.py#201)(self):**
 ## Recipes
 
 ### *recipes* / [builder\_name\_schema:examples/full](/infra/bots/recipe_modules/builder_name_schema/examples/full.py)

@@ -55,6 +55,7 @@ def RunSteps(api):
 
 TEST_BUILDERS = [
   'Build-Debian9-Clang-arm-Release-Android_API26',
+  'Build-Debian9-Clang-arm64-Debug-Android_Vulkan',
   'Build-Debian9-Clang-x86_64-Release-Fast',
   'Build-Debian9-Clang-x86_64-Release-Mini',
   'Build-Debian9-Clang-x86_64-Release-Vulkan',
@@ -67,7 +68,7 @@ TEST_BUILDERS = [
   'Build-Debian9-GCC-x86_64-Release-PDFium',
   'Build-Debian9-GCC-x86_64-Release-PDFium_SkiaPaths',
   'Build-Debian9-GCC-x86_64-Release-Shared',
-  'Build-Mac-Clang-arm64-Debug-Android_Vulkan',
+  'Build-Mac-Clang-arm64-Debug-Android',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Mac-Clang-x86_64-Debug-Metal',
   'Build-Win-Clang-arm64-Release-Android',
