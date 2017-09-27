@@ -88,16 +88,16 @@ DEF_TEST(Codec_frames, r) {
         std::vector<SkCodecAnimation::DisposalMethod> fDisposalMethods;
     } gRecs[] = {
         { "required.gif", 7,
-            { 0, 1, 1, SkCodec::kNone, 4, 4 },
-            { kOpaque, kBinary, kBinary, kOpaque, kOpaque, kOpaque },
+            { 0, 1, 2, 3, 4, 5 },
+            { kOpaque, kBinary, kBinary, kBinary, kBinary, kBinary },
             { 100, 100, 100, 100, 100, 100, 100 },
             0,
             { kKeep, kRestoreBG, kKeep, kKeep, kKeep, kRestoreBG, kKeep } },
         { "alphabetAnim.gif", 13,
             { SkCodec::kNone, 0, 0, 0, 0, 5, 6, SkCodec::kNone,
-              SkCodec::kNone, SkCodec::kNone, 10, 11 },
+              SkCodec::kNone, 9, 10, 11 },
             { kBinary, kBinary, kBinary, kBinary, kBinary, kBinary,
-              kBinary, kBinary, kBinary, kOpaque, kOpaque, kBinary },
+              kBinary, kBinary, kBinary, kBinary, kBinary, kBinary },
             { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 },
             0,
             { kKeep, kRestorePrev, kRestorePrev, kRestorePrev, kRestorePrev,
@@ -115,7 +115,7 @@ DEF_TEST(Codec_frames, r) {
             { kKeep, kKeep, kRestorePrev, kKeep } },
         { "randPixelsAnim.gif", 13,
             // required frames
-            { SkCodec::kNone, 1, 2, 3, 4, 3, 6, 7, 7, 7, 9, 9 },
+            { 0, 1, 2, 3, 4, 3, 6, 7, 7, 7, 9, 9 },
             { kBinary, kBinary, kBinary, kBinary, kBinary, kBinary,
               kBinary, kBinary, kBinary, kBinary, kBinary, kBinary },
             // durations
