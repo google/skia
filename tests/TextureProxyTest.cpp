@@ -254,6 +254,44 @@ static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) 
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
 }
 
+// Test if invalidating unique ids prior to instantiating operates as expected
+static void invalidation_and_instantiation_test(GrContext* context, skiatest::Reporter* reporter) {
+    GrResourceProvider* provider = context->resourceProvider();
+    GrResourceCache* cache = context->getResourceCache();
+    REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
+
+    static GrUniqueKey::Domain d = GrUniqueKey::GenerateDomain();
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, d, 1, nullptr);
+    builder[0] = 0;
+    builder.finish();
+
+    // Create proxy, assign unique key
+    sk_sp<GrTextureProxy> proxy = deferred_tex(reporter, provider, SkBackingFit::kExact);
+    provider->assignUniqueKeyToProxy(key, proxy.get());
+
+    // Send an invalidation message, which will be sitting in the cache's inbox
+    SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(GrUniqueKeyInvalidatedMessage(key));
+
+    REPORTER_ASSERT(reporter, 1 == cache->numUniqueKeyProxies_TestOnly());
+    REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
+
+    // Instantiate the proxy. This will trigger the message to be processed, so the resulting
+    // texture should *not* have the unique key on it!
+    SkAssertResult(proxy->instantiate(provider));
+
+    REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
+    REPORTER_ASSERT(reporter, !proxy->priv().peekTexture()->getUniqueKey().isValid());
+    REPORTER_ASSERT(reporter, 0 == cache->numUniqueKeyProxies_TestOnly());
+    REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+
+    proxy = nullptr;
+    context->purgeAllUnlockedResources();
+
+    REPORTER_ASSERT(reporter, 0 == cache->numUniqueKeyProxies_TestOnly());
+    REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
+}
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrResourceProvider* provider = context->resourceProvider();
@@ -278,6 +316,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest, reporter, ctxInfo) {
     }
 
     invalidation_test(context, reporter);
+    invalidation_and_instantiation_test(context, reporter);
 }
 
 #endif

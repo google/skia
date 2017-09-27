@@ -123,7 +123,9 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
         return false;
     }
 
-    if (uniqueKey) {
+    // If there was an invalidation message pending for this key, we might have just processed it,
+    // causing the key (stored on this proxy) to become invalid.
+    if (uniqueKey && uniqueKey->isValid()) {
         resourceProvider->assignUniqueKeyToResource(*uniqueKey, surface.get());
     }
 
