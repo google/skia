@@ -1,0 +1,326 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b16a99f_77abefa8",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "Please move this into a \"main\" function, and document all command-line arguments.  names, files, timesA, and timesB look like they can probably be defined in main() or test() and passed through as parameters.  Having them as globals makes it difficult to follow the program flow.",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 12
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34bacab4_78c95ccf",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "Style nit: 2-space indent",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 4
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f47bf553_3e2f38ca",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "Style nit: 2 lines between top-level elements, including comments, function definitions, variable declarations, etc.",
+      "range": {
+        "startLine": 79,
+        "startChar": 26,
+        "endLine": 81,
+        "endChar": 1
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b23870b_3b4aaf77",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "Style nit: docstrings should be defined just inside the class or function with three double quotes, eg.\n\nclass ThreadRunner:\n  \"\"\"ThreadRunner docstring.\"\"\"\n\nPer https://google.github.io/styleguide/pyguide.html?showone\u003dComments#Comments",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 43
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4777f8ee_0a0d39c8",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "IIUC, we run tests in rounds, ie. trigger N tests, wait for all of them to finish, then trigger the ones for which we need more data and wait for those to finish, and repeat until we have enough data or hit the maximum number of attempts.\n\nIf that\u0027s true, then the usage pattern of this class is essentially:\n\nrunner \u003d ThreadRunner()\nwhile not done:\n  for test in tests_to_run:\n    runner.add(test)\n  runner.wait()\n\nI think this class could be simplified if we did this instead:\n\nwhile not done:\n  runner \u003d ThreadRunner()\n  for test in tests_to_run:\n    runner.add(test)\n  runner.wait()\n\nThen we wouldn\u0027t need self.waitCnt or currentWait, and we wouldn\u0027t need a global threadRunner instance; we\u0027d just pass one into run().",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 72
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d31b6207_61ce7fec",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "If we did the above and used multiple instances of ThreadRunner, we need to do self.threads.append(ts) instead of ts.daemon \u003d True.",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 24
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51d5ab62_b7ce432e",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "Not necessary if we do as suggested above.",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 138,
+        "endChar": 25
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c229cc33_6fd525ad",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "Please move this to the top, as things tend to get lost between function definitions.  Or move into test() and pass through as parameters.",
+      "range": {
+        "startLine": 141,
+        "startChar": 0,
+        "endLine": 141,
+        "endChar": 18
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "479232c1_982ccb6c",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "Nit: prefer subprocess.check_call to avoid calling a system shell.",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 58
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af95b9cc_3556c7d9",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "Style nit: prefer parens to backslashes and +, ie.\n\nconfig_help \u003d (\n    \u0027nanobench config; we currently support only one config \u0027\n    \u0027at a time (default: %(default)s)\u0027)",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 46
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01b0983f_a5e8150b",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "Nice!",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 5
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6b05d6a_267f14c1",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "subprocess.Popen accepts a \u0027cwd\u0027 parameter which IMO is nicer so that you can avoid os.chdir, which often makes you end up in unpredictable places.",
+      "range": {
+        "startLine": 114,
+        "startChar": 4,
+        "endLine": 114,
+        "endChar": 26
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea83dc02_0efe89c0",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "Nit: prefer check_call, which will raise an exception if the command fails.",
+      "range": {
+        "startLine": 121,
+        "startChar": 19,
+        "endLine": 121,
+        "endChar": 23
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1914d7eb_ebebb442",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-27T18:07:59Z",
+      "side": 1,
+      "message": "Have you noticed the child process not being killed when KeyboardInterrupt occurs?  AFAIK, as long as the process group id is the same (ie. you didn\u0027t use shell\u003dTrue), then all children should get interrupted as well, and subprocess.check_call(...) should work.",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 16
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
