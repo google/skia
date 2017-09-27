@@ -24,20 +24,30 @@ extern "C" {
     #include "keysym2ucs.h"
 }
 
-const int WIDTH = 500;
-const int HEIGHT = 500;
+const int WIDTH = 1024;
+const int HEIGHT = 768;
 
 // Determine which events to listen for.
 const long EVENT_MASK = StructureNotifyMask|ButtonPressMask|ButtonReleaseMask
         |ExposureMask|PointerMotionMask|KeyPressMask|KeyReleaseMask;
 
+void SkOSWindow::init(int w, int h) {
+    fUnixWindow.fDisplay = nullptr;
+    fUnixWindow.fGLContext = nullptr;
+    this->initWindow(0, nullptr, w, h);
+    this->resize(w, h);
+}
+
 SkOSWindow::SkOSWindow(void*)
     : fVi(nullptr)
     , fMSAASampleCount(0) {
-    fUnixWindow.fDisplay = nullptr;
-    fUnixWindow.fGLContext = nullptr;
-    this->initWindow(0, nullptr);
-    this->resize(WIDTH, HEIGHT);
+    this->init(WIDTH, HEIGHT);
+}
+
+SkOSWindow::SkOSWindow(void*, int width, int height)
+    : fVi(nullptr)
+    , fMSAASampleCount(0) {
+    this->init(width, height);
 }
 
 SkOSWindow::~SkOSWindow() {
@@ -58,7 +68,7 @@ void SkOSWindow::internalCloseWindow() {
     }
 }
 
-void SkOSWindow::initWindow(int requestedMSAASampleCount, AttachmentInfo* info) {
+void SkOSWindow::initWindow(int requestedMSAASampleCount, AttachmentInfo* info, int w, int h) {
     if (fMSAASampleCount != requestedMSAASampleCount) {
         this->internalCloseWindow();
     }
@@ -123,7 +133,7 @@ void SkOSWindow::initWindow(int requestedMSAASampleCount, AttachmentInfo* info) 
         fUnixWindow.fWin = XCreateWindow(dsp,
                                          RootWindow(dsp, fVi->screen),
                                          0, 0, // x, y
-                                         WIDTH, HEIGHT,
+                                         w, h,
                                          0, // border width
                                          fVi->depth,
                                          InputOutput,
@@ -139,7 +149,7 @@ void SkOSWindow::initWindow(int requestedMSAASampleCount, AttachmentInfo* info) 
         fUnixWindow.fWin = XCreateSimpleWindow(dsp,
                                                DefaultRootWindow(dsp),
                                                0, 0,  // x, y
-                                               WIDTH, HEIGHT,
+                                               w, h,
                                                0,     // border width
                                                0,     // border value
                                                0);    // background value
@@ -350,7 +360,7 @@ static void glXSwapInterval(Display* dsp, GLXDrawable drawable, int interval) {
 
 bool SkOSWindow::attach(SkBackEndTypes, int msaaSampleCount, bool deepColor,
                         AttachmentInfo* info) {
-    this->initWindow(msaaSampleCount, info);
+    this->initWindow(msaaSampleCount, info, WIDTH, HEIGHT);
 
     if (nullptr == fUnixWindow.fDisplay) {
         return false;
