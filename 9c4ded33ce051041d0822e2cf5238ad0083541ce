@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e942d6dd_f90b3714",
+        "filename": "src/views/mac/SkOSWindow_Mac.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-27T17:07:23Z",
+      "side": 1,
+      "message": "Is this really the default we want? I know that\u0027s what was in the Unix code, but it seems like an odd size. Maybe 640x480 or 1024x768?",
+      "range": {
+        "startLine": 17,
+        "startChar": 33,
+        "endLine": 17,
+        "endChar": 36
+      },
+      "revId": "9c4ded33ce051041d0822e2cf5238ad0083541ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
