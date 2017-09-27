@@ -467,6 +467,8 @@ public:
     sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target,
                                   SkTransferFunctionBehavior premulBehavior) const;
 
+    SkMatrix mTextureMatrix;
+
 private:
     SkImage(int width, int height, uint32_t uniqueID);
     friend class SkImage_Base;

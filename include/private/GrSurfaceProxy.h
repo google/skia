@@ -382,6 +382,7 @@ protected:
 
     // For wrapped resources, 'fConfig', 'fWidth', 'fHeight', and 'fOrigin; will always be filled in
     // from the wrapped resource.
+ public:
     GrPixelConfig        fConfig;
     int                  fWidth;
     int                  fHeight;

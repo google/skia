@@ -102,7 +102,7 @@ static bool can_use_draw_texture_affine(const SkPaint& paint, const SkMatrix& ct
 static void draw_texture_affine(const SkPaint& paint, const SkMatrix& ctm, const SkRect* src,
                                 const SkRect* dst, sk_sp<GrTextureProxy> proxy,
                                 SkColorSpace* colorSpace, const GrClip& clip,
-                                GrRenderTargetContext* rtc) {
+                                GrRenderTargetContext* rtc, const SkMatrix& textureMatrix) {
     SkASSERT(!(SkToBool(src) && !SkToBool(dst)));
     SkRect srcRect = src ? *src : SkRect::MakeWH(proxy->width(), proxy->height());
     SkRect dstRect = dst ? *dst : srcRect;
@@ -130,7 +130,7 @@ static void draw_texture_affine(const SkPaint& paint, const SkMatrix& ctm, const
                             ? SkColorToPremulGrColor(paint.getColor())
                             : SkColorAlphaToGrColor(paint.getColor());
     rtc->drawTextureAffine(clip, std::move(proxy), filter, color, srcRect, dstRect, ctm,
-                           std::move(csxf));
+                           std::move(csxf), textureMatrix);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -139,10 +139,11 @@ void SkGpuDevice::drawPinnedTextureProxy(sk_sp<GrTextureProxy> proxy, uint32_t p
                                          SkColorSpace* colorSpace, SkAlphaType alphaType,
                                          const SkRect* srcRect, const SkRect* dstRect,
                                          SkCanvas::SrcRectConstraint constraint,
-                                         const SkMatrix& viewMatrix, const SkPaint& paint) {
+                                         const SkMatrix& viewMatrix, const SkPaint& paint,
+                                         const SkMatrix& textureMatrix) {
     if (can_use_draw_texture_affine(paint, this->ctm(), constraint)) {
         draw_texture_affine(paint, viewMatrix, srcRect, dstRect, std::move(proxy), colorSpace,
-                            this->clip(), fRenderTargetContext.get());
+                            this->clip(), fRenderTargetContext.get(), textureMatrix);
         return;
     }
     auto contentRect = SkIRect::MakeWH(proxy->width(), proxy->height());
@@ -165,8 +166,10 @@ void SkGpuDevice::drawTextureMaker(GrTextureMaker* maker, int imageW, int imageH
         if (!proxy) {
             return;
         }
+        SkMatrix identity;
+        identity.reset();
         draw_texture_affine(paint, viewMatrix, srcRect, dstRect, std::move(proxy), cs.get(),
-                            this->clip(), fRenderTargetContext.get());
+                            this->clip(), fRenderTargetContext.get(), identity);
         return;
     }
     this->drawTextureProducer(maker, srcRect, dstRect, constraint, viewMatrix, paint);

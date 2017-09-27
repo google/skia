@@ -8,6 +8,7 @@
 #ifndef SkMatrixPriv_DEFINE
 #define SkMatrixPriv_DEFINE
 
+#include "SkTypes.h"
 #include "SkMatrix.h"
 #include "SkNx.h"
 
