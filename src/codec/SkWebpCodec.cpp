@@ -549,7 +549,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         return kInvalidInput;
     }
 
-    int rowsDecoded;
+    int rowsDecoded = 0;
     SkCodec::Result result;
     switch (WebPIUpdate(idec, frame.fragment.bytes, frame.fragment.size)) {
         case VP8_STATUS_OK:
@@ -557,7 +557,10 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             result = kSuccess;
             break;
         case VP8_STATUS_SUSPENDED:
-            WebPIDecGetRGB(idec, &rowsDecoded, nullptr, nullptr, nullptr);
+            if (!WebPIDecGetRGB(idec, &rowsDecoded, nullptr, nullptr, nullptr)
+                    || rowsDecoded <= 0) {
+                return kInvalidInput;
+            }
             *rowsDecodedPtr = rowsDecoded + dstY;
             result = kIncompleteInput;
             break;
