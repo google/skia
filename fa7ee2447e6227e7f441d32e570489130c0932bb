@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c35e02cc_aa9f9389",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-27T16:55:32Z",
+      "side": 0,
+      "message": "I left this in the previous CL because I couldn\u0027t find an equivalent. I looked harder, and decided I needed to add two others to replace this non-existent one.",
+      "revId": "fa7ee2447e6227e7f441d32e570489130c0932bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

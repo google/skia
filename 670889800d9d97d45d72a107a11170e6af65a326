@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bfffaf7_3897821d",
+        "filename": "infra/bots/extra-builder-names.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-27T16:55:32Z",
+      "side": 1,
+      "message": "The CT recipe has tests for both 10k and 100k, but we only run tasks for 100k.",
+      "revId": "670889800d9d97d45d72a107a11170e6af65a326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f3b46f7_324c3d47",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-27T16:55:32Z",
+      "side": 1,
+      "message": "Need to restrict this to only run in test mode. Do you know how to do that?",
+      "revId": "670889800d9d97d45d72a107a11170e6af65a326",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
