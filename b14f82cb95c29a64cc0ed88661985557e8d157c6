@@ -140,6 +140,30 @@
       "revId": "b14f82cb95c29a64cc0ed88661985557e8d157c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a823122_6bb20dbc",
+        "filename": "site/dev/sheriffing/trooper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-27T15:13:17Z",
+      "side": 1,
+      "message": "Will do.",
+      "parentUuid": "7c5bf9ba_475eed5c",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 78
+      },
+      "revId": "b14f82cb95c29a64cc0ed88661985557e8d157c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
