@@ -72,14 +72,16 @@ void GrCCPRCubicProcessor::onEmitGeometryShader(GrGLSLGeometryBuilder* g, const 
     g->codeAppend ("float discr = 3*D2*D2 - 4*D1*D3;");
     if (CubicType::kSerpentine == fCubicType) {
         // This math also works out for the "cusp" and "cusp at infinity" cases.
-        g->codeAppend ("float q = 3*D2 + sign(D2) * sqrt(max(3*discr, 0));");
+        g->codeAppend ("float q = sqrt(max(3*discr, 0));");
+        g->codeAppend ("q = 3*D2 + (D2 >= 0 ? q : -q);");
         g->codeAppend ("l.ts = normalize(float2(q, 6*D1));");
         g->codeAppend ("m.ts = discr <= 0 ? l.ts : normalize(float2(2*D3, q));");
         g->codeAppend ("K = float4(0, l.s * m.s, -l.t * m.s - m.t * l.s, l.t * m.t);");
         g->codeAppend ("L = float4(-1,3,-3,1) * l.ssst * l.sstt * l.sttt;");
         g->codeAppend ("M = float4(-1,3,-3,1) * m.ssst * m.sstt * m.sttt;");
     } else {
-        g->codeAppend ("float q = D2 + sign(D2) * sqrt(max(-discr, 0));");
+        g->codeAppend ("float q = sqrt(max(-discr, 0));");
+        g->codeAppend ("q = D2 + (D2 >= 0 ? q : -q);");
         g->codeAppend ("l.ts = normalize(float2(q, 2*D1));");
         g->codeAppend ("m.ts = discr >= 0 ? l.ts : normalize(float2(2 * (D2*D2 - D3*D1), D1*q));");
         g->codeAppend ("float4 lxm = float4(l.s * m.s, l.s * m.t, l.t * m.s, l.t * m.t);");
@@ -96,7 +98,7 @@ void GrCCPRCubicProcessor::onEmitGeometryShader(GrGLSLGeometryBuilder* g, const 
                                           "M[0], M[middlerow], M[3]);", fKLMMatrix.c_str());
 
     // Orient the KLM matrix so we fill the correct side of the curve.
-    g->codeAppendf("half2 orientation = sign(half3(midpoint, 1) * half2x3(%s[1], %s[2]));",
+    g->codeAppendf("float2 orientation = sign(float3(midpoint, 1) * float2x3(%s[1], %s[2]));",
                    fKLMMatrix.c_str(), fKLMMatrix.c_str());
     g->codeAppendf("%s *= float3x3(orientation[0] * orientation[1], 0, 0, "
                                       "0, orientation[0], 0, "
