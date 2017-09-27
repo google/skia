@@ -58,32 +58,27 @@ static const size_t N = sizeof(F) / sizeof(float);
 MAYBE_MSABI
 extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t ylimit,
                                      void** program) {
-#if defined(JUMPER_IS_OFFLINE)
-    F v;    // Really no need to intialize.
-#else
-    F v{};  // Compilers tend to whine about this, so it's easiest to just zero.
-#endif
     auto start = (Stage*)load_and_inc(program);
     const size_t x0 = x;
     for (; y < ylimit; y++) {
     #if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
-        Params params = { x0,y,0, v,v,v,v };
+        Params params = { x0,y,0, 0,0,0,0 };
         while (params.x + N <= xlimit) {
-            start(&params,program, v,v,v,v);
+            start(&params,program, 0,0,0,0);
             params.x += N;
         }
         if (size_t tail = xlimit - params.x) {
             params.tail = tail;
-            start(&params,program, v,v,v,v);
+            start(&params,program, 0,0,0,0);
         }
     #else
         x = x0;
         while (x + N <= xlimit) {
-            start(0,program,x,y,    v,v,v,v, v,v,v,v);
+            start(0,program,x,y,    0,0,0,0, 0,0,0,0);
             x += N;
         }
         if (size_t tail = xlimit - x) {
-            start(tail,program,x,y, v,v,v,v, v,v,v,v);
+            start(tail,program,x,y, 0,0,0,0, 0,0,0,0);
         }
     #endif
     }
