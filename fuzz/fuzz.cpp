@@ -257,57 +257,6 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
             SkDebugf("[terminated] Success!\n");
             break;
         }
-        case 2: { //kStripe_Mode
-            const int height = decodeInfo.height();
-            // This value is chosen arbitrarily.  We exercise more cases by choosing a value that
-            // does not align with image blocks.
-            const int stripeHeight = 37;
-            const int numStripes = (height + stripeHeight - 1) / stripeHeight;
-
-            // Decode odd stripes
-            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo)
-                    || SkCodec::kTopDown_SkScanlineOrder != codec->getScanlineOrder()) {
-                // This mode was designed to test the new skip scanlines API in libjpeg-turbo.
-                // Jpegs have kTopDown_SkScanlineOrder, and at this time, it is not interesting
-                // to run this test for image types that do not have this scanline ordering.
-                SkDebugf("[terminated] Could not start top-down scanline decoder\n");
-                return;
-            }
-
-            for (int i = 0; i < numStripes; i += 2) {
-                // Skip a stripe
-                const int linesToSkip = SkTMin(stripeHeight, height - i * stripeHeight);
-                codec->skipScanlines(linesToSkip);
-
-                // Read a stripe
-                const int startY = (i + 1) * stripeHeight;
-                const int linesToRead = SkTMin(stripeHeight, height - startY);
-                if (linesToRead > 0) {
-                    codec->getScanlines(bitmap.getAddr(0, startY), linesToRead, bitmap.rowBytes());
-                }
-            }
-
-            // Decode even stripes
-            const SkCodec::Result startResult = codec->startScanlineDecode(decodeInfo);
-            if (SkCodec::kSuccess != startResult) {
-                SkDebugf("[terminated] Failed to restart scanline decoder with same parameters.\n");
-                return;
-            }
-            for (int i = 0; i < numStripes; i += 2) {
-                // Read a stripe
-                const int startY = i * stripeHeight;
-                const int linesToRead = SkTMin(stripeHeight, height - startY);
-                codec->getScanlines(bitmap.getAddr(0, startY), linesToRead, bitmap.rowBytes());
-
-                // Skip a stripe
-                const int linesToSkip = SkTMin(stripeHeight, height - (i + 1) * stripeHeight);
-                if (linesToSkip > 0) {
-                    codec->skipScanlines(linesToSkip);
-                }
-            }
-            SkDebugf("[terminated] Success!\n");
-            break;
-        }
         case 3: { //kSubset_Mode
             // Arbitrarily choose a divisor.
             int divisor = 2;
