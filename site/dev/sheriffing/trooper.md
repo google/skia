@@ -15,7 +15,7 @@ What does an Infra trooper do?
 
 The trooper has two main jobs:
 
-1) Keep an eye on Infra alerts emails (sent to infra-alerts@skia.org). The alerts are also available [here](https://alerts.skia.org/infra).
+1) Keep an eye on Infra alerts available [here](https://promalerts.skia.org/#/alerts?receiver=skiabot).
 
 2) Resolve the above alerts as they come in.
 
@@ -31,36 +31,26 @@ The banner on the top of the [status page](https://status.skia.org) also display
 How to swap trooper shifts
 --------------------------
 
-If you need to swap shifts with someone (because you are out sick or on vacation), please get approval from the person you want to swap with. Then send an email to skiabot@google.com and cc rmistry@.
+If you need to swap shifts with someone (because you are out sick or on vacation), please get approval from the person you want to swap with. Then make the change in the [cloud console](https://console.cloud.google.com/datastore/entities/query?project=skia-tree-status&organizationId=433637338589&ns=&kind=TrooperSchedules). Add a filter to find the dates you are looking for and then click on the entries you want to edit.
+
+Note: The above link can be used to update the sheriff/wrangler/robocop schedules as well.
 
 
 <a name="tips"></a>
 Tips for troopers
 -----------------
 
+- Go over the [trooper handoff doc](https://docs.google.com/document/d/1I1tB0Cv2fme4FY0lAF2gYeEbZ_0kehLIi3vf3vuPkx0/edit) to be aware of ongoing problems and any issues the previous trooper ran into. Document any notes there from your trooper week that might help the next trooper.
+
 - Make sure you are a member of
   [MDB group chrome-skia-ninja](https://ganpati.corp.google.com/#Group_Info?name=chrome-skia-ninja@prod.google.com).
   Valentine passwords and Chrome Golo access are based on membership in this
   group.
 
-- These alerts generally auto-dismiss once the criteria for the alert is no
-  longer met:
-  - Monitoring alerts, including prober, collectd, and others
-  - Disconnected build slaves
-
-- These alerts generally do not auto-dismiss ([issue here](https://bug.skia.org/4292)):
-  - Build slaves that failed a step
-  - Disconnected devices (these are detected as the "wait for device" step failing)
-
-- "Failed to execute query" may show a different query than the failing one;
-  dismiss the alert to get a new alert showing the query that is actually
-  failing. (All "failed to execute query" alerts are lumped into a single alert,
-  which is why the failed query which initially triggered the alert may not be
-  failing any more but the alert is still active because another query is
-  failing.)
+- Install the Skia trooper Chrome extension (available [here](https://chrome.google.com/webstore/a/google.com/detail/alerts-for-skia-troopers/fpljhfiomnfioecagooiekldeolcpief)) to be able to see alerts quickly in the browser.
 
 - Where machines are located:
-  - Machine name like "skia-vm-NNN", "ct-vm-NNN" -> GCE
+  - Machine name like "skia-gce-NNN", "ct-gce-NNN" -> GCE
   - Machine name ends with "a3", "a4", "m3" -> Chrome Golo
   - Machine name ends with "m5" -> CT bare-metal bots in Chrome Golo
   - Machine name starts with "skiabot-" -> Chapel Hill lab
@@ -73,15 +63,15 @@ Tips for troopers
   questions regarding bots managed by the Chrome Infra team and to get
   visibility into upstream failures that cause problems for us.
 
-- To log in to a Linux buildbot in GCE, use `gcloud compute ssh default@<machine
+- To log in to a Linux bot in GCE, use `gcloud compute ssh default@<machine
   name>`. Choose the zone listed for the
-  [GCE VM](https://pantheon.corp.google.com/project/31977622648/compute/instances)
+  [GCE VM](https://console.cloud.google.com/project/31977622648/compute/instances)
   (or specify it using the `--zone` command-line flag).
 
-- To log in to a Windows buildbot in GCE, use
+- To log in to a Windows bot in GCE, use
   [Chrome RDP Extension](https://chrome.google.com/webstore/detail/chrome-rdp/cbkkbcmdlboombapidmoeolnmdacpkch?hl=en-US)
   with the
-  [IP address of the GCE VM](https://pantheon.corp.google.com/project/31977622648/compute/instances)
+  [IP address of the GCE VM](https://console.cloud.google.com/project/31977622648/compute/instances)
   shown on the [host info page](https://status.skia.org/hosts) for that bot. The
   username is chrome-bot and the password can be found on
   [Valentine](https://valentine.corp.google.com/) as "chrome-bot (Win GCE)".
@@ -104,16 +94,5 @@ Tips for troopers
     --project=google.com:chromecompute ssh --ssh_user=default slave11-c3` (or
     use the ccompute ssh script from the infra_internal repo).
 
-- Read over the [SkiaLab documentation](../testing/skialab) for more detail on
+- Read over the [Skolo maintenance doc](https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit) for more detail on
   dealing with device alerts.
-
-- To stop a buildslave for a device, log in to the host for that device, `cd
-  ~/buildbot/<slave name>/build/slave; make stop`. To start it again,
-  `TESTING_SLAVENAME=<slave name> make start`.
-
-- Buildslaves can be slow to come up after reboot, but if the buildslave remains
-  disconnected, you may need to start it manually. On Mac and Linux, check using
-  `ps aux | grep python` that neither buildbot nor gclient are running, then run
-  `~/skiabot-slave-start-on-boot.sh`.
-
-- Sometimes iOS builds fail with 'The service is invalid'. Try rebooting the iOS host to fix this.
