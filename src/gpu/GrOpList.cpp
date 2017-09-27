@@ -9,6 +9,7 @@
 
 #include "GrContext.h"
 #include "GrPrepareCallback.h"
+#include "GrResourceProvider.h"
 #include "GrSurfaceProxy.h"
 
 #include "SkAtomics.h"
@@ -57,17 +58,23 @@ void GrOpList::reset() {
     }
 
     fTarget.reset();
-    fPrepareCallbacks.reset();
+    fDeferredProxies.reset();
     fAuditTrail = nullptr;
 }
 
-void GrOpList::addPrepareCallback(std::unique_ptr<GrPrepareCallback> callback) {
-    fPrepareCallbacks.push_back(std::move(callback));
+void GrOpList::addDeferredProxy(GrTextureProxy* proxy) {
+    fDeferredProxies.push_back(proxy);
+}
+
+void GrOpList::instantiateDeferredProxies(GrResourceProvider* resourceProvider) {
+    for (int i = 0; i < fDeferredProxies.count(); ++i) {
+        fDeferredProxies[i]->instantiate(resourceProvider);
+    }
 }
 
 void GrOpList::prepare(GrOpFlushState* flushState) {
-    for (int i = 0; i < fPrepareCallbacks.count(); ++i) {
-        (*fPrepareCallbacks[i])(flushState);
+    for (int i = 0; i < fDeferredProxies.count(); ++i) {
+        fDeferredProxies[i]->scheduleUpload(flushState);
     }
 
     this->onPrepare(flushState);
