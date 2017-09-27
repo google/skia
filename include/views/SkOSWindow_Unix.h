@@ -26,6 +26,7 @@ struct SkUnixWindow {
 class SkOSWindow : public SkWindow {
 public:
     SkOSWindow(void*);
+    SkOSWindow(void*, int width, int height);
     ~SkOSWindow() override;
 
     void* getHWND() const { return (void*)fUnixWindow.fWin; }
@@ -71,7 +72,8 @@ private:
     // Forcefully closes the window.  If a graceful shutdown is desired then call the public
     // closeWindow method
     void internalCloseWindow();
-    void initWindow(int newMSAASampleCount, AttachmentInfo* info);
+    void initWindow(int newMSAASampleCount, AttachmentInfo* info, int w, int h);
+    void init(int w, int h);
 
     SkUnixWindow fUnixWindow;
 

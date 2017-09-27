@@ -51,6 +51,13 @@ BOOL fRedrawRequestPending;
     return self;
 }
 
+- (void)setNSViewSize:(NSSize)size {
+    NSWindow* w = [self window];
+    NSRect f;
+    f.size = size;
+    [w setFrame:f display:YES];
+}
+
 - (void)setUpWindow {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                           selector:@selector(backingPropertiesChanged:)
@@ -98,7 +105,7 @@ BOOL fRedrawRequestPending;
     if (oldBackingScaleFactor == newBackingScaleFactor) {
         return;
     }
-    
+
     // TODO: need a better way to force a refresh (that works).
     // [fGLContext update] does not appear to update if the point size has not changed,
     // even if the backing size has changed.
@@ -220,7 +227,7 @@ static SkKey raw2key(UInt32 raw)
         { SK_Mac8Key,       k8_SkKey        },
         { SK_Mac9Key,       k9_SkKey        }
     };
-    
+
     for (unsigned i = 0; i < SK_ARRAY_COUNT(gKeys); i++)
         if (gKeys[i].fRaw == raw)
             return gKeys[i].fKey;
@@ -230,7 +237,7 @@ static SkKey raw2key(UInt32 raw)
 - (void)keyDown:(NSEvent *)event {
     if (NULL == fWind)
         return;
-    
+
     SkKey key = raw2key([event keyCode]);
     if (kNONE_SkKey != key)
         fWind->handleKey(key);
@@ -243,7 +250,7 @@ static SkKey raw2key(UInt32 raw)
 - (void)keyUp:(NSEvent *)event {
     if (NULL == fWind)
         return;
-    
+
     SkKey key = raw2key([event keyCode]);
     if (kNONE_SkKey != key)
         fWind->handleKeyUp(key);
@@ -305,7 +312,7 @@ static unsigned convertNSModifiersToSk(NSUInteger nsModi) {
 - (void)mouseMoved:(NSEvent *)event {
     NSPoint p = [event locationInWindow];
     unsigned modi = convertNSModifiersToSk([event modifierFlags]);
-    
+
     if ([self mouse:p inRect:[self bounds]] && fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
 #if RETINA_API_AVAILABLE
@@ -320,7 +327,7 @@ static unsigned convertNSModifiersToSk(NSUInteger nsModi) {
 - (void)mouseUp:(NSEvent *)event {
     NSPoint p = [event locationInWindow];
     unsigned modi = convertNSModifiersToSk([event modifierFlags]);
-    
+
     if ([self mouse:p inRect:[self bounds]] && fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
 #if RETINA_API_AVAILABLE
@@ -338,7 +345,7 @@ static unsigned convertNSModifiersToSk(NSUInteger nsModi) {
 static CGLContextObj createGLContext(int msaaSampleCount) {
     GLint major, minor;
     CGLGetVersion(&major, &minor);
-    
+
     static const CGLPixelFormatAttribute attributes[] = {
         kCGLPFAStencilSize, (CGLPixelFormatAttribute) 8,
         kCGLPFAAccelerated,
@@ -346,7 +353,7 @@ static CGLContextObj createGLContext(int msaaSampleCount) {
         kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
         (CGLPixelFormatAttribute)0
     };
-    
+
     CGLPixelFormatObj format;
     GLint npix = 0;
     if (msaaSampleCount > 0) {
@@ -369,7 +376,7 @@ static CGLContextObj createGLContext(int msaaSampleCount) {
     CGLContextObj ctx;
     CGLCreateContext(format, NULL, &ctx);
     CGLDestroyPixelFormat(format);
-    
+
     static const GLint interval = 1;
     CGLSetParameter(ctx, kCGLCPSwapInterval, &interval);
     CGLSetCurrentContext(ctx);
@@ -378,9 +385,9 @@ static CGLContextObj createGLContext(int msaaSampleCount) {
 
 - (void)viewDidMoveToWindow {
     [super viewDidMoveToWindow];
-    
+
     //Attaching view to fGLContext requires that the view to be part of a window,
-    //and that the NSWindow instance must have a CoreGraphics counterpart (or 
+    //and that the NSWindow instance must have a CoreGraphics counterpart (or
     //it must NOT be deferred or should have been on screen at least once)
     if ([fGLContext view] != self && nil != self.window) {
         [fGLContext setView:self];
