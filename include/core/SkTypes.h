@@ -79,27 +79,33 @@ inline void operator delete(void* p) {
     SK_API void SkDebugf(const char format[], ...);
 #endif
 
-#define SkREQUIRE_SEMICOLON_AFTER(code) do { code } while (false)
-
+// SkASSERT, SkASSERTF and SkASSERT_RELEASE can be used as stand alone assertion expressions, e.g.
+//    uint32_t foo(int x) {
+//        SkASSERT(x > 4);
+//        return x - 4;
+//    }
+// and are also written to be compatible with constexpr functions:
+//    constexpr uint32_t foo(int x) {
+//        return SkASSERT(x > 4),
+//               x - 4;
+//    }
 #define SkASSERT_RELEASE(cond) \
-    SkREQUIRE_SEMICOLON_AFTER(if (!(cond)) { SK_ABORT(#cond); } )
+        static_cast<void>( (cond) ? (void)0 : []{ SK_ABORT("assert(" #cond ")"); }() )
 
 #ifdef SK_DEBUG
-    #define SkASSERT(cond) \
-        SkREQUIRE_SEMICOLON_AFTER(if (!(cond)) { SK_ABORT("assert(" #cond ")"); })
-    #define SkASSERTF(cond, fmt, ...) \
-        SkREQUIRE_SEMICOLON_AFTER(if (!(cond)) { \
-                                      SkDebugf(fmt"\n", __VA_ARGS__); \
-                                      SK_ABORT("assert(" #cond ")"); \
-                                  })
+    #define SkASSERT(cond) SkASSERT_RELEASE(cond)
+    #define SkASSERTF(cond, fmt, ...) static_cast<void>( (cond) ? (void)0 : [&]{ \
+                                          SkDebugf(fmt"\n", __VA_ARGS__);        \
+                                          SK_ABORT("assert(" #cond ")");         \
+                                      }() )
     #define SkDEBUGFAIL(message)        SK_ABORT(message)
     #define SkDEBUGFAILF(fmt, ...)      SkASSERTF(false, fmt, ##__VA_ARGS__)
     #define SkDEBUGCODE(...)            __VA_ARGS__
     #define SkDEBUGF(args       )       SkDebugf args
     #define SkAssertResult(cond)        SkASSERT(cond)
 #else
-    #define SkASSERT(cond)
-    #define SkASSERTF(cond, fmt, ...)
+    #define SkASSERT(cond)            static_cast<void>(0)
+    #define SkASSERTF(cond, fmt, ...) static_cast<void>(0)
     #define SkDEBUGFAIL(message)
     #define SkDEBUGFAILF(fmt, ...)
     #define SkDEBUGCODE(...)
