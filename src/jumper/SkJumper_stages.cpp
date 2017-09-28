@@ -1327,21 +1327,16 @@ STAGE(xy_to_2pt_conical_linear) {
 STAGE(mask_2pt_conical_degenerates) {
     auto* c = (SkJumper_2PtConicalCtx*)ctx;
 
-    // Compute and save a mask for degenerate values.
-    U32 mask = 0xffffffff;
+    // The gradient t coordinate is in the r register right now.
+    F& t = r;
 
-    // TODO: mtklein kindly volunteered to revisit this at some point.
-#if defined(JUMPER_IS_SCALAR)
-    // The portable version is more involved, 'cause we only get one bit back.
-    mask = mask & if_then_else(mad(r, c->fDR, c->fR0) >= 0, U32(0xffffffff), U32(0)); // R(t) >= 0
-    mask = mask & if_then_else(r == r,                      U32(0xffffffff), U32(0)); // t != NaN
-#else
-    // Vector comparisons set all bits, so we can use something like this.
-    mask = mask & (mad(r, c->fDR, c->fR0) >= 0);  // R(t) >= 0
-    mask = mask & (r == r);                       // t != NaN
-#endif
+    // If t is degenerate (implies a negative radius, is NaN), clamp it to zero
+    // and save a mask to ignore those colors in apply_vector_mask.
+    auto is_degenerate = (mad(t, c->fDR, c->fR0) < 0)  // Radius(t) < 0
+                       | (t != t);                     // t == NaN
 
-    unaligned_store(&c->fMask, mask);
+    t = if_then_else(is_degenerate, F(0), t);
+    unaligned_store(&c->fMask, if_then_else(is_degenerate, U32(0), U32(0xffffffff)));
 }
 
 STAGE(apply_vector_mask) {
