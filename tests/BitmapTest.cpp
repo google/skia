@@ -218,3 +218,45 @@ DEF_TEST(Bitmap_erase_f16_erase_getColor, r) {
     }
 }
 
+#include "SkCanvas.h"
+
+class MallocPixelRef : public SkPixelRef {
+public:
+    MallocPixelRef(const SkImageInfo& info, char* storage, size_t rowBytes)
+        : SkPixelRef(info.width(), info.height(), storage, rowBytes) {
+    }
+
+    ~MallocPixelRef() override {
+        delete[] this->pixels();
+    }
+};
+
+class CustomAllocator : public SkBitmap::Allocator {
+public:
+    bool allocPixelRef(SkBitmap* bitmap) override {
+        const SkImageInfo& info = bitmap->info();
+        uint64_t rowBytes = info.minRowBytes64();
+        uint64_t size = info.height() * rowBytes;
+        char* addr = new char[size];
+        if (nullptr == addr) {
+            return false;
+        }
+        sk_sp<SkPixelRef> pr = sk_sp<SkPixelRef>(new MallocPixelRef(info, addr, rowBytes));
+        if (!pr) {
+            return false;
+        }
+        bitmap->setPixelRef(std::move(pr), 0, 0);
+        return true;
+    }
+};
+
+DEF_TEST(allocpixels, r) {
+   CustomAllocator customAllocator;
+   SkBitmap bitmap;
+   bitmap.setInfo(SkImageInfo::MakeN32(20000, 100000, kOpaque_SkAlphaType));
+   if (bitmap.tryAllocPixels(&customAllocator)) {
+       SkCanvas canvas(bitmap);
+       bitmap.eraseColor(0xff112233);
+       REPORTER_ASSERT(r, bitmap.rowBytes() >= bitmap.info().minRowBytes());
+   }
+}
