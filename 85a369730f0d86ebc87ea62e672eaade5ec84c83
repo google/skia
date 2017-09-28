@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9be9f34a_638edd63",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-28T20:07:16Z",
+      "side": 1,
+      "message": "This only returns two results out of all the possibilities in SkCodec::Result. Perhaps this should return a bool. That will simplify the calling code.",
+      "range": {
+        "startLine": 192,
+        "startChar": 0,
+        "endLine": 192,
+        "endChar": 15
+      },
+      "revId": "85a369730f0d86ebc87ea62e672eaade5ec84c83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
