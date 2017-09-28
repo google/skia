@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "75352b15_5d22f55b",
+        "filename": "src/gpu/GrOpList.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T13:45:22Z",
+      "side": 1,
+      "message": "I think this should be fine. If it becomes a problem we can always switch later.",
+      "parentUuid": "93090d45_36aa5c04",
+      "revId": "798095b67c35faa2cc227e29c4253b02239c5e3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c806509a_81f1efe1",
         "filename": "src/gpu/GrOpList.h",
         "patchSetId": 22
