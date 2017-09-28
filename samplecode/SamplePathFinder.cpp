@@ -8,6 +8,8 @@
 #include "SampleCode.h"
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
+#include "SkDOM.h"
+#include "SkSVGDOM.h"
 #include "SkOSPath.h"
 #include "SkPath.h"
 #include "SkPicture.h"
@@ -32,15 +34,30 @@ public:
         , fFilename(name) {
         SkFILEStream stream(fFilename.c_str());
         if (!stream.isValid()) {
-            SkDebugf("couldn't load picture at \"%s\"\n", fFilename.c_str());
+            SkDebugf("invalid input file at \"%s\"\n", fFilename.c_str());
             return;
         }
-        sk_sp<SkPicture> pic = SkPicture::MakeFromStream(&stream);
-        if (!pic) {
-            SkDebugf("couldn't load picture at \"%s\"\n", fFilename.c_str());
-            return;
+        if (fFilename.endsWith(".svg")) {
+            SkDOM xml;
+            if (!xml.build(stream)) {
+                SkDebugf("XML parsing failed: \"%s\"\n", fFilename.c_str());
+                return;
+            }
+            sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromDOM(xml);
+            if (!svg) {
+                SkDebugf("couldn't load svg at \"%s\"\n", fFilename.c_str());
+                return;
+            }
+            svg->setContainerSize(SkSize::Make(500, 500));
+            svg->render(this);
+        } else {
+            sk_sp<SkPicture> pic = SkPicture::MakeFromStream(&stream);
+            if (!pic) {
+                SkDebugf("couldn't load skp at \"%s\"\n", fFilename.c_str());
+                return;
+            }
+            pic->playback(this);
         }
-        pic->playback(this);
         for (int i = 0; i < FLAGS_pathfinderTrail.count(); ++i) {
             const char* key = FLAGS_pathfinderTrail[i];
             while (*key) {
