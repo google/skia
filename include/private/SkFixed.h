@@ -78,6 +78,9 @@ static inline SkFixed SkFixedCeilToFixed(SkFixed x) {
 static inline SkFixed SkFixedFloorToFixed(SkFixed x) {
     return x & 0xFFFF0000;
 }
+static inline SkFixed SkFixedFract(SkFixed x) {
+    return x - SkFixedFloorToFixed(x);
+}
 
 #define SkFixedAbs(x)       SkAbs32(x)
 #define SkFixedAve(a, b)    (((a) + (b)) >> 1)
