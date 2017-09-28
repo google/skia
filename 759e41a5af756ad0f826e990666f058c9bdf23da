@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e44137c_01486fad",
+        "filename": "samplecode/SampleChineseFling.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T18:08:02Z",
+      "side": 1,
+      "message": "// draw a consistent run of the \u0027words\u0027 - one word per line\n\n?",
+      "revId": "759e41a5af756ad0f826e990666f058c9bdf23da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f6bc4c9_068ad63a",
+        "filename": "samplecode/SampleChineseFling.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T18:08:02Z",
+      "side": 1,
+      "message": "// now \"fling\" a random amount\n\n\n?",
+      "revId": "759e41a5af756ad0f826e990666f058c9bdf23da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5b0f19b_5ba18ba9",
+        "filename": "samplecode/SampleChineseFling.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T18:08:02Z",
+      "side": 1,
+      "message": "kNumBlobs ?",
+      "revId": "759e41a5af756ad0f826e990666f058c9bdf23da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cd8c259_88a906a3",
+        "filename": "samplecode/SampleChineseFling.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T18:08:02Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "759e41a5af756ad0f826e990666f058c9bdf23da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec2403d4_20defa0f",
+        "filename": "samplecode/SampleChineseFling.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T18:08:02Z",
+      "side": 1,
+      "message": "// Construct a random 16 character \u0027word\u0027 drawing from the full Chinese set\n?\n\nAlso change the name of the function (createRandomWord) ?",
+      "revId": "759e41a5af756ad0f826e990666f058c9bdf23da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d2f6298_8b5e3e79",
+        "filename": "samplecode/SampleChineseFling.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T18:08:02Z",
+      "side": 1,
+      "message": "Can we use kNumBlobs here (or elsewhere) to preallocate?\n\nLow priority though ...",
+      "revId": "759e41a5af756ad0f826e990666f058c9bdf23da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
