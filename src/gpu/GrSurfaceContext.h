@@ -46,7 +46,6 @@ public:
      * @param src       src of pixels
      * @param srcRect   the subset of 'src' to copy
      * @param dstPoint  the origin of the 'srcRect' in the destination coordinate space
-     * @return          true if the copy succeeded; false otherwise
      *
      * Note: Notionally, 'srcRect' is clipped to 'src's extent with 'dstPoint' being adjusted.
      *       Then the 'srcRect' offset by 'dstPoint' is clipped against the dst's extent.
