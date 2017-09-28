@@ -196,7 +196,7 @@ class SkGifImageReader;
 // LocalFrame output state machine.
 class SkGIFFrameContext : public SkFrame {
 public:
-    SkGIFFrameContext(SkGifImageReader* reader, int id)
+    SkGIFFrameContext(int id)
         : INHERITED(id)
         , m_transparentPixel(SkGIFColorMap::kNotFound)
         , m_dataSize(0)
