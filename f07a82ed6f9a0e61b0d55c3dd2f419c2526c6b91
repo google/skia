@@ -22,6 +22,30 @@
       "revId": "f07a82ed6f9a0e61b0d55c3dd2f419c2526c6b91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea898106_8058a83b",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-28T13:32:24Z",
+      "side": 1,
+      "message": "\u003e Pretty much every change in this file is an unfortunate consequence.\n\u003e This gives us a rough idea of the cost of supporting out-of-bound palette indices.\n\u003e \n\u003e \n\u003e More frames are reported as having alpha, and thus go down a different code path. But didn\u0027t we already take a look and determine the CPU cost of this is negligible?\n\nI\u0027m skeptical, but the other thing to consider is that these extra frames which now have alpha fall into two categories:\n1) files like the one in the bug, which *deliberately* used a transparent index outside the palette. These are fixed by this change.\n2) files that accidentally and incorrectly specified an unused transparent index. These are wrong with no benefit, so they pay the cost.\n\nI created required.gif and alphabetAnim.gif to verify that they handled various cases correctly; they\u0027re not actual files that I expect to see in the wild. We\u0027ve changed a little bit how we treat them, but we\u0027ve basically changed files in category 2.\n\n\u003e \n\u003e Also some frames suddenly have a dependency. This means keeping those prior frames in cache. Or if they were emergency purged, re-decoding when we wouldn\u0027t have needed to.\n\u003e \n\u003e Since other frames have a dependency, we could effectively stay stable at always needing 2 frames of memory. Being able to purge when there is no prior frame required is a very temporary memory savings since the next frame may depend on this one and bring us back up to 2 frames of memory. So I\u0027m not worried about the memory usage.\n\u003e \n\u003e The case of re-decoding during emergency purge is interesting though. It has implications when skipping forward in time. For example, if we switch to another tab and switch back we need to jump forward in the animation. Previously, we could have started at the nearest non-dependent frame. But now that frame is marked as dependent. This is a pretty real cost. But I think we agreed to (and are already working on?) being more liberal with \"pausing\" animations. So this cost might already be mitigated. And a theoretical emergency purge by nature should be rare anyway.\n\u003e \n\u003e \n\u003e So I think overall I\u0027m okay with these unfortunate consequences in this file.",
+      "parentUuid": "634b3e55_16ed2ce2",
+      "range": {
+        "startLine": 91,
+        "startChar": 24,
+        "endLine": 91,
+        "endChar": 25
+      },
+      "revId": "f07a82ed6f9a0e61b0d55c3dd2f419c2526c6b91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

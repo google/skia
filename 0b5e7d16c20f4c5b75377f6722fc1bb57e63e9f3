@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c95436c2_aeb0f6b5",
+        "filename": "third_party/gif/SkGifImageReader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-28T13:32:24Z",
+      "side": 1,
+      "message": "Oops, this parameter is no longer needed.",
+      "range": {
+        "startLine": 199,
+        "startChar": 22,
+        "endLine": 199,
+        "endChar": 46
+      },
+      "revId": "0b5e7d16c20f4c5b75377f6722fc1bb57e63e9f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
