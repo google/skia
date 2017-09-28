@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e4d1bd2d_563b0b6a",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-09-28T20:13:57Z",
+      "side": 1,
+      "message": "Changed to only change offset if there is a result.",
+      "parentUuid": "13ffe7b1_f87ef093",
+      "revId": "d24a27725ecb02cd8e15f5812e6576b0cebd1d48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fff0c810_3479e377",
         "filename": "src/core/SkBlurImageFilter.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-09-28T15:54:25Z",
       "side": 1,
       "message": "Nit: are you sure this is true for GPU processing as well? The Gaussian kernel is quite fine-grained.",
+      "revId": "d24a27725ecb02cd8e15f5812e6576b0cebd1d48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "406e4422_fc92bec8",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-09-28T20:13:57Z",
+      "side": 1,
+      "message": "I have changed this for GPU. There are now separate checks for GPU and CPU.",
+      "parentUuid": "fff0c810_3479e377",
       "revId": "d24a27725ecb02cd8e15f5812e6576b0cebd1d48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -50,6 +86,24 @@
       "revId": "d24a27725ecb02cd8e15f5812e6576b0cebd1d48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c7ddab3_5860da65",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-09-28T20:13:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d433c0e5_ebd92ff9",
+      "revId": "d24a27725ecb02cd8e15f5812e6576b0cebd1d48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
