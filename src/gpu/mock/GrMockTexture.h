@@ -45,6 +45,10 @@ protected:
             , fReleaseProc(nullptr)
             , fReleaseCtx(nullptr) {}
 
+    bool onTakeBackendTextureOwnership() override {
+        return false;
+    }
+
 private:
     GrMockTextureInfo fInfo;
     ReleaseProc fReleaseProc;

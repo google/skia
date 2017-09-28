@@ -49,6 +49,8 @@ protected:
     void onAbandon() override;
     void onRelease() override;
 
+    bool onTakeBackendTextureOwnership() override;
+
 private:
     enum Wrapped { kWrapped };
     GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
