@@ -106,11 +106,21 @@ void GrCCPRGeometry::quadraticTo(const SkPoint& devP0, const SkPoint& devP1) {
         return;
     }
 
+    this->appendMonotonicQuadratics(p0, p1, p2);
+}
+
+inline void GrCCPRGeometry::appendMonotonicQuadratics(const Sk2f& p0, const Sk2f& p1,
+                                                      const Sk2f& p2, bool allowChop) {
+    SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
     Sk2f tan0 = p1 - p0;
     Sk2f tan1 = p2 - p1;
+
     // This should almost always be this case for well-behaved curves in the real world.
-    if (is_convex_curve_monotonic(p0, tan0, p2, tan1)) {
-        this->appendMonotonicQuadratic(p1, p2);
+    if (!allowChop || is_convex_curve_monotonic(p0, tan0, p2, tan1)) {
+        p1.store(&fPoints.push_back());
+        p2.store(&fPoints.push_back());
+        fVerbs.push_back(Verb::kMonotonicQuadraticTo);
+        ++fCurrContourTallies.fQuadratics;
         return;
     }
 
@@ -138,15 +148,12 @@ void GrCCPRGeometry::quadraticTo(const SkPoint& devP0, const SkPoint& devP1) {
     Sk2f p12 = SkNx_fma(t, tan1, p1);
     Sk2f p012 = lerp(p01, p12, t);
 
-    this->appendMonotonicQuadratic(p01, p012);
-    this->appendMonotonicQuadratic(p12, p2);
-}
-
-inline void GrCCPRGeometry::appendMonotonicQuadratic(const Sk2f& p1, const Sk2f& p2) {
-    p1.store(&fPoints.push_back());
+    p01.store(&fPoints.push_back());
+    p012.store(&fPoints.push_back());
+    p12.store(&fPoints.push_back());
     p2.store(&fPoints.push_back());
-    fVerbs.push_back(Verb::kMonotonicQuadraticTo);
-    ++fCurrContourTallies.fQuadratics;
+    fVerbs.push_back_n(2, Verb::kMonotonicQuadraticTo);
+    fCurrContourTallies.fQuadratics += 2;
 }
 
 using ExcludedTerm = GrPathUtils::ExcludedTerm;
@@ -252,6 +259,30 @@ static inline void calc_loop_intersect_padding_pts(float padRadius, const Sk2f& 
     }
 }
 
+static inline Sk2f first_unless_nearly_zero(const Sk2f& a, const Sk2f& b) {
+    Sk2f aa = a*a;
+    aa += SkNx_shuffle<1,0>(aa);
+    SkASSERT(aa[0] == aa[1]);
+
+    Sk2f bb = b*b;
+    bb += SkNx_shuffle<1,0>(bb);
+    SkASSERT(bb[0] == bb[1]);
+
+    return (aa > bb * SK_ScalarNearlyZero).thenElse(a, b);
+}
+
+static inline bool is_cubic_nearly_quadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                                             const Sk2f& p3, Sk2f& tan0, Sk2f& tan3, Sk2f& c) {
+    tan0 = first_unless_nearly_zero(p1 - p0, p2 - p0);
+    tan3 = first_unless_nearly_zero(p3 - p2, p3 - p1);
+
+    Sk2f c1 = SkNx_fma(Sk2f(1.5f), tan0, p0);
+    Sk2f c2 = SkNx_fma(Sk2f(-1.5f), tan3, p3);
+    c = (c1 + c2) * .5f; // Hopefully optimized out if not used?
+
+    return ((c1 - c2).abs() <= 1).allTrue();
+}
+
 void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const SkPoint& devP3,
                              float inflectPad, float loopIntersectPad) {
     SkASSERT(fBuildingContour);
@@ -273,23 +304,20 @@ void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const S
         return;
     }
 
-    double tt[2], ss[2];
-    fCurrCubicType = SkClassifyCubic(devPts, tt, ss);
-    if (SkCubicIsDegenerate(fCurrCubicType)) {
-        // Allow one subdivision in case the curve is quadratic, but not monotonic.
-        this->appendCubicApproximation(p0, p1, p2, p3, /*maxSubdivisions=*/1);
+    // Also detect near-quadratics ahead of time.
+    Sk2f tan0, tan3, c;
+    if (is_cubic_nearly_quadratic(p0, p1, p2, p3, tan0, tan3, c)) {
+        this->appendMonotonicQuadratics(p0, c, p3);
         return;
     }
 
+    double tt[2], ss[2];
+    fCurrCubicType = SkClassifyCubic(devPts, tt, ss);
+    SkASSERT(!SkCubicIsDegenerate(fCurrCubicType)); // Should have been caught above.
+
     SkMatrix CIT;
     ExcludedTerm skipTerm = GrPathUtils::calcCubicInverseTransposePowerBasisMatrix(devPts, &CIT);
-    if (ExcludedTerm::kNonInvertible == skipTerm) {
-        // This could technically also happen if the curve were a quadratic, but SkClassifyCubic
-        // should have detected that case already with tolerance.
-        p3.store(&fPoints.push_back());
-        fVerbs.push_back(Verb::kLineTo);
-        return;
-    }
+    SkASSERT(ExcludedTerm::kNonInvertible != skipTerm); // Should have been caught above.
     SkASSERT(0 == CIT[6]);
     SkASSERT(0 == CIT[7]);
     SkASSERT(1 == CIT[8]);
@@ -427,18 +455,6 @@ void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const S
                     &GrCCPRGeometry::appendMonotonicCubics>(abcd2, bcd2, cd2, p3, (T3-T2) / (1-T2));
 }
 
-static inline Sk2f first_unless_nearly_zero(const Sk2f& a, const Sk2f& b) {
-    Sk2f aa = a*a;
-    aa += SkNx_shuffle<1,0>(aa);
-    SkASSERT(aa[0] == aa[1]);
-
-    Sk2f bb = b*b;
-    bb += SkNx_shuffle<1,0>(bb);
-    SkASSERT(bb[0] == bb[1]);
-
-    return (aa > bb * SK_ScalarNearlyZero).thenElse(a, b);
-}
-
 template<GrCCPRGeometry::AppendCubicFn AppendLeftRight>
 inline void GrCCPRGeometry::chopCubicAtMidTangent(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
                                                   const Sk2f& p3, const Sk2f& tan0,
@@ -490,6 +506,7 @@ inline void GrCCPRGeometry::chopCubic(const Sk2f& p0, const Sk2f& p1, const Sk2f
 
 void GrCCPRGeometry::appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
                                            const Sk2f& p3, int maxSubdivisions) {
+    SkASSERT(maxSubdivisions >= 0);
     if ((p0 == p3).allTrue()) {
         return;
     }
@@ -521,6 +538,7 @@ void GrCCPRGeometry::appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const
 
 void GrCCPRGeometry::appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
                                               const Sk2f& p3, int maxSubdivisions) {
+    SkASSERT(maxSubdivisions >= 0);
     if ((p0 == p3).allTrue()) {
         return;
     }
@@ -535,25 +553,15 @@ void GrCCPRGeometry::appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, co
         return;
     }
 
-    Sk2f tan0 = first_unless_nearly_zero(p1 - p0, p2 - p0);
-    Sk2f tan3 = first_unless_nearly_zero(p3 - p2, p3 - p1);
-
-    Sk2f c1 = SkNx_fma(Sk2f(1.5f), tan0, p0);
-    Sk2f c2 = SkNx_fma(Sk2f(-1.5f), tan3, p3);
-
-    if (maxSubdivisions) {
-        bool nearlyQuadratic = ((c1 - c2).abs() <= 1).allTrue();
-
-        if (!nearlyQuadratic || !is_convex_curve_monotonic(p0, tan0, p3, tan3)) {
-            this->chopCubicAtMidTangent<&GrCCPRGeometry::appendCubicApproximation>(p0, p1, p2, p3,
-                                                                                   tan0, tan3,
-                                                                                 maxSubdivisions-1);
-            return;
-        }
+    Sk2f tan0, tan3, c;
+    if (!is_cubic_nearly_quadratic(p0, p1, p2, p3, tan0, tan3, c) && maxSubdivisions) {
+        this->chopCubicAtMidTangent<&GrCCPRGeometry::appendCubicApproximation>(p0, p1, p2, p3,
+                                                                               tan0, tan3,
+                                                                               maxSubdivisions - 1);
+        return;
     }
 
-    SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
-    this->appendMonotonicQuadratic((c1 + c2) * .5f, p3);
+    this->appendMonotonicQuadratics(p0, c, p3, SkToBool(maxSubdivisions));
 }
 
 GrCCPRGeometry::PrimitiveTallies GrCCPRGeometry::endContour() {

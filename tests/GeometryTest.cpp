@@ -215,10 +215,10 @@ static void check_cubic_type(skiatest::Reporter* reporter,
 static void test_classify_cubic(skiatest::Reporter* reporter) {
     check_cubic_type(reporter, {{{149.325f, 107.705f}, {149.325f, 103.783f},
                                  {151.638f, 100.127f}, {156.263f, 96.736f}}},
-                     SkCubicType::kQuadratic);
+                     SkCubicType::kSerpentine);
     check_cubic_type(reporter, {{{225.694f, 223.15f}, {209.831f, 224.837f},
                                  {195.994f, 230.237f}, {184.181f, 239.35f}}},
-                     SkCubicType::kQuadratic);
+                     SkCubicType::kSerpentine);
     check_cubic_type(reporter, {{{4.873f, 5.581f}, {5.083f, 5.2783f},
                                  {5.182f, 4.8593f}, {5.177f, 4.3242f}}},
                      SkCubicType::kSerpentine);
