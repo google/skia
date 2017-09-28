@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4be4393_df6d679d",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T13:13:07Z",
+      "side": 1,
+      "message": "All right, between Greg\u0027s setMipMapsAsValid call and these guys I think we need a GrTextureProxyPriv.\n\n// Add dox ??",
+      "revId": "798095b67c35faa2cc227e29c4253b02239c5e3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff4c3d1f_2e0a982a",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T13:13:07Z",
+      "side": 1,
+      "message": "// It allows ... ?",
+      "revId": "798095b67c35faa2cc227e29c4253b02239c5e3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e9f91e6_2aa0040a",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T13:13:07Z",
+      "side": 1,
+      "message": "// Ensure that all ...\n\n?",
+      "revId": "798095b67c35faa2cc227e29c4253b02239c5e3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93090d45_36aa5c04",
+        "filename": "src/gpu/GrOpList.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T13:13:07Z",
+      "side": 1,
+      "message": "Hmm - I need to think about this",
+      "revId": "798095b67c35faa2cc227e29c4253b02239c5e3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c806509a_81f1efe1",
+        "filename": "src/gpu/GrOpList.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T13:13:07Z",
+      "side": 1,
+      "message": "// ??",
+      "revId": "798095b67c35faa2cc227e29c4253b02239c5e3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70066152_1872c2e3",
+        "filename": "src/gpu/GrPrepareCallback.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T13:13:07Z",
+      "side": 1,
+      "message": "*payload",
+      "revId": "798095b67c35faa2cc227e29c4253b02239c5e3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
