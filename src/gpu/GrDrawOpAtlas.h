@@ -195,6 +195,8 @@ public:
         int count = updater.fPlotsToUpdate.count();
         for (int i = 0; i < count; i++) {
             const BulkUseTokenUpdater::PlotData& pd = updater.fPlotsToUpdate[i];
+            // it's possible we've added a plot to the updater and subsequently the plot's page
+            // was deleted -- so we check to prevent a crash
             if (pd.fPageIndex < fNumPages) {
                 Plot* plot = fPages[pd.fPageIndex].fPlotArray[pd.fPlotIndex].get();
                 this->makeMRU(plot, pd.fPageIndex);
@@ -342,7 +344,11 @@ private:
     bool createNewPage();
     void deleteLastPage();
 
-    inline void processEviction(AtlasID);
+    void processEviction(AtlasID);
+    inline void processEvictionAndResetRects(Plot* plot) {
+        this->processEviction(plot->id());
+        plot->resetRects();
+    }
 
     GrContext*            fContext;
     GrPixelConfig         fPixelConfig;
