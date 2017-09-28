@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1651520b_c2ba128e",
+        "filename": "samplecode/SamplePathFinder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-28T13:22:00Z",
+      "side": 1,
+      "message": "path file? Or maybe just \"invalid input file at\"",
+      "range": {
+        "startLine": 37,
+        "startChar": 36,
+        "endLine": 37,
+        "endChar": 44
+      },
+      "revId": "9099b834153b750a2d608e4ee5f962254a2fff82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
