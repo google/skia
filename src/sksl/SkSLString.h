@@ -51,6 +51,10 @@ struct StringFragment {
     size_t fLength;
 };
 
+bool operator==(const char* s1, StringFragment s2);
+
+bool operator!=(const char* s1, StringFragment s2);
+
 class String : public SKSL_STRING_BASE {
 public:
     String() = default;
