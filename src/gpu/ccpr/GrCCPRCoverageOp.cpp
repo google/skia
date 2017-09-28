@@ -81,9 +81,8 @@ inline void AccumulatingViewMatrix::getAccumulatedBounds(SkRect* devBounds,
     devBounds45->setLTRB(topLeft[2], topLeft[3], bottomRight[2], bottomRight[3]);
 }
 
-void GrCCPRCoverageOpsBuilder::parsePath(const SkMatrix& viewMatrix,
-                                         const SkPath& path, SkRect* devBounds,
-                                         SkRect* devBounds45) {
+void GrCCPRCoverageOpsBuilder::parsePath(const SkMatrix& viewMatrix, const SkPath& path,
+                                         SkRect* devBounds, SkRect* devBounds45) {
     SkASSERT(!fParsingPath);
     SkDEBUGCODE(fParsingPath = true);
 
@@ -93,12 +92,16 @@ void GrCCPRCoverageOpsBuilder::parsePath(const SkMatrix& viewMatrix,
 
     fGeometry.beginPath();
 
+    if (path.isEmpty()) {
+        devBounds->setEmpty();
+        devBounds45->setEmpty();
+        return;
+    }
+
     const SkPoint* const pts = SkPathPriv::PointData(path);
     int ptsIdx = 0;
     bool insideContour = false;
 
-    SkASSERT(!path.isEmpty());
-    SkASSERT(path.countPoints() > 0);
     AccumulatingViewMatrix m(viewMatrix, pts[0]);
 
     for (SkPath::Verb verb : SkPathPriv::Verbs(path)) {
