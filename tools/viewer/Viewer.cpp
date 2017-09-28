@@ -918,7 +918,7 @@ bool Viewer::onMouse(float x, float y, Window::InputState state, uint32_t modifi
 }
 
 void Viewer::drawStats(SkCanvas* canvas) {
-    static const float kPixelPerMS = 2.0f;
+    static const float kPixelPerMS = 1.0f;
     static const int kDisplayWidth = 130;
     static const int kDisplayHeight = 100;
     static const int kDisplayPadding = 10;
