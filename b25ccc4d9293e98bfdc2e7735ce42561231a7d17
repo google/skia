@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd126988_5f5f922a",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-28T15:25:46Z",
+      "side": 1,
+      "message": "I have a philosophical problem here in that I think size_t should only be used for the size of memory allocations. Also, won\u0027t this be only 32 bits on a 32-bit architecture?",
+      "range": {
+        "startLine": 257,
+        "startChar": 8,
+        "endLine": 257,
+        "endChar": 15
+      },
+      "revId": "b25ccc4d9293e98bfdc2e7735ce42561231a7d17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
