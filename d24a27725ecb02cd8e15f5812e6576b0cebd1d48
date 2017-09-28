@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13ffe7b1_f87ef093",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-09-28T15:54:25Z",
+      "side": 1,
+      "message": "Nit: technically, we\u0027re not supposed to touch the offset outparam if onFilterImage() returns nullptr. But I\u0027m not sure we\u0027re rigorous about it anyway.",
+      "revId": "d24a27725ecb02cd8e15f5812e6576b0cebd1d48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fff0c810_3479e377",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-09-28T15:54:25Z",
+      "side": 1,
+      "message": "Nit: are you sure this is true for GPU processing as well? The Gaussian kernel is quite fine-grained.",
+      "revId": "d24a27725ecb02cd8e15f5812e6576b0cebd1d48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d433c0e5_ebd92ff9",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-09-28T15:54:25Z",
+      "side": 1,
+      "message": "Nit: I think we prefer \"GPU\" and \"CPU\" now over \"hardware\" and \"software\" (the CPU is hardware and the GPU runs software, too).",
+      "revId": "d24a27725ecb02cd8e15f5812e6576b0cebd1d48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
