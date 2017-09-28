@@ -858,7 +858,7 @@ void SkGifImageReader::addFrameIfNecessary()
 {
     if (m_frames.empty() || m_frames.back()->isComplete()) {
         const int i = m_frames.count();
-        m_frames.emplace_back(new SkGIFFrameContext(this, i));
+        m_frames.emplace_back(new SkGIFFrameContext(i));
     }
 }
 
