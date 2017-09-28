@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a38c1c5_7b69662a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2040,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-09-28T18:58:47Z",
+      "side": 1,
+      "message": "You might have to remove this too.",
+      "range": {
+        "startLine": 2040,
+        "startChar": 49,
+        "endLine": 2040,
+        "endChar": 86
+      },
+      "revId": "94807db8db0d80e6e620bdfcad42e9ee2fa10fc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
