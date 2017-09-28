@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b877a91f_07a2a80e",
+        "filename": "src/gpu/ccpr/GrCCPRGeometry.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T17:53:25Z",
+      "side": 1,
+      "message": "nit do we want to be more explicit that this is a bool now? maxSubdivisions \u003e 0",
+      "range": {
+        "startLine": 564,
+        "startChar": 47,
+        "endLine": 564,
+        "endChar": 62
+      },
+      "revId": "fcda0ff58f988e57c53302ec064b98d2eb25ec48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
