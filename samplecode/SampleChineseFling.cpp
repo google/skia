@@ -25,13 +25,6 @@ static void make_paint(SkPaint* paint, sk_sp<SkTypeface> typeface) {
   paint->setTextEncoding(SkPaint::kUTF32_TextEncoding);
 }
 
-static void get_unicode_row(SkUnichar base, SkUnichar glyphs[16]) {
-    for (int i = 0x0; i <= 0xF; ++i) {
-        glyphs[i] = base;
-        glyphs[i] |= i;
-    }
-}
-
 static sk_sp<SkTypeface> chinese_typeface() {
 #ifdef SK_BUILD_FOR_ANDROID
     return MakeResourceAsTypeface("/fonts/NotoSansCJK-Regular.ttc");
@@ -50,7 +43,7 @@ static sk_sp<SkTypeface> chinese_typeface() {
 
 class ChineseFlingView : public SampleView {
 public:
-    ChineseFlingView() {}
+    ChineseFlingView() : fBlobs(kNumBlobs) {}
 
 protected:
     bool onQuery(SkEvent* evt) override {
@@ -72,19 +65,28 @@ protected:
         SkPaint paint;
         make_paint(&paint, fTypeface);
 
+        // draw a consistent run of the 'words' - one word per line
+        int index = fIndex;
         for (SkScalar y = 0.0f; y < 1024.0f; ) {
-            int index = fRand.nextRangeU(0, fBlobs.count()-1);
 
             y += -fMetrics.fAscent;
             canvas->drawTextBlob(fBlobs[index], 0, y, paint);
 
             y += fMetrics.fDescent + fMetrics.fLeading;
+            ++index;
+            index %= fBlobs.count();
         }
+        // now "fling" a random amount
+        fIndex += fRand.nextRangeU(5, 20);
+        fIndex %= fBlobs.count();
 
         this->inval(nullptr);
     }
 
 private:
+    static constexpr auto kNumBlobs = 200;
+    static constexpr auto kWordLength = 16;
+
     void init() {
         fTypeface = chinese_typeface();
 
@@ -93,18 +95,24 @@ private:
 
         paint.getFontMetrics(&fMetrics);
 
-        SkUnichar glyphs[16];
-
-        for (int32_t i = 0x4F00; i < 0x9FA0; i += 0x10) {
-
-            get_unicode_row(i, glyphs);
+        SkUnichar glyphs[kWordLength];
+        for (int32_t i = 0; i < kNumBlobs; ++i) {
+            this->createRandomWord(glyphs);
 
             SkTextBlobBuilder builder;
-
-            sk_tool_utils::add_to_text_blob_w_len(&builder, (const char*) glyphs, 16*4, paint,
-                                                  0, 0);
+            sk_tool_utils::add_to_text_blob_w_len(&builder, (const char*) glyphs, kWordLength*4,
+                                                  paint, 0, 0);
 
             fBlobs.emplace_back(builder.make());
+        }
+
+        fIndex = 0;
+    }
+
+    // Construct a random kWordLength character 'word' drawing from the full Chinese set
+    void createRandomWord(SkUnichar glyphs[kWordLength]) {
+        for (int i = 0; i < kWordLength; ++i) {
+            glyphs[i] = fRand.nextRangeU(0x4F00, 0x9FA0);
         }
     }
 
@@ -113,6 +121,7 @@ private:
     SkPaint::FontMetrics        fMetrics;
     SkTArray<sk_sp<SkTextBlob>> fBlobs;
     SkRandom                    fRand;
+    int                         fIndex;
 
     typedef SkView INHERITED;
 };
