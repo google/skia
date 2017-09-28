@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4cedc219_9ce8a7e2",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "f02d87be_0254788c",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9a8be8a6_7f509596",
         "filename": "src/gpu/GrBitmapTextureMaker.cpp",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "f9d5ca83_1018877f",
+        "filename": "src/gpu/GrBitmapTextureMaker.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a8be8a6_7f509596",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1252178_d1712643",
         "filename": "src/gpu/GrTextureProxy.cpp",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2017-09-28T12:35:39Z",
       "side": 1,
       "message": "This would be cooler in GrTextureProxyPriv",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05205ccb_d89b5a65",
+        "filename": "src/gpu/GrTextureProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "f1252178_d1712643",
       "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "7b39aaa8_ad547fa1",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "52e32c73_324efe70",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ee864e64_d1a8bc6e",
         "filename": "src/gpu/SkGr.h",
         "patchSetId": 4
@@ -81,6 +153,24 @@
       "writtenOn": "2017-09-28T12:35:39Z",
       "side": 1,
       "message": "// comment on skipBaseMipLevel ?",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "504ad2c0_175f91c4",
+        "filename": "src/gpu/SkGr.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "ee864e64_d1a8bc6e",
       "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "f720511b_514c49f0",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1083,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ada8cd53_e7b1dee0",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "464fe068_1a2343a2",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 4
@@ -118,6 +226,24 @@
       "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0511aacc_abed80a5",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "464fe068_1a2343a2",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "2e2ee679_0094df70",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6327e5aa_dcf2dc70",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a2fdb71b_c07d9f81",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 4
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "19d94073_5020e697",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1181,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2fdb71b_c07d9f81",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e72c2c53_0de2477e",
         "filename": "src/gpu/ops/GrCopySurfaceOp.h",
         "patchSetId": 4
@@ -166,6 +328,24 @@
       "writtenOn": "2017-09-28T12:35:39Z",
       "side": 1,
       "message": "// comment here on markMipsAsValid ?",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65b10725_9735c4bc",
+        "filename": "src/gpu/ops/GrCopySurfaceOp.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "e72c2c53_0de2477e",
       "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "e59f7cd5_7df7eb84",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 1,
+      "message": "Yes, they can be different. If we have 1 level we allow uploading a sub region. For mipped stuff we require that we\u0027re always uploading to the full levels",
+      "parentUuid": "d1c02c1c_b01b6c27",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "316f5b9d_140c7a74",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 4
@@ -203,6 +401,24 @@
       "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6e4dd4d_04fe8441",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "316f5b9d_140c7a74",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

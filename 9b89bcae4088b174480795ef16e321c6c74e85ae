@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ed88f754_7211aaa8",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 0,
+      "message": "I added a check in SurfaceProxy that restricts us to the different cases we talked about.",
+      "parentUuid": "665cfc97_f84b28d7",
+      "revId": "9b89bcae4088b174480795ef16e321c6c74e85ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "878668a8_c1687cff",
         "filename": "src/gpu/GrSurfaceProxy.cpp",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-09-28T12:35:39Z",
       "side": 0,
       "message": "Shouldn\u0027t this check be fine?",
+      "revId": "9b89bcae4088b174480795ef16e321c6c74e85ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94aad028_485279f2",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 0,
+      "message": "ahh yes, I was thinking it was checking for the pixels",
+      "parentUuid": "878668a8_c1687cff",
       "revId": "9b89bcae4088b174480795ef16e321c6c74e85ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "e0e974b2_dcbd4710",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 0,
+      "message": "changed to just allow the cases we support",
+      "parentUuid": "74b1af05_1c1c8945",
+      "revId": "9b89bcae4088b174480795ef16e321c6c74e85ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "db0226c1_fca35de6",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 4
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "d7f3380b_e6d6db74",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1036,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 0,
+      "message": "I\u0027m leaving the backends to support arbitrary things, but I\u0027m guarding this now up in SurfaceProxy so we only get into states we like",
+      "parentUuid": "db0226c1_fca35de6",
+      "revId": "9b89bcae4088b174480795ef16e321c6c74e85ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "827a4348_8765ebb1",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 4
@@ -81,6 +153,24 @@
       "writtenOn": "2017-09-28T12:35:39Z",
       "side": 0,
       "message": "Skip 0 ?",
+      "revId": "9b89bcae4088b174480795ef16e321c6c74e85ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9510b5b7_9f47ec43",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T14:26:27Z",
+      "side": 0,
+      "message": "Leaving the backends to be able uploading arbitrary, but restricting what gets sent down here at the surfaceProxy",
+      "parentUuid": "827a4348_8765ebb1",
       "revId": "9b89bcae4088b174480795ef16e321c6c74e85ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
