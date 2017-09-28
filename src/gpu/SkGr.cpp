@@ -10,7 +10,6 @@
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
@@ -217,51 +216,6 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
                                               mipLevelCount,
                                               colorMode);
 }
-
-sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx,
-                                                     GrTextureProxy* baseProxy,
-                                                     SkColorSpace* dstColorSpace) {
-    SkASSERT(baseProxy);
-
-    SkDestinationSurfaceColorMode colorMode = dstColorSpace
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
-
-    // SkMipMap doesn't include the base level in the level count so we have to add 1
-    int mipLevelCount = SkMipMap::ComputeLevelCount(baseProxy->width(), baseProxy->height()) + 1;
-
-    std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
-
-    // We don't want to upload any texel data
-    for (int i = 0; i < mipLevelCount; i++) {
-        texels[i].fPixels = nullptr;
-        texels[i].fRowBytes = 0;
-    }
-
-    GrSurfaceDesc desc;
-    desc.fFlags = kNone_GrSurfaceFlags;
-    desc.fOrigin = baseProxy->origin();
-    desc.fWidth = baseProxy->width();
-    desc.fHeight = baseProxy->height();
-    desc.fConfig = baseProxy->config();
-    desc.fSampleCnt = 0;
-
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferredMipMap(ctx->resourceProvider(),
-                                                                     desc,
-                                                                     SkBudgeted::kYes, texels.get(),
-                                                                     mipLevelCount, colorMode);
-    if (!proxy) {
-        return nullptr;
-    }
-
-    // Copy the base layer to our proxy
-    sk_sp<GrSurfaceContext> sContext = ctx->contextPriv().makeWrappedSurfaceContext(proxy, nullptr);
-    SkASSERT(sContext);
-    SkAssertResult(sContext->copy(baseProxy));
-
-    return proxy;
-}
-
 
 sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext* ctx, const SkImageInfo& info,
                                                    const GrMipLevel texels[],

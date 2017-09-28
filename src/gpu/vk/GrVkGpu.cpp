@@ -661,6 +661,10 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin,
         memcpy(texelsShallowCopy.get(), texels, mipLevelCount*sizeof(GrMipLevel));
     }
 
+    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; ++currentMipLevel) {
+        SkASSERT(texelsShallowCopy[currentMipLevel].fPixels);
+    }
+
     // Determine whether we need to flip when we copy into the buffer
     bool flipY = (kBottomLeft_GrSurfaceOrigin == texOrigin && mipLevelCount);
 
@@ -669,10 +673,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin,
     size_t combinedBufferSize = width * bpp * height;
     int currentWidth = width;
     int currentHeight = height;
-    if (mipLevelCount > 0  && !texelsShallowCopy[0].fPixels) {
-        combinedBufferSize = 0;
-    }
-
     // The alignment must be at least 4 bytes and a multiple of the bytes per pixel of the image
     // config. This works with the assumption that the bytes in pixel config is always a power of 2.
     SkASSERT((bpp & (bpp - 1)) == 0);
@@ -681,21 +681,13 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin,
         currentWidth = SkTMax(1, currentWidth/2);
         currentHeight = SkTMax(1, currentHeight/2);
 
-        if (texelsShallowCopy[currentMipLevel].fPixels) {
-            const size_t trimmedSize = currentWidth * bpp * currentHeight;
-            const size_t alignmentDiff = combinedBufferSize & alignmentMask;
-            if (alignmentDiff != 0) {
-                combinedBufferSize += alignmentMask - alignmentDiff + 1;
-            }
-            individualMipOffsets.push_back(combinedBufferSize);
-            combinedBufferSize += trimmedSize;
-        } else {
-            individualMipOffsets.push_back(0);
+        const size_t trimmedSize = currentWidth * bpp * currentHeight;
+        const size_t alignmentDiff = combinedBufferSize & alignmentMask;
+        if (alignmentDiff != 0) {
+           combinedBufferSize += alignmentMask - alignmentDiff + 1;
         }
-    }
-    if (0 == combinedBufferSize) {
-        // We don't actually have any data to upload so just return success
-        return true;
+        individualMipOffsets.push_back(combinedBufferSize);
+        combinedBufferSize += trimmedSize;
     }
 
     // allocate buffer to hold our mip data
@@ -712,36 +704,35 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin,
     currentHeight = height;
     int layerHeight = tex->height();
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        if (texelsShallowCopy[currentMipLevel].fPixels) {
-            SkASSERT(1 == mipLevelCount || currentHeight == layerHeight);
-            const size_t trimRowBytes = currentWidth * bpp;
-            const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes
-                                    ? texelsShallowCopy[currentMipLevel].fRowBytes
-                                    : trimRowBytes;
+        SkASSERT(1 == mipLevelCount || currentHeight == layerHeight);
+        const size_t trimRowBytes = currentWidth * bpp;
+        const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes ?
+                                texelsShallowCopy[currentMipLevel].fRowBytes :
+                                trimRowBytes;
 
-            // copy data into the buffer, skipping the trailing bytes
-            char* dst = buffer + individualMipOffsets[currentMipLevel];
-            const char* src = (const char*)texelsShallowCopy[currentMipLevel].fPixels;
-            if (flipY) {
-                src += (currentHeight - 1) * rowBytes;
-                for (int y = 0; y < currentHeight; y++) {
-                    memcpy(dst, src, trimRowBytes);
-                    src -= rowBytes;
-                    dst += trimRowBytes;
-                }
-            } else {
-                SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
+        // copy data into the buffer, skipping the trailing bytes
+        char* dst = buffer + individualMipOffsets[currentMipLevel];
+        const char* src = (const char*)texelsShallowCopy[currentMipLevel].fPixels;
+        if (flipY) {
+            src += (currentHeight - 1) * rowBytes;
+            for (int y = 0; y < currentHeight; y++) {
+                memcpy(dst, src, trimRowBytes);
+                src -= rowBytes;
+                dst += trimRowBytes;
             }
-
-            VkBufferImageCopy& region = regions.push_back();
-            memset(&region, 0, sizeof(VkBufferImageCopy));
-            region.bufferOffset = transferBuffer->offset() + individualMipOffsets[currentMipLevel];
-            region.bufferRowLength = currentWidth;
-            region.bufferImageHeight = currentHeight;
-            region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1 };
-            region.imageOffset = { left, flipY ? layerHeight - top - currentHeight : top, 0 };
-            region.imageExtent = { (uint32_t)currentWidth, (uint32_t)currentHeight, 1 };
+        } else {
+            SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
         }
+
+        VkBufferImageCopy& region = regions.push_back();
+        memset(&region, 0, sizeof(VkBufferImageCopy));
+        region.bufferOffset = transferBuffer->offset() + individualMipOffsets[currentMipLevel];
+        region.bufferRowLength = currentWidth;
+        region.bufferImageHeight = currentHeight;
+        region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1 };
+        region.imageOffset = { left, flipY ? layerHeight - top - currentHeight : top, 0 };
+        region.imageExtent = { (uint32_t)currentWidth, (uint32_t)currentHeight, 1 };
+
         currentWidth = SkTMax(1, currentWidth/2);
         currentHeight = SkTMax(1, currentHeight/2);
         layerHeight = currentHeight;
@@ -831,6 +822,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
     }
 
     if (mipLevelCount) {
+        SkASSERT(texels[0].fPixels);
         if (!this->uploadTexDataOptimal(tex.get(), desc.fOrigin, 0, 0, desc.fWidth, desc.fHeight,
                                         desc.fConfig, texels, mipLevelCount)) {
             tex->unref();
