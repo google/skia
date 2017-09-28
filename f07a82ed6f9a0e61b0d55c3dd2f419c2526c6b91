@@ -46,6 +46,30 @@
       "revId": "f07a82ed6f9a0e61b0d55c3dd2f419c2526c6b91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2a47bb3_dd2787d7",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2017-09-28T17:31:40Z",
+      "side": 1,
+      "message": "Your description of the impact is perfect!\n\nI got worried when I saw how much of the tests had to change. But the tests are designed to pull out these edge cases.\n\nAt the end of the day, category 2 is the only thing that will actually be impacted. And that is SURELY rare.",
+      "parentUuid": "ea898106_8058a83b",
+      "range": {
+        "startLine": 91,
+        "startChar": 24,
+        "endLine": 91,
+        "endChar": 25
+      },
+      "revId": "f07a82ed6f9a0e61b0d55c3dd2f419c2526c6b91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

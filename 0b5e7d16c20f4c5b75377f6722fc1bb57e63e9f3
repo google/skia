@@ -22,6 +22,30 @@
       "revId": "0b5e7d16c20f4c5b75377f6722fc1bb57e63e9f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6684854b_432c9dbf",
+        "filename": "third_party/gif/SkGifImageReader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2017-09-28T17:31:40Z",
+      "side": 1,
+      "message": "Good catch.\nI made a patch for this here: https://skia-review.googlesource.com/c/skia/+/52602",
+      "parentUuid": "c95436c2_aeb0f6b5",
+      "range": {
+        "startLine": 199,
+        "startChar": 22,
+        "endLine": 199,
+        "endChar": 46
+      },
+      "revId": "0b5e7d16c20f4c5b75377f6722fc1bb57e63e9f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
