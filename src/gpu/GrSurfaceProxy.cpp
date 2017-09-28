@@ -302,20 +302,12 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
         }
         return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, budgeted, nullptr, 0);
     } else if (1 == mipLevelCount) {
-        if (!texels) {
-            return nullptr;
-        }
         return resourceProvider->createTextureProxy(desc, budgeted, texels[0]);
     }
 
-    for (int i = 0; i < mipLevelCount; ++i) {
-        if (!texels[i].fPixels) {
-            return nullptr;
-        }
-    }
-
     sk_sp<GrTexture> tex(resourceProvider->createTexture(desc, budgeted,
-                                                         texels, mipLevelCount, mipColorMode));
+                                                         texels, mipLevelCount,
+                                                         mipColorMode));
     if (!tex) {
         return nullptr;
     }
