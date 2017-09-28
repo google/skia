@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c755b594_e9775c9c",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-28T18:44:41Z",
+      "side": 1,
+      "message": "Nit: 2017",
+      "range": {
+        "startLine": 4,
+        "startChar": 12,
+        "endLine": 4,
+        "endChar": 16
+      },
+      "revId": "7f87840be848b4a420ef90d700747dacd98ac95c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "880ad757_aeccd51c",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-28T18:44:41Z",
+      "side": 1,
+      "message": "Nit: 2-space indent",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 4
+      },
+      "revId": "7f87840be848b4a420ef90d700747dacd98ac95c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d8d44cd_fa389f60",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-28T18:44:41Z",
+      "side": 1,
+      "message": "Nit 2 lines between top level elements",
+      "revId": "7f87840be848b4a420ef90d700747dacd98ac95c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38a2b7b2_dc1d71f2",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-28T18:44:41Z",
+      "side": 1,
+      "message": "Nit: 2-space indent",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 4
+      },
+      "revId": "7f87840be848b4a420ef90d700747dacd98ac95c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

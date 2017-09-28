@@ -284,6 +284,30 @@
     },
     {
       "key": {
+        "uuid": "dd352a0e_e3b7ed89",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-28T18:44:41Z",
+      "side": 1,
+      "message": "Ok, my reasoning was to ensure that the spin thread did not keep running in the background.  But yeah, if added to self.threads, then the spin thread would never finish as written, since len(self.threads) would never hit zero.  I think I\u0027d still prefer to do ts.join() after this.threads \u003d [] just so that we\u0027re sure we don\u0027t move on until it exits, but as long as it\u0027s a daemon it doesn\u0027t matter.",
+      "parentUuid": "372c2eac_dc8b2cbc",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 24
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51d5ab62_b7ce432e",
         "filename": "tools/calmbench/ab.py",
         "patchSetId": 11
@@ -319,6 +343,30 @@
       "side": 1,
       "message": "I still have to clear the array since I have to keep track of how many threads are running?",
       "parentUuid": "51d5ab62_b7ce432e",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 138,
+        "endChar": 25
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f0a37f8_efff43f7",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-28T18:44:41Z",
+      "side": 1,
+      "message": "Sorry, I was confused and for some reason thinking that each thread was popping itself from the list.",
+      "parentUuid": "a270f54c_9fab347c",
       "range": {
         "startLine": 138,
         "startChar": 0,
