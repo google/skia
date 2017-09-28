@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c38e1df6_5f5b3295",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 7769
+      },
+      "writtenOn": "2017-09-28T08:03:32Z",
+      "side": 1,
+      "message": "Not sure exactly what you had in mind... but I\u0027ve added a constexpr function with a goal to remove the Macro, and implemented things in terms of that.",
+      "parentUuid": "3c834808_ca836d2a",
+      "range": {
+        "startLine": 31,
+        "startChar": 22,
+        "endLine": 31,
+        "endChar": 42
+      },
+      "revId": "7ee4dacf98344adb42d5362dc33252d1147b181b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8005fd02_d3c89eda",
         "filename": "include/core/SkColor.h",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "81efb0d5_8b843576",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 7769
+      },
+      "writtenOn": "2017-09-28T08:03:32Z",
+      "side": 1,
+      "message": "Interestingly (?) Skia builds add -Wno-conversion to its command line which turns off these warnings for regular functions. (Confusingly -Wconversion isn\u0027t on by default, -Wconstant-conversion IS on by default, -Wno-conversion ensures they are both off). This isn\u0027t true when skia is build as part of Chrome.\n\nHowever, the compiler will still warn about truncation that happens in template parameters regardless of -Wno-conversion, so you\u0027re right :). Here we can use uint8_t and make the static_asserts redundant.",
+      "parentUuid": "8005fd02_d3c89eda",
+      "range": {
+        "startLine": 45,
+        "startChar": 10,
+        "endLine": 45,
+        "endChar": 15
+      },
+      "revId": "7ee4dacf98344adb42d5362dc33252d1147b181b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1d1eb3ce_5aede267",
         "filename": "include/core/SkColor.h",
         "patchSetId": 5
@@ -59,6 +107,24 @@
       "writtenOn": "2017-09-25T12:39:27Z",
       "side": 1,
       "message": "Can these not just be constexpr functions?  What\u0027s with the template indirection?",
+      "revId": "7ee4dacf98344adb42d5362dc33252d1147b181b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ccdd9b8_0b5dce24",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 7769
+      },
+      "writtenOn": "2017-09-28T08:03:32Z",
+      "side": 1,
+      "message": "The template is necessary to ensure the arguments are compile-time constants -- you can still call constexpr methods with non-const arguments, and it will call it like a regular function. (There was talk in the C++ standards committee about being able to \"overload\" functions based on whether the arguments were constexpr, but they decided against it -- constexpr isn\u0027t allowed to be specified on function arguments).\n\nAlso, it\u0027s not possible to guarantee the truncation warning if the arguments are not guaranteed to be compile time constants, even if the function is declared constexpr and the arguments are uint8_t. E.g. the following will not warn\n\n constexpr SkColor SkColorSetARGBConstexpr(uint8_t a, ...);  // SkColor.h\n extern const int kMyAlpha;  // my_constants.h \n const int kMyAlpha \u003d 500;  // my_constants.cc  (of course.. SkAlpha would warn here)\n SkColor c \u003d SkColorSetARGBConstexpr(kMyAlpha, ...);  // no warnings\n\n\nI\u0027ve updated the function documentation for this and others to clarify.",
+      "parentUuid": "1d1eb3ce_5aede267",
       "revId": "7ee4dacf98344adb42d5362dc33252d1147b181b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
