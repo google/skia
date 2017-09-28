@@ -17,8 +17,8 @@
 #endif
 
 static void test_bitmap_equality(skiatest::Reporter* reporter, SkBitmap& bm1, SkBitmap& bm2) {
-    REPORTER_ASSERT(reporter, bm1.getSize() == bm2.getSize());
-    REPORTER_ASSERT(reporter, 0 == memcmp(bm1.getPixels(), bm2.getPixels(), bm1.getSize()));
+    REPORTER_ASSERT(reporter, bm1.computeByteSize() == bm2.computeByteSize());
+    REPORTER_ASSERT(reporter, 0 == memcmp(bm1.getPixels(), bm2.getPixels(), bm1.computeByteSize()));
 }
 
 static void paint_source(SkSurface* sourceSurface) {
