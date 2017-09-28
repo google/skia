@@ -301,21 +301,36 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
             return nullptr;
         }
         return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, budgeted, nullptr, 0);
-    } else if (1 == mipLevelCount) {
-        if (!texels) {
+    }
+    if (!texels) {
+        return nullptr;
+    }
+
+    bool emptyLevelData = (nullptr == texels[0].fPixels);
+    // We only allow three states in terms of the mip data we upload. Either every level has data,
+    // no levels have data, or all but the frist levels have data.
+    for (int i = 1; i < mipLevelCount; ++i) {
+        if (!texels[i].fPixels && !emptyLevelData) {
             return nullptr;
         }
+        if (texels[i].fPixels && emptyLevelData) {
+            if (i > 1) {
+                return nullptr;
+            } else {
+                // The first level was empty but the second was not. This is fine as long as no
+                // other levels are empty.
+                emptyLevelData = false;
+            }
+        }
+    }
+
+    if (1 == mipLevelCount) {
         return resourceProvider->createTextureProxy(desc, budgeted, texels[0]);
     }
 
-    for (int i = 0; i < mipLevelCount; ++i) {
-        if (!texels[i].fPixels) {
-            return nullptr;
-        }
-    }
-
     sk_sp<GrTexture> tex(resourceProvider->createTexture(desc, budgeted,
-                                                         texels, mipLevelCount, mipColorMode));
+                                                         texels, mipLevelCount,
+                                                         mipColorMode));
     if (!tex) {
         return nullptr;
     }
