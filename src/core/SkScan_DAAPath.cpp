@@ -150,13 +150,12 @@ public:
 };
 
 template<class Deltas> static SK_ALWAYS_INLINE
-void gen_alpha_deltas(const SkPath& path, const SkRegion& clipRgn, Deltas& result,
+void gen_alpha_deltas(const SkPath& path, const SkIRect& clipBounds, Deltas& result,
         SkBlitter* blitter, bool skipRect, bool pathContainedInClip) {
     // 1. Build edges
     SkEdgeBuilder builder;
     SkIRect ir               = path.getBounds().roundOut();
-    const SkIRect& clipRect  = clipRgn.getBounds();
-    int  count               = builder.build_edges(path, &clipRect, 0, pathContainedInClip,
+    int  count               = builder.build_edges(path, &clipBounds, 0, pathContainedInClip,
                                                    SkEdgeBuilder::kBezier);
     if (count == 0) {
         return;
@@ -266,7 +265,7 @@ void gen_alpha_deltas(const SkPath& path, const SkRegion& clipRgn, Deltas& resul
             if (lowerCeil <= upperFloor + SK_Fixed1) { // only one row is affected by the currE
                 SkFixed rowHeight = currE->fLowerY - currE->fUpperY;
                 SkFixed nextX = currE->fX + SkFixedMul(currE->fDX, rowHeight);
-                if (iy >= clipRect.fTop && iy < clipRect.fBottom) {
+                if (iy >= clipBounds.fTop && iy < clipBounds.fBottom) {
                     add_coverage_delta_segment<true>(iy, rowHeight, currE, nextX, &result);
                 }
                 continue;
@@ -305,7 +304,8 @@ void gen_alpha_deltas(const SkPath& path, const SkRegion& clipRgn, Deltas& resul
             }
 
             // last partial row
-            if (SkIntToFixed(iy) < currE->fLowerY && iy >= clipRect.fTop && iy < clipRect.fBottom) {
+            if (SkIntToFixed(iy) < currE->fLowerY &&
+                    iy >= clipBounds.fTop && iy < clipBounds.fBottom) {
                 rowHeight = currE->fLowerY - SkIntToFixed(iy);
                 nextX = currE->fX + SkFixedMul(currE->fDX, rowHeight);
                 add_coverage_delta_segment<true>(iy, rowHeight, currE, nextX, &result);
@@ -319,12 +319,11 @@ void SkScan::DAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
                          bool forceRLE) {
 
     FillPathFunc fillPathFunc = [](const SkPath& path, SkBlitter* blitter, bool isInverse,
-            const SkIRect& ir, const SkRegion* clipRgn, const SkIRect* clipRect, bool forceRLE){
+            const SkIRect& ir, const SkIRect& clipBounds, bool containedInClip, bool forceRLE){
         bool isEvenOdd  = path.getFillType() & 1;
         bool isConvex   = path.isConvex();
         bool skipRect   = isConvex && !isInverse;
 
-        const SkIRect& clipBounds = clipRgn->getBounds();
         SkIRect clippedIR = ir;
         clippedIR.intersect(clipBounds);
 
@@ -345,12 +344,12 @@ void SkScan::DAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
         // Everything before can be done out of order in the threaded backend.
         if (!forceRLE && !isInverse && SkCoverageDeltaMask::Suitable(clippedIR)) {
             SkCoverageDeltaMask deltaMask(&alloc, clippedIR);
-            gen_alpha_deltas(path, *clipRgn, deltaMask, blitter, skipRect, clipRect == nullptr);
+            gen_alpha_deltas(path, clipBounds, deltaMask, blitter, skipRect, containedInClip);
             deltaMask.convertCoverageToAlpha(isEvenOdd, isInverse, isConvex);
             blitter->blitMask(deltaMask.prepareSkMask(), clippedIR);
         } else {
             SkCoverageDeltaList deltaList(&alloc, clippedIR.fTop, clippedIR.fBottom, forceRLE);
-            gen_alpha_deltas(path, *clipRgn, deltaList, blitter, skipRect, clipRect == nullptr);
+            gen_alpha_deltas(path, clipBounds, deltaList, blitter, skipRect, containedInClip);
             blitter->blitCoverageDeltas(&deltaList, clipBounds, isEvenOdd, isInverse, isConvex);
         }
     };
