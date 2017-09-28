@@ -29,6 +29,9 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig
     return atlas;
 }
 
+#ifdef DUMP_ATLAS_DATA
+static bool gDumpAtlasData = false;
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -129,6 +132,8 @@ void GrDrawOpAtlas::Plot::resetRects() {
 
     fGenID++;
     fID = CreateId(fPageIndex, fPlotIndex, fGenID);
+    fLastUpload = GrDrawOpUploadToken::AlreadyFlushedToken();
+    fLastUse = GrDrawOpUploadToken::AlreadyFlushedToken();
 
     // zero out the plot
     if (fData) {
@@ -162,10 +167,11 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width
     this->createNewPage();
 }
 
-void GrDrawOpAtlas::processEviction(AtlasID id) {
+inline void GrDrawOpAtlas::processEviction(AtlasID id) {
     for (int i = 0; i < fEvictionCallbacks.count(); i++) {
         (*fEvictionCallbacks[i].fFunc)(id, fEvictionCallbacks[i].fData);
     }
+    ++fAtlasGeneration;
 }
 
 inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plot* plot) {
@@ -240,15 +246,13 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
         SkASSERT(plot);
         if ((fNumPages == kMaxPages && target->hasDrawBeenFlushed(plot->lastUseToken())) ||
             plot->flushesSinceLastUsed() >= kRecentlyUsedCount) {
-            this->processEviction(plot->id());
-            plot->resetRects();
+            this->processEvictionAndResetRects(plot);
             SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
             SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc);
             SkASSERT(verify);
             if (!this->updatePlot(target, id, plot)) {
                 return false;
             }
-            fAtlasGeneration++;
             return true;
         }
     }
@@ -319,7 +323,6 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
 
     *id = newPlot->id();
 
-    fAtlasGeneration++;
     return true;
 }
 
@@ -356,6 +359,11 @@ void GrDrawOpAtlas::compact(GrDrawOpUploadToken startTokenForNextFlush) {
         // For all plots but the last one, update number of flushes since used, and check to see
         // if there are any in the first pages that the last page can safely upload to.
         for (uint32_t pageIndex = 0; pageIndex < lastPageIndex; ++pageIndex) {
+#ifdef DUMP_ATLAS_DATA
+            if (gDumpAtlasData) {
+                SkDebugf("page %d: ", pageIndex);
+            }
+#endif
             plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
             while (Plot* plot = plotIter.get()) {
                 // Update number of flushes since plot was last used
@@ -366,6 +374,11 @@ void GrDrawOpAtlas::compact(GrDrawOpUploadToken startTokenForNextFlush) {
                     plot->incFlushesSinceLastUsed();
                 }
 
+#ifdef DUMP_ATLAS_DATA
+                if (gDumpAtlasData) {
+                    SkDebugf("%d ", plot->flushesSinceLastUsed());
+                }
+#endif
                 // Count plots we can potentially upload to in all pages except the last one
                 // (the potential compactee).
                 if (plot->flushesSinceLastUsed() > kRecentlyUsedCount) {
@@ -374,6 +387,11 @@ void GrDrawOpAtlas::compact(GrDrawOpUploadToken startTokenForNextFlush) {
 
                 plotIter.next();
             }
+#ifdef DUMP_ATLAS_DATA
+            if (gDumpAtlasData) {
+                SkDebugf("\n");
+            }
+#endif
         }
 
         // Count recently used plots in the last page and evict them if there's available space
@@ -381,12 +399,22 @@ void GrDrawOpAtlas::compact(GrDrawOpUploadToken startTokenForNextFlush) {
         // clear out usage of this page unless we have a large need.
         plotIter.init(fPages[lastPageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
         int usedPlots = 0;
+#ifdef DUMP_ATLAS_DATA
+        if (gDumpAtlasData) {
+            SkDebugf("page %d: ", lastPageIndex);
+        }
+#endif
         while (Plot* plot = plotIter.get()) {
             // Update number of flushes since plot was last used
             if (!plot->lastUseToken().inInterval(fPrevFlushToken, startTokenForNextFlush)) {
                 plot->incFlushesSinceLastUsed();
             }
 
+#ifdef DUMP_ATLAS_DATA
+            if (gDumpAtlasData) {
+                SkDebugf("%d ", plot->flushesSinceLastUsed());
+            }
+#endif
             // If this plot was used recently
             if (plot->flushesSinceLastUsed() <= kRecentlyUsedCount) {
                 usedPlots++;
@@ -394,20 +422,27 @@ void GrDrawOpAtlas::compact(GrDrawOpUploadToken startTokenForNextFlush) {
                 // We need to be somewhat harsh here so that one plot that is consistently in use
                 // doesn't end up locking the page in memory.
                 if (availablePlots) {
-                    this->processEviction(plot->id());
-                    plot->resetRects();
+                    this->processEvictionAndResetRects(plot);
                     --availablePlots;
                 }
-            } else {
+            } else if (plot->lastUseToken() != GrDrawOpUploadToken::AlreadyFlushedToken()) {
                 // otherwise if aged out just evict it.
-                this->processEviction(plot->id());
-                plot->resetRects();
+                this->processEvictionAndResetRects(plot);
             }
             plotIter.next();
         }
-
+#ifdef DUMP_ATLAS_DATA
+        if (gDumpAtlasData) {
+            SkDebugf("\n");
+        }
+#endif
         // If none of the plots in the last page have been used recently, delete it.
         if (!usedPlots) {
+#ifdef DUMP_ATLAS_DATA
+            if (gDumpAtlasData) {
+                SkDebugf("delete %d\n", fNumPages-1);
+            }
+#endif
             this->deleteLastPage();
         }
     }
@@ -464,6 +499,11 @@ bool GrDrawOpAtlas::createNewPage() {
         }
     }
 
+#ifdef DUMP_ATLAS_DATA
+    if (gDumpAtlasData) {
+        SkDebugf("created %d\n", fNumPages);
+    }
+#endif
     fNumPages++;
     return true;
 }
