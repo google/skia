@@ -221,7 +221,6 @@ void GrRenderTargetOpList::fullClear(const GrCaps& caps, GrColor color) {
     // buffer we will need a more elaborate tracking system (skbug.com/7002).
     if (this->isEmpty() || !fTarget.get()->asRenderTargetProxy()->needsStencil()) {
         fRecordedOps.reset();
-        fDeferredProxies.reset();
         fColorLoadOp = GrLoadOp::kClear;
         fLoadClearColor = color;
         return;
