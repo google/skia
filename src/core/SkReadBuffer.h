@@ -164,12 +164,17 @@ public:
     virtual bool readScalarArray(SkScalar* values, size_t size);
 
     sk_sp<SkData> readByteArrayAsData() {
-        size_t len = this->getArrayCount();
-        if (!this->validateAvailable(len)) {
+        auto len = this->getArrayCount();
+        // validateAvailable needs to account for the count itself.
+        size_t bytesNeeded = len + sizeof(len);
+        if (!this->validate(bytesNeeded > len) || !this->validateAvailable(bytesNeeded)) {
             return SkData::MakeEmpty();
         }
         void* buffer = sk_malloc_throw(len);
-        this->readByteArray(buffer, len);
+        if (!this->readByteArray(buffer, len)) {
+            sk_free(buffer);
+            return SkData::MakeEmpty();
+        }
         return SkData::MakeFromMalloc(buffer, len);
     }
 
