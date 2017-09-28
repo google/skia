@@ -46,7 +46,7 @@ PATH_PREFIX_TO_EXTRA_TRYBOTS = {
       'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD'),
     'include/private/SkAtomics.h': ('skia.primary:'
       'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN,'
-      'Test-Ubuntu14-Clang-Golo-GPU-GT610-x86_64-Release-TSAN'
+      'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-TSAN'
     ),
 
     # Below are examples to show what is possible with this feature.
