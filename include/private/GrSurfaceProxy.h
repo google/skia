@@ -332,8 +332,8 @@ public:
     SkDEBUGCODE(void validate(GrContext*) const;)
 
     // Provides access to functions that aren't part of the public API.
-    GrSurfaceProxyPriv priv();
-    const GrSurfaceProxyPriv priv() const;
+    inline GrSurfaceProxyPriv priv();
+    inline const GrSurfaceProxyPriv priv() const;
 
 protected:
     // Deferred version

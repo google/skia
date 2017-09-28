@@ -15,6 +15,7 @@ class GrCaps;
 class GrResourceCache;
 class GrResourceProvider;
 class GrTextureOpList;
+class GrTextureProxyPriv;
 
 // This class delays the acquisition of textures until they are actually required
 class GrTextureProxy : virtual public GrSurfaceProxy {
@@ -61,6 +62,10 @@ public:
     class CacheAccess;
     inline CacheAccess cacheAccess();
     inline const CacheAccess cacheAccess() const;
+
+    // Provides access to special purpose functions.
+    GrTextureProxyPriv texPriv();
+    const GrTextureProxyPriv texPriv() const;
 
 protected:
     friend class GrSurfaceProxy; // for ctors
