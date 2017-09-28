@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d407259f_f692c3ec",
+        "filename": "src/gpu/ccpr/GrCCPRGeometry.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T13:08:52Z",
+      "side": 1,
+      "message": "is it not true that if (!is_convex_curve_monotonic) then maxSubdivisions \u003e 0? If so I don\u0027t see why the additional check is needed here.",
+      "range": {
+        "startLine": 120,
+        "startChar": 9,
+        "endLine": 120,
+        "endChar": 73
+      },
+      "revId": "31d56c3b57f464b19d963df26a552dbd23a8c653",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a23a5fed_f1fe5453",
+        "filename": "src/gpu/ccpr/GrCCPRGeometry.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T13:08:52Z",
+      "side": 1,
+      "message": "you dropped the monotonic check here. I this intentional?",
+      "range": {
+        "startLine": 558,
+        "startChar": 8,
+        "endLine": 558,
+        "endChar": 85
+      },
+      "revId": "31d56c3b57f464b19d963df26a552dbd23a8c653",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
