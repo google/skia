@@ -165,11 +165,11 @@ public:
 
     sk_sp<SkData> readByteArrayAsData() {
         size_t len = this->getArrayCount();
-        if (!this->validateAvailable(len)) {
+        void* buffer = sk_malloc_throw(len);
+        if (!this->readByteArray(buffer, len)) {
+            sk_free(buffer);
             return SkData::MakeEmpty();
         }
-        void* buffer = sk_malloc_throw(len);
-        this->readByteArray(buffer, len);
         return SkData::MakeFromMalloc(buffer, len);
     }
 

@@ -38,6 +38,7 @@
 #include "SkTableColorFilter.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
+#include "Resources.h"
 #include "Test.h"
 #include "sk_tool_utils.h"
 
@@ -1715,6 +1716,18 @@ DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
     SkCanvas canvas(bm);
     canvas.drawRect(SkRect::MakeWH(10, 10), paint);
     REPORTER_ASSERT(reporter, *bm.getAddr32(0, 0) == SkPreMultiplyColor(SK_ColorGREEN));
+}
+
+DEF_TEST(ImageFilterImageSourceUninitialized, r) {
+    sk_sp<SkData> data(GetResourceAsData("crbug769134.fil"));
+    if (!data) {
+        return;
+    }
+    sk_sp<SkImageFilter> unflattenedFilter = SkValidatingDeserializeImageFilter(data->data(),
+                                                                                data->size());
+    // This will fail. More importantly, msan will verify that we did not
+    // compare against uninitialized memory.
+    REPORTER_ASSERT(r, !unflattenedFilter);
 }
 
 static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas) {
