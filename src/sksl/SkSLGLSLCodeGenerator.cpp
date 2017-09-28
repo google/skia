@@ -7,8 +7,6 @@
 
 #include "SkSLGLSLCodeGenerator.h"
 
-#include "GLSL.std.450.h"
-
 #include "SkSLCompiler.h"
 #include "ir/SkSLExpressionStatement.h"
 #include "ir/SkSLExtension.h"
@@ -779,6 +777,9 @@ void GLSLCodeGenerator::writeTypePrecision(const Type& type) {
 }
 
 void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {
+    if (global) {
+        printf("global variables! %s\n", decl.description().c_str());
+    }
     ASSERT(decl.fVars.size() > 0);
     bool wroteType = false;
     for (const auto& stmt : decl.fVars) {

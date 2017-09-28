@@ -66,6 +66,8 @@ public:
 
     bool toGLSL(const Program& program, String* out);
 
+    bool toMetal(const Program& program, OutputStream& out);
+
     bool toCPP(const Program& program, String name, OutputStream& out);
 
     bool toH(const Program& program, String name, OutputStream& out);
