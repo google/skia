@@ -13,6 +13,7 @@
 #include "GrGpuCommandBuffer.h"
 #include "SkMakeUnique.h"
 #include "SkMatrix.h"
+#include "SkPathOps.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTargetOpList.h"
 #include "GrStyle.h"
@@ -99,17 +100,27 @@ GrCoverageCountingPathRenderer::DrawPathsOp::DrawPathsOp(GrCoverageCountingPathR
     SkDEBUGCODE(fBaseInstance = -1);
     SkDEBUGCODE(fDebugInstanceCount = 1;)
     SkDEBUGCODE(fDebugSkippedInstances = 0;)
-
     GrRenderTargetContext* const rtc = args.fRenderTargetContext;
 
     SkRect devBounds;
     args.fViewMatrix->mapRect(&devBounds, args.fShape->bounds());
-
     args.fClip->getConservativeBounds(rtc->width(), rtc->height(), &fHeadDraw.fClipBounds, nullptr);
+    if (SkTMax(devBounds.height(), devBounds.width()) > (1 << 16)) {
+        // This path is too large. We need to crop it or risk running out of fp32 precision for
+        // analytic AA.
+        SkPath cropPath, path;
+        devBounds = SkRect::Make(fHeadDraw.fClipBounds);
+        cropPath.addRect(devBounds);
+        args.fShape->asPath(&path);
+        path.transform(*args.fViewMatrix);
+        fHeadDraw.fMatrix.setIdentity();
+        SkAssertResult(Op(cropPath, path, kIntersect_SkPathOp, &fHeadDraw.fPath));
+    } else {
+        fHeadDraw.fMatrix = *args.fViewMatrix;
+        args.fShape->asPath(&fHeadDraw.fPath);
+    }
     fHeadDraw.fScissorMode = fHeadDraw.fClipBounds.contains(devBounds) ?
                              ScissorMode::kNonScissored : ScissorMode::kScissored;
-    fHeadDraw.fMatrix = *args.fViewMatrix;
-    args.fShape->asPath(&fHeadDraw.fPath);
     fHeadDraw.fColor = color; // Can't call args.fPaint.getColor() because it has been std::move'd.
 
     // FIXME: intersect with clip bounds to (hopefully) improve batching.
