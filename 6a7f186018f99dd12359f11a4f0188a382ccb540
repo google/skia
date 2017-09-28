@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2bb2fccd_a9d45530",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "All done except timesA and timesB.",
+      "parentUuid": "8b16a99f_77abefa8",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 12
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "34bacab4_78c95ccf",
         "filename": "tools/calmbench/ab.py",
         "patchSetId": 11
@@ -45,6 +69,30 @@
       "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32d4e2c7_ea204f85",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34bacab4_78c95ccf",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 4
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "f55248c0_46c4c317",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f47bf553_3e2f38ca",
+      "range": {
+        "startLine": 79,
+        "startChar": 26,
+        "endLine": 81,
+        "endChar": 1
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7b23870b_3b4aaf77",
         "filename": "tools/calmbench/ab.py",
         "patchSetId": 11
@@ -91,6 +163,30 @@
       "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a40020a_9ffaa94b",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b23870b_3b4aaf77",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 43
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "e333f070_10c5b522",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4777f8ee_0a0d39c8",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 72
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d31b6207_61ce7fec",
         "filename": "tools/calmbench/ab.py",
         "patchSetId": 11
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "372c2eac_dc8b2cbc",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "I can delete ts.daemon \u003d True but I don\u0027t think that I should append it to threads. The threads array is specifically for test threads. This spin thread is mostly sleeping.",
+      "parentUuid": "d31b6207_61ce7fec",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 24
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51d5ab62_b7ce432e",
         "filename": "tools/calmbench/ab.py",
         "patchSetId": 11
@@ -151,6 +295,30 @@
       "writtenOn": "2017-09-27T18:07:59Z",
       "side": 1,
       "message": "Not necessary if we do as suggested above.",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 138,
+        "endChar": 25
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a270f54c_9fab347c",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "I still have to clear the array since I have to keep track of how many threads are running?",
+      "parentUuid": "51d5ab62_b7ce432e",
       "range": {
         "startLine": 138,
         "startChar": 0,
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "bf37de89_acc4d259",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c229cc33_6fd525ad",
+      "range": {
+        "startLine": 141,
+        "startChar": 0,
+        "endLine": 141,
+        "endChar": 18
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "479232c1_982ccb6c",
         "filename": "tools/calmbench/ab.py",
         "patchSetId": 11
@@ -206,6 +398,30 @@
       "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a86923ae_260e34ab",
+        "filename": "tools/calmbench/ab.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "479232c1_982ccb6c",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 58
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -232,6 +448,30 @@
     },
     {
       "key": {
+        "uuid": "f6964c04_43b3ddfa",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af95b9cc_3556c7d9",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 46
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "01b0983f_a5e8150b",
         "filename": "tools/calmbench/calmbench.py",
         "patchSetId": 11
@@ -252,6 +492,54 @@
       "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f117a352_5988e9c7",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "01b0983f_a5e8150b",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 5
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "203399df_fdf79155",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "01b0983f_a5e8150b",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 5
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -278,6 +566,30 @@
     },
     {
       "key": {
+        "uuid": "a1e12384_1fcb4fe2",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6b05d6a_267f14c1",
+      "range": {
+        "startLine": 114,
+        "startChar": 4,
+        "endLine": 114,
+        "endChar": 26
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ea83dc02_0efe89c0",
         "filename": "tools/calmbench/calmbench.py",
         "patchSetId": 11
@@ -301,6 +613,30 @@
     },
     {
       "key": {
+        "uuid": "6ab0b8c8_247e2430",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea83dc02_0efe89c0",
+      "range": {
+        "startLine": 121,
+        "startChar": 19,
+        "endLine": 121,
+        "endChar": 23
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1914d7eb_ebebb442",
         "filename": "tools/calmbench/calmbench.py",
         "patchSetId": 11
@@ -312,6 +648,54 @@
       "writtenOn": "2017-09-27T18:07:59Z",
       "side": 1,
       "message": "Have you noticed the child process not being killed when KeyboardInterrupt occurs?  AFAIK, as long as the process group id is the same (ie. you didn\u0027t use shell\u003dTrue), then all children should get interrupted as well, and subprocess.check_call(...) should work.",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 16
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed7990fd_10cc86db",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "Great, check_call solves the problem! I think that I was using call and it didn\u0027t kill the child processes.",
+      "parentUuid": "1914d7eb_ebebb442",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 16
+      },
+      "revId": "6a7f186018f99dd12359f11a4f0188a382ccb540",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83d3d561_e0d1ae2e",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-09-28T18:12:59Z",
+      "side": 1,
+      "message": "It seems that it still fails to kill all the child processes even if I only used subprocess.check_call without shell\u003dTrue",
+      "parentUuid": "1914d7eb_ebebb442",
       "range": {
         "startLine": 157,
         "startChar": 0,
