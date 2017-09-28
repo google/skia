@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39df3635_e8d20076",
+        "filename": "src/core/SkReadBuffer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-09-28T18:38:06Z",
+      "side": 1,
+      "message": "As discussed in person, this is leaking the implementation of readByteArray. readByteArray already does the appropriate checks, so just rely on it.\n\nWe may end up with more cases of this extra malloc (on bad data), but that is okay.",
+      "range": {
+        "startLine": 168,
+        "startChar": 8,
+        "endLine": 168,
+        "endChar": 67
+      },
+      "revId": "26ee8309a900b13f7e0edcfbf6827af43a365969",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
