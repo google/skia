@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "665cfc97_f84b28d7",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 0,
+      "message": "Do we rather just want to allow the first level to be null but require all the others ?",
+      "revId": "9b89bcae4088b174480795ef16e321c6c74e85ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "878668a8_c1687cff",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 0,
+      "message": "Shouldn\u0027t this check be fine?",
+      "revId": "9b89bcae4088b174480795ef16e321c6c74e85ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74b1af05_1c1c8945",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 0,
+      "message": "Just skip 0 ?",
+      "revId": "9b89bcae4088b174480795ef16e321c6c74e85ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db0226c1_fca35de6",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1036,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 0,
+      "message": "Just allow the first one to be null ?",
+      "revId": "9b89bcae4088b174480795ef16e321c6c74e85ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "827a4348_8765ebb1",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 0,
+      "message": "Skip 0 ?",
+      "revId": "9b89bcae4088b174480795ef16e321c6c74e85ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

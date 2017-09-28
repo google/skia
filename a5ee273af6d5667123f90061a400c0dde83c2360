@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f02d87be_0254788c",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 1,
+      "message": "// ?",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a8be8a6_7f509596",
+        "filename": "src/gpu/GrBitmapTextureMaker.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 1,
+      "message": "// In this case we are stealing the key from the original proxy which should only happen when we have just generated mipmaps for an originally unmipped proxy/texture. This means that all future uses of the key will access the mipmapped version. The texture backing the unmipped version will remain in the resource cache until the last texture proxy referencing it is deleted at which time it too will be deleted or recycled.\n\n?",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1252178_d1712643",
+        "filename": "src/gpu/GrTextureProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 1,
+      "message": "This would be cooler in GrTextureProxyPriv",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52e32c73_324efe70",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 1,
+      "message": "Can this not be done up above when we first set texels[0].fPixels ?",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee864e64_d1a8bc6e",
+        "filename": "src/gpu/SkGr.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 1,
+      "message": "// comment on skipBaseMipLevel ?",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ada8cd53_e7b1dee0",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1083,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 1,
+      "message": "What\u0027s up with this variable name ... ?",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "464fe068_1a2343a2",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 1,
+      "message": "and this one too ?",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6327e5aa_dcf2dc70",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 1,
+      "message": "Maybe put the \u0027?\u0027 \u0026 \u0027:\u0027 at the start of the lines too ?",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2fdb71b_c07d9f81",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1181,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 1,
+      "message": "Put a continue at the start of the loop like in all the other places ?",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e72c2c53_0de2477e",
+        "filename": "src/gpu/ops/GrCopySurfaceOp.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 1,
+      "message": "// comment here on markMipsAsValid ?",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1c02c1c_b01b6c27",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 1,
+      "message": "Is layerHeight doing something currentHeight can\u0027t do ?",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "316f5b9d_140c7a74",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T12:35:39Z",
+      "side": 1,
+      "message": "\u0027?\u0027 \u0026 \u0027:\u0027 at start of lines ?",
+      "revId": "a5ee273af6d5667123f90061a400c0dde83c2360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
