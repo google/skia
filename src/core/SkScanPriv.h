@@ -135,7 +135,7 @@ static inline bool TryBlitFatAntiRect(SkBlitter* blitter, const SkPath& path, co
 }
 
 using FillPathFunc = std::function<void(const SkPath& path, SkBlitter* blitter, bool isInverse,
-        const SkIRect& ir, const SkRegion* clipRgn, const SkIRect* clipRect, bool forceRLE)>;
+        const SkIRect& ir, const SkIRect& clipBounds, bool containedInClip, bool forceRLE)>;
 
 static inline void do_fill_path(const SkPath& path, const SkRegion& origClip, SkBlitter* blitter,
         bool forceRLE, const int SHIFT, FillPathFunc fillPathFunc) {
@@ -216,7 +216,7 @@ static inline void do_fill_path(const SkPath& path, const SkRegion& origClip, Sk
 
     SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
 
-    fillPathFunc(path, blitter, isInverse, ir, clipRgn, clipRect, forceRLE);
+    fillPathFunc(path, blitter, isInverse, ir, clipRgn->getBounds(), clipRect == nullptr, forceRLE);
 
     if (isInverse) {
         sk_blit_below(blitter, ir, *clipRgn);
