@@ -303,21 +303,36 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
             return nullptr;
         }
         return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, budgeted, nullptr, 0);
-    } else if (1 == mipLevelCount) {
-        if (!texels) {
-            return nullptr;
-        }
+    }
+    if (!texels) {
+        return nullptr;
+    }
+
+    if (1 == mipLevelCount) {
         return resourceProvider->createTextureProxy(desc, budgeted, texels[0]);
     }
 
-    for (int i = 0; i < mipLevelCount; ++i) {
-        if (!texels[i].fPixels) {
-            return nullptr;
+#ifdef SK_DEBUG
+    // There are only three states we want to be in when uploading data to a mipped surface.
+    // 1) We have data to upload to all layers
+    // 2) We are not uploading data to any layers
+    // 3) We are only uploading data to the base layer
+    // We check here to make sure we do not have any other state.
+    bool firstLevelHasData = SkToBool(texels[0].fPixels);
+    bool allOtherLevelsHaveData = true, allOtherLevelsLackData = true;
+    for  (int i = 1; i < mipLevelCount; ++i) {
+        if (texels[i].fPixels) {
+            allOtherLevelsLackData = false;
+        } else {
+            allOtherLevelsHaveData = false;
         }
     }
+    SkASSERT((firstLevelHasData && allOtherLevelsHaveData) || allOtherLevelsLackData);
+#endif
 
     sk_sp<GrTexture> tex(resourceProvider->createTexture(desc, budgeted,
-                                                         texels, mipLevelCount, mipColorMode));
+                                                         texels, mipLevelCount,
+                                                         mipColorMode));
     if (!tex) {
         return nullptr;
     }
