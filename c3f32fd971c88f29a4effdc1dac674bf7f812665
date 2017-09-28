@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22098e6a_b3263f89",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-28T16:57:49Z",
+      "side": 1,
+      "message": "How hard would it be to add a presubmit check which verifies that all of these exist in jobs.json?  It\u0027d have to run when either PRESUBMIT.py or jobs.json changes.\n\nFor that matter, I don\u0027t know that we have anything checking whether infra/branch-config/cq.cfg actually uses valid job names either.",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 67
+      },
+      "revId": "c3f32fd971c88f29a4effdc1dac674bf7f812665",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
