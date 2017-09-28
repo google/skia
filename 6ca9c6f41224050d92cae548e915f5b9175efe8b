@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d3f0c2c_a319e883",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T11:43:48Z",
+      "side": 1,
+      "message": "I know you\u0027re going to probably fix this some other way but, failing that a comment here would be good.",
+      "revId": "6ca9c6f41224050d92cae548e915f5b9175efe8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
