@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e4f349be_ddd5a13d",
+        "filename": "src/gpu/ccpr/GrCCPRGeometry.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-28T17:48:18Z",
+      "side": 1,
+      "message": "Done.\n\nThe intent of maxSubdivisions wasn\u0027t very clear. The cubic chopping code can call this method after it has used up all of its allowed subdivisions. I believe in our usecase, if allowChop is false then the curve should be monotonic because that means we\u0027ve had two recursive levels of subdivisions at midtangent. However, is_convex_curve_monotonic may be borderline and still return true. This was more important in the cubic case because degenerate curves could accidentally recurse indefinitely.",
+      "parentUuid": "d407259f_f692c3ec",
+      "range": {
+        "startLine": 120,
+        "startChar": 9,
+        "endLine": 120,
+        "endChar": 73
+      },
+      "revId": "31d56c3b57f464b19d963df26a552dbd23a8c653",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a23a5fed_f1fe5453",
         "filename": "src/gpu/ccpr/GrCCPRGeometry.cpp",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "31d56c3b57f464b19d963df26a552dbd23a8c653",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90e848f4_4f830d1a",
+        "filename": "src/gpu/ccpr/GrCCPRGeometry.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-28T17:48:18Z",
+      "side": 1,
+      "message": "The monotonic check and chop now happen on the new quadratic segment in appendMonotonicQuadratics.",
+      "parentUuid": "a23a5fed_f1fe5453",
+      "range": {
+        "startLine": 558,
+        "startChar": 8,
+        "endLine": 558,
+        "endChar": 85
+      },
+      "revId": "31d56c3b57f464b19d963df26a552dbd23a8c653",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
