@@ -261,7 +261,7 @@ width times bytes required for Image_Color_Type.
 Pixel buffer size should be height times rowBytes.
 
 #Param width  pixel column count on Raster_Surface created; must be zero or greater ##
-#Param height  pixel row count on Raster_Surface created.; must be zero or greater ##
+#Param height  pixel row count on Raster_Surface created; must be zero or greater ##
 #Param pixels  pointer to destination pixels buffer; buffer size should be height
                times rowBytes
 ##
