@@ -8,13 +8,10 @@
 #include "GrBitmapTextureMaker.h"
 
 #include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "GrResourceProvider.h"
-#include "GrSurfaceContext.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
-#include "SkMipMap.h"
 #include "SkPixelRef.h"
 
 static bool bmp_is_alpha_only(const SkBitmap& bm) { return kAlpha_8_SkColorType == bm.colorType(); }
@@ -37,25 +34,17 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> originalProxy;
+    sk_sp<GrTextureProxy> proxy;
 
     if (fOriginalKey.isValid()) {
-        originalProxy = this->context()->resourceProvider()->findOrCreateProxyByUniqueKey(
-                                                            fOriginalKey, kTopLeft_GrSurfaceOrigin);
-        if (originalProxy && (!willBeMipped || originalProxy->isMipMapped())) {
-            return originalProxy;
+        proxy = this->context()->resourceProvider()->findOrCreateProxyByUniqueKey(
+                                                          fOriginalKey, kTopLeft_GrSurfaceOrigin);
+        if (proxy) {
+            return proxy;
         }
     }
-
-    sk_sp<GrTextureProxy> proxy;
     if (willBeMipped) {
-        if (!originalProxy) {
-            proxy = GrGenerateMipMapsAndUploadToTextureProxy(this->context(), fBitmap,
-                                                             dstColorSpace);
-        } else {
-            proxy = GrCopyBaseMipMapToTextureProxy(this->context(), originalProxy.get(),
-                                                   dstColorSpace);
-        }
+        proxy = GrGenerateMipMapsAndUploadToTextureProxy(this->context(), fBitmap, dstColorSpace);
     }
     if (!proxy) {
         proxy = GrUploadBitmapToTextureProxy(this->context()->resourceProvider(), fBitmap,
@@ -63,15 +52,6 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
     }
     if (proxy && fOriginalKey.isValid()) {
         SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
-        if (originalProxy) {
-            // In this case we are stealing the key from the original proxy which should only happen
-            // when we have just generated mipmaps for an originally unmipped proxy/texture. This
-            // means that all future uses of the key will access the mipmapped version. The texture
-            // backing the unmipped version will remain in the resource cache until the last texture
-            // proxy referencing it is deleted at which time it too will be deleted or recycled.
-            this->context()->resourceProvider()->removeUniqueKeyFromProxy(fOriginalKey,
-                                                                          originalProxy.get());
-        }
         this->context()->resourceProvider()->assignUniqueKeyToProxy(fOriginalKey, proxy.get());
         GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
     }

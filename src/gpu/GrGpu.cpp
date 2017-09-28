@@ -114,6 +114,11 @@ static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDes
         }
     }
 
+    for (int i = 0; i < mipLevelCount; ++i) {
+        if (!texels[i].fPixels) {
+            return false;
+        }
+    }
     return true;
 }
 
