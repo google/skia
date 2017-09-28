@@ -10,7 +10,9 @@
 
 
 import fnmatch
+import ntpath
 import os
+import posixpath
 import zipfile
 
 
@@ -34,6 +36,9 @@ def zip(target_dir, zip_file, blacklist=None):  # pylint: disable=W0622
         filepath = os.path.join(r, filename)
         zi = zipfile.ZipInfo(filepath)
         zi.filename = os.path.relpath(filepath, target_dir)
+        if os.name == 'nt':
+          # Dumb path separator replacement for Windows.
+          zi.filename = zi.filename.replace(ntpath.sep, posixpath.sep)
         perms = os.stat(filepath).st_mode
         zi.external_attr = perms << 16L
         zi.compress_type = zipfile.ZIP_DEFLATED
@@ -51,8 +56,12 @@ def unzip(zip_file, target_dir):
     os.makedirs(target_dir)
   with zipfile.ZipFile(zip_file, 'r', zipfile.ZIP_DEFLATED, True) as z:
     for zi in z.infolist():
-      dst_path = os.path.join(target_dir, zi.filename)
-      if zi.filename.endswith('/'):
+      dst_subpath = zi.filename
+      if os.name == 'nt':
+        # Dumb path separator replacement for Windows.
+        dst_subpath = dst_subpath.replace(posixpath.sep, ntpath.sep)
+      dst_path = os.path.join(target_dir, dst_subpath)
+      if dst_path.endswith(os.path.sep):
         os.mkdir(dst_path)
       else:
         with open(dst_path, 'wb') as f:
