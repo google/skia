@@ -45,13 +45,15 @@ public:
 
     virtual void setRelease(ReleaseProc proc, ReleaseCtx ctx) = 0;
 
-    /** Access methods that are only to be used within Skia code. */
+    /** Methods that are only to be used within Skia code. */
     inline GrTexturePriv texturePriv();
     inline const GrTexturePriv texturePriv() const;
 
 protected:
     GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType samplerType,
               GrSamplerState::Filter highestFilterMode, bool wasMipMapDataProvided);
+    
+    virtual bool onTakeBackendTextureOwnership() = 0;
 
 private:
     void computeScratchKey(GrScratchKey*) const override;

@@ -128,3 +128,12 @@ sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& d
     return sk_sp<GrGLTexture>(new GrGLTexture(gpu, kWrapped, desc, idDesc));
 }
 
+bool GrGLTexture::onTakeBackendTextureOwnership() {
+    // Can't give ownership of a backend texture we already don't own.
+    if (fTextureIDOwnership != GrBackendObjectOwnership::kOwned) {
+        return false;
+    }
+
+    fTextureIDOwnership = GrBackendObjectOwnership::kBorrowed;
+    return true;
+}
