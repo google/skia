@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0732a6b5_2201c52f",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T17:39:14Z",
+      "side": 1,
+      "message": "Do we have the technology to do:\n\nSkASSERT(proxy-\u003eisMipMapped() \u0026\u0026 !originalProxy-\u003eisMipMapped());\n\n?",
+      "revId": "acabda89d05e152bcaf3db11b21599911d6a7913",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "119e3d98_d264b43c",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T17:39:14Z",
+      "side": 1,
+      "message": "Why not use originalProxy here instead of proxy ?",
+      "revId": "acabda89d05e152bcaf3db11b21599911d6a7913",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fd3b210_daeb0fb9",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T17:39:14Z",
+      "side": 1,
+      "message": "Add the \"|| proxy-\u003eisMipMapped())\" as future proofing ?",
+      "revId": "acabda89d05e152bcaf3db11b21599911d6a7913",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc9404f7_0dc2982d",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T17:39:14Z",
+      "side": 1,
+      "message": "same comments here",
+      "revId": "acabda89d05e152bcaf3db11b21599911d6a7913",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83d96420_1d02d0dc",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T17:39:14Z",
+      "side": 1,
+      "message": "have nullptr at 3rd parameter ?",
+      "revId": "acabda89d05e152bcaf3db11b21599911d6a7913",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
