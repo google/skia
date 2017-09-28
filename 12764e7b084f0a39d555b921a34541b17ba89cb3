@@ -39,6 +39,24 @@
       "revId": "12764e7b084f0a39d555b921a34541b17ba89cb3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a05db2c_d922ff10",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T19:08:31Z",
+      "side": 1,
+      "message": "it was fixed in the fix patch I uploaded after. I was meant to be nullptr.",
+      "parentUuid": "ec82751c_10439d04",
+      "revId": "12764e7b084f0a39d555b921a34541b17ba89cb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
