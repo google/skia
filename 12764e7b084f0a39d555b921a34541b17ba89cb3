@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c5cecc6_d8b4ec5d",
+        "filename": "src/gpu/GrBitmapTextureMaker.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T19:02:18Z",
+      "side": 1,
+      "message": "previously I wasn\u0027t doing this check, but theoretically the code allows for mip map generations to fail on like 52, and then we produce a non mip mapped proxy on line 56.",
+      "range": {
+        "startLine": 64,
+        "startChar": 16,
+        "endLine": 64,
+        "endChar": 53
+      },
+      "revId": "12764e7b084f0a39d555b921a34541b17ba89cb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
