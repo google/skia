@@ -354,6 +354,10 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
     return nullptr;
 }
 
+GrBackendTexture SkImage::MakeBackendTextureFromSkImage(GrContext*, sk_sp<SkImage>) {
+    return GrBackendTexture();
+}
+
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                                const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                                SkAlphaType at, sk_sp<SkColorSpace> cs) {

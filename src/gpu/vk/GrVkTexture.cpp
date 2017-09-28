@@ -244,3 +244,13 @@ bool GrVkTexture::reallocForMipmap(GrVkGpu* gpu, uint32_t mipLevels) {
 
     return true;
 }
+
+bool GrVkTexture::onTakeBackendTexture() {
+    // We can't give ownership of something we don't own.
+    if (fIsBorrowed) {
+        return false;
+    }
+
+    fIsBorrowed = true;
+    return true;
+}
