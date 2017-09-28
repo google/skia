@@ -254,11 +254,11 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     const SkIRect* boundsForMask = &clippedDevShapeBounds;
     if (useCache) {
         // Use the cache only if >50% of the path is visible.
-        int unclippedWidth = unclippedDevShapeBounds.width();
-        int unclippedHeight = unclippedDevShapeBounds.height();
-        int unclippedArea = unclippedWidth * unclippedHeight;
-        int clippedArea = clippedDevShapeBounds.width() * clippedDevShapeBounds.height();
-        int maxTextureSize = args.fRenderTargetContext->caps()->maxTextureSize();
+        size_t unclippedWidth = unclippedDevShapeBounds.width();
+        size_t unclippedHeight = unclippedDevShapeBounds.height();
+        size_t unclippedArea = unclippedWidth * unclippedHeight;
+        size_t clippedArea = clippedDevShapeBounds.width() * clippedDevShapeBounds.height();
+        size_t maxTextureSize = args.fRenderTargetContext->caps()->maxTextureSize();
         if (unclippedArea > 2 * clippedArea || unclippedWidth > maxTextureSize ||
             unclippedHeight > maxTextureSize) {
             useCache = false;
