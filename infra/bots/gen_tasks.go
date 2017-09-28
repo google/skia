@@ -256,6 +256,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"AVX2": {
 					"GCE": "x86-64-Haswell_GCE",
 				},
+				"AVX512": {
+					"GCE": "x86-64-Skylake_GCE",
+				},
 			}[parts["cpu_or_gpu_value"]]
 			if !ok {
 				glog.Fatalf("Entry %q not found in CPU mapping.", parts["cpu_or_gpu_value"])
