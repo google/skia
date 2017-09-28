@@ -82,3 +82,40 @@ DEF_TEST(Color, reporter) {
     test_fast_interp(reporter);
     //test_565blend();
 }
+
+static constexpr int test_half() {
+    return 127;
+}
+
+static constexpr int test_double() {
+    return 508;
+}
+
+extern const int kDefinedElsewhere;
+
+DEF_TEST(Color_SkColorConstARGB, reporter) {
+    constexpr SkColor kLiteral = SkColorConstRGB(0xbb, 0xcc, 0xdd);
+    constexpr SkColor kFromConst = SkColorConstRGB(test_half(), test_half(), test_half());
+    constexpr SkColor kLiteralA = SkColorConstARGB(SK_AlphaOPAQUE, 0xbb, 0xcc, 0xdd);
+    constexpr SkColor kFromConstA =
+        SkColorConstARGB(test_half(), test_half(), test_half(), test_half());
+    REPORTER_ASSERT(reporter, kLiteral == SkColorSetRGB(0xbb, 0xcc, 0xdd));
+    REPORTER_ASSERT(reporter, kFromConst == SkColorSetRGB(test_half(), test_half(), test_half()));
+    REPORTER_ASSERT(reporter, kLiteralA == SkColorSetARGB(SK_AlphaOPAQUE, 0xbb, 0xcc, 0xdd));
+    REPORTER_ASSERT(
+        reporter,
+        kFromConstA == SkColorSetARGB(test_half(), test_half(), test_half(), test_half()));
+
+    // These generate "not a constant expression" compile errors.
+    // SkColor kError1 = SkColorConstARGB(kDefinedElsewhere, 0, 0, 0);
+    // SkColor kError2 = SkColorConstRGB(kDefinedElsewhere, 0, 0);
+
+    // The following generate something similar to "non-type template argument evaluates to 508,
+    // which cannot be narrowed to type 'uint8_t'".
+    // SkColor kError3 = SkColorConstRGB(test_double(), test_double(), test_double());
+    // SkColor kError4 =
+    //     SkColorConstARGB(test_double(), test_double(), test_double(), test_double());
+
+    // Avoid unused warnings (and sanity check).
+    REPORTER_ASSERT(reporter, 4 * test_half() == test_double());
+}

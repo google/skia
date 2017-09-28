@@ -26,15 +26,21 @@ typedef uint8_t SkAlpha;
 */
 typedef uint32_t SkColor;
 
-/** Return a SkColor value from 8 bit component values
-*/
-static inline SkColor SkColorSetARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
-{
-    SkASSERT(a <= 255 && r <= 255 && g <= 255 && b <= 255);
-
+/** Returns a SkColor value from 8 bit component values without checking for truncation.
+ */
+constexpr SkColor SkColorSetARGBUnchecked(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return (a << 24) | (r << 16) | (g << 8) | (b << 0);
 }
 
+/** Returns a SkColor value from 8 bit component values, with a runtime truncation check.
+ */
+static inline SkColor SkColorSetARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+    SkASSERT(a <= 255 && r <= 255 && g <= 255 && b <= 255);
+    return SkColorSetARGBUnchecked(a, r, g, b);
+}
+
+/** TODO(tapted): Remove this macro after migrating callers to SkColorSetARGBUnchecked().
+ */
 #define SkColorSetARGBMacro(a, r, g, b) \
     static_cast<SkColor>( \
         (static_cast<U8CPU>(a) << 24) | \
@@ -42,20 +48,31 @@ static inline SkColor SkColorSetARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
         (static_cast<U8CPU>(g) << 8) | \
         (static_cast<U8CPU>(b) << 0))
 
-/** gcc will generate static initializers for code of this form:
- * static const SkColor kMyColor = SkColorSetARGB(0xFF, 0x01, 0x02, 0x03)
- * if SkColorSetARGB() is a static inline, but not if it's a macro.
+/** Returns a SkColor value from 8 bit component values, with a runtime truncation check in debug.
  */
 #if defined(NDEBUG)
-#define SkColorSetARGB(a, r, g, b) SkColorSetARGBMacro(a, r, g, b)
+#define SkColorSetARGB(a, r, g, b) SkColorSetARGBUnchecked(a, r, g, b)
 #else
 #define SkColorSetARGB(a, r, g, b) SkColorSetARGBInline(a, r, g, b)
 #endif
 
 /** Return a SkColor value from 8 bit component values, with an implied value
-    of 0xFF for alpha (fully opaque)
-*/
-#define SkColorSetRGB(r, g, b)  SkColorSetARGB(0xFF, r, g, b)
+ *  of 0xFF for alpha (fully opaque).
+ */
+#define SkColorSetRGB(r, g, b) SkColorSetARGB(0xFF, r, g, b)
+
+/** Wraps compile-time constant 8-bit components for an SkColor such that the compiler can
+ *  guarantee no truncation or static initializers will result.
+ */
+template <uint8_t a, uint8_t r, uint8_t g, uint8_t b>
+struct SkColorSetARGBTemplate {
+    static constexpr SkColor value() { return SkColorSetARGBUnchecked(a, r, g, b); }
+};
+
+/** Version of SkColorSet[A]RGB() that can be used to guarantee constexpr initialization.
+ */
+#define SkColorConstARGB(a, r, g, b) (SkColorSetARGBTemplate<a, r, g, b>::value())
+#define SkColorConstRGB(r, g, b) (SkColorSetARGBTemplate<0xFF, r, g, b>::value())
 
 /** return the alpha byte from a SkColor value */
 #define SkColorGetA(color)      (((color) >> 24) & 0xFF)
