@@ -16,6 +16,24 @@
       "revId": "6e0a6b3c40de254268b48deea6184cf10e945bd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa798478_7359f48c",
+        "filename": "src/gpu/GrSurfaceContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-28T16:08:03Z",
+      "side": 0,
+      "message": "woops got deleted when I deleted the extra param I added in previous patch set.\n\nBut in reality you could argue whether or not this actually is true anymore. The result of the copy from the GPU object does not get bubbled up to here any more (since it is all deferred). But what we should do about that is a question for another time.",
+      "parentUuid": "e391d22c_24d10ee1",
+      "revId": "6e0a6b3c40de254268b48deea6184cf10e945bd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
