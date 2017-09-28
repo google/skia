@@ -992,6 +992,10 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         paint.writable()->setDither(false);
     }
 
+    if (auto blitter = SkCreateOneOffImageBlitter(device, *paint, matrix, alloc)) {
+        return blitter;
+    }
+
     if (UseRasterPipelineBlitter(device, *paint, matrix)) {
         auto blitter = SkCreateRasterPipelineBlitter(device, *paint, matrix, alloc);
         SkASSERT(blitter);
