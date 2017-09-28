@@ -256,8 +256,8 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         // Use the cache only if >50% of the path is visible.
         int unclippedWidth = unclippedDevShapeBounds.width();
         int unclippedHeight = unclippedDevShapeBounds.height();
-        int unclippedArea = unclippedWidth * unclippedHeight;
-        int clippedArea = clippedDevShapeBounds.width() * clippedDevShapeBounds.height();
+        size_t unclippedArea = unclippedWidth * unclippedHeight;
+        size_t clippedArea = clippedDevShapeBounds.width() * clippedDevShapeBounds.height();
         int maxTextureSize = args.fRenderTargetContext->caps()->maxTextureSize();
         if (unclippedArea > 2 * clippedArea || unclippedWidth > maxTextureSize ||
             unclippedHeight > maxTextureSize) {
