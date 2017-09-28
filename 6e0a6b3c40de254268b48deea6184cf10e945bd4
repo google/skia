@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e391d22c_24d10ee1",
+        "filename": "src/gpu/GrSurfaceContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T14:59:14Z",
+      "side": 0,
+      "message": "Is this not true anymore ?",
+      "revId": "6e0a6b3c40de254268b48deea6184cf10e945bd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65558c7e_e24c44ae",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T14:59:14Z",
+      "side": 1,
+      "message": "first level ?",
+      "revId": "c6b32d5fdc09b53de24f0e2f6705d0d16e06b975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28c415e9_969f2100",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-28T14:59:14Z",
+      "side": 1,
+      "message": "I would just put this right after the \"if (!texels)\" check and exit early.",
+      "revId": "c6b32d5fdc09b53de24f0e2f6705d0d16e06b975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
