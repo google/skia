@@ -195,8 +195,6 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
             continue;
         }
 
-        // Instantiate all deferred proxies (being built on worker threads) so we can upload them
-        fOpLists[i]->instantiateDeferredProxies(fContext->resourceProvider());
         fOpLists[i]->prepare(&fFlushState);
     }
 
