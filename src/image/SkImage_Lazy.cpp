@@ -696,9 +696,16 @@ public:
 };
 
 static void set_key_on_proxy(GrResourceProvider* resourceProvider,
-                             GrTextureProxy* proxy, const GrUniqueKey& key) {
+                             GrTextureProxy* proxy, GrTextureProxy* originalProxy,
+                             const GrUniqueKey& key) {
     if (key.isValid()) {
         SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
+        if (originalProxy) {
+            // If we had an originalProxy, that means there already is a proxy in the cache which
+            // matches the key, but it does not have mip levels and we require them. Thus we must
+            // remove the unique key from that proxy.
+            resourceProvider->removeUniqueKeyFromProxy(key, originalProxy);
+        }
         resourceProvider->assignUniqueKeyToProxy(key, proxy);
     }
 }
@@ -751,13 +758,18 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
     GrUniqueKey key;
     this->makeCacheKeyFromOrigKey(origKey, format, &key);
 
+    sk_sp<GrTextureProxy> originalProxy;
+
     // 1. Check the cache for a pre-existing one
     if (key.isValid()) {
-        if (sk_sp<GrTextureProxy> proxy = ctx->resourceProvider()->findOrCreateProxyByUniqueKey(
-                                                                key, kTopLeft_GrSurfaceOrigin)) {
+        originalProxy = ctx->resourceProvider()->findOrCreateProxyByUniqueKey(
+                                                                     key, kTopLeft_GrSurfaceOrigin);
+        if (originalProxy) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kPreExisting_LockTexturePath,
                                      kLockTexturePathCount);
-            return proxy;
+            if (!willBeMipped || originalProxy->isMipMapped()) {
+                return originalProxy;
+            }
         }
     }
 
@@ -769,7 +781,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
     SkTransferFunctionBehavior behavior = getGeneratorBehaviorAndInfo(&genPixelsInfo);
 
     // 2. Ask the generator to natively create one
-    {
+    if (!originalProxy) {
         ScopedGenerator generator(fSharedGenerator);
         if (GrTextureMaker::AllowedTexGenType::kCheap == genType &&
                 SkImageGenerator::TexGenType::kCheap != generator->onCanGenerateTexture()) {
@@ -779,13 +791,21 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
                     generator->generateTexture(ctx, genPixelsInfo, fOrigin, behavior)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
                                      kLockTexturePathCount);
-            set_key_on_proxy(ctx->resourceProvider(), proxy.get(), key);
-            return proxy;
+            set_key_on_proxy(ctx->resourceProvider(), proxy.get(), nullptr, key);
+            if (!willBeMipped) {
+                return proxy;
+            } else {
+                // TODO: Pass a flag into generateTexture which says we want to be mipped. If the
+                // generator can handle creating a mipped surface, then it can either generate the
+                // base layer or all the layers directly. Otherwise it just returns a non mipped
+                // surface as it currently does.
+                originalProxy = proxy;
+            }
         }
     }
 
     // 3. Ask the generator to return YUV planes, which the GPU can convert
-    if (!ctx->contextPriv().disableGpuYUVConversion()) {
+    if (!originalProxy && !ctx->contextPriv().disableGpuYUVConversion()) {
         const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(cacheInfo, *ctx->caps());
         ScopedGenerator generator(fSharedGenerator);
         Generator_GrYUVProvider provider(generator);
@@ -802,14 +822,20 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
         if (proxy) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);
-            set_key_on_proxy(ctx->resourceProvider(), proxy.get(), key);
-            return proxy;
+            set_key_on_proxy(ctx->resourceProvider(), proxy.get(), nullptr, key);
+            if (!willBeMipped) {
+                return proxy;
+            } else {
+                // TODO: Update to create the mipped surface in the YUV generator and draw the base
+                // layer directly into the mipped surface.
+                originalProxy = proxy;
+            }
         }
     }
 
     // 4. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
-    if (this->lockAsBitmap(&bitmap, chint, format, genPixelsInfo, behavior)) {
+    if (!originalProxy && this->lockAsBitmap(&bitmap, chint, format, genPixelsInfo, behavior)) {
         sk_sp<GrTextureProxy> proxy;
         if (willBeMipped) {
             proxy = GrGenerateMipMapsAndUploadToTextureProxy(ctx, bitmap, dstColorSpace);
@@ -820,10 +846,23 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
         if (proxy) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
                                      kLockTexturePathCount);
-            set_key_on_proxy(ctx->resourceProvider(), proxy.get(), key);
+            set_key_on_proxy(ctx->resourceProvider(), proxy.get(), originalProxy.get(), key);
             return proxy;
         }
     }
+
+    if (originalProxy) {
+        // We need a mipped proxy, but we either found an originalProxy earlier that wasn't mipped,
+        // generated a native non mipped proxy, or generated a non-mipped yuv proxy. Thus we
+        // generate a new mipped surface and copy the original proxy into the base layer. We will
+        // then let the gpu generate the rest of the mips.
+        SkASSERT(willBeMipped);
+        if (auto proxy = GrCopyBaseMipMapToTextureProxy(ctx, originalProxy.get(), dstColorSpace)) {
+            set_key_on_proxy(ctx->resourceProvider(), proxy.get(), originalProxy.get(), key);
+            return proxy;
+        }
+    }
+
     SK_HISTOGRAM_ENUMERATION("LockTexturePath", kFailure_LockTexturePath,
                              kLockTexturePathCount);
     return nullptr;
