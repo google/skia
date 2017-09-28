@@ -486,10 +486,6 @@ public:
                        png_structp png_ptr, png_infop info_ptr, int bitDepth)
         : INHERITED(info, imageInfo, std::move(stream), reader, png_ptr, info_ptr, bitDepth)
         , fRowsWrittenToOutput(0)
-        , fDst(nullptr)
-        , fRowBytes(0)
-        , fFirstRow(0)
-        , fLastRow(0)
     {}
 
     static void AllRowsCallback(png_structp png_ptr, png_bytep row, png_uint_32 rowNum, int /*pass*/) {
@@ -502,12 +498,6 @@ public:
 
 private:
     int                         fRowsWrittenToOutput;
-    void*                       fDst;
-    size_t                      fRowBytes;
-
-    // Variables for partial decode
-    int                         fFirstRow;  // FIXME: Move to baseclass?
-    int                         fLastRow;
     int                         fRowsNeeded;
 
     typedef SkPngCodec INHERITED;
@@ -604,8 +594,6 @@ public:
             png_infop info_ptr, int bitDepth, int numberPasses)
         : INHERITED(info, imageInfo, std::move(stream), reader, png_ptr, info_ptr, bitDepth)
         , fNumberPasses(numberPasses)
-        , fFirstRow(0)
-        , fLastRow(0)
         , fLinesDecoded(0)
         , fInterlacedComplete(false)
         , fPng_rowbytes(0)
@@ -618,10 +606,6 @@ public:
 
 private:
     const int               fNumberPasses;
-    int                     fFirstRow;
-    int                     fLastRow;
-    void*                   fDst;
-    size_t                  fRowBytes;
     int                     fLinesDecoded;
     bool                    fInterlacedComplete;
     size_t                  fPng_rowbytes;
@@ -948,6 +932,10 @@ SkPngCodec::SkPngCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imag
     , fInfo_ptr(info_ptr)
     , fColorXformSrcRow(nullptr)
     , fBitDepth(bitDepth)
+    , fFirstRow(0)
+    , fLastRow(0)
+    , fDst(nullptr)
+    , fRowBytes(0)
     , fIdatLength(0)
     , fDecodedIdat(false)
 {}

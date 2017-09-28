@@ -88,6 +88,12 @@ protected:
     void*                       fColorXformSrcRow;
     const int                   fBitDepth;
 
+    // Variables for partial decode
+    int                         fFirstRow;
+    int                         fLastRow;
+    void*                       fDst;
+    size_t                      fRowBytes;
+
 private:
 
     enum XformMode {
