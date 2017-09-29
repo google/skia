@@ -20,11 +20,9 @@
  */
 class GrTextureAdjuster : public GrTextureProducer {
 public:
-    /** Makes the subset of the texture safe to use with the given texture parameters.
-        outOffset will be the top-left corner of the subset if a copy is not made. Otherwise,
-        the copy will be tight to the contents and outOffset will be (0, 0). If the copy's size
-        does not match subset's dimensions then the contents are scaled to fit the copy.*/
-    sk_sp<GrTextureProxy> refTextureProxySafeForParams(const GrSamplerState&, SkIPoint* outOffset,
+    /** Makes the subset of the texture safe to use with the given texture parameters. If the copy's
+        size does not match subset's dimensions then the contents are scaled to fit the copy.*/
+    sk_sp<GrTextureProxy> refTextureProxySafeForParams(const GrSamplerState&,
                                                        SkScalar scaleAdjust[2]);
 
     std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
