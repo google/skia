@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac0452d3_90af2222",
+        "filename": "src/gpu/GrTextureAdjuster.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-09-29T15:42:51Z",
+      "side": 1,
+      "message": "µ-nit: Comment is no longer left aligned, and last line is non-standard.",
+      "revId": "6ab686d52d5321ddec4ca0c92aec07331705642a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
