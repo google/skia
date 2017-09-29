@@ -223,6 +223,10 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx,
                                                      SkColorSpace* dstColorSpace) {
     SkASSERT(baseProxy);
 
+    if (!ctx->caps()->isConfigCopyable(baseProxy->config())) {
+        return nullptr;
+    }
+
     SkDestinationSurfaceColorMode colorMode = dstColorSpace
         ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
         : SkDestinationSurfaceColorMode::kLegacy;

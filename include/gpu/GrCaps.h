@@ -145,6 +145,8 @@ public:
 
     virtual bool isConfigTexturable(GrPixelConfig) const = 0;
     virtual bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const = 0;
+    // Returns whether a texture of the given config can be copied to a texture of the same config.
+    virtual bool isConfigCopyable(GrPixelConfig config) const = 0;
     virtual bool canConfigBeImageStorage(GrPixelConfig config) const = 0;
 
     bool suppressPrints() const { return fSuppressPrints; }

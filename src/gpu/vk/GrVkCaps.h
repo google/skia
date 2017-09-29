@@ -39,6 +39,10 @@ public:
         return SkToBool(ConfigInfo::kRenderable_Flag & fConfigTable[config].fOptimalFlags);
     }
 
+    bool isConfigCopyable(GrPixelConfig config) const override {
+        return true;
+    }
+
     bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
 
     bool isConfigTexturableLinearly(GrPixelConfig config) const {
