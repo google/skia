@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "38673acb_14fac2bd",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 7769
+      },
+      "writtenOn": "2017-09-29T00:24:59Z",
+      "side": 1,
+      "message": "optional nit: constexpr functions are implicitly inline, so the \u0027inline\u0027 is redundant - http://eel.is/c++draft/dcl.constexpr",
+      "range": {
+        "startLine": 31,
+        "startChar": 17,
+        "endLine": 31,
+        "endChar": 23
+      },
+      "revId": "8126f2bfcba6075b4b647f23f6e83864a3c4cb6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
