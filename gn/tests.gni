@@ -160,6 +160,7 @@ tests_sources = [
   "$_tests/PictureBBHTest.cpp",
   "$_tests/PictureShaderTest.cpp",
   "$_tests/PictureTest.cpp",
+  "$_tests/PinnedImageTest.cpp",
   "$_tests/PipeTest.cpp",
   "$_tests/PixelRefTest.cpp",
   "$_tests/Point3Test.cpp",
