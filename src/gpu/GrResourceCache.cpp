@@ -196,6 +196,13 @@ void GrResourceCache::releaseAll() {
 
     this->processFreedGpuResources();
 
+    UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies);
+    for (UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies) ; !iter.done(); ++iter) {
+        GrTextureProxy& tmp = *iter;
+
+        this->processInvalidProxyUniqueKey(tmp.getUniqueKey(), &tmp, false);
+    }
+
     while(fNonpurgeableResources.count()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
         SkASSERT(!back->wasDestroyed());
