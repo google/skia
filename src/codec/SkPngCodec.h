@@ -71,7 +71,7 @@ protected:
      *  libpng will call any relevant callbacks installed. This will continue decoding
      *  until it reaches the end of the file, or until a callback tells libpng to stop.
      */
-    void processData();
+    bool processData();
 
     Result onStartIncrementalDecode(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
             const SkCodec::Options&) override;
