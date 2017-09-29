@@ -189,15 +189,15 @@ bool AutoCleanPng::decodeBounds() {
     return false;
 }
 
-void SkPngCodec::processData() {
+bool SkPngCodec::processData() {
     switch (setjmp(PNG_JMPBUF(fPng_ptr))) {
         case kPngError:
             // There was an error. Stop processing data.
             // FIXME: Do we need to discard png_ptr?
-            return;
+            return false;;
         case kStopDecoding:
             // We decoded all the lines we want.
-            return;
+            return true;
         case kSetJmpOkay:
             // Everything is okay.
             break;
@@ -240,6 +240,8 @@ void SkPngCodec::processData() {
             break;
         }
     }
+
+    return true;
 }
 
 static const SkColorType kXformSrcColorType = kRGBA_8888_SkColorType;
@@ -526,7 +528,9 @@ private:
         fFirstRow = 0;
         fLastRow = height - 1;
 
-        this->processData();
+        if (!this->processData()) {
+            return kErrorInInput;
+        }
 
         if (fRowsWrittenToOutput == height) {
             return SkCodec::kSuccess;
@@ -561,7 +565,10 @@ private:
             const int sampleY = this->swizzler()->sampleY();
             fRowsNeeded = get_scaled_dimension(fLastRow - fFirstRow + 1, sampleY);
         }
-        this->processData();
+
+        if (!this->processData()) {
+            return kErrorInInput;
+        }
 
         if (fRowsWrittenToOutput == fRowsNeeded) {
             return SkCodec::kSuccess;
@@ -673,7 +680,9 @@ private:
         fLastRow = height - 1;
         fLinesDecoded = 0;
 
-        this->processData();
+        if (!this->processData()) {
+            return kErrorInInput;
+        }
 
         png_bytep srcRow = fInterlaceBuffer.get();
         // FIXME: When resuming, this may rewrite rows that did not change.
@@ -705,7 +714,9 @@ private:
     }
 
     SkCodec::Result decode(int* rowsDecoded) override {
-        this->processData();
+        if (this->processData() == false) {
+            return kErrorInInput;
+        }
 
         // Now apply Xforms on all the rows that were decoded.
         if (!fLinesDecoded) {
