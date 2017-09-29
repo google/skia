@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32a1bed3_475c4463",
+        "filename": "src/gpu/GrDeferredProxyUploader.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-29T11:49:59Z",
+      "side": 1,
+      "message": "// In normal usage (i.e., through GrTDeferredProxyUploader) this will be redundant\n\n?",
+      "revId": "0fbd7e489e8e20430f78dd880ba9876bf5e58716",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
