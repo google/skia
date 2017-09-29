@@ -31,6 +31,10 @@ public:
     bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override {
         return fOptions.fConfigOptions[config].fRenderable[withMSAA];
     }
+    bool isConfigCopyable(GrPixelConfig config) const override {
+        return false;
+    }
+
     bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override {
