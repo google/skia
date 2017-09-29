@@ -164,9 +164,8 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                 }
                 opList->makeClosed(*fContext->caps());
                 opList->prepare(&fFlushState);
-                if (!opList->execute(&fFlushState)) {
-                    continue;         // This is bad
-                }
+                SkAssertResult(opList->execute(&fFlushState));
+                opList->reset();
             }
             renderTargetContexts.reset();
         }
