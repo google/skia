@@ -12,6 +12,7 @@
 #include "SkColorSpaceXformer.h"
 #include "SkTFitsIn.h"
 #include "SkGpuBlurUtils.h"
+#include "SkImageBlurFilter.h"
 #include "SkOpts.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
@@ -26,10 +27,10 @@
 class SkBlurImageFilterImpl final : public SkImageFilter {
 public:
     SkBlurImageFilterImpl(SkScalar sigmaX,
-                      SkScalar sigmaY,
-                      sk_sp<SkImageFilter> input,
-                      const CropRect* cropRect,
-                      SkBlurImageFilter::TileMode tileMode);
+                          SkScalar sigmaY,
+                          sk_sp<SkImageFilter> input,
+                          const CropRect* cropRect,
+                          SkBlurImageFilter::TileMode tileMode);
 
     SkRect computeFastBounds(const SkRect&) const override;
 
@@ -210,8 +211,8 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         #if defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
         result = this->cpuFilter(source, sigma, input, inputBounds, dstBounds);
         #else
-        // The new code will go here.
-        result = this->cpuFilter(source, sigma, input, inputBounds, dstBounds);
+        SkImageBlurFilter filter{sigma};
+        result = filter.blur(source, input, inputBounds, dstBounds);
         #endif
     }
 
