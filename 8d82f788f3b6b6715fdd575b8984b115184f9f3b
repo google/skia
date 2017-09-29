@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3da70bb9_9fd40410",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-09-29T17:30:14Z",
+      "side": 1,
+      "message": "dx \u003e\u003d 0 *seems* to be a good check, but not sure. I notice you kept the pin call below (line 200) against 0, which should not be needed if your assert passed.\n\nTrying to think hard why the old code did not worry about negatives.... If you\u0027re correct, seems like we shouldn\u0027t need the pin calls at all.",
+      "range": {
+        "startLine": 193,
+        "startChar": 12,
+        "endLine": 193,
+        "endChar": 20
+      },
+      "revId": "8d82f788f3b6b6715fdd575b8984b115184f9f3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
