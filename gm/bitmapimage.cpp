@@ -76,3 +76,19 @@ static GM* MyFactory(void*) { return new BitmapImageGM; }
 static GMRegistry reg(MyFactory);
 
 }
+
+#include "SkPixelRef.h"
+
+DEF_SIMPLE_GM(setpixelref, canvas, 256, 256) {
+    const char* path = "mandrill_512_q075.jpg";
+    sk_sp<SkImage> image = GetResourceAsImage(path);
+    SkBitmap source;
+    if (!image->asLegacyBitmap(&source, SkImage::kRO_LegacyBitmapMode)) {
+        return;
+    }
+    SkBitmap bitmap;
+    bitmap.setInfo(SkImageInfo::Make(image->width() - 25, image->height() - 25, 
+                   kGray_8_SkColorType, kOpaque_SkAlphaType), source.rowBytes());
+    bitmap.setPixelRef(sk_ref_sp(source.pixelRef()), 25, 25);
+    canvas->drawBitmap(bitmap, 0, 0);
+}
