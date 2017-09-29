@@ -315,28 +315,36 @@ def perf_steps(api):
         args.extend([k, api.vars.builder_cfg[k]])
 
   env = {}
-  if 'Ubuntu16' in api.vars.builder_name:
-    # The vulkan in this asset name simply means that the graphics driver
-    # supports Vulkan. It is also the driver used for GL code.
-    dri_path = api.vars.slave_dir.join('linux_vulkan_intel_driver_release')
-    if 'Debug' in api.vars.builder_name:
-      dri_path = api.vars.slave_dir.join('linux_vulkan_intel_driver_debug')
+
+  if 'Ubuntu' in api.vars.builder_name or 'Debian' in api.vars.builder_name:
+    path = []
+    ld_library_path = []
+    libgl_drivers_path = ''
+    vk_icd_filenames = ''
+    if 'Intel' in api.vars.builder_name:
+      # The vulkan in this asset name simply means that the graphics driver
+      # supports Vulkan. It is also the driver used for GL code.
+      dri_path = api.vars.slave_dir.join('linux_vulkan_intel_driver_release')
+      if 'Debug' in api.vars.builder_name:
+        dri_path = api.vars.slave_dir.join('linux_vulkan_intel_driver_debug')
+      ld_library_path.append(dri_path)
+      libgl_drivers_path = dri_path
+      vk_icd_filenames = dri_path.join('intel_icd.x86_64.json')
 
     if 'Vulkan' in api.vars.builder_name:
-      sdk_path = api.vars.slave_dir.join('linux_vulkan_sdk', 'bin')
-      lib_path = api.vars.slave_dir.join('linux_vulkan_sdk', 'lib')
-      env.update({
-        'PATH':'%%(PATH)s:%s' % sdk_path,
-        'LD_LIBRARY_PATH': '%s:%s' % (lib_path, dri_path),
-        'LIBGL_DRIVERS_PATH': dri_path,
-        'VK_ICD_FILENAMES':'%s' % dri_path.join('intel_icd.x86_64.json'),
-      })
+      path.append(api.vars.slave_dir.join('linux_vulkan_sdk', 'bin'))
+      ld_library_path.append(api.vars.slave_dir.join('linux_vulkan_sdk', 'lib'))
     else:
-      # Even the non-vulkan NUC jobs could benefit from the newer drivers.
-      env.update({
-        'LD_LIBRARY_PATH': dri_path,
-        'LIBGL_DRIVERS_PATH': dri_path,
-      })
+      vk_icd_filenames = ''
+
+    if path:
+      env['PATH'] = '%%(PATH)s:%s' % ':'.join('%s' % p for p in path)
+    if ld_library_path:
+      env['LD_LIBRARY_PATH'] = ':'.join('%s' % p for p in ld_library_path)
+    if libgl_drivers_path:
+      env['LIBGL_DRIVERS_PATH'] = '%s' % libgl_drivers_path
+    if vk_icd_filenames:
+      env['VK_ICD_FILENAMES'] = '%s' % vk_icd_filenames
 
   # See skia:2789.
   extra_config_parts = api.vars.builder_cfg.get('extra_config', '').split('_')
