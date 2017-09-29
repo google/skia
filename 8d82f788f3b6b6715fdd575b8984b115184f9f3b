@@ -22,6 +22,30 @@
       "revId": "8d82f788f3b6b6715fdd575b8984b115184f9f3b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e02e779_cf232ae9",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-09-29T17:50:28Z",
+      "side": 1,
+      "message": "My assumption was that on a release build, we want to do something safe-ish. Maybe setPixelRef is never exposed to a public-facing API so that\u0027s not a concern? If that\u0027s the case, then, sure, no need to pin.",
+      "parentUuid": "3da70bb9_9fd40410",
+      "range": {
+        "startLine": 193,
+        "startChar": 12,
+        "endLine": 193,
+        "endChar": 20
+      },
+      "revId": "8d82f788f3b6b6715fdd575b8984b115184f9f3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
