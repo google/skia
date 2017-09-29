@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d4a22ba4_012b9139",
+        "filename": "infra/bots/assets/clang_linux/create.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-09-29T21:55:21Z",
+      "side": 1,
+      "message": "How big are these?  I\u0027m (slightly) concerned about increasing the size of the asset for binaries only used by one (or a handful of) bots.",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 0
+      },
+      "revId": "bede88e72757ef9f30fa1aa0e62527d841da269c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
