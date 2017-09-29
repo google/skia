@@ -457,7 +457,7 @@ static void check(skiatest::Reporter* r,
 }
 
 DEF_TEST(Codec_wbmp, r) {
-    check(r, "mandrill.wbmp", SkISize::Make(512, 512), true, false, true);
+    check(r, "mandrill.wbmp", SkISize::Make(512, 512), false, false, true, true);
 }
 
 DEF_TEST(Codec_webp, r) {
@@ -1271,7 +1271,6 @@ DEF_TEST(Codec_fallBack, r) {
     auto files = {
             "CMYK.jpg",
             "color_wheel.ico",
-            "mandrill.wbmp",
             "randPixels.bmp",
             };
     for (auto file : files) {

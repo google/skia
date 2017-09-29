@@ -102,6 +102,12 @@ SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info,
                 std::move(stream), SkColorSpace::MakeSRGB())
     , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
     , fSwizzler(nullptr)
+    , fDst(nullptr)
+    , fDstRowBytes(0)
+    , fRowsWrittenToOutput(0)
+    , fBytesToSkip(0)
+    , fRowsNeeded(0)
+    , fFirstCallToIncrementalDecode(true)
 {}
 
 SkEncodedImageFormat SkWbmpCodec::onGetEncodedFormat() const {
@@ -163,25 +169,10 @@ std::unique_ptr<SkCodec> SkWbmpCodec::MakeFromStream(std::unique_ptr<SkStream> s
                                                     std::move(stream)));
 }
 
-int SkWbmpCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
-    void* dstRow = dst;
-    for (int y = 0; y < count; ++y) {
-        if (!this->readRow(fSrcBuffer.get())) {
-            return y;
-        }
-        fSwizzler->swizzle(dstRow, fSrcBuffer.get());
-        dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
-    }
-    return count;
-}
+SkCodec::Result SkWbmpCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
+                                                      void* pixels, size_t dstRowBytes,
+                                                      const SkCodec::Options& options) {
 
-bool SkWbmpCodec::onSkipScanlines(int count) {
-    const size_t bytesToSkip = count * fSrcRowBytes;
-    return this->stream()->skip(bytesToSkip) == bytesToSkip;
-}
-
-SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
-        const Options& options) {
     if (options.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
@@ -192,6 +183,64 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     SkASSERT(fSwizzler);
 
     fSrcBuffer.reset(fSrcRowBytes);
+
+    fDst = pixels;
+    fDstRowBytes = dstRowBytes;
+    fRowsWrittenToOutput = 0;
+    fFirstCallToIncrementalDecode = true;
+
+    return kSuccess;
+}
+
+SkCodec::Result SkWbmpCodec::onIncrementalDecode(int* rowsDecoded) {
+    const int sampleY = fSwizzler ? fSwizzler->sampleY() : 1;
+
+    // Get fRowsNeeded and fBytesToSkip on first call of incremental decode
+    if (fFirstCallToIncrementalDecode) {
+        fBytesToSkip = get_start_coord(sampleY) * fSrcRowBytes;
+        fRowsNeeded = get_scaled_dimension(dstInfo().height(), sampleY);
+        fFirstCallToIncrementalDecode = false;
+    }
+
+    // Check any scanlines has to be skipped
+    if (fBytesToSkip) {
+        fBytesToSkip -= this->stream()->skip(fBytesToSkip);
+        if (fBytesToSkip) {
+            return SkCodec::kIncompleteInput;
+        }
+    }
+
+    int currRowsDecoded = 0;
+
+    // Decode row by row of lines here
+    while (true) {
+        if (!this->readRow(fSrcBuffer.get())) {
+            if (rowsDecoded) {
+                *rowsDecoded = currRowsDecoded;
+            }
+            return SkCodec::kIncompleteInput;
+        }
+
+        fSwizzler->swizzle(fDst, fSrcBuffer.get());
+        fDst = SkTAddOffset<void>(fDst, fDstRowBytes);
+
+        currRowsDecoded++;
+        fRowsWrittenToOutput++;
+
+        if (fRowsWrittenToOutput == fRowsNeeded) {
+            break;
+        }
+
+        int bytesToSkip = (sampleY - 1) * fSrcRowBytes;
+        int count = this->stream()->skip(bytesToSkip);
+        if (count != bytesToSkip) {
+            fBytesToSkip = bytesToSkip - count;
+            if (rowsDecoded) {
+                *rowsDecoded = currRowsDecoded;
+            }
+            return SkCodec::kIncompleteInput;
+        }
+    }
 
     return kSuccess;
 }

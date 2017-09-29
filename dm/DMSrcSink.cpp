@@ -567,7 +567,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             void* dst = pixels.get();
             uint32_t height = decodeInfo.height();
             const bool useIncremental = [this]() {
-                auto exts = { "png", "PNG", "gif", "GIF" };
+                auto exts = { "png", "PNG", "gif", "GIF", "wbmp", "WBMP" };
                 for (auto ext : exts) {
                     if (fPath.endsWith(ext)) {
                         return true;

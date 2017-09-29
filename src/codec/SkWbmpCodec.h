@@ -56,10 +56,17 @@ private:
     std::unique_ptr<SkSwizzler> fSwizzler;
     SkAutoTMalloc<uint8_t>      fSrcBuffer;
 
-    int onGetScanlines(void* dst, int count, size_t dstRowBytes) override;
-    bool onSkipScanlines(int count) override;
-    Result onStartScanlineDecode(const SkImageInfo& dstInfo,
-            const Options& options) override;
+    Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
+            const SkCodec::Options&) override;
+
+    Result onIncrementalDecode(int*) override;
+
+    void*           fDst;
+    size_t          fDstRowBytes;
+    int             fRowsWrittenToOutput;
+    int             fBytesToSkip;
+    int             fRowsNeeded;
+    bool            fFirstCallToIncrementalDecode;
 
     typedef SkCodec INHERITED;
 };
