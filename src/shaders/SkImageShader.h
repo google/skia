@@ -50,6 +50,8 @@ protected:
                                                         &this->getLocalMatrix());
     }
 
+    Context* onMakeBurstPipelineContext(const ContextRec&, SkArenaAlloc*) const override;
+
     sk_sp<SkImage>  fImage;
     const TileMode  fTileModeX;
     const TileMode  fTileModeY;
