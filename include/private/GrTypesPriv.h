@@ -757,7 +757,9 @@ enum class GpuPathRenderers {
     kTessellating      = 1 << 7,
 
     kAll               = (kTessellating | (kTessellating - 1)),
-    kDefault           = kAll
+
+    // Temporarily disabling CCPR by default until it has had a time to soak.
+    kDefault           = kAll & ~kCoverageCounting,
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
