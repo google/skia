@@ -141,6 +141,12 @@ public:
     */
     void* getPixels() const { return fPixels; }
 
+    /**
+     *  Returns the size (in bytes) of the bitmap's image buffer.
+     *  If the calculation overflows, or if the height is 0, this returns 0.
+     */
+    size_t computeByteSize() const { return fInfo.computeByteSize(fRowBytes); }
+
     /** Return the byte size of the pixels, based on the height and rowBytes.
         Note this truncates the result to 32bits. Call getSize64() to detect
         if the real size exceeds 32bits.

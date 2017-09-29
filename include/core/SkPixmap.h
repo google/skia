@@ -229,6 +229,12 @@ public:
     */
     size_t getSafeSize() const { return fInfo.getSafeSize(fRowBytes); }
 
+    /**
+     *  Returns the size (in bytes) of the pixmap's image buffer.
+     *  If the calculation overflows, or if the height is 0, this returns 0.
+     */
+    size_t computeByteSize() const { return fInfo.computeByteSize(fRowBytes); }
+
     /** Returns true if all pixels are opaque. SkColorType determines how pixels
         are encoded, and whether pixel describes alpha. Returns true for SkColorType
         without alpha in each pixel; for other SkColorType, returns true if all
