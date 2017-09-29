@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "b35f8f22_f965212f",
+        "filename": "src/gpu/GrBitmapTextureMaker.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-29T19:45:58Z",
+      "side": 1,
+      "message": "Okay, I see the skbug. Add a pointer to it here?",
+      "revId": "71d248546f14272d108293edaaa77f34a7c67e14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "540f4ff6_f6d00630",
         "filename": "src/gpu/GrBitmapTextureMaker.cpp",
         "patchSetId": 2
