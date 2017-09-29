@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4695d54_f24f2740",
+        "filename": "tests/PinnedImageTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-29T18:20:19Z",
+      "side": 1,
+      "message": "what is the benefit of testing the behavior of the previous block here and then of testing this same behavior in the next block?",
+      "revId": "f2a32a630193831cabb6503ff190696d79952a43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cddff2fb_5144697e",
+        "filename": "tests/PinnedImageTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-09-29T18:20:19Z",
+      "side": 1,
+      "message": "after unpinning can you test that if you change the color again it draws the new color without having to call pin?\n\nFor example update line 88 to clear the bitmap to blue and then after unpinning make sure that if you draw it you get blue.",
+      "revId": "f2a32a630193831cabb6503ff190696d79952a43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
