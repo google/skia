@@ -90,6 +90,8 @@ public:
      */
     int bytesPerPixel() const { return fInfo.bytesPerPixel(); }
 
+    int foo() { return this->width(); }
+
     /**
      *  Return the rowbytes expressed as a number of pixels (like width and height).
      *  If the colortype is kUnknown_SkColorType, then 0 is returned.
