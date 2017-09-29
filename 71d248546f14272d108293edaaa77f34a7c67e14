@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cae8df10_dcd0119a",
+        "filename": "src/gpu/GrBitmapTextureMaker.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-29T19:51:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b35f8f22_f965212f",
+      "revId": "71d248546f14272d108293edaaa77f34a7c67e14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "540f4ff6_f6d00630",
         "filename": "src/gpu/GrBitmapTextureMaker.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "71d248546f14272d108293edaaa77f34a7c67e14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b37cdbe_da28329d",
+        "filename": "src/gpu/GrBitmapTextureMaker.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-29T19:51:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "540f4ff6_f6d00630",
+      "revId": "71d248546f14272d108293edaaa77f34a7c67e14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "73317f2d_28b19099",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-29T19:51:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ba1cfe4_30b045d2",
+      "revId": "71d248546f14272d108293edaaa77f34a7c67e14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ee104218_58330cf1",
         "filename": "src/gpu/gl/GrGLCaps.h",
         "patchSetId": 2
@@ -67,6 +121,24 @@
       "revId": "71d248546f14272d108293edaaa77f34a7c67e14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15a67d12_b48f30ef",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-29T19:51:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee104218_58330cf1",
+      "revId": "71d248546f14272d108293edaaa77f34a7c67e14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
