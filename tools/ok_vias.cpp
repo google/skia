@@ -6,6 +6,7 @@
  */
 
 #include "ProcStats.h"
+#include "SkColorFilter.h"
 #include "SkEventTracingPriv.h"
 #include "SkImage.h"
 #include "SkOSFile.h"
@@ -135,9 +136,32 @@ struct Png : Dst {
         }
 
         SkBitmap bm;
+        if (!target->image()->asLegacyBitmap(&bm, SkImage::kRO_LegacyBitmapMode)) {
+            return Status::Failed;
+        }
+
+        // SkPngEncoder can't encode A8 .pngs, and even if it could, they'd be a pain to look at.
+        if (bm.colorType() == kAlpha_8_SkColorType) {
+            SkPaint paint;
+            SkScalar alpha_to_opaque_gray[20] = {
+                0,0,0,1,  0,  // red   = alpha
+                0,0,0,1,  0,  // green = alpha
+                0,0,0,1,  0,  // blue  = alpha
+                0,0,0,0,255,  // alpha = 255
+            };
+            paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(alpha_to_opaque_gray));
+            paint.setBlendMode(SkBlendMode::kSrc);
+
+            SkBitmap dst;
+            dst.allocN32Pixels(bm.width(), bm.height(), /*isOpaque=*/true);
+            SkCanvas canvas(dst);
+            canvas.drawBitmap(bm, 0,0, &paint);
+
+            bm = dst;
+        }
+
         SkPixmap pm;
-        if (!target->image()->asLegacyBitmap(&bm, SkImage::kRO_LegacyBitmapMode) ||
-            !bm.peekPixels(&pm)) {
+        if (!bm.peekPixels(&pm)) {
             return Status::Failed;
         }
 

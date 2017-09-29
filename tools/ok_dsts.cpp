@@ -14,6 +14,7 @@ struct SWDst : Dst {
 
     static std::unique_ptr<Dst> Create(Options options) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(0,0);
+        if (options("ct") == "a8")  { info = info.makeColorType(kAlpha_8_SkColorType); }
         if (options("ct") == "565") { info = info.makeColorType(kRGB_565_SkColorType); }
         if (options("ct") == "f16") { info = info.makeColorType(kRGBA_F16_SkColorType); }
 
@@ -40,6 +41,11 @@ struct SWDst : Dst {
 };
 static Register sw{"sw", "draw with the software backend", SWDst::Create};
 static Register _8888{"8888", "alias for sw", SWDst::Create};
+
+static Register a8{"a8", "alias for sw:ct=a8", [](Options options) {
+    options["ct"] = "a8";
+    return SWDst::Create(options);
+}};
 
 static Register _565{"565", "alias for sw:ct=565", [](Options options) {
     options["ct"] = "565";
