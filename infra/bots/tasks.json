@@ -2742,7 +2742,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         },
         {
           "name": "skia/bots/armhf_sysroot",
@@ -2842,7 +2842,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         },
         {
           "name": "skia/bots/armhf_sysroot",
@@ -3302,7 +3302,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dimensions": [
@@ -3332,7 +3332,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dimensions": [
@@ -3362,7 +3362,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dimensions": [
@@ -3392,7 +3392,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dimensions": [
@@ -3422,7 +3422,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         },
         {
           "name": "skia/bots/linux_vulkan_sdk",
@@ -3457,7 +3457,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dimensions": [
@@ -3487,7 +3487,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dimensions": [
@@ -3517,7 +3517,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dimensions": [
@@ -3547,7 +3547,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dimensions": [
@@ -3577,7 +3577,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dimensions": [
@@ -3607,7 +3607,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dimensions": [
@@ -3637,7 +3637,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dimensions": [
@@ -3667,7 +3667,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dimensions": [
@@ -3697,7 +3697,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dimensions": [
@@ -3727,7 +3727,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         },
         {
           "name": "skia/bots/linux_vulkan_sdk",
@@ -7153,7 +7153,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -7206,7 +7206,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -7259,7 +7259,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -7360,7 +7360,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -7509,7 +7509,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -9116,7 +9116,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -9168,7 +9168,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -9267,7 +9267,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -9319,7 +9319,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -14614,7 +14614,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -14667,7 +14667,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -14720,7 +14720,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -14821,7 +14821,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -15066,7 +15066,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -15119,7 +15119,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -16892,7 +16892,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -16944,7 +16944,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -17043,7 +17043,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -17095,7 +17095,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
@@ -17147,7 +17147,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:9"
+          "version": "version:10"
         }
       ],
       "dependencies": [
