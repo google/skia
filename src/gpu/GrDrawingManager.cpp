@@ -158,15 +158,17 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
             }
 
             for (int j = 0; j < renderTargetContexts.count(); ++j) {
-                GrOpList* opList = renderTargetContexts[j]->getOpList();
+                sk_sp<GrRenderTargetContext> rtc = std::move(renderTargetContexts[j]);
+                GrOpList* opList = rtc->getOpList();
                 if (!opList) {
                     continue;   // Odd - but not a big deal
                 }
                 opList->makeClosed(*fContext->caps());
                 opList->prepare(&fFlushState);
                 if (!opList->execute(&fFlushState)) {
-                    continue;         // This is bad
+                    SkDebugf("WARNING: failed to execute GrOnFlushCallbackObject op list.");
                 }
+                opList->reset();
             }
             renderTargetContexts.reset();
         }
