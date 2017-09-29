@@ -31,7 +31,8 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
            shaderCaps.maxVertexSamplers() >= 1 &&
            caps.instanceAttribSupport() &&
            caps.isConfigTexturable(kAlpha_half_GrPixelConfig) &&
-           caps.isConfigRenderable(kAlpha_half_GrPixelConfig, /*withMSAA=*/false);
+           caps.isConfigRenderable(kAlpha_half_GrPixelConfig, /*withMSAA=*/false) &&
+           !caps.blacklistCoverageCounting();
 }
 
 sk_sp<GrCoverageCountingPathRenderer>
