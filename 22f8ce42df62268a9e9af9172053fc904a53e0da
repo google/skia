@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24ba8d96_711bd77d",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-29T20:52:59Z",
+      "side": 1,
+      "message": "Can you not just replace this line with \"renderTargetContexts[j] \u003d nullptr;\" ?\n\nWouldn\u0027t that nuke the smart pointer and trigger an opList reset?",
+      "revId": "22f8ce42df62268a9e9af9172053fc904a53e0da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
