@@ -573,7 +573,7 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter, const Tes
 static void test_newraster(skiatest::Reporter* reporter) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
     const size_t minRowBytes = info.minRowBytes();
-    const size_t size = info.getSafeSize(minRowBytes);
+    const size_t size = info.computeByteSize(minRowBytes);
     SkAutoTMalloc<SkPMColor> storage(size);
     SkPMColor* baseAddr = storage.get();
     sk_bzero(baseAddr, size);

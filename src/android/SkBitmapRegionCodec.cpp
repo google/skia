@@ -96,7 +96,7 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     if (SubsetType::kPartiallyInside_SubsetType == type &&
             SkCodec::kNo_ZeroInitialized == zeroInit) {
         void* pixels = bitmap->getPixels();
-        size_t bytes = outInfo.getSafeSize(bitmap->rowBytes());
+        size_t bytes = outInfo.computeByteSize(bitmap->rowBytes());
         memset(pixels, 0, bytes);
     }
 
