@@ -69,6 +69,24 @@
       "revId": "937e40f17f4bae98cbaf07d662f0611c0af16050",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aef38cab_7ad6662d",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-29T20:02:55Z",
+      "side": 1,
+      "message": "I was just curious since it should\u0027ve been getting called when we delete all the contexts below. It seems we could just pull that work earlier by freeing the rendertargetcontext here.",
+      "parentUuid": "2045c398_cf4f3703",
+      "revId": "937e40f17f4bae98cbaf07d662f0611c0af16050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
