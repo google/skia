@@ -125,6 +125,11 @@ public:
             return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kRenderable_Flag);
         }
     }
+
+    bool isConfigCopyable(GrPixelConfig config) const override {
+        return this->isConfigRenderable(config, false);
+    }
+
     bool canConfigBeImageStorage(GrPixelConfig config) const override {
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseAsImageStorage_Flag);
     }

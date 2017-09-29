@@ -55,13 +55,19 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
         } else {
             proxy = GrCopyBaseMipMapToTextureProxy(this->context(), originalProxy.get(),
                                                    dstColorSpace);
+            if (!proxy) {
+                // We failed to make a mipped proxy with the base copied into it. This could have
+                // been from failure to make the proxy or failure to do the copy. Thus we will fall
+                // back to just using the non mipped proxy;
+                proxy = originalProxy;
+            }
         }
     }
     if (!proxy) {
         proxy = GrUploadBitmapToTextureProxy(this->context()->resourceProvider(), fBitmap,
                                              dstColorSpace);
     }
-    if (proxy && fOriginalKey.isValid()) {
+    if (proxy && proxy != originalProxy && fOriginalKey.isValid()) {
         SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
         if (originalProxy) {
             // In this case we are stealing the key from the original proxy which should only happen
