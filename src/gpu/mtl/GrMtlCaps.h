@@ -39,6 +39,10 @@ public:
         }
     }
 
+    bool isConfigCopyable(GrPixelConfig config) const override {
+        return true;
+    }
+
     bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
 
 #if 0

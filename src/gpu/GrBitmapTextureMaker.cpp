@@ -55,6 +55,12 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
         } else {
             proxy = GrCopyBaseMipMapToTextureProxy(this->context(), originalProxy.get(),
                                                    dstColorSpace);
+            if (!proxy) {
+                // We failed to make a mipped proxy with the base copied into it. This could have
+                // been from failure to make the proxy or failure to do the copy. Thus we will fall
+                // back to just using the non mipped proxy; See skbug.com/7094.
+                return originalProxy;
+            }
         }
     }
     if (!proxy) {
