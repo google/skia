@@ -23,14 +23,20 @@ def create_asset(target_dir):
 
   # Build Clang, lld, compiler-rt (sanitizer support) and libc++.
   os.chdir(tempfile.mkdtemp())
-  subprocess.check_call(["git", "clone", "-b", BRANCH, REPO + "llvm"])
+  subprocess.check_call(["git", "clone", "--depth", "1", "-b",
+                         BRANCH, REPO + "llvm"])
   os.chdir("llvm/tools")
-  subprocess.check_call(["git", "clone", "-b", BRANCH, REPO + "clang"])
-  subprocess.check_call(["git", "clone", "-b", BRANCH, REPO + "lld"])
+  subprocess.check_call(["git", "clone", "--depth", "1", "-b",
+                         BRANCH, REPO + "clang"])
+  subprocess.check_call(["git", "clone", "--depth", "1", "-b",
+                         BRANCH, REPO + "lld"])
   os.chdir("../projects")
-  subprocess.check_call(["git", "clone", "-b", BRANCH, REPO + "compiler-rt"])
-  subprocess.check_call(["git", "clone", "-b", BRANCH, REPO + "libcxx"])
-  subprocess.check_call(["git", "clone", "-b", BRANCH, REPO + "libcxxabi"])
+  subprocess.check_call(["git", "clone", "--depth", "1", "-b",
+                         BRANCH, REPO + "compiler-rt"])
+  subprocess.check_call(["git", "clone", "--depth", "1", "-b",
+                         BRANCH, REPO + "libcxx"])
+  subprocess.check_call(["git", "clone", "--depth", "1", "-b",
+                         BRANCH, REPO + "libcxxabi"])
   os.chdir("..")
   os.mkdir("out")
   os.chdir("out")
@@ -43,6 +49,8 @@ def create_asset(target_dir):
 
   # Copy a couple extra files we need.
   subprocess.check_call(["cp", "bin/llvm-symbolizer", target_dir + "/bin"])
+  subprocess.check_call(["cp", "bin/llvm-profdata", target_dir + "/bin"])
+  subprocess.check_call(["cp", "bin/llvm-cov", target_dir + "/bin"])
   libstdcpp = subprocess.check_output(["c++",
                                        "-print-file-name=libstdc++.so.6"])
   subprocess.check_call(["cp", libstdcpp.strip(), target_dir + "/lib"])
