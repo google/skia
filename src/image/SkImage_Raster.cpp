@@ -57,11 +57,11 @@ public:
         if (kUnknown_SkColorType == info.colorType()) {
             return false;
         }
-        if (rowBytes < info.minRowBytes()) {
+        if (!info.validRowBytes(rowBytes)) {
             return false;
         }
 
-        size_t size = info.getSafeSize(rowBytes);
+        size_t size = info.computeByteSize(rowBytes);
         if (0 == size) {
             return false;
         }
