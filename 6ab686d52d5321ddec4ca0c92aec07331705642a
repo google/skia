@@ -16,6 +16,24 @@
       "revId": "6ab686d52d5321ddec4ca0c92aec07331705642a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0c3e1ae_16e500a1",
+        "filename": "src/gpu/GrTextureAdjuster.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-09-29T19:21:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac0452d3_90af2222",
+      "revId": "6ab686d52d5321ddec4ca0c92aec07331705642a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
