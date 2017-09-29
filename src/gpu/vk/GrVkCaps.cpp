@@ -36,6 +36,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fInstanceAttribSupport = true;
 
     fUseDrawInsteadOfClear = false;
+    fBlacklistCoverageCounting = true; // blacklisting ccpr until we work through a few issues.
     fFenceSyncSupport = true;   // always available in Vulkan
     fCrossContextTextureSupport = false;
 

@@ -74,6 +74,8 @@ public:
 
     bool avoidInstancedDrawsToFPTargets() const { return fAvoidInstancedDrawsToFPTargets; }
 
+    bool blacklistCoverageCounting() const { return fBlacklistCoverageCounting; }
+
     bool avoidStencilBuffers() const { return fAvoidStencilBuffers; }
 
     /**
@@ -210,6 +212,7 @@ protected:
     // Driver workaround
     bool fUseDrawInsteadOfClear                      : 1;
     bool fAvoidInstancedDrawsToFPTargets             : 1;
+    bool fBlacklistCoverageCounting                  : 1;
     bool fAvoidStencilBuffers                        : 1;
 
     // ANGLE workaround
