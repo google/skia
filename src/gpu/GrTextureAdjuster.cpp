@@ -24,8 +24,8 @@ GrTextureAdjuster::GrTextureAdjuster(GrContext* context, sk_sp<GrTextureProxy> o
     , fColorSpace(cs)
     , fUniqueID(uniqueID) {
     SkASSERT(SkIRect::MakeWH(fOriginal->width(), fOriginal->height()).contains(contentArea));
-    if (contentArea.fLeft > 0 || contentArea.fTop > 0 ||
-        contentArea.fRight < fOriginal->width() || contentArea.fBottom < fOriginal->height()) {
+    SkASSERT(0 == contentArea.fLeft && 0 == contentArea.fTop);
+    if (contentArea.fRight < fOriginal->width() || contentArea.fBottom < fOriginal->height()) {
         fContentArea.set(contentArea);
     }
 }
@@ -69,7 +69,6 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
 }
 
 sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(const GrSamplerState& params,
-                                                                      SkIPoint* outOffset,
                                                                       SkScalar scaleAdjust[2]) {
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
     CopyParams copyParams;
@@ -88,21 +87,10 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(const GrSa
         copyParams.fFilter = GrSamplerState::Filter::kBilerp;
     } else if (!fContext->getGpu()->isACopyNeededForTextureParams(proxy.get(), params, &copyParams,
                                                                   scaleAdjust)) {
-        if (outOffset) {
-            if (contentArea) {
-                outOffset->set(contentArea->fLeft, contentArea->fRight);
-            } else {
-                outOffset->set(0, 0);
-            }
-        }
         return proxy;
     }
 
-    sk_sp<GrTextureProxy> copy = this->refTextureProxyCopy(copyParams);
-    if (copy && outOffset) {
-        outOffset->set(0, 0);
-    }
-    return copy;
+    return this->refTextureProxyCopy(copyParams);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
@@ -131,7 +119,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     }
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
     sk_sp<GrTextureProxy> proxy(
-            this->refTextureProxySafeForParams(samplerState, nullptr, scaleAdjust));
+            this->refTextureProxySafeForParams(samplerState, scaleAdjust));
     if (!proxy) {
         return nullptr;
     }

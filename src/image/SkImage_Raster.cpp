@@ -189,7 +189,7 @@ sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrContext* context,
         GrTextureAdjuster adjuster(context, fPinnedProxy,
                                    fBitmap.alphaType(), fBitmap.bounds(),
                                    fPinnedUniqueID, fBitmap.colorSpace());
-        return adjuster.refTextureProxySafeForParams(params, nullptr, scaleAdjust);
+        return adjuster.refTextureProxySafeForParams(params, scaleAdjust);
     }
 
     return GrRefCachedBitmapTextureProxy(context, fBitmap, params, scaleAdjust);
