@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "540f4ff6_f6d00630",
+        "filename": "src/gpu/GrBitmapTextureMaker.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-29T19:40:21Z",
+      "side": 1,
+      "message": "just \"return originalProxy;\" here and remove the logic below ?",
+      "revId": "71d248546f14272d108293edaaa77f34a7c67e14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ba1cfe4_30b045d2",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-29T19:40:21Z",
+      "side": 1,
+      "message": "you could also negate the test \u0026 return early",
+      "revId": "71d248546f14272d108293edaaa77f34a7c67e14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee104218_58330cf1",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-09-29T19:40:21Z",
+      "side": 1,
+      "message": "// comment\n?",
+      "revId": "71d248546f14272d108293edaaa77f34a7c67e14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
