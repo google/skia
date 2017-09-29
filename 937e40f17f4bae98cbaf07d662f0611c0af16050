@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "e648f5dd_fe3b98cb",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-29T19:47:09Z",
+      "side": 1,
+      "message": "I don\u0027t actually understand why does my return false. Is an assertion incorrect?",
+      "revId": "937e40f17f4bae98cbaf07d662f0611c0af16050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ab1487b8_180240db",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 2
