@@ -190,15 +190,15 @@ void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
 #ifdef SK_DEBUG
     if (pr) {
         if (kUnknown_SkColorType != fInfo.colorType()) {
-            SkASSERT(fInfo.width() + dx <= pr->width());
-            SkASSERT(fInfo.height() + dy <= pr->height());
+            SkASSERT(dx >= 0 && fInfo.width() + dx <= pr->width());
+            SkASSERT(dy >= 0 && fInfo.height() + dy <= pr->height());
         }
     }
 #endif
-
-    fPixelRef = std::move(pr);
+    fPixelRef = kUnknown_SkColorType != fInfo.colorType() ? std::move(pr) : nullptr;
     if (fPixelRef) {
-        fPixelRefOrigin.set(SkTPin(dx, 0, fPixelRef->width()), SkTPin(dy, 0, fPixelRef->height()));
+        fPixelRefOrigin.set(dx, dy);
+        fRowBytes = fPixelRef->rowBytes();
         this->updatePixelsFromRef();
     } else {
         // ignore dx,dy if there is no pixelref
@@ -245,6 +245,9 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, size_t rowBytes)
 
     // setInfo may have corrected info (e.g. 565 is always opaque).
     const SkImageInfo& correctedInfo = this->info();
+    if (kUnknown_SkColorType == correctedInfo.colorType()) {
+        return true;
+    }
     // setInfo may have computed a valid rowbytes if 0 were passed in
     rowBytes = this->rowBytes();
 
