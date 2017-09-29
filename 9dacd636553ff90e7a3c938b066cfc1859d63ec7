@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2b5922a_d43982fa",
+        "filename": "src/core/SkOneOff8888To565Blitter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-09-29T13:47:02Z",
+      "side": 1,
+      "message": "add check for dither",
+      "range": {
+        "startLine": 23,
+        "startChar": 17,
+        "endLine": 23,
+        "endChar": 18
+      },
+      "revId": "9dacd636553ff90e7a3c938b066cfc1859d63ec7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e38c4444_528d887a",
+        "filename": "src/core/SkOneOff8888To565Blitter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-09-29T13:47:02Z",
+      "side": 1,
+      "message": "Seems like this should be src.alphaType() \u003d\u003d kUnpremul_SkAlphaType. We can let in premul and opaque.",
+      "range": {
+        "startLine": 44,
+        "startChar": 44,
+        "endLine": 44,
+        "endChar": 53
+      },
+      "revId": "9dacd636553ff90e7a3c938b066cfc1859d63ec7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9de6a12_f6282540",
+        "filename": "src/core/SkOneOff8888To565Blitter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-09-29T13:47:02Z",
+      "side": 1,
+      "message": "Not sure we need/want to check this at all. Don\u0027t we only care about if the dst has a colorspace or not?",
+      "range": {
+        "startLine": 45,
+        "startChar": 44,
+        "endLine": 45,
+        "endChar": 54
+      },
+      "revId": "9dacd636553ff90e7a3c938b066cfc1859d63ec7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee8d22f6_69dd4b5d",
+        "filename": "src/core/SkOneOff8888To565Blitter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-09-29T13:47:02Z",
+      "side": 1,
+      "message": "I think we need to return xy.fX, since that is fractional and is needed to correctly compute subsequent values\n\nx \u003d SkFloatToFixed(xy.fX;\nfor (...) {\n    ix \u003d clamp(floor(x));\n    ...\n    x +\u003d delta;\n}",
+      "range": {
+        "startLine": 90,
+        "startChar": 21,
+        "endLine": 90,
+        "endChar": 30
+      },
+      "revId": "9dacd636553ff90e7a3c938b066cfc1859d63ec7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
