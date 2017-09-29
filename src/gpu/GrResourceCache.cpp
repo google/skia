@@ -196,12 +196,15 @@ void GrResourceCache::releaseAll() {
 
     this->processFreedGpuResources();
 
+    // We must remove the uniqueKeys from the proxies here. While they possess a uniqueKey
+    // they also have a raw pointer back to this class (which is presumably going away)!
     UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies);
-    for (UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies) ; !iter.done(); ++iter) {
+    for (UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies); !iter.done(); ++iter) {
         GrTextureProxy& tmp = *iter;
 
         this->processInvalidProxyUniqueKey(tmp.getUniqueKey(), &tmp, false);
     }
+    SkASSERT(!fUniquelyKeyedProxies.count());
 
     while(fNonpurgeableResources.count()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
