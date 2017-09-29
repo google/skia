@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "603e5548_674408d2",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-29T19:50:31Z",
+      "side": 1,
+      "message": "why *this* *might* return false",
+      "parentUuid": "e648f5dd_fe3b98cb",
+      "revId": "937e40f17f4bae98cbaf07d662f0611c0af16050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ab1487b8_180240db",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-09-29T19:43:37Z",
       "side": 1,
       "message": "Should we be doing \"renderTargetContexts[j] \u003d nullptr;\" here ?",
+      "revId": "937e40f17f4bae98cbaf07d662f0611c0af16050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2045c398_cf4f3703",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-09-29T19:50:31Z",
+      "side": 1,
+      "message": "I don\u0027t know if that would or would not be necessary. My reason for calling reset is for it to trigger a call to InstancedRendering::endFlush.",
+      "parentUuid": "ab1487b8_180240db",
       "revId": "937e40f17f4bae98cbaf07d662f0611c0af16050",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
