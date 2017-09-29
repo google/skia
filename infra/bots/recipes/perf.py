@@ -106,7 +106,9 @@ def nanobench_flags(api, bot):
     # Bench instanced rendering on a limited number of platforms
     inst_config = gl_prefix + 'inst'
     if 'PixelC' in bot or 'NVIDIA_Shield' in bot or 'MacMini7.1' in bot:
-      configs.extend([inst_config, inst_config + sample_count])
+      configs.append(inst_config)
+      if sample_count:
+        configs.append(inst_config + sample_count)
 
     if 'CommandBuffer' in bot:
       configs = ['commandbuffer']
@@ -385,6 +387,7 @@ TEST_BUILDERS = [
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release',
   'Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release',
+  'Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release',
   'Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-CommandBuffer',
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release',
