@@ -22,6 +22,30 @@
       "revId": "8126f2bfcba6075b4b647f23f6e83864a3c4cb6c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32c67f2b_474b5c27",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-09-29T13:45:32Z",
+      "side": 1,
+      "message": "Oh neat.  I think I\u0027d like to keep the inline explicit here for now until we become more familiar with constexpr functions as a team.",
+      "parentUuid": "38673acb_14fac2bd",
+      "range": {
+        "startLine": 31,
+        "startChar": 17,
+        "endLine": 31,
+        "endChar": 23
+      },
+      "revId": "8126f2bfcba6075b4b647f23f6e83864a3c4cb6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
