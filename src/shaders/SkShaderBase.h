@@ -101,6 +101,8 @@ public:
         // Notification from blitter::blitMask in case we need to see the non-alpha channels
         virtual void set3DMask(const SkMask*) {}
 
+        virtual bool preferShadeSpan() { return false; }
+
     protected:
         // Reference to shader, so we don't have to dupe information.
         const SkShaderBase& fShader;

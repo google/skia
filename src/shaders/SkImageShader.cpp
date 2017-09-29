@@ -97,6 +97,17 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                  rec, alloc);
 }
 
+SkShaderBase::Context* SkImageShader::onMakeBurstPipelineContext(const ContextRec& rec,
+                                                                 SkArenaAlloc* alloc) const {
+    if (rec.fDstColorSpace != nullptr || rec.fPaint->getFilterQuality() > kLow_SkFilterQuality) {
+        return nullptr;
+    }
+    if (this->onIsRasterPipelineOnly(*rec.fMatrix)) {
+        return nullptr;
+    }
+    return this->makeContext(rec, alloc);
+}
+
 SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {
     if (texM) {
         *texM = this->getLocalMatrix();

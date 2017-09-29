@@ -79,7 +79,8 @@ private:
     float fCurrentCoverage = 0.0f;
     float fDitherRate      = 0.0f;
 
-    std::vector<SkPM4f> fShaderBuffer;
+    std::vector<uint32_t> fShadeSpanBuffer;
+    std::vector<SkPM4f>   fShadeSpanBuffer4f;
 
     typedef SkBlitter INHERITED;
 };
@@ -157,7 +158,14 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     // Let's get the shader in first.
     if (burstCtx) {
-        colorPipeline->append(SkRasterPipeline::load_f32, &blitter->fShaderOutput);
+        if (burstCtx->preferShadeSpan()) {
+            auto load_n32 = (kN32_SkColorType == kRGBA_8888_SkColorType)
+                ? SkRasterPipeline::load_8888
+                : SkRasterPipeline::load_bgra;
+            colorPipeline->append(load_n32, &blitter->fShaderOutput);
+        } else {
+            colorPipeline->append(SkRasterPipeline::load_f32, &blitter->fShaderOutput);
+        }
     } else {
         colorPipeline->extend(shaderPipeline);
     }
@@ -276,12 +284,21 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
 
 void SkRasterPipelineBlitter::burst_shade(int x, int y, int w) {
     SkASSERT(fBurstCtx);
-    if (w > SkToInt(fShaderBuffer.size())) {
-        fShaderBuffer.resize(w);
+    if (fBurstCtx->preferShadeSpan()) {
+        if (w > SkToInt(fShadeSpanBuffer.size())) {
+            fShadeSpanBuffer.resize(w);
+        }
+        fBurstCtx->shadeSpan(x,y, fShadeSpanBuffer.data(), w);
+        // We'll be reading from fShaderOutput.pixels + x, so back up by x.
+        fShaderOutput = SkJumper_MemoryCtx{ fShadeSpanBuffer.data() - x, 0 };
+    } else {
+        if (w > SkToInt(fShadeSpanBuffer4f.size())) {
+            fShadeSpanBuffer4f.resize(w);
+        }
+        fBurstCtx->shadeSpan4f(x,y, fShadeSpanBuffer4f.data(), w);
+        // We'll be reading from fShaderOutput.pixels + x, so back up by x.
+        fShaderOutput = SkJumper_MemoryCtx{ fShadeSpanBuffer4f.data() - x, 0 };
     }
-    fBurstCtx->shadeSpan4f(x,y, fShaderBuffer.data(), w);
-    // We'll be reading from fShaderOutput.pixels + x, so back up by x.
-    fShaderOutput = SkJumper_MemoryCtx{ fShaderBuffer.data() - x, 0 };
 }
 
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {

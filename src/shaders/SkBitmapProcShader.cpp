@@ -85,6 +85,8 @@ public:
         }
     }
 
+    bool preferShadeSpan() override { return true; }
+
 private:
     SkBitmapProcState*  fState;
 
