@@ -225,6 +225,13 @@ sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider*,
                                                    const SkPixmap&, SkBudgeted, SkColorSpace*);
 
 /**
+ * Creates a new texture with mipmap levels and copies the baseProxy into the base layer.
+ */
+sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext*,
+                                                     GrTextureProxy* baseProxy,
+                                                     SkColorSpace* dstColorSpace);
+
+/**
  * Creates a new texture populated with the mipmap levels.
  */
 sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext*, const SkImageInfo&,
