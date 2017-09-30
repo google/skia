@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d79aed5d_094208a1",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 905,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-30T00:15:31Z",
+      "side": 0,
+      "message": "No longer provides additional coverage.",
+      "revId": "c739b7260a36ed4f9ea803991909a438629ca1d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

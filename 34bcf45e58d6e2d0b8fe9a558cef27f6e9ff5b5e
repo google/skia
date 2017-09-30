@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e749aef_5b88f250",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-09-30T00:15:31Z",
+      "side": 1,
+      "message": "Added this even for non-Vulkan for simplicity. Seems like it shouldn\u0027t hurt anything.",
+      "revId": "34bcf45e58d6e2d0b8fe9a558cef27f6e9ff5b5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
