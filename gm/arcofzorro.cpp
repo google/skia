@@ -31,47 +31,22 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkRandom rand;
-
-        SkRect rect = SkRect::MakeXYWH(10, 10, 200, 200);
-
-        SkPaint p;
-
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(35);
-        int xOffset = 0, yOffset = 0;
-        int direction = 0;
-
-        for (float arc = 134.0f; arc < 136.0f; arc += 0.01f) {
-            SkColor color = rand.nextU();
-            color |= 0xff000000;
-            p.setColor(color);
-
+        canvas->clear(SK_ColorWHITE);
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor(0x8055aaff);
+        SkRect clipRect = { 0, 0, 90.5f, 120.5f };
+        for (auto alias: { false, true } ) {
             canvas->save();
-            canvas->translate(SkIntToScalar(xOffset), SkIntToScalar(yOffset));
-            canvas->drawArc(rect, 0, arc, false, p);
+            canvas->clipRect(clipRect, SkClipOp::kIntersect, alias);
+            canvas->drawCircle(70, 100, 60, paint);
             canvas->restore();
-
-            switch (direction) {
-            case 0:
-                xOffset += 10;
-                if (xOffset >= 700) {
-                    direction = 1;
-                }
-                break;
-            case 1:
-                xOffset -= 10;
-                yOffset += 10;
-                if (xOffset < 50) {
-                    direction = 2;
-                }
-                break;
-            case 2:
-                xOffset += 10;
-                break;
-            }
+            canvas->save();
+            canvas->clipRect(clipRect, SkClipOp::kDifference, alias);
+            canvas->drawCircle(70, 100, 60, paint);
+            canvas->restore();
+            canvas->translate(120, 0);
         }
-
     }
 
 private:
