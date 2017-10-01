@@ -235,7 +235,7 @@ private:
     bool fRejectPendingIO;
 };
 
-GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& scratchKey,
+sk_sp<GrGpuResource> GrResourceCache::findScratchResource(const GrScratchKey& scratchKey,
                                                           size_t resourceSize,
                                                           uint32_t flags) {
     SkASSERT(scratchKey.isValid());
@@ -244,9 +244,7 @@ GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& sc
     if (flags & (kPreferNoPendingIO_ScratchFlag | kRequireNoPendingIO_ScratchFlag)) {
         resource = fScratchMap.find(scratchKey, AvailableForScratchUse(true));
         if (resource) {
-            this->refAndMakeResourceMRU(resource);
-            this->validate();
-            return resource;
+            return this->refAndMakeResourceMRU(resource);
         } else if (flags & kRequireNoPendingIO_ScratchFlag) {
             return nullptr;
         }
@@ -261,10 +259,9 @@ GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& sc
     }
     resource = fScratchMap.find(scratchKey, AvailableForScratchUse(false));
     if (resource) {
-        this->refAndMakeResourceMRU(resource);
-        this->validate();
+        return this->refAndMakeResourceMRU(resource);
     }
-    return resource;
+    return nullptr;
 }
 
 void GrResourceCache::willRemoveScratchKey(const GrGpuResource* resource) {
@@ -328,7 +325,7 @@ void GrResourceCache::changeUniqueKey(GrGpuResource* resource, const GrUniqueKey
     this->validate();
 }
 
-void GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
+sk_sp<GrGpuResource> GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
     SkASSERT(resource);
     SkASSERT(this->isInCache(resource));
 
@@ -338,10 +335,10 @@ void GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
         fPurgeableQueue.remove(resource);
         this->addToNonpurgeableArray(resource);
     }
-    resource->ref();
 
     resource->cacheAccess().setTimestamp(this->getNextTimestamp());
     this->validate();
+    return sk_ref_sp(resource);
 }
 
 void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t flags) {
@@ -582,10 +579,9 @@ void GrResourceCache::processInvalidUniqueKeys(
     for (int i = 0; i < msgs.count(); ++i) {
         this->processInvalidProxyUniqueKey(msgs[i].key());
 
-        GrGpuResource* resource = this->findAndRefUniqueResource(msgs[i].key());
+        sk_sp<GrGpuResource> resource = this->findUniqueResource(msgs[i].key());
         if (resource) {
             resource->resourcePriv().removeUniqueKey();
-            resource->unref(); // If this resource is now purgeable, the cache will be notified.
         }
     }
 }
@@ -859,7 +855,7 @@ void GrResourceCache::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTexturePr
     // If there is already a GrResource with this key then the caller has violated the normal
     // usage pattern of uniquely keyed resources (e.g., they have created one w/o first seeing
     // if it already existed in the cache).
-    SkASSERT(!this->findAndRefUniqueResource(key));
+    SkASSERT(!this->findUniqueResource(key));
 
     // Uncached resources can never have a unique key, unless they're wrapped resources. Wrapped
     // resources are a special case: the unique keys give us a weak ref so that we can reuse the
@@ -887,12 +883,12 @@ sk_sp<GrTextureProxy> GrResourceCache::findProxyByUniqueKey(const GrUniqueKey& k
         return result;
     }
 
-    GrGpuResource* resource = findAndRefUniqueResource(key);
+    sk_sp<GrGpuResource> resource = this->findUniqueResource(key);
     if (!resource) {
         return nullptr;
     }
 
-    sk_sp<GrTexture> texture(static_cast<GrSurface*>(resource)->asTexture());
+    sk_sp<GrTexture> texture(static_cast<GrSurface*>(resource.release())->asTexture());
     SkASSERT(texture);
 
     result = GrSurfaceProxy::MakeWrapped(std::move(texture), origin);

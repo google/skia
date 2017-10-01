@@ -129,7 +129,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
         1, 0,
         1, 1
     };
-    fVertexBuffer.reset(GrVkVertexBuffer::Create(gpu, sizeof(vdata), false));
+    fVertexBuffer = GrVkVertexBuffer::Create(gpu, sizeof(vdata), false);
     SkASSERT(fVertexBuffer.get());
     fVertexBuffer->updateData(vdata, sizeof(vdata));
 

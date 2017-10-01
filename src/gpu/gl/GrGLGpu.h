@@ -36,10 +36,10 @@ namespace gr_instanced { class GLInstancedRendering; }
 
 class GrGLGpu final : public GrGpu, private GrMesh::SendToGpuImpl {
 public:
-    static GrGpu* Create(GrBackendContext backendContext, const GrContextOptions& options,
-                         GrContext* context);
-    static GrGpu* Create(const GrGLInterface*, const GrContextOptions& options,
-                         GrContext* context);
+    static sk_sp<GrGpu> Create(GrBackendContext backendContext, const GrContextOptions& options,
+                               GrContext* context);
+    static sk_sp<GrGpu> Create(const GrGLInterface*, const GrContextOptions& options,
+                               GrContext* context);
     ~GrGLGpu() override;
 
     void disconnect(DisconnectType) override;
@@ -159,9 +159,9 @@ public:
         fHWBoundRenderTargetUniqueID.makeInvalid();
     }
 
-    GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                int width,
-                                                                int height) override;
+    sk_sp<GrStencilAttachment> createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
+                                                                      int width,
+                                                                      int height) override;
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                     GrPixelConfig config,
@@ -199,8 +199,8 @@ private:
                                      const GrMipLevel texels[],
                                      int mipLevelCount) override;
 
-    GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
-                             const void* data) override;
+    sk_sp<GrBuffer> onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
+                                   const void* data) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership) override;
     sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,

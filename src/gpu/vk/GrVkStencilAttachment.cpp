@@ -26,11 +26,11 @@ GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
     stencilView->ref();
 }
 
-GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
-                                                     int width,
-                                                     int height,
-                                                     int sampleCnt,
-                                                     const Format& format) {
+sk_sp<GrVkStencilAttachment> GrVkStencilAttachment::Create(GrVkGpu* gpu,
+                                                           int width,
+                                                           int height,
+                                                           int sampleCnt,
+                                                           const Format& format) {
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = format.fInternalFormat;
@@ -56,8 +56,8 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
         return nullptr;
     }
 
-    GrVkStencilAttachment* stencil = new GrVkStencilAttachment(gpu, format, imageDesc,
-                                                               info, imageView);
+    sk_sp<GrVkStencilAttachment> stencil(new GrVkStencilAttachment(gpu, format, imageDesc,
+                                                                   info, imageView));
     imageView->unref(gpu);
 
     return stencil;

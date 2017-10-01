@@ -10,7 +10,7 @@
 #include "SkTraceMemoryDump.h"
 
 
-GrVkTransferBuffer* GrVkTransferBuffer::Create(GrVkGpu* gpu, size_t size, GrVkBuffer::Type type) {
+sk_sp<GrVkTransferBuffer> GrVkTransferBuffer::Create(GrVkGpu* gpu, size_t size, GrVkBuffer::Type type) {
     GrVkBuffer::Desc desc;
     desc.fDynamic = true;
     SkASSERT(GrVkBuffer::kCopyRead_Type == type || GrVkBuffer::kCopyWrite_Type == type);
@@ -26,7 +26,7 @@ GrVkTransferBuffer* GrVkTransferBuffer::Create(GrVkGpu* gpu, size_t size, GrVkBu
     if (!buffer) {
         bufferResource->unref(gpu);
     }
-    return buffer;
+    return sk_sp<GrVkTransferBuffer>(buffer);
 }
 
 GrVkTransferBuffer::GrVkTransferBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,

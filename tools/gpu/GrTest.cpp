@@ -102,7 +102,7 @@ void GrContext::purgeAllUnlockedResources() {
 
 void GrContext::resetGpuStats() const {
 #if GR_GPU_STATS
-    fGpu->stats()->reset();
+    fGpu1->stats()->reset();
 #endif
 }
 
@@ -127,14 +127,14 @@ void GrContext::printCacheStats() const {
 
 void GrContext::dumpGpuStats(SkString* out) const {
 #if GR_GPU_STATS
-    return fGpu->stats()->dump(out);
+    return fGpu1->stats()->dump(out);
 #endif
 }
 
 void GrContext::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
                                           SkTArray<double>* values) const {
 #if GR_GPU_STATS
-    return fGpu->stats()->dumpKeyValuePairs(keys, values);
+    return fGpu1->stats()->dumpKeyValuePairs(keys, values);
 #endif
 }
 

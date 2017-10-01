@@ -39,25 +39,25 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
     }
 
     if (!fVertexBuffer) {
-        fVertexBuffer.reset(InstanceProcessor::FindOrCreateVertexBuffer(fGpu.get()));
+        fVertexBuffer = InstanceProcessor::FindOrCreateVertexBuffer(fGpu.get());
         if (!fVertexBuffer) {
             return;
         }
     }
 
     if (!fIndexBuffer) {
-      fIndexBuffer.reset(InstanceProcessor::FindOrCreateIndex8Buffer(fGpu.get()));
+        fIndexBuffer = InstanceProcessor::FindOrCreateIndex8Buffer(fGpu.get());
         if (!fIndexBuffer) {
             return;
         }
     }
 
     if (!fParams.empty()) {
-        fParamsBuffer.reset(rp->createBuffer(fParams.count() * sizeof(ParamsTexel),
-                                             kTexel_GrBufferType, kDynamic_GrAccessPattern,
-                                             GrResourceProvider::kNoPendingIO_Flag |
-                                             GrResourceProvider::kRequireGpuMemory_Flag,
-                                             fParams.begin()));
+        fParamsBuffer = rp->createBuffer(fParams.count() * sizeof(ParamsTexel),
+                                         kTexel_GrBufferType, kDynamic_GrAccessPattern,
+                                         GrResourceProvider::kNoPendingIO_Flag |
+                                         GrResourceProvider::kRequireGpuMemory_Flag,
+                                         fParams.begin());
         if (!fParamsBuffer) {
             return;
         }

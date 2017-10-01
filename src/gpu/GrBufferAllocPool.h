@@ -118,12 +118,12 @@ protected:
                            size_t* offset,
                            size_t* actualSize);
 
-    GrBuffer* getBuffer(size_t size);
+    sk_sp<GrBuffer> getBuffer(size_t size);
 
 private:
     struct BufferBlock {
-        size_t      fBytesFree;
-        GrBuffer*   fBuffer;
+        size_t          fBytesFree;
+        sk_sp<GrBuffer> fBuffer1;
     };
 
     bool createBlock(size_t requestSize);

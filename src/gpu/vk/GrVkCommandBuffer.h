@@ -45,7 +45,7 @@ public:
                          BarrierType barrierType,
                          void* barrier) const;
 
-    void bindInputBuffer(GrVkGpu* gpu, uint32_t binding, const GrVkVertexBuffer* vbuffer);
+    void bindInputBuffer(GrVkGpu* gpu, uint32_t binding, const GrVkBuffer* vbuffer);
 
     void bindIndexBuffer(GrVkGpu* gpu, const GrVkIndexBuffer* ibuffer);
 
@@ -244,7 +244,7 @@ public:
                            const VkBufferImageCopy* copyRegions);
 
     void copyBufferToImage(const GrVkGpu* gpu,
-                           GrVkTransferBuffer* srcBuffer,
+                           GrVkBuffer* srcBuffer,
                            GrVkImage* dstImage,
                            VkImageLayout dstLayout,
                            uint32_t copyRegionCount,

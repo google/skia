@@ -13,10 +13,10 @@
 #include "vk/GrVkGpu.h"
 #endif
 
-GrGpu* GrGpu::Create(GrBackend backend,
-                     GrBackendContext backendContext,
-                     const GrContextOptions& options,
-                     GrContext* context) {
+sk_sp<GrGpu> GrGpu::Create(GrBackend backend,
+                           GrBackendContext backendContext,
+                           const GrContextOptions& options,
+                           GrContext* context) {
     switch (backend) {
         case kOpenGL_GrBackend:
             return GrGLGpu::Create(backendContext, options, context);

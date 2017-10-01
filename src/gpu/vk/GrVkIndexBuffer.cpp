@@ -16,7 +16,7 @@ GrVkIndexBuffer::GrVkIndexBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
     this->registerWithCache(SkBudgeted::kYes);
 }
 
-GrVkIndexBuffer* GrVkIndexBuffer::Create(GrVkGpu* gpu, size_t size, bool dynamic) {
+sk_sp<GrBuffer> GrVkIndexBuffer::Create(GrVkGpu* gpu, size_t size, bool dynamic) {
     GrVkBuffer::Desc desc;
     desc.fDynamic = dynamic;
     desc.fType = GrVkBuffer::kIndex_Type;
@@ -27,12 +27,11 @@ GrVkIndexBuffer* GrVkIndexBuffer::Create(GrVkGpu* gpu, size_t size, bool dynamic
         return nullptr;
     }
 
-
     GrVkIndexBuffer* buffer = new GrVkIndexBuffer(gpu, desc, bufferResource);
     if (!buffer) {
         bufferResource->unref(gpu);
     }
-    return buffer;
+    return sk_sp<GrBuffer>(buffer);
 }
 
 void GrVkIndexBuffer::onRelease() {

@@ -24,8 +24,8 @@ public:
         bool fPacked;
     };
 
-    static GrVkStencilAttachment* Create(GrVkGpu* gpu, int width, int height,
-                                         int sampleCnt, const Format& format);
+    static sk_sp<GrVkStencilAttachment> Create(GrVkGpu* gpu, int width, int height,
+                                               int sampleCnt, const Format& format);
 
     ~GrVkStencilAttachment() override;
 

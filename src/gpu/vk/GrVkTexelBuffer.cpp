@@ -17,7 +17,7 @@ GrVkTexelBuffer::GrVkTexelBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
     this->registerWithCache(SkBudgeted::kYes);
 }
 
-GrVkTexelBuffer* GrVkTexelBuffer::Create(GrVkGpu* gpu, size_t size, bool dynamic) {
+sk_sp<GrBuffer> GrVkTexelBuffer::Create(GrVkGpu* gpu, size_t size, bool dynamic) {
     GrVkBuffer::Desc desc;
     desc.fDynamic = dynamic;
     desc.fType = GrVkBuffer::kTexel_Type;
@@ -31,7 +31,7 @@ GrVkTexelBuffer* GrVkTexelBuffer::Create(GrVkGpu* gpu, size_t size, bool dynamic
     if (!buffer) {
         bufferResource->unref(gpu);
     }
-    return buffer;
+    return sk_sp<GrVkTexelBuffer>(buffer);
 }
 
 void GrVkTexelBuffer::onRelease() {

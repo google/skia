@@ -289,8 +289,8 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended for internal use only.
-    GrGpu* getGpu() { return fGpu; }
-    const GrGpu* getGpu() const { return fGpu; }
+    GrGpu* getGpu() { return fGpu1.get(); }
+    const GrGpu* getGpu() const { return fGpu1.get(); }
     GrAtlasGlyphCache* getAtlasGlyphCache() { return fAtlasGlyphCache; }
     GrTextBlobCache* getTextBlobCache() { return fTextBlobCache.get(); }
     bool abandoned() const;
@@ -340,7 +340,7 @@ public:
     const GrContextPriv contextPriv() const;
 
 private:
-    GrGpu*                                  fGpu;
+    sk_sp<GrGpu>                            fGpu1;
     const GrCaps*                           fCaps;
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;

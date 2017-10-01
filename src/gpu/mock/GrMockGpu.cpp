@@ -24,18 +24,18 @@ int GrMockGpu::NextExternalTextureID() {
     return sk_atomic_dec(&gID) - 1;
 }
 
-GrGpu* GrMockGpu::Create(GrBackendContext backendContext, const GrContextOptions& contextOptions,
+sk_sp<GrGpu> GrMockGpu::Create(GrBackendContext backendContext, const GrContextOptions& contextOptions,
                          GrContext* context) {
     return Create(reinterpret_cast<const GrMockOptions*>(backendContext), contextOptions, context);
 }
 
-GrGpu* GrMockGpu::Create(const GrMockOptions* mockOptions, const GrContextOptions& contextOptions,
-                         GrContext* context) {
+sk_sp<GrGpu> GrMockGpu::Create(const GrMockOptions* mockOptions, const GrContextOptions& contextOptions,
+                               GrContext* context) {
     static const GrMockOptions kDefaultOptions = GrMockOptions();
     if (!mockOptions) {
         mockOptions = &kDefaultOptions;
     }
-    return new GrMockGpu(context, *mockOptions, contextOptions);
+    return sk_sp<GrGpu>(new GrMockGpu(context, *mockOptions, contextOptions));
 }
 
 
@@ -76,17 +76,18 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgete
     return sk_sp<GrTexture>(new GrMockTexture(this, budgeted, desc, hasMipLevels, info));
 }
 
-GrBuffer* GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrBufferType type,
-                                    GrAccessPattern accessPattern, const void*) {
-    return new GrMockBuffer(this, sizeInBytes, type, accessPattern);
+sk_sp<GrBuffer> GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrBufferType type,
+                                          GrAccessPattern accessPattern, const void*) {
+    return sk_sp<GrBuffer>(new GrMockBuffer(this, sizeInBytes, type, accessPattern));
 }
 
-GrStencilAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                       int width,
-                                                                       int height) {
+sk_sp<GrStencilAttachment> GrMockGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
+                                                                             int width,
+                                                                             int height) {
     static constexpr int kBits = 8;
     fStats.incStencilAttachmentCreates();
-    return new GrMockStencilAttachment(this, width, height, kBits, rt->numColorSamples());
+    return sk_sp<GrStencilAttachment>(new GrMockStencilAttachment(this, width, height,
+                                                                  kBits, rt->numColorSamples()));
 }
 
 GrBackendObject GrMockGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,

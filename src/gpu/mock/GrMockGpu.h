@@ -20,8 +20,8 @@ class GrPipeline;
 
 class GrMockGpu : public GrGpu {
 public:
-    static GrGpu* Create(GrBackendContext, const GrContextOptions&, GrContext*);
-    static GrGpu* Create(const GrMockOptions*, const GrContextOptions&, GrContext*);
+    static sk_sp<GrGpu> Create(GrBackendContext, const GrContextOptions&, GrContext*);
+    static sk_sp<GrGpu> Create(const GrMockOptions*, const GrContextOptions&, GrContext*);
 
     ~GrMockGpu() override {}
 
@@ -95,8 +95,8 @@ private:
         return nullptr;
     }
 
-    GrBuffer* onCreateBuffer(size_t sizeInBytes, GrBufferType, GrAccessPattern,
-                             const void*) override;
+    sk_sp<GrBuffer> onCreateBuffer(size_t sizeInBytes, GrBufferType, GrAccessPattern,
+                                   const void*) override;
 
     gr_instanced::InstancedRendering* onCreateInstancedRendering() override { return nullptr; }
 
@@ -126,9 +126,9 @@ private:
 
     void onFinishFlush(bool insertedSemaphores) override {}
 
-    GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
-                                                                int width,
-                                                                int height) override;
+    sk_sp<GrStencilAttachment> createStencilAttachmentForRenderTarget(const GrRenderTarget*,
+                                                                      int width,
+                                                                      int height) override;
     void clearStencil(GrRenderTarget*, int clearValue) override  {}
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h, GrPixelConfig,

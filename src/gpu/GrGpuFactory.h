@@ -9,12 +9,13 @@
 #define GrGpuFactory_DEFINED
 
 #include "GrTypes.h"
+#include "SkRefCnt.h"
 
 class GrGpu;
 class GrContext;
 struct GrContextOptions;
 
-typedef GrGpu* (*CreateGpuProc)(GrBackendContext, const GrContextOptions& options, GrContext*);
+typedef sk_sp<GrGpu> (*CreateGpuProc)(GrBackendContext, const GrContextOptions& options, GrContext*);
 
 class GrGpuFactoryRegistrar {
 public:

@@ -151,7 +151,7 @@ void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
 }
 
 void GrVkCommandBuffer::bindInputBuffer(GrVkGpu* gpu, uint32_t binding,
-                                        const GrVkVertexBuffer* vbuffer) {
+                                        const GrVkBuffer* vbuffer) {
     VkBuffer vkBuffer = vbuffer->buffer();
     SkASSERT(VK_NULL_HANDLE != vkBuffer);
     SkASSERT(binding < kMaxInputBuffers);
@@ -620,7 +620,7 @@ void GrVkPrimaryCommandBuffer::copyImageToBuffer(const GrVkGpu* gpu,
 }
 
 void GrVkPrimaryCommandBuffer::copyBufferToImage(const GrVkGpu* gpu,
-                                                 GrVkTransferBuffer* srcBuffer,
+                                                 GrVkBuffer* srcBuffer,
                                                  GrVkImage* dstImage,
                                                  VkImageLayout dstLayout,
                                                  uint32_t copyRegionCount,

@@ -344,7 +344,7 @@ private:
         }
         sk_sp<const GrBuffer> ibuffer;
         if (fDraws.count() > 1) {
-            ibuffer.reset(target->resourceProvider()->refQuadIndexBuffer());
+            ibuffer = target->resourceProvider()->refQuadIndexBuffer();
             if (!ibuffer) {
                 SkDebugf("Could not allocate quad indices\n");
                 return;

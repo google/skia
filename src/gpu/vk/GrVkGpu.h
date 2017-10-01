@@ -38,10 +38,10 @@ namespace SkSL {
 
 class GrVkGpu : public GrGpu {
 public:
-    static GrGpu* Create(GrBackendContext backendContext, const GrContextOptions& options,
-                         GrContext* context);
-    static GrGpu* Create(const GrVkBackendContext*, const GrContextOptions& options,
-                         GrContext* context);
+    static sk_sp<GrGpu> Create(GrBackendContext backendContext, const GrContextOptions& options,
+                               GrContext* context);
+    static sk_sp<GrGpu> Create(const GrVkBackendContext*, const GrContextOptions& options,
+                               GrContext* context);
 
     ~GrVkGpu() override;
 
@@ -91,9 +91,9 @@ public:
     bool isTestingOnlyBackendTexture(GrBackendObject id) const override;
     void deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandonTexture) override;
 
-    GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
-                                                                int width,
-                                                                int height) override;
+    sk_sp<GrStencilAttachment> createStencilAttachmentForRenderTarget(const GrRenderTarget*,
+                                                                      int width,
+                                                                      int height) override;
 
     void clearStencil(GrRenderTarget* target, int clearValue) override;
 
@@ -191,8 +191,8 @@ private:
     sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
                                                              int sampleCnt) override;
 
-    GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
-                             const void* data) override;
+    sk_sp<GrBuffer> onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
+                                   const void* data) override;
 
     gr_instanced::InstancedRendering* onCreateInstancedRendering() override { return nullptr; }
 

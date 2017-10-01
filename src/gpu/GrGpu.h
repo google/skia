@@ -55,7 +55,7 @@ public:
      * not supported (at compile-time or run-time) this returns nullptr. The context will not be
      * fully constructed and should not be used by GrGpu until after this function returns.
      */
-    static GrGpu* Create(GrBackend, GrBackendContext, const GrContextOptions&, GrContext* context);
+    static sk_sp<GrGpu> Create(GrBackend, GrBackendContext, const GrContextOptions&, GrContext*);
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -148,8 +148,8 @@ public:
      *
      * @return the buffer if successful, otherwise nullptr.
      */
-    GrBuffer* createBuffer(size_t size, GrBufferType intendedType, GrAccessPattern accessPattern,
-                           const void* data = nullptr);
+    sk_sp<GrBuffer> createBuffer(size_t size, GrBufferType intendedType,
+                                 GrAccessPattern accessPattern, const void* data = nullptr);
 
     /**
      * Creates an instanced rendering object if it is supported on this platform.
@@ -479,9 +479,9 @@ public:
     // width and height may be larger than rt (if underlying API allows it).
     // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on
     // the GrStencilAttachment.
-    virtual GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
-                                                                        int width,
-                                                                        int height) = 0;
+    virtual sk_sp<GrStencilAttachment> createStencilAttachmentForRenderTarget(const GrRenderTarget*,
+                                                                              int width,
+                                                                              int height) = 0;
     // clears target's entire stencil buffer to 0
     virtual void clearStencil(GrRenderTarget* target, int clearValue) = 0;
 
@@ -561,8 +561,8 @@ private:
     virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&) = 0;
     virtual sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
                                                                      int sampleCnt) = 0;
-    virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
-                                     const void* data) = 0;
+    virtual sk_sp<GrBuffer> onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
+                                           const void* data) = 0;
 
     virtual gr_instanced::InstancedRendering* onCreateInstancedRendering() = 0;
     virtual std::unique_ptr<gr_instanced::OpAllocator> onCreateInstancedRenderingAllocator() {

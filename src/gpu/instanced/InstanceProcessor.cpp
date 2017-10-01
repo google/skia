@@ -2006,34 +2006,34 @@ enum {
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gShapeVertexBufferKey);
 
-const GrBuffer* InstanceProcessor::FindOrCreateVertexBuffer(GrGpu* gpu) {
+sk_sp<const GrBuffer> InstanceProcessor::FindOrCreateVertexBuffer(GrGpu* gpu) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gShapeVertexBufferKey);
     GrResourceCache* cache = gpu->getContext()->getResourceCache();
-    if (GrGpuResource* cached = cache->findAndRefUniqueResource(gShapeVertexBufferKey)) {
-        return static_cast<GrBuffer*>(cached);
-    }
-    if (GrBuffer* buffer = gpu->createBuffer(sizeof(kVertexData), kVertex_GrBufferType,
-                                             kStatic_GrAccessPattern, kVertexData)) {
+
+    sk_sp<GrBuffer> buffer;
+    if (sk_sp<GrGpuResource> cached = cache->findUniqueResource(gShapeVertexBufferKey)) {
+        buffer = sk_sp<GrBuffer>((GrBuffer*) cached.release());
+    } else if (buffer = gpu->createBuffer(sizeof(kVertexData), kVertex_GrBufferType,
+                                          kStatic_GrAccessPattern, kVertexData)) {
         buffer->resourcePriv().setUniqueKey(gShapeVertexBufferKey);
-        return buffer;
     }
-    return nullptr;
+    return buffer;
 }
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gShapeIndexBufferKey);
 
-const GrBuffer* InstanceProcessor::FindOrCreateIndex8Buffer(GrGpu* gpu) {
+sk_sp<const GrBuffer> InstanceProcessor::FindOrCreateIndex8Buffer(GrGpu* gpu) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gShapeIndexBufferKey);
     GrResourceCache* cache = gpu->getContext()->getResourceCache();
-    if (GrGpuResource* cached = cache->findAndRefUniqueResource(gShapeIndexBufferKey)) {
-        return static_cast<GrBuffer*>(cached);
-    }
-    if (GrBuffer* buffer = gpu->createBuffer(sizeof(kIndexData), kIndex_GrBufferType,
-                                             kStatic_GrAccessPattern, kIndexData)) {
+
+    sk_sp<GrBuffer> buffer;
+    if (sk_sp<GrGpuResource> cached = cache->findUniqueResource(gShapeIndexBufferKey)) {
+        buffer = sk_sp<GrBuffer>((GrBuffer*) cached.release());
+    } else if (buffer = gpu->createBuffer(sizeof(kIndexData), kIndex_GrBufferType,
+                                          kStatic_GrAccessPattern, kIndexData)) {
         buffer->resourcePriv().setUniqueKey(gShapeIndexBufferKey);
-        return buffer;
     }
-    return nullptr;
+    return buffer;
 }
 
 IndexRange InstanceProcessor::GetIndexRangeForRect(GrAAType aaType) {

@@ -73,13 +73,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
 }
 #endif
 
-GrGpu* GrVkGpu::Create(GrBackendContext backendContext, const GrContextOptions& options,
-                       GrContext* context) {
+sk_sp<GrGpu> GrVkGpu::Create(GrBackendContext backendContext, const GrContextOptions& options,
+                             GrContext* context) {
     return Create(reinterpret_cast<const GrVkBackendContext*>(backendContext), options, context);
 }
 
-GrGpu* GrVkGpu::Create(const GrVkBackendContext* backendContext, const GrContextOptions& options,
-                       GrContext* context) {
+sk_sp<GrGpu> GrVkGpu::Create(const GrVkBackendContext* backendContext, const GrContextOptions& options,
+                             GrContext* context) {
     if (!backendContext) {
         return nullptr;
     } else {
@@ -90,7 +90,7 @@ GrGpu* GrVkGpu::Create(const GrVkBackendContext* backendContext, const GrContext
         return nullptr;
     }
 
-    return new GrVkGpu(context, options, backendContext);
+    return sk_sp<GrGpu>(new GrVkGpu(context, options, backendContext));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -294,9 +294,9 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern accessPattern,
-                                  const void* data) {
-    GrBuffer* buff;
+sk_sp<GrBuffer> GrVkGpu::onCreateBuffer(size_t size, GrBufferType type,
+                                        GrAccessPattern accessPattern, const void* data) {
+    sk_sp<GrBuffer> buff;
     switch (type) {
         case kVertex_GrBufferType:
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
@@ -691,7 +691,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin,
     }
 
     // allocate buffer to hold our mip data
-    GrVkTransferBuffer* transferBuffer =
+    sk_sp<GrVkTransferBuffer> transferBuffer =
                    GrVkTransferBuffer::Create(this, combinedBufferSize, GrVkBuffer::kCopyRead_Type);
     if(!transferBuffer) {
         return false;
@@ -750,12 +750,11 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin,
 
     // Copy the buffer to the image
     fCurrentCmdBuffer->copyBufferToImage(this,
-                                         transferBuffer,
+                                         transferBuffer.get(),
                                          tex,
                                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                          regions.count(),
                                          regions.begin());
-    transferBuffer->unref();
     if (1 == mipLevelCount) {
        tex->texturePriv().dirtyMipMaps(true);
     }
@@ -1096,9 +1095,9 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                     int width,
-                                                                     int height) {
+sk_sp<GrStencilAttachment> GrVkGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
+                                                                           int width,
+                                                                           int height) {
     SkASSERT(width >= rt->width());
     SkASSERT(height >= rt->height());
 
@@ -1106,13 +1105,8 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(const GrRen
 
     const GrVkCaps::StencilFormat& sFmt = this->vkCaps().preferedStencilFormat();
 
-    GrVkStencilAttachment* stencil(GrVkStencilAttachment::Create(this,
-                                                                 width,
-                                                                 height,
-                                                                 samples,
-                                                                 sFmt));
     fStats.incStencilAttachmentCreates();
-    return stencil;
+    return GrVkStencilAttachment::Create(this, width, height, samples, sFmt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1874,10 +1868,10 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
     }
 
     size_t transBufferRowBytes = bpp * region.imageExtent.width;
-    GrVkTransferBuffer* transferBuffer =
+    sk_sp<GrVkTransferBuffer> transferBuffer(
             static_cast<GrVkTransferBuffer*>(this->createBuffer(transBufferRowBytes * height,
                                                                 kXferGpuToCpu_GrBufferType,
-                                                                kStream_GrAccessPattern));
+                                                                kStream_GrAccessPattern).release()));
 
     // Copy the image to a buffer so we can map it to cpu memory
     region.bufferOffset = transferBuffer->offset();
@@ -1888,7 +1882,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
     fCurrentCmdBuffer->copyImageToBuffer(this,
                                          image,
                                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                         transferBuffer,
+                                         transferBuffer.get(),
                                          1,
                                          &region);
 

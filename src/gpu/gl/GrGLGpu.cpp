@@ -182,13 +182,13 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 ///////////////////////////////////////////////////////////////////////////////
 
 
-GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& options,
-                       GrContext* context) {
+sk_sp<GrGpu> GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& options,
+                             GrContext* context) {
     return Create(reinterpret_cast<const GrGLInterface*>(backendContext), options, context);
 }
 
-GrGpu* GrGLGpu::Create(const GrGLInterface* interface, const GrContextOptions& options,
-                       GrContext* context) {
+sk_sp<GrGpu> GrGLGpu::Create(const GrGLInterface* interface, const GrContextOptions& options,
+                             GrContext* context) {
     sk_sp<const GrGLInterface> glInterface(interface);
     if (!glInterface) {
         glInterface.reset(GrGLDefaultInterface());
@@ -203,7 +203,7 @@ GrGpu* GrGLGpu::Create(const GrGLInterface* interface, const GrContextOptions& o
 #endif
     GrGLContext* glContext = GrGLContext::Create(glInterface.get(), options);
     if (glContext) {
-        return new GrGLGpu(glContext, context);
+        return sk_sp<GrGLGpu>(new GrGLGpu(glContext, context));
     }
     return nullptr;
 }
@@ -1627,8 +1627,8 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
     return true;
 }
 
-GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                     int width, int height) {
+sk_sp<GrStencilAttachment> GrGLGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
+                                                                           int width, int height) {
     SkASSERT(width >= rt->width());
     SkASSERT(height >= rt->height());
 
@@ -1667,13 +1667,12 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
     // whatever sizes GL gives us. In that case we query for the size.
     GrGLStencilAttachment::Format format = sFmt;
     get_stencil_rb_sizes(this->glInterface(), &format);
-    GrGLStencilAttachment* stencil = new GrGLStencilAttachment(this,
-                                                               sbDesc,
-                                                               width,
-                                                               height,
-                                                               samples,
-                                                               format);
-    return stencil;
+    return sk_sp<GrGLStencilAttachment>(new GrGLStencilAttachment(this,
+                                                                  sbDesc,
+                                                                  width,
+                                                                  height,
+                                                                  samples,
+                                                                  format));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1682,8 +1681,8 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
 // objects are implemented as client-side-arrays on tile-deferred architectures.
 #define DYNAMIC_USAGE_PARAM GR_GL_STREAM_DRAW
 
-GrBuffer* GrGLGpu::onCreateBuffer(size_t size, GrBufferType intendedType,
-                                  GrAccessPattern accessPattern, const void* data) {
+sk_sp<GrBuffer> GrGLGpu::onCreateBuffer(size_t size, GrBufferType intendedType,
+                                        GrAccessPattern accessPattern, const void* data) {
     return GrGLBuffer::Create(this, size, intendedType, accessPattern, data);
 }
 
@@ -3460,8 +3459,8 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
             1, 0,
             1, 1
         };
-        fCopyProgramArrayBuffer.reset(GrGLBuffer::Create(this, sizeof(vdata), kVertex_GrBufferType,
-                                                         kStatic_GrAccessPattern, vdata));
+        fCopyProgramArrayBuffer = GrGLBuffer::Create(this, sizeof(vdata), kVertex_GrBufferType,
+                                                     kStatic_GrAccessPattern, vdata);
     }
     if (!fCopyProgramArrayBuffer) {
         return false;
@@ -3726,8 +3725,8 @@ bool GrGLGpu::createStencilClipClearProgram() {
 
     if (!fStencilClipClearArrayBuffer) {
         static const GrGLfloat vdata[] = {-1, -1, 1, -1, -1, 1, 1, 1};
-        fStencilClipClearArrayBuffer.reset(GrGLBuffer::Create(
-                this, sizeof(vdata), kVertex_GrBufferType, kStatic_GrAccessPattern, vdata));
+        fStencilClipClearArrayBuffer = GrGLBuffer::Create(
+                this, sizeof(vdata), kVertex_GrBufferType, kStatic_GrAccessPattern, vdata);
         if (!fStencilClipClearArrayBuffer) {
             return false;
         }
@@ -4083,9 +4082,9 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
             1, 0,
             1, 1
         };
-        fMipmapProgramArrayBuffer.reset(GrGLBuffer::Create(this, sizeof(vdata),
-                                                           kVertex_GrBufferType,
-                                                           kStatic_GrAccessPattern, vdata));
+        fMipmapProgramArrayBuffer = GrGLBuffer::Create(this, sizeof(vdata),
+                                                       kVertex_GrBufferType,
+                                                       kStatic_GrAccessPattern, vdata);
     }
     if (!fMipmapProgramArrayBuffer) {
         return false;

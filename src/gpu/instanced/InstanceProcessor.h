@@ -35,13 +35,13 @@ public:
     /**
      * Returns a buffer of ShapeVertex that defines the canonical instanced geometry.
      */
-    static const GrBuffer* SK_WARN_UNUSED_RESULT FindOrCreateVertexBuffer(GrGpu*);
+    static sk_sp<const GrBuffer> SK_WARN_UNUSED_RESULT FindOrCreateVertexBuffer(GrGpu*);
 
     /**
      * Returns a buffer of 8-bit indices for the canonical instanced geometry. The client can call
      * GetIndexRangeForXXX to know which indices to use for a specific shape.
      */
-    static const GrBuffer* SK_WARN_UNUSED_RESULT FindOrCreateIndex8Buffer(GrGpu*);
+    static sk_sp<const GrBuffer> SK_WARN_UNUSED_RESULT FindOrCreateIndex8Buffer(GrGpu*);
 
     static IndexRange GetIndexRangeForRect(GrAAType);
     static IndexRange GetIndexRangeForOval(GrAAType, const SkRect& devBounds);

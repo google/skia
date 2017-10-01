@@ -111,22 +111,21 @@ void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
 
     // Create and map instance and draw-indirect buffers.
     SkASSERT(!fInstanceBuffer);
-    fInstanceBuffer.reset(
-        rp->createBuffer(sizeof(Instance) * numGLInstances, kVertex_GrBufferType,
-                         kDynamic_GrAccessPattern,
-                         GrResourceProvider::kNoPendingIO_Flag |
-                         GrResourceProvider::kRequireGpuMemory_Flag));
+    fInstanceBuffer = rp->createBuffer(sizeof(Instance) * numGLInstances, kVertex_GrBufferType,
+                                       kDynamic_GrAccessPattern,
+                                       GrResourceProvider::kNoPendingIO_Flag |
+                                       GrResourceProvider::kRequireGpuMemory_Flag);
     if (!fInstanceBuffer) {
         return;
     }
 
     SkASSERT(!fDrawIndirectBuffer);
     if (this->glGpu()->glCaps().drawIndirectSupport()) {
-        fDrawIndirectBuffer.reset(
+        fDrawIndirectBuffer =
             rp->createBuffer(sizeof(GrGLDrawElementsIndirectCommand) * numGLDrawCmds,
                              kDrawIndirect_GrBufferType, kDynamic_GrAccessPattern,
                              GrResourceProvider::kNoPendingIO_Flag |
-                             GrResourceProvider::kRequireGpuMemory_Flag));
+                             GrResourceProvider::kRequireGpuMemory_Flag);
         if (!fDrawIndirectBuffer) {
             return;
         }

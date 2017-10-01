@@ -528,10 +528,7 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
 
 sk_sp<GrPathRange> GrStencilAndCoverTextContext::TextRun::createGlyphs(
                                                     GrResourceProvider* resourceProvider) const {
-    sk_sp<GrPathRange> glyphs;
-
-    glyphs.reset(static_cast<GrPathRange*>(
-            resourceProvider->findAndRefResourceByUniqueKey(fGlyphPathsKey)));
+    sk_sp<GrPathRange> glyphs = resourceProvider->findTByUniqueKey<GrPathRange>(fGlyphPathsKey);
     if (!glyphs) {
         if (fUsingRawGlyphPaths) {
             SkScalerContextEffects noeffects;

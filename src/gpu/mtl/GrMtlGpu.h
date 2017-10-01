@@ -103,7 +103,7 @@ private:
         return nullptr;
     }
 
-    GrBuffer* onCreateBuffer(size_t, GrBufferType, GrAccessPattern, const void*) override {
+    sk_sp<GrBuffer> onCreateBuffer(size_t, GrBufferType, GrAccessPattern, const void*) override {
         return nullptr;
     }
 
@@ -135,9 +135,9 @@ private:
 
     void onFinishFlush(bool insertedSemaphores) override {}
 
-    GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
-                                                                int width,
-                                                                int height) override {
+    sk_sp<GrStencilAttachment> createStencilAttachmentForRenderTarget(const GrRenderTarget*,
+                                                                      int width,
+                                                                      int height) override {
         return nullptr;
     }
 

@@ -83,8 +83,8 @@ sk_sp<GrContext> GrContext::MakeGL(const GrGLInterface* interface) {
 sk_sp<GrContext> GrContext::MakeGL(const GrGLInterface* interface,
                                    const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrContext);
-    context->fGpu = GrGLGpu::Create(interface, options, context.get());
-    if (!context->fGpu) {
+    context->fGpu1 = GrGLGpu::Create(interface, options, context.get());
+    if (!context->fGpu1) {
         return nullptr;
     }
     context->fBackend = kOpenGL_GrBackend;
@@ -102,8 +102,8 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
                                      const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrContext);
-    context->fGpu = GrMockGpu::Create(mockOptions, options, context.get());
-    if (!context->fGpu) {
+    context->fGpu1 = GrMockGpu::Create(mockOptions, options, context.get());
+    if (!context->fGpu1) {
         return nullptr;
     }
     context->fBackend = kMock_GrBackend;
@@ -122,8 +122,8 @@ sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext* backendContext)
 sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext* backendContext,
                                        const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrContext);
-    context->fGpu = GrVkGpu::Create(backendContext, options, context.get());
-    if (!context->fGpu) {
+    context->fGpu1 = GrVkGpu::Create(backendContext, options, context.get());
+    if (!context->fGpu1) {
         return nullptr;
     }
     context->fBackend = kVulkan_GrBackend;
@@ -164,7 +164,7 @@ static int32_t next_id() {
 }
 
 GrContext::GrContext() : fUniqueID(next_id()) {
-    fGpu = nullptr;
+    fGpu1 = nullptr;
     fCaps = nullptr;
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
@@ -174,12 +174,12 @@ GrContext::GrContext() : fUniqueID(next_id()) {
 bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
                      const GrContextOptions& options) {
     ASSERT_SINGLE_OWNER
-    SkASSERT(!fGpu);
+    SkASSERT(!fGpu1);
 
     fBackend = backend;
 
-    fGpu = GrGpu::Create(backend, backendContext, options, this);
-    if (!fGpu) {
+    fGpu1 = GrGpu::Create(backend, backendContext, options, this);
+    if (!fGpu1) {
         return false;
     }
     return this->init(options);
@@ -187,9 +187,9 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
 
 bool GrContext::init(const GrContextOptions& options) {
     ASSERT_SINGLE_OWNER
-    fCaps = SkRef(fGpu->caps());
+    fCaps = SkRef(fGpu1->caps());
     fResourceCache = new GrResourceCache(fCaps, fUniqueID);
-    fResourceProvider = new GrResourceProvider(fGpu, fResourceCache, &fSingleOwner);
+    fResourceProvider = new GrResourceProvider(fGpu1.get(), fResourceCache, &fSingleOwner);
 
     fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
     fDidTestPMConversions = false;
@@ -218,7 +218,7 @@ bool GrContext::init(const GrContextOptions& options) {
 GrContext::~GrContext() {
     ASSERT_SINGLE_OWNER
 
-    if (!fGpu) {
+    if (!fGpu1) {
         SkASSERT(!fCaps);
         return;
     }
@@ -235,7 +235,6 @@ GrContext::~GrContext() {
     delete fResourceCache;
     delete fAtlasGlyphCache;
 
-    fGpu->unref();
     fCaps->unref();
 }
 
@@ -259,7 +258,7 @@ void GrContext::abandonContext() {
     // don't try to free the resources in the API.
     fResourceCache->abandonAll();
 
-    fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
+    fGpu1->disconnect(GrGpu::DisconnectType::kAbandon);
 
     fAtlasGlyphCache->freeAll();
     fTextBlobCache->freeAll();
@@ -277,7 +276,7 @@ void GrContext::releaseResourcesAndAbandonContext() {
     // Release all resources in the backend 3D API.
     fResourceCache->releaseAll();
 
-    fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
+    fGpu1->disconnect(GrGpu::DisconnectType::kCleanup);
 
     fAtlasGlyphCache->freeAll();
     fTextBlobCache->freeAll();
@@ -285,7 +284,7 @@ void GrContext::releaseResourcesAndAbandonContext() {
 
 void GrContext::resetContext(uint32_t state) {
     ASSERT_SINGLE_OWNER
-    fGpu->markContextDirty(state);
+    fGpu1->markContextDirty(state);
 }
 
 void GrContext::freeGpuResources() {
@@ -454,7 +453,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     GrGpu::DrawPreference drawPreference = premulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                        : GrGpu::kNoDraw_DrawPreference;
     GrGpu::WritePixelTempDrawInfo tempDrawInfo;
-    if (!fContext->fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height,
+    if (!fContext->fGpu1->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height,
                                             srcConfig, &drawPreference, &tempDrawInfo)) {
         return false;
     }
@@ -506,7 +505,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
             return false;
         }
         GrTexture* texture = tempProxy->priv().peekTexture();
-        if (!fContext->fGpu->writePixels(texture, tempProxy->origin(), 0, 0, width, height,
+        if (!fContext->fGpu1->writePixels(texture, tempProxy->origin(), 0, 0, width, height,
                                          tempDrawInfo.fWriteConfig, buffer, rowBytes)) {
             return false;
         }
@@ -529,7 +528,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
             this->flushSurfaceWrites(renderTargetContext->asRenderTargetProxy());
         }
     } else {
-        return fContext->fGpu->writePixels(dstSurface, dstProxy->origin(), left, top, width,
+        return fContext->fGpu1->writePixels(dstSurface, dstProxy->origin(), left, top, width,
                                            height, srcConfig, buffer, rowBytes);
     }
     return true;
@@ -584,7 +583,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     GrGpu::DrawPreference drawPreference = unpremulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                          : GrGpu::kNoDraw_DrawPreference;
     GrGpu::ReadPixelTempDrawInfo tempDrawInfo;
-    if (!fContext->fGpu->getReadPixelsInfo(srcSurface, srcProxy->origin(), width, height, rowBytes,
+    if (!fContext->fGpu1->getReadPixelsInfo(srcSurface, srcProxy->origin(), width, height, rowBytes,
                                            dstConfig, &drawPreference, &tempDrawInfo)) {
         return false;
     }
@@ -661,7 +660,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
 
     GrSurface* surfaceToRead = proxyToRead->priv().peekSurface();
 
-    if (!fContext->fGpu->readPixels(surfaceToRead, proxyToRead->origin(),
+    if (!fContext->fGpu1->readPixels(surfaceToRead, proxyToRead->origin(),
                                     left, top, width, height, configToRead, buffer, rowBytes)) {
         return false;
     }
@@ -720,14 +719,14 @@ int GrContext::getRecommendedSampleCount(GrPixelConfig config,
         return 0;
     }
     int chosenSampleCount = 0;
-    if (fGpu->caps()->shaderCaps()->pathRenderingSupport()) {
+    if (fGpu1->caps()->shaderCaps()->pathRenderingSupport()) {
         if (dpi >= 250.0f) {
             chosenSampleCount = 4;
         } else {
             chosenSampleCount = 16;
         }
     }
-    int supportedSampleCount = fGpu->caps()->getSampleCount(chosenSampleCount, config);
+    int supportedSampleCount = fGpu1->caps()->getSampleCount(chosenSampleCount, config);
     return chosenSampleCount <= supportedSampleCount ? supportedSampleCount : 0;
 }
 
@@ -1024,7 +1023,7 @@ SkString GrContext::dump() const {
     fCaps->dumpJSON(&writer);
 
     writer.appendName("gpu");
-    fGpu->dumpJSON(&writer);
+    fGpu1->dumpJSON(&writer);
 
     // Flush JSON to the memory stream
     writer.endObject();

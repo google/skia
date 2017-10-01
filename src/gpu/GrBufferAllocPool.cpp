@@ -34,8 +34,8 @@ do {                                                                            
                          "GrBufferAllocPool Unmapping Buffer",                            \
                          TRACE_EVENT_SCOPE_THREAD,                                        \
                          "percent_unwritten",                                             \
-                         (float)((block).fBytesFree) / (block).fBuffer->gpuMemorySize()); \
-    (block).fBuffer->unmap();                                                             \
+                         (float)((block).fBytesFree) / (block).fBuffer1->gpuMemorySize()); \
+    (block).fBuffer1->unmap();                                                             \
 } while (false)
 
 GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu, GrBufferType bufferType, size_t blockSize)
@@ -54,7 +54,7 @@ GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu, GrBufferType bufferType, size_t
 
 void GrBufferAllocPool::deleteBlocks() {
     if (fBlocks.count()) {
-        GrBuffer* buffer = fBlocks.back().fBuffer;
+        GrBuffer* buffer = fBlocks.back().fBuffer1.get();
         if (buffer->isMapped()) {
             UNMAP_BUFFER(fBlocks.back());
         }
@@ -85,10 +85,10 @@ void GrBufferAllocPool::unmap() {
 
     if (fBufferPtr) {
         BufferBlock& block = fBlocks.back();
-        if (block.fBuffer->isMapped()) {
+        if (block.fBuffer1->isMapped()) {
             UNMAP_BUFFER(block);
         } else {
-            size_t flushSize = block.fBuffer->gpuMemorySize() - block.fBytesFree;
+            size_t flushSize = block.fBuffer1->gpuMemorySize() - block.fBytesFree;
             this->flushCpuData(fBlocks.back(), flushSize);
         }
         fBufferPtr = nullptr;
@@ -101,24 +101,24 @@ void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
     bool wasDestroyed = false;
     if (fBufferPtr) {
         SkASSERT(!fBlocks.empty());
-        if (fBlocks.back().fBuffer->isMapped()) {
-            GrBuffer* buf = fBlocks.back().fBuffer;
+        if (fBlocks.back().fBuffer1->isMapped()) {
+            GrBuffer* buf = fBlocks.back().fBuffer1.get();
             SkASSERT(buf->mapPtr() == fBufferPtr);
         } else {
             SkASSERT(fCpuData == fBufferPtr);
         }
     } else {
-        SkASSERT(fBlocks.empty() || !fBlocks.back().fBuffer->isMapped());
+        SkASSERT(fBlocks.empty() || !fBlocks.back().fBuffer1->isMapped());
     }
     size_t bytesInUse = 0;
     for (int i = 0; i < fBlocks.count() - 1; ++i) {
-        SkASSERT(!fBlocks[i].fBuffer->isMapped());
+        SkASSERT(!fBlocks[i].fBuffer1->isMapped());
     }
     for (int i = 0; !wasDestroyed && i < fBlocks.count(); ++i) {
-        if (fBlocks[i].fBuffer->wasDestroyed()) {
+        if (fBlocks[i].fBuffer1->wasDestroyed()) {
             wasDestroyed = true;
         } else {
-            size_t bytes = fBlocks[i].fBuffer->gpuMemorySize() - fBlocks[i].fBytesFree;
+            size_t bytes = fBlocks[i].fBuffer1->gpuMemorySize() - fBlocks[i].fBytesFree;
             bytesInUse += bytes;
             SkASSERT(bytes || unusedBlockAllowed);
         }
@@ -147,13 +147,13 @@ void* GrBufferAllocPool::makeSpace(size_t size,
 
     if (fBufferPtr) {
         BufferBlock& back = fBlocks.back();
-        size_t usedBytes = back.fBuffer->gpuMemorySize() - back.fBytesFree;
+        size_t usedBytes = back.fBuffer1->gpuMemorySize() - back.fBytesFree;
         size_t pad = GrSizeAlignUpPad(usedBytes, alignment);
         if ((size + pad) <= back.fBytesFree) {
             memset((void*)(reinterpret_cast<intptr_t>(fBufferPtr) + usedBytes), 0, pad);
             usedBytes += pad;
             *offset = usedBytes;
-            *buffer = back.fBuffer;
+            *buffer = back.fBuffer1.get();
             back.fBytesFree -= size + pad;
             fBytesInUse += size + pad;
             VALIDATE();
@@ -176,7 +176,7 @@ void* GrBufferAllocPool::makeSpace(size_t size,
 
     *offset = 0;
     BufferBlock& back = fBlocks.back();
-    *buffer = back.fBuffer;
+    *buffer = back.fBuffer1.get();
     back.fBytesFree -= size;
     fBytesInUse += size;
     VALIDATE();
@@ -197,7 +197,7 @@ void* GrBufferAllocPool::makeSpaceAtLeast(size_t minSize,
 
     if (fBufferPtr) {
         BufferBlock& back = fBlocks.back();
-        size_t usedBytes = back.fBuffer->gpuMemorySize() - back.fBytesFree;
+        size_t usedBytes = back.fBuffer1->gpuMemorySize() - back.fBytesFree;
         size_t pad = GrSizeAlignUpPad(usedBytes, alignment);
         if ((minSize + pad) <= back.fBytesFree) {
             // Consume padding first, to make subsequent alignment math easier
@@ -209,7 +209,7 @@ void* GrBufferAllocPool::makeSpaceAtLeast(size_t minSize,
             // Give caller all remaining space in this block (but aligned correctly)
             size_t size = GrSizeAlignDown(back.fBytesFree, alignment);
             *offset = usedBytes;
-            *buffer = back.fBuffer;
+            *buffer = back.fBuffer1.get();
             *actualSize = size;
             back.fBytesFree -= size;
             fBytesInUse += size;
@@ -233,7 +233,7 @@ void* GrBufferAllocPool::makeSpaceAtLeast(size_t minSize,
 
     *offset = 0;
     BufferBlock& back = fBlocks.back();
-    *buffer = back.fBuffer;
+    *buffer = back.fBuffer1.get();
     *actualSize = fallbackSize;
     back.fBytesFree -= fallbackSize;
     fBytesInUse += fallbackSize;
@@ -248,13 +248,13 @@ void GrBufferAllocPool::putBack(size_t bytes) {
         // caller shouldn't try to put back more than they've taken
         SkASSERT(!fBlocks.empty());
         BufferBlock& block = fBlocks.back();
-        size_t bytesUsed = block.fBuffer->gpuMemorySize() - block.fBytesFree;
+        size_t bytesUsed = block.fBuffer1->gpuMemorySize() - block.fBytesFree;
         if (bytes >= bytesUsed) {
             bytes -= bytesUsed;
             fBytesInUse -= bytesUsed;
             // if we locked a vb to satisfy the make space and we're releasing
             // beyond it, then unmap it.
-            if (block.fBuffer->isMapped()) {
+            if (block.fBuffer1->isMapped()) {
                 UNMAP_BUFFER(block);
             }
             this->destroyBlock();
@@ -278,20 +278,20 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
 
     BufferBlock& block = fBlocks.push_back();
 
-    block.fBuffer = this->getBuffer(size);
-    if (!block.fBuffer) {
+    block.fBuffer1 = this->getBuffer(size);
+    if (!block.fBuffer1) {
         fBlocks.pop_back();
         return false;
     }
 
-    block.fBytesFree = block.fBuffer->gpuMemorySize();
+    block.fBytesFree = block.fBuffer1->gpuMemorySize();
     if (fBufferPtr) {
         SkASSERT(fBlocks.count() > 1);
         BufferBlock& prev = fBlocks.fromBack(1);
-        if (prev.fBuffer->isMapped()) {
+        if (prev.fBuffer1->isMapped()) {
             UNMAP_BUFFER(prev);
         } else {
-            this->flushCpuData(prev, prev.fBuffer->gpuMemorySize() - prev.fBytesFree);
+            this->flushCpuData(prev, prev.fBuffer1->gpuMemorySize() - prev.fBytesFree);
         }
         fBufferPtr = nullptr;
     }
@@ -301,13 +301,13 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
     // If the buffer is CPU-backed we map it because it is free to do so and saves a copy.
     // Otherwise when buffer mapping is supported we map if the buffer size is greater than the
     // threshold.
-    bool attemptMap = block.fBuffer->isCPUBacked();
+    bool attemptMap = block.fBuffer1->isCPUBacked();
     if (!attemptMap && GrCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags()) {
         attemptMap = size > fBufferMapThreshold;
     }
 
     if (attemptMap) {
-        fBufferPtr = block.fBuffer->map();
+        fBufferPtr = block.fBuffer1->map();
     }
 
     if (!fBufferPtr) {
@@ -324,8 +324,7 @@ void GrBufferAllocPool::destroyBlock() {
 
     BufferBlock& block = fBlocks.back();
 
-    SkASSERT(!block.fBuffer->isMapped());
-    block.fBuffer->unref();
+    SkASSERT(!block.fBuffer1->isMapped());
     fBlocks.pop_back();
     fBufferPtr = nullptr;
 }
@@ -346,7 +345,7 @@ void* GrBufferAllocPool::resetCpuData(size_t newSize) {
 
 
 void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize) {
-    GrBuffer* buffer = block.fBuffer;
+    GrBuffer* buffer = block.fBuffer1.get();
     SkASSERT(buffer);
     SkASSERT(!buffer->isMapped());
     SkASSERT(fCpuData == fBufferPtr);
@@ -366,7 +365,7 @@ void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize)
     VALIDATE(true);
 }
 
-GrBuffer* GrBufferAllocPool::getBuffer(size_t size) {
+sk_sp<GrBuffer> GrBufferAllocPool::getBuffer(size_t size) {
 
     GrResourceProvider* rp = fGpu->getContext()->resourceProvider();
 
