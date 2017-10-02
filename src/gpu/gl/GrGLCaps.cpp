@@ -928,12 +928,11 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
         shaderCaps->fRequiresLocalOutputColorForFBFetch = true;
     }
 
-#ifdef SK_BUILD_FOR_MAC
-    // On at least some MacBooks, geometry shaders fall apart if we use more than one invocation. To
-    // work around this, we always use a single invocation and wrap the shader in a loop. The long-
-    // term plan for this WAR is for it to eventually be baked into SkSL.
-    shaderCaps->fMustImplementGSInvocationsWithLoop = true;
-#endif
+    if (ctxInfo.vendor() == kIntel_GrGLVendor) {
+        // On Intel, geometry shaders appear to fall apart if we use more than one invocation. To
+        // work around this, SkSL always uses a single invocation and wraps the shader in a loop.
+        shaderCaps->fMustImplementGSInvocationsWithLoop = true;
+    }
 
     // Newer Mali GPUs do incorrect static analysis in specific situations: If there is uniform
     // color, and that uniform contains an opaque color, and the output of the shader is only based

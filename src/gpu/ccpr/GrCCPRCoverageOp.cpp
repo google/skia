@@ -153,7 +153,7 @@ void GrCCPRCoverageOpsBuilder::saveParsedPath(ScissorMode scissorMode,
 
     fPathsInfo.push_back() = {
         scissorMode,
-        (atlasOffsetY << 16) | (atlasOffsetX & 0xffff),
+        static_cast<int32_t>((static_cast<uint32_t>(atlasOffsetY) << 16) | (atlasOffsetX & 0xffff)),
         std::move(fTerminatingOp)
     };
 
