@@ -143,11 +143,11 @@ static void build_table_linear_to_gamma(uint8_t* outTable, const float* inTable,
 static float inverse_parametric(float x, float g, float a, float b, float c, float d, float e,
                                 float f) {
     // We need to take the inverse of the following piecewise function.
-    // Y = (aX + b)^g + c  for X >= d
-    // Y = eX + f          otherwise
+    // Y = (aX + b)^g + e  for X >= d
+    // Y = cX + f          otherwise
 
     // Assume that the gamma function is continuous, or this won't make much sense anyway.
-    // Plug in |d| to the first equation to calculate the new piecewise interval.
+    // Plug in |d| to the second equation to calculate the new piecewise interval.
     // Then simply use the inverse of the original functions.
     float interval = c * d + f;
     if (x < interval) {
