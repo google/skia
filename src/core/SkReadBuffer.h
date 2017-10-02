@@ -215,7 +215,6 @@ public:
     // Default impelementations don't check anything.
     virtual bool validate(bool isValid) { return isValid; }
     virtual bool isValid() const { return true; }
-    virtual bool validateAvailable(size_t size) { return true; }
     bool validateIndex(int index, int count) {
         return this->validate(index >= 0 && index < count);
     }
