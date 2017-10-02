@@ -127,7 +127,8 @@ extern "C" {
     #undef M
 
 #elif defined(__x86_64__) || defined(_M_X64)
-    StartPipelineFn ASM(start_pipeline,       hsw),
+    StartPipelineFn ASM(start_pipeline,       skx),
+                    ASM(start_pipeline,       hsw),
                     ASM(start_pipeline,       avx),
                     ASM(start_pipeline,     sse41),
                     ASM(start_pipeline,      sse2),
@@ -135,7 +136,8 @@ extern "C" {
                     ASM(start_pipeline,sse41_lowp),
                     ASM(start_pipeline, sse2_lowp);
 
-    StageFn ASM(just_return,       hsw),
+    StageFn ASM(just_return,       skx),
+            ASM(just_return,       hsw),
             ASM(just_return,       avx),
             ASM(just_return,     sse41),
             ASM(just_return,      sse2),
@@ -143,7 +145,8 @@ extern "C" {
             ASM(just_return,sse41_lowp),
             ASM(just_return, sse2_lowp);
 
-    #define M(st) StageFn ASM(st,  hsw), \
+    #define M(st) StageFn ASM(st,  skx), \
+                          ASM(st,  hsw), \
                           ASM(st,  avx), \
                           ASM(st,sse41), \
                           ASM(st, sse2);
@@ -268,6 +271,17 @@ static SkJumper_Engine choose_engine() {
     }
 
 #elif defined(__x86_64__) || defined(_M_X64)
+    #if !defined(_MSC_VER)  // No _skx stages for Windows yet.
+        if (1 && SkCpu::Supports(SkCpu::SKX)) {
+            return {
+            #define M(stage) ASM(stage, skx),
+                { SK_RASTER_PIPELINE_STAGES(M) },
+                M(start_pipeline)
+                M(just_return)
+            #undef M
+            };
+        }
+    #endif
     if (1 && SkCpu::Supports(SkCpu::HSW)) {
         return {
         #define M(stage) ASM(stage, hsw),

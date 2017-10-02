@@ -37,7 +37,7 @@ struct SkCpu {
         AVX512VL   = 1 << 19,
 
         // Handy alias for all the cool Skylake Xeon+ instructions.
-        SKY = AVX512F  | AVX512DQ | AVX512CD | AVX512BW | AVX512VL,
+        SKX = AVX512F  | AVX512DQ | AVX512CD | AVX512BW | AVX512VL,
     };
     enum {
         NEON     = 1 << 0,

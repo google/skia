@@ -99,10 +99,15 @@ subprocess.check_call(clang + cflags + hsw + win +
                       ['-c', stages_lowp] +
                       ['-o', 'win_lowp_hsw.o'])
 
+skx = ['-march=skylake-avx512']
+subprocess.check_call(clang + cflags + skx +
+                      ['-c', stages] +
+                      ['-o', 'skx.o'])
+
 # Merge x86-64 object files to deduplicate constants.
 # (No other platform has more than one specialization.)
 subprocess.check_call(['ld', '-r', '-o', 'merged.o',
-                       'hsw.o', 'avx.o', 'sse41.o', 'sse2.o',
+                       'skx.o', 'hsw.o', 'avx.o', 'sse41.o', 'sse2.o',
                        'lowp_hsw.o', 'lowp_sse41.o', 'lowp_sse2.o'])
 subprocess.check_call(['ld', '-r', '-o', 'win_merged.o',
                        'win_hsw.o', 'win_avx.o', 'win_sse41.o', 'win_sse2.o',

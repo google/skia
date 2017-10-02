@@ -19,6 +19,8 @@
     #define JUMPER_IS_SCALAR
 #elif defined(__aarch64__) || defined(__ARM_VFPV4__)
     #define JUMPER_IS_NEON
+#elif defined(__AVX512F__)
+    #define JUMPER_IS_AVX512
 #elif defined(__AVX2__)
     #define JUMPER_IS_AVX2
 #elif defined(__AVX__)
@@ -202,7 +204,7 @@
         }
     }
 
-#elif defined(JUMPER_IS_AVX) || defined(JUMPER_IS_AVX2)
+#elif defined(JUMPER_IS_AVX) || defined(JUMPER_IS_AVX2) || defined(JUMPER_IS_AVX512)
     #include <immintrin.h>
 
     // These are __m256 and __m256i, but friendlier and strongly-typed.
@@ -215,7 +217,7 @@
     using U8  = V<uint8_t >;
 
     SI F mad(F f, F m, F a)  {
-    #if defined(JUMPER_IS_AVX2)
+    #if defined(JUMPER_IS_AVX2) || defined(JUMPER_IS_AVX512)
         return _mm256_fmadd_ps(f,m,a);
     #else
         return f*m+a;
@@ -247,7 +249,7 @@
         return { p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
                  p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]], };
     }
-    #if defined(JUMPER_IS_AVX2)
+    #if defined(JUMPER_IS_AVX2) || defined(JUMPER_IS_AVX512)
         SI F   gather(const float*    p, U32 ix) { return _mm256_i32gather_ps   (p, ix, 4); }
         SI U32 gather(const uint32_t* p, U32 ix) { return _mm256_i32gather_epi32(p, ix, 4); }
         SI U64 gather(const uint64_t* p, U32 ix) {
@@ -644,7 +646,7 @@ SI F from_half(U16 h) {
 #if defined(JUMPER_IS_NEON)
     return vcvt_f32_f16(h);
 
-#elif defined(JUMPER_IS_AVX2)
+#elif defined(JUMPER_IS_AVX2) || defined(JUMPER_IS_AVX512)
     return _mm256_cvtph_ps(h);
 
 #else
@@ -664,7 +666,7 @@ SI U16 to_half(F f) {
 #if defined(JUMPER_IS_NEON)
     return vcvt_f16_f32(f);
 
-#elif defined(JUMPER_IS_AVX2)
+#elif defined(JUMPER_IS_AVX2) || defined(JUMPER_IS_AVX512)
     return _mm256_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
 
 #else
