@@ -16,9 +16,12 @@ void GrCCPRTriangleProcessor::onEmitVertexShader(const GrCCPRCoverageProcessor& 
                                                  const TexelBufferHandle& pointsBuffer,
                                                  const char* atlasOffset, const char* rtAdjust,
                                                  GrGPArgs* gpArgs) const {
+    // Copy the input attrib to an intermediate array. The Intel GLSL compiler hits an internal
+    // assertion if we index the input attrib itself with sk_VertexID.
+    v->codeAppendf("int indices[3] = int[3](%s.x, %s.y, %s.z);",
+                   proc.instanceAttrib(), proc.instanceAttrib(), proc.instanceAttrib());
     v->codeAppend ("float2 self = ");
-    v->appendTexelFetch(pointsBuffer,
-                        SkStringPrintf("%s[sk_VertexID]", proc.instanceAttrib()).c_str());
+    v->appendTexelFetch(pointsBuffer, "indices[sk_VertexID]");
     v->codeAppendf(".xy + %s;", atlasOffset);
     gpArgs->fPositionVar.set(kFloat2_GrSLType, "self");
 }
