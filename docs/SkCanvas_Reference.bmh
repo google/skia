@@ -261,7 +261,7 @@ width times bytes required for Image_Color_Type.
 Pixel buffer size should be height times rowBytes.
 
 #Param width  pixel column count on Raster_Surface created; must be zero or greater ##
-#Param height  pixel row count on Raster_Surface created.; must be zero or greater ##
+#Param height  pixel row count on Raster_Surface created; must be zero or greater ##
 #Param pixels  pointer to destination pixels buffer; buffer size should be height
                times rowBytes
 ##
@@ -284,7 +284,7 @@ void draw(SkCanvas* ) {
     std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirectN32(
             width,
             height,
-            pixels[0],  // top left of the bitmap
+            pixels[0],  // top-left of the bitmap
             sizeof(pixels[0]));  // byte width of the each row
     // write a premultiplied value for white into all pixels in the bitmap
     canvas->clear(SK_ColorWHITE);
@@ -453,7 +453,7 @@ The actual output depends on the installed fonts.
     if (!canvas.peekPixels(&pixmap)) {
         SkDebugf("peekPixels should never fail.\n");
     }
-    const SkPMColor* pixels = pixmap.addr32();  // points to top left of bitmap
+    const SkPMColor* pixels = pixmap.addr32();  // points to top-left of bitmap
     SkPMColor pmWhite = pixels[0];  // the Premultiplied format may vary
     SkPaint paint;  // by default, draws black, 12 point text
     canvas.drawString("!", 1, 10, paint);  // 1 char at baseline (1, 10)
@@ -545,7 +545,7 @@ The actual output depends on the installed fonts.
     if (!canvas.peekPixels(&pixmap)) {
         SkDebugf("peekPixels should never fail.\n");
     }
-    const SkPMColor* pixels = pixmap.addr32();  // points to top left of bitmap
+    const SkPMColor* pixels = pixmap.addr32();  // points to top-left of bitmap
     SkPMColor pmWhite = pixels[0];  // the Premultiplied format may vary
     SkPaint paint;  // by default, draws black, 12 point text
     canvas.drawString("!", 1, 10, paint);  // 1 char at baseline (1, 10)
@@ -814,7 +814,7 @@ If pixels are inaccessible, info, rowBytes, and origin are unchanged.
 
 #Param info      storage for writable pixels' Image_Info; may be nullptr ##
 #Param rowBytes  storage for writable pixels' row bytes; may be nullptr ##
-#Param origin    storage for Canvas top Layer origin, its top left corner;
+#Param origin    storage for Canvas top Layer origin, its top-left corner;
                  may be nullptr
 ##
 
@@ -3367,7 +3367,7 @@ In paint: Paint_Style determines if rectangle is stroked or filled;
 if stroked, Paint_Stroke_Width describes the line thickness, and
 Paint_Stroke_Join draws the corners rounded or square.
 
-#Param  rect     rectangle to be drawn ##
+#Param  rect     rectangle to draw ##
 #Param  paint    stroke or fill, blend, color, and so on, used to draw ##
 
 #Example
@@ -3403,7 +3403,7 @@ In paint: Paint_Style determines if rectangle is stroked or filled;
 if stroked, Paint_Stroke_Width describes the line thickness, and
 Paint_Stroke_Join draws the corners rounded or square.
 
-#Param  rect     rectangle to be drawn ##
+#Param  rect     rectangle to draw ##
 #Param  paint    stroke or fill, blend, color, and so on, used to draw ##
 
 #Example
@@ -3433,7 +3433,7 @@ In paint: Paint_Style determines if rectangle is stroked or filled;
 if stroked, Paint_Stroke_Width describes the line thickness, and
 Paint_Stroke_Join draws the corners rounded or square.
 
-#Param  region   region to be drawn ##
+#Param  region   region to draw ##
 #Param  paint    Paint stroke or fill, blend, color, and so on, used to draw ##
 
 #Example
@@ -5603,15 +5603,15 @@ Color_Alpha, Image_Filter, and Blend_Mode. If Shader is provided it is treated
 as the Coons patch texture; Blend_Mode mode combines Color colors and Shader if
 both are provided.
 
-Point array cubics specifies four Cubics starting at the top left corner, 
+Point array cubics specifies four Cubics starting at the top-left corner, 
 in clockwise order, sharing every fourth point. The last Cubic ends at the
 first point.
 
-Color array color associates colors with corners in top left, top right,
-bottom right, bottom left order.
+Color array color associates colors with corners in top-left, top-right,
+bottom-right, bottom-left order.
 
 If paint contains Shader, Point array texCoords maps Shader as texture to
-corners in top left, top right, bottom right, bottom left order.
+corners in top-left, top-right, bottom-right, bottom-left order.
 
 #Param cubics     Path_Cubic array, sharing common points ##
 #Param colors     Color array, one for each corner ##
@@ -5661,15 +5661,15 @@ Color_Alpha, Image_Filter, and Blend_Mode. If Shader is provided it is treated
 as the Coons patch texture; Blend_Mode mode combines Color colors and Shader if
 both are provided.
 
-Point array cubics specifies four Cubics starting at the top left corner, 
+Point array cubics specifies four Cubics starting at the top-left corner, 
 in clockwise order, sharing every fourth point. The last Cubic ends at the
 first point.
 
-Color array color associates colors with corners in top left, top right,
-bottom right, bottom left order.
+Color array color associates colors with corners in top-left, top-right,
+bottom-right, bottom-left order.
 
 If paint contains Shader, Point array texCoords maps Shader as texture to
-corners in top left, top right, bottom right, bottom left order.
+corners in top-left, top-right, bottom-right, bottom-left order.
 
 #Param cubics     Path_Cubic array, sharing common points ##
 #Param colors     Color array, one for each corner ##
