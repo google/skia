@@ -8,7 +8,7 @@
 // Include here to ensure SK_SUPPORT_GPU is set correctly before it is examined.
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
+#if 0
 #include "Test.h"
 
 #include "GrContextPriv.h"
