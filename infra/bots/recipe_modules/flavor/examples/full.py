@@ -86,6 +86,7 @@ TEST_BUILDERS = [
   'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN',
   'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release',
+  'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug',

@@ -218,7 +218,8 @@
       "LD_LIBRARY_PATH": "[START_DIR]/linux_vulkan_intel_driver_release",
       "LIBGL_DRIVERS_PATH": "[START_DIR]/linux_vulkan_intel_driver_release",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/out",
+      "VK_ICD_FILENAMES": "[START_DIR]/linux_vulkan_intel_driver_release/intel_icd.x86_64.json"
     },
     "name": "symbolized nanobench"
   },

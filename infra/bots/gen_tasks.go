@@ -946,17 +946,19 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		}
 	}
 
-	if (strings.Contains(name, "Ubuntu") || strings.Contains(name, "Debian")) && strings.Contains(name, "SAN") {
-		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
-	}
-	if strings.Contains(name, "Ubuntu16") {
+	if strings.Contains(name, "Ubuntu") || strings.Contains(name, "Debian") {
+		if strings.Contains(name, "SAN") {
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
+		}
 		if strings.Contains(name, "Vulkan") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_sdk"))
 		}
-		if strings.Contains(name, "Release") {
-			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_release"))
-		} else {
-			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_debug"))
+		if strings.Contains(name, "Intel") && strings.Contains(name, "GPU") {
+			if strings.Contains(name, "Release") {
+				pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_release"))
+			} else {
+				pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_debug"))
+			}
 		}
 	}
 
