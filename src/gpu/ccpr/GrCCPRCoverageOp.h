@@ -84,7 +84,7 @@ private:
     // Every kBeginPath verb has a corresponding PathInfo entry.
     struct PathInfo {
         ScissorMode   fScissorMode;
-        int32_t       fPackedAtlasOffset; // (offsetY << 16) | (offsetX & 0xffff)
+        int16_t       fAtlasOffsetX, fAtlasOffsetY;
         std::unique_ptr<GrCCPRCoverageOp>  fTerminatingOp;
     };
 

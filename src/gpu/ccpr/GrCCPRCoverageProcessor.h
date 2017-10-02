@@ -44,14 +44,14 @@ public:
         int32_t fPt0Idx;
         int32_t fPt1Idx;
         int32_t fPt2Idx;
-        int32_t fPackedAtlasOffset; // (offsetY << 16) | (offsetX & 0xffff)
+        int16_t fAtlasOffsetX, fAtlasOffsetY; // Packed into a single int32_t on GPU.
     };
 
     GR_STATIC_ASSERT(4 * 4 == sizeof(TriangleInstance));
 
     struct CurveInstance {
         int32_t fPtsIdx;
-        int32_t fPackedAtlasOffset; // (offsetY << 16) | (offsetX & 0xffff)
+        int16_t fAtlasOffsetX, fAtlasOffsetY; // Packed into a single int32_t on GPU.
     };
 
     GR_STATIC_ASSERT(2 * 4 == sizeof(CurveInstance));

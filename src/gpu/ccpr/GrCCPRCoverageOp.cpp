@@ -153,7 +153,7 @@ void GrCCPRCoverageOpsBuilder::saveParsedPath(ScissorMode scissorMode,
 
     fPathsInfo.push_back() = {
         scissorMode,
-        (atlasOffsetY << 16) | (atlasOffsetX & 0xffff),
+        atlasOffsetX, atlasOffsetY,
         std::move(fTerminatingOp)
     };
 
@@ -201,8 +201,8 @@ void GrCCPRCoverageOpsBuilder::emitOp(SkISize drawBounds) {
 //
 // Returns the next triangle instance after the final one emitted.
 static TriangleInstance* emit_recursive_fan(SkTArray<int32_t, true>& indices, int firstIndex,
-                                            int indexCount, int packedAtlasOffset,
-                                            TriangleInstance out[]) {
+                                            int indexCount, int16_t atlasOffsetX,
+                                            int16_t atlasOffsetY, TriangleInstance out[]) {
     if (indexCount < 3) {
         return out;
     }
@@ -213,18 +213,19 @@ static TriangleInstance* emit_recursive_fan(SkTArray<int32_t, true>& indices, in
         indices[firstIndex],
         indices[firstIndex + oneThirdCount],
         indices[firstIndex + twoThirdsCount],
-        packedAtlasOffset
+        atlasOffsetX, atlasOffsetY
     };
 
-    out = emit_recursive_fan(indices, firstIndex, oneThirdCount + 1, packedAtlasOffset, out);
+    out = emit_recursive_fan(indices, firstIndex, oneThirdCount + 1, atlasOffsetX, atlasOffsetY,
+                             out);
     out = emit_recursive_fan(indices, firstIndex + oneThirdCount,
-                             twoThirdsCount - oneThirdCount + 1, packedAtlasOffset, out);
+                             twoThirdsCount - oneThirdCount + 1, atlasOffsetX, atlasOffsetY, out);
 
     int endIndex = firstIndex + indexCount;
     int32_t oldValue = indices[endIndex];
     indices[endIndex] = indices[firstIndex];
     out = emit_recursive_fan(indices, firstIndex + twoThirdsCount, indexCount - twoThirdsCount + 1,
-                             packedAtlasOffset, out);
+                             atlasOffsetX, atlasOffsetY, out);
     indices[endIndex] = oldValue;
 
     return out;
@@ -267,7 +268,7 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
     SkASSERT(curveInstanceData);
 
     PathInfo* currPathInfo = fPathsInfo.begin();
-    int32_t packedAtlasOffset;
+    int16_t atlasOffsetX, atlasOffsetY;
     int ptsIdx = -1;
     PrimitiveTallies instanceIndices[2] = {baseInstances[0], baseInstances[1]};
     PrimitiveTallies* currIndices;
@@ -285,7 +286,8 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
             case GrCCPRGeometry::Verb::kBeginPath:
                 SkASSERT(currFan.empty());
                 currIndices = &instanceIndices[(int)currPathInfo->fScissorMode];
-                packedAtlasOffset = currPathInfo->fPackedAtlasOffset;
+                atlasOffsetX = currPathInfo->fAtlasOffsetX;
+                atlasOffsetY = currPathInfo->fAtlasOffsetY;
 #ifdef SK_DEBUG
                 if (ScissorMode::kScissored == currPathInfo->fScissorMode) {
                     ++numScissoredPaths;
@@ -313,19 +315,28 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
 
             case GrCCPRGeometry::Verb::kMonotonicQuadraticTo:
                 SkASSERT(!currFan.empty());
-                curveInstanceData[currIndices->fQuadratics++] = {ptsIdx, packedAtlasOffset};
+                curveInstanceData[currIndices->fQuadratics++] = {
+                    ptsIdx,
+                    atlasOffsetX, atlasOffsetY
+                };
                 currFan.push_back(ptsIdx += 2);
                 continue;
 
             case GrCCPRGeometry::Verb::kMonotonicSerpentineTo:
                 SkASSERT(!currFan.empty());
-                curveInstanceData[currIndices->fSerpentines++] = {ptsIdx, packedAtlasOffset};
+                curveInstanceData[currIndices->fSerpentines++] = {
+                    ptsIdx,
+                    atlasOffsetX, atlasOffsetY
+                };
                 currFan.push_back(ptsIdx += 3);
                 continue;
 
             case GrCCPRGeometry::Verb::kMonotonicLoopTo:
                 SkASSERT(!currFan.empty());
-                curveInstanceData[currIndices->fLoops++] = {ptsIdx, packedAtlasOffset};
+                curveInstanceData[currIndices->fLoops++] = {
+                    ptsIdx,
+                    atlasOffsetX, atlasOffsetY
+                };
                 currFan.push_back(ptsIdx += 3);
                 continue;
 
@@ -340,7 +351,7 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
                     // fanSize + log3(fanSize), but we approximate with log2.
                     currFan.push_back_n(SkNextLog2(fanSize));
                     SkDEBUGCODE(TriangleInstance* end =)
-                    emit_recursive_fan(currFan, 0, fanSize, packedAtlasOffset,
+                    emit_recursive_fan(currFan, 0, fanSize, atlasOffsetX, atlasOffsetY,
                                        triangleInstanceData + currIndices->fTriangles);
                     currIndices->fTriangles += fanSize - 2;
                     SkASSERT(triangleInstanceData + currIndices->fTriangles == end);
