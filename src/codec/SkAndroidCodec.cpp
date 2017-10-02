@@ -82,6 +82,9 @@ SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader
         case SkEncodedImageFormat::kGIF:
         case SkEncodedImageFormat::kBMP:
         case SkEncodedImageFormat::kWBMP:
+#ifdef SK_HAS_HEIF_LIBRARY
+        case SkEncodedImageFormat::kHEIF:
+#endif
             return new SkSampledCodec(codec.release());
 #ifdef SK_HAS_WEBP_LIBRARY
         case SkEncodedImageFormat::kWEBP:

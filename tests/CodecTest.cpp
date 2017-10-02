@@ -924,8 +924,8 @@ DEF_TEST(Codec_wbmp_restrictive, r) {
 // wbmp images have a header that can be arbitrarily large, depending on the
 // size of the image. We cap the size at 65535, meaning we only need to look at
 // 8 bytes to determine whether we can read the image. This is important
-// because SkCodec only passes 14 bytes to SkWbmpCodec to determine whether the
-// image is a wbmp.
+// because SkCodec only passes a limited number of bytes to SkWbmpCodec to
+// determine whether the image is a wbmp.
 DEF_TEST(Codec_wbmp_max_size, r) {
     const unsigned char maxSizeWbmp[] = { 0x00, 0x00,           // Header
                                           0x83, 0xFF, 0x7F,     // W: 65535
@@ -1289,7 +1289,7 @@ DEF_TEST(Codec_fallBack, r) {
             "randPixels.bmp",
             };
     for (auto file : files) {
-        SkStream* stream = LimitedRewindingStream::Make(file, 14);
+        SkStream* stream = LimitedRewindingStream::Make(file, SkCodec::MinBufferedBytesNeeded());
         if (!stream) {
             SkDebugf("Missing resources (%s). Set --resourcePath.\n", file);
             return;
