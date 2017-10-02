@@ -54,7 +54,8 @@ protected:
 
 private:
     enum Wrapped { kWrapped };
-    GrMtlTexture(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture>, bool isMipMapped);
+    GrMtlTexture(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture>, bool isMipMapped,
+                 bool wasFullMipMapDataProvided);
    // GrMtlTexture(GrMtlGpu*, Wrapped, const GrSurfaceDesc&, GrMtlImage::Wrapped wrapped);
 
     id<MTLTexture> fTexture;
