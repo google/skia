@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c436de8c_4801f925",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-02T15:40:36Z",
+      "side": 1,
+      "message": "nit: My preference here (and below) is to just use the \"!\" operator:\n\n  if (!this-\u003eprocessData())\n\nOtherwise this CL lgtm",
+      "range": {
+        "startLine": 531,
+        "startChar": 8,
+        "endLine": 531,
+        "endChar": 41
+      },
+      "revId": "d6ef2cf2b47e37145a9bba9b251aa30f7d7f7b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
