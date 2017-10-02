@@ -454,7 +454,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
     const int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
     const size_t rowBytes = size.width() * bpp;
-    const size_t safeSize = decodeInfo.getSafeSize(rowBytes);
+    const size_t safeSize = decodeInfo.computeByteSize(rowBytes);
     SkAutoMalloc pixels(safeSize);
 
     SkCodec::Options options;
@@ -1468,12 +1468,12 @@ static bool encode_png_base64(const SkBitmap& bitmap, SkString* dst) {
 
 static Error compare_bitmaps(const SkBitmap& reference, const SkBitmap& bitmap) {
     // The dimensions are a property of the Src only, and so should be identical.
-    SkASSERT(reference.getSize() == bitmap.getSize());
-    if (reference.getSize() != bitmap.getSize()) {
+    SkASSERT(reference.computeByteSize() == bitmap.computeByteSize());
+    if (reference.computeByteSize() != bitmap.computeByteSize()) {
         return "Dimensions don't match reference";
     }
     // All SkBitmaps in DM are tight, so this comparison is easy.
-    if (0 != memcmp(reference.getPixels(), bitmap.getPixels(), reference.getSize())) {
+    if (0 != memcmp(reference.getPixels(), bitmap.getPixels(), reference.computeByteSize())) {
         SkString encoded;
         SkString errString("Pixels don't match reference");
         if (encode_png_base64(reference, &encoded)) {
