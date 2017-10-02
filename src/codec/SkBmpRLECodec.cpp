@@ -338,10 +338,10 @@ int SkBmpRLECodec::decodeRLE(const SkImageInfo& dstInfo, void* dst, size_t dstRo
     const int height = dstInfo.height();
 
     // Set RLE flags
-    static const uint8_t RLE_ESCAPE = 0;
-    static const uint8_t RLE_EOL = 0;
-    static const uint8_t RLE_EOF = 1;
-    static const uint8_t RLE_DELTA = 2;
+    constexpr uint8_t RLE_ESCAPE = 0;
+    constexpr uint8_t RLE_EOL = 0;
+    constexpr uint8_t RLE_EOF = 1;
+    constexpr uint8_t RLE_DELTA = 2;
 
     // Destination parameters
     int x = 0;

@@ -42,7 +42,7 @@ static float calculate_area(SkPoint abc[]) {
     return 0.5f * SkTAbs(a.fX*b.fY + b.fX*c.fY - a.fX*c.fY - c.fX*b.fY - b.fX*a.fY);
 }
 
-static const float kSRGB_D50_GamutArea = 0.084f;
+static constexpr float kSRGB_D50_GamutArea = 0.084f;
 
 static bool is_wide_gamut(const SkColorSpace* colorSpace) {
     // Determine if the source image has a gamut that is wider than sRGB.  If so, we
