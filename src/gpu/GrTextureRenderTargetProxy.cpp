@@ -10,15 +10,15 @@
 // Deferred version
 // This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and
 // GrRenderTargetProxy) so its constructor must be explicitly called.
-GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
+GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(GrContext* context, const GrCaps& caps,
                                                        const GrSurfaceDesc& desc,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
                                                        uint32_t flags)
-    : GrSurfaceProxy(desc, fit, budgeted, flags)
+    : GrSurfaceProxy(context, desc, fit, budgeted, flags)
     // for now textures w/ data are always wrapped
-    , GrTextureProxy(desc, fit, budgeted, nullptr, 0, flags)
-    , GrRenderTargetProxy(caps, desc, fit, budgeted, flags) {
+    , GrTextureProxy(context, desc, fit, budgeted, nullptr, 0, flags)
+    , GrRenderTargetProxy(context, caps, desc, fit, budgeted, flags) {
 }
 
 // Wrapped version

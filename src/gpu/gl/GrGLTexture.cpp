@@ -86,6 +86,8 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& 
 }
 
 void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
+    fprintf(stderr, "GrGLTexture::init %d %d - %d %d\n", idDesc.fInfo.fTarget, idDesc.fInfo.fID, desc.fWidth, desc.fHeight);
+
     SkASSERT(0 != idDesc.fInfo.fID);
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
@@ -112,6 +114,7 @@ void GrGLTexture::onAbandon() {
 }
 
 GrBackendObject GrGLTexture::getTextureHandle() const {
+    fprintf(stderr, "GrGLTexture::getTextureHandle %d %d %d %d\n", fInfo.fTarget, fInfo.fID, fWidth, fHeight);
     return reinterpret_cast<GrBackendObject>(&fInfo);
 }
 

@@ -68,7 +68,7 @@ protected:
     friend class GrSurfaceProxy;  // for ctors
 
     // Deferred version
-    GrRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&,
+    GrRenderTargetProxy(GrContext*, const GrCaps&, const GrSurfaceDesc&,
                         SkBackingFit, SkBudgeted, uint32_t flags);
 
     // Wrapped version

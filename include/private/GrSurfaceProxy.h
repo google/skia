@@ -13,6 +13,9 @@
 
 #include "SkRect.h"
 
+#include <stdio.h>
+
+
 class GrBackendTexture;
 class GrCaps;
 class GrOpList;
@@ -337,20 +340,7 @@ public:
 
 protected:
     // Deferred version
-    GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
-            : fConfig(desc.fConfig)
-            , fWidth(desc.fWidth)
-            , fHeight(desc.fHeight)
-            , fOrigin(desc.fOrigin)
-            , fFit(fit)
-            , fBudgeted(budgeted)
-            , fFlags(flags)
-            , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
-            , fGpuMemorySize(kInvalidGpuMemorySize)
-            , fLastOpList(nullptr) {
-        // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
-    }
-
+    GrSurfaceProxy(GrContext*, const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags);
     // Wrapped version
     GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit);
 
@@ -380,6 +370,7 @@ protected:
                          GrSurfaceFlags flags, bool isMipMapped,
                          SkDestinationSurfaceColorMode mipColorMode, const GrUniqueKey*);
 
+ public:
     // For wrapped resources, 'fConfig', 'fWidth', 'fHeight', and 'fOrigin; will always be filled in
     // from the wrapped resource.
     GrPixelConfig        fConfig;

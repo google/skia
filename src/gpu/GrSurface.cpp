@@ -15,6 +15,19 @@
 #include "SkGr.h"
 #include "SkMathPriv.h"
 
+#include "GrGpu.h"
+
+GrSurface::GrSurface(GrGpu* gpu, const GrSurfaceDesc& desc)
+        : INHERITED(gpu)
+        , fConfig(desc.fConfig)
+        , fWidth(desc.fWidth)
+        , fHeight(desc.fHeight) {
+    char* msg = new char[256];
+    snprintf(msg, 256, "GrSurface: %d %d", fWidth, fHeight);
+    msg[255] = '\0';
+    gpu->getContext()->log(msg);
+}
+
 size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
     size_t size;
 

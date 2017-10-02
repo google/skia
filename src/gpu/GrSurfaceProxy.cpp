@@ -20,6 +20,28 @@
 
 #include "SkMathPriv.h"
 
+#include <stdio.h>
+
+GrSurfaceProxy::GrSurfaceProxy(GrContext* context, 
+                               const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
+        : fConfig(desc.fConfig)
+        , fWidth(desc.fWidth)
+        , fHeight(desc.fHeight)
+        , fOrigin(desc.fOrigin)
+        , fFit(fit)
+        , fBudgeted(budgeted)
+        , fFlags(flags)
+        , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
+        , fGpuMemorySize(kInvalidGpuMemorySize)
+        , fLastOpList(nullptr) {
+    // Note: this ctor pulls a new uniqueID from the same pool as the GrGpuResources
+    fprintf(stderr, "______________________________ %p %d %d\n", context, fWidth, fHeight);
+    char* msg = new char[256];
+    snprintf(msg, 256, "GrSurfaceProxy - deferred: %d %d", fWidth, fHeight);
+    msg[255] = '\0';
+    context->log(msg);
+}
+
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit)
         : INHERITED(std::move(surface))
         , fConfig(fTarget->config())
@@ -33,6 +55,12 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
+    fprintf(stderr, "************************* %p %d %d\n", fTarget->getContext(), fWidth, fHeight);
+
+    char* msg = new char[256];
+    snprintf(msg, 256, "GrSurfaceProxy - wrapped: %d %d", fWidth, fHeight);
+    msg[255] = '\0';
+    fTarget->getContext()->log(msg);
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
@@ -270,11 +298,17 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     if (willBeRT) {
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
-        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(*caps, copyDesc, fit,
+        sk_sp<GrTextureProxy> temp(new GrTextureRenderTargetProxy(resourceProvider->getContext(),
+                                                                    *caps, copyDesc, fit,
                                                                     budgeted, flags));
+        temp->instantiate(resourceProvider);
+        return temp;
     }
 
-    return sk_sp<GrTextureProxy>(new GrTextureProxy(copyDesc, fit, budgeted, nullptr, 0, flags));
+    sk_sp<GrTextureProxy> temp(new GrTextureProxy(resourceProvider->getContext(),
+                                                    copyDesc, fit, budgeted, nullptr, 0, flags));
+    temp->instantiate(resourceProvider);
+    return temp;
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceProvider,

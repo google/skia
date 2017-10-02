@@ -26,7 +26,7 @@ private:
     friend class GrSurfaceProxy; // for ctors
 
     // Deferred version
-    GrTextureRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&,
+    GrTextureRenderTargetProxy(GrContext*, const GrCaps&, const GrSurfaceDesc&,
                                SkBackingFit, SkBudgeted, uint32_t flags);
 
     // Wrapped version

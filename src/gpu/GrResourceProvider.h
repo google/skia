@@ -13,6 +13,8 @@
 #include "SkImageInfo.h"
 #include "SkScalerContext.h"
 
+#include "GrGpu.h"
+
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
 class GrBackendTexture;
@@ -261,6 +263,8 @@ public:
     static bool IsFunctionallyExact(GrSurfaceProxy* proxy);
 
     const GrCaps* caps() const { return fCaps.get(); }
+
+    GrContext* getContext() { return fGpu->getContext(); }
 
 private:
     GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);

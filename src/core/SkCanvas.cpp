@@ -839,6 +839,9 @@ bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
 
 bool SkCanvas::writePixels(const SkImageInfo& srcInfo, const void* pixels, size_t rowBytes,
                            int x, int y) {
+
+    fprintf(stderr, "+++++++++++++++++++++++++++++++++++++++++++++++++++ 2\n");
+
     SkBaseDevice* device = this->getDevice();
     if (!device) {
         return false;

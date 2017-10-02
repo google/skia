@@ -60,6 +60,11 @@ SkASSERT(!(P) || !((P)->priv().peekTexture()) || (P)->priv().peekTexture()->getC
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void GrContext::log(char* msg) {
+    SkAutoMutexAcquire ama(fMutex);
+    msgs.push_back(msg);
+}
+
 GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext) {
     GrContextOptions defaultOptions;
     return Create(backend, backendContext, defaultOptions);
@@ -292,6 +297,20 @@ void GrContext::resetContext(uint32_t state) {
 void GrContext::freeGpuResources() {
     ASSERT_SINGLE_OWNER
 
+    static int count = 0;
+    char name[256];
+    sprintf(name, "d:\\src\\bugs\\log%d.txt", count++);
+    FILE* fp = fopen(name, "wt");
+    if (fp) {
+        fprintf(fp, "hello world\n");
+        for (int i = 0; i < msgs.count(); ++i) {
+            fprintf(fp, "%s\n", msgs[i]);
+        }
+        //msgs.reset();
+
+        fclose(fp);
+    }
+
     this->flush();
 
     fAtlasGlyphCache->freeAll();
@@ -412,6 +431,14 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
                                        const void* buffer, size_t rowBytes,
                                        uint32_t pixelOpsFlags) {
     // TODO: Color space conversion
+
+    fprintf(stderr, "+++++++++++++++++++++++++++++++++++++ %d %d, %d %d\n",
+                    dst->width(), dst->height(), width, height);
+    char* msg = new char[256];
+    snprintf(msg, 256, "writeSurfacePixels: %d %d, %d %d", dst->width(), dst->height(),
+             width, height);
+    msg[255] = '\0';
+    fContext->log(msg);
 
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_FALSE_IF_ABANDONED_PRIV

@@ -757,6 +757,9 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
                             GrPixelConfig config,
                             const GrMipLevel texels[],
                             int mipLevelCount) {
+
+    fprintf(stderr, "onWritePixels\n");
+
     GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
 
     if (!check_write_and_transfer_input(glTex, surface, config)) {
@@ -1010,6 +1013,9 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
                             GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType,
                             int left, int top, int width, int height, GrPixelConfig dataConfig,
                             const GrMipLevel texels[], int mipLevelCount) {
+
+    fprintf(stderr, "uploadTexData\n");
+
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
     SkDEBUGCODE(
         SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
@@ -1171,6 +1177,8 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
             int currentWidth = SkTMax(1, width / twoToTheMipLevel);
             int currentHeight = SkTMax(1, height / twoToTheMipLevel);
 
+            fprintf(stderr, "TexSubImage2D!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ %d %d\n\n\n",
+                    currentWidth, currentHeight);
             GL_CALL(TexSubImage2D(target,
                                   currentMipLevel,
                                   left, top,
@@ -1597,6 +1605,8 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
 bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
                                 bool renderTarget, GrGLTexture::TexParams* initialTexParams,
                                 const GrMipLevel texels[], int mipLevelCount) {
+    fprintf(stderr, "createTextureImpl\n");
+
     info->fID = 0;
     info->fTarget = GR_GL_TEXTURE_2D;
     GL_CALL(GenTextures(1, &(info->fID)));

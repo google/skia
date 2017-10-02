@@ -12,9 +12,9 @@
 
 #include "GrTexturePriv.h"
 
-GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
+GrTextureProxy::GrTextureProxy(GrContext* context, const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
                                const void* srcData, size_t /*rowBytes*/, uint32_t flags)
-        : INHERITED(srcDesc, fit, budgeted, flags)
+        : INHERITED(context, srcDesc, fit, budgeted, flags)
         , fIsMipMapped(false)
         , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
         , fCache(nullptr) {

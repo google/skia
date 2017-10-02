@@ -50,6 +50,11 @@ class SkTaskGroup;
 
 class SK_API GrContext : public SkRefCnt {
 public:
+    SkTArray<char*> msgs;
+    SkMutex fMutex;
+
+    void log(char* msg);
+
     /**
      * Creates a GrContext for a backend context.
      */
