@@ -24,6 +24,8 @@ static const size_t N = sizeof(F) / sizeof(float);
     #define WRAP(name) sk_##name##_aarch64
 #elif defined(__arm__)
     #define WRAP(name) sk_##name##_vfp4
+#elif defined(__AVX512F__)
+    #define WRAP(name) sk_##name##_skx
 #elif defined(__AVX2__)
     #define WRAP(name) sk_##name##_hsw
 #elif defined(__AVX__)
