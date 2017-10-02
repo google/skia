@@ -42,7 +42,8 @@ void GrTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey) {
     // We don't currently have a mechanism for notifications on Images!
 }
 
-sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& copyParams) {
+sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& copyParams,
+                                                             bool willBeMipped) {
     GrUniqueKey key;
     this->makeCopyKey(copyParams, &key, nullptr);
     if (key.isValid()) {
@@ -57,7 +58,8 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
     const SkIRect* contentArea = this->contentAreaOrNull();
 
-    sk_sp<GrTextureProxy> copy = CopyOnGpu(fContext, std::move(proxy), contentArea, copyParams);
+    sk_sp<GrTextureProxy> copy = CopyOnGpu(fContext, std::move(proxy), contentArea, copyParams,
+                                           willBeMipped);
     if (copy) {
         if (key.isValid()) {
             SkASSERT(copy->origin() == this->originalProxy()->origin());
@@ -79,7 +81,8 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(const GrSa
         return nullptr;
     }
 
-    if (contentArea && GrSamplerState::Filter::kMipMap == params.filter()) {
+    bool willBeMipped = GrSamplerState::Filter::kMipMap == params.filter();
+    if (contentArea && willBeMipped) {
         // If we generate a MIP chain for texture it will read pixel values from outside the content
         // area.
         copyParams.fWidth = contentArea->width();
@@ -90,7 +93,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(const GrSa
         return proxy;
     }
 
-    return this->refTextureProxyCopy(copyParams);
+    return this->refTextureProxyCopy(copyParams, willBeMipped);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
