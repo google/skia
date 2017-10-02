@@ -131,3 +131,31 @@ private:
 
 DEF_GM( return new BitmapPremulGM; )
 }
+
+#include "Resources.h"
+#include "SkGradientShader.h"
+#include "SkImage.h"
+#include <vector>
+
+DEF_SIMPLE_GM(readpixels, canvas, 256, 256) {
+    const char* path = "mandrill_512_q075.jpg";
+    sk_sp<SkImage> image = GetResourceAsImage(path);
+    int width = image->width();
+    int height = image->height();
+    std::vector<int32_t> srcPixels;
+    srcPixels.resize(height * width  * 4);
+    SkPixmap pixmap(SkImageInfo::MakeN32Premul(width, height), (const void*) &srcPixels.front(),
+                    width * 4);
+    image->readPixels(pixmap, 0, 0);
+    canvas->scale(.5f, .5f);
+    width /= 4;
+    height /= 4;
+    for (int y = 0; y < 4; ++y) {
+        for (int x = 0; x < 4; ++x) {
+            SkBitmap bitmap;
+            bitmap.allocPixels(SkImageInfo::MakeN32Premul(width, height));
+            bitmap.writePixels(pixmap, -y * width, -x * height);
+            canvas->drawBitmap(bitmap, x * width, y * height);
+        }
+    }
+}
