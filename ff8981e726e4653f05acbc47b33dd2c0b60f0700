@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13de3701_951cf5dc",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-02T21:04:40Z",
+      "side": 1,
+      "message": "duplicated for Clang",
+      "revId": "ff8981e726e4653f05acbc47b33dd2c0b60f0700",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6ce4d8d6_5a1f2af7",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-02T21:04:40Z",
+      "side": 1,
+      "message": "duplicated for Clang",
+      "revId": "ff8981e726e4653f05acbc47b33dd2c0b60f0700",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "23fc02f3_b920127a",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-02T21:04:40Z",
+      "side": 1,
+      "message": "duplicated for Clang",
+      "revId": "ff8981e726e4653f05acbc47b33dd2c0b60f0700",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
