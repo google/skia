@@ -14,6 +14,9 @@
 #include "SkFrameHolder.h"
 #include "SkGifCodec.h"
 #include "SkHalf.h"
+#ifdef SK_HAS_HEIF_LIBRARY
+#include "SkHeifCodec.h"
+#endif
 #include "SkIcoCodec.h"
 #include "SkJpegCodec.h"
 #ifdef SK_HAS_PNG_LIBRARY
@@ -41,12 +44,11 @@ static const DecoderProc gDecoderProcs[] = {
     { SkIcoCodec::IsIco, SkIcoCodec::NewFromStream },
 #endif
     { SkBmpCodec::IsBmp, SkBmpCodec::NewFromStream },
-    { SkWbmpCodec::IsWbmp, SkWbmpCodec::NewFromStream }
+    { SkWbmpCodec::IsWbmp, SkWbmpCodec::NewFromStream },
+#ifdef SK_HAS_HEIF_LIBRARY
+    { SkHeifCodec::IsHeif, SkHeifCodec::NewFromStream },
+#endif
 };
-
-size_t SkCodec::MinBufferedBytesNeeded() {
-    return WEBP_VP8_HEADER_SIZE;
-}
 
 SkCodec* SkCodec::NewFromStream(SkStream* stream,
         Result* outResult, SkPngChunkReader* chunkReader) {
@@ -62,9 +64,7 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
 
     std::unique_ptr<SkStream> streamDeleter(stream);
 
-    // 14 is enough to read all of the supported types.
-    const size_t bytesToRead = 14;
-    SkASSERT(bytesToRead <= MinBufferedBytesNeeded());
+    constexpr size_t bytesToRead = MinBufferedBytesNeeded();
 
     char buffer[bytesToRead];
     size_t bytesRead = stream->peek(buffer, bytesToRead);

@@ -31,6 +31,7 @@ declare_args() {
   skia_use_piex = !is_win
   skia_use_zlib = true
   skia_use_metal = false
+  skia_use_libheif = false
 
   skia_android_serial = ""
   skia_enable_discrete_gpu = true
@@ -545,6 +546,17 @@ optional("gpu") {
   }
 }
 
+optional("heif") {
+  enabled = skia_use_libheif
+  public_defines = [ "SK_HAS_HEIF_LIBRARY" ]
+
+  deps = []
+
+  sources = [
+    "src/codec/SkHeifCodec.cpp",
+  ]
+}
+
 optional("jpeg") {
   enabled = skia_use_libjpeg_turbo
   public_defines = [ "SK_HAS_JPEG_LIBRARY" ]
@@ -668,6 +680,7 @@ component("skia") {
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",
     ":gpu",
+    ":heif",
     ":hsw",
     ":jpeg",
     ":none",

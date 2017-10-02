@@ -23,8 +23,6 @@ extern "C" {
     void WebPDemuxDelete(WebPDemuxer* dmux);
 }
 
-static const size_t WEBP_VP8_HEADER_SIZE = 30;
-
 class SkWebpCodec final : public SkCodec {
 public:
     // Assumes IsWebp was called and returned true.
