@@ -344,7 +344,7 @@ public:
             // We made/have an off-screen surface. Extract the pixels exactly as we rendered them:
             SkImageInfo info = win->info();
             size_t rowBytes = info.minRowBytes();
-            size_t size = info.computeByteSize(rowBytes);
+            size_t size = info.getSafeSize(rowBytes);
             auto data = SkData::MakeUninitialized(size);
             SkASSERT(data);
 

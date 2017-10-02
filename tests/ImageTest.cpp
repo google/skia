@@ -549,7 +549,7 @@ DEF_TEST(ImageEmpty, reporter) {
 DEF_TEST(ImageDataRef, reporter) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
     size_t rowBytes = info.minRowBytes();
-    size_t size = info.computeByteSize(rowBytes);
+    size_t size = info.getSafeSize(rowBytes);
     sk_sp<SkData> data = SkData::MakeUninitialized(size);
     REPORTER_ASSERT(reporter, data->unique());
     sk_sp<SkImage> image = SkImage::MakeRasterData(info, data, rowBytes);

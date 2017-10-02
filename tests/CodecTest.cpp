@@ -584,7 +584,7 @@ static void test_dimensions(skiatest::Reporter* r, const char path[]) {
 
         // Set up for the decode
         size_t rowBytes = scaledDims.width() * sizeof(SkPMColor);
-        size_t totalBytes = scaledInfo.computeByteSize(rowBytes);
+        size_t totalBytes = scaledInfo.getSafeSize(rowBytes);
         SkAutoTMalloc<SkPMColor> pixels(totalBytes);
 
         SkAndroidCodec::AndroidOptions options;
@@ -1011,7 +1011,7 @@ static void check_color_xform(skiatest::Reporter* r, const char* path) {
                                           .makeColorSpace(colorSpace);
 
     size_t rowBytes = dstInfo.minRowBytes();
-    SkAutoMalloc pixelStorage(dstInfo.computeByteSize(rowBytes));
+    SkAutoMalloc pixelStorage(dstInfo.getSafeSize(rowBytes));
     SkCodec::Result result = codec->getAndroidPixels(dstInfo, pixelStorage.get(), rowBytes, &opts);
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 }

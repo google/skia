@@ -400,7 +400,7 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     } else {
         dst.reset(info, mask.fImage, dstRB);
     }
-    sk_bzero(dst.writable_addr(), dst.computeByteSize());
+    sk_bzero(dst.writable_addr(), dst.getSafeSize());
 
     SkDraw  draw;
     draw.fDst   = dst;
