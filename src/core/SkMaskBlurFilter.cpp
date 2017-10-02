@@ -69,11 +69,19 @@ public:
         auto outerWindow = 2 * outerRadius + 1;
         auto outerFactor = (1 - (outerRadius - radius)) / outerWindow;
         fOuterWeight = static_cast<uint32_t>(round(outerFactor * (1ull << 24)));
+        auto b = outerWindow;
+        auto a = (1 - (outerRadius - radius));
+        fOuterHalf = static_cast<uint32_t>(
+                0.5 * ((b*b - 2*b)/(b-2*a)) + 0.5
+        );
+        //fOuterHalf = static_cast<uint32_t>(round(0.5 / (outerFactor + 1.0)));
 
         auto innerRadius = outerRadius - 1;
         auto innerWindow = 2 * innerRadius + 1;
         auto innerFactor = (1 - (radius - innerRadius)) / innerWindow;
         fInnerWeight = static_cast<uint32_t>(round(innerFactor * (1ull << 24)));
+        fInnerHalf = static_cast<uint32_t>(round(0.5 / (innerFactor + 1.0)));
+
 
         // Sliding window is defined by the relationship between the outer and inner widows.
         // In the single window case, you add the element on the right, and subtract the element on
@@ -118,18 +126,21 @@ public:
         }
 
         Sk4u* sk4uBuffer = reinterpret_cast<Sk4u*>(buffer);
-        return alloc->make<Box>(fOuterWeight, fInnerWeight, noChangeCount, trailingEdgeZeroCount,
+        return alloc->make<Box>(fOuterWeight, fOuterHalf, fInnerWeight, fInnerHalf,
+                                noChangeCount, trailingEdgeZeroCount,
                                 sk4uBuffer, sk4uBuffer + fSlidingWindow);
     }
 
 private:
     class Box final : public BlurScanInterface {
     public:
-        Box(uint32_t outerWeight, uint32_t innerWeight,
+        Box(uint32_t outerWeight, uint32_t outerHalf, uint32_t innerWeight, uint32_t innerHalf,
             size_t noChangeCount, size_t trailingEdgeZeroCount,
             Sk4u* buffer, Sk4u* bufferEnd)
             : fOuterWeight{outerWeight}
+            , fOuterHalf{outerHalf}
             , fInnerWeight{innerWeight}
+            , fInnerHalf{innerHalf}
             , fNoChangeCount{noChangeCount}
             , fTrailingEdgeZeroCount{trailingEdgeZeroCount}
             , fBuffer{buffer}
@@ -142,11 +153,11 @@ private:
 
             auto interpolateSums = [this](uint32_t outerSum, uint32_t innerSum) {
                 return SkTo<uint8_t>(
-                    (fOuterWeight * outerSum + fInnerWeight * innerSum + kHalf) >> 24);
+                    (fOuterWeight * outerSum + fInnerWeight * innerSum) >> 24);
             };
 
-            uint32_t outerSum = 0;
-            uint32_t innerSum = 0;
+            uint32_t outerSum = fOuterHalf;
+            uint32_t innerSum = fOuterHalf;
             for (size_t i = 0; i < fTrailingEdgeZeroCount; i++) {
                 innerSum = outerSum;
                 outerSum += *rightOuter;
@@ -158,7 +169,7 @@ private:
 
             // slidingWindow > width
             for (size_t i = 0; i < fNoChangeCount; i++) {
-                *dstCursor = interpolateSums(outerSum, innerSum);;
+                *dstCursor = interpolateSums(outerSum, innerSum);
                 dstCursor += dstStride;
             }
 
@@ -177,7 +188,7 @@ private:
 
             auto leftOuter = srcEnd;
             dstCursor = dstEnd;
-            outerSum = 0;
+            outerSum = fOuterHalf;
             for (size_t i = 0; i < fTrailingEdgeZeroCount; i++) {
                 leftOuter -= srcStride;
                 dstCursor -= dstStride;
@@ -212,11 +223,11 @@ private:
             auto interpolateSums = [&] (const Sk4u& outerSum,  const Sk4u& innerSum) {
                 return
                     SkNx_cast<uint8_t>(
-                        (outerSum * outerWeight + innerSum * innerWeight + kHalf) >> 24);
+                        (outerSum * outerWeight + innerSum * innerWeight) >> 24);
             };
 
-            Sk4u outerSum = 0;
-            Sk4u innerSum = 0;
+            Sk4u outerSum = fOuterHalf;
+            Sk4u innerSum = fOuterHalf + fInnerHalf - fInnerHalf;
             for (size_t i = 0; i < fTrailingEdgeZeroCount; i++) {
                 innerSum = outerSum;
 
@@ -261,7 +272,7 @@ private:
 
             auto leftOuter = srcEnd;
             dstCursor = dstEnd;
-            outerSum = 0;
+            outerSum = fOuterHalf;
             for (size_t i = 0; i < fTrailingEdgeZeroCount; i++) {
                 leftOuter -= 1;
                 dstCursor -= dstStride;
@@ -274,10 +285,10 @@ private:
         }
 
     private:
-        static constexpr uint32_t kHalf = static_cast<uint32_t>(1) << 23;
-
         const uint32_t fOuterWeight;
+        const uint32_t fOuterHalf;
         const uint32_t fInnerWeight;
+        const uint32_t fInnerHalf;
         const size_t   fNoChangeCount;
         const size_t   fTrailingEdgeZeroCount;
         Sk4u* const    fBuffer;
@@ -285,7 +296,9 @@ private:
     };
 private:
     uint32_t fOuterWeight;
+    uint32_t fOuterHalf;
     uint32_t fInnerWeight;
+    uint32_t fInnerHalf;
     size_t   fSlidingWindow;
 };
 
