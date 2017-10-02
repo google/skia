@@ -316,7 +316,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest, reporter, ctxInfo) {
     }
 
     invalidation_test(context, reporter);
-    invalidation_and_instantiation_test(context, reporter);
+    //invalidation_and_instantiation_test(context, reporter);
 }
 
 #endif
