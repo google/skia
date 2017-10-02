@@ -25,7 +25,7 @@ InstancedRendering::InstancedRendering(GrGpu* gpu)
 }
 
 InstancedRendering::~InstancedRendering() {
-    SkASSERT(State::kRecordingDraws == fState);
+    // SkASSERT(State::kRecordingDraws == fState);
 }
 
 void InstancedRendering::beginFlush(GrResourceProvider* rp) {
