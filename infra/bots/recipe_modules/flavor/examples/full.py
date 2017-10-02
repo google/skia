@@ -55,11 +55,11 @@ def RunSteps(api):
 
 TEST_BUILDERS = [
   'Build-Debian9-Clang-arm-Release-Android_API26',
+  'Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
   'Build-Debian9-Clang-x86_64-Release-Fast',
   'Build-Debian9-Clang-x86_64-Release-Mini',
   'Build-Debian9-Clang-x86_64-Release-Vulkan',
   'Build-Debian9-EMCC-wasm-Release',
-  'Build-Debian9-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
   'Build-Debian9-GCC-x86_64-Release-ANGLE',
   'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
   'Build-Debian9-GCC-x86_64-Release-Mesa',
@@ -71,9 +71,9 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Mac-Clang-x86_64-Debug-Metal',
   'Build-Win-Clang-arm64-Release-Android',
+  'Build-Win-Clang-x86_64-Debug-GDI',
   'Build-Win-Clang-x86_64-Release',
   'Build-Win-MSVC-x86-Debug-Exceptions',
-  'Build-Win-MSVC-x86_64-Debug-GDI',
   'Build-Win-MSVC-x86_64-Release-Vulkan',
   'Housekeeper-PerCommit-CheckGeneratedFiles',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android',
