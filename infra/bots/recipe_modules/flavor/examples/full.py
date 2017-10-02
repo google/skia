@@ -54,6 +54,7 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  'Build-Debian9-Clang-x86_64-Debug-Coverage',
   'Build-Debian9-Clang-arm-Release-Android_API26',
   'Build-Debian9-Clang-x86_64-Release-Fast',
   'Build-Debian9-Clang-x86_64-Release-Mini',
@@ -84,6 +85,7 @@ TEST_BUILDERS = [
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow',
   'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Coverage',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN',
   'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release',
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
