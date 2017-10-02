@@ -9,11 +9,11 @@
 
 #include "GrAppliedClip.h"
 #include "GrContextPriv.h"
+#include "GrDeferredProxyUploader.h"
 #include "GrDrawingManager.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
-#include "GrPrepareCallback.h"
 #include "GrResourceProvider.h"
 #include "GrStencilAttachment.h"
 #include "GrSWMaskHelper.h"
@@ -428,7 +428,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
 namespace {
 
 /**
- * Payload class for use with GrMaskUploaderPrepareCallback. The clip mask code renders multiple
+ * Payload class for use with GrTDeferredProxyUploader. The clip mask code renders multiple
  * elements, each storing their own AA setting (and already transformed into device space). This
  * stores all of the information needed by the worker thread to draw all clip elements (see below,
  * in createSoftwareClipMask).
@@ -524,17 +524,11 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         desc.fHeight = maskSpaceIBounds.height();
         desc.fConfig = kAlpha_8_GrPixelConfig;
         proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc,
-                                             SkBackingFit::kApprox, SkBudgeted::kYes);
+                                             SkBackingFit::kApprox, SkBudgeted::kYes,
+                                             GrResourceProvider::kNoPendingIO_Flag);
 
-        // TODO: I believe the assignUniqueKeyToProxy below used to instantiate the proxy before
-        // the draw that used the result was being flushed, so the upload was succeeding. With 
-        // assignUniqueKeyToProxy no longer forcing an instantiation it will have to happen
-        // explicitly elsewhere.
-        proxy->instantiate(context->resourceProvider());
-
-        auto uploader = skstd::make_unique<GrMaskUploaderPrepareCallback<ClipMaskData>>(
-                proxy, reducedClip);
-        GrMaskUploaderPrepareCallback<ClipMaskData>* uploaderRaw = uploader.get();
+        auto uploader = skstd::make_unique<GrTDeferredProxyUploader<ClipMaskData>>(reducedClip);
+        GrTDeferredProxyUploader<ClipMaskData>* uploaderRaw = uploader.get();
         auto drawAndUploadMask = [uploaderRaw, maskSpaceIBounds] {
             TRACE_EVENT0("skia", "Threaded SW Clip Mask Render");
             GrSWMaskHelper helper(uploaderRaw->getPixels());
@@ -545,11 +539,11 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
             } else {
                 SkDEBUGFAIL("Unable to allocate SW clip mask.");
             }
-            uploaderRaw->getSemaphore()->signal();
+            uploaderRaw->signalAndFreeData();
         };
 
         taskGroup->add(std::move(drawAndUploadMask));
-        renderTargetContext->getOpList()->addPrepareCallback(std::move(uploader));
+        proxy->texPriv().setDeferredUploader(std::move(uploader));
     } else {
         GrSWMaskHelper helper;
         if (!helper.init(maskSpaceIBounds)) {

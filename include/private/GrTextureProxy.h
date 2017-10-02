@@ -12,6 +12,7 @@
 #include "GrSurfaceProxy.h"
 
 class GrCaps;
+class GrDeferredProxyUploader;
 class GrResourceCache;
 class GrResourceProvider;
 class GrTextureOpList;
@@ -69,6 +70,7 @@ public:
 
 protected:
     friend class GrSurfaceProxy; // for ctors
+    friend class GrTextureProxyPriv;
 
     // Deferred version
     GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit, SkBudgeted,
@@ -88,6 +90,11 @@ private:
 
     GrUniqueKey fUniqueKey;
     GrResourceCache* fCache; // only set when fUniqueKey is valid
+
+    // Only used for proxies whose contents are being prepared on a worker thread. This object
+    // stores the texture data, allowing the proxy to remain uninstantiated until flush. At that
+    // point, the proxy is instantiated, and this data is used to perform an ASAP upload.
+    std::unique_ptr<GrDeferredProxyUploader> fDeferredUploader;
 
     size_t onUninstantiatedGpuMemorySize() const override;
 
