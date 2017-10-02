@@ -553,7 +553,7 @@ bool SkRRect::isValid() const {
     }
     bool patchesOfNine = radii_are_nine_patch(fRadii);
 
-    if (fType > kLastType) {
+    if (fType < 0 || fType > kLastType) {
         return false;
     }
 
