@@ -88,10 +88,10 @@ void ColorCodecBench::onDelayedSetup() {
         fDstSpace = static_cast<SkColorSpace_XYZ*>(fDstSpace.get())->makeLinearGamma();
     }
 
-    fDst.reset(fDstInfo.computeMinByteSize());
+    fDst.reset(fDstInfo.getSafeSize(fDstInfo.minRowBytes()));
 
     if (FLAGS_xform_only) {
-        fSrc.reset(fSrcInfo.computeMinByteSize());
+        fSrc.reset(fSrcInfo.getSafeSize(fSrcInfo.minRowBytes()));
         fSrcSpace = codec->getInfo().refColorSpace();
         codec->getPixels(fSrcInfo, fSrc.get(), fSrcInfo.minRowBytes());
     }

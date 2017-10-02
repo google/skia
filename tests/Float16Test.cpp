@@ -43,7 +43,7 @@ DEF_TEST(color_half_float, reporter) {
 
     SkAutoPixmapStorage pm;
     pm.alloc(info);
-    REPORTER_ASSERT(reporter, pm.computeByteSize() == SkToSizeT(w * h * sizeof(uint64_t)));
+    REPORTER_ASSERT(reporter, pm.getSafeSize() == SkToSizeT(w * h * sizeof(uint64_t)));
 
     SkColor4f c4 { 1, 0.5f, 0.25f, 0.5f };
     pm.erase(c4);

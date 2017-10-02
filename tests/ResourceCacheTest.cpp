@@ -49,7 +49,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, ctxInfo) {
     SkBitmap src;
     src.allocN32Pixels(size.width(), size.height());
     src.eraseColor(SK_ColorBLACK);
-    size_t srcSize = src.computeByteSize();
+    size_t srcSize = src.getSize();
 
     size_t initialCacheSize;
     context->getResourceCacheUsage(nullptr, &initialCacheSize);
