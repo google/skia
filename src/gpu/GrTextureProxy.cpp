@@ -6,11 +6,10 @@
  */
 
 #include "GrTextureProxy.h"
-#include "GrTextureProxyPriv.h"
 
 #include "GrContext.h"
-#include "GrDeferredProxyUploader.h"
 #include "GrResourceCache.h"
+
 #include "GrTexturePriv.h"
 
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
@@ -18,8 +17,7 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, S
         : INHERITED(srcDesc, fit, budgeted, flags)
         , fIsMipMapped(false)
         , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
-        , fCache(nullptr)
-        , fDeferredUploader(nullptr) {
+        , fCache(nullptr) {
     SkASSERT(!srcData);  // currently handled in Make()
 }
 
@@ -27,8 +25,7 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
         , fIsMipMapped(fTarget->asTexture()->texturePriv().hasMipMaps())
         , fMipColorMode(fTarget->asTexture()->texturePriv().mipColorMode())
-        , fCache(nullptr)
-        , fDeferredUploader(nullptr) {
+        , fCache(nullptr) {
     if (fTarget->getUniqueKey().isValid()) {
         fCache = fTarget->asTexture()->getContext()->getResourceCache();
         fCache->adoptUniqueKeyFromSurface(this, fTarget);
@@ -68,25 +65,6 @@ sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvi
 
     SkASSERT(surface->asTexture());
     return surface;
-}
-
-void GrTextureProxyPriv::setDeferredUploader(std::unique_ptr<GrDeferredProxyUploader> uploader) {
-    SkASSERT(!fTextureProxy->fDeferredUploader);
-    fTextureProxy->fDeferredUploader = std::move(uploader);
-}
-
-void GrTextureProxyPriv::scheduleUpload(GrOpFlushState* flushState) {
-    SkASSERT(fTextureProxy->fDeferredUploader);
-
-    // Instantiate might have failed
-    if (fTextureProxy->fTarget) {
-        fTextureProxy->fDeferredUploader->scheduleUpload(flushState, fTextureProxy);
-    }
-}
-
-void GrTextureProxyPriv::resetDeferredUploader() {
-    SkASSERT(fTextureProxy->fDeferredUploader);
-    fTextureProxy->fDeferredUploader.reset();
 }
 
 // This method parallels the highest_filter_mode functions in GrGLTexture & GrVkTexture.

@@ -8,9 +8,8 @@
 #include "GrOpList.h"
 
 #include "GrContext.h"
-#include "GrDeferredProxyUploader.h"
+#include "GrPrepareCallback.h"
 #include "GrSurfaceProxy.h"
-#include "GrTextureProxyPriv.h"
 
 #include "SkAtomics.h"
 
@@ -58,19 +57,17 @@ void GrOpList::reset() {
     }
 
     fTarget.reset();
-    fDeferredProxies.reset();
+    fPrepareCallbacks.reset();
     fAuditTrail = nullptr;
 }
 
-void GrOpList::instantiateDeferredProxies(GrResourceProvider* resourceProvider) {
-    for (int i = 0; i < fDeferredProxies.count(); ++i) {
-        fDeferredProxies[i]->instantiate(resourceProvider);
-    }
+void GrOpList::addPrepareCallback(std::unique_ptr<GrPrepareCallback> callback) {
+    fPrepareCallbacks.push_back(std::move(callback));
 }
 
 void GrOpList::prepare(GrOpFlushState* flushState) {
-    for (int i = 0; i < fDeferredProxies.count(); ++i) {
-        fDeferredProxies[i]->texPriv().scheduleUpload(flushState);
+    for (int i = 0; i < fPrepareCallbacks.count(); ++i) {
+        (*fPrepareCallbacks[i])(flushState);
     }
 
     this->onPrepare(flushState);
@@ -101,12 +98,6 @@ void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
 
             // Can't make it closed in the self-read case
             opList->makeClosed(caps);
-        }
-    }
-
-    if (GrTextureProxy* textureProxy = dependedOn->asTextureProxy()) {
-        if (textureProxy->texPriv().isDeferred()) {
-            fDeferredProxies.push_back(textureProxy);
         }
     }
 }
