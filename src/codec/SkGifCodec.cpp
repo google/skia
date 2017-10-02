@@ -156,8 +156,8 @@ int SkGifCodec::onGetRepetitionCount() {
     return fReader->loopCount();
 }
 
-static const SkColorType kXformSrcColorType = kRGBA_8888_SkColorType;
-static const SkAlphaType kXformAlphaType    = kUnpremul_SkAlphaType;
+static constexpr SkColorType kXformSrcColorType = kRGBA_8888_SkColorType;
+static constexpr SkAlphaType kXformAlphaType    = kUnpremul_SkAlphaType;
 
 void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, int frameIndex) {
     SkColorType colorTableColorType = dstInfo.colorType();
