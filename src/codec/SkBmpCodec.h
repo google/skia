@@ -102,8 +102,8 @@ protected:
      * BMPs are typically encoded as BGRA/BGR so this is a more efficient choice
      * than RGBA.
      */
-    static const SkColorType kXformSrcColorType = kBGRA_8888_SkColorType;
-    static const auto kXformSrcColorFormat = SkColorSpaceXform::kBGRA_8888_ColorFormat;
+    static constexpr SkColorType kXformSrcColorType = kBGRA_8888_SkColorType;
+    static constexpr auto kXformSrcColorFormat = SkColorSpaceXform::kBGRA_8888_ColorFormat;
 
 private:
 

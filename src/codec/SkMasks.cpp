@@ -14,7 +14,7 @@
  * Used to convert 1-7 bit color components into 8-bit color components
  *
  */
-const static uint8_t n_bit_to_8_bit_lookup_table[] = {
+static constexpr uint8_t n_bit_to_8_bit_lookup_table[] = {
     // 1 bit
     0, 255,
     // 2 bits

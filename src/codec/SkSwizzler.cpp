@@ -154,14 +154,14 @@ static void swizzle_bit_to_565(
 static void swizzle_bit_to_f16(
         void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
         int bpp, int deltaSrc, int offset, const SkPMColor* /*ctable*/) {
-    static const uint64_t kWhite = (((uint64_t) SK_Half1) <<  0) |
-                                   (((uint64_t) SK_Half1) << 16) |
-                                   (((uint64_t) SK_Half1) << 32) |
-                                   (((uint64_t) SK_Half1) << 48);
-    static const uint64_t kBlack = (((uint64_t)        0) <<  0) |
-                                   (((uint64_t)        0) << 16) |
-                                   (((uint64_t)        0) << 32) |
-                                   (((uint64_t) SK_Half1) << 48);
+    constexpr uint64_t kWhite = (((uint64_t) SK_Half1) <<  0) |
+                                (((uint64_t) SK_Half1) << 16) |
+                                (((uint64_t) SK_Half1) << 32) |
+                                (((uint64_t) SK_Half1) << 48);
+    constexpr uint64_t kBlack = (((uint64_t)        0) <<  0) |
+                                (((uint64_t)        0) << 16) |
+                                (((uint64_t)        0) << 32) |
+                                (((uint64_t) SK_Half1) << 48);
 
     uint64_t* SK_RESTRICT dst = (uint64_t*) dstRow;
 

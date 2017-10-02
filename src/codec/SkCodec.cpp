@@ -32,7 +32,7 @@ struct DecoderProc {
     std::unique_ptr<SkCodec> (*MakeFromStream)(std::unique_ptr<SkStream>, SkCodec::Result*);
 };
 
-static const DecoderProc gDecoderProcs[] = {
+static constexpr DecoderProc gDecoderProcs[] = {
 #ifdef SK_HAS_JPEG_LIBRARY
     { SkJpegCodec::IsJpeg, SkJpegCodec::MakeFromStream },
 #endif

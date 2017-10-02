@@ -81,17 +81,17 @@ std::unique_ptr<SkCodec> SkBmpCodec::MakeFromIco(std::unique_ptr<SkStream> strea
 }
 
 // Header size constants
-static const uint32_t kBmpHeaderBytes = 14;
-static const uint32_t kBmpHeaderBytesPlusFour = kBmpHeaderBytes + 4;
-static const uint32_t kBmpOS2V1Bytes = 12;
-static const uint32_t kBmpOS2V2Bytes = 64;
-static const uint32_t kBmpInfoBaseBytes = 16;
-static const uint32_t kBmpInfoV1Bytes = 40;
-static const uint32_t kBmpInfoV2Bytes = 52;
-static const uint32_t kBmpInfoV3Bytes = 56;
-static const uint32_t kBmpInfoV4Bytes = 108;
-static const uint32_t kBmpInfoV5Bytes = 124;
-static const uint32_t kBmpMaskBytes = 12;
+static constexpr uint32_t kBmpHeaderBytes = 14;
+static constexpr uint32_t kBmpHeaderBytesPlusFour = kBmpHeaderBytes + 4;
+static constexpr uint32_t kBmpOS2V1Bytes = 12;
+static constexpr uint32_t kBmpOS2V2Bytes = 64;
+static constexpr uint32_t kBmpInfoBaseBytes = 16;
+static constexpr uint32_t kBmpInfoV1Bytes = 40;
+static constexpr uint32_t kBmpInfoV2Bytes = 52;
+static constexpr uint32_t kBmpInfoV3Bytes = 56;
+static constexpr uint32_t kBmpInfoV4Bytes = 108;
+static constexpr uint32_t kBmpInfoV5Bytes = 124;
+static constexpr uint32_t kBmpMaskBytes = 12;
 
 static BmpHeaderType get_header_type(size_t infoBytes) {
     if (infoBytes >= kBmpInfoBaseBytes) {

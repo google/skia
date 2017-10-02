@@ -244,7 +244,7 @@ bool SkPngCodec::processData() {
     return true;
 }
 
-static const SkColorType kXformSrcColorType = kRGBA_8888_SkColorType;
+static constexpr SkColorType kXformSrcColorType = kRGBA_8888_SkColorType;
 
 // Note: SkColorTable claims to store SkPMColors, which is not necessarily the case here.
 bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo) {

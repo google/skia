@@ -30,7 +30,7 @@ extern "C" {
 }
 
 bool SkJpegCodec::IsJpeg(const void* buffer, size_t bytesRead) {
-    static const uint8_t jpegSig[] = { 0xFF, 0xD8, 0xFF };
+    constexpr uint8_t jpegSig[] = { 0xFF, 0xD8, 0xFF };
     return bytesRead >= 3 && !memcmp(buffer, jpegSig, sizeof(jpegSig));
 }
 
@@ -51,7 +51,7 @@ static bool is_orientation_marker(jpeg_marker_struct* marker, SkCodec::Origin* o
     }
 
     const uint8_t* data = marker->data;
-    static const uint8_t kExifSig[] { 'E', 'x', 'i', 'f', '\0' };
+    constexpr uint8_t kExifSig[] { 'E', 'x', 'i', 'f', '\0' };
     if (memcmp(data, kExifSig, sizeof(kExifSig))) {
         return false;
     }
