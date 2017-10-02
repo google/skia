@@ -314,38 +314,13 @@ def perf_steps(api):
       if not k in keys_blacklist:
         args.extend([k, api.vars.builder_cfg[k]])
 
-  env = {}
-  if 'Ubuntu16' in api.vars.builder_name:
-    # The vulkan in this asset name simply means that the graphics driver
-    # supports Vulkan. It is also the driver used for GL code.
-    dri_path = api.vars.slave_dir.join('linux_vulkan_intel_driver_release')
-    if 'Debug' in api.vars.builder_name:
-      dri_path = api.vars.slave_dir.join('linux_vulkan_intel_driver_debug')
-
-    if 'Vulkan' in api.vars.builder_name:
-      sdk_path = api.vars.slave_dir.join('linux_vulkan_sdk', 'bin')
-      lib_path = api.vars.slave_dir.join('linux_vulkan_sdk', 'lib')
-      env.update({
-        'PATH':'%%(PATH)s:%s' % sdk_path,
-        'LD_LIBRARY_PATH': '%s:%s' % (lib_path, dri_path),
-        'LIBGL_DRIVERS_PATH': dri_path,
-        'VK_ICD_FILENAMES':'%s' % dri_path.join('intel_icd.x86_64.json'),
-      })
-    else:
-      # Even the non-vulkan NUC jobs could benefit from the newer drivers.
-      env.update({
-        'LD_LIBRARY_PATH': dri_path,
-        'LIBGL_DRIVERS_PATH': dri_path,
-      })
-
   # See skia:2789.
   extra_config_parts = api.vars.builder_cfg.get('extra_config', '').split('_')
   if 'AbandonGpuContext' in extra_config_parts:
     args.extend(['--abandonGpuContext'])
 
-  with api.env(env):
-    api.run(api.flavor.step, target, cmd=args,
-            abort_on_failure=False)
+  api.run(api.flavor.step, target, cmd=args,
+          abort_on_failure=False)
 
   # Copy results to swarming out dir.
   if api.vars.upload_perf_results:

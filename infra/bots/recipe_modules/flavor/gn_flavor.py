@@ -185,13 +185,32 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     cmd = [app] + cmd[1:]
     env = self.m.context.env
+    path = []
+    ld_library_path = []
 
-    clang_linux = str(self.m.vars.slave_dir.join('clang_linux'))
+    slave_dir = self.m.vars.slave_dir
+    clang_linux = str(slave_dir.join('clang_linux'))
     extra_config = self.m.vars.builder_cfg.get('extra_config', '')
+
+    if self.m.vars.is_linux:
+      if (self.m.vars.builder_cfg.get('cpu_or_gpu', '') == 'GPU'
+          and 'Intel' in self.m.vars.builder_cfg.get('cpu_or_gpu_value', '')):
+        # The vulkan in this asset name simply means that the graphics driver
+        # supports Vulkan. It is also the driver used for GL code.
+        dri_path = slave_dir.join('linux_vulkan_intel_driver_release')
+        if self.m.vars.builder_cfg.get('configuration', '') == 'Debug':
+          dri_path = slave_dir.join('linux_vulkan_intel_driver_debug')
+        ld_library_path.append(dri_path)
+        env['LIBGL_DRIVERS_PATH'] = str(dri_path)
+        env['VK_ICD_FILENAMES'] = str(dri_path.join('intel_icd.x86_64.json'))
+
+      if 'Vulkan' in extra_config:
+        path.append(slave_dir.join('linux_vulkan_sdk', 'bin'))
+        ld_library_path.append(slave_dir.join('linux_vulkan_sdk', 'lib'))
 
     if 'SAN' in extra_config:
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
-      env['PATH'] = '%%(PATH)s:%s' % clang_linux + '/bin'
+      path.append(clang_linux + '/bin')
     elif self.m.vars.is_linux:
       cmd = ['catchsegv'] + cmd
 
@@ -202,18 +221,23 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     if 'MSAN' == extra_config:
       # Find the MSAN-built libc++.
-      env['LD_LIBRARY_PATH'] = clang_linux + '/msan'
+      ld_library_path.append(clang_linux + '/msan')
 
     if 'TSAN' == extra_config:
       # We don't care about malloc(), fprintf, etc. used in signal handlers.
       # If we're in a signal handler, we're already crashing...
       env['TSAN_OPTIONS'] = 'report_signal_unsafe=0'
 
+    if path:
+      env['PATH'] = '%%(PATH)s:%s' % ':'.join('%s' % p for p in path)
+    if ld_library_path:
+      env['LD_LIBRARY_PATH'] = ':'.join('%s' % p for p in ld_library_path)
+
     to_symbolize = ['dm', 'nanobench']
     if name in to_symbolize and self.m.vars.is_linux:
       # Convert path objects or placeholders into strings such that they can
       # be passed to symbolize_stack_trace.py
-      args = [self.m.vars.slave_dir] + [str(x) for x in cmd]
+      args = [slave_dir] + [str(x) for x in cmd]
       with self.m.context(cwd=self.m.vars.skia_dir, env=env):
         self._py('symbolized %s' % name,
                  self.module.resource('symbolize_stack_trace.py'),
