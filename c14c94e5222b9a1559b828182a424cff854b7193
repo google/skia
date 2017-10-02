@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31753d2c_b1d706b1",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2017-10-02T21:12:30Z",
+      "side": 1,
+      "message": "Come to think of it, this is possibly not in the read-only data segment.\nThe others are all simple values. But these are function pointers.\nConceptually these are read-only (which is why constexpr works). But there is a catch here.\n\nThe pointers themselves never change. But they aren\u0027t always known at compile-time.\nThe linker could theoretically know the function locations if there was no code relocation. But chances are high that there is also relocation.\n\nReading over spec for constexpr, it sounds like it only requires that it is *possible* to know at compile time. It may not actually enforce that it is resolved at compile-time.\n\n\nFor this same reason, it is possible that you\u0027ve identified the problem but this may or may not fix it. Worth a shot anyway. If not, we might have to get a bit crazier.\n\n(Also, I am surprised only this could cause a noticable perf regression.)",
+      "revId": "c14c94e5222b9a1559b828182a424cff854b7193",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
