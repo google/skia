@@ -27,7 +27,8 @@ class GrVkTextureRenderTarget: public GrVkTexture, public GrVkRenderTarget {
 public:
     static sk_sp<GrVkTextureRenderTarget> CreateNewTextureRenderTarget(GrVkGpu*, SkBudgeted,
                                                                        const GrSurfaceDesc&,
-                                                                       const GrVkImage::ImageDesc&);
+                                                                       const GrVkImage::ImageDesc&,
+                                                                       bool fullMipMapDataProvided);
 
     static sk_sp<GrVkTextureRenderTarget> MakeWrappedTextureRenderTarget(GrVkGpu*,
                                                                          const GrSurfaceDesc&,
@@ -56,7 +57,8 @@ private:
                             const GrVkImageInfo& msaaInfo,
                             const GrVkImageView* colorAttachmentView,
                             const GrVkImageView* resolveAttachmentView,
-                            GrBackendObjectOwnership);
+                            GrBackendObjectOwnership,
+                            bool wasFullMipMapDataProvided);
 
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             SkBudgeted budgeted,
@@ -64,7 +66,8 @@ private:
                             const GrVkImageInfo& info,
                             const GrVkImageView* texView,
                             const GrVkImageView* colorAttachmentView,
-                            GrBackendObjectOwnership);
+                            GrBackendObjectOwnership,
+                            bool wasFullMipMapDataProvided);
 
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             const GrSurfaceDesc& desc,
@@ -87,7 +90,8 @@ private:
                                                const GrVkImageInfo&,
                                                SkBudgeted budgeted,
                                                GrBackendObjectOwnership,
-                                               bool isWrapped);
+                                               bool isWrapped,
+                                               bool wasFullMipMapDataProvided);
 
     // GrGLRenderTarget accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override;

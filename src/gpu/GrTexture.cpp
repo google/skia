@@ -41,14 +41,19 @@ size_t GrTexture::onGpuMemorySize() const {
 
 /////////////////////////////////////////////////////////////////////////////
 GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType,
-                     GrSamplerState::Filter highestFilterMode, bool wasMipMapDataProvided)
+                     GrSamplerState::Filter highestFilterMode,
+                     bool mipsAllocated, bool wasFullMipMapDataProvided)
         : INHERITED(gpu, desc)
         , fSamplerType(samplerType)
         , fHighestFilterMode(highestFilterMode)
         // Mip color mode is explicitly set after creation via GrTexturePriv
         , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy) {
-    if (wasMipMapDataProvided) {
-        fMipMapsStatus = kValid_MipMapsStatus;
+    if (mipsAllocated) {
+        if (wasFullMipMapDataProvided) {
+            fMipMapsStatus = kValid_MipMapsStatus;
+        } else {
+            fMipMapsStatus = kAllocated_MipMapsStatus;
+        }
         fMaxMipMapLevel = SkMipMap::ComputeLevelCount(this->width(), this->height());
     } else {
         fMipMapsStatus = kNotAllocated_MipMapsStatus;
