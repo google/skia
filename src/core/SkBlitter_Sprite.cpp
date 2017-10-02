@@ -184,8 +184,17 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
     if (!blitter && SkSpriteBlitter_Memcpy::Supports(dst, source, paint)) {
         blitter = allocator->make<SkSpriteBlitter_Memcpy>(source);
     }
-    if (!blitter && !dst.colorSpace() && dst.colorType() == kN32_SkColorType) {
-        blitter = SkSpriteBlitter::ChooseL32(source, paint, allocator);
+    if (!blitter && !dst.colorSpace()) {
+        switch (dst.colorType()) {
+            case kN32_SkColorType:
+                blitter = SkSpriteBlitter::ChooseL32(source, paint, allocator);
+                break;
+            case kRGB_565_SkColorType:
+                blitter = SkSpriteBlitter::ChooseL565(source, paint, allocator);
+                break;
+            default:
+                break;
+        }
     }
     if (!blitter) {
         blitter = allocator->make<SkRasterPipelineSpriteBlitter>(source, allocator);

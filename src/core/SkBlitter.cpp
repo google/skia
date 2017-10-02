@@ -918,6 +918,10 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
         return true;
     }
 
+    if (device.colorType() == kRGB_565_SkColorType) {
+        return false;
+    }
+
     return device.colorType() != kN32_SkColorType;
 #endif
 }
@@ -1052,6 +1056,11 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
                 blitter = alloc->make<SkARGB32_Opaque_Blitter>(device, *paint);
             } else {
                 blitter = alloc->make<SkARGB32_Blitter>(device, *paint);
+            }
+            break;
+        case kRGB_565_SkColorType:
+            if (shader) {
+                blitter = alloc->make<SkRGB565_Shader_Blitter>(device, *paint, shaderContext);
             }
             break;
 

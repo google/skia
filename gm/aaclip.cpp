@@ -11,6 +11,31 @@
 #include "SkPath.h"
 #include "SkMakeUnique.h"
 
+#include "Resources.h"
+#include "SkSurface.h"
+static void test_565(SkCanvas* canvas) {
+    static sk_sp<SkImage> img;
+    if (!img) {
+        img = GetResourceAsImage("mandrill_512.png");
+    }
+
+    static sk_sp<SkSurface> surf;
+    if (!surf) {
+        surf = SkSurface::MakeRaster(SkImageInfo::Make(500, 500, kRGB_565_SkColorType, kOpaque_SkAlphaType));
+//        surf = SkSurface::MakeRaster(SkImageInfo::Make(500, 500, kAlpha_8_SkColorType, kPremul_SkAlphaType));
+    }
+
+    SkCanvas* c = surf->getCanvas();
+    c->save();
+//    c->scale(0.9f, 0.9f);
+    for (int n = 0; n < 100; ++n) {
+        c->drawImage(img, 0, 0, nullptr);
+    }
+    c->restore();
+
+    surf->draw(canvas, 0, 0, nullptr);
+}
+
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
@@ -141,6 +166,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        test_565(canvas); return;
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 

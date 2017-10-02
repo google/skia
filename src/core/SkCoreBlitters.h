@@ -137,6 +137,32 @@ private:
     typedef SkShaderBlitter INHERITED;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SkRGB565_Shader_Blitter : public SkShaderBlitter {
+public:
+    SkRGB565_Shader_Blitter(const SkPixmap& device, const SkPaint& paint,
+                            SkShaderBase::Context* shaderContext);
+    ~SkRGB565_Shader_Blitter() override;
+    void blitH(int x, int y, int width) override;
+    void blitV(int x, int y, int height, SkAlpha alpha) override;
+    void blitRect(int x, int y, int width, int height) override;
+    void blitAntiH(int x, int y, const SkAlpha[], const int16_t[]) override;
+    void blitMask(const SkMask&, const SkIRect&) override;
+
+private:
+    SkXfermode*         fXfermode;
+    SkPMColor*          fBuffer;
+    SkBlitRow::Proc32   fProc32;
+    SkBlitRow::Proc32   fProc32Blend;
+    bool                fShadeDirectlyIntoDevice;
+
+    // illegal
+    SkARGB32_Shader_Blitter& operator=(const SkARGB32_Shader_Blitter&);
+
+    typedef SkShaderBlitter INHERITED;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 // Neither of these ever returns nullptr, but this first factory may return a SkNullBlitter.
