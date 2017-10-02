@@ -78,7 +78,15 @@ size_t SkImageInfo::computeByteSize(size_t rowBytes) const {
     SkSafeMath safe;
     size_t bytes = safe.add(safe.mul(fHeight - 1, rowBytes),
                             safe.mul(fWidth, this->bytesPerPixel()));
-    return safe ? bytes : 0;
+    if (!safe) {
+        bytes = 0;  // signal that we overflowed
+    }
+#if 1
+    if (bytes > (size_t)SK_MaxS32) {
+        bytes = 0;  // legacy behavior to fail if exceed 31 bits
+    }
+#endif
+    return bytes;
 }
 
 static bool alpha_type_is_valid(SkAlphaType alphaType) {
