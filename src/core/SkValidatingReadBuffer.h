@@ -68,8 +68,6 @@ public:
     bool validate(bool isValid) override;
     bool isValid() const override;
 
-    bool validateAvailable(size_t size) override;
-
 private:
     bool readArray(void* value, size_t size, size_t elementSize);
 
