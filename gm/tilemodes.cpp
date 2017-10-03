@@ -175,7 +175,7 @@ static sk_sp<SkShader> make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
         case 0:
             return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
         case 1:
-            return SkGradientShader::MakeRadial(center, rad, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
+            return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
         case 2:
             return SkGradientShader::MakeSweep(center.fX, center.fY, colors, nullptr,
                                                SK_ARRAY_COUNT(colors), tx, 135, 225, 0, nullptr);
