@@ -173,7 +173,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
     int maxIndex = 0;
     for (int i = 0; i < codecs->count(); i++) {
         SkImageInfo info = codecs->operator[](i)->getInfo();
-        size_t size = info.getSafeSize(info.minRowBytes());
+        size_t size = info.computeMinByteSize();
 
         if (size > maxSize) {
             maxSize = size;

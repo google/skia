@@ -887,7 +887,7 @@ public:
                 SkImageInfo info =
                         codec->getInfo().makeColorType(colorType).makeAlphaType(alphaType);
                 const size_t rowBytes = info.minRowBytes();
-                SkAutoMalloc storage(info.getSafeSize(rowBytes));
+                SkAutoMalloc storage(info.computeByteSize(rowBytes));
 
                 const SkCodec::Result result = codec->getPixels(
                         info, storage.get(), rowBytes);
