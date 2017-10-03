@@ -7,6 +7,9 @@
 
 #include "GrCCPRCoverageOp.h"
 
+#include "GrCaps.h"
+#include "GrGpu.h"
+#include "GrContext.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrOpFlushState.h"
@@ -464,9 +467,16 @@ void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPi
 
     if (!fMeshesScratchBuffer.empty()) {
         GrCCPRCoverageProcessor proc(mode, fPointsBuffer.get());
+
+        SkDebugf(flushState->gpu()->getContext()->dump().c_str());
+        SkDebugf("@@@@@> <beginmaskdraw  vertstride=%i\n", proc.getVertexStride());
+
         SkASSERT(flushState->rtCommandBuffer());
         flushState->rtCommandBuffer()->draw(pipeline, proc, fMeshesScratchBuffer.begin(),
                                             fDynamicStatesScratchBuffer.begin(),
                                             fMeshesScratchBuffer.count(), this->bounds());
+
+
+        SkDebugf("@@@@@> </maskdraw>\n", proc.getVertexStride());
     }
 }
