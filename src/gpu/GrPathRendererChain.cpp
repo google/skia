@@ -50,7 +50,7 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
     // AA hairline path renderer is very specialized - no other renderer can do this job well
     fChain.push_back(sk_make_sp<GrAAHairLinePathRenderer>());
 
-    if (options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting) {
+    if (true/* options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting */) {
         if (auto ccpr = GrCoverageCountingPathRenderer::CreateIfSupported(*context->caps())) {
             context->contextPriv().addOnFlushCallbackObject(ccpr.get());
             fChain.push_back(std::move(ccpr));

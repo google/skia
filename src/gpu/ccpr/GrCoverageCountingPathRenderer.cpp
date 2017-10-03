@@ -390,6 +390,8 @@ void DrawPathsOp::onExecute(GrOpFlushState* flushState) {
         GrCCPRPathProcessor coverProc(flushState->resourceProvider(), batch.fAtlas->textureProxy(),
                                      this->getFillType(), *flushState->gpu()->caps()->shaderCaps());
 
+        SkDebugf("@@@@@> <beginpathdraw  vertstride=%i>\n", coverProc.getVertexStride());
+
         GrMesh mesh(GrPrimitiveType::kTriangles);
         mesh.setIndexedInstanced(fCCPR->fPerFlushIndexBuffer.get(),
                                  GrCCPRPathProcessor::kPerInstanceIndexCount,
@@ -398,6 +400,9 @@ void DrawPathsOp::onExecute(GrOpFlushState* flushState) {
         mesh.setVertexData(fCCPR->fPerFlushVertexBuffer.get());
 
         flushState->rtCommandBuffer()->draw(pipeline, coverProc, &mesh, nullptr, 1, this->bounds());
+
+
+        SkDebugf("@@@@@> </pathdraw>\n", coverProc.getVertexStride());
     }
 
     SkASSERT(baseInstance == fBaseInstance + fDebugInstanceCount - fDebugSkippedInstances);
