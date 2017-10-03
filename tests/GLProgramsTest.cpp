@@ -394,12 +394,6 @@ static void test_glprograms(skiatest::Reporter* reporter, const sk_gpu_test::Con
         return;
     }
 
-    // Disable this test on ANGLE D3D9 configurations. We keep hitting a D3D compiler bug.
-    // See skbug.com/6842 and anglebug.com/2098
-    if (sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType == ctxInfo.type()) {
-        return;
-    }
-
     REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.grContext(), maxStages,
                                                                 maxLevels));
 }
