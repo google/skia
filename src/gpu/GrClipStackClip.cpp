@@ -523,6 +523,8 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         desc.fWidth = maskSpaceIBounds.width();
         desc.fHeight = maskSpaceIBounds.height();
         desc.fConfig = kAlpha_8_GrPixelConfig;
+        // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt
+        // to ops), so it can't have any pending IO.
         proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc,
                                              SkBackingFit::kApprox, SkBudgeted::kYes,
                                              GrResourceProvider::kNoPendingIO_Flag);
