@@ -197,7 +197,7 @@ char* SkStrAppendFloat(char string[], float value) {
 ///////////////////////////////////////////////////////////////////////////////
 
 // the 3 values are [length] [refcnt] [terminating zero data]
-const SkString::Rec SkString::gEmptyRec = { 0, 0, 0 };
+const SkString::Rec SkString::gEmptyRec = { 0, {0}, 0 };
 
 #define SizeOfRec()     (gEmptyRec.data() - (const char*)&gEmptyRec)
 
@@ -231,7 +231,7 @@ SkString::Rec* SkString::AllocRec(const char text[], size_t len) {
         // add 1 for terminating 0, then align4 so we can have some slop when growing the string
         rec = (Rec*)sk_malloc_throw(SizeOfRec() + SkAlign4(len + 1));
         rec->fLength = SkToU32(len);
-        rec->fRefCnt = 1;
+        rec->fRefCnt.store(+1, std::memory_order_relaxed);
         if (text) {
             memcpy(rec->data(), text, len);
         }
@@ -242,7 +242,8 @@ SkString::Rec* SkString::AllocRec(const char text[], size_t len) {
 
 SkString::Rec* SkString::RefRec(Rec* src) {
     if (src != &gEmptyRec) {
-        sk_atomic_inc(&src->fRefCnt);
+        // No barrier required.
+        (void)src->fRefCnt.fetch_add(+1, std::memory_order_relaxed);
     }
     return src;
 }
@@ -251,12 +252,12 @@ SkString::Rec* SkString::RefRec(Rec* src) {
 void SkString::validate() const {
     // make sure know one has written over our global
     SkASSERT(0 == gEmptyRec.fLength);
-    SkASSERT(0 == gEmptyRec.fRefCnt);
+    SkASSERT(0 == gEmptyRec.fRefCnt.load(std::memory_order_relaxed));
     SkASSERT(0 == gEmptyRec.data()[0]);
 
     if (fRec != &gEmptyRec) {
         SkASSERT(fRec->fLength > 0);
-        SkASSERT(fRec->fRefCnt > 0);
+        SkASSERT(fRec->fRefCnt.load(std::memory_order_relaxed) > 0);
         SkASSERT(0 == fRec->data()[fRec->fLength]);
     }
 }
@@ -298,8 +299,8 @@ SkString::~SkString() {
     this->validate();
 
     if (fRec->fLength) {
-        SkASSERT(fRec->fRefCnt > 0);
-        if (sk_atomic_dec(&fRec->fRefCnt) == 1) {
+        SkASSERT(fRec->fRefCnt.load(std::memory_order_relaxed) > 0);
+        if (1 == fRec->fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
             sk_free(fRec);
         }
     }
@@ -351,8 +352,8 @@ void SkString::reset() {
     this->validate();
 
     if (fRec->fLength) {
-        SkASSERT(fRec->fRefCnt > 0);
-        if (sk_atomic_dec(&fRec->fRefCnt) == 1) {
+        SkASSERT(fRec->fRefCnt.load(std::memory_order_relaxed) > 0);
+        if (1 == fRec->fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
             sk_free(fRec);
         }
     }
@@ -364,9 +365,9 @@ char* SkString::writable_str() {
     this->validate();
 
     if (fRec->fLength) {
-        if (fRec->fRefCnt > 1) {
+        if (!fRec->unique()) {
             Rec* rec = AllocRec(fRec->data(), fRec->fLength);
-            if (sk_atomic_dec(&fRec->fRefCnt) == 1) {
+            if (1 == fRec->fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
                 // In this case after our check of fRecCnt > 1, we suddenly
                 // did become the only owner, so now we have two copies of the
                 // data (fRec and rec), so we need to delete one of them.
@@ -384,10 +385,10 @@ void SkString::set(const char text[]) {
 
 void SkString::set(const char text[], size_t len) {
     len = trim_size_t_to_u32(len);
-
+    bool unique = fRec->unique();
     if (0 == len) {
         this->reset();
-    } else if (1 == fRec->fRefCnt && len <= fRec->fLength) {
+    } else if (unique && len <= fRec->fLength) {
         // should we resize if len <<<< fLength, to save RAM? (e.g. len < (fLength>>1))?
         // just use less of the buffer without allocating a smaller one
         char* p = this->writable_str();
@@ -396,7 +397,7 @@ void SkString::set(const char text[], size_t len) {
         }
         p[len] = 0;
         fRec->fLength = SkToU32(len);
-    } else if (1 == fRec->fRefCnt && (fRec->fLength >> 2) == (len >> 2)) {
+    } else if (unique && (fRec->fLength >> 2) == (len >> 2)) {
         // we have spare room in the current allocation, so don't alloc a larger one
         char* p = this->writable_str();
         if (text) {
@@ -472,7 +473,7 @@ void SkString::insert(size_t offset, const char text[], size_t len) {
             which is equivalent for testing to (length + 1 + 3) >> 2 == (length + 1 + 3 + len) >> 2
             and we can then eliminate the +1+3 since that doesn't affec the answer
         */
-        if (1 == fRec->fRefCnt && (length >> 2) == ((length + len) >> 2)) {
+        if (fRec->unique() && (length >> 2) == ((length + len) >> 2)) {
             char* dst = this->writable_str();
 
             if (offset < length) {

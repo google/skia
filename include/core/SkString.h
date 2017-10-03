@@ -13,6 +13,7 @@
 #include "../private/SkTArray.h"
 #include "SkScalar.h"
 
+#include <atomic>
 #include <stdarg.h>
 
 /*  Some helper functions for C strings
@@ -240,11 +241,13 @@ private:
     struct Rec {
     public:
         uint32_t    fLength; // logically size_t, but we want it to stay 32bits
-        int32_t     fRefCnt;
+        std::atomic<int32_t> fRefCnt;
         char        fBeginningOfData;
 
         char* data() { return &fBeginningOfData; }
         const char* data() const { return &fBeginningOfData; }
+
+        bool unique() { return fRefCnt.load(std::memory_order_acquire) == 1; }
     };
     Rec* fRec;
 
