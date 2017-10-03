@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8753916a_358b4e95",
+        "filename": "site/dev/testing/swarmingbots.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-03T19:32:18Z",
+      "side": 1,
+      "message": "I know that if I mention that here, I will forget to update it when it\u0027s fixed, so I tried to weasel out of it by inserting \"successful.\" Would you like me to:\nA. Remove this sentence,\nB. Mention it won\u0027t work automatically and comment on 6591 to update this when it\u0027s fixed, or\nC. Leave as-is?",
+      "parentUuid": "c1d536e1_36a3cb43",
+      "range": {
+        "startLine": 49,
+        "startChar": 65,
+        "endLine": 50,
+        "endChar": 45
+      },
+      "revId": "72d069358fcac57f4e7e6a67a6e4af1c8b680fc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7de8d888_e1540654",
         "filename": "site/dev/testing/swarmingbots.md",
         "patchSetId": 2
