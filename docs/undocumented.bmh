@@ -52,20 +52,6 @@ FT_Load_Glyph
 ##
 ##
 
-#Topic Bitmap
-#Class SkBitmap
-    #Subtopic Row_Bytes
-    ##
-    #Method void erase(SkColor c, const SkIRect& area) const
-    ##
-    #Method bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes)
-    ##
-    #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY, SkTransferFunctionBehavior behavior) const
-    ##
-#Class ##
-##
-
 #Topic Blend_Mode
 #EnumClass SkBlendMode
     #Const kSrc 1
@@ -325,6 +311,16 @@ FT_Load_Glyph
             ##
             #Method int bytesPerPixel() const
             ##
+            #Method int height() const
+            ##
+            #Method int width() const
+            ##
+            #Method SkColorType colorType() const
+            ##
+            #Method SkAlphaType alphaType() const
+            ##
+            #Method SkColorSpace* colorSpace() const
+            ##
         ## 
     #Subtopic ##
     #Class SkImage
@@ -349,13 +345,6 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Image_Scaling
-##
-
-#Topic IRect
-#Struct SkIRect
-    #Method bool intersect(const SkIRect& r)
-    ##
-##
 ##
 
 #Topic Left_Side_Bearing 
@@ -395,10 +384,8 @@ FT_Load_Glyph
     ##
 ##
 
-#Topic Matrix
-#Struct SkMatrix
-#Struct ##
-#Topic ##
+#Topic Mip_Map
+##
 
 #Topic Nine_Patch
 ##
@@ -482,8 +469,16 @@ FT_Load_Glyph
 ##
 ##
 
-#Topic PixelRef
+#Topic Pixel_Ref
 #Class SkPixelRef
+    #Method int width() const
+    ##
+    #Method int height() const
+    ##
+    #Method bool isImmutable() const
+    ##
+    #Method void setImmutable()
+    ##
 ##
 ##
 
@@ -534,20 +529,10 @@ FT_Load_Glyph
 #Subtopic ##
 #Topic ##
 
-#Topic Rect
-#Alias Rects
-    #Struct SkRect
-        #Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty()
-        ##
-        #Method void dump() const
-        ##
-        #Method void dumpHex() const
-        ##
-    #Struct ##
-#Topic ##
-
 #Topic Reference_Count
 #Substitute SkRefCnt
+#Class SkRefCnt
+#Class ##
 #Class sk_sp
 #Class ##
 #Topic ##
