@@ -149,7 +149,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 if (('f' != ref[0] && string::npos == ref.find("()"))
 //                        || '.' != t.backup(ref.c_str())
                         && ('k' != ref[0] && string::npos == ref.find("_Private"))) {
-                    if ('.' == wordStart[0] && distFromParam == 1) {
+                    if ('.' == wordStart[0] && (distFromParam >= 1 && distFromParam <= 16)) {
                         const Definition* paramType = this->findParamType();
                         if (paramType) {
                             string fullName = paramType->fName + "::" + ref;

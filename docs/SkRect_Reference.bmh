@@ -1,0 +1,908 @@
+#Topic Rect
+#Alias Rects
+#Alias Rect_Reference
+
+#Struct SkRect
+
+#Topic Overview
+
+#Subtopic Subtopics
+#ToDo manually add subtopics ##
+#Table
+#Legend
+# topics # description ##
+#Legend ##
+#Table ##
+##
+
+#Subtopic Operators
+#Table
+#Legend
+# description                                              # function ##
+#Legend ##
+# friend bool operator!=(const SkRect& a, const SkRect& b) # ##
+# friend bool operator==(const SkRect& a, const SkRect& b) # ##
+#Table ##
+#Subtopic ##
+
+#Subtopic Member_Functions
+#Table
+#Legend
+# description        # function ##
+#Legend ##
+# Make               # ##
+# MakeEmpty          # ##
+# MakeFromIRect      # ##
+# MakeIWH            # ##
+# MakeLTRB           # ##
+# MakeLargest        # ##
+# MakeSize           # ##
+# MakeWH             # ##
+# MakeXYWH           # ##
+# bottom             # ##
+# centerX            # ##
+# centerY            # ##
+# height             # ##
+# inset              # ##
+# intersect          # ##
+# isEmpty            # ##
+# isFinite           # ##
+# isLargest          # ##
+# isSorted           # ##
+# iset               # ##
+# isetWH             # ##
+# left               # ##
+# makeInset          # ##
+# makeOffset         # ##
+# makeOutset         # ##
+# offset             # ##
+# offsetTo           # ##
+# outset             # ##
+# right              # ##
+# set                # ##
+# setBounds          # ##
+# setBoundsCheck     # ##
+# setEmpty           # ##
+# setLTRB            # ##
+# setLargest         # ##
+# setLargestInverted # ##
+# setWH              # ##
+# setXYWH            # ##
+# toQuad             # ##
+# top                # ##
+# width              # ##
+# x                  # ##
+# y                  # ##
+#Table ##
+#Subtopic ##
+
+#Topic ##
+
+#Member SkScalar  fLeft
+##
+
+#Member SkScalar  fTop
+##
+
+#Member SkScalar  fRight
+##
+
+#Member SkScalar  fBottom
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty()
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkRect SK_WARN_UNUSED_RESULT MakeLargest()
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h)
+
+#Param w  ##
+#Param h  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkRect SK_WARN_UNUSED_RESULT MakeIWH(int w, int h)
+
+#Param w  ##
+#Param h  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size)
+
+#Param size  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeLTRB(SkScalar l, SkScalar t, SkScalar r,
+                                                           SkScalar b)
+
+#Param l  ##
+#Param t  ##
+#Param r  ##
+#Param b  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h)
+
+#Param x  ##
+#Param y  ##
+#Param w  ##
+#Param h  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkRect SK_WARN_UNUSED_RESULT MakeFromIRect(const SkIRect& irect)
+
+#Param irect  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkRect Make(const SkISize& size)
+
+#Param size  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkRect SK_WARN_UNUSED_RESULT Make(const SkIRect& irect)
+
+#Param irect  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isEmpty() const
+
+Return true if the rectangle's width or height are <= 0
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isSorted() const
+
+Return true if the rectangle's width and height are >= 0
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isLargest() const
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isFinite() const
+
+Returns true iff all values in the rect are finite. If any are
+infinite or NaN then this returns false.
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar    x() const
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar    y() const
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar    left() const
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar    top() const
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar    right() const
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar    bottom() const
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar    width() const
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar    height() const
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar    centerX() const
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar    centerY() const
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method friend bool operator==(const SkRect& a, const SkRect& b)
+
+#Param a  ##
+#Param b  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method friend bool operator!=(const SkRect& a, const SkRect& b)
+
+#Param a  ##
+#Param b  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void toQuad(SkPoint quad[4]) const
+
+return the 4 points that enclose the rectangle (top-left, top-right, bottom-right,
+bottom-left). TODO: Consider adding param to control whether quad is CW or CCW.
+
+#Param quad  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setEmpty()
+
+Set this rectangle to the empty rectangle (0,0,0,0)
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void set(const SkIRect& src)
+
+#Param src  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void set(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
+
+#Param left  ##
+#Param top  ##
+#Param right  ##
+#Param bottom  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setLTRB(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
+
+alias for set(l, t, r, b)
+
+#Param left  ##
+#Param top  ##
+#Param right  ##
+#Param bottom  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void iset(int left, int top, int right, int bottom)
+
+Initialize the rect with the 4 specified integers. The routine handles
+converting them to scalars (by calling SkIntToScalar)
+
+#Param left  ##
+#Param top  ##
+#Param right  ##
+#Param bottom  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void isetWH(int width, int height)
+
+Set this rectangle to be left/top at 0,0, and have the specified width
+and height (automatically converted to SkScalar).
+
+#Param width  ##
+#Param height  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void set(const SkPoint pts[], int count)
+
+Set this rectangle to be the bounds of the array of points.
+If the array is empty (count == 0), then set this rectangle
+to the empty rectangle (0,0,0,0)
+
+#Param pts  ##
+#Param count  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setBounds(const SkPoint pts[], int count)
+
+alias for set(pts, count)
+
+#Param pts  ##
+#Param count  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setBoundsCheck(const SkPoint pts[], int count)
+
+Compute the bounds of the array of points, and set this rect to that
+bounds and return true... unless a non-finite value is encountered,
+in which case this rect is set to empty and false is returned.
+
+#Param pts  ##
+#Param count  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void set(const SkPoint& p0, const SkPoint& p1)
+
+#Param p0  ##
+#Param p1  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setXYWH(SkScalar x, SkScalar y, SkScalar width, SkScalar height)
+
+#Param x  ##
+#Param y  ##
+#Param width  ##
+#Param height  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setWH(SkScalar width, SkScalar height)
+
+#Param width  ##
+#Param height  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setLargest()
+
+Make the largest representable rectangle
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setLargestInverted()
+
+Make the largest representable rectangle, but inverted (e.g. fLeft will
+be max and right will be min).
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkRect makeOffset(SkScalar dx, SkScalar dy) const
+
+Return a new Rect, built as an offset of this rect.
+
+#Param dx  ##
+#Param dy  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkRect makeInset(SkScalar dx, SkScalar dy) const
+
+Return a new Rect, built as an inset of this rect.
+
+#Param dx  ##
+#Param dy  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkRect makeOutset(SkScalar dx, SkScalar dy) const
+
+Return a new Rect, built as an outset of this rect.
+
+#Param dx  ##
+#Param dy  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void offset(SkScalar dx, SkScalar dy)
+
+Offset set the rectangle by adding dx to its left and right,
+and adding dy to its top and bottom.
+
+#Param dx  ##
+#Param dy  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void offset(const SkPoint& delta)
+
+#Param delta  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void offsetTo(SkScalar newX, SkScalar newY)
+
+Offset this rect such its new x() and y() will equal newX and newY.
+
+#Param newX  ##
+#Param newY  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void inset(SkScalar dx, SkScalar dy)
+
+Inset the rectangle by (dx,dy). If dx is positive, then the sides are
+moved inwards, making the rectangle narrower. If dx is negative, then
+the sides are moved outwards, making the rectangle wider. The same holds
+true for dy and the top and bottom.
+
+#Param dx  ##
+#Param dy  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void outset(SkScalar dx, SkScalar dy)
+
+Outset the rectangle by (dx,dy). If dx is positive, then the sides are
+moved outwards, making the rectangle wider. If dx is negative, then the
+sides are moved inwards, making the rectangle narrower. The same holds
+true for dy and the top and bottom.
+
+#Param dx  ##
+#Param dy  ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool intersect(const SkRect& r)
+
+If this rectangle intersects r, return true and set this rectangle to that
+intersection, otherwise return false and do not change this rectangle.
+If either rectangle is empty, do nothing and return false.
+
+#Param r  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
+
+If this rectangle intersects the rectangle specified by left, top, right, bottom,
+return true and set this rectangle to that intersection, otherwise return false
+and do not change this rectangle.
+If either rectangle is empty, do nothing and return false.
+
+#Param left  ##
+#Param top  ##
+#Param right  ##
+#Param bottom  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool SK_WARN_UNUSED_RESULT intersect(const SkRect& a, const SkRect& b)
+
+If rectangles a and b intersect, return true and set this rectangle to
+that intersection, otherwise return false and do not change this
+rectangle. If either rectangle is empty, do nothing and return false.
+
+#Param a  ##
+#Param b  ##
+
+#Return ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+#Struct SkRect ##
+
+#Topic Rect ##
