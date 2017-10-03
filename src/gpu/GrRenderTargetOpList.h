@@ -55,7 +55,7 @@ public:
     /**
      * Empties the draw buffer of any queued up draws.
      */
-    void reset() override;
+    void endFlush() override;
 
     void abandonGpuResources() override;
     void freeGpuResources() override;
