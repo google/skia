@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "822fbe96_188639ea",
+        "filename": "site/dev/testing/swarmingbots.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-03T20:14:41Z",
+      "side": 1,
+      "message": "You can leave it as is. If someone looks up the builder they should see the comment on status linking to the bug.",
+      "parentUuid": "8753916a_358b4e95",
+      "range": {
+        "startLine": 49,
+        "startChar": 65,
+        "endLine": 50,
+        "endChar": 45
+      },
+      "revId": "72d069358fcac57f4e7e6a67a6e4af1c8b680fc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7de8d888_e1540654",
         "filename": "site/dev/testing/swarmingbots.md",
         "patchSetId": 2
