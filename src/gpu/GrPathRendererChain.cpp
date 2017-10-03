@@ -50,8 +50,10 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
     // AA hairline path renderer is very specialized - no other renderer can do this job well
     fChain.push_back(sk_make_sp<GrAAHairLinePathRenderer>());
 
-    if (options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting) {
+    if (true/* options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting */) {
+        SkDebugf("@@@@@@> checking ccpr\n");
         if (auto ccpr = GrCoverageCountingPathRenderer::CreateIfSupported(*context->caps())) {
+            SkDebugf("@@@@@@> adding ccpr\n");
             context->contextPriv().addOnFlushCallbackObject(ccpr.get());
             fChain.push_back(std::move(ccpr));
         }
@@ -79,6 +81,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
         const GrPathRenderer::CanDrawPathArgs& args,
         DrawType drawType,
         GrPathRenderer::StencilSupport* stencilSupport) {
+    SkDebugf("@@@@@@> GrPathRendererChain::getPathRenderer\n");
     GR_STATIC_ASSERT(GrPathRenderer::kNoSupport_StencilSupport <
                      GrPathRenderer::kStencilOnly_StencilSupport);
     GR_STATIC_ASSERT(GrPathRenderer::kStencilOnly_StencilSupport <

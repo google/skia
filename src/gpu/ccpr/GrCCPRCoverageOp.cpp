@@ -7,6 +7,9 @@
 
 #include "GrCCPRCoverageOp.h"
 
+#include "GrCaps.h"
+#include "GrGpu.h"
+#include "GrContext.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrOpFlushState.h"
@@ -83,6 +86,7 @@ inline void AccumulatingViewMatrix::getAccumulatedBounds(SkRect* devBounds,
 
 void GrCCPRCoverageOpsBuilder::parsePath(const SkMatrix& viewMatrix, const SkPath& path,
                                          SkRect* devBounds, SkRect* devBounds45) {
+    SkDebugf("@@@@@@> GrCCPRCoverageOp::parsePath\n");
     SkASSERT(!fParsingPath);
     SkDEBUGCODE(fParsingPath = true);
 
@@ -232,6 +236,7 @@ static TriangleInstance* emit_recursive_fan(SkTArray<int32_t, true>& indices, in
 
 bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
                                         SkTArray<std::unique_ptr<GrCCPRCoverageOp>>* ops) {
+    SkDebugf("@@@@@@> GrCCPRCoverageOp::finalize\n");
     SkASSERT(!fParsingPath);
 
     const SkTArray<SkPoint, true>& points = fGeometry.points();
@@ -376,6 +381,7 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
 void GrCCPRCoverageOp::setBuffers(sk_sp<GrBuffer> pointsBuffer, sk_sp<GrBuffer> instanceBuffer,
                                   const PrimitiveTallies baseInstances[kNumScissorModes],
                                   const PrimitiveTallies endInstances[kNumScissorModes]) {
+    SkDebugf("@@@@@@> GrCCPRCoverageOp::setBuffers\n");
     fPointsBuffer = std::move(pointsBuffer);
     fInstanceBuffer = std::move(instanceBuffer);
     fBaseInstances[0] = baseInstances[0];
@@ -385,6 +391,7 @@ void GrCCPRCoverageOp::setBuffers(sk_sp<GrBuffer> pointsBuffer, sk_sp<GrBuffer> 
 }
 
 void GrCCPRCoverageOp::onExecute(GrOpFlushState* flushState) {
+    SkDebugf("@@@@@@> GrCCPRCoverageOp::onExecute\n");
     using Mode = GrCCPRCoverageProcessor::Mode;
 
     SkDEBUGCODE(GrCCPRCoverageProcessor::Validate(flushState->drawOpArgs().fProxy));
@@ -429,6 +436,7 @@ void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPi
                                           GrCCPRCoverageProcessor::Mode mode,
                                           GrPrimitiveType primType, int vertexCount,
                                           int PrimitiveTallies::* instanceType) const {
+    SkDebugf("@@@@@@> GrCCPRCoverageOp::drawMaskPrimitives\n");
     using ScissorMode = GrCCPRCoverageOpsBuilder::ScissorMode;
     SkASSERT(pipeline.getScissorState().enabled());
 
@@ -464,9 +472,23 @@ void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPi
 
     if (!fMeshesScratchBuffer.empty()) {
         GrCCPRCoverageProcessor proc(mode, fPointsBuffer.get());
+
+        SkDebugf("@@@@@@> <caps>\n");
+        SkDebugf("@@@@@@> %s\n", flushState->gpu()->getContext()->dump().c_str());
+        SkDebugf("@@@@@@> </caps>\n");
+        SkDebugf("@@@@@@> \n");
+        SkDebugf("@@@@@@> \n");
+        SkDebugf("@@@@@@> \n");
+        SkDebugf("@@@@@@> \n");
+        SkDebugf("@@@@@@> \n");
+        SkDebugf("@@@@@> <beginmaskdraw  vertstride=%i\n");
+
         SkASSERT(flushState->rtCommandBuffer());
         flushState->rtCommandBuffer()->draw(pipeline, proc, fMeshesScratchBuffer.begin(),
                                             fDynamicStatesScratchBuffer.begin(),
                                             fMeshesScratchBuffer.count(), this->bounds());
+
+
+        SkDebugf("@@@@@> </maskdraw>\n", proc.getVertexStride());
     }
 }
