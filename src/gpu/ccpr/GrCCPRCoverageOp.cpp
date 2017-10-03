@@ -153,7 +153,7 @@ void GrCCPRCoverageOpsBuilder::saveParsedPath(ScissorMode scissorMode,
 
     fPathsInfo.push_back() = {
         scissorMode,
-        (atlasOffsetY << 16) | (atlasOffsetX & 0xffff),
+        (int32_t) (((uint32_t) (int32_t) atlasOffsetY << 16) | (atlasOffsetX & 0xffff)),
         std::move(fTerminatingOp)
     };
 
@@ -201,7 +201,7 @@ void GrCCPRCoverageOpsBuilder::emitOp(SkISize drawBounds) {
 //
 // Returns the next triangle instance after the final one emitted.
 static TriangleInstance* emit_recursive_fan(SkTArray<int32_t, true>& indices, int firstIndex,
-                                            int indexCount, int packedAtlasOffset,
+                                            int indexCount, int32_t packedAtlasOffset,
                                             TriangleInstance out[]) {
     if (indexCount < 3) {
         return out;
