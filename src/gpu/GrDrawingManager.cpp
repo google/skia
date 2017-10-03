@@ -36,7 +36,7 @@ void GrDrawingManager::cleanup() {
         // We shouldn't need to do this, but it turns out some clients still hold onto opLists
         // after a cleanup.
         // MDB TODO: is this still true?
-        fOpLists[i]->reset();
+        fOpLists[i].reset();
     }
 
     fOpLists.reset();
@@ -76,13 +76,6 @@ void GrDrawingManager::freeGpuResources() {
         fOpLists[i]->freeGpuResources();
     }
 
-}
-
-void GrDrawingManager::reset() {
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->reset();
-    }
-    fFlushState.reset();
 }
 
 gr_instanced::OpAllocator* GrDrawingManager::instancingAllocator() {
@@ -209,7 +202,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         if (fOpLists[i]->execute(&fFlushState)) {
             flushed = true;
         }
-        fOpLists[i]->reset();
+        fOpLists[i].reset();
     }
     fOpLists.reset();
 

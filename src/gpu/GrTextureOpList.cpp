@@ -23,6 +23,7 @@ GrTextureOpList::GrTextureOpList(GrResourceProvider* resourceProvider,
 }
 
 GrTextureOpList::~GrTextureOpList() {
+    fRecordedOps.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,11 +78,6 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
     flushState->setCommandBuffer(nullptr);
 
     return true;
-}
-
-void GrTextureOpList::reset() {
-    fRecordedOps.reset();
-    INHERITED::reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

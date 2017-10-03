@@ -37,6 +37,12 @@ GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* proxy, GrGpu* gp
 }
 
 GrRenderTargetOpList::~GrRenderTargetOpList() {
+    fLastClipStackGenID = SK_InvalidUniqueID;
+    fRecordedOps.reset();
+    if (fInstancedRendering) {
+        fInstancedRendering->endFlush();
+        fInstancedRendering = nullptr;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -178,17 +184,6 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
     flushState->setCommandBuffer(nullptr);
 
     return true;
-}
-
-void GrRenderTargetOpList::reset() {
-    fLastClipStackGenID = SK_InvalidUniqueID;
-    fRecordedOps.reset();
-    if (fInstancedRendering) {
-        fInstancedRendering->endFlush();
-        fInstancedRendering = nullptr;
-    }
-
-    INHERITED::reset();
 }
 
 void GrRenderTargetOpList::abandonGpuResources() {

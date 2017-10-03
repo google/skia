@@ -44,14 +44,6 @@ GrOpList::GrOpList(GrResourceProvider* resourceProvider,
 }
 
 GrOpList::~GrOpList() {
-    this->reset();
-}
-
-bool GrOpList::instantiate(GrResourceProvider* resourceProvider) {
-    return SkToBool(fTarget.get()->instantiate(resourceProvider));
-}
-
-void GrOpList::reset() {
     if (fTarget.get() && this == fTarget.get()->getLastOpList()) {
         fTarget.get()->setLastOpList(nullptr);
     }
@@ -59,6 +51,10 @@ void GrOpList::reset() {
     fTarget.reset();
     fPrepareCallbacks.reset();
     fAuditTrail = nullptr;
+}
+
+bool GrOpList::instantiate(GrResourceProvider* resourceProvider) {
+    return SkToBool(fTarget.get()->instantiate(resourceProvider));
 }
 
 void GrOpList::addPrepareCallback(std::unique_ptr<GrPrepareCallback> callback) {

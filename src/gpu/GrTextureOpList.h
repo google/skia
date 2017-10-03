@@ -26,11 +26,6 @@ public:
     GrTextureOpList(GrResourceProvider*, GrTextureProxy*, GrAuditTrail*);
     ~GrTextureOpList() override;
 
-    /**
-     * Empties the draw buffer of any queued ops.
-     */
-    void reset() override;
-
     void abandonGpuResources() override {}
     void freeGpuResources() override {}
 

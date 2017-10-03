@@ -52,11 +52,6 @@ public:
 
     bool isEmpty() const { return fRecordedOps.empty(); }
 
-    /**
-     * Empties the draw buffer of any queued up draws.
-     */
-    void reset() override;
-
     void abandonGpuResources() override;
     void freeGpuResources() override;
 

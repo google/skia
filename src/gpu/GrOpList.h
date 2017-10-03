@@ -57,8 +57,6 @@ public:
         }
     }
 
-    virtual void reset();
-
     void addPrepareCallback(std::unique_ptr<GrPrepareCallback> callback);
 
     // TODO: in an MDB world, where the OpLists don't allocate GPU resources, it seems like
