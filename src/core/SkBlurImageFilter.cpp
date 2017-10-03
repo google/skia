@@ -12,6 +12,7 @@
 #include "SkColorSpaceXformer.h"
 #include "SkTFitsIn.h"
 #include "SkGpuBlurUtils.h"
+#include "SkImageBlurFilter.h"
 #include "SkOpts.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
@@ -26,10 +27,10 @@
 class SkBlurImageFilterImpl final : public SkImageFilter {
 public:
     SkBlurImageFilterImpl(SkScalar sigmaX,
-                      SkScalar sigmaY,
-                      sk_sp<SkImageFilter> input,
-                      const CropRect* cropRect,
-                      SkBlurImageFilter::TileMode tileMode);
+                          SkScalar sigmaY,
+                          sk_sp<SkImageFilter> input,
+                          const CropRect* cropRect,
+                          SkBlurImageFilter::TileMode tileMode);
 
     SkRect computeFastBounds(const SkRect&) const override;
 
@@ -210,8 +211,19 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         #if defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
         result = this->cpuFilter(source, sigma, input, inputBounds, dstBounds);
         #else
-        // The new code will go here.
-        result = this->cpuFilter(source, sigma, input, inputBounds, dstBounds);
+        // If both sigmas produce arms of the cross that are less than 1/2048, then they
+        // do not contribute to the sum of the filter in a way to change a gamma corrected result.
+        // Let s = 1/(2*sigma^2)
+        // The normalizing value   n = 1 + 4*E^(-s) + 4*E^(-2s)
+        // The raw cross arm value c = E^-s
+        // The normalized cross arm value = c/n
+        // N[Solve[{c/n == 1/2048, sigma > 0}, sigma], 16]
+        static constexpr double kCrossTooSmall = 0.79788456080287;
+        if (sigma.x() < kCrossTooSmall && sigma.y() < kCrossTooSmall) {
+            return input->makeSubset(inputBounds);
+        }
+        SkImageBlurFilter filter{sigma};
+        result = filter.blur(source, input, inputBounds, dstBounds);
         #endif
     }
 
@@ -282,7 +294,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::cpuFilter(
 {
     // If both sigmas will result in a zero width window, there is nothing to do.
     // N[Solve[sigma*3*Sqrt[2 Pi]/4 == 1/2, sigma], 16]
-    static constexpr double kZeroWindow = 0.2659615202676218;
+    static constexpr double kZeroWindow = 0.79788456080287;
     if (sigma.x() < kZeroWindow && sigma.y() < kZeroWindow) {
         return input->makeSubset(inputBounds);
     }
@@ -376,14 +388,23 @@ const {
 
 SkRect SkBlurImageFilterImpl::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
+#if defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
     bounds.outset(fSigma.width() * 3, fSigma.height() * 3);
+#else
+    SkVector sigma{fSigma.width(), fSigma.height()};
+    bounds = SkImageBlurFilter::OutsetRect(bounds, sigma);
+#endif
     return bounds;
 }
 
 SkIRect SkBlurImageFilterImpl::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                               MapDirection) const {
     SkVector sigma = map_sigma(fSigma, ctm);
+#if defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
     return src.makeOutset(SkScalarCeilToInt(sigma.x() * 3), SkScalarCeilToInt(sigma.y() * 3));
+#else
+    return SkImageBlurFilter::OutsetIRect(src, sigma);
+#endif
 }
 
 #ifndef SK_IGNORE_TO_STRING
