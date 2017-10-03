@@ -13,15 +13,15 @@ containing two connected <a href="#Line">Lines</a> are described the <a href="#V
 with three entries, sharing
 the middle entry as the end of the first <a href="undocumented#Line">Line</a> and the start of the second <a href="undocumented#Line">Line</a>.
 
-<a href="#Path">Path</a> components <a href="#Arc">Arc</a>, <a href="undocumented#Rect">Rect</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="undocumented#Circle">Circle</a>, and <a href="undocumented#Oval">Oval</a> are composed of
+<a href="#Path">Path</a> components <a href="#Arc">Arc</a>, <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="undocumented#Circle">Circle</a>, and <a href="undocumented#Oval">Oval</a> are composed of
 <a href="#Line">Lines</a> and <a href="#Curve">Curves</a> with as many <a href="#Verb">Verbs</a> and <a href="#Point">Points</a> required
 for an exact description. Once added to <a href="#Path">Path</a>, these components may lose their
 identity; although <a href="#Path">Path</a> can be inspected to determine if it describes a single
-<a href="undocumented#Rect">Rect</a>, <a href="undocumented#Oval">Oval</a>, <a href="undocumented#Round_Rect">Round Rect</a>, and so on.
+<a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Oval">Oval</a>, <a href="undocumented#Round_Rect">Round Rect</a>, and so on.
 
 ### Example
 
-<div><fiddle-embed name="93887af0c1dac49521972698cf04069c"><div><a href="#Path">Path</a> contains three <a href="#Contour">Contours</a>: <a href="undocumented#Line">Line</a>, <a href="undocumented#Circle">Circle</a>, and <a href="#Quad">Quad</a>. <a href="undocumented#Line">Line</a> is stroked but
+<div><fiddle-embed name=""><div><a href="#Path">Path</a> contains three <a href="#Contour">Contours</a>: <a href="undocumented#Line">Line</a>, <a href="undocumented#Circle">Circle</a>, and <a href="#Quad">Quad</a>. <a href="undocumented#Line">Line</a> is stroked but
 not filled. <a href="undocumented#Circle">Circle</a> is stroked and filled; <a href="undocumented#Circle">Circle</a> stroke forms a loop. <a href="#Quad">Quad</a>
 is stroked and filled, but since it is not closed, <a href="#Quad">Quad</a> does not stroke a loop.</div></fiddle-embed></div>
 
@@ -31,7 +31,7 @@ form fills or holes. <a href="#Fill_Type">Fill Type</a> also determines whether 
 
 ### Example
 
-<div><fiddle-embed name="36a995442c081ee779ecab2962d36e69"><div><a href="#Path">Path</a> is drawn filled, then stroked, then stroked and filled.</div></fiddle-embed></div>
+<div><fiddle-embed name=""><div><a href="#Path">Path</a> is drawn filled, then stroked, then stroked and filled.</div></fiddle-embed></div>
 
 <a href="#Path">Path</a> contents are never shared. Copying <a href="#Path">Path</a> by value effectively creates
 a new <a href="#Path">Path</a> independent of the original. Internally, the copy does not duplicate
@@ -50,7 +50,7 @@ are required to satisfy <a href="#Verb_Array">Verb Array</a>. First <a href="#Ve
 
 ### Example
 
-<div><fiddle-embed name="0374f2dcd7effeb1dd435205a6c2de6f"><div>Each <a href="#SkPath_moveTo">SkPath::moveTo</a> starts a new <a href="#Contour">Contour</a>, and content after <a href="#SkPath_close">SkPath::close()</a>
+<div><fiddle-embed name=""><div>Each <a href="#SkPath_moveTo">SkPath::moveTo</a> starts a new <a href="#Contour">Contour</a>, and content after <a href="#SkPath_close">SkPath::close()</a>
 also starts a new <a href="#Contour">Contour</a>. Since <a href="#SkPath_conicTo">SkPath::conicTo</a> is not preceded by 
 <a href="#SkPath_moveTo">SkPath::moveTo</a>, the first <a href="undocumented#Point">Point</a> of the third <a href="#Contour">Contour</a> starts at the last <a href="undocumented#Point">Point</a>
 of the second <a href="#Contour">Contour</a>.</div></fiddle-embed></div>
@@ -64,7 +64,7 @@ remains open. An open <a href="#Contour">Contour</a>, stroked, draws <a href="#S
 
 ### Example
 
-<div><fiddle-embed name="7a1f39b12d2cd8b7f5b1190879259cb2"><div><a href="#Path">Path</a> is drawn stroked, with an open <a href="#Contour">Contour</a> and a closed <a href="#Contour">Contour</a>.</div></fiddle-embed></div>
+<div><fiddle-embed name=""><div><a href="#Path">Path</a> is drawn stroked, with an open <a href="#Contour">Contour</a> and a closed <a href="#Contour">Contour</a>.</div></fiddle-embed></div>
 
 ## <a name="Zero_Length"></a> Zero Length
 
@@ -75,7 +75,7 @@ makes them visible.
 
 ### Example
 
-<div><fiddle-embed name="62848df605af6258653d9e16b27d8f7f"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 # <a name="SkPath"></a> Class SkPath
 <a href="#Path">Paths</a> contain geometry. <a href="#Path">Paths</a> may be empty, or contain one or more <a href="#Verb">Verbs</a> that
@@ -147,13 +147,13 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_addPath">addPath</a> | Adds contents of <a href="#Path">Path</a>. |
 | <a href="#SkPath_addPoly">addPoly</a> | Adds one <a href="#Contour">Contour</a> containing connected lines. |
 | <a href="#SkPath_addRRect">addRRect</a> | Adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Round_Rect">Round Rect</a>. |
-| <a href="#SkPath_addRect">addRect</a> | Adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Rect">Rect</a>. |
+| <a href="#SkPath_addRect">addRect</a> | Adds one <a href="#Contour">Contour</a> containing <a href="SkRect_Reference#Rect">Rect</a>. |
 | <a href="#SkPath_addRoundRect">addRoundRect</a> | Adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Round_Rect">Round Rect</a> with common corner radii. |
 | <a href="#SkPath_arcTo">arcTo</a> | Appends <a href="#Arc">Arc</a>. |
 | <a href="#SkPath_close">close</a> | Makes last <a href="#Contour">Contour</a> a loop. |
 | <a href="#SkPath_computeTightBounds">computeTightBounds</a> | Returns extent of geometry. |
 | <a href="#SkPath_conicTo">conicTo</a> | Appends <a href="#Conic">Conic</a>. |
-| <a href="#SkPath_conservativelyContainsRect">conservativelyContainsRect</a> | Returns true if <a href="undocumented#Rect">Rect</a> may be inside. |
+| <a href="#SkPath_conservativelyContainsRect">conservativelyContainsRect</a> | Returns true if <a href="SkRect_Reference#Rect">Rect</a> may be inside. |
 | <a href="#SkPath_contains">contains</a> | Returns if <a href="undocumented#Point">Point</a> is in fill area. |
 | <a href="#SkPath_countPoints">countPoints</a> | Returns <a href="#Point_Array">Point Array</a> length. |
 | <a href="#SkPath_countVerbs">countVerbs</a> | Returns <a href="#Verb_Array">Verb Array</a> length. |
@@ -179,10 +179,10 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_isInverseFillType">isInverseFillType</a> | Returns if <a href="#Fill_Type">Fill Type</a> fills outside geometry. |
 | <a href="#SkPath_isLastContourClosed">isLastContourClosed</a> | Returns if final <a href="#Contour">Contour</a> forms a loop. |
 | <a href="#SkPath_isLine">isLine</a> | Returns if describes <a href="undocumented#Line">Line</a>. |
-| <a href="#SkPath_isNestedFillRects">isNestedFillRects</a> | Returns if describes <a href="undocumented#Rect">Rect</a> pair, one inside the other. |
+| <a href="#SkPath_isNestedFillRects">isNestedFillRects</a> | Returns if describes <a href="SkRect_Reference#Rect">Rect</a> pair, one inside the other. |
 | <a href="#SkPath_isOval">isOval</a> | Returns if describes <a href="undocumented#Oval">Oval</a>. |
 | <a href="#SkPath_isRRect">isRRect</a> | Returns if describes <a href="undocumented#Round_Rect">Round Rect</a>. |
-| <a href="#SkPath_isRect">isRect</a> | Returns if describes <a href="undocumented#Rect">Rect</a>. |
+| <a href="#SkPath_isRect">isRect</a> | Returns if describes <a href="SkRect_Reference#Rect">Rect</a>. |
 | <a href="#SkPath_isValid">isValid</a> | Returns if data is internally consistent. |
 | <a href="#SkPath_isVolatile">isVolatile</a> | Returns if <a href="undocumented#Device">Device</a> should not cache. |
 | <a href="#SkPath_lineTo">lineTo</a> | Appends <a href="undocumented#Line">Line</a>. |
@@ -207,7 +207,7 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_setLastPt">setLastPt</a> | Replaces <a href="#Last_Point">Last Point</a>. |
 | <a href="#SkPath_swap">swap</a> | Exchanges <a href="#Path">Path</a> pair. |
 | <a href="#SkPath_toggleInverseFillType">toggleInverseFillType</a> | Toggles <a href="#Fill_Type">Fill Type</a> between inside and outside geometry. |
-| <a href="#SkPath_transform">transform</a> | Applies <a href="undocumented#Matrix">Matrix</a> to <a href="#Point_Array">Point Array</a> and <a href="#Weight">Weights</a>. |
+| <a href="#SkPath_transform">transform</a> | Applies <a href="SkMatrix_Reference#Matrix">Matrix</a> to <a href="#Point_Array">Point Array</a> and <a href="#Weight">Weights</a>. |
 | <a href="#SkPath_unique">unique</a> | Returns if data has single owner. |
 | <a href="#SkPath_updateBoundsCache">updateBoundsCache</a> | Refreshes result of <a href="#SkPath_getBounds">getBounds</a>. |
 | <a href="#SkPath_writeToMemory">writeToMemory</a> | Copies data to buffer. |
@@ -281,7 +281,7 @@ for consecutive entries.
 
 ### Example
 
-<div><fiddle-embed name="799096fdc1298aa815934a74e76570ca">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -312,7 +312,7 @@ When <a href="#Path">Path</a> <a href="#SkPath_contains">contains</a> multiple o
 measures along <a href="#Path">Path</a> to determine where to start and stop stroke; <a href="#Direction">Direction</a>
 will change dashed results as it steps clockwise or counterclockwise.
 
-Closed <a href="#Contour">Contours</a> like <a href="undocumented#Rect">Rect</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="undocumented#Circle">Circle</a>, and <a href="undocumented#Oval">Oval</a> added with 
+Closed <a href="#Contour">Contours</a> like <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="undocumented#Circle">Circle</a>, and <a href="undocumented#Oval">Oval</a> added with 
 <a href="#SkPath_kCW_Direction">kCW Direction</a> travel clockwise; the same added with <a href="#SkPath_kCCW_Direction">kCCW Direction</a>
 travel counterclockwise.
 
@@ -329,7 +329,7 @@ travel counterclockwise.
 
 ### Example
 
-<div><fiddle-embed name="0de03d9c939b6238318b7366866e8722"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -353,7 +353,7 @@ empty <a href="#Path">Path</a>
 
 ### Example
 
-<div><fiddle-embed name="0a0026fca638d1cd75c0ab884e3ee1c6">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -397,7 +397,7 @@ copy of <a href="#Path">Path</a>
 
 ### Example
 
-<div><fiddle-embed name="647312aacd946c8a6eabaca797140432"><div>Modifying one <a href="#SkPath_copy_const_SkPath_path">path</a> does not effect another, even if they started as copies
+<div><fiddle-embed name=""><div>Modifying one <a href="#SkPath_copy_const_SkPath_path">path</a> does not effect another, even if they started as copies
 of each other.</div>
 
 #### Example Output
@@ -429,7 +429,7 @@ Releases ownership of any shared data and deletes data if <a href="#Path">Path</
 
 ### Example
 
-<div><fiddle-embed name="01ad6be9b7d15a2217daea273eb3d466"><div>delete calls <a href="#Path">Path</a> <a href="undocumented#Destructor">Destructor</a>, but copy of original in path2 is unaffected.</div></fiddle-embed></div>
+<div><fiddle-embed name=""><div>delete calls <a href="#Path">Path</a> <a href="undocumented#Destructor">Destructor</a>, but copy of original in path2 is unaffected.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -465,7 +465,7 @@ pointers are not exposed.
 
 ### Example
 
-<div><fiddle-embed name="bba288f5f77fc8e37e89d2ec08e0ac60">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -507,7 +507,7 @@ true if <a href="#Path">Path</a> pair are equivalent
 
 ### Example
 
-<div><fiddle-embed name="31883f51bb357f2ac5990d88f8b82e02"><div>Rewind removes <a href="#Verb_Array">Verb Array</a> but leaves storage; since storage is not compared,
+<div><fiddle-embed name=""><div>Rewind removes <a href="#Verb_Array">Verb Array</a> but leaves storage; since storage is not compared,
 <a href="#Path">Path</a> pair are equivalent.</div>
 
 #### Example Output
@@ -548,7 +548,7 @@ true if <a href="#Path">Path</a> pair are not equivalent
 
 ### Example
 
-<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83"><div><a href="#Path">Path</a> pair are equal though their convexity is not equal.</div>
+<div><fiddle-embed name=""><div><a href="#Path">Path</a> pair are equal though their convexity is not equal.</div>
 
 #### Example Output
 
@@ -590,7 +590,7 @@ true if <a href="#Path">Paths</a> <a href="#Verb_Array">Verb Array</a> and <a hr
 
 ### Example
 
-<div><fiddle-embed name="c81fc7dfaf785c3fb77209c7f2ebe5b8">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -643,7 +643,7 @@ true if <a href="#Path">Paths</a> contain same number of <a href="#Point">Points
 
 ### Example
 
-<div><fiddle-embed name="404f11c5c9c9ca8a64822d484552a473"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -686,7 +686,7 @@ reverses the rule:
 
 ### Example
 
-<div><fiddle-embed name="525ed591c31960de23068dba8ea11a75"><div>The top row has two clockwise rectangles. The second row has one clockwise and
+<div><fiddle-embed name=""><div>The top row has two clockwise rectangles. The second row has one clockwise and
 one counterclockwise rectangle. The even-odd variants draw the same. The
 winding variants draw the top rectangle overlap, which has a winding of 2, the
 same as the outer parts of the top rectangles, which have a winding of 1.</div></fiddle-embed></div>
@@ -710,7 +710,7 @@ same as the outer parts of the top rectangles, which have a winding of 1.</div><
 
 ### Example
 
-<div><fiddle-embed name="0ebf978b234a00e2c2573cfa7b04e776"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -735,7 +735,7 @@ one of: <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, <a href="#SkP
 
 ### Example
 
-<div><fiddle-embed name="2eb8f985d1e263e70b5c0aa4a8b68d8e">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -771,7 +771,7 @@ one of: <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, <a href="#SkP
 
 ### Example
 
-<div><fiddle-embed name="b4a91cd7f50b2a0a0d1bec6d0ac823d2"><div>If empty <a href="#Path">Path</a> is set to inverse <a href="#SkPath_FillType">FillType</a>, it fills all pixels.</div></fiddle-embed></div>
+<div><fiddle-embed name=""><div>If empty <a href="#Path">Path</a> is set to inverse <a href="#SkPath_FillType">FillType</a>, it fills all pixels.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -795,7 +795,7 @@ true if <a href="#SkPath_FillType">FillType</a> is <a href="#SkPath_kInverseWind
 
 ### Example
 
-<div><fiddle-embed name="2a2d39f5da611545caa18bbcea873ab2">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -830,7 +830,7 @@ unmodified by the original <a href="#SkPath_FillType">FillType</a>.
 
 ### Example
 
-<div><fiddle-embed name="400facce23d417bc5043c5f58404afbd"><div><a href="#Path">Path</a> drawn normally and through its inverse touches every pixel once.</div></fiddle-embed></div>
+<div><fiddle-embed name=""><div><a href="#Path">Path</a> drawn normally and through its inverse touches every pixel once.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -876,7 +876,7 @@ if needed by destination <a href="undocumented#Surface">Surface</a>.
 
 ### Example
 
-<div><fiddle-embed name="b7d0c0732411db76fa37b05fc18712b3"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -901,7 +901,7 @@ computed or stored <a href="#Convexity">Convexity</a>
 
 ### Example
 
-<div><fiddle-embed name="c8f5ac4040cb5026d234bf99e3f01e8e"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -925,7 +925,7 @@ stored <a href="#Convexity">Convexity</a>
 
 ### Example
 
-<div><fiddle-embed name="bc19da9de880e3f339707247686efc0a"><div><a href="#Convexity">Convexity</a> is unknown unless <a href="#SkPath_getConvexity">getConvexity</a> is called without a subsequent call
+<div><fiddle-embed name=""><div><a href="#Convexity">Convexity</a> is unknown unless <a href="#SkPath_getConvexity">getConvexity</a> is called without a subsequent call
 that alters the path.</div></fiddle-embed></div>
 
 ### See Also
@@ -961,7 +961,7 @@ one of: <a href="#SkPath_kUnknown_Convexity">kUnknown Convexity</a>, <a href="#S
 
 ### Example
 
-<div><fiddle-embed name="6fe0d520507eeafe118b80f7f1d9b588"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -986,7 +986,7 @@ true if <a href="#Convexity">Convexity</a> stored or computed is <a href="#SkPat
 
 ### Example
 
-<div><fiddle-embed name="dfd2c40e1c2a7b539a94aec8d040d349"><div>Concave shape is erroneously considered convex after a forced call to 
+<div><fiddle-embed name=""><div>Concave shape is erroneously considered convex after a forced call to 
 <a href="#SkPath_setConvexity">setConvexity</a>.</div></fiddle-embed></div>
 
 ### See Also
@@ -1033,7 +1033,7 @@ Triggers performance optimizations on some <a href="undocumented#GPU_Surface">GP
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_isOval_rect"> <code><strong>rect </strong></code> </a></td> <td>
-storage for bounding <a href="undocumented#Rect">Rect</a> of <a href="undocumented#Oval">Oval</a>; may be nullptr</td>
+storage for bounding <a href="SkRect_Reference#Rect">Rect</a> of <a href="undocumented#Oval">Oval</a>; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkPath_isOval_dir"> <code><strong>dir </strong></code> </a></td> <td>
 storage for <a href="#SkPath_Direction">Direction</a>; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkPath_isOval_start"> <code><strong>start </strong></code> </a></td> <td>
@@ -1047,7 +1047,7 @@ true if <a href="#Path">Path</a> was constructed by method that reduces to <a hr
 
 ### Example
 
-<div><fiddle-embed name="4fc7b86c9b772c5e85af480524267bde"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1063,7 +1063,7 @@ bool isRRect(SkRRect* rrect, Direction* dir = nullptr, unsigned* start = nullptr
 </pre>
 
 Returns true if constructed by <a href="#SkPath_addRoundRect">addRoundRect</a>, <a href="#SkPath_addRRect">addRRect</a>; and if construction
-is not empty, not <a href="undocumented#Rect">Rect</a>, and not <a href="undocumented#Oval">Oval</a>. <a href="#Path">Path</a> constructed with other calls
+is not empty, not <a href="SkRect_Reference#Rect">Rect</a>, and not <a href="undocumented#Oval">Oval</a>. <a href="#Path">Path</a> constructed with other calls
 will not return true though <a href="#Path">Path</a> draws <a href="undocumented#Round_Rect">Round Rect</a>.
 
 <a href="#SkPath_isRRect_rrect">rrect</a> receives bounds of <a href="undocumented#Round_Rect">Round Rect</a>.
@@ -1078,7 +1078,7 @@ Triggers performance optimizations on some <a href="undocumented#GPU_Surface">GP
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_isRRect_rrect"> <code><strong>rrect </strong></code> </a></td> <td>
-storage for bounding <a href="undocumented#Rect">Rect</a> of <a href="undocumented#Round_Rect">Round Rect</a>; may be nullptr</td>
+storage for bounding <a href="SkRect_Reference#Rect">Rect</a> of <a href="undocumented#Round_Rect">Round Rect</a>; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkPath_isRRect_dir"> <code><strong>dir </strong></code> </a></td> <td>
 storage for <a href="#SkPath_Direction">Direction</a>; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkPath_isRRect_start"> <code><strong>start </strong></code> </a></td> <td>
@@ -1092,7 +1092,7 @@ true if <a href="#Path">Path</a> <a href="#SkPath_contains">contains</a> only <a
 
 ### Example
 
-<div><fiddle-embed name="f2b7e57a385e6604475c99ec8daa2697"><div>Draw rounded rectangle and its bounds. Draw an arc indicating where the rounded
+<div><fiddle-embed name=""><div>Draw rounded rectangle and its bounds. Draw an arc indicating where the rounded
 rectangle starts and its direction.</div></fiddle-embed></div>
 
 ### See Also
@@ -1114,7 +1114,7 @@ Internal storage associated with <a href="#Path">Path</a> is released.
 
 ### Example
 
-<div><fiddle-embed name="8cdca35d2964bbbecb93d79a13f71c65"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1138,7 +1138,7 @@ is critical.
 
 ### Example
 
-<div><fiddle-embed name="f1fedbb89da9c2a33a91805175663012"><div>Although path1 retains its internal storage, it is indistinguishable from
+<div><fiddle-embed name=""><div>Although path1 retains its internal storage, it is indistinguishable from
 a newly initialized path.</div></fiddle-embed></div>
 
 ### See Also
@@ -1163,7 +1163,7 @@ true if the path <a href="#SkPath_contains">contains</a> no <a href="#SkPath_Ver
 
 ### Example
 
-<div><fiddle-embed name="0b34e6d55d11586744adeb889d2a12f4">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1199,7 +1199,7 @@ true if the last <a href="#Contour">Contour</a> ends with a <a href="#SkPath_kCl
 
 ### Example
 
-<div><fiddle-embed name="03b740ab94b9017800a52e30b5e7fee7"><div><a href="#SkPath_close">close</a> has no effect if <a href="#Path">Path</a> is empty; <a href="#SkPath_isLastContourClosed">isLastContourClosed</a> returns
+<div><fiddle-embed name=""><div><a href="#SkPath_close">close</a> has no effect if <a href="#Path">Path</a> is empty; <a href="#SkPath_isLastContourClosed">isLastContourClosed</a> returns
 false until <a href="#Path">Path</a> has geometry followed by <a href="#SkPath_close">close</a>.</div>
 
 #### Example Output
@@ -1236,7 +1236,7 @@ true if all <a href="undocumented#Point">Point</a> values are finite
 
 ### Example
 
-<div><fiddle-embed name="dd4e4dd2aaa8039b2430729c6b3af817">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1272,7 +1272,7 @@ true if caller will alter <a href="#Path">Path</a> after drawing
 
 ### Example
 
-<div><fiddle-embed name="c722ebe8ac991d77757799ce29e509e1">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1317,7 +1317,7 @@ true if caller will alter <a href="#Path">Path</a> after drawing</td>
 
 ### Example
 
-<div><fiddle-embed name="2049ff5141f0c80aac497618622b28af"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1356,7 +1356,7 @@ true if <a href="undocumented#Line">Line</a> is degenerate; its length is effect
 
 ### Example
 
-<div><fiddle-embed name="97a031f9186ade586928563840ce9116"><div>As single precision floats, 100 and 100.000001 have the same bit representation,
+<div><fiddle-embed name=""><div>As single precision floats, 100 and 100.000001 have the same bit representation,
 and are exactly equal. 100 and 100.0001 have different bit representations, and
 are not exactly equal, but are nearly equal.</div>
 
@@ -1409,7 +1409,7 @@ true if <a href="#Quad">Quad</a> is degenerate; its length is effectively zero
 
 ### Example
 
-<div><fiddle-embed name="1d50896c528cd4581966646b7d96acff"><div>As single precision floats: 100, 100.00001, and 100.00002 have different bit representations
+<div><fiddle-embed name=""><div>As single precision floats: 100, 100.00001, and 100.00002 have different bit representations
 but nearly the same value. Translating all three by 1000 gives them the same bit representation;
 the fractional portion of the number can not be represented by the float and is lost.</div>
 
@@ -1464,7 +1464,7 @@ true if <a href="#Cubic">Cubic</a> is degenerate; its length is effectively zero
 
 ### Example
 
-<div><fiddle-embed name="c79d813f0b37062cb2f7a0c83f4a09f3">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1503,7 +1503,7 @@ true if <a href="#Path">Path</a> <a href="#SkPath_contains">contains</a> exactly
 
 ### Example
 
-<div><fiddle-embed name="1ad07d56e4258e041606d50cad969392">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1554,7 +1554,7 @@ maximum to copy; must be greater than or equal to zero</td>
 
 ### Example
 
-<div><fiddle-embed name="9bc86efda08cbcd9c6f7c5f220294a24">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1589,7 +1589,7 @@ Returns the number of points in <a href="#Path">Path</a>.
 
 ### Example
 
-<div><fiddle-embed name="bca6379ccef62cb081b10db7381deb27">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1632,7 +1632,7 @@ Returns (0, 0) if <a href="#SkPath_getPoint_index">index</a> is out of range.
 
 ### Example
 
-<div><fiddle-embed name="1cf6b8dd2994c4ca9a2d6887ff888017">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1676,7 +1676,7 @@ length of <a href="#Verb_Array">Verb Array</a>
 
 ### Example
 
-<div><fiddle-embed name="af0c66aea3ef81b709664c7007f48aae">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1718,7 +1718,7 @@ the actual number of <a href="#SkPath_getVerbs_verbs">verbs</a> in the path
 
 ### Example
 
-<div><fiddle-embed name="2ec66880966a6133ddd9331ce7323438">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1761,7 +1761,7 @@ making assignment as efficient as <a href="#SkPath_swap">swap</a>.
 
 ### Example
 
-<div><fiddle-embed name="4c5ebee2b5039e5faefa07ae63a15467">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1789,7 +1789,7 @@ Returns minimum and maximum x and y values of <a href="#Point_Array">Point Array
 Returns (0, 0, 0, 0) if <a href="#Path">Path</a> <a href="#SkPath_contains">contains</a> no points. Returned bounds width and height may
 be larger or smaller than area affected when <a href="#Path">Path</a> is drawn.
 
-<a href="undocumented#Rect">Rect</a> returned includes all <a href="#Point">Points</a> added to <a href="#Path">Path</a>, including <a href="#Point">Points</a> associated with
+<a href="SkRect_Reference#Rect">Rect</a> returned includes all <a href="#Point">Points</a> added to <a href="#Path">Path</a>, including <a href="#Point">Points</a> associated with
 <a href="#SkPath_kMove_Verb">kMove Verb</a> that define empty <a href="#Contour">Contours</a>.
 
 ### Return Value
@@ -1798,7 +1798,7 @@ bounds of all <a href="#Point">Points</a> in <a href="#Point_Array">Point Array<
 
 ### Example
 
-<div><fiddle-embed name="9160aa6d1476bd87d927cfc8a4bf25e7"><div>Bounds of upright <a href="undocumented#Circle">Circle</a> can be predicted from center and radius.
+<div><fiddle-embed name=""><div>Bounds of upright <a href="undocumented#Circle">Circle</a> can be predicted from center and radius.
 Bounds of rotated <a href="undocumented#Circle">Circle</a> includes control <a href="#Point">Points</a> outside of filled area.</div>
 
 #### Example Output
@@ -1834,7 +1834,7 @@ to avoid a race condition where each draw separately computes the bounds.
 
 ### Example
 
-<div><fiddle-embed name="bb761cd858e6d0ca05627262cd22ff5e">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1878,7 +1878,7 @@ tight bounds of curves in <a href="#Path">Path</a>
 
 ### Example
 
-<div><fiddle-embed name="da34f02e69ec98d5681300aea9a2d0bf">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1914,7 +1914,7 @@ the <a href="undocumented#Point">Point</a> or <a href="undocumented#Line">Line</
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_conservativelyContainsRect_rect"> <code><strong>rect </strong></code> </a></td> <td>
-<a href="undocumented#Rect">Rect</a>, <a href="undocumented#Line">Line</a>, or <a href="undocumented#Point">Point</a> checked for containment</td>
+<a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Line">Line</a>, or <a href="undocumented#Point">Point</a> checked for containment</td>
   </tr>
 </table>
 
@@ -1924,11 +1924,11 @@ true if <a href="#SkPath_conservativelyContainsRect_rect">rect</a> is contained
 
 ### Example
 
-<div><fiddle-embed name="41638d13e40fa449ece354dde5fb1941"><div><a href="undocumented#Rect">Rect</a> is drawn in blue if it is contained by red <a href="#Path">Path</a>.</div></fiddle-embed></div>
+<div><fiddle-embed name=""><div><a href="SkRect_Reference#Rect">Rect</a> is drawn in blue if it is contained by red <a href="#Path">Path</a>.</div></fiddle-embed></div>
 
 ### See Also
 
-<a href="#SkPath_contains">contains</a> <a href="undocumented#Op">Op</a> <a href="undocumented#Rect">Rect</a> <a href="#SkPath_Convexity">Convexity</a>
+<a href="#SkPath_contains">contains</a> <a href="undocumented#Op">Op</a> <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkPath_Convexity">Convexity</a>
 
 ---
 
@@ -1952,7 +1952,7 @@ number of additional <a href="#Point">Points</a> to allocate</td>
 
 ### Example
 
-<div><fiddle-embed name="f2260f2a170a54aef5bafe5b91c121b3"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1980,7 +1980,7 @@ y-coordinate of <a href="#Contour">Contour</a> start</td>
 
 ### Example
 
-<div><fiddle-embed name="84101d341e934a535a41ad6cf42218ce"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2003,7 +2003,7 @@ contour start</td>
 
 ### Example
 
-<div><fiddle-embed name="53b351d3fac667a4803418238e44a593"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2034,7 +2034,7 @@ Function name stands for "relative move to".
 
 ### Example
 
-<div><fiddle-embed name="63e32dec4b2d8440b427f368bf8313a4"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2066,7 +2066,7 @@ end of added <a href="undocumented#Line">Line</a> in <a href="#SkPath_lineTo_y">
 
 ### Example
 
-<div><fiddle-embed name="e311cdd451edacec33b50cc22a4dd5dc"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2093,7 +2093,7 @@ end <a href="undocumented#Point">Point</a> of added <a href="undocumented#Line">
 
 ### Example
 
-<div><fiddle-embed name="41001546a7f7927d08e5a818bcc304f5"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2127,7 +2127,7 @@ Function name stands for "relative line to".
 
 ### Example
 
-<div><fiddle-embed name="6e0be0766b8ca320da51640326e608b3"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2142,7 +2142,7 @@ and then curves to an end <a href="undocumented#Point">Point</a>.
 
 ### Example
 
-<div><fiddle-embed name="78ad51fa1cd33eb84a6f99061e56e067"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 <a href="#Quad">Quad</a> is a special case of <a href="#Conic">Conic</a> where <a href="#Conic_Weight">Conic Weight</a> is set to one.
 
@@ -2152,7 +2152,7 @@ tangent to the line between control <a href="undocumented#Point">Point</a> and e
 
 ### Example
 
-<div><fiddle-embed name="4082f66a42df11bb20462b232b156bb6"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 <a name="SkPath_quadTo"></a>
 ## quadTo
@@ -2184,7 +2184,7 @@ end <a href="undocumented#Point">Point</a> of <a href="#Quad">Quad</a> in y</td>
 
 ### Example
 
-<div><fiddle-embed name="60ee3eb747474f5781b0f0dd3a17a866"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2215,7 +2215,7 @@ end <a href="undocumented#Point">Point</a> of added <a href="#Quad">Quad</a></td
 
 ### Example
 
-<div><fiddle-embed name="82621c4df8da1e589d9e627494067826"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2256,7 +2256,7 @@ Function name stands for "relative quad to".
 
 ### Example
 
-<div><fiddle-embed name="1c1f4cdef1c572c9aa8fdf3e461191d0"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2281,7 +2281,7 @@ parabolic segment.
 
 ### Example
 
-<div><fiddle-embed name="2aadded3d20dfef34d1c8abe28c7bc8d"><div>When <a href="#Conic_Weight">Conic Weight</a> is one, <a href="#Quad">Quad</a> is added to path; the two are identical.</div>
+<div><fiddle-embed name=""><div>When <a href="#Conic_Weight">Conic Weight</a> is one, <a href="#Quad">Quad</a> is added to path; the two are identical.</div>
 
 #### Example Output
 
@@ -2297,7 +2297,7 @@ If weight is less than one, <a href="#Conic">Conic</a> is an elliptical segment.
 
 ### Example
 
-<div><fiddle-embed name="e88f554efacfa9f75f270fb1c0add5b4"><div>A 90 degree circular arc has the weight1 / sqrt(2).</div>
+<div><fiddle-embed name=""><div>A 90 degree circular arc has the weight1 / sqrt(2).</div>
 
 #### Example Output
 
@@ -2315,7 +2315,7 @@ control <a href="undocumented#Point">Point</a> with the end <a href="#Point">Poi
 
 ### Example
 
-<div><fiddle-embed name="6fb11419e99297fe2fe666c296117fb9">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -2367,7 +2367,7 @@ weight of added <a href="#Conic">Conic</a></td>
 
 ### Example
 
-<div><fiddle-embed name="358d9b6060b528b0923c007420f09c13"><div>As weight increases, curve is pulled towards control point. 
+<div><fiddle-embed name=""><div>As weight increases, curve is pulled towards control point. 
 The bottom two curves are elliptical; the next is parabolic; the
 top curve is hyperbolic.</div></fiddle-embed></div>
 
@@ -2409,7 +2409,7 @@ weight of added <a href="#Conic">Conic</a></td>
 
 ### Example
 
-<div><fiddle-embed name="22d25e03b19d5bae92118877e462361b"><div><a href="#Conic">Conics</a> and arcs use identical representations. As the arc sweep increases
+<div><fiddle-embed name=""><div><a href="#Conic">Conics</a> and arcs use identical representations. As the arc sweep increases
 the <a href="#Conic_Weight">Conic Weight</a> also increases, but remains smaller than one.</div></fiddle-embed></div>
 
 ### See Also
@@ -2459,7 +2459,7 @@ weight of added <a href="#Conic">Conic</a></td>
 
 ### Example
 
-<div><fiddle-embed name="3d52763e7c0e20c0b1d484a0afa622d2"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2474,7 +2474,7 @@ and curves from the end <a href="undocumented#Point">Point</a> towards the secon
 
 ### Example
 
-<div><fiddle-embed name="466445ed991d86de08587066392d654a"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 <a name="SkPath_cubicTo"></a>
 ## cubicTo
@@ -2511,7 +2511,7 @@ end <a href="undocumented#Point">Point</a> of <a href="#Cubic">Cubic</a> in y</t
 
 ### Example
 
-<div><fiddle-embed name="3e476378e3e0550ab134bbaf61112d98"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2544,7 +2544,7 @@ end <a href="undocumented#Point">Point</a> of <a href="#Cubic">Cubic</a></td>
 
 ### Example
 
-<div><fiddle-embed name="d38aaf12c6ff5b8d901a2201bcee5476"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2591,7 +2591,7 @@ Function name stands for "relative cubic to".
 
 ### Example
 
-<div><fiddle-embed name="19f0cfc7eeba8937fe19446ec0b5f932"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2630,7 +2630,7 @@ constructions are converted to <a href="#Conic">Conic</a> data when added to <a 
 
 ### Example
 
-<div><fiddle-embed name="891ac93abd0cdb27c4156685d3b1bb4c"><div>
+<div><fiddle-embed name=""><div>
 
 <table>  <tr>
     <td><sup>1</sup> <a href="#SkPath_arcTo">arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)</a></td>  </tr>  <tr>
@@ -2645,7 +2645,7 @@ Direction sweep, SkScalar x, SkScalar y)</a></td>  </tr>
 
 ### Example
 
-<div><fiddle-embed name="5acc77eba0cb4d00bbf3a8f4db0c0aee"><div>1 describes an arc from an oval, a starting angle, and a sweep angle.
+<div><fiddle-embed name=""><div>1 describes an arc from an oval, a starting angle, and a sweep angle.
 2 is similar to 1, but does not require building a path to draw.
 3 is similar to 1, but always begins new <a href="#Contour">Contour</a>.
 4 describes an arc from a pair of tangent lines and a radius.
@@ -2684,7 +2684,7 @@ true to start a new contour with <a href="#Arc">Arc</a></td>
 
 ### Example
 
-<div><fiddle-embed name="5f02890edaa10cb5e1a4243a82b6a382"><div><a href="#SkPath_arcTo">arcTo</a> continues a previous contour when <a href="#SkPath_arcTo_forceMoveTo">forceMoveTo</a> is false and when <a href="#Path">Path</a>
+<div><fiddle-embed name=""><div><a href="#SkPath_arcTo">arcTo</a> continues a previous contour when <a href="#SkPath_arcTo_forceMoveTo">forceMoveTo</a> is false and when <a href="#Path">Path</a>
 is not empty.</div></fiddle-embed></div>
 
 ### See Also
@@ -2704,14 +2704,14 @@ is part of <a href="undocumented#Circle">Circle</a> sized to <a href="#SkPath_ar
 
 ### Example
 
-<div><fiddle-embed name="d9c6435f26f37b3d63c664a99028f77f"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 If last <a href="#Path">Path</a> <a href="undocumented#Point">Point</a> does not start <a href="#Arc">Arc</a>, <a href="#SkPath_arcTo">arcTo</a> appends connecting <a href="undocumented#Line">Line</a> to <a href="#Path">Path</a>.
 The length of <a href="undocumented#Vector">Vector</a> from (<a href="#SkPath_arcTo_2_x1">x1</a>, <a href="#SkPath_arcTo_2_y1">y1</a>) to (<a href="#SkPath_arcTo_2_x2">x2</a>, <a href="#SkPath_arcTo_2_y2">y2</a>) does not affect <a href="#Arc">Arc</a>.
 
 ### Example
 
-<div><fiddle-embed name="01d2ddfd539ab86a86989e210640dffc"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 <a href="#Arc">Arc</a> sweep is always less than 180 degrees. If <a href="#SkPath_arcTo_2_radius">radius</a> is zero, or if
 tangents are nearly parallel, <a href="#SkPath_arcTo">arcTo</a> appends <a href="undocumented#Line">Line</a> from last <a href="#Path">Path</a> <a href="undocumented#Point">Point</a> to (<a href="#SkPath_arcTo_2_x1">x1</a>, <a href="#SkPath_arcTo_2_y1">y1</a>).
@@ -2736,7 +2736,7 @@ distance from <a href="#Arc">Arc</a> to <a href="undocumented#Circle">Circle</a>
 
 ### Example
 
-<div><fiddle-embed name="498360fa0a201cc5db04b1c27256358f"><div><a href="#SkPath_arcTo">arcTo</a> is represented by <a href="undocumented#Line">Line</a> and circular <a href="#Conic">Conic</a> in <a href="#Path">Path</a>.</div>
+<div><fiddle-embed name=""><div><a href="#SkPath_arcTo">arcTo</a> is represented by <a href="undocumented#Line">Line</a> and circular <a href="#Conic">Conic</a> in <a href="#Path">Path</a>.</div>
 
 #### Example Output
 
@@ -2785,7 +2785,7 @@ distance from <a href="#Arc">Arc</a> to <a href="undocumented#Circle">Circle</a>
 
 ### Example
 
-<div><fiddle-embed name="0c056264a361579c18e5d02d3172d4d4"><div>Because tangent lines are parallel, <a href="#SkPath_arcTo">arcTo</a> appends line from last <a href="#Path">Path</a> <a href="undocumented#Point">Point</a> to
+<div><fiddle-embed name=""><div>Because tangent lines are parallel, <a href="#SkPath_arcTo">arcTo</a> appends line from last <a href="#Path">Path</a> <a href="undocumented#Point">Point</a> to
 <a href="#SkPath_arcTo_3_p1">p1</a>, but does not append a circular <a href="#Conic">Conic</a>.</div>
 
 #### Example Output
@@ -2827,7 +2827,7 @@ Four <a href="undocumented#Oval">Oval</a> parts with radii (rx, ry) start at las
 
 ### Example
 
-<div><fiddle-embed name="8e40c546eecd9cc213200717240898ba"><div><a href="#Arc">Arc</a> begins at top of <a href="undocumented#Oval">Oval</a> pair and ends at bottom. <a href="#Arc">Arc</a> can take four routes to get there.
+<div><fiddle-embed name=""><div><a href="#Arc">Arc</a> begins at top of <a href="undocumented#Oval">Oval</a> pair and ends at bottom. <a href="#Arc">Arc</a> can take four routes to get there.
 Two routes are large, and two routes are counterclockwise. The one route both large
 and counterclockwise is blue.</div></fiddle-embed></div>
 
@@ -2874,7 +2874,7 @@ end of <a href="#Arc">Arc</a></td>
 
 ### Example
 
-<div><fiddle-embed name="6b6ea44f659b27918f3a6fa621bf6173"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2918,7 +2918,7 @@ end of <a href="#Arc">Arc</a></td>
 
 ### Example
 
-<div><fiddle-embed name="3f76a1007416181a4848c1a87fc81dbd"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2972,7 +2972,7 @@ y <a href="#SkPath_offset">offset</a> end of <a href="#Arc">Arc</a> from last <a
 
 ### Example
 
-<div><fiddle-embed name="3f76a1007416181a4848c1a87fc81dbd"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2997,7 +2997,7 @@ with <a href="#SkPaint_kFill_Style">SkPaint::kFill Style</a>. With <a href="#SkP
 
 ### Example
 
-<div><fiddle-embed name="9235f6309271d6420fa5c45dc28664c5"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3034,7 +3034,7 @@ true if <a href="#Path">Path</a> fills outside its bounds
 
 ### Example
 
-<div><fiddle-embed name="1453856a9d0c73e8192bf298c4143563">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -3084,7 +3084,7 @@ one of: <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, <a href="#SkP
 
 ### Example
 
-<div><fiddle-embed name="adfae398bbe9e37495f8220ad544c8f8">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -3150,7 +3150,7 @@ number of <a href="#Quad">Quad</a> curves written to <a href="#SkPath_ConvertCon
 
 ### Example
 
-<div><fiddle-embed name="3ba94448a4ba48f926e643baeb5b1016"><div>A pair of <a href="#Quad">Quad</a> curves are drawn in red on top of the elliptical <a href="#Conic">Conic</a> curve in black.
+<div><fiddle-embed name=""><div>A pair of <a href="#Quad">Quad</a> curves are drawn in red on top of the elliptical <a href="#Conic">Conic</a> curve in black.
 The middle curve is nearly circular. The top-right curve is parabolic, which can
 be drawn exactly with a single <a href="#Quad">Quad</a>.</div></fiddle-embed></div>
 
@@ -3168,7 +3168,7 @@ bool isRect(SkRect* rect, bool* isClosed = nullptr,
             Direction* direction = nullptr) const
 </pre>
 
-Returns true if <a href="#Path">Path</a> is equivalent to <a href="undocumented#Rect">Rect</a> when filled.
+Returns true if <a href="#Path">Path</a> is equivalent to <a href="SkRect_Reference#Rect">Rect</a> when filled.
 If false: <a href="#SkPath_isRect_rect">rect</a>, <a href="#SkPath_isRect_isClosed">isClosed</a>, and <a href="#SkPath_isRect_direction">direction</a> are unchanged.
 If true: <a href="#SkPath_isRect_rect">rect</a>, <a href="#SkPath_isRect_isClosed">isClosed</a>, and <a href="#SkPath_isRect_direction">direction</a> are written to if not nullptr.
 
@@ -3178,21 +3178,21 @@ that do not alter the area drawn by the returned <a href="#SkPath_isRect_rect">r
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_isRect_rect"> <code><strong>rect </strong></code> </a></td> <td>
-storage for bounds of <a href="undocumented#Rect">Rect</a>; may be nullptr</td>
+storage for bounds of <a href="SkRect_Reference#Rect">Rect</a>; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkPath_isRect_isClosed"> <code><strong>isClosed </strong></code> </a></td> <td>
 storage set to true if <a href="#Path">Path</a> is closed; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkPath_isRect_direction"> <code><strong>direction </strong></code> </a></td> <td>
-storage set to <a href="undocumented#Rect">Rect</a> <a href="#SkPath_isRect_direction">direction</a>; may be nullptr</td>
+storage set to <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkPath_isRect_direction">direction</a>; may be nullptr</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if <a href="#Path">Path</a> <a href="#SkPath_contains">contains</a> <a href="undocumented#Rect">Rect</a>
+true if <a href="#Path">Path</a> <a href="#SkPath_contains">contains</a> <a href="SkRect_Reference#Rect">Rect</a>
 
 ### Example
 
-<div><fiddle-embed name="063a5f0a8de1fe998d227393e0866557"><div>After <a href="#SkPath_addRect">addRect</a>, <a href="#SkPath_isRect">isRect</a> returns true. Following <a href="#SkPath_moveTo">moveTo</a> permits <a href="#SkPath_isRect">isRect</a> to return true, but
+<div><fiddle-embed name=""><div>After <a href="#SkPath_addRect">addRect</a>, <a href="#SkPath_isRect">isRect</a> returns true. Following <a href="#SkPath_moveTo">moveTo</a> permits <a href="#SkPath_isRect">isRect</a> to return true, but
 following <a href="#SkPath_lineTo">lineTo</a> does not. <a href="#SkPath_addPoly">addPoly</a> returns true even though <a href="#SkPath_isRect_rect">rect</a> is not closed, and one
 side of <a href="#SkPath_isRect_rect">rect</a> is made up of consecutive line segments.</div>
 
@@ -3221,17 +3221,17 @@ addPoly is rect (0, 0, 80, 80); is not closed; direction CCW
 bool isNestedFillRects(SkRect rect[2], Direction dirs[2] = nullptr) const
 </pre>
 
-Returns true if <a href="#Path">Path</a> is equivalent to nested <a href="undocumented#Rect">Rect</a> pair when filled.
+Returns true if <a href="#Path">Path</a> is equivalent to nested <a href="SkRect_Reference#Rect">Rect</a> pair when filled.
 If false, <a href="#SkPath_isNestedFillRects_rect">rect</a> and <a href="#SkPath_isNestedFillRects_dirs">dirs</a> are unchanged.
 If true, <a href="#SkPath_isNestedFillRects_rect">rect</a> and <a href="#SkPath_isNestedFillRects_dirs">dirs</a> are written to if not nullptr:
-setting <a href="#SkPath_isNestedFillRects_rect">rect</a>[0] to outer <a href="undocumented#Rect">Rect</a>, and <a href="#SkPath_isNestedFillRects_rect">rect</a>[1] to inner <a href="undocumented#Rect">Rect</a>;
-setting <a href="#SkPath_isNestedFillRects_dirs">dirs</a>[0] to <a href="#SkPath_Direction">Direction</a> of outer <a href="undocumented#Rect">Rect</a>, and <a href="#SkPath_isNestedFillRects_dirs">dirs</a>[1] to <a href="#SkPath_Direction">Direction</a> of inner
-<a href="undocumented#Rect">Rect</a>.
+setting <a href="#SkPath_isNestedFillRects_rect">rect</a>[0] to outer <a href="SkRect_Reference#Rect">Rect</a>, and <a href="#SkPath_isNestedFillRects_rect">rect</a>[1] to inner <a href="SkRect_Reference#Rect">Rect</a>;
+setting <a href="#SkPath_isNestedFillRects_dirs">dirs</a>[0] to <a href="#SkPath_Direction">Direction</a> of outer <a href="SkRect_Reference#Rect">Rect</a>, and <a href="#SkPath_isNestedFillRects_dirs">dirs</a>[1] to <a href="#SkPath_Direction">Direction</a> of inner
+<a href="SkRect_Reference#Rect">Rect</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_isNestedFillRects_rect"> <code><strong>rect </strong></code> </a></td> <td>
-storage for <a href="undocumented#Rect">Rect</a> pair; may be nullptr</td>
+storage for <a href="SkRect_Reference#Rect">Rect</a> pair; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkPath_isNestedFillRects_dirs"> <code><strong>dirs </strong></code> </a></td> <td>
 storage for <a href="#SkPath_Direction">Direction</a> pair; may be nullptr</td>
   </tr>
@@ -3239,11 +3239,11 @@ storage for <a href="#SkPath_Direction">Direction</a> pair; may be nullptr</td>
 
 ### Return Value
 
-true if <a href="#Path">Path</a> <a href="#SkPath_contains">contains</a> nested <a href="undocumented#Rect">Rect</a> pair
+true if <a href="#Path">Path</a> <a href="#SkPath_contains">contains</a> nested <a href="SkRect_Reference#Rect">Rect</a> pair
 
 ### Example
 
-<div><fiddle-embed name="77e4394caf9fa083c19c21c2462efe14">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -3267,15 +3267,15 @@ inner (12.5, 22.5, 27.5, 37.5); direction CCW
 void addRect(const SkRect& rect, Direction dir = kCW_Direction)
 </pre>
 
-Add <a href="undocumented#Rect">Rect</a> to <a href="#Path">Path</a>, appending <a href="#SkPath_kMove_Verb">kMove Verb</a>, three <a href="#SkPath_kLine_Verb">kLine Verb</a>, and <a href="#SkPath_kClose_Verb">kClose Verb</a>,
-starting with top-left corner of <a href="undocumented#Rect">Rect</a>; followed by top-right, bottom-right,
+Add <a href="SkRect_Reference#Rect">Rect</a> to <a href="#Path">Path</a>, appending <a href="#SkPath_kMove_Verb">kMove Verb</a>, three <a href="#SkPath_kLine_Verb">kLine Verb</a>, and <a href="#SkPath_kClose_Verb">kClose Verb</a>,
+starting with top-left corner of <a href="SkRect_Reference#Rect">Rect</a>; followed by top-right, bottom-right,
 and bottom-left if <a href="#SkPath_addRect_dir">dir</a> is <a href="#SkPath_kCW_Direction">kCW Direction</a>; or followed by bottom-left,
 bottom-right, and top-right if <a href="#SkPath_addRect_dir">dir</a> is <a href="#SkPath_kCCW_Direction">kCCW Direction</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_addRect_rect"> <code><strong>rect </strong></code> </a></td> <td>
-<a href="undocumented#Rect">Rect</a> to add as a closed contour</td>
+<a href="SkRect_Reference#Rect">Rect</a> to add as a closed contour</td>
   </tr>  <tr>    <td><a name="SkPath_addRect_dir"> <code><strong>dir </strong></code> </a></td> <td>
 <a href="#SkPath_Direction">Direction</a> to wind added contour</td>
   </tr>
@@ -3283,8 +3283,8 @@ bottom-right, and top-right if <a href="#SkPath_addRect_dir">dir</a> is <a href=
 
 ### Example
 
-<div><fiddle-embed name="0f841e4eaebb613b5069800567917c2d"><div>The left <a href="undocumented#Rect">Rect</a> dashes starting at the top-left corner, to the right.
-The right <a href="undocumented#Rect">Rect</a> dashes starting at the top-left corner, towards the bottom.</div></fiddle-embed></div>
+<div><fiddle-embed name=""><div>The left <a href="SkRect_Reference#Rect">Rect</a> dashes starting at the top-left corner, to the right.
+The right <a href="SkRect_Reference#Rect">Rect</a> dashes starting at the top-left corner, towards the bottom.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3296,9 +3296,9 @@ The right <a href="undocumented#Rect">Rect</a> dashes starting at the top-left c
 void addRect(const SkRect& rect, Direction dir, unsigned start)
 </pre>
 
-Add <a href="undocumented#Rect">Rect</a> to <a href="#Path">Path</a>, appending <a href="#SkPath_kMove_Verb">kMove Verb</a>, three <a href="#SkPath_kLine_Verb">kLine Verb</a>, and <a href="#SkPath_kClose_Verb">kClose Verb</a>.
-If <a href="#SkPath_addRect_2_dir">dir</a> is <a href="#SkPath_kCW_Direction">kCW Direction</a>, <a href="undocumented#Rect">Rect</a> corners are added clockwise; if <a href="#SkPath_addRect_2_dir">dir</a> is
-<a href="#SkPath_kCCW_Direction">kCCW Direction</a>, <a href="undocumented#Rect">Rect</a> corners are added counterclockwise.
+Add <a href="SkRect_Reference#Rect">Rect</a> to <a href="#Path">Path</a>, appending <a href="#SkPath_kMove_Verb">kMove Verb</a>, three <a href="#SkPath_kLine_Verb">kLine Verb</a>, and <a href="#SkPath_kClose_Verb">kClose Verb</a>.
+If <a href="#SkPath_addRect_2_dir">dir</a> is <a href="#SkPath_kCW_Direction">kCW Direction</a>, <a href="SkRect_Reference#Rect">Rect</a> corners are added clockwise; if <a href="#SkPath_addRect_2_dir">dir</a> is
+<a href="#SkPath_kCCW_Direction">kCCW Direction</a>, <a href="SkRect_Reference#Rect">Rect</a> corners are added counterclockwise.
 <a href="#SkPath_addRect_2_start">start</a> determines the first corner added.
 
 | <a href="#SkPath_addRect_2_start">start</a> | first corner |
@@ -3311,17 +3311,17 @@ If <a href="#SkPath_addRect_2_dir">dir</a> is <a href="#SkPath_kCW_Direction">kC
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_addRect_2_rect"> <code><strong>rect </strong></code> </a></td> <td>
-<a href="undocumented#Rect">Rect</a> to add as a closed contour</td>
+<a href="SkRect_Reference#Rect">Rect</a> to add as a closed contour</td>
   </tr>  <tr>    <td><a name="SkPath_addRect_2_dir"> <code><strong>dir </strong></code> </a></td> <td>
 <a href="#SkPath_Direction">Direction</a> to wind added contour</td>
   </tr>  <tr>    <td><a name="SkPath_addRect_2_start"> <code><strong>start </strong></code> </a></td> <td>
-initial corner of <a href="undocumented#Rect">Rect</a> to add</td>
+initial corner of <a href="SkRect_Reference#Rect">Rect</a> to add</td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="9202430b3f4f5275af8eec5cc9d7baa8"><div>The arrow is just after the initial corner and points towards the next
+<div><fiddle-embed name=""><div>The arrow is just after the initial corner and points towards the next
 corner appended to <a href="#Path">Path</a>.</div></fiddle-embed></div>
 
 ### See Also
@@ -3335,22 +3335,22 @@ void addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom,
              Direction dir = kCW_Direction)
 </pre>
 
-Add <a href="undocumented#Rect">Rect</a> (<a href="#SkPath_addRect_3_left">left</a>, <a href="#SkPath_addRect_3_top">top</a>, <a href="#SkPath_addRect_3_right">right</a>, <a href="#SkPath_addRect_3_bottom">bottom</a>) to <a href="#Path">Path</a>,
+Add <a href="SkRect_Reference#Rect">Rect</a> (<a href="#SkPath_addRect_3_left">left</a>, <a href="#SkPath_addRect_3_top">top</a>, <a href="#SkPath_addRect_3_right">right</a>, <a href="#SkPath_addRect_3_bottom">bottom</a>) to <a href="#Path">Path</a>,
 appending <a href="#SkPath_kMove_Verb">kMove Verb</a>, three <a href="#SkPath_kLine_Verb">kLine Verb</a>, and <a href="#SkPath_kClose_Verb">kClose Verb</a>,
-starting with top-left corner of <a href="undocumented#Rect">Rect</a>; followed by top-right, bottom-right,
+starting with top-left corner of <a href="SkRect_Reference#Rect">Rect</a>; followed by top-right, bottom-right,
 and bottom-left if <a href="#SkPath_addRect_3_dir">dir</a> is <a href="#SkPath_kCW_Direction">kCW Direction</a>; or followed by bottom-left,
 bottom-right, and top-right if <a href="#SkPath_addRect_3_dir">dir</a> is <a href="#SkPath_kCCW_Direction">kCCW Direction</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_addRect_3_left"> <code><strong>left </strong></code> </a></td> <td>
-smaller x of <a href="undocumented#Rect">Rect</a></td>
+smaller x of <a href="SkRect_Reference#Rect">Rect</a></td>
   </tr>  <tr>    <td><a name="SkPath_addRect_3_top"> <code><strong>top </strong></code> </a></td> <td>
-smaller y of <a href="undocumented#Rect">Rect</a></td>
+smaller y of <a href="SkRect_Reference#Rect">Rect</a></td>
   </tr>  <tr>    <td><a name="SkPath_addRect_3_right"> <code><strong>right </strong></code> </a></td> <td>
-larger x of <a href="undocumented#Rect">Rect</a></td>
+larger x of <a href="SkRect_Reference#Rect">Rect</a></td>
   </tr>  <tr>    <td><a name="SkPath_addRect_3_bottom"> <code><strong>bottom </strong></code> </a></td> <td>
-larger y of <a href="undocumented#Rect">Rect</a></td>
+larger y of <a href="SkRect_Reference#Rect">Rect</a></td>
   </tr>  <tr>    <td><a name="SkPath_addRect_3_dir"> <code><strong>dir </strong></code> </a></td> <td>
 <a href="#SkPath_Direction">Direction</a> to wind added contour</td>
   </tr>
@@ -3358,8 +3358,8 @@ larger y of <a href="undocumented#Rect">Rect</a></td>
 
 ### Example
 
-<div><fiddle-embed name="3837827310e8b88b8c2e128ef9fbbd65"><div>The <a href="#SkPath_addRect_3_left">left</a> <a href="undocumented#Rect">Rect</a> dashes start at the top-left corner, and continue to the <a href="#SkPath_addRect_3_right">right</a>.
-The <a href="#SkPath_addRect_3_right">right</a> <a href="undocumented#Rect">Rect</a> dashes start at the top-left corner, and continue down.</div></fiddle-embed></div>
+<div><fiddle-embed name=""><div>The <a href="#SkPath_addRect_3_left">left</a> <a href="SkRect_Reference#Rect">Rect</a> dashes start at the top-left corner, and continue to the <a href="#SkPath_addRect_3_right">right</a>.
+The <a href="#SkPath_addRect_3_right">right</a> <a href="SkRect_Reference#Rect">Rect</a> dashes start at the top-left corner, and continue down.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -3375,7 +3375,7 @@ void addOval(const SkRect& oval, Direction dir = kCW_Direction)
 </pre>
 
 Add <a href="undocumented#Oval">Oval</a> to path, appending <a href="#SkPath_kMove_Verb">kMove Verb</a>, four <a href="#SkPath_kConic_Verb">kConic Verb</a>, and <a href="#SkPath_kClose_Verb">kClose Verb</a>.
-<a href="undocumented#Oval">Oval</a> is upright ellipse bounded by <a href="undocumented#Rect">Rect</a> <a href="#SkPath_addOval_oval">oval</a> with radii equal to half <a href="#SkPath_addOval_oval">oval</a> width
+<a href="undocumented#Oval">Oval</a> is upright ellipse bounded by <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkPath_addOval_oval">oval</a> with radii equal to half <a href="#SkPath_addOval_oval">oval</a> width
 and half <a href="#SkPath_addOval_oval">oval</a> height. <a href="undocumented#Oval">Oval</a> begins at (<a href="#SkPath_addOval_oval">oval</a>.fRight, <a href="#SkPath_addOval_oval">oval</a>.centerY()) and continues
 clockwise if <a href="#SkPath_addOval_dir">dir</a> is <a href="#SkPath_kCW_Direction">kCW Direction</a>, counterclockwise if <a href="#SkPath_addOval_dir">dir</a> is <a href="#SkPath_kCCW_Direction">kCCW Direction</a>.
 
@@ -3392,7 +3392,7 @@ bounds of ellipse added</td>
 
 ### Example
 
-<div><fiddle-embed name="cac84cf68e63a453c2a8b64c91537704"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3405,7 +3405,7 @@ void addOval(const SkRect& oval, Direction dir, unsigned start)
 </pre>
 
 Add <a href="undocumented#Oval">Oval</a> to <a href="#Path">Path</a>, appending <a href="#SkPath_kMove_Verb">kMove Verb</a>, four <a href="#SkPath_kConic_Verb">kConic Verb</a>, and <a href="#SkPath_kClose_Verb">kClose Verb</a>.
-<a href="undocumented#Oval">Oval</a> is upright ellipse bounded by <a href="undocumented#Rect">Rect</a> <a href="#SkPath_addOval_2_oval">oval</a> with radii equal to half <a href="#SkPath_addOval_2_oval">oval</a> width
+<a href="undocumented#Oval">Oval</a> is upright ellipse bounded by <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkPath_addOval_2_oval">oval</a> with radii equal to half <a href="#SkPath_addOval_2_oval">oval</a> width
 and half <a href="#SkPath_addOval_2_oval">oval</a> height. <a href="undocumented#Oval">Oval</a> begins at <a href="#SkPath_addOval_2_start">start</a> and continues
 clockwise if <a href="#SkPath_addOval_2_dir">dir</a> is <a href="#SkPath_kCW_Direction">kCW Direction</a>, counterclockwise if <a href="#SkPath_addOval_2_dir">dir</a> is <a href="#SkPath_kCCW_Direction">kCCW Direction</a>.
 
@@ -3429,7 +3429,7 @@ index of initial point of ellipse</td>
 
 ### Example
 
-<div><fiddle-embed name="ab9753174060e4a551727ef3af12924d"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3467,7 +3467,7 @@ distance from center to edge</td>
 
 ### Example
 
-<div><fiddle-embed name="bd5286cb9a5e5c32cd980f72b8f400fb"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3504,7 +3504,7 @@ sweep, in degrees. Positive is clockwise; treated modulo 360</td>
 
 ### Example
 
-<div><fiddle-embed name="9cf5122475624e4cf39f06c698f80b1a"><div>The middle row of the left and right columns draw differently from the entries
+<div><fiddle-embed name=""><div>The middle row of the left and right columns draw differently from the entries
 above and below because <a href="#SkPath_addArc_sweepAngle">sweepAngle</a> is outside of the range of +/-360, 
 and <a href="#SkPath_addArc_startAngle">startAngle</a> modulo 90 is not zero.</div></fiddle-embed></div>
 
@@ -3530,9 +3530,9 @@ of the upper-left corner and winds counterclockwise.
 
 If either <a href="#SkPath_addRoundRect_rx">rx</a> or <a href="#SkPath_addRoundRect_ry">ry</a> is too large, <a href="#SkPath_addRoundRect_rx">rx</a> and <a href="#SkPath_addRoundRect_ry">ry</a> are scaled uniformly until the
 corners fit. If <a href="#SkPath_addRoundRect_rx">rx</a> or <a href="#SkPath_addRoundRect_ry">ry</a> is less than or equal to zero, <a href="#SkPath_addRoundRect">addRoundRect</a> appends
-<a href="undocumented#Rect">Rect</a> <a href="#SkPath_addRoundRect_rect">rect</a> to <a href="#Path">Path</a>.
+<a href="SkRect_Reference#Rect">Rect</a> <a href="#SkPath_addRoundRect_rect">rect</a> to <a href="#Path">Path</a>.
 
-After appending, <a href="#Path">Path</a> may be empty, or may contain: <a href="undocumented#Rect">Rect</a>, <a href="undocumented#Oval">Oval</a>, or RoundRect.
+After appending, <a href="#Path">Path</a> may be empty, or may contain: <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Oval">Oval</a>, or RoundRect.
 
 ### Parameters
 
@@ -3549,7 +3549,7 @@ y-radius of rounded corners on the <a href="undocumented#Round_Rect">Round Rect<
 
 ### Example
 
-<div><fiddle-embed name="24736f685f265cf533f1700c042db353"><div>If either radius is zero, path <a href="#SkPath_contains">contains</a> <a href="undocumented#Rect">Rect</a> and is drawn red.
+<div><fiddle-embed name=""><div>If either radius is zero, path <a href="#SkPath_contains">contains</a> <a href="SkRect_Reference#Rect">Rect</a> and is drawn red.
 If sides are only radii, path <a href="#SkPath_contains">contains</a> <a href="undocumented#Oval">Oval</a> and is drawn blue.
 All remaining path draws are convex, and are drawn in gray; no
 paths constructed from <a href="#SkPath_addRoundRect">addRoundRect</a> are concave, so none are
@@ -3589,7 +3589,7 @@ If both <a href="#SkPath_addRoundRect_2_radii">radii</a> on any side of <a href=
 uniformly until the corners fit. If either radius of a corner is less than or
 equal to zero, both are treated as zero.
 
-After appending, <a href="#Path">Path</a> may be empty, or may contain: <a href="undocumented#Rect">Rect</a>, <a href="undocumented#Oval">Oval</a>, or RoundRect.
+After appending, <a href="#Path">Path</a> may be empty, or may contain: <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Oval">Oval</a>, or RoundRect.
 
 ### Parameters
 
@@ -3604,7 +3604,7 @@ array of 8 <a href="undocumented#SkScalar">SkScalar</a> values, a radius pair fo
 
 ### Example
 
-<div><fiddle-embed name="c43d70606b4ee464d2befbcf448c5e73"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3624,7 +3624,7 @@ Add <a href="#SkPath_addRRect_rrect">rrect</a> to <a href="#Path">Path</a>, crea
 winds clockwise. If <a href="#SkPath_addRRect_dir">dir</a> is <a href="#SkPath_kCCW_Direction">kCCW Direction</a>, <a href="#SkPath_addRRect_rrect">rrect</a> starts at the bottom-left
 of the upper-left corner and winds counterclockwise.
 
-After appending, <a href="#Path">Path</a> may be empty, or may contain: <a href="undocumented#Rect">Rect</a>, <a href="undocumented#Oval">Oval</a>, or <a href="undocumented#Round_Rect">Round Rect</a>.
+After appending, <a href="#Path">Path</a> may be empty, or may contain: <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Oval">Oval</a>, or <a href="undocumented#Round_Rect">Round Rect</a>.
 
 ### Parameters
 
@@ -3637,7 +3637,7 @@ bounds and radii of rounded rectangle</td>
 
 ### Example
 
-<div><fiddle-embed name="d9ecd58081b5bc77a157636fcb345dc6"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3664,7 +3664,7 @@ winds clockwise; if <a href="#SkPath_addRRect_2_dir">dir</a> is <a href="#SkPath
 | 6 | top of bottom-left corner |
 | 7 | bottom of top-left corner |
 
-After appending, <a href="#Path">Path</a> may be empty, or may contain: <a href="undocumented#Rect">Rect</a>, <a href="undocumented#Oval">Oval</a>, or <a href="undocumented#Round_Rect">Round Rect</a>.
+After appending, <a href="#Path">Path</a> may be empty, or may contain: <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Oval">Oval</a>, or <a href="undocumented#Round_Rect">Round Rect</a>.
 
 ### Parameters
 
@@ -3679,7 +3679,7 @@ index of initial point of <a href="undocumented#Round_Rect">Round Rect</a></td>
 
 ### Example
 
-<div><fiddle-embed name="f18740ffcb10a499007488948c2cd60d"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3715,7 +3715,7 @@ true to add <a href="undocumented#Line">Line</a> connecting <a href="#Contour">C
 
 ### Example
 
-<div><fiddle-embed name="182b3999772f330f3b0b891b492634ae"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3749,7 +3749,7 @@ starts a new <a href="#Contour">Contour</a>.</td>
 
 ### Example
 
-<div><fiddle-embed name="801b02e74c64aafdb734f2e5cf3e5ab0"><div>test is built from path, open on the top row, and closed on the bottom row.
+<div><fiddle-embed name=""><div>test is built from path, open on the top row, and closed on the bottom row.
 The left column uses <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a>; the right uses <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a>.
 The top right composition is made up of one contour; the other three have two.</div></fiddle-embed></div>
 
@@ -3788,7 +3788,7 @@ added unaltered. If <a href="#SkPath_addPath_mode">mode</a> is <a href="#SkPath_
 
 ### Example
 
-<div><fiddle-embed name="c416bddfe286628974e1c7f0fd66f3f4"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3817,7 +3817,7 @@ added unaltered. If <a href="#SkPath_addPath_2_mode">mode</a> is <a href="#SkPat
 
 ### Example
 
-<div><fiddle-embed name="84b2d1c0fc29f1b35e855b6fc6672f9e"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3850,7 +3850,7 @@ added unaltered. If <a href="#SkPath_addPath_3_mode">mode</a> is <a href="#SkPat
 
 ### Example
 
-<div><fiddle-embed name="3a90a91030f7289d5df0671d342dbbad"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3877,7 +3877,7 @@ Reversed <a href="#SkPath_reverseAddPath_src">src</a> always appends a new <a hr
 
 ### Example
 
-<div><fiddle-embed name="5e8513f073db09acde3ff616f6426e3d"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3908,7 +3908,7 @@ overwritten, translated copy of <a href="#Path">Path</a>; may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="1d1892196ba5bda257df4f3351abd084"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3933,7 +3933,7 @@ Offset <a href="#Point_Array">Point Array</a> by (<a href="#SkPath_offset_2_dx">
 
 ### Example
 
-<div><fiddle-embed name="5188d77585715db30bef228f2dfbcccd"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3956,7 +3956,7 @@ is replaced.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_transform_matrix"> <code><strong>matrix </strong></code> </a></td> <td>
-<a href="undocumented#Matrix">Matrix</a> to apply to <a href="#Path">Path</a></td>
+<a href="SkMatrix_Reference#Matrix">Matrix</a> to apply to <a href="#Path">Path</a></td>
   </tr>  <tr>    <td><a name="SkPath_transform_dst"> <code><strong>dst </strong></code> </a></td> <td>
 overwritten, transformed copy of <a href="#Path">Path</a>; may be nullptr</td>
   </tr>
@@ -3964,11 +3964,11 @@ overwritten, transformed copy of <a href="#Path">Path</a>; may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="99761add116ce3b0730557224c1b0105"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
-<a href="#SkPath_addPath">addPath</a> <a href="#SkPath_offset">offset</a> <a href="#SkCanvas_concat">SkCanvas::concat()</a> <a href="undocumented#SkMatrix">SkMatrix</a>
+<a href="#SkPath_addPath">addPath</a> <a href="#SkPath_offset">offset</a> <a href="#SkCanvas_concat">SkCanvas::concat()</a> <a href="SkMatrix_Reference#SkMatrix">SkMatrix</a>
 
 ---
 
@@ -3983,17 +3983,17 @@ Transform <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Arr
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPath_transform_2_matrix"> <code><strong>matrix </strong></code> </a></td> <td>
-<a href="undocumented#Matrix">Matrix</a> to apply to <a href="#Path">Path</a></td>
+<a href="SkMatrix_Reference#Matrix">Matrix</a> to apply to <a href="#Path">Path</a></td>
   </tr>
 </table>
 
 ### Example
 
-<div><fiddle-embed name="c40979a3b92a30cfb7bae36abcc1d805"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
-<a href="#SkPath_addPath">addPath</a> <a href="#SkPath_offset">offset</a> <a href="#SkCanvas_concat">SkCanvas::concat()</a> <a href="undocumented#SkMatrix">SkMatrix</a>
+<a href="#SkPath_addPath">addPath</a> <a href="#SkPath_offset">offset</a> <a href="#SkCanvas_concat">SkCanvas::concat()</a> <a href="SkMatrix_Reference#SkMatrix">SkMatrix</a>
 
 ---
 
@@ -4026,7 +4026,7 @@ true if <a href="#Point_Array">Point Array</a> <a href="#SkPath_contains">contai
 
 ### Example
 
-<div><fiddle-embed name="df8160dd7ac8aa4b40fce7286fe49952">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4063,7 +4063,7 @@ set y-coordinate of <a href="#Last_Point">Last Point</a></td>
 
 ### Example
 
-<div><fiddle-embed name="542c5afaea5f57baa11d0561dd402e18"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -4086,7 +4086,7 @@ set value of <a href="#Last_Point">Last Point</a></td>
 
 ### Example
 
-<div><fiddle-embed name="6fa5e8f9513b3225e106778592e27e94"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -4126,7 +4126,7 @@ instance, if <a href="#Path">Path</a> only <a href="#SkPath_contains">contains</
 
 ### Example
 
-<div><fiddle-embed name="0972a1bd6e012c7519d3998afc32e69f"><div>When <a href="#SkPath_conicTo">conicTo</a> has a weight of one, <a href="#Quad">Quad</a> is added to <a href="#Path">Path</a>.</div>
+<div><fiddle-embed name=""><div>When <a href="#SkPath_conicTo">conicTo</a> has a weight of one, <a href="#Quad">Quad</a> is added to <a href="#Path">Path</a>.</div>
 
 #### Example Output
 
@@ -4162,7 +4162,7 @@ Returns zero if <a href="#Path">Path</a> <a href="#SkPath_contains">contains</a>
 
 ### Example
 
-<div><fiddle-embed name="dd9f620b419c8ca18cd306c881aadb5f">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4210,7 +4210,7 @@ true if <a href="undocumented#Point">Point</a> is in <a href="#Path">Path</a>
 
 ### Example
 
-<div><fiddle-embed name="c0216b3f7ebd80b9589ae5728f08fc80"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -4243,7 +4243,7 @@ true if <a href="undocumented#SkScalar">SkScalar</a> values are written as hexad
 
 ### Example
 
-<div><fiddle-embed name="8036d764452a62f9953af50846f0f3c0">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4285,7 +4285,7 @@ from output.
 
 ### Example
 
-<div><fiddle-embed name="92e0032f85181795d1f8b5a2c8e4e4b7">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4322,7 +4322,7 @@ Slight value changes in <a href="#Point_Array">Point Array</a> may cause the bug
 
 ### Example
 
-<div><fiddle-embed name="72a92fe058e8b3be6c8a30fad7fd1266">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4370,7 +4370,7 @@ size of storage required for <a href="#Path">Path</a>; always a multiple of 4
 
 ### Example
 
-<div><fiddle-embed name="e5f16eda6a1c2d759556285f72598445">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4407,7 +4407,7 @@ The format used for <a href="#Path">Path</a> in memory is not guaranteed.
 
 ### Example
 
-<div><fiddle-embed name="2c6aff73608cd198659db6d1eeaaae4f">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4454,7 +4454,7 @@ number of bytes read, or zero on failure
 
 ### Example
 
-<div><fiddle-embed name="9c6edd836c573a0fd232d2b8aa11a678">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4498,7 +4498,7 @@ non-zero, globally <a href="#SkPath_unique">unique</a> value
 
 ### Example
 
-<div><fiddle-embed name="a0f166715d6479f91258d854e63e586d">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4570,7 +4570,7 @@ bool <a href="#SkPath_Iter_isClosedContour">isClosedContour</a> const;
 
 ### Example
 
-<div><fiddle-embed name="3ca8417e2a1466bf5b3ac97780a8070c"><div>Ignoring the actual <a href="#Verb">Verbs</a> and replacing them with <a href="#Quad">Quads</a> rounds the
+<div><fiddle-embed name=""><div>Ignoring the actual <a href="#Verb">Verbs</a> and replacing them with <a href="#Quad">Quads</a> rounds the
 path of the glyph.</div></fiddle-embed></div>
 
 ### See Also
@@ -4593,7 +4593,7 @@ Call <a href="#SkPath_Iter_setPath">setPath</a> to initialize <a href="#SkPath_I
 
 ### Example
 
-<div><fiddle-embed name="01648775cb9b354b2f1836dad82a25ab">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4633,7 +4633,7 @@ true if open <a href="#Contour">Contours</a> generate <a href="#SkPath_kClose_Ve
 
 ### Example
 
-<div><fiddle-embed name="13044dbf68885c0f15322c0633b633a3">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4680,7 +4680,7 @@ true if open <a href="#Contour">Contours</a> generate <a href="#SkPath_kClose_Ve
 
 ### Example
 
-<div><fiddle-embed name="6c9688008cea8937ad5cc188b38ecf16">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4740,7 +4740,7 @@ skip zero length curves</td>
 
 ### Example
 
-<div><fiddle-embed name="00ae8984856486bdb626d0ed6587855a"><div>skip degenerate skips the first in a <a href="#SkPath_kMove_Verb">kMove Verb</a> pair, the <a href="#SkPath_kMove_Verb">kMove Verb</a>
+<div><fiddle-embed name=""><div>skip degenerate skips the first in a <a href="#SkPath_kMove_Verb">kMove Verb</a> pair, the <a href="#SkPath_kMove_Verb">kMove Verb</a>
 followed by the <a href="#SkPath_kClose_Verb">kClose Verb</a>, the zero length <a href="undocumented#Line">Line</a> and the very small <a href="undocumented#Line">Line</a>.
 
 skip degenerate if <a href="#SkPath_Iter_next_exact">exact</a> skips the same as skip degenerate, but shows
@@ -4800,7 +4800,7 @@ result is undefined.
 
 ### Example
 
-<div><fiddle-embed name="f97cc1191cf2eef161d6b97fcba67b02">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4839,7 +4839,7 @@ true if last <a href="#SkPath_kLine_Verb">kLine Verb</a> was generated by <a hre
 
 ### Example
 
-<div><fiddle-embed name="345e0646a010f7dce571078d1321f4df">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4878,7 +4878,7 @@ true if <a href="#Contour">Contour</a> is closed
 
 ### Example
 
-<div><fiddle-embed name="145ead5d4f5fb9ba0a0320cb6a5bf3e8">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4989,7 +4989,7 @@ storage for <a href="undocumented#Point">Point</a> data describing returned <a h
 
 ### Example
 
-<div><fiddle-embed name="944a80c7ff8c04e1fecc4aec4a47ea60">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -5027,7 +5027,7 @@ Returns <a href="#SkPath_RawIter_next">next</a> <a href="#SkPath_Verb">Verb</a>,
 
 ### Example
 
-<div><fiddle-embed name="eb5fa5bea23059ce538e883502f828f5">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -5067,7 +5067,7 @@ result is undefined.
 
 ### Example
 
-<div><fiddle-embed name="9747e8177a50ea551471ba0b706f544b">
+<div><fiddle-embed name="">
 
 #### Example Output
 
