@@ -240,12 +240,17 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     // flushed to the gpu if we're at max page allocation, or if the plot has aged out otherwise.
     // We wait until we've grown to the full number of pages to begin evicting already flushed
     // plots so that we can maximize the opportunity for reuse.
+    // Exception: On Android framework we simply check to see if the plot has been flushed.
     // As before we prioritize this upload to the first pages, not the most recently used.
     for (unsigned int pageIdx = 0; pageIdx < fNumPages; ++pageIdx) {
         Plot* plot = fPages[pageIdx].fPlotList.tail();
         SkASSERT(plot);
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        if (target->hasDrawBeenFlushed(plot->lastUseToken())) {
+#else
         if ((fNumPages == kMaxPages && target->hasDrawBeenFlushed(plot->lastUseToken())) ||
             plot->flushesSinceLastUsed() >= kRecentlyUsedCount) {
+#endif
             this->processEvictionAndResetRects(plot);
             SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
             SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc);
