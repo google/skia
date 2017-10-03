@@ -498,6 +498,10 @@ void GrShape::attemptToSimplifyPath() {
     }
     if (Type::kPath != fType) {
         fInheritedKey.reset(0);
+        // Whenever we simplify to a non-path, break the chain so we no longer refer to the
+        // original path. This prevents attaching genID listeners to temporary paths created when
+        // drawing simple shapes.
+        fOriginalPath.reset();
         if (Type::kRRect == fType) {
             this->attemptToSimplifyRRect();
         } else if (Type::kLine == fType) {

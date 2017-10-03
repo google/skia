@@ -373,9 +373,11 @@ public:
     void addGenIDChangeListener(SkPathRef::GenIDChangeListener* listener) const;
 
     /**
-     * Gets the generation ID of the *original* path. This is only exposed for unit tests.
+     * Helpers that are only exposed for unit tests, to determine if the shape is a path, and get
+     * the generation ID of the *original* path.
      */
     uint32_t testingOnly_getOriginalGenerationID() const;
+    bool testingOnly_isPath() const;
 
 private:
 

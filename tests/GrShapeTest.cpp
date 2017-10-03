@@ -21,6 +21,10 @@ uint32_t GrShape::testingOnly_getOriginalGenerationID() const {
     return fOriginalPath.getGenerationID();
 }
 
+bool GrShape::testingOnly_isPath() const {
+    return Type::kPath == fType;
+}
+
 using Key = SkTArray<uint32_t>;
 
 static bool make_key(Key* key, const GrShape& shape) {
@@ -211,6 +215,40 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
         REPORTER_ASSERT(r, invertedLine[1] == b.inverseFilled());
     }
     REPORTER_ASSERT(r, ignoreInversenessDifference || a.inverseFilled() == b.inverseFilled());
+}
+
+static void check_original_path_ids(skiatest::Reporter* r, const GrShape& base, const GrShape& pe,
+                                    const GrShape& peStroke, const GrShape& full) {
+    bool baseIsPath = base.testingOnly_isPath();
+    bool peIsPath = pe.testingOnly_isPath();
+    bool peStrokeIsPath = peStroke.testingOnly_isPath();
+    bool fullIsPath = full.testingOnly_isPath();
+
+    REPORTER_ASSERT(r, peStrokeIsPath == fullIsPath);
+
+    uint32_t baseID = base.testingOnly_getOriginalGenerationID();
+    uint32_t peID = pe.testingOnly_getOriginalGenerationID();
+    uint32_t peStrokeID = peStroke.testingOnly_getOriginalGenerationID();
+    uint32_t fullID = full.testingOnly_getOriginalGenerationID();
+
+    if (!peIsPath) {
+        // If the path effect produces a simple shape, then there are no unbroken chains to test
+        return;
+    }
+
+    if (baseIsPath) {
+        REPORTER_ASSERT(r, baseID == peID);
+    }
+
+    if (peStrokeIsPath) {
+        REPORTER_ASSERT(r, peID == peStrokeID);
+        REPORTER_ASSERT(r, peStrokeID == fullID);
+    }
+
+    if (baseIsPath && peStrokeIsPath) {
+        REPORTER_ASSERT(r, baseID == peStrokeID);
+        REPORTER_ASSERT(r, baseID == fullID);
+    }
 }
 
 void test_inversions(skiatest::Reporter* r, const GrShape& shape, const Key& shapeKey) {
@@ -499,10 +537,7 @@ private:
 
         // All shapes should report the same "original" path, so that path renderers can get to it
         // if necessary.
-        uint32_t baseGenID = fBase.testingOnly_getOriginalGenerationID();
-        REPORTER_ASSERT(r, baseGenID == fAppliedPE.testingOnly_getOriginalGenerationID());
-        REPORTER_ASSERT(r, baseGenID == fAppliedPEThenStroke.testingOnly_getOriginalGenerationID());
-        REPORTER_ASSERT(r, baseGenID == fAppliedFull.testingOnly_getOriginalGenerationID());
+        check_original_path_ids(r, fBase, fAppliedPE, fAppliedPEThenStroke, fAppliedFull);
 
         // Applying the path effect and then the stroke should always be the same as applying
         // both in one go.
