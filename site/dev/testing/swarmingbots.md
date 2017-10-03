@@ -19,51 +19,35 @@ Skia's Swarming bots are hosted in three places:
 
 [go/skbl](https://goto.google.com/skbl) lists all Skia Swarming bots.
 
-Adding new jobs
----------------
-
-See [Skia Automated Testing](automated_testing) for an overview of how jobs and tasks are executed
-by the Skia Task Scheduler.
-
-If you would like to add jobs to build or test new configurations, please file a [New Bot
-Request](https://bugs.chromium.org/p/skia/issues/entry?template=New+Bot+Request).
-
-If you know that the new jobs will need new hardware or you aren't sure which existing bots should
-run the new jobs, assign to jcgregorio. Once the Infra team has allocated the hardware, we will
-assign back to you to complete the process.
-
-Generally it's possible to copy an existing job and make changes to accomplish what you want. You
-will need to add the new job to
-[infra/bots/jobs.json](https://skia.googlesource.com/skia/+/master/infra/bots/jobs.json). In some
-cases, you will need to make changes to recipes:
-
-* If there are new GN flags or compiler options:
-  [infra/bots/recipe_modules/flavor/gn_flavor.py](https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/flavor/gn_flavor.py)
-* If there are modifications to dm flags:
-  [infra/bots/recipes/test.py](https://skia.googlesource.com/skia/+/master/infra/bots/recipes/test.py)
-* If there are modifications to nanobench flags:
-  [infra/bots/recipes/perf.py](https://skia.googlesource.com/skia/+/master/infra/bots/recipes/perf.py)
-
-If you need to do something more complicated, or if you are not sure how to add and configure the
-new jobs, please ask for help from borenet, benjaminwagner, or mtklein.
 
 Debugging
 ---------
 
-If you need a physical machine/device to debug an issue, the [current
-Trooper](http://skia-tree-status.appspot.com/trooper) can loan one from the Skolo. For Internet
-access, you can connect to GoogleGuest WiFi.
+If you need to run code on a specific machine/device to debug an issue, the simplest option is to
+run tryjobs (after adding debugging output to the relevant code). In some cases you may also need to
+[create or modify tryjobs](automated_testing#adding-new-jobs).
+
+For Googlers: If you need more control (e.g. to run GDB), the [current Trooper][current trooper] can
+loan a machine/device from the Skolo. All bots are accessible via either SSH or VNC -- see the
+[Skolo maintenance doc remote access section][remote access] and/or get help from the Trooper. You
+can also bring the device back to your desk and connect it to GoogleGuest WiFi or the [Google Test
+Network](http://go/gtn-criteria).
 
 If you need to make changes on a Skolo device, please check with an Infra team member. Most can be
 flashed/imaged back to a clean state, but others can not.
 
 If a permanent change needs to be made on the machine (such as an OS or driver update), please [file
-a bug](https://bugs.chromium.org/p/skia/issues/entry?template=Infrastructure+Bug) and assign to
-jcgregorio for reassignment.
+a bug][infra bug] and assign to jcgregorio for reassignment.
 
+[current trooper]: http://skia-tree-status.appspot.com/trooper
+[remote access]:
+    https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.2nq3yd1axg0n
+[infra bug]: https://bugs.chromium.org/p/skia/issues/entry?template=Infrastructure+Bug
 
 Maintenance Tasks
 -----------------
 
-See the [Skolo maintenance
-doc](https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit).
+See the [Skolo maintenance doc][skolo maintenance].
+
+[skolo maintenance]:
+    https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit

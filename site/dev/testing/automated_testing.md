@@ -87,4 +87,44 @@ task specs:
   used, per the Javascript String Match() rules:
   http://www.w3schools.com/jsref/jsref_match.asp
 
+<a name="adding-new-jobs"></a>
+Adding new jobs
+---------------
 
+If you would like to add jobs to build or test new configurations, please file a
+[New Bot Request][new bot request].
+
+If you know that the new jobs will need new hardware or you aren't sure which
+existing bots should run the new jobs, assign to jcgregorio. Once the Infra team
+has allocated the hardware, we will assign back to you to complete the process.
+
+Generally it's possible to copy an existing job and make changes to accomplish
+what you want. You will need to add the new job to
+[infra/bots/jobs.json][jobs json]. In some cases, you will need to make changes
+to recipes:
+
+* If there are new GN flags or compiler options:
+  [infra/bots/recipe_modules/flavor/gn_flavor.py][gn flavor py]
+* If there are modifications to dm flags: [infra/bots/recipes/test.py][test py]
+* If there are modifications to nanobench flags:
+  [infra/bots/recipes/perf.py][perf py]
+
+After modifying any of the above files, run `make train` in the infra/bots
+directory to update generated files. Upload the CL, then run `git cl try -B
+skia.primary -b <job name>` to run the new job. (After commit, the new job will
+appear in the PolyGerrit UI after the next successful run of the
+Housekeeper-Nightly-UpdateMetaConfig task.)
+
+If you need to do something more complicated, or if you are not sure how to add
+and configure the new jobs, please ask for help from borenet, benjaminwagner, or
+mtklein.
+
+[new bot request]:
+    https://bugs.chromium.org/p/skia/issues/entry?template=New+Bot+Request
+[jobs json]: https://skia.googlesource.com/skia/+/master/infra/bots/jobs.json
+[gn flavor py]:
+    https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/flavor/gn_flavor.py
+[test py]:
+    https://skia.googlesource.com/skia/+/master/infra/bots/recipes/test.py
+[perf py]:
+    https://skia.googlesource.com/skia/+/master/infra/bots/recipes/perf.py
