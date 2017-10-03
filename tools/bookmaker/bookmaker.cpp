@@ -366,6 +366,9 @@ bool Definition::checkMethod() const {
         string paramName;
         methodParser.fChar = nextEnd + 1;
         methodParser.skipSpace();
+        if (1494 == methodParser.fLineCount) {
+            SkDebugf("");
+        }
         if (!this->nextMethodParam(&methodParser, &nextEnd, &paramName)) {
             continue;
         }
@@ -663,11 +666,29 @@ string Definition::methodName() const {
 
 bool Definition::nextMethodParam(TextParser* methodParser, const char** nextEndPtr, 
         string* paramName) const {
-    *nextEndPtr = methodParser->anyOf(",)");
-    const char* nextEnd = *nextEndPtr;
-    if (!nextEnd) {
-        return methodParser->reportError<bool>("#Method function missing close paren");
+    int parenCount = 0;
+    TextParser::Save saveState(methodParser);
+    while (true) {
+        if (methodParser->eof()) {
+            return methodParser->reportError<bool>("#Method function missing close paren");
+        }
+        char ch = methodParser->peek();
+        if ('(' == ch) {
+            ++parenCount;
+        }
+        if (parenCount == 0 && (')' == ch || ',' == ch)) {
+            *nextEndPtr = methodParser->fChar;
+            break;
+        }
+        if (')' == ch) {
+            if (0 > --parenCount) {
+                return this->reportError<bool>("mismatched parentheses");
+            }
+        }
+        methodParser->next();
     }
+    saveState.restore();
+    const char* nextEnd = *nextEndPtr;
     const char* paramEnd = nextEnd;
     const char* assign = methodParser->strnstr(" = ", paramEnd);
     if (assign) {
@@ -683,6 +704,10 @@ bool Definition::nextMethodParam(TextParser* methodParser, const char** nextEndP
                 paramEnd = openBracket;
             }
         }
+    }
+    const char* function = methodParser->strnstr(")(", paramEnd);
+    if (function) {
+        paramEnd = function;
     }
     while (paramEnd > methodParser->fChar && ' ' == paramEnd[-1]) {
         --paramEnd;
