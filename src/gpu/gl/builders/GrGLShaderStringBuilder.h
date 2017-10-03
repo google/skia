@@ -14,15 +14,18 @@
 #include "SkSLGLSLCodeGenerator.h"
 #include "SkTypes.h"
 
+std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum type,
+                                            const char** skslStrings, int* lengths, int count,
+                                            const SkSL::Program::Settings& settings,
+                                            SkSL::String* glsl);
+
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
                                     GrGLenum type,
-                                    const char** skslStrings,
-                                    int* lengths,
-                                    int count,
+                                    const char* glsl,
+                                    int glslLength,
                                     GrGpu::Stats*,
-                                    const SkSL::Program::Settings& settings,
-                                    SkSL::Program::Inputs* inputs);
+                                    const SkSL::Program::Settings& settings);
 
 void GrGLPrintShader(const GrGLContext&, GrGLenum type, const char** skslStrings, int* lengths,
                      int count, const SkSL::Program::Settings&);

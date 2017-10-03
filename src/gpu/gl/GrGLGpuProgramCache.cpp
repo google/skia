@@ -14,6 +14,7 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "SkTSearch.h"
+#include "SkBase64.h"
 
 #ifdef PROGRAM_CACHE_STATS
 // Display program cache usage
@@ -64,6 +65,55 @@ void GrGLGpu::ProgramCache::abandon() {
 #endif
 }
 
+#include <fstream>
+
+class ShaderCache : public GrGLProgramBuilder::PersistentCache {
+    SkString getFilename(const GrProgramDesc& key) {
+        SkString result("/tmp/cache/");
+        size_t bufferSize = key.keyLength() * 4 / 3 + 3;
+        std::unique_ptr<char> buffer = std::unique_ptr<char>((char*) malloc(bufferSize));
+        size_t length = SkBase64::Encode(key.asKey(), key.keyLength(), buffer.get(),
+                               "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.@=");
+        SkASSERT(length <= bufferSize);
+        result.append(buffer.get(), length);
+        return result;
+    }
+
+    bool load(const GrProgramDesc& key, SkSL::String* outVS, SkSL::String* outGS,
+              SkSL::String* outFS) override {
+        std::ifstream in(this->getFilename(key).c_str());
+        if (!in.good()) {
+            return false;
+        }
+        std::string vs;
+        std::string gs;
+        std::string fs;
+        std::getline(in, vs, '\0');
+        std::getline(in, gs, '\0');
+        std::getline(in, fs, '\0');
+        if (in.bad()) {
+            return false;
+        }
+        *outVS = vs.c_str();
+        *outGS = gs.c_str();
+        *outFS = fs.c_str();
+        return true;
+    }
+
+    void store(const GrProgramDesc& key, const SkSL::String& outVS, const SkSL::String& outGS,
+               const SkSL::String& outFS) override {
+        std::ofstream out(this->getFilename(key).c_str());
+        if (out.bad()) {
+            return;
+        }
+        out << outVS.c_str() << '\0';
+        out << outGS.c_str() << '\0';
+        out << outFS.c_str() << '\0';
+    }
+};
+
+ShaderCache cache;
+
 GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
                                                const GrPipeline& pipeline,
                                                const GrPrimitiveProcessor& primProc,
@@ -92,7 +142,8 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(pipeline, primProc, &desc, fGpu);
+        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(pipeline, primProc, &desc, fGpu,
+                                                                 &cache);
         if (nullptr == program) {
             return nullptr;
         }
