@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "02319baa_28411f11",
+        "filename": "site/dev/testing/swarmingbots.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-03T20:29:16Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "822fbe96_188639ea",
+      "range": {
+        "startLine": 49,
+        "startChar": 65,
+        "endLine": 50,
+        "endChar": 45
+      },
+      "revId": "72d069358fcac57f4e7e6a67a6e4af1c8b680fc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7de8d888_e1540654",
         "filename": "site/dev/testing/swarmingbots.md",
         "patchSetId": 2
@@ -93,6 +117,30 @@
       "revId": "72d069358fcac57f4e7e6a67a6e4af1c8b680fc1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3b78062_d70157a7",
+        "filename": "site/dev/testing/swarmingbots.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-03T20:29:16Z",
+      "side": 1,
+      "message": "Done, below. Presumably non-Googlers can debug with tryjobs?",
+      "parentUuid": "7de8d888_e1540654",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 9
+      },
+      "revId": "72d069358fcac57f4e7e6a67a6e4af1c8b680fc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
