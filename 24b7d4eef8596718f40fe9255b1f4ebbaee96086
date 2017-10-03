@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9ab35f2_258ed11f",
+        "filename": "src/gpu/GrPathRendererChain.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-03T16:52:41Z",
+      "side": 1,
+      "message": "Temporary hack to test ASAN bot",
+      "revId": "24b7d4eef8596718f40fe9255b1f4ebbaee96086",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

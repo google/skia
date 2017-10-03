@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3b9dfb1_ee717bdf",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-03T16:52:41Z",
+      "side": 1,
+      "message": "Just realized this is susceptible to endianness problems. Falling back on ugly typecasting instead to keep ASAN happy.",
+      "revId": "1f642f70ecac74e9da2b4bde4096cf07e22b5a99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
