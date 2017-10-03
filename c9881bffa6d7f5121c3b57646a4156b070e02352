@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e4fbc09_8b735636",
+        "filename": "src/gpu/GrPathRendererChain.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-03T17:36:11Z",
+      "side": 1,
+      "message": "Resetting now that we have a positive ASAN result",
+      "revId": "c9881bffa6d7f5121c3b57646a4156b070e02352",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
