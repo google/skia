@@ -576,17 +576,10 @@ void SkPDFStream::setData(std::unique_ptr<SkStreamAsset> stream) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool SkPDFObjNumMap::addObject(SkPDFObject* obj) {
-    if (fObjectNumbers.find(obj)) {
-        return false;
-    }
-    fObjectNumbers.set(obj, fObjectNumbers.count() + 1);
-    fObjects.emplace_back(sk_ref_sp(obj));
-    return true;
-}
-
 void SkPDFObjNumMap::addObjectRecursively(SkPDFObject* obj) {
-    if (obj && this->addObject(obj)) {
+    if (obj && !fObjectNumbers.find(obj)) {
+        fObjectNumbers.set(obj, fObjectNumbers.count() + 1);
+        fObjects.emplace_back(sk_ref_sp(obj));
         obj->addResources(this);
     }
 }
