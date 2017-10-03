@@ -44,15 +44,27 @@ cases, you will need to make changes to recipes:
 * If there are modifications to nanobench flags:
   [infra/bots/recipes/perf.py](https://skia.googlesource.com/skia/+/master/infra/bots/recipes/perf.py)
 
+After modifying any of the above files, run `make train` in the infra/bots directory to update
+generated files. Upload the CL, then run `git cl try -B skia.primary -b <job name>` to run the new
+job. (After commit, the new job will appear in the PolyGerrit UI after the next successful run of
+the Housekeeper-Nightly-UpdateMetaConfig task.)
+
 If you need to do something more complicated, or if you are not sure how to add and configure the
 new jobs, please ask for help from borenet, benjaminwagner, or mtklein.
 
 Debugging
 ---------
 
-If you need a physical machine/device to debug an issue, the [current
-Trooper](http://skia-tree-status.appspot.com/trooper) can loan one from the Skolo. For Internet
-access, you can connect to GoogleGuest WiFi.
+If you need to run code on a specific machine/device to debug an issue, the simplest option is to
+run tryjobs (after adding debugging output to the relevant code). In some cases you may also need to
+create or modify tryjobs (see previous section).
+
+If you need more control (e.g. to run GDB), the [current
+Trooper](http://skia-tree-status.appspot.com/trooper) can loan a machine/device from the Skolo. All
+bots are accessible via either SSH or VNC -- see the [Skolo maintenance doc remote access
+section](https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.2nq3yd1axg0n)
+and/or get help from the Trooper. You can also bring the device back to your desk and connect it to
+GoogleGuest WiFi or the [Google Test Network](http://go/gtn-criteria).
 
 If you need to make changes on a Skolo device, please check with an Infra team member. Most can be
 flashed/imaged back to a clean state, but others can not.
