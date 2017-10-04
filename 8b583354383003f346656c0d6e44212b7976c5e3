@@ -190,6 +190,29 @@
     },
     {
       "key": {
+        "uuid": "04e31e44_acbc094d",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T18:06:05Z",
+      "side": 1,
+      "message": "Maybe I was too hasty to recommend that you remove the \"rowsDecoded\" parameter. Having it simplifies this code and the code in onIncrementalDecode.",
+      "range": {
+        "startLine": 664,
+        "startChar": 4,
+        "endLine": 664,
+        "endChar": 51
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "16ac4654_f473c0e4",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 33

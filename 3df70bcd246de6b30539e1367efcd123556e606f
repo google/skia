@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe8bfe5a_e84fc3e8",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T18:06:05Z",
+      "side": 1,
+      "message": "I think it\u0027d be clearer to just \"fRowsWrittenToOutput++\" on success, even better to do after we\u0027ve written to the output.",
+      "range": {
+        "startLine": 529,
+        "startChar": 12,
+        "endLine": 529,
+        "endChar": 37
+      },
+      "revId": "3df70bcd246de6b30539e1367efcd123556e606f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "527aa6ad_3dc9f1a7",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T18:06:05Z",
+      "side": 1,
+      "message": "If you put the rowsDecoded parameter back on readRows (but still set it to fRowsWrittenToOutput, as you do in this patch set), this code will become simpler:\n\nif (sampleY \u003d\u003d 1) {\n    return this-\u003ereadRows(fRowsNeeded - fRowsWrittenToOutput, rowsDecoded);\n}\n\nResult result;\nwhile (true) {\n...\n\nI don\u0027t have a strong preference.",
+      "range": {
+        "startLine": 805,
+        "startChar": 8,
+        "endLine": 805,
+        "endChar": 68
+      },
+      "revId": "3df70bcd246de6b30539e1367efcd123556e606f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
