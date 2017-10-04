@@ -537,8 +537,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
     // See crbug.com/755871. This could probably be narrowed to just partial clears as the driver
     // bugs seems to involve clearing too much and not skipping the clear.
-    if (GrGLANGLEBackend::kD3D11 == ctxInfo.angleBackend() &&
-        GrGLANGLERenderer::kIvyBridge == ctxInfo.angleRenderer()) {
+    if (GrGLANGLEBackend::kD3D11 == ctxInfo.angleBackend()) {
         fUseDrawInsteadOfClear = true;
     }
 
