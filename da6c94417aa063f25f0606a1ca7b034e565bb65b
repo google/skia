@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f677d3bb_ebae8d4c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T14:09:37Z",
+      "side": 1,
+      "message": "nit: SkWbmpCodec",
+      "range": {
+        "startLine": 7,
+        "startChar": 34,
+        "endLine": 7,
+        "endChar": 44
+      },
+      "revId": "da6c94417aa063f25f0606a1ca7b034e565bb65b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f60fd87_2b9e74ee",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T14:09:37Z",
+      "side": 1,
+      "message": "FWIW, Chromium does not support WBMP, and I\u0027m not aware that it intends to. But I do think it would be good to switch this over anyway, to be in sync with the others.",
+      "range": {
+        "startLine": 9,
+        "startChar": 52,
+        "endLine": 10,
+        "endChar": 50
+      },
+      "revId": "da6c94417aa063f25f0606a1ca7b034e565bb65b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27f6fede_d3e8dd8c",
+        "filename": "src/codec/SkWbmpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T14:09:37Z",
+      "side": 1,
+      "message": "Remember, we always want to return fRowsWrittenToOutput. So this variable is unnecessary.",
+      "range": {
+        "startLine": 213,
+        "startChar": 8,
+        "endLine": 213,
+        "endChar": 23
+      },
+      "revId": "da6c94417aa063f25f0606a1ca7b034e565bb65b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b8e2a6b_44c36f6d",
+        "filename": "src/codec/SkWbmpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T14:09:37Z",
+      "side": 1,
+      "message": "This comment is unnecessary.",
+      "range": {
+        "startLine": 215,
+        "startChar": 4,
+        "endLine": 215,
+        "endChar": 38
+      },
+      "revId": "da6c94417aa063f25f0606a1ca7b034e565bb65b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f64b82f_4aeb2ddd",
+        "filename": "src/codec/SkWbmpCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T14:09:37Z",
+      "side": 1,
+      "message": "This isn\u0027t quite right. readRow returns whether it read an entire row. But if it read only a partial row, we\u0027re going to read the wrong data after we add more and try again. We need to keep track of the partial row we read, so we can use it next time. It might be helpful to use SkStreamBuffer, in src/codec.",
+      "range": {
+        "startLine": 217,
+        "startChar": 13,
+        "endLine": 217,
+        "endChar": 44
+      },
+      "revId": "da6c94417aa063f25f0606a1ca7b034e565bb65b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
