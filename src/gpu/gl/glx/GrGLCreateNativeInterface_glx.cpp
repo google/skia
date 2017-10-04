@@ -10,6 +10,8 @@
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/GrGLUtil.h"
 
+// Define this to get a prototype for glXGetProcAddress on some systems
+#define GLX_GLXEXT_PROTOTYPES 1
 #include <GL/glx.h>
 
 static GrGLFuncPtr glx_get(void* ctx, const char name[]) {
