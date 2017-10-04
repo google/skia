@@ -438,10 +438,8 @@ void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPi
     if (const int instanceCount = fInstanceCounts[(int)ScissorMode::kNonScissored].*instanceType) {
         SkASSERT(instanceCount > 0);
         const int baseInstance = fBaseInstances[(int)ScissorMode::kNonScissored].*instanceType;
-        GrMesh& mesh = fMeshesScratchBuffer.emplace_back(primType);
-        mesh.setInstanced(fInstanceBuffer.get(), instanceCount, baseInstance, vertexCount);
-        fDynamicStatesScratchBuffer.push_back().fScissorRect.setXYWH(0, 0, fDrawBounds.width(),
-                                                                     fDrawBounds.height());
+        this->appendMeshToScratchBuffers(primType, baseInstance, instanceCount, vertexCount,
+                                         SkIRect::MakeSize(fDrawBounds));
     }
 
     if (fInstanceCounts[(int)ScissorMode::kScissored].*instanceType) {
@@ -453,9 +451,8 @@ void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPi
                 continue;
             }
             SkASSERT(instanceCount > 0);
-            GrMesh& mesh = fMeshesScratchBuffer.emplace_back(primType);
-            mesh.setInstanced(fInstanceBuffer.get(), instanceCount, baseInstance, vertexCount);
-            fDynamicStatesScratchBuffer.push_back().fScissorRect = batch.fScissor;
+            this->appendMeshToScratchBuffers(primType, baseInstance, instanceCount, vertexCount,
+                                             batch.fScissor);
             baseInstance += instanceCount;
         }
     }
@@ -468,5 +465,16 @@ void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPi
         flushState->rtCommandBuffer()->draw(pipeline, proc, fMeshesScratchBuffer.begin(),
                                             fDynamicStatesScratchBuffer.begin(),
                                             fMeshesScratchBuffer.count(), this->bounds());
+    }
+}
+
+void GrCCPRCoverageOp::appendMeshToScratchBuffers(GrPrimitiveType primType, int baseInstance,
+                                                  int instanceCount, int vertexCount,
+                                                  const SkIRect& scissor) const {
+    static constexpr int max = 0x7fff;
+    for (int i = 0; i < instanceCount; i += max) {
+        GrMesh& mesh = fMeshesScratchBuffer.emplace_back(primType);
+        mesh.setInstanced(fInstanceBuffer.get(), SkTMin(instanceCount - i, max), baseInstance + i, vertexCount);
+        fDynamicStatesScratchBuffer.push_back().fScissorRect = scissor;
     }
 }
