@@ -93,7 +93,7 @@ Shader attached to Paint.
 # Hinting                        # Level of glyph outline adjustment.          ##
 # Join                           # Corner geometry on stroked shapes.          ##
 # Style                          # Stroke, fill, or both.                      ##
-# TextEncoding                   # Character or glyph encoding size.           ##
+# TextEncoding                   # Character or glyph encoded size.            ##
 #Table ##
 #Subtopic ##
 
@@ -171,7 +171,7 @@ Shader attached to Paint.
 # getStyle              # Returns Style: stroke, fill, or both.                 ##
 # getTextAlign          # Returns Align: left, center, or right.                ##
 # getTextBlobIntercepts # Returns where lines intersect Text_Blob; underlines.  ##
-# getTextEncoding       # Returns character or glyph encoding size.             ##
+# getTextEncoding       # Returns character or glyph encoded size.    b         ##
 # getTextIntercepts     # Returns where lines intersect text; underlines.       ##
 # getTextPath           # Returns Path equivalent to text.                      ##
 # getTextScaleX         # Returns the text horizontal scale; condensed text.    ##
@@ -229,7 +229,7 @@ Shader attached to Paint.
 # setStyle              # Sets Style: stroke, fill, or both.                    ##
 # setSubpixelText       # Sets or clears Subpixel_Text.                         ##
 # setTextAlign          # Sets Align: left, center, or right.                   ##
-# setTextEncoding       # Sets character or glyph encoding size.                ##
+# setTextEncoding       # Sets character or glyph encoded size.                 ##
 # setTextScaleX         # Sets the text horizontal scale; condensed text.       ##
 # setTextSkewX          # Sets the text horizontal skew; oblique text.          ##
 # setTextSize           # Sets text size in points.                             ##
@@ -375,8 +375,8 @@ This prevents objects with Reference_Count from being modified once Paint refers
 
 #Method void reset()
 
-Sets all paint's contents to their initial values. This is equivalent to replacing
-the paint with the result of SkPaint().
+Sets all Paint contents to their initial values. This is equivalent to replacing
+Paint with the result of SkPaint().
 
 #Example
     SkPaint paint1, paint2;
@@ -1626,7 +1626,7 @@ void draw(SkCanvas* canvas) {
 
 Fake_Bold approximates the bold font style accompanying a normal font when a bold font face
 is not available. Skia does not provide font substitution; it is up to the client to find the
-bold font face using the platform's Font_Manager.
+bold font face using the platform Font_Manager.
 
 Use Text_Skew_X to approximate an italic font style when the italic font face 
 is not available.
@@ -1713,7 +1713,7 @@ Right_Side_Bearing. Full_Hinting_Spacing only applies to platforms that use
 FreeType as their Font_Engine.
 
 Full_Hinting_Spacing is not related to text Kerning, where the space between
-a specific pair of characters is adjusted using data in the font's Kerning tables.
+a specific pair of characters is adjusted using data in the font Kerning tables.
 
 #Method bool isDevKernText() const
 
@@ -2019,10 +2019,10 @@ Set Style to kStroke_Style to stroke the shape.
 #Subtopic ##
 
 #Subtopic Stroke
-The stroke covers the area described by following the shape's edge with a pen or brush of
+The stroke covers the area described by following the shape edge with a pen or brush of
 Stroke_Width. The area covered where the shape starts and stops is described by Stroke_Cap.
 The area covered where the shape turns a corner is described by Stroke_Join.
-The stroke is centered on the shape; it extends equally on either side of the shape's edge.
+The stroke is centered on the shape; it extends equally on either side of the shape edge.
 
 As Stroke_Width gets smaller, the drawn path frame is thinner. Stroke_Width less than one
 may have gaps, and if kAntiAlias_Flag is set, Color_Alpha will increase to visually decrease coverage.
@@ -2170,14 +2170,14 @@ May be used to verify that Style is a legal value.
 #Topic Stroke_Width
 
 Stroke_Width sets the width for stroking. The width is the thickness
-of the stroke perpendicular to the path's direction when the paint's style is 
+of the stroke perpendicular to the path direction when the paint style is 
 set to kStroke_Style or kStrokeAndFill_Style.
 
 When width is greater than zero, the stroke encompasses as many pixels partially
 or fully as needed. When the width equals zero, the paint enables hairlines;
 the stroke is always one pixel wide. 
 
-The stroke's dimensions are scaled by the canvas matrix, but Hairline stroke
+The stroke dimensions are scaled by the canvas matrix, but Hairline stroke
 remains one pixel wide regardless of scaling.
 
 The default width for the paint is zero.
@@ -2187,7 +2187,7 @@ The default width for the paint is zero.
     #Platform raster gpu
     #Description
         The pixels hit to represent thin lines vary with the angle of the 
-        line and the platform's implementation.
+        line and the platform implementation.
     ##
     void draw(SkCanvas* canvas) {
         SkPaint paint;
@@ -2415,7 +2415,7 @@ Stroke_Cap draws at the beginning and end of an open Path_Contour.
 #Enum ##
 
 Stroke describes the area covered by a pen of Stroke_Width as it 
-follows the Path_Contour, moving parallel to the contours's direction.
+follows the Path_Contour, moving parallel to the contour direction.
 
 If the Path_Contour is not terminated by SkPath::kClose_Verb, the contour has a
 visible beginning and end.
@@ -2495,7 +2495,7 @@ Stroke_Cap is kButt_Cap by default.
 Stroke_Join draws at the sharp corners of an open or closed Path_Contour.
 
 Stroke describes the area covered by a pen of Stroke_Width as it 
-follows the Path_Contour, moving parallel to the contours's direction.
+follows the Path_Contour, moving parallel to the contour direction.
 
 If the contour direction changes abruptly, because the tangent direction leading
 to the end of a curve within the contour does not match the tangent direction of
@@ -4007,12 +4007,12 @@ Text_Skew_X defaults to 0.
 ##
 
 TextEncoding determines whether text specifies character codes and their encoded
-size, or glyph indices. Character codes use the encoding specified by the
+size, or glyph indices. Characters are encoded as specified by the
 #A Unicode standard # http://unicode.org/standard/standard.html ##
 .
 
 Character codes encoded size are specified by UTF-8, UTF-16, or UTF-32.
-All character encodings are able to represent all of Unicode, differing only
+All character code formats are able to represent all of Unicode, differing only
 in the total storage required.
 
 #A UTF-8 (RFC 3629) # https://tools.ietf.org/html/rfc3629 ##
@@ -4047,9 +4047,9 @@ Uses two byte words to represent glyph indices.
 #Example
 #Height 128
 #Description
-First line has UTF-8 encoding.
-Second line has UTF-16 encoding.
-Third line has UTF-32 encoding.
+First line is encoded in UTF-8.
+Second line is encoded in UTF-16.
+Third line is encoded in UTF-32.
 Fourth line has 16 bit glyph indices.
 ##
 void draw(SkCanvas* canvas) {
@@ -4504,8 +4504,7 @@ Returns the number of glyph indices represented by text.
 Text_Encoding specifies how text represents characters or glyphs.
 glyphs may be nullptr, to compute the glyph count.
 
-Does not check text for valid character encoding or valid
-glyph indices.
+Does not check text for valid character codes or valid glyph indices.
 
 If byteLength equals zero, returns zero.
 If byteLength includes a partial character, the partial character is ignored.

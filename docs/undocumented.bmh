@@ -8,7 +8,9 @@
  API
  CPU
  GPU GPU-backed OpenGL Vulkan
+ PDF XPS
  RFC
+ NaN NaNs
  Bezier Coons Cartesian
  C C++ Destructor Subclasses
  SaveLayerFlags # not external; need to add typedef support
@@ -16,6 +18,8 @@
  SkXXX.h        # ditto
  SkXXX_Reference # ditto
  Skia           # ditto
+ SK_ABORT       # ditto
+ SK_API         # ditto
  SK_DEBUG       # ditto
  SK_RELEASE     # ditto
  SK_USE_FREETYPE_EMBOLDEN # ditto
@@ -50,20 +54,6 @@ FT_Load_Glyph
 #Topic BBH_Factory
 #Class SkBBHFactory
 ##
-##
-
-#Topic Bitmap
-#Class SkBitmap
-    #Subtopic Row_Bytes
-    ##
-    #Method void erase(SkColor c, const SkIRect& area) const
-    ##
-    #Method bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes)
-    ##
-    #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY, SkTransferFunctionBehavior behavior) const
-    ##
-#Class ##
 ##
 
 #Topic Blend_Mode
@@ -325,6 +315,22 @@ FT_Load_Glyph
             ##
             #Method int bytesPerPixel() const
             ##
+            #Method int height() const
+            ##
+            #Method int width() const
+            ##
+            #Method SkColorType colorType() const
+            ##
+            #Method SkAlphaType alphaType() const
+            ##
+            #Method SkColorSpace* colorSpace() const
+            ##
+            #Method bool isOpaque() const
+            ##
+            #Method size_t minRowBytes() const
+            ##
+            #Method size_t computeByteSize(size_t rowBytes) const
+            ##
         ## 
     #Subtopic ##
     #Class SkImage
@@ -351,19 +357,21 @@ FT_Load_Glyph
 #Topic Image_Scaling
 ##
 
-#Topic IRect
-#Struct SkIRect
-    #Method bool intersect(const SkIRect& r)
-    ##
-##
-##
-
 #Topic Left_Side_Bearing 
 ##
 
 #Topic Line
 #Alias Lines
 #Topic ##
+
+#Topic Malloc_Pixel_Ref
+#Class SkMallocPixelRef
+    #Method static sk_sp<SkPixelRef> MakeZeroed(const SkImageInfo&, size_t rowBytes)
+    ##
+    #Method static sk_sp<SkPixelRef> MakeAllocate(const SkImageInfo&, size_t rowBytes)
+    ##
+##
+##
 
 #Topic Mask
 #Class SkMask
@@ -387,18 +395,31 @@ FT_Load_Glyph
 
 #Topic Mask_Filter
 #Class SkMaskFilter
+#Method virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
+                            SkIPoint* margin) const
+##
 #Class ##
 #Topic ##
 
 #Topic Math
     #Method static inline bool sk_64_isS32(int64_t value)
     ##
+    #Method SkIntToScalar(x)
+    ##
+    #Method SkScalarRoundToInt(x)
+    ##
+    #Method SkScalarFloorToInt(x)
+    ##
+    #Method SkScalarCeilToInt(x)
+    ##
+    #Method SkScalarFloorToScalar(x)
+    ##
+    #Method SkScalarCeilToScalar(x)
+    ##
 ##
 
-#Topic Matrix
-#Struct SkMatrix
-#Struct ##
-#Topic ##
+#Topic Mip_Map
+##
 
 #Topic Nine_Patch
 ##
@@ -482,8 +503,16 @@ FT_Load_Glyph
 ##
 ##
 
-#Topic PixelRef
+#Topic Pixel_Ref
 #Class SkPixelRef
+    #Method int width() const
+    ##
+    #Method int height() const
+    ##
+    #Method bool isImmutable() const
+    ##
+    #Method void setImmutable()
+    ##
 ##
 ##
 
@@ -534,20 +563,10 @@ FT_Load_Glyph
 #Subtopic ##
 #Topic ##
 
-#Topic Rect
-#Alias Rects
-    #Struct SkRect
-        #Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty()
-        ##
-        #Method void dump() const
-        ##
-        #Method void dumpHex() const
-        ##
-    #Struct ##
-#Topic ##
-
 #Topic Reference_Count
 #Substitute SkRefCnt
+#Class SkRefCnt
+#Class ##
 #Class sk_sp
 #Class ##
 #Topic ##
@@ -587,6 +606,10 @@ FT_Load_Glyph
 #Subtopic Gradient
 #Subtopic ##
 #Topic ##
+
+#Topic Size
+#Alias ISize
+##
 
 #Topic Sprite
 #Alias Sprites

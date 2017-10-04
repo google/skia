@@ -10,6 +10,18 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
+DEFINE_string2(bmh, b, "", "Path to a *.bmh file or a directory.");
+DEFINE_string2(examples, e, "", "File of fiddlecli input, usually fiddle.json (For now, disables -r -f -s)");
+DEFINE_string2(fiddle, f, "", "File of fiddlecli output, usually fiddleout.json.");
+DEFINE_string2(include, i, "", "Path to a *.h file or a directory.");
+DEFINE_bool2(hack, k, false, "Do a find/replace hack to update all *.bmh files. (Requires -b)");
+DEFINE_bool2(stdout, o, false, "Write file out to standard out.");
+DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
+DEFINE_string2(ref, r, "", "Resolve refs and write bmh_*.md files to path. (Requires -b)");
+DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispelling]. (Requires -b)");
+DEFINE_string2(tokens, t, "", "Directory to write bmh from include. (Requires -i)");
+DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
+DEFINE_bool2(skip, z, false, "Skip missing example error.");
 
 /*  recipe for generating timestamps for existing doxygen comments
 find include/core -type f -name '*.h' -print -exec git blame {} \; > ~/all.blame.txt
@@ -117,6 +129,17 @@ void Definition::setCanonicalFiddle() {
                 } else {
                     SkASSERT('=' == fName[opPos + 1]);
                     result += "equal_operator"; 
+                }
+            } else if ('[' == fName[opPos]) {
+                result += "subscript_operator";
+                const char* end = fContentStart;
+                while (end > fStart && ' ' >= end[-1]) {
+                    --end;
+                }
+                string constCheck(fStart, end - fStart);
+                size_t constPos = constCheck.rfind("const");
+                if (constCheck.length() == constPos + 5) {
+                    result += "_const";
                 }
             } else {
                 SkASSERT(0);  // todo: incomplete
@@ -331,7 +354,8 @@ bool Definition::checkMethod() const {
     methodParser.skipName("#Method");
     methodParser.skipSpace();
     string name = this->methodName();
-    if (MethodType::kNone == fMethodType && "()" == name.substr(name.length() - 2)) {
+    if (MethodType::kNone == fMethodType && name.length() > 2 &&
+            "()" == name.substr(name.length() - 2)) {
         name = name.substr(0, name.length() - 2);
     }
     bool expectReturn = this->methodHasReturn(name, &methodParser);
@@ -366,6 +390,9 @@ bool Definition::checkMethod() const {
         string paramName;
         methodParser.fChar = nextEnd + 1;
         methodParser.skipSpace();
+        if (1494 == methodParser.fLineCount) {
+            SkDebugf("");
+        }
         if (!this->nextMethodParam(&methodParser, &nextEnd, &paramName)) {
             continue;
         }
@@ -663,11 +690,29 @@ string Definition::methodName() const {
 
 bool Definition::nextMethodParam(TextParser* methodParser, const char** nextEndPtr, 
         string* paramName) const {
-    *nextEndPtr = methodParser->anyOf(",)");
-    const char* nextEnd = *nextEndPtr;
-    if (!nextEnd) {
-        return methodParser->reportError<bool>("#Method function missing close paren");
+    int parenCount = 0;
+    TextParser::Save saveState(methodParser);
+    while (true) {
+        if (methodParser->eof()) {
+            return methodParser->reportError<bool>("#Method function missing close paren");
+        }
+        char ch = methodParser->peek();
+        if ('(' == ch) {
+            ++parenCount;
+        }
+        if (parenCount == 0 && (')' == ch || ',' == ch)) {
+            *nextEndPtr = methodParser->fChar;
+            break;
+        }
+        if (')' == ch) {
+            if (0 > --parenCount) {
+                return this->reportError<bool>("mismatched parentheses");
+            }
+        }
+        methodParser->next();
     }
+    saveState.restore();
+    const char* nextEnd = *nextEndPtr;
     const char* paramEnd = nextEnd;
     const char* assign = methodParser->strnstr(" = ", paramEnd);
     if (assign) {
@@ -683,6 +728,10 @@ bool Definition::nextMethodParam(TextParser* methodParser, const char** nextEndP
                 paramEnd = openBracket;
             }
         }
+    }
+    const char* function = methodParser->strnstr(")(", paramEnd);
+    if (function) {
+        paramEnd = function;
     }
     while (paramEnd > methodParser->fChar && ' ' == paramEnd[-1]) {
         --paramEnd;
@@ -1071,7 +1120,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     if (definition->fChildren.size() == 0) {
                         TextParser emptyCheck(definition);
                         if (emptyCheck.eof() || !emptyCheck.skipWhiteSpace()) {
-                            return this->reportError<bool>("missing example body");
+                            if (!FLAGS_skip) {
+                                return this->reportError<bool>("missing example body");
+                            }
                         }
                     }
                 }
@@ -2140,18 +2191,6 @@ string BmhParser::word(const string& prefix, const string& delimiter) {
 
 // pass one: parse text, collect definitions
 // pass two: lookup references
-
-DEFINE_string2(bmh, b, "", "Path to a *.bmh file or a directory.");
-DEFINE_string2(examples, e, "", "File of fiddlecli input, usually fiddle.json (For now, disables -r -f -s)");
-DEFINE_string2(fiddle, f, "", "File of fiddlecli output, usually fiddleout.json.");
-DEFINE_string2(include, i, "", "Path to a *.h file or a directory.");
-DEFINE_bool2(hack, k, false, "Do a find/replace hack to update all *.bmh files. (Requires -b)");
-DEFINE_bool2(stdout, o, false, "Write file out to standard out.");
-DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
-DEFINE_string2(ref, r, "", "Resolve refs and write bmh_*.md files to path. (Requires -b)");
-DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispelling]. (Requires -b)");
-DEFINE_string2(tokens, t, "", "Directory to write bmh from include. (Requires -i)");
-DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
 
 static int count_children(const Definition& def, MarkType markType) {
     int count = 0;
