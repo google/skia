@@ -386,7 +386,6 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
                                                  scale)) {
             tmpParent.init(*srcForPathEffect, GrStyle(strokeRec, nullptr));
             *this = tmpParent.get()->applyStyle(apply, scale);
-            fOriginalPath = parent.fOriginalPath;
             return;
         }
         // A path effect has access to change the res scale but we aren't expecting it to and it
@@ -498,6 +497,10 @@ void GrShape::attemptToSimplifyPath() {
     }
     if (Type::kPath != fType) {
         fInheritedKey.reset(0);
+        // Whenever we simplify to a non-path, break the chain so we no longer refer to the
+        // original path. This prevents attaching genID listeners to temporary paths created when
+        // drawing simple shapes.
+        fOriginalPath.reset();
         if (Type::kRRect == fType) {
             this->attemptToSimplifyRRect();
         } else if (Type::kLine == fType) {
