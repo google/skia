@@ -37,51 +37,70 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> originalProxy;
+    sk_sp<GrTextureProxy> proxy;
 
     if (fOriginalKey.isValid()) {
-        originalProxy = this->context()->resourceProvider()->findOrCreateProxyByUniqueKey(
+        proxy = this->context()->resourceProvider()->findOrCreateProxyByUniqueKey(
                                                             fOriginalKey, kTopLeft_GrSurfaceOrigin);
-        if (originalProxy && (!willBeMipped || originalProxy->isMipMapped())) {
-            return originalProxy;
+        if (proxy && (!willBeMipped || proxy->isMipMapped())) {
+            return proxy;
         }
     }
 
-    sk_sp<GrTextureProxy> proxy;
-    if (willBeMipped) {
-        if (!originalProxy) {
+    if (!proxy) {
+        if (willBeMipped) {
             proxy = GrGenerateMipMapsAndUploadToTextureProxy(this->context(), fBitmap,
                                                              dstColorSpace);
-        } else {
-            proxy = GrCopyBaseMipMapToTextureProxy(this->context(), originalProxy.get(),
-                                                   dstColorSpace);
-            if (!proxy) {
-                // We failed to make a mipped proxy with the base copied into it. This could have
-                // been from failure to make the proxy or failure to do the copy. Thus we will fall
-                // back to just using the non mipped proxy; See skbug.com/7094.
-                return originalProxy;
+        }
+        if (!proxy) {
+            proxy = GrUploadBitmapToTextureProxy(this->context()->resourceProvider(), fBitmap,
+                                                 dstColorSpace);
+        }
+        if (proxy) {
+            if (fOriginalKey.isValid()) {
+                this->context()->resourceProvider()->assignUniqueKeyToProxy(fOriginalKey,
+                                                                            proxy.get());
+            }
+            if (!willBeMipped || proxy->isMipMapped()) {
+                SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
+                if (fOriginalKey.isValid()) {
+                    GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
+                }
+                return proxy;
             }
         }
     }
-    if (!proxy) {
-        proxy = GrUploadBitmapToTextureProxy(this->context()->resourceProvider(), fBitmap,
-                                             dstColorSpace);
-    }
-    if (proxy && fOriginalKey.isValid()) {
-        SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
-        if (originalProxy) {
-            // In this case we are stealing the key from the original proxy which should only happen
-            // when we have just generated mipmaps for an originally unmipped proxy/texture. This
-            // means that all future uses of the key will access the mipmapped version. The texture
-            // backing the unmipped version will remain in the resource cache until the last texture
-            // proxy referencing it is deleted at which time it too will be deleted or recycled.
-            this->context()->resourceProvider()->removeUniqueKeyFromProxy(fOriginalKey,
-                                                                          originalProxy.get());
+
+    if (proxy) {
+        SkASSERT(willBeMipped);
+        SkASSERT(!proxy->isMipMapped());
+        // We need a mipped proxy, but we either found a proxy earlier that wasn't mipped or
+        // generated a non mipped proxy. Thus we generate a new mipped surface and copy the original
+        // proxy into the base layer. We will then let the gpu generate the rest of the mips.
+        if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(this->context(), proxy.get(),
+                                                              dstColorSpace)) {
+            SkASSERT(mippedProxy->origin() == kTopLeft_GrSurfaceOrigin);
+            if (fOriginalKey.isValid()) {
+                // In this case we are stealing the key from the original proxy which should only
+                // happen when we have just generated mipmaps for an originally unmipped
+                // proxy/texture. This means that all future uses of the key will access the
+                // mipmapped version. The texture backing the unmipped version will remain in the
+                // resource cache until the last texture proxy referencing it is deleted at which
+                // time it too will be deleted or recycled.
+                this->context()->resourceProvider()->removeUniqueKeyFromProxy(fOriginalKey,
+                                                                              proxy.get());
+                this->context()->resourceProvider()->assignUniqueKeyToProxy(fOriginalKey,
+                                                                            mippedProxy.get());
+                GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
+            }
+            return mippedProxy;
         }
-        this->context()->resourceProvider()->assignUniqueKeyToProxy(fOriginalKey, proxy.get());
-        GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
+        // We failed to make a mipped proxy with the base copied into it. This could have
+        // been from failure to make the proxy or failure to do the copy. Thus we will fall
+        // back to just using the non mipped proxy; See skbug.com/7094.
+        return proxy;
     }
-    return proxy;
+    return nullptr;
 }
 
 void GrBitmapTextureMaker::makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey,
