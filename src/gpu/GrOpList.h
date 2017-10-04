@@ -57,7 +57,10 @@ public:
         }
     }
 
-    virtual void reset();
+    // Called when this class will survive a flush and needs to truncate its ops and start over.
+    // TODO: ultimately it should be invalid for an op list to survive a flush.
+    // https://bugs.chromium.org/p/skia/issues/detail?id=7111
+    virtual void endFlush();
 
     void addPrepareCallback(std::unique_ptr<GrPrepareCallback> callback);
 

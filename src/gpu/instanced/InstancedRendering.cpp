@@ -25,7 +25,8 @@ InstancedRendering::InstancedRendering(GrGpu* gpu)
 }
 
 InstancedRendering::~InstancedRendering() {
-    SkASSERT(State::kRecordingDraws == fState);
+    // Make sure there isn't anything with a dangling pointer to this instance.
+    SkASSERT(fTrackedOps.isEmpty());
 }
 
 void InstancedRendering::beginFlush(GrResourceProvider* rp) {
