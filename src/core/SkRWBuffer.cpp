@@ -12,6 +12,8 @@
 #include "SkMakeUnique.h"
 #include "SkStream.h"
 
+#include <atomic>
+
 // Force small chunks to be a page's worth
 static const size_t kMinAllocSize = 4096;
 
@@ -62,7 +64,7 @@ private:
 };
 
 struct SkBufferHead {
-    mutable int32_t fRefCnt;
+    mutable std::atomic<int32_t> fRefCnt;
     SkBufferBlock   fBlock;
 
     SkBufferHead(size_t capacity) : fRefCnt(1), fBlock(capacity) {}
@@ -80,14 +82,14 @@ struct SkBufferHead {
     }
 
     void ref() const {
-        SkASSERT(fRefCnt > 0);
-        sk_atomic_inc(&fRefCnt);
+        SkASSERT(fRefCnt.load(std::memory_order_relaxed) > 0);
+        (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);
     }
 
     void unref() const {
-        SkASSERT(fRefCnt > 0);
+        SkASSERT(fRefCnt.load(std::memory_order_relaxed) > 0);
         // A release here acts in place of all releases we "should" have been doing in ref().
-        if (1 == sk_atomic_fetch_add(&fRefCnt, -1, sk_memory_order_acq_rel)) {
+        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
             // Like unique(), the acquire is only needed on success.
             SkBufferBlock* block = fBlock.fNext;
             sk_free((void*)this);
@@ -101,7 +103,7 @@ struct SkBufferHead {
 
     void validate(size_t minUsed, const SkBufferBlock* tail = nullptr) const {
 #ifdef SK_DEBUG
-        SkASSERT(fRefCnt > 0);
+        SkASSERT(fRefCnt.load(std::memory_order_relaxed) > 0);
         size_t totalUsed = 0;
         const SkBufferBlock* block = &fBlock;
         const SkBufferBlock* lastBlock = block;
