@@ -17,21 +17,19 @@ class SkColorSpace_XYZ;
 
 class SkColorSpaceXform_Base : public SkColorSpaceXform {
 public:
-    static constexpr int kDstGammaTableSize = 1024;
-
-    static std::unique_ptr<SkColorSpaceXform> New(SkColorSpace* srcSpace, SkColorSpace* dstSpace,
+    // A somewhat more powerful SkColorSpaceXform::New() that allows tweaking premulBehavior.
+    static std::unique_ptr<SkColorSpaceXform> New(SkColorSpace* srcSpace,
+                                                  SkColorSpace* dstSpace,
                                                   SkTransferFunctionBehavior premulBehavior);
 
-protected:
+    static constexpr int kDstGammaTableSize = 1024;
+    static void BuildDstGammaTables(const uint8_t* outGammaTables[3],
+                                    uint8_t* gammaTableStorage,
+                                    const SkColorSpace_XYZ* space,
+                                    bool gammasAreMatching);
+
     virtual bool onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
                          int count, SkAlphaType alphaType) const = 0;
-
-private:
-    static void BuildDstGammaTables(const uint8_t* outGammaTables[3], uint8_t* gammaTableStorage,
-                                    const SkColorSpace_XYZ* space, bool gammasAreMatching);
-
-    friend class SkColorSpaceXform;
-    friend class SkColorSpace_XYZ;
 };
 
 enum SrcGamma {
@@ -47,40 +45,31 @@ enum DstGamma {
     kTable_DstGamma,
 };
 
-enum ColorSpaceMatch {
-    kNone_ColorSpaceMatch,
-    kGamut_ColorSpaceMatch,
-    kFull_ColorSpaceMatch,
-};
-
-template <ColorSpaceMatch kCSM>
 class SkColorSpaceXform_XYZ : public SkColorSpaceXform_Base {
-protected:
-    bool onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
+public:
+    SkColorSpaceXform_XYZ(SkColorSpace_XYZ* src, SkColorSpace_XYZ* dst, SkTransferFunctionBehavior);
+
+    bool onApply(ColorFormat dstFormat, void* dst,
+                 ColorFormat srcFormat, const void* src,
                  int count, SkAlphaType alphaType) const override;
 
+    void pretendNotToBeIdentityForTesting() {
+        fSrcToDstIsIdentity = false;
+    }
+
 private:
-    bool applyPipeline(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
-                       int count, SkAlphaType alphaType) const;
-
-    SkColorSpaceXform_XYZ(SkColorSpace_XYZ* srcSpace, const SkMatrix44& srcToDst,
-                          SkColorSpace_XYZ* dstSpace, SkTransferFunctionBehavior premulBehavior);
-
-    // Contain pointers into storage or pointers into precomputed tables.
+    // These tables pointers may point into fSrcStorage/fDstStorage or into pre-baked tables.
     const float*               fSrcGammaTables[3];
-    SkAutoTMalloc<float>       fSrcStorage;
     const uint8_t*             fDstGammaTables[3];
+    SkAutoTMalloc<float>       fSrcStorage;
     sk_sp<SkData>              fDstStorage;
 
-    // Holds a 3x4 matrix.  Padding is useful for vector loading.
-    float                      fSrcToDst[13];
-
+    float                      fSrcToDst[12];
+    bool                       fSrcToDstIsIdentity;
+    bool                       fColorSpacesAreIdentical;
     SrcGamma                   fSrcGamma;
     DstGamma                   fDstGamma;
     SkTransferFunctionBehavior fPremulBehavior;
-
-    friend class SkColorSpaceXform_Base;
-    friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 };
 
 struct LoadTablesContext {

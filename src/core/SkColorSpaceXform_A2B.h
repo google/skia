@@ -23,12 +23,12 @@ struct SkTableTransferFn {
 
 class SkColorSpaceXform_A2B : public SkColorSpaceXform_Base {
 public:
+    SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace, SkColorSpace_XYZ* dstSpace);
+
     bool onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
                  int count, SkAlphaType alphaType) const override;
 
 private:
-    SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace, SkColorSpace_XYZ* dstSpace);
-
     void addTransferFn(const SkColorSpaceTransferFn& fn, int channelIndex);
 
     bool buildTableFn(SkTableTransferFn* table);
@@ -42,8 +42,6 @@ private:
 
     template <typename T>
     T* copy(const T& val) { return fAlloc.make<T>(val); }
-
-    friend class SkColorSpaceXform_Base;
 };
 
 #endif
