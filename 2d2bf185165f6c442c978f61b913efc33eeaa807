@@ -45,6 +45,30 @@
       "revId": "2d2bf185165f6c442c978f61b913efc33eeaa807",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16fd0a07_cec3bbbf",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-10-04T18:37:55Z",
+      "side": 1,
+      "message": "Neither, it gets handled up on line 426.",
+      "parentUuid": "98851d0f_f2500173",
+      "range": {
+        "startLine": 769,
+        "startChar": 15,
+        "endLine": 776,
+        "endChar": 35
+      },
+      "revId": "2d2bf185165f6c442c978f61b913efc33eeaa807",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
