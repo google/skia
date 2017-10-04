@@ -152,6 +152,8 @@ private:
     void drawMaskPrimitives(GrOpFlushState*, const GrPipeline&, const GrCCPRCoverageProcessor::Mode,
                             GrPrimitiveType, int vertexCount,
                             int PrimitiveTallies::* instanceType) const;
+    void appendMeshToScratchBuffers(GrPrimitiveType primType, int baseInstance, int instanceCount,
+                                    int vertexCount, const SkIRect& scissor) const;
 
     sk_sp<GrBuffer>                      fPointsBuffer;
     sk_sp<GrBuffer>                      fInstanceBuffer;
