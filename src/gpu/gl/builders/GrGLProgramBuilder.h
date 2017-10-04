@@ -24,6 +24,30 @@ class GrShaderCaps;
 
 class GrGLProgramBuilder : public GrGLSLProgramBuilder {
 public:
+    /**
+     * Abstract class which stores GLSL shader strings in a cache that persists between sessions.
+     */
+    class PersistentCache {
+    public:
+        struct Shader {
+            SkSL::String fText;
+            SkSL::Program::Inputs fInputs;
+        };
+
+        virtual ~PersistentCache() {}
+
+        /**
+         * If the shader for this key exists, returns true and stores the saved strings into
+         * outVS (vertex), outGS (geometry), and outFS (fragment). If the shader was not cached,
+         * returns false and leaves the strings unmodified.
+         */
+        virtual bool load(const GrProgramDesc& key, Shader* outVS, Shader* outGS,
+                          Shader* outFS) = 0;
+
+        virtual void store(const GrProgramDesc& key, const Shader& vs, const Shader& gs,
+                           const Shader& fs) = 0;
+    };
+
     /** Generates a shader program.
      *
      * The program implements what is specified in the stages given as input.
@@ -37,7 +61,8 @@ public:
     static GrGLProgram* CreateProgram(const GrPipeline&,
                                       const GrPrimitiveProcessor&,
                                       GrProgramDesc*,
-                                      GrGLGpu*);
+                                      GrGLGpu*,
+                                      PersistentCache*);
 
     const GrCaps* caps() const override;
 
@@ -45,7 +70,15 @@ public:
 
 private:
     GrGLProgramBuilder(GrGLGpu*, const GrPipeline&, const GrPrimitiveProcessor&,
-                       GrProgramDesc*);
+                       GrProgramDesc*, PersistentCache* cache);
+
+    bool compileAndAttachShaders(const char* glsl,
+                                 int length,
+                                 GrGLuint programId,
+                                 GrGLenum type,
+                                 SkTDArray<GrGLuint>* shaderIds,
+                                 const SkSL::Program::Settings& settings,
+                                 const SkSL::Program::Inputs& inputs);
 
     bool compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                  GrGLuint programId,
@@ -67,10 +100,17 @@ private:
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
     GrGLSLVaryingHandler* varyingHandler() override { return &fVaryingHandler; }
 
+    SkString getString(GrGLSLShaderBuilder& shader);
 
     GrGLGpu*              fGpu;
     GrGLVaryingHandler    fVaryingHandler;
     GrGLUniformHandler    fUniformHandler;
+
+    PersistentCache* fCache;
+
+    PersistentCache::Shader fCachedVS;
+    PersistentCache::Shader fCachedGS;
+    PersistentCache::Shader fCachedFS;
 
     typedef GrGLSLProgramBuilder INHERITED;
 };

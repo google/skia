@@ -14,6 +14,7 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "SkTSearch.h"
+#include "SkBase64.h"
 
 #ifdef PROGRAM_CACHE_STATS
 // Display program cache usage
@@ -64,6 +65,67 @@ void GrGLGpu::ProgramCache::abandon() {
 #endif
 }
 
+/**
+ * Simple, brain-dead implementation just to provide a functioning example. A real cache will need
+ * to version its entries, purge entries when full, deal with keys that are too long to be used as
+ * filenames, etc.
+ */
+#include <fstream>
+class ShaderCache : public GrGLProgramBuilder::PersistentCache {
+    SkString getFilename(const GrProgramDesc& key) {
+        SkString result("/tmp/cache/");
+        size_t bufferSize = key.keyLength() * 4 / 3 + 3;
+        std::unique_ptr<char> buffer = std::unique_ptr<char>((char*) malloc(bufferSize));
+        size_t length = SkBase64::Encode(key.asKey(), key.keyLength(), buffer.get(),
+                               "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.@=");
+        SkASSERT(length <= bufferSize);
+        result.append(buffer.get(), length);
+        return result;
+    }
+
+    bool load(const GrProgramDesc& key, GrGLProgramBuilder::PersistentCache::Shader* outVS,
+              GrGLProgramBuilder::PersistentCache::Shader* outGS,
+              GrGLProgramBuilder::PersistentCache::Shader* outFS) override {
+        std::ifstream in(this->getFilename(key).c_str());
+        if (!in.good()) {
+            return false;
+        }
+        std::string vs;
+        std::getline(in, vs, '\0');
+        outVS->fText = vs.c_str();
+        in.read((char*) &outVS->fInputs, sizeof(outVS->fInputs));
+        std::string gs;
+        std::getline(in, gs, '\0');
+        outGS->fText = gs.c_str();
+        in.read((char*) &outGS->fInputs, sizeof(outGS->fInputs));
+        std::string fs;
+        std::getline(in, fs, '\0');
+        outFS->fText = fs.c_str();
+        in.read((char*) &outFS->fInputs, sizeof(outFS->fInputs));
+        if (in.bad()) {
+            return false;
+        }
+        return true;
+    }
+
+    void store(const GrProgramDesc& key, const GrGLProgramBuilder::PersistentCache::Shader& vs,
+               const GrGLProgramBuilder::PersistentCache::Shader& gs,
+               const GrGLProgramBuilder::PersistentCache::Shader& fs) override {
+        std::ofstream out(this->getFilename(key).c_str());
+        if (out.bad()) {
+            return;
+        }
+        out << vs.fText.c_str() << '\0';
+        out.write((char*) &vs.fInputs, sizeof(vs.fInputs));
+        out << gs.fText.c_str() << '\0';
+        out.write((char*) &gs.fInputs, sizeof(gs.fInputs));
+        out << fs.fText.c_str() << '\0';
+        out.write((char*) &fs.fInputs, sizeof(fs.fInputs));
+    }
+};
+
+ShaderCache cache;
+
 GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
                                                const GrPipeline& pipeline,
                                                const GrPrimitiveProcessor& primProc,
@@ -92,7 +154,8 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
 #ifdef PROGRAM_CACHE_STATS
         ++fCacheMisses;
 #endif
-        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(pipeline, primProc, &desc, fGpu);
+        GrGLProgram* program = GrGLProgramBuilder::CreateProgram(pipeline, primProc, &desc, fGpu,
+                                                                 &cache);
         if (nullptr == program) {
             return nullptr;
         }
