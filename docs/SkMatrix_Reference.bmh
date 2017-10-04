@@ -1,0 +1,2388 @@
+#Topic Matrix
+#Alias Matrix_Reference
+
+#Class SkMatrix
+
+The SkMatrix class holds a 3x3 matrix for transforming coordinates.
+SkMatrix does not have a constructor, so it must be explicitly initialized
+using either reset() - to construct an identity matrix, or one of the set
+functions (e.g. setTranslate, setRotate, etc.).
+SkMatrix is not thread safe unless getType is called first.
+
+#Topic Overview
+
+#Subtopic Subtopics
+#ToDo manually add subtopics ##
+#Table
+#Legend
+# topics # description ##
+#Legend ##
+#Table ##
+##
+
+#Subtopic Operators
+#Table
+#Legend
+# description                                                         # function ##
+#Legend ##
+# friend SK_API bool operator!=(const SkMatrix& a, const SkMatrix& b) # ##
+# friend SK_API bool operator==(const SkMatrix& a, const SkMatrix& b) # ##
+#Table ##
+#Subtopic ##
+
+#Subtopic Member_Functions
+#Table
+#Legend
+# description            # function ##
+#Legend ##
+# Concat                 # ##
+# GetMapPtsProc          # ##
+# GetMapXYProc           # ##
+# I                      # ##
+# InvalidMatrix          # ##
+# MakeRectToRect         # ##
+# MakeScale              # ##
+# MakeTrans              # ##
+# SetAffineIdentity      # ##
+# [                      # ##
+# asAffine               # ##
+# cheapEqualTo           # ##
+# decomposeScale         # ##
+# dirtyMatrixTypeCache   # ##
+# dump                   # ##
+# fixedStepInX           # ##
+# get                    # ##
+# get9                   # ##
+# getMapPtsProc          # ##
+# getMapXYProc           # ##
+# getMaxScale            # ##
+# getMinMaxScales        # ##
+# getMinScale            # ##
+# getPerspX              # ##
+# getPerspY              # ##
+# getScaleX              # ##
+# getScaleY              # ##
+# getSkewX               # ##
+# getSkewY               # ##
+# getTranslateX          # ##
+# getTranslateY          # ##
+# getType                # ##
+# hasPerspective         # ##
+# invert                 # ##
+# isFinite               # ##
+# isFixedStepInX         # ##
+# isIdentity             # ##
+# isScaleTranslate       # ##
+# isSimilarity           # ##
+# isTranslate            # ##
+# mapHomogeneousPoints   # ##
+# mapPoints              # ##
+# mapPointsWithStride    # ##
+# mapRadius              # ##
+# mapRect                # ##
+# mapRectScaleTranslate  # ##
+# mapRectToQuad          # ##
+# mapVector              # ##
+# mapVectors             # ##
+# mapXY                  # ##
+# postConcat             # ##
+# postIDiv               # ##
+# postRotate             # ##
+# postScale              # ##
+# postSkew               # ##
+# postTranslate          # ##
+# preConcat              # ##
+# preRotate              # ##
+# preScale               # ##
+# preSkew                # ##
+# preTranslate           # ##
+# preservesAxisAlignment # ##
+# preservesRightAngles   # ##
+# readFromMemory         # ##
+# rectStaysRect          # ##
+# reset                  # ##
+# set                    # ##
+# set9                   # ##
+# setAffine              # ##
+# setAll                 # ##
+# setConcat              # ##
+# setIDiv                # ##
+# setIdentity            # ##
+# setPerspX              # ##
+# setPerspY              # ##
+# setPolyToPoly          # ##
+# setRSXform             # ##
+# setRectToRect          # ##
+# setRotate              # ##
+# setScale               # ##
+# setScaleTranslate      # ##
+# setScaleX              # ##
+# setScaleY              # ##
+# setSinCos              # ##
+# setSkew                # ##
+# setSkewX               # ##
+# setSkewY               # ##
+# setTranslate           # ##
+# setTranslateX          # ##
+# setTranslateY          # ##
+# toString               # ##
+# writeToMemory          # ##
+#Table ##
+#Subtopic ##
+
+#Topic ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy)
+
+#Param sx  incomplete ##
+#Param sy  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar scale)
+
+#Param scale  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy)
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Enum TypeMask
+
+#Code
+    enum TypeMask {
+        kIdentity_Mask = 0,
+        kTranslate_Mask = 0x01,
+        kScale_Mask = 0x02,
+        kAffine_Mask = 0x04,
+        kPerspective_Mask = 0x08,
+    };
+##
+
+Enum of bit fields for the mask return by getType().
+Use this to identify the complexity of the matrix.
+
+#Const kIdentity_Mask = 0
+##
+#Const kTranslate_Mask = 0x01
+set if the matrix has translation
+##
+#Const kScale_Mask = 0x02
+set if the matrix has x or y scale
+##
+#Const kAffine_Mask = 0x04
+set if the matrix skews or rotates
+##
+#Const kPerspective_Mask = 0x08
+set if the matrix is in perspective
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method TypeMask getType() const
+
+Returns a bit field describing the transformations the matrix may
+perform. The bit field is computed conservatively, so it may include
+false positives. For example, when kPerspective_Mask is true, all
+other bits may be set to true even in the case of a pure perspective
+transform.
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isIdentity() const
+
+Returns true if the matrix is identity.
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isScaleTranslate() const
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isTranslate() const
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool rectStaysRect() const
+
+Returns true if will map a rectangle to another rectangle. This can be
+true if the matrix is identity, scale-only, or rotates a multiple of
+90 degrees, or mirrors in x or y.
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool preservesAxisAlignment() const
+
+alias for rectStaysRect()
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool hasPerspective() const
+
+Returns true if the matrix contains perspective elements.
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isSimilarity(SkScalar tol = SK_ScalarNearlyZero) const
+
+Returns true if the matrix contains only translation, rotation/reflection or uniform scale.
+Returns false if other transformation types are included or is degenerate
+
+#Param tol  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool preservesRightAngles(SkScalar tol = SK_ScalarNearlyZero) const
+
+Returns true if the matrix contains only translation, rotation/reflection or scale
+(non-uniform scale is allowed).
+Returns false if other transformation types are included or is degenerate
+
+#Param tol  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Enum _anonymous
+
+#Code
+    enum {
+        kMScaleX,
+        kMSkewX,
+        kMTransX,
+        kMSkewY,
+        kMScaleY,
+        kMTransY,
+        kMPersp0,
+        kMPersp1,
+        kMPersp2,
+    };
+##
+
+#Const kMScaleX 0
+##
+#Const kMSkewX 1
+##
+#Const kMTransX 2
+##
+#Const kMSkewY 3
+##
+#Const kMScaleY 4
+##
+#Const kMTransY 5
+##
+#Const kMPersp0 6
+##
+#Const kMPersp1 7
+##
+#Const kMPersp2 8
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Enum _anonymous_2
+
+#Code
+    enum {
+        kAScaleX,
+        kASkewY,
+        kASkewX,
+        kAScaleY,
+        kATransX,
+        kATransY,
+    };
+##
+
+Affine arrays are in column major order
+because that is how PDF and XPS like it.
+
+#Const kAScaleX 0
+##
+#Const kASkewY 1
+##
+#Const kASkewX 2
+##
+#Const kAScaleY 3
+##
+#Const kATransX 4
+##
+#Const kATransY 5
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar operator[](int index) const
+
+#Param index  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar get(int index) const
+
+#Param index  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar getScaleX() const
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar getScaleY() const
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar getSkewY() const
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar getSkewX() const
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar getTranslateX() const
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar getTranslateY() const
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar getPerspX() const
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar getPerspY() const
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar operator[](int index)
+
+#Param index  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void set(int index, SkScalar value)
+
+#Param index  incomplete ##
+#Param value  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setScaleX(SkScalar v)
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setScaleY(SkScalar v)
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setSkewY(SkScalar v)
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setSkewX(SkScalar v)
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setTranslateX(SkScalar v)
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setTranslateY(SkScalar v)
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setPerspX(SkScalar v)
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setPerspY(SkScalar v)
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
+                SkScalar skewY,  SkScalar scaleY, SkScalar transY,
+                SkScalar persp0, SkScalar persp1, SkScalar persp2)
+
+#Param scaleX  incomplete ##
+#Param skewX  incomplete ##
+#Param transX  incomplete ##
+#Param skewY  incomplete ##
+#Param scaleY  incomplete ##
+#Param transY  incomplete ##
+#Param persp0  incomplete ##
+#Param persp1  incomplete ##
+#Param persp2  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void get9(SkScalar buffer[9]) const
+
+Copy the 9 scalars for this matrix into buffer, in member value ascending order:
+kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY, kMPersp0, kMPersp1, kMPersp2.
+
+#Param buffer  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void set9(const SkScalar buffer[9])
+
+Set this matrix to the 9 scalars from the buffer, in member value ascending order:
+kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY, kMPersp0, kMPersp1, kMPersp2.
+
+Note: calling set9 followed by get9 may not return the exact same values. Since the matrix
+is used to map non-homogeneous coordinates, it is free to scale the 9 values as needed.
+
+#Param buffer  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void reset()
+
+Set the matrix to identity
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setIdentity()
+
+alias for reset()
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setTranslate(SkScalar dx, SkScalar dy)
+
+Set the matrix to translate by (dx, dy).
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setTranslate(const SkVector& v)
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)
+
+Set the matrix to scale by sx and sy, with a pivot point at (px, py).
+The pivot point is the coordinate that should remain unchanged by the
+specified transformation.
+
+#Param sx  incomplete ##
+#Param sy  incomplete ##
+#Param px  incomplete ##
+#Param py  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setScale(SkScalar sx, SkScalar sy)
+
+Set the matrix to scale by sx and sy.
+
+#Param sx  incomplete ##
+#Param sy  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setIDiv(int divx, int divy)
+
+Set the matrix to scale by 1/divx and 1/divy. Returns false and does not
+touch the matrix if either divx or divy is zero.
+
+#Param divx  incomplete ##
+#Param divy  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setRotate(SkScalar degrees, SkScalar px, SkScalar py)
+
+Set the matrix to rotate by the specified number of degrees, with a
+pivot point at (px, py). The pivot point is the coordinate that should
+remain unchanged by the specified transformation.
+
+#Param degrees  incomplete ##
+#Param px  incomplete ##
+#Param py  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setRotate(SkScalar degrees)
+
+Set the matrix to rotate about (0,0) by the specified number of degrees.
+
+#Param degrees  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setSinCos(SkScalar sinValue, SkScalar cosValue,
+                   SkScalar px, SkScalar py)
+
+Set the matrix to rotate by the specified sine and cosine values, with
+a pivot point at (px, py). The pivot point is the coordinate that
+should remain unchanged by the specified transformation.
+
+#Param sinValue  incomplete ##
+#Param cosValue  incomplete ##
+#Param px  incomplete ##
+#Param py  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setSinCos(SkScalar sinValue, SkScalar cosValue)
+
+Set the matrix to rotate by the specified sine and cosine values.
+
+#Param sinValue  incomplete ##
+#Param cosValue  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkMatrix& setRSXform(const SkRSXform& rsxForm)
+
+#Param rsxForm  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py)
+
+Set the matrix to skew by kx and ky, with a pivot point at (px, py).
+The pivot point is the coordinate that should remain unchanged by the
+specified transformation.
+
+#Param kx  incomplete ##
+#Param ky  incomplete ##
+#Param px  incomplete ##
+#Param py  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setSkew(SkScalar kx, SkScalar ky)
+
+Set the matrix to skew by kx and ky.
+
+#Param kx  incomplete ##
+#Param ky  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setConcat(const SkMatrix& a, const SkMatrix& b)
+
+Set the matrix to the concatenation of the two specified matrices.
+Either of the two matrices may also be the target matrix.
+this = a * b;
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void preTranslate(SkScalar dx, SkScalar dy)
+
+Preconcats the matrix with the specified translation.
+#Formula
+M' = M * T(dx, dy)
+##
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)
+
+Preconcats the matrix with the specified scale.
+#Formula
+M' = M * S(sx, sy, px, py)
+##
+
+#Param sx  incomplete ##
+#Param sy  incomplete ##
+#Param px  incomplete ##
+#Param py  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void preScale(SkScalar sx, SkScalar sy)
+
+Preconcats the matrix with the specified scale.
+#Formula
+M' = M * S(sx, sy)
+##
+
+#Param sx  incomplete ##
+#Param sy  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void preRotate(SkScalar degrees, SkScalar px, SkScalar py)
+
+Preconcats the matrix with the specified rotation.
+#Formula
+M' = M * R(degrees, px, py)
+##
+
+#Param degrees  incomplete ##
+#Param px  incomplete ##
+#Param py  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void preRotate(SkScalar degrees)
+
+Preconcats the matrix with the specified rotation.
+#Formula
+M' = M * R(degrees)
+##
+
+#Param degrees  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void preSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py)
+
+Preconcats the matrix with the specified skew.
+#Formula
+M' = M * K(kx, ky, px, py)
+##
+
+#Param kx  incomplete ##
+#Param ky  incomplete ##
+#Param px  incomplete ##
+#Param py  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void preSkew(SkScalar kx, SkScalar ky)
+
+Preconcats the matrix with the specified skew.
+#Formula
+M' = M * K(kx, ky)
+##
+
+#Param kx  incomplete ##
+#Param ky  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void preConcat(const SkMatrix& other)
+
+Preconcats the matrix with the specified matrix.
+#Formula
+M' = M * other
+##
+
+#Param other  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void postTranslate(SkScalar dx, SkScalar dy)
+
+Postconcats the matrix with the specified translation.
+#Formula
+M' = T(dx, dy) * M
+##
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)
+
+Postconcats the matrix with the specified scale.
+#Formula
+M' = S(sx, sy, px, py) * M
+##
+
+#Param sx  incomplete ##
+#Param sy  incomplete ##
+#Param px  incomplete ##
+#Param py  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void postScale(SkScalar sx, SkScalar sy)
+
+Postconcats the matrix with the specified scale.
+#Formula
+M' = S(sx, sy) * M
+##
+
+#Param sx  incomplete ##
+#Param sy  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool postIDiv(int divx, int divy)
+
+Postconcats the matrix by dividing it by the specified integers.
+#Formula
+M' = S(1/divx, 1/divy, 0, 0) * M
+##
+
+#Param divx  incomplete ##
+#Param divy  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void postRotate(SkScalar degrees, SkScalar px, SkScalar py)
+
+Postconcats the matrix with the specified rotation.
+#Formula
+M' = R(degrees, px, py) * M
+##
+
+#Param degrees  incomplete ##
+#Param px  incomplete ##
+#Param py  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void postRotate(SkScalar degrees)
+
+Postconcats the matrix with the specified rotation.
+#Formula
+M' = R(degrees) * M
+##
+
+#Param degrees  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void postSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py)
+
+Postconcats the matrix with the specified skew.
+#Formula
+M' = K(kx, ky, px, py) * M
+##
+
+#Param kx  incomplete ##
+#Param ky  incomplete ##
+#Param px  incomplete ##
+#Param py  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void postSkew(SkScalar kx, SkScalar ky)
+
+Postconcats the matrix with the specified skew.
+#Formula
+M' = K(kx, ky) * M
+##
+
+#Param kx  incomplete ##
+#Param ky  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void postConcat(const SkMatrix& other)
+
+Postconcats the matrix with the specified matrix.
+#Formula
+M' = other * M
+##
+
+#Param other  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Enum ScaleToFit
+
+#Code
+    enum ScaleToFit {
+        kFill_ScaleToFit,
+        kStart_ScaleToFit,
+        kCenter_ScaleToFit,
+        kEnd_ScaleToFit,
+    };
+##
+
+#Const kFill_ScaleToFit
+Scale in X and Y independently, so that src matches dst exactly.
+This may change the aspect ratio of the src.
+##
+#Const kStart_ScaleToFit
+Compute a scale that will maintain the original src aspect ratio,
+but will also ensure that src fits entirely inside dst. At least one
+axis (x or y) will fit exactly. Aligns the result to the
+left and top edges of dst.
+##
+#Const kCenter_ScaleToFit
+Compute a scale that will maintain the original src aspect ratio,
+but will also ensure that src fits entirely inside dst. At least one
+axis (x or y) will fit exactly. The result is centered inside dst.
+##
+#Const kEnd_ScaleToFit
+Compute a scale that will maintain the original src aspect ratio,
+but will also ensure that src fits entirely inside dst. At least one
+axis (x or y) will fit exactly. Aligns the result to the
+right and bottom edges of dst.
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf)
+
+Set the matrix to the scale and translate values that map the source
+rectangle to the destination rectangle, returning true if the the result
+can be represented.
+
+#Param src  the source rectangle to map from
+##
+#Param dst  the destination rectangle to map to
+##
+#Param stf  the ScaleToFit option
+##
+
+#Return  true if the matrix can be represented by the rectangle mapping
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkMatrix MakeRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf)
+
+#Param src  incomplete ##
+#Param dst  incomplete ##
+#Param stf  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setPolyToPoly(const SkPoint src[], const SkPoint dst[], int count)
+
+Set the matrix such that the specified src points would map to the
+specified dst points. count must be within [0..4].
+
+#Param src  array of src points
+##
+#Param dst  array of dst points
+##
+#Param count  number of points to use for the transformation
+##
+
+#Return  true if the matrix was set to the specified transformation
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool SK_WARN_UNUSED_RESULT invert(SkMatrix* inverse) const
+
+If this matrix can be inverted, return true and if inverse is not null,
+set inverse to be the inverse of this matrix. If this matrix cannot be
+inverted, ignore inverse and return false
+
+#Param inverse  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static void SetAffineIdentity(SkScalar affine[6])
+
+Fills the passed array with affine identity values
+in column major order.
+
+#Param affine  array to fill with affine identity values; must not be nullptr
+##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool SK_WARN_UNUSED_RESULT asAffine(SkScalar affine[6]) const
+
+Fills the passed array with the affine values in column major order.
+If the matrix is a perspective transform, returns false
+and does not change the passed array.
+
+#Param affine  array to fill with affine values; ignored if nullptr
+##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setAffine(const SkScalar affine[6])
+
+Set the matrix to the specified affine values.
+Note: these are passed in column major order.
+
+#Param affine  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void mapPoints(SkPoint dst[], const SkPoint src[], int count) const
+
+Apply this matrix to the array of points specified by src, and write
+the transformed points into the array of points specified by dst.
+#Formula
+dst[] = M * src[]
+##
+
+#Param dst  storage for transformed coordinates; must
+        allow count entries
+##
+#Param src  original coordinates that are to be transformed;
+        must allow count entries
+##
+#Param count  number of points in src to read, and then transform
+        into dst
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void mapPoints(SkPoint pts[], int count) const
+
+Apply this matrix to the array of points, overwriting it with the
+transformed values.
+#Formula
+dst[] = M * pts[]
+##
+
+#Param pts  storage for transformed points; must allow count entries
+##
+#Param count  number of points in pts
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void mapPointsWithStride(SkPoint pts[], size_t stride, int count) const
+
+Like mapPoints but with custom byte stride between the points. Stride
+should be a multiple of 
+#Formula
+sizeof(SkScalar)
+##
+.
+
+#Param pts  incomplete ##
+#Param stride  incomplete ##
+#Param count  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void mapPointsWithStride(SkPoint dst[], const SkPoint src[], size_t stride, int count) const
+
+Like mapPoints but with custom byte stride between the points.
+
+#Param dst  incomplete ##
+#Param src  incomplete ##
+#Param stride  incomplete ##
+#Param count  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void mapHomogeneousPoints(SkScalar dst[], const SkScalar src[], int count) const
+
+Apply this matrix to the array of homogeneous points, specified by src,
+where a homogeneous point is defined by 3 contiguous scalar values,
+and write the transformed points into the array of scalars specified by dst.
+#Formula
+dst[] = M * src[]
+##
+
+#Param dst  storage for transformed coordinates; must
+        allow 3 * count entries
+##
+#Param src  original coordinates to be transformed;
+        must contain at least 3 * count entries
+##
+#Param count  number of triples (homogeneous points) in src to read,
+        and then transform into dst
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void mapXY(SkScalar x, SkScalar y, SkPoint* result) const
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+#Param result  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkPoint mapXY(SkScalar x, SkScalar y) const
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void mapVectors(SkVector dst[], const SkVector src[], int count) const
+
+Apply this matrix to the array of vectors specified by src, and write
+the transformed vectors into the array of vectors specified by dst.
+This is similar to mapPoints, but ignores any translation in the matrix.
+
+#Param dst  storage for transformed coordinates; must
+        allow count entries
+##
+#Param src  coordinates to be transformed;
+        must contain at least count entries
+##
+#Param count  number of vectors in src to read and transform
+        into dst
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void mapVectors(SkVector vecs[], int count) const
+
+Apply this matrix to count vectors in array vecs.
+This is similar to mapPoints, but ignores any translation in the matrix.
+
+#Param vecs  vectors to transform; must contain at least
+        count entries
+##
+#Param count  number of vectors in vecs
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void mapVector(SkScalar dx, SkScalar dy, SkVector* result) const
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+#Param result  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkVector mapVector(SkScalar dx, SkScalar dy) const
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool mapRect(SkRect* dst, const SkRect& src) const
+
+Apply this matrix to the src rectangle, and write the transformed
+rectangle into dst. This is accomplished by transforming the 4 corners
+of src, and then setting dst to the bounds of those points.
+
+#Param dst  storage for transformed rectangle ##
+#Param src  rectangle to transform ##
+
+#Return  result of calling rectStaysRect
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool mapRect(SkRect* rect) const
+
+Apply this matrix to the rectangle, and write the transformed rectangle
+back into it. This is accomplished by transforming the 4 corners of
+rect, and then setting it to the bounds of those points
+
+#Param rect  rectangle to transform
+##
+
+#Return  the result of calling rectStaysRect
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void mapRectToQuad(SkPoint dst[4], const SkRect& rect) const
+
+Applies Matrix to rect, and write the four transformed
+points into dst. The points written to dst will be the original top-left, top-right,
+bottom-right, and bottom-left points transformed by Matrix.
+
+#Param dst  storage for transformed quad
+##
+#Param rect  rectangle to transform
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void mapRectScaleTranslate(SkRect* dst, const SkRect& src) const
+
+Maps a rectangle to another rectangle, asserting (in debug mode) that the matrix only contains
+scale and translate elements. If it contains other elements, the results are undefined.
+
+#Param dst  incomplete ##
+#Param src  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar mapRadius(SkScalar radius) const
+
+Return the mean radius of a circle after it has been mapped by
+this matrix. NOTE: in perspective this value assumes the circle
+has its center at the origin.
+
+#Param radius  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static MapXYProc GetMapXYProc(TypeMask mask)
+
+#Param mask  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method MapXYProc getMapXYProc() const
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static MapPtsProc GetMapPtsProc(TypeMask mask)
+
+#Param mask  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method MapPtsProc getMapPtsProc() const
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isFixedStepInX() const
+
+Returns true if the matrix can be stepped in x (not complex
+perspective).
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkVector fixedStepInX(SkScalar y) const
+
+If the matrix can be stepped in x (not complex perspective)
+then return the step value.
+If it cannot, behavior is undefined.
+
+#Param y  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool cheapEqualTo(const SkMatrix& m) const
+
+Returns true if Matrix equals m, using an efficient comparison.
+
+Return false when the sign of zero values is the different, that is, one
+matrix has positive zero value and the other has negative zero value.
+
+Normally, comparing NaN prevents the value from equaling any other value,
+including itself. To improve performance, NaN values are treated as bit patterns
+that are equal if their bit patterns are equal.
+
+#Param m  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method friend SK_API bool operator==(const SkMatrix& a, const SkMatrix& b)
+
+mac chromium debug build requires SK_API to make operator== visible
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method friend SK_API bool operator!=(const SkMatrix& a, const SkMatrix& b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Enum _anonymous_3
+
+#Code
+    enum {
+        kMaxFlattenSize = 9 * sizeof(SkScalar) + sizeof(uint32_t),
+    };
+##
+
+#Const kMaxFlattenSize = 9 * sizeof(SkScalar) + sizeof(uint32_t)
+  writeToMemory and readFromMemory will never return a value larger than this
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t writeToMemory(void* buffer) const
+
+return the number of bytes written, whether or not buffer is null
+
+#Param buffer  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t readFromMemory(const void* buffer, size_t length)
+
+Reads data from the buffer parameter
+
+#Param buffer  memory to read from
+##
+#Param length  amount of memory available in the buffer
+##
+
+#Return  number of bytes read (must be a multiple of 4) or
+        0 if there was not enough memory available
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void dump() const
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void toString(SkString* str) const
+
+#Param str  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar getMinScale() const
+
+Calculates the minimum scaling factor of the matrix as computed from the 
+singular value decomposition of the upper
+left 2x2. If the max scale factor cannot be computed (for example overflow or perspective)
+-1 is returned.
+
+#Return  minimum scale factor
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar getMaxScale() const
+
+Calculates the maximum scaling factor of the matrix as computed from the 
+singular value decomposition of the upper
+left 2x2. If the max scale factor cannot be computed (for example overflow or perspective)
+-1 is returned.
+
+#Return  maximum scale factor
+##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool SK_WARN_UNUSED_RESULT getMinMaxScales(SkScalar scaleFactors[2]) const
+
+Gets both the min and max scale factors. The min scale factor is scaleFactors[0] and the max
+is scaleFactors[1]. If the min/max scale factors cannot be computed false is returned and the
+values of scaleFactors[] are undefined.
+
+#Param scaleFactors  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool decomposeScale(SkSize* scale, SkMatrix* remaining = nullptr) const
+
+Attempt to decompose this matrix into a scale-only component and whatever remains, where
+the scale component is to be applied first.
+#Formula
+M -> Remaining * Scale
+##
+On success, return true and assign the scale and remaining components (assuming their
+respective parameters are not null). On failure return false and ignore the parameters.
+Possible reasons to fail: perspective, one or more scale factors are zero.
+
+#Param scale  incomplete ##
+#Param remaining  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static const SkMatrix& I()
+
+Return a reference to a const identity matrix
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static const SkMatrix& InvalidMatrix()
+
+Return a reference to a const matrix that is "invalid", one that could
+never be used.
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkMatrix Concat(const SkMatrix& a, const SkMatrix& b)
+
+Return the concatenation of two matrices, a * b.
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void dirtyMatrixTypeCache()
+
+Testing routine; the matrix type cache should never need to be
+manually invalidated during normal use.
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty)
+
+Initialize the matrix to be scale + post-translate.
+
+#Param sx  incomplete ##
+#Param sy  incomplete ##
+#Param tx  incomplete ##
+#Param ty  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isFinite() const
+
+Are all elements of the matrix finite?
+
+#Return  incomplete ##
+
+#Example
+// incomplete
+##
+
+#ToDo incomplete ##
+
+##
+
+#Class SkMatrix ##
+
+#Topic Matrix ##
