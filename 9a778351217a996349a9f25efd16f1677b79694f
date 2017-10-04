@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19347ed5_34c6e6a4",
+        "filename": "tests/GrShapeTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-04T12:07:31Z",
+      "side": 1,
+      "message": "Is this true if we stroke a single point path? Can\u0027t get get a circle or square in that case?",
+      "revId": "9a778351217a996349a9f25efd16f1677b79694f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fbfbe46_3fce959d",
+        "filename": "tests/GrShapeTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-04T12:07:31Z",
+      "side": 1,
+      "message": "Shouldn\u0027t we ensure that the chains are broken?\n\nif (baseIsPath) {\n   REPORTER_ASSERT(r, -1 \u003d\u003d peID); \n   // etc\n}\n\n?",
+      "revId": "9a778351217a996349a9f25efd16f1677b79694f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
