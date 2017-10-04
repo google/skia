@@ -14,6 +14,20 @@ static void add_ref(const string& leadingSpaces, const string& ref, string* resu
     *result += leadingSpaces + ref;
 }
 
+static string preformat(const string& orig) {
+    string result;
+    for (auto c : orig) {
+        if ('<' == c) {
+          result += "&lt;";
+        } else if ('>' == c) {
+          result += "&gt;";
+        } else {
+            result += c;
+        }
+    }
+    return result;
+}
+
 // FIXME: preserve inter-line spaces and don't add new ones
 string MdOut::addReferences(const char* refStart, const char* refEnd,
         BmhParser::Resolvable resolvable) {
@@ -149,7 +163,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 if (('f' != ref[0] && string::npos == ref.find("()"))
 //                        || '.' != t.backup(ref.c_str())
                         && ('k' != ref[0] && string::npos == ref.find("_Private"))) {
-                    if ('.' == wordStart[0] && distFromParam == 1) {
+                    if ('.' == wordStart[0] && (distFromParam >= 1 && distFromParam <= 16)) {
                         const Definition* paramType = this->findParamType();
                         if (paramType) {
                             string fullName = paramType->fName + "::" + ref;
@@ -756,10 +770,11 @@ void MdOut::markTypeOut(Definition* def) {
             // TODO: put in css spec that we can define somewhere else (if markup supports that)
             // TODO: 50em below should match limt = 80 in formatFunction()
             this->writePending();
+            string preformattedStr = preformat(formattedStr);
             fprintf(fOut, "<pre style=\"padding: 1em 1em 1em 1em;"
                                     "width: 50em; background-color: #f0f0f0\">\n"
                             "%s\n"
-                            "</pre>",  formattedStr.c_str());
+                            "</pre>",  preformattedStr.c_str());
             this->lf(2);
             fTableState = TableState::kNone;
             fMethod = def;

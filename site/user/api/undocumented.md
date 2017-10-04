@@ -3,8 +3,6 @@ undocumented
 
 # <a name="Glyph"></a> Glyph
 
-# <a name="Curve"></a> Curve
-
 # <a name="Document"></a> Document
 
 # <a name="SkDocument"></a> Class SkDocument
@@ -21,40 +19,17 @@ SkCanvas* beginPage(SkScalar width, SkScalar height,
 
 ## <a name="PDF"></a> PDF
 
+# <a name="PostScript"></a> PostScript
+
+## <a name="Arct"></a> Arct
+
+# <a name="Size"></a> Size
+
 # <a name="Arc"></a> Arc
 
-# <a name="Rect"></a> Rect
-
-# <a name="SkRect"></a> Struct SkRect
-
-<a name="SkRect_MakeEmpty"></a>
-## MakeEmpty
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty()
-</pre>
-
----
-
-<a name="SkRect_dump"></a>
-## dump
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-void dump() const
-</pre>
-
----
-
-<a name="SkRect_dumpHex"></a>
-## dumpHex
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-void dumpHex() const
-</pre>
-
----
-
 # <a name="Line"></a> Line
+
+# <a name="Mip_Map"></a> Mip Map
 
 # <a name="Region"></a> Region
 
@@ -67,6 +42,10 @@ void dumpHex() const
 # <a name="Vector"></a> Vector
 
 # <a name="SkVector"></a> Struct SkVector
+
+# <a name="Patch"></a> Patch
+
+# <a name="Curve"></a> Curve
 
 # <a name="Point"></a> Point
 
@@ -82,8 +61,6 @@ bool equalsWithinTolerance(const SkPoint& p) const
 ---
 
 ## <a name="Array"></a> Array
-
-# <a name="Patch"></a> Patch
 
 # <a name="Typeface"></a> Typeface
 
@@ -104,40 +81,6 @@ bool equalsWithinTolerance(const SkPoint& p) const
 # <a name="BBH_Factory"></a> BBH Factory
 
 # <a name="SkBBHFactory"></a> Class SkBBHFactory
-
-# <a name="Bitmap"></a> Bitmap
-
-# <a name="SkBitmap"></a> Class SkBitmap
-
-## <a name="Row_Bytes"></a> Row Bytes
-
-<a name="SkBitmap_erase"></a>
-## erase
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-void erase(SkColor c, const SkIRect& area) const
-</pre>
-
----
-
-<a name="SkBitmap_installPixels"></a>
-## installPixels
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes)
-</pre>
-
----
-
-<a name="SkBitmap_readPixels"></a>
-## readPixels
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                int srcX, int srcY, SkTransferFunctionBehavior behavior) const
-</pre>
-
----
 
 # <a name="Blend_Mode"></a> Blend Mode
 
@@ -271,7 +214,7 @@ int SkColorSetARGB(a, r, g, b)
 ## MakeSRGBLinear
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static sk_sp<SkColorSpace> MakeSRGBLinear()
+static sk_sp&lt;SkColorSpace&gt; MakeSRGBLinear()
 </pre>
 
 ---
@@ -329,8 +272,8 @@ void draw(SkCanvas*, const SkMatrix* = NULL)
 ## MakeCanvas
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static std::unique_ptr<SkCanvas> 
-                                            MakeCanvas(std::unique_ptr<SkRasterHandleAllocator>,
+static std::unique_ptr&lt;SkCanvas&gt; 
+                                            MakeCanvas(std::unique_ptr&lt;SkRasterHandleAllocator&gt;,
                                             const SkImageInfo&,
                                             const Rec* rec = nullptr)
 </pre>
@@ -469,7 +412,7 @@ SkImageInfo()
 ## makeColorSpace
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const
+SkImageInfo makeColorSpace(sk_sp&lt;SkColorSpace&gt; cs) const
 </pre>
 
 ---
@@ -501,13 +444,79 @@ int bytesPerPixel() const
 
 ---
 
+<a name="SkImageInfo_height"></a>
+## height
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+int height() const
+</pre>
+
+---
+
+<a name="SkImageInfo_width"></a>
+## width
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+int width() const
+</pre>
+
+---
+
+<a name="SkImageInfo_colorType"></a>
+## colorType
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+SkColorType colorType() const
+</pre>
+
+---
+
+<a name="SkImageInfo_alphaType"></a>
+## alphaType
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+SkAlphaType alphaType() const
+</pre>
+
+---
+
+<a name="SkImageInfo_colorSpace"></a>
+## colorSpace
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+SkColorSpace* colorSpace() const
+</pre>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+bool isOpaque() const
+</pre>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+size_t minRowBytes() const
+</pre>
+
+---
+
+<a name="SkImageInfo_computeByteSize"></a>
+## computeByteSize
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+size_t computeByteSize(size_t rowBytes) const
+</pre>
+
+---
+
 # <a name="SkImage"></a> Class SkImage
 
 <a name="SkImage_makeShader"></a>
 ## makeShader
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-sk_sp<SkShader> makeShader(SkShader::TileMode, SkShader::TileMode,
+sk_sp&lt;SkShader&gt; makeShader(SkShader::TileMode, SkShader::TileMode,
                            const SkMatrix* localMatrix = nullptr) const
 </pre>
 
@@ -517,7 +526,7 @@ sk_sp<SkShader> makeShader(SkShader::TileMode, SkShader::TileMode,
 ## MakeRasterCopy
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static sk_sp<SkImage> MakeRasterCopy(const SkPixmap&)
+static sk_sp&lt;SkImage&gt; MakeRasterCopy(const SkPixmap&)
 </pre>
 
 ---
@@ -550,15 +559,24 @@ bool scalePixels(const SkPixmap& dst, SkFilterQuality,
 
 # <a name="Image_Scaling"></a> Image Scaling
 
-# <a name="IRect"></a> IRect
+# <a name="Malloc_Pixel_Ref"></a> Malloc Pixel Ref
 
-# <a name="SkIRect"></a> Struct SkIRect
+# <a name="SkMallocPixelRef"></a> Class SkMallocPixelRef
 
-<a name="SkIRect_intersect"></a>
-## intersect
+<a name="SkMallocPixelRef_MakeZeroed"></a>
+## MakeZeroed
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-bool intersect(const SkIRect& r)
+static sk_sp&lt;SkPixelRef&gt; MakeZeroed(const SkImageInfo&, size_t rowBytes)
+</pre>
+
+---
+
+<a name="SkMallocPixelRef_MakeAllocate"></a>
+## MakeAllocate
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+static sk_sp&lt;SkPixelRef&gt; MakeAllocate(const SkImageInfo&, size_t rowBytes)
 </pre>
 
 ---
@@ -596,6 +614,16 @@ k  <tr>
 
 # <a name="SkMaskFilter"></a> Class SkMaskFilter
 
+<a name="SkMaskFilter_filterMask"></a>
+## filterMask
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
+                        SkIPoint* margin) const
+</pre>
+
+---
+
 # <a name="Math"></a> Math
 
 <a name="sk_64_isS32"></a>
@@ -607,9 +635,59 @@ static inline bool sk_64_isS32(int64_t value)
 
 ---
 
-# <a name="Matrix"></a> Matrix
+<a name="SkIntToScalar"></a>
+## SkIntToScalar
 
-# <a name="SkMatrix"></a> Struct SkMatrix
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+SkIntToScalar(x)
+</pre>
+
+---
+
+<a name="SkScalarRoundToInt"></a>
+## SkScalarRoundToInt
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+SkScalarRoundToInt(x)
+</pre>
+
+---
+
+<a name="SkScalarFloorToInt"></a>
+## SkScalarFloorToInt
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+SkScalarFloorToInt(x)
+</pre>
+
+---
+
+<a name="SkScalarCeilToInt"></a>
+## SkScalarCeilToInt
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+SkScalarCeilToInt(x)
+</pre>
+
+---
+
+<a name="SkScalarFloorToScalar"></a>
+## SkScalarFloorToScalar
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+SkScalarFloorToScalar(x)
+</pre>
+
+---
+
+<a name="SkScalarCeilToScalar"></a>
+## SkScalarCeilToScalar
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+SkScalarCeilToScalar(x)
+</pre>
+
+---
 
 # <a name="Nine_Patch"></a> Nine Patch
 
@@ -701,13 +779,45 @@ SkCanvas* beginRecording(const SkRect& bounds, SkBBHFactory* bbhFactory = NULL,
 
 ## <a name="Storage"></a> Storage
 
-# <a name="PixelRef"></a> PixelRef
+# <a name="Pixel_Ref"></a> Pixel Ref
 
 # <a name="SkPixelRef"></a> Class SkPixelRef
 
-# <a name="PostScript"></a> PostScript
+<a name="SkPixelRef_width"></a>
+## width
 
-## <a name="Arct"></a> Arct
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+int width() const
+</pre>
+
+---
+
+<a name="SkPixelRef_height"></a>
+## height
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+int height() const
+</pre>
+
+---
+
+<a name="SkPixelRef_isImmutable"></a>
+## isImmutable
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+bool isImmutable() const
+</pre>
+
+---
+
+<a name="SkPixelRef_setImmutable"></a>
+## setImmutable
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+void setImmutable()
+</pre>
+
+---
 
 # <a name="Premultiply"></a> Premultiply
 
@@ -722,6 +832,8 @@ SkCanvas* beginRecording(const SkRect& bounds, SkBBHFactory* bbhFactory = NULL,
 ## <a name="Layer"></a> Layer
 
 # <a name="Reference_Count"></a> Reference Count
+
+# <a name="SkRefCnt"></a> Class SkRefCnt
 
 # <a name="sk_sp"></a> Class sk_sp
 
@@ -772,7 +884,7 @@ void dumpHex() const
 ## MakeBitmapShader
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx,
+static sk_sp&lt;SkShader&gt; MakeBitmapShader(const SkBitmap& src, TileMode tmx,
                                         TileMode tmy,
                                         const SkMatrix* localMatrix = nullptr)
 </pre>
@@ -801,7 +913,7 @@ static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx,
 ## MakeRasterDirect
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo&, void* pixels,
+static sk_sp&lt;SkSurface&gt; MakeRasterDirect(const SkImageInfo&, void* pixels,
                                          size_t rowBytes,
                                          const SkSurfaceProps* = nullptr)
 </pre>
