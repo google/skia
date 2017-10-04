@@ -8,7 +8,8 @@
 // Include here to ensure SK_SUPPORT_GPU is set correctly before it is examined.
 #include "SkTypes.h"
 
-#if 0
+#if SK_SUPPORT_GPU
+#ifndef SK_DISABLE_DEFERRED_PROXIES
 #include "Test.h"
 
 #include "GrContextPriv.h"
@@ -197,4 +198,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     }
 }
 
+#endif
 #endif
