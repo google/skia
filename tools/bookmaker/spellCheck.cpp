@@ -579,7 +579,8 @@ void SpellCheck::wordCheck(const string& str) {
         hasColon |= isColon;
         bool isDot = '.' == ch;
         hasDot |= isDot;
-        bool isParen = '(' == ch || ')' == ch || '~' == ch || '=' == ch || '!' == ch;
+        bool isParen = '(' == ch || ')' == ch || '~' == ch || '=' == ch || '!' == ch ||
+                '[' == ch || ']' == ch;
         hasParen |= isParen;
         bool isUnderscore = '_' == ch;
         hasUnderscore |= isUnderscore;
@@ -594,6 +595,7 @@ void SpellCheck::wordCheck(const string& str) {
             sawSpecial = true;
             continue;
         }
+        SkDebugf("");
         SkASSERT(0);
     }
     if (sawSpecial && !hasParen) {
