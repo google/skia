@@ -11,8 +11,8 @@ a direct drawing destination.
 Use Bitmap to draw pixels referenced by Pixmap; use Surface to draw into
 pixels referenced by Pixmap.
 
-Pixmap does not try to manage the lifetime of the pixel memory. Use PixelRef
-to manage pixel memory; PixelRef is safe across threads.
+Pixmap does not try to manage the lifetime of the pixel memory. Use Pixel_Ref
+to manage pixel memory; Pixel_Ref is safe across threads.
 
 #Topic Overview
 
@@ -401,7 +401,8 @@ width() * info().bytesPerPixel()
 ##
 .
 
-It is up to the Pixmap creator to ensure that row bytes is a useful value.
+Returns zero if colorType is kUnknown_SkColorType.
+It is up to the Bitmap creator to ensure that row bytes is a useful value.
 
 #Return  byte length of pixel row ##
 
@@ -461,7 +462,7 @@ inset address:  0x7f2a440fb210
 
 Returns pixel count in each pixel row. Should be equal or less than:
 #Formula
-rowBytes() / info.bytesPerPixel()
+rowBytes() / info().bytesPerPixel()
 ##
 . 
 
@@ -476,7 +477,7 @@ pixmap width: 16  info width: 16
 ##
 ##
 
-#SeeAlso height()
+#SeeAlso height() SkImageInfo::width()
 
 ##
 
@@ -489,15 +490,14 @@ Returns pixel row count.
 #Return  pixel height in Image_Info ##
 
 #Example
-    SkImageInfo info = SkImageInfo::MakeA8(16, 32);
-    SkPixmap pixmap(info, nullptr, 64);
-    SkDebugf("pixmap height: %d  info height: %d\n", pixmap.height(), info.height());
+    SkPixmap pixmap(SkImageInfo::MakeA8(16, 32), nullptr, 64);
+    SkDebugf("pixmap height: %d  info height: %d\n", pixmap.height(), pixmap.info().height());
 #StdOut
 pixmap height: 32  info height: 32
 ##
 ##
 
-#SeeAlso width()
+#SeeAlso width() ImageInfo::height()
 
 ##
 
@@ -521,7 +521,7 @@ color type: kAlpha_SkColorType
 ##
 ##
 
-#SeeAlso alphaType()
+#SeeAlso alphaType() SkImageInfo::colorType
 
 ##
 
@@ -543,7 +543,7 @@ alpha type: kPremul_SkAlphaType
 ##
 ##
 
-#SeeAlso colorType()
+#SeeAlso colorType() SkImageInfo::alphaType
 
 ##
 
@@ -551,9 +551,11 @@ alpha type: kPremul_SkAlphaType
 
 #Method SkColorSpace* colorSpace() const 
 
-Returns Color_Space associated with Image_Info.
+Returns Color_Space associated with Image_Info. The
+reference count of Color_Space is unchanged. The returned Color_Space is
+immutable.
 
-#Return Color_Space in Image_Info ##
+#Return Color_Space, the range of colors, in Image_Info ##
 
 #Example
 #Description
@@ -572,7 +574,7 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 ##
 ##
 
-#SeeAlso Color_Space
+#SeeAlso Color_Space SkImageInfo::colorSpace
 
 ##
 
@@ -581,7 +583,8 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 #Method bool isOpaque() const 
 
 Returns true if Alpha_Type is kOpaque_SkAlphaType.
-Does not check if Color_Type allows Alpha, or Alpha in pixel values.
+Does not check if Color_Type allows Alpha, or if any pixel value has
+transparency.
 
 #Return true if Image_Info has opaque Alpha_Type ##
 
@@ -717,31 +720,15 @@ color: kRGBA_F16_SkColorType  bytesPerPixel: 8 shiftPerPixel: 3
 
 #Method uint64_t getSize64() const 
 
+#Deprecated
+##
+
 Returns conservative memory required for pixel storage.
 Includes unused memory on last row when rowBytesAsPixels exceeds width().
 
 #Return  conservative pixel storage size ##
 
-#Example
-    SkPixmap pixmap;
-    for (int width : { 1, 1000, 1000000 } ) {
-        for (int height: { 1, 1000, 1000000 } ) {
-            SkImageInfo imageInfo = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);
-            pixmap.reset(imageInfo , nullptr, width * 5);
-            SkDebugf("width: %7d height: %7d getSize64: %13lld\n", width, height, pixmap.getSize64());
-        }
-    }
-#StdOut
-width:       1 height:       1 getSize64:             5
-width:       1 height:    1000 getSize64:          5000
-width:       1 height: 1000000 getSize64:       5000000
-width:    1000 height:       1 getSize64:          5000
-width:    1000 height:    1000 getSize64:       5000000
-width:    1000 height: 1000000 getSize64:    5000000000
-width: 1000000 height:       1 getSize64:       5000000
-width: 1000000 height:    1000 getSize64:    5000000000
-width: 1000000 height: 1000000 getSize64: 5000000000000
-##
+#NoExample
 ##
 
 #SeeAlso getSafeSize64 getSafeSize height() rowBytes width() SkImageInfo::bytesPerPixel
@@ -752,32 +739,15 @@ width: 1000000 height: 1000000 getSize64: 5000000000000
 
 #Method uint64_t getSafeSize64() const 
 
+#Deprecated
+##
+
 Returns minimum memory required for pixel storage.
 Does not include unused memory on last row when rowBytesAsPixels exceeds width().
 
 #Return  exact pixel storage size ##
 
-#Example
-    SkPixmap pixmap;
-    for (int width : { 1, 1000, 1000000 } ) {
-        for (int height: { 1, 1000, 1000000 } ) {
-            SkImageInfo imageInfo = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);
-            pixmap.reset(imageInfo , nullptr, width * 5);
-            SkDebugf("width: %7d height: %7d getSafeSize64: %13lld\n", width, height,
-                     pixmap.getSafeSize64());
-        }
-    }
-#StdOut
-width:       1 height:       1 getSafeSize64:             4
-width:       1 height:    1000 getSafeSize64:          4999
-width:       1 height: 1000000 getSafeSize64:       4999999
-width:    1000 height:       1 getSafeSize64:          4000
-width:    1000 height:    1000 getSafeSize64:       4999000
-width:    1000 height: 1000000 getSafeSize64:    4999999000
-width: 1000000 height:       1 getSafeSize64:       4000000
-width: 1000000 height:    1000 getSafeSize64:    4999000000
-width: 1000000 height: 1000000 getSafeSize64: 4999999000000
-##
+#NoExample
 ##
 
 #SeeAlso getSize64 getSafeSize height() rowBytes width() SkImageInfo::bytesPerPixel
@@ -788,6 +758,9 @@ width: 1000000 height: 1000000 getSafeSize64: 4999999000000
 
 #Method size_t getSafeSize() const 
 
+#Deprecated
+##
+
 Returns minimum memory required for pixel storage.
 Does not include unused memory on last row when rowBytesAsPixels exceeds width().
 Returns zero if value is does not fit in a signed 32-bit integer.
@@ -795,31 +768,50 @@ The largest value than can be returned is 2,147,483,647.
 
 #Return  exact pixel storage size if size fits in signed 32 bits ##
 
+#NoExample
+##
+
+#SeeAlso getSize64 getSafeSize64 height() rowBytes width() SkImageInfo::bytesPerPixel sk_64_isS32
+
+##
+
+
+# ------------------------------------------------------------------------------
+
+#Method size_t computeByteSize() const
+
+Returns minimum memory required for pixel storage.
+Does not include unused memory on last row when rowBytesAsPixels exceeds width().
+Returns zero if result does not fit in size_t.
+Returns zero if height() or width() is 0.
+Returns height() times rowBytes if colorType is kUnknown_SkColorType.
+
+#Return size in bytes of image buffer ##
+
 #Example
-void draw(SkCanvas* canvas) {
     SkPixmap pixmap;
     for (int width : { 1, 1000, 1000000 } ) {
         for (int height: { 1, 1000, 1000000 } ) {
             SkImageInfo imageInfo = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);
-            pixmap.reset(imageInfo , nullptr, width * 5);
-            SkDebugf("width: %7d height: %7d getSafeSize: %7d\n", width, height, pixmap.getSafeSize());
+            pixmap.reset(imageInfo, nullptr, width * 5);
+            SkDebugf("width: %7d height: %7d computeByteSize: %13lld\n", width, height,
+                     pixmap.computeByteSize());
         }
     }
-}
 #StdOut
-width:       1 height:       1 getSafeSize:       4
-width:       1 height:    1000 getSafeSize:    4999
-width:       1 height: 1000000 getSafeSize: 4999999
-width:    1000 height:       1 getSafeSize:    4000
-width:    1000 height:    1000 getSafeSize: 4999000
-width:    1000 height: 1000000 getSafeSize:       0
-width: 1000000 height:       1 getSafeSize: 4000000
-width: 1000000 height:    1000 getSafeSize:       0
-width: 1000000 height: 1000000 getSafeSize:       0
+width:       1 height:       1 computeByteSize:             4
+width:       1 height:    1000 computeByteSize:          4999
+width:       1 height: 1000000 computeByteSize:       4999999
+width:    1000 height:       1 computeByteSize:          4000
+width:    1000 height:    1000 computeByteSize:       4999000
+width:    1000 height: 1000000 computeByteSize:    4999999000
+width: 1000000 height:       1 computeByteSize:       4000000
+width: 1000000 height:    1000 computeByteSize:    4999000000
+width: 1000000 height: 1000000 computeByteSize: 4999999000000
 ##
 ##
 
-#SeeAlso getSize64 getSafeSize64 height() rowBytes width() SkImageInfo::bytesPerPixel sk_64_isS32
+#SeeAlso SkImageInfo::computeByteSize
 
 ##
 
@@ -845,7 +837,7 @@ greater.
 
 Returns false for kUnknown_SkColorType. 
 
-#Return true all pixels have opaque values or Color_Type is opaque  ##
+#Return true if all pixels have opaque values or Color_Type is opaque  ##
 
 #Example
     std::vector<uint32_t> pixels;
@@ -943,10 +935,13 @@ Unpremultiplied:
 
 #Method const void* addr(int x, int y) const
 
-Returns readable pixel address at (x, y).
+Returns readable pixel address at (x, y). Returns nullptr if Pixel_Ref is nullptr.
 
 Input is not validated: out of bounds values of x or y trigger an assert() if
-built with SK_DEBUG defined. Returns zero if Color_Type is kUnknown_SkColorType.
+built with SK_DEBUG defined. Returns nullptr if Color_Type is kUnknown_SkColorType.
+
+Performs a lookup of pixel size; for better performance, call 
+one of: addr8, addr16, addr32, addr64, or addrF16.
 
 #Param x  column index, zero or greater, and less than width() ##
 #Param y  row index, zero or greater, and less than height() ##
@@ -966,7 +961,7 @@ pixmap.addr(1, 2) == &storage[1 + 2 * w]
 ##
 ##
 
-#SeeAlso addr8 addr16 addr32 addr64 addrF16 getColor writable_addr
+#SeeAlso addr8 addr16 addr32 addr64 addrF16 getColor writable_addr SkBitmap::getAddr
 
 ##
 
@@ -1611,7 +1606,7 @@ abs(srcY) >= this->height()
 If behavior is SkTransferFunctionBehavior::kRespect: converts source
 pixels to a linear space before converting to dstInfo.
 If behavior is SkTransferFunctionBehavior::kIgnore: source
-pixels are treated as if they are linear, regardless of their encoding.
+pixels are treated as if they are linear, regardless of how they are encoded.
 
 #Param dstInfo  destination width, height, Color_Type, Alpha_Type, Color_Space ##
 #Param dstPixels  destination pixel storage ##
@@ -1625,6 +1620,7 @@ pixels are treated as if they are linear, regardless of their encoding.
 #Return  true if pixels are copied to dstPixels ##
 
 #Example
+#ToDo example doesn't do anything interesting since info colorSpace is nullptr ##
 #Image 3
 void draw(SkCanvas* canvas) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(image->width(), image->height(),
