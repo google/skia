@@ -21,7 +21,7 @@ namespace skiagm {
 class OvalGM : public GM {
 public:
     OvalGM() {
-        this->setBGColor(0xFF000000);
+        this->setBGColor(SK_ColorWHITE);
         this->makePaints();
         this->makeMatrices();
     }
@@ -71,7 +71,7 @@ protected:
         // AA with stroke and fill style
         SkPaint p;
         p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStrokeAndFill_Style);
+        p.setStyle(SkPaint::kStroke_Style);
         p.setStrokeWidth(SkIntToScalar(3));
         fPaints.push_back(p);
         }
@@ -147,15 +147,17 @@ protected:
         const int kYStep = 160;
         int maxX = fMatrices.count();
 
-        SkPaint rectPaint;
-        rectPaint.setAntiAlias(true);
-        rectPaint.setStyle(SkPaint::kStroke_Style);
-        rectPaint.setStrokeWidth(SkIntToScalar(0));
-        rectPaint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
+        //SkPaint rectPaint;
+        //rectPaint.setAntiAlias(true);
+        //rectPaint.setStyle(SkPaint::kStroke_Style);
+        //rectPaint.setStrokeWidth(SkIntToScalar(0));
+        //rectPaint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
+
 
         int testCount = 0;
         for (int i = 0; i < fPaints.count(); ++i) {
             for (int j = 0; j < fMatrices.count(); ++j) {
+                if (i == 4 && j == 4) {
                 canvas->save();
                 SkMatrix mat = fMatrices[j];
                 // position the oval, and make it at off-integer coords.
@@ -165,18 +167,18 @@ protected:
                                   3 * SK_Scalar1 / 4);
                 canvas->concat(mat);
 
-                SkColor color = genColor(&rand);
-                fPaints[i].setColor(color);
+                //SkColor color = genColor(&rand);
+                fPaints[i].setColor(SK_ColorBLACK);
 
-                canvas->drawRect(oval, rectPaint);
+                //canvas->drawRect(oval, rectPaint);
                 canvas->drawOval(oval, fPaints[i]);
 
                 canvas->restore();
-
+                }
                 ++testCount;
             }
         }
-
+        /*
         // special cases
 
         // non-scaled tall and skinny oval
@@ -288,6 +290,7 @@ protected:
             canvas->drawOval(oval, fPaints[i]);
             canvas->restore();
         }
+        */
     }
 
 private:
