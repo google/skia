@@ -45,14 +45,17 @@ GrOpList::GrOpList(GrResourceProvider* resourceProvider,
 }
 
 GrOpList::~GrOpList() {
-    this->reset();
+    if (fTarget.get() && this == fTarget.get()->getLastOpList()) {
+        // Ensure the target proxy doesn't keep hold of a dangling back pointer.
+        fTarget.get()->setLastOpList(nullptr);
+    }
 }
 
 bool GrOpList::instantiate(GrResourceProvider* resourceProvider) {
     return SkToBool(fTarget.get()->instantiate(resourceProvider));
 }
 
-void GrOpList::reset() {
+void GrOpList::endFlush() {
     if (fTarget.get() && this == fTarget.get()->getLastOpList()) {
         fTarget.get()->setLastOpList(nullptr);
     }

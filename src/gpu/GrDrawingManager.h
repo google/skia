@@ -94,7 +94,6 @@ private:
 
     void abandon();
     void cleanup();
-    void reset();
     GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
                                 int numSemaphores = 0,
                                 GrBackendSemaphore backendSemaphores[] = nullptr) {

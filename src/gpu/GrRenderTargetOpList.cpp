@@ -180,7 +180,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
     return true;
 }
 
-void GrRenderTargetOpList::reset() {
+void GrRenderTargetOpList::endFlush() {
     fLastClipStackGenID = SK_InvalidUniqueID;
     fRecordedOps.reset();
     if (fInstancedRendering) {
@@ -188,7 +188,7 @@ void GrRenderTargetOpList::reset() {
         fInstancedRendering = nullptr;
     }
 
-    INHERITED::reset();
+    INHERITED::endFlush();
 }
 
 void GrRenderTargetOpList::abandonGpuResources() {

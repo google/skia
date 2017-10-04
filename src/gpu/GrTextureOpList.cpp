@@ -79,9 +79,9 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
     return true;
 }
 
-void GrTextureOpList::reset() {
+void GrTextureOpList::endFlush() {
     fRecordedOps.reset();
-    INHERITED::reset();
+    INHERITED::endFlush();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

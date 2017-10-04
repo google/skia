@@ -36,7 +36,11 @@ void GrDrawingManager::cleanup() {
         // We shouldn't need to do this, but it turns out some clients still hold onto opLists
         // after a cleanup.
         // MDB TODO: is this still true?
-        fOpLists[i]->reset();
+        if (!fOpLists[i]->unique()) {
+            // TODO: Eventually this should be guaranteed unique.
+            // https://bugs.chromium.org/p/skia/issues/detail?id=7111
+            fOpLists[i]->endFlush();
+        }
     }
 
     fOpLists.reset();
@@ -76,13 +80,6 @@ void GrDrawingManager::freeGpuResources() {
         fOpLists[i]->freeGpuResources();
     }
 
-}
-
-void GrDrawingManager::reset() {
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->reset();
-    }
-    fFlushState.reset();
 }
 
 gr_instanced::OpAllocator* GrDrawingManager::instancingAllocator() {
@@ -162,6 +159,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                 if (!opList) {
                     continue;   // Odd - but not a big deal
                 }
+                SkASSERT(opList->unique());
                 opList->makeClosed(*fContext->caps());
                 opList->prepare(&fFlushState);
                 if (!opList->execute(&fFlushState)) {
@@ -224,7 +222,11 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         if (!fOpLists[i]) {
             continue;
         }
-        fOpLists[i]->reset();
+        if (!fOpLists[i]->unique()) {
+            // TODO: Eventually this should be guaranteed unique.
+            // https://bugs.chromium.org/p/skia/issues/detail?id=7111
+            fOpLists[i]->endFlush();
+        }
     }
     fOpLists.reset();
 
