@@ -267,6 +267,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     GrSurfaceDesc copyDesc = desc;
     copyDesc.fSampleCnt = caps->getSampleCount(desc.fSampleCnt, desc.fConfig);
 
+#ifdef SK_DISABLE_DEFERRED_PROXIES
     // Temporarily force instantiation for crbug.com/769760
     if (willBeRT) {
         // We know anything we instantiate later from this deferred path will be
@@ -286,6 +287,16 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     }
 
     return nullptr;
+#else
+    if (willBeRT) {
+        // We know anything we instantiate later from this deferred path will be
+        // both texturable and renderable
+        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(*caps, copyDesc, fit,
+                                                                    budgeted, flags));
+    }
+
+    return sk_sp<GrTextureProxy>(new GrTextureProxy(copyDesc, fit, budgeted, nullptr, 0, flags));
+#endif
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceProvider,
