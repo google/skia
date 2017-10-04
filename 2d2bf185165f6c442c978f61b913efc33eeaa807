@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93063bc7_ca9b5264",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-04T18:35:27Z",
+      "side": 1,
+      "message": "just a marker comment so I know where i\u0027ve read to :)",
+      "range": {
+        "startLine": 511,
+        "startChar": 1,
+        "endLine": 511,
+        "endChar": 38
+      },
+      "revId": "2d2bf185165f6c442c978f61b913efc33eeaa807",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98851d0f_f2500173",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-04T18:35:27Z",
+      "side": 1,
+      "message": "do we explicitly need to write out the fLayout.fSet that you\u0027re checkout above, or does that get taken care of by the loop here?",
+      "range": {
+        "startLine": 769,
+        "startChar": 15,
+        "endLine": 776,
+        "endChar": 35
+      },
+      "revId": "2d2bf185165f6c442c978f61b913efc33eeaa807",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
