@@ -641,6 +641,10 @@ def dm_flags(api, bot):
     match.append('~WritePixelsNonTexture_Gpu')
     match.append('~XfermodeImageFilterCroppedInput_Gpu')
 
+  if 'AlphaR2' in bot and 'ANGLE' in bot:
+    # skia:7096
+    match.append('~PinnedImageTest')
+
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     for config in ['angle_d3d9_es2', 'angle_d3d11_es2', 'angle_gl_es2']:
       # skia:6103
@@ -886,6 +890,7 @@ TEST_BUILDERS = [
    '-Valgrind_SK_CPU_LIMIT_SSE41'),
   ('Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release'
    '-ReleaseAndAbandonGpuContext'),
+  'Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE',
   'Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan',
   'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE',
   'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
