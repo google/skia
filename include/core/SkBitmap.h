@@ -135,7 +135,7 @@ public:
      *  that all bitmaps that might be sharing (subsets of) the pixels will
      *  be affected.
      */
-    bool setAlphaType(SkAlphaType);
+    bool setAlphaType(SkAlphaType alphaType);
 
     /** Return the address of the pixels for this SkBitmap.
     */
@@ -203,7 +203,7 @@ public:
         improve performance by avoiding unnecessary overhead and resource
         consumption on the device.
     */
-    void setIsVolatile(bool);
+    void setIsVolatile(bool isVolatile);
 
     /** Reset the bitmap to its initial state (see default constructor). If we are a (shared)
         owner of the pixels, that ownership is decremented.
@@ -553,7 +553,7 @@ public:
     }
     bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior behavior);
 
-#ifdef SK_BUILD_FOR_ANDROID
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     bool hasHardwareMipMap() const {
         return (fFlags & kHasHardwareMipMap_Flag) != 0;
     }
