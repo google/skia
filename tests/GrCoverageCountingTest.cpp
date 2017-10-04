@@ -1,0 +1,91 @@
+/*
+ * Copyright 2017 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "SkTypes.h"
+#include "Test.h"
+
+#if SK_SUPPORT_GPU
+
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrClip.h"
+#include "GrRenderTargetContext.h"
+#include "GrRenderTargetContextPriv.h"
+#include "GrShape.h"
+#include "GrPathRenderer.h"
+#include "GrPaint.h"
+#include "SkMatrix.h"
+#include "SkRect.h"
+#include "ccpr/GrCoverageCountingPathRenderer.h"
+#include <cmath>
+
+static constexpr int kCanvasSize = 100;
+
+class CCPRRenderer {
+public:
+    CCPRRenderer(GrContext* ctx)
+            : fCtx(ctx)
+            , fCCPR(GrCoverageCountingPathRenderer::CreateIfSupported(*fCtx->caps()))
+            , fRTC(fCtx->makeDeferredRenderTargetContext(SkBackingFit::kExact, kCanvasSize,
+                                                         kCanvasSize, kRGBA_8888_GrPixelConfig,
+                                                         nullptr)) {
+        if (fCCPR) {
+            fCtx->contextPriv().addOnFlushCallbackObject(fCCPR.get());
+        }
+    }
+
+    bool valid() { return fCCPR && fRTC; }
+
+    void clear() { fRTC->clear(nullptr, 0, true); }
+
+    void drawPath(const SkPath& path, GrColor4f color = GrColor4f(0, 1, 0, 1)) {
+        GrPaint paint;
+        paint.setColor4f(color);
+        GrNoClip noClip;
+        SkIRect clipBounds = SkIRect::MakeWH(kCanvasSize, kCanvasSize);
+        SkMatrix matrix = SkMatrix::I();
+        GrShape shape(path);
+        fCCPR->drawPath({fCtx.get(), std::move(paint), &GrUserStencilSettings::kUnused, fRTC.get(),
+                         &noClip, &clipBounds, &matrix, &shape, GrAAType::kCoverage, false});
+    }
+
+    void flush() {
+        fCtx->flush();
+    }
+
+private:
+    sk_sp<GrContext>                        fCtx;
+    sk_sp<GrCoverageCountingPathRenderer>   fCCPR;
+    sk_sp<GrRenderTargetContext>            fRTC;
+};
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrCoverageCountingTest, reporter, ctxInfo) {
+    GrContext* const ctx = ctxInfo.grContext();
+    if (!GrCoverageCountingPathRenderer::IsSupported(*ctx->caps())) {
+        return;
+    }
+
+    CCPRRenderer ccpr(ctx);
+    if (!ccpr.valid()) {
+        ERRORF(reporter, "could not create render target context for ccpr.");
+        return;
+    }
+
+    // Test very dense paths.
+    static constexpr int kNumDenseVerbs = 1 << 17;
+    ccpr.clear();
+    SkPath densePath;
+    densePath.moveTo(55, 0);
+    for (int i = 1; i < kNumDenseVerbs; ++i) {
+        float theta = i / (float) kNumDenseVerbs;
+        densePath.lineTo(5 + std::cos(theta) * 5, 5 + std::sin(theta) * 5);
+    }
+    ccpr.drawPath(densePath);
+    ccpr.flush(); // Test successful if we don't crash.
+}
+
+#endif
