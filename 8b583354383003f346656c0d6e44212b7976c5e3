@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76e41e34_0e915f93",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T13:59:42Z",
+      "side": 1,
+      "message": "The goal here is to pick one of the modes we switch on down below. Now that we\u0027ve removed one, we need to decrease this to 4.",
+      "range": {
+        "startLine": 192,
+        "startChar": 4,
+        "endLine": 193,
+        "endChar": 20
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81f92d1c_783906d7",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T13:59:42Z",
+      "side": 1,
+      "message": "We need to renumber these, so no mode hits the default case.",
+      "range": {
+        "startLine": 260,
+        "startChar": 20,
+        "endLine": 260,
+        "endChar": 32
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09604d88_a7a596fa",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T13:59:42Z",
+      "side": 1,
+      "message": "I don\u0027 think you need this variable. Instead, you can just increment fRowsWrittenToOutput down below, inside this method.",
+      "range": {
+        "startLine": 530,
+        "startChar": 16,
+        "endLine": 530,
+        "endChar": 27
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa0d63fc_4557f9ea",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T13:59:42Z",
+      "side": 1,
+      "message": "I don\u0027t think you need this variable. Instead, you can just applyColorXform on fDst, and add fDstRowBytes to it down below, with the others.",
+      "range": {
+        "startLine": 544,
+        "startChar": 12,
+        "endLine": 544,
+        "endChar": 20
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16ac4654_f473c0e4",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 780,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T13:59:42Z",
+      "side": 1,
+      "message": "I don\u0027t think this comment is necessary.",
+      "range": {
+        "startLine": 780,
+        "startChar": 4,
+        "endLine": 780,
+        "endChar": 40
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7237b54d_41ee3e23",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T13:59:42Z",
+      "side": 1,
+      "message": "It occurs to me that because of skbug.com/4036 (which I told you to reference above), we cannot continue decoding after this. So this should be\n\n    if (fLinesToSkip) {\n        // FIXME: Due to skbug.com/4036, we cannot resume after supplying more data.\n        // Once the bug is fixed, this should return kIncompleteInput.\n        return SkCodec::kErrorInInput;\n    }",
+      "range": {
+        "startLine": 795,
+        "startChar": 12,
+        "endLine": 795,
+        "endChar": 45
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25d743f3_6e9dc72b",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 799,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T13:59:42Z",
+      "side": 1,
+      "message": "This comment is unnecessary.",
+      "range": {
+        "startLine": 799,
+        "startChar": 4,
+        "endLine": 799,
+        "endChar": 38
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da568988_38a46436",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T13:59:42Z",
+      "side": 1,
+      "message": "Thanks for separating this case out from the other. I think we can take this even further. Up above, I suggested making readRows increment fRowsWrittenToOutput. Once you\u0027ve done that, this doesn\u0027t need to be part of the loop. So it will look something like this:\n\nif (sampleY \u003d\u003d 1) {\n    result \u003d this-\u003ereadRows(fRowsNeeded - fRowsWrittenToOutput);\n} else {\n    while (true) {\n        result \u003d this-\u003ereadRows(1);\n        if (result !\u003d kSuccess || fRowsWrittenToOutput \u003d\u003d fRowsNeeded) {\n            break;\n        }\n        // skip scanlines\n    }\n}\n\nif (kSuccess \u003d\u003d result) {\n    return kSuccess;\n}\n\nif (rowsDecoded) {\n    *rowsDecoded \u003d fRowsWrittenToOutput;\n}\nreturn result;",
+      "range": {
+        "startLine": 805,
+        "startChar": 12,
+        "endLine": 805,
+        "endChar": 84
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e125b9ee_1c1561ba",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 824,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-04T13:59:42Z",
+      "side": 1,
+      "message": "Similar to above, this should return kErrorInInput with a FIXME.",
+      "range": {
+        "startLine": 824,
+        "startChar": 12,
+        "endLine": 824,
+        "endChar": 45
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
