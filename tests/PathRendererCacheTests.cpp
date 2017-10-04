@@ -71,10 +71,12 @@ static bool cache_non_scratch_resources_equals(GrResourceCache* cache, int expec
 static void test_path(skiatest::Reporter* reporter,
                       std::function<SkPath(void)> createPath,
                       std::function<GrPathRenderer*(GrContext*)> createPathRenderer,
+                      int expected,
                       GrAAType aaType = GrAAType::kNone,
                       GrStyle style = GrStyle(SkStrokeRec::kFill_InitStyle)) {
     sk_sp<GrContext> ctx = GrContext::MakeMock(nullptr);
-    ctx->setResourceCacheLimits(100, 100000);
+    // The cache needs to be big enough that nothing gets flushed, or our expectations can be wrong
+    ctx->setResourceCacheLimits(100, 1000000);
     GrResourceCache* cache = ctx->getResourceCache();
 
     sk_sp<GrRenderTargetContext> rtc(ctx->makeDeferredRenderTargetContext(
@@ -93,16 +95,17 @@ static void test_path(skiatest::Reporter* reporter,
     // Draw the path, check that new resource count matches expectations
     draw_path(ctx.get(), rtc.get(), path, pathRenderer.get(), aaType, style);
     ctx->flush();
-    REPORTER_ASSERT(reporter, cache_non_scratch_resources_equals(cache, 1));
+    REPORTER_ASSERT(reporter, cache_non_scratch_resources_equals(cache, expected));
 
     // Nothing should be purgeable yet
     cache->purgeAsNeeded();
-    REPORTER_ASSERT(reporter, cache_non_scratch_resources_equals(cache, 1));
+    REPORTER_ASSERT(reporter, cache_non_scratch_resources_equals(cache, expected));
 
-    // Reset the path to change the GenID, which should invalidate any resources in the cache
+    // Reset the path to change the GenID, which should invalidate one resource in the cache.
+    // Some path renderers may leave other unique-keyed resources in the cache, though.
     path.reset();
     cache->purgeAsNeeded();
-    REPORTER_ASSERT(reporter, cache_non_scratch_resources_equals(cache, 0));
+    REPORTER_ASSERT(reporter, cache_non_scratch_resources_equals(cache, expected - 1));
 }
 
 // Test that deleting the original path invalidates the VBs cached by the tessellating path renderer
@@ -111,8 +114,11 @@ DEF_GPUTEST(TessellatingPathRendererCacheTest, reporter, factory) {
         return new GrTessellatingPathRenderer();
     };
 
-    // Tessellating path renderer stores vertex buffers in the cache (for non-AA paths)
-    test_path(reporter, create_concave_path, createPR);
+    // Tessellating path renderer creates a single vertex buffer for non-AA paths. No other
+    // resources should be created.
+    const int kExpectedResources = 1;
+
+    test_path(reporter, create_concave_path, createPR, kExpectedResources);
 
     // Test with a style that alters the path geometry. This needs to attach the invalidation logic
     // to the original path, not the modified path produced by the style.
@@ -120,20 +126,22 @@ DEF_GPUTEST(TessellatingPathRendererCacheTest, reporter, factory) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(1);
     GrStyle style(paint);
-    test_path(reporter, create_concave_path, createPR, GrAAType::kNone, style);
+    test_path(reporter, create_concave_path, createPR, kExpectedResources, GrAAType::kNone, style);
 }
 
 // Test that deleting the original path invalidates the textures cached by the SW path renderer
 DEF_GPUTEST(SoftwarePathRendererCacheTest, reporter, factory) {
 // Currently disabled since the test is only passing thanks to uninteded behavior in deleting a
 // resource since we are over budget. If we increase the cache budget the test will fail
-#if 0
     auto createPR = [](GrContext* ctx) {
         return new GrSoftwarePathRenderer(ctx->resourceProvider(), true);
     };
 
-    // Tessellating path renderer stores vertex buffers in the cache (for non-AA paths)
-    test_path(reporter, create_concave_path, createPR, GrAAType::kCoverage);
+    // Software path renderer creates a mask texture, but also renders with a non-AA rect, which
+    // refs the quad index buffer.
+    const int kExpectedResources = 2;
+
+    test_path(reporter, create_concave_path, createPR, kExpectedResources, GrAAType::kCoverage);
 
     // Test with a style that alters the path geometry. This needs to attach the invalidation logic
     // to the original path, not the modified path produced by the style.
@@ -141,8 +149,8 @@ DEF_GPUTEST(SoftwarePathRendererCacheTest, reporter, factory) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(1);
     GrStyle style(paint);
-    test_path(reporter, create_concave_path, createPR, GrAAType::kCoverage, style);
-#endif
+    test_path(reporter, create_concave_path, createPR, kExpectedResources, GrAAType::kCoverage,
+              style);
 }
 
 #endif
