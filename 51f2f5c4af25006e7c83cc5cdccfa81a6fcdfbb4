@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "0f64310f_6820340f",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-04T15:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f1afbf6_ce6b4980",
+      "range": {
+        "startLine": 769,
+        "startChar": 21,
+        "endLine": 769,
+        "endChar": 39
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "20334dd2_20a3ca0d",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 31
@@ -202,6 +226,30 @@
       "side": 1,
       "message": "I\u0027d rather keep this code simpler (i.e. inline this) and refactor it if/when we actually move it to the base class.",
       "parentUuid": "0375f152_c5c5bcf7",
+      "range": {
+        "startLine": 785,
+        "startChar": 4,
+        "endLine": 785,
+        "endChar": 12
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1589201_40b6ad01",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-04T15:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b502180_d239dbdf",
       "range": {
         "startLine": 785,
         "startChar": 4,
@@ -414,6 +462,30 @@
       "side": 1,
       "message": "Something like:\n\n  if (sampleY \u003d\u003d 1) {\n    return readRows(fRowsNeeded - fRowsWrittenToOutput);\n  }",
       "parentUuid": "384a2c0b_1df3698e",
+      "range": {
+        "startLine": 814,
+        "startChar": 19,
+        "endLine": 814,
+        "endChar": 27
+      },
+      "revId": "51f2f5c4af25006e7c83cc5cdccfa81a6fcdfbb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "575a25fa_afdaf3f8",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 31
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-04T15:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f8efb76_b6c3fba3",
       "range": {
         "startLine": 814,
         "startChar": 19,

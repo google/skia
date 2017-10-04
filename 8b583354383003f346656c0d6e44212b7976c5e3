@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "595da29e_69d33d9c",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-04T15:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76e41e34_0e915f93",
+      "range": {
+        "startLine": 192,
+        "startChar": 4,
+        "endLine": 193,
+        "endChar": 20
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "81f92d1c_783906d7",
         "filename": "fuzz/fuzz.cpp",
         "patchSetId": 33
@@ -36,6 +60,30 @@
       "writtenOn": "2017-10-04T13:59:42Z",
       "side": 1,
       "message": "We need to renumber these, so no mode hits the default case.",
+      "range": {
+        "startLine": 260,
+        "startChar": 20,
+        "endLine": 260,
+        "endChar": 32
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eea9c6b7_8c19277e",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-04T15:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81f92d1c_783906d7",
       "range": {
         "startLine": 260,
         "startChar": 20,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "013f62c3_fe95b965",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-04T15:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09604d88_a7a596fa",
+      "range": {
+        "startLine": 530,
+        "startChar": 16,
+        "endLine": 530,
+        "endChar": 27
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fa0d63fc_4557f9ea",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 33
@@ -82,6 +154,30 @@
       "writtenOn": "2017-10-04T13:59:42Z",
       "side": 1,
       "message": "I don\u0027t think you need this variable. Instead, you can just applyColorXform on fDst, and add fDstRowBytes to it down below, with the others.",
+      "range": {
+        "startLine": 544,
+        "startChar": 12,
+        "endLine": 544,
+        "endChar": 20
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "788508f0_f74038ff",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-04T15:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa0d63fc_4557f9ea",
       "range": {
         "startLine": 544,
         "startChar": 12,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "a38d5ec8_4fa9ba56",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 780,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-04T15:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16ac4654_f473c0e4",
+      "range": {
+        "startLine": 780,
+        "startChar": 4,
+        "endLine": 780,
+        "endChar": 40
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7237b54d_41ee3e23",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 33
@@ -128,6 +248,30 @@
       "writtenOn": "2017-10-04T13:59:42Z",
       "side": 1,
       "message": "It occurs to me that because of skbug.com/4036 (which I told you to reference above), we cannot continue decoding after this. So this should be\n\n    if (fLinesToSkip) {\n        // FIXME: Due to skbug.com/4036, we cannot resume after supplying more data.\n        // Once the bug is fixed, this should return kIncompleteInput.\n        return SkCodec::kErrorInInput;\n    }",
+      "range": {
+        "startLine": 795,
+        "startChar": 12,
+        "endLine": 795,
+        "endChar": 45
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55a2c6ec_b2394d8a",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-04T15:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7237b54d_41ee3e23",
       "range": {
         "startLine": 795,
         "startChar": 12,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "76779857_7b01bf5f",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 799,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-04T15:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "25d743f3_6e9dc72b",
+      "range": {
+        "startLine": 799,
+        "startChar": 4,
+        "endLine": 799,
+        "endChar": 38
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "da568988_38a46436",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 33
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "cee8300e_683bf37a",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-04T15:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da568988_38a46436",
+      "range": {
+        "startLine": 805,
+        "startChar": 12,
+        "endLine": 805,
+        "endChar": 84
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e125b9ee_1c1561ba",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 33
@@ -197,6 +389,30 @@
       "writtenOn": "2017-10-04T13:59:42Z",
       "side": 1,
       "message": "Similar to above, this should return kErrorInInput with a FIXME.",
+      "range": {
+        "startLine": 824,
+        "startChar": 12,
+        "endLine": 824,
+        "endChar": 45
+      },
+      "revId": "8b583354383003f346656c0d6e44212b7976c5e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5ae7b5f_5ad12157",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 824,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-04T15:51:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e125b9ee_1c1561ba",
       "range": {
         "startLine": 824,
         "startChar": 12,
