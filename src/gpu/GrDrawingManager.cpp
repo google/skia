@@ -211,16 +211,26 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         if (fOpLists[i]->execute(&fFlushState)) {
             flushed = true;
         }
+    }
+
+    SkASSERT(fFlushState.nextDrawToken() == fFlushState.nextTokenToFlush());
+
+    // We reset the flush state before the OpLists so that the last resources to be freed are those
+    // that are written to in the OpLists. This helps to make sure the most recently used resources
+    // are the last to be purged by the resource cache.
+    fFlushState.reset();
+
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        if (!fOpLists[i]) {
+            continue;
+        }
         fOpLists[i]->reset();
     }
     fOpLists.reset();
 
-    SkASSERT(fFlushState.nextDrawToken() == fFlushState.nextTokenToFlush());
-
     GrSemaphoresSubmitted result = fContext->getGpu()->finishFlush(numSemaphores,
                                                                    backendSemaphores);
 
-    fFlushState.reset();
     // We always have to notify the cache when it requested a flush so it can reset its state.
     if (flushed || type == GrResourceCache::FlushType::kCacheRequested) {
         fContext->getResourceCache()->notifyFlushOccurred(type);
