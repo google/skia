@@ -115,10 +115,6 @@ skia.primary -b <job name>` to run the new job. (After commit, the new job will
 appear in the PolyGerrit UI after the next successful run of the
 Housekeeper-Nightly-UpdateMetaConfig task.)
 
-If you need to do something more complicated, or if you are not sure how to add
-and configure the new jobs, please ask for help from borenet, benjaminwagner, or
-mtklein.
-
 [new bot request]:
     https://bugs.chromium.org/p/skia/issues/entry?template=New+Bot+Request
 [jobs json]: https://skia.googlesource.com/skia/+/master/infra/bots/jobs.json
@@ -128,3 +124,56 @@ mtklein.
     https://skia.googlesource.com/skia/+/master/infra/bots/recipes/test.py
 [perf py]:
     https://skia.googlesource.com/skia/+/master/infra/bots/recipes/perf.py
+
+
+Detail on Skia Tasks
+--------------------
+
+If you need to do something more complicated, or if you are not sure how to add
+and configure the new jobs, please ask for help from borenet, benjaminwagner, or
+mtklein.
+
+infra/bots/gen_tasks.go reads config files:
+
+* infra/bots/jobs.json
+* infra/bots/cfg.json
+* infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json
+
+Based on each job name in jobs.json, gen_tasks decides which tasks to generate (process
+function). Various helper functions return task name of the direct dependencies of the job.
+
+In gen_tasks, tasks are specified with a TaskSpec. A TaskSpec specifies how to generate and trigger
+an Isolated file on Swarming. An Isolated file is created based on several parameters of the
+TaskSpec:
+
+* Isolate: specifies the isolate file. The isolate file specifies the command that the Swarming task
+  will run and files from the repo to place on the bot before running the task.
+  [More info][isolate user guide].
+* ExtraArgs: appended to the end of the command from the isolate. Our recipes expect a number of
+  args (mostly to support tryjobs):
+  * repository
+  * buildername
+  * swarm_out_dir
+  * revision
+  * patch_repo
+  * patch_storage
+  * patch_issue
+  * patch_set
+* CipdPackages: specifies the IDs of CIPD packages that will be placed on the bot before running the
+  task. See infra/bots/assets/README.md for more info.
+* Dependencies: specifies the names of other tasks that this task depends upon. The outputs of those
+  tasks will be placed on the bot before running this task.
+* Dimensions: specifies what kind of bot should run this task. Ask Infra team for how to set this.
+* MaxAttempts: controls automatic retries when the task fails.
+* ExecutionTimeout: total time the task is allowed to run before it is killed.
+* IoTimeout: amount of time the task can run without printing something to stdout/stderr before it
+  is killed.
+* Expiration: Mostly ignored. If the task happens to be scheduled when there are no bots that can
+  run it, it will remain pending for this long before being canceled.
+* Priority: Mostly ignored. Lower priority takes precedence over higher priority.
+
+Most Skia tasks run recipes. The isolated file specifies which recipe to run. More info on recipes
+at infra/bots/recipes/README.md and infra/bots/recipe_modules/README.md.
+  
+[isolate user guide]:
+    https://github.com/luci/luci-py/blob/master/appengine/isolate/doc/client/Isolate-User-Guide.md
