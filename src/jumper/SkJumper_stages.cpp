@@ -1073,10 +1073,13 @@ STAGE(repeat_y, const SkJumper_TileCtx* ctx) { g = exclusive_repeat(g, ctx); }
 STAGE(mirror_x, const SkJumper_TileCtx* ctx) { r = exclusive_mirror(r, ctx); }
 STAGE(mirror_y, const SkJumper_TileCtx* ctx) { g = exclusive_mirror(g, ctx); }
 
-// Clamp x to [0,1], both sides exclusive (think, gradients).
-STAGE( clamp_x_1, Ctx::None) { r = min(max(0, r), 1.0f); }
-STAGE(repeat_x_1, Ctx::None) { r = r - floor_(r); }
-STAGE(mirror_x_1, Ctx::None) { r = abs_( (r-1.0f) - two(floor_((r-1.0f)*0.5f)) - 1.0f ); }
+// Clamp x to [0,1], both sides inclusive (think, gradients).
+// Even repeat and mirror funnel through a clamp to handle bad inputs like +Inf, NaN.
+SI F clamp_01(F v) { return min(max(0, v), 1); }
+
+STAGE( clamp_x_1, Ctx::None) { r = clamp_01(r); }
+STAGE(repeat_x_1, Ctx::None) { r = clamp_01(r - floor_(r)); }
+STAGE(mirror_x_1, Ctx::None) { r = clamp_01(abs_( (r-1.0f) - two(floor_((r-1.0f)*0.5f)) - 1.0f )); }
 
 STAGE(luminance_to_alpha, Ctx::None) {
     a = r*0.2126f + g*0.7152f + b*0.0722f;
