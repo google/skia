@@ -535,6 +535,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
          ctxInfo.driver() != kChromium_GrGLDriver)) {
         fUseDrawInsteadOfClear = true;
     }
+
+#ifdef SK_BUILD_FOR_MAC
+    if (kIntel6xxx_GrGLRenderer == ctxInfo.renderer()) {
+        fUseDrawInsteadOfClear = true;
+    }
+#endif
+
     // See crbug.com/755871. This could probably be narrowed to just partial clears as the driver
     // bugs seems to involve clearing too much and not skipping the clear.
     // See crbug.com/768134. This is also needed for full clears and was seen on an nVidia K620 
