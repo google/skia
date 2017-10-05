@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "774ed58e_9c1e7ce8",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-05T20:15:00Z",
+      "side": 1,
+      "message": "Should we document what happens here if the image is not texture-backed at all?",
+      "revId": "5fdd81e219630233d02172e5d968cc74a7dcd430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9997d3e5_77947623",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 934,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-05T20:15:00Z",
+      "side": 1,
+      "message": "I think here we have to also check that the GrTexture is uniquely owned (by the SkImage).",
+      "range": {
+        "startLine": 934,
+        "startChar": 4,
+        "endLine": 934,
+        "endChar": 85
+      },
+      "revId": "5fdd81e219630233d02172e5d968cc74a7dcd430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "818fdb3c_3fdc40d1",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 5
@@ -25,6 +65,29 @@
     },
     {
       "key": {
+        "uuid": "8187f2e6_33ff4f4e",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-05T20:15:00Z",
+      "side": 1,
+      "message": "If we need this assert we should probably move it above the other one since it dereferences getTexture().",
+      "range": {
+        "startLine": 942,
+        "startChar": 4,
+        "endLine": 942,
+        "endChar": 34
+      },
+      "revId": "5fdd81e219630233d02172e5d968cc74a7dcd430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "89376a80_7647c23a",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 5
@@ -36,6 +99,30 @@
       "writtenOn": "2017-10-05T19:21:54Z",
       "side": 1,
       "message": "The two lines below appear to work correctly, but I feel like I\u0027m working around the cache... Any thoughts on a nicer way to accomplish this?",
+      "range": {
+        "startLine": 951,
+        "startChar": 18,
+        "endLine": 951,
+        "endChar": 19
+      },
+      "revId": "5fdd81e219630233d02172e5d968cc74a7dcd430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e49283ef_fc053925",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-05T20:15:00Z",
+      "side": 1,
+      "message": "Maybe we should have a method on GrTexture that is something like:\n\nGrBackendTexture steal() {\n   if (!uniquely owned) { return null; }\n   auto ret \u003d this-\u003egetBackendTexture();\n   this-\u003eabandon();\n   this-\u003eunref();\n}\n\nI\u0027m not sure if it\u0027s quite right... but the general idea is that it simultaneously steals the underlying 3D API\u0027s texture from the GrTexture and unrefs() the texture assuming the caller has the only ref on the texture.",
+      "parentUuid": "89376a80_7647c23a",
       "range": {
         "startLine": 951,
         "startChar": 18,
