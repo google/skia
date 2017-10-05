@@ -399,6 +399,14 @@ public:
         return fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines;
     }
 
+    // Returns the observed maximum number of instances the hardware can handle in a single draw
+    // call without crashing, or 'pendingInstanceCount' if this workaround is not necessary.
+    // NOTE: the return value may be larger than pendingInstanceCount.
+    int maxInstancesPerDrawWithoutCrashing(int pendingInstanceCount) const {
+        return fMaxInstancesPerDrawWithoutCrashing ? fMaxInstancesPerDrawWithoutCrashing
+                                                   : pendingInstanceCount;
+    }
+
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
@@ -479,6 +487,7 @@ private:
     bool fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines : 1;
 
     uint32_t fBlitFramebufferFlags;
+    int fMaxInstancesPerDrawWithoutCrashing;
 
     /** Number type of the components (with out considering number of bits.) */
     enum FormatType {
