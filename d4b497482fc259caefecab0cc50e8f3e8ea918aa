@@ -16,6 +16,24 @@
       "revId": "d4b497482fc259caefecab0cc50e8f3e8ea918aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1912a091_1997f252",
+        "filename": "src/core/SkString.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-10-05T17:01:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b1415ed_e492d4b9",
+      "revId": "d4b497482fc259caefecab0cc50e8f3e8ea918aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
