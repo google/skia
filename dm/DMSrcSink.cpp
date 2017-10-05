@@ -567,7 +567,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             void* dst = pixels.get();
             uint32_t height = decodeInfo.height();
             const bool useIncremental = [this]() {
-                auto exts = { "png", "PNG", "gif", "GIF" };
+                auto exts = { "png", "PNG", "gif", "GIF", "jpg", "JPG", "jpeg", "JPEG" };
                 for (auto ext : exts) {
                     if (fPath.endsWith(ext)) {
                         return true;
@@ -616,82 +616,6 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
 
             draw_to_canvas(canvas, bitmapInfo, dst, rowBytes, fDstColorType);
-            break;
-        }
-        case kStripe_Mode: {
-            const int height = decodeInfo.height();
-            // This value is chosen arbitrarily.  We exercise more cases by choosing a value that
-            // does not align with image blocks.
-            const int stripeHeight = 37;
-            const int numStripes = (height + stripeHeight - 1) / stripeHeight;
-            void* dst = pixels.get();
-
-            // Decode odd stripes
-            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &options)) {
-                return "Could not start scanline decoder";
-            }
-
-            // This mode was designed to test the new skip scanlines API in libjpeg-turbo.
-            // Jpegs have kTopDown_SkScanlineOrder, and at this time, it is not interesting
-            // to run this test for image types that do not have this scanline ordering.
-            // We only run this on Jpeg, which is always kTopDown.
-            SkASSERT(SkCodec::kTopDown_SkScanlineOrder == codec->getScanlineOrder());
-
-            for (int i = 0; i < numStripes; i += 2) {
-                // Skip a stripe
-                const int linesToSkip = SkTMin(stripeHeight, height - i * stripeHeight);
-                codec->skipScanlines(linesToSkip);
-
-                // Read a stripe
-                const int startY = (i + 1) * stripeHeight;
-                const int linesToRead = SkTMin(stripeHeight, height - startY);
-                if (linesToRead > 0) {
-                    codec->getScanlines(SkTAddOffset<void>(dst, rowBytes * startY), linesToRead,
-                                        rowBytes);
-                }
-            }
-
-            // Decode even stripes
-            const SkCodec::Result startResult = codec->startScanlineDecode(decodeInfo);
-            if (SkCodec::kSuccess != startResult) {
-                return "Failed to restart scanline decoder with same parameters.";
-            }
-            for (int i = 0; i < numStripes; i += 2) {
-                // Read a stripe
-                const int startY = i * stripeHeight;
-                const int linesToRead = SkTMin(stripeHeight, height - startY);
-                codec->getScanlines(SkTAddOffset<void>(dst, rowBytes * startY), linesToRead,
-                                    rowBytes);
-
-                // Skip a stripe
-                const int linesToSkip = SkTMin(stripeHeight, height - (i + 1) * stripeHeight);
-                if (linesToSkip > 0) {
-                    codec->skipScanlines(linesToSkip);
-                }
-            }
-
-            draw_to_canvas(canvas, bitmapInfo, dst, rowBytes, fDstColorType);
-            break;
-        }
-        case kCroppedScanline_Mode: {
-            const int width = decodeInfo.width();
-            const int height = decodeInfo.height();
-            // This value is chosen because, as we move across the image, it will sometimes
-            // align with the jpeg block sizes and it will sometimes not.  This allows us
-            // to test interestingly different code paths in the implementation.
-            const int tileSize = 36;
-            SkIRect subset;
-            for (int x = 0; x < width; x += tileSize) {
-                subset = SkIRect::MakeXYWH(x, 0, SkTMin(tileSize, width - x), height);
-                options.fSubset = &subset;
-                if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &options)) {
-                    return "Could not start scanline decoder.";
-                }
-
-                codec->getScanlines(SkTAddOffset<void>(pixels.get(), x * bpp), height, rowBytes);
-            }
-
-            draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes, fDstColorType);
             break;
         }
         case kSubset_Mode: {
