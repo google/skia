@@ -1605,6 +1605,24 @@ if (skia_enable_tools) {
     ]
   }
 
+  test_app("gpucts") {
+    sources = [
+      "third_party/externals/googletest/googletest/src/gtest-all.cc",
+      "tools/gpucts/gpucts.cpp",
+      "tools/gpucts/gm_runner.cpp",
+      "tools/gpucts/gm_knowledge.c",
+    ]
+    include_dirs = [
+      "third_party/externals/googletest/googletest",
+      "third_party/externals/googletest/googletest/include",
+    ]
+    deps = [
+      ":skia",
+      ":gm",
+      ":gpu_tool_utils",
+    ]
+  }
+
   if (skia_enable_gpu) {
     test_app("viewer") {
       is_shared_library = is_android
