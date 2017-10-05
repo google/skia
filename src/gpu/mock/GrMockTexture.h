@@ -45,6 +45,8 @@ protected:
             , fReleaseProc(nullptr)
             , fReleaseCtx(nullptr) {}
 
+    void onAbandonTextureOnly() override {}
+
 private:
     GrMockTextureInfo fInfo;
     ReleaseProc fReleaseProc;

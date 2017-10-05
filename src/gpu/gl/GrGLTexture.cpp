@@ -105,9 +105,7 @@ void GrGLTexture::onRelease() {
 }
 
 void GrGLTexture::onAbandon() {
-    fInfo.fTarget = 0;
-    fInfo.fID = 0;
-    this->invokeReleaseProc();
+    onAbandonTextureOnly();
     INHERITED::onAbandon();
 }
 
@@ -128,3 +126,8 @@ sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& d
     return sk_sp<GrGLTexture>(new GrGLTexture(gpu, kWrapped, desc, idDesc));
 }
 
+void GrGLTexture::onAbandonTextureOnly() {
+    fInfo.fTarget = 0;
+    fInfo.fID = 0;
+    this->invokeReleaseProc();
+}

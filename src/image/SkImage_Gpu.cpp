@@ -24,6 +24,7 @@
 #include "GrSemaphore.h"
 #include "GrTextureAdjuster.h"
 #include "GrTexture.h"
+#include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
 #include "effects/GrNonlinearColorSpaceXformEffect.h"
 #include "effects/GrYUVEffect.h"
@@ -910,6 +911,48 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
                                               mipLevelCount, SkBudgeted::kYes,
                                               dti->fColorMode);
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+GrBackendTexture SkImage::MakeBackendTextureFromSkImage(GrContext* ctx, sk_sp<SkImage> image) {
+    if (!image || !ctx) {
+        return GrBackendTexture();
+    }
+
+    // Ensure we have a texture backed image.
+    if (!image->isTextureBacked()) {
+        image = image->makeTextureImage(ctx, nullptr);
+        if (!image) {
+            return GrBackendTexture();
+        }
+    }
+    SkASSERT(image->getTexture());
+
+    // We must make a copy of the image if the image is not unique, or if we can't take ownership
+    // of the backend texture (texture is already borrowed).
+    if (!image->unique() || image->getTexture()->resourcePriv().refsWrappedObjects()) {
+        // onMakeSubset will always copy the image.
+        image = as_IB(image)->onMakeSubset(image->bounds());
+        if (!image) {
+            return GrBackendTexture();
+        }
+    }
+    SkASSERT(!image->getTexture()->resourcePriv().refsWrappedObjects());
+    SkASSERT(image->getTexture());
+    SkASSERT(image->unique());
+
+    // getTextureHandle will flush any pending writes to the texture.
+    GrBackendObject object = image->getTextureHandle(true, nullptr);
+    GrTextureProxy* proxy = as_IB(image)->peekProxy();
+    GrBackendTexture backend_texture = make_backend_texture_from_handle(ctx->contextPriv().getBackend(), image->width(),
+                                            image->height(), proxy->config(), object);
+
+    // Abandon the texture only, allowing the caller to own the returned backend texture.
+    image->getTexture()->texturePriv().abandonTextureOnly();
+    image->getTexture()->resourcePriv().forceRelease();
+
+    return backend_texture;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

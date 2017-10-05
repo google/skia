@@ -67,6 +67,12 @@ public:
      */
     void removeScratchKey() const { fResource->removeScratchKey();  }
 
+    /**
+     * Forces a resource to be immediately released. This should not typically be needed, as a
+     * resource should be managed by the cache.
+     */
+    void forceRelease() const { fResource->release(); }
+
 protected:
     ResourcePriv(GrGpuResource* resource) : fResource(resource) {   }
     ResourcePriv(const ResourcePriv& that) : fResource(that.fResource) {}

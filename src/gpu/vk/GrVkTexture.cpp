@@ -244,3 +244,7 @@ bool GrVkTexture::reallocForMipmap(GrVkGpu* gpu, uint32_t mipLevels) {
 
     return true;
 }
+
+void GrVkTexture::onAbandonTextureOnly() {
+  this->abandonImage();
+}

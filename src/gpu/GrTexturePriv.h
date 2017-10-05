@@ -60,6 +60,9 @@ public:
                                   bool isRenderTarget, int sampleCnt,
                                   bool isMipMapped, GrScratchKey* key);
 
+    void abandonTextureOnly() {
+        fTexture->onAbandonTextureOnly();
+    }
 
 private:
     GrTexturePriv(GrTexture* texture) : fTexture(texture) { }
