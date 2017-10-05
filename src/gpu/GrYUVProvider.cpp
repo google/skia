@@ -86,7 +86,7 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
 }
 
 sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrSurfaceDesc& desc,
-                                                       bool useCache,
+                                                       bool useCache, bool willBeMipMapped,
                                                        const SkColorSpace* srcColorSpace,
                                                        const SkColorSpace* dstColorSpace) {
     SkYUVPlanesCache::Info yuvInfo;
@@ -128,7 +128,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
                                                                     desc.fWidth, desc.fHeight,
                                                                     desc.fConfig, nullptr,
                                                                     desc.fSampleCnt,
-                                                                    false,
+                                                                    willBeMipMapped,
                                                                     kTopLeft_GrSurfaceOrigin));
     if (!renderTargetContext) {
         return nullptr;

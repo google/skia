@@ -39,6 +39,7 @@ public:
      *  On failure (e.g. the provider had no data), this returns NULL.
      */
     sk_sp<GrTextureProxy> refAsTextureProxy(GrContext*, const GrSurfaceDesc&, bool useCache,
+                                            bool willBeMipMapped,
                                             const SkColorSpace* srcColorSpace,
                                             const SkColorSpace* dstColorSpace);
 

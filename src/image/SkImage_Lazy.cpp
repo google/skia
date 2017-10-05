@@ -816,7 +816,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
 
         // TODO: Update to create the mipped surface in the YUV generator and draw the base layer
         // directly into the mipped surface.
-        proxy = provider.refAsTextureProxy(ctx, desc, true, generatorColorSpace, thisColorSpace);
+        proxy = provider.refAsTextureProxy(ctx, desc, true, willBeMipped,
+                                           generatorColorSpace, thisColorSpace);
         if (proxy) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);
