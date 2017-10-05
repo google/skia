@@ -162,7 +162,7 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
                                     SkBackingFit::kExact,
                                     origInfo.width(), origInfo.height(),
                                     config, origInfo.refColorSpace(), sampleCount,
-                                    origin, surfaceProps, budgeted);
+                                    false, origin, surfaceProps, budgeted);
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(SkSpecialImage* srcImg,
@@ -1702,6 +1702,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
                                                    fRenderTargetContext->config(),
                                                    fRenderTargetContext->refColorSpace(),
                                                    fRenderTargetContext->numStencilSamples(),
+                                                   false,
                                                    kBottomLeft_GrSurfaceOrigin,
                                                    &props));
     if (!rtc) {
