@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27d46483_f16459c9",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1472,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-05T03:12:14Z",
+      "side": 1,
+      "message": "This is the simplest way to do it, however it will pollute the output with \"No suitable EGL config found\" on ES devices when they make the first attempt with full OpenGL.",
+      "revId": "bab4dd939c07ef0d3888210aee5968d50889e156",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
