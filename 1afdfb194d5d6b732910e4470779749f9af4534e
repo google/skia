@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1510cf8b_a55656b3",
+        "filename": "src/core/SkRWBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-05T15:07:52Z",
+      "side": 1,
+      "message": "Might be tidy to SkAssertResult() on the result of fetch_add()?",
+      "revId": "1afdfb194d5d6b732910e4470779749f9af4534e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "280c3332_688b925d",
+        "filename": "src/core/SkRWBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-05T15:07:52Z",
+      "side": 1,
+      "message": "Same here?",
+      "revId": "1afdfb194d5d6b732910e4470779749f9af4534e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
