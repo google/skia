@@ -82,14 +82,14 @@ struct SkBufferHead {
     }
 
     void ref() const {
-        SkASSERT(fRefCnt.load(std::memory_order_relaxed) > 0);
-        (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);
+        SkAssertResult(fRefCnt.fetch_add(+1, std::memory_order_relaxed));
     }
 
     void unref() const {
-        SkASSERT(fRefCnt.load(std::memory_order_relaxed) > 0);
         // A release here acts in place of all releases we "should" have been doing in ref().
-        if (1 == fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
+        int32_t oldRefCnt = fRefCnt.fetch_add(-1, std::memory_order_acq_rel);
+        SkASSERT(oldRefCnt);
+        if (1 == oldRefCnt) {
             // Like unique(), the acquire is only needed on success.
             SkBufferBlock* block = fBlock.fNext;
             sk_free((void*)this);
