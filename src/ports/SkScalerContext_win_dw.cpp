@@ -505,6 +505,14 @@ static bool glyph_check_and_set_bounds(SkGlyph* glyph, const RECT& bbox) {
     if (bbox.left >= bbox.right || bbox.top >= bbox.bottom) {
         return false;
     }
+
+    // We're trying to pack left and top into int16_t,
+    // and width and height into uint16_t, after outsetting by 1.
+    if (!SkIRect::MakeXYWH(-32767, -32767, 65535, 65535).contains(
+                SkIRect::MakeLTRB(bbox.left, bbox.top, bbox.right, bbox.bottom))) {
+        return false;
+    }
+
     glyph->fWidth = SkToU16(bbox.right - bbox.left);
     glyph->fHeight = SkToU16(bbox.bottom - bbox.top);
     glyph->fLeft = SkToS16(bbox.left);
