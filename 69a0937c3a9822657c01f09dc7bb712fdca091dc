@@ -46,6 +46,30 @@
       "revId": "69a0937c3a9822657c01f09dc7bb712fdca091dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa71823c_3ef8a389",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1040,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-10-05T16:46:58Z",
+      "side": 1,
+      "message": "Yeah, but the skBounds.fLeft might be +32760 and the skBounds.fRight be +32780, which can be represented, but is still a bit crazy.",
+      "parentUuid": "3276b4f4_5a60f1c1",
+      "range": {
+        "startLine": 1040,
+        "startChar": 42,
+        "endLine": 1040,
+        "endChar": 54
+      },
+      "revId": "69a0937c3a9822657c01f09dc7bb712fdca091dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
