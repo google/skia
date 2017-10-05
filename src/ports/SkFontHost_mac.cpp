@@ -1035,6 +1035,12 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
         skBounds.fBottom += SkFixedToFloat(glyph->getSubYFixed());
     }
 
+    // We're trying to pack left and top into int16_t,
+    // and width and height into uint16_t, after outsetting by 1.
+    if (!SkRect::MakeXYWH(-32767, -32767, 65535, 65535).contains(skBounds)) {
+        return;
+    }
+
     SkIRect skIBounds;
     skBounds.roundOut(&skIBounds);
     // Expand the bounds by 1 pixel, to give CG room for anti-aliasing.
