@@ -196,8 +196,7 @@ char* SkStrAppendFloat(char string[], float value) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// the 3 values are [length] [refcnt] [terminating zero data]
-const SkString::Rec SkString::gEmptyRec = { 0, {0}, 0 };
+const SkString::Rec SkString::gEmptyRec(0, 0);
 
 #define SizeOfRec()     (gEmptyRec.data() - (const char*)&gEmptyRec)
 
@@ -220,32 +219,45 @@ static size_t check_add32(size_t base, size_t extra) {
     return extra;
 }
 
-SkString::Rec* SkString::AllocRec(const char text[], size_t len) {
-    Rec* rec;
-
+sk_sp<SkString::Rec> SkString::Rec::Make(const char text[], size_t len) {
     if (0 == len) {
-        rec = const_cast<Rec*>(&gEmptyRec);
-    } else {
-        len = trim_size_t_to_u32(len);
-
-        // add 1 for terminating 0, then align4 so we can have some slop when growing the string
-        rec = (Rec*)sk_malloc_throw(SizeOfRec() + SkAlign4(len + 1));
-        rec->fLength = SkToU32(len);
-        rec->fRefCnt.store(+1, std::memory_order_relaxed);
-        if (text) {
-            memcpy(rec->data(), text, len);
-        }
-        rec->data()[len] = 0;
+        return sk_sp<SkString::Rec>(const_cast<Rec*>(&gEmptyRec));
     }
+
+    len = trim_size_t_to_u32(len);
+    // add 1 for terminating 0, then align4 so we can have some slop when growing the string
+    const size_t actualLength = SizeOfRec() + SkAlign4(len + 1);
+    SkASSERT_RELEASE(len < actualLength);  // Check for overflow.
+
+    void* storage = ::operator new (actualLength);
+    sk_sp<Rec> rec(new (storage) Rec(SkToU32(len), 1));
+    if (text) {
+        memcpy(rec->data(), text, len);
+    }
+    rec->data()[len] = 0;
     return rec;
 }
 
-SkString::Rec* SkString::RefRec(Rec* src) {
-    if (src != &gEmptyRec) {
-        // No barrier required.
-        (void)src->fRefCnt.fetch_add(+1, std::memory_order_relaxed);
+void SkString::Rec::ref() const {
+    if (this == &SkString::gEmptyRec) {
+        return;
     }
-    return src;
+    SkAssertResult(this->fRefCnt.fetch_add(+1, std::memory_order_relaxed));
+}
+
+void SkString::Rec::unref() const {
+    if (this == &SkString::gEmptyRec) {
+        return;
+    }
+    int32_t oldRefCnt = this->fRefCnt.fetch_add(-1, std::memory_order_acq_rel);
+    SkASSERT(oldRefCnt);
+    if (1 == oldRefCnt) {
+        delete this;
+    }
+}
+
+bool SkString::Rec::unique() const {
+    return fRefCnt.load(std::memory_order_acquire) == 1;
 }
 
 #ifdef SK_DEBUG
@@ -255,7 +267,7 @@ void SkString::validate() const {
     SkASSERT(0 == gEmptyRec.fRefCnt.load(std::memory_order_relaxed));
     SkASSERT(0 == gEmptyRec.data()[0]);
 
-    if (fRec != &gEmptyRec) {
+    if (fRec.get() != &gEmptyRec) {
         SkASSERT(fRec->fLength > 0);
         SkASSERT(fRec->fRefCnt.load(std::memory_order_relaxed) > 0);
         SkASSERT(0 == fRec->data()[fRec->fLength]);
@@ -269,41 +281,34 @@ SkString::SkString() : fRec(const_cast<Rec*>(&gEmptyRec)) {
 }
 
 SkString::SkString(size_t len) {
-    fRec = AllocRec(nullptr, len);
+    fRec = Rec::Make(nullptr, len);
 }
 
 SkString::SkString(const char text[]) {
     size_t  len = text ? strlen(text) : 0;
 
-    fRec = AllocRec(text, len);
+    fRec = Rec::Make(text, len);
 }
 
 SkString::SkString(const char text[], size_t len) {
-    fRec = AllocRec(text, len);
+    fRec = Rec::Make(text, len);
 }
 
 SkString::SkString(const SkString& src) {
     src.validate();
 
-    fRec = RefRec(src.fRec);
+    fRec = src.fRec;
 }
 
 SkString::SkString(SkString&& src) {
     src.validate();
 
-    fRec = src.fRec;
-    src.fRec = const_cast<Rec*>(&gEmptyRec);
+    fRec = std::move(src.fRec);
+    src.fRec.reset(const_cast<Rec*>(&gEmptyRec));
 }
 
 SkString::~SkString() {
     this->validate();
-
-    if (fRec->fLength) {
-        SkASSERT(fRec->fRefCnt.load(std::memory_order_relaxed) > 0);
-        if (1 == fRec->fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
-            sk_free(fRec);
-        }
-    }
 }
 
 bool SkString::equals(const SkString& src) const {
@@ -350,15 +355,7 @@ SkString& SkString::operator=(const char text[]) {
 
 void SkString::reset() {
     this->validate();
-
-    if (fRec->fLength) {
-        SkASSERT(fRec->fRefCnt.load(std::memory_order_relaxed) > 0);
-        if (1 == fRec->fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
-            sk_free(fRec);
-        }
-    }
-
-    fRec = const_cast<Rec*>(&gEmptyRec);
+    fRec.reset(const_cast<Rec*>(&gEmptyRec));
 }
 
 char* SkString::writable_str() {
@@ -366,14 +363,7 @@ char* SkString::writable_str() {
 
     if (fRec->fLength) {
         if (!fRec->unique()) {
-            Rec* rec = AllocRec(fRec->data(), fRec->fLength);
-            if (1 == fRec->fRefCnt.fetch_add(-1, std::memory_order_acq_rel)) {
-                // In this case after our check of fRecCnt > 1, we suddenly
-                // did become the only owner, so now we have two copies of the
-                // data (fRec and rec), so we need to delete one of them.
-                sk_free(fRec);
-            }
-            fRec = rec;
+            fRec = Rec::Make(fRec->data(), fRec->fLength);
         }
     }
     return fRec->data();
@@ -633,7 +623,7 @@ void SkString::swap(SkString& other) {
     this->validate();
     other.validate();
 
-    SkTSwap<Rec*>(fRec, other.fRec);
+    SkTSwap(fRec, other.fRec);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
