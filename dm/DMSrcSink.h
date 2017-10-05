@@ -120,8 +120,6 @@ public:
         // without doubling the size of our test suite.
         kCodecZeroInit_Mode,
         kScanline_Mode,
-        kStripe_Mode, // Tests the skipping of scanlines
-        kCroppedScanline_Mode, // Tests (jpeg) cropped scanline optimization
         kSubset_Mode, // For codecs that support subsets directly.
         kAnimated_Mode, // For codecs that support animation.
     };
