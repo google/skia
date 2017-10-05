@@ -294,23 +294,6 @@ public:
         fAtlasDest = atlasDest;
     }
 
-    void saveRTC(sk_sp<GrRenderTargetContext> rtc) {
-        SkASSERT(!fRTC);
-        fRTC = rtc;
-    }
-
-#ifdef SK_DEBUG
-    void saveAtlasToDisk() {
-        SkBitmap readBack;
-        readBack.allocN32Pixels(fRTC->width(), fRTC->height());
-
-        bool result = fRTC->readPixels(readBack.info(),
-                                       readBack.getPixels(), readBack.rowBytes(), 0, 0);
-        SkASSERT(result);
-        save_bm(readBack, "atlas-real.png");
-    }
-#endif
-
     /*
      * This callback back creates the atlas and updates the AtlasedRectOps to read from it
      */
@@ -389,9 +372,6 @@ public:
             this->clearOpsFor(lists[i]);
         }
 
-        // Hide a ref to the RTC in AtlasData so we can check on it later
-        this->saveRTC(rtc);
-
         results->push_back(std::move(rtc));
     }
 
@@ -419,9 +399,6 @@ private:
 
     // Each opList containing AtlasedRectOps gets its own internal singly-linked list
     SkTDArray<LinkedListHeader>  fOps;
-
-    // The RTC used to create the atlas
-    sk_sp<GrRenderTargetContext> fRTC;
 
     // For the time being we need to pre-allocate the atlas bc the TextureSamplers require
     // a GrTexture
@@ -600,11 +577,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     context->contextPriv().testingOnly_flushAndRemoveOnFlushCallbackObject(&object);
 
     object.markAsDone();
-
-#if 0
-    save_bm(readBack, "atlas-final-image.png");
-    data.saveAtlasToDisk();
-#endif
 
     int x = kDrawnTileSize/2;
     test_color(reporter, readBack, x, SK_ColorRED);
