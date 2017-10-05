@@ -19,13 +19,33 @@ GrGLContext* GrGLContext::Create(const GrGLInterface* interface, const GrContext
     ConstructorArgs args;
     args.fInterface = interface;
 
+    SkDebugf("--------------------------------------------------\n");
     const GrGLubyte* verUByte;
     GR_GL_CALL_RET(interface, verUByte, GetString(GR_GL_VERSION));
     const char* ver = reinterpret_cast<const char*>(verUByte);
+    SkDebugf("Version: %s\n", ver);
 
     const GrGLubyte* rendererUByte;
     GR_GL_CALL_RET(interface, rendererUByte, GetString(GR_GL_RENDERER));
     const char* renderer = reinterpret_cast<const char*>(rendererUByte);
+    SkDebugf("Renderer: %s\n", renderer);
+
+    {
+        const GrGLubyte* vendorUByte;
+        GR_GL_CALL_RET(interface, vendorUByte, GetString(GR_GL_VENDOR));
+        const char* vendor =  reinterpret_cast<const char*>(vendorUByte);
+        SkDebugf("Vendor: %s\n", vendor);
+
+        const GrGLubyte* langUByte;
+        GR_GL_CALL_RET(interface, langUByte, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
+        const char* lang =  reinterpret_cast<const char*>(langUByte);
+        SkDebugf("Lang: %s\n", lang);
+
+        const GrGLubyte* extensionsUByte;
+        GR_GL_CALL_RET(interface, extensionsUByte, GetString(GR_GL_EXTENSIONS));
+        const char* extensions =  reinterpret_cast<const char*>(extensionsUByte);
+        SkDebugf("Extensions: %s\n", extensions);
+    }
 
     if (!interface->validate()) {
         return nullptr;

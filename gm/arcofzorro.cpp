@@ -31,47 +31,37 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkRandom rand;
+        SkPaint paints[4];
+        paints[0].setColor(SK_ColorGREEN);
+        paints[1].setColor(SK_ColorGRAY);
+        paints[2].setColor(SK_ColorGREEN);
+        paints[3].setColor(SK_ColorGRAY);
 
-        SkRect rect = SkRect::MakeXYWH(10, 10, 200, 200);
+        const SkRect topRow[4] = {
+            {   8, 26,  58, 51 },
+            {  58, 26, 133, 51 },
+            { 158, 26, 258, 51 },
+            { 258, 26, 383, 51 },
+        };
 
-        SkPaint p;
-
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(35);
-        int xOffset = 0, yOffset = 0;
-        int direction = 0;
-
-        for (float arc = 134.0f; arc < 136.0f; arc += 0.01f) {
-            SkColor color = rand.nextU();
-            color |= 0xff000000;
-            p.setColor(color);
-
-            canvas->save();
-            canvas->translate(SkIntToScalar(xOffset), SkIntToScalar(yOffset));
-            canvas->drawArc(rect, 0, arc, false, p);
+        for (int i = 0; i < 4; ++i) {
+            canvas->saveLayer(&topRow[i], nullptr);
+//            canvas->saveLayer(nullptr, nullptr);
+                canvas->clipRect(topRow[i], false);
+                canvas->drawRect(topRow[i], paints[i]);
             canvas->restore();
-
-            switch (direction) {
-            case 0:
-                xOffset += 10;
-                if (xOffset >= 700) {
-                    direction = 1;
-                }
-                break;
-            case 1:
-                xOffset -= 10;
-                yOffset += 10;
-                if (xOffset < 50) {
-                    direction = 2;
-                }
-                break;
-            case 2:
-                xOffset += 10;
-                break;
-            }
         }
 
+        const SkRect botRow[4] = {
+            {   8, 80,  58, 105 },
+            {  58, 80, 133, 105 },
+            { 158, 80, 258, 105 },
+            { 258, 80, 383, 105 },
+        };
+
+        for (int i = 0; i < 4; ++i) {
+            canvas->drawRect(botRow[i], paints[i]);
+        }
     }
 
 private:
