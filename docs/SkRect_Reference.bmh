@@ -4,6 +4,16 @@
 
 #Struct SkRect
 
+SkRect holds four SkScalar coordinates describing the upper and
+lower bounds of a rectangle. SkRect may be created from outer bounds or 
+from position, width, and height. SkRect describes an area; if its right
+is less than or equal to its left, or if its bottom is less than or equal to
+its top, it is considered empty.
+
+# move to topic about MakeIWH and friends
+SkRect can be constructed from int values to avoid compiler warnings that
+integer input cannot convert to SkScalar without loss of precision.
+
 #Topic Overview
 
 #Subtopic Subtopics
@@ -20,87 +30,128 @@
 #Legend
 # description                                              # function ##
 #Legend ##
-# friend bool operator!=(const SkRect& a, const SkRect& b) # ##
-# friend bool operator==(const SkRect& a, const SkRect& b) # ##
+# friend bool operator!=(const SkRect& a, const SkRect& b) # Returns true if member bits are unequal. ##
+# friend bool operator==(const SkRect& a, const SkRect& b) # Returns true if member bits are equal. ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Member_Functions
 #Table
 #Legend
-# description        # function ##
+# description           # function ##
 #Legend ##
-# Make               # ##
-# MakeEmpty          # ##
-# MakeFromIRect      # ##
-# MakeIWH            # ##
-# MakeLTRB           # ##
-# MakeLargest        # ##
-# MakeSize           # ##
-# MakeWH             # ##
-# MakeXYWH           # ##
-# bottom             # ##
-# centerX            # ##
-# centerY            # ##
-# height             # ##
-# inset              # ##
-# intersect          # ##
-# isEmpty            # ##
-# isFinite           # ##
-# isLargest          # ##
-# isSorted           # ##
-# iset               # ##
-# isetWH             # ##
-# left               # ##
-# makeInset          # ##
-# makeOffset         # ##
-# makeOutset         # ##
-# offset             # ##
-# offsetTo           # ##
-# outset             # ##
-# right              # ##
-# set                # ##
-# setBounds          # ##
-# setBoundsCheck     # ##
-# setEmpty           # ##
-# setLTRB            # ##
-# setLargest         # ##
-# setLargestInverted # ##
-# setWH              # ##
-# setXYWH            # ##
-# toQuad             # ##
-# top                # ##
-# width              # ##
-# x                  # ##
-# y                  # ##
+# Intersects            # Returns true if areas overlap. ##
+# Make                  # Constructs from ISize returning (0, 0, width, height). ##
+# MakeEmpty             # Constructs from bounds of (0, 0, 0, 0). ##
+# MakeFromIRect         # Deprecated. ##
+# MakeIWH               # Constructs from int input returning (0, 0, width, height). ##
+# MakeLTRB              # Constructs from SkScalar left, top, right, bottom. ##
+# MakeLargest           # Constructs (SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax). ##
+# MakeSize              # Constructs from Size returning (0, 0, width, height). ##
+# MakeWH                # Constructs from SkScalar input returning (0, 0, width, height). ##
+# MakeXYWH              # Constructs from SkScalar input returning (x, y, width, height). ##
+# asScalars             # Returns pointer to members as array. ##
+# bottom()              # Returns larger bounds in y, if sorted. ##
+# centerX               # Returns midpoint in x. ##
+# centerY               # Returns midpoint in y. ##
+# contains()            # Returns true if points are equal or inside. ##
+# dump()                # Sends text representation using floats to standard output. ##
+# dumpHex               # Sends text representation using hexadecimal to standard output. ##
+# growToInclude         # Sets to union of bounds and one or more Points. ##
+# height                # Returns span in y. ##
+# inset()               # Moves the sides symmetrically about the center. ##
+# intersect()           # Sets to shared area; returns true if not empty. ##
+# intersects()          # Returns true if areas overlap. ##
+# isEmpty               # Returns true if width or height are zero or negative. ##
+# isFinite              # Returns true if no member is infinite or NaN. ##
+# isLargest             # Returns equal to (SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax). ##
+# isSorted              # Returns true if width or height are zero or positive. ##
+# iset()                # Sets to int input (left, top, right, bottom). ##
+# isetWH                # Sets to int input (0, 0, width, height). ##
+# join()                # Sets to union of bounds. ##
+# joinNonEmptyArg       # Sets to union of bounds, asserting that argument is not empty. ##
+# joinPossiblyEmptyRect # Sets to union of bounds. Skips empty check for both. ##
+# left()                # Returns smaller bounds in x, if sorted. ##
+# makeInset             # Constructs from sides moved symmetrically about the center. ##
+# makeOffset            # Constructs from translated sides. ##
+# makeOutset            # Constructs from sides moved symmetrically about the center. ##
+# makeSorted            # Constructs, ordering sides from smaller to larger. ##
+# offset()              # Translates sides without changing width and height. ##
+# offsetTo              # Translates to (x, y) without changing width and height. ##
+# outset()              # Moves the sides symmetrically about the center. ##
+# right()               # Returns larger bounds in x, if sorted. ##
+# round()               # Sets members to nearest integer value. ##
+# roundIn               # Sets members to nearest integer value towards opposite. ##
+# roundOut              # Sets members to nearest integer value away from opposite. ##
+# set()                 # Sets to SkScalar input (left, top, right, bottom) and others. ##
+# setBounds             # Sets to upper and lower limits of Point array. ##
+# setBoundsCheck        # Sets to upper and lower limits of Point array. ##
+# setEmpty              # Sets to (0, 0, 0, 0). ##
+# setLTRB               # Sets to SkScalar input (left, top, right, bottom). ##
+# setLargest            # Sets to (SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax). ##
+# setLargestInverted    # Sets to (SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin). ##
+# setWH                 # Sets to SkScalar input (0, 0, width, height). ##
+# setXYWH               # Sets to SkScalar input (x, y, width, height). ##
+# sort()                # Orders sides from smaller to larger. ##
+# toQuad                # Returns four corners as Point. ##
+# top()                 # Returns smaller bounds in y, if sorted. ##
+# width()               # Returns span in x. ##
+# x()                   # Returns bounds left. ##
+# y()                   # Returns bounds top. ##
 #Table ##
 #Subtopic ##
 
 #Topic ##
 
 #Member SkScalar  fLeft
+May contain any value, including infinities and NaN. The smaller of the
+horizontal values when sorted. When equal to or greater than fRight, Rect is empty.
 ##
 
 #Member SkScalar  fTop
+May contain any value, including infinities and NaN. The smaller of the
+vertical values when sorted. When equal to or greater than fBottom, Rect is empty.
 ##
 
 #Member SkScalar  fRight
+May contain any value, including infinities and NaN. The larger of the
+horizontal values when sorted. When equal to or less than fLeft, Rect is empty.
 ##
 
 #Member SkScalar  fBottom
+May contain any value, including infinities and NaN. The larger of the
+vertical values when sorted. When equal to or less than fTop, Rect is empty.
 ##
 
 # ------------------------------------------------------------------------------
 
 #Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty()
 
-#Return incomplete ##
+Returns constructed Rect where all four members are set to zero.
+Many other rectangles are empty; if left is equal to or greater than right,
+or if top is equal to or greater than bottom. Setting all members to zero
+is a convenience, but does not designate a special empty rectangle.
+ 
+#Return bounds (0, 0, 0, 0) ##
 
 #Example
-// incomplete
+    SkRect rect = SkRect::MakeEmpty();
+    SkDebugf("MakeEmpty isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
+    rect.offset(10, 10);
+    SkDebugf("offset rect isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
+    rect.inset(10, 10);
+    SkDebugf("inset rect isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
+    rect.outset(20, 20);
+    SkDebugf("outset rect isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
+#StdOut
+MakeEmpty isEmpty: true
+offset rect isEmpty: true
+inset rect isEmpty: true
+outset rect isEmpty: false
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso isEmpty setEmpty setLargestInverted SkIRect::MakeEmpty
 
 ##
 
@@ -108,13 +159,31 @@
 
 #Method static SkRect SK_WARN_UNUSED_RESULT MakeLargest()
 
-#Return incomplete ##
+Returns constructed Rect set to minimum and maximum of finite values.
+
+#Return bounds (SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax) ##
 
 #Example
-// incomplete
+    SkRect rect = SkRect::MakeLargest();
+    SkDebugf("MakeLargest isLargest: %s\n", rect.isLargest() ? "true" : "false");
+    SkDebugf("MakeLargest isFinite: %s\n", rect.isFinite() ? "true" : "false");
+    rect.outset(1e31, 1e31);
+    SkDebugf("outset a little isLargest: %s\n", rect.isLargest() ? "true" : "false");
+    SkDebugf("outset a little isFinite: %s\n", rect.isFinite() ? "true" : "false");
+    rect.outset(1e32, 1e32);
+    SkDebugf("outset a little more isLargest: %s\n", rect.isLargest() ? "true" : "false");
+    SkDebugf("outset a little more isFinite: %s\n", rect.isFinite() ? "true" : "false");
+#StdOut
+MakeLargest isLargest: true
+MakeLargest isFinite: true
+outset a little isLargest: true
+outset a little isFinite: true
+outset a little more isLargest: false
+outset a little more isFinite: false
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso isLargest setLargest SkIRect::MakeLargest
 
 ##
 
@@ -122,16 +191,30 @@
 
 #Method static SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h)
 
-#Param w  incomplete ##
-#Param h  incomplete ##
+Returns constructed Rect set to SkScalar values (0, 0, w, h). Does not
+validate input; w or h may be negative.
 
-#Return incomplete ##
+Passing integer values may generate a compiler warning since Rect cannot
+represent 32-bit integers exactly. Use SkIRect for an exact integer rectangle.
+
+#Param w  SkScalar width of constructed Rect  ##
+#Param h  SkScalar height of constructed Rect ##
+
+#Return bounds (0, 0, w, h) ##
 
 #Example
-// incomplete
+    SkRect rect1 = SkRect::MakeWH(25, 35);
+    SkRect rect2 = SkRect::MakeIWH(25, 35);
+    SkRect rect3 = SkRect::MakeXYWH(0, 0, 25, 35);
+    SkRect rect4 = SkRect::MakeLTRB(0, 0, 25, 35);
+    SkDebugf("all %s" "equal\n", rect1 == rect2 && rect2 == rect3 && rect3 == rect4 ?
+             "" : "not ");
+#StdOut
+all equal
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeSize MakeXYWH MakeIWH setWH SkIRect::MakeWH
 
 ##
 
@@ -139,16 +222,31 @@
 
 #Method static SkRect SK_WARN_UNUSED_RESULT MakeIWH(int w, int h)
 
-#Param w  incomplete ##
-#Param h  incomplete ##
+Returns constructed Rect set to integer values (0, 0, w, h). Does not validate
+input; w or h may be negative.
 
-#Return incomplete ##
+Use to avoid a compiler warning that input may lose precision when stored.
+Use SkIRect for an exact integer rectangle.
+
+#Param w  integer width of constructed Rect  ##
+#Param h  integer height of constructed Rect ##
+
+#Return bounds (0, 0, w, h) ##
 
 #Example
-// incomplete
+    SkIRect i_rect = SkIRect::MakeWH(25, 35);
+    SkRect  f_rect = SkRect::MakeIWH(25, 35);
+    SkDebugf("i_rect width: %d f_rect width:%g\n", i_rect.width(), f_rect.width());
+    i_rect = SkIRect::MakeWH(125000111, 0);
+    f_rect = SkRect::MakeIWH(125000111, 0);
+    SkDebugf("i_rect width: %d f_rect width:%.0f\n", i_rect.width(), f_rect.width());
+#StdOut
+i_rect width: 25 f_rect width:25
+i_rect width: 125000111 f_rect width:125000112
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeXYWH MakeWH isetWH SkIRect::MakeWH
 
 ##
 
@@ -156,15 +254,27 @@
 
 #Method static SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size)
 
-#Param size  incomplete ##
+Returns constructed Rect set to (0, 0, size.width(), size.height()). Does not
+validate input; size.width() or size.height() may be negative.
 
-#Return incomplete ##
+#Param size  SkScalar values for Rect width and height ##
+
+#Return bounds (0, 0, size.width(), size.height()) ##
 
 #Example
-// incomplete
+    SkSize size = {25.5f, 35.5f};
+    SkRect rect = SkRect::MakeSize(size);
+    SkDebugf("rect width: %g  height: %g\n", rect.width(), rect.height());
+    SkISize floor = size.toFloor();
+    rect = SkRect::MakeSize(SkSize::Make(floor));
+    SkDebugf("floor width: %g  height: %g\n", rect.width(), rect.height());
+#StdOut
+rect width: 25.5  height: 35.5
+floor width: 25  height: 35
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeWH MakeXYWH MakeIWH setWH SkIRect::MakeWH
 
 ##
 
@@ -173,18 +283,30 @@
 #Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeLTRB(SkScalar l, SkScalar t, SkScalar r,
                                                            SkScalar b)
 
-#Param l  incomplete ##
-#Param t  incomplete ##
-#Param r  incomplete ##
-#Param b  incomplete ##
+Returns constructed Rect set to (l, t, r, b). Does not sort input; Rect may
+result in fLeft greater than fRight, or fTop greater than fBottom.
 
-#Return incomplete ##
+#Param l  SkScalar stored in fLeft ##
+#Param t  SkScalar stored in fTop ##
+#Param r  SkScalar stored in fRight ##
+#Param b  SkScalar stored in fBottom ##
+
+#Return bounds (l, t, r, b) ##
 
 #Example
-// incomplete
+    SkRect rect = SkRect::MakeLTRB(5, 35, 15, 25);
+    SkDebugf("rect: %g, %g, %g, %g  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+    rect.sort();
+    SkDebugf("rect: %g, %g, %g, %g  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+#StdOut
+rect: 5, 35, 15, 25  isEmpty: true
+rect: 5, 25, 15, 35  isEmpty: false
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeXYWH SkIRect::MakeLTRB
 
 ##
 
@@ -192,18 +314,30 @@
 
 #Method static SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h)
 
-#Param x  incomplete ##
-#Param y  incomplete ##
-#Param w  incomplete ##
-#Param h  incomplete ##
+Returns constructed Rect set to (x, y, x + w, y + h). Does not validate input;
+w or h may be negative.
 
-#Return incomplete ##
+#Param x  stored in fLeft ##
+#Param y  stored in fTop ##
+#Param w  added to x and stored in fRight ##
+#Param h  added to y and stored in fBottom ##
+
+#Return bounds (x, y, x + w, y + h) ##
 
 #Example
-// incomplete
+    SkRect rect = SkRect::MakeXYWH(5, 35, -15, 25);
+    SkDebugf("rect: %g, %g, %g, %g  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+    rect.sort();
+    SkDebugf("rect: %g, %g, %g, %g  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+#StdOut
+rect: 5, 35, -10, 60  isEmpty: true
+rect: -10, 35, 5, 60  isEmpty: false
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeLTRB SkIRect::MakeXYWH
 
 ##
 
@@ -211,15 +345,19 @@
 
 #Method static SkRect SK_WARN_UNUSED_RESULT MakeFromIRect(const SkIRect& irect)
 
-#Param irect  incomplete ##
+Deprecated.
 
-#Return incomplete ##
-
-#Example
-// incomplete
+#Deprecated
 ##
 
-#ToDo incomplete ##
+#Param irect  integer rect ##
+
+#Return irect as SkRect ##
+
+#NoExample
+##
+
+#SeeAlso Make
 
 ##
 
@@ -227,15 +365,23 @@
 
 #Method static SkRect Make(const SkISize& size)
 
-#Param size  incomplete ##
+Returns constructed IRect set to (0, 0, size.width(), size.height()). 
+Does not validate input; size.width() or size.height() may be negative.
 
-#Return incomplete ##
+#Param size  integer values for Rect width and height ##
+
+#Return bounds (0, 0, size.width(), size.height()) ##
 
 #Example
-// incomplete
+    SkRect rect1 = SkRect::MakeSize({2, 35});
+    SkRect rect2 = SkRect::MakeIWH(2, 35);
+    SkDebugf("rect1 %c= rect2\n", rect1 == rect2 ? '=' : '!');
+#StdOut
+rect1 == rect2
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeWH MakeXYWH SkRect::MakeIWH SkIRect::MakeSize
 
 ##
 
@@ -243,15 +389,24 @@
 
 #Method static SkRect SK_WARN_UNUSED_RESULT Make(const SkIRect& irect)
 
-#Param irect  incomplete ##
+Returns constructed IRect set to (irect.left(), irect.top(), irect.right(),
+irect.bottom()). Does not validate input; irect.left() may be greater than
+irect.right(), irect.top() may be greater than irect.bottom().
 
-#Return incomplete ##
+#Param irect  integer unsorted bounds ##
+
+#Return irect members converted to SkScalar ##
 
 #Example
-// incomplete
+    SkIRect i_rect1 = {2, 35, 22, 53};
+    SkRect f_rect = SkRect::Make(i_rect1);
+    f_rect.offset(0.49f, 0.49f);
+    SkIRect i_rect2;
+    f_rect.round(&i_rect2);
+    SkDebugf("i_rect1 %c= i_rect2\n", i_rect1 == i_rect2? '=' : '!');
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeLTRB
 
 ##
 
@@ -259,15 +414,30 @@
 
 #Method bool isEmpty() const
 
-Return true if the rectangle width or height are <= 0
+Returns true if fLeft is equal to or greater than fRight, or if fTop is equal
+to or greater than fBottom. Call sort() to reverse rectangles with negative
+width() or height().
 
-#Return incomplete ##
+#Return true if width() or height() are zero or negative ##
 
 #Example
-// incomplete
+    SkRect tests[] = {{20, 40, 10, 50}, {20, 40, 20, 50}};
+    for (auto rect : tests) {
+        SkDebugf("rect: {%g, %g, %g, %g} is" "%s empty\n", rect.left(), rect.top(), rect.right(),
+                 rect.bottom(), rect.isEmpty() ? "" : " not");
+        rect.sort();
+        SkDebugf("sorted: {%g, %g, %g, %g} is" "%s empty\n", rect.left(), rect.top(), rect.right(),
+                 rect.bottom(), rect.isEmpty() ? "" : " not");
+    }
+#StdOut
+rect: {20, 40, 10, 50} is empty
+sorted: {10, 40, 20, 50} is not empty
+rect: {20, 40, 20, 50} is empty
+sorted: {20, 40, 20, 50} is empty
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeEmpty sort SkIRect::isEmpty
 
 ##
 
@@ -275,15 +445,30 @@ Return true if the rectangle width or height are <= 0
 
 #Method bool isSorted() const
 
-Return true if the rectangle width and height are >= 0
+Returns true if fLeft is equal to or less than fRight, or if fTop is equal
+to or less than fBottom. Call sort() to reverse rectangles with negative
+width() or height().
 
-#Return incomplete ##
+#Return true if width() or height() are zero or positive ##
 
 #Example
-// incomplete
+    SkRect tests[] = {{20, 40, 10, 50}, {20, 40, 20, 50}};
+    for (auto rect : tests) {
+        SkDebugf("rect: {%g, %g, %g, %g} is" "%s sorted\n", rect.left(), rect.top(), rect.right(),
+                 rect.bottom(), rect.isSorted() ? "" : " not");
+        rect.sort();
+        SkDebugf("sorted: {%g, %g, %g, %g} is" "%s sorted\n", rect.left(), rect.top(), rect.right(),
+                 rect.bottom(), rect.isSorted() ? "" : " not");
+    }
+#StdOut
+rect: {20, 40, 10, 50} is not sorted
+sorted: {10, 40, 20, 50} is sorted
+rect: {20, 40, 20, 50} is sorted
+sorted: {20, 40, 20, 50} is sorted
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso sort makeSorted isEmpty
 
 ##
 
@@ -291,13 +476,30 @@ Return true if the rectangle width and height are >= 0
 
 #Method bool isLargest() const
 
-#Return incomplete ##
+Returns true if Rect encloses largest possible area. 
+
+#Return true if equal to (SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax). ##
 
 #Example
-// incomplete
+#Description
+Note that the width cannot be represented as a 32-bit finite value.
+##
+    SkRect large = SkRect::MakeLargest();
+    SkDebugf("large is largest: %s\n" ,large.isLargest() ? "true" : "false");
+    SkDebugf("large width %g\n", large.width());
+    SkDebugf("large is empty: %s\n", large.isEmpty() ? "true" : "false");
+    SkDebugf("large is sorted: %s\n", large.isSorted() ? "true" : "false");
+    SkDebugf("large is finite: %s\n", large.isFinite() ? "true" : "false");
+#StdOut
+large is largest: true
+large width inf
+large is empty: false
+large is sorted: true
+large is finite: true
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeLargest SkIRect::isLargest
 
 ##
 
@@ -305,16 +507,25 @@ Return true if the rectangle width and height are >= 0
 
 #Method bool isFinite() const
 
-Returns true if and only if all values in the rectangle are finite. If any are
-infinite or NaN then this returns false.
+Returns true if all values in the rectangle are finite: SK_ScalarMin or larger,
+and SK_ScalarMax or smaller. 
 
-#Return incomplete ##
+#Return true if no member is infinite or NaN. ##
 
 #Example
-// incomplete
+    SkRect largest = SkRect::MakeLargest();
+    SkDebugf("largest is finite: %s\n", largest.isFinite() ? "true" : "false");
+    SkDebugf("large width %g\n", largest.width());
+    SkRect widest = SkRect::MakeWH(largest.width(), largest.height());
+    SkDebugf("widest is finite: %s\n", widest.isFinite() ? "true" : "false");
+#StdOut
+largest is finite: true
+large width inf
+widest is finite: false
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkScalarIsFinite SkScalarIsNaN
 
 ##
 
@@ -322,13 +533,23 @@ infinite or NaN then this returns false.
 
 #Method SkScalar    x() const
 
-#Return incomplete ##
+Returns left edge of Rect, if sorted. Call isSorted to see if Rect is valid.
+Call sort() to reverse fLeft and fRight if needed.
+
+#Return fLeft ##
 
 #Example
-// incomplete
+    SkRect unsorted = { 15, 5, 10, 25 };
+    SkDebugf("unsorted.fLeft: %g unsorted.x(): %g\n", unsorted.fLeft, unsorted.x());
+    SkRect sorted = unsorted.makeSorted();
+    SkDebugf("sorted.fLeft: %g sorted.x(): %g\n", sorted.fLeft, sorted.x());
+#StdOut
+unsorted.fLeft: 15 unsorted.x(): 15
+sorted.fLeft: 10 sorted.x(): 10
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso fLeft left() y() SkIRect::x()
 
 ##
 
@@ -336,13 +557,23 @@ infinite or NaN then this returns false.
 
 #Method SkScalar    y() const
 
-#Return incomplete ##
+Returns top edge of Rect, if sorted. Call isEmpty to see if Rect may be invalid,
+and sort() to reverse fTop and fBottom if needed.
+
+#Return fTop ##
 
 #Example
-// incomplete
+    SkRect unsorted = { 15, 25, 10, 5 };
+    SkDebugf("unsorted.fTop: %g unsorted.top(): %g\n", unsorted.fTop, unsorted.y());
+    SkRect sorted = unsorted.makeSorted();
+    SkDebugf("sorted.fTop: %g sorted.top(): %g\n", sorted.fTop, sorted.y());
+#StdOut
+unsorted.fTop: 25 unsorted.y(): 25
+sorted.fTop: 5 sorted.y(): 5
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso fTop top() x() SkIRect::y()
 
 ##
 
@@ -350,13 +581,23 @@ infinite or NaN then this returns false.
 
 #Method SkScalar    left() const
 
-#Return incomplete ##
+Returns left edge of Rect, if sorted. Call isSorted to see if Rect is valid.
+Call sort() to reverse fLeft and fRight if needed.
+
+#Return fLeft ##
 
 #Example
-// incomplete
+    SkRect unsorted = { 15, 5, 10, 25 };
+    SkDebugf("unsorted.fLeft: %g unsorted.left(): %g\n", unsorted.fLeft, unsorted.left());
+    SkRect sorted = unsorted.makeSorted();
+    SkDebugf("sorted.fLeft: %g sorted.left(): %g\n", sorted.fLeft, sorted.left());
+#StdOut
+unsorted.fLeft: 15 unsorted.left(): 15
+sorted.fLeft: 10 sorted.left(): 10
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso fLeft x() SkIRect::left()
 
 ##
 
@@ -364,13 +605,23 @@ infinite or NaN then this returns false.
 
 #Method SkScalar    top() const
 
-#Return incomplete ##
+Returns top edge of Rect, if sorted. Call isEmpty to see if Rect may be invalid,
+and sort() to reverse fTop and fBottom if needed.
+
+#Return fTop ##
 
 #Example
-// incomplete
+    SkRect unsorted = { 15, 25, 10, 5 };
+    SkDebugf("unsorted.fTop: %g unsorted.top(): %g\n", unsorted.fTop, unsorted.top());
+    SkRect sorted = unsorted.makeSorted();
+    SkDebugf("sorted.fTop: %g sorted.top(): %g\n", sorted.fTop, sorted.top());
+#StdOut
+unsorted.fTop: 25 unsorted.top(): 25
+sorted.fTop: 5 sorted.top(): 5
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso fTop y() SkIRect::top()
 
 ##
 
@@ -378,13 +629,23 @@ infinite or NaN then this returns false.
 
 #Method SkScalar    right() const
 
-#Return incomplete ##
+Returns right edge of Rect, if sorted. Call isSorted to see if Rect is valid.
+Call sort() to reverse fLeft and fRight if needed.
+
+#Return fRight ##
 
 #Example
-// incomplete
+    SkRect unsorted = { 15, 25, 10, 5 };
+    SkDebugf("unsorted.fRight: %g unsorted.right(): %g\n", unsorted.fRight, unsorted.right());
+    SkRect sorted = unsorted.makeSorted();
+    SkDebugf("sorted.fRight: %g sorted.right(): %g\n", sorted.fRight, sorted.right());
+#StdOut
+unsorted.fRight: 10 unsorted.right(): 10
+sorted.fRight: 15 sorted.right(): 15
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso fRight SkIRect::right()
 
 ##
 
@@ -392,13 +653,23 @@ infinite or NaN then this returns false.
 
 #Method SkScalar    bottom() const
 
-#Return incomplete ##
+Returns bottom edge of Rect, if sorted. Call isEmpty to see if Rect may be invalid,
+and sort() to reverse fTop and fBottom if needed.
+
+#Return fBottom ##
 
 #Example
-// incomplete
+    SkIect unsorted = { 15, 25, 10, 5 };
+    SkDebugf("unsorted.fRight: %g unsorted.right(): %g\n", unsorted.fRight, unsorted.right());
+    SkRect sorted = unsorted.makeSorted();
+    SkDebugf("sorted.fRight: %g sorted.right(): %g\n", sorted.fRight, sorted.right());
+#StdOut
+unsorted.fBottom: 5 unsorted.bottom(): 5
+sorted.fBottom: 25 sorted.bottom(): 25
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso fBottom SkIRect::bottom()
 
 ##
 
@@ -406,13 +677,26 @@ infinite or NaN then this returns false.
 
 #Method SkScalar    width() const
 
-#Return incomplete ##
+Returns span on the x-axis. This does not check if Rect is sorted, or if
+result fits in 32-bit float; result may be negative or infinity.
+
+#Return fRight minus fLeft ##
 
 #Example
-// incomplete
+#Description
+Compare with SkIRect::width() example.
+##
+    SkRect unsorted = { 15, 25, 10, 5 };
+    SkDebugf("unsorted width: %g\n", unsorted.width());
+    SkRect large = { -2147483647.f, 1, 2147483644.f, 2 };
+    SkDebugf("large width: %.0f\n", large.width());
+#StdOut
+unsorted width: -5
+large width: 4294967296
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso height() SkIRect::width()
 
 ##
 
@@ -420,13 +704,26 @@ infinite or NaN then this returns false.
 
 #Method SkScalar    height() const
 
-#Return incomplete ##
+Returns span on the y-axis. This does not check if IRect is sorted, or if
+result fits in 32-bit float; result may be negative or infinity.
+
+#Return fBottom minus fTop ##
 
 #Example
-// incomplete
+#Description
+Compare with SkIRect::height() example.
+##
+    SkRect unsorted = { 15, 25, 10, 20 };
+    SkDebugf("unsorted height: %g\n", unsorted.height());
+    SkRect large = { 1, -2147483647.f, 2, 2147483644.f };
+    SkDebugf("large height: %.0f\n", large.height());
+#StdOut
+unsorted height: -5
+large height: 4294967296
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso width() SkIRect::height()
 
 ##
 
