@@ -22,6 +22,9 @@ cc_library_static {
     name: "libskia",
     cflags: [
         "-fexceptions",
+        "-Wall",
+        "-Werror",
+        "-Wno-deprecated-declarations",
         "-fvisibility=hidden",
         "-Wno-unused-parameter",
         "-U_FORTIFY_SOURCE",
@@ -129,6 +132,8 @@ cc_defaults {
         "libskia",
     ],
     cflags: [
+        "-Wall",
+        "-Werror",
         "-Wno-unused-parameter"
     ],
 }
