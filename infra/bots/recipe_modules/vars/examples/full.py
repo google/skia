@@ -12,13 +12,14 @@ DEPS = [
 def RunSteps(api):
   api.vars.setup()
   info = [
+    api.vars.upload_coverage_results,
     api.vars.upload_dm_results,
     api.vars.upload_perf_results,
     api.vars.swarming_bot_id,
     api.vars.swarming_task_id,
   ]
   if api.vars.is_linux:
-    assert len(info) == 4  # Make pylint happy.
+    assert len(info) == 5  # Make pylint happy.
 
 
 TEST_BUILDERS = [
