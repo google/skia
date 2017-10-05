@@ -12,7 +12,6 @@
 
 #include "../private/SkTArray.h"
 #include "SkScalar.h"
-#include "SkRefCnt.h"
 
 #include <atomic>
 #include <stdarg.h>
@@ -241,20 +240,16 @@ public:
 private:
     struct Rec {
     public:
-        Rec() = delete;
-        static sk_sp<Rec> Make(const char text[], size_t len);
         uint32_t    fLength; // logically size_t, but we want it to stay 32bits
-        mutable std::atomic<int32_t> fRefCnt;
+        std::atomic<int32_t> fRefCnt;
         char        fBeginningOfData;
 
         char* data() { return &fBeginningOfData; }
         const char* data() const { return &fBeginningOfData; }
 
-        void ref() const;
-        void unref() const;
-        bool unique() const;
+        bool unique() { return fRefCnt.load(std::memory_order_acquire) == 1; }
     };
-    sk_sp<Rec> fRec;
+    Rec* fRec;
 
 #ifdef SK_DEBUG
     void validate() const;
@@ -263,6 +258,8 @@ private:
 #endif
 
     static const Rec gEmptyRec;
+    static Rec* AllocRec(const char text[], size_t len);
+    static Rec* RefRec(Rec*);
 };
 
 /// Creates a new string and writes into it using a printf()-style format.
