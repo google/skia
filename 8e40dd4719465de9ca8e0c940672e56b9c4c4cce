@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8694e336_05ca6847",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-05T16:04:36Z",
+      "side": 1,
+      "message": "We probably should update rowsDecoded here, too.",
+      "range": {
+        "startLine": 494,
+        "startChar": 8,
+        "endLine": 494,
+        "endChar": 28
+      },
+      "revId": "8e40dd4719465de9ca8e0c940672e56b9c4c4cce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e74855c3_8e9c90c6",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 799,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-05T16:04:36Z",
+      "side": 1,
+      "message": "This isn\u0027t used by the first case, so you don\u0027t need it here.",
+      "range": {
+        "startLine": 799,
+        "startChar": 4,
+        "endLine": 799,
+        "endChar": 17
+      },
+      "revId": "8e40dd4719465de9ca8e0c940672e56b9c4c4cce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "463b26a2_75ed4ab8",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 802,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-05T16:04:36Z",
+      "side": 1,
+      "message": "No need for else, since the first block just returns.",
+      "range": {
+        "startLine": 802,
+        "startChar": 4,
+        "endLine": 802,
+        "endChar": 12
+      },
+      "revId": "8e40dd4719465de9ca8e0c940672e56b9c4c4cce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1448eb9_39d033e5",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-05T16:04:36Z",
+      "side": 1,
+      "message": "You can just return result here, meaning you can also declare it inside this loop.",
+      "range": {
+        "startLine": 806,
+        "startChar": 16,
+        "endLine": 806,
+        "endChar": 21
+      },
+      "revId": "8e40dd4719465de9ca8e0c940672e56b9c4c4cce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c219bc94_7adef702",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-05T16:04:36Z",
+      "side": 1,
+      "message": "With the above changes, this is no longer necessary.",
+      "range": {
+        "startLine": 820,
+        "startChar": 4,
+        "endLine": 820,
+        "endChar": 17
+      },
+      "revId": "8e40dd4719465de9ca8e0c940672e56b9c4c4cce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
