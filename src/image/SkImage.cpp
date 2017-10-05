@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "GrBackendSurface.h"
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
 #include "SkCanvas.h"
@@ -352,6 +353,10 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy&,
 sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, const void*,
                                                          SkBudgeted) {
     return nullptr;
+}
+
+GrBackendTexture SkImage::MakeBackendTextureFromSkImage(GrContext*, sk_sp<SkImage>) {
+    return GrBackendTexture();
 }
 
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
