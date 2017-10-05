@@ -16,6 +16,24 @@
       "revId": "5e416ac2de4427bfc436e0aef3c05ad158e7e567",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c22d66b9_95c2ccd4",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-05T20:41:11Z",
+      "side": 1,
+      "message": "That would make sense. I haven\u0027t figured out how to get to the internals of :warnings from the json, though. It looks like gn has updated js[\u0027targets\u0027][\u0027//:skia\u0027][\u0027cflags\u0027] ([\u0027cflags_cc\u0027], etc) to contain warnings\u0027 internals and not hung on to the original. gn_to_bp.py currently ignores those (it only looks at [\u0027//:skia\u0027]\u0027s sources and include_dirs).\n\nSome approaches we could take:\n- generate all the cflags (and cflags_cc?) from gn, and leave this section empty\n- parse js[\u0027targets\u0027][\u0027//:skia\u0027][\u0027cflags\u0027] and merge the \"-W\" ones with the cflags here\n\nLatest patch set goes with the latter. We also need the cflags_cc in order to build.",
+      "parentUuid": "fb29219f_fa75d4d6",
+      "revId": "5e416ac2de4427bfc436e0aef3c05ad158e7e567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
