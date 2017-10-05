@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "79457170_95addab3",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-05T22:27:31Z",
+      "side": 1,
+      "message": "Sure, I\u0027ll add this in the next version.",
+      "parentUuid": "774ed58e_9c1e7ce8",
+      "revId": "5fdd81e219630233d02172e5d968cc74a7dcd430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9997d3e5_77947623",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 5
@@ -30,6 +48,30 @@
       "writtenOn": "2017-10-05T20:15:00Z",
       "side": 1,
       "message": "I think here we have to also check that the GrTexture is uniquely owned (by the SkImage).",
+      "range": {
+        "startLine": 934,
+        "startChar": 4,
+        "endLine": 934,
+        "endChar": 85
+      },
+      "revId": "5fdd81e219630233d02172e5d968cc74a7dcd430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "583cd6f6_cfbe1076",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 934,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-05T22:27:31Z",
+      "side": 1,
+      "message": "Ah, good point. Maybe I should do the getTextureHandle/flushPendingIO beforehand then, as I assume that might clean up pending refs and increase the chance of this being true?",
+      "parentUuid": "9997d3e5_77947623",
       "range": {
         "startLine": 934,
         "startChar": 4,
@@ -89,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "05b80cad_2a649630",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 936,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-05T22:27:31Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5d4277b0_2a663f16",
+      "range": {
+        "startLine": 936,
+        "startChar": 30,
+        "endLine": 936,
+        "endChar": 42
+      },
+      "revId": "5fdd81e219630233d02172e5d968cc74a7dcd430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8187f2e6_33ff4f4e",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 5
@@ -100,6 +166,30 @@
       "writtenOn": "2017-10-05T20:15:00Z",
       "side": 1,
       "message": "If we need this assert we should probably move it above the other one since it dereferences getTexture().",
+      "range": {
+        "startLine": 942,
+        "startChar": 4,
+        "endLine": 942,
+        "endChar": 34
+      },
+      "revId": "5fdd81e219630233d02172e5d968cc74a7dcd430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d99b18d_79f92d9f",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-05T22:27:31Z",
+      "side": 1,
+      "message": "no kidding :D.",
+      "parentUuid": "8187f2e6_33ff4f4e",
       "range": {
         "startLine": 942,
         "startChar": 4,
@@ -147,6 +237,30 @@
       "side": 1,
       "message": "Maybe we should have a method on GrTexture that is something like:\n\nGrBackendTexture steal() {\n   if (!uniquely owned) { return null; }\n   auto ret \u003d this-\u003egetBackendTexture();\n   this-\u003eabandon();\n   this-\u003eunref();\n}\n\nI\u0027m not sure if it\u0027s quite right... but the general idea is that it simultaneously steals the underlying 3D API\u0027s texture from the GrTexture and unrefs() the texture assuming the caller has the only ref on the texture.",
       "parentUuid": "89376a80_7647c23a",
+      "range": {
+        "startLine": 951,
+        "startChar": 18,
+        "endLine": 951,
+        "endChar": 19
+      },
+      "revId": "5fdd81e219630233d02172e5d968cc74a7dcd430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92b2d5fa_a1c4bc91",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-05T22:27:31Z",
+      "side": 1,
+      "message": "So, abandon is problematic on its own as it will abandon the render targets on a GrGLTextureRenderTarget, leading to leaks. We want to be sure that the only thing we\u0027re abandoning/stealing is the texture, as that\u0027s what the client will be responsible for cleaning up.\n\nUnref is also problematic (without a full abandon or a full release), as even with the texture itself zeroed, the cache may try to re-use it. abandon() and release() work around this by removing the texture from the cache explicitly, but for the reasons mentioned above, full-abandon doesn\u0027t work.\n\nThis is how I ended up with a \"abandonTextureOnly + release\". Feels like we need to hit some code on GrGpuResource to remove the resource from the cache, but we want to do things in a texture-specific way (avoiding render targets)... not sure...",
+      "parentUuid": "e49283ef_fc053925",
       "range": {
         "startLine": 951,
         "startChar": 18,
