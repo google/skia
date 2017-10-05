@@ -62,6 +62,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
+    fMaxInstancesPerDrawWithoutCrashing = 0;
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
@@ -562,6 +563,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (kAdreno3xx_GrGLRenderer == ctxInfo.renderer() && kQualcomm_GrGLDriver == ctxInfo.driver() &&
         ctxInfo.driverVersion() > GR_GL_DRIVER_VER(53, 0)) {
         fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = true;
+    }
+
+    // blah blah blah seems to crash if an instanced draw call has 1 << 15 or more instances.
+    if (true) {
+        fMaxInstancesPerDrawWithoutCrashing = 0x7fff;
     }
 
     // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
@@ -1350,6 +1356,8 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
                        fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO);
     writer->appendBool("Intermediate texture for all updates of textures bound to FBOs",
                        fUseDrawInsteadOfAllRenderTargetWrites);
+    writer->appendBool("Max instances per draw without crashing (or zero)",
+                       fMaxInstancesPerDrawWithoutCrashing);
 
     writer->beginArray("configs");
 
