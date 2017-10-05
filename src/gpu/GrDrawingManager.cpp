@@ -137,8 +137,6 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 
     GrOnFlushResourceProvider onFlushProvider(this);
 
-    // Prepare any onFlush op lists (e.g. atlases).
-    SkSTArray<8, sk_sp<GrOpList>> onFlushOpLists;
     if (!fOnFlushCBObjects.empty()) {
         // MDB TODO: pre-MDB '1' is the correct pre-allocated size. Post-MDB it will need
         // to be larger.
@@ -146,19 +144,27 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         for (int i = 0; i < fOpLists.count(); ++i) {
             opListIds[i] = fOpLists[i]->uniqueID();
         }
-        SkSTArray<4, sk_sp<GrRenderTargetContext>> renderTargetContexts;
+
+        SkSTArray<1, sk_sp<GrRenderTargetContext>> renderTargetContexts;
         for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
             onFlushCBObject->preFlush(&onFlushProvider,
                                       opListIds.get(), opListIds.count(),
                                       &renderTargetContexts);
-            for (const sk_sp<GrRenderTargetContext>& rtc : renderTargetContexts) {
-                sk_sp<GrOpList> onFlushOpList = sk_ref_sp(rtc->getOpList());
-                if (!onFlushOpList) {
+            if (!renderTargetContexts.count()) {
+                continue;       // This is fine. No atlases of this type are required for this flush
+            }
+
+            for (int j = 0; j < renderTargetContexts.count(); ++j) {
+                GrOpList* opList = renderTargetContexts[j]->getOpList();
+                if (!opList) {
                     continue;   // Odd - but not a big deal
                 }
-                onFlushOpList->makeClosed(*fContext->caps());
-                onFlushOpList->prepare(&fFlushState);
-                onFlushOpLists.push_back(std::move(onFlushOpList));
+                SkASSERT(opList->unique());
+                opList->makeClosed(*fContext->caps());
+                opList->prepare(&fFlushState);
+                if (!opList->execute(&fFlushState)) {
+                    continue;         // This is bad
+                }
             }
             renderTargetContexts.reset();
         }
@@ -195,17 +201,6 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     // Upload all data to the GPU
     fFlushState.preIssueDraws();
 
-    // Execute the onFlush op lists first, if any.
-    for (sk_sp<GrOpList>& onFlushOpList : onFlushOpLists) {
-        if (!onFlushOpList->execute(&fFlushState)) {
-            SkDebugf("WARNING: onFlushOpList failed to execute.\n");
-        }
-        SkASSERT(onFlushOpList->unique());
-        onFlushOpList = nullptr;
-    }
-    onFlushOpLists.reset();
-
-    // Execute the normal op lists.
     for (int i = 0; i < fOpLists.count(); ++i) {
         if (!fOpLists[i]) {
             continue;
@@ -232,7 +227,6 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
             // https://bugs.chromium.org/p/skia/issues/detail?id=7111
             fOpLists[i]->endFlush();
         }
-        fOpLists[i] = nullptr;
     }
     fOpLists.reset();
 
