@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55e217f2_918b7755",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1472,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-05T16:22:07Z",
+      "side": 1,
+      "message": "This comment keeps getting buried under my rebases.\n\nThis is the simplest way to do it, however it will pollute the output with \"No suitable EGL config found\" on ES devices when they make the first attempt with full OpenGL.",
+      "range": {
+        "startLine": 1472,
+        "startChar": 9,
+        "endLine": 1472,
+        "endChar": 18
+      },
+      "revId": "c4f79fff48926196f4909c734586ab22dbc61854",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
