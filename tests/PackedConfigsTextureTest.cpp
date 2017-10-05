@@ -20,7 +20,6 @@
 #include "GrTextureProxy.h"
 
 static const int DEV_W = 10, DEV_H = 10;
-static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
 static const uint8_t TOL = 0x4;
 
 static void check_component(skiatest::Reporter* reporter, uint8_t control, uint8_t test) {
