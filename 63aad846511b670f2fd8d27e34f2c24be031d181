@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03b4de5c_752bad33",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-05T08:29:43Z",
+      "side": 1,
+      "message": "Parchsets 2..3 are one possible solution for this assert. Another option would be to just remove it entirely.",
+      "revId": "63aad846511b670f2fd8d27e34f2c24be031d181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
