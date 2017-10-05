@@ -44,8 +44,9 @@ class SkiaVarsApi(recipe_api.RecipeApi):
                                 '-CT_' in self.builder_name or
                                 'Presubmit' in self.builder_name or
                                 'InfraTests' in self.builder_name or
-                                self.builder_name == "Housekeeper-PerCommit" or
-                                'CheckGeneratedFiles' in self.builder_name)
+                                self.builder_name == 'Housekeeper-PerCommit' or
+                                'CheckGeneratedFiles' in self.builder_name or
+                                'UploadCoverage' in self.builder_name)
     if self.persistent_checkout:
       if 'Win' in self.builder_name:
         self.checkout_root = self.make_path('C:\\', 'b', 'work')
@@ -151,6 +152,11 @@ class SkiaVarsApi(recipe_api.RecipeApi):
   @property
   def is_linux(self):
     return 'Ubuntu' in self.builder_name or 'Debian' in self.builder_name
+
+  @property
+  def upload_coverage_results(self):
+    # TODO(borenet): Move this into the swarm_test recipe.
+    return 'Coverage' in self.m.properties['buildername']
 
   @property
   def upload_dm_results(self):
