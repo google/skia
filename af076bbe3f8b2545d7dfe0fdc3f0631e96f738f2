@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "38318a85_48ee39ef",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.fp",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-10-05T16:30:57Z",
+      "side": 1,
+      "message": "Leftover from debugging?",
+      "revId": "af076bbe3f8b2545d7dfe0fdc3f0631e96f738f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
