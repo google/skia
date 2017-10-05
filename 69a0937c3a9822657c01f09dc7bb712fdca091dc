@@ -70,6 +70,30 @@
       "revId": "69a0937c3a9822657c01f09dc7bb712fdca091dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "71a4e4d8_2df7dd6e",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1040,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-05T16:47:01Z",
+      "side": 1,
+      "message": "Ah!  Thank you for explaining.  I too feel good about these as safe bounds.",
+      "parentUuid": "3276b4f4_5a60f1c1",
+      "range": {
+        "startLine": 1040,
+        "startChar": 42,
+        "endLine": 1040,
+        "endChar": 54
+      },
+      "revId": "69a0937c3a9822657c01f09dc7bb712fdca091dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
