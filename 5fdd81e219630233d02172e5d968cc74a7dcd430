@@ -65,6 +65,30 @@
     },
     {
       "key": {
+        "uuid": "5d4277b0_2a663f16",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 936,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-05T20:18:05Z",
+      "side": 1,
+      "message": "Other than duplicating that code here, I don\u0027t think so.",
+      "parentUuid": "818fdb3c_3fdc40d1",
+      "range": {
+        "startLine": 936,
+        "startChar": 30,
+        "endLine": 936,
+        "endChar": 42
+      },
+      "revId": "5fdd81e219630233d02172e5d968cc74a7dcd430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8187f2e6_33ff4f4e",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 5
