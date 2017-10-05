@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "818fdb3c_3fdc40d1",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 936,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-05T19:21:54Z",
+      "side": 1,
+      "message": "This is a bit of a hacky way to force a copy. Not sure if there\u0027s something better.",
+      "range": {
+        "startLine": 936,
+        "startChar": 30,
+        "endLine": 936,
+        "endChar": 42
+      },
+      "revId": "5fdd81e219630233d02172e5d968cc74a7dcd430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89376a80_7647c23a",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-05T19:21:54Z",
+      "side": 1,
+      "message": "The two lines below appear to work correctly, but I feel like I\u0027m working around the cache... Any thoughts on a nicer way to accomplish this?",
+      "range": {
+        "startLine": 951,
+        "startChar": 18,
+        "endLine": 951,
+        "endChar": 19
+      },
+      "revId": "5fdd81e219630233d02172e5d968cc74a7dcd430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
