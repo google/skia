@@ -801,8 +801,9 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
         }
     }
 
-    // 3. Ask the generator to return YUV planes, which the GPU can convert
-    if (!proxy && !ctx->contextPriv().disableGpuYUVConversion()) {
+    // 3. Ask the generator to return YUV planes, which the GPU can convert. If we will be mipping
+    //    the texture we fall through here and have the CPU generate the mip maps for us.
+    if (!proxy && !willBeMipped && !ctx->contextPriv().disableGpuYUVConversion()) {
         const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(cacheInfo, *ctx->caps());
         ScopedGenerator generator(fSharedGenerator);
         Generator_GrYUVProvider provider(generator);
@@ -821,9 +822,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);
             set_key_on_proxy(ctx->resourceProvider(), proxy.get(), nullptr, key);
-            if (!willBeMipped || proxy->isMipMapped()) {
-                return proxy;
-            }
+            return proxy;
         }
     }
 
