@@ -23,7 +23,6 @@
 #include "SkHalf.h"
 
 static const int DEV_W = 100, DEV_H = 100;
-static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
 
 template <typename T>
 void runFPTest(skiatest::Reporter* reporter, GrContext* context,
