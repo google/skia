@@ -1466,37 +1466,38 @@ bool IsNullGLContextType(int) { return false; }
 void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contextTypeFilter,
                             Reporter* reporter, GrContextFactory* factory) {
 #if SK_SUPPORT_GPU
-    // Make sure we try OpenGL before OpenGL ES. GLES tests on desktop do not account for not fixing
-    // http://skbug.com/2809
-    GR_STATIC_ASSERT(GrContextFactory::kGL_ContextType < GrContextFactory::kGLES_ContextType);
-    bool didTestGL = false;
+
+#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
+    static constexpr auto kNativeGLType = GrContextFactory::kGL_ContextType;
+#else
+    static constexpr auto kNativeGLType = GrContextFactory::kGLES_ContextType;
+#endif
 
     for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
         GrContextFactory::ContextType contextType = (GrContextFactory::ContextType) typeInt;
+        // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on
+        // desktop since tests do not account for not fixing http://skbug.com/2809
+        if (contextType == GrContextFactory::kGL_ContextType ||
+            contextType == GrContextFactory::kGLES_ContextType) {
+            if (contextType != kNativeGLType) {
+                continue;
+            }
+        }
         ContextInfo ctxInfo = factory->getContextInfo(contextType,
                                                   GrContextFactory::ContextOverrides::kDisableNVPR);
         if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
-            continue;
-        }
-        bool isGL = contextType == GrContextFactory::kGL_ContextType ||
-                    contextType == GrContextFactory::kGLES_ContextType;
-        if (isGL && didTestGL) {
             continue;
         }
         ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
         if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
             ctxInfo.grContext()->flush();
-            if (isGL) {
-                didTestGL = true;
-            }
         }
         ctxInfo = factory->getContextInfo(contextType,
                                           GrContextFactory::ContextOverrides::kRequireNVPRSupport);
         if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
             ctxInfo.grContext()->flush();
-            SkASSERT(!isGL || didTestGL); // Null context also has nvpr.
         }
     }
 #endif
