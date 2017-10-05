@@ -22,6 +22,30 @@
       "revId": "69a0937c3a9822657c01f09dc7bb712fdca091dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3276b4f4_5a60f1c1",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1040,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-10-05T16:26:38Z",
+      "side": 1,
+      "message": "Which ones?  Can\u0027t fWidth and fHeight only hold [0,65535]?",
+      "parentUuid": "d2b3c6aa_ce64c206",
+      "range": {
+        "startLine": 1040,
+        "startChar": 42,
+        "endLine": 1040,
+        "endChar": 54
+      },
+      "revId": "69a0937c3a9822657c01f09dc7bb712fdca091dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
