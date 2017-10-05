@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da0a592a_f11d5723",
+        "filename": "src/core/SkBlitter_RGB565.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-05T14:34:56Z",
+      "side": 1,
+      "message": "2017 Google license?",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "d1bf01194ab3259aa89408cb0c4a8ec10d7d840b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50db4ba5_0fb25d2c",
+        "filename": "src/core/SkSpriteBlitter_RGB565.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-05T14:34:56Z",
+      "side": 1,
+      "message": "same",
+      "revId": "d1bf01194ab3259aa89408cb0c4a8ec10d7d840b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
