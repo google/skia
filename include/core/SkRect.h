@@ -24,10 +24,8 @@ struct SK_API SkIRect {
     int32_t fRight;
     int32_t fBottom;
 
-    static SkIRect SK_WARN_UNUSED_RESULT MakeEmpty() {
-        SkIRect r;
-        r.setEmpty();
-        return r;
+    static SkIRect constexpr SK_WARN_UNUSED_RESULT MakeEmpty() {
+        return SkIRect{0, 0, 0, 0};
     }
 
     static SkIRect SK_WARN_UNUSED_RESULT MakeLargest() {
@@ -36,10 +34,8 @@ struct SK_API SkIRect {
         return r;
     }
 
-    static SkIRect SK_WARN_UNUSED_RESULT MakeWH(int32_t w, int32_t h) {
-        SkIRect r;
-        r.set(0, 0, w, h);
-        return r;
+    static SkIRect constexpr SK_WARN_UNUSED_RESULT MakeWH(int32_t w, int32_t h) {
+        return SkIRect{0, 0, w, h};
     }
 
     static SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size) {
@@ -421,10 +417,8 @@ struct SK_API SkRect {
         return r;
     }
 
-    static SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h) {
-        SkRect r;
-        r.set(0, 0, w, h);
-        return r;
+    static constexpr SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h) {
+        return SkRect{0, 0, w, h};
     }
 
     static SkRect SK_WARN_UNUSED_RESULT MakeIWH(int w, int h) {
