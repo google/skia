@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6822ea5b_4fffa74f",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-05T20:49:27Z",
+      "side": 1,
+      "message": "Remind me, what do cflags and cppflags actually affect in BP?\n\nThis gets confusing, because usually \"cppflags\" is \"C pre-processor flags\", and applies to anything that\u0027s going through the C pre-processor, i.e. C/C++/ObjC/asm/whatever.  Sometimes \"cppflags\" is \"C plus plus flags\" and only apply to C++.\n\nI only ask because -fexceptions only really makes sense in C++.",
+      "range": {
+        "startLine": 224,
+        "startChar": 4,
+        "endLine": 224,
+        "endChar": 18
+      },
+      "revId": "6645bafe57dc31d364f852bd61f21ec68547a166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
