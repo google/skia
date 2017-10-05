@@ -236,9 +236,12 @@ config("default") {
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
     if (sanitize == "ASAN") {
-      sanitizers = "address,bool,integer-divide-by-zero,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr"
+      sanitizers = "address,bool,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr"
       if (!is_mac) {
-        sanitizers += ",function"
+        sanitizers += ",function"  # Not supported on Mac.
+      }
+      if (!is_debug) {
+        sanitizers += ",object-size"  # No-op with somewhat annoying warning at -O0.
       }
     } else if (sanitize == "TSAN") {
       sanitizers = "thread"
