@@ -153,6 +153,11 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     return 'Ubuntu' in self.builder_name or 'Debian' in self.builder_name
 
   @property
+  def upload_coverage_results(self):
+    # TODO(borenet): Move this into the swarm_test recipe.
+    return 'Coverage' in self.m.properties['buildername']
+
+  @property
   def upload_dm_results(self):
     # TODO(borenet): Move this into the swarm_test recipe.
     skip_upload_bots = [

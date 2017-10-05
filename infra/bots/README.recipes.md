@@ -45,6 +45,7 @@
   * [swarming_client:examples/full](#recipes-swarming_client_examples_full)
   * [test](#recipes-test)
   * [update_meta_config](#recipes-update_meta_config) &mdash; Recipe for the Bot that updates meta config.
+  * [upload_coverage_results](#recipes-upload_coverage_results)
   * [upload_dm_results](#recipes-upload_dm_results)
   * [upload_nano_results](#recipes-upload_nano_results)
   * [vars:examples/full](#recipes-vars_examples_full)
@@ -644,13 +645,15 @@ Return a Path object for the given path.
 
 Prepare the variables.
 
-&emsp; **@property**<br>&mdash; **def [swarming\_bot\_id](/infra/bots/recipe_modules/vars/api.py#193)(self):**
+&emsp; **@property**<br>&mdash; **def [swarming\_bot\_id](/infra/bots/recipe_modules/vars/api.py#198)(self):**
 
-&emsp; **@property**<br>&mdash; **def [swarming\_task\_id](/infra/bots/recipe_modules/vars/api.py#204)(self):**
+&emsp; **@property**<br>&mdash; **def [swarming\_task\_id](/infra/bots/recipe_modules/vars/api.py#209)(self):**
 
-&emsp; **@property**<br>&mdash; **def [upload\_dm\_results](/infra/bots/recipe_modules/vars/api.py#155)(self):**
+&emsp; **@property**<br>&mdash; **def [upload\_coverage\_results](/infra/bots/recipe_modules/vars/api.py#155)(self):**
 
-&emsp; **@property**<br>&mdash; **def [upload\_perf\_results](/infra/bots/recipe_modules/vars/api.py#173)(self):**
+&emsp; **@property**<br>&mdash; **def [upload\_dm\_results](/infra/bots/recipe_modules/vars/api.py#160)(self):**
+
+&emsp; **@property**<br>&mdash; **def [upload\_perf\_results](/infra/bots/recipe_modules/vars/api.py#178)(self):**
 ## Recipes
 
 ### *recipes* / [builder\_name\_schema:examples/full](/infra/bots/recipe_modules/builder_name_schema/examples/full.py)
@@ -824,6 +827,13 @@ Run the DM test.
 Recipe for the Bot that updates meta config.
 
 &mdash; **def [RunSteps](/infra/bots/recipes/update_meta_config.py#38)(api):**
+### *recipes* / [upload\_coverage\_results](/infra/bots/recipes/upload_coverage_results.py)
+
+[DEPS](/infra/bots/recipes/upload_coverage_results.py#12): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
+
+&mdash; **def [RunSteps](/infra/bots/recipes/upload_coverage_results.py#48)(api):**
+
+&mdash; **def [cp](/infra/bots/recipes/upload_coverage_results.py#29)(api, name, src, dst, extra_args=None):**
 ### *recipes* / [upload\_dm\_results](/infra/bots/recipes/upload_dm_results.py)
 
 [DEPS](/infra/bots/recipes/upload_dm_results.py#12): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]
