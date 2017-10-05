@@ -190,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "6bc1cb57_8c3d0487",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-05T18:17:15Z",
+      "side": 1,
+      "message": "I disagree. If we reach the second check we\u0027re guaranteed that result is kSuccess.",
+      "parentUuid": "a4ac970d_d7860489",
+      "range": {
+        "startLine": 806,
+        "startChar": 16,
+        "endLine": 806,
+        "endChar": 21
+      },
+      "revId": "8e40dd4719465de9ca8e0c940672e56b9c4c4cce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c219bc94_7adef702",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 35
