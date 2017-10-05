@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb29219f_fa75d4d6",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-05T18:07:03Z",
+      "side": 1,
+      "message": "Should we build this out of the :warnings target in GN?\n\n-Wall isn\u0027t really nearly \"all\".  There\u0027s also \"-Wextra\", and even that doesn\u0027t add everything.\n\nWhat we tend to do with clang is use \"-Weverything\" and then a whole bunch of \"-Wno-this-or-that\" to (really) turn everything on and then spot disable warnings we aren\u0027t clean for yet.\n\nThat\u0027d be a bit of a pain to maintain in two places, but wouldn\u0027t be a big deal if we could have this script slurp in all those flags.",
+      "revId": "5e416ac2de4427bfc436e0aef3c05ad158e7e567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
