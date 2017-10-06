@@ -55,6 +55,8 @@ enum GrGLRenderer {
     kAdreno5xx_GrGLRenderer,
     kOSMesa_GrGLRenderer,
     kIntelIrisPro_GrGLRenderer,
+    /** Either HD 4xxx or Iris 4xxx */
+    kIntel4xxx_GrGLRenderer,
     /** Either HD 6xxx or Iris 6xxx */
     kIntel6xxx_GrGLRenderer,
     /** T-6xx, T-7xx, or T-8xx */

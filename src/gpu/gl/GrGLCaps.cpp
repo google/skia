@@ -408,6 +408,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fBlacklistCoverageCounting = true;
     }
 
+    if (kIntel_GrGLDriver == ctxInfo.driver()) {
+        // Intel HD4400, HD4600, and Iris6100 crash on the bots.
+        fBlacklistCoverageCounting = kIntel4xxx_GrGLRenderer == ctxInfo.renderer() ||
+                                     kIntel6xxx_GrGLRenderer == ctxInfo.renderer();
+    }
+
     if (!contextOptions.fAvoidStencilBuffers) {
         // To reduce surface area, if we avoid stencil buffers, we also disable MSAA.
         this->initFSAASupport(contextOptions, ctxInfo, gli);
