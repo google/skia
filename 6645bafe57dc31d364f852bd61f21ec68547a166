@@ -22,6 +22,30 @@
       "revId": "6645bafe57dc31d364f852bd61f21ec68547a166",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ad9406c_208450f3",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-06T15:55:35Z",
+      "side": 1,
+      "message": "\u003e Remind me, what do cflags and cppflags actually affect in BP?\n\u003e \n\u003e This gets confusing, because usually \"cppflags\" is \"C pre-processor flags\", and applies to anything that\u0027s going through the C pre-processor, i.e. C/C++/ObjC/asm/whatever.  Sometimes \"cppflags\" is \"C plus plus flags\" and only apply to C++.\n\nGood to know. According to the docs at go/soong, \"cppflags\" means \"list of module-specific flags that will be used for C++ compiles\".\n\n\u003e \n\u003e I only ask because -fexceptions only really makes sense in C++.\n\nInteresting. Poking around in the Android code, it I see that -fexceptions is sometimes set in cflags, and sometimes in cppflags. (That\u0027s only part of the story - not all projects have been converted to blueprints yet, and some Android.mk files put them in LOCAL_CFLAGS, LOCAL_CPPFLAGS, COMMON_CXXFLAGS, etc...)\n\nMoving -fexceptions from cflags to cppflags also builds (and works). Removing it entirely does not (I thought I read somewhere that it was the default, which seems to not be the case on our Android builds at least).\n\nI\u0027m fine to move it into cppflags if that\u0027s where it\u0027s more appropriate.",
+      "parentUuid": "6822ea5b_4fffa74f",
+      "range": {
+        "startLine": 224,
+        "startChar": 4,
+        "endLine": 224,
+        "endChar": 18
+      },
+      "revId": "6645bafe57dc31d364f852bd61f21ec68547a166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
