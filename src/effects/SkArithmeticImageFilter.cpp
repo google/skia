@@ -356,7 +356,7 @@ private:
             , fK3(k3)
             , fK4(k4)
             , fEnforcePMColor(enforcePMColor) {
-        this->initClassID<ArithmeticFP>();
+        this->initClassId(kArithmeticFP_ClassID);
         SkASSERT(dst);
         SkDEBUGCODE(int dstIndex =) this->registerChildProcessor(std::move(dst));
         SkASSERT(0 == dstIndex);

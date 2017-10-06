@@ -748,7 +748,7 @@ private:
             , fPermutationsSampler(std::move(permutationsProxy))
             , fNoiseSampler(std::move(noiseProxy))
             , fPaintingData(std::move(paintingData)) {
-        this->initClassID<GrPerlinNoise2Effect>();
+        this->initClassId(kGrPerlinNoise2Effect_ClassID);
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fNoiseSampler);
         fCoordTransform.reset(matrix);
@@ -764,7 +764,7 @@ private:
             , fPermutationsSampler(that.fPermutationsSampler)
             , fNoiseSampler(that.fNoiseSampler)
             , fPaintingData(new SkPerlinNoiseShaderImpl::PaintingData(*that.fPaintingData)) {
-        this->initClassID<GrPerlinNoise2Effect>();
+        this->initClassId(kGrPerlinNoise2Effect_ClassID);
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fNoiseSampler);
         this->addCoordTransform(&fCoordTransform);
@@ -1171,7 +1171,7 @@ private:
             , fPermutationsSampler(std::move(permutationsProxy))
             , fGradientSampler(std::move(gradientProxy))
             , fPaintingData(std::move(paintingData)) {
-        this->initClassID<GrImprovedPerlinNoiseEffect>();
+        this->initClassId(kGrImprovedPerlinNoiseEffect_ClassID);
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fGradientSampler);
         fCoordTransform.reset(matrix);
@@ -1186,7 +1186,7 @@ private:
             , fPermutationsSampler(that.fPermutationsSampler)
             , fGradientSampler(that.fGradientSampler)
             , fPaintingData(new SkPerlinNoiseShaderImpl::PaintingData(*that.fPaintingData)) {
-        this->initClassID<GrImprovedPerlinNoiseEffect>();
+        this->initClassId(kGrImprovedPerlinNoiseEffect_ClassID);
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fGradientSampler);
         this->addCoordTransform(&fCoordTransform);

@@ -235,7 +235,7 @@ GrTextureDomainEffect::GrTextureDomainEffect(sk_sp<GrTextureProxy> proxy,
         , fColorSpaceXform(std::move(colorSpaceXform)) {
     SkASSERT(mode != GrTextureDomain::kRepeat_Mode ||
              filterMode == GrSamplerState::Filter::kNearest);
-    this->initClassID<GrTextureDomainEffect>();
+    this->initClassId(kGrTextureDomainEffect_ClassID);
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
@@ -246,7 +246,7 @@ GrTextureDomainEffect::GrTextureDomainEffect(const GrTextureDomainEffect& that)
         , fTextureDomain(that.fTextureDomain)
         , fTextureSampler(that.fTextureSampler)
         , fColorSpaceXform(that.fColorSpaceXform) {
-    this->initClassID<GrTextureDomainEffect>();
+    this->initClassId(kGrTextureDomainEffect_ClassID);
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
@@ -350,7 +350,7 @@ GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentPro
     this->addTextureSampler(&fTextureSampler);
     fDeviceSpaceOffset.fX = deviceSpaceOffset.fX - subset.fLeft;
     fDeviceSpaceOffset.fY = deviceSpaceOffset.fY - subset.fTop;
-    this->initClassID<GrDeviceSpaceTextureDecalFragmentProcessor>();
+    this->initClassId(kGrDeviceSpaceTextureDecalFragmentProcessor_ClassID);
 }
 
 GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentProcessor(
@@ -359,7 +359,7 @@ GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentPro
         , fTextureSampler(that.fTextureSampler)
         , fTextureDomain(that.fTextureDomain)
         , fDeviceSpaceOffset(that.fDeviceSpaceOffset) {
-    this->initClassID<GrDeviceSpaceTextureDecalFragmentProcessor>();
+    this->initClassId(kGrDeviceSpaceTextureDecalFragmentProcessor_ClassID);
     this->addTextureSampler(&fTextureSampler);
 }
 

@@ -1706,7 +1706,7 @@ GrLightingEffect::GrLightingEffect(sk_sp<GrTextureProxy> proxy,
         , fSurfaceScale(surfaceScale)
         , fFilterMatrix(matrix)
         , fBoundaryMode(boundaryMode) {
-    this->initClassID<GrLightingEffect>();
+    this->initClassId(kGrLightingEffect_ClassID);
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
@@ -1720,7 +1720,7 @@ GrLightingEffect::GrLightingEffect(const GrLightingEffect& that)
         , fSurfaceScale(that.fSurfaceScale)
         , fFilterMatrix(that.fFilterMatrix)
         , fBoundaryMode(that.fBoundaryMode) {
-    this->initClassID<GrLightingEffect>();
+    this->initClassId(kGrLightingEffect_ClassID);
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
@@ -1744,12 +1744,12 @@ GrDiffuseLightingEffect::GrDiffuseLightingEffect(sk_sp<GrTextureProxy> proxy,
         : INHERITED(std::move(proxy), std::move(light), surfaceScale, matrix, boundaryMode,
                     srcBounds)
         , fKD(kd) {
-    this->initClassID<GrDiffuseLightingEffect>();
+    this->initClassId(kGrDiffuseLightingEffect_ClassID);
 }
 
 GrDiffuseLightingEffect::GrDiffuseLightingEffect(const GrDiffuseLightingEffect& that)
         : INHERITED(that), fKD(that.fKD) {
-    this->initClassID<GrDiffuseLightingEffect>();
+    this->initClassId(kGrDiffuseLightingEffect_ClassID);
 }
 
 bool GrDiffuseLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
@@ -1990,12 +1990,12 @@ GrSpecularLightingEffect::GrSpecularLightingEffect(sk_sp<GrTextureProxy> proxy,
                     srcBounds)
         , fKS(ks)
         , fShininess(shininess) {
-    this->initClassID<GrSpecularLightingEffect>();
+    this->initClassId(kGrSpecularLightingEffect_ClassID);
 }
 
 GrSpecularLightingEffect::GrSpecularLightingEffect(const GrSpecularLightingEffect& that)
         : INHERITED(that), fKS(that.fKS), fShininess(that.fShininess) {
-    this->initClassID<GrSpecularLightingEffect>();
+    this->initClassId(kGrSpecularLightingEffect_ClassID);
 }
 
 bool GrSpecularLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

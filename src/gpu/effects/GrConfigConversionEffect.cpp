@@ -67,7 +67,7 @@ private:
 GrConfigConversionEffect::GrConfigConversionEffect(PMConversion pmConversion)
         : INHERITED(kNone_OptimizationFlags)
         , fPMConversion(pmConversion) {
-    this->initClassID<GrConfigConversionEffect>();
+    this->initClassId(kGrConfigConversionEffect_ClassID);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::clone() const {

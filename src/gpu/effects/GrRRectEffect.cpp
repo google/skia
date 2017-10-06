@@ -94,7 +94,7 @@ CircularRRectEffect::CircularRRectEffect(GrPrimitiveEdgeType edgeType, uint32_t 
         , fRRect(rrect)
         , fEdgeType(edgeType)
         , fCircularCornerFlags(circularCornerFlags) {
-    this->initClassID<CircularRRectEffect>();
+    this->initClassId(kCircularRRectEffect_ClassID);
 }
 
 std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::clone() const {
@@ -428,7 +428,7 @@ EllipticalRRectEffect::EllipticalRRectEffect(GrPrimitiveEdgeType edgeType, const
         : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fRRect(rrect)
         , fEdgeType(edgeType) {
-    this->initClassID<EllipticalRRectEffect>();
+    this->initClassId(kEllipticalRRectEffect_ClassID);
 }
 
 std::unique_ptr<GrFragmentProcessor> EllipticalRRectEffect::clone() const {

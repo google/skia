@@ -246,7 +246,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(
         , fInColor(nullptr)
         , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
-    this->initClassID<GrDistanceFieldA8TextGeoProc>();
+    this->initClassId(kGrDistanceFieldA8TextGeoProc_ClassID);
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kUShort2_GrVertexAttribType);
@@ -504,7 +504,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
         , fInColor(nullptr)
         , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
-    this->initClassID<GrDistanceFieldPathGeoProc>();
+    this->initClassId(kGrDistanceFieldPathGeoProc_ClassID);
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kUShort2_GrVertexAttribType);
@@ -823,7 +823,7 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
         , fFlags(flags & kLCD_DistanceFieldEffectMask)
         , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
-    this->initClassID<GrDistanceFieldLCDTextGeoProc>();
+    this->initClassId(kGrDistanceFieldLCDTextGeoProc_ClassID);
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kUShort2_GrVertexAttribType);

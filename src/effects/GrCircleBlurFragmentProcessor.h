@@ -37,7 +37,7 @@ private:
             , fSolidRadius(solidRadius)
             , fBlurProfileSampler(std::move(blurProfileSampler)) {
         this->addTextureSampler(&fBlurProfileSampler);
-        this->initClassID<GrCircleBlurFragmentProcessor>();
+        this->initClassId(kGrCircleBlurFragmentProcessor_ClassID);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

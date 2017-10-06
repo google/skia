@@ -109,7 +109,7 @@ private:
             , fYInvZoom(yInvZoom)
             , fXInvInset(xInvInset)
             , fYInvInset(yInvInset) {
-        this->initClassID<GrMagnifierEffect>();
+        this->initClassId(kGrMagnifierEffect_ClassID);
         this->addCoordTransform(&fCoordTransform);
         this->addTextureSampler(&fTextureSampler);
     }
@@ -125,7 +125,7 @@ private:
             , fYInvZoom(that.fYInvZoom)
             , fXInvInset(that.fXInvInset)
             , fYInvInset(that.fYInvInset) {
-        this->initClassID<GrMagnifierEffect>();
+        this->initClassId(kGrMagnifierEffect_ClassID);
         this->addCoordTransform(&fCoordTransform);
         this->addTextureSampler(&fTextureSampler);
     }

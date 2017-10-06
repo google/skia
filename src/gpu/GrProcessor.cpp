@@ -113,7 +113,7 @@ public:
 };
 }
 
-int32_t GrProcessor::gCurrProcessorClassID = GrProcessor::kIllegalProcessorClassID;
+int32_t GrProcessor::gCurrProcessorClassID = GrProcessor::kIllegalProcessor_ClassID;
 
 ///////////////////////////////////////////////////////////////////////////////
 

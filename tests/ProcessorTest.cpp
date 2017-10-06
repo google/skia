@@ -98,7 +98,7 @@ private:
            const SkTArray<sk_sp<GrBuffer>>& buffers,
            const SkTArray<Image>& images)
             : INHERITED(kNone_OptimizationFlags), fSamplers(4), fBuffers(4), fImages(4) {
-        this->initClassID<TestFP>();
+        this->initClassId(kTestFP_ClassID);
         for (const auto& proxy : proxies) {
             this->addTextureSampler(&fSamplers.emplace_back(proxy));
         }
@@ -114,13 +114,13 @@ private:
 
     TestFP(std::unique_ptr<GrFragmentProcessor> child)
             : INHERITED(kNone_OptimizationFlags), fSamplers(4), fBuffers(4), fImages(4) {
-        this->initClassID<TestFP>();
+        this->initClassId(kTestFP_ClassID);
         this->registerChildProcessor(std::move(child));
     }
 
     explicit TestFP(const TestFP& that)
             : INHERITED(that.optimizationFlags()), fSamplers(4), fBuffers(4), fImages(4) {
-        this->initClassID<TestFP>();
+        this->initClassId(kTestFP_ClassID);
         for (int i = 0; i < that.fSamplers.count(); ++i) {
             fSamplers.emplace_back(that.fSamplers[i]);
             this->addTextureSampler(&fSamplers.back());

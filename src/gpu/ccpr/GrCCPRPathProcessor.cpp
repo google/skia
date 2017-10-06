@@ -83,7 +83,7 @@ GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTexture
     fAtlasAccess.instantiate(rp);
     this->addTextureSampler(&fAtlasAccess);
 
-    this->initClassID<GrCCPRPathProcessor>();
+    this->initClassId(kGrCCPRPathProcessor_ClassID);
 }
 
 void GrCCPRPathProcessor::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {

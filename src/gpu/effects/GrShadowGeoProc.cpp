@@ -64,7 +64,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrRRectShadowGeoProc::GrRRectShadowGeoProc() {
-    this->initClassID<GrRRectShadowGeoProc>();
+    this->initClassId(kGrRRectShadowGeoProc_ClassID);
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
     fInShadowParams = &this->addVertexAttrib("inShadowParams", kHalf4_GrVertexAttribType);

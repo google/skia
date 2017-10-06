@@ -129,7 +129,7 @@ std::unique_ptr<GrFragmentProcessor> OverdrawFragmentProcessor::Make(const SkPMC
 // care given how this is used.
 OverdrawFragmentProcessor::OverdrawFragmentProcessor(const GrColor4f* colors)
         : INHERITED(kNone_OptimizationFlags) {
-    this->initClassID<OverdrawFragmentProcessor>();
+    this->initClassId(kOverdrawFragmentProcessor_ClassID);
     memcpy(fColors, colors, SkOverdrawColorFilter::kNumColors * sizeof(GrColor4f));
 }
 

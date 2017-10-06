@@ -33,7 +33,7 @@ private:
             , fEdgeType(edgeType)
             , fCenter(center)
             , fRadii(radii) {
-        this->initClassID<GrEllipseEffect>();
+        this->initClassId(kGrEllipseEffect_ClassID);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

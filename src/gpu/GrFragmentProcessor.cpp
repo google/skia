@@ -125,7 +125,7 @@ private:
     PremulInputFragmentProcessor()
             : INHERITED(kPreservesOpaqueInput_OptimizationFlag |
                         kConstantOutputForConstantInput_OptimizationFlag) {
-        this->initClassID<PremulInputFragmentProcessor>();
+        this->initClassId(kPremulInputFragmentProcessor_ClassID);
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -167,7 +167,7 @@ private:
     UnpremulInputFragmentProcessor()
             : INHERITED(kPreservesOpaqueInput_OptimizationFlag |
                         kConstantOutputForConstantInput_OptimizationFlag) {
-        this->initClassID<UnpremulInputFragmentProcessor>();
+        this->initClassId(kUnpremulInputFragmentProcessor_ClassID);
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -245,7 +245,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
         SwizzleFragmentProcessor(const GrSwizzle& swizzle)
                 : INHERITED(kAll_OptimizationFlags)
                 , fSwizzle(swizzle) {
-            this->initClassID<SwizzleFragmentProcessor>();
+            this->initClassId(kSwizzleFragmentProcessor_ClassID);
         }
 
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -311,7 +311,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
     private:
         PremulFragmentProcessor(std::unique_ptr<GrFragmentProcessor> processor)
                 : INHERITED(OptFlags(processor.get())) {
-            this->initClassID<PremulFragmentProcessor>();
+            this->initClassId(kPremulFragmentProcessor_ClassID);
             this->registerChildProcessor(std::move(processor));
         }
 
@@ -413,7 +413,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
 
         ReplaceInputFragmentProcessor(std::unique_ptr<GrFragmentProcessor> child, GrColor4f color)
                 : INHERITED(OptFlags(child.get(), color)), fColor(color) {
-            this->initClassID<ReplaceInputFragmentProcessor>();
+            this->initClassId(kReplaceInputFragmentProcessor_ClassID);
             this->registerChildProcessor(std::move(child));
         }
 
@@ -496,7 +496,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
         SeriesFragmentProcessor(std::unique_ptr<GrFragmentProcessor>* children, int cnt)
                 : INHERITED(OptFlags(children, cnt)) {
             SkASSERT(cnt > 1);
-            this->initClassID<SeriesFragmentProcessor>();
+            this->initClassId(kSeriesFragmentProcessor_ClassID);
             for (int i = 0; i < cnt; ++i) {
                 this->registerChildProcessor(std::move(children[i]));
             }

@@ -79,7 +79,7 @@ private:
     };
 
     LumaColorFilterEffect() : INHERITED(kConstantOutputForConstantInput_OptimizationFlag) {
-        this->initClassID<LumaColorFilterEffect>();
+        this->initClassId(kLumaColorFilterEffect_ClassID);
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {

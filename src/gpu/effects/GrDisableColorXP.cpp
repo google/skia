@@ -18,7 +18,7 @@
  */
 class DisableColorXP : public GrXferProcessor {
 public:
-    DisableColorXP() { this->initClassID<DisableColorXP>(); }
+    DisableColorXP() { this->initClassId(kDisableColorXP_ClassID); }
 
     const char* name() const override { return "Disable Color"; }
 

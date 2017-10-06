@@ -207,7 +207,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         , fRadius(radius)
         , fDirection(direction)
         , fMode(mode) {
-    this->initClassID<GrGaussianConvolutionFragmentProcessor>();
+    this->initClassId(kGrGaussianConvolutionFragmentProcessor_ClassID);
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
     SkASSERT(radius <= kMaxKernelRadius);
@@ -225,7 +225,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         , fRadius(that.fRadius)
         , fDirection(that.fDirection)
         , fMode(that.fMode) {
-    this->initClassID<GrGaussianConvolutionFragmentProcessor>();
+    this->initClassId(kGrGaussianConvolutionFragmentProcessor_ClassID);
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
     memcpy(fKernel, that.fKernel, that.width() * sizeof(float));

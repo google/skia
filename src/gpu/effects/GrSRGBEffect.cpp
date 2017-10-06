@@ -82,7 +82,7 @@ GrSRGBEffect::GrSRGBEffect(Mode mode, Alpha alpha)
     , fMode(mode)
     , fAlpha(alpha)
 {
-    this->initClassID<GrSRGBEffect>();
+    this->initClassId(kGrSRGBEffect_ClassID);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrSRGBEffect::clone() const { return Make(fMode, fAlpha); }

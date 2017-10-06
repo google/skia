@@ -118,7 +118,7 @@ GrEllipseEffect::GrEllipseEffect(const GrEllipseEffect& src)
         , fEdgeType(src.fEdgeType)
         , fCenter(src.fCenter)
         , fRadii(src.fRadii) {
-    this->initClassID<GrEllipseEffect>();
+    this->initClassId(kGrEllipseEffect_ClassID);
 }
 std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrEllipseEffect(*this));

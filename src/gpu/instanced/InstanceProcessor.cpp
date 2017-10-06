@@ -41,7 +41,7 @@ GrCaps::InstancedSupport InstanceProcessor::CheckSupport(const GrShaderCaps& sha
 }
 
 InstanceProcessor::InstanceProcessor(OpInfo opInfo, GrBuffer* paramsBuffer) : fOpInfo(opInfo) {
-    this->initClassID<InstanceProcessor>();
+    this->initClassId(kInstanceProcessor_ClassID);
 
     this->addVertexAttrib("shapeCoords", kFloat2_GrVertexAttribType);
     this->addVertexAttrib("vertexAttrs", kInt_GrVertexAttribType);

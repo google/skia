@@ -37,7 +37,7 @@ private:
             : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , fRect(rect)
             , fEdgeType(edgeType) {
-        this->initClassID<AARectEffect>();
+        this->initClassId(kAARectEffect_ClassID);
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -329,7 +329,7 @@ GrConvexPolyEffect::GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, cons
         : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fEdgeType(edgeType)
         , fEdgeCount(n) {
-    this->initClassID<GrConvexPolyEffect>();
+    this->initClassId(kGrConvexPolyEffect_ClassID);
     // Factory function should have already ensured this.
     SkASSERT(n <= kMaxEdges);
     memcpy(fEdges, edges, 3 * n * sizeof(SkScalar));
@@ -344,7 +344,7 @@ GrConvexPolyEffect::GrConvexPolyEffect(const GrConvexPolyEffect& that)
         : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fEdgeType(that.fEdgeType)
         , fEdgeCount(that.fEdgeCount) {
-    this->initClassID<GrConvexPolyEffect>();
+    this->initClassId(kGrConvexPolyEffect_ClassID);
     memcpy(fEdges, that.fEdges, 3 * that.fEdgeCount * sizeof(SkScalar));
 }
 

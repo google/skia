@@ -635,7 +635,7 @@ public:
 private:
     QuadEdgeEffect(const SkMatrix& localMatrix, bool usesLocalCoords)
             : fLocalMatrix(localMatrix), fUsesLocalCoords(usesLocalCoords) {
-        this->initClassID<QuadEdgeEffect>();
+        this->initClassId(kQuadEdgeEffect_ClassID);
         fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
         fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
         fInQuadEdge = &this->addVertexAttrib("inQuadEdge", kHalf4_GrVertexAttribType);

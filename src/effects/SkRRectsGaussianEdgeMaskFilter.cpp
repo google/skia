@@ -462,7 +462,7 @@ private:
             , fFirst(first)
             , fSecond(second)
             , fRadius(radius) {
-        this->initClassID<RRectsGaussianEdgeFP>();
+        this->initClassId(kRRectsGaussianEdgeFP_ClassID);
 
         fFirstMode = ComputeMode(fFirst);
         fSecondMode = ComputeMode(fSecond);
@@ -474,7 +474,7 @@ private:
             , fSecond(that.fSecond)
             , fSecondMode(that.fSecondMode)
             , fRadius(that.fRadius) {
-        this->initClassID<RRectsGaussianEdgeFP>();
+        this->initClassId(kRRectsGaussianEdgeFP_ClassID);
     }
 
     static Mode ComputeMode(const SkRRect& rr) {

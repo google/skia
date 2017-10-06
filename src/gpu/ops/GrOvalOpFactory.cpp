@@ -69,7 +69,7 @@ public:
     CircleGeometryProcessor(bool stroke, bool clipPlane, bool isectPlane, bool unionPlane,
                             const SkMatrix& localMatrix)
             : fLocalMatrix(localMatrix) {
-        this->initClassID<CircleGeometryProcessor>();
+        this->initClassId(kCircleGeometryProcessor_ClassID);
         fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
         fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
         fInCircleEdge = &this->addVertexAttrib("inCircleEdge", kFloat4_GrVertexAttribType);
@@ -239,7 +239,7 @@ sk_sp<GrGeometryProcessor> CircleGeometryProcessor::TestCreate(GrProcessorTestDa
 class EllipseGeometryProcessor : public GrGeometryProcessor {
 public:
     EllipseGeometryProcessor(bool stroke, const SkMatrix& localMatrix) : fLocalMatrix(localMatrix) {
-        this->initClassID<EllipseGeometryProcessor>();
+        this->initClassId(kEllipseGeometryProcessor_ClassID);
         fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
         fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
         fInEllipseOffset = &this->addVertexAttrib("inEllipseOffset", kHalf2_GrVertexAttribType);
@@ -380,7 +380,7 @@ class DIEllipseGeometryProcessor : public GrGeometryProcessor {
 public:
     DIEllipseGeometryProcessor(const SkMatrix& viewMatrix, DIEllipseStyle style)
             : fViewMatrix(viewMatrix) {
-        this->initClassID<DIEllipseGeometryProcessor>();
+        this->initClassId(kDIEllipseGeometryProcessor_ClassID);
         fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
         fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
         fInEllipseOffsets0 = &this->addVertexAttrib("inEllipseOffsets0", kHalf2_GrVertexAttribType);

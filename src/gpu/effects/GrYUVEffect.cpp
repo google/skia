@@ -146,7 +146,7 @@ private:
             , fVSampler(vProxy, uvFilterMode)
             , fColorSpace(colorSpace)
             , fNV12(nv12) {
-        this->initClassID<YUVtoRGBEffect>();
+        this->initClassId(kYUVtoRGBEffect_ClassID);
         this->addCoordTransform(&fYTransform);
         this->addTextureSampler(&fYSampler);
         this->addCoordTransform(&fUTransform);
@@ -168,7 +168,7 @@ private:
             , fVSampler(that.fVSampler)
             , fColorSpace(that.fColorSpace)
             , fNV12(that.fNV12) {
-        this->initClassID<YUVtoRGBEffect>();
+        this->initClassId(kYUVtoRGBEffect_ClassID);
         this->addCoordTransform(&fYTransform);
         this->addTextureSampler(&fYSampler);
         this->addCoordTransform(&fUTransform);

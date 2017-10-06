@@ -476,7 +476,7 @@ ColorTableEffect::ColorTableEffect(sk_sp<GrTextureProxy> proxy, GrTextureStripAt
         , fTextureSampler(std::move(proxy))
         , fAtlas(atlas)
         , fRow(row) {
-    this->initClassID<ColorTableEffect>();
+    this->initClassId(kColorTableEffect_ClassID);
     this->addTextureSampler(&fTextureSampler);
 }
 

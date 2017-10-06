@@ -82,11 +82,11 @@ public:
 private:
     explicit GrRadialGradient(const CreateArgs& args)
             : INHERITED(args, args.fShader->colorsAreOpaque()) {
-        this->initClassID<GrRadialGradient>();
+        this->initClassId(kGrRadialGradient_ClassID);
     }
 
     explicit GrRadialGradient(const GrRadialGradient& that) : INHERITED(that) {
-        this->initClassID<GrRadialGradient>();
+        this->initClassId(kGrRadialGradient_ClassID);
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

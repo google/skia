@@ -58,7 +58,7 @@ private:
         this->addTextureSampler(&fMask);
         this->addCoordTransform(&fImageCoordTransform);
         this->addCoordTransform(&fMaskCoordTransform);
-        this->initClassID<GrAlphaThresholdFragmentProcessor>();
+        this->initClassId(kGrAlphaThresholdFragmentProcessor_ClassID);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
