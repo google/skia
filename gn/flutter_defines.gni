@@ -4,6 +4,5 @@
 # found in the LICENSE file.
 flutter_defines = [
   "SK_SUPPORT_LEGACY_IMAGE_ENCODE_API",
-  "SK_SUPPORT_LEGACY_FONTMGR_API",
   "SK_SUPPORT_LEGACY_SAFESIZE64",
 ]
