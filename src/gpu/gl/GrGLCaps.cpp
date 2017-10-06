@@ -62,6 +62,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
+    fMaxInstancesPerDrawArraysWithoutCrashing = 0;
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
@@ -535,15 +536,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
          ctxInfo.driver() != kChromium_GrGLDriver)) {
         fUseDrawInsteadOfClear = true;
     }
-
-#ifdef SK_BUILD_FOR_MAC
-    // crbug.com/768134 - On MacBook Pros, the Intel Iris Pro doesn't always perform
-    // full screen clears
-    if (kIntelIrisPro_GrGLRenderer == ctxInfo.renderer()) {
-        fUseDrawInsteadOfClear = true;
-    }
-#endif
-
     // See crbug.com/755871. This could probably be narrowed to just partial clears as the driver
     // bugs seems to involve clearing too much and not skipping the clear.
     // See crbug.com/768134. This is also needed for full clears and was seen on an nVidia K620 
@@ -573,6 +565,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         ctxInfo.driverVersion() > GR_GL_DRIVER_VER(53, 0)) {
         fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = true;
     }
+
+    // Our Chromebook with kPowerVRRogue_GrGLRenderer seems to crash when glDrawArraysInstanced is
+    // given 1 << 15 or more instances.
+    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+        fMaxInstancesPerDrawArraysWithoutCrashing = 0x7fff;
+    }
+        fMaxInstancesPerDrawArraysWithoutCrashing = 0x1;
 
     // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
     if (kTegra3_GrGLRenderer == ctxInfo.renderer()) {
@@ -1360,6 +1359,8 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
                        fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO);
     writer->appendBool("Intermediate texture for all updates of textures bound to FBOs",
                        fUseDrawInsteadOfAllRenderTargetWrites);
+    writer->appendBool("Max instances per glDrawArraysInstanced without crashing (or zero)",
+                       fMaxInstancesPerDrawArraysWithoutCrashing);
 
     writer->beginArray("configs");
 
