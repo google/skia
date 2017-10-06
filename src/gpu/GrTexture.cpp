@@ -56,6 +56,24 @@ GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType
     }
 }
 
+GrBackendTexture GrTexture::steal() {
+    if (!this->unique()) {
+        return GrBackendTexture();
+    }
+
+    auto backendTexture = this->onSteal();
+    if (!backendTexture.isValid()) {
+        return GrBackendTexture();
+    }
+
+    // Release any not-stolen data being held by this class.
+    this->onRelease();
+    // Abandon the GrTexture so it can't be re-used.
+    this->abandon();
+
+    return backendTexture;
+}
+
 void GrTexture::computeScratchKey(GrScratchKey* key) const {
     const GrRenderTarget* rt = this->asRenderTarget();
     int sampleCount = 0;

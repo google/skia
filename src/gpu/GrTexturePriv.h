@@ -60,7 +60,6 @@ public:
                                   bool isRenderTarget, int sampleCnt,
                                   bool isMipMapped, GrScratchKey* key);
 
-
 private:
     GrTexturePriv(GrTexture* texture) : fTexture(texture) { }
     GrTexturePriv(const GrTexturePriv& that) : fTexture(that.fTexture) { }
