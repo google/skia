@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "309042ad_2b2cbfb5",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-06T04:54:35Z",
+      "side": 1,
+      "message": "This might not be necessary since of valid shader should only have one invocations qualifier..",
+      "revId": "c5b86387ab81915a9d5ee91a2890aa536512e781",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
