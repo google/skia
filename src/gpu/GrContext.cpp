@@ -28,6 +28,7 @@
 #include "SkGr.h"
 #include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
+#include "SkMipMap.h"
 #include "SkTaskGroup.h"
 #include "SkUnPreMultiplyPriv.h"
 #include "effects/GrConfigConversionEffect.h"
@@ -614,6 +615,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
                                                            tempDrawInfo.fTempSurfaceDesc.fConfig,
                                                            nullptr,
                                                            tempDrawInfo.fTempSurfaceDesc.fSampleCnt,
+                                                           false,
                                                            tempDrawInfo.fTempSurfaceDesc.fOrigin);
         if (tempRTC) {
             SkMatrix textureMatrix = SkMatrix::MakeTrans(SkIntToScalar(left), SkIntToScalar(top));
@@ -873,6 +875,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContextWithFallb
                                                                  GrPixelConfig config,
                                                                  sk_sp<SkColorSpace> colorSpace,
                                                                  int sampleCnt,
+                                                                 bool willNeedMipMaps,
                                                                  GrSurfaceOrigin origin,
                                                                  const SkSurfaceProps* surfaceProps,
                                                                  SkBudgeted budgeted) {
@@ -881,7 +884,8 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContextWithFallb
     }
 
     return this->makeDeferredRenderTargetContext(fit, width, height, config, std::move(colorSpace),
-                                                 sampleCnt, origin, surfaceProps, budgeted);
+                                                 sampleCnt, willNeedMipMaps, origin, surfaceProps,
+                                                 budgeted);
 }
 
 sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
@@ -890,6 +894,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
                                                         GrPixelConfig config,
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         int sampleCnt,
+                                                        bool willNeedMipMaps,
                                                         GrSurfaceOrigin origin,
                                                         const SkSurfaceProps* surfaceProps,
                                                         SkBudgeted budgeted) {
@@ -905,8 +910,29 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
     desc.fConfig = config;
     desc.fSampleCnt = sampleCnt;
 
-    sk_sp<GrTextureProxy> rtp = GrSurfaceProxy::MakeDeferred(this->resourceProvider(),
-                                                             desc, fit, budgeted);
+    sk_sp<GrTextureProxy> rtp;
+    if (!willNeedMipMaps) {
+        rtp = GrSurfaceProxy::MakeDeferred(this->resourceProvider(), desc, fit, budgeted);
+    } else {
+        // Since the mips will be dirty after drawing the YUV into the base level, we don't need to
+        // set this value correctly because when we generate the mips they will be generated with
+        // the correct color mode for thier use at that time.
+        SkDestinationSurfaceColorMode colorMode = SkDestinationSurfaceColorMode::kLegacy;
+
+        // SkMipMap doesn't include the base level in the level count so we have to add 1
+        int mipCount = SkMipMap::ComputeLevelCount(width, height) + 1;
+
+        std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipCount]);
+
+        // We don't want to upload any texel data
+        for (int i = 0; i < mipCount; i++) {
+            texels[i].fPixels = nullptr;
+            texels[i].fRowBytes = 0;
+        }
+
+        rtp = GrSurfaceProxy::MakeDeferredMipMap(this->resourceProvider(), desc, budgeted,
+                                                 texels.get(), mipCount, colorMode);
+    }
     if (!rtp) {
         return nullptr;
     }

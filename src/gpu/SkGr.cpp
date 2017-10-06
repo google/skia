@@ -219,17 +219,17 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
 }
 
 sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx,
-                                                     GrTextureProxy* baseProxy,
-                                                     SkColorSpace* dstColorSpace) {
+                                                     GrTextureProxy* baseProxy) {
     SkASSERT(baseProxy);
 
     if (!ctx->caps()->isConfigCopyable(baseProxy->config())) {
         return nullptr;
     }
 
-    SkDestinationSurfaceColorMode colorMode = dstColorSpace
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
+    // Since the mips will be dirty after copying the base level over, we don't need to set this
+    // correctly because when we generate the mips they will be generated with the correct color
+    // mode for thier use at that time.
+    SkDestinationSurfaceColorMode colorMode = SkDestinationSurfaceColorMode::kLegacy;
 
     // SkMipMap doesn't include the base level in the level count so we have to add 1
     int mipLevelCount = SkMipMap::ComputeLevelCount(baseProxy->width(), baseProxy->height()) + 1;
