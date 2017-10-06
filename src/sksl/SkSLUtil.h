@@ -155,12 +155,16 @@ public:
         return nullptr;
     }
 
+    const char* gsInvocationsExtensionString() const {
+        return nullptr;
+    }
+
     const char* versionDeclString() const {
         return "";
     }
 
-    bool mustImplementGSInvocationsWithLoop() const {
-        return false;
+    bool gsInvocationsSupport() const {
+        return true;
     }
 
     bool canUseFractForNegativeValues() const {
