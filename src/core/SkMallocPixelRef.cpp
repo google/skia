@@ -80,7 +80,7 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeUsing(void*(*allocProc)(size_t),
     size_t size = 0;
     if (!info.isEmpty() && rowBytes) {
         size = info.computeByteSize(rowBytes);
-        if (size == SK_MaxSizeT) {
+        if (!size) {
             return nullptr; // overflow
         }
     }
@@ -131,6 +131,9 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeWithData(const SkImageInfo& info,
     if (!is_valid(info)) {
         return nullptr;
     }
+    // TODO: what should we return if computeByteSize returns 0?
+    // - the info was empty?
+    // - we overflowed computing the size?
     if ((rowBytes < info.minRowBytes()) || (data->size() < info.computeByteSize(rowBytes))) {
         return nullptr;
     }

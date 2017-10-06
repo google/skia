@@ -233,7 +233,6 @@ template <typename D, typename S> D SkTo(S s) {
 #define SK_MaxU32   0xFFFFFFFF
 #define SK_MinU32   0
 #define SK_NaN32    ((int) (1U << 31))
-#define SK_MaxSizeT SIZE_MAX
 
 static inline int32_t SkLeftShift(int32_t value, int32_t shift) {
     return (int32_t) ((uint32_t) value << shift);
