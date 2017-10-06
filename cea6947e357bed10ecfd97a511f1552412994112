@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6e31536_a520a74e",
+        "filename": "src/core/SkAutoPixmapStorage.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-10-06T18:15:22Z",
+      "side": 1,
+      "message": "Do we care about this check? The next malloc will fail anyway in this case, and even if it didn\u0027t it isn\u0027t possible for the caller to get outside the resulting allocation anyway (their own calculations would wrap around).\n\nNote that the allocator on Android will assert in release if asking for more than SSIZE_MAX. So maybe that\u0027s a better thing to check for before allocating? It\u0027s strange to have any allocation where ptrdiff_t can\u0027t actually represent all the diffs.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 5
+      },
+      "revId": "cea6947e357bed10ecfd97a511f1552412994112",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "798ff244_c79835b2",
+        "filename": "src/core/SkBitmapCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-10-06T18:15:22Z",
+      "side": 1,
+      "message": "Similar here, though I\u0027m not sure about the behavior of the discardable  memory allocator.",
+      "range": {
+        "startLine": 293,
+        "startChar": 0,
+        "endLine": 295,
+        "endChar": 5
+      },
+      "revId": "cea6947e357bed10ecfd97a511f1552412994112",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2478f806_0b8e4cc7",
+        "filename": "src/core/SkMallocPixelRef.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-10-06T18:15:22Z",
+      "side": 1,
+      "message": "Once again, not sure this is worth checking for, it\u0027s up to the allocProc to do whatever it does.",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 9
+      },
+      "revId": "cea6947e357bed10ecfd97a511f1552412994112",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e8f5ffd_7de0de50",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-10-06T18:15:22Z",
+      "side": 1,
+      "message": "This check seems interesting. Currently SkData internally uses \u0027::operator new\u0027 so it should fail or not return nullptr. Indeed, at the moment this will cause a release assert since it will detect overflow when computing the total required size. It seems like maybe we want SkData constructors to instead be based on a non-throwing malloc and return nullptr in these situations?\n\nIt\u0027s just odd that getting up (anywhere) near Sk_MaxSizeT will cause a release assert, but then overflowing will fail gracefully.",
+      "range": {
+        "startLine": 426,
+        "startChar": 0,
+        "endLine": 428,
+        "endChar": 5
+      },
+      "revId": "cea6947e357bed10ecfd97a511f1552412994112",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
