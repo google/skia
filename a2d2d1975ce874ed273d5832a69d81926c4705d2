@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d4dca626_ee4d7d36",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 37
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-06T13:28:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c96a5200_aef568e8",
+      "range": {
+        "startLine": 619,
+        "startChar": 34,
+        "endLine": 619,
+        "endChar": 42
+      },
+      "revId": "a2d2d1975ce874ed273d5832a69d81926c4705d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "54ef6e39_6ee48fa9",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 37
@@ -36,6 +60,30 @@
       "writtenOn": "2017-10-06T12:10:01Z",
       "side": 1,
       "message": "nit: This line is unnecessary.",
+      "range": {
+        "startLine": 792,
+        "startChar": 4,
+        "endLine": 792,
+        "endChar": 44
+      },
+      "revId": "a2d2d1975ce874ed273d5832a69d81926c4705d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2b6ccba_9cccc75c",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 37
+      },
+      "lineNbr": 792,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-06T13:28:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "54ef6e39_6ee48fa9",
       "range": {
         "startLine": 792,
         "startChar": 4,
