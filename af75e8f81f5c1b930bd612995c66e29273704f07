@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20d027b4_04c7845d",
+        "filename": "include/gpu/GrTexture.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-06T20:22:57Z",
+      "side": 1,
+      "message": "I\u0027m also happy to use the enum that already exists in GrTexture if we want to move it out of private.",
+      "range": {
+        "startLine": 57,
+        "startChar": 56,
+        "endLine": 58,
+        "endChar": 44
+      },
+      "revId": "af75e8f81f5c1b930bd612995c66e29273704f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
