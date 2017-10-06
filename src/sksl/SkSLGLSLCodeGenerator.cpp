@@ -1005,10 +1005,20 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::kFunction_Kind:
             this->writeFunction((FunctionDefinition&) e);
             break;
-        case ProgramElement::kModifiers_Kind:
-            this->writeModifiers(((ModifiersDeclaration&) e).fModifiers, true);
+        case ProgramElement::kModifiers_Kind: {
+            const Modifiers& modifiers = ((ModifiersDeclaration&) e).fModifiers;
+            if (!fFoundGSInvocations && modifiers.fLayout.fInvocations >= 0) {
+                if (fProgram.fSettings.fCaps->gsInvocationsExtensionString()) {
+                    fHeader.writeText("#extension ");
+                    fHeader.writeText(fProgram.fSettings.fCaps->gsInvocationsExtensionString());
+                    fHeader.writeText(" : require\n");
+                }
+                fFoundGSInvocations = true;
+            }
+            this->writeModifiers(modifiers, true);
             this->writeLine(";");
             break;
+        }
         default:
             printf("%s\n", e.description().c_str());
             ABORT("unsupported program element");
