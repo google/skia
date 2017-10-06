@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62077d50_d4a13e32",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-06T15:30:59Z",
+      "side": 1,
+      "message": "Maybe add something like:\n\nWe need this b.c. when we generate mipmaps with draws ...",
+      "range": {
+        "startLine": 7,
+        "startChar": 29,
+        "endLine": 7,
+        "endChar": 60
+      },
+      "revId": "723388c79f415eefff89f7b2986f6a6ca3d13784",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

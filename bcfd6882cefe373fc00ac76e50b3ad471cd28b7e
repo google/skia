@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "672ff213_fb792e00",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-06T15:30:59Z",
+      "side": 1,
+      "message": "Maybe willNeedMipMaps ?",
+      "revId": "bcfd6882cefe373fc00ac76e50b3ad471cd28b7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d99b462a_92f74b32",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-06T15:30:59Z",
+      "side": 1,
+      "message": "same here ?",
+      "revId": "bcfd6882cefe373fc00ac76e50b3ad471cd28b7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf1d4ffd_d77eefe3",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 917,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-06T15:30:59Z",
+      "side": 1,
+      "message": "This seems a bit weird. Should we be passing a colorSpace to MakeDeferredMipMap ?",
+      "revId": "bcfd6882cefe373fc00ac76e50b3ad471cd28b7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6eb28fa0_8ba5c392",
+        "filename": "src/gpu/GrTextureProducer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-06T15:30:59Z",
+      "side": 1,
+      "message": "Should this be: destWillRequireMipMaps ?",
+      "revId": "bcfd6882cefe373fc00ac76e50b3ad471cd28b7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31304f2e_97899397",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-06T15:30:59Z",
+      "side": 1,
+      "message": "// TODO: in future world, preallocate mipmaps here ?",
+      "revId": "bcfd6882cefe373fc00ac76e50b3ad471cd28b7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
