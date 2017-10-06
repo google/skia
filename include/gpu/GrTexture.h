@@ -9,6 +9,7 @@
 #ifndef GrTexture_DEFINED
 #define GrTexture_DEFINED
 
+#include "GrBackendSurface.h"
 #include "GrSamplerState.h"
 #include "GrSurface.h"
 #include "SkPoint.h"
@@ -33,6 +34,12 @@ public:
      */
     virtual void textureParamsModified() = 0;
 
+    /**
+     * This function steals the backend texture and returns it, leaving the GrTexture as though
+     * it had been abandoned.
+     */
+    GrBackendTexture steal();
+
 #ifdef SK_DEBUG
     void validate() const {
         this->INHERITED::validate();
@@ -52,6 +59,8 @@ public:
 protected:
     GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType samplerType,
               GrSamplerState::Filter highestFilterMode, bool wasMipMapDataProvided);
+
+    virtual GrBackendTexture onSteal() = 0;
 
 private:
     void computeScratchKey(GrScratchKey*) const override;

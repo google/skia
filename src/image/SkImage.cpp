@@ -27,6 +27,8 @@
 #include "SkString.h"
 #include "SkSurface.h"
 
+#include "GrBackendSurface.h"
+
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"
 #include "GrContext.h"
@@ -352,6 +354,10 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy&,
 sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, const void*,
                                                          SkBudgeted) {
     return nullptr;
+}
+
+GrBackendTexture SkImage::MakeBackendTextureFromSkImage(GrContext*, sk_sp<SkImage>) {
+    return GrBackendTexture();
 }
 
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,

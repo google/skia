@@ -45,6 +45,8 @@ protected:
             , fReleaseProc(nullptr)
             , fReleaseCtx(nullptr) {}
 
+    GrBackendTexture onSteal() override { return GrBackendTexture(); }
+
 private:
     GrMockTextureInfo fInfo;
     ReleaseProc fReleaseProc;
