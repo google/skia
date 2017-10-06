@@ -128,3 +128,15 @@ sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& d
     return sk_sp<GrGLTexture>(new GrGLTexture(gpu, kWrapped, desc, idDesc));
 }
 
+bool GrGLTexture::onSteal(GrBackendTexture* backendTexture,
+                          SkImage::BackendTextureReleaseProc* releaseProc) {
+    *backendTexture = GrBackendTexture(width(), height(), config(), fInfo);
+    // Set the release proc to a no-op function. GL doesn't require any special cleanup.
+    *releaseProc = [](GrContext*, GrBackendTexture){};
+
+    // It's important that we only abandon this texture's objects, not subclass objects such as
+    // those held by GrGLTextureRenderTarget. Those objects are not being stolen and need to be
+    // cleaned up by us.
+    this->GrGLTexture::onAbandon();
+    return true;
+}
