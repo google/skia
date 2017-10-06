@@ -43,6 +43,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fGLSLGeneration = k330_GrGLSLGeneration;
     fShaderDerivativeSupport = false;
     fGeometryShaderSupport = false;
+    fGSInvocationsSupport = false;
     fPathRenderingSupport = false;
     fDstReadInShaderSupport = false;
     fDualSourceBlendingSupport = false;
@@ -61,7 +62,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fMustForceNegatedAtanParamToFloat = false;
     fAtan2ImplementedAsAtanYOverX = false;
     fRequiresLocalOutputColorForFBFetch = false;
-    fMustImplementGSInvocationsWithLoop = false;
     fMustObfuscateUniformColor = false;
     fMustGuardDivisionEvenAfterExplicitZeroCheck = false;
     fFlatInterpolationSupport = false;
@@ -76,6 +76,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
 
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;
+    fGSInvocationsExtensionString = nullptr;
     fFragCoordConventionsExtensionString = nullptr;
     fSecondaryOutputExtensionString = nullptr;
     fExternalTextureExtensionString = nullptr;
@@ -102,6 +103,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
 
     writer->appendBool("Shader Derivative Support", fShaderDerivativeSupport);
     writer->appendBool("Geometry Shader Support", fGeometryShaderSupport);
+    writer->appendBool("Geometry Shader Invocations Support", fGSInvocationsSupport);
     writer->appendBool("Path Rendering Support", fPathRenderingSupport);
     writer->appendBool("Dst Read In Shader Support", fDstReadInShaderSupport);
     writer->appendBool("Dual Source Blending Support", fDualSourceBlendingSupport);
@@ -150,8 +152,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Can use fract() for negative values", fCanUseFractForNegativeValues);
     writer->appendBool("Must force negated atan param to float", fMustForceNegatedAtanParamToFloat);
     writer->appendBool("Must use local out color for FBFetch", fRequiresLocalOutputColorForFBFetch);
-    writer->appendBool("Must implement geo shader invocations with loop",
-                       fMustImplementGSInvocationsWithLoop);
     writer->appendBool("Must obfuscate uniform color", fMustObfuscateUniformColor);
     writer->appendBool("Must guard division even after explicit zero check",
                        fMustGuardDivisionEvenAfterExplicitZeroCheck);

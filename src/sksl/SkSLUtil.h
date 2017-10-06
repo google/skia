@@ -180,6 +180,7 @@ public:
         sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";
         result->fShaderDerivativeSupport = true;
+        result->fGSInvocationsSupport = true;
         return result;
     }
 
@@ -248,10 +249,20 @@ public:
         return result;
     }
 
-    static sk_sp<GrShaderCaps> MustImplementGSInvocationsWithLoop() {
+    static sk_sp<GrShaderCaps> NoGSInvocationsSupport() {
         sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";
-        result->fMustImplementGSInvocationsWithLoop = true;
+        result->fGeometryShaderSupport = true;
+        result->fGSInvocationsSupport = false;
+        return result;
+    }
+
+    static sk_sp<GrShaderCaps> GSInvocationsExtensionString() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+        result->fVersionDeclString = "#version 400";
+        result->fGeometryShaderSupport = true;
+        result->fGSInvocationsSupport = true;
+        result->fGSInvocationsExtensionString = "GL_ARB_gpu_shader5";
         return result;
     }
 

@@ -73,6 +73,7 @@ public:
 
     bool shaderDerivativeSupport() const { return fShaderDerivativeSupport; }
     bool geometryShaderSupport() const { return fGeometryShaderSupport; }
+    bool gsInvocationsSupport() const { return fGSInvocationsSupport; }
     bool pathRenderingSupport() const { return fPathRenderingSupport; }
     bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
     bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
@@ -165,9 +166,6 @@ public:
 
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
-    // On MacBook, geometry shaders break if they have more than one invocation.
-    bool mustImplementGSInvocationsWithLoop() const { return fMustImplementGSInvocationsWithLoop; }
-
     bool mustObfuscateUniformColor() const { return fMustObfuscateUniformColor; }
 
     // The D3D shader compiler, when targeting PS 3.0 (ie within ANGLE) fails to compile certain
@@ -182,6 +180,14 @@ public:
     const char* shaderDerivativeExtensionString() const {
         SkASSERT(this->shaderDerivativeSupport());
         return fShaderDerivativeExtensionString;
+    }
+
+    // Returns the string of an extension that must be enabled in the shader to support
+    // geometry shader invocations. If nullptr is returned then no extension needs to be enabled.
+    // Before calling this function, the caller must verify that gsInvocationsSupport exists.
+    const char* gsInvocationsExtensionString() const {
+        SkASSERT(this->gsInvocationsSupport());
+        return fGSInvocationsExtensionString;
     }
 
     // Returns the string of an extension that will do all necessary coord transfomations needed
@@ -277,6 +283,7 @@ private:
 
     bool fShaderDerivativeSupport   : 1;
     bool fGeometryShaderSupport     : 1;
+    bool fGSInvocationsSupport      : 1;
     bool fPathRenderingSupport      : 1;
     bool fDstReadInShaderSupport    : 1;
     bool fDualSourceBlendingSupport : 1;
@@ -306,7 +313,6 @@ private:
     bool fMustForceNegatedAtanParamToFloat : 1;
     bool fAtan2ImplementedAsAtanYOverX : 1;
     bool fRequiresLocalOutputColorForFBFetch : 1;
-    bool fMustImplementGSInvocationsWithLoop : 1;
     bool fMustObfuscateUniformColor : 1;
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
 
@@ -315,6 +321,7 @@ private:
     const char* fVersionDeclString;
 
     const char* fShaderDerivativeExtensionString;
+    const char* fGSInvocationsExtensionString;
     const char* fFragCoordConventionsExtensionString;
     const char* fSecondaryOutputExtensionString;
     const char* fExternalTextureExtensionString;

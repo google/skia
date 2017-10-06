@@ -290,7 +290,7 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(
     Modifiers modifiers = m.fModifiers;
     if (modifiers.fLayout.fInvocations != -1) {
         fInvocations = modifiers.fLayout.fInvocations;
-        if (fSettings->fCaps && fSettings->fCaps->mustImplementGSInvocationsWithLoop()) {
+        if (fSettings->fCaps && !fSettings->fCaps->gsInvocationsSupport()) {
             modifiers.fLayout.fInvocations = -1;
             Variable* invocationId = (Variable*) (*fSymbolTable)["sk_InvocationID"];
             ASSERT(invocationId);
@@ -301,7 +301,7 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(
         }
     }
     if (modifiers.fLayout.fMaxVertices != -1 && fInvocations > 0 && fSettings->fCaps &&
-        fSettings->fCaps->mustImplementGSInvocationsWithLoop()) {
+        !fSettings->fCaps->gsInvocationsSupport()) {
         modifiers.fLayout.fMaxVertices *= fInvocations;
     }
     return std::unique_ptr<ModifiersDeclaration>(new ModifiersDeclaration(modifiers));
@@ -676,9 +676,9 @@ void IRGenerator::convertFunction(const ASTFunction& f,
         for (size_t i = 0; i < parameters.size(); i++) {
             fSymbolTable->addWithoutOwnership(parameters[i]->fName, decl->fParameters[i]);
         }
-        bool needInvocationIDWorkaround = fSettings->fCaps &&
-                                          fSettings->fCaps->mustImplementGSInvocationsWithLoop() &&
-                                          fInvocations != -1 && f.fName == "main";
+        bool needInvocationIDWorkaround = fInvocations != -1 && f.fName == "main" &&
+                                          fSettings->fCaps &&
+                                          !fSettings->fCaps->gsInvocationsSupport();
         ASSERT(!fExtraVars.size());
         std::unique_ptr<Block> body = this->convertBlock(*f.fBody);
         for (auto& v : fExtraVars) {
