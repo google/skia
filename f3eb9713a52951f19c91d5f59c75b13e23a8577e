@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "034fe678_27d036a7",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-06T18:20:14Z",
+      "side": 1,
+      "message": "Not asking for a change in this CL but wanted to ask a question regarding this. We have this model of the caps storing the extension strings that get inserted by the code generator. Does it make sense to move this logic to SkSL? As in SkSL knows the GLSL version and extensions that are present and decides what if any extensions need to be required in the shader.",
+      "revId": "f3eb9713a52951f19c91d5f59c75b13e23a8577e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
