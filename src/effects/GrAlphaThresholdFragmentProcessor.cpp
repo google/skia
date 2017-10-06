@@ -115,7 +115,7 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         , fOuterThreshold(src.fOuterThreshold)
         , fImageCoordTransform(src.fImageCoordTransform)
         , fMaskCoordTransform(src.fMaskCoordTransform) {
-    this->initClassID<GrAlphaThresholdFragmentProcessor>();
+    this->initClassID(kGrAlphaThresholdFragmentProcessor_ClassID);
     this->addTextureSampler(&fImage);
     this->addTextureSampler(&fMask);
     this->addCoordTransform(&fImageCoordTransform);

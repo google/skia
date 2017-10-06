@@ -475,7 +475,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
         , fXChannelSelector(xChannelSelector)
         , fYChannelSelector(yChannelSelector)
         , fScale(scale) {
-    this->initClassID<GrDisplacementMapEffect>();
+    this->initClassID(kGrDisplacementMapEffect_ClassID);
     this->addCoordTransform(&fDisplacementTransform);
     this->addTextureSampler(&fDisplacementSampler);
     this->addCoordTransform(&fColorTransform);
@@ -493,7 +493,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(const GrDisplacementMapEffect& 
         , fXChannelSelector(that.fXChannelSelector)
         , fYChannelSelector(that.fYChannelSelector)
         , fScale(that.fScale) {
-    this->initClassID<GrDisplacementMapEffect>();
+    this->initClassID(kGrDisplacementMapEffect_ClassID);
     this->addCoordTransform(&fDisplacementTransform);
     this->addTextureSampler(&fDisplacementSampler);
     this->addCoordTransform(&fColorTransform);

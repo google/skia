@@ -163,7 +163,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> proxy
         , fGain(SkScalarToFloat(gain))
         , fBias(SkScalarToFloat(bias) / 255.0f)
         , fConvolveAlpha(convolveAlpha) {
-    this->initClassID<GrMatrixConvolutionEffect>();
+    this->initClassID(kGrMatrixConvolutionEffect_ClassID);
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
     for (int i = 0; i < kernelSize.width() * kernelSize.height(); i++) {
@@ -182,7 +182,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(const GrMatrixConvolutionEf
         , fGain(that.fGain)
         , fBias(that.fBias)
         , fConvolveAlpha(that.fConvolveAlpha) {
-    this->initClassID<GrMatrixConvolutionEffect>();
+    this->initClassID(kGrMatrixConvolutionEffect_ClassID);
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
     memcpy(fKernel, that.fKernel, sizeof(float) * fKernelSize.width() * fKernelSize.height());

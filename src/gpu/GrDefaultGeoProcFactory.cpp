@@ -255,7 +255,7 @@ private:
             , fFlags(gpTypeFlags)
             , fLocalCoordsWillBeRead(localCoordsWillBeRead)
             , fColorSpaceXform(std::move(colorSpaceXform)) {
-        this->initClassID<DefaultGeoProc>();
+        this->initClassID(kDefaultGeoProc_ClassID);
         fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
         if (fFlags & kColorAttribute_GPFlag) {
             fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);

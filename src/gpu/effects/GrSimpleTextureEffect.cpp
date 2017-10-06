@@ -75,7 +75,7 @@ GrSimpleTextureEffect::GrSimpleTextureEffect(const GrSimpleTextureEffect& src)
         , fColorXform(src.fColorXform)
         , fMatrix(src.fMatrix)
         , fImageCoordTransform(src.fImageCoordTransform) {
-    this->initClassID<GrSimpleTextureEffect>();
+    this->initClassID(kGrSimpleTextureEffect_ClassID);
     this->addTextureSampler(&fImage);
     this->addCoordTransform(&fImageCoordTransform);
 }

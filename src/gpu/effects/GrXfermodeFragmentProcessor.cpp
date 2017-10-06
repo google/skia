@@ -59,7 +59,7 @@ private:
                                 std::unique_ptr<GrFragmentProcessor> dst,
                                 SkBlendMode mode)
             : INHERITED(OptFlags(src.get(), dst.get(), mode)), fMode(mode) {
-        this->initClassID<ComposeTwoFragmentProcessor>();
+        this->initClassID(kComposeTwoFragmentProcessor_ClassID);
         SkDEBUGCODE(int shaderAChildIndex = )this->registerChildProcessor(std::move(src));
         SkDEBUGCODE(int shaderBChildIndex = )this->registerChildProcessor(std::move(dst));
         SkASSERT(0 == shaderAChildIndex);
@@ -422,7 +422,7 @@ private:
     ComposeOneFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp, SkBlendMode mode,
                                 Child child)
             : INHERITED(OptFlags(fp.get(), mode, child)), fMode(mode), fChild(child) {
-        this->initClassID<ComposeOneFragmentProcessor>();
+        this->initClassID(kComposeOneFragmentProcessor_ClassID);
         SkDEBUGCODE(int dstIndex =) this->registerChildProcessor(std::move(fp));
         SkASSERT(0 == dstIndex);
     }

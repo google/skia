@@ -54,7 +54,7 @@ private:
         class GP : public GrGeometryProcessor {
         public:
             GP(int numAttribs) {
-                this->initClassID<GP>();
+                this->initClassID(kGP_ClassID);
                 SkASSERT(numAttribs > 1);
                 for (auto i = 0; i < numAttribs; ++i) {
                     fAttribNames.push_back().printf("attr%d", i);

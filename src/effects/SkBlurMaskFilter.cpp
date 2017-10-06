@@ -979,7 +979,7 @@ GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma,
         , fSigma(sigma)
         , fBlurProfileSampler(std::move(blurProfile))
         , fPrecision(precision) {
-    this->initClassID<GrRectBlurEffect>();
+    this->initClassID(kGrRectBlurEffect_ClassID);
     this->addTextureSampler(&fBlurProfileSampler);
 }
 
@@ -1210,7 +1210,7 @@ GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect,
         , fRRect(rrect)
         , fSigma(sigma)
         , fNinePatchSampler(std::move(ninePatchProxy)) {
-    this->initClassID<GrRRectBlurEffect>();
+    this->initClassID(kGrRRectBlurEffect_ClassID);
     this->addTextureSampler(&fNinePatchSampler);
 }
 

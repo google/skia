@@ -91,14 +91,14 @@ private:
             : INHERITED(args, args.fShader->colorsAreOpaque())
             , fTBias(tBias)
             , fTScale(tScale){
-        this->initClassID<GrSweepGradient>();
+        this->initClassID(kGrSweepGradient_ClassID);
     }
 
     explicit GrSweepGradient(const GrSweepGradient& that)
             : INHERITED(that)
             , fTBias(that.fTBias)
             , fTScale(that.fTScale) {
-        this->initClassID<GrSweepGradient>();
+        this->initClassID(kGrSweepGradient_ClassID);
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

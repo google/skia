@@ -52,7 +52,7 @@ public:
 
 private:
     GrDitherEffect(int rangeType) : INHERITED(kNone_OptimizationFlags), fRangeType(rangeType) {
-        this->initClassID<GrDitherEffect>();
+        this->initClassID(kGrDitherEffect_ClassID);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

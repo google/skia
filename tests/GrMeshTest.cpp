@@ -294,7 +294,7 @@ public:
             fVertex = &this->addVertexAttrib("vertex", kHalf2_GrVertexAttribType);
             fColor = &this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
         }
-        this->initClassID<GrMeshTestProcessor>();
+        this->initClassID(kGrMeshTestProcessor_ClassID);
     }
 
     const char* name() const override { return "GrMeshTest Processor"; }

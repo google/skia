@@ -323,7 +323,7 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(
         , fTextureRadius(src.fTextureRadius)
         , fSolidRadius(src.fSolidRadius)
         , fBlurProfileSampler(src.fBlurProfileSampler) {
-    this->initClassID<GrCircleBlurFragmentProcessor>();
+    this->initClassID(kGrCircleBlurFragmentProcessor_ClassID);
     this->addTextureSampler(&fBlurProfileSampler);
 }
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() const {

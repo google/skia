@@ -94,7 +94,7 @@ GrCircleEffect::GrCircleEffect(const GrCircleEffect& src)
         , fEdgeType(src.fEdgeType)
         , fCenter(src.fCenter)
         , fRadius(src.fRadius) {
-    this->initClassID<GrCircleEffect>();
+    this->initClassID(kGrCircleEffect_ClassID);
 }
 std::unique_ptr<GrFragmentProcessor> GrCircleEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(*this));

@@ -141,7 +141,7 @@ GrNonlinearColorSpaceXformEffect::GrNonlinearColorSpaceXformEffect(
         : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
         , fGamutXform(gamutXform)
         , fOps(ops) {
-    this->initClassID<GrNonlinearColorSpaceXformEffect>();
+    this->initClassID(kGrNonlinearColorSpaceXformEffect_ClassID);
 
     fSrcTransferFnCoeffs[0] = srcTransferFn.fA;
     fSrcTransferFnCoeffs[1] = srcTransferFn.fB;
@@ -165,7 +165,7 @@ GrNonlinearColorSpaceXformEffect::GrNonlinearColorSpaceXformEffect(
         : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
         , fGamutXform(that.fGamutXform)
         , fOps(that.fOps) {
-    this->initClassID<GrNonlinearColorSpaceXformEffect>();
+    this->initClassID(kGrNonlinearColorSpaceXformEffect_ClassID);
     memcpy(fSrcTransferFnCoeffs, that.fSrcTransferFnCoeffs, sizeof(fSrcTransferFnCoeffs));
     memcpy(fDstTransferFnCoeffs, that.fDstTransferFnCoeffs, sizeof(fDstTransferFnCoeffs));
 }

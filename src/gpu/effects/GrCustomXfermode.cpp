@@ -74,14 +74,14 @@ public:
     CustomXP(SkBlendMode mode, GrBlendEquation hwBlendEquation)
         : fMode(mode)
         , fHWBlendEquation(hwBlendEquation) {
-        this->initClassID<CustomXP>();
+        this->initClassID(kCustomXP_ClassID);
     }
 
     CustomXP(bool hasMixedSamples, SkBlendMode mode, GrProcessorAnalysisCoverage coverage)
             : INHERITED(true, hasMixedSamples, coverage)
             , fMode(mode)
             , fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
-        this->initClassID<CustomXP>();
+        this->initClassID(kCustomXP_ClassID);
     }
 
     const char* name() const override { return "Custom Xfermode"; }

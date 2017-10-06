@@ -399,7 +399,7 @@ public:
     PorterDuffXferProcessor(BlendFormula blendFormula, GrProcessorAnalysisCoverage coverage)
             : INHERITED(false, false, coverage)
             , fBlendFormula(blendFormula) {
-        this->initClassID<PorterDuffXferProcessor>();
+        this->initClassID(kPorterDuffXferProcessor_ClassID);
     }
 
     const char* name() const override { return "Porter Duff"; }
@@ -510,7 +510,7 @@ public:
     ShaderPDXferProcessor(bool hasMixedSamples, SkBlendMode xfermode,
                           GrProcessorAnalysisCoverage coverage)
             : INHERITED(true, hasMixedSamples, coverage), fXfermode(xfermode) {
-        this->initClassID<ShaderPDXferProcessor>();
+        this->initClassID(kShaderPDXferProcessor_ClassID);
     }
 
     const char* name() const override { return "Porter Duff Shader"; }
@@ -659,7 +659,7 @@ PDLCDXferProcessor::PDLCDXferProcessor(GrColor blendConstant, uint8_t alpha)
     : INHERITED(false, false, GrProcessorAnalysisCoverage::kLCD)
     , fBlendConstant(blendConstant)
     , fAlpha(alpha) {
-    this->initClassID<PDLCDXferProcessor>();
+    this->initClassID(kPDLCDXferProcessor_ClassID);
 }
 
 sk_sp<const GrXferProcessor> PDLCDXferProcessor::Make(SkBlendMode mode,

@@ -118,7 +118,7 @@ GrPathProcessor::GrPathProcessor(GrColor color,
         : fColor(color)
         , fViewMatrix(viewMatrix)
         , fLocalMatrix(localMatrix) {
-    this->initClassID<GrPathProcessor>();
+    this->initClassID(kGrPathProcessor_ClassID);
 }
 
 void GrPathProcessor::getGLSLProcessorKey(const GrShaderCaps& caps,
