@@ -339,6 +339,9 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
             n = sscanf(rendererString, "Intel(R) HD Graphics %d", &intelNumber);
         }
         if (1 == n) {
+            if (intelNumber >= 4000 && intelNumber < 5000) {
+                return kIntel4xxx_GrGLRenderer;
+            }
             if (intelNumber >= 6000 && intelNumber < 7000) {
                 return kIntel6xxx_GrGLRenderer;
             }
