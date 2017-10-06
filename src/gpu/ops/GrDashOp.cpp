@@ -978,11 +978,11 @@ DashingCircleEffect::DashingCircleEffect(GrColor color,
                                          AAMode aaMode,
                                          const SkMatrix& localMatrix,
                                          bool usesLocalCoords)
-    : fColor(color)
+    : INHERITED(kDashingCircleEffect_ClassID)
+    , fColor(color)
     , fLocalMatrix(localMatrix)
     , fUsesLocalCoords(usesLocalCoords)
     , fAAMode(aaMode) {
-    this->initClassID<DashingCircleEffect>();
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInDashParams = &this->addVertexAttrib("inDashParams", kHalf3_GrVertexAttribType);
     fInCircleParams = &this->addVertexAttrib("inCircleParams", kHalf2_GrVertexAttribType);
@@ -1200,11 +1200,11 @@ DashingLineEffect::DashingLineEffect(GrColor color,
                                      AAMode aaMode,
                                      const SkMatrix& localMatrix,
                                      bool usesLocalCoords)
-    : fColor(color)
+    : INHERITED(kDashingLineEffect_ClassID)
+    , fColor(color)
     , fLocalMatrix(localMatrix)
     , fUsesLocalCoords(usesLocalCoords)
     , fAAMode(aaMode) {
-    this->initClassID<DashingLineEffect>();
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInDashParams = &this->addVertexAttrib("inDashParams", kHalf3_GrVertexAttribType);
     fInRectParams = &this->addVertexAttrib("inRect", kHalf4_GrVertexAttribType);

@@ -19,9 +19,9 @@
 class CoverageSetOpXP : public GrXferProcessor {
 public:
     CoverageSetOpXP(SkRegion::Op regionOp, bool invertCoverage)
-            : fRegionOp(regionOp), fInvertCoverage(invertCoverage) {
-        this->initClassID<CoverageSetOpXP>();
-    }
+            : INHERITED(kCoverageSetOpXP_ClassID)
+            , fRegionOp(regionOp)
+            , fInvertCoverage(invertCoverage) {}
 
     const char* name() const override { return "Coverage Set Op"; }
 

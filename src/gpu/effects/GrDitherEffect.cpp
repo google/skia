@@ -60,9 +60,7 @@ bool GrDitherEffect::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 GrDitherEffect::GrDitherEffect(const GrDitherEffect& src)
-        : INHERITED(src.optimizationFlags()), fRangeType(src.fRangeType) {
-    this->initClassID<GrDitherEffect>();
-}
+        : INHERITED(kGrDitherEffect_ClassID, src.optimizationFlags()), fRangeType(src.fRangeType) {}
 std::unique_ptr<GrFragmentProcessor> GrDitherEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(*this));
 }

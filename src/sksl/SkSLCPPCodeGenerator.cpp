@@ -523,8 +523,8 @@ void CPPCodeGenerator::writeClone() {
                              "@clone");
         }
         this->writef("%s::%s(const %s& src)\n"
-                     ": INHERITED(src.optimizationFlags())", fFullName.c_str(), fFullName.c_str(),
-                     fFullName.c_str());
+                     ": INHERITED(k%s_ClassID, src.optimizationFlags())", fFullName.c_str(),
+                     fFullName.c_str(), fFullName.c_str(), fFullName.c_str());
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
             this->writef("\n, %s(%s)",
@@ -536,9 +536,7 @@ void CPPCodeGenerator::writeClone() {
             this->writef("\n, %sCoordTransform(src.%sCoordTransform)", fieldName.c_str(),
                          fieldName.c_str());
         }
-        this->writef(" {\n"
-                     "    this->initClassID<%s>();\n",
-                     fFullName.c_str());
+        this->writef(" {\n");
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             if (param->fType.kind() == Type::kSampler_Kind) {
                 this->writef("    this->addTextureSampler(&%s);\n",

@@ -52,6 +52,9 @@ public:
         InputRate            fInputRate;
     };
 
+    GrPrimitiveProcessor(ClassID classID)
+    : GrResourceIOProcessor(classID) {}
+
     int numAttribs() const { return fAttribs.count(); }
     const Attribute& getAttrib(int index) const { return fAttribs[index]; }
 

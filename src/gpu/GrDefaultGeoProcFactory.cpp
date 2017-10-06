@@ -248,14 +248,14 @@ private:
                    const SkMatrix& localMatrix,
                    uint8_t coverage,
                    bool localCoordsWillBeRead)
-            : fColor(color)
+            : INHERITED(kDefaultGeoProc_ClassID)
+            , fColor(color)
             , fViewMatrix(viewMatrix)
             , fLocalMatrix(localMatrix)
             , fCoverage(coverage)
             , fFlags(gpTypeFlags)
             , fLocalCoordsWillBeRead(localCoordsWillBeRead)
             , fColorSpaceXform(std::move(colorSpaceXform)) {
-        this->initClassID<DefaultGeoProc>();
         fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
         if (fFlags & kColorAttribute_GPFlag) {
             fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
