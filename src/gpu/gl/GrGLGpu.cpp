@@ -2619,10 +2619,14 @@ void GrGLGpu::sendInstancedMeshToGpu(const GrPrimitiveProcessor& primProc, GrPri
                                      int vertexCount, int baseVertex,
                                      const GrBuffer* instanceBuffer, int instanceCount,
                                      int baseInstance) {
-    const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
-    this->setupGeometry(primProc, nullptr, vertexBuffer, 0, instanceBuffer, baseInstance);
-    GL_CALL(DrawArraysInstanced(glPrimType, baseVertex, vertexCount, instanceCount));
-    fStats.incNumDraws();
+    GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
+    int maxInstances = this->glCaps().maxInstancesPerDrawArraysWithoutCrashing(instanceCount);
+    for (int i = 0; i < instanceCount; i += maxInstances) {
+        this->setupGeometry(primProc, nullptr, vertexBuffer, 0, instanceBuffer, baseInstance + i);
+        GL_CALL(DrawArraysInstanced(glPrimType, baseVertex, vertexCount,
+                                    SkTMin(instanceCount - i, maxInstances)));
+        fStats.incNumDraws();
+    }
 }
 
 void GrGLGpu::sendIndexedInstancedMeshToGpu(const GrPrimitiveProcessor& primProc,
