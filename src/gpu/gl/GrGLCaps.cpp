@@ -62,6 +62,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
+    fMaxInstancesPerDrawArraysWithoutCrashing = 0;
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
@@ -303,12 +304,21 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     shaderCaps->fDstReadInShaderSupport = shaderCaps->fFBFetchSupport;
 
     // Enable supported shader-related caps
+    if (kANGLE_GrGLDriver != ctxInfo.driver())
+    SkDebugf("@@@@@@@@> [geosupport] angle: %i (%i)\n", ctxInfo.driver(),
+             kANGLE_GrGLDriver != ctxInfo.driver());
     if (kGL_GrGLStandard == standard) {
         shaderCaps->fDualSourceBlendingSupport = (ctxInfo.version() >= GR_GL_VER(3, 3) ||
             ctxInfo.hasExtension("GL_ARB_blend_func_extended")) &&
             GrGLSLSupportsNamedFragmentShaderOutputs(ctxInfo.glslGeneration());
         shaderCaps->fShaderDerivativeSupport = true;
         // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
+    if (kANGLE_GrGLDriver != ctxInfo.driver())
+        SkDebugf("@@@@@@@@> [geosupport GL]  ctxInfo.version(): 0x%x (%i)\n",
+                 ctxInfo.version(), ctxInfo.version() >= GR_GL_VER(3, 2));
+    if (kANGLE_GrGLDriver != ctxInfo.driver())
+        SkDebugf("@@@@@@@@> [geosupport GL]  ctxInfo.glslGeneration(): 0x%i (%i)\n",
+                 ctxInfo.glslGeneration(), ctxInfo.glslGeneration() >= k150_GrGLSLGeneration);
         shaderCaps->fGeometryShaderSupport = ctxInfo.version() >= GR_GL_VER(3, 2) &&
             ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
         shaderCaps->fIntegerSupport = ctxInfo.version() >= GR_GL_VER(3, 0) &&
@@ -320,11 +330,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         shaderCaps->fShaderDerivativeSupport = ctxInfo.version() >= GR_GL_VER(3, 0) ||
             ctxInfo.hasExtension("GL_OES_standard_derivatives");
 
+    if (kANGLE_GrGLDriver != ctxInfo.driver())
+        SkDebugf("@@@@@> [geosupport GLES]  ctxInfo.hasExtension(\"GL_EXT_geometry_shader\"): %i\n",
+                 ctxInfo.hasExtension("GL_EXT_geometry_shader"));
         shaderCaps->fGeometryShaderSupport = ctxInfo.hasExtension("GL_EXT_geometry_shader");
 
         shaderCaps->fIntegerSupport = ctxInfo.version() >= GR_GL_VER(3, 0) &&
             ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // We use this value for GLSL ES 3.0.
     }
+    if (kANGLE_GrGLDriver != ctxInfo.driver())
+    SkDebugf("@@@@@@@@> [geosupport]: %i\n", shaderCaps->fGeometryShaderSupport);
 
     // Protect ourselves against tracking huge amounts of texture state.
     static const uint8_t kMaxSaneSamplers = 32;
@@ -572,6 +587,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (kAdreno3xx_GrGLRenderer == ctxInfo.renderer() && kQualcomm_GrGLDriver == ctxInfo.driver() &&
         ctxInfo.driverVersion() > GR_GL_DRIVER_VER(53, 0)) {
         fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = true;
+    }
+
+    // Our Chromebook with kPowerVRRogue_GrGLRenderer seems to crash when glDrawArraysInstanced is
+    // given 1 << 15 or more instances.
+    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+        fMaxInstancesPerDrawArraysWithoutCrashing = 0x7fff;
     }
 
     // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
@@ -1360,6 +1381,8 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
                        fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO);
     writer->appendBool("Intermediate texture for all updates of textures bound to FBOs",
                        fUseDrawInsteadOfAllRenderTargetWrites);
+    writer->appendBool("Max instances per glDrawArraysInstanced without crashing (or zero)",
+                       fMaxInstancesPerDrawArraysWithoutCrashing);
 
     writer->beginArray("configs");
 
