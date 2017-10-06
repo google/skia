@@ -66,6 +66,11 @@ public:
         this->didRemoveRefOrPendingIO(kRef_CntType);
     }
 
+    bool unique() const {
+        this->validate();
+        return fRefCnt == 1;
+    }
+
     void validate() const {
 #ifdef SK_DEBUG
         SkASSERT(fRefCnt >= 0);

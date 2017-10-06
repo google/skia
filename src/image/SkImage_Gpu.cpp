@@ -24,6 +24,7 @@
 #include "GrSemaphore.h"
 #include "GrTextureAdjuster.h"
 #include "GrTexture.h"
+#include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
 #include "effects/GrNonlinearColorSpaceXformEffect.h"
 #include "effects/GrYUVEffect.h"
@@ -910,6 +911,55 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
                                               mipLevelCount, SkBudgeted::kYes,
                                               dti->fColorMode);
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
+                                            sk_sp<SkImage> image,
+                                            GrBackendTexture* backendTexture,
+                                            BackendTextureReleaseProc* releaseProc) {
+    if (!image || !ctx || !backendTexture || !releaseProc) {
+        return false;
+    }
+
+    // Ensure we have a texture backed image.
+    if (!image->isTextureBacked()) {
+        image = image->makeTextureImage(ctx, nullptr);
+        if (!image) {
+            return false;
+        }
+    }
+    GrTexture* texture = image->getTexture();
+    SkASSERT(texture);
+
+    // Flush any pending IO on the texture.
+    texture->getContext()->contextPriv().prepareSurfaceForExternalIO(as_IB(image)->peekProxy());
+
+    // We must make a copy of the image if the image is not unique, if the GrTexture owned by the
+    // image is not unique, or if the texture wraps an external object.
+    if (!image->unique() || !texture->unique() ||
+        image->getTexture()->resourcePriv().refsWrappedObjects()) {
+        // onMakeSubset will always copy the image.
+        image = as_IB(image)->onMakeSubset(image->bounds());
+        if (!image) {
+            return false;
+        }
+
+        texture = image->getTexture();
+        SkASSERT(texture);
+
+        // Flush to ensure that the copy is completed before we return the texture.
+        texture->getContext()->contextPriv().prepareSurfaceForExternalIO(as_IB(image)->peekProxy());
+    }
+
+    SkASSERT(!texture->resourcePriv().refsWrappedObjects());
+    SkASSERT(texture->unique());
+    SkASSERT(image->unique());
+
+    // Steal the backend texture from the GrTexture. This leaves the GrTexture in an abandoned
+    // state.
+    return texture->steal(backendTexture, releaseProc);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
