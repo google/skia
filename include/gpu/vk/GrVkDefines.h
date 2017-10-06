@@ -25,13 +25,23 @@
 #       define VK_USE_PLATFORM_MAGMA_KHR
 #     endif
 #   else
-#     if !defined(VK_USE_PLATFORM_XCB_KHR)
+#     if !defined(VK_USE_PLATFORM_XLIB_KHR)
+#        define VK_USE_PLATFORM_XLIB_KHR
+#     elif !defined(VK_USE_PLATFORM_XCB_KHR)
 #        define VK_USE_PLATFORM_XCB_KHR
 #     endif
 #   endif
 #endif
 
 #include <vulkan/vulkan.h>
+
+// This section below is taken from <vulkan/vulkan.h>
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+#define VK_KHR_xlib_surface 1
+
+#define VK_KHR_XLIB_SURFACE_SPEC_VERSION 6
+#define VK_KHR_XLIB_SURFACE_EXTENSION_NAME "VK_KHR_xlib_surface"
+#endif
 
 #define SKIA_REQUIRED_VULKAN_HEADER_VERSION 17
 #if VK_HEADER_VERSION < SKIA_REQUIRED_VULKAN_HEADER_VERSION

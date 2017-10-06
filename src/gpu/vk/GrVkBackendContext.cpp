@@ -107,10 +107,12 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         extensionFlags |= kKHR_android_surface_GrVkExtensionFlag;
     }
 #elif defined(SK_BUILD_FOR_UNIX) && !defined(__Fuchsia__)
+#ifndef VK_KHR_xlib_surface
     if (extensions.hasInstanceExtension(VK_KHR_XCB_SURFACE_EXTENSION_NAME)) {
         instanceExtensionNames.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
         extensionFlags |= kKHR_xcb_surface_GrVkExtensionFlag;
     }
+#endif
 #endif
 
     const VkInstanceCreateInfo instance_create = {
