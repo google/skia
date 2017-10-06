@@ -62,7 +62,7 @@ public:
         }
 
         size_t size = info.computeByteSize(rowBytes);
-        if (SK_MaxSizeT == size) {
+        if (0 == size) {
             return false;
         }
 

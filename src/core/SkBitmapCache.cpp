@@ -290,7 +290,7 @@ SkBitmapCache::RecPtr SkBitmapCache::Alloc(const SkBitmapCacheDesc& desc, const 
 
     const size_t rb = info.minRowBytes();
     size_t size = info.computeByteSize(rb);
-    if (SK_MaxSizeT == size) {
+    if (0 == size) {
         return nullptr;
     }
 
