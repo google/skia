@@ -17,7 +17,8 @@
 sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
                                                    sk_sp<GrTextureProxy> inputProxy,
                                                    const SkIRect* subset,
-                                                   const CopyParams& copyParams) {
+                                                   const CopyParams& copyParams,
+                                                   bool dstWillRequireMipMaps) {
     SkASSERT(!subset || !subset->isEmpty());
     SkASSERT(context);
 
@@ -25,7 +26,7 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
 
     sk_sp<GrRenderTargetContext> copyRTC = context->makeDeferredRenderTargetContextWithFallback(
         SkBackingFit::kExact, dstRect.width(), dstRect.height(), inputProxy->config(), nullptr,
-        0, inputProxy->origin());
+        0, dstWillRequireMipMaps, inputProxy->origin());
     if (!copyRTC) {
         return nullptr;
     }
