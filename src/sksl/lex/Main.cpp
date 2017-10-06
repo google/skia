@@ -141,6 +141,9 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     out << "    " << token << "::Kind lastAccept = " << token << "::Kind::INVALID;\n";
     out << "    int lastAcceptEnd = startOffset + 1;\n";
     out << "    while (offset < fLength) {\n";
+    out << "        if ((uint8_t) fText[offset] >= " << dfa.fCharMappings.size() << ") {";
+    out << "            break;";
+    out << "        }";
     out << "        state = transitions[mappings[(int) fText[offset]]][state];\n";
     out << "        ++offset;\n";
     out << "        if (!state) {\n";
