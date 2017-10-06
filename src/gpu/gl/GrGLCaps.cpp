@@ -62,6 +62,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
+    fMaxInstancesPerDrawArraysWithoutCrashing = 0;
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
@@ -255,6 +256,19 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // On DX9 ANGLE reading a partial FBO is slow. TODO: Check whether this is still true and
     // check DX11 ANGLE.
     fPartialFBOReadIsSlow = isANGLE;
+    if (!isANGLE) {
+        SkDebugf("@@@> ctxInfo.standard(): %i\n", ctxInfo.standard());
+        SkDebugf("@@@> ctxInfo.version(): %i\n", ctxInfo.version());
+        SkDebugf("@@@> ctxInfo.glslGeneration(): %i\n", ctxInfo.glslGeneration());
+        SkDebugf("@@@> ctxInfo.vendor(): %i\n", ctxInfo.vendor());
+        SkDebugf("@@@> ctxInfo.renderer(): %i\n", ctxInfo.renderer());
+        SkDebugf("@@@> ctxInfo.angleBackend(): %i\n", ctxInfo.angleBackend());
+        SkDebugf("@@@> ctxInfo.angleVendor(): %i\n", ctxInfo.angleVendor());
+        SkDebugf("@@@> ctxInfo.angleRenderer(): %i\n", ctxInfo.angleRenderer());
+        SkDebugf("@@@> ctxInfo.driver(): %i\n", ctxInfo.driver());
+        SkDebugf("@@@> ctxInfo.driverVersion(): %x\n", ctxInfo.driverVersion());
+    }
+
 #endif
 
     bool isMESA = kMesa_GrGLDriver == ctxInfo.driver();
@@ -535,15 +549,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
          ctxInfo.driver() != kChromium_GrGLDriver)) {
         fUseDrawInsteadOfClear = true;
     }
-
-#ifdef SK_BUILD_FOR_MAC
-    // crbug.com/768134 - On MacBook Pros, the Intel Iris Pro doesn't always perform
-    // full screen clears
-    if (kIntelIrisPro_GrGLRenderer == ctxInfo.renderer()) {
-        fUseDrawInsteadOfClear = true;
-    }
-#endif
-
     // See crbug.com/755871. This could probably be narrowed to just partial clears as the driver
     // bugs seems to involve clearing too much and not skipping the clear.
     // See crbug.com/768134. This is also needed for full clears and was seen on an nVidia K620 
@@ -572,6 +577,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (kAdreno3xx_GrGLRenderer == ctxInfo.renderer() && kQualcomm_GrGLDriver == ctxInfo.driver() &&
         ctxInfo.driverVersion() > GR_GL_DRIVER_VER(53, 0)) {
         fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = true;
+    }
+
+    // Our Chromebook with kPowerVRRogue_GrGLRenderer seems to crash when glDrawArraysInstanced is
+    // given 1 << 15 or more instances.
+    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+        fMaxInstancesPerDrawArraysWithoutCrashing = 0x7fff;
     }
 
     // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
@@ -1360,6 +1371,8 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
                        fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO);
     writer->appendBool("Intermediate texture for all updates of textures bound to FBOs",
                        fUseDrawInsteadOfAllRenderTargetWrites);
+    writer->appendBool("Max instances per glDrawArraysInstanced without crashing (or zero)",
+                       fMaxInstancesPerDrawArraysWithoutCrashing);
 
     writer->beginArray("configs");
 

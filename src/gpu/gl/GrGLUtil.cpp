@@ -329,10 +329,6 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
                 }
             }
         }
-        if (0 == strcmp("Intel Iris Pro OpenGL Engine", rendererString)) {
-            return kIntelIrisPro_GrGLRenderer;
-        }
-
         int intelNumber;
         n = sscanf(rendererString, "Intel(R) Iris(TM) Graphics %d", &intelNumber);
         if (1 != n) {
