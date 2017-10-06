@@ -219,27 +219,11 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
 }
 
 sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx,
-                                                     GrTextureProxy* baseProxy,
-                                                     SkColorSpace* dstColorSpace) {
+                                                     GrTextureProxy* baseProxy) {
     SkASSERT(baseProxy);
 
     if (!ctx->caps()->isConfigCopyable(baseProxy->config())) {
         return nullptr;
-    }
-
-    SkDestinationSurfaceColorMode colorMode = dstColorSpace
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
-
-    // SkMipMap doesn't include the base level in the level count so we have to add 1
-    int mipLevelCount = SkMipMap::ComputeLevelCount(baseProxy->width(), baseProxy->height()) + 1;
-
-    std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
-
-    // We don't want to upload any texel data
-    for (int i = 0; i < mipLevelCount; i++) {
-        texels[i].fPixels = nullptr;
-        texels[i].fRowBytes = 0;
     }
 
     GrSurfaceDesc desc;
@@ -252,8 +236,7 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx,
 
     sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferredMipMap(ctx->resourceProvider(),
                                                                      desc,
-                                                                     SkBudgeted::kYes, texels.get(),
-                                                                     mipLevelCount, colorMode);
+                                                                     SkBudgeted::kYes);
     if (!proxy) {
         return nullptr;
     }

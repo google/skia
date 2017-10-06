@@ -58,7 +58,7 @@ private:
     SkColorSpace*         fColorSpace;
     uint32_t              fUniqueID;
 
-    sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams &copyParams);
+    sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams &copyParams, bool willBeMipped);
 
     typedef GrTextureProducer INHERITED;
 };

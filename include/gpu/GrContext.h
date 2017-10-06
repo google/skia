@@ -231,6 +231,7 @@ public:
                                                  GrPixelConfig config,
                                                  sk_sp<SkColorSpace> colorSpace,
                                                  int sampleCnt = 0,
+                                                 bool willNeedMipMaps = false,
                                                  GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
                                                  const SkSurfaceProps* surfaceProps = nullptr,
                                                  SkBudgeted = SkBudgeted::kYes);
@@ -246,6 +247,7 @@ public:
                                                  GrPixelConfig config,
                                                  sk_sp<SkColorSpace> colorSpace,
                                                  int sampleCnt = 0,
+                                                 bool willNeedMipMaps = false,
                                                  GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
                                                  const SkSurfaceProps* surfaceProps = nullptr,
                                                  SkBudgeted budgeted = SkBudgeted::kYes);

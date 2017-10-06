@@ -194,6 +194,15 @@ public:
                                                     SkDestinationSurfaceColorMode mipColorMode =
                                                            SkDestinationSurfaceColorMode::kLegacy);
 
+    /**
+     * Like the call above but there are no texels to upload. A texture proxy is returned that
+     * simply has space allocated for the mips. We will allocated the full amount of mip levels
+     * based on the width and height in the GrSurfaceDesc.
+     */
+    static sk_sp<GrTextureProxy> MakeDeferredMipMap(GrResourceProvider*,
+                                                    const GrSurfaceDesc& desc, SkBudgeted budgeted);
+
+
     // TODO: need to refine ownership semantics of 'srcData' if we're in completely
     // deferred mode
     static sk_sp<GrTextureProxy> MakeDeferred(GrResourceProvider*,

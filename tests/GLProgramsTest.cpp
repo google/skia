@@ -160,6 +160,7 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
                                                                            kRGBA_8888_GrPixelConfig,
                                                                            nullptr,
                                                                            sampleCnt,
+                                                                           false,
                                                                            origin));
     return renderTargetContext;
 }
