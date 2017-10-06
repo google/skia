@@ -1305,18 +1305,6 @@
         "Upload-Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release"
       ]
     },
-    "Perf-Win10-Clang-SurfacePro2017-GPU-IntelHD615-x86_64-Debug": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Win10-Clang-SurfacePro2017-GPU-IntelHD615-x86_64-Debug"
-      ]
-    },
-    "Perf-Win10-Clang-SurfacePro2017-GPU-IntelHD615-x86_64-Release": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Perf-Win10-Clang-SurfacePro2017-GPU-IntelHD615-x86_64-Release"
-      ]
-    },
     "Perf-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -1459,18 +1447,6 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE"
-      ]
-    },
-    "Perf-Win10-MSVC-SurfacePro2017-GPU-IntelHD615-x86_64-Debug-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Win10-MSVC-SurfacePro2017-GPU-IntelHD615-x86_64-Debug-ANGLE"
-      ]
-    },
-    "Perf-Win10-MSVC-SurfacePro2017-GPU-IntelHD615-x86_64-Release-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Perf-Win10-MSVC-SurfacePro2017-GPU-IntelHD615-x86_64-Release-ANGLE"
       ]
     },
     "Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-ANGLE": {
@@ -10600,100 +10576,6 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win10-Clang-SurfacePro2017-GPU-IntelHD615-x86_64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:32"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:88"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:8086:591e-21.20.16.4590",
-        "os:Windows-10-15063",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win10-Clang-SurfacePro2017-GPU-IntelHD615-x86_64-Debug",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia_bundled_win.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Perf-Win10-Clang-SurfacePro2017-GPU-IntelHD615-x86_64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:32"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:88"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:8086:591e-21.20.16.4590",
-        "os:Windows-10-15063",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win10-Clang-SurfacePro2017-GPU-IntelHD615-x86_64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia_bundled_win.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
     "Perf-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug": {
       "cipd_packages": [
         {
@@ -11812,100 +11694,6 @@
         "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia_bundled_win.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Perf-Win10-MSVC-SurfacePro2017-GPU-IntelHD615-x86_64-Debug-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:32"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:88"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug-ANGLE",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:8086:591e-21.20.16.4590",
-        "os:Windows-10-15063",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win10-MSVC-SurfacePro2017-GPU-IntelHD615-x86_64-Debug-ANGLE",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia_bundled_win.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Perf-Win10-MSVC-SurfacePro2017-GPU-IntelHD615-x86_64-Release-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:32"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:88"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Release-ANGLE",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:8086:591e-21.20.16.4590",
-        "os:Windows-10-15063",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win10-MSVC-SurfacePro2017-GPU-IntelHD615-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22667,33 +22455,6 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Win10-Clang-SurfacePro2017-GPU-IntelHD615-x86_64-Release": {
-      "dependencies": [
-        "Perf-Win10-Clang-SurfacePro2017-GPU-IntelHD615-x86_64-Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.1",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_nano_results",
-        "repository=<(REPO)",
-        "buildername=Perf-Win10-Clang-SurfacePro2017-GPU-IntelHD615-x86_64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-perf"
-      ],
-      "isolate": "upload_nano_results.isolate",
-      "priority": 0.8
-    },
     "Upload-Perf-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Release": {
       "dependencies": [
         "Perf-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Release"
@@ -23007,33 +22768,6 @@
         "upload_nano_results",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-perf"
-      ],
-      "isolate": "upload_nano_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Perf-Win10-MSVC-SurfacePro2017-GPU-IntelHD615-x86_64-Release-ANGLE": {
-      "dependencies": [
-        "Perf-Win10-MSVC-SurfacePro2017-GPU-IntelHD615-x86_64-Release-ANGLE"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.1",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_nano_results",
-        "repository=<(REPO)",
-        "buildername=Perf-Win10-MSVC-SurfacePro2017-GPU-IntelHD615-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
