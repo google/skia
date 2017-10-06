@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c69563e3_75e44d60",
+        "filename": "tools/gpucts/gm_runner.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-10-06T20:12:14Z",
+      "side": 1,
+      "message": "Can you add comments describing what these functions do ? \nAlso, I cannot see how I would (as a client of the GMRunner type) enumerate\nwhat tests are available to run ?",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 0
+      },
+      "revId": "0e986e5a6cd99240b772e07645b41750be345f7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

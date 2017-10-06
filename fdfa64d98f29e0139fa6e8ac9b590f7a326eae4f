@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "598e537a_635b1cb8",
+        "filename": "tools/gpucts/gm_knowledge.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-10-06T20:12:14Z",
+      "side": 1,
+      "message": "Can you add a brief description what each function does what the \nparameters contain. \nShould data be a pointer ?",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 5
+      },
+      "revId": "fdfa64d98f29e0139fa6e8ac9b590f7a326eae4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
