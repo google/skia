@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "a315001c_776f2864",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 917,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-06T19:38:31Z",
+      "side": 1,
+      "message": "It still seems a bit weird to me to pass a color mode here. Would it be asking to much to modify MakeDeferredMipMap not require it somehow?",
+      "parentUuid": "528e9d22_6a9b549d",
+      "revId": "bcfd6882cefe373fc00ac76e50b3ad471cd28b7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6eb28fa0_8ba5c392",
         "filename": "src/gpu/GrTextureProducer.h",
         "patchSetId": 3
