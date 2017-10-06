@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e673d3a6_1150d906",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-06T17:10:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8637cbd7_0b0bc562",
+      "range": {
+        "startLine": 337,
+        "startChar": 7,
+        "endLine": 338,
+        "endChar": 44
+      },
+      "revId": "f02cdd0b6eeb6abd913ed66f18aa129940f7e717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "69bc4ead_61ae667f",
         "filename": "src/gpu/vk/GrVkCaps.cpp",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "f02cdd0b6eeb6abd913ed66f18aa129940f7e717",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c10eeb9_4c396145",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-06T17:10:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69bc4ead_61ae667f",
+      "range": {
+        "startLine": 246,
+        "startChar": 4,
+        "endLine": 247,
+        "endChar": 39
+      },
+      "revId": "f02cdd0b6eeb6abd913ed66f18aa129940f7e717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -83,6 +131,24 @@
     },
     {
       "key": {
+        "uuid": "7efaca81_982c35fa",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-06T17:10:20Z",
+      "side": 1,
+      "message": "Agreed. I\u0027m fine with leaving everything as-is and letting the glsl compiler report this particular error.",
+      "parentUuid": "75b4061a_bb3f79d0",
+      "revId": "f02cdd0b6eeb6abd913ed66f18aa129940f7e717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3378fa86_27be53ec",
         "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
         "patchSetId": 6
@@ -103,6 +169,30 @@
       "revId": "f02cdd0b6eeb6abd913ed66f18aa129940f7e717",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20725cc5_3b194bc2",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-06T17:10:20Z",
+      "side": 1,
+      "message": "I believe I misspoke. It seems valid to re-declare the invocations qualifier more than once on the \"in\" interface. Updated the test to reflect this.",
+      "parentUuid": "3378fa86_27be53ec",
+      "range": {
+        "startLine": 1016,
+        "startChar": 16,
+        "endLine": 1016,
+        "endChar": 43
+      },
+      "revId": "f02cdd0b6eeb6abd913ed66f18aa129940f7e717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
