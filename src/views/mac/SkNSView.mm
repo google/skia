@@ -53,7 +53,7 @@ BOOL fRedrawRequestPending;
 
 - (void)setNSViewSize:(NSSize)size {
     NSWindow* w = [self window];
-    NSRect f;
+    NSRect f = w.frame;
     f.size = size;
     [w setFrame:f display:YES];
 }
