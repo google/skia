@@ -128,3 +128,12 @@ sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& d
     return sk_sp<GrGLTexture>(new GrGLTexture(gpu, kWrapped, desc, idDesc));
 }
 
+GrBackendTexture GrGLTexture::onSteal() {
+    GrBackendTexture backend_texture(width(), height(), config(), fInfo);
+
+    // It's important that we only abandon this texture's objects, not subclass objects such as
+    // those held by GrGLTextureRenderTarget. Those objects are not being stolen and need to be
+    // cleaned up by us.
+    this->GrGLTexture::onAbandon();
+    return backend_texture;
+}
