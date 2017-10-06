@@ -19,6 +19,7 @@
 #include "GrTextureRenderTargetProxy.h"
 
 #include "SkMathPriv.h"
+#include "SkMipMap.h"
 
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit)
         : INHERITED(std::move(surface))
@@ -311,6 +312,23 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     }
 
     return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, SkBackingFit::kExact, budgeted);
+}
+
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(GrResourceProvider* resourceProvider,
+                                                         const GrSurfaceDesc& desc,
+                                                         SkBudgeted budgeted) {
+    // SkMipMap doesn't include the base level in the level count so we have to add 1
+    int mipCount = SkMipMap::ComputeLevelCount(desc.fWidth, desc.fHeight) + 1;
+
+    std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipCount]);
+
+    // We don't want to upload any texel data
+    for (int i = 0; i < mipCount; i++) {
+        texels[i].fPixels = nullptr;
+        texels[i].fRowBytes = 0;
+    }
+
+    return MakeDeferredMipMap(resourceProvider, desc, budgeted, texels.get(), mipCount);
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(

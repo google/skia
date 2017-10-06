@@ -850,7 +850,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
         // generate the rest of the mips.
         SkASSERT(willBeMipped);
         SkASSERT(!proxy->isMipMapped());
-        if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(ctx, proxy.get(), dstColorSpace)) {
+        if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(ctx, proxy.get())) {
             set_key_on_proxy(ctx->resourceProvider(), mippedProxy.get(), proxy.get(), key);
             return mippedProxy;
         }

@@ -123,11 +123,13 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
     }
 
     // We never want to perform color-space conversion during the decode
+    // TODO: investigate preallocating mip maps here
     sk_sp<GrRenderTargetContext> renderTargetContext(ctx->makeDeferredRenderTargetContext(
                                                                     SkBackingFit::kExact,
                                                                     desc.fWidth, desc.fHeight,
                                                                     desc.fConfig, nullptr,
                                                                     desc.fSampleCnt,
+                                                                    false, // always non mipped
                                                                     kTopLeft_GrSurfaceOrigin));
     if (!renderTargetContext) {
         return nullptr;
