@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "8637cbd7_0b0bc562",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-10-06T16:46:19Z",
+      "side": 1,
+      "message": "Doing multiple assignments like this across two different lines seems really easy to misread - I initially thought the hanging \"shaderCaps-\u003efGeometryShaderSupport \u003d\" was a mistakenly truncated line. Maybe we could do this as two separate assignments?",
+      "range": {
+        "startLine": 337,
+        "startChar": 7,
+        "endLine": 338,
+        "endChar": 44
+      },
+      "revId": "f02cdd0b6eeb6abd913ed66f18aa129940f7e717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69bc4ead_61ae667f",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-10-06T16:46:19Z",
+      "side": 1,
+      "message": "Same comment here.",
+      "range": {
+        "startLine": 246,
+        "startChar": 4,
+        "endLine": 247,
+        "endChar": 39
+      },
+      "revId": "f02cdd0b6eeb6abd913ed66f18aa129940f7e717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "086420c4_2454f5cb",
         "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
         "patchSetId": 6
@@ -13,6 +59,47 @@
       "writtenOn": "2017-10-06T15:59:06Z",
       "side": 1,
       "message": "I find this slightly awkward. Invocations are only valid on the \"in\" interface, but here we just go with it whether it\u0027s in or out. Not the end of the world, but do you have any suggestions?\n\nI suppose fFoundGSInvocations is necessary because there\u0027s nothing stopping them from adding an invocation qualifiers to \"in\" multiple times.",
+      "revId": "f02cdd0b6eeb6abd913ed66f18aa129940f7e717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75b4061a_bb3f79d0",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-10-06T16:46:19Z",
+      "side": 1,
+      "message": "The \u0027right\u0027 solution is probably to leave the logic here as-is but generate an error in IRGenerator when the layout and modifiers aren\u0027t compatible.\n\nThat said, I generally haven\u0027t really bothered with reporting this class of error, because the generated GLSL will turn out to be invalid and you\u0027ll get an error message from the backend about it anyway. Fixing the error reporting on our end would really just change who ends up reporting the error; certainly not a bad thing to harden our compiler, but I\u0027m also not super stressed about it. Thoughts?",
+      "parentUuid": "086420c4_2454f5cb",
+      "revId": "f02cdd0b6eeb6abd913ed66f18aa129940f7e717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3378fa86_27be53ec",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-10-06T16:46:19Z",
+      "side": 1,
+      "message": "You said a valid shader should only have one invocations declaration. So my vote is that we either report an error if fFoundGSInvocations is true and we run into a second invocations declaration, or just delete fFoundGSInvocations altogether and let the GLSL backend worry about reporting the errors.",
+      "range": {
+        "startLine": 1016,
+        "startChar": 16,
+        "endLine": 1016,
+        "endChar": 43
+      },
       "revId": "f02cdd0b6eeb6abd913ed66f18aa129940f7e717",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
