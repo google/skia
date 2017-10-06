@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5048f4e7_10d7c908",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-06T19:24:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "672ff213_fb792e00",
+      "revId": "bcfd6882cefe373fc00ac76e50b3ad471cd28b7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d99b462a_92f74b32",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "8af81c7d_77c7b2f5",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-06T19:24:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d99b462a_92f74b32",
+      "revId": "bcfd6882cefe373fc00ac76e50b3ad471cd28b7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bf1d4ffd_d77eefe3",
         "filename": "src/gpu/GrContext.cpp",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-10-06T15:30:59Z",
       "side": 1,
       "message": "This seems a bit weird. Should we be passing a colorSpace to MakeDeferredMipMap ?",
+      "revId": "bcfd6882cefe373fc00ac76e50b3ad471cd28b7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "528e9d22_6a9b549d",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 917,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-06T19:24:22Z",
+      "side": 1,
+      "message": "Changed and updated comment to show we don\u0027t actually care about this for mip maps here since we are uploading dirty mips and thus will regenerate mips and correctly set this value later.",
+      "parentUuid": "bf1d4ffd_d77eefe3",
       "revId": "bcfd6882cefe373fc00ac76e50b3ad471cd28b7e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "20138f3b_ddabb170",
+        "filename": "src/gpu/GrTextureProducer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-06T19:24:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6eb28fa0_8ba5c392",
+      "revId": "bcfd6882cefe373fc00ac76e50b3ad471cd28b7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31304f2e_97899397",
         "filename": "src/gpu/GrYUVProvider.cpp",
         "patchSetId": 3
@@ -84,6 +156,24 @@
       "revId": "bcfd6882cefe373fc00ac76e50b3ad471cd28b7e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3416196_afc8f15d",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-06T19:24:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31304f2e_97899397",
+      "revId": "bcfd6882cefe373fc00ac76e50b3ad471cd28b7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
