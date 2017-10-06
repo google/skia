@@ -370,12 +370,14 @@ void DrawPathsOp::onExecute(GrOpFlushState* flushState) {
         return; // Setup failed.
     }
 
-    GrPipeline::InitArgs args;
-    args.fCaps = &flushState->caps();
-    args.fFlags = fSRGBFlags;
-    args.fProxy = flushState->drawOpArgs().fProxy;
-    args.fDstProxy = flushState->drawOpArgs().fDstProxy;
-    GrPipeline pipeline(args, std::move(fProcessors), flushState->detachAppliedClip());
+    GrPipeline pipeline({
+        fSRGBFlags,
+        &GrUserStencilSettings::kUnused,
+        flushState->drawOpArgs().fProxy,
+        &flushState->caps(),
+        flushState->resourceProvider(),
+        flushState->drawOpArgs().fDstProxy
+    }, std::move(fProcessors), flushState->detachAppliedClip());
 
     int baseInstance = fBaseInstance;
 
