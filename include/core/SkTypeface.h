@@ -99,8 +99,8 @@ public:
      */
     static bool Equal(const SkTypeface* facea, const SkTypeface* faceb);
 
-    /** Returns the default typeface, which is never nullptr. */
-    static sk_sp<SkTypeface> MakeDefault(Style style = SkTypeface::kNormal);
+    /** Returns the default normal typeface, which is never nullptr. */
+    static sk_sp<SkTypeface> MakeDefault();
 
     /** Creates a new reference to the typeface that most closely matches the
         requested familyName and fontStyle. This method allows extended font
@@ -112,16 +112,6 @@ public:
               unref() when they are done.
     */
     static sk_sp<SkTypeface> MakeFromName(const char familyName[], SkFontStyle fontStyle);
-
-    /** Return the typeface that most closely matches the requested typeface and style.
-        Use this to pick a new style from the same family of the existing typeface.
-        If family is nullptr, this selects from the default font's family.
-
-        @param family  May be NULL. The name of the existing type face.
-        @param s       The style (normal, bold, italic) of the type face.
-        @return the closest-matching typeface.
-    */
-    static sk_sp<SkTypeface> MakeFromTypeface(SkTypeface* family, Style);
 
     /** Return a new typeface given a file. If the file does not exist, or is
         not a valid font file, returns nullptr.

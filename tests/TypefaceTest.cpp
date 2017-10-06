@@ -169,7 +169,7 @@ DEF_TEST(TypefaceVariationIndex, reporter) {
 DEF_TEST(Typeface, reporter) {
 
     sk_sp<SkTypeface> t1(SkTypeface::MakeFromName(nullptr, SkFontStyle()));
-    sk_sp<SkTypeface> t2(SkTypeface::MakeDefault(SkTypeface::kNormal));
+    sk_sp<SkTypeface> t2(SkTypeface::MakeDefault());
 
     REPORTER_ASSERT(reporter, SkTypeface::Equal(t1.get(), t2.get()));
     REPORTER_ASSERT(reporter, SkTypeface::Equal(nullptr, t1.get()));
