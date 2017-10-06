@@ -44,8 +44,8 @@ WindowContext* NewVulkanForWin(HWND hwnd, const DisplayParams& params) {
         return surface;
     };
 
-    auto canPresent = [hwnd] (VkInstance instance, VkPhysicalDevice physDev,
-                             uint32_t queueFamilyIndex) {
+    auto canPresent = [] (VkInstance instance, VkPhysicalDevice physDev,
+                          uint32_t queueFamilyIndex) {
         static PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR
                                             getPhysicalDeviceWin32PresentationSupportKHR = nullptr;
         if (!getPhysicalDeviceWin32PresentationSupportKHR) {
