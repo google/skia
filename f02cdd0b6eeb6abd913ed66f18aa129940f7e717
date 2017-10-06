@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "086420c4_2454f5cb",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-06T15:59:06Z",
+      "side": 1,
+      "message": "I find this slightly awkward. Invocations are only valid on the \"in\" interface, but here we just go with it whether it\u0027s in or out. Not the end of the world, but do you have any suggestions?\n\nI suppose fFoundGSInvocations is necessary because there\u0027s nothing stopping them from adding an invocation qualifiers to \"in\" multiple times.",
+      "revId": "f02cdd0b6eeb6abd913ed66f18aa129940f7e717",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
