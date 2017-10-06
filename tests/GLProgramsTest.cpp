@@ -78,7 +78,7 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override { return Make(); }
 
 private:
-    BigKeyProcessor() : INHERITED(kNone_OptimizationFlags) { this->initClassID<BigKeyProcessor>(); }
+    BigKeyProcessor() : INHERITED(kNone_OptimizationFlags) { this->initClassID(kBigKeyProcessor_ClassID); }
     virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const override {
         GLBigKeyProcessor::GenKey(*this, caps, b);
@@ -127,7 +127,7 @@ private:
 
     BlockInputFragmentProcessor(std::unique_ptr<GrFragmentProcessor> child)
             : INHERITED(kNone_OptimizationFlags) {
-        this->initClassID<BlockInputFragmentProcessor>();
+        this->initClassID(kBlockInputFragmentProcessor_ClassID);
         this->registerChildProcessor(std::move(child));
     }
 

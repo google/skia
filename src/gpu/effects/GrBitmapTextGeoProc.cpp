@@ -129,7 +129,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
         , fUsesLocalCoords(usesLocalCoords)
         , fInColor(nullptr)
         , fMaskFormat(format) {
-    this->initClassID<GrBitmapTextGeoProc>();
+    this->initClassID(kGrBitmapTextGeoProc_ClassID);
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
 
     bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat ||

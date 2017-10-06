@@ -140,7 +140,7 @@ GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
         , fTextureSampler(std::move(proxy),
                           GrSamplerState(wrapModes, GrSamplerState::Filter::kNearest))
         , fColorSpaceXform(std::move(colorSpaceXform)) {
-    this->initClassID<GrBicubicEffect>();
+    this->initClassID(kGrBicubicEffect_ClassID);
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
@@ -154,7 +154,7 @@ GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
         , fDomain(proxy.get(), domain, GrTextureDomain::kClamp_Mode)
         , fTextureSampler(std::move(proxy))
         , fColorSpaceXform(std::move(colorSpaceXform)) {
-    this->initClassID<GrBicubicEffect>();
+    this->initClassID(kGrBicubicEffect_ClassID);
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
@@ -165,7 +165,7 @@ GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
         , fDomain(that.fDomain)
         , fTextureSampler(that.fTextureSampler)
         , fColorSpaceXform(that.fColorSpaceXform) {
-    this->initClassID<GrBicubicEffect>();
+    this->initClassID(kGrBicubicEffect_ClassID);
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }

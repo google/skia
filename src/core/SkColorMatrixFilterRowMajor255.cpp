@@ -257,7 +257,7 @@ private:
     // optimizations would be matrix-dependent.
     ColorMatrixEffect(const SkScalar matrix[20]) : INHERITED(kNone_OptimizationFlags) {
         memcpy(fMatrix, matrix, sizeof(SkScalar) * 20);
-        this->initClassID<ColorMatrixEffect>();
+        this->initClassID(kColorMatrixEffect_ClassID);
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {

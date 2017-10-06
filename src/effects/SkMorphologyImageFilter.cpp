@@ -331,7 +331,7 @@ GrMorphologyEffect::GrMorphologyEffect(sk_sp<GrTextureProxy> proxy,
         , fRadius(radius)
         , fType(type)
         , fUseRange(SkToBool(range)) {
-    this->initClassID<GrMorphologyEffect>();
+    this->initClassID(kGrMorphologyEffect_ClassID);
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
     if (fUseRange) {
@@ -348,7 +348,7 @@ GrMorphologyEffect::GrMorphologyEffect(const GrMorphologyEffect& that)
         , fRadius(that.fRadius)
         , fType(that.fType)
         , fUseRange(that.fUseRange) {
-    this->initClassID<GrMorphologyEffect>();
+    this->initClassID(kGrMorphologyEffect_ClassID);
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
     if (that.fUseRange) {

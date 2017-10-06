@@ -537,7 +537,7 @@ void CPPCodeGenerator::writeClone() {
                          fieldName.c_str());
         }
         this->writef(" {\n"
-                     "    this->initClassID<%s>();\n",
+                     "    this->initClassID(k%s_ClassID);\n",
                      fFullName.c_str());
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             if (param->fType.kind() == Type::kSampler_Kind) {

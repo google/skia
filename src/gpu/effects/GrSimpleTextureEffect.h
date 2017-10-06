@@ -66,7 +66,7 @@ private:
             , fImageCoordTransform(matrix, fImage.proxy()) {
         this->addTextureSampler(&fImage);
         this->addCoordTransform(&fImageCoordTransform);
-        this->initClassID<GrSimpleTextureEffect>();
+        this->initClassID(kGrSimpleTextureEffect_ClassID);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

@@ -33,7 +33,7 @@ private:
             , fEdgeType(edgeType)
             , fCenter(center)
             , fRadius(radius) {
-        this->initClassID<GrCircleEffect>();
+        this->initClassID(kGrCircleEffect_ClassID);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

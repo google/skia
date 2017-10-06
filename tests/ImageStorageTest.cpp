@@ -35,14 +35,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
         TestFP(sk_sp<GrTextureProxy> proxy, GrSLMemoryModel mm, GrSLRestrict restrict)
                 : INHERITED(kNone_OptimizationFlags)
                 , fImageStorageAccess(std::move(proxy), kRead_GrIOType, mm, restrict) {
-            this->initClassID<TestFP>();
+            this->initClassID(kTestFP_ClassID);
             this->addImageStorageAccess(&fImageStorageAccess);
         }
 
         explicit TestFP(const TestFP& that)
                 : INHERITED(that.optimizationFlags())
                 , fImageStorageAccess(that.fImageStorageAccess) {
-            this->initClassID<TestFP>();
+            this->initClassID(kTestFP_ClassID);
             this->addImageStorageAccess(&fImageStorageAccess);
         }
 

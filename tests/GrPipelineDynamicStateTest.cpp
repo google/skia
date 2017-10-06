@@ -61,7 +61,7 @@ public:
     GrPipelineDynamicStateTestProcessor()
         : fVertex(this->addVertexAttrib("vertex", kHalf2_GrVertexAttribType))
         , fColor(this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType)) {
-        this->initClassID<GrPipelineDynamicStateTestProcessor>();
+        this->initClassID(kGrPipelineDynamicStateTestProcessor_ClassID);
     }
 
     const char* name() const override { return "GrPipelineDynamicStateTest Processor"; }

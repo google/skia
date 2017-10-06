@@ -176,7 +176,7 @@ private:
                              const GrShaderCaps& caps)
             : fColorSpaceXform(std::move(csxf)) {
         SkASSERT(proxyCnt > 0 && samplerCnt >= proxyCnt);
-        this->initClassID<TextureGeometryProcessor>();
+        this->initClassID(kTextureGeometryProcessor_ClassID);
         fPositions = this->addVertexAttrib("position", kFloat2_GrVertexAttribType);
         fSamplers[0].reset(std::move(proxies[0]), filters[0]);
         this->addTextureSampler(&fSamplers[0]);

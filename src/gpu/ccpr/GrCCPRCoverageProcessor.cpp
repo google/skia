@@ -49,7 +49,7 @@ GrCCPRCoverageProcessor::GrCCPRCoverageProcessor(Mode mode, GrBuffer* pointsBuff
 
     this->setWillUseGeoShader();
 
-    this->initClassID<GrCCPRCoverageProcessor>();
+    this->initClassID(kGrCCPRCoverageProcessor_ClassID);
 }
 
 void GrCCPRCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,

@@ -55,7 +55,7 @@ bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& other) const
 }
 GrConfigConversionEffect::GrConfigConversionEffect(const GrConfigConversionEffect& src)
         : INHERITED(src.optimizationFlags()), fPmConversion(src.fPmConversion) {
-    this->initClassID<GrConfigConversionEffect>();
+    this->initClassID(kGrConfigConversionEffect_ClassID);
 }
 std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrConfigConversionEffect(*this));

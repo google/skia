@@ -211,7 +211,7 @@ void HCodeGenerator::writeConstructor() {
         String field = FieldName(s->fArgument.c_str());
         this->writef("        this->addCoordTransform(&%sCoordTransform);\n", field.c_str());
     }
-    this->writef("        this->initClassID<%s>();\n"
+    this->writef("        this->initClassID(k%s_ClassID);\n"
                  "    }\n",
                  fFullName.c_str());
 }
