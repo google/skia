@@ -1434,7 +1434,7 @@ DEF_TEST(SkSLInvocations, r) {
          "sk_Position = sk_in[0].sk_Position + float4(-0.5, 0, 0, sk_InvocationID);"
          "EmitVertex();"
          "}",
-         *SkSL::ShaderCapsFactory::MustImplementGSInvocationsWithLoop(),
+         *SkSL::ShaderCapsFactory::NoGSInvocationsSupport(),
          "#version 400\n"
          "int sk_InvocationID;\n"
          "layout (points) in ;\n"
@@ -1452,6 +1452,27 @@ DEF_TEST(SkSLInvocations, r) {
          "        _invoke();\n"
          "        EndPrimitive();\n"
          "    }\n"
+         "}\n",
+         SkSL::Program::kGeometry_Kind);
+    test(r,
+         "layout(points, invocations = 2) in;"
+         "layout(invocations = 3) in;"
+         "layout(line_strip, max_vertices = 2) out;"
+         "void main() {"
+         "sk_Position = sk_in[0].sk_Position + float4(-0.5, 0, 0, sk_InvocationID);"
+         "EmitVertex();"
+         "EndPrimitive();"
+         "}",
+         *SkSL::ShaderCapsFactory::GSInvocationsExtensionString(),
+         "#version 400\n"
+         "#extension GL_ARB_gpu_shader5 : require\n"
+         "layout (points, invocations = 2) in ;\n"
+         "layout (invocations = 3) in ;\n"
+         "layout (line_strip, max_vertices = 2) out ;\n"
+         "void main() {\n"
+         "    gl_Position = gl_in[0].gl_Position + vec4(-0.5, 0.0, 0.0, float(gl_InvocationID));\n"
+         "    EmitVertex();\n"
+         "    EndPrimitive();\n"
          "}\n",
          SkSL::Program::kGeometry_Kind);
 }

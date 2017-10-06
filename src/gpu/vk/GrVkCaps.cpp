@@ -242,7 +242,9 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
     // GrShaderCaps
 
     shaderCaps->fShaderDerivativeSupport = true;
+
     shaderCaps->fGeometryShaderSupport = SkToBool(featureFlags & kGeometryShader_GrVkFeatureFlag);
+    shaderCaps->fGSInvocationsSupport = shaderCaps->fGeometryShaderSupport;
 
     shaderCaps->fDualSourceBlendingSupport = SkToBool(featureFlags & kDualSrcBlend_GrVkFeatureFlag);
     if (kAMD_VkVendor == properties.vendorID) {
