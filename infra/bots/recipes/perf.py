@@ -162,10 +162,6 @@ def nanobench_flags(api, bot):
     match.append('~GLInstancedArraysBench') # skia:4714
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     match.append('~tile_image_filter_tiled_64')  # skia:6082
-  if 'IntelHD615' in bot and 'ANGLE' in bot and 'Release' in bot:
-    # skia:6980
-    match.append('~hardstop_')
-    match.append('~GM_radial_gradient3')
   if ('Vulkan' in bot and ('IntelIris540' in bot or 'IntelIris640' in bot) and
       'Win' in bot):
     # skia:6398
@@ -374,7 +370,6 @@ TEST_BUILDERS = [
   'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE',
   'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan',
   'Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE',
-  'Perf-Win10-MSVC-SurfacePro2017-GPU-IntelHD615-x86_64-Release-ANGLE',
   'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug',
   'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release',
   'Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release',

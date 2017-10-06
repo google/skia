@@ -755,11 +755,11 @@ Return a list of targets to build, depending on the builder type.
 
 [DEPS](/infra/bots/recipes/perf.py#12): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [core](#recipe_modules-core), [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
-&mdash; **def [RunSteps](/infra/bots/recipes/perf.py#333)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/perf.py#329)(api):**
 
 &mdash; **def [nanobench\_flags](/infra/bots/recipes/perf.py#29)(api, bot):**
 
-&mdash; **def [perf\_steps](/infra/bots/recipes/perf.py#244)(api):**
+&mdash; **def [perf\_steps](/infra/bots/recipes/perf.py#240)(api):**
 
 Run Skia benchmarks.
 ### *recipes* / [recreate\_skps](/infra/bots/recipes/recreate_skps.py)
