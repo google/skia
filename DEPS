@@ -3,7 +3,7 @@ use_relative_paths = True
 deps = {
   "buildtools"                          : "https://chromium.googlesource.com/chromium/buildtools.git@e6b510a9daf822bbe9f922c200c58150803d2fd8",
   "common"                              : "https://skia.googlesource.com/common.git@9737551d7a52c3db3262db5856e6bcd62c462b92",
-  "third_party/externals/angle2"        : "https://chromium.googlesource.com/angle/angle.git@e159717d4bb5e278e4e90841fdb4e9672c65b7fd",
+  "third_party/externals/angle2"        : "https://chromium.googlesource.com/angle/angle.git@a87121f9d19aa665b9f88fdedf6e67e82135fd7c",
   "third_party/externals/dng_sdk"       : "https://android.googlesource.com/platform/external/dng_sdk.git@96443b262250c390b0caefbf3eed8463ba35ecae",
   "third_party/externals/expat"         : "https://android.googlesource.com/platform/external/expat.git@android-6.0.1_r55",
   "third_party/externals/freetype"      : "https://skia.googlesource.com/third_party/freetype2.git@447a0b62634802d8acdb56008cff5ff4e50be244",
