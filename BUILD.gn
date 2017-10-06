@@ -429,6 +429,9 @@ if (skia_lex) {
 
   action("run_sksllex") {
     script = "gn/run_sksllex.py"
+    deps = [
+      ":sksllex(//gn/toolchain:$host_toolchain)",
+    ]
     sources = [
       "src/sksl/lex/layout.lex",
       "src/sksl/lex/sksl.lex",
