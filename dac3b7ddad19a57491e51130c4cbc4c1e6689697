@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "392b2d50_b33e03da",
+        "filename": "src/gpu/GrProcessor.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-06T15:40:00Z",
+      "side": 1,
+      "message": "At this point should we make the class ID a required constructor param?",
+      "revId": "dac3b7ddad19a57491e51130c4cbc4c1e6689697",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
