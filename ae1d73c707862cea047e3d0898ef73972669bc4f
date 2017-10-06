@@ -39,6 +39,24 @@
       "revId": "ae1d73c707862cea047e3d0898ef73972669bc4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a827fb4c_2b8369e0",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 929,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-06T19:48:47Z",
+      "side": 1,
+      "message": "Do we want to handle this case via  copy? Or just early out. I switched to just failing in this case.",
+      "parentUuid": "149f7f0d_ed1315f0",
+      "revId": "ae1d73c707862cea047e3d0898ef73972669bc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
