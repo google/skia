@@ -22,6 +22,30 @@
       "revId": "8e7b9e496406141a60b054a727b1527d099c5c00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46e542a0_01fde8cc",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-06T19:08:59Z",
+      "side": 1,
+      "message": "Sure, but the coords are integers.",
+      "parentUuid": "c6bdf587_3ecb8924",
+      "range": {
+        "startLine": 422,
+        "startChar": 29,
+        "endLine": 422,
+        "endChar": 34
+      },
+      "revId": "8e7b9e496406141a60b054a727b1527d099c5c00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
