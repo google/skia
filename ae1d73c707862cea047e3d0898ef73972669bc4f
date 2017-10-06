@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f93af427_f1df26cc",
+        "filename": "src/gpu/GrTexture.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-06T00:34:24Z",
+      "side": 1,
+      "message": "These two lines could be replaced by a single call to \"this-\u003erelease()\", if we wanted to expose that.",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 20
+      },
+      "revId": "ae1d73c707862cea047e3d0898ef73972669bc4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
