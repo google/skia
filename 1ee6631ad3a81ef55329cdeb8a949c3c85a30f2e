@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d812330_1f9bfbf8",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 37
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-06T12:10:01Z",
+      "side": 0,
+      "message": "This got turned into kIncompleteInput in prepareToDecode. From onGetPixels, we should check for that and return kInvalidInput.",
+      "range": {
+        "startLine": 583,
+        "startChar": 61,
+        "endLine": 583,
+        "endChar": 74
+      },
+      "revId": "1ee6631ad3a81ef55329cdeb8a949c3c85a30f2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
