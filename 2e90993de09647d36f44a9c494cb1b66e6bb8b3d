@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0380b09e_4dead49f",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-06T17:11:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "72e20363_076ffc83",
+      "range": {
+        "startLine": 590,
+        "startChar": 15,
+        "endLine": 590,
+        "endChar": 28
+      },
+      "revId": "2e90993de09647d36f44a9c494cb1b66e6bb8b3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e8f3d0e4_936e400f",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 38
@@ -36,6 +60,30 @@
       "writtenOn": "2017-10-06T14:31:20Z",
       "side": 1,
       "message": "It looks like you removed a new line from the end of this file? I\u0027m getting an error when I try to build this CL locally.",
+      "range": {
+        "startLine": 1014,
+        "startChar": 0,
+        "endLine": 1014,
+        "endChar": 1
+      },
+      "revId": "2e90993de09647d36f44a9c494cb1b66e6bb8b3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97fbd1a9_586a5356",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 1014,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-06T17:11:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e8f3d0e4_936e400f",
       "range": {
         "startLine": 1014,
         "startChar": 0,
