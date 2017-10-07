@@ -404,15 +404,21 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fPreferClientSideDynamicBuffers = true;
     }
 
-    // Mali GPUs have serious issues with CCPR. Blacklisting until we can look into workarounds.
     if (kARM_GrGLVendor == ctxInfo.vendor()) {
+        // Mali GPUs have rendering issues with CCPR. Blacklisting until we look into workarounds.
         fBlacklistCoverageCounting = true;
     }
 
-    if (kIntel_GrGLDriver == ctxInfo.driver()) {
-        // Intel HD4400, HD4600, and Iris6100 crash on the bots.
-        fBlacklistCoverageCounting = kIntel4xxx_GrGLRenderer == ctxInfo.renderer() ||
-                                     kIntel6xxx_GrGLRenderer == ctxInfo.renderer();
+    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
+        if (kIntel_GrGLDriver == ctxInfo.driver()) {
+            // Intel HD4400, HD4600, and Iris6100 crash on the bots.
+            fBlacklistCoverageCounting = kIntel4xxx_GrGLRenderer == ctxInfo.renderer() ||
+                                         kIntel6xxx_GrGLRenderer == ctxInfo.renderer();
+        } else if (kMesa_GrGLDriver == ctxInfo.driver()) {
+            // Blocking old Intel/Mesa setups while we investigate
+            // https://bugs.chromium.org/p/skia/issues/detail?id=7134.
+            fBlacklistCoverageCounting = version < GR_GL_VER(4,0);
+        }
     }
 
     if (!contextOptions.fAvoidStencilBuffers) {
