@@ -133,8 +133,14 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         }
         int n = sscanf(versionString, "%d.%d Mesa %d.%d",
                        &major, &minor, &driverMajor, &driverMinor);
+        if (4 != n) {
+            n = sscanf(versionString, "%d.%d (Core Profile) Mesa %d.%d",
+                       &major, &minor, &driverMajor, &driverMinor);
+            SkDebugf("@@@@@@@@@@@@> checking intel core: %i\n", n);
+        }
         if (4 == n) {
             *outDriver = kMesa_GrGLDriver;
+            SkDebugf("@@@@@@@@@@@@> driver=mesa\n", n);
             *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
             return;
         }
