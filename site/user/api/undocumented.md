@@ -689,6 +689,33 @@ SkScalarCeilToScalar(x)
 
 ---
 
+<a name="SkScalarIsFinite"></a>
+## SkScalarIsFinite
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+SkScalarIsFinite(x)
+</pre>
+
+---
+
+<a name="SkScalarIsNaN"></a>
+## SkScalarIsNaN
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+SkScalarIsNaN(x)
+</pre>
+
+---
+
+<a name="SkTFitsIn"></a>
+## SkTFitsIn
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+template &lt;typename D, typename S&gt; inline bool SkTFitsIn(S s)
+</pre>
+
+---
+
 # <a name="Nine_Patch"></a> Nine Patch
 
 # <a name="Number_Types"></a> Number Types
@@ -696,6 +723,9 @@ SkScalarCeilToScalar(x)
 ### Constants
 
 <table>
+  <tr>
+    <td><a name="SK_ScalarMin"> <code><strong>SK_ScalarMin </strong></code> </a></td><td>to be written</td><td></td>
+  </tr>
   <tr>
     <td><a name="SK_ScalarMax"> <code><strong>SK_ScalarMax </strong></code> </a></td><td>to be written</td><td></td>
   </tr>
@@ -707,6 +737,12 @@ SkScalarCeilToScalar(x)
   </tr>
   <tr>
     <td><a name="SK_ScalarNaN"> <code><strong>SK_ScalarNaN </strong></code> </a></td><td>to be written</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SK_MinS32"> <code><strong>SK_MinS32 </strong></code> </a></td><td>to be written</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SK_MaxS32"> <code><strong>SK_MaxS32 </strong></code> </a></td><td>to be written</td><td></td>
   </tr>
 </table>
 
