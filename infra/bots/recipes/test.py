@@ -653,6 +653,10 @@ def dm_flags(api, bot):
       # skia:6141
       blacklist([config, 'gm', '_', 'discard'])
 
+  if ('IntelIris6100' in bot or 'IntelHD4400' in bot) and 'ANGLE' in bot:
+    # skia:6857
+    blacklist(['angle_d3d9_es2', 'gm', '_', 'lighting'])
+
   if 'IntelBayTrail' in bot and api.vars.is_linux:
     match.append('~ImageStorageLoad') # skia:6358
 
@@ -891,6 +895,7 @@ TEST_BUILDERS = [
   'Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan',
   'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE',
   'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
+  'Test-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-ANGLE',
   'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
   'Test-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE',
   'Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Debug-Vulkan',
