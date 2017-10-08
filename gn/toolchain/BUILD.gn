@@ -38,7 +38,7 @@ toolchain("msvc") {
     env_setup = ""
     if (target_cpu == "x86") {
       bin += "_x86"
-      env_setup = "cmd /c $windk/win_sdk/bin/SetEnv.cmd /x86 && "
+      env_setup = "cmd /c $windk/VC/Auxiliary/Build/vcvarsall.bat amd64_x86 && "
     }
   } else {
     bin = "$windk/VC/Tools/MSVC/14.10.25017/bin/HostX64/$target_cpu"
