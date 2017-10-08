@@ -65,6 +65,8 @@
   "Build-Mac-Clang-x86_64-Release-CommandBuffer",
   "Build-Mac-Clang-x86_64-Release-TSAN",
   "Build-Win-Clang-arm64-Release-Android",
+  "Build-Win-Clang-x86-Debug",
+  "Build-Win-Clang-x86-Release",
   "Build-Win-Clang-x86_64-Debug",
   "Build-Win-Clang-x86_64-Debug-GDI",
   "Build-Win-Clang-x86_64-Debug-Vulkan",

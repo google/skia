@@ -62,6 +62,9 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     if compiler != 'MSVC' and configuration == 'Debug':
       extra_cflags.append('-O1')
 
+    if compiler == 'Clang' and 'Win' in os and target_arch == 'x86':
+      extra_cflags.append('--target=x86')
+
     if extra_config == 'Exceptions':
       extra_cflags.append('/EHsc')
     if extra_config == 'Fast':
