@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce8ea4e5_e0dc3ce2",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-08T13:02:35Z",
+      "side": 1,
+      "message": "It\u0027s possible that I\u0027m misunderstanding what this does, but I think this warning is revealing real bugs. I could submit a CL to ANGLE to fix them, but unless they compile the D3D code on Clang, it seems like these warnings won\u0027t be caught until they\u0027re rolled to Skia.\n\nShould I file a bug with ANGLE asking them to add a Clang Windows presubmit?\n\nHere\u0027s a link to the compile failures when this warning is enabled:\nhttps://chromium-swarm.appspot.com/task?id\u003d39128271e357ac10",
+      "revId": "61bf9209a8c550a84043890cea114631e1fe9f45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
