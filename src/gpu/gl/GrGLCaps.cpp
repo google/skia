@@ -410,11 +410,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (kIntel_GrGLVendor == ctxInfo.vendor()) {
+#ifndef SK_BUILD_FOR_MAC
         if (kIntel_GrGLDriver == ctxInfo.driver()) {
-            // Intel HD4400, HD4600, and Iris6100 crash on the bots.
-            fBlacklistCoverageCounting = kIntel4xxx_GrGLRenderer == ctxInfo.renderer() ||
-                                         kIntel6xxx_GrGLRenderer == ctxInfo.renderer();
-        } else if (kMesa_GrGLDriver == ctxInfo.driver()) {
+            // Every Windows Intel bot either crashes with CCPR or does not draw properly. Hopefully
+            // this issue resolves itself when we move away from geometry shaders.
+            fBlacklistCoverageCounting = true;
+        }
+#endif
+        if (kMesa_GrGLDriver == ctxInfo.driver()) {
             // Blocking old Intel/Mesa setups while we investigate
             // https://bugs.chromium.org/p/skia/issues/detail?id=7134.
             fBlacklistCoverageCounting = version < GR_GL_VER(4,0);
