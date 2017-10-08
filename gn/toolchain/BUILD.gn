@@ -149,9 +149,12 @@ toolchain("msvc") {
     exename = "{{root_out_dir}}/{{target_output_name}}{{output_extension}}"
     pdbname = "$exename.pdb"
     rspfile = "$exename.rsp"
+    machine = "X64"
+    if (target_cpu == "x86") {
+      machine = "X86"
+    }
 
-    command =
-        "$env_setup$bin/link.exe /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
+    command = "$env_setup$bin/link.exe /nologo /OUT:$exename /PDB:$pdbname @$rspfile /MACHINE:$machine"
 
     default_output_extension = ".exe"
     default_output_dir = "{{root_out_dir}}"
