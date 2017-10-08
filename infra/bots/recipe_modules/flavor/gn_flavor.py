@@ -62,6 +62,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     if compiler != 'MSVC' and configuration == 'Debug':
       extra_cflags.append('-O1')
 
+    if compiler == 'Clang' and extra_config == 'ANGLE':
+      extra_cflags.append('-Wno-error=inconsistent-missing-override')
     if extra_config == 'Exceptions':
       extra_cflags.append('/EHsc')
     if extra_config == 'Fast':
