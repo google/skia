@@ -114,8 +114,7 @@ void HelloWorldWindow::drawContents(SkCanvas* canvas) {
     // Draw a message with a nice black paint.
     paint.setFlags(
             SkPaint::kAntiAlias_Flag |
-            SkPaint::kSubpixelText_Flag |  // ... avoid waggly text when rotating.
-            SkPaint::kUnderlineText_Flag);
+            SkPaint::kSubpixelText_Flag);  // ... avoid waggly text when rotating.
     paint.setColor(SK_ColorBLACK);
     paint.setTextSize(20);
 
