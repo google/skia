@@ -39,14 +39,6 @@ HelloWorldWindow::~HelloWorldWindow() {
 }
 
 void HelloWorldWindow::tearDownBackend() {
-    SkSafeUnref(fContext);
-    fContext = NULL;
-
-    SkSafeUnref(fInterface);
-    fInterface = NULL;
-
-    fGpuSurface = nullptr;
-
     INHERITED::release();
 }
 
@@ -67,10 +59,10 @@ bool HelloWorldWindow::setUpBackend() {
         return false;
     }
 
-    fInterface = GrGLCreateNativeInterface();
+    fInterface.reset(GrGLCreateNativeInterface());
     SkASSERT(NULL != fInterface);
 
-    fContext = GrContext::MakeGL(fInterface).release();
+    fContext = GrContext::MakeGL(fInterface.get());
     SkASSERT(NULL != fContext);
 
     this->setUpGpuBackedSurface();
@@ -78,7 +70,7 @@ bool HelloWorldWindow::setUpBackend() {
 }
 
 void HelloWorldWindow::setUpGpuBackedSurface() {
-    fGpuSurface = this->makeGpuBackedSurface(fAttachmentInfo, fInterface, fContext);
+    fGpuSurface = this->makeGpuBackedSurface(fAttachmentInfo, fInterface.get(), fContext.get());
 }
 
 void HelloWorldWindow::drawContents(SkCanvas* canvas) {
@@ -114,8 +106,7 @@ void HelloWorldWindow::drawContents(SkCanvas* canvas) {
     // Draw a message with a nice black paint.
     paint.setFlags(
             SkPaint::kAntiAlias_Flag |
-            SkPaint::kSubpixelText_Flag |  // ... avoid waggly text when rotating.
-            SkPaint::kUnderlineText_Flag);
+            SkPaint::kSubpixelText_Flag);  // ... avoid waggly text when rotating.
     paint.setColor(SK_ColorBLACK);
     paint.setTextSize(20);
 

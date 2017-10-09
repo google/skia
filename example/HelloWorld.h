@@ -62,10 +62,10 @@ private:
     // support framework
     DeviceType fType;
     sk_sp<SkSurface> fRasterSurface;
-    GrContext* fContext;
+    sk_sp<GrContext> fContext;
     sk_sp<SkSurface> fGpuSurface;
     AttachmentInfo fAttachmentInfo;
-    const GrGLInterface* fInterface;
+    sk_sp<const GrGLInterface> fInterface;
 
     typedef SkOSWindow INHERITED;
 };
