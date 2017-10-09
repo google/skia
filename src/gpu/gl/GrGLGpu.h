@@ -224,7 +224,8 @@ private:
     // The texture parameters are cached in |initialTexParams|.
     bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
                            bool renderTarget, GrGLTexture::TexParams* initialTexParams,
-                           const GrMipLevel texels[], int mipLevelCount);
+                           const GrMipLevel texels[], int mipLevelCount,
+                           bool* wasFullMipMapDataProvided);
 
     bool onIsACopyNeededForTextureParams(GrTextureProxy*, const GrSamplerState&,
                                          GrTextureProducer::CopyParams*,
@@ -391,7 +392,8 @@ private:
     bool uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
                        GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType, int left,
                        int top, int width, int height, GrPixelConfig dataConfig,
-                       const GrMipLevel texels[], int mipLevelCount);
+                       const GrMipLevel texels[], int mipLevelCount,
+                       bool* wasFullMipMapDataProvided = nullptr);
 
     bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
                                    GrGLRenderTarget::IDDesc*);

@@ -52,18 +52,19 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
                          const IDDesc& idDesc)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig), false) {
+                highest_filter_mode(idDesc, desc.fConfig), false, false) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
                          const IDDesc& idDesc,
-                         bool wasMipMapDataProvided)
+                         bool mipsAllocated,
+                         bool wasFullMipMapDataProvided)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
                 highest_filter_mode(idDesc, desc.fConfig),
-                wasMipMapDataProvided) {
+                mipsAllocated, wasFullMipMapDataProvided) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
@@ -71,17 +72,17 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc, const IDDesc& idDesc)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig), false) {
+                highest_filter_mode(idDesc, desc.fConfig), false, false) {
     this->init(desc, idDesc);
     this->registerWithCacheWrapped();
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
-                         bool wasMipMapDataProvided)
+                         bool mipsAllocated, bool wasFullMipMapDataProvided)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
                 highest_filter_mode(idDesc, desc.fConfig),
-                wasMipMapDataProvided) {
+                mipsAllocated, wasFullMipMapDataProvided) {
     this->init(desc, idDesc);
 }
 

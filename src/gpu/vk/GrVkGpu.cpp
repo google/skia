@@ -818,12 +818,22 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
+    bool fullMipMapDataProvided = true;
+    for (int i = 0; i < mipLevelCount; ++i) {
+        if (!texels[i].fPixels) {
+            fullMipMapDataProvided = false;
+            break;
+        }
+    }
+
     sk_sp<GrVkTexture> tex;
     if (renderTarget) {
         tex = GrVkTextureRenderTarget::CreateNewTextureRenderTarget(this, budgeted, desc,
-                                                                    imageDesc);
+                                                                    imageDesc,
+                                                                    fullMipMapDataProvided);
     } else {
-        tex = GrVkTexture::CreateNewTexture(this, budgeted, desc, imageDesc);
+        tex = GrVkTexture::CreateNewTexture(this, budgeted, desc, imageDesc,
+                                            fullMipMapDataProvided);
     }
 
     if (!tex) {
@@ -988,6 +998,9 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
         SkDebugf("Trying to create mipmap for linear tiled texture");
         return;
     }
+
+    // Make sure we at least have some base layer to make mips from
+    SkASSERT(tex->texturePriv().mipMapsAreValid());
 
     // determine if we can blit to and from this format
     const GrVkCaps& caps = this->vkCaps();

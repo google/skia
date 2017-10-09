@@ -29,7 +29,8 @@ public:
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
                             const GrGLRenderTarget::IDDesc& rtIDDesc,
-                            bool wasMipMapDataProvided);
+                            bool mipsAllocated,
+                            bool wasFullMipMapDataProvided);
 
     bool canAttemptStencilAttachment() const override;
 
@@ -54,8 +55,7 @@ private:
     GrGLTextureRenderTarget(GrGLGpu* gpu,
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
-                            const GrGLRenderTarget::IDDesc& rtIDDesc,
-                            bool wasMipMapDataProvided);
+                            const GrGLRenderTarget::IDDesc& rtIDDesc);
 
     size_t onGpuMemorySize() const override;
 };

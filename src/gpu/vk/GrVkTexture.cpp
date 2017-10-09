@@ -31,11 +31,12 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          SkBudgeted budgeted,
                          const GrSurfaceDesc& desc,
                          const GrVkImageInfo& info,
-                         const GrVkImageView* view)
+                         const GrVkImageView* view,
+                         bool wasFullMipMapDataProvided)
     : GrSurface(gpu, desc)
     , GrVkImage(info, GrBackendObjectOwnership::kOwned)
     , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
-                info.fLevelCount > 1)
+                info.fLevelCount > 1, wasFullMipMapDataProvided)
     , fTextureView(view)
     , fLinearTextureView(nullptr) {
     this->registerWithCache(budgeted);
@@ -50,7 +51,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
     : GrSurface(gpu, desc)
     , GrVkImage(info, ownership)
     , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
-                info.fLevelCount > 1)
+                info.fLevelCount > 1, false)
     , fTextureView(view)
     , fLinearTextureView(nullptr) {
     this->registerWithCacheWrapped();
@@ -61,18 +62,20 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrSurfaceDesc& desc,
                          const GrVkImageInfo& info,
                          const GrVkImageView* view,
-                         GrBackendObjectOwnership ownership)
+                         GrBackendObjectOwnership ownership,
+                         bool wasFullMipMapDataProvided)
     : GrSurface(gpu, desc)
     , GrVkImage(info, ownership)
     , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
-                info.fLevelCount > 1)
+                info.fLevelCount > 1, wasFullMipMapDataProvided)
     , fTextureView(view)
     , fLinearTextureView(nullptr) {
 }
 
 sk_sp<GrVkTexture> GrVkTexture::CreateNewTexture(GrVkGpu* gpu, SkBudgeted budgeted,
                                                  const GrSurfaceDesc& desc,
-                                                 const GrVkImage::ImageDesc& imageDesc) {
+                                                 const GrVkImage::ImageDesc& imageDesc,
+                                                 bool fullMipMapDataProvided) {
     SkASSERT(imageDesc.fUsageFlags & VK_IMAGE_USAGE_SAMPLED_BIT);
 
     GrVkImageInfo info;
@@ -88,7 +91,8 @@ sk_sp<GrVkTexture> GrVkTexture::CreateNewTexture(GrVkGpu* gpu, SkBudgeted budget
         return nullptr;
     }
 
-    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, budgeted, desc, info, imageView));
+    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, budgeted, desc, info, imageView,
+                                              fullMipMapDataProvided));
 }
 
 sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
