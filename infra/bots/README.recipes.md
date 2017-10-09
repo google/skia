@@ -45,6 +45,7 @@
   * [swarming_client:examples/full](#recipes-swarming_client_examples_full)
   * [test](#recipes-test)
   * [update_meta_config](#recipes-update_meta_config) &mdash; Recipe for the Bot that updates meta config.
+  * [upload_coverage_results](#recipes-upload_coverage_results)
   * [upload_dm_results](#recipes-upload_dm_results)
   * [upload_nano_results](#recipes-upload_nano_results)
   * [vars:examples/full](#recipes-vars_examples_full)
@@ -157,23 +158,36 @@ in the 'git' relative path.
 
 [DEPS](/infra/bots/recipe_modules/infra/__init__.py#5): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
-#### **class [InfraApi](/infra/bots/recipe_modules/infra/api.py#13)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [InfraApi](/infra/bots/recipe_modules/infra/api.py#14)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-&emsp; **@property**<br>&mdash; **def [go\_bin](/infra/bots/recipe_modules/infra/api.py#18)(self):**
+&mdash; **def [cp\_gcs](/infra/bots/recipe_modules/infra/api.py#68)(self, name, src, dst, extra_args=None):**
 
-&emsp; **@property**<br>&mdash; **def [go\_env](/infra/bots/recipe_modules/infra/api.py#26)(self):**
+Attempt to upload or download files to/from Google Cloud Storage (GCS).
 
-&emsp; **@property**<br>&mdash; **def [go\_exe](/infra/bots/recipe_modules/infra/api.py#22)(self):**
+Args:
+  name: string. Will be used to fill out the step name.
+  src: string. Absolute path for a local file or gcs file (e.g. gs://...)
+  dst: string. Same as src.
+  extra_args: optional list of args to be passed to gsutil. e.g. [-Z] asks
+    all files be compressed with gzip after upload and before download.
 
-&mdash; **def [go\_version](/infra/bots/recipe_modules/infra/api.py#38)(self):**
+If the operation fails, it will be retried multiple times.
+
+&emsp; **@property**<br>&mdash; **def [go\_bin](/infra/bots/recipe_modules/infra/api.py#19)(self):**
+
+&emsp; **@property**<br>&mdash; **def [go\_env](/infra/bots/recipe_modules/infra/api.py#27)(self):**
+
+&emsp; **@property**<br>&mdash; **def [go\_exe](/infra/bots/recipe_modules/infra/api.py#23)(self):**
+
+&mdash; **def [go\_version](/infra/bots/recipe_modules/infra/api.py#39)(self):**
 
 Print the Go version.
 
-&emsp; **@property**<br>&mdash; **def [gopath](/infra/bots/recipe_modules/infra/api.py#34)(self):**
+&emsp; **@property**<br>&mdash; **def [gopath](/infra/bots/recipe_modules/infra/api.py#35)(self):**
 
-&emsp; **@property**<br>&mdash; **def [goroot](/infra/bots/recipe_modules/infra/api.py#14)(self):**
+&emsp; **@property**<br>&mdash; **def [goroot](/infra/bots/recipe_modules/infra/api.py#15)(self):**
 
-&mdash; **def [update\_go\_deps](/infra/bots/recipe_modules/infra/api.py#52)(self):**
+&mdash; **def [update\_go\_deps](/infra/bots/recipe_modules/infra/api.py#53)(self):**
 
 Attempt to update go dependencies.
 
@@ -634,7 +648,7 @@ Does nothing if script's version is already known.
 
 #### **class [SkiaVarsApi](/infra/bots/recipe_modules/vars/api.py#16)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-&emsp; **@property**<br>&mdash; **def [is\_linux](/infra/bots/recipe_modules/vars/api.py#151)(self):**
+&emsp; **@property**<br>&mdash; **def [is\_linux](/infra/bots/recipe_modules/vars/api.py#160)(self):**
 
 &mdash; **def [make\_path](/infra/bots/recipe_modules/vars/api.py#18)(self, \*path):**
 
@@ -644,13 +658,15 @@ Return a Path object for the given path.
 
 Prepare the variables.
 
-&emsp; **@property**<br>&mdash; **def [swarming\_bot\_id](/infra/bots/recipe_modules/vars/api.py#193)(self):**
+&emsp; **@property**<br>&mdash; **def [swarming\_bot\_id](/infra/bots/recipe_modules/vars/api.py#207)(self):**
 
-&emsp; **@property**<br>&mdash; **def [swarming\_task\_id](/infra/bots/recipe_modules/vars/api.py#204)(self):**
+&emsp; **@property**<br>&mdash; **def [swarming\_task\_id](/infra/bots/recipe_modules/vars/api.py#218)(self):**
 
-&emsp; **@property**<br>&mdash; **def [upload\_dm\_results](/infra/bots/recipe_modules/vars/api.py#155)(self):**
+&emsp; **@property**<br>&mdash; **def [upload\_coverage\_results](/infra/bots/recipe_modules/vars/api.py#164)(self):**
 
-&emsp; **@property**<br>&mdash; **def [upload\_perf\_results](/infra/bots/recipe_modules/vars/api.py#173)(self):**
+&emsp; **@property**<br>&mdash; **def [upload\_dm\_results](/infra/bots/recipe_modules/vars/api.py#169)(self):**
+
+&emsp; **@property**<br>&mdash; **def [upload\_perf\_results](/infra/bots/recipe_modules/vars/api.py#187)(self):**
 ## Recipes
 
 ### *recipes* / [builder\_name\_schema:examples/full](/infra/bots/recipe_modules/builder_name_schema/examples/full.py)
@@ -804,17 +820,17 @@ benchmark Skia using skpbench.
 
 [DEPS](/infra/bots/recipes/test.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [core](#recipe_modules-core), [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
-&mdash; **def [RunSteps](/infra/bots/recipes/test.py#834)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/test.py#830)(api):**
 
 &mdash; **def [dm\_flags](/infra/bots/recipes/test.py#27)(api, bot):**
 
-&mdash; **def [key\_params](/infra/bots/recipes/test.py#685)(api):**
+&mdash; **def [key\_params](/infra/bots/recipes/test.py#681)(api):**
 
 Build a unique key from the builder name (as a list).
 
 E.g.  arch x86 gpu GeForce320M mode MacMini4.1 os Mac10.6
 
-&mdash; **def [test\_steps](/infra/bots/recipes/test.py#702)(api):**
+&mdash; **def [test\_steps](/infra/bots/recipes/test.py#698)(api):**
 
 Run the DM test.
 ### *recipes* / [update\_meta\_config](/infra/bots/recipes/update_meta_config.py)
@@ -824,6 +840,11 @@ Run the DM test.
 Recipe for the Bot that updates meta config.
 
 &mdash; **def [RunSteps](/infra/bots/recipes/update_meta_config.py#38)(api):**
+### *recipes* / [upload\_coverage\_results](/infra/bots/recipes/upload_coverage_results.py)
+
+[DEPS](/infra/bots/recipes/upload_coverage_results.py#12): [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [infra](#recipe_modules-infra)
+
+&mdash; **def [RunSteps](/infra/bots/recipes/upload_coverage_results.py#35)(api):**
 ### *recipes* / [upload\_dm\_results](/infra/bots/recipes/upload_dm_results.py)
 
 [DEPS](/infra/bots/recipes/upload_dm_results.py#12): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time]

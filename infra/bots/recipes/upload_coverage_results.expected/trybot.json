@@ -1,0 +1,110 @@
+[
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-Z",
+      "[START_DIR]/output.profraw",
+      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.profraw"
+    ],
+    "name": "upload raw data"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/clang_linux/bin/llvm-profdata",
+      "merge",
+      "-sparse",
+      "[START_DIR]/output.profraw",
+      "-o",
+      "[START_DIR]/output.profdata"
+    ],
+    "name": "merge and index"
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-Z",
+      "[START_DIR]/output.profdata",
+      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.profdata"
+    ],
+    "name": "upload parsed data"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/clang_linux/bin/llvm-cov",
+      "show",
+      "[START_DIR]/out/Debug/dm",
+      "-instr-profile=[START_DIR]/output.profdata",
+      "-use-color=0",
+      "-format=text",
+      "-output-dir=[START_DIR]/coverage_text"
+    ],
+    "name": "create text summary"
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-Z",
+      "[START_DIR]/coverage_text/index.txt",
+      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.summary"
+    ],
+    "name": "upload coverage summary"
+  },
+  {
+    "cmd": [
+      "tar",
+      "-cvf",
+      "[START_DIR]/coverage.text.tar",
+      "[START_DIR]/coverage_text"
+    ],
+    "name": "create text coverage archive"
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-Z",
+      "[START_DIR]/coverage.text.tar",
+      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.text.tar"
+    ],
+    "name": "upload text coverage data"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/clang_linux/bin/llvm-cov",
+      "show",
+      "[START_DIR]/out/Debug/dm",
+      "-instr-profile=[START_DIR]/output.profdata",
+      "-use-color=1",
+      "-format=html",
+      "-output-dir=[START_DIR]/coverage_html"
+    ],
+    "name": "create html summary"
+  },
+  {
+    "cmd": [
+      "tar",
+      "-cvf",
+      "[START_DIR]/coverage.html.tar",
+      "[START_DIR]/coverage_html"
+    ],
+    "name": "create html coverage archive"
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-Z",
+      "[START_DIR]/coverage.html.tar",
+      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.html.tar"
+    ],
+    "name": "upload html coverage data"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

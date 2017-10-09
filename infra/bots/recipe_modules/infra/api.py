@@ -8,6 +8,7 @@ from recipe_engine import recipe_api
 
 INFRA_GO_PKG = 'go.skia.org/infra'
 UPDATE_GO_ATTEMPTS = 5
+UPLOAD_ATTEMPTS = 5
 
 
 class InfraApi(recipe_api.RecipeApi):
@@ -63,6 +64,35 @@ class InfraApi(recipe_api.RecipeApi):
           'update go pkgs',
           UPDATE_GO_ATTEMPTS,
           cmd=[self.go_exe, 'get', '-u', '-t', '%s/...' % INFRA_GO_PKG])
+
+  def cp_gcs(self, name, src, dst, extra_args=None):
+    """Attempt to upload or download files to/from Google Cloud Storage (GCS).
+
+    Args:
+      name: string. Will be used to fill out the step name.
+      src: string. Absolute path for a local file or gcs file (e.g. gs://...)
+      dst: string. Same as src.
+      extra_args: optional list of args to be passed to gsutil. e.g. [-Z] asks
+        all files be compressed with gzip after upload and before download.
+
+    If the operation fails, it will be retried multiple times.
+    """
+    cmd = ['gsutil', 'cp']
+    if extra_args:
+      cmd.extend(extra_args)
+    cmd.extend([src, dst])
+
+    name = 'upload %s' % name
+    for i in xrange(UPLOAD_ATTEMPTS):
+      step_name = name
+      if i > 0:
+        step_name += ' (attempt %d)' % (i+1)
+      try:
+        self.m.step(step_name, cmd=cmd)
+        break
+      except self.m.step.StepFailure:
+        if i == UPLOAD_ATTEMPTS - 1:
+          raise
 
   class MetadataFetch():
     def __init__(self, api, metadata_key, local_file, **kwargs):
