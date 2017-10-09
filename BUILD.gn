@@ -1421,6 +1421,26 @@ if (skia_enable_tools) {
     }
   }
 
+  if (skia_enable_gpu && !skia_use_angle && (is_linux || is_win || is_mac)) {
+    test_app("HelloWorld") {
+      sources = [
+        "example/HelloWorld.cpp",
+      ]
+      if (is_mac) {
+        sources += [ "src/views/mac/skia_mac.mm" ]
+      } else if (is_win) {
+        sources += [ "src/views/win/skia_win.cpp" ]
+      } else if (is_linux) {
+        sources += [ "src/views/unix/skia_unix.cpp" ]
+      }
+      deps = [
+        ":gpu_tool_utils",
+        ":skia",
+        ":views",
+      ]
+    }
+  }
+
   if (skia_enable_gpu) {
     test_app("skpbench") {
       sources = [
