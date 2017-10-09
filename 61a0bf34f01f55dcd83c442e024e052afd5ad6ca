@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03df88b8_42ad3c3f",
+        "filename": "tools/gpucts/gm_runner.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-10-09T14:10:19Z",
+      "side": 1,
+      "message": "Could you rename this to \"GetGMFactories to make it clearer what it is we get back.\nUnless there is a good reason to overload the names below, could we just make it clearer what the argument is, e.g. GetFactoryName or GetBackendName.",
+      "range": {
+        "startLine": 40,
+        "startChar": 23,
+        "endLine": 40,
+        "endChar": 32
+      },
+      "revId": "61a0bf34f01f55dcd83c442e024e052afd5ad6ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
