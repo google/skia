@@ -15,19 +15,21 @@ class SkSVGRenderContext;
 
 enum class SkSVGAttribute {
     kClipPath,
-    kCx, // <circle>,<ellipse>: center x position
-    kCy, // <circle>,<ellipse>: center y position
+    kCx, // <circle>, <ellipse>, <radialGradient>: center x position
+    kCy, // <circle>, <ellipse>, <radialGradient>: center y position
     kD,
     kFill,
     kFillOpacity,
     kFillRule,
+    kFx, // <radialGradient>: focal point x position
+    kFy, // <radialGradient>: focal point y position
     kGradientTransform,
     kHeight,
     kHref,
     kOffset,
     kOpacity,
     kPoints,
-    kR,  // <circle>: radius
+    kR,  // <circle>, <radialGradient>: radius
     kRx, // <ellipse>,<rect>: horizontal (corner) radius
     kRy, // <ellipse>,<rect>: vertical (corner) radius
     kSpreadMethod,
