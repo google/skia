@@ -20,6 +20,7 @@
 **[Recipes](#Recipes)**
   * [builder_name_schema:examples/full](#recipes-builder_name_schema_examples_full)
   * [bundle_recipes](#recipes-bundle_recipes)
+  * [calmbench](#recipes-calmbench)
   * [check_generated_files](#recipes-check_generated_files)
   * [compile](#recipes-compile)
   * [core:examples/full](#recipes-core_examples_full)
@@ -663,6 +664,11 @@ Prepare the variables.
 [DEPS](/infra/bots/recipes/bundle_recipes.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [git](#recipe_modules-git)
 
 &mdash; **def [RunSteps](/infra/bots/recipes/bundle_recipes.py#18)(api):**
+### *recipes* / [calmbench](/infra/bots/recipes/calmbench.py)
+
+[DEPS](/infra/bots/recipes/calmbench.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [core](#recipe_modules-core), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+
+&mdash; **def [RunSteps](/infra/bots/recipes/calmbench.py#23)(api):**
 ### *recipes* / [check\_generated\_files](/infra/bots/recipes/check_generated_files.py)
 
 [DEPS](/infra/bots/recipes/check_generated_files.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [core](#recipe_modules-core), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)

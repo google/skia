@@ -1,0 +1,16 @@
+[
+  {
+    "cmd": [
+      "python",
+      "tools/calmbench/calmbench.py",
+      "master"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "name": "Run calmbench"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

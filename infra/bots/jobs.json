@@ -454,5 +454,6 @@
   "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug",
   "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release",
   "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug",
-  "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release"
+  "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release",
+  "Calmbench-Debian9"
 ]
