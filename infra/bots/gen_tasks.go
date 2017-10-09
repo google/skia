@@ -50,10 +50,11 @@ var (
 
 	// General configuration information.
 	CONFIG struct {
-		GsBucketGm   string   `json:"gs_bucket_gm"`
-		GsBucketNano string   `json:"gs_bucket_nano"`
-		NoUpload     []string `json:"no_upload"`
-		Pool         string   `json:"pool"`
+		GsBucketCoverage string   `json:"gs_bucket_coverage"`
+		GsBucketGm       string   `json:"gs_bucket_gm"`
+		GsBucketNano     string   `json:"gs_bucket_nano"`
+		NoUpload         []string `json:"no_upload"`
+		Pool             string   `json:"pool"`
 	}
 
 	// alternateSwarmDimensions can be set in an init function to override the default swarming bot
@@ -743,7 +744,8 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	}
 	b.MustAddTask(name, s)
 
-	// Upload results if necessary.
+	// Upload results if necessary. TODO(kjlubick): If we do coverage analysis at the same
+	// time as normal tests (which would be nice), cfg.json needs to have Coverage removed.
 	if doUpload(name) {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 		b.MustAddTask(uploadName, &specs.TaskSpec{
@@ -765,7 +767,38 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			Priority: 0.8,
 		})
 		return uploadName
+	} else if strings.Contains(name, "Coverage") {
+		uploadName := fmt.Sprintf("%s%s%s", "Upload", jobNameSchema.Sep, name)
+		// We need clang_linux to get access to the llvm-profdata and llvm-cov binaries
+		// which are used to deal with the raw coverage data output by the Test step.
+		pkgs := []*specs.CipdPackage{}
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
+		b.MustAddTask(uploadName, &specs.TaskSpec{
+			// A dependency on compileTaskName makes the TaskScheduler link the
+			// isolated output of the compile step to the input of the upload step,
+			// which gives us access to the instrumented binary. The binary is
+			// needed to figure out symbol names and line numbers.
+			Dependencies: []string{name, compileTaskName},
+			Dimensions:   linuxGceDimensions(),
+			CipdPackages: pkgs,
+			ExtraArgs: []string{
+				"--workdir", "../../..", "upload_coverage_results",
+				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+				fmt.Sprintf("buildername=%s", name),
+				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+				fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+				fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+				fmt.Sprintf("gs_bucket=%s", CONFIG.GsBucketCoverage),
+			},
+			Isolate:  relpath("upload_coverage_results.isolate"),
+			Priority: 0.8,
+		})
+		return uploadName
 	}
+
 	return name
 }
 
