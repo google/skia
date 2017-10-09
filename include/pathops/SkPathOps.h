@@ -19,7 +19,7 @@ struct SkRect;
 /**
   *  The logical operations that can be performed when combining two paths.
   */
-enum SkPathOp {
+enum SkPathOp : uint8_t {
     kDifference_SkPathOp,         //!< subtract the op path from the first path
     kIntersect_SkPathOp,          //!< intersect the two paths
     kUnion_SkPathOp,              //!< union (inclusive-or) the two paths
