@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c88cc60_b8158a9c",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-09T19:48:00Z",
+      "side": 1,
+      "message": "You should be able to directly call input_api.canned_checks.CheckChangeHasNoCR instead",
+      "revId": "8e62d5df0466034c3339e5cf1ced8f01ec765dbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
