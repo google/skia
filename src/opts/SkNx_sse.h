@@ -287,6 +287,12 @@ public:
     #endif
     }
 
+    AI SkNx mulHi(SkNx m) const {
+        SkNx v20{_mm_mul_epu32(m.fVec, fVec)};
+        SkNx v31{_mm_mul_epu32(m.fVec, _mm_srli_si128(fVec, 4))};
+
+        return SkNx{v20[1], v31[1], v20[3], v31[3]};
+    }
     __m128i fVec;
 };
 
@@ -569,6 +575,16 @@ template<> AI /*static*/ Sk4b SkNx_cast<uint8_t, float>(const Sk4f& src) {
 }
 
 template<> AI /*static*/ Sk4i SkNx_cast<int32_t, uint8_t>(const Sk4b& src) {
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+    const int _ = ~0;
+    return _mm_shuffle_epi8(src.fVec, _mm_setr_epi8(0,_,_,_, 1,_,_,_, 2,_,_,_, 3,_,_,_));
+#else
+    auto _16 = _mm_unpacklo_epi8(src.fVec, _mm_setzero_si128());
+    return _mm_unpacklo_epi16(_16, _mm_setzero_si128());
+#endif
+}
+
+template<> AI /*static*/ Sk4u SkNx_cast<uint32_t, uint8_t>(const Sk4b& src) {
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
     const int _ = ~0;
     return _mm_shuffle_epi8(src.fVec, _mm_setr_epi8(0,_,_,_, 1,_,_,_, 2,_,_,_, 3,_,_,_));
