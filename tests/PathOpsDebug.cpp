@@ -1346,7 +1346,7 @@ void SkOpContour::dumpSegments(const char* prefix, SkPathOp op) const {
     bool firstOp = false;
     const SkOpContour* c = this;
     do {
-        if (!firstOp && c->operand() && op >= 0) {
+        if (!firstOp && c->operand()) {
 #if DEBUG_ACTIVE_OP
             SkDebugf("op %s\n", SkPathOpsDebug::kPathOpStr[op]);
 #endif
