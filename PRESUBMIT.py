@@ -72,6 +72,22 @@ def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
   return []
 
 
+def _CheckChangeHasNoCR(input_api, output_api, source_file_filter=None):
+  """Checks that files do not contain any \r (CR)."""
+  cr_files = []
+  for f in input_api.AffectedSourceFiles(source_file_filter):
+    contents = input_api.ReadFile(f, 'rb')
+    # Check that the file has no carriage return character.
+    if '\r' in contents:
+      cr_files.append(f.LocalPath())
+
+  if cr_files:
+    return [output_api.PresubmitPromptWarning(
+      'These files should not contain a carriage return character:',
+      items=cr_files)]
+  return []
+
+
 def _PythonChecks(input_api, output_api):
   """Run checks on any modified Python files."""
   pylint_disabled_files = (
@@ -221,6 +237,9 @@ def _CommonChecks(input_api, output_api):
                        x.LocalPath().endswith('.cpp'))
   results.extend(
       _CheckChangeHasEol(
+          input_api, output_api, source_file_filter=sources))
+  results.extend(
+      _CheckChangeHasNoCR(
           input_api, output_api, source_file_filter=sources))
   results.extend(_PythonChecks(input_api, output_api))
   results.extend(_IfDefChecks(input_api, output_api))
