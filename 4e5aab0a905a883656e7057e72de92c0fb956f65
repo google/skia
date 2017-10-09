@@ -22,6 +22,30 @@
       "revId": "4e5aab0a905a883656e7057e72de92c0fb956f65",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "011baf4e_0a677ef8",
+        "filename": "include/pathops/SkPathOps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-10-09T21:14:37Z",
+      "side": 1,
+      "message": "I wan\u0027t really sure why the check was there to begin with, so I thought it might be defensive against someone passing random non-enumeration values. I can just remove the check though.",
+      "parentUuid": "a08cd5cf_c30ae177",
+      "range": {
+        "startLine": 22,
+        "startChar": 16,
+        "endLine": 22,
+        "endChar": 24
+      },
+      "revId": "4e5aab0a905a883656e7057e72de92c0fb956f65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
