@@ -423,7 +423,7 @@ sk_sp<SkImage> SkImageMakeRasterCopyAndAssignColorSpace(const SkImage* src,
 
     size_t rowBytes = info.minRowBytes();
     size_t size = info.computeByteSize(rowBytes);
-    if (size == 0) {
+    if (SkImageInfo::ByteSizeOverflowed(size)) {
         return nullptr;
     }
     auto data = SkData::MakeUninitialized(size);
