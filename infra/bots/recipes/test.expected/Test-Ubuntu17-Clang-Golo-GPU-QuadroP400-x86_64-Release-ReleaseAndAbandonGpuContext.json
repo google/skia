@@ -3,11 +3,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]\\skia\\infra\\bots\\assets\\skp\\VERSION",
+      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -17,12 +17,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
       "42",
-      "[START_DIR]\\tmp\\SKP_VERSION"
+      "[START_DIR]/tmp/SKP_VERSION"
     ],
     "infra_step": true,
     "name": "write SKP_VERSION"
@@ -31,11 +31,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]\\skia\\infra\\bots\\assets\\skimage\\VERSION",
+      "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -45,12 +45,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
       "42",
-      "[START_DIR]\\tmp\\SK_IMAGE_VERSION"
+      "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
     "infra_step": true,
     "name": "write SK_IMAGE_VERSION"
@@ -59,11 +59,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "[START_DIR]\\skia\\infra\\bots\\assets\\svg\\VERSION",
+      "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
       "/path/to/tmp/"
     ],
     "infra_step": true,
@@ -73,12 +73,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "copy",
       "42",
-      "[START_DIR]\\tmp\\SVG_VERSION"
+      "[START_DIR]/tmp/SVG_VERSION"
     ],
     "infra_step": true,
     "name": "write SVG_VERSION"
@@ -87,11 +87,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\dm"
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "infra_step": true,
     "name": "rmtree dm"
@@ -100,13 +100,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\dm"
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "infra_step": true,
     "name": "makedirs dm"
@@ -115,13 +115,13 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]\\tmp"
+      "[START_DIR]/tmp"
     ],
     "infra_step": true,
     "name": "makedirs tmp_dir"
@@ -131,13 +131,13 @@
       "python",
       "-u",
       "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = 'https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt'\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[1], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
-      "[START_DIR]\\tmp\\uninteresting_hashes.txt"
+      "[START_DIR]/tmp/uninteresting_hashes.txt"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
+      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]\\out"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "get uninteresting hashes",
@@ -205,27 +205,32 @@
   },
   {
     "cmd": [
-      "[START_DIR]\\out\\Release_x64\\dm",
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
+      "[START_DIR]",
+      "catchsegv",
+      "[START_DIR]/out/Release/dm",
       "--resourcePath",
-      "[START_DIR]\\skia\\resources",
+      "[START_DIR]/skia/resources",
       "--skps",
-      "[START_DIR]\\skp",
+      "[START_DIR]/skp",
       "--images",
-      "[START_DIR]\\skimage\\dm",
+      "[START_DIR]/skimage/dm",
       "--colorImages",
-      "[START_DIR]\\skimage\\colorspace",
+      "[START_DIR]/skimage/colorspace",
       "--nameByHash",
       "--properties",
       "gitHash",
       "abc123",
       "builder",
-      "Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-ReleaseAndAbandonGpuContext",
+      "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-ReleaseAndAbandonGpuContext",
       "swarming_bot_id",
       "skia-bot-123",
       "swarming_task_id",
       "123456",
       "--svgs",
-      "[START_DIR]\\svg",
+      "[START_DIR]/svg",
       "--key",
       "arch",
       "x86_64",
@@ -236,17 +241,17 @@
       "cpu_or_gpu",
       "GPU",
       "cpu_or_gpu_value",
-      "IntelIris6100",
+      "QuadroP400",
       "extra_config",
       "ReleaseAndAbandonGpuContext",
       "model",
-      "NUC5i7RYH",
+      "Golo",
       "os",
-      "Win10",
+      "Ubuntu17",
       "--uninterestingHashesFile",
-      "[START_DIR]\\tmp\\uninteresting_hashes.txt",
+      "[START_DIR]/tmp/uninteresting_hashes.txt",
       "--writePath",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\dm",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm",
       "--dont_write",
       "pdf",
       "--randomProcessorTest",
@@ -255,6 +260,8 @@
       "gl",
       "gldft",
       "glsrgb",
+      "glmsaa8",
+      "glnvprdit8",
       "--src",
       "tests",
       "gm",
@@ -270,54 +277,6 @@
       "image",
       "_",
       "_",
-      "_",
-      "image",
-      "gen_platf",
-      "pal8os2v2.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "pal8os2v2-16.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "rgba32abf.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "rgb24prof.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "rgb24lprof.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "8bpp-pixeldata-cropped.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "4bpp-pixeldata-cropped.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "32bpp-pixeldata-cropped.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "24bpp-pixeldata-cropped.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "testimgari.jpg",
-      "_",
-      "image",
-      "gen_platf",
-      "rle8-height-negative.bmp",
-      "_",
-      "image",
-      "gen_platf",
-      "rle4-height-negative.bmp",
       "_",
       "image",
       "_",
@@ -413,13 +372,14 @@
       "--verbose",
       "--releaseAndAbandonGpuContext"
     ],
+    "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release_x64",
+      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]\\out"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
-    "name": "dm"
+    "name": "symbolized dm"
   },
   {
     "name": "$result",
