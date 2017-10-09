@@ -8,29 +8,27 @@
 #ifndef SkSVGLinearGradient_DEFINED
 #define SkSVGLinearGradient_DEFINED
 
-#include "SkSVGHiddenContainer.h"
+#include "SkSVGGradient.h"
 #include "SkSVGTypes.h"
 
-class SkSVGLinearGradient : public SkSVGHiddenContainer {
+class SkSVGLinearGradient : public SkSVGGradient {
 public:
     ~SkSVGLinearGradient() override = default;
     static sk_sp<SkSVGLinearGradient> Make() {
         return sk_sp<SkSVGLinearGradient>(new SkSVGLinearGradient());
     }
 
-    void setHref(const SkSVGStringType&);
-    void setGradientTransform(const SkSVGTransformType&);
-    void setSpreadMethod(const SkSVGSpreadMethod&);
     void setX1(const SkSVGLength&);
     void setY1(const SkSVGLength&);
     void setX2(const SkSVGLength&);
     void setY2(const SkSVGLength&);
 
 protected:
-    bool onAsPaint(const SkSVGRenderContext&, SkPaint*) const override;
-
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
+    sk_sp<SkShader> onMakeShader(const SkSVGRenderContext&,
+                                 const SkColor*, const SkScalar*, int count,
+                                 SkShader::TileMode, const SkMatrix&) const override;
 private:
     SkSVGLinearGradient();
 
@@ -43,11 +41,7 @@ private:
     SkSVGLength fX2 = SkSVGLength(100, SkSVGLength::Unit::kPercentage);
     SkSVGLength fY2 = SkSVGLength(0  , SkSVGLength::Unit::kPercentage);
 
-    SkSVGStringType    fHref;
-    SkSVGTransformType fGradientTransform = SkSVGTransformType(SkMatrix::I());
-    SkSVGSpreadMethod  fSpreadMethod = SkSVGSpreadMethod(SkSVGSpreadMethod::Type::kPad);
-
-    typedef SkSVGHiddenContainer INHERITED;
+    typedef SkSVGGradient INHERITED;
 };
 
 #endif // SkSVGLinearGradient_DEFINED
