@@ -174,6 +174,13 @@ void commitToPaint<SkSVGAttribute::kStrokeLineJoin>(const SkSVGPresentationAttri
 }
 
 template <>
+void commitToPaint<SkSVGAttribute::kStrokeMiterLimit>(const SkSVGPresentationAttributes& attrs,
+                                                      const SkSVGRenderContext&,
+                                                      SkSVGPresentationContext* pctx) {
+    pctx->fStrokePaint.setStrokeMiter(*attrs.fStrokeMiterLimit.get());
+}
+
+template <>
 void commitToPaint<SkSVGAttribute::kStrokeOpacity>(const SkSVGPresentationAttributes& attrs,
                                                    const SkSVGRenderContext&,
                                                    SkSVGPresentationContext* pctx) {
@@ -218,6 +225,7 @@ SkSVGPresentationContext::SkSVGPresentationContext()
     commitToPaint<SkSVGAttribute::kStroke>(fInherited, dummy, this);
     commitToPaint<SkSVGAttribute::kStrokeLineCap>(fInherited, dummy, this);
     commitToPaint<SkSVGAttribute::kStrokeLineJoin>(fInherited, dummy, this);
+    commitToPaint<SkSVGAttribute::kStrokeMiterLimit>(fInherited, dummy, this);
     commitToPaint<SkSVGAttribute::kStrokeOpacity>(fInherited, dummy, this);
     commitToPaint<SkSVGAttribute::kStrokeWidth>(fInherited, dummy, this);
 }
@@ -270,6 +278,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(Stroke);
     ApplyLazyInheritedAttribute(StrokeLineCap);
     ApplyLazyInheritedAttribute(StrokeLineJoin);
+    ApplyLazyInheritedAttribute(StrokeMiterLimit);
     ApplyLazyInheritedAttribute(StrokeOpacity);
     ApplyLazyInheritedAttribute(StrokeWidth);
 
