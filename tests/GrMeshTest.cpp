@@ -281,7 +281,8 @@ private:
 class GrMeshTestProcessor : public GrGeometryProcessor {
 public:
     GrMeshTestProcessor(bool instanced, bool hasVertexBuffer)
-        : fInstanceLocation(nullptr)
+        : INHERITED(kGrMeshTestProcessor_ClassID)
+        , fInstanceLocation(nullptr)
         , fVertex(nullptr)
         , fColor(nullptr) {
         if (instanced) {
@@ -294,7 +295,6 @@ public:
             fVertex = &this->addVertexAttrib("vertex", kHalf2_GrVertexAttribType);
             fColor = &this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
         }
-        this->initClassID<GrMeshTestProcessor>();
     }
 
     const char* name() const override { return "GrMeshTest Processor"; }

@@ -174,9 +174,9 @@ private:
     TextureGeometryProcessor(sk_sp<GrTextureProxy> proxies[], int proxyCnt, int samplerCnt,
                              sk_sp<GrColorSpaceXform> csxf, const GrSamplerState::Filter filters[],
                              const GrShaderCaps& caps)
-            : fColorSpaceXform(std::move(csxf)) {
+            : INHERITED(kTextureGeometryProcessor_ClassID)
+            , fColorSpaceXform(std::move(csxf)) {
         SkASSERT(proxyCnt > 0 && samplerCnt >= proxyCnt);
-        this->initClassID<TextureGeometryProcessor>();
         fPositions = this->addVertexAttrib("position", kFloat2_GrVertexAttribType);
         fSamplers[0].reset(std::move(proxies[0]), filters[0]);
         this->addTextureSampler(&fSamplers[0]);
@@ -208,6 +208,8 @@ private:
     Attribute fColors;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
     TextureSampler fSamplers[1];
+
+    typedef GrGeometryProcessor INHERITED;
 };
 
 /**

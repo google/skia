@@ -56,17 +56,17 @@ public:
 private:
     GrSimpleTextureEffect(sk_sp<GrTextureProxy> image, sk_sp<GrColorSpaceXform> colorXform,
                           SkMatrix44 matrix, GrSamplerState samplerParams)
-            : INHERITED((OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-                        (GrPixelConfigIsOpaque(image->config())
-                                 ? kPreservesOpaqueInput_OptimizationFlag
-                                 : kNone_OptimizationFlags))
+            : INHERITED(kGrSimpleTextureEffect_ClassID,
+                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+                                (GrPixelConfigIsOpaque(image->config())
+                                         ? kPreservesOpaqueInput_OptimizationFlag
+                                         : kNone_OptimizationFlags))
             , fImage(std::move(image), samplerParams)
             , fColorXform(colorXform)
             , fMatrix(matrix)
             , fImageCoordTransform(matrix, fImage.proxy()) {
         this->addTextureSampler(&fImage);
         this->addCoordTransform(&fImageCoordTransform);
-        this->initClassID<GrSimpleTextureEffect>();
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

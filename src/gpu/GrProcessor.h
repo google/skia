@@ -64,6 +64,96 @@ private:
  */
 class GrProcessor {
 public:
+    enum ClassID {
+        kAARectEffect_ClassID,
+        kArithmeticFP_ClassID,
+        kBigKeyProcessor_ClassID,
+        kBlockInputFragmentProcessor_ClassID,
+        kCircleGeometryProcessor_ClassID,
+        kCircleInside2PtConicalEffect_ClassID,
+        kCircleOutside2PtConicalEffect_ClassID,
+        kCircularRRectEffect_ClassID,
+        kColorMatrixEffect_ClassID,
+        kColorTableEffect_ClassID,
+        kComposeOneFragmentProcessor_ClassID,
+        kComposeTwoFragmentProcessor_ClassID,
+        kCoverageSetOpXP_ClassID,
+        kCustomXP_ClassID,
+        kDashingCircleEffect_ClassID,
+        kDashingLineEffect_ClassID,
+        kDefaultGeoProc_ClassID,
+        kDIEllipseGeometryProcessor_ClassID,
+        kDisableColorXP_ClassID,
+        kEdge2PtConicalEffect_ClassID,
+        kEllipseGeometryProcessor_ClassID,
+        kEllipticalRRectEffect_ClassID,
+        kFocalInside2PtConicalEffect_ClassID,
+        kFocalOutside2PtConicalEffect_ClassID,
+        kGP_ClassID,
+        kGrAlphaThresholdFragmentProcessor_ClassID,
+        kGrBicubicEffect_ClassID,
+        kGrBitmapTextGeoProc_ClassID,
+        kGrBlurredEdgeFragmentProcessor_ClassID,
+        kGrCCPRCoverageProcessor_ClassID,
+        kGrCCPRPathProcessor_ClassID,
+        kGrCircleBlurFragmentProcessor_ClassID,
+        kGrCircleEffect_ClassID,
+        kGrConfigConversionEffect_ClassID,
+        kGrConicEffect_ClassID,
+        kGrConstColorProcessor_ClassID,
+        kGrConvexPolyEffect_ClassID,
+        kGrCubicEffect_ClassID,
+        kGrDeviceSpaceTextureDecalFragmentProcessor_ClassID,
+        kGrDiffuseLightingEffect_ClassID,
+        kGrDisplacementMapEffect_ClassID,
+        kGrDistanceFieldA8TextGeoProc_ClassID,
+        kGrDistanceFieldLCDTextGeoProc_ClassID,
+        kGrDistanceFieldPathGeoProc_ClassID,
+        kGrDitherEffect_ClassID,
+        kGrEllipseEffect_ClassID,
+        kGrGaussianConvolutionFragmentProcessor_ClassID,
+        kGrImprovedPerlinNoiseEffect_ClassID,
+        kGrLightingEffect_ClassID,
+        kGrLinearGradient_ClassID,
+        kGrMagnifierEffect_ClassID,
+        kGrMatrixConvolutionEffect_ClassID,
+        kGrMeshTestProcessor_ClassID,
+        kGrMorphologyEffect_ClassID,
+        kGrNonlinearColorSpaceXformEffect_ClassID,
+        kGrPathProcessor_ClassID,
+        kGrPerlinNoise2Effect_ClassID,
+        kGrPipelineDynamicStateTestProcessor_ClassID,
+        kGrQuadEffect_ClassID,
+        kGrRadialGradient_ClassID,
+        kGrRectBlurEffect_ClassID,
+        kGrRRectBlurEffect_ClassID,
+        kGrRRectShadowGeoProc_ClassID,
+        kGrSimpleTextureEffect_ClassID,
+        kGrSpecularLightingEffect_ClassID,
+        kGrSRGBEffect_ClassID,
+        kGrSweepGradient_ClassID,
+        kGrTextureDomainEffect_ClassID,
+        kHighContrastFilterEffect_ClassID,
+        kInstanceProcessor_ClassID,
+        kLumaColorFilterEffect_ClassID,
+        kMSAAQuadProcessor_ClassID,
+        kOverdrawFragmentProcessor_ClassID,
+        kPDLCDXferProcessor_ClassID,
+        kPorterDuffXferProcessor_ClassID,
+        kPremulFragmentProcessor_ClassID,
+        kPremulInputFragmentProcessor_ClassID,
+        kQuadEdgeEffect_ClassID,
+        kReplaceInputFragmentProcessor_ClassID,
+        kRRectsGaussianEdgeFP_ClassID,
+        kSeriesFragmentProcessor_ClassID,
+        kShaderPDXferProcessor_ClassID,
+        kSwizzleFragmentProcessor_ClassID,
+        kTestFP_ClassID,
+        kTextureGeometryProcessor_ClassID,
+        kUnpremulInputFragmentProcessor_ClassID,
+        kYUVtoRGBEffect_ClassID
+    };
+
     virtual ~GrProcessor() = default;
 
     /** Human-meaningful string to identify this prcoessor; may be embedded in generated shader
@@ -102,10 +192,12 @@ public:
     /** Helper for down-casting to a GrProcessor subclass */
     template <typename T> const T& cast() const { return *static_cast<const T*>(this); }
 
-    uint32_t classID() const { SkASSERT(kIllegalProcessorClassID != fClassID); return fClassID; }
+    ClassID classID() const { return fClassID; }
 
 protected:
-    GrProcessor() : fClassID(kIllegalProcessorClassID), fRequiredFeatures(kNone_RequiredFeatures) {}
+    GrProcessor(ClassID classID)
+    : fClassID(classID)
+    , fRequiredFeatures(kNone_RequiredFeatures) {}
 
     /**
      * If the prcoessor will generate code that uses platform specific built-in features, then it
@@ -118,34 +210,12 @@ protected:
         fRequiredFeatures |= other.fRequiredFeatures;
     }
 
-    template <typename PROC_SUBCLASS> void initClassID() {
-         static uint32_t kClassID = GenClassID();
-         fClassID = kClassID;
-    }
-
 private:
     GrProcessor(const GrProcessor&) = delete;
     GrProcessor& operator=(const GrProcessor&) = delete;
 
-    static uint32_t GenClassID() {
-        // fCurrProcessorClassID has been initialized to kIllegalProcessorClassID. The
-        // atomic inc returns the old value not the incremented value. So we add
-        // 1 to the returned value.
-        uint32_t id = static_cast<uint32_t>(sk_atomic_inc(&gCurrProcessorClassID)) + 1;
-        if (!id) {
-            SK_ABORT("This should never wrap as it should only be called once for each GrProcessor "
-                   "subclass.");
-        }
-        return id;
-    }
-
-    enum {
-        kIllegalProcessorClassID = 0,
-    };
-    static int32_t gCurrProcessorClassID;
-
-    uint32_t                                        fClassID;
-    RequiredFeatures                                fRequiredFeatures;
+    ClassID          fClassID;
+    RequiredFeatures fRequiredFeatures;
 };
 
 GR_MAKE_BITFIELD_OPS(GrProcessor::RequiredFeatures);
@@ -180,7 +250,8 @@ public:
     bool instantiate(GrResourceProvider* resourceProvider) const;
 
 protected:
-    GrResourceIOProcessor() {}
+    GrResourceIOProcessor(ClassID classID)
+    : INHERITED(classID) {}
 
     /**
      * Subclasses call these from their constructor to register sampler/image sources. The processor
