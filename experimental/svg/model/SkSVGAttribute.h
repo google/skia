@@ -39,6 +39,7 @@ enum class SkSVGAttribute {
     kStrokeOpacity,
     kStrokeLineCap,
     kStrokeLineJoin,
+    kStrokeMiterLimit,
     kStrokeWidth,
     kTransform,
     kViewBox,
@@ -65,6 +66,7 @@ struct SkSVGPresentationAttributes {
     SkTLazy<SkSVGPaint>      fStroke;
     SkTLazy<SkSVGLineCap>    fStrokeLineCap;
     SkTLazy<SkSVGLineJoin>   fStrokeLineJoin;
+    SkTLazy<SkSVGNumberType> fStrokeMiterLimit;
     SkTLazy<SkSVGNumberType> fStrokeOpacity;
     SkTLazy<SkSVGLength>     fStrokeWidth;
 

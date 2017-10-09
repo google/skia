@@ -302,6 +302,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "stroke"           , { SkSVGAttribute::kStroke           , SetPaintAttribute        }},
     { "stroke-linecap"   , { SkSVGAttribute::kStrokeLineCap    , SetLineCapAttribute      }},
     { "stroke-linejoin"  , { SkSVGAttribute::kStrokeLineJoin   , SetLineJoinAttribute     }},
+    { "stroke-miterlimit", { SkSVGAttribute::kStrokeMiterLimit , SetNumberAttribute       }},
     { "stroke-opacity"   , { SkSVGAttribute::kStrokeOpacity    , SetNumberAttribute       }},
     { "stroke-width"     , { SkSVGAttribute::kStrokeWidth      , SetLengthAttribute       }},
     { "style"            , { SkSVGAttribute::kUnknown          , SetStyleAttributes       }},

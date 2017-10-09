@@ -139,6 +139,11 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             fPresentationAttributes.fStrokeLineJoin.set(*lineJoin);
         }
         break;
+    case SkSVGAttribute::kStrokeMiterLimit:
+        if (const SkSVGNumberValue* miterLimit = v.as<SkSVGNumberValue>()) {
+            fPresentationAttributes.fStrokeMiterLimit.set(*miterLimit);
+        }
+        break;
     case SkSVGAttribute::kStrokeWidth:
         if (const SkSVGLengthValue* strokeWidth = v.as<SkSVGLengthValue>()) {
             this->setStrokeWidth(*strokeWidth);
