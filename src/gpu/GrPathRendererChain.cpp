@@ -50,15 +50,12 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
     // AA hairline path renderer is very specialized - no other renderer can do this job well
     fChain.push_back(sk_make_sp<GrAAHairLinePathRenderer>());
 
-    // Temporarily disable ccpr on Android while we collect data.
-#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     if (options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting) {
         if (auto ccpr = GrCoverageCountingPathRenderer::CreateIfSupported(*context->caps())) {
             context->contextPriv().addOnFlushCallbackObject(ccpr.get());
             fChain.push_back(std::move(ccpr));
         }
     }
-#endif
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
     }
