@@ -1172,6 +1172,7 @@ if (skia_enable_tools) {
       "experimental/svg/model/SkSVGContainer.cpp",
       "experimental/svg/model/SkSVGDOM.cpp",
       "experimental/svg/model/SkSVGEllipse.cpp",
+      "experimental/svg/model/SkSVGGradient.cpp",
       "experimental/svg/model/SkSVGLine.cpp",
       "experimental/svg/model/SkSVGLinearGradient.cpp",
       "experimental/svg/model/SkSVGNode.cpp",
