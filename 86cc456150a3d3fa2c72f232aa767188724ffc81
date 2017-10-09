@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d48c2f11_0f721f5b",
+        "filename": "src/gpu/GrProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-09T13:44:05Z",
+      "side": 1,
+      "message": "Do we need this anymore?",
+      "range": {
+        "startLine": 218,
+        "startChar": 19,
+        "endLine": 218,
+        "endChar": 40
+      },
+      "revId": "86cc456150a3d3fa2c72f232aa767188724ffc81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
