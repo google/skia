@@ -16,6 +16,24 @@
       "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "088713cd_70409394",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-09T16:28:03Z",
+      "side": 1,
+      "message": "I think we\u0027d need the GrContext. The BackendTex is very generic and currently doesn\u0027t have anything that can connect it back to a GrContext/internal gpu object.",
+      "parentUuid": "eda03fdd_3dc0f59f",
+      "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
