@@ -1,3 +1,10 @@
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #import "FileReaderWindow.h"
 #import "SkGradientShader.h"
 
@@ -9,7 +16,7 @@ static void init_effects() {
     SkPoint pts[] = {p, q};
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN };
     SkScalar pos[] = { 0, 1.0};
-    SkGradientShader::CreateLinear(pts, colors, pos, 2, 
+    SkGradientShader::CreateLinear(pts, colors, pos, 2,
                                    SkShader::kMirror_TileMode);
   }
 }
@@ -23,9 +30,9 @@ static void init_effects() {
     [fView addSkView:fReaderView];
     [fView setNeedsDisplay:YES];
     fReaderView->unref();
-    //TODO - Temporary fix. Inval doesn't Seem to be working. 
-    [NSTimer scheduledTimerWithTimeInterval:0.01 target:self 
-                                   selector:@selector(redraw) userInfo:nil 
+    //TODO - Temporary fix. Inval doesn't Seem to be working.
+    [NSTimer scheduledTimerWithTimeInterval:0.01 target:self
+                                   selector:@selector(redraw) userInfo:nil
                                     repeats:YES];
 }
 
@@ -33,3 +40,4 @@ static void init_effects() {
     [fView setNeedsDisplay:YES];
 }
 @end
+

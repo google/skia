@@ -117,7 +117,7 @@ static int SkColorTypeShiftPerPixel(SkColorType ct) {
     };
     static_assert(SK_ARRAY_COUNT(gShift) == (size_t)(kLastEnum_SkColorType + 1),
                   "size_mismatch_with_SkColorType_enum");
-    
+
     SkASSERT((size_t)ct < SK_ARRAY_COUNT(gShift));
     return gShift[ct];
 }
@@ -225,7 +225,7 @@ public:
     static SkImageInfo MakeUnknown() {
         return MakeUnknown(0, 0);
     }
-    
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     SkColorType colorType() const { return fColorType; }
@@ -257,7 +257,7 @@ public:
     SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const {
         return Make(fWidth, fHeight, fColorType, newAlphaType, fColorSpace);
     }
-    
+
     SkImageInfo makeColorType(SkColorType newColorType) const {
         return Make(fWidth, fHeight, newColorType, fAlphaType, fColorSpace);
     }

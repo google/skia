@@ -45,7 +45,7 @@ struct SkRSXform {
     bool rectStaysRect() const {
         return 0 == fSCos || 0 == fSSin;
     }
-    
+
     void setIdentity() {
         fSCos = 1;
         fSSin = fTx = fTy = 0;

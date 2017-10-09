@@ -55,7 +55,7 @@ public:
     void onPreDraw(SkCanvas* canvas) override {
         // Left to right
         SkPoint points[2] = {
-            SkPoint::Make(0,        kSize/2), 
+            SkPoint::Make(0,        kSize/2),
             SkPoint::Make(kSize-1,  kSize/2),
         };
 

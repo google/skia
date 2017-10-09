@@ -46,7 +46,7 @@ struct WindingVertex {
 int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                    WindingVertex** verts);
 
-int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds, 
+int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                     VertexAllocator*, bool antialias, const GrColor& color,
                     bool canTweakAlphaForCoverage, bool *isLinear);
 }

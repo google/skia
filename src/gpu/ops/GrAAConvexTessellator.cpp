@@ -584,7 +584,7 @@ void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar o
                         // For very shallow angles all the corner points could fuse
                         if (!duplicate_pt(miter, this->point(perp1Idx))) {
                             int miterIdx;
-                            miterIdx = this->addPt(miter, -outset, coverage, false, 
+                            miterIdx = this->addPt(miter, -outset, coverage, false,
                                                    kSharp_CurveState);
                             nextRing->addIdx(miterIdx, originalIdx);
                             // The two triangles for the corner

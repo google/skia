@@ -512,7 +512,7 @@ DEF_SIMPLE_GM(longpathdash, canvas, 612, 612) {
     p.setStrokeWidth(1);
     const SkScalar intervals[] = { 1, 1 };
     p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
-    
+
     canvas->translate(50, 50);
     canvas->drawPath(lines, p);
 }

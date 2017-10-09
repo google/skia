@@ -968,7 +968,7 @@ DEF_TEST(Matrix_Concat, r) {
 // Test that all variants of maprect are correct.
 DEF_TEST(Matrix_maprects, r) {
     const SkScalar scale = 1000;
-    
+
     SkMatrix mat;
     mat.setScale(2, 3);
     mat.postTranslate(1, 4);
@@ -980,7 +980,7 @@ DEF_TEST(Matrix_maprects, r) {
                                       rand.nextSScalar1() * scale,
                                       rand.nextSScalar1() * scale);
         SkRect dst[3];
-        
+
         mat.mapPoints((SkPoint*)&dst[0].fLeft, (SkPoint*)&src.fLeft, 2);
         dst[0].sort();
         mat.mapRect(&dst[1], src);

@@ -76,12 +76,12 @@ public:
 
         @param path The second operand.
         @param _operator The operator to apply to the existing and supplied paths.
-     */ 
+     */
     void add(const SkPath& path, SkPathOp _operator);
 
     /** Computes the sum of all paths and operands, and resets the builder to its
         initial state.
- 
+
         @param result The product of the operands.
         @return True if the operation succeeded.
       */

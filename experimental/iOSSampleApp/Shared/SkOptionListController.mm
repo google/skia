@@ -1,3 +1,10 @@
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #import "SkOptionListController.h"
 
 @implementation SkOptionListController
@@ -37,14 +44,14 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
+
     static NSString *CellIdentifier = @"Cell";
-    
+
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
     }
-    
+
     cell.textLabel.text = [fOptions objectAtIndex:indexPath.row];
     if (indexPath.row == fSelectedIndex) {
         cell.accessoryType = UITableViewCellAccessoryCheckmark;
@@ -52,7 +59,7 @@
     }
     else
         cell.accessoryType = UITableViewCellAccessoryNone;
-    
+
     return cell;
 }
 

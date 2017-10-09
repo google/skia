@@ -122,10 +122,10 @@ int SkIntersections::intersect(const SkDLine& a, const SkDLine& b) {
             computePoints(a, 1);
         }
     }
-/* Allow tracking that both sets of end points are near each other -- the lines are entirely 
+/* Allow tracking that both sets of end points are near each other -- the lines are entirely
    coincident -- even when the end points are not exactly the same.
    Mark this as a 'wild card' for the end points, so that either point is considered totally
-   coincident. Then, avoid folding the lines over each other, but allow either end to mate 
+   coincident. Then, avoid folding the lines over each other, but allow either end to mate
    to the next set of lines.
  */
     if (fAllowNear || !unparallel) {

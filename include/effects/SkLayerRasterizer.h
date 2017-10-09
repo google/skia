@@ -57,7 +57,7 @@ public:
           *  The caller is responsible for calling unref() on the returned object, if non NULL.
           */
         sk_sp<SkLayerRasterizer> snapshot() const;
-    
+
     private:
         SkDeque* fLayers;
     };

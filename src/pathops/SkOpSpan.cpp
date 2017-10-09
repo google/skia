@@ -327,7 +327,7 @@ void SkOpSpanBase::mergeMatches(SkOpSpanBase* opp) {
             }
             SkOpSpanBase* innerBase = inner->span();
             SkASSERT(innerBase->ptT() == inner);
-            // when the intersection is first detected, the span base is marked if there are 
+            // when the intersection is first detected, the span base is marked if there are
             // more than one point in the intersection.
             if (!zero_or_one(inner->fT)) {
                 innerBase->upCast()->release(test);

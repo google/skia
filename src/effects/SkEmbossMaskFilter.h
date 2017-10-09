@@ -24,7 +24,7 @@ public:
     };
 
     static sk_sp<SkMaskFilter> Make(SkScalar blurSigma, const Light& light);
-    
+
     // overrides from SkMaskFilter
     //  This method is not exported to java.
     SkMask::Format getFormat() const override;

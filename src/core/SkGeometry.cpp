@@ -1185,7 +1185,7 @@ int SkConic::computeQuadPOW2(SkScalar tol) const {
     return pow2;
 }
 
-// This was originally developed and tested for pathops: see SkOpTypes.h 
+// This was originally developed and tested for pathops: see SkOpTypes.h
 // returns true if (a <= b <= c) || (a >= b >= c)
 static bool between(SkScalar a, SkScalar b, SkScalar c) {
     return (a - b) * (c - b) <= 0;
@@ -1425,7 +1425,7 @@ int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotat
         if (!lastQ.equalsWithinTolerance(offCurve)) {
             dst[conicCount].set(lastQ, offCurve, finalP, cosThetaOver2);
             conicCount += 1;
-        } 
+        }
     }
 
     // now handle counter-clockwise and the initial unitStart rotation

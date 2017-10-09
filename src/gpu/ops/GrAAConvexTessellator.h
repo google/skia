@@ -143,7 +143,7 @@ private:
         void makeOriginalRing() {
             for (int i = 0; i < fPts.count(); ++i) {
                 fPts[i].fOrigEdgeId = fPts[i].fIndex;
-            }            
+            }
         }
 
         // init should be called after all the indices have been added (via addIdx)

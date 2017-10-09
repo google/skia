@@ -200,7 +200,7 @@ char* SkRegion::toString() {
     iter.reset(*this);
     while (!iter.done()) {
         const SkIRect& r = iter.rect();
-        count += snprintf(result+count, max - count, 
+        count += snprintf(result+count, max - count,
                 "(%d,%d,%d,%d)", r.fLeft, r.fTop, r.fRight, r.fBottom);
         iter.next();
     }

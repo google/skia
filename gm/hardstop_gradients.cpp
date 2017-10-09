@@ -58,7 +58,7 @@ const int RECT_HEIGHT = CELL_HEIGHT - (2 * PAD_HEIGHT);
 static void shade_rect(SkCanvas* canvas, sk_sp<SkShader> shader, int cellRow, int cellCol) {
     SkPaint paint;
     paint.setShader(shader);
-    
+
     SkRect rect = SkRect::MakeXYWH(SkIntToScalar(cellCol * CELL_WIDTH  + PAD_WIDTH),
                                    SkIntToScalar(cellRow * CELL_HEIGHT + PAD_HEIGHT),
                                    SkIntToScalar(RECT_WIDTH),
@@ -154,7 +154,7 @@ protected:
 
                 shade_rect(canvas, shader, cellRow, cellCol);
             }
-        } 
+        }
     }
 
 private:

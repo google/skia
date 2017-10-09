@@ -1542,7 +1542,7 @@ public:
         @param constraint  filter strictly within image or draw faster
     */
     void drawImageRect(const sk_sp<SkImage>& image, const SkIRect& isrc, const SkRect& dst,
-                       const SkPaint* paint, 
+                       const SkPaint* paint,
                        SrcRectConstraint constraint = kStrict_SrcRectConstraint) {
         this->drawImageRect(image.get(), isrc, dst, paint, constraint);
     }
@@ -1696,7 +1696,7 @@ public:
         @param constraint  sample strictly within isrc, or draw faster
     */
     void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& dst,
-                        const SkPaint* paint, 
+                        const SkPaint* paint,
                         SrcRectConstraint constraint = kStrict_SrcRectConstraint);
 
     /** Draw SkBitmap bitmap, scaled and translated to fill SkRect dst.

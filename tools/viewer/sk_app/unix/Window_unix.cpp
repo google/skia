@@ -37,8 +37,8 @@ Window* Window::CreateNativeWindow(void* platformData) {
     return window;
 }
 
-const long kEventMask = ExposureMask | StructureNotifyMask | 
-                        KeyPressMask | KeyReleaseMask | 
+const long kEventMask = ExposureMask | StructureNotifyMask |
+                        KeyPressMask | KeyReleaseMask |
                         PointerMotionMask | ButtonPressMask | ButtonReleaseMask;
 
 bool Window_unix::initWindow(Display* display) {
@@ -308,10 +308,10 @@ bool Window_unix::handleEvent(const XEvent& event) {
             KeySym keysym = XkbKeycodeToKeysym(fDisplay, event.xkey.keycode,
                                                0, shiftLevel);
             Window::Key key = get_key(keysym);
-            (void) this->onKey(key, Window::kUp_InputState, 
+            (void) this->onKey(key, Window::kUp_InputState,
                                get_modifiers(event));
         } break;
-        
+
 
         default:
             // these events should be handled in the main event loop
@@ -325,7 +325,7 @@ bool Window_unix::handleEvent(const XEvent& event) {
 void Window_unix::setTitle(const char* title) {
     XTextProperty textproperty;
     XStringListToTextProperty(const_cast<char**>(&title), 1, &textproperty);
-    XSetWMName(fDisplay, fWindow, &textproperty);    
+    XSetWMName(fDisplay, fWindow, &textproperty);
 }
 
 void Window_unix::show() {
@@ -380,7 +380,7 @@ void Window_unix::onInval() {
     event.xexpose.width = this->width();
     event.xexpose.height = this->height();
     event.xexpose.count = 0;
-    
+
     XSendEvent(fDisplay, fWindow, False, 0, &event);
 }
 

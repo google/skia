@@ -23,13 +23,13 @@ class GrOp;
  * to json.
  *
  * Capturing this information is expensive and consumes a lot of memory, therefore it is important
- * to enable auditing only when required and disable it promptly. The AutoEnable class helps to 
+ * to enable auditing only when required and disable it promptly. The AutoEnable class helps to
  * ensure that the audit trail is disabled in a timely fashion. Once the information has been dealt
  * with, be sure to call reset(), or the log will simply keep growing.
  */
 class GrAuditTrail {
 public:
-    GrAuditTrail() 
+    GrAuditTrail()
     : fClientID(kGrAuditTrailInvalidID)
     , fEnabled(false) {}
 

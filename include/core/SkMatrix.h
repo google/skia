@@ -569,7 +569,7 @@ public:
      *  scale and translate elements. If it contains other elements, the results are undefined.
      */
     void mapRectScaleTranslate(SkRect* dst, const SkRect& src) const;
-    
+
     /** Return the mean radius of a circle after it has been mapped by
         this matrix. NOTE: in perspective this value assumes the circle
         has its center at the origin.
@@ -721,15 +721,15 @@ public:
         fMat[kMScaleX] = sx;
         fMat[kMSkewX]  = 0;
         fMat[kMTransX] = tx;
-        
+
         fMat[kMSkewY]  = 0;
         fMat[kMScaleY] = sy;
         fMat[kMTransY] = ty;
-        
+
         fMat[kMPersp0] = 0;
         fMat[kMPersp1] = 0;
         fMat[kMPersp2] = 1;
-        
+
         unsigned mask = 0;
         if (sx != 1 || sy != 1) {
             mask |= kScale_Mask;
@@ -739,7 +739,7 @@ public:
         }
         this->setTypeMask(mask | kRectStaysRect_Mask);
     }
-    
+
     /**
      *  Are all elements of the matrix finite?
      */

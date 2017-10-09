@@ -45,7 +45,7 @@ def execute_program(args):
 
     @returns a tuple of the process output (returncode, output)
     """
-    proc = subprocess.Popen(args, stdout=subprocess.PIPE, 
+    proc = subprocess.Popen(args, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT)
     output, _ = proc.communicate()
     errcode = proc.returncode
@@ -71,11 +71,12 @@ class GpuVeto(object):
         for skp in enumerate(dir_or_file):
             self.process_skp(skp[1])
 
-        sys.stdout.write('TP %d FP %d TN %d FN %d IND %d\n' % (self.truePositives,
-                                                               self.falsePositives,
-                                                               self.trueNegatives,
-                                                               self.falseNegatives,
-                                                               self.indeterminate))
+        sys.stdout.write('TP %d FP %d TN %d FN %d IND %d\n' % (
+            self.truePositives,
+            self.falsePositives,
+            self.trueNegatives,
+            self.falseNegatives,
+            self.indeterminate))
 
 
     def process_skp(self, skp_file):
@@ -95,7 +96,7 @@ class GpuVeto(object):
             suitable = True
 
         # run raster config
-        args = [self.bench_pictures, '-r', skp_file, 
+        args = [self.bench_pictures, '-r', skp_file,
                                      '--repeat', '20',
                                      '--timers', 'w',
                                      '--config', '8888']
@@ -110,7 +111,7 @@ class GpuVeto(object):
         rasterTime = float(matches[0])
 
         # run gpu config
-        args2 = [self.bench_pictures, '-r', skp_file, 
+        args2 = [self.bench_pictures, '-r', skp_file,
                                       '--repeat', '20',
                                       '--timers', 'w',
                                       '--config', 'gpu']
@@ -132,7 +133,7 @@ class GpuVeto(object):
         tol_range = tolerance * gpuTime
 
 
-        if rasterTime > gpuTime - tol_range and rasterTime < gpuTime + tol_range:
+        if gpuTime - tol_range < rasterTime < gpuTime + tol_range:
             result = "NONE"
             self.indeterminate += 1
         elif suitable:
@@ -149,10 +150,10 @@ class GpuVeto(object):
             else:
                 self.trueNegatives += 1
                 result = "TN"
-        
 
-        sys.stdout.write('%s: gpuveto: %d raster %.2f gpu: %.2f  Result: %s\n' % (
-            skp_file, suitable, rasterTime, gpuTime, result))
+
+        sys.stdout.write('%s: gpuveto: %d raster %.2f gpu: %.2f  Result: %s\n'
+            % (skp_file, suitable, rasterTime, gpuTime, result))
 
 def main(main_argv):
     parser = argparse.ArgumentParser()

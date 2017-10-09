@@ -223,7 +223,7 @@ public:
     void setInflator(SkInflator* inf) { fInflator = inf; }
 
 //    sk_sp<SkImage> inflateImage();
-    
+
 protected:
     /**
      *  Allows subclass to check if we are using factories for expansion

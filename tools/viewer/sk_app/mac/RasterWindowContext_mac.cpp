@@ -108,7 +108,7 @@ void RasterWindowContext_mac::onSwapBuffers() {
     if (fWindow && fGLContext) {
         // We made/have an off-screen surface. Get the contents as an SkImage:
         sk_sp<SkImage> snapshot = fBackbufferSurface->makeImageSnapshot();
-        
+
         sk_sp<SkSurface> gpuSurface = INHERITED::getBackbufferSurface();
         SkCanvas* gpuCanvas = gpuSurface->getCanvas();
         gpuCanvas->drawImage(snapshot, 0, 0);

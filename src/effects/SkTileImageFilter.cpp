@@ -89,7 +89,7 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
 
-        input->draw(canvas, 
+        input->draw(canvas,
                     SkIntToScalar(inputOffset.x()), SkIntToScalar(inputOffset.y()),
                     &paint);
 

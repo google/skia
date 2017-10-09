@@ -483,7 +483,7 @@ GrVkSubHeap::GrVkSubHeap(const GrVkGpu* gpu, uint32_t memoryTypeIndex, uint32_t 
                                                                  &fAlloc));
     if (VK_SUCCESS != err) {
         this->reset();
-    } 
+    }
 #ifdef SK_DEBUG
     else {
         gHeapUsage[heapIndex] += size;

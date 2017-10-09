@@ -59,7 +59,7 @@ public:
      */
     class Dumper : public SkRefCnt {
     public:
-        
+
 
         virtual void dump(SkDumpCanvas*, SkDumpCanvas::Verb, const char str[],
                           const SkPaint*) = 0;

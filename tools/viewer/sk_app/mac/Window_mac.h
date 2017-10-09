@@ -53,9 +53,9 @@ private:
 
     SDL_Window*  fWindow;
     Uint32       fWindowID;
-    
+
     int          fMSAASampleCount;
-    
+
     typedef Window INHERITED;
 };
 

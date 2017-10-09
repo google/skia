@@ -62,7 +62,7 @@ public:
     static void MakeTextMatrix(SkMatrix* matrix, const SkPaint& paint) {
         MakeTextMatrix(matrix, paint.getTextSize(), paint.getTextScaleX(), paint.getTextSkewX());
     }
-    
+
     static bool ShouldDither(const SkPaint&, SkColorType);
 };
 

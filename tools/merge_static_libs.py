@@ -15,7 +15,7 @@ def _Usage():
 
 def MergeLibs(in_libs, out_lib):
   """ Merges multiple static libraries into one.
-  
+
   in_libs: list of paths to static libraries to be merged
   out_lib: path to the static library which will be created from in_libs
   """
@@ -38,12 +38,12 @@ def MergeLibs(in_libs, out_lib):
       proc.wait()
       if proc.poll() == 0:
         # The static library is non-thin, and we extracted objects
-        for object in current_objects:
-          objects.append(os.path.abspath(object))
+        for obj in current_objects:
+          objects.append(os.path.abspath(obj))
       elif 'thin archive' in proc.communicate()[0]:
         # The static library is thin, so it contains the paths to its objects
-        for object in current_objects:
-          objects.append(object)
+        for obj in current_objects:
+          objects.append(obj)
       else:
         raise Exception('Failed to extract objects from %s.' % in_lib)
     os.chdir(curdir)

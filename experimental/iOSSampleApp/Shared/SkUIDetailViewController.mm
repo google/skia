@@ -1,3 +1,10 @@
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #import "SkUIDetailViewController.h"
 #include "SampleApp.h"
 #include "SkCGUtils.h"
@@ -11,43 +18,43 @@
     [super viewDidLoad];
 
     fSkUIView = (SkUIView*)self.view;
-    
+
     fWind = (SampleWindow*)fSkUIView.fWind;
     fSkUIView.fTitleItem = self.navigationItem;
-    
+
     [self createButtons];
-    
+
     UISwipeGestureRecognizer* swipe = [[UISwipeGestureRecognizer alloc]
-                                       initWithTarget:self 
+                                       initWithTarget:self
                                        action:@selector(handleSwipe:)];
     [self.navigationController.navigationBar addGestureRecognizer:swipe];
     [swipe release];
     swipe = [[UISwipeGestureRecognizer alloc]
-             initWithTarget:self 
+             initWithTarget:self
              action:@selector(handleSwipe:)];
     swipe.direction = UISwipeGestureRecognizerDirectionLeft;
     [self.navigationController.navigationBar addGestureRecognizer:swipe];
     [swipe release];
-    
-    fOptionsController = [[SkOptionsTableViewController alloc] 
+
+    fOptionsController = [[SkOptionsTableViewController alloc]
                           initWithStyle:UITableViewStyleGrouped];
     fSkUIView.fOptionsDelegate = fOptionsController;
     [fOptionsController registerMenus:fWind->getMenus()];
-    
+
 }
 
 - (void)createButtons {
     UIToolbar* toolbar = [[UIToolbar alloc]
                           initWithFrame:CGRectMake(0, 0, 125, 45)];
     [toolbar setBarStyle: UIBarStyleBlackOpaque];
-    
+
     UIBarButtonItem* flexibleSpace = [[UIBarButtonItem alloc]
                                        initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
                                        target:nil
                                        action:nil];
-    
+
     fOptionsButton = [[UIBarButtonItem alloc]
-                    initWithTitle:@"Options" 
+                    initWithTitle:@"Options"
                     style:UIBarButtonItemStylePlain
                     target:self
                     action:@selector(presentOptions)];
@@ -56,7 +63,7 @@
                                     target:nil
                                     action:nil];
     fixedSpace.width = 10;
-    
+
     fPrintButton = [[UIBarButtonItem alloc]
                     initWithBarButtonSystemItem:UIBarButtonSystemItemAction
                     target:self
@@ -65,7 +72,7 @@
 
     [toolbar setItems:[NSArray arrayWithObjects:flexibleSpace, fOptionsButton, fixedSpace, fPrintButton, nil]
              animated:NO];
-    
+
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]
                                               initWithCustomView:toolbar];
     [flexibleSpace release];
@@ -140,20 +147,20 @@
 - (void)presentOptions {
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         if (nil == fPopOverController) {
-            UINavigationController* navigation = [[UINavigationController alloc] 
+            UINavigationController* navigation = [[UINavigationController alloc]
                                                   initWithRootViewController:fOptionsController];
             navigation.navigationBar.topItem.title = @"Options";
             fPopOverController = [[UIPopoverController alloc] initWithContentViewController:navigation];
             [navigation release];
         }
-        
+
         if (fPopOverController.isPopoverVisible)
             [fPopOverController dismissPopoverAnimated:YES];
         else
-            [fPopOverController presentPopoverFromBarButtonItem:fOptionsButton 
-                                       permittedArrowDirections:UIPopoverArrowDirectionAny 
+            [fPopOverController presentPopoverFromBarButtonItem:fOptionsButton
+                                       permittedArrowDirections:UIPopoverArrowDirectionAny
                                                        animated:YES];
-        
+
     } else {
         UIBarButtonItem* backButton = [[UIBarButtonItem alloc] initWithTitle:@"Back"
                                                                        style:UIBarButtonItemStyleBordered
@@ -165,7 +172,7 @@
         self.navigationController.navigationBar.topItem.title = @"Options";
     }
 }
- 
+
 //Popover Management
 - (void)showRootPopoverButtonItem:(UIBarButtonItem *)barButtonItem {
     [self.navigationItem setLeftBarButtonItem:barButtonItem animated:NO];
@@ -176,3 +183,4 @@
 }
 
 @end
+

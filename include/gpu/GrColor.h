@@ -155,7 +155,7 @@ static inline GrColor GrPremulColor(GrColor color) {
 static inline GrColor GrUnpremulColor(GrColor color) {
     GrColorIsPMAssert(color);
     unsigned r = GrColorUnpackR(color);
-    unsigned g = GrColorUnpackG(color); 
+    unsigned g = GrColorUnpackG(color);
     unsigned b = GrColorUnpackB(color);
     unsigned a = GrColorUnpackA(color);
     SkPMColor colorPM = SkPackARGB32(a, r, g, b);

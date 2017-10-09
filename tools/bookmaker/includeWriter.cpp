@@ -16,7 +16,7 @@ void IncludeWriter::descriptionOut(const Definition* def) {
             case MarkType::kDefinedBy:
                 commentStart = prop->fTerminator;
                 break;
-            case MarkType::kDeprecated: 
+            case MarkType::kDeprecated:
             case MarkType::kPrivate:
                 commentLen = (int) (prop->fStart - commentStart);
                 if (commentLen > 0) {
@@ -308,7 +308,7 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child
                 if (' ' == lastEnd[0]) {
                     this->writeSpace();
                 }
-                this->writeBlock((int) (token->fContentEnd - lastEnd), lastEnd); 
+                this->writeBlock((int) (token->fContentEnd - lastEnd), lastEnd);
                 continue;
             }
         }
@@ -477,7 +477,7 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
                     token.fContentStart, token.fLineCount);
             const char* end = valueEnd.anyOf(",}");
             if (!end) {  // write expression continuation
-                valueLen += (int) (token.fContentEnd - lastEnd); 
+                valueLen += (int) (token.fContentEnd - lastEnd);
                 continue;
             }
         }
@@ -545,7 +545,7 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
         int saveIndent = fIndent;
         for (auto methodPart : method->fChildren) {
             const char* partStart = methodPart->fContentStart;
-            const char* partEnd = methodPart->fContentEnd; 
+            const char* partEnd = methodPart->fContentEnd;
             if (MarkType::kParam == methodPart->fMarkType) {
                 this->writeString("@param");
                 this->writeSpace();
@@ -628,7 +628,7 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
             if (MarkType::kFormula == child->fMarkType) {
                 this->writeSpace();
                 this->writeBlock((int) (child->fContentEnd - child->fContentStart),
-                        child->fContentStart); 
+                        child->fContentStart);
             }
             commentStart = child->fTerminator;
         }
@@ -660,7 +660,7 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
         this->writeString("=");
         this->writeSpace();
         this->writeBlock((int) (valueEnd->fStart - valueStart->fContentStart),
-                valueStart->fContentStart); 
+                valueStart->fContentStart);
     }
     this->writeString(";");
     if (isShort) {
@@ -849,7 +849,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 SkASSERT(')' == child.fContentStart[childLen]);
                 ++childLen;
                 do {
-                    TextParser params(clonedMethod->fFileName, clonedMethod->fStart, 
+                    TextParser params(clonedMethod->fFileName, clonedMethod->fStart,
                         clonedMethod->fContentStart, clonedMethod->fLineCount);
                     params.skipToEndBracket('(');
                     if (params.startsWith(child.fContentStart, childLen)) {
@@ -925,7 +925,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             }
             fLastComment = &child;
             continue;
-        } 
+        }
         if (MarkType::kMethod == child.fMarkType) {
             if (this->internalName(child)) {
                 continue;
@@ -958,7 +958,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 fAttrDeprecated = nullptr;
             }
             continue;
-        } 
+        }
         if (Definition::Type::kKeyWord == child.fType) {
             const Definition* structDef = nullptr;
             switch (child.fKeyWord) {
@@ -1104,9 +1104,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 }
             }
             continue;
-        } 
+        }
         if (Definition::Type::kBracket == child.fType) {
-            if (KeyWord::kEnum == child.fParent->fKeyWord || 
+            if (KeyWord::kEnum == child.fParent->fKeyWord ||
                     (KeyWord::kClass == child.fParent->fKeyWord && child.fParent->fParent &&
                     KeyWord::kEnum == child.fParent->fParent->fKeyWord)) {
                 SkASSERT(Bracket::kBrace == child.fBracket);
@@ -1265,7 +1265,7 @@ string IncludeWriter::resolveMethod(const char* start, const char* end, bool fir
 
 string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
         RefType* refType) {
-        // look up Xxx_Xxx 
+        // look up Xxx_Xxx
     string undername(start, end - start);
     for (const auto& external : fBmhParser->fExternals) {
         if (external.fName == undername) {
@@ -1406,7 +1406,7 @@ int IncludeWriter::lookupReference(const PunctuationState punctuation, const Wor
         if (Word::kFirst != word && '_' != last) {
             temp = ConvertRef(resolved, false);
         }
-    }                     
+    }
     if (temp.length()) {
         if (start > lastWrite) {
             SkASSERT(data[start - 1] >= ' ');
@@ -1503,7 +1503,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
                         SkASSERT(0);
                 }
                 punctuation = PunctuationState::kPeriod == punctuation ||
-                        (PunctuationState::kStart == punctuation && ' ' >= last) ? 
+                        (PunctuationState::kStart == punctuation && ' ' >= last) ?
                         PunctuationState::kStart : PunctuationState::kSpace;
                 word = Word::kStart;
                 embeddedIndirection = false;
@@ -1639,7 +1639,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
             case 'k': case 'l': case 'm': case 'n': case 'o':
             case 'p': case 'q': case 'r': case 's': case 't':
             case 'u': case 'v': case 'w': case 'x': case 'y':
-            case 'z': 
+            case 'z':
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8': case '9':
             case '-':

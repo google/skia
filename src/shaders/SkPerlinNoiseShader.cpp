@@ -489,7 +489,7 @@ SkScalar SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::noise2D(
     if (sx < 0 || sy < 0 || sx > 1 || sy > 1) {
         return 0;  // Check for pathological inputs.
     }
-    
+
     // This is taken 1:1 from SVG spec: http://www.w3.org/TR/SVG11/filters.html#feTurbulenceElement
     SkPoint fractionValue = SkPoint::Make(noiseX.noisePositionFractionValue,
                                           noiseY.noisePositionFractionValue); // Offset (0,0)

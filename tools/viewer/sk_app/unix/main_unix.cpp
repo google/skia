@@ -74,9 +74,9 @@ int main(int argc, char**argv) {
                     done = true;
                 }
                 break;
-            } 
+            }
         }
-        
+
         pendingWindows.foreach(finishWindow);
         if (pendingWindows.count() > 0) {
             app->onIdle();

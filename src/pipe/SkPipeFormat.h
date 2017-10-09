@@ -17,7 +17,7 @@ enum class SkPipeVerb : uint8_t {
     kSaveLayer,
     kRestore,           // extra == 0
     kConcat,            // extra == SkMatrix::MaskType
-    
+
     kClipRect,          // extra == (SkRegion::Op << 1) | isAntiAlias:1
     kClipRRect,         // extra == (SkRegion::Op << 1) | isAntiAlias:1
     kClipPath,          // extra == (SkRegion::Op << 1) | isAntiAlias:1
@@ -40,14 +40,14 @@ enum class SkPipeVerb : uint8_t {
     kDrawPath,          // extra == 0
     kDrawOval,          // extra == 0
     kDrawRRect,         // extra == 0
-    
+
     kDrawImage,         // extra == has_paint:1
     kDrawImageRect,     // extra == constraint | has_src_rect | has_paint
     kDrawImageNine,     // extra == has_paint:1
     kDrawImageLattice,  // extra == x_count:8 | y_count:8 | has_paint:1
-    
+
     kDrawVertices,
-    
+
     kDrawPicture,       // extra == picture_index
     kDrawAnnotation,    // extra == (key_len_plus_1:23 << 1) else next 32 | has_data:1
 

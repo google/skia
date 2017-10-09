@@ -18,7 +18,7 @@ public:
     GrContext* getContext() { return fSurfaceContext->fContext; }
 
 private:
-    explicit GrSurfaceContextPriv(GrSurfaceContext* surfaceContext) 
+    explicit GrSurfaceContextPriv(GrSurfaceContext* surfaceContext)
         : fSurfaceContext(surfaceContext) {
     }
 

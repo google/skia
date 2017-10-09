@@ -98,7 +98,7 @@ protected:
         const SkImageFilter::CropRect cropRect(bmpRect.makeInset(10.f, 10.f));
         const SkImageFilter::CropRect cropRectLarge(bmpRect);
 
-        sk_sp<SkImageFilter> input = fIsExpanded 
+        sk_sp<SkImageFilter> input = fIsExpanded
                                         ? SkOffsetImageFilter::Make(0, 0, nullptr, &cropRect)
                                         : nullptr;
 

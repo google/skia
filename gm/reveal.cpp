@@ -28,7 +28,7 @@ constexpr int kClipOffset = 32;
 class Object {
 public:
     virtual ~Object() {}
-    // When it returns true, this call will have placed a device-space _circle, rect or 
+    // When it returns true, this call will have placed a device-space _circle, rect or
     // simple circular_ RRect in "rr"
     virtual bool asDevSpaceRRect(const SkMatrix& ctm, SkRRect* rr) const = 0;
     virtual SkPath asPath(SkScalar inset) const = 0;
@@ -173,7 +173,7 @@ public:
         return true;
     }
 
-    SkPath asPath(SkScalar inset) const override { 
+    SkPath asPath(SkScalar inset) const override {
         SkRRect tmp = fRRect;
         tmp.inset(inset, inset);
 
@@ -221,7 +221,7 @@ public:
         return true;
     }
 
-    SkPath asPath(SkScalar inset) const override { 
+    SkPath asPath(SkScalar inset) const override {
         SkRect tmp = fRect;
         tmp.inset(inset, inset);
 
@@ -382,7 +382,7 @@ protected:
                 std::unique_ptr<Object> clipObj((*clipMakes[x])(clipRect));
                 std::unique_ptr<Object> drawObj((*drawMakes[y])(cell));
 
-                // The goal is to replace this clipped draw (which clips the 
+                // The goal is to replace this clipped draw (which clips the
                 // shadow) with a draw using the geometric clip
                 if (kBlurMask_Mode == fMode) {
                     SkPath clippedPath;
@@ -488,8 +488,8 @@ protected:
             case 'G':
                 fCoverageGeom = (CoverageGeom) ((fCoverageGeom+1) % kCoverageGeomCount);
                 return true;
-        }        
-    
+        }
+
         return false;
     }
 

@@ -184,7 +184,7 @@ class SkRawStream {
 public:
     virtual ~SkRawStream() {}
 
-   /* 
+   /*
     * Gets the length of the stream. Depending on the type of stream, this may require reading to
     * the end of the stream.
     */

@@ -38,19 +38,19 @@ public:
 #endif
         fBackend = SkOSWindow::kNone_BackEndType;
     }
-    
+
     virtual ~SkiOSDeviceManager() {
 #if SK_SUPPORT_GPU
         SkSafeUnref(fCurContext);
         SkSafeUnref(fCurIntf);
 #endif
     }
-    
+
     void setUpBackend(SampleWindow* win, int msaaSampleCount, bool deepColor) override {
         SkASSERT(SkOSWindow::kNone_BackEndType == fBackend);
-        
+
         fBackend = SkOSWindow::kNone_BackEndType;
-        
+
 #if SK_SUPPORT_GPU
         switch (win->getDeviceType()) {
             case SampleWindow::kRaster_DeviceType:
@@ -73,7 +73,7 @@ public:
         fDeepColor = deepColor;
         // Assume that we have at least 24-bit output, for backends that don't supply this data
         fActualColorBits = SkTMax(info.fColorBits, 24);
-        
+
         SkASSERT(NULL == fCurIntf);
         switch (win->getDeviceType()) {
             case SampleWindow::kRaster_DeviceType:
@@ -86,12 +86,12 @@ public:
                 SkASSERT(false);
                 break;
         }
-        
+
         SkASSERT(NULL == fCurContext);
         if (SkOSWindow::kNone_BackEndType != fBackend) {
             fCurContext = GrContext::MakeGL(fCurIntf).release();
         }
-        
+
         if ((NULL == fCurContext || NULL == fCurIntf) &&
             SkOSWindow::kNone_BackEndType != fBackend) {
             // We need some context and interface to see results if we're using a GL backend
@@ -104,15 +104,15 @@ public:
         // call windowSizeChanged to create the render target
         this->windowSizeChanged(win);
     }
-    
+
     void tearDownBackend(SampleWindow *win) override {
 #if SK_SUPPORT_GPU
         SkSafeUnref(fCurContext);
         fCurContext = NULL;
-        
+
         SkSafeUnref(fCurIntf);
         fCurIntf = NULL;
-        
+
         fGpuSurface = nullptr;
 #endif
         win->release();
@@ -197,9 +197,9 @@ private:
     bool                    fDeepColor;
     int                     fActualColorBits;
 #endif
-    
+
     SkOSWindow::SkBackEndTypes fBackend;
-    
+
     typedef SampleWindow::DeviceManager INHERITED;
 };
 
@@ -214,7 +214,7 @@ private:
 
 struct FPSState {
     static const int FRAME_COUNT = 60;
-    
+
     CFTimeInterval fNow0, fNow1;
     CFTimeInterval fTime0, fTime1, fTotalTime;
     int fFrameCounter;
@@ -223,25 +223,25 @@ struct FPSState {
         fTime0 = fTime1 = fTotalTime = 0;
         fFrameCounter = 0;
     }
-    
+
     void startDraw() {
         fNow0 = CACurrentMediaTime();
     }
-    
+
     void endDraw() {
         fNow1 = CACurrentMediaTime();
     }
-    
+
     void flush(SkOSWindow* hwnd) {
         CFTimeInterval now2 = CACurrentMediaTime();
-        
+
         fTime0 += fNow1 - fNow0;
         fTime1 += now2 - fNow1;
-        
+
         if (++fFrameCounter == FRAME_COUNT) {
             CFTimeInterval totalNow = CACurrentMediaTime();
             fTotalTime = totalNow - fTotalTime;
-            
+
             //SkMSec ms0 = (int)(1000 * fTime0 / FRAME_COUNT);
             //SkMSec msTotal = (int)(1000 * fTotalTime / FRAME_COUNT);
             //str.printf(" ms: %d [%d], fps: %3.1f", msTotal, ms0,
@@ -267,32 +267,32 @@ static FPSState gFPS;
     if (self = [super initWithDefaults]) {
         fRedrawRequestPending = false;
         fFPSState = new FPSState;
-        
+
 #ifdef USE_GL_1
         fGL.fContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
 #else
         fGL.fContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 #endif
-        
+
         if (!fGL.fContext || ![EAGLContext setCurrentContext:fGL.fContext])
         {
             [self release];
             return nil;
         }
-        
+
         // Create default framebuffer object. The backing will be allocated for the current layer in -resizeFromLayer
         glGenFramebuffers(1, &fGL.fFramebuffer);
         glBindFramebuffer(GL_FRAMEBUFFER, fGL.fFramebuffer);
-        
+
         glGenRenderbuffers(1, &fGL.fRenderbuffer);
         glGenRenderbuffers(1, &fGL.fStencilbuffer);
-        
+
         glBindRenderbuffer(GL_RENDERBUFFER, fGL.fRenderbuffer);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, fGL.fRenderbuffer);
-        
+
         glBindRenderbuffer(GL_RENDERBUFFER, fGL.fStencilbuffer);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, fGL.fStencilbuffer);
-        
+
         self.fGLLayer = [CAEAGLLayer layer];
         fGLLayer.bounds = self.bounds;
         fGLLayer.anchorPoint = CGPointMake(0, 0);
@@ -304,12 +304,12 @@ static FPSState gFPS;
                                        SKGL_CONFIG,
                                        kEAGLDrawablePropertyColorFormat,
                                        nil];
-        
+
         self.fRasterLayer = [CALayer layer];
         fRasterLayer.anchorPoint = CGPointMake(0, 0);
         fRasterLayer.opaque = TRUE;
         [self.layer addSublayer:fRasterLayer];
-        
+
         NSMutableDictionary *newActions = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNull null], @"onOrderIn",
                                            [NSNull null], @"onOrderOut",
                                            [NSNull null], @"sublayers",
@@ -319,7 +319,7 @@ static FPSState gFPS;
         fGLLayer.actions = newActions;
         fRasterLayer.actions = newActions;
         [newActions release];
-        
+
         // rebuild argc and argv from process info
         NSArray* arguments = [[NSProcessInfo processInfo] arguments];
         int argc = [arguments count];
@@ -330,12 +330,12 @@ static FPSState gFPS;
             argv[i] = new char[strlen+1];
             [arg getCString:argv[i] maxLength:strlen+1 encoding:NSUTF8StringEncoding];
         }
-        
+
         fDevManager = new SkiOSDeviceManager(fGL.fFramebuffer);
         fWind = new SampleWindow(self, argc, argv, fDevManager);
 
         fWind->resize(self.frame.size.width, self.frame.size.height);
-        
+
         for (int i = 0; i < argc; ++i) {
             delete [] argv[i];
         }
@@ -355,21 +355,21 @@ static FPSState gFPS;
 
 - (void)layoutSubviews {
     int W, H;
-    
+
     // Allocate color buffer backing based on the current layer size
     glBindRenderbuffer(GL_RENDERBUFFER, fGL.fRenderbuffer);
     [fGL.fContext renderbufferStorage:GL_RENDERBUFFER fromDrawable:fGLLayer];
-    
+
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &fGL.fWidth);
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &fGL.fHeight);
-    
+
     glBindRenderbuffer(GL_RENDERBUFFER, fGL.fStencilbuffer);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, fGL.fWidth, fGL.fHeight);
-    
+
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
     }
-    
+
     if (fDevManager->isUsingGL()) {
         W = fGL.fWidth;
         H = fGL.fHeight;
@@ -382,7 +382,7 @@ static FPSState gFPS;
         H = (int)CGRectGetHeight(rect);
         fRasterLayer.bounds = rect;
     }
-    
+
     printf("---- layoutSubviews %d %d\n", W, H);
     fWind->resize(W, H);
     fWind->inval(NULL);
@@ -405,11 +405,11 @@ static FPSState gFPS;
     // This application only creates a single context which is already set current at this point.
     // This call is redundant, but needed if dealing with multiple contexts.
     [EAGLContext setCurrentContext:fGL.fContext];
-    
+
     // This application only creates a single default framebuffer which is already bound at this point.
     // This call is redundant, but needed if dealing with multiple framebuffers.
     glBindFramebuffer(GL_FRAMEBUFFER, fGL.fFramebuffer);
-    
+
     GLint scissorEnable;
     glGetIntegerv(GL_SCISSOR_TEST, &scissorEnable);
     glDisable(GL_SCISSOR_TEST);
@@ -419,8 +419,8 @@ static FPSState gFPS;
         glEnable(GL_SCISSOR_TEST);
     }
     glViewport(0, 0, fGL.fWidth, fGL.fHeight);
-    
-   
+
+
     sk_sp<SkSurface> surface(fWind->makeSurface());
     SkCanvas* canvas = surface->getCanvas();
 
@@ -449,7 +449,7 @@ static FPSState gFPS;
 - (void)forceRedraw {
     if (fDevManager->isUsingGL())
         [self drawInGL];
-    else 
+    else
         [self drawInRaster];
 }
 
@@ -459,9 +459,9 @@ static FPSState gFPS;
     NSString* text = [NSString stringWithUTF8String:title];
     if ([text length] > 0)
         self.fTitle = text;
-    
+
     if (fTitleItem && fTitle) {
-        fTitleItem.title = [NSString stringWithFormat:@"%@%@", fTitle, 
+        fTitleItem.title = [NSString stringWithFormat:@"%@%@", fTitle,
                             [NSString stringWithUTF8String:fFPSState->str.c_str()]];
     }
 }

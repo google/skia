@@ -3304,7 +3304,7 @@ static inline bool can_blit_framebuffer_for_copy_surface(
         if (dstRT && dstRT->numColorSamples() > 0) {
             return false;
         }
-    }    
+    }
     if (GrGLCaps::kNoFormatConversion_BlitFramebufferFlag & blitFramebufferFlags) {
         if (dst->config() != src->config()) {
             return false;

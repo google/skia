@@ -101,7 +101,7 @@ bool Window_win::init(HINSTANCE hInstance) {
 
         // Set the position of the window to the top left corner.
         posX = posY = 0;
-    } 
+    }
     */
  //   gIsFullscreen = fullscreen;
 
@@ -235,19 +235,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case WM_UNICHAR:
-            eventHandled = window->onChar((SkUnichar)wParam, 
+            eventHandled = window->onChar((SkUnichar)wParam,
                                           get_modifiers(message, wParam, lParam));
             break;
 
         case WM_CHAR: {
             const uint16_t* c = reinterpret_cast<uint16_t*>(&wParam);
-            eventHandled = window->onChar(SkUTF16_NextUnichar(&c), 
+            eventHandled = window->onChar(SkUTF16_NextUnichar(&c),
                                           get_modifiers(message, wParam, lParam));
         } break;
 
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
-            eventHandled = window->onKey(get_key(wParam), Window::kDown_InputState, 
+            eventHandled = window->onKey(get_key(wParam), Window::kDown_InputState,
                                          get_modifiers(message, wParam, lParam));
             break;
 
@@ -273,7 +273,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             Window::InputState istate = ((wParam & MK_LBUTTON) != 0) ? Window::kDown_InputState
                                                                      : Window::kUp_InputState;
 
-            eventHandled = window->onMouse(xPos, yPos, istate, 
+            eventHandled = window->onMouse(xPos, yPos, istate,
                                             get_modifiers(message, wParam, lParam));
         } break;
 
