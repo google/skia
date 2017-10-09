@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a08cd5cf_c30ae177",
+        "filename": "include/pathops/SkPathOps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-10-09T15:07:57Z",
+      "side": 1,
+      "message": "is this needed in addition to removing the check, or is removing the check enough? This edit suggests to me that it is important for this enum to fit in a byte somewhere",
+      "range": {
+        "startLine": 22,
+        "startChar": 16,
+        "endLine": 22,
+        "endChar": 24
+      },
+      "revId": "4e5aab0a905a883656e7057e72de92c0fb956f65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
