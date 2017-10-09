@@ -293,56 +293,32 @@ class CodeReview(object):
   def __init__(self, input_api):
     self._issue = input_api.change.issue
     self._gerrit = input_api.gerrit
-    self._rietveld_properties = None
-    if not self._gerrit:
-      self._rietveld_properties = input_api.rietveld.get_issue_properties(
-          issue=int(self._issue), messages=True)
 
   def GetOwnerEmail(self):
-    if self._gerrit:
-      return self._gerrit.GetChangeOwner(self._issue)
-    else:
-      return self._rietveld_properties['owner_email']
+    return self._gerrit.GetChangeOwner(self._issue)
 
   def GetSubject(self):
-    if self._gerrit:
-      return self._gerrit.GetChangeInfo(self._issue)['subject']
-    else:
-      return self._rietveld_properties['subject']
+    return self._gerrit.GetChangeInfo(self._issue)['subject']
 
   def GetDescription(self):
-    if self._gerrit:
-      return self._gerrit.GetChangeDescription(self._issue)
-    else:
-      return self._rietveld_properties['description']
+    return self._gerrit.GetChangeDescription(self._issue)
 
   def IsDryRun(self):
-    if self._gerrit:
-      return self._gerrit.GetChangeInfo(
-          self._issue)['labels']['Commit-Queue'].get('value', 0) == 1
-    else:
-      return self._rietveld_properties['cq_dry_run']
+    return self._gerrit.GetChangeInfo(
+        self._issue)['labels']['Commit-Queue'].get('value', 0) == 1
 
   def GetReviewers(self):
-    if self._gerrit:
-      code_review_label = (
-          self._gerrit.GetChangeInfo(self._issue)['labels']['Code-Review'])
-      return [r['email'] for r in code_review_label.get('all', [])]
-    else:
-      return self._rietveld_properties['reviewers']
+    code_review_label = (
+        self._gerrit.GetChangeInfo(self._issue)['labels']['Code-Review'])
+    return [r['email'] for r in code_review_label.get('all', [])]
 
   def GetApprovers(self):
     approvers = []
-    if self._gerrit:
-      code_review_label = (
-          self._gerrit.GetChangeInfo(self._issue)['labels']['Code-Review'])
-      for m in code_review_label.get('all', []):
-        if m.get("value") == 1:
-          approvers.append(m["email"])
-    else:
-      for m in self._rietveld_properties.get('messages', []):
-        if 'lgtm' in m['text'].lower():
-          approvers.append(m['sender'])
+    code_review_label = (
+        self._gerrit.GetChangeInfo(self._issue)['labels']['Code-Review'])
+    for m in code_review_label.get('all', []):
+      if m.get("value") == 1:
+        approvers.append(m["email"])
     return approvers
 
 
@@ -444,10 +420,9 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
             "If this CL adds to or changes Skia's public API, you need an LGTM "
             "from any of %s.  If this CL only removes from or doesn't change "
             "Skia's public API, please add a short note to the CL saying so. "
-            "Add one of the owners as a reviewer to your CL. For Rietveld CLs "
-            "you also need to add one of those owners on a TBR= line.  If you "
-            "don't know if this CL affects Skia's public API, treat it like it "
-            "does." % str(PUBLIC_API_OWNERS)))
+            "Add one of the owners as a reviewer to your CL as well as to the "
+            "TBR= line.  If you don't know if this CL affects Skia's public "
+            "API, treat it like it does." % str(PUBLIC_API_OWNERS)))
   return results
 
 
