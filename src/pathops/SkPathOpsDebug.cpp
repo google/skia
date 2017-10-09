@@ -42,7 +42,7 @@ int SkPathOpsDebug::gSortCount;
 #endif
 
 #if DEBUG_ACTIVE_OP
-const char* SkPathOpsDebug::kPathOpStr[] = {"diff", "sect", "union", "xor"};
+const char* SkPathOpsDebug::kPathOpStr[] = {"diff", "sect", "union", "xor", "rdiff"};
 #endif
 
 #if defined SK_DEBUG || !FORCE_RELEASE
