@@ -531,7 +531,11 @@ def dm_flags(api, bot):
   if 'float_cast_overflow' in bot and 'CPU' in bot:
     # skia:4632
     for config in ['565', '8888', 'f16', 'srgb']:
+      blacklist([config, 'gm', '_', 'bigrect'])
       blacklist([config, 'gm', '_', 'clippedcubic2'])
+      blacklist([config, 'gm', '_', 'conicpaths'])
+    match.append('~^DashPathEffectTest_asPoints_limit$')
+    match.append('~^PathBigCubic$')
     match.append('~^PathOpsCubicIntersection$')
     match.append('~^PathOpsCubicLineIntersection$')
     match.append('~^PathOpsOpCubicsThreaded$')

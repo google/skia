@@ -143,14 +143,17 @@ void SkScan::HairLineRgn(const SkPoint array[], int arrayCount, const SkRegion* 
 
 // we don't just draw 4 lines, 'cause that can leave a gap in the bottom-right
 // and double-hit the top-left.
+// TODO: handle huge coordinates on rect (before calling SkScalarToFixed)
 void SkScan::HairRect(const SkRect& rect, const SkRasterClip& clip,
                       SkBlitter* blitter) {
     SkAAClipBlitterWrapper wrapper;
-    SkBlitterClipper clipper;
-    const SkIRect r = SkIRect::MakeLTRB(SkScalarFloorToInt(rect.fLeft),
-                                        SkScalarFloorToInt(rect.fTop),
-                                        SkScalarFloorToInt(rect.fRight) + 1,
-                                        SkScalarFloorToInt(rect.fBottom) + 1);
+    SkBlitterClipper    clipper;
+    SkIRect             r;
+
+    r.set(SkScalarToFixed(rect.fLeft) >> 16,
+          SkScalarToFixed(rect.fTop) >> 16,
+          (SkScalarToFixed(rect.fRight) >> 16) + 1,
+          (SkScalarToFixed(rect.fBottom) >> 16) + 1);
 
     if (clip.quickReject(r)) {
         return;
