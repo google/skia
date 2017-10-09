@@ -3,7 +3,11 @@
 
 #Struct SkIRect
 
-SkIRect holds four 32 bit integer coordinates for a rectangle
+SkIRect holds four 32 bit integer coordinates describing the upper and
+lower bounds of a rectangle. SkIRect may be created from outer bounds or 
+from position, width, and height. SkIRect describes an area; if its right
+is less than or equal to its left, or if its bottom is less than or equal to
+its top, it is considered empty. 
 
 #Topic Overview
 
@@ -21,8 +25,8 @@ SkIRect holds four 32 bit integer coordinates for a rectangle
 #Legend
 # description                                                # function ##
 #Legend ##
-# friend bool operator!=(const SkIRect& a, const SkIRect& b) # ##
-# friend bool operator==(const SkIRect& a, const SkIRect& b) # ##
+# friend bool operator!=(const SkIRect& a, const SkIRect& b) # Returns true if members are unequal. ##
+# friend bool operator==(const SkIRect& a, const SkIRect& b) # Returns true if members are equal. ##
 #Table ##
 #Subtopic ##
 
@@ -31,78 +35,104 @@ SkIRect holds four 32 bit integer coordinates for a rectangle
 #Legend
 # description            # function ##
 #Legend ##
-# EmptyIRect             # ##
-# Intersects             # ##
-# IntersectsNoEmptyCheck # ##
-# MakeEmpty              # ##
-# MakeLTRB               # ##
-# MakeLargest            # ##
-# MakeSize               # ##
-# MakeWH                 # ##
-# MakeXYWH               # ##
-# bottom                 # ##
-# centerX                # ##
-# centerY                # ##
-# contains               # ##
-# containsNoEmptyCheck   # ##
-# height                 # ##
-# inset                  # ##
-# intersect              # ##
-# intersectNoEmptyCheck  # ##
-# is16Bit                # ##
-# isEmpty                # ##
-# isLargest              # ##
-# join                   # ##
-# left                   # ##
-# makeInset              # ##
-# makeOffset             # ##
-# makeOutset             # ##
-# makeSorted             # ##
-# offset                 # ##
-# offsetTo               # ##
-# outset                 # ##
-# quickReject            # ##
-# right                  # ##
-# set                    # ##
-# setEmpty               # ##
-# setLTRB                # ##
-# setLargest             # ##
-# setLargestInverted     # ##
-# setXYWH                # ##
-# size                   # ##
-# sort                   # ##
-# top                    # ##
-# width                  # ##
-# x                      # ##
-# y                      # ##
+# EmptyIRect             # Returns immutable bounds of (0, 0, 0, 0). ##
+# Intersects             # Returns true if areas overlap. ##
+# IntersectsNoEmptyCheck # Returns true if areas overlap. Skips empty check. ##
+# MakeEmpty              # Returns bounds of (0, 0, 0, 0). ##
+# MakeLTRB               # Constructs from int left, top, right, bottom. ##
+# MakeLargest            # Constructs from (SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32). ##
+# MakeSize               # Constructs from ISize returning (0, 0, width, height). ##
+# MakeWH                 # Constructs from int input returning (0, 0, width, height). ##
+# MakeXYWH               # Constructs from int input returning (x, y, width, height). ##
+# bottom()               # Returns larger bounds in y, if sorted. ##
+# centerX                # Returns midpoint in x. ##
+# centerY                # Returns midpoint in y. ##
+# contains()             # Returns true if points are equal or inside. ##
+# containsNoEmptyCheck   # Returns true if points are equal or inside. Skips empty check. ##
+# height()               # Returns span in y. ##
+# inset()                # Moves the sides symmetrically about the center. ##
+# intersect              # Sets to shared area; returns true if not empty. ##
+# intersectNoEmptyCheck  # Sets to shared area; returns true if not empty. Skips empty check. ##
+# is16Bit                # Returns true if members fit in 16-bit word. ##
+# isEmpty                # Returns true if width or height are zero or negative. ##
+# isLargest              # Returns true if equal to (SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32). ##
+# join()                 # Sets to union of bounds. ##
+# left()                 # Returns smaller bounds in x, if sorted. ##
+# makeInset              # Constructs from sides moved symmetrically about the center. ##
+# makeOffset             # Constructs from translated sides. ##
+# makeOutset             # Constructs from sides moved symmetrically about the center. ##
+# makeSorted             # Constructs, ordering sides from smaller to larger. ##
+# offset()               # Translates sides without changing width and height. ##
+# offsetTo               # Translates to (x, y) without changing width and height. ##
+# outset()               # Moves the sides symmetrically about the center. ##
+# quickReject            # Returns true if rectangles do not intersect. ##
+# right()                # Returns larger bounds in x, if sorted. ##
+# set()                  # Sets to (left, top, right, bottom). ##
+# setEmpty               # Sets to (0, 0, 0, 0). ##
+# setLTRB                # Sets to SkScalar input (left, top, right, bottom). ##
+# setLargest             # Sets to (SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32). ##
+# setLargestInverted     # Sets to (SK_MaxS32, SK_MaxS32, SK_MinS32, SK_MinS32). ##
+# setXYWH                # Sets to (x, y, width, height). ##
+# size()                 # Returns ISize (width, height). ##
+# sort()                 # Orders sides from smaller to larger. ##
+# top()                  # Returns smaller bounds in y, if sorted. ##
+# width()                # Returns span in x. ##
+# x()                    # Returns bounds left. ##
+# y()                    # Returns bounds top. ##
 #Table ##
 #Subtopic ##
 
 #Topic ##
 
 #Member int32_t  fLeft
+May contain any value. The smaller of the horizontal values when sorted.
+When equal to or greater than fRight, IRect is empty.
 ##
 
 #Member int32_t  fTop
+May contain any value. The smaller of the horizontal values when sorted.
+When equal to or greater than fBottom, IRect is empty.
 ##
 
 #Member int32_t  fRight
+May contain any value. The larger of the vertical values when sorted.
+When equal to or less than fLeft, IRect is empty.
 ##
 
 #Member int32_t  fBottom
+May contain any value. The larger of the vertical values when sorted.
+When equal to or less than fTop, IRect is empty.
 ##
 
 # ------------------------------------------------------------------------------
 
 #Method static SkIRect SK_WARN_UNUSED_RESULT MakeEmpty()
 
-#Return incomplete ##
+Returns constructed IRect set to (0, 0, 0, 0).
+Many other rectangles are empty; if left is equal to or greater than right,
+or if top is equal to or greater than bottom. Setting all members to zero
+is a convenience, but does not designate a special empty rectangle.
+
+#Return bounds (0, 0, 0, 0) ##
 
 #Example
-// incomplete
+    SkIRect rect = SkIRect::MakeEmpty();
+    SkDebugf("MakeEmpty isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
+    rect.offset(10, 10);
+    SkDebugf("offset rect isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
+    rect.inset(10, 10);
+    SkDebugf("inset rect isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
+    rect.outset(20, 20);
+    SkDebugf("outset rect isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
+#StdOut
+MakeEmpty isEmpty: true
+offset rect isEmpty: true
+inset rect isEmpty: true
+outset rect isEmpty: false
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso EmptyIRect isEmpty setEmpty setLargestInverted SkRect::MakeEmpty
 
 ##
 
@@ -110,13 +140,27 @@ SkIRect holds four 32 bit integer coordinates for a rectangle
 
 #Method static SkIRect SK_WARN_UNUSED_RESULT MakeLargest()
 
-#Return incomplete ##
+Returns constructed IRect setting left and top to most negative value, and 
+setting right and bottom to most positive value.
+
+#Return bounds (SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32) ##
 
 #Example
-// incomplete
+    SkIRect rect = SkIRect::MakeLargest();
+    SkDebugf("MakeLargest isLargest: %s\n", rect.isLargest() ? "true" : "false");
+    SkDebugf("MakeLargest isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
+    rect.outset(1, 1);
+    SkDebugf("outset isLargest: %s\n", rect.isLargest() ? "true" : "false");
+    SkDebugf("outset isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
+#StdOut
+MakeLargest isLargest: true
+MakeLargest isEmpty: false
+outset isLargest: false
+outset isEmpty: true
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso isLargest setLargest SkRect::MakeLargest
 
 ##
 
@@ -124,16 +168,27 @@ SkIRect holds four 32 bit integer coordinates for a rectangle
 
 #Method static SkIRect SK_WARN_UNUSED_RESULT MakeWH(int32_t w, int32_t h)
 
-#Param w  incomplete ##
-#Param h  incomplete ##
+Returns constructed IRect set to (0, 0, w, h). Does not validate input; w or h
+may be negative.
 
-#Return incomplete ##
+#Param w  width of constructed Rect  ##
+#Param h  height of constructed Rect ##
+
+#Return bounds (0, 0, w, h) ##
 
 #Example
-// incomplete
+    SkIRect rect1 = SkIRect::MakeWH(25, 35);
+    SkIRect rect2 = SkIRect::MakeSize({25, 35});
+    SkIRect rect3 = SkIRect::MakeXYWH(0, 0, 25, 35);
+    SkIRect rect4 = SkIRect::MakeLTRB(0, 0, 25, 35);
+    SkDebugf("all %s" "equal\n", rect1 == rect2 && rect2 == rect3 && rect3 == rect4 ?
+             "" : "not ");
+#StdOut
+all equal
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeSize MakeXYWH SkRect::MakeWH SkRect::MakeIWH
 
 ##
 
@@ -141,15 +196,26 @@ SkIRect holds four 32 bit integer coordinates for a rectangle
 
 #Method static SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size)
 
-#Param size  incomplete ##
+Returns constructed IRect set to (0, 0, size.width(), size.height()). 
+Does not validate input; size.width() or size.height() may be negative.
 
-#Return incomplete ##
+#Param size  values for Rect width and height ##
+
+#Return bounds (0, 0, size.width(), size.height()) ##
 
 #Example
-// incomplete
+    SkSize size = {25.5f, 35.5f};
+    SkIRect rect = SkIRect::MakeSize(size.toRound());
+    SkDebugf("round width: %d  height: %d\n", rect.width(), rect.height());
+    rect = SkIRect::MakeSize(size.toFloor());
+    SkDebugf("floor width: %d  height: %d\n", rect.width(), rect.height());
+#StdOut
+round width: 26  height: 36
+floor width: 25  height: 35
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeWH MakeXYWH SkRect::Make SkRect::MakeIWH 
 
 ##
 
@@ -157,18 +223,30 @@ SkIRect holds four 32 bit integer coordinates for a rectangle
 
 #Method static SkIRect SK_WARN_UNUSED_RESULT MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b)
 
-#Param l  incomplete ##
-#Param t  incomplete ##
-#Param r  incomplete ##
-#Param b  incomplete ##
+Returns constructed IRect set to (l, t, r, b). Does not sort input; Rect may
+result in fLeft greater than fRight, or fTop greater than fBottom.
 
-#Return incomplete ##
+#Param l  integer stored in fLeft ##
+#Param t  integer stored in fTop ##
+#Param r  integer stored in fRight ##
+#Param b  integer stored in fBottom ##
+
+#Return bounds (l, t, r, b) ##
 
 #Example
-// incomplete
+    SkIRect rect = SkIRect::MakeLTRB(5, 35, 15, 25);
+    SkDebugf("rect: %d, %d, %d, %d  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+    rect.sort();
+    SkDebugf("rect: %d, %d, %d, %d  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+#StdOut
+rect: 5, 35, 15, 25  isEmpty: true
+rect: 5, 25, 15, 35  isEmpty: false
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeXYWH SkRect::MakeLTRB
 
 ##
 
@@ -176,18 +254,34 @@ SkIRect holds four 32 bit integer coordinates for a rectangle
 
 #Method static SkIRect SK_WARN_UNUSED_RESULT MakeXYWH(int32_t x, int32_t y, int32_t w, int32_t h)
 
-#Param x  incomplete ##
-#Param y  incomplete ##
-#Param w  incomplete ##
-#Param h  incomplete ##
+Returns constructed IRect set to
+#Formula
+(x, y, x + w, y + h)
+##
+. Does not validate input;
+w or h may be negative.
 
-#Return incomplete ##
+#Param x  stored in fLeft ##
+#Param y  stored in fTop ##
+#Param w  added to x and stored in fRight ##
+#Param h  added to y and stored in fBottom ##
+
+#Return bounds (x, y, x + w, y + h) ##
 
 #Example
-// incomplete
+    SkIRect rect = SkIRect::MakeXYWH(5, 35, -15, 25);
+    SkDebugf("rect: %d, %d, %d, %d  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+    rect.sort();
+    SkDebugf("rect: %d, %d, %d, %d  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+#StdOut
+rect: 5, 35, -10, 60  isEmpty: true
+rect: -10, 35, 5, 60  isEmpty: false
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeLTRB SkRect::MakeXYWH
 
 ##
 
@@ -195,13 +289,23 @@ SkIRect holds four 32 bit integer coordinates for a rectangle
 
 #Method int left() const
 
-#Return incomplete ##
+Returns left edge of IRect, if sorted.
+Call sort() to reverse fLeft and fRight if needed.
+
+#Return fLeft ##
 
 #Example
-// incomplete
+    SkIRect unsorted = { 15, 5, 10, 25 };
+    SkDebugf("unsorted.fLeft: %d unsorted.left(): %d\n", unsorted.fLeft, unsorted.left());
+    SkIRect sorted = unsorted.makeSorted();
+    SkDebugf("sorted.fLeft: %d sorted.left(): %d\n", sorted.fLeft, sorted.left());
+#StdOut
+unsorted.fLeft: 15 unsorted.left(): 15
+sorted.fLeft: 10 sorted.left(): 10
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso fLeft x() SkRect::left()
 
 ##
 
@@ -209,13 +313,23 @@ SkIRect holds four 32 bit integer coordinates for a rectangle
 
 #Method int top() const
 
-#Return incomplete ##
+Returns top edge of IRect, if sorted. Call isEmpty to see if IRect may be invalid,
+and sort() to reverse fTop and fBottom if needed.
+
+#Return fTop ##
 
 #Example
-// incomplete
+    SkIRect unsorted = { 15, 25, 10, 5 };
+    SkDebugf("unsorted.fTop: %d unsorted.top(): %d\n", unsorted.fTop, unsorted.top());
+    SkIRect sorted = unsorted.makeSorted();
+    SkDebugf("sorted.fTop: %d sorted.top(): %d\n", sorted.fTop, sorted.top());
+#StdOut
+unsorted.fTop: 25 unsorted.top(): 25
+sorted.fTop: 5 sorted.top(): 5
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso fTop y() SkRect::top()
 
 ##
 
@@ -223,13 +337,23 @@ SkIRect holds four 32 bit integer coordinates for a rectangle
 
 #Method int right() const
 
-#Return incomplete ##
+Returns right edge of IRect, if sorted.
+Call sort() to reverse fLeft and fRight if needed.
+
+#Return fRight ##
 
 #Example
-// incomplete
+    SkIRect unsorted = { 15, 25, 10, 5 };
+    SkDebugf("unsorted.fRight: %d unsorted.right(): %d\n", unsorted.fRight, unsorted.right());
+    SkIRect sorted = unsorted.makeSorted();
+    SkDebugf("sorted.fRight: %d sorted.right(): %d\n", sorted.fRight, sorted.right());
+#StdOut
+unsorted.fRight: 10 unsorted.right(): 10
+sorted.fRight: 15 sorted.right(): 15
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso fRight SkRect::right()
 
 ##
 
@@ -237,13 +361,23 @@ SkIRect holds four 32 bit integer coordinates for a rectangle
 
 #Method int bottom() const
 
-#Return incomplete ##
+Returns bottom edge of IRect, if sorted. Call isEmpty to see if IRect may be invalid,
+and sort() to reverse fTop and fBottom if needed.
+
+#Return fBottom ##
 
 #Example
-// incomplete
+    SkIRect unsorted = { 15, 25, 10, 5 };
+    SkDebugf("unsorted.fBottom: %d unsorted.bottom(): %d\n", unsorted.fBottom, unsorted.bottom());
+    SkIRect sorted = unsorted.makeSorted();
+    SkDebugf("sorted.fBottom: %d sorted.bottom(): %d\n", sorted.fBottom, sorted.bottom());
+#StdOut
+unsorted.fBottom: 5 unsorted.bottom(): 5
+sorted.fBottom: 25 sorted.bottom(): 25
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso fBottom SkRect::bottom()
 
 ##
 
@@ -251,15 +385,23 @@ SkIRect holds four 32 bit integer coordinates for a rectangle
 
 #Method int x() const
 
-return the left edge of the rectangle
+Returns left edge of IRect, if sorted. Call isEmpty to see if IRect may be invalid,
+and sort() to reverse fLeft and fRight if needed.
 
-#Return incomplete ##
+#Return fLeft ##
 
 #Example
-// incomplete
+    SkIRect unsorted = { 15, 5, 10, 25 };
+    SkDebugf("unsorted.fLeft: %d unsorted.x(): %d\n", unsorted.fLeft, unsorted.x());
+    SkIRect sorted = unsorted.makeSorted();
+    SkDebugf("sorted.fLeft: %d sorted.x(): %d\n", sorted.fLeft, sorted.x());
+#StdOut
+unsorted.fLeft: 15 unsorted.x(): 15
+sorted.fLeft: 10 sorted.x(): 10
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso fLeft left() y() SkRect::x()
 
 ##
 
@@ -267,15 +409,23 @@ return the left edge of the rectangle
 
 #Method int y() const
 
-return the top edge of the rectangle
+Returns top edge of IRect, if sorted. Call isEmpty to see if IRect may be invalid,
+and sort() to reverse fTop and fBottom if needed.
 
-#Return incomplete ##
+#Return fTop ##
 
 #Example
-// incomplete
+    SkIRect unsorted = { 15, 25, 10, 5 };
+    SkDebugf("unsorted.fTop: %d unsorted.y(): %d\n", unsorted.fTop, unsorted.y());
+    SkIRect sorted = unsorted.makeSorted();
+    SkDebugf("sorted.fTop: %d sorted.y(): %d\n", sorted.fTop, sorted.y());
+#StdOut
+unsorted.fTop: 25 unsorted.y(): 25
+sorted.fTop: 5 sorted.y(): 5
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso fTop top() x() SkRect::y()
 
 ##
 
@@ -283,16 +433,23 @@ return the top edge of the rectangle
 
 #Method int width() const
 
-Returns the rectangle width. This does not check for a valid rectangle
-(i.e. left <= right) so the result may be negative.
+Returns span on the x-axis. This does not check if IRect is sorted, or if
+result fits in 32-bit signed integer; result may be negative.
 
-#Return incomplete ##
+#Return fRight minus fLeft ##
 
 #Example
-// incomplete
+    SkIRect unsorted = { 15, 25, 10, 5 };
+    SkDebugf("unsorted width: %d\n", unsorted.width());
+    SkIRect large = { -2147483647, 1, 2147483644, 2 };
+    SkDebugf("large width: %d\n", large.width());
+#StdOut
+unsorted width: -5
+large width: -5
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso height() SkRect::width()
 
 ##
 
@@ -300,16 +457,23 @@ Returns the rectangle width. This does not check for a valid rectangle
 
 #Method int height() const
 
-Returns the rectangle height. This does not check for a valid rectangle
-(i.e. top <= bottom) so the result may be negative.
+Returns span on the y-axis. This does not check if IRect is sorted, or if
+result fits in 32-bit signed integer; result may be negative.
 
-#Return incomplete ##
+#Return fBottom minus fTop ##
 
 #Example
-// incomplete
+    SkIRect unsorted = { 15, 25, 10, 20 };
+    SkDebugf("unsorted height: %d\n", unsorted.height());
+    SkIRect large = { 1, -2147483647, 2, 2147483644 };
+    SkDebugf("large height: %d\n", large.height());
+#StdOut
+unsorted height: -5
+large height: -5
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso width() SkRect::height()
 
 ##
 
@@ -317,13 +481,32 @@ Returns the rectangle height. This does not check for a valid rectangle
 
 #Method SkISize size() const
 
-#Return incomplete ##
+Returns spans on the x-axis and y-axis. This does not check if IRect is sorted,
+or if result fits in 32-bit signed integer; result may be negative.
+
+#Return  ISize (width, height) ##
 
 #Example
-// incomplete
+    auto debugster = [](const char* prefix, const SkIRect& rect) -> void {
+        SkISize size = rect.size();
+        SkDebugf("%s ", prefix);
+        SkDebugf("rect: %d, %d, %d, %d  ", rect.left(), rect.top(), rect.right(), rect.bottom());
+        SkDebugf("size: %d, %d\n", size.width(), size.height());
+    };
+    SkIRect rect = {20, 30, 40, 50};
+    debugster("original", rect);
+    rect.offset(20, 20);
+    debugster("  offset", rect);
+    rect.outset(20, 20);
+    debugster("  outset", rect);
+#StdOut
+original rect: 20, 30, 40, 50  size: 20, 20
+  offset rect: 40, 50, 60, 70  size: 20, 20
+  outset rect: 20, 30, 80, 90  size: 60, 60
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso height() width() MakeSize
 
 ##
 
@@ -331,18 +514,30 @@ Returns the rectangle height. This does not check for a valid rectangle
 
 #Method int centerX() const
 
-Since the center of an integer rectangle may fall on a factional value, this
-method is defined to return (right + left) >> 1.
-This is a specific "truncation" of the average, which is different than
-(right + left) / 2 when the sum is negative.
+Returns average of left edge and right edge. Result does not change if Rect
+is sorted. Result may be incorrect if Rect is far from the origin.
 
-#Return incomplete ##
+Result is rounded down.
+
+#Return midpoint in x ##
 
 #Example
-// incomplete
+#Description
+Dividing by two rounds towards zero. centerX uses a bit shift and rounds down.
+##
+    SkIRect tests[] = {{20, 30, 41, 51}, {-20, -30, -41, -51}, {-10, -10, 11, 11}};
+    for (auto rect : tests) {
+        SkDebugf("left: %3d right: %3d centerX: %3d ", rect.left(), rect.right(), rect.centerX());
+        SkDebugf("div2: %3d\n", (rect.left() + rect.right()) / 2);
+    }
+#StdOut
+left:  20 right:  41 centerX:  30 div2:  30
+left: -20 right: -41 centerX: -31 div2: -30
+left: -10 right:  11 centerX:   0 div2:   0
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso centerY SkRect::centerX
 
 ##
 
@@ -350,18 +545,24 @@ This is a specific "truncation" of the average, which is different than
 
 #Method int centerY() const
 
-Since the center of an integer rectangle may fall on a factional value, this
-method is defined to return (bottom + top) >> 1.
-This is a specific "truncation" of the average, which is different than
-(bottom + top) / 2 when the sum is negative.
+Returns average of top edge and bottom edge. Result does not change if Rect
+is sorted. Result may be incorrect if Rect is far from the origin. 
 
-#Return incomplete ##
+Result is rounded down.
+
+#Return midpoint in y ##
 
 #Example
-// incomplete
+   SkIRect rect = { 0, 0, 2, 2 };
+   rect.offset(0x40000000, 0x40000000);
+   SkDebugf("left: %d right: %d centerX: %d ", rect.left(), rect.right(), rect.centerX());
+   SkDebugf("safe mid x: %d\n", rect.left() / 2 + rect.right() / 2);
+#StdOut
+left: 1073741824 right: 1073741826 centerX: -1073741823 safe mid x: 1073741825
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso centerX SkRect::centerY
 
 ##
 
@@ -369,15 +570,30 @@ This is a specific "truncation" of the average, which is different than
 
 #Method bool isEmpty() const
 
-Return true if the rectangle width or height are <= 0
+Returns true if fLeft is equal to or greater than fRight, or if fTop is equal
+to or greater than fBottom. Call sort() to reverse rectangles with negative
+width() or height().
 
-#Return incomplete ##
+#Return true if width() or height() are zero or negative ##
 
 #Example
-// incomplete
+    SkIRect tests[] = {{20, 40, 10, 50}, {20, 40, 20, 50}};
+    for (auto rect : tests) {
+        SkDebugf("rect: {%d, %d, %d, %d} is" "%s empty\n", rect.left(), rect.top(), rect.right(),
+                 rect.bottom(), rect.isEmpty() ? "" : " not");
+        rect.sort();
+        SkDebugf("sorted: {%d, %d, %d, %d} is" "%s empty\n", rect.left(), rect.top(), rect.right(),
+                 rect.bottom(), rect.isEmpty() ? "" : " not");
+    }
+#StdOut
+rect: {20, 40, 10, 50} is empty
+sorted: {10, 40, 20, 50} is not empty
+rect: {20, 40, 20, 50} is empty
+sorted: {20, 40, 20, 50} is empty
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso EmptyIRect MakeEmpty sort SkRect::isEmpty
 
 ##
 
@@ -385,13 +601,27 @@ Return true if the rectangle width or height are <= 0
 
 #Method bool isLargest() const
 
-#Return incomplete ##
+Returns true if IRect encloses largest possible area. 
+
+#Return true if equal to (SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32) ##
 
 #Example
-// incomplete
+#Description
+Note that the width is not negative, yet it cannot be represented as a 32-bit
+signed integer.
+##
+    SkIRect large = SkIRect::MakeLargest();
+    SkDebugf("large is largest: %s\n" ,large.isLargest() ? "true" : "false");
+    SkDebugf("large width %d\n", large.width());
+    SkDebugf("large is empty: %s\n", large.isEmpty() ? "true" : "false");
+#StdOut
+large is largest: true
+large width -2
+large is empty: false
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeLargest SkRect::isLargest
 
 ##
 
@@ -399,16 +629,24 @@ Return true if the rectangle width or height are <= 0
 
 #Method friend bool operator==(const SkIRect& a, const SkIRect& b)
 
-#Param a  incomplete ##
-#Param b  incomplete ##
+Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are 
+identical to corresponding members in b.
 
-#Return incomplete ##
+#Param a  IRect to compare ##
+#Param b  IRect to compare ##
+
+#Return true if members are equal ##
 
 #Example
-// incomplete
+    SkIRect test = {0, 0, 2, 2};
+    SkIRect sorted = test.makeSorted();
+    SkDebugf("test %c= sorted\n", test == sorted ? '=' : '!');
+#StdOut
+test == sorted
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso operator!=(const SkIRect& a, const SkIRect& b)
 
 ##
 
@@ -416,16 +654,24 @@ Return true if the rectangle width or height are <= 0
 
 #Method friend bool operator!=(const SkIRect& a, const SkIRect& b)
 
-#Param a  incomplete ##
-#Param b  incomplete ##
+Returns true if any member in a: fLeft, fTop, fRight, and fBottom; is not 
+identical to the corresponding member in b.
 
-#Return incomplete ##
+#Param a  IRect to compare ##
+#Param b  IRect to compare ##
+
+#Return true if members are not equal ##
 
 #Example
-// incomplete
+    SkIRect test = {2, 2, 0, 0};
+    SkIRect sorted = test.makeSorted();
+    SkDebugf("test %c= sorted\n", test != sorted ? '!' : '=');
+#StdOut
+test != sorted
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso operator==(const SkIRect& a, const SkIRect& b)
 
 ##
 
@@ -433,13 +679,24 @@ Return true if the rectangle width or height are <= 0
 
 #Method bool is16Bit() const
 
-#Return incomplete ##
+Returns true if all members: fLeft, fTop, fRight, and fBottom; values are
+equal to or larger than -32768 and equal to or smaller than 32767. 
+
+#Return true if members fit in 16-bit word ##
 
 #Example
-// incomplete
+    SkIRect tests[] = {{-32768, -32768, 32767, 32767}, {-32768, -32768, 32768, 32768}};
+    for (auto rect : tests) {
+        SkDebugf("{%d, %d, %d, %d} %s in 16 bits\n", rect.fLeft, rect.fTop, rect.fRight,
+                 rect.fBottom, rect.is16Bit() ? "fits" : "does not fit");
+}
+#StdOut
+{-32768, -32768, 32767, 32767} fits in 16 bits
+{-32768, -32768, 32768, 32768} does not fit in 16 bits
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkTFitsIn
 
 ##
 
@@ -447,13 +704,26 @@ Return true if the rectangle width or height are <= 0
 
 #Method void setEmpty()
 
-Set the rectangle to (0,0,0,0)
+Sets IRect to (0, 0, 0, 0).
+
+Many other rectangles are empty; if left is equal to or greater than right,
+or if top is equal to or greater than bottom. Setting all members to zero
+is a convenience, but does not designate a special empty rectangle.
 
 #Example
-// incomplete
+    SkIRect rect = {3, 4, 1, 2};
+    for (int i = 0; i < 2; ++i) {
+    SkDebugf("rect: {%d, %d, %d, %d} is %s" "empty\n", rect.fLeft, rect.fTop,
+             rect.fRight, rect.fBottom, rect.isEmpty() ? "" : "not ");
+    rect.setEmpty();
+    }
+#StdOut
+rect: {3, 4, 1, 2} is empty
+rect: {0, 0, 0, 0} is empty
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeEmpty SkRect::setEmpty
 
 ##
 
@@ -461,16 +731,28 @@ Set the rectangle to (0,0,0,0)
 
 #Method void set(int32_t left, int32_t top, int32_t right, int32_t bottom)
 
-#Param left  incomplete ##
-#Param top  incomplete ##
-#Param right  incomplete ##
-#Param bottom  incomplete ##
+Sets IRect to (left, top, right, bottom).
+left and right are not sorted; left is not necessarily less than right.
+top and bottom are not sorted; top is not necessarily less than bottom.
+
+#Param left  assigned to fLeft ##
+#Param top  assigned to fTop ##
+#Param right  assigned to fRight ##
+#Param bottom  assigned to fBottom ##
 
 #Example
-// incomplete
+    SkIRect rect1 = {3, 4, 1, 2};
+    SkDebugf("rect1: {%d, %d, %d, %d}\n", rect1.fLeft, rect1.fTop, rect1.fRight, rect1.fBottom);
+    SkIRect rect2;
+    rect2.set(3, 4, 1, 2);
+    SkDebugf("rect2: {%d, %d, %d, %d}\n", rect2.fLeft, rect2.fTop, rect2.fRight, rect2.fBottom);
+#StdOut
+rect1: {3, 4, 1, 2}
+rect2: {3, 4, 1, 2}
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso setLTRB setXYWH SkRect::set
 
 ##
 
@@ -478,18 +760,28 @@ Set the rectangle to (0,0,0,0)
 
 #Method void setLTRB(int32_t left, int32_t top, int32_t right, int32_t bottom)
 
-alias for set(l, t, r, b)
+Sets IRect to (left, top, right, bottom).
+left and right are not sorted; left is not necessarily less than right.
+top and bottom are not sorted; top is not necessarily less than bottom.
 
-#Param left  incomplete ##
-#Param top  incomplete ##
-#Param right  incomplete ##
-#Param bottom  incomplete ##
+#Param left  stored in fLeft ##
+#Param top  stored in fTop ##
+#Param right  stored in fRight ##
+#Param bottom  stored in fBottom ##
 
 #Example
-// incomplete
+    SkIRect rect1 = {3, 4, 1, 2};
+    SkDebugf("rect1: {%d, %d, %d, %d}\n", rect1.fLeft, rect1.fTop, rect1.fRight, rect1.fBottom);
+    SkIRect rect2;
+    rect2.setLTRB(3, 4, 1, 2);
+    SkDebugf("rect2: {%d, %d, %d, %d}\n", rect2.fLeft, rect2.fTop, rect2.fRight, rect2.fBottom);
+#StdOut
+rect1: {3, 4, 1, 2}
+rect2: {3, 4, 1, 2}
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso set setXYWH SkRect::setLTRB
 
 ##
 
@@ -497,16 +789,33 @@ alias for set(l, t, r, b)
 
 #Method void setXYWH(int32_t x, int32_t y, int32_t width, int32_t height)
 
-#Param x  incomplete ##
-#Param y  incomplete ##
-#Param width  incomplete ##
-#Param height  incomplete ##
+Sets IRect to 
+#Formula
+(x, y, x + width, y + height)
+##
+. Does not validate input;
+width or height may be negative.
+
+#Param x  stored in fLeft ##
+#Param y  stored in fTop ##
+#Param width  added to x and stored in fRight ##
+#Param height  added to y and stored in fBottom ##
 
 #Example
-// incomplete
+    SkIRect rect;
+    rect.setXYWH(5, 35, -15, 25);
+    SkDebugf("rect: %d, %d, %d, %d  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+    rect.sort();
+    SkDebugf("rect: %d, %d, %d, %d  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+#StdOut
+rect: 5, 35, -10, 60  isEmpty: true
+rect: -10, 35, 5, 60  isEmpty: false
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeXYWH setLTRB set SkRect::setXYWH
 
 ##
 
@@ -518,25 +827,39 @@ Sets rectangle left and top to most negative value, and sets
 right and bottom to most positive value.
 
 #Example
-// incomplete
+    SkIRect rect;
+    rect.setLargest();
+    SkDebugf("MakeLargest isLargest: %s\n", rect.isLargest() ? "true" : "false");
+    SkDebugf("MakeLargest isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
+    rect.outset(1, 1);
+    SkDebugf("outset isLargest: %s\n", rect.isLargest() ? "true" : "false");
+    SkDebugf("outset isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
+#StdOut
+MakeLargest isLargest: true
+MakeLargest isEmpty: false
+outset isLargest: false
+outset isEmpty: true
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeLargest isLargest setLargestInverted SK_MinS32 SK_MaxS32
 
 ##
 
 # ------------------------------------------------------------------------------
 
 #Method void setLargestInverted()
-
-Sets rectangle left and top to most positive value, and sets
-right and bottom to most negative value.
-
-#Example
-// incomplete
+#ToDo move this to private
 ##
 
-#ToDo incomplete ##
+Sets rectangle left and top to most positive value, and sets
+right and bottom to most negative value. This is used internally to
+flag that a condition is met, but otherwise has no special purpose.
+
+#NoExample
+##
+
+#SeeAlso setEmpty setLargest
 
 ##
 
@@ -544,18 +867,32 @@ right and bottom to most negative value.
 
 #Method SkIRect makeOffset(int32_t dx, int32_t dy) const
 
-Return a new IRect, built as an offset of this rectangle.
+Returns IRect offset by (dx, dy).
 
-#Param dx  incomplete ##
-#Param dy  incomplete ##
+If dx is negative, IRect returned is moved to the left.
+If dx is positive, IRect returned is moved to the right.
+If dy is negative, IRect returned is moved upward.
+If dy is positive, IRect returned is moved downward. 
 
-#Return incomplete ##
+#Param dx  offset added to fLeft and fRight ##
+#Param dy  offset added to fTop and fBottom ##
+
+#Return Rect offset in x or y, with original width and height ##
 
 #Example
-// incomplete
+    SkIRect rect = { 10, 50, 20, 60 };
+    SkDebugf("rect: %d, %d, %d, %d  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+    rect = rect.makeOffset(15, 32);
+    SkDebugf("rect: %d, %d, %d, %d  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+#StdOut
+rect: 10, 50, 20, 60  isEmpty: false
+rect: 25, 82, 35, 92  isEmpty: false
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso offset() makeInset makeOutset SkRect::makeOffset
 
 ##
 
@@ -563,18 +900,32 @@ Return a new IRect, built as an offset of this rectangle.
 
 #Method SkIRect makeInset(int32_t dx, int32_t dy) const
 
-Return a new IRect, built as an inset of this rectangle.
+Returns IRect, inset by (dx, dy).
 
-#Param dx  incomplete ##
-#Param dy  incomplete ##
+If dx is negative, IRect returned is wider.
+If dx is positive, IRect returned is narrower.
+If dy is negative, IRect returned is taller.
+If dy is positive, IRect returned is shorter. 
 
-#Return incomplete ##
+#Param dx  offset added to fLeft and subtracted from fRight ##
+#Param dy  offset added to fTop and subtracted from fBottom ##
+
+#Return Rect inset symmetrically left and right, top and bottom ##
 
 #Example
-// incomplete
+    SkIRect rect = { 10, 50, 20, 60 };
+    SkDebugf("rect: %d, %d, %d, %d  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+    rect = rect.makeInset(15, 32);
+    SkDebugf("rect: %d, %d, %d, %d  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+#StdOut
+rect: 10, 50, 20, 60  isEmpty: false
+rect: 25, 82, 5, 28  isEmpty: true
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso inset() makeOffset makeOutset SkRect::makeInset
 
 ##
 
@@ -582,18 +933,32 @@ Return a new IRect, built as an inset of this rectangle.
 
 #Method SkIRect makeOutset(int32_t dx, int32_t dy) const
 
-Return a new Rect, built as an outset of this rectangle.
+Returns IRect, outset by (dx, dy).
 
-#Param dx  incomplete ##
-#Param dy  incomplete ##
+If dx is negative, IRect returned is narrower.
+If dx is positive, IRect returned is wider.
+If dy is negative, IRect returned is shorter.
+If dy is positive, IRect returned is taller. 
 
-#Return incomplete ##
+#Param dx  offset subtracted to fLeft and added from fRight ##
+#Param dy  offset subtracted to fTop and added from fBottom ##
+
+#Return Rect outset symmetrically left and right, top and bottom ##
 
 #Example
-// incomplete
+    SkIRect rect = { 10, 50, 20, 60 };
+    SkDebugf("rect: %d, %d, %d, %d  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+    rect = rect.makeOutset(15, 32);
+    SkDebugf("rect: %d, %d, %d, %d  isEmpty: %s\n", rect.left(), rect.top(), rect.right(),
+              rect.bottom(), rect.isEmpty() ? "true" : "false");
+#StdOut
+rect: 10, 50, 20, 60  isEmpty: false
+rect: -5, 18, 35, 92  isEmpty: false
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso outset() makeOffset makeInset SkRect::makeOutset
 
 ##
 
@@ -601,17 +966,26 @@ Return a new Rect, built as an outset of this rectangle.
 
 #Method void offset(int32_t dx, int32_t dy)
 
-Offset set the rectangle by adding dx to its left and right,
-and adding dy to its top and bottom.
+Offsets IRect by adding dx to fLeft, fRight; and by adding dy to fTop, fBottom.
 
-#Param dx  incomplete ##
-#Param dy  incomplete ##
+If dx is negative, moves IRect returned to the left.
+If dx is positive, moves IRect returned to the right.
+If dy is negative, moves IRect returned upward.
+If dy is positive, moves IRect returned downward. 
+
+#Param dx  offset added to fLeft and fRight ##
+#Param dy  offset added to fTop and fBottom ##
 
 #Example
-// incomplete
+    SkIRect rect = { 10, 14, 50, 73 };
+    rect.offset(5, 13);
+    SkDebugf("rect: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+#StdOut
+rect: 15, 27, 55, 86
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso offsetTo makeOffset SkRect::offset
 
 ##
 
@@ -619,13 +993,26 @@ and adding dy to its top and bottom.
 
 #Method void offset(const SkIPoint& delta)
 
-#Param delta  incomplete ##
+Offsets IRect by adding delta.fX to fLeft, fRight; and by adding delta.fY to
+fTop, fBottom.
+
+If delta.fX is negative, moves IRect returned to the left.
+If delta.fX is positive, moves IRect returned to the right.
+If delta.fY is negative, moves IRect returned upward.
+If delta.fY is positive, moves IRect returned downward. 
+
+#Param delta  offset added to IRect ##
 
 #Example
-// incomplete
+    SkIRect rect = { 10, 14, 50, 73 };
+    rect.offset({5, 13});
+    SkDebugf("rect: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+#StdOut
+rect: 15, 27, 55, 86
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso offsetTo makeOffset SkRect::offset
 
 ##
 
@@ -633,16 +1020,22 @@ and adding dy to its top and bottom.
 
 #Method void offsetTo(int32_t newX, int32_t newY)
 
-Offset this rectangle such its new x() and y() will equal newX and newY.
+Offsets IRect so that fLeft equals newX, and fTop equals newY. width and height
+are unchanged.
 
-#Param newX  incomplete ##
-#Param newY  incomplete ##
+#Param newX  stored in fLeft, preserving width() ##
+#Param newY  stored in fTop, preserving height() ##
 
 #Example
-// incomplete
+    SkIRect rect = { 10, 14, 50, 73 };
+    rect.offsetTo(15, 27);
+    SkDebugf("rect: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+#StdOut
+rect: 15, 27, 55, 86
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso offset makeOffset setXYWH SkRect::offsetTo
 
 ##
 
@@ -650,18 +1043,26 @@ Offset this rectangle such its new x() and y() will equal newX and newY.
 
 #Method void inset(int32_t dx, int32_t dy)
 
-Inset the rectangle by (dx,dy). If dx is positive, then the sides are moved inwards,
-making the rectangle narrower. If dx is negative, then the sides are moved outwards,
-making the rectangle wider. The same holds true for dy and the top and bottom.
+Insets IRect by (dx,dy).
 
-#Param dx  incomplete ##
-#Param dy  incomplete ##
+If dx is positive, makes IRect narrower.
+If dx is negative, makes IRect wider.
+If dy is positive, makes IRect shorter.
+If dy is negative, makes IRect taller.
+
+#Param dx  offset added to fLeft and subtracted from fRight ##
+#Param dy  offset added to fTop and subtracted from fBottom ##
 
 #Example
-// incomplete
+    SkIRect rect = { 10, 14, 50, 73 };
+    rect.inset(5, 13);
+    SkDebugf("rect: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+#StdOut
+rect: 15, 27, 45, 60
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso outset makeInset SkRect::inset
 
 ##
 
@@ -669,19 +1070,26 @@ making the rectangle wider. The same holds true for dy and the top and bottom.
 
 #Method void outset(int32_t dx, int32_t dy)
 
-Outset the rectangle by (dx,dy). If dx is positive, then the sides are
-moved outwards, making the rectangle wider. If dx is negative, then the
-sides are moved inwards, making the rectangle narrower. The same holds
-true for dy and the top and bottom.
+Outsets IRect by (dx, dy).
 
-#Param dx  incomplete ##
-#Param dy  incomplete ##
+If dx is positive, makes Rect wider.
+If dx is negative, makes Rect narrower.
+If dy is positive, makes Rect taller.
+If dy is negative, makes Rect shorter.
+
+#Param dx  subtracted to fLeft and added from fRight ##
+#Param dy  subtracted to fTop and added from fBottom ##
 
 #Example
-// incomplete
+    SkIRect rect = { 10, 14, 50, 73 };
+    rect.outset(5, 13);
+    SkDebugf("rect: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+#StdOut
+rect: 5, 1, 55, 86
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso inset makeOutset SkRect::outset
 
 ##
 
@@ -689,18 +1097,41 @@ true for dy and the top and bottom.
 
 #Method bool quickReject(int l, int t, int r, int b) const
 
-#Param l  incomplete ##
-#Param t  incomplete ##
-#Param r  incomplete ##
-#Param b  incomplete ##
+Constructs IRect (l, t, r, b) and returns true if constructed IRect does not
+intersect IRect. Does not check to see if construction or IRect is empty.
 
-#Return incomplete ##
+Is implemented with short circuit logic so that true can be returned after
+a single compare.
+
+#Param l  x minimum of constructed Rect ##
+#Param t  y minimum of constructed Rect ##
+#Param r  x maximum of constructed Rect ##
+#Param b  y maximum of constructed Rect ##
+
+#Return true if construction and IRect have no area in common ##
 
 #Example
-// incomplete
+#Description
+quickReject is the complement of Intersects.
+##
+   const SkIRect rect = {7, 11, 13, 17};
+   const int32_t* r = &rect.fLeft;
+   const SkIRect tests[] = { {13, 11, 15, 17}, { 7, 7, 13, 11 }, { 12, 16, 14, 18 } };
+   for (auto& test : tests) {
+     const int32_t* t = &test.fLeft;
+     SkDebugf("rect (%d, %d, %d, %d) test(%d, %d, %d, %d) quickReject %s; intersects %s\n",
+              r[0], r[1], r[2], r[3], t[0], t[1], t[2], t[3],
+              rect.quickReject(t[0], t[1], t[2], t[3]) ? "true" : "false", 
+              SkIRect::Intersects(rect, test) ? "true" : "false");
+   }
+#StdOut
+rect (7, 11, 13, 17) test(13, 11, 15, 17) quickReject true; intersects false
+rect (7, 11, 13, 17) test(7, 7, 13, 11) quickReject true; intersects false
+rect (7, 11, 13, 17) test(12, 16, 14, 18) quickReject false; intersects true
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso Intersects
 
 ##
 
@@ -708,21 +1139,37 @@ true for dy and the top and bottom.
 
 #Method bool contains(int32_t x, int32_t y) const
 
-Returns true if (x,y) is inside the rectangle and the rectangle is not
-empty. The left and top are considered to be inside, while the right
-and bottom are not. Thus for the rectangle (0, 0, 5, 10), the
-points (0,0) and (0,9) are inside, while (-1,0) and (5,9) are not.
+Returns true if
+#Formula
+fLeft <= x < fRight && fTop <= y < fBottom
+##
+.
+Returns false if Rect is empty.
 
-#Param x  incomplete ##
-#Param y  incomplete ##
+Considers input to describe constructed IRect (x, y, x + 1, y + 1) and
+returns true if constructed area is completely enclosed by IRect area.
 
-#Return incomplete ##
+#Param x  test Point x-coordinate ##
+#Param y  test Point y-coordinate ##
+
+#Return true if (x, y) is inside IRect ##
 
 #Example
-// incomplete
+    SkIRect rect = { 30, 50, 40, 60 };
+    SkIPoint pts[] = { { 30, 50}, { 40, 50}, { 30, 60} };
+    for (auto pt : pts) {
+        SkDebugf("rect: (%d, %d, %d, %d) %s (%d, %d)\n",
+                 rect.left(), rect.top(), rect.right(), rect.bottom(),
+                 rect.contains(pt.x(), pt.y()) ? "contains" : "does not contain", pt.x(), pt.y());
+    }
+#StdOut
+rect: (30, 50, 40, 60) contains (30, 50)
+rect: (30, 50, 40, 60) does not contain (40, 50)
+rect: (30, 50, 40, 60) does not contain (30, 60)
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso containsNoEmptyCheck SkRect::contains
 
 ##
 
@@ -730,21 +1177,38 @@ points (0,0) and (0,9) are inside, while (-1,0) and (5,9) are not.
 
 #Method bool contains(int32_t left, int32_t top, int32_t right, int32_t bottom) const
 
-Returns true if the 4 specified sides of a rectangle are inside or equal to this rectangle.
-If either rectangle is empty, contains() returns false.
+Constructs Rect to intersect from (left, top, right, bottom). Does not sort
+construction.
 
-#Param left  incomplete ##
-#Param top  incomplete ##
-#Param right  incomplete ##
-#Param bottom  incomplete ##
+Returns true if Rect contains construction.
+Returns false if Rect is empty or construction is empty.
 
-#Return incomplete ##
+#Param left  x minimum of constructed Rect ##
+#Param top  y minimum of constructed Rect ##
+#Param right  x maximum of constructed Rect ##
+#Param bottom  y maximum of constructed Rect ##
+
+#Return true if all sides of IRect are outside construction ##
 
 #Example
-// incomplete
+    SkIRect rect = { 30, 50, 40, 60 };
+    SkIRect tests[] = { { 30, 50, 31, 51}, { 39, 49, 40, 50}, { 29, 59, 30, 60} };
+    for (auto contained : tests) {
+        bool success = rect.contains(
+                       contained.left(), contained.top(), contained.right(), contained.bottom());
+        SkDebugf("rect: (%d, %d, %d, %d) %s (%d, %d, %d, %d)\n",
+                 rect.left(), rect.top(), rect.right(), rect.bottom(),
+                 success ? "contains" : "does not contain",
+                 contained.left(), contained.top(), contained.right(), contained.bottom());
+    }
+#StdOut
+rect: (30, 50, 40, 60) contains (30, 50, 31, 51)
+rect: (30, 50, 40, 60) does not contain (39, 49, 40, 50)
+rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso containsNoEmptyCheck SkRect::contains
 
 ##
 
@@ -752,17 +1216,32 @@ If either rectangle is empty, contains() returns false.
 
 #Method bool contains(const SkIRect& r) const
 
-Returns true if the specified rectangle r is inside or equal to this rectangle.
+Returns true if Rect contains r.
+Returns false if Rect is empty or r is empty.
 
-#Param r  incomplete ##
+Rect contains r when Rect area completely includes r area.
 
-#Return incomplete ##
+#Param r  IRect contained ##
+
+#Return true if all sides of IRect are outside r ##
 
 #Example
-// incomplete
+    SkIRect rect = { 30, 50, 40, 60 };
+    SkIRect tests[] = { { 30, 50, 31, 51}, { 39, 49, 40, 50}, { 29, 59, 30, 60} };
+    for (auto contained : tests) {
+        SkDebugf("rect: (%d, %d, %d, %d) %s (%d, %d, %d, %d)\n",
+                 rect.left(), rect.top(), rect.right(), rect.bottom(),
+                 rect.contains(contained) ? "contains" : "does not contain",
+                 contained.left(), contained.top(), contained.right(), contained.bottom());
+    }
+#StdOut
+rect: (30, 50, 40, 60) contains (30, 50, 31, 51)
+rect: (30, 50, 40, 60) does not contain (39, 49, 40, 50)
+rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso containsNoEmptyCheck SkRect::contains
 
 ##
 
@@ -770,17 +1249,32 @@ Returns true if the specified rectangle r is inside or equal to this rectangle.
 
 #Method bool contains(const SkRect& r) const
 
-Returns true if the specified rectangle r is inside or equal to this rectangle.
+Returns true if Rect contains r.
+Returns false if Rect is empty or r is empty.
 
-#Param r  incomplete ##
+Rect contains r when Rect area completely includes r area.
 
-#Return incomplete ##
+#Param r  Rect contained ##
+
+#Return true if all sides of IRect are outside r ##
 
 #Example
-// incomplete
+    SkIRect rect = { 30, 50, 40, 60 };
+    SkRect tests[] = { { 30, 50, 31, 51}, { 39, 49, 40, 50}, { 29, 59, 30, 60} };
+    for (auto contained : tests) {
+        SkDebugf("rect: (%d, %d, %d, %d) %s (%g, %g, %g, %g)\n",
+                 rect.left(), rect.top(), rect.right(), rect.bottom(),
+                 rect.contains(contained) ? "contains" : "does not contain",
+                 contained.left(), contained.top(), contained.right(), contained.bottom());
+    }
+#StdOut
+rect: (30, 50, 40, 60) contains (30, 50, 31, 51)
+rect: (30, 50, 40, 60) does not contain (39, 49, 40, 50)
+rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso containsNoEmptyCheck SkRect::contains
 
 ##
 
@@ -789,24 +1283,40 @@ Returns true if the specified rectangle r is inside or equal to this rectangle.
 #Method bool containsNoEmptyCheck(int32_t left, int32_t top,
                               int32_t right, int32_t bottom) const
 
-Return true if this rectangle contains the specified rectangle.
-For speed, this method does not check if either this or the specified
-rectangles are empty, and if either is, its return value is undefined.
-In the debugging build however, we assert that both this and the
-specified rectangles are non-empty.
+Constructs IRect from (left, top, right, bottom). Does not sort
+construction.
 
-#Param left  incomplete ##
-#Param top  incomplete ##
-#Param right  incomplete ##
-#Param bottom  incomplete ##
+Returns true if Rect contains construction.
+Asserts if IRect is empty or construction is empty, and if SK_DEBUG is defined.
 
-#Return incomplete ##
+Return is undefined if Rect is empty or construction is empty.
+
+#Param left  x minimum of constructed Rect ##
+#Param top  y minimum of constructed Rect ##
+#Param right  x maximum of constructed Rect ##
+#Param bottom  y maximum of constructed Rect ##
+
+#Return true if all sides of IRect are outside construction ##
 
 #Example
-// incomplete
+    SkIRect rect = { 30, 50, 40, 60 };
+    SkIRect tests[] = { { 30, 50, 31, 51}, { 39, 49, 40, 50}, { 29, 59, 30, 60} };
+    for (auto contained : tests) {
+        bool success = rect.containsNoEmptyCheck(
+                 contained.left(), contained.top(), contained.right(), contained.bottom());
+        SkDebugf("rect: (%d, %d, %d, %d) %s (%d, %d, %d, %d)\n",
+                 rect.left(), rect.top(), rect.right(), rect.bottom(),
+                 success ? "contains" : "does not contain",
+                 contained.left(), contained.top(), contained.right(), contained.bottom());
+    }
+#StdOut
+rect: (30, 50, 40, 60) contains (30, 50, 31, 51)
+rect: (30, 50, 40, 60) does not contain (39, 49, 40, 50)
+rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso contains SkRect::contains
 
 ##
 
@@ -814,35 +1324,77 @@ specified rectangles are non-empty.
 
 #Method bool containsNoEmptyCheck(const SkIRect& r) const
 
-#Param r  incomplete ##
+Returns true if Rect contains construction.
+Asserts if IRect is empty or construction is empty, and if SK_DEBUG is defined.
 
-#Return incomplete ##
+Return is undefined if Rect is empty or construction is empty.
+
+#Param r  Rect contained ##
+
+#Return true if all sides of IRect are outside r ##
 
 #Example
-// incomplete
+    SkIRect rect = { 30, 50, 40, 60 };
+    SkIRect tests[] = { { 30, 50, 31, 51}, { 39, 49, 40, 50}, { 29, 59, 30, 60} };
+    for (auto contained : tests) {
+        SkDebugf("rect: (%d, %d, %d, %d) %s (%d, %d, %d, %d)\n",
+                 rect.left(), rect.top(), rect.right(), rect.bottom(),
+                 rect.containsNoEmptyCheck(contained) ? "contains" : "does not contain",
+                 contained.left(), contained.top(), contained.right(), contained.bottom());
+    }
+#StdOut
+rect: (30, 50, 40, 60) contains (30, 50, 31, 51)
+rect: (30, 50, 40, 60) does not contain (39, 49, 40, 50)
+rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso contains SkRect::contains
 
 ##
+
+#Topic Intersection
+
+IRects intersect when they enclose a common area. To intersect, each of the pair 
+must describe area; fLeft is less than fRight, and fTop is less than fBottom;
+empty() returns false. The intersection of IRect a and IRect b can be described by:
+#Formula
+(max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
+ min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))
+##
+The intersection is only meaningful if the resulting IRect is not empty and
+describes an area: fLeft is less than fRight, and fTop is less than fBottom.
 
 # ------------------------------------------------------------------------------
 
 #Method bool intersect(const SkIRect& r)
 
-If r intersects this rectangle, return true and set this rectangle to that
-intersection, otherwise return false and do not change this rectangle.
-If either rectangle is empty, do nothing and return false.
+Returns true if IRect intersects r, and sets IRect to intersection.
+Returns false if IRect does not intersect r, and leaves IRect unchanged.
 
-#Param r  incomplete ##
+Returns false if either r or IRect is empty, leaving IRect unchanged.
 
-#Return incomplete ##
+#Param r  limit of result ##
+
+#Return true if r and Rect have area in common ##
 
 #Example
-// incomplete
+#Description
+Two SkDebugf calls are required. If the calls are combined, their arguments
+may not be evaluated in left to right order: the printed intersection may
+be before or after the call to intersect.
+##
+    SkIRect leftRect =  { 10, 40, 50, 80 };
+    SkIRect rightRect = { 30, 60, 70, 90 };
+    SkDebugf("%s intersection: ", leftRect.intersect(rightRect) ? "" : "no ");
+    SkDebugf("%d, %d, %d, %d\n", leftRect.left(), leftRect.top(), 
+                                 leftRect.right(), leftRect.bottom());
+#StdOut
+ intersection: 30, 60, 50, 80
+##                                 
 ##
 
-#ToDo incomplete ##
+#SeeAlso Intersects intersectNoEmptyCheck join SkRect::intersect
 
 ##
 
@@ -850,20 +1402,27 @@ If either rectangle is empty, do nothing and return false.
 
 #Method bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& a, const SkIRect& b)
 
-If rectangles a and b intersect, return true and set this rectangle to
-that intersection, otherwise return false and do not change this
-rectangle. If either rectangle is empty, do nothing and return false.
+Returns true if a intersects b, and sets IRect to intersection.
+Returns false if a does not intersect b, and leaves IRect unchanged.
 
-#Param a  incomplete ##
-#Param b  incomplete ##
+Returns false if either a or b is empty, leaving IRect unchanged.
 
-#Return incomplete ##
+#Param a  IRect to intersect ##
+#Param b  IRect to intersect ##
+
+#Return true if a and b have area in common ##
 
 #Example
-// incomplete
+    SkIRect result;
+    bool intersected = result.intersect({ 10, 40, 50, 80 }, { 30, 60, 70, 90 });
+    SkDebugf("%s intersection: %d, %d, %d, %d\n", intersected ? "" : "no ",
+             result.left(), result.top(), result.right(), result.bottom());
+#StdOut
+ intersection: 30, 60, 50, 80
+##                                 
 ##
 
-#ToDo incomplete ##
+#SeeAlso Intersects intersectNoEmptyCheck join SkRect::intersect
 
 ##
 
@@ -871,22 +1430,27 @@ rectangle. If either rectangle is empty, do nothing and return false.
 
 #Method bool SK_WARN_UNUSED_RESULT intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b)
 
-If rectangles a and b intersect, return true and set this rectangle to
-that intersection, otherwise return false and do not change this
-rectangle. For speed, no check to see if a or b are empty is performed.
-If either is, then the return result is undefined. In the debug build,
-we assert that both rectangles are non-empty.
+Returns true if a intersects b, and sets IRect to intersection.
+Returns false if a does not intersect b, and leaves IRect unchanged.
 
-#Param a  incomplete ##
-#Param b  incomplete ##
+Asserts if either a or b is empty, and if SK_DEBUG is defined.
 
-#Return incomplete ##
+#Param a  IRect to intersect ##
+#Param b  IRect to intersect ##
+
+#Return true if a and b have area in common ##
 
 #Example
-// incomplete
+    SkIRect result;
+    bool intersected = result.intersectNoEmptyCheck({ 10, 40, 50, 80 }, { 30, 60, 70, 90 });
+    SkDebugf("intersection: %d, %d, %d, %d\n",
+             result.left(), result.top(), result.right(), result.bottom());
+#StdOut
+ intersection: 30, 60, 50, 80
+##                                 
 ##
 
-#ToDo incomplete ##
+#SeeAlso Intersects intersect join SkRect::intersect
 
 ##
 
@@ -894,23 +1458,37 @@ we assert that both rectangles are non-empty.
 
 #Method bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom)
 
-If the rectangle specified by left,top,right,bottom intersects this rectangle,
-return true and set this rectangle to that intersection,
-otherwise return false and do not change this rectangle.
-If either rectangle is empty, do nothing and return false.
+Constructs IRect to intersect from (left, top, right, bottom). Does not sort
+construction.
 
-#Param left  incomplete ##
-#Param top  incomplete ##
-#Param right  incomplete ##
-#Param bottom  incomplete ##
+Returns true if IRect intersects construction, and sets IRect to intersection.
+Returns false if IRect does not intersect construction, and leaves IRect unchanged.
 
-#Return incomplete ##
+Returns false if either construction or IRect is empty, leaving IRect unchanged.
+
+#Param left  x minimum of constructed IRect ##
+#Param top  y minimum of constructed IRect ##
+#Param right  x maximum of constructed IRect ##
+#Param bottom  y maximum of constructed IRect ##
+
+#Return true if construction and IRect have area in common ##
 
 #Example
-// incomplete
+#Description
+Two SkDebugf calls are required. If the calls are combined, their arguments
+may not be evaluated in left to right order: the printed intersection may
+be before or after the call to intersect.
+##
+    SkIRect leftRect =  { 10, 40, 50, 80 };
+    SkDebugf("%s intersection: ", leftRect.intersect(30, 60, 70, 90) ? "" : "no ");
+    SkDebugf("%d, %d, %d, %d\n", leftRect.left(), leftRect.top(), 
+                                 leftRect.right(), leftRect.bottom());
+#StdOut
+ intersection: 30, 60, 50, 80
+##                                 
 ##
 
-#ToDo incomplete ##
+#SeeAlso intersectNoEmptyCheck Intersects join SkRect::intersect
 
 ##
 
@@ -918,18 +1496,22 @@ If either rectangle is empty, do nothing and return false.
 
 #Method static bool Intersects(const SkIRect& a, const SkIRect& b)
 
-Returns true if a and b are not empty, and they intersect
+Returns true if a intersects b.
+Returns false if either a or b is empty, or do not intersect.
 
-#Param a  incomplete ##
-#Param b  incomplete ##
+#Param a  IRect to intersect ##
+#Param b  IRect to intersect ##
 
-#Return incomplete ##
+#Return true if a and b have area in common ##
 
 #Example
-// incomplete
+    SkDebugf("%s intersection", SkIRect::Intersects({10, 40, 50, 80}, {30, 60, 70, 90}) ? "" : "no ");
+#StdOut
+ intersection
+##                                 
 ##
 
-#ToDo incomplete ##
+#SeeAlso IntersectsNoEmptyCheck intersect SkRect::intersect
 
 ##
 
@@ -937,39 +1519,55 @@ Returns true if a and b are not empty, and they intersect
 
 #Method static bool IntersectsNoEmptyCheck(const SkIRect& a, const SkIRect& b)
 
-Returns true if a and b intersect. debug-asserts that neither are empty.
+Returns true if a intersects b.
+Asserts if either a or b is empty, and if SK_DEBUG is defined.
 
-#Param a  incomplete ##
-#Param b  incomplete ##
+#Param a  IRect to intersect ##
+#Param b  IRect to intersect ##
 
-#Return incomplete ##
+#Return true if a and b have area in common ##
 
 #Example
-// incomplete
+    SkDebugf("%s intersection", SkIRect::IntersectsNoEmptyCheck(
+            {10, 40, 50, 80}, {30, 60, 70, 90}) ? "" : "no ");
+#StdOut
+ intersection
+##                                 
 ##
 
-#ToDo incomplete ##
+#SeeAlso Intersects intersect SkRect::intersect
 
 ##
+
+#Topic Intersection ##
 
 # ------------------------------------------------------------------------------
 
 #Method void join(int32_t left, int32_t top, int32_t right, int32_t bottom)
 
-Update this rectangle to enclose itself and the specified rectangle.
-If this rectangle is empty, just set it to the specified rectangle. If the specified
-rectangle is empty, do nothing.
+Constructs Rect to intersect from (left, top, right, bottom). Does not sort
+construction.
 
-#Param left  incomplete ##
-#Param top  incomplete ##
-#Param right  incomplete ##
-#Param bottom  incomplete ##
+Sets Rect to the union of itself and the construction.
+
+Has no effect if construction is empty. Otherwise, if Rect is empty, sets
+Rect to construction.
+
+#Param left  x minimum of constructed Rect ##
+#Param top  y minimum of constructed Rect ##
+#Param right  x maximum of constructed Rect ##
+#Param bottom  y maximum of constructed Rect ##
 
 #Example
-// incomplete
+    SkIRect rect = { 10, 20, 15, 25};
+    rect.join(50, 60, 55, 65);
+    SkDebugf("join: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+#StdOut
+ join: 10, 20, 55, 65
+##                                 
 ##
 
-#ToDo incomplete ##
+#SeeAlso set SkRect::join
 
 ##
 
@@ -977,17 +1575,22 @@ rectangle is empty, do nothing.
 
 #Method void join(const SkIRect& r)
 
-Update this rectangle to enclose itself and the specified rectangle.
-If this rectangle is empty, just set it to the specified rectangle. If the specified
-rectangle is empty, do nothing.
+Sets Rect to the union of itself and r.
 
-#Param r  incomplete ##
+Has no effect if r is empty. Otherwise, if Rect is empty, sets Rect to r.
+
+#Param r  expansion Rect ##
 
 #Example
-// incomplete
+    SkIRect rect = { 10, 20, 15, 25};
+    rect.join({50, 60, 55, 65});
+    SkDebugf("join: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+#StdOut
+ join: 10, 20, 55, 65
+##                                 
 ##
 
-#ToDo incomplete ##
+#SeeAlso set SkRect::join
 
 ##
 
@@ -995,16 +1598,22 @@ rectangle is empty, do nothing.
 
 #Method void sort()
 
-Swap top/bottom or left/right if there are flipped.
-This can be called if the edges are computed separately,
-and may have crossed over each other.
-When this returns, left <= right && top <= bottom
+Swaps fLeft and fRight if fLeft is greater than fRight; and swaps
+fTop and fBottom if fTop is greater than fBottom. Result may be empty,
+and width() and height() will be zero or positive.
 
 #Example
-// incomplete
+    SkIRect rect = { 30, 50, 20, 10 };
+    SkDebugf("rect: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+    rect.sort();
+    SkDebugf("sorted: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+#StdOut
+rect: 30, 50, 20, 10
+sorted: 20, 10, 30, 50
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso makeSorted SkRect::sort
 
 ##
 
@@ -1012,15 +1621,24 @@ When this returns, left <= right && top <= bottom
 
 #Method SkIRect makeSorted() const
 
-Return a new Rect that is the sorted version of this rectangle (left <= right, top <= bottom).
+Returns Rect with fLeft and fRight swapped if fLeft is greater than fRight; and
+with fTop and fBottom swapped if fTop is greater than fBottom. Result may be empty;
+and width() and height() will be zero or positive.
 
-#Return incomplete ##
+#Return  sorted IRect ##
 
 #Example
-// incomplete
+    SkIRect rect = { 30, 50, 20, 10 };
+    SkDebugf("rect: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+    SkIRect sort = rect.makeSorted();
+    SkDebugf("sorted: %d, %d, %d, %d\n", sort.fLeft, sort.fTop, sort.fRight, sort.fBottom);
+#StdOut
+rect: 30, 50, 20, 10
+sorted: 20, 10, 30, 50
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso sort SkRect::makeSorted
 
 ##
 
@@ -1028,13 +1646,19 @@ Return a new Rect that is the sorted version of this rectangle (left <= right, t
 
 #Method static const SkIRect& SK_WARN_UNUSED_RESULT EmptyIRect()
 
-#Return incomplete ##
+Returns a reference to immutable empty IRect, set to (0, 0, 0, 0).
+
+#Return  global IRect set to all zeroes ##
 
 #Example
-// incomplete
+    const SkIRect& rect = SkIRect::EmptyIRect();
+    SkDebugf("rect: %d, %d, %d, %d\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+#StdOut
+rect: 0, 0, 0, 0
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeEmpty
 
 ##
 
