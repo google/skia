@@ -37,7 +37,7 @@ bool SkAutoPixmapStorage::tryAlloc(const SkImageInfo& info) {
 
     size_t rb;
     size_t size = AllocSize(info, &rb);
-    if (0 == size) {
+    if (SK_MaxSizeT == size) {
         return false;
     }
     void* pixels = sk_malloc_flags(size, 0);
