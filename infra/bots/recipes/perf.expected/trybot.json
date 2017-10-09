@@ -91,7 +91,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-ShuttleB-GPU-IntelHD4600-x86_64-Release/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release/data"
     ],
     "infra_step": true,
     "name": "rmtree data"
@@ -106,7 +106,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-ShuttleB-GPU-IntelHD4600-x86_64-Release/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release/data"
     ],
     "infra_step": true,
     "name": "makedirs data"
@@ -182,7 +182,7 @@
       "~inc0.webp",
       "~inc1.webp",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-ShuttleB-GPU-IntelHD4600-x86_64-Release/data/nanobench_abc123_1337000001.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release/data/nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -204,9 +204,9 @@
       "cpu_or_gpu",
       "GPU",
       "cpu_or_gpu_value",
-      "IntelHD4600",
+      "IntelHD4400",
       "model",
-      "ShuttleB",
+      "NUCD34010WYKH",
       "os",
       "Win10"
     ],
@@ -228,7 +228,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-ShuttleB-GPU-IntelHD4600-x86_64-Release/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release/data"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"

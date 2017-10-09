@@ -804,17 +804,17 @@ benchmark Skia using skpbench.
 
 [DEPS](/infra/bots/recipes/test.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [core](#recipe_modules-core), [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
-&mdash; **def [RunSteps](/infra/bots/recipes/test.py#834)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/test.py#838)(api):**
 
 &mdash; **def [dm\_flags](/infra/bots/recipes/test.py#27)(api, bot):**
 
-&mdash; **def [key\_params](/infra/bots/recipes/test.py#685)(api):**
+&mdash; **def [key\_params](/infra/bots/recipes/test.py#689)(api):**
 
 Build a unique key from the builder name (as a list).
 
 E.g.  arch x86 gpu GeForce320M mode MacMini4.1 os Mac10.6
 
-&mdash; **def [test\_steps](/infra/bots/recipes/test.py#702)(api):**
+&mdash; **def [test\_steps](/infra/bots/recipes/test.py#706)(api):**
 
 Run the DM test.
 ### *recipes* / [update\_meta\_config](/infra/bots/recipes/update_meta_config.py)

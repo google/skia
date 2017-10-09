@@ -412,7 +412,7 @@ def GenTests(api):
 
     yield test
 
-  builder = 'Perf-Win10-Clang-ShuttleB-GPU-IntelHD4600-x86_64-Release'
+  builder = 'Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release'
   yield (
     api.test('trybot') +
     api.properties(buildername=builder,
