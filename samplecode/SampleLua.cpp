@@ -41,7 +41,7 @@ class LuaView : public SampleView {
 public:
     LuaView() : fLua(nullptr) {}
 
-    virtual ~LuaView() { delete fLua; }
+    ~LuaView() override { delete fLua; }
 
     void setImageFilename(lua_State* L) {
         SkString str = GetResourcePath("mandrill_256.png");
