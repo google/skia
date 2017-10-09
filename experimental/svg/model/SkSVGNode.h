@@ -29,6 +29,7 @@ enum class SkSVGTag {
     kPath,
     kPolygon,
     kPolyline,
+    kRadialGradient,
     kRect,
     kStop,
     kSvg
