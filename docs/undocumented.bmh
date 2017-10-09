@@ -168,6 +168,11 @@ FT_Load_Glyph
 #Topic Data
 ##
 
+#Topic Debugging
+#Method SK_API void SkDebugf(const char format[], ...)
+##
+##
+
 #Topic Device
 #Class SkBaseDevice
 ##
@@ -416,6 +421,12 @@ FT_Load_Glyph
     ##
     #Method SkScalarCeilToScalar(x)
     ##
+    #Method SkScalarIsFinite(x)
+    ##
+    #Method SkScalarIsNaN(x)
+    ##
+    #Method template <typename D, typename S> inline bool SkTFitsIn(S s)
+    ##
 ##
 
 #Topic Mip_Map
@@ -427,8 +438,14 @@ FT_Load_Glyph
 #Topic Number_Types
     #Typedef SkGlyphID
     #Typedef ##
+    #Topic Scalar
+    #Alias Scalar
     #Typedef SkScalar
     #Typedef ##
+    ##
+    #Const SK_ScalarMin
+    to be written
+    ##
     #Const SK_ScalarMax
     to be written
     ##
@@ -439,6 +456,12 @@ FT_Load_Glyph
     to be written
     ##
     #Const SK_ScalarNaN
+    to be written
+    ##
+    #Const SK_MinS32
+    to be written
+    ##
+    #Const SK_MaxS32
     to be written
     ##
     #Typedef SkUnichar

@@ -409,7 +409,7 @@ void SpellCheck::leafCheck(const char* start, const char* end) {
                 } else {
                     wordEnd = chPtr;
                 }
-                SkASSERT(inParens >= 0);
+                SkASSERT(inParens >= 0 || fInStdOut);
                 break;
             case '\"':
                 inQuotes = !inQuotes;
