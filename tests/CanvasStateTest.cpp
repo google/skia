@@ -143,10 +143,10 @@ DEF_TEST(CanvasState_test_complex_layers, reporter) {
         }
 
         // now we memcmp the two bitmaps
-        REPORTER_ASSERT(reporter, bitmaps[0].getSize() == bitmaps[1].getSize());
+        REPORTER_ASSERT(reporter, bitmaps[0].computeByteSize() == bitmaps[1].computeByteSize());
         REPORTER_ASSERT(reporter, !memcmp(bitmaps[0].getPixels(),
                                           bitmaps[1].getPixels(),
-                                          bitmaps[0].getSize()));
+                                          bitmaps[0].computeByteSize()));
     }
 }
 #endif
@@ -255,10 +255,10 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
     }
 
     // now we memcmp the two bitmaps
-    REPORTER_ASSERT(reporter, bitmaps[0].getSize() == bitmaps[1].getSize());
+    REPORTER_ASSERT(reporter, bitmaps[0].computeByteSize() == bitmaps[1].computeByteSize());
     REPORTER_ASSERT(reporter, !memcmp(bitmaps[0].getPixels(),
                                       bitmaps[1].getPixels(),
-                                      bitmaps[0].getSize()));
+                                      bitmaps[0].computeByteSize()));
 }
 #endif
 
