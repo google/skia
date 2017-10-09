@@ -37,7 +37,8 @@ GrCaps::InstancedSupport GLInstancedRendering::CheckSupport(const GrGLCaps& glCa
     // This method is only intended to be used for initializing fInstancedSupport in the caps.
     SkASSERT(GrCaps::InstancedSupport::kNone == glCaps.instancedSupport());
     if (!glCaps.vertexArrayObjectSupport() ||
-        (!glCaps.drawIndirectSupport() && !glCaps.drawInstancedSupport())) {
+        (!glCaps.drawIndirectSupport() && !glCaps.drawInstancedSupport()) ||
+        GrGLCaps::kNone_MapBufferType == glCaps.mapBufferType()) {
         return GrCaps::InstancedSupport::kNone;
     }
     return InstanceProcessor::CheckSupport(*glCaps.shaderCaps(), glCaps);

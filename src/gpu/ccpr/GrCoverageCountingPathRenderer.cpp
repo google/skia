@@ -32,6 +32,7 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
            caps.instanceAttribSupport() &&
            caps.isConfigTexturable(kAlpha_half_GrPixelConfig) &&
            caps.isConfigRenderable(kAlpha_half_GrPixelConfig, /*withMSAA=*/false) &&
+           GrCaps::kNone_MapFlags != caps.mapBufferFlags() &&
            !caps.blacklistCoverageCounting();
 }
 
