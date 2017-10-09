@@ -50,8 +50,12 @@ public:
     inline const GrTexturePriv texturePriv() const;
 
 protected:
+    // TODO: Once we disable support for mip maps on textures which were not allocated with them at
+    // creation, we can check the highestFilterMode for mip map to see if mip maps were allocated.
+    // Until then we need to explicitly pass in the mipsAllocated bool.
     GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType samplerType,
-              GrSamplerState::Filter highestFilterMode, bool wasMipMapDataProvided);
+              GrSamplerState::Filter highestFilterMode, bool mipsAllocated,
+              bool wasFullMipMapDataProvided);
 
 private:
     void computeScratchKey(GrScratchKey*) const override;

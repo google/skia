@@ -818,12 +818,22 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
+    bool fullMipMapDataProvided = true;
+    for (int i = 0; i < mipLevelCount; ++i) {
+        if (!texels[i].fPixels) {
+            fullMipMapDataProvided = false;
+            break;
+        }
+    }
+
     sk_sp<GrVkTexture> tex;
     if (renderTarget) {
         tex = GrVkTextureRenderTarget::CreateNewTextureRenderTarget(this, budgeted, desc,
-                                                                    imageDesc);
+                                                                    imageDesc,
+                                                                    fullMipMapDataProvided);
     } else {
-        tex = GrVkTexture::CreateNewTexture(this, budgeted, desc, imageDesc);
+        tex = GrVkTexture::CreateNewTexture(this, budgeted, desc, imageDesc,
+                                            fullMipMapDataProvided);
     }
 
     if (!tex) {
