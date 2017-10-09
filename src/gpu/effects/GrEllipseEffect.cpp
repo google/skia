@@ -114,12 +114,10 @@ bool GrEllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 GrEllipseEffect::GrEllipseEffect(const GrEllipseEffect& src)
-        : INHERITED(src.optimizationFlags())
+        : INHERITED(kGrEllipseEffect_ClassID, src.optimizationFlags())
         , fEdgeType(src.fEdgeType)
         , fCenter(src.fCenter)
-        , fRadii(src.fRadii) {
-    this->initClassID<GrEllipseEffect>();
-}
+        , fRadii(src.fRadii) {}
 std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrEllipseEffect(*this));
 }

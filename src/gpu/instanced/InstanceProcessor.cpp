@@ -40,9 +40,9 @@ GrCaps::InstancedSupport InstanceProcessor::CheckSupport(const GrShaderCaps& sha
     return GrCaps::InstancedSupport::kMixedSampled;
 }
 
-InstanceProcessor::InstanceProcessor(OpInfo opInfo, GrBuffer* paramsBuffer) : fOpInfo(opInfo) {
-    this->initClassID<InstanceProcessor>();
-
+InstanceProcessor::InstanceProcessor(OpInfo opInfo, GrBuffer* paramsBuffer)
+: INHERITED(kInstanceProcessor_ClassID)
+, fOpInfo(opInfo) {
     this->addVertexAttrib("shapeCoords", kFloat2_GrVertexAttribType);
     this->addVertexAttrib("vertexAttrs", kInt_GrVertexAttribType);
     this->addVertexAttrib("instanceInfo", kUint_GrVertexAttribType);

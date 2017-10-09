@@ -124,12 +124,12 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
                                          const sk_sp<GrTextureProxy> proxies[kMaxTextures],
                                          const GrSamplerState& params, GrMaskFormat format,
                                          const SkMatrix& localMatrix, bool usesLocalCoords)
-        : fColor(color)
+        : INHERITED(kGrBitmapTextGeoProc_ClassID)
+        , fColor(color)
         , fLocalMatrix(localMatrix)
         , fUsesLocalCoords(usesLocalCoords)
         , fInColor(nullptr)
         , fMaskFormat(format) {
-    this->initClassID<GrBitmapTextGeoProc>();
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
 
     bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat ||

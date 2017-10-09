@@ -44,7 +44,7 @@ private:
                                       sk_sp<GrColorSpaceXform> colorXform,
                                       sk_sp<GrTextureProxy> mask, float innerThreshold,
                                       float outerThreshold, const SkIRect& bounds)
-            : INHERITED(kNone_OptimizationFlags)
+            : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, kNone_OptimizationFlags)
             , fImage(std::move(image))
             , fColorXform(colorXform)
             , fMask(std::move(mask))
@@ -58,7 +58,6 @@ private:
         this->addTextureSampler(&fMask);
         this->addCoordTransform(&fImageCoordTransform);
         this->addCoordTransform(&fMaskCoordTransform);
-        this->initClassID<GrAlphaThresholdFragmentProcessor>();
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;

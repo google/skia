@@ -77,12 +77,11 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrSRGBEffect::GrSRGBEffect(Mode mode, Alpha alpha)
-    : INHERITED(kPreservesOpaqueInput_OptimizationFlag |
+    : INHERITED(kGrSRGBEffect_ClassID, kPreservesOpaqueInput_OptimizationFlag |
                 kConstantOutputForConstantInput_OptimizationFlag)
     , fMode(mode)
     , fAlpha(alpha)
 {
-    this->initClassID<GrSRGBEffect>();
 }
 
 std::unique_ptr<GrFragmentProcessor> GrSRGBEffect::clone() const { return Make(fMode, fAlpha); }

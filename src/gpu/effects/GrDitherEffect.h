@@ -51,9 +51,8 @@ public:
     const char* name() const override { return "DitherEffect"; }
 
 private:
-    GrDitherEffect(int rangeType) : INHERITED(kNone_OptimizationFlags), fRangeType(rangeType) {
-        this->initClassID<GrDitherEffect>();
-    }
+    GrDitherEffect(int rangeType)
+            : INHERITED(kGrDitherEffect_ClassID, kNone_OptimizationFlags), fRangeType(rangeType) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

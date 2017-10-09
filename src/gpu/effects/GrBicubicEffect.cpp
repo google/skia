@@ -134,13 +134,12 @@ GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                  const SkMatrix& matrix,
                                  const GrSamplerState::WrapMode wrapModes[2])
-        : INHERITED{ModulateByConfigOptimizationFlags(proxy->config())}
+        : INHERITED{kGrBicubicEffect_ClassID, ModulateByConfigOptimizationFlags(proxy->config())}
         , fCoordTransform(matrix, proxy.get())
         , fDomain(GrTextureDomain::IgnoredDomain())
         , fTextureSampler(std::move(proxy),
                           GrSamplerState(wrapModes, GrSamplerState::Filter::kNearest))
         , fColorSpaceXform(std::move(colorSpaceXform)) {
-    this->initClassID<GrBicubicEffect>();
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
@@ -149,23 +148,21 @@ GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
                                  const SkMatrix& matrix,
                                  const SkRect& domain)
-        : INHERITED(ModulateByConfigOptimizationFlags(proxy->config()))
+        : INHERITED(kGrBicubicEffect_ClassID, ModulateByConfigOptimizationFlags(proxy->config()))
         , fCoordTransform(matrix, proxy.get())
         , fDomain(proxy.get(), domain, GrTextureDomain::kClamp_Mode)
         , fTextureSampler(std::move(proxy))
         , fColorSpaceXform(std::move(colorSpaceXform)) {
-    this->initClassID<GrBicubicEffect>();
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
 
 GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
-        : INHERITED(that.optimizationFlags())
+        : INHERITED(kGrBicubicEffect_ClassID, that.optimizationFlags())
         , fCoordTransform(that.fCoordTransform)
         , fDomain(that.fDomain)
         , fTextureSampler(that.fTextureSampler)
         , fColorSpaceXform(that.fColorSpaceXform) {
-    this->initClassID<GrBicubicEffect>();
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }

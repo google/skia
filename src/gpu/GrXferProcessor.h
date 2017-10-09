@@ -189,8 +189,9 @@ public:
     }
 
 protected:
-    GrXferProcessor();
-    GrXferProcessor(bool willReadDstColor, bool hasMixedSamples, GrProcessorAnalysisCoverage);
+    GrXferProcessor(ClassID classID);
+    GrXferProcessor(ClassID classID, bool willReadDstColor, bool hasMixedSamples,
+                    GrProcessorAnalysisCoverage);
 
 private:
     /**
@@ -219,7 +220,7 @@ private:
     bool fDstReadUsesMixedSamples;
     bool fIsLCD;
 
-    typedef GrFragmentProcessor INHERITED;
+    typedef GrProcessor INHERITED;
 };
 
 /**

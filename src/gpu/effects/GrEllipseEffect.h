@@ -29,12 +29,11 @@ public:
 
 private:
     GrEllipseEffect(int edgeType, SkPoint center, SkPoint radii)
-            : INHERITED((OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+            : INHERITED(kGrEllipseEffect_ClassID,
+                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , fEdgeType(edgeType)
             , fCenter(center)
-            , fRadii(radii) {
-        this->initClassID<GrEllipseEffect>();
-    }
+            , fRadii(radii) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

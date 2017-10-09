@@ -197,8 +197,8 @@ public:
 
 private:
     MSAAQuadProcessor(const SkMatrix& viewMatrix)
-        : fViewMatrix(viewMatrix) {
-        this->initClassID<MSAAQuadProcessor>();
+        : INHERITED(kMSAAQuadProcessor_ClassID)
+        , fViewMatrix(viewMatrix) {
         fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
         fInUV = &this->addVertexAttrib("inUV", kFloat2_GrVertexAttribType);
         fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);

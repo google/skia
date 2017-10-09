@@ -90,12 +90,10 @@ bool GrCircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 GrCircleEffect::GrCircleEffect(const GrCircleEffect& src)
-        : INHERITED(src.optimizationFlags())
+        : INHERITED(kGrCircleEffect_ClassID, src.optimizationFlags())
         , fEdgeType(src.fEdgeType)
         , fCenter(src.fCenter)
-        , fRadius(src.fRadius) {
-    this->initClassID<GrCircleEffect>();
-}
+        , fRadius(src.fRadius) {}
 std::unique_ptr<GrFragmentProcessor> GrCircleEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(*this));
 }

@@ -68,8 +68,8 @@ class CircleGeometryProcessor : public GrGeometryProcessor {
 public:
     CircleGeometryProcessor(bool stroke, bool clipPlane, bool isectPlane, bool unionPlane,
                             const SkMatrix& localMatrix)
-            : fLocalMatrix(localMatrix) {
-        this->initClassID<CircleGeometryProcessor>();
+            : INHERITED(kCircleGeometryProcessor_ClassID)
+            , fLocalMatrix(localMatrix) {
         fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
         fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
         fInCircleEdge = &this->addVertexAttrib("inCircleEdge", kFloat4_GrVertexAttribType);
@@ -238,8 +238,9 @@ sk_sp<GrGeometryProcessor> CircleGeometryProcessor::TestCreate(GrProcessorTestDa
 
 class EllipseGeometryProcessor : public GrGeometryProcessor {
 public:
-    EllipseGeometryProcessor(bool stroke, const SkMatrix& localMatrix) : fLocalMatrix(localMatrix) {
-        this->initClassID<EllipseGeometryProcessor>();
+    EllipseGeometryProcessor(bool stroke, const SkMatrix& localMatrix)
+    : INHERITED(kEllipseGeometryProcessor_ClassID)
+    , fLocalMatrix(localMatrix) {
         fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
         fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
         fInEllipseOffset = &this->addVertexAttrib("inEllipseOffset", kHalf2_GrVertexAttribType);
@@ -379,8 +380,8 @@ enum class DIEllipseStyle { kStroke = 0, kHairline, kFill };
 class DIEllipseGeometryProcessor : public GrGeometryProcessor {
 public:
     DIEllipseGeometryProcessor(const SkMatrix& viewMatrix, DIEllipseStyle style)
-            : fViewMatrix(viewMatrix) {
-        this->initClassID<DIEllipseGeometryProcessor>();
+            : INHERITED(kDIEllipseGeometryProcessor_ClassID)
+            , fViewMatrix(viewMatrix) {
         fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
         fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
         fInEllipseOffsets0 = &this->addVertexAttrib("inEllipseOffsets0", kHalf2_GrVertexAttribType);

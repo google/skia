@@ -72,16 +72,14 @@ static bool can_use_hw_blend_equation(GrBlendEquation equation,
 class CustomXP : public GrXferProcessor {
 public:
     CustomXP(SkBlendMode mode, GrBlendEquation hwBlendEquation)
-        : fMode(mode)
-        , fHWBlendEquation(hwBlendEquation) {
-        this->initClassID<CustomXP>();
-    }
+        : INHERITED(kCustomXP_ClassID)
+        , fMode(mode)
+        , fHWBlendEquation(hwBlendEquation) {}
 
     CustomXP(bool hasMixedSamples, SkBlendMode mode, GrProcessorAnalysisCoverage coverage)
-            : INHERITED(true, hasMixedSamples, coverage)
+            : INHERITED(kCustomXP_ClassID, true, hasMixedSamples, coverage)
             , fMode(mode)
             , fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
-        this->initClassID<CustomXP>();
     }
 
     const char* name() const override { return "Custom Xfermode"; }

@@ -93,13 +93,13 @@ private:
     }
 
     explicit Edge2PtConicalEffect(const CreateArgs& args)
-            : INHERITED(args, false /* opaque: draws transparent black outside of the cone. */) {
+            : INHERITED(kEdge2PtConicalEffect_ClassID, args,
+                        false /* opaque: draws transparent black outside of the cone. */) {
         const SkTwoPointConicalGradient& shader =
             *static_cast<const SkTwoPointConicalGradient*>(args.fShader);
         fCenterX1 = shader.getCenterX1();
         fRadius0 = shader.getStartRadius();
         fDiffRadius = shader.getDiffRadius();
-        this->initClassID<Edge2PtConicalEffect>();
         // We should only be calling this shader if we are degenerate case with touching circles
         // When deciding if we are in edge case, we scaled by the end radius for cases when the
         // start radius was close to zero, otherwise we scaled by the start radius.  In addition
@@ -129,7 +129,6 @@ private:
             , fCenterX1(that.fCenterX1)
             , fRadius0(that.fRadius0)
             , fDiffRadius(that.fDiffRadius) {
-        this->initClassID<Edge2PtConicalEffect>();
         this->addCoordTransform(&fBTransform);
     }
 
@@ -415,15 +414,14 @@ private:
     }
 
     FocalOutside2PtConicalEffect(const CreateArgs& args, SkScalar focalX)
-            : INHERITED(args, false /* opaque: draws transparent black outside of the cone. */)
+            : INHERITED(kFocalOutside2PtConicalEffect_ClassID, args,
+                        false /* opaque: draws transparent black outside of the cone. */)
             , fFocalX(focalX)
             , fIsFlipped(IsFlipped(args)) {
-        this->initClassID<FocalOutside2PtConicalEffect>();
     }
 
     explicit FocalOutside2PtConicalEffect(const FocalOutside2PtConicalEffect& that)
             : INHERITED(that), fFocalX(that.fFocalX), fIsFlipped(that.fIsFlipped) {
-        this->initClassID<FocalOutside2PtConicalEffect>();
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
@@ -630,14 +628,11 @@ private:
     }
 
     FocalInside2PtConicalEffect(const CreateArgs& args, SkScalar focalX)
-            : INHERITED(args, args.fShader->colorsAreOpaque()), fFocalX(focalX) {
-        this->initClassID<FocalInside2PtConicalEffect>();
-    }
+            : INHERITED(kFocalInside2PtConicalEffect_ClassID, args,
+                        args.fShader->colorsAreOpaque()), fFocalX(focalX) {}
 
     explicit FocalInside2PtConicalEffect(const FocalInside2PtConicalEffect& that)
-            : INHERITED(that), fFocalX(that.fFocalX) {
-        this->initClassID<FocalInside2PtConicalEffect>();
-    }
+            : INHERITED(that), fFocalX(that.fFocalX) {}
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
@@ -880,14 +875,12 @@ private:
     }
 
     CircleInside2PtConicalEffect(const CreateArgs& args, const CircleConicalInfo& info)
-            : INHERITED(args, args.fShader->colorsAreOpaque()), fInfo(info) {
-        this->initClassID<CircleInside2PtConicalEffect>();
+            : INHERITED(kCircleInside2PtConicalEffect_ClassID, args,
+                        args.fShader->colorsAreOpaque()), fInfo(info) {
     }
 
     explicit CircleInside2PtConicalEffect(const CircleInside2PtConicalEffect& that)
-            : INHERITED(that), fInfo(that.fInfo) {
-        this->initClassID<CircleInside2PtConicalEffect>();
-    }
+            : INHERITED(that), fInfo(that.fInfo) {}
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
@@ -1103,9 +1096,9 @@ private:
     }
 
     CircleOutside2PtConicalEffect(const CreateArgs& args, const CircleConicalInfo& info)
-            : INHERITED(args, false /* opaque: draws transparent black outside of the cone. */)
+            : INHERITED(kCircleOutside2PtConicalEffect_ClassID, args,
+                        false /* opaque: draws transparent black outside of the cone. */)
             , fInfo(info) {
-        this->initClassID<CircleOutside2PtConicalEffect>();
         const SkTwoPointConicalGradient& shader =
             *static_cast<const SkTwoPointConicalGradient*>(args.fShader);
         if (shader.getStartRadius() != shader.getEndRadius()) {
@@ -1121,9 +1114,7 @@ private:
             : INHERITED(that)
             , fInfo(that.fInfo)
             , fTLimit(that.fTLimit)
-            , fIsFlipped(that.fIsFlipped) {
-        this->initClassID<CircleOutside2PtConicalEffect>();
-    }
+            , fIsFlipped(that.fIsFlipped) {}
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

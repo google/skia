@@ -19,8 +19,9 @@
  */
 class GrGeometryProcessor : public GrPrimitiveProcessor {
 public:
-    GrGeometryProcessor()
-        : fWillUseGeoShader(false)
+    GrGeometryProcessor(ClassID classID)
+        : INHERITED(classID)
+        , fWillUseGeoShader(false)
         , fLocalCoordsType(kUnused_LocalCoordsType)
         , fSampleShading(0.0) {}
 

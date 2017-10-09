@@ -1697,8 +1697,8 @@ inline GrFragmentProcessor::OptimizationFlags GrGradientEffect::OptFlags(bool is
                    : kCompatibleWithCoverageAsAlpha_OptimizationFlag;
 }
 
-GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
-        : INHERITED(OptFlags(isOpaque)) {
+GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool isOpaque)
+        : INHERITED(classID, OptFlags(isOpaque)) {
     const SkGradientShaderBase& shader(*args.fShader);
 
     fIsOpaque = shader.isOpaque();
@@ -1815,7 +1815,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
 }
 
 GrGradientEffect::GrGradientEffect(const GrGradientEffect& that)
-        : INHERITED(OptFlags(that.fIsOpaque))
+        : INHERITED(that.classID(), OptFlags(that.fIsOpaque))
         , fColors(that.fColors)
         , fColors4f(that.fColors4f)
         , fColorSpaceXform(that.fColorSpaceXform)

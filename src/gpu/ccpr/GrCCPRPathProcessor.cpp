@@ -50,7 +50,8 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
 GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTextureProxy> atlas,
                                          SkPath::FillType fillType, const GrShaderCaps& shaderCaps)
-        : fFillType(fillType) {
+        : INHERITED(kGrCCPRPathProcessor_ClassID)
+        , fFillType(fillType) {
     this->addInstanceAttrib("devbounds", kFloat4_GrVertexAttribType);
     this->addInstanceAttrib("devbounds45", kFloat4_GrVertexAttribType);
     this->addInstanceAttrib("view_matrix", kFloat4_GrVertexAttribType);
@@ -82,8 +83,6 @@ GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTexture
                        GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag);
     fAtlasAccess.instantiate(rp);
     this->addTextureSampler(&fAtlasAccess);
-
-    this->initClassID<GrCCPRPathProcessor>();
 }
 
 void GrCCPRPathProcessor::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {

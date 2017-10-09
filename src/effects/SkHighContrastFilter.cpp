@@ -179,9 +179,8 @@ public:
 
 private:
     HighContrastFilterEffect(const SkHighContrastConfig& config)
-        : INHERITED(kNone_OptimizationFlags)
+        : INHERITED(kHighContrastFilterEffect_ClassID, kNone_OptimizationFlags)
         , fConfig(config) {
-        this->initClassID<HighContrastFilterEffect>();
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

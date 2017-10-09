@@ -115,11 +115,10 @@ private:
 GrPathProcessor::GrPathProcessor(GrColor color,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& localMatrix)
-        : fColor(color)
+        : INHERITED(kGrPathProcessor_ClassID)
+        , fColor(color)
         , fViewMatrix(viewMatrix)
-        , fLocalMatrix(localMatrix) {
-    this->initClassID<GrPathProcessor>();
-}
+        , fLocalMatrix(localMatrix) {}
 
 void GrPathProcessor::getGLSLProcessorKey(const GrShaderCaps& caps,
                                           GrProcessorKeyBuilder* b) const {

@@ -53,8 +53,8 @@ private:
     void onPrepareDraws(Target* target) override {
         class GP : public GrGeometryProcessor {
         public:
-            GP(int numAttribs) {
-                this->initClassID<GP>();
+            GP(int numAttribs)
+            : INHERITED(kGP_ClassID) {
                 SkASSERT(numAttribs > 1);
                 for (auto i = 0; i < numAttribs; ++i) {
                     fAttribNames.push_back().printf("attr%d", i);
@@ -89,6 +89,8 @@ private:
 
         private:
             SkTArray<SkString> fAttribNames;
+
+            typedef GrGeometryProcessor INHERITED;
         };
         sk_sp<GrGeometryProcessor> gp(new GP(fNumAttribs));
         QuadHelper helper;

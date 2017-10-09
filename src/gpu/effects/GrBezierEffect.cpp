@@ -234,13 +234,13 @@ GrGLSLPrimitiveProcessor* GrConicEffect::createGLSLInstance(const GrShaderCaps&)
 GrConicEffect::GrConicEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t coverage,
                              GrPrimitiveEdgeType edgeType, const SkMatrix& localMatrix,
                              bool usesLocalCoords)
-    : fColor(color)
+    : INHERITED(kGrConicEffect_ClassID)
+    , fColor(color)
     , fViewMatrix(viewMatrix)
     , fLocalMatrix(viewMatrix)
     , fUsesLocalCoords(usesLocalCoords)
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
-    this->initClassID<GrConicEffect>();
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInConicCoeffs = &this->addVertexAttrib("inConicCoeffs", kHalf4_GrVertexAttribType);
 }
@@ -436,13 +436,13 @@ GrGLSLPrimitiveProcessor* GrQuadEffect::createGLSLInstance(const GrShaderCaps&) 
 GrQuadEffect::GrQuadEffect(GrColor color, const SkMatrix& viewMatrix, uint8_t coverage,
                            GrPrimitiveEdgeType edgeType, const SkMatrix& localMatrix,
                            bool usesLocalCoords)
-    : fColor(color)
+    : INHERITED(kGrQuadEffect_ClassID)
+    , fColor(color)
     , fViewMatrix(viewMatrix)
     , fLocalMatrix(localMatrix)
     , fUsesLocalCoords(usesLocalCoords)
     , fCoverageScale(coverage)
     , fEdgeType(edgeType) {
-    this->initClassID<GrQuadEffect>();
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInHairQuadEdge = &this->addVertexAttrib("inHairQuadEdge", kHalf4_GrVertexAttribType);
 }
@@ -663,11 +663,11 @@ GrGLSLPrimitiveProcessor* GrCubicEffect::createGLSLInstance(const GrShaderCaps&)
 
 GrCubicEffect::GrCubicEffect(GrColor color, const SkMatrix& viewMatrix, const SkMatrix&
                              devKLMMatrix, GrPrimitiveEdgeType edgeType)
-    : fColor(color)
+    : INHERITED(kGrCubicEffect_ClassID)
+    , fColor(color)
     , fViewMatrix(viewMatrix)
     , fDevKLMMatrix(devKLMMatrix)
     , fEdgeType(edgeType) {
-    this->initClassID<GrCubicEffect>();
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
 }
 

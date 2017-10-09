@@ -29,12 +29,11 @@ public:
 
 private:
     GrCircleEffect(int edgeType, SkPoint center, float radius)
-            : INHERITED((OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+            : INHERITED(kGrCircleEffect_ClassID,
+                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , fEdgeType(edgeType)
             , fCenter(center)
-            , fRadius(radius) {
-        this->initClassID<GrCircleEffect>();
-    }
+            , fRadius(radius) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

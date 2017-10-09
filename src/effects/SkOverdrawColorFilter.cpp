@@ -128,8 +128,7 @@ std::unique_ptr<GrFragmentProcessor> OverdrawFragmentProcessor::Make(const SkPMC
 // This could implement the constant input -> constant output optimization, but we don't really
 // care given how this is used.
 OverdrawFragmentProcessor::OverdrawFragmentProcessor(const GrColor4f* colors)
-        : INHERITED(kNone_OptimizationFlags) {
-    this->initClassID<OverdrawFragmentProcessor>();
+        : INHERITED(kOverdrawFragmentProcessor_ClassID, kNone_OptimizationFlags) {
     memcpy(fColors, colors, SkOverdrawColorFilter::kNumColors * sizeof(GrColor4f));
 }
 

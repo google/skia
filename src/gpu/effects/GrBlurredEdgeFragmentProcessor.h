@@ -27,9 +27,9 @@ public:
     const char* name() const override { return "BlurredEdgeFragmentProcessor"; }
 
 private:
-    GrBlurredEdgeFragmentProcessor(int mode) : INHERITED(kNone_OptimizationFlags), fMode(mode) {
-        this->initClassID<GrBlurredEdgeFragmentProcessor>();
-    }
+    GrBlurredEdgeFragmentProcessor(int mode)
+            : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, kNone_OptimizationFlags)
+            , fMode(mode) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

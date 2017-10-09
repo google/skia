@@ -138,7 +138,7 @@ private:
     YUVtoRGBEffect(sk_sp<GrTextureProxy> yProxy, sk_sp<GrTextureProxy> uProxy,
                    sk_sp<GrTextureProxy> vProxy, const SkMatrix yuvMatrix[3],
                    GrSamplerState::Filter uvFilterMode, SkYUVColorSpace colorSpace, bool nv12)
-            : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
+            : INHERITED(kYUVtoRGBEffect_ClassID, kPreservesOpaqueInput_OptimizationFlag)
             , fYTransform(yuvMatrix[0], yProxy.get())
             , fYSampler(std::move(yProxy))
             , fUTransform(yuvMatrix[1], uProxy.get())
@@ -146,7 +146,6 @@ private:
             , fVSampler(vProxy, uvFilterMode)
             , fColorSpace(colorSpace)
             , fNV12(nv12) {
-        this->initClassID<YUVtoRGBEffect>();
         this->addCoordTransform(&fYTransform);
         this->addTextureSampler(&fYSampler);
         this->addCoordTransform(&fUTransform);
@@ -159,7 +158,7 @@ private:
     }
 
     YUVtoRGBEffect(const YUVtoRGBEffect& that)
-            : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
+            : INHERITED(kYUVtoRGBEffect_ClassID, kPreservesOpaqueInput_OptimizationFlag)
             , fYTransform(that.fYTransform)
             , fYSampler(that.fYSampler)
             , fUTransform(that.fUTransform)
@@ -168,7 +167,6 @@ private:
             , fVSampler(that.fVSampler)
             , fColorSpace(that.fColorSpace)
             , fNV12(that.fNV12) {
-        this->initClassID<YUVtoRGBEffect>();
         this->addCoordTransform(&fYTransform);
         this->addTextureSampler(&fYSampler);
         this->addCoordTransform(&fUTransform);

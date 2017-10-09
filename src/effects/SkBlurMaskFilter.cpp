@@ -974,12 +974,11 @@ sk_sp<GrTextureProxy> GrRectBlurEffect::CreateBlurProfileTexture(
 GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma,
                                    sk_sp<GrTextureProxy> blurProfile,
                                    GrSLPrecision precision)
-        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+        : INHERITED(kGrRectBlurEffect_ClassID, kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fRect(rect)
         , fSigma(sigma)
         , fBlurProfileSampler(std::move(blurProfile))
         , fPrecision(precision) {
-    this->initClassID<GrRectBlurEffect>();
     this->addTextureSampler(&fBlurProfileSampler);
 }
 
@@ -1206,11 +1205,10 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
 
 GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect,
                                      sk_sp<GrTextureProxy> ninePatchProxy)
-        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+        : INHERITED(kGrRRectBlurEffect_ClassID, kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fRRect(rrect)
         , fSigma(sigma)
         , fNinePatchSampler(std::move(ninePatchProxy)) {
-    this->initClassID<GrRRectBlurEffect>();
     this->addTextureSampler(&fNinePatchSampler);
 }
 

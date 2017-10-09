@@ -115,8 +115,6 @@ public:
 };
 }
 
-int32_t GrProcessor::gCurrProcessorClassID = GrProcessor::kIllegalProcessorClassID;
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void* GrProcessor::operator new(size_t size) { return MemoryPoolAccessor().pool()->allocate(size); }

@@ -426,7 +426,7 @@ public:
     }
 
 protected:
-    GrGradientEffect(const CreateArgs&, bool isOpaque);
+    GrGradientEffect(ClassID classID, const CreateArgs&, bool isOpaque);
     explicit GrGradientEffect(const GrGradientEffect&);  // facilitates clone() implementations
 
     #if GR_TEST_UTILS

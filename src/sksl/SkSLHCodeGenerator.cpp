@@ -172,9 +172,9 @@ void HCodeGenerator::writeConstructor() {
     }
     this->writeSection(CONSTRUCTOR_PARAMS_SECTION, separator);
     this->writef(")\n"
-                 "    : INHERITED(");
-    if (!this->writeSection(OPTIMIZATION_FLAGS_SECTION, "(OptimizationFlags) ")) {
-        this->writef("kNone_OptimizationFlags");
+                 "    : INHERITED(k%s_ClassID", fFullName.c_str());
+    if (!this->writeSection(OPTIMIZATION_FLAGS_SECTION, ", (OptimizationFlags) ")) {
+        this->writef(", kNone_OptimizationFlags");
     }
     this->writef(")");
     this->writeSection(INITIALIZERS_SECTION, "\n    , ");
@@ -211,9 +211,7 @@ void HCodeGenerator::writeConstructor() {
         String field = FieldName(s->fArgument.c_str());
         this->writef("        this->addCoordTransform(&%sCoordTransform);\n", field.c_str());
     }
-    this->writef("        this->initClassID<%s>();\n"
-                 "    }\n",
-                 fFullName.c_str());
+    this->writef("    }\n");
 }
 
 void HCodeGenerator::writeFields() {

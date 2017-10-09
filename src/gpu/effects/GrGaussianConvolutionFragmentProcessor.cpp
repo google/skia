@@ -201,13 +201,13 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                                                             float gaussianSigma,
                                                             GrTextureDomain::Mode mode,
                                                             int bounds[2])
-        : INHERITED(ModulateByConfigOptimizationFlags(proxy->config()))
+        : INHERITED(kGrGaussianConvolutionFragmentProcessor_ClassID,
+                    ModulateByConfigOptimizationFlags(proxy->config()))
         , fCoordTransform(proxy.get())
         , fTextureSampler(std::move(proxy))
         , fRadius(radius)
         , fDirection(direction)
         , fMode(mode) {
-    this->initClassID<GrGaussianConvolutionFragmentProcessor>();
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
     SkASSERT(radius <= kMaxKernelRadius);
@@ -219,13 +219,12 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         const GrGaussianConvolutionFragmentProcessor& that)
-        : INHERITED(that.optimizationFlags())
+        : INHERITED(kGrGaussianConvolutionFragmentProcessor_ClassID, that.optimizationFlags())
         , fCoordTransform(that.fCoordTransform)
         , fTextureSampler(that.fTextureSampler)
         , fRadius(that.fRadius)
         , fDirection(that.fDirection)
         , fMode(that.fMode) {
-    this->initClassID<GrGaussianConvolutionFragmentProcessor>();
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
     memcpy(fKernel, that.fKernel, that.width() * sizeof(float));

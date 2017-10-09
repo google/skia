@@ -458,23 +458,23 @@ private:
     }
 
     RRectsGaussianEdgeFP(const SkRRect& first, const SkRRect& second, SkScalar radius)
-            : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+            : INHERITED(kRRectsGaussianEdgeFP_ClassID,
+                        kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , fFirst(first)
             , fSecond(second)
             , fRadius(radius) {
-        this->initClassID<RRectsGaussianEdgeFP>();
 
         fFirstMode = ComputeMode(fFirst);
         fSecondMode = ComputeMode(fSecond);
     }
     RRectsGaussianEdgeFP(const RRectsGaussianEdgeFP& that)
-            : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+            : INHERITED(kRRectsGaussianEdgeFP_ClassID,
+                        kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , fFirst(that.fFirst)
             , fFirstMode(that.fFirstMode)
             , fSecond(that.fSecond)
             , fSecondMode(that.fSecondMode)
             , fRadius(that.fRadius) {
-        this->initClassID<RRectsGaussianEdgeFP>();
     }
 
     static Mode ComputeMode(const SkRRect& rr) {

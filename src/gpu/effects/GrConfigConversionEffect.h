@@ -139,9 +139,8 @@ public:
 
 private:
     GrConfigConversionEffect(int pmConversion)
-            : INHERITED(kNone_OptimizationFlags), fPmConversion(pmConversion) {
-        this->initClassID<GrConfigConversionEffect>();
-    }
+            : INHERITED(kGrConfigConversionEffect_ClassID, kNone_OptimizationFlags)
+            , fPmConversion(pmConversion) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

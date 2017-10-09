@@ -57,8 +57,10 @@ private:
     }
 
     GrConstColorProcessor(GrColor4f color, InputMode mode)
-            : INHERITED(OptFlags(color, mode)), fColor(color), fMode(mode) {
-        this->initClassID<GrConstColorProcessor>();
+            : INHERITED(kGrConstColorProcessor_ClassID
+            , OptFlags(color, mode))
+            , fColor(color)
+            , fMode(mode) {
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

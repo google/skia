@@ -70,12 +70,11 @@ bool GrSimpleTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 GrSimpleTextureEffect::GrSimpleTextureEffect(const GrSimpleTextureEffect& src)
-        : INHERITED(src.optimizationFlags())
+        : INHERITED(kGrSimpleTextureEffect_ClassID, src.optimizationFlags())
         , fImage(src.fImage)
         , fColorXform(src.fColorXform)
         , fMatrix(src.fMatrix)
         , fImageCoordTransform(src.fImageCoordTransform) {
-    this->initClassID<GrSimpleTextureEffect>();
     this->addTextureSampler(&fImage);
     this->addCoordTransform(&fImageCoordTransform);
 }
