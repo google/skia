@@ -317,11 +317,19 @@ public:
     }
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_COMPUTEBYTESIZE_RET_0
     /**
      *  Returns the size (in bytes) of the image buffer that this info needs, given the specified
      *  rowBytes. The rowBytes must be >= this->minRowBytes().
      *  If the calculation overflows, or if the height is 0, this returns 0.
      */
+#else
+    /**
+     *  Returns the size (in bytes) of the image buffer that this info needs, given the specified
+     *  rowBytes. The rowBytes must be >= this->minRowBytes().
+     *  If the calculation overflows this returns SK_MaxSizeT
+     */
+#endif
     size_t computeByteSize(size_t rowBytes) const;
 
     /**

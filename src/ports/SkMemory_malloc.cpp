@@ -70,6 +70,7 @@ void sk_free(void* p) {
 }
 
 void* sk_malloc_flags(size_t size, unsigned flags) {
+    SkASSERT(size <= 1 << 30);
     void* p = malloc(size);
     if (flags & SK_MALLOC_THROW) {
         return throw_on_failure(size, p);
