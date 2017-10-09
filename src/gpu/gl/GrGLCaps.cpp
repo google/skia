@@ -481,14 +481,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     }
 
-#if defined(__has_feature)
-#if defined(SK_BUILD_FOR_MAC) && __has_feature(thread_sanitizer)
-    // See skbug.com/7058
-    fMapBufferType = kNone_MapBufferType;
-    fMapBufferFlags = kNone_MapFlags;
-#endif
-#endif
-
     // We found that the Galaxy J5 with an Adreno 306 running 6.0.1 has a bug where
     // GL_INVALID_OPERATION thrown by glDrawArrays when using a buffer that was mapped. The same bug
     // did not reproduce on a Nexus7 2013 with a 320 running Android M with driver 127.0. It's
