@@ -138,6 +138,7 @@ SkCodec::SkCodec(int width, int height, const SkEncodedInfo& info,
     , fDstInfo()
     , fOptions()
     , fCurrScanline(-1)
+    , fStartedIncrementalDecode(false)
 {}
 
 SkCodec::SkCodec(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
@@ -151,6 +152,7 @@ SkCodec::SkCodec(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
     , fDstInfo()
     , fOptions()
     , fCurrScanline(-1)
+    , fStartedIncrementalDecode(false)
 {}
 
 SkCodec::~SkCodec() {}
