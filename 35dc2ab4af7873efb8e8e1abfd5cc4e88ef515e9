@@ -88,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "82636f99_ea18d631",
+        "filename": "experimental/gmrunner/gmrunner.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-09T20:55:47Z",
+      "side": 1,
+      "message": "We should not use N32 with GPU. All of our GPU backends support kRGBA, only some support kBGRA.",
+      "parentUuid": "2400dcbb_25c08e21",
+      "revId": "35dc2ab4af7873efb8e8e1abfd5cc4e88ef515e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2b49299e_4b831365",
         "filename": "experimental/gmrunner/gmrunner.cpp",
         "patchSetId": 3
