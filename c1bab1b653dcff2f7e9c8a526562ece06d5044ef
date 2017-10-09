@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e058226_f325bd9b",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-09T11:48:44Z",
+      "side": 1,
+      "message": "Do we need \"Coverage\" here?  It\u0027ll already show up at the end of the task name.",
+      "range": {
+        "startLine": 772,
+        "startChar": 39,
+        "endLine": 772,
+        "endChar": 53
+      },
+      "revId": "c1bab1b653dcff2f7e9c8a526562ece06d5044ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d1d86d7_5e7b6a73",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-09T11:48:44Z",
+      "side": 1,
+      "message": "Uber-nit: indent",
+      "range": {
+        "startLine": 246,
+        "startChar": 47,
+        "endLine": 246,
+        "endChar": 48
+      },
+      "revId": "c1bab1b653dcff2f7e9c8a526562ece06d5044ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5fe6194_e059dd8c",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-09T11:48:44Z",
+      "side": 1,
+      "message": "Do you mind changing this to use the following format?\n\nself.persistent_checkout \u003d False\nif self.is_compile_bot:\n  self.persistent_checkout \u003d True\n....\n\nI think that will be a lot clearer, especially if there are comments.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 70
+      },
+      "revId": "c1bab1b653dcff2f7e9c8a526562ece06d5044ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abb7c44f_006232f1",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-09T11:48:44Z",
+      "side": 1,
+      "message": "Why not just put this in swarm_test?",
+      "range": {
+        "startLine": 165,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 57
+      },
+      "revId": "c1bab1b653dcff2f7e9c8a526562ece06d5044ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e220a6f_2eee64d0",
+        "filename": "infra/bots/recipes/upload_coverage_results.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-09T11:48:44Z",
+      "side": 1,
+      "message": "Nit: this is usually referred to as the issue number.",
+      "range": {
+        "startLine": 22,
+        "startChar": 38,
+        "endLine": 22,
+        "endChar": 40
+      },
+      "revId": "c1bab1b653dcff2f7e9c8a526562ece06d5044ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1df8e3ba_feefd163",
+        "filename": "infra/bots/recipes/upload_coverage_results.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-09T11:48:44Z",
+      "side": 1,
+      "message": "Does this already exist in the other upload recipes? If so, we should probably move it into a recipe module.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 45
+      },
+      "revId": "c1bab1b653dcff2f7e9c8a526562ece06d5044ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ff0d7e5_611674dc",
+        "filename": "infra/bots/recipes/upload_coverage_results.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-09T11:48:44Z",
+      "side": 1,
+      "message": "Is the assumption that the caller doesn\u0027t want \u0027-Z\u0027 if they supplied other arguments?",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 23
+      },
+      "revId": "c1bab1b653dcff2f7e9c8a526562ece06d5044ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fde64b36_7d8f5fef",
+        "filename": "infra/bots/recipes/upload_coverage_results.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-09T11:48:44Z",
+      "side": 1,
+      "message": "Nit: indent. Better to do:\n\napi.step(\u0027create text summary\u0027,\n         cmd\u003d[clang_dir.join(\u0027llvm-cov\u0027),\n              \u0027show\u0027,\n              ...\n              \u0027-output-dir\u003d\u0027 + str(output_data)])\n\nSame above and below.",
+      "range": {
+        "startLine": 99,
+        "startChar": 38,
+        "endLine": 105,
+        "endChar": 67
+      },
+      "revId": "c1bab1b653dcff2f7e9c8a526562ece06d5044ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
