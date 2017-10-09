@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8aca37fa_3751d3c3",
+        "filename": "experimental/svg/model/SkSVGAttribute.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-09T20:09:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98a6abca_42e04c65",
+      "revId": "296c212d0f201f54fc38b2dc0f382e53d827e2e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b0386a46_1afaedb2",
         "filename": "experimental/svg/model/SkSVGDOM.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "296c212d0f201f54fc38b2dc0f382e53d827e2e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd0fb033_d2802e51",
+        "filename": "experimental/svg/model/SkSVGDOM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-09T20:09:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0386a46_1afaedb2",
+      "revId": "296c212d0f201f54fc38b2dc0f382e53d827e2e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
