@@ -23,7 +23,8 @@ protected:
 
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&,
-                                            SkTransferFunctionBehavior) override;
+                                            SkTransferFunctionBehavior,
+                                            bool willNeedMipMaps) override;
     TexGenType onCanGenerateTexture() const override {
         return TexGenType::kExpensive;
     }
