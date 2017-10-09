@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "2a63cded_28babe00",
+        "filename": "experimental/gmrunner/build.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-09T14:29:08Z",
+      "side": 1,
+      "message": "why do you need to copy the .a file over?",
+      "range": {
+        "startLine": 37,
+        "startChar": 16,
+        "endLine": 37,
+        "endChar": 23
+      },
+      "revId": "35dc2ab4af7873efb8e8e1abfd5cc4e88ef515e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "022912fb_390d05c5",
         "filename": "experimental/gmrunner/gmrunner.cpp",
         "patchSetId": 3
@@ -41,6 +64,29 @@
         "startChar": 0,
         "endLine": 32,
         "endChar": 1
+      },
+      "revId": "35dc2ab4af7873efb8e8e1abfd5cc4e88ef515e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73efec9a_2879d226",
+        "filename": "experimental/gmrunner/gmrunner.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-09T14:29:08Z",
+      "side": 1,
+      "message": "false.  We opt out of distance fields for the Android framework.  However, for GMs meant for text we may want to run in both modes.",
+      "range": {
+        "startLine": 37,
+        "startChar": 37,
+        "endLine": 37,
+        "endChar": 41
       },
       "revId": "35dc2ab4af7873efb8e8e1abfd5cc4e88ef515e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
