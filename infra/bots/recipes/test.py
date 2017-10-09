@@ -872,6 +872,7 @@ TEST_BUILDERS = [
   'Test-ChromeOS-Clang-Chromebook_CB5_312T-GPU-PowerVRGX6250-arm-Debug',
   'Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Coverage',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug'
    '-SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
