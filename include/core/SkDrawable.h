@@ -66,7 +66,7 @@ public:
 protected:
     virtual SkRect onGetBounds() = 0;
     virtual void onDraw(SkCanvas*) = 0;
-    
+
     /**
      *  Default implementation calls onDraw() with a canvas that records into a picture. Subclasses
      *  may override if they have a more efficient way to return a picture for the current state

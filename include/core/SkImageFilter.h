@@ -95,7 +95,7 @@ public:
          *  Apply this cropRect to the imageBounds. If a given edge of the cropRect is not
          *  set, then the corresponding edge from imageBounds will be used. If "embiggen"
          *  is true, the crop rect is allowed to enlarge the size of the rect, otherwise
-         *  it may only reduce the rect. Filters that can affect transparent black should 
+         *  it may only reduce the rect. Filters that can affect transparent black should
          *  pass "true", while all other filters should pass "false".
          *
          *  Note: imageBounds is in "device" space, as the output cropped rectangle will be,
@@ -342,7 +342,7 @@ protected:
     // calls filterImage() on that input, and returns the result.
     sk_sp<SkSpecialImage> filterInput(int index,
                                       SkSpecialImage* src,
-                                      const Context&, 
+                                      const Context&,
                                       SkIPoint* offset) const;
 
     /**

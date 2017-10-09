@@ -21,7 +21,7 @@ struct SkTagList;
 */
 class SkEventSink : public SkRefCnt {
 public:
-    
+
 
              SkEventSink();
     virtual ~SkEventSink();

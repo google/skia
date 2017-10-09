@@ -415,7 +415,7 @@ private:
                         second.getBounds().centerX(),
                         second.getBounds().centerY());
 
-            pdman.set4f(fSizesUni, 
+            pdman.set4f(fSizesUni,
                         0.5f * first.rect().width(),
                         0.5f * first.rect().height(),
                         0.5f * second.rect().width(),
@@ -425,7 +425,7 @@ private:
                 edgeFP.secondMode() == kSimpleCircular_Mode) {
                 // This is a bit of overkill since fX should equal fY for both round rects but it
                 // makes the shader code simpler.
-                pdman.set4f(fRadiiUni, 
+                pdman.set4f(fRadiiUni,
                             first.getSimpleRadii().fX,  first.getSimpleRadii().fY,
                             second.getSimpleRadii().fX, second.getSimpleRadii().fY);
             }
@@ -495,7 +495,7 @@ private:
     bool onIsEqual(const GrFragmentProcessor& proc) const override {
         const RRectsGaussianEdgeFP& edgeFP = proc.cast<RRectsGaussianEdgeFP>();
         return fFirst  == edgeFP.fFirst &&
-               fSecond == edgeFP.fSecond && 
+               fSecond == edgeFP.fSecond &&
                fRadius == edgeFP.fRadius;
     }
 
@@ -568,9 +568,9 @@ void SkRRectsGaussianEdgeMaskFilterImpl::flatten(SkWriteBuffer& buf) const {
 sk_sp<SkMaskFilter> SkRRectsGaussianEdgeMaskFilter::Make(const SkRRect& first,
                                                          const SkRRect& second,
                                                          SkScalar radius) {
-    if ((!first.isRect()  && !first.isCircle()  && !first.isSimpleCircular()) || 
+    if ((!first.isRect()  && !first.isCircle()  && !first.isSimpleCircular()) ||
         (!second.isRect() && !second.isCircle() && !second.isSimpleCircular())) {
-        // we only deal with the shapes where the x & y radii are equal 
+        // we only deal with the shapes where the x & y radii are equal
         // and the same for all four corners
         return nullptr;
     }

@@ -1396,7 +1396,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
 
     // We can always ignore centers for stroke and fill convex line-only paths
     // TODO: remove the line-only restriction
-    bool ignoreCenter = fDoFill && (src.getSegmentMasks() == SkPath::kLine_SegmentMask) && 
+    bool ignoreCenter = fDoFill && (src.getSegmentMasks() == SkPath::kLine_SegmentMask) &&
                         src.isLastContourClosed() && src.isConvex();
 
     SkPathStroker   stroker(src, radius, fMiterLimit, this->getCap(), this->getJoin(),

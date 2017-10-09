@@ -128,7 +128,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* 
         srcBounds = SkIRect::MakeXYWH(backgroundOffset.x(), backgroundOffset.y(),
                                        background->width(), background->height());
     }
-        
+
     srcBounds.join(foregroundBounds);
     if (srcBounds.isEmpty()) {
         return nullptr;
@@ -145,7 +145,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* 
 #if SK_SUPPORT_GPU
     if (source->isTextureBacked()) {
         return this->filterImageGPU(source,
-                                    background, backgroundOffset, 
+                                    background, backgroundOffset,
                                     foreground, foregroundOffset,
                                     bounds, ctx.outputProperties());
     }

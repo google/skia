@@ -21,18 +21,18 @@ namespace {
 class GLWindowContext_mac : public GLWindowContext {
 public:
     GLWindowContext_mac(const MacWindowInfo&, const DisplayParams&);
-    
+
     ~GLWindowContext_mac() override;
-    
+
     void onSwapBuffers() override;
 
     sk_sp<const GrGLInterface> onInitializeContext() override;
     void onDestroyContext() override;
-    
+
 private:
     SDL_Window*   fWindow;
     SDL_GLContext fGLContext;
-    
+
     typedef GLWindowContext INHERITED;
 };
 

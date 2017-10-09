@@ -326,7 +326,7 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
         // adjust the winding value to account for coincident edges
         if (!pairs->apply(DEBUG_ITER_ONLY_PARAMS(SAFETY_COUNT - safetyHatch))) {
             return false;
-        } 
+        }
         // For each coincident pair that overlaps another, when the receivers (the 1st of the pair)
         // are different, construct a new pair to resolve their mutual span
         if (!pairs->findOverlaps(&overlaps  DEBUG_ITER_PARAMS(SAFETY_COUNT - safetyHatch))) {

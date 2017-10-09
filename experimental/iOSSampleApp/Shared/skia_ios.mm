@@ -18,9 +18,9 @@ int main(int argc, char *argv[]) {
     NSString *resourceDir = [docsDir stringByAppendingString:@"/resources"];
     const char *d = [resourceDir UTF8String];
 
-    // change to the dcouments directory. To allow the 'writePath' flag to use relative paths. 
+    // change to the dcouments directory. To allow the 'writePath' flag to use relative paths.
     NSFileManager *filemgr = [NSFileManager defaultManager];
-    int retVal = 99; 
+    int retVal = 99;
     if ([filemgr changeCurrentDirectoryPath: docsDir] == YES)
     {
         IOS_launch_type launchType = set_cmd_line_args(argc, argv, d);

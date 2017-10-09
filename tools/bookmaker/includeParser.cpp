@@ -94,7 +94,7 @@ void IncludeParser::addKeyword(KeyWord keyWord) {
     }
 }
 
-void IncludeParser::checkForMissingParams(const vector<string>& methodParams, 
+void IncludeParser::checkForMissingParams(const vector<string>& methodParams,
         const vector<string>& foundParams) {
     for (auto& methodParam : methodParams) {
         bool found = false;
@@ -330,7 +330,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         const char* savePos = firstMember.fChar;
                         firstMember.skipToNonAlphaNum();
                         const char* wordEnd = firstMember.fChar;
-                        firstMember.fChar = savePos; 
+                        firstMember.fChar = savePos;
                         const char* lastUnderscore = nullptr;
                         do {
                             if (!firstMember.skipToEndBracket('_')) {
@@ -343,7 +343,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         } while (firstMember.next());
                         if (lastUnderscore) {
                             ++lastUnderscore;
-                            string anonName = className + "::" + string(lastUnderscore, 
+                            string anonName = className + "::" + string(lastUnderscore,
                                     wordEnd - lastUnderscore) + 's';
                             def = root->find(anonName, RootDefinition::AllowParens::kYes);
                         }
@@ -394,7 +394,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                     }
                     break;
                 default:
-                    SkASSERT(0);  // unhandled 
+                    SkASSERT(0);  // unhandled
                     break;
             }
         }
@@ -418,7 +418,7 @@ IClassDefinition* IncludeParser::defineClass(const Definition& includeDef,
         }
         test = test->fParent;
     }
-    className += name; 
+    className += name;
     unordered_map<string, IClassDefinition>& map = fIClassMap;
     IClassDefinition& markupDef = map[className];
     if (markupDef.fStart) {
@@ -727,7 +727,7 @@ void IncludeParser::dumpMethod(const Definition& token) {
         this->writeString("macro expands to: void toString(SkString* str) const;");
         this->writeEndTag();
         this->lf(2);
-        const char desc[] = 
+        const char desc[] =
                 "Creates string representation. The representation is read by\n"
                 "internal debugging tools. The interface and implementation may be\n"
                 "suppressed by defining SK_IGNORE_TO_STRING.";
@@ -770,7 +770,7 @@ bool IncludeParser::dumpTokens(const string& dir) {
     return true;
 }
 
-    // dump equivalent markup 
+    // dump equivalent markup
 bool IncludeParser::dumpTokens(const string& dir, const string& skClassName) {
     string fileName = dir;
     if (dir.length() && '/' != dir[dir.length() - 1]) {
@@ -1009,7 +1009,7 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
         }
         if ('{' == iter->fStart[0] && Definition::Type::kPunctuation == iter->fType) {
             break;
-        }   
+        }
     } while (static_cast<void>(iter = std::next(iter)), true);
     if (Punctuation::kLeftBrace != iter->fPunctuation) {
         return iter->reportError<bool>("expected left brace");
@@ -1109,7 +1109,7 @@ bool IncludeParser::parseComment(const string& filename, const char* start, cons
             break;
         }
         const char* lineEnd = parser.trimmedLineEnd();
-        markupDef->fTokens.emplace_back(MarkType::kComment, parser.fChar, lineEnd, 
+        markupDef->fTokens.emplace_back(MarkType::kComment, parser.fChar, lineEnd,
                 parser.fLineCount, parent);
         parser.skipToEndBracket('\n');
     }
@@ -1144,7 +1144,7 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
     }
     const char* nameStart = enumName.fChar;
     enumName.skipToSpace();
-    markupChild->fName = markupDef->fName + "::" + 
+    markupChild->fName = markupDef->fName + "::" +
             string(nameStart, (size_t) (enumName.fChar - nameStart));
     if (!this->findComments(*child, markupChild)) {
         return false;
@@ -1435,7 +1435,7 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
     switch (child->fType) {
         case Definition::Type::kKeyWord:
             switch (child->fKeyWord) {
-                case KeyWord::kClass: 
+                case KeyWord::kClass:
                     if (!this->parseClass(child, IsStruct::kNo)) {
                         return false;
                     }
@@ -1635,7 +1635,7 @@ bool IncludeParser::parseChar() {
                     this->popBracket();
                 }
                 break;
-            } 
+            }
             if (!fInCharCommentString && '/' == fPrev) {
                 this->pushBracket(Bracket::kSlashSlash);
                 break;
@@ -1753,7 +1753,7 @@ bool IncludeParser::parseChar() {
                                 if ("SK_ATTR_EXTERNALLY_DEPRECATED" == word) {
                                     deprecatedMacro = true;
                                     // remove macro paren (would confuse method parsing later)
-                                    fParent->fTokens.pop_back();  
+                                    fParent->fTokens.pop_back();
                                     fParent->fChildren.pop_back();
                                 }
                                 break;
@@ -1949,7 +1949,7 @@ bool IncludeParser::parseChar() {
         case 'k': case 'l': case 'm': case 'n': case 'o':
         case 'p': case 'q': case 'r': case 's': case 't':
         case 'u': case 'v': case 'w': case 'x': case 'y':
-        case 'z': 
+        case 'z':
             if (fInCharCommentString || fInBrace) {
                 break;
             }

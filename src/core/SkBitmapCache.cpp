@@ -193,7 +193,7 @@ public:
             SkASSERT(rec->fMalloc != nullptr);
         }
     }
-    
+
     bool install(SkBitmap* bitmap) {
         SkAutoMutexAcquire ama(fMutex);
 

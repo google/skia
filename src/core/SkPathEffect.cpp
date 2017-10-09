@@ -104,7 +104,7 @@ public:
         }
         return fPE0->filterPath(dst, *ptr, rec, cullRect);
     }
-    
+
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
@@ -170,7 +170,7 @@ public:
         return fPE0->filterPath(dst, src, rec, cullRect) |
                fPE1->filterPath(dst, src, rec, cullRect);
     }
-    
+
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)

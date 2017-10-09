@@ -226,7 +226,7 @@ void GrGLSLFragmentShaderBuilder::enableCustomOutput() {
         fCustomColorOutputIndex = fOutputs.count();
         fOutputs.push_back().set(kHalf4_GrSLType, DeclaredColorOutputName(),
                                  GrShaderVar::kOut_TypeModifier);
-        fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back()); 
+        fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back());
     }
 }
 

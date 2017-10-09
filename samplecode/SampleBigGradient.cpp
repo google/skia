@@ -93,7 +93,7 @@ public:
 
     void drawRect(const SkRect& r, SkColor c) override {
         CGContextRef cg = (CGContextRef)fCanvas->accessTopRasterHandle();
-        
+
         CGColorRef color = CGColorCreateGenericRGB(SkColorGetR(c)/255.f,
                                                    SkColorGetG(c)/255.f,
                                                    SkColorGetB(c)/255.f,
@@ -121,7 +121,7 @@ static CGAffineTransform matrix_to_transform(CGContextRef cg, const SkMatrix& ct
 class Allocator_CG : public SkRasterHandleAllocator {
 public:
     Allocator_CG() {}
-    
+
     bool allocHandle(const SkImageInfo& info, Rec* rec) override {
         // let CG allocate the pixels
         CGContextRef cg = SkCreateCGContext(SkPixmap(info, nullptr, 0));
@@ -139,7 +139,7 @@ public:
 
     void updateHandle(Handle hndl, const SkMatrix& ctm, const SkIRect& clip) override {
         CGContextRef cg = (CGContextRef)hndl;
-        
+
         CGContextRestoreGState(cg);
         CGContextSaveGState(cg);
         CGContextClipToRect(cg, CGRectMake(clip.x(), clip.y(), clip.width(), clip.height()));
@@ -282,7 +282,7 @@ protected:
         port->drawRect({0, 0, 30, 30}, SK_ColorBLUE);
         port->drawOval({10, 10, 20, 20}, SK_ColorWHITE);
         port->restore();
-        
+
         port->saveLayer({50, 50, 100, 100}, 0x80);
         port->drawRect({55, 55, 95, 95}, SK_ColorGREEN);
         port->restore();

@@ -454,7 +454,7 @@ void GrSurfaceProxyPriv::exactify() {
     if (fProxy->fTarget) {
         // The kApprox but already instantiated case. Setting the proxy's width & height to
         // the instantiated width & height could have side-effects going forward, since we're
-        // obliterating the area of interest information. This call (exactify) only used 
+        // obliterating the area of interest information. This call (exactify) only used
         // when converting an SkSpecialImage to an SkImage so the proxy shouldn't be
         // used for additional draws.
         fProxy->fWidth = fProxy->fTarget->width();

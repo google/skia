@@ -57,7 +57,7 @@ struct SK_API SkPoint3 {
 
     /** Scale the point's coordinates by scale.
     */
-    void scale(SkScalar value) { 
+    void scale(SkScalar value) {
         fX *= value;
         fY *= value;
         fZ *= value;

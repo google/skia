@@ -33,7 +33,7 @@ public:
 
 #ifdef SK_TRACE_VK_RESOURCES
     void dumpInfo() const override {
-        SkDebugf("GrVkDescriptorPool: %d, type %d (%d refs)\n", fDescPool, fType, 
+        SkDebugf("GrVkDescriptorPool: %d, type %d (%d refs)\n", fDescPool, fType,
                  this->getRefCnt());
     }
 #endif

@@ -147,7 +147,7 @@ protected:
             { fTexX + texWidth, fTexY + texHeight},
             { fTexX - texWidth, fTexY + texHeight}}
         ;
-        
+
         SkScalar scaleFreq = 2.0;
         fShader1 = SkPerlinNoiseShader::MakeImprovedNoise(fXFreq/scaleFreq, fYFreq/scaleFreq, 4,
                                                              fSeed);

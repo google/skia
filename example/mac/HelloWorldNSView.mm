@@ -8,7 +8,7 @@
 #import "HelloWorldNSView.h"
 
 #include "SkApplication.h"
-#include <crt_externs.h>  
+#include <crt_externs.h>
 
 @implementation HelloWorldNSView
 

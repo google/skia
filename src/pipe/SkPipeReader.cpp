@@ -37,7 +37,7 @@ public:
         , fTFDeserializer(tfd)
         , fIMDeserializer(imd)
     {}
-    
+
     SkImage* getImage(int index) override {
         return index ? fImages->get(index - 1) : nullptr;
     }
@@ -79,11 +79,11 @@ public:
     void setTypefaceDeserializer(SkTypefaceDeserializer* tfd) {
         fTFDeserializer = tfd;
     }
-    
+
     void setImageDeserializer(SkImageDeserializer* imd) {
         fIMDeserializer = imd;
     }
-    
+
     sk_sp<SkTypeface> makeTypeface(const void* data, size_t size);
     sk_sp<SkImage> makeImage(const sk_sp<SkData>&);
 
@@ -216,7 +216,7 @@ public:
         }
         return factory;
     }
-    
+
     void readPaint(SkPaint* paint) override {
         *paint = read_paint(*this);
     }
@@ -767,12 +767,12 @@ const HandlerRec gPipeHandlers[] = {
     HANDLER(saveLayer),
     HANDLER(restore),
     HANDLER(concat),
-    
+
     HANDLER(clipRect),
     HANDLER(clipRRect),
     HANDLER(clipPath),
     HANDLER(clipRegion),
-    
+
     HANDLER(drawArc),
     HANDLER(drawAtlas),
     HANDLER(drawDRRect),
@@ -790,14 +790,14 @@ const HandlerRec gPipeHandlers[] = {
     HANDLER(drawPath),
     HANDLER(drawOval),
     HANDLER(drawRRect),
-    
+
     HANDLER(drawImage),
     HANDLER(drawImageRect),
     HANDLER(drawImageNine),
     HANDLER(drawImageLattice),
-    
+
     HANDLER(drawVertices),
-    
+
     HANDLER(drawPicture),
     HANDLER(drawAnnotation),
 

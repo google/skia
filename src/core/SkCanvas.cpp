@@ -1440,7 +1440,7 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edge
     AutoValidateClip avc(this);
 
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-    
+
     FOR_EACH_TOP_DEVICE(device->clipRRect(rrect, op, isAA));
 
     fMCRec->fRasterClip.op(rrect, fMCRec->fMatrix, this->getTopLayerBounds(), (SkRegion::Op)op,
@@ -1477,7 +1477,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
     AutoValidateClip avc(this);
 
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-    
+
     FOR_EACH_TOP_DEVICE(device->clipPath(path, op, isAA));
 
     const SkPath* rasterClipPath = &path;

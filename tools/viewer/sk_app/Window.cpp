@@ -19,12 +19,12 @@ static bool default_char_func(SkUnichar c, uint32_t modifiers, void* userData) {
     return false;
 }
 
-static bool default_key_func(Window::Key key, Window::InputState state, uint32_t modifiers, 
+static bool default_key_func(Window::Key key, Window::InputState state, uint32_t modifiers,
                              void* userData) {
     return false;
 }
 
-static bool default_mouse_func(int x, int y, Window::InputState state, uint32_t modifiers, 
+static bool default_mouse_func(int x, int y, Window::InputState state, uint32_t modifiers,
                                void* userData) {
     return false;
 }

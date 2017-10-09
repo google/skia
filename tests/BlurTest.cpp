@@ -534,7 +534,7 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
                                                                     kBlurRad, kBlurRad,
                                                                     &rrectToDraw, &size,
                                                                     rectXs, rectYs, texXs, texYs,
-                                                                    &numX, &numY, &skipMask);   
+                                                                    &numX, &numY, &skipMask);
         REPORTER_ASSERT(reporter, !ninePatchable);
     }
 
@@ -591,8 +591,8 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
         SkScalar testLocs[] = {
              -18.0f, -9.0f,
                1.0f,
-               9.0f, 18.0f, 
-              29.0f, 
+               9.0f, 18.0f,
+              29.0f,
               39.0f, 49.0f,
               91.0f,
              109.0f, 118.0f,
@@ -615,7 +615,7 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
                                                                     kBlurRad, kBlurRad,
                                                                     &rrectToDraw, &size,
                                                                     rectXs, rectYs, texXs, texYs,
-                                                                    &numX, &numY, &skipMask);     
+                                                                    &numX, &numY, &skipMask);
 
                         static const SkScalar kAns = 12.0f * kBlurRad + 2.0f * kCornerRad + 1.0f;
                         REPORTER_ASSERT(reporter, ninePatchable);

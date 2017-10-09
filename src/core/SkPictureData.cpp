@@ -95,7 +95,7 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
             fVerticesRefs[i] = SkRef(verts[i]);
         }
     }
-    
+
     const SkTDArray<const SkImage*>& imgs = record.getImageRefs();
     fImageCount = imgs.count();
     if (fImageCount > 0) {

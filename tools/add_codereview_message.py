@@ -39,10 +39,10 @@ def add_codereview_message(issue, message):
           this url, or this could simply be the issue number.
       message: (string) message to add.
   """
-  # Passing None for the email and password will result in a prompt or
+  # Passing None for the email and auth_config will result in a prompt or
   # reuse of existing cached credentials.
-  my_rietveld = rietveld.Rietveld(RIETVELD_URL, email=None, password=None)
-  
+  my_rietveld = rietveld.Rietveld(RIETVELD_URL, email=None, auth_config=None)
+
   my_rietveld.add_comment(issue, message)
 
 

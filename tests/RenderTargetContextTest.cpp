@@ -71,7 +71,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
     }
 
     // TODO: in a future world we should be able to add a test that the majority of
-    // GrRenderTargetContext calls do not force the instantiation of a deferred 
+    // GrRenderTargetContext calls do not force the instantiation of a deferred
     // GrRenderTargetContext
 }
 #endif

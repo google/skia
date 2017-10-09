@@ -657,7 +657,7 @@ protected:
 
 private:
     const char* fName;
-    
+
     typedef Benchmark INHERITED;
 };
 DEF_BENCH( return new Floor2IntBench(false); )

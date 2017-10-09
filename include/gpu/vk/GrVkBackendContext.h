@@ -31,8 +31,8 @@ enum GrVkFeatureFlags {
 
 // The BackendContext contains all of the base Vulkan objects needed by the GrVkGpu. The assumption
 // is that the client will set these up and pass them to the GrVkGpu constructor. The VkDevice
-// created must support at least one graphics queue, which is passed in as well. 
-// The QueueFamilyIndex must match the family of the given queue. It is needed for CommandPool 
+// created must support at least one graphics queue, which is passed in as well.
+// The QueueFamilyIndex must match the family of the given queue. It is needed for CommandPool
 // creation, and any GrBackendObjects handed to us (e.g., for wrapped textures) need to be created
 // in or transitioned to that family.
 struct GrVkBackendContext : public SkRefCnt {

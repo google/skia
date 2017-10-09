@@ -60,7 +60,7 @@ public:
 
 private:
     void initFeatureSet(MTLFeatureSet featureSet);
- 
+
     void initGrCaps(const id<MTLDevice> device);
     void initShaderCaps();
     void initSampleCount();

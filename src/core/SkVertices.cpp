@@ -216,6 +216,6 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     reader.read(builder.texCoords(), sizes.fTSize);
     reader.read(builder.colors(), sizes.fCSize);
     reader.read(builder.indices(), sizes.fISize);
-    
+
     return builder.detach();
 }

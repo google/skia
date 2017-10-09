@@ -10,7 +10,7 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
-/* 
+/*
 things to do
 if cap word is beginning of sentence, add it to table as lower-case
    word must have only a single initial capital
@@ -428,7 +428,7 @@ void SpellCheck::leafCheck(const char* start, const char* end) {
             case 'k': case 'l': case 'm': case 'n': case 'o':
             case 'p': case 'q': case 'r': case 's': case 't':
             case 'u': case 'v': case 'w': case 'x': case 'y':
-            case 'z': 
+            case 'z':
                 if (!wordStart) {
                     wordStart = chPtr;
                     wordEnd = nullptr;
@@ -441,7 +441,7 @@ void SpellCheck::leafCheck(const char* start, const char* end) {
                 break;
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8': case '9':
-            case '_': 
+            case '_':
                 allLower = false;
             case '-':  // note that dash doesn't clear allLower
                 break;
@@ -603,7 +603,7 @@ void SpellCheck::wordCheck(const string& str) {
     }
     bool inCode = fInCode;
     if (hasUnderscore && isupper(str[0]) && ('S' != str[0] || 'K' != str[1])
-            && !hasColon && !hasDot && !hasParen && !fInStdOut && !inCode && !fInConst 
+            && !hasColon && !hasDot && !hasParen && !fInStdOut && !inCode && !fInConst
             && !sawDigit && !sawSpecial && !sawDash) {
         std::istringstream ss(str);
         string token;
@@ -612,7 +612,7 @@ void SpellCheck::wordCheck(const string& str) {
         }
         return;
     }
-    if (!hasColon && !hasDot && !hasParen && !hasUnderscore 
+    if (!hasColon && !hasDot && !hasParen && !hasUnderscore
             && !fInStdOut && !inCode && !fInConst && !sawDigit
             && islower(str[0]) && isupper(str[1])) {
         inCode = true;
@@ -626,7 +626,7 @@ void SpellCheck::wordCheck(const string& str) {
             }
         }
     }
-    auto& mappy = hasColon ? fColons : 
+    auto& mappy = hasColon ? fColons :
                   hasDot ? fDots :
                   hasParen ? fParens :
                   hasUnderscore ? fUnderscores :

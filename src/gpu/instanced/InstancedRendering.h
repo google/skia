@@ -35,7 +35,7 @@ class InstanceProcessor;
  * There is only one OpAllocator which encapsulates the creation of InstancedOps and the pool
  * of memory used for their Draw objects.
  *
- * The InstancedRendering class tracks a list of InstancedOps that will all be drawn during 
+ * The InstancedRendering class tracks a list of InstancedOps that will all be drawn during
  * the same flush. There is currently one per opList. The nature of instanced
  * rendering allows these ops to combine well and render efficiently.
  * During a flush, it assembles the accumulated draw data into a single vertex and texel

@@ -616,11 +616,11 @@ struct UniControl {
 struct BiControl : public UniControl {
     SkScalar fValHi;
 
-    BiControl(const char* name, SkScalar min, SkScalar max) 
+    BiControl(const char* name, SkScalar min, SkScalar max)
         : UniControl(name, min, max)
         ,  fValHi(fMax) {
     }
-    
+
     virtual ~BiControl() {}
 
     virtual void draw(SkCanvas* canvas, const ControlPaints& paints) {
@@ -683,7 +683,7 @@ public:
 
     MyClick(SkView* target, ClickType type, ControlType control)
         : Click(target)
-        , fType(type) 
+        , fType(type)
         , fControl(control)
         , fVerb((SkPath::Verb) -1)
         , fWeight(1) {
@@ -691,7 +691,7 @@ public:
 
     MyClick(SkView* target, ClickType type, int index)
         : Click(target)
-        , fType(type) 
+        , fType(type)
         , fControl((ControlType) index)
         , fVerb((SkPath::Verb) -1)
         , fWeight(1) {
@@ -699,7 +699,7 @@ public:
 
     MyClick(SkView* target, ClickType type, int index, SkPath::Verb verb, SkScalar weight)
         : Click(target)
-        , fType(type) 
+        , fType(type)
         , fControl((ControlType) index)
         , fVerb(verb)
         , fWeight(weight) {
@@ -819,7 +819,7 @@ class AAGeometryView : public SampleView {
 
 public:
 
-    AAGeometryView() 
+    AAGeometryView()
         : fResControl("error", 0, 10)
         , fWeightControl("weight", 0, 5)
         , fWidthControl("width", FLT_EPSILON, 100)
@@ -942,7 +942,7 @@ public:
         SET_CONTROL(Filter);
         SET_CONTROL(Weight);
     }
-    
+
     #undef SET_CONTROL
 
     void set_buttonList(int index, Button* button, MyClick::ControlType type) {
@@ -973,7 +973,7 @@ public:
 
     // overrides from SkEventSink
     bool onQuery(SkEvent* evt) override;
-    
+
     void onSizeChange() override {
         setControlButtonsPos();
         this->INHERITED::onSizeChange();
@@ -1173,7 +1173,7 @@ public:
                         foundFirst = false;
                     }
                     break;
-                default: 
+                default:
                     break;
             }
             if (SkPath::kLine_Verb <= verb && verb <= SkPath::kCubic_Verb) {
@@ -1228,7 +1228,7 @@ public:
                     canvas->drawPath(cPath, complex ? fComplexPaint : fActivePaint);
                     draw_points(canvas, pts, 4);
                     } break;
-                default: 
+                default:
                     break;
             }
             return;
@@ -1289,7 +1289,7 @@ public:
                         return counter;
                     }
                     } break;
-                default: 
+                default:
                     break;
             }
         }
@@ -1400,7 +1400,7 @@ public:
                 case SkPath::kCubic_Verb:
                     cubic_coverage(pts, distanceMap, w, h);
                     break;
-                default: 
+                default:
                     break;
             }
         }
@@ -1513,7 +1513,7 @@ public:
                 if (!outPath.getBounds().intersects(inPath.getBounds())) {
                     continue;
                 }
-                
+
             }
         }
     }
@@ -1804,9 +1804,9 @@ static struct KeyCommand {
     const char* fDescriptionR;
     bool (AAGeometryView::*fFunction)();
 } kKeyCommandList[] = {
-    { ' ',  0,  "space",   "center path", &AAGeometryView::scaleToFit },   
-    { '-',  0,  "-",          "zoom out", &AAGeometryView::scaleDown },   
-    { '+', '=', "+/=",         "zoom in", &AAGeometryView::scaleUp },   
+    { ' ',  0,  "space",   "center path", &AAGeometryView::scaleToFit },
+    { '-',  0,  "-",          "zoom out", &AAGeometryView::scaleDown },
+    { '+', '=', "+/=",         "zoom in", &AAGeometryView::scaleUp },
     { 'd',  0,  "d",   "dump to console", &AAGeometryView::pathDump },
     { 'h',  0,  "h",     "hide controls", &AAGeometryView::hideAll },
     { 'r',  0,  "r",        "reset path", &AAGeometryView::constructPath },
@@ -1869,5 +1869,5 @@ bool AAGeometryView::onQuery(SkEvent* evt) {
     }
     return this->INHERITED::onQuery(evt);
 }
-    
+
 DEF_SAMPLE( return new AAGeometryView; )

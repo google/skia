@@ -225,6 +225,9 @@ def _CommonChecks(input_api, output_api):
   results.extend(
       input_api.canned_checks.CheckChangeHasNoCR(
           input_api, output_api, source_file_filter=sources))
+  results.extend(
+      input_api.canned_checks.CheckChangeHasNoStrayWhitespace(
+          input_api, output_api, source_file_filter=sources))
   results.extend(_PythonChecks(input_api, output_api))
   results.extend(_IfDefChecks(input_api, output_api))
   results.extend(_CopyrightChecks(input_api, output_api,

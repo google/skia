@@ -29,21 +29,21 @@ static sk_shader_t* make_shader() {
 static void do_draw(sk_canvas_t* canvas) {
     sk_paint_t* paint = sk_paint_new();
     sk_paint_set_antialias(paint, true);
-    
+
     sk_paint_set_color(paint, 0xFFFFFFFF);
     sk_canvas_draw_paint(canvas, paint);
-    
+
     sk_rect_t r = { 10, 10, W - 10, H - 10 };
-    
+
     sk_paint_set_color(paint, 0xFFFF0000);
     sk_canvas_draw_rect(canvas, &r, paint);
-    
+
     sk_shader_t* shader = make_shader();
     sk_paint_set_shader(paint, shader);
     sk_shader_unref(shader);
-    
+
     sk_canvas_draw_oval(canvas, &r, paint);
-    
+
     sk_paint_delete(paint);
 }
 

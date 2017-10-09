@@ -1,3 +1,10 @@
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #import "SkOptionsTableViewController.h"
 #include "SkEvent.h"
 #include "SkTArray.h"
@@ -52,8 +59,8 @@
 }
 
 - (void)updateMenu:(SkOSMenu*)menu {
-    // the first menu is always assumed to be the static, the second is 
-    // repopulated every time over and over again 
+    // the first menu is always assumed to be the static, the second is
+    // repopulated every time over and over again
     int menuIndex = fMenus->find(menu);
     if (menuIndex >= 0 && menuIndex < fMenus->count()) {
         NSUInteger first = 0;
@@ -72,14 +79,14 @@
     for (int i = 0; i < menu->getCount(); ++i) {
         const SkOSMenu::Item* item = menuitems[i];
         NSString* title = [NSString stringWithUTF8String:item->getLabel()];
-        
+
         if (SkOSMenu::kList_Type == item->getType()) {
             int value = 0;
             SkOptionListItem* List = [[SkOptionListItem alloc] init];
 
             List.fItem = item;
             List.fOptions = [[SkOptionListController alloc] initWithStyle:UITableViewStyleGrouped];
-            
+
             int count = 0;
             SkOSMenu::FindListItemCount(*item->getEvent(), &count);
             SkTArray<SkString> options;
@@ -88,7 +95,7 @@
             for (int i = 0; i < count; ++i)
                 [List.fOptions addOption:[NSString stringWithUTF8String:options[i].c_str()]];
             SkOSMenu::FindListIndex(*item->getEvent(), item->getSlotName(), &value);
-            
+
             List.fOptions.fSelectedIndex = value;
             List.fCell = [self createList:title
                                       default:[List.fOptions getSelectedOption]];
@@ -99,7 +106,7 @@
         else {
             SkOptionItem* option = [[SkOptionItem alloc] init];
             option.fItem = item;
- 
+
             bool state = false;
             SkString str;
             SkOSMenu::TriState tristate;
@@ -116,18 +123,18 @@
                     SkOSMenu::FindSliderValue(*item->getEvent(), item->getSlotName(), &value);
                     SkOSMenu::FindSliderMin(*item->getEvent(), &min);
                     SkOSMenu::FindSliderMax(*item->getEvent(), &max);
-                    option.fCell = [self createSlider:title 
-                                                  min:min 
+                    option.fCell = [self createSlider:title
+                                                  min:min
                                                   max:max
                                               default:value];
-                    break;                    
+                    break;
                 case SkOSMenu::kTriState_Type:
                     SkOSMenu::FindTriState(*item->getEvent(), item->getSlotName(), &tristate);
                     option.fCell = [self createTriState:title default:(int)tristate];
                     break;
                 case SkOSMenu::kTextField_Type:
                     SkOSMenu::FindText(*item->getEvent(), item->getSlotName(), &str);
-                    option.fCell = [self createTextField:title 
+                    option.fCell = [self createTextField:title
                                                  default:[NSString stringWithUTF8String:str.c_str()]];
                     break;
                 default:
@@ -175,34 +182,34 @@
 
 - (UITableViewCell*)createAction:(NSString*)title {
     UITableViewCell* cell = [[[UITableViewCell alloc]
-                              initWithStyle:UITableViewCellStyleValue1 
+                              initWithStyle:UITableViewCellStyleValue1
                               reuseIdentifier:nil] autorelease];
     cell.textLabel.text = title;
     return cell;
 }
 
 - (UITableViewCell*)createSwitch:(NSString*)title default:(BOOL)state {
-    UITableViewCell* cell = [[[UITableViewCell alloc] 
-                              initWithStyle:UITableViewCellStyleValue1 
+    UITableViewCell* cell = [[[UITableViewCell alloc]
+                              initWithStyle:UITableViewCellStyleValue1
                               reuseIdentifier:nil] autorelease];
     cell.textLabel.text = title;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     UISwitch* switchView = [[UISwitch alloc] initWithFrame:CGRectZero];
     [switchView setOn:state animated:NO];
-    [switchView addTarget:self 
-                   action:@selector(valueChanged:) 
+    [switchView addTarget:self
+                   action:@selector(valueChanged:)
          forControlEvents:UIControlEventValueChanged];
     cell.accessoryView = switchView;
     [switchView release];
     return cell;
 }
 
-- (UITableViewCell*)createSlider:(NSString*)title 
-                             min:(float)min 
-                             max:(float)max 
+- (UITableViewCell*)createSlider:(NSString*)title
+                             min:(float)min
+                             max:(float)max
                          default:(float)value {
-    UITableViewCell* cell = [[[UITableViewCell alloc] 
-                             initWithStyle:UITableViewCellStyleValue1 
+    UITableViewCell* cell = [[[UITableViewCell alloc]
+                             initWithStyle:UITableViewCellStyleValue1
                              reuseIdentifier:nil] autorelease];
     cell.textLabel.text = title;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -210,18 +217,18 @@
     sliderView.value = value;
     sliderView.minimumValue = min;
     sliderView.maximumValue = max;
-    [sliderView addTarget:self 
-                   action:@selector(valueChanged:) 
+    [sliderView addTarget:self
+                   action:@selector(valueChanged:)
          forControlEvents:UIControlEventValueChanged];
     cell.detailTextLabel.text = [NSString stringWithFormat:@"%1.1f", value];
-    cell.accessoryView = sliderView; 
+    cell.accessoryView = sliderView;
     [sliderView release];
     return cell;
 }
 
 - (UITableViewCell*)createTriState:(NSString*)title default:(int)index {
-    UITableViewCell* cell = [[[UITableViewCell alloc] 
-                              initWithStyle:UITableViewCellStyleValue1 
+    UITableViewCell* cell = [[[UITableViewCell alloc]
+                              initWithStyle:UITableViewCellStyleValue1
                               reuseIdentifier:nil] autorelease];
     cell.textLabel.text = title;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -229,44 +236,44 @@
     UISegmentedControl* segmented = [[UISegmentedControl alloc] initWithItems:items];
     segmented.selectedSegmentIndex = (index == -1) ? 2 : index;
     segmented.segmentedControlStyle = UISegmentedControlStyleBar;
-    [segmented addTarget:self 
-                  action:@selector(valueChanged:) 
+    [segmented addTarget:self
+                  action:@selector(valueChanged:)
         forControlEvents:UIControlEventValueChanged];
     cell.accessoryView = segmented;
     [segmented release];
-    return cell; 
+    return cell;
 }
 
-- (UITableViewCell*)createTextField:(NSString*)title 
+- (UITableViewCell*)createTextField:(NSString*)title
                             default:(NSString*)value {
-    UITableViewCell* cell = [[[UITableViewCell alloc] 
-                              initWithStyle:UITableViewCellStyleValue1 
+    UITableViewCell* cell = [[[UITableViewCell alloc]
+                              initWithStyle:UITableViewCellStyleValue1
                               reuseIdentifier:nil] autorelease];
     cell.textLabel.text = title;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    UITextField* textField = [[UITextField alloc] 
+    UITextField* textField = [[UITextField alloc]
                               initWithFrame:CGRectMake(0, 10, 150, 25)];
     textField.adjustsFontSizeToFitWidth = YES;
     textField.textAlignment = NSTextAlignmentRight;
     textField.textColor = cell.detailTextLabel.textColor;
     textField.placeholder = value;
     textField.returnKeyType = UIReturnKeyDone;
-    [textField addTarget:self 
-                  action:@selector(valueChanged:) 
+    [textField addTarget:self
+                  action:@selector(valueChanged:)
         forControlEvents:UIControlEventEditingDidEndOnExit];
-    cell.accessoryView = textField; 
+    cell.accessoryView = textField;
     [textField release];
     return cell;
 }
 
 - (UITableViewCell*)createList:(NSString*)title default:(NSString*)value{
-    UITableViewCell* cell = [[[UITableViewCell alloc] 
-                              initWithStyle:UITableViewCellStyleValue1 
+    UITableViewCell* cell = [[[UITableViewCell alloc]
+                              initWithStyle:UITableViewCellStyleValue1
                               reuseIdentifier:nil] autorelease];
     cell.textLabel.text = title;
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     cell.detailTextLabel.text = value;
-    return cell; 
+    return cell;
 }
 
 #pragma mark -
@@ -294,7 +301,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
     id item = [fItems objectAtIndex:[self convertPathToIndex:indexPath]];
-    
+
     if ([item isKindOfClass:[SkOptionListItem class]]) {
         SkOptionListItem* list = (SkOptionListItem*)item;
         self.fCurrentList = list;
@@ -306,7 +313,7 @@
             SkOptionItem* action = (SkOptionItem*)item;
             action.fItem->postEvent();
         }
-    } 
+    }
     else{
         NSLog(@"unknown");
     }
@@ -317,8 +324,8 @@
 #pragma mark -
 #pragma mark Navigation controller delegate
 
-- (void)navigationController:(UINavigationController *)navigationController 
-      willShowViewController:(UIViewController *)viewController 
+- (void)navigationController:(UINavigationController *)navigationController
+      willShowViewController:(UIViewController *)viewController
                     animated:(BOOL)animated {
     if (self == viewController) { //when a List option is popped, trigger event
         NSString* selectedOption = [fCurrentList.fOptions getSelectedOption];
@@ -337,3 +344,4 @@
 }
 
 @end
+

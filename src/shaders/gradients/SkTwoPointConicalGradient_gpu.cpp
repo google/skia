@@ -641,7 +641,7 @@ private:
     typedef GrGradientEffect INHERITED;
 };
 
-class FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor 
+class FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor
     : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLFocalInside2PtConicalProcessor(const GrProcessor&);

@@ -11,7 +11,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
 
-#include <algorithm> 
+#include <algorithm>
 #include <cmath>
 #include <cctype>
 #include <forward_list>
@@ -322,14 +322,14 @@ public:
 
     bool match(TextParser* );
 
-    char next() { 
+    char next() {
         SkASSERT(fChar < fEnd);
         char result = *fChar++;
         if ('\n' == result) {
             ++fLineCount;
             fLine = fChar;
         }
-        return result; 
+        return result;
     }
 
     char peek() const { SkASSERT(fChar < fEnd); return *fChar; }
@@ -475,14 +475,14 @@ public:
         return this->eof() || ' ' >= fChar[0];
     }
 
-    bool skipSpace() { 
-        while (' ' == this->peek()) { 
+    bool skipSpace() {
+        while (' ' == this->peek()) {
             (void) this->next();
             if (fChar >= fEnd) {
                 return false;
             }
-        } 
-        return true; 
+        }
+        return true;
     }
 
     bool skipWord(const char* word) {
@@ -500,19 +500,19 @@ public:
         return true;
     }
 
-    bool skipWhiteSpace() { 
-        while (' ' >= this->peek()) { 
+    bool skipWhiteSpace() {
+        while (' ' >= this->peek()) {
             (void) this->next();
             if (fChar >= fEnd) {
                 return false;
             }
-        } 
-        return true; 
+        }
+        return true;
     }
 
     bool startsWith(const char* str) const {
         size_t len = strlen(str);
-        ptrdiff_t lineLen = fEnd - fChar; 
+        ptrdiff_t lineLen = fEnd - fChar;
         return len <= (size_t) lineLen && 0 == strncmp(str, fChar, len);
     }
 
@@ -688,7 +688,7 @@ public:
 
     Definition() {}
 
-    Definition(const char* start, const char* end, int line, Definition* parent) 
+    Definition(const char* start, const char* end, int line, Definition* parent)
         : fStart(start)
         , fContentStart(start)
         , fContentEnd(end)
@@ -702,30 +702,30 @@ public:
         this->setParentIndex();
     }
 
-    Definition(MarkType markType, const char* start, int line, Definition* parent) 
+    Definition(MarkType markType, const char* start, int line, Definition* parent)
         : Definition(markType, start, nullptr, line, parent) {
     }
 
-    Definition(MarkType markType, const char* start, const char* end, int line, Definition* parent) 
+    Definition(MarkType markType, const char* start, const char* end, int line, Definition* parent)
         : Definition(start, end, line, parent) {
         fMarkType = markType;
-        fType = Type::kMark; 
+        fType = Type::kMark;
     }
 
-    Definition(Bracket bracket, const char* start, int lineCount, Definition* parent) 
+    Definition(Bracket bracket, const char* start, int lineCount, Definition* parent)
         : Definition(start, nullptr, lineCount, parent) {
         fBracket = bracket;
         fType = Type::kBracket;
     }
 
-    Definition(KeyWord keyWord, const char* start, const char* end, int lineCount, 
-            Definition* parent) 
+    Definition(KeyWord keyWord, const char* start, const char* end, int lineCount,
+            Definition* parent)
         : Definition(start, end, lineCount, parent) {
         fKeyWord = keyWord;
         fType = Type::kKeyWord;
     }
 
-    Definition(Punctuation punctuation, const char* start, int lineCount, Definition* parent) 
+    Definition(Punctuation punctuation, const char* start, int lineCount, Definition* parent)
         : Definition(start, nullptr, lineCount, parent) {
         fPunctuation = punctuation;
         fType = Type::kPunctuation;
@@ -870,7 +870,7 @@ public:
 
     bool methodHasReturn(const string& name, TextParser* methodParser) const;
     string methodName() const;
-    bool nextMethodParam(TextParser* methodParser, const char** nextEndPtr, 
+    bool nextMethodParam(TextParser* methodParser, const char** nextEndPtr,
                          string* paramName) const;
     bool paramsMatch(const string& fullRef, const string& name) const;
 
@@ -930,12 +930,12 @@ public:
 
     RootDefinition() {
     }
-    
+
     RootDefinition(MarkType markType, const char* start, int line, Definition* parent)
             : Definition(markType, start, line, parent) {
     }
 
-    RootDefinition(MarkType markType, const char* start, const char* end, int line, 
+    RootDefinition(MarkType markType, const char* start, const char* end, int line,
             Definition* parent) : Definition(markType, start, end,  line, parent) {
     }
 
@@ -1262,7 +1262,7 @@ public:
 #define E_O Exemplary::kOptional
 
     BmhParser() : ParserCommon()
-        , fMaps { 
+        , fMaps {
 // names without formal definitions (e.g. Column) aren't included
 // fill in other names once they're actually used
   { "",            nullptr,      MarkType::kNone,         R_Y, E_N, 0 }
@@ -1270,7 +1270,7 @@ public:
 , { "Alias",       nullptr,      MarkType::kAlias,        R_N, E_N, 0 }
 , { "Bug",         nullptr,      MarkType::kBug,          R_N, E_N, 0 }
 , { "Class",       &fClassMap,   MarkType::kClass,        R_Y, E_O, M_CSST | M(Root) }
-, { "Code",        nullptr,      MarkType::kCode,         R_O, E_N, M_CSST | M_E }      
+, { "Code",        nullptr,      MarkType::kCode,         R_O, E_N, M_CSST | M_E }
 , { "",            nullptr,      MarkType::kColumn,       R_Y, E_N, M(Row) }
 , { "",            nullptr,      MarkType::kComment,      R_N, E_N, 0 }
 , { "Const",       &fConstMap,   MarkType::kConst,        R_Y, E_N, M_E | M_ST  }
@@ -1286,7 +1286,7 @@ public:
 , { "Experimental", nullptr,     MarkType::kExperimental, R_Y, E_N, 0 }
 , { "External",    nullptr,      MarkType::kExternal,     R_Y, E_N, M(Root) }
 , { "File",        nullptr,      MarkType::kFile,         R_N, E_N, M(Track) }
-, { "Formula",     nullptr,      MarkType::kFormula,      R_O, E_N, 
+, { "Formula",     nullptr,      MarkType::kFormula,      R_O, E_N,
                                                     M(Column) | M_ST | M(Member) | M(Method) | M_D }
 , { "Function",    nullptr,      MarkType::kFunction,     R_O, E_N, M(Example) }
 , { "Height",      nullptr,      MarkType::kHeight,       R_N, E_N, M(Example) }
@@ -1408,7 +1408,7 @@ public:
         Exemplary fExemplary;  // worthy of an example
         uint64_t fParentMask;
     };
-    
+
     DefinitionMap fMaps[Last_MarkType + 1];
     forward_list<RootDefinition> fTopics;
     forward_list<Definition> fMarkup;
@@ -1754,7 +1754,7 @@ protected:
         unordered_map<string, Definition>* fInclude;
         MarkType fMarkType;
     };
-    
+
     DefinitionMap fMaps[Last_MarkType + 1];
     unordered_map<string, Definition> fIncludeMap;
     unordered_map<string, IClassDefinition> fIClassMap;
@@ -1814,7 +1814,7 @@ public:
     };
 
     struct IterState {
-        IterState (list<Definition>::iterator tIter, list<Definition>::iterator tIterEnd) 
+        IterState (list<Definition>::iterator tIter, list<Definition>::iterator tIterEnd)
             : fDefIter(tIter)
             , fDefEnd(tIterEnd) {
         }
@@ -1846,10 +1846,10 @@ public:
     void enumMembersOut(const RootDefinition* root, Definition& child);
     void enumSizeItems(const Definition& child);
     int lookupMethod(const PunctuationState punctuation, const Word word,
-            const int start, const int run, int lastWrite, 
+            const int start, const int run, int lastWrite,
             const char* data, bool hasIndirection);
     int lookupReference(const PunctuationState punctuation, const Word word,
-            const int start, const int run, int lastWrite, const char last, 
+            const int start, const int run, int lastWrite, const char last,
             const char* data);
     void methodOut(const Definition* method, const Definition& child);
     bool populate(Definition* def, ParentPair* parentPair, RootDefinition* root);
@@ -1973,7 +1973,7 @@ private:
     string linkName(const Definition* ) const;
     string linkRef(const string& leadingSpaces, const Definition*, const string& ref) const;
     void markTypeOut(Definition* );
-    void mdHeaderOut(int depth) { mdHeaderOutLF(depth, 2); } 
+    void mdHeaderOut(int depth) { mdHeaderOutLF(depth, 2); }
     void mdHeaderOutLF(int depth, int lf);
     bool parseFromFile(const char* path) override {
         return true;
@@ -1992,7 +1992,7 @@ private:
     }
 
     BmhParser::Resolvable resolvable(MarkType markType) {
-        if ((MarkType::kExample == markType 
+        if ((MarkType::kExample == markType
                 || MarkType::kFunction == markType) && fHasFiddle) {
             return BmhParser::Resolvable::kNo;
         }

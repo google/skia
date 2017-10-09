@@ -134,19 +134,19 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
 // methods may start with upper (static) or lower (most)
 
         // see if this should have been a findable reference
-                 
+
             // look for Sk / sk / SK ..
         if (!ref.compare(0, 2, "Sk") && ref != "Skew" && ref != "Skews" &&
               ref != "Skip" && ref != "Skips") {
             t.reportError("missed Sk prefixed");
             return result;
-        } 
+        }
         if (!ref.compare(0, 2, "SK")) {
             if (BmhParser::Resolvable::kOut != resolvable) {
                 t.reportError("missed SK prefixed");
             }
             return result;
-        } 
+        }
         if (!isupper(start[0])) {
             // TODO:
             // look for all lowercase w/o trailing parens as mistaken method matches
@@ -157,7 +157,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 fLastParam = def;
                 distFromParam = 0;
                 continue;
-            } else if (!fInDescription && ref[0] != '0' 
+            } else if (!fInDescription && ref[0] != '0'
                     && string::npos != ref.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ")) {
                 // FIXME: see isDefined(); check to see if fXX is a member of xx.fXX
                 if (('f' != ref[0] && string::npos == ref.find("()"))
@@ -386,7 +386,7 @@ const Definition* MdOut::findParamType() {
             return paramType;
         }
         if (isupper(name[0])) {
-            lastFull = name; 
+            lastFull = name;
         }
     } while (true);
     return nullptr;
@@ -784,7 +784,7 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kParam: {
             if (TableState::kNone == fTableState) {
                 this->mdHeaderOut(3);
-                fprintf(fOut, 
+                fprintf(fOut,
                         "Parameters\n"
                         "\n"
                         "<table>"
@@ -811,7 +811,7 @@ void MdOut::markTypeOut(Definition* def) {
                 return;
             }
             string refNameStr = def->fParent->fFiddle + "_" + paramNameStr;
-            fprintf(fOut, 
+            fprintf(fOut,
                     "    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td> <td>",
                     refNameStr.c_str(), paramNameStr.c_str());
         } break;
@@ -841,7 +841,7 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kStdOut: {
             TextParser code(def);
             this->mdHeaderOut(4);
-            fprintf(fOut, 
+            fprintf(fOut,
                     "Example Output\n"
                     "\n"
                     "~~~~");

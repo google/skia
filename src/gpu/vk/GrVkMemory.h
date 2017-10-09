@@ -107,7 +107,7 @@ private:
     const GrVkGpu* fGpu;
 #ifdef SK_DEBUG
     uint32_t       fHeapIndex;
-#endif    
+#endif
     uint32_t       fMemoryTypeIndex;
     VkDeviceMemory fAlloc;
 

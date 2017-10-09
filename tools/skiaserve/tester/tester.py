@@ -57,7 +57,7 @@ class SkiaServeTester:
     def post(self):
         with open(self.skp, 'rb') as payload:
             files = {'file': payload}
-    
+
             # upload skp
             return Check(requests.post(self.url + '/new', files=files))
 
@@ -73,7 +73,7 @@ class SkiaServeTester:
 
     def enable_gpu(self):
         return Check(requests.post(self.url + '/enableGPU/1'))
-    
+
     def disable_gpu(self):
         return Check(requests.post(self.url + '/enableGPU/0'))
 

@@ -95,7 +95,7 @@ public:
     ~GrGLContext() override;
 
 private:
-    GrGLContext(const ConstructorArgs& args) 
+    GrGLContext(const ConstructorArgs& args)
     : INHERITED(args)
     , fCompiler(nullptr) {}
 

@@ -31,7 +31,7 @@ bool Window_ios::initWindow() {
     // we already have a window
     if (fWindow) {
         return true;
-    } 
+    }
 
     constexpr int initialWidth = 1280;
     constexpr int initialHeight = 960;

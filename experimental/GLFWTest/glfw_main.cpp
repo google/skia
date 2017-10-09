@@ -60,22 +60,22 @@ int main(void) {
     if (!glfwInit()) {
         exit(EXIT_FAILURE);
     }
-    
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SRGB_CAPABLE, GL_TRUE);
-    
+
     window = glfwCreateWindow(kWidth, kHeight, "Simple example", NULL, NULL);
     if (!window) {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
     glfwMakeContextCurrent(window);
-    
+
     init_skia(kWidth, kHeight);
-    
+
     sk_sp<SkImage> atlas;
     SkRSXform   xform[kGrid*kGrid+1];
     SkRect      tex[kGrid*kGrid+1];
@@ -87,13 +87,13 @@ int main(void) {
     atlas.reset(SkImage::NewFromEncoded(imageData.get()));
     if (!atlas) {
         SkDebugf("\nCould not decode file ship.png\n");
-        
+
         cleanup_skia();
         glfwDestroyWindow(window);
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
-    
+
     SkScalar anchorX = atlas->width()*0.5f;
     SkScalar anchorY = atlas->height()*0.5f;
     int currIndex = 0;
@@ -101,7 +101,7 @@ int main(void) {
         for (int y = 0; y < kGrid; y++) {
             float xPos = (x / (kGrid - 1.0)) * kWidth;
             float yPos = (y / (kGrid - 1.0)) * kWidth;
-            
+
             tex[currIndex] = SkRect::MakeLTRB(0.0f, 0.0f, atlas->width(), atlas->height());
             xform[currIndex] = SkRSXform::MakeFromRadians(2.0f, SK_ScalarPI*0.5f,
                                                           xPos, yPos, anchorX, anchorY);
@@ -111,12 +111,12 @@ int main(void) {
     tex[currIndex] = SkRect::MakeLTRB(0.0f, 0.0f, atlas->width(), atlas->height());
     xform[currIndex] = SkRSXform::MakeFromRadians(2.0f, SK_ScalarPI*0.5f,
                                                   kWidth*0.5f, kHeight*0.5f, anchorX, anchorY);
-    
+
     currentTime = 0;
-    
+
     glfwSwapInterval(1);
     glfwSetKeyCallback(window, key_callback);
-    
+
     // Draw to the surface via its SkCanvas.
     SkCanvas* canvas = sSurface->getCanvas();   // We don't manage this pointer's lifetime.
     SkPaint paint;
@@ -129,9 +129,9 @@ int main(void) {
         const float kSinDiff = 0.01745240643f;
 
         timer.start();
-        
+
         glfwPollEvents();
-        
+
         float meanTime = 0.0f;
         for (int i = 0; i < 32; ++i) {
             meanTime += times[i];
@@ -140,39 +140,39 @@ int main(void) {
         char outString[64];
         float fps = 1000.f/meanTime;
         sprintf(outString, "fps: %f ms: %f", fps, meanTime);
-        
+
         for (int i = 0; i < kGrid*kGrid+1; ++i) {
             SkScalar c = xform[i].fSCos;
             SkScalar s = xform[i].fSSin;
-        
+
             SkScalar dx = c*anchorX - s*anchorY;
             SkScalar dy = s*anchorX + c*anchorY;
 
             xform[i].fSCos = kCosDiff*c - kSinDiff*s;
             xform[i].fSSin = kSinDiff*c + kCosDiff*s;
-            
+
             dx -= xform[i].fSCos*anchorX - xform[i].fSSin*anchorY;
             dy -= xform[i].fSSin*anchorX + xform[i].fSCos*anchorY;
             xform[i].fTx += dx;
             xform[i].fTy += dy;
         }
-        
+
         canvas->clear(SK_ColorBLACK);
         canvas->drawAtlas(atlas, xform, tex, nullptr, kGrid*kGrid+1, SkXfermode::kSrcOver_Mode,
                           nullptr, &paint);
         canvas->drawText(outString, strlen(outString), 100.f, 100.f, paint);
-        
+
         canvas->flush();
-        
+
         timer.end();
         times[currentTime] = (float)(timer.fWall);
         currentTime = (currentTime + 1) & 0x1f;
-        
+
         glfwSwapBuffers(window);
     }
-  
+
     cleanup_skia();
-    
+
     glfwDestroyWindow(window);
     glfwTerminate();
     exit(EXIT_SUCCESS);
