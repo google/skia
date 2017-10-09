@@ -332,6 +332,11 @@ public:
         return this->computeByteSize(this->minRowBytes());
     }
 
+    // Returns true if the result of computeByteSize (or computeMinByteSize) overflowed
+    static bool ByteSizeOverflowed(size_t byteSize) {
+        return 0 == byteSize;
+    }
+
     bool validRowBytes(size_t rowBytes) const {
         uint64_t minRB = sk_64_mul(fWidth, this->bytesPerPixel());
         return rowBytes >= minRB;

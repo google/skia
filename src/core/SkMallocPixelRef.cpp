@@ -80,8 +80,8 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeUsing(void*(*allocProc)(size_t),
     size_t size = 0;
     if (!info.isEmpty() && rowBytes) {
         size = info.computeByteSize(rowBytes);
-        if (!size) {
-            return nullptr; // overflow
+        if (SkImageInfo::ByteSizeOverflowed(size)) {
+            return nullptr;
         }
     }
 #endif
