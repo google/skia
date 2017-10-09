@@ -98,7 +98,8 @@ private:
                       float yInvZoom,
                       float xInvInset,
                       float yInvInset)
-            : INHERITED{ModulateByConfigOptimizationFlags(proxy->config())}
+            : INHERITED{kGrMagnifierEffect_ClassID,
+                        ModulateByConfigOptimizationFlags(proxy->config())}
             // TODO: no GrSamplerState::Filter::kBilerp?
             , fCoordTransform(proxy.get())
             , fTextureSampler(std::move(proxy))
@@ -109,13 +110,12 @@ private:
             , fYInvZoom(yInvZoom)
             , fXInvInset(xInvInset)
             , fYInvInset(yInvInset) {
-        this->initClassID<GrMagnifierEffect>();
         this->addCoordTransform(&fCoordTransform);
         this->addTextureSampler(&fTextureSampler);
     }
 
     explicit GrMagnifierEffect(const GrMagnifierEffect& that)
-            : INHERITED(that.optimizationFlags())
+            : INHERITED(kGrMagnifierEffect_ClassID, that.optimizationFlags())
             , fCoordTransform(that.fCoordTransform)
             , fTextureSampler(that.fTextureSampler)
             , fColorSpaceXform(that.fColorSpaceXform)
@@ -125,7 +125,6 @@ private:
             , fYInvZoom(that.fYInvZoom)
             , fXInvInset(that.fXInvInset)
             , fYInvInset(that.fYInvInset) {
-        this->initClassID<GrMagnifierEffect>();
         this->addCoordTransform(&fCoordTransform);
         this->addTextureSampler(&fTextureSampler);
     }

@@ -350,13 +350,12 @@ private:
     // This could implement the const input -> const output optimization but it's unlikely to help.
     ArithmeticFP(float k1, float k2, float k3, float k4, bool enforcePMColor,
                  std::unique_ptr<GrFragmentProcessor> dst)
-            : INHERITED(kNone_OptimizationFlags)
+            : INHERITED(kArithmeticFP_ClassID, kNone_OptimizationFlags)
             , fK1(k1)
             , fK2(k2)
             , fK3(k3)
             , fK4(k4)
             , fEnforcePMColor(enforcePMColor) {
-        this->initClassID<ArithmeticFP>();
         SkASSERT(dst);
         SkDEBUGCODE(int dstIndex =) this->registerChildProcessor(std::move(dst));
         SkASSERT(0 == dstIndex);

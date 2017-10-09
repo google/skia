@@ -93,8 +93,7 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              "    const char* name() const override { return \"Test\"; }\n"
              "private:\n"
              "    GrTest()\n"
-             "    : INHERITED(kNone_OptimizationFlags) {\n"
-             "        this->initClassID<GrTest>();\n"
+             "    : INHERITED(kGrTest_ClassID, kNone_OptimizationFlags) {\n"
              "    }\n"
              "    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;\n"
              "    void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) "
@@ -151,8 +150,7 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              "    return true;\n"
              "}\n"
              "GrTest::GrTest(const GrTest& src)\n"
-             ": INHERITED(src.optimizationFlags()) {\n"
-             "    this->initClassID<GrTest>();\n"
+             ": INHERITED(kGrTest_ClassID, src.optimizationFlags()) {\n"
              "}\n"
              "std::unique_ptr<GrFragmentProcessor> GrTest::clone() const {\n"
              "    return std::unique_ptr<GrFragmentProcessor>(new GrTest(*this));\n"
@@ -279,7 +277,7 @@ DEF_TEST(SkSLFPSections, r) {
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
-             ": INHERITED(kNone_OptimizationFlags)\n    ,  initializers section"
+             ": INHERITED(kGrTest_ClassID, kNone_OptimizationFlags)\n    ,  initializers section"
          },
          {});
     test(r,
