@@ -411,6 +411,14 @@ struct SK_API SkRect {
         return r;
     }
 
+    // The largest SkRect for which round() is well-defined.
+    static SkRect SK_WARN_UNUSED_RESULT MakeLargestS32() {
+        const SkRect r = MakeLTRB(SK_MinS32FitsInFloat, SK_MinS32FitsInFloat,
+                                  SK_MaxS32FitsInFloat, SK_MaxS32FitsInFloat);
+        SkASSERT(r == Make(r.roundOut()));
+        return r;
+    }
+
     static constexpr SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h) {
         return SkRect{0, 0, w, h};
     }
