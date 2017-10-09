@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f8df943_85ca1b4b",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 1441,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-10-09T13:38:59Z",
+      "side": 1,
+      "message": "I don\u0027t think you need this - I think the code only uses native GL.",
+      "range": {
+        "startLine": 1441,
+        "startChar": 0,
+        "endLine": 1441,
+        "endChar": 27
+      },
+      "revId": "a0b6671ac7683806ea9c1df0c89eec3567f65496",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
