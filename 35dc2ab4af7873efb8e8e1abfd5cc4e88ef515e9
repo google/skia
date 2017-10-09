@@ -71,6 +71,23 @@
     },
     {
       "key": {
+        "uuid": "2400dcbb_25c08e21",
+        "filename": "experimental/gmrunner/gmrunner.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-10-09T20:29:26Z",
+      "side": 1,
+      "message": "the surface should be N32.",
+      "revId": "35dc2ab4af7873efb8e8e1abfd5cc4e88ef515e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2b49299e_4b831365",
         "filename": "experimental/gmrunner/gmrunner.cpp",
         "patchSetId": 3
@@ -175,6 +192,23 @@
       "writtenOn": "2017-10-09T17:19:22Z",
       "side": 1,
       "message": "You shouldn\u0027t need this. GrContext factory is on the stack and should clean itself up.",
+      "revId": "35dc2ab4af7873efb8e8e1abfd5cc4e88ef515e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8530676_65798a19",
+        "filename": "experimental/gmrunner/gmrunner.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-10-09T20:29:26Z",
+      "side": 1,
+      "message": "Why not std::vector\u003cT\u003e?\n\nWhy not `std::list\u003cstd::string\u003e gmrunner_init();`",
       "revId": "35dc2ab4af7873efb8e8e1abfd5cc4e88ef515e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
