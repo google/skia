@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9db301de_e2dcc382",
+        "filename": "infra/bots/recipe_modules/infra/api.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-10-09T14:48:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "777750e6_4e5f51f5",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 52
+      },
+      "revId": "c3caaffde70f0d303e9292e27d88f849efa58bf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fd71cae9_145b4683",
         "filename": "infra/bots/recipe_modules/vars/api.py",
         "patchSetId": 16
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "dc35ceeb_29683963",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-10-09T14:48:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fd71cae9_145b4683",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 54
+      },
+      "revId": "c3caaffde70f0d303e9292e27d88f849efa58bf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b3ee79fd_ce60cd4e",
         "filename": "infra/bots/recipe_modules/vars/api.py",
         "patchSetId": 16
@@ -68,6 +116,30 @@
       "revId": "c3caaffde70f0d303e9292e27d88f849efa58bf5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4f880b6_46b990f4",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-10-09T14:48:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3ee79fd_ce60cd4e",
+      "range": {
+        "startLine": 50,
+        "startChar": 3,
+        "endLine": 54,
+        "endChar": 6
+      },
+      "revId": "c3caaffde70f0d303e9292e27d88f849efa58bf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
