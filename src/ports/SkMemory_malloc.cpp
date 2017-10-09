@@ -56,6 +56,7 @@ void sk_out_of_memory(void) {
 }
 
 void* sk_malloc_throw(size_t size) {
+    SkASSERT(size <= 1 << 30);
     return sk_malloc_flags(size, SK_MALLOC_THROW);
 }
 
@@ -70,6 +71,7 @@ void sk_free(void* p) {
 }
 
 void* sk_malloc_flags(size_t size, unsigned flags) {
+    SkASSERT(size <= 1 << 30);
     void* p = malloc(size);
     if (flags & SK_MALLOC_THROW) {
         return throw_on_failure(size, p);
