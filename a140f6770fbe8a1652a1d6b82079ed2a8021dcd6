@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a445326d_e8aeda1b",
+        "filename": "experimental/svg/model/SkSVGGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-09T18:57:19Z",
+      "side": 1,
+      "message": "2017 ?",
+      "revId": "a140f6770fbe8a1652a1d6b82079ed2a8021dcd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e7b669b_3534a568",
+        "filename": "experimental/svg/model/SkSVGGradient.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-09T18:57:19Z",
+      "side": 1,
+      "message": "Maybe define these as StopPositionArray \u0026 StopColorArray ?",
+      "revId": "a140f6770fbe8a1652a1d6b82079ed2a8021dcd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
