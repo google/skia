@@ -45,29 +45,7 @@
       "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
-    "name": "update go pkgs",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_FAILURE@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[START_DIR]/go/go/bin/go",
-      "get",
-      "-u",
-      "-t",
-      "go.skia.org/infra/..."
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/gopath",
-      "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "name": "update go pkgs (attempt 2)"
+    "name": "update go pkgs"
   },
   {
     "cmd": [
@@ -77,7 +55,21 @@
       "/foo/file",
       "gs://bar-bucket/file"
     ],
-    "name": "upload test file"
+    "name": "upload test file",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-Z",
+      "/foo/file",
+      "gs://bar-bucket/file"
+    ],
+    "name": "upload test file (attempt 2)"
   },
   {
     "cmd": [

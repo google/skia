@@ -29,6 +29,8 @@ TEST_BUILDERS = [
   'Housekeeper-Weekly-RecreateSKPs',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN',
+  'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs',
+  'Upload-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Coverage',
 ]
 
 
