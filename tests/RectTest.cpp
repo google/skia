@@ -88,3 +88,24 @@ DEF_TEST(Rect, reporter) {
     test_stroke_width_clipping(reporter);
     test_skbug4406(reporter);
 }
+
+#include "SkPoint3.h"
+
+DEF_TEST(growToInclude, reporter) {
+    SkPoint3 pts[] = { { 30, 50, -1 }, { 40, 50, -1 }, { 30, 60, -1 } };
+    SkRect rect;
+    rect.setLargestInverted();
+    rect.growToInclude((SkPoint* ) &pts[0].fX, sizeof(SkPoint3), SK_ARRAY_COUNT(pts));
+    SkDebugf("rect: %g, %g, %g, %g ", rect.left(), rect.top(), rect.right(), rect.bottom());
+}
+
+DEF_TEST(rectcontains, reporter) {
+    SkRect rect = { 30, 50, 40, 60 };
+    SkRect tests[] = { { 30, 50, 31, 51}, { 39, 49, 40, 50}, { 29, 59, 30, 60} };
+    for (auto contained : tests) {
+        SkDebugf("rect: (%g, %g, %g, %g) %s (%g, %g, %g, %g)\n",
+                 rect.left(), rect.top(), rect.right(), rect.bottom(),
+                 rect.contains(contained) ? "contains" : "does not contain",
+                 contained.left(), contained.top(), contained.right(), contained.bottom());
+    }
+}

@@ -270,7 +270,7 @@ struct SK_API SkIRect {
         return containsNoEmptyCheck(r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
 
-    /** If r intersects this rectangle, return true and set this rectangle to that
+    /** If r intersectfies this rectangle, return true and set this rectangle to that
         intersection, otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
