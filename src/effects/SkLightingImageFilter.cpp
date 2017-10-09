@@ -602,7 +602,7 @@ public:
     const GrTextureDomain& domain() const { return fDomain; }
 
 protected:
-    GrLightingEffect(sk_sp<GrTextureProxy>, sk_sp<const SkImageFilterLight> light,
+    GrLightingEffect(ClassID classID, sk_sp<GrTextureProxy>, sk_sp<const SkImageFilterLight> light,
                      SkScalar surfaceScale, const SkMatrix& matrix, BoundaryMode boundaryMode,
                      const SkIRect* srcBounds);
 
@@ -1691,14 +1691,15 @@ static GrTextureDomain create_domain(GrTextureProxy* proxy, const SkIRect* srcBo
     }
 }
 
-GrLightingEffect::GrLightingEffect(sk_sp<GrTextureProxy> proxy,
+GrLightingEffect::GrLightingEffect(ClassID classID,
+                                   sk_sp<GrTextureProxy> proxy,
                                    sk_sp<const SkImageFilterLight> light,
                                    SkScalar surfaceScale,
                                    const SkMatrix& matrix,
                                    BoundaryMode boundaryMode,
                                    const SkIRect* srcBounds)
         // Perhaps this could advertise the opaque or coverage-as-alpha optimizations?
-        : INHERITED(kNone_OptimizationFlags)
+        : INHERITED(classID, kNone_OptimizationFlags)
         , fCoordTransform(proxy.get())
         , fDomain(create_domain(proxy.get(), srcBounds, GrTextureDomain::kDecal_Mode))
         , fTextureSampler(std::move(proxy))
@@ -1706,13 +1707,12 @@ GrLightingEffect::GrLightingEffect(sk_sp<GrTextureProxy> proxy,
         , fSurfaceScale(surfaceScale)
         , fFilterMatrix(matrix)
         , fBoundaryMode(boundaryMode) {
-    this->initClassID<GrLightingEffect>();
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
 
 GrLightingEffect::GrLightingEffect(const GrLightingEffect& that)
-        : INHERITED(that.optimizationFlags())
+        : INHERITED(that.classID(), that.optimizationFlags())
         , fCoordTransform(that.fCoordTransform)
         , fDomain(that.fDomain)
         , fTextureSampler(that.fTextureSampler)
@@ -1720,7 +1720,6 @@ GrLightingEffect::GrLightingEffect(const GrLightingEffect& that)
         , fSurfaceScale(that.fSurfaceScale)
         , fFilterMatrix(that.fFilterMatrix)
         , fBoundaryMode(that.fBoundaryMode) {
-    this->initClassID<GrLightingEffect>();
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
@@ -1741,16 +1740,12 @@ GrDiffuseLightingEffect::GrDiffuseLightingEffect(sk_sp<GrTextureProxy> proxy,
                                                  SkScalar kd,
                                                  BoundaryMode boundaryMode,
                                                  const SkIRect* srcBounds)
-        : INHERITED(std::move(proxy), std::move(light), surfaceScale, matrix, boundaryMode,
-                    srcBounds)
-        , fKD(kd) {
-    this->initClassID<GrDiffuseLightingEffect>();
-}
+        : INHERITED(kGrDiffuseLightingEffect_ClassID, std::move(proxy), std::move(light),
+                    surfaceScale, matrix, boundaryMode, srcBounds)
+        , fKD(kd) {}
 
 GrDiffuseLightingEffect::GrDiffuseLightingEffect(const GrDiffuseLightingEffect& that)
-        : INHERITED(that), fKD(that.fKD) {
-    this->initClassID<GrDiffuseLightingEffect>();
-}
+        : INHERITED(that), fKD(that.fKD) {}
 
 bool GrDiffuseLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrDiffuseLightingEffect& s = sBase.cast<GrDiffuseLightingEffect>();
@@ -1986,17 +1981,13 @@ GrSpecularLightingEffect::GrSpecularLightingEffect(sk_sp<GrTextureProxy> proxy,
                                                    SkScalar shininess,
                                                    BoundaryMode boundaryMode,
                                                    const SkIRect* srcBounds)
-        : INHERITED(std::move(proxy), std::move(light), surfaceScale, matrix, boundaryMode,
-                    srcBounds)
+        : INHERITED(kGrSpecularLightingEffect_ClassID, std::move(proxy), std::move(light),
+                    surfaceScale, matrix, boundaryMode, srcBounds)
         , fKS(ks)
-        , fShininess(shininess) {
-    this->initClassID<GrSpecularLightingEffect>();
-}
+        , fShininess(shininess) {}
 
 GrSpecularLightingEffect::GrSpecularLightingEffect(const GrSpecularLightingEffect& that)
-        : INHERITED(that), fKS(that.fKS), fShininess(that.fShininess) {
-    this->initClassID<GrSpecularLightingEffect>();
-}
+        : INHERITED(that), fKS(that.fKS), fShininess(that.fShininess) {}
 
 bool GrSpecularLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrSpecularLightingEffect& s = sBase.cast<GrSpecularLightingEffect>();

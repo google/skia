@@ -464,7 +464,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
         sk_sp<GrTextureProxy> color,
         sk_sp<GrColorSpaceXform> colorSpaceXform,
         const SkISize& colorDimensions)
-        : INHERITED(OptimizationFlags(color->config()))
+        : INHERITED(kGrDisplacementMapEffect_ClassID, OptimizationFlags(color->config()))
         , fDisplacementTransform(offsetMatrix, displacement.get())
         , fDisplacementSampler(displacement)
         , fColorTransform(color.get())
@@ -475,7 +475,6 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
         , fXChannelSelector(xChannelSelector)
         , fYChannelSelector(yChannelSelector)
         , fScale(scale) {
-    this->initClassID<GrDisplacementMapEffect>();
     this->addCoordTransform(&fDisplacementTransform);
     this->addTextureSampler(&fDisplacementSampler);
     this->addCoordTransform(&fColorTransform);
@@ -483,7 +482,8 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
 }
 
 GrDisplacementMapEffect::GrDisplacementMapEffect(const GrDisplacementMapEffect& that)
-        : INHERITED(OptimizationFlags(that.fColorSampler.proxy()->config()))
+        : INHERITED(kGrDisplacementMapEffect_ClassID,
+                    OptimizationFlags(that.fColorSampler.proxy()->config()))
         , fDisplacementTransform(that.fDisplacementTransform)
         , fDisplacementSampler(that.fDisplacementSampler)
         , fColorTransform(that.fColorTransform)
@@ -493,7 +493,6 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(const GrDisplacementMapEffect& 
         , fXChannelSelector(that.fXChannelSelector)
         , fYChannelSelector(that.fYChannelSelector)
         , fScale(that.fScale) {
-    this->initClassID<GrDisplacementMapEffect>();
     this->addCoordTransform(&fDisplacementTransform);
     this->addTextureSampler(&fDisplacementSampler);
     this->addCoordTransform(&fColorTransform);

@@ -324,14 +324,13 @@ GrMorphologyEffect::GrMorphologyEffect(sk_sp<GrTextureProxy> proxy,
                                        int radius,
                                        Type type,
                                        const float range[2])
-        : INHERITED(ModulateByConfigOptimizationFlags(proxy->config()))
+        : INHERITED(kGrMorphologyEffect_ClassID, ModulateByConfigOptimizationFlags(proxy->config()))
         , fCoordTransform(proxy.get())
         , fTextureSampler(std::move(proxy))
         , fDirection(direction)
         , fRadius(radius)
         , fType(type)
         , fUseRange(SkToBool(range)) {
-    this->initClassID<GrMorphologyEffect>();
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
     if (fUseRange) {
@@ -341,14 +340,13 @@ GrMorphologyEffect::GrMorphologyEffect(sk_sp<GrTextureProxy> proxy,
 }
 
 GrMorphologyEffect::GrMorphologyEffect(const GrMorphologyEffect& that)
-        : INHERITED(that.optimizationFlags())
+        : INHERITED(kGrMorphologyEffect_ClassID, that.optimizationFlags())
         , fCoordTransform(that.fCoordTransform)
         , fTextureSampler(that.fTextureSampler)
         , fDirection(that.fDirection)
         , fRadius(that.fRadius)
         , fType(that.fType)
         , fUseRange(that.fUseRange) {
-    this->initClassID<GrMorphologyEffect>();
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
     if (that.fUseRange) {

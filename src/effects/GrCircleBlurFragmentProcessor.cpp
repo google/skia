@@ -318,12 +318,11 @@ bool GrCircleBlurFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) 
 }
 GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(
         const GrCircleBlurFragmentProcessor& src)
-        : INHERITED(src.optimizationFlags())
+        : INHERITED(kGrCircleBlurFragmentProcessor_ClassID, src.optimizationFlags())
         , fCircleRect(src.fCircleRect)
         , fTextureRadius(src.fTextureRadius)
         , fSolidRadius(src.fSolidRadius)
         , fBlurProfileSampler(src.fBlurProfileSampler) {
-    this->initClassID<GrCircleBlurFragmentProcessor>();
     this->addTextureSampler(&fBlurProfileSampler);
 }
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() const {

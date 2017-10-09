@@ -59,10 +59,9 @@ struct Vertex {
 class GrPipelineDynamicStateTestProcessor : public GrGeometryProcessor {
 public:
     GrPipelineDynamicStateTestProcessor()
-        : fVertex(this->addVertexAttrib("vertex", kHalf2_GrVertexAttribType))
-        , fColor(this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType)) {
-        this->initClassID<GrPipelineDynamicStateTestProcessor>();
-    }
+        : INHERITED(kGrPipelineDynamicStateTestProcessor_ClassID)
+        , fVertex(this->addVertexAttrib("vertex", kHalf2_GrVertexAttribType))
+        , fColor(this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType)) {}
 
     const char* name() const override { return "GrPipelineDynamicStateTest Processor"; }
 

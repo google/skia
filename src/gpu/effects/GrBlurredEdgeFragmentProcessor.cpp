@@ -52,9 +52,8 @@ bool GrBlurredEdgeFragmentProcessor::onIsEqual(const GrFragmentProcessor& other)
 }
 GrBlurredEdgeFragmentProcessor::GrBlurredEdgeFragmentProcessor(
         const GrBlurredEdgeFragmentProcessor& src)
-        : INHERITED(src.optimizationFlags()), fMode(src.fMode) {
-    this->initClassID<GrBlurredEdgeFragmentProcessor>();
-}
+        : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, src.optimizationFlags())
+        , fMode(src.fMode) {}
 std::unique_ptr<GrFragmentProcessor> GrBlurredEdgeFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(*this));
 }

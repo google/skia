@@ -237,7 +237,8 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(
 #endif
                                                  uint32_t flags,
                                                  bool usesLocalCoords)
-        : fColor(color)
+        : INHERITED(kGrDistanceFieldA8TextGeoProc_ClassID)
+        , fColor(color)
         , fViewMatrix(viewMatrix)
 #ifdef SK_GAMMA_APPLY_TO_A8
         , fDistanceAdjust(distanceAdjust)
@@ -246,7 +247,6 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(
         , fInColor(nullptr)
         , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
-    this->initClassID<GrDistanceFieldA8TextGeoProc>();
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kUShort2_GrVertexAttribType);
@@ -498,13 +498,13 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
                                                  const GrSamplerState& params,
                                                  uint32_t flags,
                                                  bool usesLocalCoords)
-        : fColor(color)
+        : INHERITED(kGrDistanceFieldPathGeoProc_ClassID)
+        , fColor(color)
         , fViewMatrix(viewMatrix)
         , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
         , fInColor(nullptr)
         , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
-    this->initClassID<GrDistanceFieldPathGeoProc>();
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kUShort2_GrVertexAttribType);
@@ -817,13 +817,13 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
                                                  const GrSamplerState& params,
                                                  DistanceAdjust distanceAdjust,
                                                  uint32_t flags, bool usesLocalCoords)
-        : fColor(color)
+        : INHERITED(kGrDistanceFieldLCDTextGeoProc_ClassID)
+        , fColor(color)
         , fViewMatrix(viewMatrix)
         , fDistanceAdjust(distanceAdjust)
         , fFlags(flags & kLCD_DistanceFieldEffectMask)
         , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
-    this->initClassID<GrDistanceFieldLCDTextGeoProc>();
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kUShort2_GrVertexAttribType);

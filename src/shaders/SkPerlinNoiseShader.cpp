@@ -741,14 +741,13 @@ private:
                          sk_sp<GrTextureProxy> permutationsProxy,
                          sk_sp<GrTextureProxy> noiseProxy,
                          const SkMatrix& matrix)
-            : INHERITED(kNone_OptimizationFlags)
+            : INHERITED(kGrPerlinNoise2Effect_ClassID, kNone_OptimizationFlags)
             , fType(type)
             , fNumOctaves(numOctaves)
             , fStitchTiles(stitchTiles)
             , fPermutationsSampler(std::move(permutationsProxy))
             , fNoiseSampler(std::move(noiseProxy))
             , fPaintingData(std::move(paintingData)) {
-        this->initClassID<GrPerlinNoise2Effect>();
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fNoiseSampler);
         fCoordTransform.reset(matrix);
@@ -756,7 +755,7 @@ private:
     }
 
     GrPerlinNoise2Effect(const GrPerlinNoise2Effect& that)
-            : INHERITED(kNone_OptimizationFlags)
+            : INHERITED(kGrPerlinNoise2Effect_ClassID, kNone_OptimizationFlags)
             , fType(that.fType)
             , fCoordTransform(that.fCoordTransform)
             , fNumOctaves(that.fNumOctaves)
@@ -764,7 +763,6 @@ private:
             , fPermutationsSampler(that.fPermutationsSampler)
             , fNoiseSampler(that.fNoiseSampler)
             , fPaintingData(new SkPerlinNoiseShaderImpl::PaintingData(*that.fPaintingData)) {
-        this->initClassID<GrPerlinNoise2Effect>();
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fNoiseSampler);
         this->addCoordTransform(&fCoordTransform);
@@ -1165,13 +1163,12 @@ private:
                                 sk_sp<GrTextureProxy> permutationsProxy,
                                 sk_sp<GrTextureProxy> gradientProxy,
                                 const SkMatrix& matrix)
-            : INHERITED(kNone_OptimizationFlags)
+            : INHERITED(kGrImprovedPerlinNoiseEffect_ClassID, kNone_OptimizationFlags)
             , fOctaves(octaves)
             , fZ(z)
             , fPermutationsSampler(std::move(permutationsProxy))
             , fGradientSampler(std::move(gradientProxy))
             , fPaintingData(std::move(paintingData)) {
-        this->initClassID<GrImprovedPerlinNoiseEffect>();
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fGradientSampler);
         fCoordTransform.reset(matrix);
@@ -1179,14 +1176,13 @@ private:
     }
 
     GrImprovedPerlinNoiseEffect(const GrImprovedPerlinNoiseEffect& that)
-            : INHERITED(kNone_OptimizationFlags)
+            : INHERITED(kGrImprovedPerlinNoiseEffect_ClassID, kNone_OptimizationFlags)
             , fCoordTransform(that.fCoordTransform)
             , fOctaves(that.fOctaves)
             , fZ(that.fZ)
             , fPermutationsSampler(that.fPermutationsSampler)
             , fGradientSampler(that.fGradientSampler)
             , fPaintingData(new SkPerlinNoiseShaderImpl::PaintingData(*that.fPaintingData)) {
-        this->initClassID<GrImprovedPerlinNoiseEffect>();
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fGradientSampler);
         this->addCoordTransform(&fCoordTransform);

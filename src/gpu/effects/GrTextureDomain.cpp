@@ -228,25 +228,23 @@ GrTextureDomainEffect::GrTextureDomainEffect(sk_sp<GrTextureProxy> proxy,
                                              const SkRect& domain,
                                              GrTextureDomain::Mode mode,
                                              GrSamplerState::Filter filterMode)
-        : INHERITED(OptFlags(proxy->config(), mode))
+        : INHERITED(kGrTextureDomainEffect_ClassID, OptFlags(proxy->config(), mode))
         , fCoordTransform(matrix, proxy.get())
         , fTextureDomain(proxy.get(), domain, mode)
         , fTextureSampler(std::move(proxy), filterMode)
         , fColorSpaceXform(std::move(colorSpaceXform)) {
     SkASSERT(mode != GrTextureDomain::kRepeat_Mode ||
              filterMode == GrSamplerState::Filter::kNearest);
-    this->initClassID<GrTextureDomainEffect>();
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
 
 GrTextureDomainEffect::GrTextureDomainEffect(const GrTextureDomainEffect& that)
-        : INHERITED(that.optimizationFlags())
+        : INHERITED(kGrTextureDomainEffect_ClassID, that.optimizationFlags())
         , fCoordTransform(that.fCoordTransform)
         , fTextureDomain(that.fTextureDomain)
         , fTextureSampler(that.fTextureSampler)
         , fColorSpaceXform(that.fColorSpaceXform) {
-    this->initClassID<GrTextureDomainEffect>();
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
@@ -343,23 +341,23 @@ std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor:
 
 GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentProcessor(
         sk_sp<GrTextureProxy> proxy, const SkIRect& subset, const SkIPoint& deviceSpaceOffset)
-        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+        : INHERITED(kGrDeviceSpaceTextureDecalFragmentProcessor_ClassID,
+                    kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fTextureSampler(proxy, GrSamplerState::ClampNearest())
         , fTextureDomain(proxy.get(), GrTextureDomain::MakeTexelDomain(subset),
                          GrTextureDomain::kDecal_Mode) {
     this->addTextureSampler(&fTextureSampler);
     fDeviceSpaceOffset.fX = deviceSpaceOffset.fX - subset.fLeft;
     fDeviceSpaceOffset.fY = deviceSpaceOffset.fY - subset.fTop;
-    this->initClassID<GrDeviceSpaceTextureDecalFragmentProcessor>();
 }
 
 GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentProcessor(
         const GrDeviceSpaceTextureDecalFragmentProcessor& that)
-        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+        : INHERITED(kGrDeviceSpaceTextureDecalFragmentProcessor_ClassID,
+                    kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fTextureSampler(that.fTextureSampler)
         , fTextureDomain(that.fTextureDomain)
         , fDeviceSpaceOffset(that.fDeviceSpaceOffset) {
-    this->initClassID<GrDeviceSpaceTextureDecalFragmentProcessor>();
     this->addTextureSampler(&fTextureSampler);
 }
 

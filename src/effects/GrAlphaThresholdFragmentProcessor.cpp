@@ -107,7 +107,7 @@ bool GrAlphaThresholdFragmentProcessor::onIsEqual(const GrFragmentProcessor& oth
 }
 GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         const GrAlphaThresholdFragmentProcessor& src)
-        : INHERITED(src.optimizationFlags())
+        : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, src.optimizationFlags())
         , fImage(src.fImage)
         , fColorXform(src.fColorXform)
         , fMask(src.fMask)
@@ -115,7 +115,6 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         , fOuterThreshold(src.fOuterThreshold)
         , fImageCoordTransform(src.fImageCoordTransform)
         , fMaskCoordTransform(src.fMaskCoordTransform) {
-    this->initClassID<GrAlphaThresholdFragmentProcessor>();
     this->addTextureSampler(&fImage);
     this->addTextureSampler(&fMask);
     this->addCoordTransform(&fImageCoordTransform);

@@ -472,11 +472,11 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
 }
 
 ColorTableEffect::ColorTableEffect(sk_sp<GrTextureProxy> proxy, GrTextureStripAtlas* atlas, int row)
-        : INHERITED(kNone_OptimizationFlags)  // Not bothering with table-specific optimizations.
+        : INHERITED(kColorTableEffect_ClassID,
+                    kNone_OptimizationFlags)  // Not bothering with table-specific optimizations.
         , fTextureSampler(std::move(proxy))
         , fAtlas(atlas)
         , fRow(row) {
-    this->initClassID<ColorTableEffect>();
     this->addTextureSampler(&fTextureSampler);
 }
 
