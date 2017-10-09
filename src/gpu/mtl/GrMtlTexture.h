@@ -17,7 +17,8 @@ class GrMtlGpu;
 class GrMtlTexture : public GrTexture {
 public:
     static sk_sp<GrMtlTexture> CreateNewTexture(GrMtlGpu*, SkBudgeted budgeted,
-                                                const GrSurfaceDesc&, int mipLevels);
+                                                const GrSurfaceDesc&, int mipLevels,
+                                                bool wasFullMipMapDataProvided);
 
     static sk_sp<GrMtlTexture> MakeWrappedTexture(GrMtlGpu*, const GrSurfaceDesc&,
                                                   GrWrapOwnership);
@@ -54,7 +55,8 @@ protected:
 
 private:
     enum Wrapped { kWrapped };
-    GrMtlTexture(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture>, bool isMipMapped);
+    GrMtlTexture(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture>, bool isMipMapped,
+                 bool wasFullMipMapDataProvided);
    // GrMtlTexture(GrMtlGpu*, Wrapped, const GrSurfaceDesc&, GrMtlImage::Wrapped wrapped);
 
     id<MTLTexture> fTexture;

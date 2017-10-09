@@ -17,9 +17,10 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  const GrSurfaceDesc& desc,
                                                  const GrGLTexture::IDDesc& texIDDesc,
                                                  const GrGLRenderTarget::IDDesc& rtIDDesc,
-                                                 bool wasMipMapDataProvided)
+                                                 bool mipsAllocated,
+                                                 bool wasFullMipMapDataProvided)
         : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc, wasMipMapDataProvided)
+        , GrGLTexture(gpu, desc, texIDDesc, mipsAllocated, wasFullMipMapDataProvided)
         , GrGLRenderTarget(gpu, desc, rtIDDesc) {
     this->registerWithCache(budgeted);
 }
@@ -27,10 +28,9 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
 GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  const GrSurfaceDesc& desc,
                                                  const GrGLTexture::IDDesc& texIDDesc,
-                                                 const GrGLRenderTarget::IDDesc& rtIDDesc,
-                                                 bool wasMipMapDataProvided)
+                                                 const GrGLRenderTarget::IDDesc& rtIDDesc)
         : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc, wasMipMapDataProvided)
+        , GrGLTexture(gpu, desc, texIDDesc, false, false)
         , GrGLRenderTarget(gpu, desc, rtIDDesc) {
     this->registerWithCacheWrapped();
 }
@@ -75,7 +75,7 @@ sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
     const GrGLTexture::IDDesc& texIDDesc, const GrGLRenderTarget::IDDesc& rtIDDesc)
 {
     return sk_sp<GrGLTextureRenderTarget>(
-        new GrGLTextureRenderTarget(gpu, desc, texIDDesc, rtIDDesc, false));
+        new GrGLTextureRenderTarget(gpu, desc, texIDDesc, rtIDDesc));
 }
 
 size_t GrGLTextureRenderTarget::onGpuMemorySize() const {

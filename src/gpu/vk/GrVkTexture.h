@@ -17,8 +17,11 @@ struct GrVkImageInfo;
 
 class GrVkTexture : public GrTexture, public virtual GrVkImage {
 public:
-    static sk_sp<GrVkTexture> CreateNewTexture(GrVkGpu*, SkBudgeted budgeted, const GrSurfaceDesc&,
-                                               const GrVkImage::ImageDesc&);
+    static sk_sp<GrVkTexture> CreateNewTexture(GrVkGpu*,
+                                               SkBudgeted budgeted,
+                                               const GrSurfaceDesc&,
+                                               const GrVkImage::ImageDesc&,
+                                               bool wasFullMipMapDataProvided);
 
     static sk_sp<GrVkTexture> MakeWrappedTexture(GrVkGpu*, const GrSurfaceDesc&,
                                                  GrWrapOwnership, const GrVkImageInfo*);
@@ -42,7 +45,7 @@ public:
 
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, const GrVkImageView*,
-                GrBackendObjectOwnership);
+                GrBackendObjectOwnership, bool wasFullMipMapDataProvided);
 
     GrVkGpu* getVkGpu() const;
 
@@ -52,7 +55,8 @@ protected:
 private:
     enum Wrapped { kWrapped };
     GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
-                const GrVkImageInfo&, const GrVkImageView* imageView);
+                const GrVkImageInfo&, const GrVkImageView* imageView,
+                bool wasFullMipMapDataProvided);
     GrVkTexture(GrVkGpu*, Wrapped, const GrSurfaceDesc&,
                 const GrVkImageInfo&, const GrVkImageView* imageView, GrBackendObjectOwnership);
 
