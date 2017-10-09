@@ -330,13 +330,17 @@ const GrBuffer* GrResourceProvider::createPatternedIndexBuffer(const uint16_t* p
     size_t bufferSize = patternSize * reps * sizeof(uint16_t);
 
     // This is typically used in GrMeshDrawOps, so we assume kNoPendingIO.
-    GrBuffer* buffer = this->createBuffer(bufferSize, kIndex_GrBufferType, kStatic_GrAccessPattern,
-                                          kNoPendingIO_Flag);
+    sk_sp<GrBuffer> buffer(this->createBuffer(bufferSize, kIndex_GrBufferType,
+                                              kStatic_GrAccessPattern, kNoPendingIO_Flag));
     if (!buffer) {
         return nullptr;
     }
-
-    SkAutoTArray<uint16_t> data(reps * patternSize);
+    uint16_t* data = (uint16_t*) buffer->map();
+    SkAutoTArray<uint16_t> temp;
+    if (!data) {
+        temp.reset(reps * patternSize);
+        data = temp.get();
+    }
     for (int i = 0; i < reps; ++i) {
         int baseIdx = i * patternSize;
         uint16_t baseVert = (uint16_t)(i * vertCount);
@@ -344,14 +348,15 @@ const GrBuffer* GrResourceProvider::createPatternedIndexBuffer(const uint16_t* p
             data[baseIdx+j] = baseVert + pattern[j];
         }
     }
-
-    if (!buffer->updateData(data.get(), bufferSize)) {
-        buffer->unref();
-        return nullptr;
+    if (temp.get()) {
+        if (!buffer->updateData(data, bufferSize)) {
+            return nullptr;
+        }
+    } else {
+        buffer->unmap();
     }
-
-    this->assignUniqueKeyToResource(key, buffer);
-    return buffer;
+    this->assignUniqueKeyToResource(key, buffer.get());
+    return buffer.release();
 }
 
 static constexpr int kMaxQuads = 1 << 12;  // max possible: (1 << 14) - 1;

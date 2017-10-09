@@ -64,6 +64,10 @@ bool does_full_buffer_contain_correct_values(GrColor* srcBuffer,
 
 void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPixelConfig config,
                          GrSurfaceOrigin origin, bool renderTarget) {
+    if (GrCaps::kNone_MapFlags == context->caps()->mapBufferFlags()) {
+        return;
+    }
+
     // set up the data
     const int kTextureWidth = 16;
     const int kTextureHeight = 16;
