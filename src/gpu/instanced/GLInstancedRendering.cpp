@@ -235,8 +235,9 @@ void GLInstancedRendering::onDraw(const GrPipeline& pipeline, const InstanceProc
         SkASSERT(fDrawIndirectBuffer);
         int glCmdsIdx = op->fGLDrawCmdsIdx;
         this->flushInstanceAttribs(op->fEmulatedBaseInstance);
+        uintptr_t glCmdsOffset = glCmdsIdx * sizeof(GrGLDrawElementsIndirectCommand);
         GL_CALL(MultiDrawElementsIndirect(GR_GL_TRIANGLES, GR_GL_UNSIGNED_BYTE,
-                                          (GrGLDrawElementsIndirectCommand*) nullptr + glCmdsIdx,
+                                          reinterpret_cast<const void*>(glCmdsOffset),
                                           numCommands, 0));
         return;
     }
@@ -246,13 +247,14 @@ void GLInstancedRendering::onDraw(const GrPipeline& pipeline, const InstanceProc
         int glCmdIdx = op->fGLDrawCmdsIdx + i;
         this->flushInstanceAttribs(emulatedBaseInstance);
         if (fDrawIndirectBuffer) {
+            uintptr_t glCmdOffset = glCmdIdx * sizeof(GrGLDrawElementsIndirectCommand);
             GL_CALL(DrawElementsIndirect(GR_GL_TRIANGLES, GR_GL_UNSIGNED_BYTE,
-                                         (GrGLDrawElementsIndirectCommand*) nullptr + glCmdIdx));
+                                         reinterpret_cast<const void*>(glCmdOffset)));
         } else {
             const GLDrawCmdInfo& cmdInfo = fGLDrawCmdsInfo[glCmdIdx];
             GL_CALL(DrawElementsInstanced(GR_GL_TRIANGLES, cmdInfo.fGeometry.fCount,
                                           GR_GL_UNSIGNED_BYTE,
-                                          (GrGLubyte*) nullptr + cmdInfo.fGeometry.fStart,
+                                          reinterpret_cast<const void*>(cmdInfo.fGeometry.fStart),
                                           cmdInfo.fInstanceCount));
         }
         if (!glCaps.baseInstanceSupport()) {
@@ -269,36 +271,37 @@ void GLInstancedRendering::flushInstanceAttribs(int baseInstance) {
     SkASSERT(fInstanceBuffer);
     if (fInstanceAttribsBufferUniqueId != fInstanceBuffer->uniqueID() ||
         fInstanceAttribsBaseInstance != baseInstance) {
-        Instance* offsetInBuffer = (Instance*) nullptr + baseInstance;
+        uintptr_t offsetInBuffer = baseInstance * sizeof(Instance);
+        const Instance* offsetAsPtr = reinterpret_cast<const Instance*>(offsetInBuffer);
 
         this->glGpu()->bindBuffer(kVertex_GrBufferType, fInstanceBuffer.get());
 
         // Info attrib.
         GL_CALL(EnableVertexAttribArray((int)Attrib::kInstanceInfo));
         GL_CALL(VertexAttribIPointer((int)Attrib::kInstanceInfo, 1, GR_GL_UNSIGNED_INT,
-                                     sizeof(Instance), &offsetInBuffer->fInfo));
+                                     sizeof(Instance), &offsetAsPtr->fInfo));
         GL_CALL(VertexAttribDivisor((int)Attrib::kInstanceInfo, 1));
 
         // Shape matrix attrib.
         GL_CALL(EnableVertexAttribArray((int)Attrib::kShapeMatrixX));
         GL_CALL(EnableVertexAttribArray((int)Attrib::kShapeMatrixY));
         GL_CALL(VertexAttribPointer((int)Attrib::kShapeMatrixX, 3, GR_GL_FLOAT, GR_GL_FALSE,
-                                    sizeof(Instance), &offsetInBuffer->fShapeMatrix2x3[0]));
+                                    sizeof(Instance), &offsetAsPtr->fShapeMatrix2x3[0]));
         GL_CALL(VertexAttribPointer((int)Attrib::kShapeMatrixY, 3, GR_GL_FLOAT, GR_GL_FALSE,
-                                    sizeof(Instance), &offsetInBuffer->fShapeMatrix2x3[3]));
+                                    sizeof(Instance), &offsetAsPtr->fShapeMatrix2x3[3]));
         GL_CALL(VertexAttribDivisor((int)Attrib::kShapeMatrixX, 1));
         GL_CALL(VertexAttribDivisor((int)Attrib::kShapeMatrixY, 1));
 
         // Color attrib.
         GL_CALL(EnableVertexAttribArray((int)Attrib::kColor));
         GL_CALL(VertexAttribPointer((int)Attrib::kColor, 4, GR_GL_UNSIGNED_BYTE, GR_GL_TRUE,
-                                    sizeof(Instance), &offsetInBuffer->fColor));
+                                    sizeof(Instance), &offsetAsPtr->fColor));
         GL_CALL(VertexAttribDivisor((int)Attrib::kColor, 1));
 
         // Local rect attrib.
         GL_CALL(EnableVertexAttribArray((int)Attrib::kLocalRect));
         GL_CALL(VertexAttribPointer((int)Attrib::kLocalRect, 4, GR_GL_FLOAT, GR_GL_FALSE,
-                                    sizeof(Instance), &offsetInBuffer->fLocalRect));
+                                    sizeof(Instance), &offsetAsPtr->fLocalRect));
         GL_CALL(VertexAttribDivisor((int)Attrib::kLocalRect, 1));
 
         fInstanceAttribsBufferUniqueId = fInstanceBuffer->uniqueID();
