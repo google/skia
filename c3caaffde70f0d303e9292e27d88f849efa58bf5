@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "777750e6_4e5f51f5",
+        "filename": "infra/bots/recipe_modules/infra/api.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-09T14:17:05Z",
+      "side": 1,
+      "message": "I was actually thinking this should go into a new gsutil module, as it doesn\u0027t have much to do with infra.",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 52
+      },
+      "revId": "c3caaffde70f0d303e9292e27d88f849efa58bf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd71cae9_145b4683",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-09T14:17:05Z",
+      "side": 1,
+      "message": "I think this can just be removed.  We don\u0027t have a presubmit bot which runs our recipes.",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 54
+      },
+      "revId": "c3caaffde70f0d303e9292e27d88f849efa58bf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3ee79fd_ce60cd4e",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-09T14:17:05Z",
+      "side": 1,
+      "message": "Nit: indent",
+      "range": {
+        "startLine": 50,
+        "startChar": 3,
+        "endLine": 54,
+        "endChar": 6
+      },
+      "revId": "c3caaffde70f0d303e9292e27d88f849efa58bf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
