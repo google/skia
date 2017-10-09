@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eda03fdd_3dc0f59f",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-09T15:36:26Z",
+      "side": 1,
+      "message": "Greg, do I need to pass the GrContext into the release fn for Vk to clean up fully? Or can Skia figure things out from just the backend Tex?",
+      "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
