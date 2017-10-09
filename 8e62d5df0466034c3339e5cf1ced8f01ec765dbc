@@ -16,6 +16,24 @@
       "revId": "8e62d5df0466034c3339e5cf1ced8f01ec765dbc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f96112ad_8736104f",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-10-09T20:20:31Z",
+      "side": 1,
+      "message": "Thanks, wasn\u0027t aware I could rely on that.",
+      "parentUuid": "6c88cc60_b8158a9c",
+      "revId": "8e62d5df0466034c3339e5cf1ced8f01ec765dbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
