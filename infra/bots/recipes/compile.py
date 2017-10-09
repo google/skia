@@ -82,6 +82,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-mipsel-Debug-Android',
   'Build-Debian9-Clang-x86_64-Debug',
   'Build-Debian9-Clang-x86_64-Debug-ASAN',
+  'Build-Debian9-Clang-x86_64-Debug-Coverage',
   'Build-Debian9-Clang-x86_64-Debug-MSAN',
   'Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
   'Build-Debian9-Clang-x86_64-Release-Fast',
