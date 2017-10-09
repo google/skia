@@ -4227,7 +4227,7 @@ void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const
 
 Writes text representation of <a href="#Path">Path</a> to <a href="#SkPath_dump_stream">stream</a>. If <a href="#SkPath_dump_stream">stream</a> is nullptr, <a href="#SkPath_dump_2">dump</a> writes to
 standard output. Set <a href="#SkPath_dump_forceClose">forceClose</a> to true to get
-edges used to fill <a href="#Path">Path</a>. Set <a href="#SkPath_dump_dumpAsHex">dumpAsHex</a> true to get exact binary representations
+edges used to fill <a href="#Path">Path</a>. Set <a href="#SkPath_dump_dumpAsHex">dumpAsHex</a> true to generate exact binary representations
 of floating point numbers used in <a href="#Point_Array">Point Array</a> and <a href="#Weight">Conic Weights</a>.
 
 ### Parameters
@@ -4317,8 +4317,6 @@ in hexadecimal to preserve their exact bit pattern. The output reconstructs the
 original <a href="#Path">Path</a>.
 
 Use instead of <a href="#SkPath_dump_2">dump</a> when submittingbug reports against <a href="undocumented#Skia">Skia</a>.
-
-Slight value changes in <a href="#Point_Array">Point Array</a> may cause the bug to disappear.
 
 ### Example
 

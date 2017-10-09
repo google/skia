@@ -5042,7 +5042,7 @@ for (int y = 2; y < 256; y += 9) {
 
 Writes text representation of Path to stream. If stream is nullptr, dump() writes to
 standard output. Set forceClose to true to get
-edges used to fill Path. Set dumpAsHex true to get exact binary representations
+edges used to fill Path. Set dumpAsHex true to generate exact binary representations
 of floating point numbers used in Point_Array and Conic_Weights.
 
 #Param stream      writable Stream receiving Path text representation; may be nullptr ##
@@ -5126,7 +5126,6 @@ original Path.
 Use instead of dump() when submitting 
 #A bug reports against Skia # http://bug.skia.org ##
 .
-Slight value changes in Point_Array may cause the bug to disappear.
 
 #Example
 SkPath path, copy;
