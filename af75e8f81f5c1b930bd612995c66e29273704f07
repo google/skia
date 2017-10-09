@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "e91d3919_e1542509",
+        "filename": "include/gpu/GrTexture.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-09T16:58:17Z",
+      "side": 1,
+      "message": "*creation",
+      "revId": "af75e8f81f5c1b930bd612995c66e29273704f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "20d027b4_04c7845d",
         "filename": "include/gpu/GrTexture.h",
         "patchSetId": 2
@@ -19,6 +36,40 @@
         "endLine": 58,
         "endChar": 44
       },
+      "revId": "af75e8f81f5c1b930bd612995c66e29273704f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e318d9a_ef4729e6",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1014,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-09T16:58:17Z",
+      "side": 1,
+      "message": "Do we need this somewhere at the start?\n\n            if (wasFullMipMapDataProvided) {\n                *wasFullMipMapDataProvided \u003d true;\n            }\n\nor maybe down by the loop?",
+      "revId": "af75e8f81f5c1b930bd612995c66e29273704f07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e80c7936_a45b15b2",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-09T16:58:17Z",
+      "side": 1,
+      "message": "break; ?",
       "revId": "af75e8f81f5c1b930bd612995c66e29273704f07",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
