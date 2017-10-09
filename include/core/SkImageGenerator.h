@@ -140,10 +140,16 @@ public:
      *  It must be non-NULL. The generator should only succeed if:
      *  - its internal context is the same
      *  - it can somehow convert its texture into one that is valid for the provided context.
+     *
+     *  If the willNeedMipMaps flag is true, the generator should try to create a TextureProxy that
+     *  at least has the mip levels allocated and the base layer filled in. If this is not possible,
+     *  the generator is allowed to return a non mipped proxy, but this will have some additional
+     *  overhead in later allocating mips and copying of the base layer.
      */
     sk_sp<GrTextureProxy> generateTexture(GrContext*, const SkImageInfo& info,
                                           const SkIPoint& origin,
-                                          SkTransferFunctionBehavior behavior);
+                                          SkTransferFunctionBehavior behavior,
+                                          bool willNeedMipMaps);
 #endif
 
     /**
@@ -185,7 +191,8 @@ protected:
 
     virtual TexGenType onCanGenerateTexture() const { return TexGenType::kNone; }
     virtual sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&,
-                                                    SkTransferFunctionBehavior);  // returns nullptr
+                                                    SkTransferFunctionBehavior,
+                                                    bool willNeedMipMaps);  // returns nullptr
 #endif
 
 private:

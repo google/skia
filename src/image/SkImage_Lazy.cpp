@@ -788,10 +788,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
                 SkImageGenerator::TexGenType::kCheap != generator->onCanGenerateTexture()) {
             return nullptr;
         }
-        // TODO: Pass a flag into generateTexture which says we want to be mipped. If the generator
-        // can handle creating a mipped surface, then it can either generate the base layer or all
-        // the layers directly. Otherwise it just returns a non mipped surface as it currently does.
-        if ((proxy = generator->generateTexture(ctx, genPixelsInfo, fOrigin, behavior))) {
+        if ((proxy = generator->generateTexture(ctx, genPixelsInfo, fOrigin, behavior,
+                                                willBeMipped))) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
                                      kLockTexturePathCount);
             set_key_on_proxy(ctx->resourceProvider(), proxy.get(), nullptr, key);

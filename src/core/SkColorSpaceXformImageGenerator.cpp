@@ -64,7 +64,7 @@ bool SkColorSpaceXformImageGenerator::onGetPixels(const SkImageInfo& info, void*
 
 sk_sp<GrTextureProxy> SkColorSpaceXformImageGenerator::onGenerateTexture(
         GrContext* ctx, const SkImageInfo& info, const SkIPoint& origin,
-        SkTransferFunctionBehavior) {
+        SkTransferFunctionBehavior, bool willNeedMipMaps) {
     // FIXME:
     // This always operates as if SkTranferFunctionBehavior is kIgnore.  Should we add
     // options so that caller can also request kRespect?

@@ -102,7 +102,7 @@ SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
 #if SK_SUPPORT_GPU
 sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(
         GrContext* ctx, const SkImageInfo& info, const SkIPoint& origin,
-        SkTransferFunctionBehavior behavior) {
+        SkTransferFunctionBehavior behavior, bool willNeedMipMaps) {
     SkASSERT(ctx);
     bool useXformCanvas = SkTransferFunctionBehavior::kIgnore == behavior && info.colorSpace();
 
