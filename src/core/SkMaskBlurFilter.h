@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkBlurMaskFilter_DEFINED
-#define SkBlurMaskFilter_DEFINED
+#ifndef SkMaskBlurFilter_DEFINED
+#define SkMaskBlurFilter_DEFINED
 
 #include <algorithm>
 #include <memory>
