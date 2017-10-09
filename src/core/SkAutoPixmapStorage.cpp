@@ -37,9 +37,15 @@ bool SkAutoPixmapStorage::tryAlloc(const SkImageInfo& info) {
 
     size_t rb;
     size_t size = AllocSize(info, &rb);
+#ifdef SK_SUPPORT_LEGACY_COMPUTEBYTESIZE_RET_0
     if (0 == size) {
         return false;
     }
+#else
+    if (SK_MaxSizeT == size) {
+        return false;
+    }
+#endif
     void* pixels = sk_malloc_flags(size, 0);
     if (nullptr == pixels) {
         return false;
