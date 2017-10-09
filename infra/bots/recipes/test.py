@@ -892,7 +892,7 @@ TEST_BUILDERS = [
    '-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
    '-Valgrind_SK_CPU_LIMIT_SSE41'),
-  ('Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release'
+  ('Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release'
    '-ReleaseAndAbandonGpuContext'),
   'Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-ANGLE',
   'Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-Vulkan',
