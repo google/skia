@@ -503,7 +503,7 @@ void sk_blit_below(SkBlitter* blitter, const SkIRect& ir, const SkRegion& clip) 
  *  is outside of the clip.
  */
 SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
-                             const SkIRect& ir, bool skipRejectTest) {
+                             const SkIRect& ir, bool skipRejectTest, bool irPreClipped) {
     fBlitter = nullptr;     // null means blit nothing
     fClipRect = nullptr;
 
@@ -514,7 +514,7 @@ SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
         }
 
         if (clip->isRect()) {
-            if (fClipRect->contains(ir)) {
+            if (!irPreClipped && fClipRect->contains(ir)) {
 #ifdef SK_DEBUG
                 fRectClipCheckBlitter.init(blitter, *fClipRect);
                 blitter = &fRectClipCheckBlitter;
@@ -522,7 +522,8 @@ SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
                 fClipRect = nullptr;
             } else {
                 // only need a wrapper blitter if we're horizontally clipped
-                if (fClipRect->fLeft > ir.fLeft || fClipRect->fRight < ir.fRight) {
+                if (irPreClipped ||
+                    fClipRect->fLeft > ir.fLeft || fClipRect->fRight < ir.fRight) {
                     fRectBlitter.init(blitter, *fClipRect);
                     blitter = &fRectBlitter;
                 } else {
@@ -639,12 +640,21 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
     }
         // don't reference "origClip" any more, just use clipPtr
 
+
+    SkRect bounds = path.getBounds();
+    bool irPreClipped = false;
+    if (!SkRect::MakeLargestS32().contains(bounds)) {
+        if (!bounds.intersect(SkRect::MakeLargestS32())) {
+            bounds.setEmpty();
+        }
+        irPreClipped = true;
+    }
     SkIRect ir;
     // We deliberately call round_asymmetric_to_int() instead of round(), since we can't afford
     // to generate a bounds that is tighter than the corresponding SkEdges. The edge code basically
     // converts the floats to fixed, and then "rounds". If we called round() instead of
     // round_asymmetric_to_int() here, we could generate the wrong ir for values like 0.4999997.
-    round_asymmetric_to_int(path.getBounds(), &ir);
+    round_asymmetric_to_int(bounds, &ir);
     if (ir.isEmpty()) {
         if (path.isInverseFillType()) {
             blitter->blitRegion(*clipPtr);
@@ -652,7 +662,7 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
         return;
     }
 
-    SkScanClipper clipper(blitter, clipPtr, ir, path.isInverseFillType());
+    SkScanClipper clipper(blitter, clipPtr, ir, path.isInverseFillType(), irPreClipped);
 
     blitter = clipper.getBlitter();
     if (blitter) {
