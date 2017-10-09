@@ -8,6 +8,7 @@ from recipe_engine import recipe_api
 
 INFRA_GO_PKG = 'go.skia.org/infra'
 UPDATE_GO_ATTEMPTS = 5
+UPLOAD_ATTEMPTS = 5
 
 
 class InfraApi(recipe_api.RecipeApi):

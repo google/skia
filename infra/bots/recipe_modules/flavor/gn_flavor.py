@@ -59,7 +59,15 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       cxx  = emscripten_sdk + '/emscripten/incoming/em++'
       extra_cflags.append('-Wno-unknown-warning-option')
 
-    if compiler != 'MSVC' and configuration == 'Debug':
+    if extra_config == 'Coverage':
+      # See https://clang.llvm.org/docs/SourceBasedCodeCoverage.html for
+      # more info on using llvm to gather coverage information.
+      extra_cflags.append('-fprofile-instr-generate')
+      extra_cflags.append('-fcoverage-mapping')
+      extra_ldflags.append('-fprofile-instr-generate')
+      extra_ldflags.append('-fcoverage-mapping')
+
+    elif compiler != 'MSVC' and configuration == 'Debug':
       extra_cflags.append('-O1')
 
     if extra_config == 'Exceptions':
@@ -126,6 +134,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         'skia_use_icu':        'false',
         'skia_enable_gpu':     'false',
       })
+    if extra_config == 'Coverage':
+      args['skia_use_system_freetype2'] = 'false'
 
     sanitize = ''
     if extra_config == 'UBSAN_float_cast_overflow':
@@ -227,6 +237,13 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # We don't care about malloc(), fprintf, etc. used in signal handlers.
       # If we're in a signal handler, we're already crashing...
       env['TSAN_OPTIONS'] = 'report_signal_unsafe=0'
+
+    if 'Coverage' == extra_config:
+      # This is the output file for the coverage data. Just running the binary
+      # will produce the output. The output_file is in the swarming_out_dir and
+      # thus will be an isolated output of the Test step.
+      env['LLVM_PROFILE_FILE'] = self.m.path.join(self.m.vars.swarming_out_dir,
+                                                  'output.profraw')
 
     if path:
       env['PATH'] = '%%(PATH)s:%s' % ':'.join('%s' % p for p in path)

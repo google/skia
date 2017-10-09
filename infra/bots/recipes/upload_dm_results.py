@@ -16,32 +16,13 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/step',
   'recipe_engine/time',
+  'gsutil',
 ]
 
 
 GS_BUCKET_IMAGES = 'skia-infra-gm'
 DM_JSON = 'dm.json'
-UPLOAD_ATTEMPTS = 5
 VERBOSE_LOG = 'verbose.log'
-
-
-def cp(api, name, src, dst, extra_args=None):
-  cmd = ['gsutil', 'cp']
-  if extra_args:
-    cmd.extend(extra_args)
-  cmd.extend([src, dst])
-
-  name = 'upload %s' % name
-  for i in xrange(UPLOAD_ATTEMPTS):
-    step_name = name
-    if i > 0:
-      step_name += ' (attempt %d)' % (i+1)
-    try:
-      api.step(step_name, cmd=cmd)
-      break
-    except api.step.StepFailure:
-      if i == UPLOAD_ATTEMPTS - 1:
-        raise
 
 
 def RunSteps(api):
@@ -71,7 +52,8 @@ def RunSteps(api):
     # For some reason, glob returns results_dir when it should return nothing.
     files_to_upload = [f for f in files_to_upload if str(f).endswith(ext)]
     if len(files_to_upload) > 0:
-      cp(api, 'images', results_dir.join('*%s' % ext), image_dest_path)
+      api.gsutil.cp('images', results_dir.join('*%s' % ext),
+                       image_dest_path)
 
   # Upload the JSON summary and verbose.log.
   now = api.time.utcnow()
@@ -95,8 +77,8 @@ def RunSteps(api):
   summary_dest_path = 'gs://%s/%s' % (api.properties['gs_bucket'],
                                       summary_dest_path)
 
-  cp(api, 'JSON and logs', tmp_dir.join('*'), summary_dest_path,
-     ['-z', 'json,log'])
+  api.gsutil.cp('JSON and logs', tmp_dir.join('*'), summary_dest_path,
+                   ['-z', 'json,log'])
 
 
 def GenTests(api):
