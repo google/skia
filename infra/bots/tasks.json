@@ -5510,7 +5510,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dimensions": [
@@ -5565,7 +5565,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dependencies": [
@@ -5650,7 +5650,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dimensions": [
@@ -5731,7 +5731,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:2"
+          "version": "version:3"
         }
       ],
       "dimensions": [
