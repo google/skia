@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7ab92b3e_de568aa1",
+        "filename": "src/core/SkNx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-10-10T21:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a68fc27b_b6d74a3a",
+      "revId": "645f43a7c34b21362fe68a65770361f5f2a42c76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e2b1277f_ba7afee2",
         "filename": "src/core/SkNx.h",
         "patchSetId": 3
@@ -30,6 +48,30 @@
       "writtenOn": "2017-10-10T20:20:53Z",
       "side": 1,
       "message": "What\u0027s with the extra set of parens?  Did you mean to put them around the *8 also?",
+      "range": {
+        "startLine": 222,
+        "startChar": 72,
+        "endLine": 222,
+        "endChar": 83
+      },
+      "revId": "645f43a7c34b21362fe68a65770361f5f2a42c76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10ac0fed_036314f8",
+        "filename": "src/core/SkNx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-10-10T21:20:58Z",
+      "side": 1,
+      "message": "Yeah.",
+      "parentUuid": "e2b1277f_ba7afee2",
       "range": {
         "startLine": 222,
         "startChar": 72,
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "b1cba2f8_97ca2edb",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-10-10T21:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc1f022c_b8726dc4",
+      "range": {
+        "startLine": 292,
+        "startChar": 31,
+        "endLine": 292,
+        "endChar": 38
+      },
+      "revId": "645f43a7c34b21362fe68a65770361f5f2a42c76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "45fea961_53ac13e5",
         "filename": "src/opts/SkNx_sse.h",
         "patchSetId": 3
@@ -79,6 +145,24 @@
       "revId": "645f43a7c34b21362fe68a65770361f5f2a42c76",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f3632e7_be6a5db5",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-10-10T21:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "45fea961_53ac13e5",
+      "revId": "645f43a7c34b21362fe68a65770361f5f2a42c76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
