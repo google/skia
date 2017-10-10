@@ -119,10 +119,13 @@ struct SkNx {
     AI SkNx saturatedAdd(const SkNx& y) const {
         return { fLo.saturatedAdd(y.fLo), fHi.saturatedAdd(y.fHi) };
     }
+
+    AI SkNx mulHi(const SkNx& m) const {
+        return { fLo.mulHi(m.fLo), fHi.mulHi(m.fHi) };
+    }
     AI SkNx thenElse(const SkNx& t, const SkNx& e) const {
         return { fLo.thenElse(t.fLo, e.fLo), fHi.thenElse(t.fHi, e.fHi) };
     }
-
     AI static SkNx Min(const SkNx& x, const SkNx& y) {
         return { Half::Min(x.fLo, y.fLo), Half::Min(x.fHi, y.fHi) };
     }
@@ -212,6 +215,12 @@ struct SkNx<1,T> {
         static_assert(std::is_unsigned<T>::value, "");
         T sum = fVal + y.fVal;
         return sum < fVal ? std::numeric_limits<T>::max() : sum;
+    }
+
+    AI SkNx mulHi(const SkNx& m) const {
+        static_assert(std::is_unsigned<T>::value, "");
+        static_assert(sizeof(T) <= 4, "");
+        return static_cast<T>((static_cast<uint64_t>(fVal) * m.fVal) >> (sizeof(T)*8));
     }
 
     AI SkNx thenElse(const SkNx& t, const SkNx& e) const { return fVal != 0 ? t : e; }
