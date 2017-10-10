@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "6713490b_547bb0d0",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-10T22:27:13Z",
+      "side": 1,
+      "message": "OK, happy to make this a std::function. Greg, do you have a preference?",
+      "parentUuid": "16064644_96164083",
+      "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7f830c0b_5bf7f5fd",
         "filename": "src/gpu/GrTexture.cpp",
         "patchSetId": 11
@@ -84,6 +102,24 @@
       "writtenOn": "2017-10-10T17:53:02Z",
       "side": 1,
       "message": "Would it make sense for steal to be a static function on GrTexture that takes a sk_sp\u003cGrTexture\u003e and when it returns true the GrTexture is already unref\u0027ed (like how the new SkImage function works).",
+      "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "584a10c0_f7c62b93",
+        "filename": "src/gpu/GrTexture.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-10T22:27:13Z",
+      "side": 1,
+      "message": "Yup, I like this idea, updated.",
+      "parentUuid": "7f830c0b_5bf7f5fd",
       "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -110,6 +146,30 @@
       "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9caf478_6c987228",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 938,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-10T22:27:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "26521aa1_c2fc0eb1",
+      "range": {
+        "startLine": 938,
+        "startChar": 15,
+        "endLine": 938,
+        "endChar": 20
+      },
+      "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
