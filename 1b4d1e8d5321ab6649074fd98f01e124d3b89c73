@@ -52,6 +52,64 @@
       "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16064644_96164083",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-10T17:53:02Z",
+      "side": 1,
+      "message": "It seems like we will want to support deleting the texture on another thread (at least for some APIs) and GrContext is not thread safe. Should we the callback be a std::function and we could embed whatever threadsafe stuff we need to in the returned callback (e.g. a pointer to the thread safe vk memory manager, or in the just term the message to send back to the main thread)? Probably a question for Greg.",
+      "parentUuid": "9c4aa1ff_fcf7243e",
+      "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f830c0b_5bf7f5fd",
+        "filename": "src/gpu/GrTexture.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-10T17:53:02Z",
+      "side": 1,
+      "message": "Would it make sense for steal to be a static function on GrTexture that takes a sk_sp\u003cGrTexture\u003e and when it returns true the GrTexture is already unref\u0027ed (like how the new SkImage function works).",
+      "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26521aa1_c2fc0eb1",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 938,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-10T17:53:02Z",
+      "side": 1,
+      "message": "I think this is the best thing to do in this case.",
+      "range": {
+        "startLine": 938,
+        "startChar": 15,
+        "endLine": 938,
+        "endChar": 20
+      },
+      "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
