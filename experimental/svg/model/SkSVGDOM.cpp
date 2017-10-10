@@ -318,6 +318,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
 };
 
 SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
+    { "a"             , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();              }},
     { "circle"        , []() -> sk_sp<SkSVGNode> { return SkSVGCircle::Make();         }},
     { "clipPath"      , []() -> sk_sp<SkSVGNode> { return SkSVGClipPath::Make();       }},
     { "defs"          , []() -> sk_sp<SkSVGNode> { return SkSVGDefs::Make();           }},
