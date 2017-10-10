@@ -59,7 +59,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       cxx  = emscripten_sdk + '/emscripten/incoming/em++'
       extra_cflags.append('-Wno-unknown-warning-option')
 
-    if extra_config == 'Coverage':
+    if 'Coverage' in extra_config:
       # See https://clang.llvm.org/docs/SourceBasedCodeCoverage.html for
       # more info on using llvm to gather coverage information.
       extra_cflags.append('-fprofile-instr-generate')
@@ -114,7 +114,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_enable_gpu'] = 'false'
     if extra_config == 'Shared':
       args['is_component_build'] = 'true'
-    if extra_config == 'Vulkan':
+    if 'Vulkan' in extra_config and not 'Android' in extra_config:
       args['skia_enable_vulkan_debug_layers'] = 'false'
       if self.m.vars.is_linux:
         args['skia_vulkan_sdk'] = '"%s"' % linux_vulkan_sdk
@@ -134,7 +134,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         'skia_use_icu':        'false',
         'skia_enable_gpu':     'false',
       })
-    if extra_config == 'Coverage':
+    if 'Coverage' in extra_config:
       args['skia_use_system_freetype2'] = 'false'
 
     sanitize = ''
@@ -238,7 +238,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # If we're in a signal handler, we're already crashing...
       env['TSAN_OPTIONS'] = 'report_signal_unsafe=0'
 
-    if 'Coverage' == extra_config:
+    if 'Coverage' in extra_config:
       # This is the output file for the coverage data. Just running the binary
       # will produce the output. The output_file is in the swarming_out_dir and
       # thus will be an isolated output of the Test step.
