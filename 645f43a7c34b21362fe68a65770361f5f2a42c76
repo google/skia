@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a68fc27b_b6d74a3a",
+        "filename": "src/core/SkNx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-10T20:20:53Z",
+      "side": 1,
+      "message": "I guess we\u0027d better also assert that sizeof(T) is \u003c\u003d 4?",
+      "revId": "645f43a7c34b21362fe68a65770361f5f2a42c76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2b1277f_ba7afee2",
+        "filename": "src/core/SkNx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-10T20:20:53Z",
+      "side": 1,
+      "message": "What\u0027s with the extra set of parens?  Did you mean to put them around the *8 also?",
+      "range": {
+        "startLine": 222,
+        "startChar": 72,
+        "endLine": 222,
+        "endChar": 83
+      },
+      "revId": "645f43a7c34b21362fe68a65770361f5f2a42c76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc1f022c_b8726dc4",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-10T20:20:53Z",
+      "side": 1,
+      "message": "don\u0027t we need to shift this too?",
+      "range": {
+        "startLine": 292,
+        "startChar": 31,
+        "endLine": 292,
+        "endChar": 38
+      },
+      "revId": "645f43a7c34b21362fe68a65770361f5f2a42c76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45fea961_53ac13e5",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-10T20:20:53Z",
+      "side": 1,
+      "message": "Maybe we can just implement these as bit puns on the result of SkNx_cast\u003cint\u003e?  That way it\u0027s clear they\u0027re identical.  (Same deal with ARM.)",
+      "revId": "645f43a7c34b21362fe68a65770361f5f2a42c76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
