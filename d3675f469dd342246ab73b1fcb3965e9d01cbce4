@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3986f6c_a973f607",
+        "filename": "tests/CodecPartialTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-10T13:51:41Z",
+      "side": 1,
+      "message": "Oops - this already had a bug - both calls to getAddr should use (0, i), not (0, 0).",
+      "range": {
+        "startLine": 46,
+        "startChar": 19,
+        "endLine": 46,
+        "endChar": 55
+      },
+      "revId": "d3675f469dd342246ab73b1fcb3965e9d01cbce4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00039020_d539b016",
+        "filename": "tests/CodecPartialTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-10T13:51:41Z",
+      "side": 1,
+      "message": "I suggest something a little more clear, and also specifying the row (in case it\u0027s interesting). Something like:\n\nERRORF(r, \"Bitmaps have different pixels, starting on line %i!\", i);",
+      "range": {
+        "startLine": 47,
+        "startChar": 12,
+        "endLine": 47,
+        "endChar": 49
+      },
+      "revId": "d3675f469dd342246ab73b1fcb3965e9d01cbce4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
