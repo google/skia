@@ -1025,7 +1025,7 @@ canvas->drawPath(path, paint);
 #Enum Convexity
 
 #Code
-    enum Convexity {
+    enum Convexity : uint8_t {
         kUnknown_Convexity, 
         kConvex_Convexity,
         kConcave_Convexity, 

@@ -160,6 +160,7 @@ bool IncludeParser::checkForWord() {
         case KeyWord::kIf:
         case KeyWord::kIfdef:
         case KeyWord::kIfndef:
+            SkDebugf("");
         break;
         // these continue a # directive link
         case KeyWord::kElif:
@@ -200,15 +201,20 @@ string IncludeParser::className() const {
 }
 
 bool IncludeParser::crossCheck(BmhParser& bmhParser) {
-    string className = this->className();
-    string classPrefix = className + "::";
-    RootDefinition* root = &bmhParser.fClassMap[className];
-    root->clearVisited();
     for (auto& classMapper : fIClassMap) {
-        if (className != classMapper.first
-                && classPrefix != classMapper.first.substr(0, classPrefix.length())) {
+        string className = classMapper.first;
+        if (string::npos != className.find("::")) {
             continue;
         }
+        RootDefinition* root = &bmhParser.fClassMap[className];
+        root->clearVisited();
+    }
+    for (auto& classMapper : fIClassMap) {
+        string className = classMapper.first;
+        if (string::npos != className.find("::")) {
+            continue;
+        }
+        RootDefinition* root = &bmhParser.fClassMap[className];
         auto& classMap = classMapper.second;
         auto& tokens = classMap.fTokens;
         for (const auto& token : tokens) {
@@ -399,10 +405,17 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
             }
         }
     }
-    if (!root->dumpUnVisited()) {
-        SkDebugf("some struct elements not found; struct finding in includeParser is missing\n");
+    for (auto& classMapper : fIClassMap) {
+        string className = classMapper.first;
+        if (string::npos != className.find("::")) {
+            continue;
+        }
+        RootDefinition* root = &bmhParser.fClassMap[className];
+        if (!root->dumpUnVisited()) {
+            SkDebugf("some struct elements not found; struct finding in includeParser is missing\n");
+        }
+        SkDebugf("cross-checked %s\n", className.c_str());
     }
-    SkDebugf("cross-checked %s\n", className.c_str());
     bmhParser.fWroteOut = true;
     return true;
 }
@@ -1044,30 +1057,43 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
         (*childIter)->fPrivate = true;
         childIter = std::next(childIter);
     }
-    int lastPublic = publicIndex;
+    int keyIndex = publicIndex;
+    KeyWord currentKey = KeyWord::kPublic;
+    const char* publicName = kKeyWords[(int) KeyWord::kPublic].fName;
+    size_t publicLen = strlen(publicName);
     const char* protectedName = kKeyWords[(int) KeyWord::kProtected].fName;
     size_t protectedLen = strlen(protectedName);
     const char* privateName = kKeyWords[(int) KeyWord::kPrivate].fName;
     size_t privateLen = strlen(privateName);
-    while (iter != includeDef->fTokens.end()
-            && (protectedLen != (size_t) (iter->fContentEnd - iter->fStart)
-            || strncmp(iter->fStart, protectedName, protectedLen))
-            && (privateLen != (size_t) (iter->fContentEnd - iter->fStart)
-            || strncmp(iter->fStart, privateName, privateLen))) {
-        iter = std::next(iter);
-        ++lastPublic;
-    }
-    fLastObject = nullptr;
-    while (childIter != includeDef->fChildren.end() && (*childIter)->fParentIndex < lastPublic) {
+    while (childIter != includeDef->fChildren.end()) {
         Definition* child = *childIter;
-        if (!this->parseObject(child, markupDef)) {
-            return false;
+        while (child->fParentIndex > keyIndex && iter != includeDef->fTokens.end()) {
+            const char* testStart = iter->fStart;
+            size_t testLen = (size_t) (iter->fContentEnd - testStart);
+            iter = std::next(iter);
+            ++keyIndex;
+            if (publicLen == testLen && !strncmp(testStart, publicName, testLen)) {
+                currentKey = KeyWord::kPublic;
+                break;
+            }
+            if (protectedLen == testLen && !strncmp(testStart, protectedName, testLen)) {
+                currentKey = KeyWord::kProtected;
+                break;
+            }
+            if (privateLen == testLen && !strncmp(testStart, privateName, testLen)) {
+                currentKey = KeyWord::kPrivate;
+                break;
+            }
+        }
+        fLastObject = nullptr;
+        if (KeyWord::kPublic == currentKey) {
+            if (!this->parseObject(child, markupDef)) {
+                return false;
+            }
+        } else {
+            child->fPrivate = true;
         }
         fLastObject = child;
-        childIter = std::next(childIter);
-    }
-    while (childIter != includeDef->fChildren.end()) {
-        (*childIter)->fPrivate = true;
         childIter = std::next(childIter);
     }
     SkASSERT(fParent->fParent);
@@ -1242,6 +1268,23 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
         }
         markupChild->fChildren.push_back(member);
     } while (true);
+    for (auto count : child->fChildren) {
+        if (Definition::Type::kBracket == count->fType) {
+            continue;
+        }
+        SkASSERT(Definition::Type::kKeyWord == count->fType);
+        if (KeyWord::kClass == count->fKeyWord) {
+            continue;
+        }
+        SkASSERT(KeyWord::kStatic == count->fKeyWord);
+        markupChild->fTokens.emplace_back(MarkType::kMember, count->fContentStart,
+                count->fContentEnd, count->fLineCount, markupChild);
+        Definition* member = &markupChild->fTokens.back();
+        member->fName = count->fName;
+        // FIXME: ? add comment as well ?
+        markupChild->fChildren.push_back(member);
+        break;
+    }
     IClassDefinition& classDef = fIClassMap[markupDef->fName];
     SkASSERT(classDef.fStart);
     string uniqueName = this->uniqueName(classDef.fEnums, nameStr);
@@ -1320,7 +1363,7 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
     std::advance(tokenIter, child->fParentIndex);
     tokenIter = std::prev(tokenIter);
     string nameStr(tokenIter->fStart, tokenIter->fContentEnd - tokenIter->fStart);
-    if (0 == nameStr.find("SK_ATTR_DEPRECATED")) {
+    if (0 == nameStr.find("SK_SUPPORT")) {
         SkDebugf("");
     }
     while (tokenIter != child->fParent->fTokens.begin()) {
@@ -1355,9 +1398,14 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
     }
     tokenIter->fName = nameStr;
     tokenIter->fMarkType = MarkType::kMethod;
+    tokenIter->fPrivate = string::npos != nameStr.find("::");
     auto testIter = child->fParent->fTokens.begin();
     SkASSERT(child->fParentIndex > 0);
     std::advance(testIter, child->fParentIndex - 1);
+    if (tokenIter->fParent && KeyWord::kIfdef == tokenIter->fParent->fKeyWord &&
+            0 == tokenIter->fParentIndex) {
+        tokenIter = std::next(tokenIter);
+    }
     const char* start = tokenIter->fContentStart;
     const char* end = tokenIter->fContentEnd;
     const char kDebugCodeStr[] = "SkDEBUGCODE";

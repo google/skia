@@ -6104,4 +6104,55 @@ Returns false if the clip is empty, or if it is not Rect.
 ##
 
 #Class SkCanvas ##
+
+#Class SkAutoCanvasRestore
+
+Stack helper class calls SkCanvas::restoreToCount() when SkAutoCanvasRestore
+goes out of scope. Use this to guarantee that the canvas is restored to a known
+state.
+
+#Method SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)
+
+Preserves Canvas save count. Optionally saves Canvas Clip and Matrix.
+
+#Param canvas  Canvas to guard ##
+#Param doSave  call SkCanvas::save() ##
+
+#Return utility to restore Canvas state on destructor ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso SkCanvas::save SkCanvas::restore
+
+##
+
+#Method ~SkAutoCanvasRestore()
+
+Restores Canvas to saved state.
+
+#Example
+// incomplete
+##
+
+#SeeAlso SkCanvas::save SkCanvas::restore
+
+##
+
+#Method void restore()
+
+Restores Canvas to saved state immediately. Subsequent calls and class 
+destructor have no effect.
+
+#Example
+// incomplete
+##
+
+#SeeAlso SkCanvas::save SkCanvas::restore
+
+##
+
+#Class SkAutoCanvasRestore ##
+
 #Topic Canvas ##

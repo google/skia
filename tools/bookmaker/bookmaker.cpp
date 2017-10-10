@@ -21,7 +21,7 @@ DEFINE_string2(ref, r, "", "Resolve refs and write bmh_*.md files to path. (Requ
 DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispelling]. (Requires -b)");
 DEFINE_string2(tokens, t, "", "Directory to write bmh from include. (Requires -i)");
 DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
-DEFINE_bool2(skip, z, false, "Skip missing example error.");
+DEFINE_bool2(skip, z, false, "Skip missing example error; skip unchecked nested structs.");
 
 /*  recipe for generating timestamps for existing doxygen comments
 find include/core -type f -name '*.h' -print -exec git blame {} \; > ~/all.blame.txt
@@ -826,8 +826,17 @@ bool RootDefinition::dumpUnVisited() {
             size_t firstColon = leaf.first.find("::");
             size_t lastColon = leaf.first.rfind("::");
             if (firstColon != lastColon) {  // struct, two sets
-                allStructElementsFound = false;
+                if (!FLAGS_skip) {
+                    SkDebugf("%s not checked (bookmaker to do)\n", leaf.first.c_str());
+                }
                 continue;
+            }
+            if (FLAGS_skip) {
+                const Definition& def = leaf.second;
+                if (def.fChildren.size() > 0 &&
+                        MarkType::kDeprecated == def.fChildren[0]->fMarkType) {
+                    continue;
+                }
             }
             SkDebugf("defined in bmh but missing in include: %s\n", leaf.first.c_str());
         }
