@@ -192,8 +192,6 @@ public:
     static constexpr ICCTypeFlag kCMYK_ICCTypeFlag = 1 << 1;
     static constexpr ICCTypeFlag kGray_ICCTypeFlag = 1 << 2;
 
-    static sk_sp<SkColorSpace> MakeICC(const void* input, size_t len, ICCTypeFlag type);
-
     static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
 
     enum Named : uint8_t {

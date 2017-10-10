@@ -231,20 +231,7 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         sk_sp<SkData> iccData = get_icc_profile(decoderMgr->dinfo());
         sk_sp<SkColorSpace> colorSpace = nullptr;
         if (iccData) {
-            SkColorSpace_Base::ICCTypeFlag iccType = SkColorSpace_Base::kRGB_ICCTypeFlag;
-            switch (decoderMgr->dinfo()->jpeg_color_space) {
-                case JCS_CMYK:
-                case JCS_YCCK:
-                    iccType = SkColorSpace_Base::kCMYK_ICCTypeFlag;
-                    break;
-                case JCS_GRAYSCALE:
-                    // Note the "or equals".  We will accept gray or rgb profiles for gray images.
-                    iccType |= SkColorSpace_Base::kGray_ICCTypeFlag;
-                    break;
-                default:
-                    break;
-            }
-            colorSpace = SkColorSpace_Base::MakeICC(iccData->data(), iccData->size(), iccType);
+            colorSpace = SkColorSpace::MakeICC(iccData->data(), iccData->size());
         }
         if (!colorSpace) {
             colorSpace = defaultColorSpace;
