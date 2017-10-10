@@ -147,13 +147,8 @@ void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
         hasMipMaps = tp->isMipMapped();
     }
 
-    int width = this->width();
-    int height = this->height();
-    if (SkBackingFit::kApprox == fFit) {
-        // bin by pow2 with a reasonable min
-        width  = SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(width));
-        height = SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(height));
-    }
+    int width = this->worstCaseWidth();
+    int height = this->worstCaseHeight();
 
     GrTexturePriv::ComputeScratchKey(this->config(), width, height, SkToBool(rtp), sampleCount,
                                      hasMipMaps, key);
@@ -380,6 +375,28 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
                                                          GrSurfaceOrigin origin) {
     sk_sp<GrTexture> tex(context->resourceProvider()->wrapBackendTexture(backendTex));
     return GrSurfaceProxy::MakeWrapped(std::move(tex), origin);
+}
+
+int GrSurfaceProxy::worstCaseWidth() const {
+    if (fTarget) {
+        return fTarget->width();
+    }
+
+    if (SkBackingFit::kExact == fFit) {
+        return fWidth;
+    }
+    return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(fWidth));
+}
+
+int GrSurfaceProxy::worstCaseHeight() const {
+    if (fTarget) {
+        return fTarget->height();
+    }
+
+    if (SkBackingFit::kExact == fFit) {
+        return fHeight;
+    }
+    return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(fHeight));
 }
 
 #ifdef SK_DEBUG
