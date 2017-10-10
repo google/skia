@@ -61,6 +61,10 @@ void SkSVGNode::setClipPath(const SkSVGClip& clip) {
     fPresentationAttributes.fClipPath.set(clip);
 }
 
+void SkSVGNode::setClipRule(const SkSVGFillRule& clipRule) {
+    fPresentationAttributes.fClipRule.set(clipRule);
+}
+
 void SkSVGNode::setFill(const SkSVGPaint& svgPaint) {
     fPresentationAttributes.fFill.set(svgPaint);
 }
@@ -97,6 +101,11 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     case SkSVGAttribute::kClipPath:
         if (const SkSVGClipValue* clip = v.as<SkSVGClipValue>()) {
             this->setClipPath(*clip);
+        }
+        break;
+    case SkSVGAttribute::kClipRule:
+        if (const SkSVGFillRuleValue* clipRule = v.as<SkSVGFillRuleValue>()) {
+            this->setClipRule(*clipRule);
         }
         break;
     case SkSVGAttribute::kFill:

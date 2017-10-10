@@ -203,6 +203,13 @@ void commitToPaint<SkSVGAttribute::kFillRule>(const SkSVGPresentationAttributes&
     // Not part of the SkPaint state; applied to the path at render time.
 }
 
+template <>
+void commitToPaint<SkSVGAttribute::kClipRule>(const SkSVGPresentationAttributes&,
+                                              const SkSVGRenderContext&,
+                                              SkSVGPresentationContext*) {
+    // Not part of the SkPaint state; applied to the path at clip time.
+}
+
 } // anonymous ns
 
 SkSVGPresentationContext::SkSVGPresentationContext()
@@ -275,6 +282,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(Fill);
     ApplyLazyInheritedAttribute(FillOpacity);
     ApplyLazyInheritedAttribute(FillRule);
+    ApplyLazyInheritedAttribute(ClipRule);
     ApplyLazyInheritedAttribute(Stroke);
     ApplyLazyInheritedAttribute(StrokeLineCap);
     ApplyLazyInheritedAttribute(StrokeLineJoin);

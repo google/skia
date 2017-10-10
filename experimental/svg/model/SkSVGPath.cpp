@@ -33,10 +33,9 @@ void SkSVGPath::onDraw(SkCanvas* canvas, const SkSVGLengthContext&, const SkPain
 }
 
 SkPath SkSVGPath::onAsPath(const SkSVGRenderContext& ctx) const {
-    // the computed fillType follows inheritance rules and needs to be applied at draw time.
-    fPath.setFillType(FillRuleToFillType(*ctx.presentationContext().fInherited.fFillRule.get()));
-
     SkPath path = fPath;
+    // clip-rule can be inherited and needs to be applied at clip time.
+    path.setFillType(ctx.presentationContext().fInherited.fClipRule.get()->asFillType());
     this->mapToParent(&path);
     return path;
 }
