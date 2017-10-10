@@ -1028,11 +1028,16 @@ if (skia_enable_tools) {
         ]
       }
 
+      cflags = []
       cflags_objcc = [ "-fobjc-arc" ]
 
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
         sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
+        if (is_clang && is_win) {
+          # Remove once crbug.com/428099 is fixed.
+          cflags += [ "-Wno-error=inconsistent-missing-override" ]
+        }
       }
       if (skia_use_mesa) {
         public_defines += [ "SK_MESA" ]
@@ -1206,6 +1211,7 @@ if (skia_enable_tools) {
       ]
       libs = []
       deps = []
+      cflags = []
       if (!is_android) {
         sources += [ "src/views/SkWindow.cpp" ]
       }
@@ -1238,6 +1244,10 @@ if (skia_enable_tools) {
       }
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
+        if (is_clang && is_win) {
+          # Remove once crbug.com/428099 is fixed.
+          cflags += [ "-Wno-error=inconsistent-missing-override" ]
+        }
       }
     }
   }
@@ -1418,8 +1428,13 @@ if (skia_enable_tools) {
         ":tool_utils",
         ":views",
       ]
+      cflags = []
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
+        if (is_clang && is_win) {
+          # Remove once crbug.com/428099 is fixed.
+          cflags += [ "-Wno-error=inconsistent-missing-override" ]
+        }
       }
     }
   }
@@ -1710,6 +1725,7 @@ if (skia_enable_tools) {
         "//third_party/imgui",
         "//third_party/jsoncpp",
       ]
+      cflags = []
       if (is_android) {
         deps += [ "//third_party/native_app_glue" ]
       } else if (is_mac || is_ios) {
@@ -1717,6 +1733,10 @@ if (skia_enable_tools) {
       }
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
+        if (is_clang && is_win) {
+          # Remove once crbug.com/428099 is fixed.
+          cflags += [ "-Wno-error=inconsistent-missing-override" ]
+        }
       }
     }
   }
