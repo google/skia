@@ -185,6 +185,7 @@ public:
     , fSkCaps_Type(new Type("$sk_Caps"))
     , fSkArgs_Type(new Type("$sk_Args"))
     , fColorSpaceXform_Type(new Type("colorSpaceXform", *fFloat_Type, 4, 4))
+    , fFragmentProcessor_Type(new Type("fragmentProcessor"))
     , fDefined_Expression(new Defined(*fInvalid_Type)) {}
 
     static std::vector<const Type*> static_type(const Type& t) {
@@ -333,6 +334,7 @@ public:
     const std::unique_ptr<Type> fSkCaps_Type;
     const std::unique_ptr<Type> fSkArgs_Type;
     const std::unique_ptr<Type> fColorSpaceXform_Type;
+    const std::unique_ptr<Type> fFragmentProcessor_Type;
 
     // dummy expression used to mark that a variable has a value during dataflow analysis (when it
     // could have several different values, or the analyzer is otherwise unable to assign it a
