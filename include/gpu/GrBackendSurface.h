@@ -18,12 +18,24 @@
 
 class SK_API GrBackendTexture {
 public:
+    enum MipMapState {
+        kNoMips_MipMapState,         // The backend texture does not have mip maps
+        kFullyGenerated_MipMapState, // The backend texture does have mip maps fully generated
+                                     // and ready for use.
+    };
+
     // Creates an invalid backend texture.
     GrBackendTexture() : fConfig(kUnknown_GrPixelConfig) {}
 
     GrBackendTexture(int width,
                      int height,
                      GrPixelConfig config,
+                     const GrGLTextureInfo& glInfo);
+
+    GrBackendTexture(int width,
+                     int height,
+                     GrPixelConfig config,
+                     MipMapState,
                      const GrGLTextureInfo& glInfo);
 
 #ifdef SK_VULKAN
@@ -37,9 +49,16 @@ public:
                      GrPixelConfig config,
                      const GrMockTextureInfo& mockInfo);
 
+    GrBackendTexture(int width,
+                     int height,
+                     GrPixelConfig config,
+                     MipMapState,
+                     const GrMockTextureInfo& mockInfo);
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     GrPixelConfig config() const { return fConfig; }
+    bool hasMipMaps() const { return fHasMipMaps; }
     GrBackend backend() const {return fBackend; }
 
     // If the backend API is GL, this returns a pointer to the GrGLTextureInfo struct. Otherwise
@@ -62,6 +81,7 @@ private:
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
     GrPixelConfig fConfig;
+    bool fHasMipMaps;
     GrBackend fBackend;
 
     union {

@@ -69,10 +69,11 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
     this->registerWithCache(budgeted);
 }
 
-GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc, const IDDesc& idDesc)
+GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc, bool hasMipMaps,
+                         const IDDesc& idDesc)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig), false, false) {
+                highest_filter_mode(idDesc, desc.fConfig), hasMipMaps, true) {
     this->init(desc, idDesc);
     this->registerWithCacheWrapped();
 }
@@ -125,7 +126,7 @@ void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
 }
 
 sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
-                                            const IDDesc& idDesc) {
-    return sk_sp<GrGLTexture>(new GrGLTexture(gpu, kWrapped, desc, idDesc));
+                                            bool hasMipMaps, const IDDesc& idDesc) {
+    return sk_sp<GrGLTexture>(new GrGLTexture(gpu, kWrapped, desc, hasMipMaps, idDesc));
 }
 

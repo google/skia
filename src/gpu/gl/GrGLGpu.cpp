@@ -551,7 +551,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     surfDesc.fConfig = backendTex.config();
     surfDesc.fSampleCnt = 0;
 
-    return GrGLTexture::MakeWrapped(this, surfDesc, idDesc);
+    return GrGLTexture::MakeWrapped(this, surfDesc, backendTex.hasMipMaps(), idDesc);
 }
 
 sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -586,7 +586,8 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
     sk_sp<GrGLTextureRenderTarget> texRT(
-            GrGLTextureRenderTarget::MakeWrapped(this, surfDesc, idDesc, rtIDDesc));
+            GrGLTextureRenderTarget::MakeWrapped(this, surfDesc, backendTex.hasMipMaps(), idDesc,
+                                                 rtIDDesc));
     texRT->baseLevelWasBoundToFBO();
     return std::move(texRT);
 }
