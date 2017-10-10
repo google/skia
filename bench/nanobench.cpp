@@ -391,13 +391,13 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
 
         // Make sure we're not still timing our calibration.
         target->fence();
+        loops = 300;
     } else {
         loops = detect_forever_loops(loops);
     }
-
     // Pretty much the same deal as the calibration: do some warmup to make
     // sure we're timing steady-state pipelined frames.
-    for (int i = 0; i < maxGpuFrameLag - 1; i++) {
+    for (int i = 0; i < maxGpuFrameLag; i++) {
         time(loops, bench, target);
     }
 
