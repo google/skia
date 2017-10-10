@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0cfe8b78_e08bda8c",
+        "filename": "src/gpu/gl/GrGLGpuProgramCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-10-10T14:41:35Z",
+      "side": 1,
+      "message": "We need to inject the cache from outside - for example with a function:\nvoid setPersistentCacheImpl(GrGLProgramBuilder::PersistentCache* cache) ;\nThen the \"cache\" would be a \"GrGLProgramBuilder::PersistentCache*\"",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 18
+      },
+      "revId": "658af71fe6a4cada67e7e9632bf7cd6cf5d1cc4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdb8e32a_b183e3e0",
+        "filename": "src/gpu/gl/builders/GrGLProgramBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-10-10T14:41:35Z",
+      "side": 1,
+      "message": "I measured with systrace, that by skipping this code, we saved 6ms startup time in android calc app and 10ms in gmail app.",
+      "range": {
+        "startLine": 167,
+        "startChar": 8,
+        "endLine": 200,
+        "endChar": 9
+      },
+      "revId": "658af71fe6a4cada67e7e9632bf7cd6cf5d1cc4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "914f5bd3_3eb35b68",
+        "filename": "src/gpu/gl/builders/GrGLProgramBuilder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-10-10T14:41:35Z",
+      "side": 1,
+      "message": "I had to change Android make file to include \"external/skia/src/shaders\" and \"external/skia/src/sksl\" folders. Can we avoid this by moving \"PersistentCache\" in an a folder for public API?",
+      "range": {
+        "startLine": 30,
+        "startChar": 3,
+        "endLine": 30,
+        "endChar": 27
+      },
+      "revId": "658af71fe6a4cada67e7e9632bf7cd6cf5d1cc4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
