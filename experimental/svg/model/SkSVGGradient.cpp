@@ -67,7 +67,8 @@ void SkSVGGradient::collectColorStops(const SkSVGRenderContext& ctx,
 
     if (pos->empty() && !fHref.value().isEmpty()) {
         const auto* ref = ctx.findNodeById(fHref);
-        if (ref && ref->tag() == SkSVGTag::kLinearGradient) {
+        if (ref && (ref->tag() == SkSVGTag::kLinearGradient ||
+                    ref->tag() == SkSVGTag::kRadialGradient)) {
             static_cast<const SkSVGGradient*>(ref)->collectColorStops(ctx, pos, colors);
         }
     }
