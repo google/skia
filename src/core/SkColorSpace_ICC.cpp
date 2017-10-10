@@ -1491,11 +1491,6 @@ static sk_sp<SkColorSpace> make_a2b(SkColorSpace_Base::ICCTypeFlag iccType,
 }
 
 sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
-    return SkColorSpace_Base::MakeICC(input, len, SkColorSpace_Base::kRGB_ICCTypeFlag);
-}
-
-sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
-                                               ICCTypeFlag desiredType) {
     if (!input || len < kICCHeaderSize) {
         return_null("Data is null or not large enough to contain an ICC profile");
     }
@@ -1545,36 +1540,19 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
 
     switch (header.fInputColorSpace) {
         case kRGB_ColorSpace: {
-            if (!(kRGB_ICCTypeFlag & desiredType)) {
-                return_null("Provided input color format (RGB) does not match profile.");
-            }
-
-            sk_sp<SkColorSpace> colorSpace =
-                    make_xyz(header, tags.get(), tagCount, base, profileData);
-            if (colorSpace) {
-                return colorSpace;
-            }
-
-            desiredType = kRGB_ICCTypeFlag;
-            break;
+            sk_sp<SkColorSpace> cs = make_xyz(header, tags.get(), tagCount, base, profileData);
+            return cs ? cs : make_a2b(SkColorSpace_Base::kRGB_ICCTypeFlag,
+                                      header, tags.get(), tagCount, base, profileData);
         }
-        case kGray_ColorSpace: {
-            if (!(kGray_ICCTypeFlag & desiredType)) {
-                return_null("Provided input color format (Gray) does not match profile.");
-            }
 
+        case kGray_ColorSpace:
             return make_gray(header, tags.get(), tagCount, base, profileData);
-        }
+
         case kCMYK_ColorSpace:
-            if (!(kCMYK_ICCTypeFlag & desiredType)) {
-                return_null("Provided input color format (CMYK) does not match profile.");
-            }
+            return make_a2b(SkColorSpace_Base::kCMYK_ICCTypeFlag,
+                            header, tags.get(), tagCount, base, profileData);
 
-            desiredType = kCMYK_ICCTypeFlag;
-            break;
-        default:
-            return_null("ICC profile contains unsupported colorspace");
+        default: break;
     }
-
-    return make_a2b(desiredType, header, tags.get(), tagCount, base, profileData);
+    return_null("ICC profile contains unsupported colorspace");
 }
