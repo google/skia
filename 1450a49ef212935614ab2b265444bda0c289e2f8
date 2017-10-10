@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c11e13d3_a281fd7a",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-10T18:19:02Z",
+      "side": 1,
+      "message": "FullyGenerated sounds to me like the levels have valid content. I assume this also works for wrapped SkSurface where the contents won\u0027t be considered valid. Could this just be about the allocation of the levels and we make the validity of the data be implicit in the API used? E.g. if you use GrBacknedTexture to create a SkImage then the levels are assumed to have valid content, but not if you create a SkSurface?\n\nWhat do you think about putting this in GrTypes.h and using it throughout our code (we have enum class GrAA { kNo, kYes } in GrTypesPriv.h and I think that has helped readability and is also terse). Using this more throughout the code wouldn\u0027t have to be part of this initial CL. I was thinking something like enum class GrHasMips or GrMipMapped with no/yes names.",
+      "revId": "1450a49ef212935614ab2b265444bda0c289e2f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
