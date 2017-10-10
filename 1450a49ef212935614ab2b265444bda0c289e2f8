@@ -16,6 +16,24 @@
       "revId": "1450a49ef212935614ab2b265444bda0c289e2f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c66fdd15_47ad8d3c",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-10T18:38:30Z",
+      "side": 1,
+      "message": "For SkSurface, do we want to just assume the mips are allocated but not valid? Or should this be some tri state thing { kNo, kAllocated, kValid }? For image we\u0027d require kNo or kValid, or downgrade kAllocated to kNo.",
+      "parentUuid": "c11e13d3_a281fd7a",
+      "revId": "1450a49ef212935614ab2b265444bda0c289e2f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
