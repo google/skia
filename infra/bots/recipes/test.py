@@ -529,14 +529,14 @@ def dm_flags(api, bot):
   if 'PixelC' in bot:
     args.extend(['--gpuThreads', '0'])
 
-  if 'float_cast_overflow' in bot and 'CPU' in bot:
-    # skia:4632
-    for config in ['565', '8888', 'f16', 'srgb']:
-      blacklist([config, 'gm', '_', 'clippedcubic2'])
-    match.append('~^PathOpsCubicIntersection$')
-    match.append('~^PathOpsCubicLineIntersection$')
-    match.append('~^PathOpsOpCubicsThreaded$')
-    match.append('~^PathOpsOpLoopsThreaded$')
+  #if 'float_cast_overflow' in bot and 'CPU' in bot:
+  #  # skia:4632
+  #  for config in ['565', '8888', 'f16', 'srgb']:
+  #    blacklist([config, 'gm', '_', 'clippedcubic2'])
+  #  match.append('~^PathOpsCubicIntersection$')
+  #  match.append('~^PathOpsCubicLineIntersection$')
+  #  match.append('~^PathOpsOpCubicsThreaded$')
+  #  match.append('~^PathOpsOpLoopsThreaded$')
 
   if 'Vulkan' in bot and 'Adreno530' in bot:
       # skia:5777
