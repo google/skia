@@ -53,10 +53,6 @@ public:
         return GrFSAAType::kMixedSamples == this->fsaaType() ? 0 : fSampleCnt;
     }
 
-    int worstCaseWidth() const;
-
-    int worstCaseHeight() const;
-
     int maxWindowRectangles(const GrCaps& caps) const;
 
     GrRenderTargetFlags testingOnly_getFlags() const;
