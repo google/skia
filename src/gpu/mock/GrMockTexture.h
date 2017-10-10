@@ -45,6 +45,8 @@ protected:
             , fReleaseProc(nullptr)
             , fReleaseCtx(nullptr) {}
 
+    bool onSteal(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override { return false; }
+
 private:
     GrMockTextureInfo fInfo;
     ReleaseProc fReleaseProc;
