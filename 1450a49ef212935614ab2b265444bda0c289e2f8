@@ -34,6 +34,24 @@
       "revId": "1450a49ef212935614ab2b265444bda0c289e2f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "495ae181_60478ab0",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-10T18:54:36Z",
+      "side": 1,
+      "message": "Everything else on this type is just about the actual 3D API configuration of the texture, which seems appropriate given the nature of the class and various other ways we do or intend to use this type.\n\nI was thinking for SkImage we assume they\u0027re valid. If we want to provide a way for a client to give us a texture with MIP levels where only the base has valid content and we will populate the other levels, we could take a separate parameter to the SkImage factory indicating this. I\u0027m not sure whether we need that, though, and could add it later.\n\nFor SkSurface I was assuming they should start off invalid. It seems like it doesn\u0027t matter a whole lot as drawing anything will make them invalid. So really the case that is impacted is a SkSurface that is created and then used as a source of an image before anything is drawn to it. It probably doesn\u0027t much matter what we do there.",
+      "parentUuid": "c66fdd15_47ad8d3c",
+      "revId": "1450a49ef212935614ab2b265444bda0c289e2f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
