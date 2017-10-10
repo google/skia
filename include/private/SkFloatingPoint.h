@@ -90,6 +90,15 @@ static inline int sk_float_saturate2int(float x) {
     return (int)x;
 }
 
+/**
+ *  Return the closest int for the given double. Returns SK_MaxS32 for NaN.
+ */
+static inline int sk_double_saturate2int(double x) {
+    x = SkTMin<double>(x, SK_MaxS32);
+    x = SkTMax<double>(x, SK_MinS32);
+    return (int)x;
+}
+
 #define sk_float_floor2int(x)   sk_float_saturate2int(sk_float_floor(x))
 #define sk_float_round2int(x)   sk_float_saturate2int(sk_float_floor((x) + 0.5f))
 #define sk_float_ceil2int(x)    sk_float_saturate2int(sk_float_ceil(x))

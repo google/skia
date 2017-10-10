@@ -573,7 +573,7 @@ static const double kRoundBias = 0.0;
 static inline int round_down_to_int(SkScalar x) {
     double xx = x;
     xx -= 0.5 + kRoundBias;
-    return (int)ceil(xx);
+    return sk_double_saturate2int(ceil(xx));
 }
 
 /**
@@ -583,7 +583,7 @@ static inline int round_down_to_int(SkScalar x) {
 static inline int round_up_to_int(SkScalar x) {
     double xx = x;
     xx += 0.5 + kRoundBias;
-    return (int)floor(xx);
+    return sk_double_saturate2int(floor(xx));
 }
 
 /**
