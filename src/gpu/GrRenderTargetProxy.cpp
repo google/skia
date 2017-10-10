@@ -79,28 +79,6 @@ sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resource
     return surface;
 }
 
-int GrRenderTargetProxy::worstCaseWidth() const {
-    if (fTarget) {
-        return fTarget->width();
-    }
-
-    if (SkBackingFit::kExact == fFit) {
-        return fWidth;
-    }
-    return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(fWidth));
-}
-
-int GrRenderTargetProxy::worstCaseHeight() const {
-    if (fTarget) {
-        return fTarget->height();
-    }
-
-    if (SkBackingFit::kExact == fFit) {
-        return fHeight;
-    }
-    return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(fHeight));
-}
-
 size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
     int colorSamplesPerPixel = this->numColorSamples() + 1;
     // TODO: do we have enough information to improve this worst case estimate?

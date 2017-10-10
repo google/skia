@@ -40,7 +40,7 @@
 SkImage_Gpu::SkImage_Gpu(GrContext* context, uint32_t uniqueID, SkAlphaType at,
                          sk_sp<GrTextureProxy> proxy,
                          sk_sp<SkColorSpace> colorSpace, SkBudgeted budgeted)
-    : INHERITED(proxy->width(), proxy->height(), uniqueID)
+    : INHERITED(proxy->worstCaseWidth(), proxy->worstCaseHeight(), uniqueID)
     , fContext(context)
     , fProxy(std::move(proxy))
     , fAlphaType(at)
