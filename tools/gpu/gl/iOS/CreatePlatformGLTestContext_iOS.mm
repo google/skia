@@ -74,7 +74,7 @@ void IOSGLTestContext::destroyGLContext() {
         }
         fEAGLContext = nil;
     }
-    if (RTLD_DEFAULT != fGLLibrary) {
+    if (nullptr != fGLLibrary) {
         dlclose(fGLLibrary);
     }
 }
@@ -89,7 +89,8 @@ void IOSGLTestContext::onPlatformMakeCurrent() const {
 void IOSGLTestContext::onPlatformSwapBuffers() const { }
 
 GrGLFuncPtr IOSGLTestContext::onPlatformGetProcAddress(const char* procName) const {
-    return reinterpret_cast<GrGLFuncPtr>(dlsym(fGLLibrary, procName));
+    void* handle = (nullptr == fGLLibrary) ? RTLD_DEFAULT : fGLLibrary;
+    return reinterpret_cast<GrGLFuncPtr>(dlsym(handle, procName));
 }
 
 }  // anonymous namespace
