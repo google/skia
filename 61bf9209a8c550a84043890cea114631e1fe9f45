@@ -16,6 +16,47 @@
       "revId": "61bf9209a8c550a84043890cea114631e1fe9f45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c921071a_30633183",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-10T15:24:15Z",
+      "side": 1,
+      "message": "Let\u0027s put this in GN.  It\u0027s not bot-specific.",
+      "range": {
+        "startLine": 66,
+        "startChar": 6,
+        "endLine": 66,
+        "endChar": 69
+      },
+      "revId": "61bf9209a8c550a84043890cea114631e1fe9f45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5204417_968b8284",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-10T15:24:15Z",
+      "side": 1,
+      "message": "This sort of thing isn\u0027t usually a bug, but it\u0027s possible.  The more common explanation is that some files or group of interacting classes were partly but not completely converted from C++98 to C++11 conventions.  \n\nI\u0027m sure they wouldn\u0027t mind hearing about this.",
+      "parentUuid": "ce8ea4e5_e0dc3ce2",
+      "revId": "61bf9209a8c550a84043890cea114631e1fe9f45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
