@@ -1033,6 +1033,10 @@ if (skia_enable_tools) {
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
         sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
+        if (is_clang && is_win) {
+          # Remove once crbug.com/428099 is fixed.
+          cflags += [ "-Wno-error=inconsistent-missing-override" ]
+        }
       }
       if (skia_use_mesa) {
         public_defines += [ "SK_MESA" ]
@@ -1238,6 +1242,10 @@ if (skia_enable_tools) {
       }
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
+        if (is_clang && is_win) {
+          # Remove once crbug.com/428099 is fixed.
+          cflags += [ "-Wno-error=inconsistent-missing-override" ]
+        }
       }
     }
   }
@@ -1420,6 +1428,10 @@ if (skia_enable_tools) {
       ]
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
+        if (is_clang && is_win) {
+          # Remove once crbug.com/428099 is fixed.
+          cflags += [ "-Wno-error=inconsistent-missing-override" ]
+        }
       }
     }
   }
@@ -1717,6 +1729,10 @@ if (skia_enable_tools) {
       }
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
+        if (is_clang && is_win) {
+          # Remove once crbug.com/428099 is fixed.
+          cflags += [ "-Wno-error=inconsistent-missing-override" ]
+        }
       }
     }
   }
