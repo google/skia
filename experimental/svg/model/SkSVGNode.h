@@ -50,6 +50,7 @@ public:
     void setAttribute(SkSVGAttribute, const SkSVGValue&);
 
     void setClipPath(const SkSVGClip&);
+    void setClipRule(const SkSVGFillRule&);
     void setFill(const SkSVGPaint&);
     void setFillOpacity(const SkSVGNumberType&);
     void setFillRule(const SkSVGFillRule&);

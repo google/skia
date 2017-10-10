@@ -10,6 +10,7 @@
 
 #include "SkColor.h"
 #include "SkMatrix.h"
+#include "SkPath.h"
 #include "SkPoint.h"
 #include "SkRect.h"
 #include "SkScalar.h"
@@ -237,6 +238,11 @@ public:
     bool operator!=(const SkSVGFillRule& other) const { return !(*this == other); }
 
     Type type() const { return fType; }
+
+    SkPath::FillType asFillType() const {
+        SkASSERT(fType != Type::kInherit); // should never be called for unresolved values.
+        return fType == Type::kEvenOdd ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType;
+    }
 
 private:
     Type fType;
