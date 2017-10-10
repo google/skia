@@ -67,9 +67,9 @@ std::unique_ptr<GLFenceSync> GLFenceSync::MakeIfSupported(const sk_gpu_test::GLT
 }
 
 GLFenceSync::GLFenceSync(const sk_gpu_test::GLTestContext* ctx, const char* ext) {
-    ctx->getGLProcAddress(&fGLFenceSync, "glFenceSync");
-    ctx->getGLProcAddress(&fGLClientWaitSync, "glClientWaitSync");
-    ctx->getGLProcAddress(&fGLDeleteSync, "glDeleteSync");
+    ctx->getGLProcAddress(&fGLFenceSync, "glFenceSync", ext);
+    ctx->getGLProcAddress(&fGLClientWaitSync, "glClientWaitSync", ext);
+    ctx->getGLProcAddress(&fGLDeleteSync, "glDeleteSync", ext);
 }
 
 sk_gpu_test::PlatformFence GLFenceSync::insertFence() const {

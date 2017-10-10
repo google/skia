@@ -14,7 +14,7 @@ extern "C" {
 
     // cd into the current app's Documents/ directory.
     // (This is the only directory we can easily read and write.)
-    void cd_Documents();
+    void cd_Documents(void);
 
 #if defined(__cplusplus)
 }
