@@ -217,6 +217,8 @@ public:
     }
     int width() const { return fWidth; }
     int height() const { return fHeight; }
+    int worstCaseWidth() const;
+    int worstCaseHeight() const;
     GrPixelConfig config() const { return fConfig; }
 
     class UniqueID {
