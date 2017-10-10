@@ -391,16 +391,21 @@ namespace {
     };
     struct DrawTextRSXform final : Op {
         static const auto kType = Type::DrawTextRSXform;
-        DrawTextRSXform(size_t bytes, const SkRect* cull, const SkPaint& paint)
-            : bytes(bytes), paint(paint) {
+        DrawTextRSXform(size_t bytes, int xforms, const SkRect* cull, const SkPaint& paint)
+            : bytes(bytes), xforms(xforms), paint(paint) {
             if (cull) { this->cull = *cull; }
         }
         size_t  bytes;
+        int     xforms;
         SkRect  cull = kUnset;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) const {
-            c->drawTextRSXform(pod<void>(this), bytes, pod<SkRSXform>(this, bytes),
-                               maybe_unset(cull), paint);
+            // For alignment, the SkRSXforms are first in the pod section, followed by the text.
+            c->drawTextRSXform(pod<void>(this,xforms*sizeof(SkRSXform)),
+                               bytes,
+                               pod<SkRSXform>(this),
+                               maybe_unset(cull),
+                               paint);
         }
     };
     struct DrawTextBlob final : Op {
@@ -649,8 +654,8 @@ void SkLiteDL::drawTextOnPath(const void* text, size_t bytes,
 void SkLiteDL::drawTextRSXform(const void* text, size_t bytes,
                                const SkRSXform xforms[], const SkRect* cull, const SkPaint& paint) {
     int n = paint.countText(text, bytes);
-    void* pod = this->push<DrawTextRSXform>(bytes+n*sizeof(SkRSXform), bytes, cull, paint);
-    copy_v(pod, (const char*)text,bytes, xforms,n);
+    void* pod = this->push<DrawTextRSXform>(bytes+n*sizeof(SkRSXform), bytes, n, cull, paint);
+    copy_v(pod, xforms,n, (const char*)text,bytes);
 }
 void SkLiteDL::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) {
     this->push<DrawTextBlob>(0, blob, x,y, paint);
