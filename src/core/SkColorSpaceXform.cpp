@@ -611,7 +611,9 @@ bool SkColorSpaceXform_XYZ::onApply(ColorFormat dstColorFormat, void* dst,
     switch (fSrcGamma) {
         case kLinear_SrcGamma:                                                       break;
         case   kSRGB_SrcGamma: pipeline.append_from_srgb(kUnpremul_SkAlphaType);     break;
-        case  kTable_SrcGamma: pipeline.append(SkRasterPipeline::table_r, &table_r);
+        case  kTable_SrcGamma: pipeline.append(SkRasterPipeline::clamp_0);
+                               pipeline.append(SkRasterPipeline::clamp_1);
+                               pipeline.append(SkRasterPipeline::table_r, &table_r);
                                pipeline.append(SkRasterPipeline::table_g, &table_g);
                                pipeline.append(SkRasterPipeline::table_b, &table_b); break;
     }
@@ -642,7 +644,9 @@ bool SkColorSpaceXform_XYZ::onApply(ColorFormat dstColorFormat, void* dst,
         case kLinear_DstGamma:                                                              break;
         case kSRGB_DstGamma:   pipeline.append(SkRasterPipeline::to_srgb);                  break;
         case k2Dot2_DstGamma:  pipeline.append(SkRasterPipeline::gamma, &to_2dot2);         break;
-        case kTable_DstGamma:  pipeline.append(SkRasterPipeline::byte_tables_rgb, &tables); break;
+        case kTable_DstGamma:  pipeline.append(SkRasterPipeline::clamp_0);
+                               pipeline.append(SkRasterPipeline::clamp_1);
+                               pipeline.append(SkRasterPipeline::byte_tables_rgb, &tables); break;
     }
     if (kPremul_SkAlphaType == alphaType && SkTransferFunctionBehavior::kIgnore == fPremulBehavior)
     {
