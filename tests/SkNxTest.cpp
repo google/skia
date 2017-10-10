@@ -165,6 +165,20 @@ DEF_TEST(SkNi_saturatedAdd, r) {
     }
 }
 
+DEF_TEST(SkNi_mulHi, r) {
+    // First 8 primes.
+    Sk4u a{ 0x00020000, 0x00030000, 0x00050000, 0x00070000 };
+    Sk4u b{ 0x000b0000, 0x000d0000, 0x00110000, 0x00130000 };
+
+    Sk4u q{22, 39, 85, 133};
+
+    Sk4u c = a.mulHi(b);
+    REPORTER_ASSERT(r, c[0] == q[0]);
+    REPORTER_ASSERT(r, c[1] == q[1]);
+    REPORTER_ASSERT(r, c[2] == q[2]);
+    REPORTER_ASSERT(r, c[3] == q[3]);
+}
+
 DEF_TEST(Sk4px_muldiv255round, r) {
     for (int a = 0; a < (1<<8); a++) {
     for (int b = 0; b < (1<<8); b++) {
