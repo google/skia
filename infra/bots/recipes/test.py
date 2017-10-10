@@ -883,6 +883,8 @@ TEST_BUILDERS = [
   'Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-CommandBuffer',
   'Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug',
   'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
+  ('Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan'
+   '_Coverage'),
   'Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug',
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
