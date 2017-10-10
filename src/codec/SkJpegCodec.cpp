@@ -292,6 +292,14 @@ SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info,
     , fSwizzleSrcRow(nullptr)
     , fColorXformSrcRow(nullptr)
     , fSwizzlerSubset(SkIRect::MakeEmpty())
+    , fDst(nullptr)
+    , fDstRowBytes(0)
+    , fFirstRow(0)
+    , fLastRow(0)
+    , fRowsWrittenToOutput(0)
+    , fLinesToSkip(0)
+    , fRowsNeeded(0)
+    , fFirstCallToIncrementalDecode(true)
 {}
 
 /*
@@ -480,11 +488,13 @@ bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
     return true;
 }
 
-int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count,
-                          const Options& opts) {
+SkCodec::Result SkJpegCodec::readRows(int count, int* rowsDecoded) {
     // Set the jump location for libjpeg-turbo errors
     if (setjmp(fDecoderMgr->getJmpBuf())) {
-        return 0;
+        if (rowsDecoded) {
+            *rowsDecoded = fRowsWrittenToOutput;
+        }
+        return kErrorInInput;
     }
 
     // When fSwizzleSrcRow is non-null, it means that we need to swizzle.  In this case,
@@ -494,11 +504,11 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
     // When fColorXformSrcRow is non-null, it means that we need to color xform and that
     // we cannot color xform "in place" (many times we can, but not when the dst is F16).
     // In this case, we will color xform from fColorXformSrcRow into the dst.
-    JSAMPLE* decodeDst = (JSAMPLE*) dst;
-    uint32_t* swizzleDst = (uint32_t*) dst;
-    size_t decodeDstRowBytes = rowBytes;
-    size_t swizzleDstRowBytes = rowBytes;
-    int dstWidth = opts.fSubset ? opts.fSubset->width() : dstInfo.width();
+    JSAMPLE* decodeDst = (JSAMPLE*) fDst;
+    uint32_t* swizzleDst = (uint32_t*) fDst;
+    size_t decodeDstRowBytes = fDstRowBytes;
+    size_t swizzleDstRowBytes = fDstRowBytes;
+    int dstWidth = options().fSubset ? options().fSubset->width() : dstInfo().width();
     if (fSwizzleSrcRow && fColorXformSrcRow) {
         decodeDst = (JSAMPLE*) fSwizzleSrcRow;
         swizzleDst = fColorXformSrcRow;
@@ -519,7 +529,10 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
     for (int y = 0; y < count; y++) {
         uint32_t lines = jpeg_read_scanlines(fDecoderMgr->dinfo(), &decodeDst, 1);
         if (0 == lines) {
-            return y;
+            if (rowsDecoded) {
+                *rowsDecoded = fRowsWrittenToOutput;
+            }
+            return kIncompleteInput;
         }
 
         if (fSwizzler) {
@@ -527,15 +540,21 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
         }
 
         if (this->colorXform()) {
-            this->applyColorXform(dst, swizzleDst, dstWidth, kOpaque_SkAlphaType);
-            dst = SkTAddOffset<void>(dst, rowBytes);
+            this->applyColorXform(fDst, swizzleDst, dstWidth, kOpaque_SkAlphaType);
         }
 
+        fDst = SkTAddOffset<void>(fDst, fDstRowBytes);
         decodeDst = SkTAddOffset<JSAMPLE>(decodeDst, decodeDstRowBytes);
         swizzleDst = SkTAddOffset<uint32_t>(swizzleDst, swizzleDstRowBytes);
+
+        fRowsWrittenToOutput++;
     }
 
-    return count;
+    if (rowsDecoded) {
+        *rowsDecoded = fRowsWrittenToOutput;
+    }
+
+    return kSuccess;
 }
 
 /*
@@ -554,6 +573,76 @@ static inline bool needs_swizzler_to_convert_from_cmyk(J_COLOR_SPACE jpegColorTy
     return !hasCMYKColorSpace || !hasColorSpaceXform;
 }
 
+SkCodec::Result SkJpegCodec::prepareToDecode(const SkImageInfo& dstInfo, const Options& options) {
+    jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
+
+    // Set the jump location for libjpeg errors
+    if (setjmp(fDecoderMgr->getJmpBuf())) {
+        SkCodecPrintf("setjmp: Error from libjpeg\n");
+        return kInvalidInput;
+    }
+
+    // Check if we can decode to the requested destination and set the output color space
+    if (!this->setOutputColorSpace(dstInfo)) {
+        return fDecoderMgr->returnFailure("setOutputColorSpace", kInvalidConversion);
+    }
+
+    dinfo->buffered_image = jpeg_has_multiple_scans(dinfo);
+
+    if (!jpeg_start_decompress(dinfo)) {
+        SkCodecPrintf("start decompress failed\n");
+        return kIncompleteInput;
+    }
+
+    bool needsCMYKToRGB = needs_swizzler_to_convert_from_cmyk(
+            dinfo->out_color_space, this->getInfo(), this->colorXform());
+    if (options.fSubset) {
+        uint32_t startX = options.fSubset->x();
+        uint32_t width = options.fSubset->width();
+
+        // libjpeg-turbo may need to align startX to a multiple of the IDCT
+        // block size.  If this is the case, it will decrease the value of
+        // startX to the appropriate alignment and also increase the value
+        // of width so that the right edge of the requested subset remains
+        // the same.
+        jpeg_crop_scanline(dinfo, &startX, &width);
+
+        SkASSERT(startX <= (uint32_t) options.fSubset->x());
+        SkASSERT(width >= (uint32_t) options.fSubset->width());
+        SkASSERT(startX + width >= (uint32_t) options.fSubset->right());
+
+        // Instruct the swizzler (if it is necessary) to further subset the
+        // output provided by libjpeg-turbo.
+        //
+        // We set this here (rather than in the if statement below), so that
+        // if (1) we don't need a swizzler for the subset, and (2) we need a
+        // swizzler for CMYK, the swizzler will still use the proper subset
+        // dimensions.
+        //
+        // Note that the swizzler will ignore the y and height parameters of
+        // the subset.  Since the incremental decoder (and the swizzler) handle
+        // one row at a time, only the subsetting in the x-dimension matters.
+        fSwizzlerSubset.setXYWH(options.fSubset->x() - startX, 0,
+                options.fSubset->width(), options.fSubset->height());
+
+        // We will need a swizzler if libjpeg-turbo cannot provide the exact
+        // subset that we request.
+        if (startX != (uint32_t) options.fSubset->x() ||
+                width != (uint32_t) options.fSubset->width()) {
+            this->initializeSwizzler(dstInfo, options, needsCMYKToRGB);
+        }
+    }
+
+    // Make sure we have a swizzler if we are converting from CMYK.
+    if (!fSwizzler && needsCMYKToRGB) {
+        this->initializeSwizzler(dstInfo, options, true);
+    }
+
+    this->allocateStorage(dstInfo);
+
+    return kSuccess;
+}
+
 /*
  * Performs the jpeg decode
  */
@@ -566,41 +655,32 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
-    // Get a pointer to the decompress info since we will use it quite frequently
-    jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
-
-    // Set the jump location for libjpeg errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
-        return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
+    Result result = this->prepareToDecode(dstInfo, options);
+    switch (result) {
+        case kSuccess:
+            break;
+        case kIncompleteInput:
+            // onStartIncrementalDecode treats this as incomplete, since it may
+            // provide more data later, but in this case, no more data will be
+            // provided, and there is nothing to draw. We also cannot return
+            // kIncompleteInput, which will make SkCodec attempt to fill
+            // remaining rows, but that requires an SkSwizzler, which we have
+            // not created.
+            return kInvalidInput;
+        default:
+            return result;
     }
 
-    // Check if we can decode to the requested destination and set the output color space
-    if (!this->setOutputColorSpace(dstInfo)) {
-        return fDecoderMgr->returnFailure("setOutputColorSpace", kInvalidConversion);
-    }
-
-    if (!jpeg_start_decompress(dinfo)) {
-        return fDecoderMgr->returnFailure("startDecompress", kInvalidInput);
-    }
 
     // The recommended output buffer height should always be 1 in high quality modes.
     // If it's not, we want to know because it means our strategy is not optimal.
-    SkASSERT(1 == dinfo->rec_outbuf_height);
+    SkASSERT(1 == fDecoderMgr->dinfo()->rec_outbuf_height);
 
-    if (needs_swizzler_to_convert_from_cmyk(dinfo->out_color_space, this->getInfo(),
-            this->colorXform())) {
-        this->initializeSwizzler(dstInfo, options, true);
-    }
+    fDst = dst;
+    fDstRowBytes = dstRowBytes;
+    fRowsWrittenToOutput = 0;
 
-    this->allocateStorage(dstInfo);
-
-    int rows = this->readRows(dstInfo, dst, dstRowBytes, dstInfo.height(), options);
-    if (rows < dstInfo.height()) {
-        *rowsDecoded = rows;
-        return fDecoderMgr->returnFailure("Incomplete image data", kIncompleteInput);
-    }
-
-    return kSuccess;
+    return readRows(dstInfo.height(), rowsDecoded);
 }
 
 void SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
@@ -671,90 +751,96 @@ SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
     return fSwizzler.get();
 }
 
-SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
-        const Options& options) {
-    // Set the jump location for libjpeg errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
-        SkCodecPrintf("setjmp: Error from libjpeg\n");
-        return kInvalidInput;
-    }
-
+SkCodec::Result SkJpegCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
+                                                      void* pixels, size_t dstRowBytes,
+                                                      const SkCodec::Options& options) {
     // Check if we can decode to the requested destination and set the output color space
     if (!this->setOutputColorSpace(dstInfo)) {
         return fDecoderMgr->returnFailure("setOutputColorSpace", kInvalidConversion);
     }
 
-    if (!jpeg_start_decompress(fDecoderMgr->dinfo())) {
-        SkCodecPrintf("start decompress failed\n");
-        return kInvalidInput;
+    Result result = prepareToDecode(dstInfo, options);
+    if (result != kSuccess) {
+        return result;
     }
 
-    bool needsCMYKToRGB = needs_swizzler_to_convert_from_cmyk(
-            fDecoderMgr->dinfo()->out_color_space, this->getInfo(), this->colorXform());
+    // Get decoding range if subset is enabled
     if (options.fSubset) {
-        uint32_t startX = options.fSubset->x();
-        uint32_t width = options.fSubset->width();
+        fFirstRow = options.fSubset->top();
+        fLastRow = options.fSubset->bottom() - 1;
+    } else {
+        fFirstRow = 0;
+        fLastRow = dstInfo.height() - 1;
+    }
 
-        // libjpeg-turbo may need to align startX to a multiple of the IDCT
-        // block size.  If this is the case, it will decrease the value of
-        // startX to the appropriate alignment and also increase the value
-        // of width so that the right edge of the requested subset remains
-        // the same.
-        jpeg_crop_scanline(fDecoderMgr->dinfo(), &startX, &width);
+    fDst = pixels;
+    fDstRowBytes = dstRowBytes;
+    fRowsWrittenToOutput = 0;
+    fFirstCallToIncrementalDecode = true;
 
-        SkASSERT(startX <= (uint32_t) options.fSubset->x());
-        SkASSERT(width >= (uint32_t) options.fSubset->width());
-        SkASSERT(startX + width >= (uint32_t) options.fSubset->right());
+    return result;
+}
 
-        // Instruct the swizzler (if it is necessary) to further subset the
-        // output provided by libjpeg-turbo.
-        //
-        // We set this here (rather than in the if statement below), so that
-        // if (1) we don't need a swizzler for the subset, and (2) we need a
-        // swizzler for CMYK, the swizzler will still use the proper subset
-        // dimensions.
-        //
-        // Note that the swizzler will ignore the y and height parameters of
-        // the subset.  Since the scanline decoder (and the swizzler) handle
-        // one row at a time, only the subsetting in the x-dimension matters.
-        fSwizzlerSubset.setXYWH(options.fSubset->x() - startX, 0,
-                options.fSubset->width(), options.fSubset->height());
+SkCodec::Result SkJpegCodec::onIncrementalDecode(int* rowsDecoded) {
+    jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
+    const int sampleY = fSwizzler ? fSwizzler->sampleY() : 1;
 
-        // We will need a swizzler if libjpeg-turbo cannot provide the exact
-        // subset that we request.
-        if (startX != (uint32_t) options.fSubset->x() ||
-                width != (uint32_t) options.fSubset->width()) {
-            this->initializeSwizzler(dstInfo, options, needsCMYKToRGB);
+    // Get fRowsNeeded and fLinesToSkip on first call of incremental decode
+    if (fFirstCallToIncrementalDecode) {
+        const int samplingOffsetY = get_start_coord(sampleY);
+        const int subsetY = options().fSubset ? options().fSubset->fTop : 0;
+        fLinesToSkip = samplingOffsetY + subsetY;
+
+        // Get number of rows needed
+        fRowsNeeded = get_scaled_dimension(fLastRow - fFirstRow + 1, sampleY);
+
+        fFirstCallToIncrementalDecode = false;
+    }
+
+    if (dinfo->buffered_image) {
+        int status = 0;
+        do {
+            status = jpeg_consume_input(dinfo);
+        } while ((status != JPEG_SUSPENDED) && (status != JPEG_REACHED_EOI));
+
+        int scan = dinfo->input_scan_number;
+         // If we haven't displayed anything yet
+         // (output_scan_number == 0) and we have enough data for
+         // a complete scan, force output of the last full scan.
+         if (!dinfo->output_scan_number && (scan > 1) && (status != JPEG_REACHED_EOI))
+             --scan;
+
+        jpeg_start_output(dinfo, scan);
+    }
+
+    if (fLinesToSkip) {
+        fLinesToSkip -= jpeg_skip_scanlines(dinfo, fLinesToSkip);
+        if (fLinesToSkip) {
+            // FIXME: Due to skbug.com/4036, we cannot resume after supplying more data.
+            // Once the bug is fixed, this should return kIncompleteInput.
+            return SkCodec::kErrorInInput;
         }
     }
 
-    // Make sure we have a swizzler if we are converting from CMYK.
-    if (!fSwizzler && needsCMYKToRGB) {
-        this->initializeSwizzler(dstInfo, options, true);
+    if (sampleY == 1) {
+        return readRows(fRowsNeeded - fRowsWrittenToOutput, rowsDecoded);
     }
 
-    this->allocateStorage(dstInfo);
+    while (true) {
+        Result result = readRows(1, rowsDecoded);
+        if (result != kSuccess || fRowsWrittenToOutput == fRowsNeeded) {
+            return result;
+        }
 
-    return kSuccess;
-}
-
-int SkJpegCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
-    int rows = this->readRows(this->dstInfo(), dst, dstRowBytes, count, this->options());
-    if (rows < count) {
-        // This allows us to skip calling jpeg_finish_decompress().
-        fDecoderMgr->dinfo()->output_scanline = this->dstInfo().height();
+        // skip scanlines
+        int count = jpeg_skip_scanlines(dinfo, sampleY - 1);
+        if (count != sampleY - 1) {
+            fLinesToSkip = sampleY - 1 - count;
+            // FIXME: Due to skbug.com/4036, we cannot resume after supplying more data.
+            // Once the bug is fixed, this should return kIncompleteInput.
+            return SkCodec::kErrorInInput;
+        }
     }
-
-    return rows;
-}
-
-bool SkJpegCodec::onSkipScanlines(int count) {
-    // Set the jump location for libjpeg errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
-        return fDecoderMgr->returnFalse("onSkipScanlines");
-    }
-
-    return (uint32_t) count == jpeg_skip_scanlines(fDecoderMgr->dinfo(), count);
 }
 
 static bool is_yuv_supported(jpeg_decompress_struct* dinfo) {
