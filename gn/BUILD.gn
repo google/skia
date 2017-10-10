@@ -46,6 +46,10 @@ config("default") {
     ]
     if (is_clang) {
       cflags += [ "-fms-compatibility-version=19" ]  # 2015
+      if (skia_use_angle) {
+        # Remove once crbug.com/428099 is fixed.
+        cflags += [ "-Wno-error=inconsistent-missing-override" ]
+      }
     }
     defines += [
       "_CRT_SECURE_NO_WARNINGS",  # Disables warnings about sscanf().
