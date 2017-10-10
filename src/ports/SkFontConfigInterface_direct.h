@@ -6,6 +6,8 @@
  */
 
 /* migrated from chrome/src/skia/ext/SkFontHost_fontconfig_direct.cpp */
+#ifndef SKFONTCONFIGINTERFACE_DIRECT_H_
+#define SKFONTCONFIGINTERFACE_DIRECT_H_
 
 #include "SkFontConfigInterface.h"
 
@@ -33,3 +35,5 @@ private:
                          const SkString& family);
     typedef SkFontConfigInterface INHERITED;
 };
+
+#endif
