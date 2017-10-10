@@ -37,6 +37,7 @@ public:
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 
     static sk_sp<GrGLTextureRenderTarget> MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
+                                                      bool hasMipMaps,
                                                       const GrGLTexture::IDDesc& texIDDesc,
                                                       const GrGLRenderTarget::IDDesc& rtIDDesc);
 protected:
@@ -54,6 +55,7 @@ private:
     // Constructor for instances wrapping backend objects.
     GrGLTextureRenderTarget(GrGLGpu* gpu,
                             const GrSurfaceDesc& desc,
+                            bool hasMipMaps,
                             const GrGLTexture::IDDesc& texIDDesc,
                             const GrGLRenderTarget::IDDesc& rtIDDesc);
 

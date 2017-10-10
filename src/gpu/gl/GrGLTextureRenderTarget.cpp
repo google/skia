@@ -27,10 +27,11 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
 
 GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  const GrSurfaceDesc& desc,
+                                                 bool hasMipMaps,
                                                  const GrGLTexture::IDDesc& texIDDesc,
                                                  const GrGLRenderTarget::IDDesc& rtIDDesc)
         : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc, false, false)
+        , GrGLTexture(gpu, desc, texIDDesc, hasMipMaps, true)
         , GrGLRenderTarget(gpu, desc, rtIDDesc) {
     this->registerWithCacheWrapped();
 }
@@ -71,11 +72,11 @@ bool GrGLTextureRenderTarget::canAttemptStencilAttachment() const {
 }
 
 sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
-    GrGLGpu* gpu, const GrSurfaceDesc& desc,
+    GrGLGpu* gpu, const GrSurfaceDesc& desc, bool hasMipMaps,
     const GrGLTexture::IDDesc& texIDDesc, const GrGLRenderTarget::IDDesc& rtIDDesc)
 {
     return sk_sp<GrGLTextureRenderTarget>(
-        new GrGLTextureRenderTarget(gpu, desc, texIDDesc, rtIDDesc));
+        new GrGLTextureRenderTarget(gpu, desc, hasMipMaps, texIDDesc, rtIDDesc));
 }
 
 size_t GrGLTextureRenderTarget::onGpuMemorySize() const {
