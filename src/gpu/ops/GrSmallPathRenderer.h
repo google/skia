@@ -65,6 +65,7 @@ private:
                 return *this;
             }
 
+            // for SDF paths
             void set(const GrShape& shape, uint32_t dim) {
                 // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
                 // relevant styling information.
@@ -76,13 +77,8 @@ private:
                 shape.writeUnstyledKey(&fKey[1]);
             }
 
+            // for bitmap paths
             void set(const GrShape& shape, const SkMatrix& ctm) {
-                GrUniqueKey maskKey;
-                struct KeyData {
-                    SkScalar fFractionalTranslateX;
-                    SkScalar fFractionalTranslateY;
-                };
-
                 // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
                 // relevant styling information.
                 SkASSERT(shape.style().isSimpleFill());
@@ -104,7 +100,7 @@ private:
                 fKey[2] = SkFloat2Bits(kx);
                 fKey[3] = SkFloat2Bits(ky);
                 fKey[4] = fracX | (fracY >> 8);
-                shape.writeUnstyledKey(&fKey[5]);
+                 shape.writeUnstyledKey(&fKey[5]);
             }
 
             bool operator==(const Key& that) const {

@@ -102,16 +102,12 @@ GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPath
     if (args.fShape->inverseFilled()) {
         return CanDrawPath::kNo;
     }
-    // currently don't support perspective
-    if (args.fViewMatrix->hasPerspective()) {
-        return CanDrawPath::kNo;
-    }
 
     // Only support paths with bounds within kMaxDim by kMaxDim,
     // scaled to have bounds within kMaxSize by kMaxSize.
     // The goal is to accelerate rendering of lots of small paths that may be scaling.
-    SkScalar scaleFactors[2];
-    if (!args.fViewMatrix->getMinMaxScales(scaleFactors)) {
+    SkScalar scaleFactors[2] = { 1, 1 };
+    if (!args.fViewMatrix->hasPerspective() && !args.fViewMatrix->getMinMaxScales(scaleFactors)) {
         return CanDrawPath::kNo;
     }
     SkRect bounds = args.fShape->styledBounds();
@@ -167,7 +163,10 @@ public:
         // only use distance fields on desktop and Android framework to save space in the atlas
         fUsesDistanceField = this->bounds().width() > kMaxMIP || this->bounds().height() > kMaxMIP;
 #endif
-        fViewMatrix = viewMatrix;
+        fUsesDistanceField = true;
+        // always use distance fields if in perspective
+        fUsesDistanceField = fUsesDistanceField || viewMatrix.hasPerspective();
+
         SkVector translate = SkVector::Make(0, 0);
         if (!fUsesDistanceField) {
             // In this case we don't apply a view matrix, so we need to remove the non-subpixel
@@ -176,12 +175,13 @@ public:
             SkScalar translateY = viewMatrix.getTranslateY();
             translate = SkVector::Make(SkScalarFloorToScalar(translateX),
                                        SkScalarFloorToScalar(translateY));
+            fShapes.emplace_back(Entry{ color, shape, viewMatrix, translate });
             // Only store the fractional part of the translation in the view matrix
-            fViewMatrix.setTranslateX(translateX - translate.fX);
-            fViewMatrix.setTranslateY(translateY - translate.fY);
+            fShapes[0].fViewMatrix.setTranslateX(translateX - translate.fX);
+            fShapes[0].fViewMatrix.setTranslateY(translateY - translate.fY);
+        } else {
+            fShapes.emplace_back(Entry{ color, shape, viewMatrix, translate });
         }
-
-        fShapes.emplace_back(Entry{color, shape, translate});
 
         fAtlas = atlas;
         fShapeCache = shapeCache;
@@ -234,7 +234,6 @@ private:
 
     void onPrepareDraws(Target* target) override {
         int instanceCount = fShapes.count();
-        const SkMatrix& ctm = this->viewMatrix();
 
         FlushInfo flushInfo;
         flushInfo.fPipeline = fHelper.makePipeline(target);
@@ -244,19 +243,34 @@ private:
         if (!atlasPageCount) {
             return;
         }
+        const SkMatrix& ctm = fShapes[0].fViewMatrix;
         if (fUsesDistanceField) {
             uint32_t flags = 0;
+            //**** we're either perspective or identity matrix, don't key off ctm in latter case
             flags |= ctm.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
             flags |= ctm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
             flags |= fGammaCorrect ? kGammaCorrect_DistanceFieldEffectFlag : 0;
 
+            const SkMatrix* matrix;
+            SkMatrix invert;
+            if (ctm.hasPerspective()) {
+                matrix = &ctm;
+            } else if (fHelper.usesLocalCoords()) {
+                if (!ctm.invert(&invert)) {
+                    SkDebugf("Could not invert viewmatrix\n");
+                    return;
+                }
+                matrix = &invert;
+            } else {
+                matrix = &SkMatrix::I();
+            }
             flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
-                    this->color(), this->viewMatrix(), atlas->getProxies(),
-                    GrSamplerState::ClampBilerp(), flags, fHelper.usesLocalCoords());
+                    this->color(), *matrix, atlas->getProxies(),
+                    GrSamplerState::ClampBilerp(), flags);
         } else {
             SkMatrix invert;
             if (fHelper.usesLocalCoords()) {
-                if (!this->viewMatrix().invert(&invert)) {
+                if (!ctm.invert(&invert)) {
                     SkDebugf("Could not invert viewmatrix\n");
                     return;
                 }
@@ -295,8 +309,16 @@ private:
             ShapeData* shapeData;
             if (fUsesDistanceField) {
                 // get mip level
-                SkScalar maxScale = SkScalarAbs(this->viewMatrix().getMaxScale());
+                SkScalar maxScale;
                 const SkRect& bounds = args.fShape.bounds();
+                if (args.fViewMatrix.hasPerspective()) {
+                    SkRect xformedBounds;
+                    args.fViewMatrix.mapRect(&xformedBounds, bounds);
+                    maxScale = SkTMax(xformedBounds.width() / bounds.width(),
+                                      xformedBounds.height() / bounds.height());
+                } else {
+                    maxScale = SkScalarAbs(args.fViewMatrix.getMaxScale());
+                }
                 SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
                 // We try to create the DF at a 2^n scaled path resolution (1/2, 1, 2, 4, etc.)
                 // In the majority of cases this will yield a crisper rendering.
@@ -355,7 +377,7 @@ private:
                 }
             } else {
                 // check to see if bitmap path is cached
-                ShapeData::Key key(args.fShape, this->viewMatrix());
+                ShapeData::Key key(args.fShape, args.fViewMatrix);
                 shapeData = fShapeCache->find(key);
                 if (nullptr == shapeData || !atlas->hasID(shapeData->fID)) {
                     // Remove the stale cache entry
@@ -371,7 +393,7 @@ private:
                                                 atlas,
                                                 shapeData,
                                                 args.fShape,
-                                                this->viewMatrix())) {
+                                                args.fViewMatrix)) {
                         delete shapeData;
                         continue;
                     }
@@ -386,7 +408,8 @@ private:
                                     args.fColor,
                                     vertexStride,
                                     args.fTranslate,
-                                    shapeData);
+                                    shapeData,
+                                    args.fViewMatrix);
             offset += kVerticesPerQuad * vertexStride;
             flushInfo.fInstancesToFlush++;
         }
@@ -623,18 +646,37 @@ private:
                            GrColor color,
                            size_t vertexStride,
                            const SkVector& preTranslate,
-                           const ShapeData* shapeData) const {
+                           const ShapeData* shapeData,
+                           const SkMatrix& viewMatrix) const {
         SkPoint* positions = reinterpret_cast<SkPoint*>(offset);
 
         SkRect bounds = shapeData->fBounds;
 
         // vertex positions
         // TODO make the vertex attributes a struct
-        positions->setRectFan(bounds.left() + preTranslate.fX,
-                              bounds.top() + preTranslate.fY,
-                              bounds.right() + preTranslate.fX,
-                              bounds.bottom() + preTranslate.fY,
-                              vertexStride);
+        if (fUsesDistanceField && !viewMatrix.hasPerspective()) {
+            SkRect preXformBounds = bounds.makeOffset(preTranslate.fX, preTranslate.fY);
+            SkPoint quad[4];
+            viewMatrix.mapRectToQuad(quad, preXformBounds);
+            intptr_t positionOffset = offset;
+            SkPoint* position = (SkPoint*)positionOffset;
+            *position = quad[0];
+            positionOffset += vertexStride;
+            position = (SkPoint*)positionOffset;
+            *position = quad[3];
+            positionOffset += vertexStride;
+            position = (SkPoint*)positionOffset;
+            *position = quad[2];
+            positionOffset += vertexStride;
+            position = (SkPoint*)positionOffset;
+            *position = quad[1];
+        } else {
+            positions->setRectFan(bounds.left() + preTranslate.fX,
+                                  bounds.top() + preTranslate.fY,
+                                  bounds.right() + preTranslate.fX,
+                                  bounds.bottom() + preTranslate.fY,
+                                  vertexStride);
+        }
 
         // colors
         for (int i = 0; i < kVerticesPerQuad; i++) {
@@ -696,7 +738,6 @@ private:
     }
 
     GrColor color() const { return fShapes[0].fColor; }
-    const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool usesDistanceField() const { return fUsesDistanceField; }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -709,13 +750,15 @@ private:
             return false;
         }
 
-        // TODO We can position on the cpu for distance field paths
-        if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        if (this->fShapes[0].fViewMatrix.hasPerspective() !=
+            that->fShapes[0].fViewMatrix.hasPerspective()) {
             return false;
         }
 
-        if (!this->usesDistanceField() && fHelper.usesLocalCoords() &&
-            !this->fShapes[0].fTranslate.equalsWithinTolerance(that->fShapes[0].fTranslate)) {
+        // We can position on the cpu unless we're in perspective,
+        // but also need to make sure local matrices are identical
+        if ((this->fShapes[0].fViewMatrix.hasPerspective() || fHelper.usesLocalCoords()) &&
+            !this->fShapes[0].fViewMatrix.cheapEqualTo(that->fShapes[0].fViewMatrix)) {
             return false;
         }
 
@@ -724,12 +767,12 @@ private:
         return true;
     }
 
-    SkMatrix fViewMatrix;
     bool fUsesDistanceField;
 
     struct Entry {
         GrColor  fColor;
         GrShape  fShape;
+        SkMatrix fViewMatrix;
         SkVector fTranslate;
     };
 
