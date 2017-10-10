@@ -185,6 +185,7 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(GSampler2DArrayShadow);
     ADD_TYPE(GSamplerCubeArrayShadow);
     ADD_TYPE(ColorSpaceXform);
+    ADD_TYPE(FragmentProcessor);
 
     StringFragment skCapsName("sk_Caps");
     Variable* skCaps = new Variable(-1, Modifiers(), skCapsName,
@@ -1246,7 +1247,7 @@ bool Compiler::toCPP(const Program& program, String name, OutputStream& out) {
 
 bool Compiler::toH(const Program& program, String name, OutputStream& out) {
     fSource = program.fSource.get();
-    HCodeGenerator cg(&program, this, name, &out);
+    HCodeGenerator cg(&fContext, &program, this, name, &out);
     bool result = cg.generateCode();
     fSource = nullptr;
     this->writeErrorCount();

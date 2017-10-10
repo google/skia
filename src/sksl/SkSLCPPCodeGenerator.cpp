@@ -246,6 +246,36 @@ void CPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
 }
 
 void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
+    if (c.fFunction.fBuiltin && c.fFunction.fName == "process") {
+        ASSERT(c.fArguments.size() == 1);
+        ASSERT(Expression::kVariableReference_Kind == c.fArguments[0]->fKind);
+        int index = 0;
+        bool found = false;
+        for (const auto& p : fProgram.fElements) {
+            if (ProgramElement::kVar_Kind == p->fKind) {
+                const VarDeclarations* decls = (const VarDeclarations*) p.get();
+                for (const auto& raw : decls->fVars) {
+                    VarDeclaration& decl = (VarDeclaration&) *raw;
+                    if (decl.fVar == &((VariableReference&) *c.fArguments[0]).fVariable) {
+                        found = true;
+                    } else if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
+                        ++index;
+                    }
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+        ASSERT(found);
+        String childName = "_child" + to_string(index);
+        fExtraEmitCodeCode += "        SkString " + childName + "(\"" + childName + "\");\n" +
+                              "        this->emitChild(" + to_string(index) + ", &" + childName +
+                              ", args);\n";
+        this->write("%s");
+        fFormatArgs.push_back(childName + ".c_str()");
+        return;
+    }
     if (c.fFunction.fBuiltin && c.fFunction.fName == "COLORSPACE") {
         String tmpVar = "_tmpVar" + to_string(++fVarCount);
         fFunctionHeader += "half4 " + tmpVar + ";";
@@ -383,8 +413,13 @@ void CPPCodeGenerator::writePrivateVars() {
             for (const auto& raw : decls->fVars) {
                 VarDeclaration& decl = (VarDeclaration&) *raw;
                 if (is_private(*decl.fVar)) {
+                    if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
+                        fErrors.error(decl.fOffset,
+                                      "fragmentProcessor variables must be declared 'in'");
+                        return;
+                    }
                     this->writef("%s %s;\n",
-                                 HCodeGenerator::FieldType(decl.fVar->fType).c_str(),
+                                 HCodeGenerator::FieldType(fContext, decl.fVar->fType).c_str(),
                                  String(decl.fVar->fName).c_str());
                 }
             }
@@ -477,6 +512,8 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                              "            fColorSpaceHelper.setData(%s, _outer.%s().get());\n"
                              "        }\n",
                              pdman, name);
+            } else if (u->fType == *fContext.fFragmentProcessor_Type) {
+                // do nothing
             } else {
                 this->writef("        %s.set1f(%sVar, _outer.%s());\n",
                              pdman, HCodeGenerator::FieldName(name).c_str(), name);
@@ -498,7 +535,8 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                         this->writef("        UniformHandle& %s = %sVar;\n"
                                      "        (void) %s;\n",
                                      name, HCodeGenerator::FieldName(name).c_str(), name);
-                    } else if (SectionAndParameterHelper::IsParameter(*decl.fVar)) {
+                    } else if (SectionAndParameterHelper::IsParameter(*decl.fVar) &&
+                               decl.fVar->fType != *fContext.fFragmentProcessor_Type) {
                         if (!wroteProcessor) {
                             this->writef("        const %s& _outer = _proc.cast<%s>();\n", fullName,
                                          fullName);
@@ -526,10 +564,13 @@ void CPPCodeGenerator::writeClone() {
                      ": INHERITED(k%s_ClassID, src.optimizationFlags())", fFullName.c_str(),
                      fFullName.c_str(), fFullName.c_str(), fFullName.c_str());
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+            if (param->fType == *fContext.fFragmentProcessor_Type) {
+                continue;
+            }
             String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
-            this->writef("\n, %s(%s)",
+            this->writef("\n, %s(src.%s)",
                          fieldName.c_str(),
-                         ("src." + fieldName).c_str());
+                         fieldName.c_str());
         }
         for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
             String fieldName = HCodeGenerator::FieldName(s->fArgument.c_str());
@@ -537,10 +578,14 @@ void CPPCodeGenerator::writeClone() {
                          fieldName.c_str());
         }
         this->writef(" {\n");
+        int childCount = 0;
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             if (param->fType.kind() == Type::kSampler_Kind) {
                 this->writef("    this->addTextureSampler(&%s);\n",
                              HCodeGenerator::FieldName(String(param->fName).c_str()).c_str());
+            } else if (param->fType == *fContext.fFragmentProcessor_Type) {
+                this->writef("    this->registerChildProcessor(src.childProcessor(%d).clone());"
+                             "\n", childCount++);
             }
         }
         for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
@@ -687,6 +732,9 @@ bool CPPCodeGenerator::generateCode() {
                  "    (void) that;\n",
                  fullName, fullName, fullName);
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+        if (param->fType == *fContext.fFragmentProcessor_Type) {
+            continue;
+        }
         String nameString(param->fName);
         const char* name = nameString.c_str();
         this->writef("    if (%s != that.%s) return false;\n",

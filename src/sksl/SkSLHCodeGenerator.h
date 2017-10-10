@@ -32,13 +32,14 @@ namespace SkSL {
 
 class HCodeGenerator : public CodeGenerator {
 public:
-    HCodeGenerator(const Program* program, ErrorReporter* errors, String name, OutputStream* out);
+    HCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
+                   String name, OutputStream* out);
 
     bool generateCode() override;
 
-    static String ParameterType(const Type& type);
+    static String ParameterType(const Context& context, const Type& type);
 
-    static String FieldType(const Type& type);
+    static String FieldType(const Context& context, const Type& type);
 
     static String FieldName(const char* varName) {
         return String::printf("f%c%s", toupper(varName[0]), varName + 1);
@@ -63,6 +64,7 @@ private:
 
     void failOnSection(const char* section, const char* msg);
 
+    const Context& fContext;
     String fName;
     String fFullName;
     SectionAndParameterHelper fSectionAndParameterHelper;

@@ -402,4 +402,26 @@ DEF_TEST(SkSLFPLayoutWhen, r) {
 
 }
 
+DEF_TEST(SkSLFPChildProcessors, r) {
+    test(r,
+         "in fragmentProcessor child1;"
+         "in fragmentProcessor child2;"
+         "void main() {"
+         "    sk_OutColor = process(child1) * process(child2);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {
+            "this->registerChildProcessor(std::move(child1));",
+            "this->registerChildProcessor(std::move(child2));"
+         },
+         {
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(0, &_child0, args);",
+            "SkString _child1(\"_child1\");",
+            "this->emitChild(1, &_child1, args);",
+            "this->registerChildProcessor(src.childProcessor(0).clone());",
+            "this->registerChildProcessor(src.childProcessor(1).clone());"
+         });
+}
+
 #endif
