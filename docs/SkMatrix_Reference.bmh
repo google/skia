@@ -3,10 +3,13 @@
 
 #Class SkMatrix
 
-The SkMatrix class holds a 3x3 matrix for transforming coordinates.
+Matrix holds a 3x3 matrix for transforming coordinates.
+Matrix elements are in column major order.
+
 SkMatrix does not have a constructor, so it must be explicitly initialized
 using either reset() - to construct an identity matrix, or one of the set
 functions (e.g. setTranslate, setRotate, etc.).
+
 SkMatrix is not thread safe unless getType is called first.
 
 #Topic Overview
@@ -25,8 +28,10 @@ SkMatrix is not thread safe unless getType is called first.
 #Legend
 # description                                                         # function ##
 #Legend ##
-# friend SK_API bool operator!=(const SkMatrix& a, const SkMatrix& b) # ##
-# friend SK_API bool operator==(const SkMatrix& a, const SkMatrix& b) # ##
+# friend SK_API bool operator!=(const SkMatrix& a, const SkMatrix& b) # Returns true if members are unequal. ##
+# friend SK_API bool operator==(const SkMatrix& a, const SkMatrix& b) # Returns true if members are equal. ##
+# SkScalar operator[](int index) const # Returns one of nine Matrix values. ##
+# SkScalar& operator[](int index) # Returns a writable reference to one of nine Matrix values. ##
 #Table ##
 #Subtopic ##
 
@@ -35,46 +40,45 @@ SkMatrix is not thread safe unless getType is called first.
 #Legend
 # description            # function ##
 #Legend ##
-# Concat                 # ##
-# GetMapPtsProc          # ##
-# GetMapXYProc           # ##
-# I                      # ##
-# InvalidMatrix          # ##
-# MakeRectToRect         # ##
-# MakeScale              # ##
-# MakeTrans              # ##
-# SetAffineIdentity      # ##
-# [                      # ##
-# asAffine               # ##
-# cheapEqualTo           # ##
-# decomposeScale         # ##
-# dirtyMatrixTypeCache   # ##
-# dump                   # ##
-# fixedStepInX           # ##
-# get                    # ##
-# get9                   # ##
-# getMapPtsProc          # ##
-# getMapXYProc           # ##
-# getMaxScale            # ##
-# getMinMaxScales        # ##
-# getMinScale            # ##
-# getPerspX              # ##
-# getPerspY              # ##
-# getScaleX              # ##
-# getScaleY              # ##
-# getSkewX               # ##
-# getSkewY               # ##
-# getTranslateX          # ##
-# getTranslateY          # ##
-# getType                # ##
-# hasPerspective         # ##
-# invert                 # ##
-# isFinite               # ##
-# isFixedStepInX         # ##
-# isIdentity             # ##
-# isScaleTranslate       # ##
-# isSimilarity           # ##
-# isTranslate            # ##
+# Concat                 # Returns the concatenation of Matrix pair. ##
+# GetMapPtsProc          # Returns optimal function to map Point array. ##
+# GetMapXYProc           # Returns optimal function to map one Point. ##
+# I                      # Returns a reference to a const identity Matrix. ##
+# InvalidMatrix          # Returns a reference to a const invalid Matrix. ##
+# MakeRectToRect         # Constructs from source Rect to destination Rect. ##
+# MakeScale              # Constructs from scale in x and y. ##
+# MakeTrans              # Constructs from translate in x and y. ##
+# SetAffineIdentity      # Sets 2x3 array to identity. ##
+# asAffine               # Copies to 2x3 array. ##
+# cheapEqualTo           # Compares Matrix pair using memcmp(). ##
+# decomposeScale         # Separates scale if possible. ##
+# dirtyMatrixTypeCache   # Private; used by testing. ##
+# dump                   # Sends text representation using floats to standard output. ##
+# fixedStepInX           # Returns step in x for a position in y. ##
+# get                    # Returns one of nine Matrix values. ##
+# get9                   # Returns all nine Matrix values. ##
+# getMapPtsProc          # Returns optimal function to map Point array. ##
+# getMapXYProc           # Returns optimal function to map one Point. ##
+# getMaxScale            # Returns maximum scaling, if possible. ##
+# getMinMaxScales        # Returns minimum and maximum scaling, if possible. ##
+# getMinScale            # Returns minimum scaling, if possible. ##
+# getPerspX              # Returns horizontal perspective factor. ##
+# getPerspY              # Returns vertical perspective factor. ##
+# getScaleX              # Returns horizontal scale factor. ##
+# getScaleY              # Returns vertical scale factor.##
+# getSkewX               # Returns horizontal skew factor. ##
+# getSkewY               # Returns vertical skew factor. ##
+# getTranslateX          # Returns horizontal translation factor. ##
+# getTranslateY          # Returns vertical translation factor. ##
+# getType                # Returns transform complexity. ##
+# hasPerspective         # Returns if transform includes perspective. ##
+# invert                 # Returns inverse, if possible. ##
+# isFinite               # Returns if all Matrix values are not infinity, NaN. ##
+# isFixedStepInX         # Returns if transformation supports fixed step in x. ##
+# isIdentity             # Returns if matrix equals the identity Matrix .##
+# isScaleTranslate       # Returns if transform is limited to scale and translate. ##
+# isSimilarity           # Returns if transform is limited to square scale and rotation. ##
+# isTranslate            # Returns if transform is limited to translate. ##
 # mapHomogeneousPoints   # ##
 # mapPoints              # ##
 # mapPointsWithStride    # ##

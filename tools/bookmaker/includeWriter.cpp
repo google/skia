@@ -1131,6 +1131,13 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
         }
         if (Definition::Type::kWord == child.fType) {
             if (MarkType::kMember == child.fMarkType) {
+                if (!memberStart) {
+                    memberStart = &child;
+                    if (!fStructDef) {
+                        SkASSERT(KeyWord::kStruct == def->fParent->fKeyWord);
+                        fStructDef = def->fParent;
+                    }
+                }
                 memberEnd = this->structMemberOut(memberStart, child);
                 fStart = child.fContentEnd + 1;
                 fDeferComment = nullptr;

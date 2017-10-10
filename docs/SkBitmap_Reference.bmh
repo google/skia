@@ -223,6 +223,7 @@ or setPixelRef was called.
         SkDebugf("pixel address = %p\n", bitmap.getPixels());
     }
 #StdOut
+#Volatile
 pixel address = (nil)
 pixel address = 0x560ddd0ac670
 ##
