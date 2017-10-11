@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aad5ff48_c279de0a",
+        "filename": "experimental/svg/model/SkSVGRenderContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-11T16:29:40Z",
+      "side": 1,
+      "message": "// The canvas only needs to be saved once, per local SkSVGRenderContext.\n\n?",
+      "revId": "7bb96a517581bc32811f6dd7d944a795952db64e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
