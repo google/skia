@@ -20,6 +20,7 @@
 #include "SkSVGLinearGradient.h"
 #include "SkSVGNode.h"
 #include "SkSVGPath.h"
+#include "SkSVGPattern.h"
 #include "SkSVGPoly.h"
 #include "SkSVGRadialGradient.h"
 #include "SkSVGRect.h"
@@ -294,6 +295,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "height"           , { SkSVGAttribute::kHeight           , SetLengthAttribute       }},
     { "offset"           , { SkSVGAttribute::kOffset           , SetLengthAttribute       }},
     { "opacity"          , { SkSVGAttribute::kOpacity          , SetNumberAttribute       }},
+    { "patternTransform" , { SkSVGAttribute::kPatternTransform , SetTransformAttribute    }},
     { "points"           , { SkSVGAttribute::kPoints           , SetPointsAttribute       }},
     { "r"                , { SkSVGAttribute::kR                , SetLengthAttribute       }},
     { "rx"               , { SkSVGAttribute::kRx               , SetLengthAttribute       }},
@@ -330,6 +332,7 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "line"          , []() -> sk_sp<SkSVGNode> { return SkSVGLine::Make();           }},
     { "linearGradient", []() -> sk_sp<SkSVGNode> { return SkSVGLinearGradient::Make(); }},
     { "path"          , []() -> sk_sp<SkSVGNode> { return SkSVGPath::Make();           }},
+    { "pattern"       , []() -> sk_sp<SkSVGNode> { return SkSVGPattern::Make();        }},
     { "polygon"       , []() -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolygon();    }},
     { "polyline"      , []() -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolyline();   }},
     { "radialGradient", []() -> sk_sp<SkSVGNode> { return SkSVGRadialGradient::Make(); }},

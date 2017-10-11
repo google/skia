@@ -29,6 +29,7 @@ enum class SkSVGAttribute {
     kHref,
     kOffset,
     kOpacity,
+    kPatternTransform,
     kPoints,
     kR,  // <circle>, <radialGradient>: radius
     kRx, // <ellipse>,<rect>: horizontal (corner) radius
