@@ -32,7 +32,8 @@ enum class SkSVGTag {
     kRadialGradient,
     kRect,
     kStop,
-    kSvg
+    kSvg,
+    kUse
 };
 
 class SkSVGNode : public SkRefCnt {

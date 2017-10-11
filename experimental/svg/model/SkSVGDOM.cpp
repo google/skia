@@ -27,6 +27,7 @@
 #include "SkSVGStop.h"
 #include "SkSVGSVG.h"
 #include "SkSVGTypes.h"
+#include "SkSVGUse.h"
 #include "SkSVGValue.h"
 #include "SkTSearch.h"
 
@@ -335,6 +336,7 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "rect"          , []() -> sk_sp<SkSVGNode> { return SkSVGRect::Make();           }},
     { "stop"          , []() -> sk_sp<SkSVGNode> { return SkSVGStop::Make();           }},
     { "svg"           , []() -> sk_sp<SkSVGNode> { return SkSVGSVG::Make();            }},
+    { "use"           , []() -> sk_sp<SkSVGNode> { return SkSVGUse::Make();            }},
 };
 
 struct ConstructionContext {
