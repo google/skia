@@ -105,11 +105,11 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Mac-Clang-x86_64-Release',
   'Build-Win-Clang-arm64-Release-Android',
+  'Build-Win-Clang-x86_64-Release-Vulkan',
   'Build-Win-MSVC-x86-Debug',
   'Build-Win-MSVC-x86-Debug-ANGLE',
   'Build-Win-MSVC-x86-Debug-Exceptions',
   'Build-Win-MSVC-x86-Release-GDI',
-  'Build-Win-MSVC-x86_64-Release-Vulkan',
 ]
 
 
@@ -136,7 +136,7 @@ def GenTests(api):
     yield test
 
 
-  buildername = 'Build-Win-MSVC-x86_64-Release-Vulkan'
+  buildername = 'Build-Win-Clang-x86_64-Release-Vulkan'
   yield (
       api.test('trybot') +
       api.properties(buildername=buildername,
@@ -155,7 +155,6 @@ def GenTests(api):
       )
     )
 
-  buildername = 'Build-Win-MSVC-x86_64-Release-Vulkan'
   yield (
       api.test('alternate_repo') +
       api.properties(buildername=buildername,
