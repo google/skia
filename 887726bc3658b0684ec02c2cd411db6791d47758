@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d50feca_e519c17f",
+        "filename": "src/gpu/effects/GrArithmeticFP.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-11T17:39:22Z",
+      "side": 1,
+      "message": "that\u0027s pretty cool",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 27
+      },
+      "revId": "887726bc3658b0684ec02c2cd411db6791d47758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1635c71_2f793a40",
+        "filename": "src/gpu/effects/GrArithmeticFP.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-11T17:39:22Z",
+      "side": 1,
+      "message": "how do you specify what color is passed to the child?",
+      "range": {
+        "startLine": 11,
+        "startChar": 16,
+        "endLine": 11,
+        "endChar": 30
+      },
+      "revId": "887726bc3658b0684ec02c2cd411db6791d47758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
