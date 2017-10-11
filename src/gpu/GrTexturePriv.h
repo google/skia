@@ -22,17 +22,17 @@ public:
     }
 
     bool mipMapsAreDirty() const {
-        return GrTexture::kClean_MipMapsStatus != fTexture->fMipMapsStatus;
+        return GrMipMapsStatus::kClean != fTexture->fMipMapsStatus;
     }
 
     bool hasMipMaps() const {
-        return GrTexture::kNotAllocated_MipMapsStatus != fTexture->fMipMapsStatus;
+        return GrMipMapsStatus::kNotAllocated != fTexture->fMipMapsStatus;
     }
 
     // Once we no longer support allocating mip levels after creation, we can also require that mips
     // have been allocated to the valid check.
     bool mipMapsAreValid() const {
-        return GrTexture::kInvalid_MipMapsStatus != fTexture->fMipMapsStatus;
+        return GrMipMapsStatus::kInvalid != fTexture->fMipMapsStatus;
     }
 
     void setMaxMipMapLevel(int maxMipMapLevel) const {

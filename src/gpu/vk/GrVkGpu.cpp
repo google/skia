@@ -818,11 +818,18 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-    bool fullMipMapDataProvided = true;
-    for (int i = 0; i < mipLevelCount; ++i) {
-        if (!texels[i].fPixels) {
-            fullMipMapDataProvided = false;
-            break;
+    GrMipMapsStatus mipMapsStatus = GrMipMapsStatus::kNotAllocated;
+    if (mipLevels > 1) {
+        mipMapsStatus = GrMipMapsStatus::kClean;
+        for (int i = 0; i < mipLevels; ++i) {
+            if (!texels[i].fPixels) {
+                if (0 == i) {
+                    mipMapsStatus = GrMipMapsStatus::kInvalid;
+                } else {
+                    mipMapsStatus = GrMipMapsStatus::kDirty;
+                }
+                break;
+            }
         }
     }
 
@@ -830,10 +837,10 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
     if (renderTarget) {
         tex = GrVkTextureRenderTarget::CreateNewTextureRenderTarget(this, budgeted, desc,
                                                                     imageDesc,
-                                                                    fullMipMapDataProvided);
+                                                                    mipMapsStatus);
     } else {
         tex = GrVkTexture::CreateNewTexture(this, budgeted, desc, imageDesc,
-                                            fullMipMapDataProvided);
+                                            mipMapsStatus);
     }
 
     if (!tex) {
