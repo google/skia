@@ -109,6 +109,24 @@
     },
     {
       "key": {
+        "uuid": "2030fb8e_669f40b5",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-11T13:58:33Z",
+      "side": 1,
+      "message": "How will you get to the memory manager from the callback if it doesn\u0027t capture anything?",
+      "parentUuid": "8228a92f_75e995d2",
+      "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7f830c0b_5bf7f5fd",
         "filename": "src/gpu/GrTexture.cpp",
         "patchSetId": 11
