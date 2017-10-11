@@ -56,6 +56,25 @@ GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType
     }
 }
 
+bool GrTexture::StealBackendTexture(sk_sp<GrTexture> texture,
+                                    GrBackendTexture* backendTexture,
+                                    SkImage::BackendTextureReleaseProc* releaseProc) {
+    if (!texture->unique()) {
+        return false;
+    }
+
+    if (!texture->onSteal(backendTexture, releaseProc)) {
+        return false;
+    }
+
+    // Release any not-stolen data being held by this class.
+    texture->onRelease();
+    // Abandon the GrTexture so it can't be re-used.
+    texture->abandon();
+
+    return true;
+}
+
 void GrTexture::computeScratchKey(GrScratchKey* key) const {
     const GrRenderTarget* rt = this->asRenderTarget();
     int sampleCount = 0;
