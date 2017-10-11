@@ -426,6 +426,10 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
         SkTSwap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kLowerRight_Corner]);
     }
 
+    if (!AreRectAndRadiiValid(dst->fRect, dst->fRadii)) {
+        return false;
+    }
+
     dst->scaleRadii();
 
     return true;
