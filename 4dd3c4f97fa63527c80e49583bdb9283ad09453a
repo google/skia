@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "058e7006_b60fe267",
+        "filename": "experimental/svg/model/SkSVGPattern.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-11T18:00:46Z",
+      "side": 1,
+      "message": "inherit_if_needed ?",
+      "revId": "4dd3c4f97fa63527c80e49583bdb9283ad09453a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60647914_fb115a76",
+        "filename": "experimental/svg/model/SkSVGPattern.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-11T18:00:46Z",
+      "side": 1,
+      "message": "Is there no way to terminate this loop early? If all the destination values are set?",
+      "revId": "4dd3c4f97fa63527c80e49583bdb9283ad09453a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2b18624_a7045e32",
+        "filename": "experimental/svg/model/SkSVGPattern.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-11T18:00:46Z",
+      "side": 1,
+      "message": "Shouldn\u0027t these be fX, fY, fWidth, fHeight and fPatternTransform ?",
+      "revId": "4dd3c4f97fa63527c80e49583bdb9283ad09453a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
