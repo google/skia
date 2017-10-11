@@ -91,7 +91,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan\\data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan\\data"
     ],
     "infra_step": true,
     "name": "rmtree data"
@@ -106,7 +106,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan\\data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan\\data"
     ],
     "infra_step": true,
     "name": "makedirs data"
@@ -199,7 +199,7 @@
       "~inc0.webp",
       "~inc1.webp",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan\\data\\nanobench_abc123_1337000001.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan\\data\\nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -211,7 +211,7 @@
       "arch",
       "x86_64",
       "compiler",
-      "MSVC",
+      "Clang",
       "cpu_or_gpu",
       "GPU",
       "cpu_or_gpu_value",
@@ -241,7 +241,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan\\data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan\\data"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
