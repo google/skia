@@ -1185,6 +1185,7 @@ if (skia_enable_tools) {
       "experimental/svg/model/SkSVGShape.cpp",
       "experimental/svg/model/SkSVGStop.cpp",
       "experimental/svg/model/SkSVGTransformableNode.cpp",
+      "experimental/svg/model/SkSVGUse.cpp",
       "experimental/svg/model/SkSVGValue.cpp",
     ]
     deps = [
