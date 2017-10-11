@@ -225,7 +225,7 @@ private:
     bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
                            bool renderTarget, GrGLTexture::TexParams* initialTexParams,
                            const GrMipLevel texels[], int mipLevelCount,
-                           bool* wasFullMipMapDataProvided);
+                           GrMipMapsStatus* mipMapsStatus);
 
     bool onIsACopyNeededForTextureParams(GrTextureProxy*, const GrSamplerState&,
                                          GrTextureProducer::CopyParams*,
@@ -393,7 +393,7 @@ private:
                        GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType, int left,
                        int top, int width, int height, GrPixelConfig dataConfig,
                        const GrMipLevel texels[], int mipLevelCount,
-                       bool* wasFullMipMapDataProvided = nullptr);
+                       GrMipMapsStatus* mipMapsStatus = nullptr);
 
     bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
                                    GrGLRenderTarget::IDDesc*);

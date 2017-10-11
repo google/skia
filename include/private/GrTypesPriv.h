@@ -762,6 +762,16 @@ enum class GpuPathRenderers {
     kDefault           = kAll & ~kCoverageCounting,
 };
 
+/**
+ * Used to describe the current state of Mips on a GrTexture
+ */
+enum class  GrMipMapsStatus {
+    kNotAllocated, // Mips have not been allocated
+    kInvalid,      // Mips have been allocated but nothing written to base level
+    kDirty,        // Base level has data but the rest of the levels are dirty
+    kClean,        // All levels fully allocated and have valid data in them
+};
+
 GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
 
 #endif
