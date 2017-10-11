@@ -20,6 +20,10 @@ public:
     GMBench(skiagm::GM* gm);
     ~GMBench() override;
 
+    void modifyGrContextOptions(GrContextOptions* options) override {
+        return fGM->modifyGrContextOptions(options);
+    }
+
 protected:
     const char* onGetName() override;
     bool isSuitableFor(Backend backend) override;

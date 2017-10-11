@@ -54,7 +54,9 @@ public:
     static constexpr int kMaxTextures = 8;
 #endif
 
-    static int SupportsMultitexture(const GrShaderCaps& caps) { return caps.integerSupport(); }
+    static int SupportsMultitexture(const GrShaderCaps& caps) {
+        return caps.integerSupport() && !caps.disableImageMultitexturingSupport();
+    }
 
     static sk_sp<GrGeometryProcessor> Make(sk_sp<GrTextureProxy> proxies[], int proxyCnt,
                                            sk_sp<GrColorSpaceXform> csxf,

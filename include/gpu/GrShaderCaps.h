@@ -252,6 +252,8 @@ public:
 
     int maxCombinedImageStorages() const { return fMaxCombinedImageStorages; }
 
+    bool disableImageMultitexturingSupport() const { return fDisableImageMultitexturing; }
+
     /**
      * Given a texture's config, this determines what swizzle must be appended to accesses to the
      * texture in generated shader code. Swizzling may be implemented in texture parameters or a
@@ -306,6 +308,7 @@ private:
     bool fExternalTextureSupport : 1;
     bool fTexelFetchSupport : 1;
     bool fVertexIDSupport : 1;
+    bool fDisableImageMultitexturing : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
