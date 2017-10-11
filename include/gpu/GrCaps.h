@@ -225,6 +225,9 @@ protected:
     // Vulkan doesn't support this (yet) and some drivers have issues, too
     bool fCrossContextTextureSupport                 : 1;
 
+    // Disables using multiple texture units to batch multiple SkImages at once.
+    bool fDisableImageMultitexturingSupport          : 1;
+
     InstancedSupport fInstancedSupport;
 
     BlendEquationSupport fBlendEquationSupport;

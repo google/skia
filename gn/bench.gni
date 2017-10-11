@@ -78,6 +78,7 @@ bench_sources = [
   "$_bench/MergeBench.cpp",
   "$_bench/MipMapBench.cpp",
   "$_bench/MorphologyBench.cpp",
+  "$_bench/MultitextureImageBench.cpp",
   "$_bench/MutexBench.cpp",
   "$_bench/pack_int_uint16_t_Bench.cpp",
   "$_bench/PatchBench.cpp",
