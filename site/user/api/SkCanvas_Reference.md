@@ -5245,3 +5245,77 @@ clip is not rect
 
 ---
 
+# <a name="SkAutoCanvasRestore"></a> Class SkAutoCanvasRestore
+Stack helper class calls
+
+<a name="SkAutoCanvasRestore_SkCanvas_star"></a>
+## SkAutoCanvasRestore
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)
+</pre>
+
+Preserves <a href="#Canvas">Canvas</a> save count. Optionally saves <a href="#Canvas">Canvas</a> <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_canvas"> <code><strong>canvas </strong></code> </a></td> <td>
+<a href="#Canvas">Canvas</a> to guard</td>
+  </tr>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_doSave"> <code><strong>doSave </strong></code> </a></td> <td>
+call <a href="#SkCanvas_save">SkCanvas::save()</a></td>
+  </tr>
+</table>
+
+### Return Value
+
+utility to <a href="#SkAutoCanvasRestore_restore">restore</a> <a href="#Canvas">Canvas</a> state on destructor
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+<a href="#SkCanvas_save">SkCanvas::save</a> <a href="#SkCanvas_restore">SkCanvas::restore</a>
+
+---
+
+<a name="SkAutoCanvasRestore_destructor"></a>
+## ~SkAutoCanvasRestore
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+~SkAutoCanvasRestore()
+</pre>
+
+Restores <a href="#Canvas">Canvas</a> to saved state.
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+<a href="#SkCanvas_save">SkCanvas::save</a> <a href="#SkCanvas_restore">SkCanvas::restore</a>
+
+---
+
+<a name="SkAutoCanvasRestore_restore"></a>
+## restore
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+void restore()
+</pre>
+
+Restores <a href="#Canvas">Canvas</a> to saved state immediately. Subsequent calls and class 
+destructor have no effect.
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+<a href="#SkCanvas_save">SkCanvas::save</a> <a href="#SkCanvas_restore">SkCanvas::restore</a>
+
+---
+
