@@ -572,7 +572,8 @@ STAGE(premul_dst, Ctx::None) {
     db = db * da;
 }
 STAGE(unpremul, Ctx::None) {
-    auto scale = if_then_else(a == 0, 0, 1.0f / a);
+    float inf = 1.0f/0.0f;
+    auto scale = if_then_else(1.0f/a < inf, 1.0f/a, 0);
     r *= scale;
     g *= scale;
     b *= scale;
