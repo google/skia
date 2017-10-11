@@ -26,19 +26,19 @@ SkMatrix is not thread safe unless getType is called first.
 #Subtopic Operators
 #Table
 #Legend
-# description                                                         # function ##
+# function                                         # description ##
 #Legend ##
-# friend SK_API bool operator!=(const SkMatrix& a, const SkMatrix& b) # Returns true if members are unequal. ##
-# friend SK_API bool operator==(const SkMatrix& a, const SkMatrix& b) # Returns true if members are equal. ##
-# SkScalar operator[](int index) const # Returns one of nine Matrix values. ##
-# SkScalar& operator[](int index) # Returns a writable reference to one of nine Matrix values. ##
+# operator!=(const SkMatrix& a, const SkMatrix& b) # Returns true if members are unequal. ##
+# operator==(const SkMatrix& a, const SkMatrix& b) # Returns true if members are equal. ##
+# operator[](int index) const                      # Returns Matrix value. ##
+# operator[](int index)                            # Returns writable reference to Matrix value. ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Member_Functions
 #Table
 #Legend
-# description            # function ##
+# function               # description ##
 #Legend ##
 # Concat                 # Returns the concatenation of Matrix pair. ##
 # GetMapPtsProc          # Returns optimal function to map Point array. ##
@@ -79,58 +79,58 @@ SkMatrix is not thread safe unless getType is called first.
 # isScaleTranslate       # Returns if transform is limited to scale and translate. ##
 # isSimilarity           # Returns if transform is limited to square scale and rotation. ##
 # isTranslate            # Returns if transform is limited to translate. ##
-# mapHomogeneousPoints   # ##
-# mapPoints              # ##
-# mapPointsWithStride    # ##
-# mapRadius              # ##
-# mapRect                # ##
-# mapRectScaleTranslate  # ##
-# mapRectToQuad          # ##
-# mapVector              # ##
-# mapVectors             # ##
-# mapXY                  # ##
-# postConcat             # ##
-# postIDiv               # ##
-# postRotate             # ##
-# postScale              # ##
-# postSkew               # ##
-# postTranslate          # ##
-# preConcat              # ##
-# preRotate              # ##
-# preScale               # ##
-# preSkew                # ##
-# preTranslate           # ##
-# preservesAxisAlignment # ##
-# preservesRightAngles   # ##
-# readFromMemory         # ##
-# rectStaysRect          # ##
-# reset                  # ##
-# set                    # ##
-# set9                   # ##
-# setAffine              # ##
-# setAll                 # ##
-# setConcat              # ##
-# setIDiv                # ##
-# setIdentity            # ##
-# setPerspX              # ##
-# setPerspY              # ##
-# setPolyToPoly          # ##
-# setRSXform             # ##
-# setRectToRect          # ##
-# setRotate              # ##
-# setScale               # ##
-# setScaleTranslate      # ##
-# setScaleX              # ##
-# setScaleY              # ##
-# setSinCos              # ##
-# setSkew                # ##
-# setSkewX               # ##
-# setSkewY               # ##
-# setTranslate           # ##
-# setTranslateX          # ##
-# setTranslateY          # ##
-# toString               # ##
-# writeToMemory          # ##
+# mapHomogeneousPoints   # Maps Point3 array. ##
+# mapPoints              # Maps Point array. ##
+# mapPointsWithStride    # Maps Point array with padding. ##
+# mapRadius              # Returns mean radius of mapped Circle. ##
+# mapRect                # Returns bounds of mapped Rect. ##
+# mapRectScaleTranslate  # Returns bounds of mapped Rect. ##
+# mapRectToQuad          # Maps Rect to Point array. ##
+# mapVector              # Maps Vector. ##
+# mapVectors             # Maps Vector array. ##
+# mapXY                  # Maps Point. ##
+# postConcat             # Post-multiplies Matrix by Matrix parameter. ##
+# postIDiv               # Post-multiplies Matrix by inverse scale. ##
+# postRotate             # Post-multiplies Matrix by rotation. ##
+# postScale              # Post-multiplies Matrix by scale. ##
+# postSkew               # Post-multiplies Matrix by skew. ##
+# postTranslate          # Post-multiplies Matrix by translation. ##
+# preConcat              # Pre-multiplies Matrix by Matrix parameter.##
+# preRotate              # Pre-multiplies Matrix by rotation. ##
+# preScale               # Pre-multiplies Matrix by scale. ##
+# preSkew                # Pre-multiplies Matrix by skew. ##
+# preTranslate           # Pre-multiplies Matrix by translation. ##
+# preservesAxisAlignment # Returns if mapping restricts to 90 degree multiples and mirroring. ##
+# preservesRightAngles   # Returns if mapped 90 angle remains 90 degrees. ##
+# readFromMemory         # Sets Matrix from buffer pointing to Scalar array. ##
+# rectStaysRect          # Returns if mapped Rect can be represented by another Rect. ##
+# reset                  # Sets Matrix to identity. ##
+# set                    # Sets one value. ##
+# set9                   # Sets all values from Scalar array. ##
+# setAffine              # Sets left two columns. ##
+# setAll                 # Sets all values from parameters. ##
+# setConcat              # Sets to Matrix parameter multiplied by Matrix parameter. ##
+# setIDiv                # Sets to inverse scale. ##
+# setIdentity            # Sets Matrix to identity. ##
+# setPerspX              # Sets horizontal perspective factor. ##
+# setPerspY              # Sets vertical perspective factor. ##
+# setPolyToPoly          # Sets to map one to four points to an equal array of points. ##
+# setRSXform             # Sets to rotate, scale, and translate. ##
+# setRectToRect          # Sets to map one Rect to another. ##
+# setRotate              # Sets to rotate about a point. ##
+# setScale               # Sets to scale about a point. ##
+# setScaleTranslate      # Sets to scale and translate. ##
+# setScaleX              # Sets horizontal scale factor. ##
+# setScaleY              # Sets vertical scale factor ##
+# setSinCos              # Sets to rotate and scale about a point. ##
+# setSkew                # Sets to skew about a point. ##
+# setSkewX               # Sets horizontal skew factor. ##
+# setSkewY               # Sets vertical skew factor. ##
+# setTranslate           # Sets to translate in x and y.  ##
+# setTranslateX          # Sets horizontal translation factor. ##
+# setTranslateY          # Sets vertical translation factor. ##
+# toString               # Converts Matrix to machine readable form. ##
+# writeToMemory          # Writes array of Scalar to buffer.  ##
 #Table ##
 #Subtopic ##
 
@@ -139,6 +139,12 @@ SkMatrix is not thread safe unless getType is called first.
 # ------------------------------------------------------------------------------
 
 #Method static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy)
+
+#Table
+# sx  #  0  #  0  ##
+#  0  # sy  #  0  ##
+#  0  #  0  #  1  ##
+##
 
 #Param sx  incomplete ##
 #Param sy  incomplete ##
@@ -157,6 +163,12 @@ SkMatrix is not thread safe unless getType is called first.
 
 #Method static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar scale)
 
+#Table
+# scale #   0   #   0   ##
+#   0   # scale #   0   ##
+#   0   #   0   #   1   ##
+##
+
 #Param scale  incomplete ##
 
 #Return  incomplete ##
@@ -172,6 +184,12 @@ SkMatrix is not thread safe unless getType is called first.
 # ------------------------------------------------------------------------------
 
 #Method static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy)
+
+#Table
+#  1  #  0  #  0  ##
+#  0  #  1  #  0  ##
+# dx  # dy  #  1  ##
+##
 
 #Param dx  incomplete ##
 #Param dy  incomplete ##
@@ -252,6 +270,12 @@ transform.
 
 Returns true if the matrix is identity.
 
+#Table
+#  1  #  0  #  0  ##
+#  0  #  1  #  0  ##
+#  0  #  0  #  1  ##
+##
+
 #Return  incomplete ##
 
 #Example
@@ -266,6 +290,12 @@ Returns true if the matrix is identity.
 
 #Method bool isScaleTranslate() const
 
+#Table
+# sx  #  0  #  0  ##
+#  0  # sy  #  0  ##
+# tx  # ty  #  1  ##
+##
+
 #Return  incomplete ##
 
 #Example
@@ -279,6 +309,12 @@ Returns true if the matrix is identity.
 # ------------------------------------------------------------------------------
 
 #Method bool isTranslate() const
+
+#Table
+#  1  #  0  #  0  ##
+#  0  #  1  #  0  ##
+# tx  # ty  #  1  ##
+##
 
 #Return  incomplete ##
 
@@ -298,13 +334,21 @@ Returns true if will map a rectangle to another rectangle. This can be
 true if the matrix is identity, scale-only, or rotates a multiple of
 90 degrees, or mirrors in x or y.
 
+#Table
+# sx  # ky  #  0  ##
+# kx  # sy  #  0  ##
+# tx  # ty  #  1  ##
+##
+
+where either kx and ky are zero, or sx and sy are zero.
+
 #Return  incomplete ##
 
 #Example
 // incomplete
 ##
 
-#ToDo incomplete ##
+#SeeAlso preservesAxisAlignment preservesRightAngles
 
 ##
 
@@ -330,6 +374,12 @@ alias for rectStaysRect()
 
 Returns true if the matrix contains perspective elements.
 
+#Table
+# --  # --  # px  ##
+# --  # --  # py  ##
+# --  # --  # pw  ##
+##
+
 #Return  incomplete ##
 
 #Example
@@ -346,6 +396,12 @@ Returns true if the matrix contains perspective elements.
 
 Returns true if the matrix contains only translation, rotation/reflection or uniform scale.
 Returns false if other transformation types are included or is degenerate
+
+#Table
+# +/-cos(a)*s  # -/+sin(a)*s  #  0  ##
+# +/-sin(a)*s  # +/-cos(a)*s  #  0  ##
+# tx           # ty           #  1  ##
+##
 
 #Param tol  incomplete ##
 
@@ -365,7 +421,8 @@ Returns false if other transformation types are included or is degenerate
 
 Returns true if the matrix contains only translation, rotation/reflection or scale
 (non-uniform scale is allowed).
-Returns false if other transformation types are included or is degenerate
+
+Returns false if other transformation types are included or is degenerate.
 
 #Param tol  incomplete ##
 

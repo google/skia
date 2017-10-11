@@ -105,7 +105,7 @@ void IncludeParser::checkForMissingParams(const vector<string>& methodParams,
             }
         }
         if (!found) {
-            this->writeEndTag("Param", methodParam, 2);
+            this->writeIncompleteTag("Param", methodParam, 2);
         }
     }
     for (auto& foundParam : foundParams) {
@@ -508,9 +508,14 @@ void IncludeParser::dumpClassTokens(IClassDefinition& classDef) {
         }
         this->lf(2);
         this->writeTag("Example");
+        this->lf(1);
+        this->writeString("// incomplete");
+        this->lf(1);
         this->writeEndTag();
         this->lf(2);
-        this->writeEndTag("ToDo", "incomplete");
+        this->writeTag("SeeAlso");
+        this->writeSpace();
+        this->writeString("incomplete");
         this->lf(2);
         this->writeEndTag();
         this->lf(2);
@@ -673,7 +678,7 @@ void IncludeParser::dumpComment(const Definition& token) {
                 this->nl();
             }
             this->lf(2);
-            this->writeEndTag("Return");
+            this->writeIncompleteTag("Return");
         }
     }
 }
