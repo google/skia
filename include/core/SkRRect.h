@@ -327,7 +327,7 @@ public:
      *      scale and/or translate, or this call will fail.
      *  @param dst SkRRect to store the result. It is an error to use this,
      *      which would make this function no longer const.
-     *  @return true on success, false on failure. If false, dst is unmodified.
+     *  @return true on success, false on failure.
      */
     bool transform(const SkMatrix& matrix, SkRRect* dst) const;
 
