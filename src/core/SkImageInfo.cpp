@@ -78,11 +78,7 @@ size_t SkImageInfo::computeByteSize(size_t rowBytes) const {
     SkSafeMath safe;
     size_t bytes = safe.add(safe.mul(fHeight - 1, rowBytes),
                             safe.mul(fWidth, this->bytesPerPixel()));
-#ifdef SK_SUPPORT_LEGACY_COMPUTEBYTESIZE_RET_0
-    return safe ? bytes : 0;
-#else
     return safe ? bytes : SK_MaxSizeT;
-#endif
 }
 
 static bool alpha_type_is_valid(SkAlphaType alphaType) {
