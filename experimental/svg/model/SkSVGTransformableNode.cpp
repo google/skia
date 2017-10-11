@@ -17,7 +17,7 @@ SkSVGTransformableNode::SkSVGTransformableNode(SkSVGTag tag)
 
 bool SkSVGTransformableNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
     if (!fTransform.value().isIdentity()) {
-        ctx->canvas()->save();
+        ctx->saveOnce();
         ctx->canvas()->concat(fTransform);
     }
 
