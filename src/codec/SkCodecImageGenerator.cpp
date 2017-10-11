@@ -8,6 +8,21 @@
 #include "SkCodecImageGenerator.h"
 #include "SkMakeUnique.h"
 
+static bool should_swap_width_height(SkCodec::Origin o) {
+    switch (o) {
+        case kLeftTop_Origin:
+        case RightTop_Origin:
+        case kRightBottom_Origin:
+        case kLeftBottom_Origin:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk_sp<SkData> data) {
     auto codec = SkCodec::MakeFromData(data);
     if (nullptr == codec) {
@@ -17,16 +32,19 @@ std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk
     return std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(std::move(codec), data));
 }
 
-static SkImageInfo adjust_info(const SkImageInfo& info) {
-    SkImageInfo newInfo = info;
+static SkImageInfo adjust_info(SkCodec* codec) {
+    SkImageInfo info = codec->getInfo();
     if (kUnpremul_SkAlphaType == info.alphaType()) {
-        newInfo = newInfo.makeAlphaType(kPremul_SkAlphaType);
+        info = info.makeAlphaType(kPremul_SkAlphaType);
     }
-    return newInfo;
+    if (should_swap_width_height(codec->getOrigin())) {
+        info = info.makeWH(info.height(), info.width());
+    }
+    return info;
 }
 
 SkCodecImageGenerator::SkCodecImageGenerator(std::unique_ptr<SkCodec> codec, sk_sp<SkData> data)
-    : INHERITED(adjust_info(codec->getInfo()))
+    : INHERITED(adjust_info(codec.get()))
     , fCodec(std::move(codec))
     , fData(std::move(data))
 {}
