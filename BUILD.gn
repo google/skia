@@ -1177,6 +1177,7 @@ if (skia_enable_tools) {
       "experimental/svg/model/SkSVGLinearGradient.cpp",
       "experimental/svg/model/SkSVGNode.cpp",
       "experimental/svg/model/SkSVGPath.cpp",
+      "experimental/svg/model/SkSVGPattern.cpp",
       "experimental/svg/model/SkSVGPoly.cpp",
       "experimental/svg/model/SkSVGRadialGradient.cpp",
       "experimental/svg/model/SkSVGRect.cpp",

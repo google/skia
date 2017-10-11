@@ -253,6 +253,12 @@ SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other)
                          *other.fLengthContext,
                          *other.fPresentationContext) {}
 
+SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, SkCanvas* canvas)
+    : SkSVGRenderContext(canvas,
+                         other.fIDMapper,
+                         *other.fLengthContext,
+                         *other.fPresentationContext) {}
+
 SkSVGRenderContext::~SkSVGRenderContext() {
     fCanvas->restoreToCount(fCanvasSaveCount);
 }
