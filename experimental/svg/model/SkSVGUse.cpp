@@ -58,7 +58,7 @@ bool SkSVGUse::onPrepareToRender(SkSVGRenderContext* ctx) const {
 
     if (fX.value() || fY.value()) {
         // Restored when the local SkSVGRenderContext leaves scope.
-        ctx->canvas()->save();
+        ctx->saveOnce();
         ctx->canvas()->translate(fX.value(), fY.value());
     }
 

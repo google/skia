@@ -69,6 +69,7 @@ public:
     const SkSVGPresentationContext& presentationContext() const { return *fPresentationContext; }
 
     SkCanvas* canvas() const { return fCanvas; }
+    void saveOnce();
 
     enum ApplyFlags {
         kLeaf = 1 << 0, // the target node doesn't have descendants
