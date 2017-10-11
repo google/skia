@@ -43,7 +43,10 @@ static void compare_bitmaps(skiatest::Reporter* r, const SkBitmap& bm1, const Sk
     }
     const size_t rowBytes = info.minRowBytes();
     for (int i = 0; i < info.height(); i++) {
-        REPORTER_ASSERT(r, !memcmp(bm1.getAddr(0, 0), bm2.getAddr(0, 0), rowBytes));
+        if (memcmp(bm1.getAddr(0, i), bm2.getAddr(0, i), rowBytes)) {
+            ERRORF(r, "Bitmaps have different pixels, starting on line %i!", i);
+            return;
+        }
     }
 }
 
