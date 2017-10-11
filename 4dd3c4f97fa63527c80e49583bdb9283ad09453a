@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b33a8d5f_0e350017",
+        "filename": "experimental/svg/model/SkSVGPattern.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-11T18:37:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "058e7006_b60fe267",
+      "revId": "4dd3c4f97fa63527c80e49583bdb9283ad09453a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "60647914_fb115a76",
         "filename": "experimental/svg/model/SkSVGPattern.cpp",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "dc737fa0_b0bcebad",
+        "filename": "experimental/svg/model/SkSVGPattern.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-11T18:37:02Z",
+      "side": 1,
+      "message": "Yeah, good point:  if all values are set, and a contentNode has been found.\n\nI was first thinking the combined condition is too hairy, but doesn\u0027t seem so.\n\nDone.",
+      "parentUuid": "60647914_fb115a76",
+      "revId": "4dd3c4f97fa63527c80e49583bdb9283ad09453a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a2b18624_a7045e32",
         "filename": "experimental/svg/model/SkSVGPattern.h",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2017-10-11T18:00:46Z",
       "side": 1,
       "message": "Shouldn\u0027t these be fX, fY, fWidth, fHeight and fPatternTransform ?",
+      "revId": "4dd3c4f97fa63527c80e49583bdb9283ad09453a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "598d11f1_881c4b4f",
+        "filename": "experimental/svg/model/SkSVGPattern.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-11T18:37:02Z",
+      "side": 1,
+      "message": "I guess, per strict style guide.  I always hesitate for trivial structs though :)\n\nDone.",
+      "parentUuid": "a2b18624_a7045e32",
       "revId": "4dd3c4f97fa63527c80e49583bdb9283ad09453a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
