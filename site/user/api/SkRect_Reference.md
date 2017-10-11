@@ -24,8 +24,8 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 
 | description | function |
 | --- | ---  |
-| friend bool <a href="#SkRect_not_equal_operator">operator!=(const SkRect& a, const SkRect& b)</a> | Returns true if member bits are unequal. |
-| friend bool <a href="#SkRect_equal_operator">operator==(const SkRect& a, const SkRect& b)</a> | Returns true if member bits are equal. |
+| bool <a href="#SkRect_not_equal_operator">operator!=(const SkRect& a, const SkRect& b)</a> | Returns true if member bits are unequal. |
+| bool <a href="#SkRect_equal_operator">operator==(const SkRect& a, const SkRect& b)</a> | Returns true if member bits are equal. |
 
 ## <a name="Member_Functions"></a> Member Functions
 
@@ -38,6 +38,7 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#SkRect_MakeIWH">MakeIWH</a> | Constructs from int input returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_MakeLTRB">MakeLTRB</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> <a href="#SkRect_left">left</a>, <a href="#SkRect_top">top</a>, <a href="#SkRect_right">right</a>, <a href="#SkRect_bottom">bottom</a>. |
 | <a href="#SkRect_MakeLargest">MakeLargest</a> | Constructs (<a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>). |
+| <a href="#SkRect_MakeLargestS32">MakeLargestS32</a> | Constructs largest signed integers that fit in 32-bit float. |
 | <a href="#SkRect_MakeSize">MakeSize</a> | Constructs from <a href="undocumented#Size">Size</a> returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_MakeWH">MakeWH</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> input returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_MakeXYWH">MakeXYWH</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> input returning (<a href="#SkRect_x">x</a>, <a href="#SkRect_y">y</a>, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
@@ -180,7 +181,44 @@ outset a little more isFinite: false
 
 ### See Also
 
-<a href="#SkRect_isLargest">isLargest</a> <a href="#SkRect_setLargest">setLargest</a> <a href="#SkIRect_MakeLargest">SkIRect::MakeLargest</a>
+<a href="#SkRect_MakeLargestS32">MakeLargestS32</a> <a href="#SkRect_isLargest">isLargest</a> <a href="#SkRect_setLargest">setLargest</a> <a href="#SkIRect_MakeLargest">SkIRect::MakeLargest</a>
+
+---
+
+<a name="SkRect_MakeLargestS32"></a>
+## MakeLargestS32
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+static SkRect SK_WARN_UNUSED_RESULT MakeLargestS32()
+</pre>
+
+Returns constructed <a href="#Rect">Rect</a> that can be represented exactly with <a href="SkIRect_Reference#IRect">IRect</a>. The <a href="#SkRect_left">left</a>
+and <a href="#SkRect_top">top</a> are <a href="#SkRect_set">set</a> to the most negative integer value that fits in a 32-bit float,
+and the <a href="#SkRect_right">right</a> and <a href="#SkRect_bottom">bottom</a> are <a href="#SkRect_set">set</a> to the most positive finite value that fits in
+a 32-bit float.
+
+These are the largest values for which <a href="#SkRect_round_2">round</a> is well defined.
+
+### Return Value
+
+bounds (<a href="undocumented#SK_MinS32FitsInFloat">SK MinS32FitsInFloat</a>, <a href="undocumented#SK_MinS32FitsInFloat">SK MinS32FitsInFloat</a>,
+<a href="undocumented#SK_MaxS32FitsInFloat">SK MaxS32FitsInFloat</a>, <a href="undocumented#SK_MaxS32FitsInFloat">SK MaxS32FitsInFloat</a>)
+
+### Example
+
+<div><fiddle-embed name="9dde55347ba15b60166b5a0583c55587">
+
+#### Example Output
+
+~~~~
+f_rect == r_rect
+~~~~
+
+</fiddle-embed></div>
+
+### See Also
+
+<a href="#SkRect_MakeLargest">MakeLargest</a> <a href="#SkRect_isLargest">isLargest</a> <a href="#SkRect_setLargest">setLargest</a> <a href="#SkIRect_MakeLargest">SkIRect::MakeLargest</a>
 
 ---
 
@@ -188,7 +226,7 @@ outset a little more isFinite: false
 ## MakeWH
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h)
+static constexpr SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h)
 </pre>
 
 Returns constructed <a href="#Rect">Rect</a> <a href="#SkRect_set">set</a> to <a href="undocumented#SkScalar">SkScalar</a> values (0, 0, <a href="#SkRect_MakeWH_w">w</a>, <a href="#SkRect_MakeWH_h">h</a>). Does not
@@ -277,7 +315,7 @@ i_rect width: 125000111 f_rect width:125000112
 ## MakeSize
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size)
+static constexpr SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size)
 </pre>
 
 Returns constructed <a href="#Rect">Rect</a> <a href="#SkRect_set">set</a> to (0, 0, <a href="#SkRect_MakeSize_size">size</a>.<a href="#SkRect_width">width</a>, <a href="#SkRect_MakeSize_size">size</a>.<a href="#SkRect_height">height</a>). Does not
@@ -364,8 +402,8 @@ rect: 5, 25, 15, 35  isEmpty: false
 ## MakeXYWH
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w,
-                                             SkScalar h)
+static constexpr SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y,
+                                                       SkScalar w, SkScalar h)
 </pre>
 
 Returns constructed <a href="#Rect">Rect</a> <a href="#SkRect_set">set</a> to(<a href="#SkRect_x">x</a>, <a href="#SkRect_y">y</a>, <a href="#SkRect_x">x</a> + <a href="#SkRect_MakeXYWH_w">w</a>, <a href="#SkRect_y">y</a> + <a href="#SkRect_MakeXYWH_h">h</a>). 
@@ -387,7 +425,7 @@ added to <a href="#SkRect_y">y</a> and stored in <a href="#SkRect_fBottom">fBott
 
 ### Return Value
 
-bounds (<a href="#SkRect_x">x</a>, <a href="#SkRect_y">y</a>, <a href="#SkRect_x">x</a> + <a href="#SkRect_MakeXYWH_w">w</a>, <a href="#SkRect_y">y</a> + <a href="#SkRect_MakeXYWH_h">h</a>)
+bounds at (<a href="#SkRect_x">x</a>, <a href="#SkRect_y">y</a>) with <a href="#SkRect_width">width</a> <a href="#SkRect_MakeXYWH_w">w</a> and <a href="#SkRect_height">height</a> <a href="#SkRect_MakeXYWH_h">h</a>
 
 ### Example
 
@@ -978,7 +1016,7 @@ left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38
 ## operator==
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-friend bool operator==(const SkRect& a, const SkRect& b)
+bool operator==(const SkRect& a, const SkRect& b)
 </pre>
 
 Returns true if all members in <a href="#SkRect_equal_operator_a">a</a>: <a href="#SkRect_fLeft">fLeft</a>, <a href="#SkRect_fTop">fTop</a>, <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fBottom">fBottom</a>; are  
@@ -1025,7 +1063,7 @@ tests are equal
 ## operator!=
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-friend bool operator!=(const SkRect& a, const SkRect& b)
+bool operator!=(const SkRect& a, const SkRect& b)
 </pre>
 
 Returns true if any in <a href="#SkRect_not_equal_operator_a">a</a>: <a href="#SkRect_fLeft">fLeft</a>, <a href="#SkRect_fTop">fTop</a>, <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fBottom">fBottom</a>; does not   
@@ -1502,9 +1540,9 @@ corner to include</td>
 void setXYWH(SkScalar x, SkScalar y, SkScalar width, SkScalar height)
 </pre>
 
-Sets <a href="#Rect">Rect</a> to(<a href="#SkRect_x">x</a>, <a href="#SkRect_y">y</a>, <a href="#SkRect_x">x</a> + w, <a href="#SkRect_y">y</a> + h). 
+Sets <a href="#Rect">Rect</a> to(<a href="#SkRect_x">x</a>, <a href="#SkRect_y">y</a>, <a href="#SkRect_x">x</a> + <a href="#SkRect_width">width</a>, <a href="#SkRect_y">y</a> + <a href="#SkRect_height">height</a>). 
 Does not validate input;
-w or h may be negative.
+<a href="#SkRect_width">width</a> or <a href="#SkRect_height">height</a> may be negative.
 
 ### Parameters
 
@@ -1545,8 +1583,8 @@ rect: -10, 35, 5, 60  isEmpty: false
 void setWH(SkScalar width, SkScalar height)
 </pre>
 
-Sets <a href="#Rect">Rect</a> to (0, 0, w, h). Does not validate input;
-w or h may be negative.
+Sets <a href="#Rect">Rect</a> to (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). Does not validate input;
+<a href="#SkRect_width">width</a> or <a href="#SkRect_height">height</a> may be negative.
 
 ### Parameters
 
@@ -1711,7 +1749,7 @@ added to <a href="#SkRect_fTop">fTop</a> and subtracted from <a href="#SkRect_fB
 
 ### Return Value
 
-<a href="#Rect">Rect</a> <a href="#SkRect_inset">inset</a> symetrically <a href="#SkRect_left">left</a> and <a href="#SkRect_right">right</a>, <a href="#SkRect_top">top</a> and <a href="#SkRect_bottom">bottom</a>
+<a href="#Rect">Rect</a> <a href="#SkRect_inset">inset</a> symmetrically <a href="#SkRect_left">left</a> and <a href="#SkRect_right">right</a>, <a href="#SkRect_top">top</a> and <a href="#SkRect_bottom">bottom</a>
 
 ### Example
 
@@ -1757,7 +1795,7 @@ subtracted to <a href="#SkRect_fTop">fTop</a> and added from <a href="#SkRect_fB
 
 ### Return Value
 
-<a href="#Rect">Rect</a> <a href="#SkRect_outset">outset</a> symetrically <a href="#SkRect_left">left</a> and <a href="#SkRect_right">right</a>, <a href="#SkRect_top">top</a> and <a href="#SkRect_bottom">bottom</a>
+<a href="#Rect">Rect</a> <a href="#SkRect_outset">outset</a> symmetrically <a href="#SkRect_left">left</a> and <a href="#SkRect_right">right</a>, <a href="#SkRect_top">top</a> and <a href="#SkRect_bottom">bottom</a>
 
 ### Example
 
@@ -2330,7 +2368,7 @@ void joinNonEmptyArg(const SkRect& r)
 Sets <a href="#Rect">Rect</a> to the union of itself and <a href="#SkRect_joinNonEmptyArg_r">r</a>.
 
 Asserts if <a href="#SkRect_joinNonEmptyArg_r">r</a> is empty and <a href="undocumented#SK_DEBUG">SK DEBUG</a> is defined.
-If <a href="#Rect">Rect</a> is empty, sets rect to <a href="#SkRect_joinNonEmptyArg_r">r</a>.
+If <a href="#Rect">Rect</a> is empty, sets <a href="#Rect">Rect</a> to <a href="#SkRect_joinNonEmptyArg_r">r</a>.
 
 May produce incorrect results if <a href="#SkRect_joinNonEmptyArg_r">r</a> is empty.
 
@@ -2343,7 +2381,7 @@ expansion <a href="#Rect">Rect</a></td>
 
 ### Example
 
-<div><fiddle-embed name="88439de2aa0911262c60c0eb506396cb"><div>Since rect is not sorted, first result is copy of toJoin.</div>
+<div><fiddle-embed name="88439de2aa0911262c60c0eb506396cb"><div>Since <a href="#Rect">Rect</a> is not sorted, first result is copy of toJoin.</div>
 
 #### Example Output
 
@@ -2380,7 +2418,7 @@ expansion <a href="#Rect">Rect</a></td>
 
 ### Example
 
-<div><fiddle-embed name="a476548d0001296afd8e58c1eba1b70b"><div>Since rect is not sorted, first result is not useful.</div>
+<div><fiddle-embed name="a476548d0001296afd8e58c1eba1b70b"><div>Since <a href="#Rect">Rect</a> is not sorted, first result is not useful.</div>
 
 #### Example Output
 
@@ -2521,7 +2559,7 @@ rect: 30, 50, 40, 60
 ## contains
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-bool contains(const SkRect& r) const {
+bool contains(const SkRect& r) const
 </pre>
 
 Returns true if <a href="#Rect">Rect</a> <a href="#SkRect_contains">contains</a> <a href="#SkRect_contains_r">r</a>.

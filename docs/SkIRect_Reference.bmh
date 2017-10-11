@@ -23,10 +23,10 @@ its top, it is considered empty.
 #Subtopic Operators
 #Table
 #Legend
-# description                                                # function ##
+# description                                         # function ##
 #Legend ##
-# friend bool operator!=(const SkIRect& a, const SkIRect& b) # Returns true if members are unequal. ##
-# friend bool operator==(const SkIRect& a, const SkIRect& b) # Returns true if members are equal. ##
+# bool operator!=(const SkIRect& a, const SkIRect& b) # Returns true if members are unequal. ##
+# bool operator==(const SkIRect& a, const SkIRect& b) # Returns true if members are equal. ##
 #Table ##
 #Subtopic ##
 
@@ -106,7 +106,7 @@ When equal to or less than fTop, IRect is empty.
 
 # ------------------------------------------------------------------------------
 
-#Method static SkIRect SK_WARN_UNUSED_RESULT MakeEmpty()
+#Method static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeEmpty()
 
 Returns constructed IRect set to (0, 0, 0, 0).
 Many other rectangles are empty; if left is equal to or greater than right,
@@ -166,7 +166,7 @@ outset isEmpty: true
 
 # ------------------------------------------------------------------------------
 
-#Method static SkIRect SK_WARN_UNUSED_RESULT MakeWH(int32_t w, int32_t h)
+#Method static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeWH(int32_t w, int32_t h)
 
 Returns constructed IRect set to (0, 0, w, h). Does not validate input; w or h
 may be negative.
@@ -194,7 +194,7 @@ all equal
 
 # ------------------------------------------------------------------------------
 
-#Method static SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size)
+#Method static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size)
 
 Returns constructed IRect set to (0, 0, size.width(), size.height()). 
 Does not validate input; size.width() or size.height() may be negative.
@@ -221,7 +221,7 @@ floor width: 25  height: 35
 
 # ------------------------------------------------------------------------------
 
-#Method static SkIRect SK_WARN_UNUSED_RESULT MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b)
+#Method static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b)
 
 Returns constructed IRect set to (l, t, r, b). Does not sort input; Rect may
 result in fLeft greater than fRight, or fTop greater than fBottom.
@@ -252,7 +252,7 @@ rect: 5, 25, 15, 35  isEmpty: false
 
 # ------------------------------------------------------------------------------
 
-#Method static SkIRect SK_WARN_UNUSED_RESULT MakeXYWH(int32_t x, int32_t y, int32_t w, int32_t h)
+#Method static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeXYWH(int32_t x, int32_t y, int32_t w, int32_t h)
 
 Returns constructed IRect set to
 #Formula
@@ -266,7 +266,7 @@ w or h may be negative.
 #Param w  added to x and stored in fRight ##
 #Param h  added to y and stored in fBottom ##
 
-#Return bounds (x, y, x + w, y + h) ##
+#Return bounds at (x, y) with width w and height h ##
 
 #Example
     SkIRect rect = SkIRect::MakeXYWH(5, 35, -15, 25);
@@ -627,7 +627,7 @@ large is empty: false
 
 # ------------------------------------------------------------------------------
 
-#Method friend bool operator==(const SkIRect& a, const SkIRect& b)
+#Method bool operator==(const SkIRect& a, const SkIRect& b)
 
 Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are 
 identical to corresponding members in b.
@@ -652,7 +652,7 @@ test == sorted
 
 # ------------------------------------------------------------------------------
 
-#Method friend bool operator!=(const SkIRect& a, const SkIRect& b)
+#Method bool operator!=(const SkIRect& a, const SkIRect& b)
 
 Returns true if any member in a: fLeft, fTop, fRight, and fBottom; is not 
 identical to the corresponding member in b.

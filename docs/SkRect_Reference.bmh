@@ -28,10 +28,10 @@ integer input cannot convert to SkScalar without loss of precision.
 #Subtopic Operators
 #Table
 #Legend
-# description                                              # function ##
+# description                                       # function ##
 #Legend ##
-# friend bool operator!=(const SkRect& a, const SkRect& b) # Returns true if member bits are unequal. ##
-# friend bool operator==(const SkRect& a, const SkRect& b) # Returns true if member bits are equal. ##
+# bool operator!=(const SkRect& a, const SkRect& b) # Returns true if member bits are unequal. ##
+# bool operator==(const SkRect& a, const SkRect& b) # Returns true if member bits are equal. ##
 #Table ##
 #Subtopic ##
 
@@ -47,6 +47,7 @@ integer input cannot convert to SkScalar without loss of precision.
 # MakeIWH               # Constructs from int input returning (0, 0, width, height). ##
 # MakeLTRB              # Constructs from SkScalar left, top, right, bottom. ##
 # MakeLargest           # Constructs (SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax). ##
+# MakeLargestS32        # Constructs largest signed integers that fit in 32-bit float. ##
 # MakeSize              # Constructs from Size returning (0, 0, width, height). ##
 # MakeWH                # Constructs from SkScalar input returning (0, 0, width, height). ##
 # MakeXYWH              # Constructs from SkScalar input returning (x, y, width, height). ##
@@ -184,13 +185,42 @@ outset a little more isFinite: false
 ##
 ##
 
-#SeeAlso isLargest setLargest SkIRect::MakeLargest
+#SeeAlso MakeLargestS32 isLargest setLargest SkIRect::MakeLargest
 
 ##
 
 # ------------------------------------------------------------------------------
 
-#Method static SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h)
+#Method static SkRect SK_WARN_UNUSED_RESULT MakeLargestS32()
+
+Returns constructed Rect that can be represented exactly with IRect. The left
+and top are set to the most negative integer value that fits in a 32-bit float,
+and the right and bottom are set to the most positive finite value that fits in
+a 32-bit float.
+
+These are the largest values for which round() is well defined.
+
+#Return bounds (SK_MinS32FitsInFloat, SK_MinS32FitsInFloat,
+                SK_MaxS32FitsInFloat, SK_MaxS32FitsInFloat)
+##
+
+#Example
+    SkRect f_rect = SkRect::MakeLargestS32();
+    SkIRect i_rect = f_rect.round();
+    SkRect r_rect = SkRect::Make(i_rect);
+    SkDebugf("f_rect %c= r_rect\n", f_rect == r_rect ? '=' : '!');
+#StdOut
+f_rect == r_rect
+##
+##
+
+#SeeAlso MakeLargest isLargest setLargest SkIRect::MakeLargest
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h)
 
 Returns constructed Rect set to SkScalar values (0, 0, w, h). Does not
 validate input; w or h may be negative.
@@ -253,7 +283,7 @@ i_rect width: 125000111 f_rect width:125000112
 
 # ------------------------------------------------------------------------------
 
-#Method static SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size)
+#Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size)
 
 Returns constructed Rect set to (0, 0, size.width(), size.height()). Does not
 validate input; size.width() or size.height() may be negative.
@@ -313,7 +343,7 @@ rect: 5, 25, 15, 35  isEmpty: false
 
 # ------------------------------------------------------------------------------
 
-#Method static SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h)
+#Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h)
 
 Returns constructed Rect set to
 #Formula
@@ -327,7 +357,7 @@ w or h may be negative.
 #Param w  added to x and stored in fRight ##
 #Param h  added to y and stored in fBottom ##
 
-#Return bounds (x, y, x + w, y + h) ##
+#Return bounds at (x, y) with width w and height h ##
 
 #Example
     SkRect rect = SkRect::MakeXYWH(5, 35, -15, 25);
@@ -784,7 +814,7 @@ left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38
 
 # ------------------------------------------------------------------------------
 
-#Method friend bool operator==(const SkRect& a, const SkRect& b)
+#Method bool operator==(const SkRect& a, const SkRect& b)
 
 Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are  
 equal to the corresponding members in b.
@@ -827,7 +857,7 @@ tests are equal
 
 # ------------------------------------------------------------------------------
 
-#Method friend bool operator!=(const SkRect& a, const SkRect& b)
+#Method bool operator!=(const SkRect& a, const SkRect& b)
 
 Returns true if any in a: fLeft, fTop, fRight, and fBottom; does not   
 equal the corresponding members in b.
@@ -1962,7 +1992,7 @@ rect: 30, 50, 40, 60
 
 # ------------------------------------------------------------------------------
 
-#Method    bool contains(const SkRect& r) const {
+#Method    bool contains(const SkRect& r) const
 
 Returns true if Rect contains r.
 Returns false if Rect is empty or r is empty.

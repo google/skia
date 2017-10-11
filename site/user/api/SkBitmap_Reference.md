@@ -211,6 +211,7 @@ true if pixels are allocated
 #### Example Output
 
 ~~~~
+#Volatile
 pixel address = (nil)
 pixel address = 0x560ddd0ac670
 ~~~~

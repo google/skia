@@ -21,7 +21,7 @@ DEFINE_string2(ref, r, "", "Resolve refs and write bmh_*.md files to path. (Requ
 DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispelling]. (Requires -b)");
 DEFINE_string2(tokens, t, "", "Directory to write bmh from include. (Requires -i)");
 DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
-DEFINE_bool2(skip, z, false, "Skip missing example error.");
+DEFINE_bool2(skip, z, false, "Skip degenerate missed in legacy preprocessor.");
 
 /*  recipe for generating timestamps for existing doxygen comments
 find include/core -type f -name '*.h' -print -exec git blame {} \; > ~/all.blame.txt
@@ -390,9 +390,6 @@ bool Definition::checkMethod() const {
         string paramName;
         methodParser.fChar = nextEnd + 1;
         methodParser.skipSpace();
-        if (1494 == methodParser.fLineCount) {
-            SkDebugf("");
-        }
         if (!this->nextMethodParam(&methodParser, &nextEnd, &paramName)) {
             continue;
         }
@@ -823,11 +820,12 @@ bool RootDefinition::dumpUnVisited() {
     for (auto& leaf : fLeaves) {
         if (!leaf.second.fVisited) {
             // TODO: parse embedded struct in includeParser phase, then remove this condition
-            size_t firstColon = leaf.first.find("::");
-            size_t lastColon = leaf.first.rfind("::");
-            if (firstColon != lastColon) {  // struct, two sets
-                allStructElementsFound = false;
-                continue;
+            if (FLAGS_skip) {
+                const Definition& def = leaf.second;
+                if (def.fChildren.size() > 0 &&
+                        MarkType::kDeprecated == def.fChildren[0]->fMarkType) {
+                    continue;
+                }
             }
             SkDebugf("defined in bmh but missing in include: %s\n", leaf.first.c_str());
         }
@@ -1120,9 +1118,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     if (definition->fChildren.size() == 0) {
                         TextParser emptyCheck(definition);
                         if (emptyCheck.eof() || !emptyCheck.skipWhiteSpace()) {
-                            if (!FLAGS_skip) {
-                                return this->reportError<bool>("missing example body");
-                            }
+                            return this->reportError<bool>("missing example body");
                         }
                     }
                 }

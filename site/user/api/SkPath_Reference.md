@@ -843,7 +843,7 @@ unmodified by the original <a href="#SkPath_FillType">FillType</a>.
 ## <a name="SkPath_Convexity"></a> Enum SkPath::Convexity
 
 <pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
-enum <a href="#Convexity">Convexity</a> {
+enum <a href="#Convexity">Convexity</a> : uint8_t {
 <a href="#SkPath_kUnknown_Convexity">kUnknown Convexity</a>, 
 <a href="#SkPath_kConvex_Convexity">kConvex Convexity</a>,
 <a href="#SkPath_kConcave_Convexity">kConcave Convexity</a>, 

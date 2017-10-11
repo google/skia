@@ -1099,9 +1099,6 @@ public:
         }
         writePending();
         if (fDebugOut) {
-            if (!strncmp("SK_SUPPORT", data, 10)) {
-                SkDebugf("");
-            }
             string check(data, size);
             SkDebugf("%s", check.c_str());
         }
@@ -1874,7 +1871,7 @@ public:
     Definition* structMemberOut(const Definition* memberStart, const Definition& child);
     void structOut(const Definition* root, const Definition& child,
             const char* commentStart, const char* commentEnd);
-    void structSizeMembers(Definition& child);
+    void structSizeMembers(const Definition& child);
 
 private:
     BmhParser* fBmhParser;

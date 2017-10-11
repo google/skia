@@ -737,6 +737,12 @@ template &lt;typename D, typename S&gt; inline bool SkTFitsIn(S s)
 
 <table>
   <tr>
+    <td><a name="SK_MinS32FitsInFloat"> <code><strong>SK_MinS32FitsInFloat </strong></code> </a></td><td>to be written</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SK_MaxS32FitsInFloat"> <code><strong>SK_MaxS32FitsInFloat </strong></code> </a></td><td>to be written</td><td></td>
+  </tr>
+  <tr>
     <td><a name="SK_ScalarMin"> <code><strong>SK_ScalarMin </strong></code> </a></td><td>to be written</td><td></td>
   </tr>
   <tr>

@@ -595,7 +595,6 @@ void SpellCheck::wordCheck(const string& str) {
             sawSpecial = true;
             continue;
         }
-        SkDebugf("");
         SkASSERT(0);
     }
     if (sawSpecial && !hasParen) {
