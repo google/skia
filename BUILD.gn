@@ -1634,6 +1634,24 @@ if (skia_enable_tools) {
     ]
   }
 
+  if (!is_win) {
+    test_app("gpucts") {
+      sources = [
+        "dm/DMGpuTestProcs.cpp",
+        "tools/gpucts/gm_knowledge.c",
+        "tools/gpucts/gm_runner.cpp",
+        "tools/gpucts/gpucts.cpp",
+      ]
+      deps = [
+        ":gm",
+        ":gpu_tool_utils",
+        ":skia",
+        ":tests",
+        "//third_party/googletest",
+      ]
+    }
+  }
+
   if (skia_enable_gpu) {
     test_app("viewer") {
       is_shared_library = is_android
