@@ -45,6 +45,30 @@
       "revId": "887726bc3658b0684ec02c2cd411db6791d47758",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdbe1536_d8c4b7ce",
+        "filename": "src/gpu/effects/GrArithmeticFP.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-10-11T17:43:04Z",
+      "side": 1,
+      "message": "Was planning on doing it as a second parameter to process, but since this FP doesn\u0027t need that feature I was going to do it in a separate CL.",
+      "parentUuid": "f1635c71_2f793a40",
+      "range": {
+        "startLine": 11,
+        "startChar": 16,
+        "endLine": 11,
+        "endChar": 30
+      },
+      "revId": "887726bc3658b0684ec02c2cd411db6791d47758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
