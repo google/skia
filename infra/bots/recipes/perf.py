@@ -189,18 +189,6 @@ def nanobench_flags(api, bot):
     verbose = True
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~blendmode_') # skia:6691
-  if 'ANGLE' in bot and 'Radeon' in bot and 'Release' in bot:
-    # skia:6534
-    match.append('~shapes_mixed_10000_32x33')
-    match.append('~shapes_oval_10000_32x32')
-    match.append('~shapes_oval_10000_32x33')
-    match.append('~shapes_rect_100_500x500')
-    match.append('~shapes_rrect_10000_32x32')
-  if 'ANGLE' in bot and 'GTX960' in bot and 'Release' in bot:
-    # skia:6534
-    match.append('~shapes_mixed_10000_32x33')
-    match.append('~shapes_rect_100_500x500')
-    match.append('~shapes_rrect_10000_32x32')
   if 'float_cast_overflow' in bot and 'CPU' in bot:
     # skia:4632
     match.append('~^floor2int_undef$')
