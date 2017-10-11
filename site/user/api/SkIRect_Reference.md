@@ -21,8 +21,8 @@ its <a href="#SkIRect_top">top</a>, it is considered empty.
 
 | description | function |
 | --- | ---  |
-| friend bool <a href="#SkIRect_not_equal_operator">operator!=(const SkIRect& a, const SkIRect& b)</a> | Returns true if members are unequal. |
-| friend bool <a href="#SkIRect_equal_operator">operator==(const SkIRect& a, const SkIRect& b)</a> | Returns true if members are equal. |
+| bool <a href="#SkIRect_not_equal_operator">operator!=(const SkIRect& a, const SkIRect& b)</a> | Returns true if members are unequal. |
+| bool <a href="#SkIRect_equal_operator">operator==(const SkIRect& a, const SkIRect& b)</a> | Returns true if members are equal. |
 
 ## <a name="Member_Functions"></a> Member Functions
 
@@ -97,7 +97,7 @@ When equal to or less than <a href="#SkIRect_fTop">fTop</a>, <a href="#IRect">IR
 ## MakeEmpty
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static SkIRect SK_WARN_UNUSED_RESULT MakeEmpty()
+static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeEmpty()
 </pre>
 
 Returns constructed <a href="#IRect">IRect</a> <a href="#SkIRect_set">set</a> to (0, 0, 0, 0).
@@ -169,7 +169,7 @@ outset isEmpty: true
 ## MakeWH
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static SkIRect SK_WARN_UNUSED_RESULT MakeWH(int32_t w, int32_t h)
+static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeWH(int32_t w, int32_t h)
 </pre>
 
 Returns constructed <a href="#IRect">IRect</a> <a href="#SkIRect_set">set</a> to (0, 0, <a href="#SkIRect_MakeWH_w">w</a>, <a href="#SkIRect_MakeWH_h">h</a>). Does not validate input; <a href="#SkIRect_MakeWH_w">w</a> or <a href="#SkIRect_MakeWH_h">h</a>
@@ -210,7 +210,7 @@ all equal
 ## MakeSize
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size)
+static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size)
 </pre>
 
 Returns constructed <a href="#IRect">IRect</a> <a href="#SkIRect_set">set</a> to (0, 0, <a href="#SkIRect_size">size</a>.<a href="#SkIRect_width">width</a>, <a href="#SkIRect_size">size</a>.<a href="#SkIRect_height">height</a>). 
@@ -250,8 +250,8 @@ floor width: 25  height: 35
 ## MakeLTRB
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static SkIRect SK_WARN_UNUSED_RESULT MakeLTRB(int32_t l, int32_t t, int32_t r,
-                                              int32_t b)
+static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeLTRB(int32_t l, int32_t t,
+                                                        int32_t r, int32_t b)
 </pre>
 
 Returns constructed <a href="#IRect">IRect</a> <a href="#SkIRect_set">set</a> to (<a href="#SkIRect_MakeLTRB_l">l</a>, <a href="#SkIRect_MakeLTRB_t">t</a>, <a href="#SkIRect_MakeLTRB_r">r</a>, <a href="#SkIRect_MakeLTRB_b">b</a>). Does not <a href="#SkIRect_sort">sort</a> input; <a href="SkRect_Reference#Rect">Rect</a> may
@@ -297,8 +297,8 @@ rect: 5, 25, 15, 35  isEmpty: false
 ## MakeXYWH
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static SkIRect SK_WARN_UNUSED_RESULT MakeXYWH(int32_t x, int32_t y, int32_t w,
-                                              int32_t h)
+static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeXYWH(int32_t x, int32_t y,
+                                                        int32_t w, int32_t h)
 </pre>
 
 Returns constructed <a href="#IRect">IRect</a> <a href="#SkIRect_set">set</a> to(<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + <a href="#SkIRect_MakeXYWH_w">w</a>, <a href="#SkIRect_y">y</a> + <a href="#SkIRect_MakeXYWH_h">h</a>). 
@@ -320,7 +320,7 @@ added to <a href="#SkIRect_y">y</a> and stored in <a href="#SkIRect_fBottom">fBo
 
 ### Return Value
 
-bounds (<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + <a href="#SkIRect_MakeXYWH_w">w</a>, <a href="#SkIRect_y">y</a> + <a href="#SkIRect_MakeXYWH_h">h</a>)
+bounds at (<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>) with <a href="#SkIRect_width">width</a> <a href="#SkIRect_MakeXYWH_w">w</a> and <a href="#SkIRect_height">height</a> <a href="#SkIRect_MakeXYWH_h">h</a>
 
 ### Example
 
@@ -783,7 +783,7 @@ large is empty: false
 ## operator==
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-friend bool operator==(const SkIRect& a, const SkIRect& b)
+bool operator==(const SkIRect& a, const SkIRect& b)
 </pre>
 
 Returns true if all members in <a href="#SkIRect_equal_operator_a">a</a>: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; are 
@@ -824,7 +824,7 @@ test == sorted
 ## operator!=
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-friend bool operator!=(const SkIRect& a, const SkIRect& b)
+bool operator!=(const SkIRect& a, const SkIRect& b)
 </pre>
 
 Returns true if any member in <a href="#SkIRect_not_equal_operator_a">a</a>: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; is not 
@@ -1019,9 +1019,9 @@ rect2: {3, 4, 1, 2}
 void setXYWH(int32_t x, int32_t y, int32_t width, int32_t height)
 </pre>
 
-Sets <a href="#IRect">IRect</a> to(<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + w, <a href="#SkIRect_y">y</a> + h). 
+Sets <a href="#IRect">IRect</a> to(<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + <a href="#SkIRect_width">width</a>, <a href="#SkIRect_y">y</a> + <a href="#SkIRect_height">height</a>). 
 Does not validate input;
-w or h may be negative.
+<a href="#SkIRect_width">width</a> or <a href="#SkIRect_height">height</a> may be negative.
 
 ### Parameters
 
@@ -1174,7 +1174,7 @@ If <a href="#SkIRect_makeInset_dy">dy</a> is positive, <a href="#IRect">IRect</a
 
 ### Return Value
 
-<a href="SkRect_Reference#Rect">Rect</a> <a href="#SkIRect_inset">inset</a> symetrically <a href="#SkIRect_left">left</a> and <a href="#SkIRect_right">right</a>, <a href="#SkIRect_top">top</a> and <a href="#SkIRect_bottom">bottom</a>
+<a href="SkRect_Reference#Rect">Rect</a> <a href="#SkIRect_inset">inset</a> symmetrically <a href="#SkIRect_left">left</a> and <a href="#SkIRect_right">right</a>, <a href="#SkIRect_top">top</a> and <a href="#SkIRect_bottom">bottom</a>
 
 ### Example
 
@@ -1220,7 +1220,7 @@ If <a href="#SkIRect_makeOutset_dy">dy</a> is positive, <a href="#IRect">IRect</
 
 ### Return Value
 
-<a href="SkRect_Reference#Rect">Rect</a> <a href="#SkIRect_outset">outset</a> symetrically <a href="#SkIRect_left">left</a> and <a href="#SkIRect_right">right</a>, <a href="#SkIRect_top">top</a> and <a href="#SkIRect_bottom">bottom</a>
+<a href="SkRect_Reference#Rect">Rect</a> <a href="#SkIRect_outset">outset</a> symmetrically <a href="#SkIRect_left">left</a> and <a href="#SkIRect_right">right</a>, <a href="#SkIRect_top">top</a> and <a href="#SkIRect_bottom">bottom</a>
 
 ### Example
 

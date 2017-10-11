@@ -443,6 +443,12 @@ FT_Load_Glyph
     #Typedef SkScalar
     #Typedef ##
     ##
+    #Const SK_MinS32FitsInFloat
+    to be written
+    ##
+    #Const SK_MaxS32FitsInFloat
+    to be written
+    ##
     #Const SK_ScalarMin
     to be written
     ##

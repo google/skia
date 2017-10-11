@@ -673,7 +673,7 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
     return valueEnd;
 }
 
-void IncludeWriter::structSizeMembers(Definition& child) {
+void IncludeWriter::structSizeMembers(const Definition& child) {
     int longestType = 0;
     Definition* typeStart = nullptr;
     int longestName = 0;
@@ -815,6 +815,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     fContinuation = nullptr;
     bool inStruct = false;
     bool inConstructor = false;
+    bool inInline = false;
     for (auto& child : def->fTokens) {
         if (memberEnd) {
             if (memberEnd != &child) {
@@ -824,7 +825,33 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             memberEnd = nullptr;
         }
         if (child.fPrivate) {
+            if (MarkType::kMethod == child.fMarkType) {
+                inInline = true;
+            }
             continue;
+        }
+        if (inInline) {
+            if (Definition::Type::kKeyWord == child.fType) {
+                SkASSERT(MarkType::kMethod != child.fMarkType);
+                continue;
+            }
+            if (Definition::Type::kPunctuation == child.fType) {
+                if (Punctuation::kLeftBrace == child.fPunctuation) {
+                    inInline = false;
+                } else {
+                    SkASSERT(Punctuation::kAsterisk == child.fPunctuation);
+                }
+                continue;
+            }
+            if (Definition::Type::kWord == child.fType) {
+                string name(child.fContentStart, child.fContentEnd - child.fContentStart);
+                SkASSERT(string::npos != name.find("::"));
+                continue;
+            }
+            if (Definition::Type::kBracket == child.fType) {
+                SkASSERT(Bracket::kParen == child.fBracket);
+                continue;
+            }
         }
         if (fContinuation) {
             if (Definition::Type::kKeyWord == child.fType) {
@@ -1131,6 +1158,16 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
         }
         if (Definition::Type::kWord == child.fType) {
             if (MarkType::kMember == child.fMarkType) {
+                if (!memberStart) {
+                    auto iter = def->fTokens.begin();
+                    std::advance(iter, child.fParentIndex - 1);
+                    memberStart = &*iter;
+                    if (!fStructDef) {
+                        SkASSERT(KeyWord::kStruct == def->fParent->fKeyWord);
+                        fStructDef = def->fParent;
+                        this->structSizeMembers(*fStructDef);
+                    }
+                }
                 memberEnd = this->structMemberOut(memberStart, child);
                 fStart = child.fContentEnd + 1;
                 fDeferComment = nullptr;
