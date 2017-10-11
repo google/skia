@@ -33,4 +33,4 @@ private:
     typedef SkSVGTransformableNode INHERITED;
 };
 
-#endif // SkSVGSVG_DEFINED
+#endif // SkSVGContainer_DEFINED
