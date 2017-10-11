@@ -333,6 +333,14 @@ void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {
     }
 }
 
+void SkSVGRenderContext::saveOnce() {
+    if (fCanvas->getSaveCount() == fCanvasSaveCount) {
+        fCanvas->save();
+    }
+
+    SkASSERT(fCanvas->getSaveCount() > fCanvasSaveCount);
+}
+
 void SkSVGRenderContext::applyClip(const SkSVGClip& clip) {
     if (clip.type() != SkSVGClip::Type::kIRI) {
         return;
@@ -352,10 +360,7 @@ void SkSVGRenderContext::applyClip(const SkSVGClip& clip) {
     //
     // TODO: the two uses are exclusive, avoid canvas churn when non needed.
 
-    // Only save if needed
-    if (fCanvas->getSaveCount() == fCanvasSaveCount) {
-        fCanvas->save();
-    }
+    this->saveOnce();
 
     fCanvas->clipPath(clipPath, true);
     fClipPath.set(clipPath);

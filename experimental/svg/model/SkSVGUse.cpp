@@ -57,7 +57,7 @@ bool SkSVGUse::onPrepareToRender(SkSVGRenderContext* ctx) const {
     }
 
     if (fX.value() || fY.value()) {
-        ctx->canvas()->save();
+        ctx->saveOnce();
         ctx->canvas()->translate(fX.value(), fY.value());
     }
 
