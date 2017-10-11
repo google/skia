@@ -127,6 +127,24 @@
     },
     {
       "key": {
+        "uuid": "e374fe3e_b2f9378c",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-11T14:12:27Z",
+      "side": 1,
+      "message": "I think I added some confusion with my comment previously. I agree that it should be a std::function thus we can wrap what we need to in it as the backend changes. Given that I don\u0027t think we currently need the GrContext here since that can be captured by the std::function.",
+      "parentUuid": "2030fb8e_669f40b5",
+      "revId": "1b4d1e8d5321ab6649074fd98f01e124d3b89c73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7f830c0b_5bf7f5fd",
         "filename": "src/gpu/GrTexture.cpp",
         "patchSetId": 11
