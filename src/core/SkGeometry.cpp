@@ -8,6 +8,7 @@
 #include "SkGeometry.h"
 #include "SkMatrix.h"
 #include "SkNx.h"
+#include "SkPoint3.h"
 
 static SkVector to_vector(const Sk2s& x) {
     SkVector vector;
@@ -974,18 +975,6 @@ static bool conic_find_extrema(const SkScalar src[], SkScalar w, SkScalar* t) {
     return false;
 }
 
-struct SkP3D {
-    SkScalar fX, fY, fZ;
-
-    void set(SkScalar x, SkScalar y, SkScalar z) {
-        fX = x; fY = y; fZ = z;
-    }
-
-    void projectDown(SkPoint* dst) const {
-        dst->set(fX / fZ, fY / fZ);
-    }
-};
-
 // We only interpolate one dimension at a time (the first, at +0, +3, +6).
 static void p3d_interp(const SkScalar src[7], SkScalar dst[7], SkScalar t) {
     SkScalar ab = SkScalarInterp(src[0], src[3], t);
@@ -995,7 +984,7 @@ static void p3d_interp(const SkScalar src[7], SkScalar dst[7], SkScalar t) {
     dst[6] = bc;
 }
 
-static void ratquad_mapTo3D(const SkPoint src[3], SkScalar w, SkP3D dst[]) {
+static void ratquad_mapTo3D(const SkPoint src[3], SkScalar w, SkPoint3 dst[3]) {
     dst[0].set(src[0].fX * 1, src[0].fY * 1, 1);
     dst[1].set(src[1].fX * w, src[1].fY * w, w);
     dst[2].set(src[2].fX * 1, src[2].fY * 1, 1);
@@ -1003,7 +992,7 @@ static void ratquad_mapTo3D(const SkPoint src[3], SkScalar w, SkP3D dst[]) {
 
 // return false if infinity or NaN is generated; caller must check
 bool SkConic::chopAt(SkScalar t, SkConic dst[2]) const {
-    SkP3D tmp[3], tmp2[3];
+    SkPoint3 tmp[3], tmp2[3];
 
     ratquad_mapTo3D(fPts, fW, tmp);
 
@@ -1341,11 +1330,11 @@ SkScalar SkConic::TransformW(const SkPoint pts[], SkScalar w,
         return w;
     }
 
-    SkP3D src[3], dst[3];
+    SkPoint3 src[3], dst[3];
 
     ratquad_mapTo3D(pts, w, src);
 
-    matrix.mapHomogeneousPoints(&dst[0].fX, &src[0].fX, 3);
+    matrix.mapHomogeneousPoints(dst, src, 3);
 
     // w' = sqrt(w1*w1/w0*w2)
     SkScalar w0 = dst[0].fZ;
