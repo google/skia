@@ -20,7 +20,7 @@
       "[START_DIR]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-O1\"]"
+      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-g\", \"-O1\"]"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

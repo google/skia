@@ -122,7 +122,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Debug",
-      "--args=cc=\"gcc-4.8\" cxx=\"g++-4.8\" extra_cflags=[\"-O1\"]"
+      "--args=cc=\"gcc-4.8\" cxx=\"g++-4.8\" extra_cflags=[\"-g\", \"-O1\"]"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

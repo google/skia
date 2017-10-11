@@ -103,7 +103,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-x86-Debug/Debug",
-      "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-O1\"] target_cpu=\"x86\""
+      "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-g\", \"-O1\"] target_cpu=\"x86\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

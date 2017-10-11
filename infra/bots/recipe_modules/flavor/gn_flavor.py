@@ -68,7 +68,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_ldflags.append('-fcoverage-mapping')
 
     elif compiler != 'MSVC' and configuration == 'Debug':
-      extra_cflags.append('-O1')
+      extra_cflags.extend(['-g', '-O1'])
 
     if extra_config == 'Exceptions':
       extra_cflags.append('/EHsc')

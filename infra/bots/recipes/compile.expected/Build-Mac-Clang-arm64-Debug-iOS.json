@@ -105,7 +105,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-iOS/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-O1\"] target_cpu=\"arm64\" target_os=\"ios\""
+      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-g\", \"-O1\"] target_cpu=\"arm64\" target_os=\"ios\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

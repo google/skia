@@ -20,7 +20,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Debug-Metal/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-O1\"] skia_use_metal=true target_cpu=\"x86_64\""
+      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-g\", \"-O1\"] skia_use_metal=true target_cpu=\"x86_64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
