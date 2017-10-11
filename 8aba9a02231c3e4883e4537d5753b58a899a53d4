@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa47a50e_4d3dab10",
+        "filename": "bench/MultitextureImageBench.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-11T19:17:00Z",
+      "side": 1,
+      "message": "To actually determine the threshold for a GPU requires finer values, but that can be accomplished by try bot.",
+      "revId": "8aba9a02231c3e4883e4537d5753b58a899a53d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdaf03c0_d96e80dc",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-11T19:17:00Z",
+      "side": 1,
+      "message": "This and the context option are placeholders until a subsequent change adds a dst rect size threshold for triggering multitexturing.",
+      "range": {
+        "startLine": 229,
+        "startChar": 9,
+        "endLine": 229,
+        "endChar": 43
+      },
+      "revId": "8aba9a02231c3e4883e4537d5753b58a899a53d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
