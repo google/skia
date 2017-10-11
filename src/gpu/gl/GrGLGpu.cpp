@@ -1010,7 +1010,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
                             GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType,
                             int left, int top, int width, int height, GrPixelConfig dataConfig,
                             const GrMipLevel texels[], int mipLevelCount,
-                            bool* wasFullMipMapDataProvided) {
+                            GrMipMapsStatus* mipMapsStatus) {
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
     SkDEBUGCODE(
         SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
@@ -1076,9 +1076,8 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     // in case we need a temporary, trimmed copy of the src pixels
     SkAutoSMalloc<128 * 128> tempStorage;
 
-    if (wasFullMipMapDataProvided) {
-        // Make sure this is initialized to true
-        *wasFullMipMapDataProvided = true;
+    if (mipMapsStatus) {
+        *mipMapsStatus = GrMipMapsStatus::kClean;
     }
 
     // find the combined size of all the mip levels and the relative offset of
@@ -1094,12 +1093,18 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
             individualMipOffsets.push_back(combinedBufferSize);
             combinedBufferSize += trimmedSize;
         } else {
-            if (wasFullMipMapDataProvided) {
-                *wasFullMipMapDataProvided = false;
+            if (mipMapsStatus) {
+                if (0 == currentMipLevel) {
+                    *mipMapsStatus = GrMipMapsStatus::kInvalid;
+                } else {
+                    *mipMapsStatus = GrMipMapsStatus::kDirty;
+                }
             }
             individualMipOffsets.push_back(0);
         }
-
+    }
+    if (mipMapsStatus && mipLevelCount <= 1) {
+        *mipMapsStatus = GrMipMapsStatus::kNotAllocated;
     }
     char* buffer = (char*)tempStorage.reset(combinedBufferSize);
 
@@ -1416,16 +1421,11 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
 
     GrGLTexture::IDDesc idDesc;
     idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
-    bool wasFullMipMapDataProvided = true;
+    GrMipMapsStatus mipMapsStatus;
     GrGLTexture::TexParams initialTexParams;
     if (!this->createTextureImpl(desc, &idDesc.fInfo, isRenderTarget, &initialTexParams,
-                                 texels, mipLevelCount, &wasFullMipMapDataProvided)) {
+                                 texels, mipLevelCount, &mipMapsStatus)) {
         return return_null_texture();
-    }
-
-    bool mipsAllocated = false;
-    if (mipLevelCount > 1) {
-        mipsAllocated = true;
     }
 
     sk_sp<GrGLTexture> tex;
@@ -1439,11 +1439,10 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
             return return_null_texture();
         }
         tex = sk_make_sp<GrGLTextureRenderTarget>(this, budgeted, desc, idDesc, rtIDDesc,
-                                                  mipsAllocated, wasFullMipMapDataProvided);
+                                                  mipMapsStatus);
         tex->baseLevelWasBoundToFBO();
     } else {
-        tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, idDesc,
-                                      mipsAllocated, wasFullMipMapDataProvided);
+        tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, idDesc, mipMapsStatus);
     }
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
 #ifdef TRACE_TEXTURE_CREATION
@@ -1615,7 +1614,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
 bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
                                 bool renderTarget, GrGLTexture::TexParams* initialTexParams,
                                 const GrMipLevel texels[], int mipLevelCount,
-                                bool* wasFullMipMapDataProvided) {
+                                GrMipMapsStatus* mipMapsStatus) {
     info->fID = 0;
     info->fTarget = GR_GL_TEXTURE_2D;
     GL_CALL(GenTextures(1, &(info->fID)));
@@ -1639,7 +1638,7 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
     }
     if (!this->uploadTexData(desc.fConfig, desc.fWidth, desc.fHeight, desc.fOrigin, info->fTarget,
                              kNewTexture_UploadType, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                             texels, mipLevelCount)) {
+                             texels, mipLevelCount, mipMapsStatus)) {
         GL_CALL(DeleteTextures(1, &(info->fID)));
         return false;
     }
