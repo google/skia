@@ -578,7 +578,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 #ifdef SK_BUILD_FOR_MAC
     // crbug.com/768134 - On MacBook Pros, the Intel Iris Pro doesn't always perform
     // full screen clears
-    if (kIntelIrisPro_GrGLRenderer == ctxInfo.renderer()) {
+    // crbug.com/773107 - On MacBook Pros, a wide range of Intel GPUs don't always
+    // perform full screen clears.
+    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
         fUseDrawInsteadOfClear = true;
     }
 #endif
