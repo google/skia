@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "521cd213_9fa67557",
+        "filename": "experimental/svg/model/SkSVGUse.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-11T18:02:53Z",
+      "side": 1,
+      "message": "When the local render context is destroyed.  Added a comment.",
+      "parentUuid": "6bff018f_b3bdd219",
+      "revId": "86b75cbfeed254467116866723e294a2411111ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7c4680ae_80de77da",
         "filename": "experimental/svg/model/SkSVGUse.h",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "57878218_545f4ce8",
+        "filename": "experimental/svg/model/SkSVGUse.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-11T18:02:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c4680ae_80de77da",
+      "revId": "86b75cbfeed254467116866723e294a2411111ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dcfcb398_60004c39",
         "filename": "experimental/svg/model/SkSVGUse.h",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-10-11T16:27:04Z",
       "side": 1,
       "message": "no \u0027\u0026\u0027 ?",
+      "revId": "86b75cbfeed254467116866723e294a2411111ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf975419_a96ce617",
+        "filename": "experimental/svg/model/SkSVGUse.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-11T18:02:53Z",
+      "side": 1,
+      "message": "Prolly not terribly important in practice, but sticks to the principle of ownership transfer: if ownership is always transferred/shared, pass by val; otherwise pass const sk_sp\u003c\u003e\u0026.\n\nSince the DOM always takes are ref for its nodes, passing by val also allows for churn-free operation when the client doesn\u0027t retain a ref (std::moves the node).",
+      "parentUuid": "dcfcb398_60004c39",
       "revId": "86b75cbfeed254467116866723e294a2411111ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
