@@ -20,7 +20,6 @@ DECLARE_string(colorImages);
 DECLARE_bool(simpleCodec);
 DECLARE_string(match);
 DECLARE_bool(quiet);
-DECLARE_bool(resetGpuContext);
 DECLARE_bool(preAbandonGpuContext);
 DECLARE_bool(abandonGpuContext);
 DECLARE_bool(releaseAndAbandonGpuContext);

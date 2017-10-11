@@ -27,7 +27,7 @@
  *  DEF_BENCH(return new MyBenchmark(...))
  */
 
-
+struct GrContextOptions;
 class SkCanvas;
 class SkPaint;
 
@@ -62,6 +62,9 @@ public:
     virtual bool isSuitableFor(Backend backend) {
         return backend != kNonRendering_Backend;
     }
+
+    // Allows a benchmark to override options used to construct the GrContext.
+    virtual void modifyGrContextOptions(GrContextOptions*) {}
 
     virtual int calculateLoops(int defaultLoops) const {
         return defaultLoops;
