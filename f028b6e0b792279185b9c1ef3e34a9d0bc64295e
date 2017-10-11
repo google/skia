@@ -212,6 +212,24 @@
     },
     {
       "key": {
+        "uuid": "31b27aaa_92decb6b",
+        "filename": "src/core/SkMatrix.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1048,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-11T19:24:59Z",
+      "side": 1,
+      "message": "I guess mapPoints \u0026 mapPointsWithStride both take params with []s and in those case we also never really use the array access, so .. please ignore.",
+      "parentUuid": "0dc64efd_eb3aab49",
+      "revId": "f028b6e0b792279185b9c1ef3e34a9d0bc64295e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d606d4a6_e0f9e8e0",
         "filename": "src/core/SkMatrix.cpp",
         "patchSetId": 2
