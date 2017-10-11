@@ -8,7 +8,7 @@
 #ifndef SkPoint3_DEFINED
 #define SkPoint3_DEFINED
 
-#include "SkScalar.h"
+#include "SkPoint.h"
 
 struct SK_API SkPoint3 {
     SkScalar fX, fY, fZ;
@@ -53,6 +53,10 @@ struct SK_API SkPoint3 {
         SkPoint3 p;
         p.set(scale * fX, scale * fY, scale * fZ);
         return p;
+    }
+
+    void projectDown(SkPoint* dst) const {
+        dst->set(fX / fZ, fY / fZ);
     }
 
     /** Scale the point's coordinates by scale.

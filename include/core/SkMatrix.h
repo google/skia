@@ -13,6 +13,7 @@
 #include "SkRect.h"
 
 struct SkRSXform;
+struct SkPoint3;
 class SkString;
 
 /** \class SkMatrix
@@ -486,7 +487,7 @@ public:
         @param count The number of triples (homogeneous points) in src to read,
                      and then transform into dst.
     */
-    void mapHomogeneousPoints(SkScalar dst[], const SkScalar src[], int count) const;
+    void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const;
 
     void mapXY(SkScalar x, SkScalar y, SkPoint* result) const {
         SkASSERT(result);
