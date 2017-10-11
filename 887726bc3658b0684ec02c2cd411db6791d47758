@@ -69,6 +69,30 @@
       "revId": "887726bc3658b0684ec02c2cd411db6791d47758",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6a8aab5_d76b0fe2",
+        "filename": "src/gpu/effects/GrArithmeticFP.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-11T17:53:23Z",
+      "side": 1,
+      "message": "Ah, ok. After you do that do you think we should leave it as an optional parameter or require this to specify sk_InColor. I tend to weakly favor the latter.",
+      "parentUuid": "bdbe1536_d8c4b7ce",
+      "range": {
+        "startLine": 11,
+        "startChar": 16,
+        "endLine": 11,
+        "endChar": 30
+      },
+      "revId": "887726bc3658b0684ec02c2cd411db6791d47758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
