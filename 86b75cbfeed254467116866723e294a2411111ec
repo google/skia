@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6bff018f_b3bdd219",
+        "filename": "experimental/svg/model/SkSVGUse.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-11T16:27:04Z",
+      "side": 1,
+      "message": "When does this get popped ?",
+      "revId": "86b75cbfeed254467116866723e294a2411111ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c4680ae_80de77da",
+        "filename": "experimental/svg/model/SkSVGUse.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-11T16:27:04Z",
+      "side": 1,
+      "message": "// Maybe say what this class does ?",
+      "revId": "86b75cbfeed254467116866723e294a2411111ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcfcb398_60004c39",
+        "filename": "experimental/svg/model/SkSVGUse.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-11T16:27:04Z",
+      "side": 1,
+      "message": "no \u0027\u0026\u0027 ?",
+      "revId": "86b75cbfeed254467116866723e294a2411111ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
