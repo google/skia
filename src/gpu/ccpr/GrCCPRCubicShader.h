@@ -5,12 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCCPRCubicProcessor_DEFINED
-#define GrCCPRCubicProcessor_DEFINED
+#ifndef GrCCPRCubicShader_DEFINED
+#define GrCCPRCubicShader_DEFINED
 
 #include "ccpr/GrCCPRCoverageProcessor.h"
-
-class GrGLSLGeometryBuilder;
 
 /**
  * This class renders the coverage of convex closed cubic segments using the techniques outlined in
@@ -19,102 +17,78 @@ class GrGLSLGeometryBuilder;
  *
  * https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
  *
- * The provided curves must be convex, monotonic with respect to the vector of their closing edge
- * [P3 - P0], and must not contain or be near any inflection points or loop intersections.
+ * The provided curve segments must be convex, monotonic with respect to the vector of their closing
+ * edge [P3 - P0], and must not contain or be near any inflection points or loop intersections.
  * (Use GrCCPRGeometry.)
  */
-class GrCCPRCubicProcessor : public GrCCPRCoverageProcessor::PrimitiveProcessor {
+class GrCCPRCubicShader : public GrCCPRCoverageProcessor::Shader {
 public:
     enum class CubicType {
         kSerpentine,
         kLoop
     };
 
-    GrCCPRCubicProcessor(CubicType cubicType)
-            : INHERITED(CoverageType::kShader)
-            , fCubicType(cubicType)
-            , fKLMMatrix("klm_matrix", kFloat3x3_GrSLType, GrShaderVar::kNonArray,
-                         kHigh_GrSLPrecision)
-            , fKLMDerivatives("klm_derivatives", kFloat2_GrSLType, 3, kHigh_GrSLPrecision)
-            , fEdgeDistanceEquation("edge_distance_equation", kFloat3_GrSLType,
-                                    GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fKLMD(kFloat4_GrSLType) {}
-
-    void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
-        varyingHandler->addVarying("klmd", &fKLMD, kHigh_GrSLPrecision);
-    }
-
-    void onEmitVertexShader(const GrCCPRCoverageProcessor&, GrGLSLVertexBuilder*,
-                            const TexelBufferHandle& pointsBuffer, const char* atlasOffset,
-                            const char* rtAdjust, GrGPArgs*) const override;
-    void emitWind(GrGLSLGeometryBuilder*, const char* rtAdjust, const char* outputWind) const final;
-    void onEmitGeometryShader(GrGLSLGeometryBuilder*, const char* emitVertexFn, const char* wind,
-                              const char* rtAdjust) const final;
-    void emitPerVertexGeometryCode(SkString* fnBody, const char* position, const char* coverage,
-                                   const char* wind) const final;
-
 protected:
-    virtual void emitCubicGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn,
-                                   const char* wind, const char* rtAdjust) const = 0;
-    virtual void onEmitPerVertexGeometryCode(SkString* fnBody) const = 0;
+    GrCCPRCubicShader(CubicType cubicType) : fCubicType(cubicType) {}
+
+    int getNumInputPoints() const final { return 4; }
+
+    void appendInputPointFetch(const GrCCPRCoverageProcessor&, GrGLSLShaderBuilder*,
+                               const TexelBufferHandle& pointsBuffer,
+                               const char* pointId) const final;
+
+    void emitWind(GrGLSLShaderBuilder*, const char* pts, const char* rtAdjust,
+                  const char* outputWind) const final;
+
+    void emitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* segmentId,
+                       const char* bloat, const char* wind, const char* rtAdjust,
+                       GeometryVars*) const final;
+
+    virtual void onEmitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* segmentId,
+                                 const char* rtAdjust, GeometryVars*) const = 0;
+
+    WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
+                                const char* coverage, const char* wind) final;
+
+    virtual void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) = 0;
 
     const CubicType   fCubicType;
-    GrShaderVar       fKLMMatrix;
-    GrShaderVar       fKLMDerivatives;
-    GrShaderVar       fEdgeDistanceEquation;
-    GrGLSLGeoToFrag   fKLMD;
-
-    typedef GrCCPRCoverageProcessor::PrimitiveProcessor INHERITED;
+    GrShaderVar       fKLMMatrix{"klm_matrix", kFloat3x3_GrSLType};
+    GrShaderVar       fKLMDerivatives{"klm_derivatives", kFloat2_GrSLType, 3};
+    GrShaderVar       fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
+    GrGLSLGeoToFrag   fKLMD{kFloat4_GrSLType};
 };
 
-class GrCCPRCubicHullProcessor : public GrCCPRCubicProcessor {
+class GrCCPRCubicHullShader : public GrCCPRCubicShader {
 public:
-    GrCCPRCubicHullProcessor(CubicType cubicType)
-            : INHERITED(cubicType)
-            , fGradMatrix(kFloat2x2_GrSLType) {}
+    GrCCPRCubicHullShader(CubicType cubicType) : GrCCPRCubicShader(cubicType) {}
 
-    void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
-        this->INHERITED::resetVaryings(varyingHandler);
-        varyingHandler->addVarying("grad_matrix", &fGradMatrix, kHigh_GrSLPrecision);
-    }
+private:
+    GeometryType getGeometryType() const override { return GeometryType::kHull; }
+    int getNumSegments() const override { return 4; } // 4 wedges.
+    void onEmitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* wedgeId,
+                         const char* rtAdjust, GeometryVars*) const override;
+    void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) override;
+    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
-    void emitCubicGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn,
-                           const char* wind, const char* rtAdjust) const override;
-    void onEmitPerVertexGeometryCode(SkString* fnBody) const override;
-    void emitShaderCoverage(GrGLSLFragmentBuilder*, const char* outputCoverage) const override;
-
-protected:
-    GrGLSLGeoToFrag   fGradMatrix;
-
-    typedef GrCCPRCubicProcessor INHERITED;
+    GrGLSLGeoToFrag fGradMatrix{kFloat2x2_GrSLType};
 };
 
-class GrCCPRCubicCornerProcessor : public GrCCPRCubicProcessor {
+class GrCCPRCubicCornerShader : public GrCCPRCubicShader {
 public:
-    GrCCPRCubicCornerProcessor(CubicType cubicType)
-            : INHERITED(cubicType)
-            , fEdgeDistanceDerivatives("edge_distance_derivatives", kFloat2_GrSLType,
-                                        GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fdKLMDdx(kFloat4_GrSLType)
-            , fdKLMDdy(kFloat4_GrSLType) {}
+    GrCCPRCubicCornerShader(CubicType cubicType) : GrCCPRCubicShader(cubicType) {}
 
-    void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
-        this->INHERITED::resetVaryings(varyingHandler);
-        varyingHandler->addFlatVarying("dklmddx", &fdKLMDdx, kHigh_GrSLPrecision);
-        varyingHandler->addFlatVarying("dklmddy", &fdKLMDdy, kHigh_GrSLPrecision);
-    }
+private:
+    GeometryType getGeometryType() const override { return GeometryType::kCorners; }
+    int getNumSegments() const override { return 2; } // 2 corners.
+    void onEmitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* cornerId,
+                         const char* rtAdjust, GeometryVars*) const override;
+    void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) override;
+    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
-    void emitCubicGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn,
-                           const char* wind, const char* rtAdjust) const override;
-    void onEmitPerVertexGeometryCode(SkString* fnBody) const override;
-    void emitShaderCoverage(GrGLSLFragmentBuilder*, const char* outputCoverage) const override;
-
-protected:
-    GrShaderVar        fEdgeDistanceDerivatives;
-    GrGLSLGeoToFrag    fdKLMDdx;
-    GrGLSLGeoToFrag    fdKLMDdy;
-
-    typedef GrCCPRCubicProcessor INHERITED;
+    GrShaderVar        fEdgeDistanceDerivatives{"edge_distance_derivatives", kFloat2_GrSLType};
+    GrGLSLGeoToFrag    fdKLMDdx{kFloat4_GrSLType};
+    GrGLSLGeoToFrag    fdKLMDdy{kFloat4_GrSLType};
 };
 
 #endif

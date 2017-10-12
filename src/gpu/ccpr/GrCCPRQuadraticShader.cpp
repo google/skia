@@ -5,145 +5,135 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPRQuadraticProcessor.h"
+#include "GrCCPRQuadraticShader.h"
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLGeometryShaderBuilder.h"
-#include "glsl/GrGLSLVertexShaderBuilder.h"
 
-void GrCCPRQuadraticProcessor::onEmitVertexShader(const GrCCPRCoverageProcessor& proc,
-                                                  GrGLSLVertexBuilder* v,
+void GrCCPRQuadraticShader::appendInputPointFetch(const GrCCPRCoverageProcessor& proc,
+                                                  GrGLSLShaderBuilder* s,
                                                   const TexelBufferHandle& pointsBuffer,
-                                                  const char* atlasOffset, const char* rtAdjust,
-                                                  GrGPArgs* gpArgs) const {
-    v->codeAppend ("float2 self = ");
-    v->appendTexelFetch(pointsBuffer,
-                        SkStringPrintf("%s.x + sk_VertexID", proc.instanceAttrib()).c_str());
-    v->codeAppendf(".xy + %s;", atlasOffset);
-    gpArgs->fPositionVar.set(kFloat2_GrSLType, "self");
+                                                  const char* pointId) const {
+    s->appendTexelFetch(pointsBuffer,
+                        SkStringPrintf("%s.x + %s", proc.instanceAttrib(), pointId).c_str());
 }
 
-void GrCCPRQuadraticProcessor::emitWind(GrGLSLGeometryBuilder* g, const char* rtAdjust,
-                                        const char* outputWind) const {
-    // We will define bezierpts in onEmitGeometryShader.
-    g->codeAppend ("float area_times_2 = determinant(float2x2(bezierpts[1] - bezierpts[0], "
-                                                             "bezierpts[2] - bezierpts[0]));");
+void GrCCPRQuadraticShader::emitWind(GrGLSLShaderBuilder* s, const char* pts, const char* rtAdjust,
+                                     const char* outputWind) const {
+    s->codeAppendf("float area_times_2 = determinant(float2x2(%s[1] - %s[0], %s[2] - %s[0]));",
+                                                     pts, pts, pts, pts);
     // Drop curves that are nearly flat, in favor of the higher quality triangle antialiasing.
-    g->codeAppendf("if (2 * abs(area_times_2) < length((bezierpts[2] - bezierpts[0]) * %s.zx)) {",
-                   rtAdjust);
+    s->codeAppendf("if (2 * abs(area_times_2) < length((%s[2] - %s[0]) * %s.zx)) {",
+                   pts, pts, rtAdjust);
 #ifndef SK_BUILD_FOR_MAC
-    g->codeAppend (    "return;");
+    s->codeAppend (    "return;");
 #else
     // Returning from this geometry shader makes Mac very unhappy. Instead we make wind 0.
-    g->codeAppend (    "area_times_2 = 0;");
+    s->codeAppend (    "area_times_2 = 0;");
 #endif
-    g->codeAppend ("}");
-    g->codeAppendf("%s = sign(area_times_2);", outputWind);
+    s->codeAppend ("}");
+    s->codeAppendf("%s = sign(area_times_2);", outputWind);
 }
 
-void GrCCPRQuadraticProcessor::onEmitGeometryShader(GrGLSLGeometryBuilder* g,
-                                                    const char* emitVertexFn, const char* wind,
-                                                    const char* rtAdjust) const {
-    // Prepend bezierpts at the start of the shader.
-    g->codePrependf("float3x2 bezierpts = float3x2(sk_in[0].sk_Position.xy, "
-                                                  "sk_in[1].sk_Position.xy, "
-                                                  "sk_in[2].sk_Position.xy);");
-
-    g->declareGlobal(fCanonicalMatrix);
-    g->codeAppendf("%s = float3x3(0.0, 0, 1, "
+void GrCCPRQuadraticShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
+                                          const char* segmentId, const char* bloat,
+                                          const char* wind, const char* rtAdjust,
+                                          GeometryVars* vars) const {
+    s->declareGlobal(fCanonicalMatrix);
+    s->codeAppendf("%s = float3x3(0.0, 0, 1, "
                                  "0.5, 0, 1, "
                                  "1.0, 1, 1) * "
-                        "inverse(float3x3(bezierpts[0], 1, "
-                                         "bezierpts[1], 1, "
-                                         "bezierpts[2], 1));",
-                   fCanonicalMatrix.c_str());
+                        "inverse(float3x3(%s[0], 1, "
+                                         "%s[1], 1, "
+                                         "%s[2], 1));",
+                   fCanonicalMatrix.c_str(), pts, pts, pts);
 
-    g->declareGlobal(fCanonicalDerivatives);
-    g->codeAppendf("%s = float2x2(%s) * float2x2(%s.x, 0, 0, %s.z);",
+    s->declareGlobal(fCanonicalDerivatives);
+    s->codeAppendf("%s = float2x2(%s) * float2x2(%s.x, 0, 0, %s.z);",
                    fCanonicalDerivatives.c_str(), fCanonicalMatrix.c_str(), rtAdjust, rtAdjust);
 
-    g->declareGlobal(fEdgeDistanceEquation);
-    g->codeAppendf("float2 edgept0 = bezierpts[%s > 0 ? 2 : 0];", wind);
-    g->codeAppendf("float2 edgept1 = bezierpts[%s > 0 ? 0 : 2];", wind);
-    this->emitEdgeDistanceEquation(g, "edgept0", "edgept1", fEdgeDistanceEquation.c_str());
+    s->declareGlobal(fEdgeDistanceEquation);
+    s->codeAppendf("float2 edgept0 = %s[%s > 0 ? 2 : 0];", pts, wind);
+    s->codeAppendf("float2 edgept1 = %s[%s > 0 ? 0 : 2];", pts, wind);
+    Shader::EmitEdgeDistanceEquation(s, "edgept0", "edgept1", fEdgeDistanceEquation.c_str());
 
-    this->emitQuadraticGeometry(g, emitVertexFn, rtAdjust);
+    this->onEmitSetupCode(s, pts, segmentId, rtAdjust, vars);
 }
 
-void GrCCPRQuadraticProcessor::emitPerVertexGeometryCode(SkString* fnBody, const char* position,
-                                                         const char* /*coverage*/,
-                                                         const char* /*wind*/) const {
-    fnBody->appendf("%s.xy = (%s * float3(%s, 1)).xy;",
-                    fXYD.gsOut(), fCanonicalMatrix.c_str(), position);
-    fnBody->appendf("%s.z = dot(%s.xy, %s) + %s.z;",
-                    fXYD.gsOut(), fEdgeDistanceEquation.c_str(), position,
-                    fEdgeDistanceEquation.c_str());
-    this->onEmitPerVertexGeometryCode(fnBody);
+GrCCPRQuadraticShader::WindHandling
+GrCCPRQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code,
+                                      const char* position, const char* /*coverage*/,
+                                      const char* /*wind*/) {
+    varyingHandler->addVarying("xyd", &fXYD, kHigh_GrSLPrecision);
+    code->appendf("%s.xy = (%s * float3(%s, 1)).xy;",
+                  fXYD.gsOut(), fCanonicalMatrix.c_str(), position);
+    code->appendf("%s.z = dot(%s.xy, %s) + %s.z;",
+                  fXYD.gsOut(), fEdgeDistanceEquation.c_str(), position,
+                  fEdgeDistanceEquation.c_str());
+
+    this->onEmitVaryings(varyingHandler, code);
+    return WindHandling::kNotHandled;
 }
 
-void GrCCPRQuadraticHullProcessor::emitQuadraticGeometry(GrGLSLGeometryBuilder* g,
-                                                         const char* emitVertexFn,
-                                                         const char* /*rtAdjust*/) const {
-    // Find the t value whose tangent is halfway between the tangents at the endpionts.
-    // (We defined bezierpts in onEmitGeometryShader.)
-    g->codeAppend ("float2 tan0 = bezierpts[1] - bezierpts[0];");
-    g->codeAppend ("float2 tan1 = bezierpts[2] - bezierpts[1];");
-    g->codeAppend ("float2 midnorm = normalize(tan0) - normalize(tan1);");
-    g->codeAppend ("float2 T = midnorm * float2x2(tan0 - tan1, tan0);");
-    g->codeAppend ("float t = clamp(T.t / T.s, 0, 1);"); // T.s=0 is weeded out by this point.
+void GrCCPRQuadraticHullShader::onEmitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
+                                                const char* /*wedgeId*/, const char* /*rtAdjust*/,
+                                                GeometryVars* vars) const {
+    // Find the T value whose tangent is halfway between the tangents at the endpionts.
+    s->codeAppendf("float2 tan0 = %s[1] - %s[0];", pts, pts);
+    s->codeAppendf("float2 tan1 = %s[2] - %s[1];", pts, pts);
+    s->codeAppend ("float2 midnorm = normalize(tan0) - normalize(tan1);");
+    s->codeAppend ("float2 T = midnorm * float2x2(tan0 - tan1, tan0);");
+    s->codeAppend ("float t = clamp(T.t / T.s, 0, 1);"); // T.s != 0; we cull flat curves on CPU.
 
     // Clip the bezier triangle by the tangent at our new t value. This is a simple application for
     // De Casteljau's algorithm.
-    g->codeAppendf("float4x2 quadratic_hull = float4x2(bezierpts[0], "
-                                                      "bezierpts[0] + tan0 * t, "
-                                                      "bezierpts[1] + tan1 * t, "
-                                                      "bezierpts[2]);");
-
-    int maxVerts = this->emitHullGeometry(g, emitVertexFn, "quadratic_hull", 4, "sk_InvocationID");
-
-    g->configure(GrGLSLGeometryBuilder::InputType::kTriangles,
-                 GrGLSLGeometryBuilder::OutputType::kTriangleStrip,
-                 maxVerts, 4);
+    s->codeAppendf("float4x2 quadratic_hull = float4x2(%s[0], "
+                                                      "%s[0] + tan0 * t, "
+                                                      "%s[1] + tan1 * t, "
+                                                      "%s[2]);", pts, pts, pts, pts);
+    vars->fHullVars.fAlternatePoints = "quadratic_hull";
 }
 
-void GrCCPRQuadraticHullProcessor::onEmitPerVertexGeometryCode(SkString* fnBody) const {
-    fnBody->appendf("%s = float2(2 * %s.x, -1) * %s;",
-                    fGradXY.gsOut(), fXYD.gsOut(), fCanonicalDerivatives.c_str());
+void GrCCPRQuadraticHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                               SkString* code) {
+    varyingHandler->addVarying("grad", &fGrad, kHigh_GrSLPrecision);
+    code->appendf("%s = float2(2 * %s.x, -1) * %s;",
+                  fGrad.gsOut(), fXYD.gsOut(), fCanonicalDerivatives.c_str());
 }
 
-void GrCCPRQuadraticHullProcessor::emitShaderCoverage(GrGLSLFragmentBuilder* f,
-                                                      const char* outputCoverage) const {
+void GrCCPRQuadraticHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
+                                                   const char* outputCoverage) const {
     f->codeAppendf("float d = (%s.x * %s.x - %s.y) * inversesqrt(dot(%s, %s));",
-                   fXYD.fsIn(), fXYD.fsIn(), fXYD.fsIn(), fGradXY.fsIn(), fGradXY.fsIn());
+                   fXYD.fsIn(), fXYD.fsIn(), fXYD.fsIn(), fGrad.fsIn(), fGrad.fsIn());
     f->codeAppendf("%s = clamp(0.5 - d, 0, 1);", outputCoverage);
     f->codeAppendf("%s += min(%s.z, 0);", outputCoverage, fXYD.fsIn()); // Flat closing edge.
 }
 
-void GrCCPRQuadraticCornerProcessor::emitQuadraticGeometry(GrGLSLGeometryBuilder* g,
-                                                           const char* emitVertexFn,
-                                                           const char* rtAdjust) const {
-    g->declareGlobal(fEdgeDistanceDerivatives);
-    g->codeAppendf("%s = %s.xy * %s.xz;",
+void GrCCPRQuadraticCornerShader::onEmitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
+                                                  const char* cornerId, const char* rtAdjust,
+                                                  GeometryVars* vars) const {
+    s->declareGlobal(fEdgeDistanceDerivatives);
+    s->codeAppendf("%s = %s.xy * %s.xz;",
                    fEdgeDistanceDerivatives.c_str(), fEdgeDistanceEquation.c_str(), rtAdjust);
 
-    g->codeAppendf("float2 corner = bezierpts[sk_InvocationID * 2];");
-    int numVertices = this->emitCornerGeometry(g, emitVertexFn, "corner");
-
-    g->configure(GrGLSLGeometryBuilder::InputType::kTriangles,
-                 GrGLSLGeometryBuilder::OutputType::kTriangleStrip, numVertices, 2);
+    s->codeAppendf("float2 corner = %s[%s * 2];", pts, cornerId);
+    vars->fCornerVars.fPoint = "corner";
 }
 
-void GrCCPRQuadraticCornerProcessor::onEmitPerVertexGeometryCode(SkString* fnBody) const {
-    fnBody->appendf("%s = float3(%s[0].x, %s[0].y, %s.x);",
-                    fdXYDdx.gsOut(), fCanonicalDerivatives.c_str(), fCanonicalDerivatives.c_str(),
-                    fEdgeDistanceDerivatives.c_str());
-    fnBody->appendf("%s = float3(%s[1].x, %s[1].y, %s.y);",
-                    fdXYDdy.gsOut(), fCanonicalDerivatives.c_str(), fCanonicalDerivatives.c_str(),
-                    fEdgeDistanceDerivatives.c_str());
+void GrCCPRQuadraticCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                                 SkString* code) {
+    varyingHandler->addFlatVarying("dXYDdx", &fdXYDdx, kHigh_GrSLPrecision);
+    code->appendf("%s = float3(%s[0].x, %s[0].y, %s.x);",
+                  fdXYDdx.gsOut(), fCanonicalDerivatives.c_str(), fCanonicalDerivatives.c_str(),
+                  fEdgeDistanceDerivatives.c_str());
+
+    varyingHandler->addFlatVarying("dXYDdy", &fdXYDdy, kHigh_GrSLPrecision);
+    code->appendf("%s = float3(%s[1].x, %s[1].y, %s.y);",
+                  fdXYDdy.gsOut(), fCanonicalDerivatives.c_str(), fCanonicalDerivatives.c_str(),
+                  fEdgeDistanceDerivatives.c_str());
 }
 
-void GrCCPRQuadraticCornerProcessor::emitShaderCoverage(GrGLSLFragmentBuilder* f,
-                                                        const char* outputCoverage) const {
+void GrCCPRQuadraticCornerShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
+                                                     const char* outputCoverage) const {
     f->codeAppendf("float x = %s.x, y = %s.y, d = %s.z;",
                    fXYD.fsIn(), fXYD.fsIn(), fXYD.fsIn());
     f->codeAppendf("float2x3 grad_xyd = float2x3(%s, %s);", fdXYDdx.fsIn(), fdXYDdy.fsIn());
@@ -156,9 +146,8 @@ void GrCCPRQuadraticCornerProcessor::emitShaderCoverage(GrGLSLFragmentBuilder* f
     f->codeAppendf("%s -= d;", outputCoverage);
 
     // Use software msaa to approximate coverage at the corner pixels.
-    int sampleCount = this->defineSoftSampleLocations(f, "samples");
-    f->codeAppendf("float3 xyd_center = float3(%s.xy, %s.z + 0.5);",
-                   fXYD.fsIn(), fXYD.fsIn());
+    int sampleCount = Shader::DefineSoftSampleLocations(f, "samples");
+    f->codeAppendf("float3 xyd_center = float3(%s.xy, %s.z + 0.5);", fXYD.fsIn(), fXYD.fsIn());
     f->codeAppendf("for (int i = 0; i < %i; ++i) {", sampleCount);
     f->codeAppend (    "float3 xyd = grad_xyd * samples[i] + xyd_center;");
     f->codeAppend (    "half f = xyd.y - xyd.x * xyd.x;"); // f > 0 -> inside curve.
