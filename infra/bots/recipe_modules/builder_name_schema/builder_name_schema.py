@@ -27,13 +27,15 @@ BUILDER_ROLE_INFRA = 'Infra'
 BUILDER_ROLE_PERF = 'Perf'
 BUILDER_ROLE_TEST = 'Test'
 BUILDER_ROLE_UPLOAD = 'Upload'
+BUILDER_ROLE_CALMBENCH = "Calmbench"
 BUILDER_ROLES = (BUILDER_ROLE_CANARY,
                  BUILDER_ROLE_BUILD,
                  BUILDER_ROLE_HOUSEKEEPER,
                  BUILDER_ROLE_INFRA,
                  BUILDER_ROLE_PERF,
                  BUILDER_ROLE_TEST,
-                 BUILDER_ROLE_UPLOAD)
+                 BUILDER_ROLE_UPLOAD,
+                 BUILDER_ROLE_CALMBENCH)
 
 
 def _LoadSchema():
