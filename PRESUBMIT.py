@@ -234,6 +234,18 @@ def _CheckGNFormatted(input_api, output_api):
   return results
 
 
+class _WarningsAsErrors():
+  def __init__(self, output_api):
+    self.output_api = output_api
+    self.old_warning = None
+  def __enter__(self):
+    self.old_warning = self.output_api.PresubmitPromptWarning
+    self.output_api.PresubmitPromptWarning = self.output_api.PresubmitError
+    return self.output_api
+  def __exit__(self, ex_type, ex_value, ex_traceback):
+    self.output_api.PresubmitPromptWarning = self.old_warning
+
+
 def _CommonChecks(input_api, output_api):
   """Presubmit checks common to upload and commit."""
   results = []
@@ -246,15 +258,13 @@ def _CommonChecks(input_api, output_api):
                        x.LocalPath().endswith('.c') or
                        x.LocalPath().endswith('.cc') or
                        x.LocalPath().endswith('.cpp'))
-  results.extend(
-      _CheckChangeHasEol(
-          input_api, output_api, source_file_filter=sources))
-  results.extend(
-      input_api.canned_checks.CheckChangeHasNoCR(
-          input_api, output_api, source_file_filter=sources))
-  results.extend(
-      input_api.canned_checks.CheckChangeHasNoStrayWhitespace(
-          input_api, output_api, source_file_filter=sources))
+  results.extend(_CheckChangeHasEol(
+      input_api, output_api, source_file_filter=sources))
+  with _WarningsAsErrors(output_api):
+    results.extend(input_api.canned_checks.CheckChangeHasNoCR(
+        input_api, output_api, source_file_filter=sources))
+    results.extend(input_api.canned_checks.CheckChangeHasNoStrayWhitespace(
+        input_api, output_api, source_file_filter=sources))
   results.extend(_PythonChecks(input_api, output_api))
   results.extend(_JsonChecks(input_api, output_api))
   results.extend(_IfDefChecks(input_api, output_api))
