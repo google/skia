@@ -640,6 +640,8 @@ static void add_line(const SkPoint p[2],
     SkVector ortho, vec = b;
     vec -= a;
 
+    SkScalar lengthSqd = vec.lengthSqd();
+
     if (vec.setLength(SK_ScalarHalf)) {
         // Create a vector orthogonal to 'vec' and of unit length
         ortho.fX = 2.0f * vec.fY;
@@ -647,10 +649,28 @@ static void add_line(const SkPoint p[2],
 
         float floatCoverage = GrNormalizeByteToFloat(coverage);
 
-        (*vert)[0].fPos = a;
-        (*vert)[0].fCoverage = floatCoverage;
-        (*vert)[1].fPos = b;
-        (*vert)[1].fCoverage = floatCoverage;
+        if (lengthSqd >= 1.0f) {
+            // Relative to points a and b:
+            // The inner vertices are inset half a pixel along the line a,b
+            (*vert)[0].fPos = a + vec;
+            (*vert)[0].fCoverage = floatCoverage;
+            (*vert)[1].fPos = b - vec;
+            (*vert)[1].fCoverage = floatCoverage;
+        } else {
+            // The inner vertices are inset a distance of length(a,b) from the outer edge of
+            // geometry. For the "a" inset this is the same as insetting from b by half a pixel.
+            // The coverage is then modulated by the length. This gives us the correct
+            // coverage for rects shorter than a pixel as they get translated subpixel amounts
+            // inside of a pixel.
+            SkScalar length = SkScalarSqrt(lengthSqd);
+            (*vert)[0].fPos = b - vec;
+            (*vert)[0].fCoverage = floatCoverage * length;
+            (*vert)[1].fPos = a + vec;
+            (*vert)[1].fCoverage = floatCoverage * length;
+        }
+        // Relative to points a and b:
+        // The outer vertices are outset half a pixel along the line a,b and then a whole pixel
+        // orthogonally.
         (*vert)[2].fPos = a - vec + ortho;
         (*vert)[2].fCoverage = 0;
         (*vert)[3].fPos = b + vec + ortho;
