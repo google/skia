@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d25ed7da_2b97e6e0",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-10-12T12:57:30Z",
+      "side": 1,
+      "message": "\"@return true on success, false on failure. If false, dst is unmodified.\"\n\nI guess we should either transform on a tmp and copy it on success, or change the contract for the API (we say something similar for other functions that can fail or have var-args)",
+      "range": {
+        "startLine": 429,
+        "startChar": 9,
+        "endLine": 429,
+        "endChar": 29
+      },
+      "revId": "761a382ddb1f2df65dab325b107cdb459f638ec5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
