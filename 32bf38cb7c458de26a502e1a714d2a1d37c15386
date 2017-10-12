@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "26ad67ad_da5f54b3",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-12T16:33:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ec17100_72e7acc8",
+      "revId": "32bf38cb7c458de26a502e1a714d2a1d37c15386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "949d10b4_d0bbf6d8",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 5
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "63acd013_2bd02380",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1202,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-12T16:33:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "949d10b4_d0bbf6d8",
+      "range": {
+        "startLine": 1202,
+        "startChar": 8,
+        "endLine": 1202,
+        "endChar": 11
+      },
+      "revId": "32bf38cb7c458de26a502e1a714d2a1d37c15386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "93d13014_5990c734",
         "filename": "tests/GrMipMappedTest.cpp",
         "patchSetId": 5
@@ -53,6 +95,30 @@
       "writtenOn": "2017-10-12T16:17:45Z",
       "side": 1,
       "message": "just vulkan?",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 30
+      },
+      "revId": "32bf38cb7c458de26a502e1a714d2a1d37c15386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "112b74a9_a6fb03ac",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-12T16:33:19Z",
+      "side": 1,
+      "message": "woops that what I get for last second debugging of the test",
+      "parentUuid": "93d13014_5990c734",
       "range": {
         "startLine": 30,
         "startChar": 0,
