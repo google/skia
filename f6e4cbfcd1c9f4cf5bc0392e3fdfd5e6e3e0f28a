@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "01d6ea19_5d55ad69",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor_GSImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-12T22:27:53Z",
+      "side": 1,
+      "message": "copy/pasted from PrimitiveProcessor::emitGeometryShader",
+      "revId": "f6e4cbfcd1c9f4cf5bc0392e3fdfd5e6e3e0f28a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a176c6bf_75f5bfb4",
         "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor_GSImpl.cpp",
         "patchSetId": 5
