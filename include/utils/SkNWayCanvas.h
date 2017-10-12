@@ -82,6 +82,8 @@ protected:
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
 
+    void onFlush() override;
+
     class Iter;
 
 private:
