@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fc7a64ef_331c0e63",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-12T15:58:28Z",
+      "side": 1,
+      "message": "For gray images we will accept both gray or rgb profiles. so we are not using enum here.",
+      "parentUuid": "bf375711_94bf7153",
+      "range": {
+        "startLine": 102,
+        "startChar": 4,
+        "endLine": 102,
+        "endChar": 11
+      },
+      "revId": "e9d2ad2a2dbfefc8452b42d1498f4dc13d2512fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c6cbcea6_63739027",
         "filename": "include/core/SkColorSpace.h",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-10-12T15:10:07Z",
       "side": 1,
       "message": "Let\u0027s definitely document how our behavior changes given the 3rd parameter.",
+      "range": {
+        "startLine": 108,
+        "startChar": 18,
+        "endLine": 108,
+        "endChar": 30
+      },
+      "revId": "e9d2ad2a2dbfefc8452b42d1498f4dc13d2512fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8d54238_0f3f5241",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-12T15:58:28Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "c6cbcea6_63739027",
       "range": {
         "startLine": 108,
         "startChar": 18,
