@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "e029bdd1_ec17916c",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-12T17:12:45Z",
+      "side": 1,
+      "message": "enums can be used for bitfields. As in SkPaint::Flags.\n\nAs for why it\u0027s a byte, that is unchanged from Matt\u0027s code (this was just moved from private to public). I suppose he picked a byte because it\u0027s big enough to hold all the possible values. But it\u0027s not obvious to me that it\u0027s especially important for it to be small.",
+      "parentUuid": "fc7a64ef_331c0e63",
+      "range": {
+        "startLine": 102,
+        "startChar": 4,
+        "endLine": 102,
+        "endChar": 11
+      },
+      "revId": "e9d2ad2a2dbfefc8452b42d1498f4dc13d2512fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c6cbcea6_63739027",
         "filename": "include/core/SkColorSpace.h",
         "patchSetId": 3

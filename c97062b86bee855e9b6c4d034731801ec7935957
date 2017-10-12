@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c95777d7_85cb93a6",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-12T17:12:45Z",
+      "side": 1,
+      "message": "This doesn\u0027t really tell us what it does. Really it\u0027s rejecting ICCs that do not match the flag. So maybe this should say something like:\n\n  Create an SkColorSpace from an ICC profile. Return nullptr for otherwise valid ICC\n  profiles that do not match desiredType.",
+      "range": {
+        "startLine": 108,
+        "startChar": 51,
+        "endLine": 108,
+        "endChar": 74
+      },
+      "revId": "c97062b86bee855e9b6c4d034731801ec7935957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
