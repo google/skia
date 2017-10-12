@@ -105,6 +105,30 @@
       "revId": "d735f52116d37ce351f4db85609dd43383f7d723",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ee71945_8ec68da7",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-12T14:40:29Z",
+      "side": 1,
+      "message": "Okay I\u0027ve removed it.",
+      "parentUuid": "7068ce5a_8b1506a9",
+      "range": {
+        "startLine": 770,
+        "startChar": 4,
+        "endLine": 771,
+        "endChar": 78
+      },
+      "revId": "d735f52116d37ce351f4db85609dd43383f7d723",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
