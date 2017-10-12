@@ -16,6 +16,24 @@
       "revId": "ddc384f201ea080aebe38ebdc901bd1d617e6886",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dfaa590_532a154e",
+        "filename": "src/gpu/GrSurface.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-10-12T19:45:16Z",
+      "side": 1,
+      "message": "removed this and just had GrSurfacePriv query internalHasUniqueRef directly.",
+      "parentUuid": "9f00b2f5_8541aaf0",
+      "revId": "ddc384f201ea080aebe38ebdc901bd1d617e6886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
