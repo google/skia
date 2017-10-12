@@ -106,7 +106,7 @@ public:
     /** Returns true if the matrix contains only translation, rotation/reflection or uniform scale
         Returns false if other transformation types are included or is degenerate
      */
-    bool isSimilarity(SkScalar tol = SK_ScalarNearlyZero) const;
+    bool isSimilarity() const;
 
     /** Returns true if the matrix contains only translation, rotation/reflection or scale
         (non-uniform scale is allowed).

@@ -196,7 +196,8 @@ static inline bool is_degenerate_2x2(SkScalar scaleX, SkScalar skewX,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkMatrix::isSimilarity(SkScalar tol) const {
+bool SkMatrix::isSimilarity() const {
+    SkScalar tol = SK_ScalarNearlyZero;
     // if identity or translate matrix
     TypeMask mask = this->getType();
     if (mask <= kTranslate_Mask) {
