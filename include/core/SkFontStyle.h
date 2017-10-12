@@ -52,8 +52,6 @@ public:
 
     constexpr SkFontStyle() : SkFontStyle{kNormal_Weight, kNormal_Width, kUpright_Slant} { }
 
-    static SkFontStyle FromOldStyle(unsigned oldStyle);
-
     bool operator==(const SkFontStyle& rhs) const {
         return fValue == rhs.fValue;
     }
