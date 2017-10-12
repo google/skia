@@ -59,7 +59,7 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            SkBudgeted budgeted,
                            const GrSurfaceDesc& desc,
                            id<MTLTexture> texture,
-                           GrMipMapsStatus)
+                           GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
         , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
                     mipMapsStatus)
