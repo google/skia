@@ -23,6 +23,8 @@ public:
      */
     SkPaintFilterCanvas(SkCanvas* canvas);
 
+    GrContext* getGrContext() override { return fList[0]->getGrContext(); }
+
     enum Type {
         kPaint_Type,
         kPoint_Type,
