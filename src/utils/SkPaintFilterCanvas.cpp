@@ -8,6 +8,8 @@
 #include "SkPaintFilterCanvas.h"
 
 #include "SkPaint.h"
+#include "SkPixmap.h"
+#include "SkSurface.h"
 #include "SkTLazy.h"
 
 class SkPaintFilterCanvas::AutoPaintFilter {
@@ -229,4 +231,34 @@ void SkPaintFilterCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkS
     if (apf.shouldDraw()) {
         this->INHERITED::onDrawTextBlob(blob, x, y, *apf.paint());
     }
+}
+
+sk_sp<SkSurface> SkPaintFilterCanvas::onNewSurface(const SkImageInfo& info,
+                                                   const SkSurfaceProps& props) {
+    return proxy()->makeSurface(info, &props);
+}
+
+bool SkPaintFilterCanvas::onPeekPixels(SkPixmap* pixmap) {
+    return proxy()->peekPixels(pixmap);
+}
+
+bool SkPaintFilterCanvas::onAccessTopLayerPixels(SkPixmap* pixmap) {
+    SkImageInfo info;
+    size_t rowBytes;
+
+    void* addr = proxy()->accessTopLayerPixels(&info, &rowBytes);
+    if (!addr) {
+        return false;
+    }
+
+    pixmap->reset(info, addr, rowBytes);
+    return true;
+}
+
+SkImageInfo SkPaintFilterCanvas::onImageInfo() const {
+    return proxy()->imageInfo();
+}
+
+bool SkPaintFilterCanvas::onGetProps(SkSurfaceProps* props) const {
+    return proxy()->getProps(props);
 }
