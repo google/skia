@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1588db3f_3ff9d436",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-12T13:13:52Z",
+      "side": 1,
+      "message": "This method doesn\u0027t say how it treats the pointer passed in, but it always makes a copy. That is necessary for png, which provides a pointer to internal memory, but it\u0027s not necessary for jpeg. Maybe we should change this to take an sk_sp\u003cSkData\u003e, so the client can make the copy (if necessary)? Does not need to be in this CL.",
+      "range": {
+        "startLine": 110,
+        "startChar": 31,
+        "endLine": 110,
+        "endChar": 38
+      },
+      "revId": "7defd2dabfe2a8df4ad3a5f272871050314a4be0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

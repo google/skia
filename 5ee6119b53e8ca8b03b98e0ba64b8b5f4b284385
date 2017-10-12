@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "4ad96aca_bcd617a9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-12T13:13:52Z",
+      "side": 1,
+      "message": "Not done in patch set 2.",
+      "parentUuid": "500ebff7_bdb6c15e",
+      "range": {
+        "startLine": 7,
+        "startChar": 8,
+        "endLine": 7,
+        "endChar": 12
+      },
+      "revId": "5ee6119b53e8ca8b03b98e0ba64b8b5f4b284385",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "00cc117b_72298bc0",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
@@ -96,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "3ba08573_1d1b5f9e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-12T13:13:52Z",
+      "side": 1,
+      "message": "Not done.",
+      "parentUuid": "2329b956_449e21cf",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 6
+      },
+      "revId": "5ee6119b53e8ca8b03b98e0ba64b8b5f4b284385",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0dfa7b90_7c8beb81",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
@@ -131,6 +179,30 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "0dfa7b90_7c8beb81",
+      "range": {
+        "startLine": 10,
+        "startChar": 5,
+        "endLine": 10,
+        "endChar": 10
+      },
+      "revId": "5ee6119b53e8ca8b03b98e0ba64b8b5f4b284385",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c7ab6e0_23b4b590",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-12T13:13:52Z",
+      "side": 1,
+      "message": "Not done.",
+      "parentUuid": "0198c896_faa332d6",
       "range": {
         "startLine": 10,
         "startChar": 5,
