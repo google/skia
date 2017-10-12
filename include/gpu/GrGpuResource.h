@@ -91,6 +91,7 @@ protected:
     bool internalHasPendingIO() const { return SkToBool(fPendingWrites | fPendingReads); }
 
     bool internalHasRef() const { return SkToBool(fRefCnt); }
+    bool internalHasUniqueRef() const { return fRefCnt == 1; }
 
 private:
     friend class GrIORefProxy; // needs to forward on wrapped IO calls
