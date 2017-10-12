@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f00b2f5_8541aaf0",
+        "filename": "src/gpu/GrSurface.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-12T19:02:16Z",
+      "side": 1,
+      "message": "I don\u0027t think its possible to have different refs on asTexture() and asRenderTarget(). Subclasses that return non-null for both of these are returning the same object for both via virtual multiple inheritance.",
+      "revId": "ddc384f201ea080aebe38ebdc901bd1d617e6886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
