@@ -731,7 +731,7 @@
     "cmd": [
       "adb",
       "push",
-      "[START_DIR]/out/Release/dm",
+      "[START_DIR]/out/Release/nanobench",
       "/cache/skia/bin"
     ],
     "cwd": "[START_DIR]/skia",
@@ -742,7 +742,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "push dm"
+    "name": "push nanobench"
   },
   {
     "cmd": [
@@ -752,7 +752,7 @@
       "-t",
       "-t",
       "root@192.168.1.2",
-      "/cache/skia/bin/dm",
+      "/cache/skia/bin/nanobench",
       "--some-flag"
     ],
     "env": {
@@ -761,24 +761,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
-    "name": "dm"
-  },
-  {
-    "cmd": [
-      "adb",
-      "pull",
-      "/cache/skia/dm_out",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "pull /cache/skia/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
+    "name": "nanobench"
   },
   {
     "cmd": [

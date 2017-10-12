@@ -203,19 +203,6 @@
     "name": "write SVG_VERSION"
   },
   {
-    "cmd": [
-      "[START_DIR]/out/Release/dm",
-      "--some-flag"
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "name": "dm"
-  },
-  {
     "name": "$result",
     "recipe_result": null,
     "status_code": 0
