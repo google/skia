@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCCPRQuadraticProcessor_DEFINED
-#define GrCCPRQuadraticProcessor_DEFINED
+#ifndef GrCCPRQuadraticShader_DEFINED
+#define GrCCPRQuadraticShader_DEFINED
 
 #include "ccpr/GrCCPRCoverageProcessor.h"
 
@@ -20,41 +20,33 @@
  * The provided curves must be monotonic with respect to the vector of their closing edge [P2 - P0].
  * (Use GrCCPRGeometry.)
  */
-class GrCCPRQuadraticProcessor : public GrCCPRCoverageProcessor::PrimitiveProcessor {
-public:
-    GrCCPRQuadraticProcessor()
-            : INHERITED(CoverageType::kShader)
-            , fCanonicalMatrix("canonical_matrix", kFloat3x3_GrSLType, GrShaderVar::kNonArray)
-            , fCanonicalDerivatives("canonical_derivatives", kFloat2x2_GrSLType,
-                                    GrShaderVar::kNonArray)
-            , fEdgeDistanceEquation("edge_distance_equation", kFloat3_GrSLType,
-                                    GrShaderVar::kNonArray)
-            , fXYD(kFloat3_GrSLType) {}
-
-    void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
-        varyingHandler->addVarying("xyd", &fXYD, kHigh_GrSLPrecision);
-    }
-
-    void onEmitVertexShader(const GrCCPRCoverageProcessor&, GrGLSLVertexBuilder*,
-                            const TexelBufferHandle& pointsBuffer, const char* atlasOffset,
-                            const char* rtAdjust, GrGPArgs*) const override;
-    void emitWind(GrGLSLGeometryBuilder*, const char* rtAdjust, const char* outputWind) const final;
-    void onEmitGeometryShader(GrGLSLGeometryBuilder*, const char* emitVertexFn, const char* wind,
-                              const char* rtAdjust) const final;
-    void emitPerVertexGeometryCode(SkString* fnBody, const char* position, const char* coverage,
-                                   const char* wind) const final;
-
+class GrCCPRQuadraticShader : public GrCCPRCoverageProcessor::Shader {
 protected:
-    virtual void emitQuadraticGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn,
-                                       const char* rtAdjust) const = 0;
-    virtual void onEmitPerVertexGeometryCode(SkString* fnBody) const = 0;
+    int getNumInputPoints() const final { return 3; }
 
-    GrShaderVar       fCanonicalMatrix;
-    GrShaderVar       fCanonicalDerivatives;
-    GrShaderVar       fEdgeDistanceEquation;
-    GrGLSLGeoToFrag   fXYD;
+    void appendInputPointFetch(const GrCCPRCoverageProcessor&, GrGLSLShaderBuilder*,
+                               const TexelBufferHandle& pointsBuffer,
+                               const char* pointId) const override;
 
-    typedef GrCCPRCoverageProcessor::PrimitiveProcessor INHERITED;
+    void emitWind(GrGLSLShaderBuilder*, const char* pts, const char* rtAdjust,
+                  const char* outputWind) const final;
+
+    void emitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* segmentId,
+                       const char* bloat, const char* wind, const char* rtAdjust,
+                       GeometryVars*) const final;
+
+    virtual void onEmitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* segmentId,
+                                 const char* rtAdjust, GeometryVars*) const = 0;
+
+    WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
+                                const char* coverage, const char* wind) final;
+
+    virtual void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) = 0;
+
+    const GrShaderVar   fCanonicalMatrix{"canonical_matrix", kFloat3x3_GrSLType};
+    const GrShaderVar   fCanonicalDerivatives{"canonical_derivatives", kFloat2x2_GrSLType};
+    const GrShaderVar   fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
+    GrGLSLGeoToFrag     fXYD{kFloat3_GrSLType};
 };
 
 /**
@@ -63,55 +55,33 @@ protected:
  * uses simple distance-to-edge to subtract out coverage for the flat closing edge [P2 -> P0]. Since
  * the provided curves are monotonic, this will get every pixel right except the two corners.
  */
-class GrCCPRQuadraticHullProcessor : public GrCCPRQuadraticProcessor {
-public:
-    GrCCPRQuadraticHullProcessor()
-            : fGradXY(kFloat2_GrSLType) {}
+class GrCCPRQuadraticHullShader : public GrCCPRQuadraticShader {
+    int getNumSegments() const final { return 4; } // 4 wedges.
 
-    void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
-        this->INHERITED::resetVaryings(varyingHandler);
-        varyingHandler->addVarying("grad_xy", &fGradXY, kHigh_GrSLPrecision);
-    }
+    GeometryType getGeometryType() const override { return GeometryType::kHull; }
+    void onEmitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* wedgeId,
+                         const char* rtAdjust, GeometryVars*) const override;
+    void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) override;
+    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
-    void emitQuadraticGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn,
-                               const char* rtAdjust) const override;
-    void onEmitPerVertexGeometryCode(SkString* fnBody) const override;
-    void emitShaderCoverage(GrGLSLFragmentBuilder* f, const char* outputCoverage) const override;
-
-private:
-    GrGLSLGeoToFrag   fGradXY;
-
-    typedef GrCCPRQuadraticProcessor INHERITED;
+    GrGLSLGeoToFrag fGrad{kFloat2_GrSLType};
 };
 
 /**
  * This pass fixes the corners of a closed quadratic segment with soft MSAA.
  */
-class GrCCPRQuadraticCornerProcessor : public GrCCPRQuadraticProcessor {
-public:
-    GrCCPRQuadraticCornerProcessor()
-            : fEdgeDistanceDerivatives("edge_distance_derivatives", kFloat2_GrSLType,
-                                       GrShaderVar::kNonArray)
-            , fdXYDdx(kFloat3_GrSLType)
-            , fdXYDdy(kFloat3_GrSLType) {}
+class GrCCPRQuadraticCornerShader : public GrCCPRQuadraticShader {
+    int getNumSegments() const final { return 2; } // 2 corners.
 
-    void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
-        this->INHERITED::resetVaryings(varyingHandler);
-        varyingHandler->addFlatVarying("dXYDdx", &fdXYDdx, kHigh_GrSLPrecision);
-        varyingHandler->addFlatVarying("dXYDdy", &fdXYDdy, kHigh_GrSLPrecision);
-    }
+    GeometryType getGeometryType() const override { return GeometryType::kCorners; }
+    void onEmitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* cornerId,
+                         const char* rtAdjust, GeometryVars*) const override;
+    void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) override;
+    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
-    void emitQuadraticGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn,
-                               const char* rtAdjust) const override;
-    void onEmitPerVertexGeometryCode(SkString* fnBody) const override;
-    void emitShaderCoverage(GrGLSLFragmentBuilder*, const char* outputCoverage) const override;
-
-private:
-    GrShaderVar       fEdgeDistanceDerivatives;
-    GrGLSLGeoToFrag   fdXYDdx;
-    GrGLSLGeoToFrag   fdXYDdy;
-
-    typedef GrCCPRQuadraticProcessor INHERITED;
+    const GrShaderVar   fEdgeDistanceDerivatives{"edge_distance_derivatives", kFloat2_GrSLType};
+    GrGLSLGeoToFrag     fdXYDdx{kFloat3_GrSLType};
+    GrGLSLGeoToFrag     fdXYDdy{kFloat3_GrSLType};
 };
 
 #endif
