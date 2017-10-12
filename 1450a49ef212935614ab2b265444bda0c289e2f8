@@ -52,6 +52,24 @@
       "revId": "1450a49ef212935614ab2b265444bda0c289e2f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a349e2b_efffdd99",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-12T16:11:28Z",
+      "side": 1,
+      "message": "Moved to GrTypes and added unit test to make sure we have the expected mip map status for the various wrapped cases",
+      "parentUuid": "495ae181_60478ab0",
+      "revId": "1450a49ef212935614ab2b265444bda0c289e2f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
