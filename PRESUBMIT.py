@@ -207,6 +207,11 @@ def _CheckGNFormatted(input_api, output_api):
   return results
 
 
+def _MakeFatal(results):
+  for result in results:
+    result.fatal = True
+
+
 def _CommonChecks(input_api, output_api):
   """Presubmit checks common to upload and commit."""
   results = []
@@ -228,6 +233,7 @@ def _CommonChecks(input_api, output_api):
   results.extend(
       input_api.canned_checks.CheckChangeHasNoStrayWhitespace(
           input_api, output_api, source_file_filter=sources))
+  _MakeFatal(results)
   results.extend(_PythonChecks(input_api, output_api))
   results.extend(_IfDefChecks(input_api, output_api))
   results.extend(_CopyrightChecks(input_api, output_api,
