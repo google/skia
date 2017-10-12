@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6fab982_66257679",
+        "filename": "src/core/SkMatrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-10-12T14:49:06Z",
+      "side": 1,
+      "message": "I think we could remove the tolerance from this method entirely as this defaults to SK_ScalarNearlyZero already.",
+      "range": {
+        "startLine": 225,
+        "startChar": 40,
+        "endLine": 225,
+        "endChar": 43
+      },
+      "revId": "d867c338f82a9094ca1f3ab5b1c32b5f860fa284",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f42315ad_1fc67e81",
+        "filename": "src/core/SkMatrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-10-12T14:49:06Z",
+      "side": 1,
+      "message": "Similarly, we could just pass in SK_ScalarNearlyZero directly here.",
+      "range": {
+        "startLine": 257,
+        "startChar": 65,
+        "endLine": 257,
+        "endChar": 68
+      },
+      "revId": "d867c338f82a9094ca1f3ab5b1c32b5f860fa284",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
