@@ -694,7 +694,7 @@
     "cmd": [
       "adb.1.0.35",
       "push",
-      "[START_DIR]/out/Debug/dm",
+      "[START_DIR]/out/Debug/nanobench",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
@@ -705,7 +705,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "push dm"
+    "name": "push nanobench"
   },
   {
     "cmd": [
@@ -715,17 +715,17 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/dm --some-flag; echo $? >/data/local/tmp/rc",
-      "[START_DIR]/tmp/dm.sh"
+      "set -x; /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc",
+      "[START_DIR]/tmp/nanobench.sh"
     ],
     "infra_step": true,
-    "name": "write dm.sh"
+    "name": "write nanobench.sh"
   },
   {
     "cmd": [
       "adb.1.0.35",
       "push",
-      "[START_DIR]/tmp/dm.sh",
+      "[START_DIR]/tmp/nanobench.sh",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
@@ -736,7 +736,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "push dm.sh"
+    "name": "push nanobench.sh"
   },
   {
     "cmd": [
@@ -760,9 +760,9 @@
       "-u",
       "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['adb.1.0.35', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['adb.1.0.35', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
       "/data/local/tmp/",
-      "dm.sh"
+      "nanobench.sh"
     ],
-    "name": "dm",
+    "name": "nanobench",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
@@ -778,23 +778,6 @@
       "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
-  },
-  {
-    "cmd": [
-      "adb.1.0.35",
-      "pull",
-      "/sdcard/revenge_of_the_skiabot/dm_out",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
   },
   {
     "cmd": [

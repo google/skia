@@ -732,12 +732,40 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nhost = sys.argv[1]\ndevice   = sys.argv[2]\nprint subprocess.check_output(['scp', host, device])\n",
-      "[START_DIR]/out/Release/dm",
-      "foo@127.0.0.1:/home/chronos/user/bin/dm"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release/data"
     ],
     "infra_step": true,
-    "name": "scp [START_DIR]/out/Release/dm foo@127.0.0.1:/home/chronos/user/bin/dm",
+    "name": "rmtree data"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release/data"
+    ],
+    "infra_step": true,
+    "name": "makedirs data"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nhost = sys.argv[1]\ndevice   = sys.argv[2]\nprint subprocess.check_output(['scp', host, device])\n",
+      "[START_DIR]/out/Release/nanobench",
+      "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
+    ],
+    "infra_step": true,
+    "name": "scp [START_DIR]/out/Release/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
@@ -758,7 +786,7 @@
       "foo@127.0.0.1",
       "chmod",
       "+x",
-      "/home/chronos/user/bin/dm"
+      "/home/chronos/user/bin/nanobench"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -767,7 +795,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "chmod dm"
+    "name": "chmod nanobench"
   },
   {
     "cmd": [
@@ -777,7 +805,7 @@
       "-t",
       "-t",
       "foo@127.0.0.1",
-      "/home/chronos/user/bin/dm",
+      "/home/chronos/user/bin/nanobench",
       "--some-flag"
     ],
     "env": {
@@ -787,27 +815,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "dm"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
-      "foo@127.0.0.1:/home/chronos/user/dm_out",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
-    ],
-    "infra_step": true,
-    "name": "scp -r foo@127.0.0.1:/home/chronos/user/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1] + '/*'@@@",
-      "@@@STEP_LOG_LINE@python.inline@dest   = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "nanobench"
   },
   {
     "cmd": [

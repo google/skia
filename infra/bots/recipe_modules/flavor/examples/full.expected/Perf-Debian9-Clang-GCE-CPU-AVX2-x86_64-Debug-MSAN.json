@@ -192,7 +192,7 @@
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
-      "[START_DIR]/out/Debug/dm",
+      "[START_DIR]/out/Debug/nanobench",
       "--some-flag"
     ],
     "cwd": "[START_DIR]/skia",
@@ -203,7 +203,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/clang_linux/bin",
       "SKIA_OUT": "[START_DIR]/out"
     },
-    "name": "symbolized dm"
+    "name": "symbolized nanobench"
   },
   {
     "name": "$result",
