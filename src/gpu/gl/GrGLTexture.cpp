@@ -49,22 +49,10 @@ static inline GrSamplerState::Filter highest_filter_mode(const GrGLTexture::IDDe
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
-                         const IDDesc& idDesc)
+                         const IDDesc& idDesc, GrMipMapsStatus mipMapsStatus)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig), false, false) {
-    this->init(desc, idDesc);
-    this->registerWithCache(budgeted);
-}
-
-GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
-                         const IDDesc& idDesc,
-                         bool mipsAllocated,
-                         bool wasFullMipMapDataProvided)
-    : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig),
-                mipsAllocated, wasFullMipMapDataProvided) {
+                highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
@@ -72,17 +60,16 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc, const IDDesc& idDesc)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig), false, false) {
+                highest_filter_mode(idDesc, desc.fConfig), GrMipMapsStatus::kNotAllocated) {
     this->init(desc, idDesc);
     this->registerWithCacheWrapped();
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
-                         bool mipsAllocated, bool wasFullMipMapDataProvided)
+                         GrMipMapsStatus mipMapsStatus)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig),
-                mipsAllocated, wasFullMipMapDataProvided) {
+                highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
     this->init(desc, idDesc);
 }
 
