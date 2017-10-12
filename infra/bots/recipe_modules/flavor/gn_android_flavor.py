@@ -58,7 +58,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
                  abort_on_failure=False, fail_build_on_failure=False)
 
     with self.m.context(cwd=self.m.vars.skia_dir):
-      self.m.run.with_retry(self.m.step, title, attempts, cmd=['adb']+list(cmd),
+      self.m.run.with_retry(self.m.step, title, attempts, cmd=['adb.1.0.35']+list(cmd),
                             between_attempts_fn=wait_for_device, **kwargs)
 
   def compile(self, unused_target):
