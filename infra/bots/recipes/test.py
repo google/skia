@@ -704,10 +704,6 @@ def test_steps(api):
   """Run the DM test."""
   use_hash_file = False
   if api.vars.upload_dm_results:
-    # This must run before we write anything into
-    # api.flavor.device_dirs.dm_dir or we may end up deleting our
-    # output on machines where they're the same.
-    api.flavor.create_clean_host_dir(api.vars.dm_dir)
     host_dm_dir = str(api.vars.dm_dir)
     device_dm_dir = str(api.flavor.device_dirs.dm_dir)
     if host_dm_dir != device_dm_dir:

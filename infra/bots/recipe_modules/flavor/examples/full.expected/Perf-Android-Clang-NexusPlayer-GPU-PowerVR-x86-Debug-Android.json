@@ -48,7 +48,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "file.txt",
       "file.txt"
@@ -93,7 +93,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -111,7 +111,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -129,7 +129,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -210,7 +210,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
@@ -228,7 +228,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-f",
@@ -246,7 +246,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -264,7 +264,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -317,7 +317,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "[START_DIR]/tmp/SKP_VERSION",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
@@ -362,7 +362,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
@@ -380,7 +380,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-f",
@@ -398,7 +398,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -416,7 +416,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -469,7 +469,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "[START_DIR]/tmp/SK_IMAGE_VERSION",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
@@ -514,7 +514,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
@@ -532,7 +532,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-f",
@@ -550,7 +550,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -568,7 +568,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -621,7 +621,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "[START_DIR]/tmp/SVG_VERSION",
       "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
@@ -638,7 +638,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "[START_DIR]/out/Debug/dm",
       "/data/local/tmp/"
@@ -669,7 +669,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "[START_DIR]/tmp/dm.sh",
       "/data/local/tmp/"
@@ -686,7 +686,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "logcat",
       "-c"
     ],
@@ -727,7 +727,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
       "[CUSTOM_[SWARM_OUT_DIR]]/dm"
@@ -744,7 +744,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/perf",
       "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android/data"
@@ -795,7 +795,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",
