@@ -193,6 +193,12 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     # Push and run either dm or nanobench
 
     name = cmd[0]
+
+    if name == 'dm':
+      self.create_clean_host_dir(self.m.vars.dm_dir)
+    if name == 'nanobench':
+      self.create_clean_host_dir(self.m.vars.perf_data_dir)
+
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
 
     cmd[0] = '%s/%s' % (self._bin_dir, cmd[0])
