@@ -46,6 +46,9 @@
       "cpu_or_gpu_value",
       "arch",
       "configuration"
+    ],
+    "Calmbench": [
+      "os"
     ]
   },
   "builder_name_sep": "-"

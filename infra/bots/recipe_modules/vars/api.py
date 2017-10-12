@@ -45,7 +45,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
                                 'Presubmit' in self.builder_name or
                                 'InfraTests' in self.builder_name or
                                 self.builder_name == "Housekeeper-PerCommit" or
-                                'CheckGeneratedFiles' in self.builder_name)
+                                'CheckGeneratedFiles' in self.builder_name or
+                                'Calmbench' in self.builder_name)
     if self.persistent_checkout:
       if 'Win' in self.builder_name:
         self.checkout_root = self.make_path('C:\\', 'b', 'work')
