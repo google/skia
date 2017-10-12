@@ -634,7 +634,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release"
     ],
     "env": {
       "IOS_BUNDLE_ID": "com.google.nanobench",

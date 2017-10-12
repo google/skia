@@ -1,7 +1,7 @@
 [
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -21,7 +21,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/skia/resources",
       "/sdcard/revenge_of_the_skiabot/resources"
     ],
@@ -46,7 +46,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb.1.0.35', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -82,7 +82,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
@@ -100,7 +100,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-f",
@@ -118,7 +118,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -136,7 +136,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -156,7 +156,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/skp",
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
@@ -181,7 +181,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb.1.0.35', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -189,7 +189,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "[START_DIR]/tmp/SKP_VERSION",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
@@ -234,7 +234,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
@@ -252,7 +252,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-f",
@@ -270,7 +270,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -288,7 +288,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -308,7 +308,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/skimage",
       "/sdcard/revenge_of_the_skiabot/images"
     ],
@@ -333,7 +333,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb.1.0.35', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -341,7 +341,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "[START_DIR]/tmp/SK_IMAGE_VERSION",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
@@ -386,7 +386,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
@@ -404,7 +404,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-f",
@@ -422,7 +422,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -440,7 +440,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -460,7 +460,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/svg",
       "/sdcard/revenge_of_the_skiabot/svgs"
     ],
@@ -485,7 +485,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb.1.0.35', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -493,7 +493,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "[START_DIR]/tmp/SVG_VERSION",
       "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
@@ -510,7 +510,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -528,7 +528,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -574,7 +574,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "[START_DIR]/out/Release/nanobench",
       "/data/local/tmp/"
@@ -611,7 +611,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "[START_DIR]/tmp/nanobench.sh",
       "/data/local/tmp/"
@@ -628,7 +628,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "logcat",
       "-c"
     ],
@@ -646,7 +646,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['adb.1.0.35', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['adb.1.0.35', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
       "/data/local/tmp/",
       "nanobench.sh"
     ],
@@ -663,9 +663,9 @@
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
       "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['adb.1.0.35', 'shell', 'sh', bin_dir + sh])@@@",
       "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['adb.1.0.35', 'shell', 'cat',@@@",
       "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
       "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
       "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
@@ -683,14 +683,14 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/perf",
       "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench/data"
@@ -709,7 +709,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
+      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['adb.1.0.35', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
       "[START_DIR]/out/Release"
     ],
     "env": {
@@ -720,13 +720,14 @@
     },
     "infra_step": true,
     "name": "dump log",
+    "timeout": 300,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@out = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['adb', 'logcat', '-d'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['adb.1.0.35', 'logcat', '-d'])@@@",
       "@@@STEP_LOG_LINE@python.inline@for line in log.split('\\n'):@@@",
       "@@@STEP_LOG_LINE@python.inline@  tokens = line.split()@@@",
       "@@@STEP_LOG_LINE@python.inline@  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':@@@",
@@ -741,7 +742,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",

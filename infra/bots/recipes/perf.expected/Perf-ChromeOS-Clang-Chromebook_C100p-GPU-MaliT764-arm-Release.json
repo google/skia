@@ -792,7 +792,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"

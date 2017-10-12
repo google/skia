@@ -48,7 +48,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "file.txt",
       "file.txt"
@@ -93,7 +93,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -111,7 +111,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -129,7 +129,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -151,7 +151,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",
@@ -167,7 +167,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "wait-for-device"
     ],
     "cwd": "[START_DIR]/skia",
@@ -183,7 +183,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -205,7 +205,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",
@@ -221,7 +221,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "wait-for-device"
     ],
     "cwd": "[START_DIR]/skia",
@@ -237,7 +237,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -261,7 +261,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
+      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['adb.1.0.35', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
       "[START_DIR]/out/Debug"
     ],
     "env": {
@@ -272,13 +272,14 @@
     },
     "infra_step": true,
     "name": "dump log",
+    "timeout": 300,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@out = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['adb', 'logcat', '-d'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['adb.1.0.35', 'logcat', '-d'])@@@",
       "@@@STEP_LOG_LINE@python.inline@for line in log.split('\\n'):@@@",
       "@@@STEP_LOG_LINE@python.inline@  tokens = line.split()@@@",
       "@@@STEP_LOG_LINE@python.inline@  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':@@@",
@@ -293,7 +294,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "reboot",
       "-p"
@@ -310,7 +311,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",

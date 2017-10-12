@@ -228,7 +228,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"

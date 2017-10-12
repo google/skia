@@ -8,6 +8,7 @@ import default_flavor
 import re
 import subprocess
 
+ADB_BINARY = 'adb.1.0.35'
 
 """GN Android flavor utils, used for building Skia for Android with GN."""
 class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
@@ -48,17 +49,19 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       self.m.run(self.m.step,
                  'kill adb server after failure of \'%s\' (attempt %d)' % (
                      title, attempt),
-                 cmd=['adb', 'kill-server'],
+                 cmd=[ADB_BINARY, 'kill-server'],
                  infra_step=True, timeout=30, abort_on_failure=False,
                  fail_build_on_failure=False)
       self.m.run(self.m.step,
                  'wait for device after failure of \'%s\' (attempt %d)' % (
                      title, attempt),
-                 cmd=['adb', 'wait-for-device'], infra_step=True, timeout=180,
-                 abort_on_failure=False, fail_build_on_failure=False)
+                 cmd=[ADB_BINARY, 'wait-for-device'], infra_step=True,
+                 timeout=180, abort_on_failure=False,
+                 fail_build_on_failure=False)
 
     with self.m.context(cwd=self.m.vars.skia_dir):
-      self.m.run.with_retry(self.m.step, title, attempts, cmd=['adb']+list(cmd),
+      self.m.run.with_retry(self.m.step, title, attempts,
+                            cmd=[ADB_BINARY]+list(cmd),
                             between_attempts_fn=wait_for_device, **kwargs)
 
   def compile(self, unused_target):
@@ -122,7 +125,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
           import subprocess
           import sys
           out = sys.argv[1]
-          log = subprocess.check_output(['adb', 'logcat', '-d'])
+          log = subprocess.check_output(['%s', 'logcat', '-d'])
           for line in log.split('\\n'):
             tokens = line.split()
             if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':
@@ -132,9 +135,10 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
                 sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])
                 line = line.replace(addr, addr + ' ' + sym.strip())
             print line
-          """,
+          """ % ADB_BINARY,
           args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
           infra_step=True,
+          timeout=300,
           abort_on_failure=False)
 
     # Only shutdown the device and quarantine the bot if the first failed step
@@ -169,14 +173,14 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     import sys
     bin_dir = sys.argv[1]
     sh      = sys.argv[2]
-    subprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])
+    subprocess.check_call(['%s', 'shell', 'sh', bin_dir + sh])
     try:
-      sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',
+      sys.exit(int(subprocess.check_output(['%s', 'shell', 'cat',
                                             bin_dir + 'rc'])))
     except ValueError:
       print "Couldn't read the return code.  Probably killed for OOM."
       sys.exit(1)
-    """, args=[self.m.vars.android_bin_dir, sh])
+    """ % (ADB_BINARY, ADB_BINARY), args=[self.m.vars.android_bin_dir, sh])
 
   def copy_file_to_device(self, host, device):
     self._adb('push %s %s' % (host, device), 'push', host, device)
@@ -196,10 +200,10 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
         continue
       for f in fs:
         print os.path.join(p,f)
-        subprocess.check_call(['adb', 'push',
+        subprocess.check_call(['%s', 'push',
                                os.path.realpath(os.path.join(host, p, f)),
                                os.path.join(device, p, f)])
-    """, args=[host, device], infra_step=True)
+    """ % ADB_BINARY, args=[host, device], infra_step=True)
 
   def copy_directory_contents_to_host(self, device, host):
     self._adb('pull %s %s' % (device, host), 'pull', device, host)

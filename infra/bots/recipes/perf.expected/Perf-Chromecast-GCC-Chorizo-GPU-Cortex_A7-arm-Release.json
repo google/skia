@@ -434,7 +434,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"

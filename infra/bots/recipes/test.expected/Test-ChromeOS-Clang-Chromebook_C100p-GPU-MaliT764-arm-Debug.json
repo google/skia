@@ -588,34 +588,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
-    ],
-    "infra_step": true,
-    "name": "rmtree dm"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
-    ],
-    "infra_step": true,
-    "name": "makedirs dm"
-  },
-  {
-    "cmd": [
       "ssh",
       "-oConnectTimeout=15",
       "-oBatchMode=yes",
