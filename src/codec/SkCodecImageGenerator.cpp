@@ -8,6 +8,29 @@
 #include "SkCodecImageGenerator.h"
 #include "SkMakeUnique.h"
 
+static bool should_swap_width_height(SkCodec::Origin o) {
+    switch (o) {
+        case kLeftTop_Origin:
+        case RightTop_Origin:
+        case kRightBottom_Origin:
+        case kLeftBottom_Origin:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+static SkImageInfo swap_width_height(SkImageInfo info) {
+    return info.makeWH(info.height(), info.width());
+}
+
+
+static void apply_orientation(const SkPixmap& dst, const SkPixmap& src, SkCodec::Origin o) {
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk_sp<SkData> data) {
     auto codec = SkCodec::MakeFromData(data);
     if (nullptr == codec) {
@@ -17,16 +40,19 @@ std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk
     return std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(std::move(codec), data));
 }
 
-static SkImageInfo adjust_info(const SkImageInfo& info) {
-    SkImageInfo newInfo = info;
+static SkImageInfo adjust_info(SkCodec* codec) {
+    SkImageInfo info = codec->getInfo();
     if (kUnpremul_SkAlphaType == info.alphaType()) {
-        newInfo = newInfo.makeAlphaType(kPremul_SkAlphaType);
+        info = info.makeAlphaType(kPremul_SkAlphaType);
     }
-    return newInfo;
+    if (should_swap_width_height(codec->getOrigin())) {
+        info = swap_width_height(info);
+    }
+    return info;
 }
 
 SkCodecImageGenerator::SkCodecImageGenerator(std::unique_ptr<SkCodec> codec, sk_sp<SkData> data)
-    : INHERITED(adjust_info(codec->getInfo()))
+    : INHERITED(adjust_info(codec.get()))
     , fCodec(std::move(codec))
     , fData(std::move(data))
 {}
@@ -35,13 +61,34 @@ SkData* SkCodecImageGenerator::onRefEncodedData() {
     return SkRef(fData.get());
 }
 
-bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                                        const Options& opts) {
+bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* requestPixels,
+                                        size_t requestRowBytes, const Options& opts) {
+    const SkCodec::Origin origin = fCodec->getOrigin();
+    const SkPixmap request(requestInfo, requestPixels, requestRowBytes);
+    const SkPixmap* codecMap = &request;
+    SkAutoPixmapStorage storage;    // used if we have to post-orient the output from the codec
+
+    if (origin != SkCodec::kTopLeft_Origin) {
+        SkImageInfo info = requestInfo;
+        if (should_swap_width_height(origin)) {
+            info = swap_width_height(info);
+        }
+        // need a tmp buffer to receive the pixels, so we can post-orient them
+        if (!storage.tryAlloc(info)) {
+            return false;
+        }
+        codecMap = &storage;
+    }
+
     SkCodec::Options codecOpts;
     codecOpts.fPremulBehavior = opts.fBehavior;
-    SkCodec::Result result = fCodec->getPixels(info, pixels, rowBytes, &codecOpts);
+    SkCodec::Result result = fCodec->getPixels(*codecMap, &codecOpts);
     switch (result) {
         case SkCodec::kSuccess:
+            if (codecMap != &request) {
+                apply_orientation(request, *codecMap, origin);
+            }
+            // fall through
         case SkCodec::kIncompleteInput:
         case SkCodec::kErrorInInput:
             return true;
