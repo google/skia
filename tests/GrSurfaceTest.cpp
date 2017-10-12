@@ -54,6 +54,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
                                                                256,
                                                                256,
                                                                kRGBA_8888_GrPixelConfig,
+                                                               GrMipMapped::kNo,
                                                                backendTexHandle);
 
     sk_sp<GrSurface> texRT2 = context->resourceProvider()->wrapRenderableBackendTexture(
