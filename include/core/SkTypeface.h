@@ -42,17 +42,6 @@ typedef uint32_t SkFontTableTag;
 */
 class SK_API SkTypeface : public SkWeakRefCnt {
 public:
-    /** Style specifies the intrinsic style attributes of a given typeface
-    */
-    enum Style {
-        kNormal = 0,
-        kBold   = 0x01,
-        kItalic = 0x02,
-
-        // helpers
-        kBoldItalic = 0x03
-    };
-
     /** Returns the typeface's intrinsic style attributes. */
     SkFontStyle fontStyle() const {
         return fStyle;
@@ -318,9 +307,6 @@ protected:
     /** Sets the font style. If used, must be called in the constructor. */
     void setFontStyle(SkFontStyle style) { fStyle = style; }
 
-    friend class SkScalerContext;
-    static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);
-
     virtual SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                                    const SkDescriptor*) const = 0;
     virtual void onFilterRec(SkScalerContextRec*) const = 0;
@@ -363,13 +349,26 @@ protected:
     virtual void* onGetCTFontRef() const { return nullptr; }
 
 private:
-    friend class SkRandomTypeface;
-    friend class SkPDFFont;
-    friend class GrPathRendering;
-    friend class GrGLPathRendering;
-
     /** Retrieve detailed typeface metrics.  Used by the PDF backend.  */
     std::unique_ptr<SkAdvancedTypefaceMetrics> getAdvancedMetrics() const;
+    friend class SkRandomTypeface; // getAdvancedMetrics
+    friend class SkPDFFont;        // getAdvancedMetrics
+
+    /** Style specifies the intrinsic style attributes of a given typeface */
+    enum Style {
+        kNormal = 0,
+        kBold   = 0x01,
+        kItalic = 0x02,
+
+        // helpers
+        kBoldItalic = 0x03
+    };
+    static SkFontStyle FromOldStyle(Style oldStyle);
+    static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);
+    friend class GrPathRendering;  // GetDefaultTypeface
+    friend class SkGlyphCache;     // GetDefaultTypeface
+    friend class SkPaint;          // GetDefaultTypeface
+    friend class SkScalerContext;  // GetDefaultTypeface
 
 private:
     SkFontID            fUniqueID;
@@ -377,9 +376,6 @@ private:
     mutable SkRect      fBounds;
     mutable SkOnce      fBoundsOnce;
     bool                fIsFixedPitch;
-
-    friend class SkPaint;
-    friend class SkGlyphCache;  // GetDefaultTypeface
 
     typedef SkWeakRefCnt INHERITED;
 };

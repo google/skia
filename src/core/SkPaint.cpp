@@ -1869,7 +1869,7 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
     // since the other process may have a different notion of default.
     SkTypeface* tf = this->getTypeface();
     if (!tf && buffer.isCrossProcess()) {
-        tf = SkTypeface::GetDefaultTypeface(SkTypeface::kNormal);
+        tf = SkTypeface::GetDefaultTypeface();
     }
 
     uint8_t flatFlags = 0;

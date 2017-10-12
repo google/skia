@@ -86,6 +86,14 @@ protected:
 
 }
 
+SkFontStyle SkTypeface::FromOldStyle(Style oldStyle) {
+    return SkFontStyle((oldStyle & SkTypeface::kBold) ? SkFontStyle::kBold_Weight
+                                                      : SkFontStyle::kNormal_Weight,
+                       SkFontStyle::kNormal_Width,
+                       (oldStyle & SkTypeface::kItalic) ? SkFontStyle::kItalic_Slant
+                                                        : SkFontStyle::kUpright_Slant);
+}
+
 SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
     static SkOnce once[4];
     static sk_sp<SkTypeface> defaults[4];
@@ -93,14 +101,14 @@ SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
     SkASSERT((int)style < 4);
     once[style]([style] {
         sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
-        auto t = fm->legacyMakeTypeface(nullptr, SkFontStyle::FromOldStyle(style));
+        auto t = fm->legacyMakeTypeface(nullptr, FromOldStyle(style));
         defaults[style] = t ? t : SkEmptyTypeface::Make();
     });
     return defaults[style].get();
 }
 
 sk_sp<SkTypeface> SkTypeface::MakeDefault() {
-    return sk_ref_sp(GetDefaultTypeface(SkTypeface::kNormal));
+    return sk_ref_sp(GetDefaultTypeface());
 }
 
 uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
