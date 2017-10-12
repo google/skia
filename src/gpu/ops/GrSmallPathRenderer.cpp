@@ -233,7 +233,7 @@ private:
             uint32_t flags = 0;
             // Still need to key off of ctm to pick the right shader for the transformed quad
             flags |= ctm.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
-            flags |= ctm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+            flags |= ctm.circleStaysCircle() ? kSimilarity_DistanceFieldEffectFlag : 0;
             flags |= fGammaCorrect ? kGammaCorrect_DistanceFieldEffectFlag : 0;
 
             const SkMatrix* matrix;
@@ -752,7 +752,7 @@ private:
         // Depending on the ctm we may have a different shader for SDF paths
         if (this->usesDistanceField()) {
             if (thisCtm.isScaleTranslate() != thatCtm.isScaleTranslate() ||
-                thisCtm.isSimilarity() != thatCtm.isSimilarity()) {
+                thisCtm.circleStaysCircle() != thatCtm.circleStaysCircle()) {
                 return false;
             }
         }
