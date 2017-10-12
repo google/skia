@@ -849,7 +849,7 @@
       "gitHash",
       "abc123",
       "builder",
-      "Test-ChromeOS-Clang-Chromebook_CB5_312T-GPU-PowerVRGX6250-arm-Debug",
+      "Perf-ChromeOS-Clang-Chromebook_CB5_312T-GPU-PowerVRGX6250-arm-Debug",
       "swarming_bot_id",
       "skia-bot-123",
       "swarming_task_id",
