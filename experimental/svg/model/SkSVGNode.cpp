@@ -50,7 +50,10 @@ SkPath SkSVGNode::asPath(const SkSVGRenderContext& ctx) const {
 bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
     ctx->applyPresentationAttributes(fPresentationAttributes,
                                      this->hasChildren() ? 0 : SkSVGRenderContext::kLeaf);
-    return true;
+
+    // visibility:hidden disables rendering
+    const auto visibility = ctx->presentationContext().fInherited.fVisibility.get()->type();
+    return visibility != SkSVGVisibility::Type::kHidden;
 }
 
 void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
@@ -94,6 +97,10 @@ void SkSVGNode::setStrokeOpacity(const SkSVGNumberType& opacity) {
 
 void SkSVGNode::setStrokeWidth(const SkSVGLength& strokeWidth) {
     fPresentationAttributes.fStrokeWidth.set(strokeWidth);
+}
+
+void SkSVGNode::setVisibility(const SkSVGVisibility& visibility) {
+    fPresentationAttributes.fVisibility.set(visibility);
 }
 
 void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
@@ -156,6 +163,11 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     case SkSVGAttribute::kStrokeWidth:
         if (const SkSVGLengthValue* strokeWidth = v.as<SkSVGLengthValue>()) {
             this->setStrokeWidth(*strokeWidth);
+        }
+        break;
+    case SkSVGAttribute::kVisibility:
+        if (const SkSVGVisibilityValue* visibility = v.as<SkSVGVisibilityValue>()) {
+            this->setVisibility(*visibility);
         }
         break;
     default:

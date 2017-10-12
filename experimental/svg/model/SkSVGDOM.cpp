@@ -202,6 +202,18 @@ bool SetFillRuleAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
+bool SetVisibilityAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                            const char* stringValue) {
+    SkSVGVisibility visibility;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseVisibility(&visibility)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGVisibilityValue(visibility));
+    return true;
+}
+
 SkString TrimmedString(const char* first, const char* last) {
     SkASSERT(first);
     SkASSERT(last);
@@ -312,6 +324,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "style"            , { SkSVGAttribute::kUnknown          , SetStyleAttributes       }},
     { "transform"        , { SkSVGAttribute::kTransform        , SetTransformAttribute    }},
     { "viewBox"          , { SkSVGAttribute::kViewBox          , SetViewBoxAttribute      }},
+    { "visibility"       , { SkSVGAttribute::kVisibility       , SetVisibilityAttribute   }},
     { "width"            , { SkSVGAttribute::kWidth            , SetLengthAttribute       }},
     { "x"                , { SkSVGAttribute::kX                , SetLengthAttribute       }},
     { "x1"               , { SkSVGAttribute::kX1               , SetLengthAttribute       }},

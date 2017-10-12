@@ -248,4 +248,28 @@ private:
     Type fType;
 };
 
+class SkSVGVisibility {
+public:
+    enum class Type {
+        kVisible,
+        kHidden,
+        kCollapse,
+        kInherit,
+    };
+
+    constexpr SkSVGVisibility() : fType(Type::kVisible) {}
+    constexpr explicit SkSVGVisibility(Type t) : fType(t) {}
+
+    SkSVGVisibility(const SkSVGVisibility&)            = default;
+    SkSVGVisibility& operator=(const SkSVGVisibility&) = default;
+
+    bool operator==(const SkSVGVisibility& other) const { return fType == other.fType; }
+    bool operator!=(const SkSVGVisibility& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+
+private:
+    Type fType;
+};
+
 #endif // SkSVGTypes_DEFINED

@@ -593,3 +593,27 @@ bool SkSVGAttributeParser::parseFillRule(SkSVGFillRule* fillRule) {
 
     return parsedValue && this->parseEOSToken();
 }
+
+// https://www.w3.org/TR/SVG/painting.html#VisibilityProperty
+bool SkSVGAttributeParser::parseVisibility(SkSVGVisibility* visibility) {
+    static const struct {
+        SkSVGVisibility::Type fType;
+        const char*           fName;
+    } gVisibilityInfo[] = {
+        { SkSVGVisibility::Type::kVisible , "visible"  },
+        { SkSVGVisibility::Type::kHidden  , "hidden"   },
+        { SkSVGVisibility::Type::kCollapse, "collapse" },
+        { SkSVGVisibility::Type::kInherit , "inherit"  },
+    };
+
+    bool parsedValue = false;
+    for (const auto& parseInfo : gVisibilityInfo) {
+        if (this->parseExpectedStringToken(parseInfo.fName)) {
+            *visibility = SkSVGVisibility(parseInfo.fType);
+            parsedValue = true;
+            break;
+        }
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
