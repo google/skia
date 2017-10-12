@@ -114,6 +114,34 @@
     "cmd": [
       "python",
       "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+    ],
+    "infra_step": true,
+    "name": "rmtree dm"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+    ],
+    "infra_step": true,
+    "name": "makedirs dm"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
       "[START_DIR]/skia/resources",
       "foo@127.0.0.1:/home/chronos/user/resources"
@@ -597,7 +625,7 @@
       "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "infra_step": true,
-    "name": "rmtree dm"
+    "name": "rmtree dm (2)"
   },
   {
     "cmd": [
@@ -612,7 +640,7 @@
       "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "infra_step": true,
-    "name": "makedirs dm"
+    "name": "makedirs dm (2)"
   },
   {
     "cmd": [
