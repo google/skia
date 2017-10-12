@@ -17,10 +17,9 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  const GrSurfaceDesc& desc,
                                                  const GrGLTexture::IDDesc& texIDDesc,
                                                  const GrGLRenderTarget::IDDesc& rtIDDesc,
-                                                 bool mipsAllocated,
-                                                 bool wasFullMipMapDataProvided)
+                                                 GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc, mipsAllocated, wasFullMipMapDataProvided)
+        , GrGLTexture(gpu, desc, texIDDesc, mipMapsStatus)
         , GrGLRenderTarget(gpu, desc, rtIDDesc) {
     this->registerWithCache(budgeted);
 }
@@ -30,7 +29,7 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  const GrGLTexture::IDDesc& texIDDesc,
                                                  const GrGLRenderTarget::IDDesc& rtIDDesc)
         : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc, false, false)
+        , GrGLTexture(gpu, desc, texIDDesc, GrMipMapsStatus::kNotAllocated)
         , GrGLRenderTarget(gpu, desc, rtIDDesc) {
     this->registerWithCacheWrapped();
 }
