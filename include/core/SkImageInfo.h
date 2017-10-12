@@ -341,11 +341,7 @@ public:
 
     // Returns true if the result of computeByteSize (or computeMinByteSize) overflowed
     static bool ByteSizeOverflowed(size_t byteSize) {
-#ifdef SK_SUPPORT_LEGACY_COMPUTEBYTESIZE_RET_0
-        return 0 == byteSize;
-#else
         return SK_MaxSizeT == byteSize;
-#endif
     }
 
     bool validRowBytes(size_t rowBytes) const {
