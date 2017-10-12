@@ -394,7 +394,7 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
         // We've overshot at least a little.  Scale back linearly.
         loops = (int)ceil(loops * FLAGS_gpuMs / elapsed);
         loops = clamp_loops(loops);
-
+        loops = 300;
         // Make sure we're not still timing our calibration.
         target->fence();
     } else {
