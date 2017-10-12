@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "127d7fd0_5a9afe9b",
+        "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-12T19:08:11Z",
+      "side": 1,
+      "message": "Use lengthSqd to avoid sqrt?",
+      "revId": "f6e00b29fda02092518a0e6cbc703ed624fa0d3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
