@@ -320,7 +320,7 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorT
 class GrGLDistanceFieldPathGeoProc : public GrGLSLGeometryProcessor {
 public:
     GrGLDistanceFieldPathGeoProc()
-            : fViewMatrix(SkMatrix::InvalidMatrix())
+            : fMatrix(SkMatrix::InvalidMatrix())
             , fAtlasSize({0,0}) {
     }
 
@@ -352,21 +352,35 @@ public:
         // setup pass through color
         varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
 
-        // Setup position
-        this->writeOutputPosition(vertBuilder,
-                                  uniformHandler,
-                                  gpArgs,
-                                  dfTexEffect.inPosition()->fName,
-                                  dfTexEffect.viewMatrix(),
-                                  &fViewMatrixUniform);
+        if (dfTexEffect.matrix().hasPerspective()) {
+            // Setup position
+            this->writeOutputPosition(vertBuilder,
+                                      uniformHandler,
+                                      gpArgs,
+                                      dfTexEffect.inPosition()->fName,
+                                      dfTexEffect.matrix(),
+                                      &fMatrixUniform);
 
-        // emit transforms
-        this->emitTransforms(vertBuilder,
-                             varyingHandler,
-                             uniformHandler,
-                             gpArgs->fPositionVar,
-                             dfTexEffect.inPosition()->fName,
-                             args.fFPCoordTransformHandler);
+            // emit transforms
+            this->emitTransforms(vertBuilder,
+                                 varyingHandler,
+                                 uniformHandler,
+                                 gpArgs->fPositionVar,
+                                 dfTexEffect.inPosition()->fName,
+                                 args.fFPCoordTransformHandler);
+        } else {
+            // Setup position
+            this->writeOutputPosition(vertBuilder, gpArgs, dfTexEffect.inPosition()->fName);
+
+            // emit transforms
+            this->emitTransforms(vertBuilder,
+                                 varyingHandler,
+                                 uniformHandler,
+                                 gpArgs->fPositionVar,
+                                 dfTexEffect.inPosition()->fName,
+                                 dfTexEffect.matrix(),
+                                 args.fFPCoordTransformHandler);
+        }
 
         // Use highp to work around aliasing issues
         fragBuilder->codeAppendf("float2 uv = %s;", uv.fsIn());
@@ -450,11 +464,11 @@ public:
 
         const GrDistanceFieldPathGeoProc& dfpgp = proc.cast<GrDistanceFieldPathGeoProc>();
 
-        if (!dfpgp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dfpgp.viewMatrix())) {
-            fViewMatrix = dfpgp.viewMatrix();
-            float viewMatrix[3 * 3];
-            GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
-            pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
+        if (dfpgp.matrix().hasPerspective() && !fMatrix.cheapEqualTo(dfpgp.matrix())) {
+            fMatrix = dfpgp.matrix();
+            float matrix[3 * 3];
+            GrGLSLGetMatrix<3>(matrix, fMatrix);
+            pdman.setMatrix3f(fMatrixUniform, matrix);
         }
 
         SkASSERT(dfpgp.numTextureSamplers() >= 1);
@@ -466,7 +480,11 @@ public:
             pdman.set2f(fAtlasSizeInvUniform, 1.0f / atlas->width(), 1.0f / atlas->height());
         }
 
-        this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
+        if (dfpgp.matrix().hasPerspective()) {
+            this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
+        } else {
+            this->setTransformDataHelper(dfpgp.matrix(), pdman, &transformIter);
+        }
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,
@@ -475,14 +493,15 @@ public:
         const GrDistanceFieldPathGeoProc& dfTexEffect = gp.cast<GrDistanceFieldPathGeoProc>();
 
         uint32_t key = dfTexEffect.getFlags();
-        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
+        key |= ComputePosKey(dfTexEffect.matrix()) << 16;
         b->add32(key);
+        b->add32(dfTexEffect.matrix().hasPerspective());
         b->add32(dfTexEffect.numTextureSamplers());
     }
 
 private:
-    SkMatrix      fViewMatrix;
-    UniformHandle fViewMatrixUniform;
+    SkMatrix      fMatrix;        // view matrix if perspective, local matrix otherwise
+    UniformHandle fMatrixUniform;
 
     SkISize       fAtlasSize;
     UniformHandle fAtlasSizeInvUniform;
@@ -493,17 +512,15 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
                                                  GrColor color,
-                                                 const SkMatrix& viewMatrix,
+                                                 const SkMatrix& matrix,
                                                  const sk_sp<GrTextureProxy> proxies[kMaxTextures],
                                                  const GrSamplerState& params,
-                                                 uint32_t flags,
-                                                 bool usesLocalCoords)
+                                                 uint32_t flags)
         : INHERITED(kGrDistanceFieldPathGeoProc_ClassID)
         , fColor(color)
-        , fViewMatrix(viewMatrix)
+        , fMatrix(matrix)
         , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
-        , fInColor(nullptr)
-        , fUsesLocalCoords(usesLocalCoords) {
+        , fInColor(nullptr) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
@@ -567,8 +584,7 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTes
                                             GrTest::TestMatrix(d->fRandom),
                                             proxies,
                                             samplerState,
-                                            flags,
-                                            d->fRandom->nextBool());
+                                            flags);
 }
 #endif
 

@@ -129,13 +129,11 @@ class GrDistanceFieldPathGeoProc : public GrGeometryProcessor {
 public:
     static constexpr int kMaxTextures = 4;
 
-    static sk_sp<GrGeometryProcessor> Make(GrColor color, const SkMatrix& viewMatrix,
+    static sk_sp<GrGeometryProcessor> Make(GrColor color, const SkMatrix& matrix,
                                            const sk_sp<GrTextureProxy> proxies[kMaxTextures],
-                                           const GrSamplerState& params, uint32_t flags,
-                                           bool usesLocalCoords) {
+                                           const GrSamplerState& params, uint32_t flags) {
         return sk_sp<GrGeometryProcessor>(
-            new GrDistanceFieldPathGeoProc(color, viewMatrix, proxies,
-                                           params, flags, usesLocalCoords));
+            new GrDistanceFieldPathGeoProc(color, matrix, proxies, params, flags));
     }
 
     ~GrDistanceFieldPathGeoProc() override {}
@@ -146,9 +144,8 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     GrColor color() const { return fColor; }
-    const SkMatrix& viewMatrix() const { return fViewMatrix; }
+    const SkMatrix& matrix() const { return fMatrix; }
     uint32_t getFlags() const { return fFlags; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
 
     void addNewProxies(const sk_sp<GrTextureProxy> proxies[kMaxTextures], const GrSamplerState& p);
 
@@ -157,18 +154,17 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrDistanceFieldPathGeoProc(GrColor, const SkMatrix& viewMatrix,
+    GrDistanceFieldPathGeoProc(GrColor, const SkMatrix& matrix,
                                const sk_sp<GrTextureProxy> proxies[kMaxTextures],
-                               const GrSamplerState&, uint32_t flags, bool usesLocalCoords);
+                               const GrSamplerState&, uint32_t flags);
 
     GrColor          fColor;
-    SkMatrix         fViewMatrix;
+    SkMatrix         fMatrix;      // view matrix if perspective, local matrix otherwise
     TextureSampler   fTextureSamplers[kMaxTextures];
     uint32_t         fFlags;
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInTextureCoords;
-    bool             fUsesLocalCoords;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 

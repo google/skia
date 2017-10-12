@@ -166,6 +166,8 @@ void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fon
     }
 
     bool brokenRun = false;
+    intptr_t vertex = reinterpret_cast<intptr_t>(fVertices);
+    vertex += info->vertexStartIndex();
     for (int glyphIdx = 0; glyphIdx < glyphCount; glyphIdx++) {
         GrGlyph* glyph = nullptr;
         if (regenTexCoords) {
@@ -196,12 +198,10 @@ void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fon
                                                     target->nextDrawToken());
         }
 
-        intptr_t vertex = reinterpret_cast<intptr_t>(fVertices);
-        vertex += info->vertexStartIndex();
-        vertex += vertexStride * glyphIdx * GrAtlasTextOp::kVerticesPerGlyph;
         regen_vertices<regenPos, regenCol, regenTexCoords>(vertex, glyph, vertexStride,
                                                            info->drawAsDistanceFields(), transX,
                                                            transY, color);
+        vertex += vertexStride * GrAtlasTextOp::kVerticesPerGlyph;
         helper->incGlyphCount();
     }
 
