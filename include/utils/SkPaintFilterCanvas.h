@@ -23,6 +23,8 @@ public:
      */
     SkPaintFilterCanvas(SkCanvas* canvas);
 
+    GrContext* getGrContext() override { return mOrigCanvas->getGrContext(); }
+
     enum Type {
         kPaint_Type,
         kPoint_Type,
@@ -44,6 +46,8 @@ public:
     };
 
 protected:
+    SkCanvas* mOrigCanvas;
+
     /**
      *  Called with the paint that will be used to draw the specified type.
      *  The implementation may modify the paint as they wish (using SkTCopyOnFirstWrite::writable).
