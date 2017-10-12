@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8a303624_3007edcb",
+        "filename": "src/gpu/GrTexture.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-12T15:35:13Z",
+      "side": 1,
+      "message": "I split them into the two functions",
+      "parentUuid": "533e3ea6_80eacdfc",
+      "range": {
+        "startLine": 20,
+        "startChar": 16,
+        "endLine": 20,
+        "endChar": 28
+      },
+      "revId": "cf261f0c42ce0efab5560200902ec3ef0f81bdc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "35a24d96_4f19fe9c",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "4bfc1577_cbe6de88",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-12T15:35:13Z",
+      "side": 1,
+      "message": "Currently we are not always passing in a valid pointer. onWritePixels also calls this and does not need to know this information",
+      "parentUuid": "35a24d96_4f19fe9c",
+      "range": {
+        "startLine": 1079,
+        "startChar": 4,
+        "endLine": 1079,
+        "endChar": 24
+      },
+      "revId": "cf261f0c42ce0efab5560200902ec3ef0f81bdc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0d24b7b8_dd4b906e",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 5
@@ -59,6 +107,24 @@
       "writtenOn": "2017-10-12T15:01:47Z",
       "side": 1,
       "message": "Not directly related to this change, but should we be tracking dirtiness per level? AIUI this will cause us to regenerate all the levels.",
+      "revId": "cf261f0c42ce0efab5560200902ec3ef0f81bdc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a450cfe2_82cf5786",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1097,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-12T15:35:13Z",
+      "side": 1,
+      "message": "Do we really think we\u0027ll every run into cases where we are selectively regenerating mips? To me it seems like at the start we\u0027ll either have no mips and just a base layer (requires full regen), all the mips given to use my client, or no mips at all and copying in the base layer (which is really the first case again).\n\nIf we ever change the base layer, then in general we\u0027ll want to regen every layer. I suppose we could track the exact scale we\u0027ll be sampling a texture for a draw and attempt to regen only the mips levels up to the point needed. But until we think that is a win I wouldn\u0027t try to track a per level dirtiness.",
+      "parentUuid": "0d24b7b8_dd4b906e",
       "revId": "cf261f0c42ce0efab5560200902ec3ef0f81bdc4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
