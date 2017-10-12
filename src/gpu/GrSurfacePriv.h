@@ -36,6 +36,7 @@ public:
     bool hasPendingRead() const { return fSurface->hasPendingRead(); }
     bool hasPendingWrite() const { return fSurface->hasPendingWrite(); }
     bool hasPendingIO() const { return fSurface->hasPendingIO(); }
+    bool hasUniqueRef() const { return fSurface->internalHasUniqueRef(); }
 
 private:
     explicit GrSurfacePriv(GrSurface* surface) : fSurface(surface) {}

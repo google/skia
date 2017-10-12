@@ -9,8 +9,10 @@
 #ifndef GrTexture_DEFINED
 #define GrTexture_DEFINED
 
+#include "GrBackendSurface.h"
 #include "GrSamplerState.h"
 #include "GrSurface.h"
+#include "SkImage.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 #include "../private/GrTypesPriv.h"
@@ -34,6 +36,17 @@ public:
      */
     virtual void textureParamsModified() = 0;
 
+    /**
+     * This function steals the backend texture from a uniquely owned GrTexture with no pending
+     * IO, passing it out to the caller. The GrTexture is deleted in the process.
+     * 
+     * Note that if the GrTexture is not uniquely owned (no other refs), or has pending IO, this
+     * function will fail.
+     */
+    static bool StealBackendTexture(sk_sp<GrTexture>&&,
+                                    GrBackendTexture*,
+                                    SkImage::BackendTextureReleaseProc*);
+
 #ifdef SK_DEBUG
     void validate() const {
         this->INHERITED::validate();
@@ -53,6 +66,8 @@ public:
 protected:
     GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType samplerType,
               GrSamplerState::Filter highestFilterMode, GrMipMapsStatus);
+
+    virtual bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) = 0;
 
 private:
     void computeScratchKey(GrScratchKey*) const override;

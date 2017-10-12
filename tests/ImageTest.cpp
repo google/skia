@@ -1132,6 +1132,94 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
         context->flush();
     }
 }
+
+static uint32_t GetIdForBackendObject(GrContext* ctx, GrBackendObject object) {
+    if (!object) {
+        return 0;
+    }
+
+    if (ctx->contextPriv().getBackend() != kOpenGL_GrBackend) {
+        return 0;
+    }
+
+    return reinterpret_cast<const GrGLTextureInfo*>(object)->fID;
+}
+
+static uint32_t GetIdForBackendTexture(GrBackendTexture texture) {
+    if (!texture.isValid()) {
+        return 0;
+    }
+
+    if (texture.backend() != kOpenGL_GrBackend) {
+        return 0;
+    }
+
+    return texture.getGLTextureInfo()->fID;
+}
+
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
+    sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();
+
+    GrContextFactory otherFactory;
+    ContextInfo otherContextInfo = otherFactory.getContextInfo(ctxInfo.type());
+
+    testContext->makeCurrent();
+    REPORTER_ASSERT(reporter, proxy);
+    auto createLarge = [context] {
+        return create_image_large(context->caps()->maxTextureSize());
+    };
+    struct {
+        std::function<sk_sp<SkImage> ()>                      fImageFactory;
+        bool                                                  fExpectation;
+        bool                                                  fCanTakeDirectly;
+    } testCases[] = {
+        { create_image, true, false },
+        { create_codec_image, true, false },
+        { create_data_image, true, false },
+        { create_picture_image, true, false },
+        { [context] { return create_gpu_image(context); }, true, true },
+        // Create a texture image in a another GrContext.
+        { [testContext, otherContextInfo] {
+            otherContextInfo.testContext()->makeCurrent();
+            sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
+            testContext->makeCurrent();
+            return otherContextImage;
+          }, false, false },
+        // Create an image that is too large to be texture backed.
+        { createLarge, false, false }
+    };
+
+    for (auto testCase : testCases) {
+        sk_sp<SkImage> image(testCase.fImageFactory());
+        if (!image) {
+            ERRORF(reporter, "Failed to create image!");
+            continue;
+        }
+
+        uint32_t originalID = GetIdForBackendObject(context, image->getTextureHandle(true, nullptr));
+        GrBackendTexture texture;
+        SkImage::BackendTextureReleaseProc proc;
+        bool result =
+                SkImage::MakeBackendTextureFromSkImage(context, std::move(image), &texture, &proc);
+        if (result != testCase.fExpectation) {
+            static const char *const kFS[] = { "fail", "succeed" };
+            ERRORF(reporter, "This image was expected to %s but did not.",
+            kFS[testCase.fExpectation]);
+        }
+
+        bool tookDirectly = result && originalID == GetIdForBackendTexture(texture);
+        if (testCase.fCanTakeDirectly != tookDirectly) {
+            static const char *const kExpectedState[] = { "not expected", "expected" };
+            ERRORF(reporter, "This backend texture was %s to be taken directly.",
+            kExpectedState[testCase.fCanTakeDirectly]);
+        }
+
+        testContext->makeCurrent();
+        context->flush();
+    }
+}
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

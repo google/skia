@@ -85,6 +85,8 @@ protected:
     void setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
                           const SkString& dumpName) const override;
 
+    bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override;
+
 private:
     void invokeReleaseProc() {
         if (fReleaseProc) {

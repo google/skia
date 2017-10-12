@@ -10,6 +10,7 @@
 #include "GrGpu.h"
 #include "GrResourceKey.h"
 #include "GrRenderTarget.h"
+#include "GrSurfacePriv.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
@@ -54,6 +55,25 @@ GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType
     } else {
         fMaxMipMapLevel = SkMipMap::ComputeLevelCount(this->width(), this->height());
     }
+}
+
+bool GrTexture::StealBackendTexture(sk_sp<GrTexture>&& texture,
+                                    GrBackendTexture* backendTexture,
+                                    SkImage::BackendTextureReleaseProc* releaseProc) {
+    if (!texture->surfacePriv().hasUniqueRef() || texture->surfacePriv().hasPendingIO()) {
+        return false;
+    }
+
+    if (!texture->onStealBackendTexture(backendTexture, releaseProc)) {
+        return false;
+    }
+
+    // Release any not-stolen data being held by this class.
+    texture->onRelease();
+    // Abandon the GrTexture so it can't be re-used.
+    texture->abandon();
+
+    return true;
 }
 
 void GrTexture::computeScratchKey(GrScratchKey* key) const {

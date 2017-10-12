@@ -69,9 +69,10 @@ public:
     // it returns nullptr.
     const GrMockTextureInfo* getMockTextureInfo() const;
 
-private:
+    // Returns true if the backend texture has been initialized.
     bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
 
+private:
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
     GrPixelConfig fConfig;

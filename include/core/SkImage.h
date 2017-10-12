@@ -427,6 +427,30 @@ public:
      */
     static sk_sp<SkImage> MakeFromDeferredTextureImageData(GrContext*, const void*, SkBudgeted);
 
+    typedef std::function<void(GrBackendTexture)> BackendTextureReleaseProc;
+
+    /**
+     * Creates a GrBackendTexture from the provided SkImage. Returns true on success. The
+     * GrBackendTexture and BackendTextureReleaseProc are populated on success. It is the callers
+     * responsibility to call the BackendTextureReleaseProc once they have deleted the texture.
+     *
+     * Note that the BackendTextureReleaseProc allows Skia to clean up auxiliary data related
+     * to the GrBackendTexture, and is not a substitute for the client deleting the GrBackendTexture
+     * themselves.
+     *
+     * Note that if the SkImage is both texture backed and unowned (the only reference is
+     * std::moved into this function), Skia can return the texture directly, avoiding any
+     * conversions or copies.
+     *
+     * If the SkImage is not texture backed, this function will generate a texture with the image's
+     * contents and return that.
+     */
+    static bool MakeBackendTextureFromSkImage(GrContext*,
+                                              sk_sp<SkImage>,
+                                              GrBackendTexture*,
+                                              BackendTextureReleaseProc*);
+
+
     // Helper functions to convert to SkBitmap
 
     enum LegacyBitmapMode {
