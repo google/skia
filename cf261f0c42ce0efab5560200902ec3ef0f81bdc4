@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "533e3ea6_80eacdfc",
+        "filename": "src/gpu/GrTexture.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-12T15:01:47Z",
+      "side": 1,
+      "message": "I was going to ask if this should take the new enum, but we probably don\u0027t want to allow passing kNotAllocated.\n\nWould it be an improvement to make this two functions, markMipMapsDirty, markMipMapsClean()?",
+      "range": {
+        "startLine": 20,
+        "startChar": 16,
+        "endLine": 20,
+        "endChar": 28
+      },
+      "revId": "cf261f0c42ce0efab5560200902ec3ef0f81bdc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35a24d96_4f19fe9c",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-12T15:01:47Z",
+      "side": 1,
+      "message": "If we\u0027re always passing a valid pointer maybe we don\u0027t need these checks.",
+      "range": {
+        "startLine": 1079,
+        "startChar": 4,
+        "endLine": 1079,
+        "endChar": 24
+      },
+      "revId": "cf261f0c42ce0efab5560200902ec3ef0f81bdc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d24b7b8_dd4b906e",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1097,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-12T15:01:47Z",
+      "side": 1,
+      "message": "Not directly related to this change, but should we be tracking dirtiness per level? AIUI this will cause us to regenerate all the levels.",
+      "revId": "cf261f0c42ce0efab5560200902ec3ef0f81bdc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
