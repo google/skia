@@ -105,6 +105,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
                                          width,
                                          height,
                                          config,
+                                         GrMipMapped::kNo,
                                          (*backingSurface)->getTextureHandle());
     sk_sp<SkSurface> surface =
             SkSurface::MakeFromBackendTextureAsRenderTarget(context, backendTex, origin,

@@ -52,6 +52,7 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
                                                                p.fSize,
                                                                p.fSize,
                                                                p.fConfig,
+                                                               GrMipMapped::kNo,
                                                                *backendTexHandle);
 
     sk_sp<GrSurface> tex = context->resourceProvider()->wrapBackendTexture(backendTex,

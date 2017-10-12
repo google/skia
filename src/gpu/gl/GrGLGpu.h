@@ -165,7 +165,8 @@ public:
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                     GrPixelConfig config,
-                                                    bool isRenderTarget = false) override;
+                                                    bool isRenderTarget,
+                                                    GrMipMapped mipMapped) override;
     bool isTestingOnlyBackendTexture(GrBackendObject) const override;
     void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) override;
 

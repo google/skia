@@ -33,7 +33,7 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
 
     GrBackendObject backendObj = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kPixelConfig,
-                                                                      false);
+                                                                      false, GrMipMapped::kNo);
     const GrVkImageInfo* imageInfo = reinterpret_cast<const GrVkImageInfo*>(backendObj);
 
     GrBackendTexture backendTex = GrBackendTexture(kW, kH, *imageInfo);
@@ -71,7 +71,7 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
 
     GrBackendObject backendObj = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kPixelConfig,
-                                                                      true);
+                                                                      true, GrMipMapped::kNo);
     const GrVkImageInfo* backendTex = reinterpret_cast<const GrVkImageInfo*>(backendObj);
 
     GrBackendRenderTarget backendRT(kW, kH, 0, 0, *backendTex);
@@ -103,7 +103,7 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
     GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
 
     GrBackendObject backendObj = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kPixelConfig,
-                                                                      true);
+                                                                      true, GrMipMapped::kNo);
     const GrVkImageInfo* imageInfo = reinterpret_cast<const GrVkImageInfo*>(backendObj);
 
     GrBackendTexture backendTex = GrBackendTexture(kW, kH, *imageInfo);

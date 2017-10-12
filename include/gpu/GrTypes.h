@@ -218,6 +218,20 @@ static inline GrAA GrBoolToAA(bool aa) { return aa ? GrAA::kYes : GrAA::kNo; }
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Used to say whether a texture has mip levels allocated or not.
+ */
+enum class GrMipMapped {
+    kYes,
+    kNo
+};
+
+static inline GrMipMapped GrBoolToMipMapped(bool aa) {
+    return aa ? GrMipMapped::kYes : GrMipMapped::kNo;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
 * Geometric primitives used for drawing.
 */
 enum class GrPrimitiveType {
