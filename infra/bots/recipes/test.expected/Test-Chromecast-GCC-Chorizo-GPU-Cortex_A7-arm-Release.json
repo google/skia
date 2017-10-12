@@ -639,7 +639,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /cache/skia/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
+    "name": "pull /cache/skia/dm_out/* [CUSTOM_[SWARM_OUT_DIR]]/dm"
   },
   {
     "cmd": [

@@ -202,7 +202,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     """, args=[host, device], infra_step=True)
 
   def copy_directory_contents_to_host(self, device, host):
-    self._adb('pull %s %s' % (device, host), 'pull', device, host)
+    self._adb('pull %s/* %s' % (device, host), 'pull', device, host)
 
   def read_file_on_device(self, path, **kwargs):
     rv = self._adb('read %s' % path,
