@@ -6,7 +6,7 @@
  */
 
 #include "SkMath.h"
-#include "SkMatrix.h"
+#include "SkMatrixPriv.h"
 #include "SkMatrixUtils.h"
 #include "SkRandom.h"
 #include "Test.h"
@@ -912,7 +912,7 @@ DEF_TEST(Matrix, reporter) {
     SkScalar affine[6];
     REPORTER_ASSERT(reporter, mat.asAffine(affine));
 
-    #define affineEqual(e) affine[SkMatrix::kA##e] == mat.get(SkMatrix::kM##e)
+    #define affineEqual(e) affine[SkMatrixPriv::kA##e] == mat.get(SkMatrix::kM##e)
     REPORTER_ASSERT(reporter, affineEqual(ScaleX));
     REPORTER_ASSERT(reporter, affineEqual(SkewY));
     REPORTER_ASSERT(reporter, affineEqual(SkewX));

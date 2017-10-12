@@ -126,18 +126,6 @@ public:
         kMPersp2,
     };
 
-    /** Affine arrays are in column major order
-        because that's how PDF and XPS like it.
-     */
-    enum {
-        kAScaleX,
-        kASkewY,
-        kASkewX,
-        kAScaleY,
-        kATransX,
-        kATransY,
-    };
-
     SkScalar operator[](int index) const {
         SkASSERT((unsigned)index < 9);
         return fMat[index];
