@@ -297,8 +297,8 @@ private:
                     // approximate the scale since we can't get it from the matrix
                     SkRect xformedBounds;
                     args.fViewMatrix.mapRect(&xformedBounds, bounds);
-                    maxScale = SkTMax(xformedBounds.width() / bounds.width(),
-                                      xformedBounds.height() / bounds.height());
+                    maxScale = SkScalarAbs(SkTMax(xformedBounds.width() / bounds.width(),
+                                                  xformedBounds.height() / bounds.height()));
                 } else {
                     maxScale = SkScalarAbs(args.fViewMatrix.getMaxScale());
                 }
