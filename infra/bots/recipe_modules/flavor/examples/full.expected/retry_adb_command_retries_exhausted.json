@@ -48,7 +48,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "file.txt",
       "file.txt"
@@ -93,7 +93,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "rm",
       "-rf",
@@ -111,7 +111,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -129,7 +129,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -183,7 +183,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -237,7 +237,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "mkdir",
       "-p",
@@ -293,7 +293,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "shell",
       "reboot",
       "-p"
@@ -310,7 +310,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",
