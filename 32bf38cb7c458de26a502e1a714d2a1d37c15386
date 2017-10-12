@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ec17100_72e7acc8",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-12T16:17:45Z",
+      "side": 1,
+      "message": "bool mipmapped?",
+      "revId": "32bf38cb7c458de26a502e1a714d2a1d37c15386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "949d10b4_d0bbf6d8",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1202,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-12T16:17:45Z",
+      "side": 1,
+      "message": "nit, \u0026\u0026 goes on prev line.",
+      "range": {
+        "startLine": 1202,
+        "startChar": 8,
+        "endLine": 1202,
+        "endChar": 11
+      },
+      "revId": "32bf38cb7c458de26a502e1a714d2a1d37c15386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93d13014_5990c734",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-12T16:17:45Z",
+      "side": 1,
+      "message": "just vulkan?",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 30
+      },
+      "revId": "32bf38cb7c458de26a502e1a714d2a1d37c15386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
