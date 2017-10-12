@@ -67,7 +67,8 @@ public:
     bool hasBaseLevelBeenBoundToFBO() const { return fBaseLevelHasBeenBoundToFBO; }
     void baseLevelWasBoundToFBO() { fBaseLevelHasBeenBoundToFBO = true; }
 
-    static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
+    static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*, const GrSurfaceDesc&, GrMipMapsStatus,
+                                          const IDDesc&);
 
 protected:
     // Constructor for subclasses.
@@ -75,7 +76,7 @@ protected:
 
     enum Wrapped { kWrapped };
     // Constructor for instances wrapping backend objects.
-    GrGLTexture(GrGLGpu*, Wrapped, const GrSurfaceDesc&, const IDDesc&);
+    GrGLTexture(GrGLGpu*, Wrapped, const GrSurfaceDesc&, GrMipMapsStatus, const IDDesc&);
 
     void init(const GrSurfaceDesc&, const IDDesc&);
 

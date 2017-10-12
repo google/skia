@@ -26,6 +26,12 @@ public:
                      GrPixelConfig config,
                      const GrGLTextureInfo& glInfo);
 
+    GrBackendTexture(int width,
+                     int height,
+                     GrPixelConfig config,
+                     GrMipMapped,
+                     const GrGLTextureInfo& glInfo);
+
 #ifdef SK_VULKAN
     GrBackendTexture(int width,
                      int height,
@@ -37,9 +43,16 @@ public:
                      GrPixelConfig config,
                      const GrMockTextureInfo& mockInfo);
 
+    GrBackendTexture(int width,
+                     int height,
+                     GrPixelConfig config,
+                     GrMipMapped,
+                     const GrMockTextureInfo& mockInfo);
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     GrPixelConfig config() const { return fConfig; }
+    bool hasMipMaps() const { return GrMipMapped::kYes == fMipMapped; }
     GrBackend backend() const {return fBackend; }
 
     // If the backend API is GL, this returns a pointer to the GrGLTextureInfo struct. Otherwise
@@ -62,6 +75,7 @@ private:
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
     GrPixelConfig fConfig;
+    GrMipMapped fMipMapped;
     GrBackend fBackend;
 
     union {

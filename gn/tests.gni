@@ -92,6 +92,7 @@ tests_sources = [
   "$_tests/GrContextFactoryTest.cpp",
   "$_tests/GrMemoryPoolTest.cpp",
   "$_tests/GrMeshTest.cpp",
+  "$_tests/GrMipMappedTest.cpp",
   "$_tests/GrPipelineDynamicStateTest.cpp",
   "$_tests/GrPorterDuffTest.cpp",
   "$_tests/GrShapeTest.cpp",

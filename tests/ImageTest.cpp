@@ -776,6 +776,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
                                                                kWidth,
                                                                kHeight,
                                                                kRGBA_8888_GrPixelConfig,
+                                                               GrMipMapped::kNo,
                                                                backendTexHandle);
 
     TextureReleaseChecker releaseChecker;

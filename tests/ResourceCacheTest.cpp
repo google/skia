@@ -214,6 +214,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
                                                                 kW,
                                                                 kH,
                                                                 kRGBA_8888_GrPixelConfig,
+                                                                GrMipMapped::kNo,
                                                                 texHandles[0]);
     sk_sp<GrTexture> borrowed(context->resourceProvider()->wrapBackendTexture(
             backendTex1, kBorrow_GrWrapOwnership));
@@ -222,6 +223,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
                                                                 kW,
                                                                 kH,
                                                                 kRGBA_8888_GrPixelConfig,
+                                                                GrMipMapped::kNo,
                                                                 texHandles[1]);
     sk_sp<GrTexture> adopted(context->resourceProvider()->wrapBackendTexture(
             backendTex2, kAdopt_GrWrapOwnership));

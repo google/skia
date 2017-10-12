@@ -551,7 +551,10 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     surfDesc.fConfig = backendTex.config();
     surfDesc.fSampleCnt = 0;
 
-    return GrGLTexture::MakeWrapped(this, surfDesc, idDesc);
+    GrMipMapsStatus mipMapsStatus = backendTex.hasMipMaps() ? GrMipMapsStatus::kValid
+                                                            : GrMipMapsStatus::kNotAllocated;
+
+    return GrGLTexture::MakeWrapped(this, surfDesc, mipMapsStatus, idDesc);
 }
 
 sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -585,8 +588,12 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     if (!this->createRenderTargetObjects(surfDesc, idDesc.fInfo, &rtIDDesc)) {
         return nullptr;
     }
+
+    GrMipMapsStatus mipMapsStatus = backendTex.hasMipMaps() ? GrMipMapsStatus::kDirty
+                                                            : GrMipMapsStatus::kNotAllocated;
+
     sk_sp<GrGLTextureRenderTarget> texRT(
-            GrGLTextureRenderTarget::MakeWrapped(this, surfDesc, idDesc, rtIDDesc));
+            GrGLTextureRenderTarget::MakeWrapped(this, surfDesc, idDesc, rtIDDesc, mipMapsStatus));
     texRT->baseLevelWasBoundToFBO();
     return std::move(texRT);
 }
@@ -4230,10 +4237,17 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
 }
 
 GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                         GrPixelConfig config, bool /*isRT*/) {
+                                                         GrPixelConfig config, bool /*isRT*/,
+                                                         GrMipMapped mipMapped) {
     if (!this->caps()->isConfigTexturable(config)) {
-        return false;
+        return reinterpret_cast<GrBackendObject>(nullptr);
     }
+
+    // Currently we don't support uploading pixel data when mipped.
+    if (pixels && GrMipMapped::kYes == mipMapped) {
+        return reinterpret_cast<GrBackendObject>(nullptr);
+    }
+
     std::unique_ptr<GrGLTextureInfo> info = skstd::make_unique<GrGLTextureInfo>();
     info->fTarget = GR_GL_TEXTURE_2D;
     info->fID = 0;
@@ -4257,8 +4271,21 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
     }
 
     this->unbindCpuToGpuXferBuffer();
-    GL_CALL(TexImage2D(info->fTarget, 0, internalFormat, w, h, 0, externalFormat,
-                       externalType, pixels));
+
+    // Figure out the number of mip levels.
+    int mipLevels = 1;
+    if (GrMipMapped::kYes == mipMapped) {
+        mipLevels = SkMipMap::ComputeLevelCount(w, h) + 1;
+    }
+
+    int width = w;
+    int height = h;
+    for (int i = 0; i < mipLevels; ++i) {
+        GL_CALL(TexImage2D(info->fTarget, 0, internalFormat, width, height, 0, externalFormat,
+                           externalType, pixels));
+        width = SkTMax(1, width / 2);
+        height = SkTMax(1, height / 2);
+    }
 
     return reinterpret_cast<GrBackendObject>(info.release());
 }

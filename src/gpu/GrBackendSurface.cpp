@@ -19,6 +19,7 @@ GrBackendTexture::GrBackendTexture(int width,
         : fWidth(width)
         , fHeight(height)
         , fConfig(GrVkFormatToPixelConfig(vkInfo.fFormat))
+        , fMipMapped(GrBoolToMipMapped(vkInfo.fLevelCount > 1))
         , fBackend(kVulkan_GrBackend)
         , fVkInfo(vkInfo) {}
 #endif
@@ -27,9 +28,17 @@ GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrPixelConfig config,
                                    const GrGLTextureInfo& glInfo)
+        : GrBackendTexture(width, height, config, GrMipMapped::kNo, glInfo) {}
+
+GrBackendTexture::GrBackendTexture(int width,
+                                   int height,
+                                   GrPixelConfig config,
+                                   GrMipMapped mipMapped,
+                                   const GrGLTextureInfo& glInfo)
         : fWidth(width)
         , fHeight(height)
         , fConfig(config)
+        , fMipMapped(mipMapped)
         , fBackend(kOpenGL_GrBackend)
         , fGLInfo(glInfo) {}
 
@@ -37,9 +46,17 @@ GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrPixelConfig config,
                                    const GrMockTextureInfo& mockInfo)
+        : GrBackendTexture(width, height, config, GrMipMapped::kNo, mockInfo) {}
+
+GrBackendTexture::GrBackendTexture(int width,
+                                   int height,
+                                   GrPixelConfig config,
+                                   GrMipMapped mipMapped,
+                                   const GrMockTextureInfo& mockInfo)
         : fWidth(width)
         , fHeight(height)
         , fConfig(config)
+        , fMipMapped(mipMapped)
         , fBackend(kMock_GrBackend)
         , fMockInfo(mockInfo) {}
 

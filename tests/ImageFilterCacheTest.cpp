@@ -219,6 +219,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
                                                                kFullSize,
                                                                kFullSize,
                                                                kRGBA_8888_GrPixelConfig,
+                                                               GrMipMapped::kNo,
                                                                tex->getTextureHandle());
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
     sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,

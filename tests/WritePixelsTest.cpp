@@ -431,7 +431,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo)
             auto handle = context->getGpu()->createTestingOnlyBackendTexture(
                     nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true);
             GrBackendTexture backendTexture = GrTest::CreateBackendTexture(
-                    ctxInfo.backend(), DEV_W, DEV_H, kSkia8888_GrPixelConfig, handle);
+                    ctxInfo.backend(), DEV_W, DEV_H, kSkia8888_GrPixelConfig, GrMipMapped::kNo,
+                    handle);
             sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(
                     context, backendTexture, origin, sampleCnt, nullptr, nullptr));
             if (!surface) {

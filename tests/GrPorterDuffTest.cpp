@@ -1072,6 +1072,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
                                                                100,
                                                                100,
                                                                kRGBA_8888_GrPixelConfig,
+                                                               GrMipMapped::kNo,
                                                                backendTexHandle);
 
     GrXferProcessor::DstProxy fakeDstProxy;

@@ -67,6 +67,7 @@ void draw_child(skiatest::Reporter* reporter,
     GrBackendTexture backendTexture = GrTest::CreateBackendTexture(childInfo.backend(),
                                                                    MAIN_W, MAIN_H,
                                                                    kRGBA_8888_GrPixelConfig,
+                                                                   GrMipMapped::kNo,
                                                                    backendImage);
 
     childInfo.testContext()->makeCurrent();
