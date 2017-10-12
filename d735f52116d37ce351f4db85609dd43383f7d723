@@ -39,6 +39,30 @@
       "revId": "d735f52116d37ce351f4db85609dd43383f7d723",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a1948d7_f203f806",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-12T13:20:42Z",
+      "side": 1,
+      "message": "I added the extra one previously as basically an error check for the mip changes I\u0027ve been making. Basically the only time we can get Invalid is when I\u0027m doing my internal calls to allocate empty mip levels. I later assert that by the time we try to use a texture it cannot be in the kInvalid state. Thus I must have done some copy/draw to the base layer to have changed it to dirty.\n\nTLDR: KInvalid doesn\u0027t really have a functional/correctness use, but used to error check as a make these internal mip changes things happen as I expect.",
+      "parentUuid": "4e989150_63bb7e54",
+      "range": {
+        "startLine": 770,
+        "startChar": 4,
+        "endLine": 771,
+        "endChar": 78
+      },
+      "revId": "d735f52116d37ce351f4db85609dd43383f7d723",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
