@@ -186,7 +186,7 @@
   },
   {
     "cmd": [
-      "adb",
+      "adb.1.0.35",
       "push",
       "[START_DIR]/out/Release/skpbench",
       "/data/local/tmp/"
