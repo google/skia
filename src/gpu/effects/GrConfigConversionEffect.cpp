@@ -23,6 +23,8 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrConfigConversionEffect& _outer = args.fFp.cast<GrConfigConversionEffect>();
         (void)_outer;
+        auto pmConversion = _outer.pmConversion();
+        (void)pmConversion;
 
         fragBuilder->forceHighPrecision();
         fragBuilder->codeAppendf(
