@@ -394,7 +394,7 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
         // We've overshot at least a little.  Scale back linearly.
         loops = (int)ceil(loops * FLAGS_gpuMs / elapsed);
         loops = clamp_loops(loops);
-
+        loops = 300;
         // Make sure we're not still timing our calibration.
         target->fence();
     } else {
@@ -504,6 +504,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
 // Append all configs that are enabled and supported.
 void create_configs(SkTArray<Config>* configs) {
     SkCommandLineConfigArray array;
+
     ParseConfigs(FLAGS_config, &array);
     for (int i = 0; i < array.count(); ++i) {
         create_config(array[i].get(), configs);
@@ -664,9 +665,10 @@ public:
     }
 
     static sk_sp<SkPicture> ReadPicture(const char* path) {
+        return nullptr;
         // Not strictly necessary, as it will be checked again later,
         // but helps to avoid a lot of pointless work if we're going to skip it.
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str()) || true) {
             return nullptr;
         }
 
@@ -680,6 +682,7 @@ public:
     }
 
     static sk_sp<SkPicture> ReadSVGPicture(const char* path) {
+        return nullptr;
         SkFILEStream stream(path);
         if (!stream.isValid()) {
             SkDebugf("Could not read %s.\n", path);
@@ -834,7 +837,7 @@ public:
             fSourceType = "image";
             fBenchType = "skcodec";
             const SkString& path = fImages[fCurrentCodec];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (true || SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
@@ -913,7 +916,7 @@ public:
             fBenchType = "skandroidcodec";
 
             const SkString& path = fImages[fCurrentAndroidCodec];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (true || SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
@@ -958,7 +961,7 @@ public:
             fBenchType = "BRD";
 
             const SkString& path = fImages[fCurrentBRDImage];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (true || SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
 
@@ -1128,6 +1131,10 @@ static void start_keepalive() {
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
+    FLAGS_verbose = false;
+    FLAGS_veryVerbose = false;
+    FLAGS_samples = 20;
+    FLAGS_pre_log = false;
 
     initializeEventTracingForTools();
 
@@ -1234,18 +1241,23 @@ int main(int argc, char** argv) {
     }
 
     int runs = 0;
-    BenchmarkStream benchStream;
-    while (Benchmark* b = benchStream.next()) {
-        std::unique_ptr<Benchmark> bench(b);
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
+    SkTDArray<const char*> fakeMatch;
+    *fakeMatch.append() = "multitext";
+    for (int i = 0; i < configs.count(); ++i) {
+        if (configs[i].backend != Benchmark::kGPU_Backend || configs[i].colorSpace || configs[i].samples) {
             continue;
         }
+        BenchmarkStream benchStream;
+        while (Benchmark* b = benchStream.next()) {
+            std::unique_ptr<Benchmark> bench(b);
+            if (SkCommandLineFlags::ShouldSkip(fakeMatch, bench->getUniqueName())) {
+                continue;
+            }
 
-        if (!configs.empty()) {
-            log->bench(bench->getUniqueName(), bench->getSize().fX, bench->getSize().fY);
-            bench->delayedSetup();
-        }
-        for (int i = 0; i < configs.count(); ++i) {
+            if (!configs.empty()) {
+                log->bench(bench->getUniqueName(), bench->getSize().fX, bench->getSize().fY);
+                bench->delayedSetup();
+            }
 #ifdef THERMAL_MANAGER_SUPPORTED
             if (tmEnabled && !tm.coolOffIfNecessary()) {
                 SkDebugf("Could not cool off, timings will be throttled\n");
