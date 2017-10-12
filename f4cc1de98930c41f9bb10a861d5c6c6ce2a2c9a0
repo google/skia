@@ -22,6 +22,30 @@
       "revId": "f4cc1de98930c41f9bb10a861d5c6c6ce2a2c9a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9970b556_1840a411",
+        "filename": "include/utils/SkPaintFilterCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-12T14:38:46Z",
+      "side": 1,
+      "message": "The ctor always takes exactly one canvas and pushes it to the list.  We could assert count \u003d\u003d 1 for documentation.",
+      "parentUuid": "f603e97d_db6efe07",
+      "range": {
+        "startLine": 26,
+        "startChar": 15,
+        "endLine": 26,
+        "endChar": 27
+      },
+      "revId": "f4cc1de98930c41f9bb10a861d5c6c6ce2a2c9a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
