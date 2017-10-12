@@ -125,6 +125,7 @@ static sk_sp<GrTextureProxy> create_wrapped_backend(GrContext* context, SkBackin
             GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
                                          64, 64,
                                          kRGBA_8888_GrPixelConfig,
+                                         GrMipMapped::kNo,
                                          (*backingSurface)->getTextureHandle());
 
     return GrSurfaceProxy::MakeWrappedBackend(context, backendTex, kBottomLeft_GrSurfaceOrigin);
