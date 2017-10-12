@@ -16,6 +16,24 @@
       "revId": "f6e00b29fda02092518a0e6cbc703ed624fa0d3f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de82681f_db8b716a",
+        "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-12T19:10:02Z",
+      "side": 1,
+      "message": "I\u0027ll have to still sqrt it for the thin case, but will save some work for the non thin case",
+      "parentUuid": "127d7fd0_5a9afe9b",
+      "revId": "f6e00b29fda02092518a0e6cbc703ed624fa0d3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
