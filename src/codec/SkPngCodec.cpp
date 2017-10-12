@@ -361,7 +361,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr,
     int compression;
     if (PNG_INFO_iCCP == png_get_iCCP(png_ptr, info_ptr, &name, &compression, &profile,
             &length)) {
-        return SkColorSpace_Base::MakeICC(profile, length, iccType);
+        return SkColorSpace::MakeICC(profile, length, iccType);
     }
 
     // Second, check for sRGB.
