@@ -66,14 +66,15 @@ GrMockGpu::GrMockGpu(GrContext* context, const GrMockOptions& options,
 
 sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                             const GrMipLevel texels[], int mipLevelCount) {
-    bool hasMipLevels = mipLevelCount > 1;
+    GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
+                                                      : GrMipMapsStatus::kNotAllocated;
     GrMockTextureInfo info;
     info.fID = NextInternalTextureID();
     if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
         return sk_sp<GrTexture>(
-                new GrMockTextureRenderTarget(this, budgeted, desc, hasMipLevels, info));
+                new GrMockTextureRenderTarget(this, budgeted, desc, mipMapsStatus, info));
     }
-    return sk_sp<GrTexture>(new GrMockTexture(this, budgeted, desc, hasMipLevels, info));
+    return sk_sp<GrTexture>(new GrMockTexture(this, budgeted, desc, mipMapsStatus, info));
 }
 
 GrBuffer* GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrBufferType type,

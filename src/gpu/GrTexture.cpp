@@ -17,20 +17,20 @@
 #include "SkMipMap.h"
 #include "SkTypes.h"
 
-void GrTexture::dirtyMipMaps(bool mipMapsDirty) {
-    if (mipMapsDirty) {
-        if (kInvalid_MipMapsStatus == fMipMapsStatus || kClean_MipMapsStatus == fMipMapsStatus) {
-            fMipMapsStatus = kDirty_MipMapsStatus;
-        }
-    } else {
-        const bool sizeChanged = kNotAllocated_MipMapsStatus == fMipMapsStatus;
-        fMipMapsStatus = kClean_MipMapsStatus;
-        if (sizeChanged) {
-            // This must not be called until after changing fMipMapsStatus.
-            this->didChangeGpuMemorySize();
-            // TODO(http://skbug.com/4548) - The desc and scratch key should be
-            // updated to reflect the newly-allocated mipmaps.
-        }
+void GrTexture::markMipMapsDirty() {
+    if (GrMipMapsStatus::kValid == fMipMapsStatus) {
+        fMipMapsStatus = GrMipMapsStatus::kDirty;
+    }
+}
+
+void GrTexture::markMipMapsClean() {
+    const bool sizeChanged = GrMipMapsStatus::kNotAllocated == fMipMapsStatus;
+    fMipMapsStatus = GrMipMapsStatus::kValid;
+    if (sizeChanged) {
+        // This must not be called until after changing fMipMapsStatus.
+        this->didChangeGpuMemorySize();
+        // TODO(http://skbug.com/4548) - The desc and scratch key should be
+        // updated to reflect the newly-allocated mipmaps.
     }
 }
 
@@ -42,24 +42,17 @@ size_t GrTexture::onGpuMemorySize() const {
 /////////////////////////////////////////////////////////////////////////////
 GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType,
                      GrSamplerState::Filter highestFilterMode,
-                     bool mipsAllocated, bool wasFullMipMapDataProvided)
+                     GrMipMapsStatus mipMapsStatus)
         : INHERITED(gpu, desc)
         , fSamplerType(samplerType)
         , fHighestFilterMode(highestFilterMode)
+        , fMipMapsStatus(mipMapsStatus)
         // Mip color mode is explicitly set after creation via GrTexturePriv
         , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy) {
-    if (mipsAllocated) {
-        if (wasFullMipMapDataProvided) {
-            fMipMapsStatus = kClean_MipMapsStatus;
-        } else {
-            // Currently we should only hit this case when none of the mips were uploaded including
-            // the base. Thus we set this to invalid.
-            fMipMapsStatus = kInvalid_MipMapsStatus;
-        }
-        fMaxMipMapLevel = SkMipMap::ComputeLevelCount(this->width(), this->height());
-    } else {
-        fMipMapsStatus = kNotAllocated_MipMapsStatus;
+    if (GrMipMapsStatus::kNotAllocated == fMipMapsStatus) {
         fMaxMipMapLevel = 0;
+    } else {
+        fMaxMipMapLevel = SkMipMap::ComputeLevelCount(this->width(), this->height());
     }
 }
 

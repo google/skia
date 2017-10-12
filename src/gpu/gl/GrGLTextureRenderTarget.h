@@ -29,8 +29,7 @@ public:
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
                             const GrGLRenderTarget::IDDesc& rtIDDesc,
-                            bool mipsAllocated,
-                            bool wasFullMipMapDataProvided);
+                            GrMipMapsStatus);
 
     bool canAttemptStencilAttachment() const override;
 

@@ -570,7 +570,7 @@ static void prepare_sampled_images(const GrResourceIOProcessor& processor, GrVkG
         if (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter()) {
             if (vkTexture->texturePriv().mipMapsAreDirty()) {
                 gpu->generateMipmap(vkTexture, sampler.proxy()->origin());
-                vkTexture->texturePriv().dirtyMipMaps(false);
+                vkTexture->texturePriv().markMipMapsClean();
             }
         }
         set_texture_layout(vkTexture, gpu);

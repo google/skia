@@ -489,7 +489,7 @@ bool GrVkGpu::onTransferPixels(GrTexture* texture,
                                          1,
                                          &region);
 
-    vkTex->texturePriv().dirtyMipMaps(true);
+    vkTex->texturePriv().markMipMapsDirty();
     return true;
 }
 
@@ -766,7 +766,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, GrSurfaceOrigin texOrigin,
                                          regions.begin());
     transferBuffer->unref();
     if (1 == mipLevelCount) {
-       tex->texturePriv().dirtyMipMaps(true);
+        tex->texturePriv().markMipMapsDirty();
     }
 
     return true;
@@ -818,11 +818,14 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-    bool fullMipMapDataProvided = true;
-    for (int i = 0; i < mipLevelCount; ++i) {
-        if (!texels[i].fPixels) {
-            fullMipMapDataProvided = false;
-            break;
+    GrMipMapsStatus mipMapsStatus = GrMipMapsStatus::kNotAllocated;
+    if (mipLevels > 1) {
+        mipMapsStatus = GrMipMapsStatus::kValid;
+        for (int i = 0; i < mipLevels; ++i) {
+            if (!texels[i].fPixels) {
+                mipMapsStatus = GrMipMapsStatus::kDirty;
+                break;
+            }
         }
     }
 
@@ -830,10 +833,10 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
     if (renderTarget) {
         tex = GrVkTextureRenderTarget::CreateNewTextureRenderTarget(this, budgeted, desc,
                                                                     imageDesc,
-                                                                    fullMipMapDataProvided);
+                                                                    mipMapsStatus);
     } else {
         tex = GrVkTexture::CreateNewTexture(this, budgeted, desc, imageDesc,
-                                            fullMipMapDataProvided);
+                                            mipMapsStatus);
     }
 
     if (!tex) {
@@ -998,9 +1001,6 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
         SkDebugf("Trying to create mipmap for linear tiled texture");
         return;
     }
-
-    // Make sure we at least have some base layer to make mips from
-    SkASSERT(tex->texturePriv().mipMapsAreValid());
 
     // determine if we can blit to and from this format
     const GrVkCaps& caps = this->vkCaps();

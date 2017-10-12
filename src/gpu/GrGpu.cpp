@@ -427,7 +427,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_
         }
         GrTexture* texture = surface->asTexture();
         if (texture && 1 == mipLevels) {
-            texture->texturePriv().dirtyMipMaps(true);
+            texture->texturePriv().markMipMapsDirty();
         }
     }
 }
