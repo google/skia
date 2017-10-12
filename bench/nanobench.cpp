@@ -394,7 +394,7 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
         // We've overshot at least a little.  Scale back linearly.
         loops = (int)ceil(loops * FLAGS_gpuMs / elapsed);
         loops = clamp_loops(loops);
-
+        loops = 300;
         // Make sure we're not still timing our calibration.
         target->fence();
     } else {
@@ -664,9 +664,10 @@ public:
     }
 
     static sk_sp<SkPicture> ReadPicture(const char* path) {
+        return nullptr;
         // Not strictly necessary, as it will be checked again later,
         // but helps to avoid a lot of pointless work if we're going to skip it.
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str()) || true) {
             return nullptr;
         }
 
@@ -680,6 +681,7 @@ public:
     }
 
     static sk_sp<SkPicture> ReadSVGPicture(const char* path) {
+        return nullptr;
         SkFILEStream stream(path);
         if (!stream.isValid()) {
             SkDebugf("Could not read %s.\n", path);
@@ -834,7 +836,7 @@ public:
             fSourceType = "image";
             fBenchType = "skcodec";
             const SkString& path = fImages[fCurrentCodec];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (true || SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
@@ -913,7 +915,7 @@ public:
             fBenchType = "skandroidcodec";
 
             const SkString& path = fImages[fCurrentAndroidCodec];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (true || SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
@@ -958,7 +960,7 @@ public:
             fBenchType = "BRD";
 
             const SkString& path = fImages[fCurrentBRDImage];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (true || SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
 
@@ -1235,9 +1237,11 @@ int main(int argc, char** argv) {
 
     int runs = 0;
     BenchmarkStream benchStream;
+    SkTDArray<const char*> fakeMatch;
+    *fakeMatch.append() = "multitext";
     while (Benchmark* b = benchStream.next()) {
         std::unique_ptr<Benchmark> bench(b);
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
+        if (SkCommandLineFlags::ShouldSkip(fakeMatch, bench->getUniqueName())) {
             continue;
         }
 
