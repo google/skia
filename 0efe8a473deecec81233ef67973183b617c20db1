@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71956160_66c9de46",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-12T19:20:12Z",
+      "side": 1,
+      "message": "This is wrong for Perf bots, but we\u0027re not running anything anyway, so not sure it\u0027s worth caring.",
+      "range": {
+        "startLine": 37,
+        "startChar": 2,
+        "endLine": 37,
+        "endChar": 26
+      },
+      "revId": "0efe8a473deecec81233ef67973183b617c20db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f8b8ebe_b4418756",
+        "filename": "infra/bots/recipe_modules/flavor/gn_chromebook_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-12T19:20:12Z",
+      "side": 1,
+      "message": "I don\u0027t like that we need this here (in theory we may want to run any number of different binaries), but I don\u0027t see a cleaner way.",
+      "range": {
+        "startLine": 197,
+        "startChar": 0,
+        "endLine": 200,
+        "endChar": 59
+      },
+      "revId": "0efe8a473deecec81233ef67973183b617c20db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
