@@ -17,6 +17,7 @@
 #include "SkAutoMalloc.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkDistanceFieldGen.h"
+#include "SkMatrixPriv.h"
 #include "SkRasterClip.h"
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
@@ -233,7 +234,7 @@ private:
             uint32_t flags = 0;
             // Still need to key off of ctm to pick the right shader for the transformed quad
             flags |= ctm.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
-            flags |= ctm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+            flags |= SkMatrixPriv::CircleStaysCircle(ctm) ? kSimilarity_DistanceFieldEffectFlag : 0;
             flags |= fGammaCorrect ? kGammaCorrect_DistanceFieldEffectFlag : 0;
 
             const SkMatrix* matrix;
@@ -752,7 +753,8 @@ private:
         // Depending on the ctm we may have a different shader for SDF paths
         if (this->usesDistanceField()) {
             if (thisCtm.isScaleTranslate() != thatCtm.isScaleTranslate() ||
-                thisCtm.isSimilarity() != thatCtm.isSimilarity()) {
+                    SkMatrixPriv::CircleStaysCircle(thisCtm) !=
+                    SkMatrixPriv::CircleStaysCircle(thatCtm)) {
                 return false;
             }
         }

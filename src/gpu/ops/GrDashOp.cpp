@@ -17,6 +17,7 @@
 #include "GrProcessor.h"
 #include "GrStyle.h"
 #include "SkGr.h"
+#include "SkMatrixPriv.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -39,7 +40,7 @@ bool GrDashOp::CanDrawDashLine(const SkPoint pts[2], const GrStyle& style,
 
     // May be able to relax this to include skew. As of now cannot do perspective
     // because of the non uniform scaling of bloating a rect
-    if (!viewMatrix.preservesRightAngles()) {
+    if (!SkMatrixPriv::PreservesRightAngles(viewMatrix)) {
         return false;
     }
 

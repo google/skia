@@ -16,6 +16,7 @@
 #include "GrProcessor.h"
 #include "GrStyle.h"
 #include "SkGeometry.h"
+#include "SkMatrixPriv.h"
 #include "SkPathPriv.h"
 #include "SkString.h"
 #include "SkTraceEvent.h"
@@ -56,7 +57,7 @@ GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) co
 
     if (stroke.getStyle() == SkStrokeRec::kStroke_Style ||
         stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
-        if (!args.fViewMatrix->isSimilarity()) {
+        if (!SkMatrixPriv::CircleStaysCircle(*args.fViewMatrix)) {
             return CanDrawPath::kNo;
         }
         SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * stroke.getWidth();

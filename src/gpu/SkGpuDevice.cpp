@@ -27,6 +27,7 @@
 #include "SkImage_Base.h"
 #include "SkLatticeIter.h"
 #include "SkMaskFilter.h"
+#include "SkMatrixPriv.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
@@ -604,7 +605,7 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath,
         SkPoint points[2];
         if (SkPaint::kStroke_Style == paint.getStyle() && paint.getStrokeWidth() > 0 &&
             !paint.getMaskFilter() && SkPaint::kRound_Cap != paint.getStrokeCap() &&
-            this->ctm().preservesRightAngles() && origSrcPath.isLine(points)) {
+            SkMatrixPriv::PreservesRightAngles(this->ctm()) && origSrcPath.isLine(points)) {
             // Path-based stroking looks better for thin rects
             SkScalar strokeWidth = this->ctm().getMaxScale() * paint.getStrokeWidth();
             if (strokeWidth >= 1.0f) {

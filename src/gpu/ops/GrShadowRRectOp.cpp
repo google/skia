@@ -8,6 +8,7 @@
 #include "GrShadowRRectOp.h"
 #include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
+#include "SkMatrixPriv.h"
 #include "SkRRect.h"
 #include "effects/GrShadowGeoProc.h"
 
@@ -651,7 +652,7 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
                                SkScalar insetWidth,
                                SkScalar blurClamp) {
     // Shadow rrect ops only handle simple circular rrects.
-    SkASSERT(viewMatrix.isSimilarity() &&
+    SkASSERT(SkMatrixPriv::CircleStaysCircle(viewMatrix) &&
              (rrect.isSimpleCircular() || rrect.isRect() || rrect.isCircle()));
 
     // Do any matrix crunching before we reset the draw state for device coords.
