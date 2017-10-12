@@ -155,6 +155,18 @@ bool GrSurface::hasPendingIO() const {
     return false;
 }
 
+bool GrSurface::hasUniqueRef() const {
+    const GrTexture* thisTex = this->asTexture();
+    if (thisTex && !thisTex->internalHasUniqueRef()) {
+        return false;
+    }
+    const GrRenderTarget* thisRT = this->asRenderTarget();
+    if (thisRT && !thisRT->internalHasUniqueRef()) {
+        return false;
+    }
+    return true;
+}
+
 void GrSurface::onRelease() {
     this->INHERITED::onRelease();
 }
