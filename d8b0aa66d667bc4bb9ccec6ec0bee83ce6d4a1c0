@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c43aa8b9_94e08712",
+        "filename": "include/gpu/GrTexture.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-12T14:25:34Z",
+      "side": 1,
+      "message": "From the perspective of the caller of this function the GrTexture instance is simply deleted, right? The implementation will call abandon() which removes it from the resource cache and then drop the last ref. At that point it should go away.",
+      "range": {
+        "startLine": 40,
+        "startChar": 18,
+        "endLine": 40,
+        "endChar": 71
+      },
+      "revId": "d8b0aa66d667bc4bb9ccec6ec0bee83ce6d4a1c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c67dd1e9_ec1864a5",
+        "filename": "src/gpu/GrTexture.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-12T14:25:34Z",
+      "side": 1,
+      "message": "Thinking about this some more, we really need the texture to have 1 ref and no outstanding reads or writes here. The one caller has already guaranteed that, but who knows if this will prove useful for other callers. Perhaps we can rename (and change) this function to require this condition. Having a pure unique() function on a GrGpuResource might be a bit misleading since there are also pending IOs and the cache which can keep it alive after the ref is removed.",
+      "range": {
+        "startLine": 62,
+        "startChar": 8,
+        "endLine": 62,
+        "endChar": 26
+      },
+      "revId": "d8b0aa66d667bc4bb9ccec6ec0bee83ce6d4a1c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
