@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "500ebff7_bdb6c15e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-12T05:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e75851c_3d379c79",
+      "range": {
+        "startLine": 7,
+        "startChar": 8,
+        "endLine": 7,
+        "endChar": 12
+      },
+      "revId": "5ee6119b53e8ca8b03b98e0ba64b8b5f4b284385",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "00cc117b_72298bc0",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-10-11T17:00:12Z",
       "side": 1,
       "message": "nit: Current",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 6
+      },
+      "revId": "5ee6119b53e8ca8b03b98e0ba64b8b5f4b284385",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2329b956_449e21cf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-12T05:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00cc117b_72298bc0",
       "range": {
         "startLine": 9,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "0198c896_faa332d6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-12T05:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0dfa7b90_7c8beb81",
+      "range": {
+        "startLine": 10,
+        "startChar": 5,
+        "endLine": 10,
+        "endChar": 10
+      },
+      "revId": "5ee6119b53e8ca8b03b98e0ba64b8b5f4b284385",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "76dc8321_017ca321",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 1
@@ -82,6 +154,54 @@
       "writtenOn": "2017-10-11T17:00:12Z",
       "side": 1,
       "message": "Can we just remove this method, and put its implementation inside SkColorSpace::MakeICC?",
+      "range": {
+        "startLine": 1497,
+        "startChar": 0,
+        "endLine": 1497,
+        "endChar": 46
+      },
+      "revId": "5ee6119b53e8ca8b03b98e0ba64b8b5f4b284385",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc70b600_2a1979b5",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1497,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-12T05:27:52Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "76dc8321_017ca321",
+      "range": {
+        "startLine": 1497,
+        "startChar": 0,
+        "endLine": 1497,
+        "endChar": 46
+      },
+      "revId": "5ee6119b53e8ca8b03b98e0ba64b8b5f4b284385",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f29e5f90_76887dde",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1497,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-12T05:27:52Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "76dc8321_017ca321",
       "range": {
         "startLine": 1497,
         "startChar": 0,
