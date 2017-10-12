@@ -66,6 +66,7 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
               'sudo', 'mount', '-i', '-o', 'remount,exec', '/home/chronos')
 
     self.create_clean_device_dir(self._bin_dir)
+    self.create_clean_host_dir(self.m.vars.dm_dir)
 
   def compile(self, unused_target):
     configuration = self.m.vars.builder_cfg.get('configuration')
