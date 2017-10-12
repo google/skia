@@ -99,10 +99,17 @@ public:
     static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs,
                                        const SkMatrix44& toXYZD50);
 
+    typedef uint8_t ICCTypeFlag;
+    static constexpr ICCTypeFlag kRGB_ICCTypeFlag = 1 << 0;
+    static constexpr ICCTypeFlag kCMYK_ICCTypeFlag = 1 << 1;
+    static constexpr ICCTypeFlag kGray_ICCTypeFlag = 1 << 2;
+
     /**
      *  Create an SkColorSpace from an ICC profile.
      */
-    static sk_sp<SkColorSpace> MakeICC(const void*, size_t);
+    static sk_sp<SkColorSpace> MakeICC(const void*,
+                                       size_t,
+                                       ICCTypeFlag desiredType = kRGB_ICCTypeFlag);
 
     /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.
