@@ -60,6 +60,7 @@ public:
     void setStroke(const SkSVGPaint&);
     void setStrokeOpacity(const SkSVGNumberType&);
     void setStrokeWidth(const SkSVGLength&);
+    void setVisibility(const SkSVGVisibility&);
 
 protected:
     SkSVGNode(SkSVGTag);

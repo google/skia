@@ -45,6 +45,7 @@ enum class SkSVGAttribute {
     kStrokeWidth,
     kTransform,
     kViewBox,
+    kVisibility,
     kWidth,
     kX,
     kX1, // <line>: first endpoint x
@@ -72,6 +73,8 @@ struct SkSVGPresentationAttributes {
     SkTLazy<SkSVGNumberType> fStrokeMiterLimit;
     SkTLazy<SkSVGNumberType> fStrokeOpacity;
     SkTLazy<SkSVGLength>     fStrokeWidth;
+
+    SkTLazy<SkSVGVisibility> fVisibility;
 
     // uninherited
     SkTLazy<SkSVGNumberType> fOpacity;
