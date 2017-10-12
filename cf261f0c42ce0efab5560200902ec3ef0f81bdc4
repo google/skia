@@ -128,6 +128,24 @@
       "revId": "cf261f0c42ce0efab5560200902ec3ef0f81bdc4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22a8aad1_9cc390c7",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1097,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-12T15:45:20Z",
+      "side": 1,
+      "message": "Probably not... I think we used to only allow initial specification of no levels, the base level only, or all the levels.\n\nIf we ever hit this case then we probably shouldn\u0027t have uploaded any level other than the base since I don\u0027t think there is a way the non-base levels could ever be read.",
+      "parentUuid": "a450cfe2_82cf5786",
+      "revId": "cf261f0c42ce0efab5560200902ec3ef0f81bdc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
