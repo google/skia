@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6bfedd39_6ccf98bd",
+        "filename": "include/utils/SkPaintFilterCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-10-12T14:05:54Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "be09d409_f3a48dac",
+      "revId": "8cb29b3a6c2c60c99768392f506b51c5624b719a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b2e4817d_9072a642",
         "filename": "include/utils/SkPaintFilterCanvas.h",
         "patchSetId": 1
@@ -39,6 +57,30 @@
       "revId": "8cb29b3a6c2c60c99768392f506b51c5624b719a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f54a8743_daec2893",
+        "filename": "include/utils/SkPaintFilterCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-10-12T14:05:54Z",
+      "side": 1,
+      "message": "removed mOrigCanvas",
+      "parentUuid": "b2e4817d_9072a642",
+      "range": {
+        "startLine": 49,
+        "startChar": 14,
+        "endLine": 49,
+        "endChar": 25
+      },
+      "revId": "8cb29b3a6c2c60c99768392f506b51c5624b719a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
