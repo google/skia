@@ -81,6 +81,30 @@
       "revId": "d735f52116d37ce351f4db85609dd43383f7d723",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7068ce5a_8b1506a9",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-12T14:21:15Z",
+      "side": 1,
+      "message": "Do you think it\u0027s worth maintaining the distinction as we refactor code going forward? Or is it something that has served it\u0027s purpose as you\u0027ve developed the code?\n\nI have a little hesitation about to labeling base levels as valid/invalid partly because of cases like atlases and approximate scratch texture where maybe we\u0027ve initialized part of the base level but not all of it.",
+      "parentUuid": "7a1948d7_f203f806",
+      "range": {
+        "startLine": 770,
+        "startChar": 4,
+        "endLine": 771,
+        "endChar": 78
+      },
+      "revId": "d735f52116d37ce351f4db85609dd43383f7d723",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
