@@ -7,6 +7,7 @@
 
 
 import calendar
+import os
 
 
 DEPS = [
@@ -308,7 +309,8 @@ def perf_steps(api):
 
   # Copy results to swarming out dir.
   if api.vars.upload_perf_results:
-    api.file.ensure_directory('makedirs perf_dir', api.vars.perf_data_dir)
+    api.file.ensure_directory('makedirs perf_dir',
+                              api.path.dirname(api.vars.perf_data_dir))
     api.flavor.copy_directory_contents_to_host(
         api.flavor.device_dirs.perf_data_dir,
         api.vars.perf_data_dir)

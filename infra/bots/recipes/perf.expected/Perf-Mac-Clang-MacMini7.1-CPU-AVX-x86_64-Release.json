@@ -221,7 +221,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
