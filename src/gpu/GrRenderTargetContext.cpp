@@ -996,7 +996,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
     bool tiltZPlane = SkToBool(!SkScalarNearlyZero(rec.fZPlaneParams.fX) ||
                                !SkScalarNearlyZero(rec.fZPlaneParams.fY));
     bool skipAnalytic = SkToBool(rec.fFlags & SkShadowFlags::kGeometricOnly_ShadowFlag);
-    if (tiltZPlane || skipAnalytic || !viewMatrix.rectStaysRect() || !viewMatrix.isSimilarity()) {
+    if (tiltZPlane || skipAnalytic || !viewMatrix.rectStaysRect() || !viewMatrix.circleStaysCircle()) {
         return false;
     }
 

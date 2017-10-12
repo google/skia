@@ -47,7 +47,7 @@ public:
     }
 
     bool asDevSpaceRRect(const SkMatrix& ctm, SkRRect* rr) const override {
-        if (!ctm.isSimilarity()) { // the corners have to remain circular
+        if (!ctm.circleStaysCircle()) { // the corners have to remain circular
             return false;
         }
 
@@ -163,7 +163,7 @@ public:
     }
 
     bool asDevSpaceRRect(const SkMatrix& ctm, SkRRect* rr) const override {
-        if (!ctm.isSimilarity()) { // circles have to remain circles
+        if (!ctm.circleStaysCircle()) { // circles have to remain circles
             return false;
         }
 

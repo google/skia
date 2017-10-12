@@ -56,7 +56,7 @@ GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) co
 
     if (stroke.getStyle() == SkStrokeRec::kStroke_Style ||
         stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
-        if (!args.fViewMatrix->isSimilarity()) {
+        if (!args.fViewMatrix->circleStaysCircle()) {
             return CanDrawPath::kNo;
         }
         SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * stroke.getWidth();

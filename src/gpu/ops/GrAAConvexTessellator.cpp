@@ -229,7 +229,7 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
     SkScalar scaleFactor = 0.0f;
 
     if (SkStrokeRec::kStrokeAndFill_Style == fStyle) {
-        SkASSERT(m.isSimilarity());
+        SkASSERT(m.circleStaysCircle());
         scaleFactor = m.getMaxScale(); // x and y scale are the same
         SkScalar effectiveStrokeWidth = scaleFactor * fStrokeWidth;
         Ring outerStrokeAndAARing;
@@ -266,7 +266,7 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
 
     if (SkStrokeRec::kStroke_Style == fStyle) {
         SkASSERT(fStrokeWidth >= 0.0f);
-        SkASSERT(m.isSimilarity());
+        SkASSERT(m.circleStaysCircle());
         scaleFactor = m.getMaxScale(); // x and y scale are the same
         SkScalar effectiveStrokeWidth = scaleFactor * fStrokeWidth;
         Ring outerStrokeRing;

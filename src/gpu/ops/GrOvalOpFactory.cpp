@@ -42,7 +42,7 @@ struct DIEllipseVertex {
     SkPoint fInnerOffset;
 };
 
-static inline bool circle_stays_circle(const SkMatrix& m) { return m.isSimilarity(); }
+static inline bool circle_stays_circle(const SkMatrix& m) { return m.circleStaysCircle(); }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

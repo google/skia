@@ -247,7 +247,7 @@ private:
         if (fUsesDistanceField) {
             uint32_t flags = 0;
             flags |= ctm.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
-            flags |= ctm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+            flags |= ctm.circleStaysCircle() ? kSimilarity_DistanceFieldEffectFlag : 0;
             flags |= fGammaCorrect ? kGammaCorrect_DistanceFieldEffectFlag : 0;
 
             flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
