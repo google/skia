@@ -320,6 +320,13 @@ void SkNWayCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData
     }
 }
 
+void SkNWayCanvas::onFlush() {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->flush();
+    }
+}
+
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER
 SkDrawFilter* SkNWayCanvas::setDrawFilter(SkDrawFilter* filter) {
     Iter iter(fList);
