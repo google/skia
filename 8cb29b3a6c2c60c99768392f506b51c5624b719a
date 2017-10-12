@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be09d409_f3a48dac",
+        "filename": "include/utils/SkPaintFilterCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-12T13:59:48Z",
+      "side": 1,
+      "message": "return fList[0]; ?",
+      "revId": "8cb29b3a6c2c60c99768392f506b51c5624b719a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2e4817d_9072a642",
+        "filename": "include/utils/SkPaintFilterCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-12T13:59:48Z",
+      "side": 1,
+      "message": "SkNWayCanvas already stores the original canvas.",
+      "range": {
+        "startLine": 49,
+        "startChar": 14,
+        "endLine": 49,
+        "endChar": 25
+      },
+      "revId": "8cb29b3a6c2c60c99768392f506b51c5624b719a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
