@@ -21,7 +21,7 @@ public:
                                                SkBudgeted budgeted,
                                                const GrSurfaceDesc&,
                                                const GrVkImage::ImageDesc&,
-                                               bool wasFullMipMapDataProvided);
+                                               GrMipMapsStatus);
 
     static sk_sp<GrVkTexture> MakeWrappedTexture(GrVkGpu*, const GrSurfaceDesc&,
                                                  GrWrapOwnership, const GrVkImageInfo*);
@@ -45,7 +45,7 @@ public:
 
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, const GrVkImageView*,
-                GrBackendObjectOwnership, bool wasFullMipMapDataProvided);
+                GrMipMapsStatus, GrBackendObjectOwnership);
 
     GrVkGpu* getVkGpu() const;
 
@@ -56,9 +56,10 @@ private:
     enum Wrapped { kWrapped };
     GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
                 const GrVkImageInfo&, const GrVkImageView* imageView,
-                bool wasFullMipMapDataProvided);
+                GrMipMapsStatus);
     GrVkTexture(GrVkGpu*, Wrapped, const GrSurfaceDesc&,
-                const GrVkImageInfo&, const GrVkImageView* imageView, GrBackendObjectOwnership);
+                const GrVkImageInfo&, const GrVkImageView* imageView, GrMipMapsStatus,
+                GrBackendObjectOwnership);
 
     const GrVkImageView*     fTextureView;
     const GrVkImageView*     fLinearTextureView;

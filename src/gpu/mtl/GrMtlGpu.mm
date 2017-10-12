@@ -128,7 +128,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
                                                                     desc, mipLevels);
 #endif
     } else {
-        tex = GrMtlTexture::CreateNewTexture(this, budgeted, desc, mipLevels, false);
+        tex = GrMtlTexture::CreateNewTexture(this, budgeted, desc, mipLevels);
     }
 
     if (!tex) {
