@@ -70,6 +70,30 @@
       "revId": "f4cc1de98930c41f9bb10a861d5c6c6ce2a2c9a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2dea7ea_18bfdfba",
+        "filename": "include/utils/SkPaintFilterCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-12T14:44:20Z",
+      "side": 1,
+      "message": "I\u0027m thinking nothing/default is OK for N-way.\n\nAll the single-target virtuals only make sense for one-to-one.  I have another CL plumbing them for SkPaintFilterCanvas.\n\nMaybe another base class, with a single target, would make sense (SkProxyCanvas?).",
+      "parentUuid": "a399894e_bdb4143a",
+      "range": {
+        "startLine": 26,
+        "startChar": 15,
+        "endLine": 26,
+        "endChar": 27
+      },
+      "revId": "f4cc1de98930c41f9bb10a861d5c6c6ce2a2c9a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
