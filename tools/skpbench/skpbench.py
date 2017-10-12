@@ -61,6 +61,8 @@ __argparse.add_argument('-a', '--resultsfile',
 __argparse.add_argument('skps',
   nargs='+',
   help=".skp files or directories to expand for .skp files")
+__argparse.add_argument('--adb_binary', default='adb',
+  help="The name of the adb binary to use.")
 
 FLAGS = __argparse.parse_args()
 if FLAGS.adb:
@@ -110,9 +112,9 @@ class SKPBench:
     ARGV.extend(['--fps', 'true'])
   if FLAGS.adb:
     if FLAGS.device_serial is None:
-      ARGV[:0] = ['adb', 'shell']
+      ARGV[:0] = [FLAGS.adb_binary, 'shell']
     else:
-      ARGV[:0] = ['adb', '-s', FLAGS.device_serial, 'shell']
+      ARGV[:0] = [FLAGS.adb_binary, '-s', FLAGS.device_serial, 'shell']
 
   @classmethod
   def get_header(cls, outfile=sys.stdout):
