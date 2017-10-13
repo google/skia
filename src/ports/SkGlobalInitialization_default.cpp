@@ -8,7 +8,6 @@
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
 #include "SkAlphaThresholdFilter.h"
-#include "SkBitmapSourceDeserializer.h"
 #include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
 #include "SkColorFilterImageFilter.h"
@@ -61,8 +60,6 @@
  *  will automatically be called before any of skia's effects are asked to be deserialized.
  */
 void SkFlattenable::PrivateInitializer::InitEffects() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBitmapSourceDeserializer)
-
     // MaskFilter
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
     SkBlurMaskFilter::InitializeFlattenables();
