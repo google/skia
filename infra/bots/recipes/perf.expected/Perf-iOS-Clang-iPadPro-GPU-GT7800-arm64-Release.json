@@ -120,6 +120,21 @@
   },
   {
     "cmd": [
+      "echo"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "Comparing verison \"-1\" to \"42\""
+  },
+  {
+    "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "tmp/SKP_VERSION"
     ],
@@ -255,6 +270,21 @@
   },
   {
     "cmd": [
+      "echo"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "Comparing verison \"-1\" to \"42\" (2)"
+  },
+  {
+    "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "tmp/SK_IMAGE_VERSION"
     ],
@@ -387,6 +417,21 @@
     "infra_step": true,
     "name": "cat_file tmp/SVG_VERSION",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "echo"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.nanobench",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "Comparing verison \"-1\" to \"42\" (3)"
   },
   {
     "cmd": [
