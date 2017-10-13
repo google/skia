@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "54c9bfd7_b644eed6",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-10-13T20:17:51Z",
+      "side": 1,
+      "message": "Yeah, that was a pain.",
+      "parentUuid": "7676a8fa_8e1e0653",
+      "range": {
+        "startLine": 178,
+        "startChar": 12,
+        "endLine": 179,
+        "endChar": 40
+      },
+      "revId": "2d2bf185165f6c442c978f61b913efc33eeaa807",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "22e6ff42_4e75f47e",
         "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "2d2bf185165f6c442c978f61b913efc33eeaa807",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b67b69a2_7fd961ef",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-10-13T20:17:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22e6ff42_4e75f47e",
+      "range": {
+        "startLine": 201,
+        "startChar": 3,
+        "endLine": 238,
+        "endChar": 5
+      },
+      "revId": "2d2bf185165f6c442c978f61b913efc33eeaa807",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
