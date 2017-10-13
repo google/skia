@@ -272,4 +272,35 @@ private:
     Type fType;
 };
 
+class SkSVGDashArray {
+public:
+    enum class Type {
+        kNone,
+        kDashArray,
+        kInherit,
+    };
+
+    SkSVGDashArray()                : fType(Type::kNone) {}
+    explicit SkSVGDashArray(Type t) : fType(t) {}
+    explicit SkSVGDashArray(SkTDArray<SkSVGLength>&& dashArray)
+        : fType(Type::kDashArray)
+        , fDashArray(std::move(dashArray)) {}
+
+    SkSVGDashArray(const SkSVGDashArray&)            = default;
+    SkSVGDashArray& operator=(const SkSVGDashArray&) = default;
+
+    bool operator==(const SkSVGDashArray& other) const {
+        return fType == other.fType && fDashArray == other.fDashArray;
+    }
+    bool operator!=(const SkSVGDashArray& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+
+    const SkTDArray<SkSVGLength>& dashArray() const { return fDashArray; }
+
+private:
+    Type fType;
+    SkTDArray<SkSVGLength> fDashArray;
+};
+
 #endif // SkSVGTypes_DEFINED

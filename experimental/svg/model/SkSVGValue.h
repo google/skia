@@ -19,6 +19,7 @@ public:
     enum class Type {
         kClip,
         kColor,
+        kDashArray,
         kFillRule,
         kLength,
         kLineCap,
@@ -88,5 +89,6 @@ using SkSVGStringValue       = SkSVGWrapperValue<SkSVGStringType   , SkSVGValue:
 using SkSVGSpreadMethodValue = SkSVGWrapperValue<SkSVGSpreadMethod ,
                                                  SkSVGValue::Type::kSpreadMethod>;
 using SkSVGVisibilityValue   = SkSVGWrapperValue<SkSVGVisibility   , SkSVGValue::Type::kVisibility>;
+using SkSVGDashArrayValue    = SkSVGWrapperValue<SkSVGDashArray    , SkSVGValue::Type::kDashArray >;
 
 #endif // SkSVGValue_DEFINED
