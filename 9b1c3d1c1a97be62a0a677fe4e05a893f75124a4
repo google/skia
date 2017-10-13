@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c726b7e2_23940c6c",
+        "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-13T15:39:19Z",
+      "side": 1,
+      "message": "I really don\u0027t want to call this \"shard\", since this isn\u0027t really sharding and I\u0027d rather reserve that term for actual sharding if we ever do it.  Ideally it\u0027d be \"config\", since we pass \"--config XYZ\" into DM/nanobench, but we already have \"configuration\".  Maybe it\u0027s something like \"test_filter\"?  Or we could use \"config\" and change \"configuration\" to \"debug_or_release\"?",
+      "range": {
+        "startLine": 11,
+        "startChar": 7,
+        "endLine": 11,
+        "endChar": 12
+      },
+      "revId": "9b1c3d1c1a97be62a0a677fe4e05a893f75124a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
