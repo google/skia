@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "7676a8fa_8e1e0653",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-13T19:59:12Z",
+      "side": 1,
+      "message": "really? that\u0027s so nice of them not to support passing in 4 floats....",
+      "range": {
+        "startLine": 178,
+        "startChar": 12,
+        "endLine": 179,
+        "endChar": 40
+      },
+      "revId": "2d2bf185165f6c442c978f61b913efc33eeaa807",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22e6ff42_4e75f47e",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-13T19:59:12Z",
+      "side": 1,
+      "message": "maybe comment this section out or something to disable it till we have it working and testable",
+      "range": {
+        "startLine": 201,
+        "startChar": 3,
+        "endLine": 238,
+        "endChar": 5
+      },
+      "revId": "2d2bf185165f6c442c978f61b913efc33eeaa807",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "93063bc7_ca9b5264",
         "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
         "patchSetId": 7
