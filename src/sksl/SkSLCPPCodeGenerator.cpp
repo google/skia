@@ -148,10 +148,15 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const String& cppCode
         this->write(type.name() + "(%f, %f)");
         fFormatArgs.push_back(cppCode + ".fX");
         fFormatArgs.push_back(cppCode + ".fY");
+    } else if (type == *fContext.fFloat4_Type || type == *fContext.fHalf4_Type) {
+        this->write(type.name() + "(%f, %f, %f, %f)");
+        fFormatArgs.push_back(cppCode + ".left()");
+        fFormatArgs.push_back(cppCode + ".top()");
+        fFormatArgs.push_back(cppCode + ".right()");
+        fFormatArgs.push_back(cppCode + ".bottom()");
     } else {
-        this->write(type.name());
-        this->write("\n");
-        ABORT("unsupported runtime value type\n");
+        printf("unsupported runtime value type '%s'\n", String(type.fName).c_str());
+        ASSERT(false);
     }
 }
 
@@ -180,7 +185,26 @@ void CPPCodeGenerator::writeIntLiteral(const IntLiteral& i) {
     this->write(to_string((int32_t) i.fValue));
 }
 
+void CPPCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
+    if (fCPPMode) {
+        ASSERT(swizzle.fComponents.size() == 1); // no support for multiple swizzle components yet
+        this->writeExpression(*swizzle.fBase, kPostfix_Precedence);
+        switch (swizzle.fComponents[0]) {
+            case 0: this->write(".left()");   break;
+            case 1: this->write(".top()");    break;
+            case 2: this->write(".right()");  break;
+            case 3: this->write(".bottom()"); break;
+        }
+    } else {
+        INHERITED::writeSwizzle(swizzle);
+    }
+}
+
 void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
+    if (fCPPMode) {
+        this->write(ref.fVariable.fName);
+        return;
+    }
     switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
         case SK_INCOLOR_BUILTIN:
             this->write("%s");
@@ -434,12 +458,54 @@ void CPPCodeGenerator::writePrivateVarValues() {
             for (const auto& raw : decls->fVars) {
                 VarDeclaration& decl = (VarDeclaration&) *raw;
                 if (is_private(*decl.fVar) && decl.fValue) {
-                    this->writef("%s = %s;\n",
-                                 String(decl.fVar->fName).c_str(),
-                                 decl.fValue->description().c_str());
+                    this->writef("%s = ", String(decl.fVar->fName).c_str());
+                    fCPPMode = true;
+                    this->writeExpression(*decl.fValue, kAssignment_Precedence);
+                    fCPPMode = false;
+                    this->write(";\n");
                 }
             }
         }
+    }
+}
+
+static bool is_accessible(const Variable& var) {
+    return Type::kSampler_Kind != var.fType.kind() &&
+           Type::kOther_Kind != var.fType.kind();
+}
+
+void CPPCodeGenerator::writeCodeAppend(const String& code) {
+    // codeAppendf can only handle appending 1024 bytes at a time, so we need to break the string
+    // into chunks. Unfortunately we can't tell exactly how long the string is going to end up,
+    // because printf escape sequences get replaced by strings of unknown length, but keeping the
+    // format string below 512 bytes is probably safe.
+    static constexpr size_t maxChunkSize = 512;
+    size_t start = 0;
+    size_t index = 0;
+    size_t argStart = 0;
+    size_t argCount;
+    while (index < code.size()) {
+        argCount = 0;
+        this->write("        fragBuilder->codeAppendf(\"");
+        while (index < code.size() && index < start + maxChunkSize) {
+            if ('%' == code[index]) {
+                if (index == start + maxChunkSize - 1 || index == code.size() - 1) {
+                    break;
+                }
+                if (code[index + 1] != '%') {
+                    ++argCount;
+                }
+            }
+            ++index;
+        }
+        fOut->write(code.c_str() + start, index - start);
+        this->write("\"");
+        for (size_t i = argStart; i < argStart + argCount; ++i) {
+            this->writef(", %s", fFormatArgs[i].c_str());
+        }
+        this->write(");\n");
+        argStart += argCount;
+        start = index;
     }
 }
 
@@ -449,6 +515,22 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
     this->writef("        const %s& _outer = args.fFp.cast<%s>();\n"
                  "        (void) _outer;\n",
                  fFullName.c_str(), fFullName.c_str());
+    for (const auto& p : fProgram.fElements) {
+        if (ProgramElement::kVar_Kind == p->fKind) {
+            const VarDeclarations* decls = (const VarDeclarations*) p.get();
+            for (const auto& raw : decls->fVars) {
+                VarDeclaration& decl = (VarDeclaration&) *raw;
+                String nameString(decl.fVar->fName);
+                const char* name = nameString.c_str();
+                if (SectionAndParameterHelper::IsParameter(*decl.fVar) &&
+                    is_accessible(*decl.fVar)) {
+                    this->writef("        auto %s = _outer.%s();\n"
+                                 "        (void) %s;\n",
+                                 name, name, name);
+                }
+            }
+        }
+    }
     this->writePrivateVarValues();
     for (const auto u : uniforms) {
         this->addUniform(*u);
@@ -468,13 +550,9 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
     fOut = &mainBuffer;
     bool result = INHERITED::generateCode();
     fOut = old;
-    this->writef("%s        fragBuilder->codeAppendf(\"%s\"", fExtraEmitCodeCode.c_str(),
-                 mainBuffer.str().c_str());
-    for (const auto& s : fFormatArgs) {
-        this->writef(", %s", s.c_str());
-    }
-    this->write(");\n"
-                "    }\n");
+    this->writef("%s", fExtraEmitCodeCode.c_str());
+    this->writeCodeAppend(mainBuffer.str());
+    this->write("    }\n");
     return result;
 }
 

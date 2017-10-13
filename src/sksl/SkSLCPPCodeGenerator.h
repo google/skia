@@ -41,6 +41,8 @@ private:
 
     void writeIntLiteral(const IntLiteral& i) override;
 
+    void writeSwizzle(const Swizzle& swizzle) override;
+
     void writeVariableReference(const VariableReference& ref) override;
 
     String getSamplerHandle(const Variable& var);
@@ -68,6 +70,8 @@ private:
 
     void writePrivateVarValues();
 
+    void writeCodeAppend(const String& code);
+
     bool writeEmitCode(std::vector<const Variable*>& uniforms);
 
     void writeSetData(std::vector<const Variable*>& uniforms);
@@ -85,6 +89,8 @@ private:
     std::vector<String> fFormatArgs;
     std::set<int> fWrittenTransformedCoords;
     bool fNeedColorSpaceHelper = false;
+    // if true, we are writing a C++ expression instead of a GLSL expression
+    bool fCPPMode = false;
 
     typedef GLSLCodeGenerator INHERITED;
 };
