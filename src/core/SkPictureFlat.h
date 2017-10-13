@@ -61,9 +61,9 @@ enum DrawType {
     SKEW,
     TRANSLATE,
     NOOP,
-    BEGIN_COMMENT_GROUP, // deprecated (M44)
-    COMMENT,             // deprecated (M44)
-    END_COMMENT_GROUP,   // deprecated (M44)
+    BEGIN_COMMENT_GROUP_obsolete,
+    COMMENT_obsolete,
+    END_COMMENT_GROUP_obsolete,
 
     // new ops -- feel free to re-alphabetize on next version bump
     DRAW_DRRECT,
@@ -74,7 +74,7 @@ enum DrawType {
     DRAW_PICTURE_MATRIX_PAINT,
     DRAW_TEXT_BLOB,
     DRAW_IMAGE,
-    DRAW_IMAGE_RECT_STRICT, // deprecated (M45)
+    DRAW_IMAGE_RECT_STRICT_obsolete,
     DRAW_ATLAS,
     DRAW_IMAGE_NINE,
     DRAW_IMAGE_RECT,
