@@ -8,6 +8,7 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
+#if 0
 
 #include "GrSurfaceProxy.h"
 #include "GrTextureProducer.h"
@@ -444,4 +445,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DetermineDomainModeTest, reporter, ctxInfo) {
     proxy_test(reporter, context->resourceProvider());
 }
 
+#endif
 #endif
