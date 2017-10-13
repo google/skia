@@ -35,7 +35,6 @@
 #include "SkImageEncoder.h"
 #include "SkImagePriv.h"
 #include "SkMaskFilter.h"
-#include "SkMatrixPriv.h"
 #include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkPathOps.h"
@@ -520,12 +519,12 @@ HRESULT SkXPSDevice::createXpsTransform(const SkMatrix& matrix,
         return S_FALSE;
     }
     XPS_MATRIX rawXpsMatrix = {
-        SkScalarToFLOAT(affine[SkMatrixPriv::kAScaleX]),
-        SkScalarToFLOAT(affine[SkMatrixPriv::kASkewY]),
-        SkScalarToFLOAT(affine[SkMatrixPriv::kASkewX]),
-        SkScalarToFLOAT(affine[SkMatrixPriv::kAScaleY]),
-        SkScalarToFLOAT(affine[SkMatrixPriv::kATransX]),
-        SkScalarToFLOAT(affine[SkMatrixPriv::kATransY]),
+        SkScalarToFLOAT(affine[SkMatrix::kAScaleX]),
+        SkScalarToFLOAT(affine[SkMatrix::kASkewY]),
+        SkScalarToFLOAT(affine[SkMatrix::kASkewX]),
+        SkScalarToFLOAT(affine[SkMatrix::kAScaleY]),
+        SkScalarToFLOAT(affine[SkMatrix::kATransX]),
+        SkScalarToFLOAT(affine[SkMatrix::kATransY]),
     };
     HRM(this->fXpsFactory->CreateMatrixTransform(&rawXpsMatrix, xpsTransform),
         "Could not create transform.");

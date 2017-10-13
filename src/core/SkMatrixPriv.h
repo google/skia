@@ -13,18 +13,6 @@
 
 class SkMatrixPriv {
 public:
-    /** Affine arrays are in column major order
-        because that's how PDF and XPS like it.
-     */
-    enum {
-        kAScaleX,
-        kASkewY,
-        kASkewX,
-        kAScaleY,
-        kATransX,
-        kATransY,
-    };
-
     /**
      *  Attempt to map the rect through the inverse of the matrix. If it is not invertible,
      *  then this returns false and dst is unchanged.
