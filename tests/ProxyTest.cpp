@@ -10,7 +10,6 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
-#if 0
 
 #include "GrBackendSurface.h"
 #include "GrRenderTargetPriv.h"
@@ -311,5 +310,4 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
     }
 }
 
-#endif
 #endif
