@@ -99,10 +99,20 @@ public:
     static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs,
                                        const SkMatrix44& toXYZD50);
 
+    enum ICCTypeFlag {
+        kRGB_ICCTypeFlag = 1,
+        kCMYK_ICCTypeFlag = 2,
+        kGray_ICCTypeFlag = 4,
+        kGray_RGB_ICCTypeFlag = 5,
+    };
+
     /**
-     *  Create an SkColorSpace from an ICC profile.
+     *  Create an SkColorSpace from an ICC profile. Return nullptr for otherwise valid ICC
+     *  profiles that do not match desiredType.
      */
-    static sk_sp<SkColorSpace> MakeICC(const void*, size_t);
+    static sk_sp<SkColorSpace> MakeICC(const void*,
+                                       size_t,
+                                       ICCTypeFlag desiredType = kRGB_ICCTypeFlag);
 
     /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.
