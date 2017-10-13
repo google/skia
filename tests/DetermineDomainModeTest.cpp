@@ -8,6 +8,7 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
+#if 0
 
 #include "GrSurfaceProxy.h"
 #include "GrTextureProducer.h"
