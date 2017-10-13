@@ -234,6 +234,10 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
                                                                     scratchFlags);
         if (resource) {
             GrSurface* surface = static_cast<GrSurface*>(resource);
+
+            SkDebugf("Got %d %d %d - %d %d %d\n", surface->uniqueID().asUInt(), surface->width(), surface->height(),
+                surface->fRefCnt, surface->fPendingReads, surface->fPendingWrites);
+
             return sk_sp<GrTexture>(surface->asTexture());
         }
     }

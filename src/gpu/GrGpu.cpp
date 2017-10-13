@@ -151,6 +151,9 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
             }
         }
     }
+
+    SkDebugf("Created %d %d %d\n", tex->uniqueID().asUInt(), tex->width(), tex->height());
+
     return tex;
 }
 

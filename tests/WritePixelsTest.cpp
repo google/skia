@@ -447,4 +447,72 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo)
         }
     }
 }
+
+// This is actually test whether the first writePixels is completed before the
+// second writePixels takes effect.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    SkDebugf("-------------------------\n");
+    const SkImageInfo fullII = SkImageInfo::Make(64, 64, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    sk_sp<SkSurface> dest = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, fullII);
+
+    const SkImageInfo halfII = SkImageInfo::Make(32, 64, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    static const uint32_t kLeftColor = 0xFF222222;
+    static const uint32_t kRightColor = 0xFFAAAAAA;
+
+    sk_sp<SkImage> img;
+    {
+        SkBitmap bm;
+        bm.allocPixels(halfII);
+        bm.eraseColor(kLeftColor);
+
+        sk_sp<SkSurface> temp = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, halfII);
+        temp->getCanvas()->writePixels(bm, 0, 0);
+        img = temp->makeImageSnapshot();
+    }
+
+    dest->getCanvas()->drawImage(std::move(img), 0, 0);
+
+    {
+        SkBitmap bm;
+        bm.allocPixels(halfII);
+        bm.eraseColor(kRightColor);
+
+        sk_sp<SkSurface> temp = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, halfII);
+        temp->getCanvas()->writePixels(bm, 0, 0);
+        img = temp->makeImageSnapshot();
+    }
+
+    dest->getCanvas()->drawImage(std::move(img), 32, 0);
+
+    SkBitmap bm;
+    bm.allocPixels(fullII);
+    SkAssertResult(dest->readPixels(bm, 0, 0));
+
+    bool isCorrect = true;
+    for (int y = 0; y < 64; ++y) {
+        const uint32_t* sl = bm.getAddr32(0, y);
+
+        for (int x = 0; x < 32; ++x) {
+            if (kLeftColor != sl[x]) {
+                isCorrect = false;
+                break;
+            }
+        }
+        for (int x = 32; x < 64; ++x) {
+            if (kRightColor != sl[x]) {
+                isCorrect = false;
+                break;
+            }
+        }
+    }
+
+    SkDebugf("-------------------------\n");
+    REPORTER_ASSERT(reporter, isCorrect);
+}
+
+
 #endif
