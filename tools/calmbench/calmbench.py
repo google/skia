@@ -74,6 +74,9 @@ def parse_args():
       '(i.e., reuse previous baseline measurements)')
   noinit_help = (
       'whether to skip initial nanobench runs (default: %(default)s)')
+  branch_help = (
+      "the test branch to benchmark; if it's 'modified', we'll benchmark the "
+      "current modified code against 'git stash'.")
 
   definitions = [
     # argname, type, default value, help
@@ -91,7 +94,7 @@ def parse_args():
   for d in definitions:
     parser.add_argument(d[0], type=d[1], default=d[2], help=d[3])
 
-  parser.add_argument('branch', type=str, help="the test branch to benchmark")
+  parser.add_argument('branch', type=str, help=branch_help)
   parser.add_argument('--no-compile', dest='no_compile', action="store_true",
       help=no_compile_help)
   parser.add_argument('--skip-base', dest='skipbase', action="store_true",
@@ -116,7 +119,6 @@ def nano_path(args, branch):
 def compile_branch(args, branch):
   print "Compiling branch %s" % args.branch
 
-  os.chdir(args.skiadir)
   commands = [
     ['git', 'checkout', branch],
     ['ninja', '-C', args.ninjadir, 'nanobench'],
@@ -126,9 +128,29 @@ def compile_branch(args, branch):
     subprocess.check_call(command, cwd=args.skiadir)
 
 
+def compile_modified(args):
+  print "Compiling modified code"
+  subprocess.check_call(
+      ['ninja', '-C', args.ninjadir, 'nanobench'], cwd=args.skiadir)
+  subprocess.check_call(
+      ['cp', args.ninjadir + '/nanobench', nano_path(args, args.branch)],
+      cwd=args.skiadir)
+
+  print "Compiling stashed code"
+  subprocess.check_call(['git', 'stash'], cwd=args.skiadir)
+  subprocess.check_call(
+      ['ninja', '-C', args.ninjadir, 'nanobench'], cwd=args.skiadir)
+  subprocess.check_call(
+      ['cp', args.ninjadir + '/nanobench', nano_path(args, args.baseline)],
+      cwd=args.skiadir)
+  subprocess.check_call(['git', 'stash', 'pop'], cwd=args.skiadir)
+
 def compile_nanobench(args):
-  compile_branch(args, args.branch)
-  compile_branch(args, args.baseline)
+  if args.branch == 'modified':
+    compile_modified(args)
+  else:
+    compile_branch(args, args.branch)
+    compile_branch(args, args.baseline)
 
 
 def main():
