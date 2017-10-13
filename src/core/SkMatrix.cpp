@@ -7,7 +7,6 @@
 
 #include "SkFloatBits.h"
 #include "SkMatrix.h"
-#include "SkMatrixPriv.h"
 #include "SkNx.h"
 #include "SkPaint.h"
 #include "SkRSXform.h"
@@ -76,12 +75,12 @@ void SkMatrix::set9(const SkScalar buffer[]) {
 }
 
 void SkMatrix::setAffine(const SkScalar buffer[]) {
-    fMat[kMScaleX] = buffer[SkMatrixPriv::kAScaleX];
-    fMat[kMSkewX]  = buffer[SkMatrixPriv::kASkewX];
-    fMat[kMTransX] = buffer[SkMatrixPriv::kATransX];
-    fMat[kMSkewY]  = buffer[SkMatrixPriv::kASkewY];
-    fMat[kMScaleY] = buffer[SkMatrixPriv::kAScaleY];
-    fMat[kMTransY] = buffer[SkMatrixPriv::kATransY];
+    fMat[kMScaleX] = buffer[kAScaleX];
+    fMat[kMSkewX]  = buffer[kASkewX];
+    fMat[kMTransX] = buffer[kATransX];
+    fMat[kMSkewY]  = buffer[kASkewY];
+    fMat[kMScaleY] = buffer[kAScaleY];
+    fMat[kMTransY] = buffer[kATransY];
     fMat[kMPersp0] = 0;
     fMat[kMPersp1] = 0;
     fMat[kMPersp2] = 1;
@@ -779,12 +778,12 @@ static double sk_inv_determinant(const float mat[9], int isPerspective) {
 }
 
 void SkMatrix::SetAffineIdentity(SkScalar affine[6]) {
-    affine[SkMatrixPriv::kAScaleX] = 1;
-    affine[SkMatrixPriv::kASkewY] = 0;
-    affine[SkMatrixPriv::kASkewX] = 0;
-    affine[SkMatrixPriv::kAScaleY] = 1;
-    affine[SkMatrixPriv::kATransX] = 0;
-    affine[SkMatrixPriv::kATransY] = 0;
+    affine[kAScaleX] = 1;
+    affine[kASkewY] = 0;
+    affine[kASkewX] = 0;
+    affine[kAScaleY] = 1;
+    affine[kATransX] = 0;
+    affine[kATransY] = 0;
 }
 
 bool SkMatrix::asAffine(SkScalar affine[6]) const {
@@ -792,12 +791,12 @@ bool SkMatrix::asAffine(SkScalar affine[6]) const {
         return false;
     }
     if (affine) {
-        affine[SkMatrixPriv::kAScaleX] = this->fMat[kMScaleX];
-        affine[SkMatrixPriv::kASkewY] = this->fMat[kMSkewY];
-        affine[SkMatrixPriv::kASkewX] = this->fMat[kMSkewX];
-        affine[SkMatrixPriv::kAScaleY] = this->fMat[kMScaleY];
-        affine[SkMatrixPriv::kATransX] = this->fMat[kMTransX];
-        affine[SkMatrixPriv::kATransY] = this->fMat[kMTransY];
+        affine[kAScaleX] = this->fMat[kMScaleX];
+        affine[kASkewY] = this->fMat[kMSkewY];
+        affine[kASkewX] = this->fMat[kMSkewX];
+        affine[kAScaleY] = this->fMat[kMScaleY];
+        affine[kATransX] = this->fMat[kMTransX];
+        affine[kATransY] = this->fMat[kMTransY];
     }
     return true;
 }
