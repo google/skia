@@ -161,6 +161,7 @@ static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BA
 
 DEFINE_int32(msaa, 0, "Number of subpixel samples. 0 for no HW antialiasing.");
 DEFINE_pathrenderer_flag;
+DEFINE_bool(noPathMaskCache, false, "If true, disable caching of path masks on the GPU.");
 
 DEFINE_bool(instancedRendering, false, "Enable instanced rendering on GPU backends.");
 DECLARE_int32(threads)
@@ -304,6 +305,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     displayParams.fMSAASampleCount = FLAGS_msaa;
     displayParams.fGrContextOptions.fEnableInstancedRendering = FLAGS_instancedRendering;
     displayParams.fGrContextOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    displayParams.fGrContextOptions.fAllowPathMaskCaching = !FLAGS_noPathMaskCache;
     displayParams.fGrContextOptions.fExecutor = GpuExecutorForTools();
     fWindow->setRequestedDisplayParams(displayParams);
 
