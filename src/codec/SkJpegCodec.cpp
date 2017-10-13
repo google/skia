@@ -244,7 +244,7 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
                 default:
                     break;
             }
-            colorSpace = SkColorSpace_Base::MakeICC(iccData->data(), iccData->size(), iccType);
+            colorSpace = SkColorSpace::MakeICC(iccData->data(), iccData->size(), iccType);
         }
         if (!colorSpace) {
             colorSpace = defaultColorSpace;
