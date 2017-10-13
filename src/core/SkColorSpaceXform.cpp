@@ -439,7 +439,6 @@ bool SkColorSpaceXform_XYZ::onApply(ColorFormat dstColorFormat, void* dst,
     SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
                        dst_ctx = { (void*)dst, 0 };
 
-#if defined(SK_COLOR_SPACE_XFORM_LEGACY_PIPELINE)
     LoadTablesContext loadTables;
     switch (srcColorFormat) {
         case kRGBA_8888_ColorFormat:
@@ -590,82 +589,6 @@ bool SkColorSpaceXform_XYZ::onApply(ColorFormat dstColorFormat, void* dst,
         default:
             return false;
     }
-#else
-    // 1) Load src pixels.
-    SkRasterPipeline::StockStage load_src;
-    switch (srcColorFormat) {
-        case   kRGBA_8888_ColorFormat: load_src = SkRasterPipeline::load_8888      ; break;
-        case   kBGRA_8888_ColorFormat: load_src = SkRasterPipeline::load_bgra      ; break;
-        case  kRGB_U16_BE_ColorFormat: load_src = SkRasterPipeline::load_rgb_u16_be; break;
-        case kRGBA_U16_BE_ColorFormat: load_src = SkRasterPipeline::load_u16_be    ; break;
-        case    kRGBA_F16_ColorFormat: load_src = SkRasterPipeline::load_f16       ; break;
-        case    kRGBA_F32_ColorFormat: load_src = SkRasterPipeline::load_f32       ; break;
-        case     kBGR_565_ColorFormat: load_src = SkRasterPipeline::load_565       ; break;
-    }
-    pipeline.append(load_src, &src_ctx);
-
-    // 2) Linearize.
-    SkJumper_TableCtx table_r{fSrcGammaTables[0], 256},
-                      table_g{fSrcGammaTables[1], 256},
-                      table_b{fSrcGammaTables[2], 256};
-    switch (fSrcGamma) {
-        case kLinear_SrcGamma:                                                       break;
-        case   kSRGB_SrcGamma: pipeline.append_from_srgb(kUnpremul_SkAlphaType);     break;
-        case  kTable_SrcGamma: pipeline.append(SkRasterPipeline::clamp_0);
-                               pipeline.append(SkRasterPipeline::clamp_1);
-                               pipeline.append(SkRasterPipeline::table_r, &table_r);
-                               pipeline.append(SkRasterPipeline::table_g, &table_g);
-                               pipeline.append(SkRasterPipeline::table_b, &table_b); break;
-    }
-
-    // 3) Gamut transform.
-    if (!fSrcToDstIsIdentity) {
-        pipeline.append(SkRasterPipeline::matrix_3x4, fSrcToDst);
-        if (kRGBA_F16_ColorFormat != dstColorFormat && kRGBA_F32_ColorFormat != dstColorFormat) {
-            pipeline.append(SkRasterPipeline::clamp_0);
-            pipeline.append(SkRasterPipeline::clamp_1);
-        }
-    }
-
-    // 4) Apply transfer function and any premultiplication if necessary.
-    float to_2dot2 = 1/2.2f;
-    TablesContext tables = {
-        fDstGammaTables[0],
-        fDstGammaTables[1],
-        fDstGammaTables[2],
-        SkColorSpaceXform_Base::kDstGammaTableSize,
-    };
-
-    if (kPremul_SkAlphaType == alphaType && SkTransferFunctionBehavior::kRespect == fPremulBehavior)
-    {
-        pipeline.append(SkRasterPipeline::premul);
-    }
-    switch (fDstGamma) {
-        case kLinear_DstGamma:                                                              break;
-        case kSRGB_DstGamma:   pipeline.append(SkRasterPipeline::to_srgb);                  break;
-        case k2Dot2_DstGamma:  pipeline.append(SkRasterPipeline::gamma, &to_2dot2);         break;
-        case kTable_DstGamma:  pipeline.append(SkRasterPipeline::clamp_0);
-                               pipeline.append(SkRasterPipeline::clamp_1);
-                               pipeline.append(SkRasterPipeline::byte_tables_rgb, &tables); break;
-    }
-    if (kPremul_SkAlphaType == alphaType && SkTransferFunctionBehavior::kIgnore == fPremulBehavior)
-    {
-        pipeline.append(SkRasterPipeline::premul);
-    }
-
-    // 5) Store to dst.
-    SkRasterPipeline::StockStage store_dst;
-    switch (dstColorFormat) {
-        case kRGBA_8888_ColorFormat: store_dst = SkRasterPipeline::store_8888; break;
-        case kBGRA_8888_ColorFormat: store_dst = SkRasterPipeline::store_bgra; break;
-        case  kRGBA_F16_ColorFormat: store_dst = SkRasterPipeline::store_f16 ; break;
-        case  kRGBA_F32_ColorFormat: store_dst = SkRasterPipeline::store_f32 ; break;
-        case   kBGR_565_ColorFormat: store_dst = SkRasterPipeline::store_565 ; break;
-        default: return false;
-    }
-    pipeline.append(store_dst, &dst_ctx);
-#endif
-
     pipeline.run(0,0, len,1);
     return true;
 }
