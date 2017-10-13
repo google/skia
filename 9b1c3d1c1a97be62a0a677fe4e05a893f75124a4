@@ -46,6 +46,30 @@
       "revId": "9b1c3d1c1a97be62a0a677fe4e05a893f75124a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "94db07e2_403fbbaa",
+        "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-13T15:48:06Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7d475056_724630c2",
+      "range": {
+        "startLine": 11,
+        "startChar": 7,
+        "endLine": 11,
+        "endChar": 12
+      },
+      "revId": "9b1c3d1c1a97be62a0a677fe4e05a893f75124a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
