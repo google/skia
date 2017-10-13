@@ -46,7 +46,6 @@ int32_t GrIORefProxy::getPendingWriteCnt_TestOnly() const {
     return fPendingWrites;
 }
 
-#if 0
 static const int kWidthHeight = 128;
 
 static void check_refs(skiatest::Reporter* reporter,
@@ -192,5 +191,4 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
     }
 }
 
-#endif
 #endif
