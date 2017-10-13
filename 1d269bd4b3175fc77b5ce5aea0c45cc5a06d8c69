@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "721ed6b9_fe62758a",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-13T11:52:12Z",
+      "side": 1,
+      "message": "I think better ways to do this are:\n* Add new parameter to CheckChangeHasNoCR, CheckChangeHasNoStrayWhitespace in depot_tools repo in https://cs.chromium.org/chromium/tools/depot_tools/presubmit_canned_checks.py. Maybe something like fatal\u003dFalse, if true then it will not be a warning. _CheckChangeHasEol is in this file so that can be changed here.\n* Wrap CheckChangeHasNoCR and CheckChangeHasNoStrayWhitespace in functions in this file and do the result.fatal there before it returns.",
+      "revId": "1d269bd4b3175fc77b5ce5aea0c45cc5a06d8c69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
