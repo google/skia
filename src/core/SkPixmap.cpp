@@ -381,3 +381,82 @@ bool SkPixmap::computeIsOpaque() const {
     }
     return false;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename T, typename F>
+void apply(const SkPixmap& dst, const SkPixmap& src, unsigned flags, F getAddr) {
+    const int maxX = dst.width() - 1;
+    const int maxY = dst.height() - 1;
+    T* dstRow = (T*)dst.writable_addr();
+    for (int dy = 0; dy < dst.height(); ++dy) {
+        for (int dx = 0; dx < dst.width(); ++dx) {
+            int sx = dx;
+            int sy = dy;
+            if (flags & SkPixmap::kMirrorX_OrientFlag) {
+                sx = maxX - sx;
+            }
+            if (flags & SkPixmap::kMirrorY_OrientFlag) {
+                sy = maxY - sy;
+            }
+            if (flags & SkPixmap::kSwapXY_OrientFlag) {
+                SkTSwap<int>(sx, sy);
+            }
+            dstRow[dx] = getAddr(src, sx, sy);
+        }
+        dstRow = (T*)((char*)dstRow + dst.rowBytes());
+    }
+}
+
+static bool apply_orientation(const SkPixmap& dst, const SkPixmap& src, unsigned flags) {
+    SkASSERT(dst.colorType() == src.colorType());
+
+    switch (dst.info().bytesPerPixel()) {
+        case 1:
+            apply<uint8_t>(dst, src, flags, [](const SkPixmap& pm, int x, int y) {
+                return *pm.addr8(x, y);
+            }); break;
+        case 2:
+            apply<uint16_t>(dst, src, flags, [](const SkPixmap& pm, int x, int y) {
+                return *pm.addr16(x, y);
+            }); break;
+        case 4:
+            apply<uint32_t>(dst, src, flags, [](const SkPixmap& pm, int x, int y) {
+                return *pm.addr32(x, y);
+            }); break;
+        case 8:
+            apply<uint64_t>(dst, src, flags, [](const SkPixmap& pm, int x, int y) {
+                return *pm.addr64(x, y);
+            }); break;
+        default:
+            return false;
+    }
+    return true;
+}
+
+bool SkPixmap::orientTo(const SkPixmap& dst, OrientFlags flags) const {
+    SkASSERT((flags & ~(kMirrorX_OrientFlag | kMirrorY_OrientFlag | kSwapXY_OrientFlag)) == 0);
+    if (this->colorType() != dst.colorType()) {
+        return false;
+    }
+    // note: we just ignore alphaType and colorSpace for this transformation
+
+    int w = this->width();
+    int h = this->height();
+    if (flags & SkPixmap::kSwapXY_OrientFlag) {
+        SkTSwap(w, h);
+    }
+    if (dst.width() != w || dst.height() != h) {
+        return false;
+    }
+    if (w == 0 || h == 0) {
+        return true;
+    }
+
+    // check for aliasing to self
+    if (this->addr() == dst.addr()) {
+        return flags == 0;
+    }
+    return apply_orientation(dst, *this, flags);
+}
+

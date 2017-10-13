@@ -715,6 +715,18 @@ public:
     */
     bool erase(const SkColor4f& color, const SkIRect* subset = nullptr) const;
 
+    // These flag are applied in this order (swap is applied last)
+    enum OrientFlags {
+        kMirrorX_OrientFlag = 1 << 0,
+        kMirrorY_OrientFlag = 1 << 1,
+        kSwapXY_OrientFlag  = 1 << 2,
+    };
+    /**
+     *  Copy the pixels in this pixmap into dst, applying the orientation transformations specified
+     *  by the flags. If the inputs are invalid, this returns false and no copy is made.
+     */
+    bool orientTo(const SkPixmap& dst, OrientFlags) const;
+
 private:
     const void*     fPixels;
     size_t          fRowBytes;
