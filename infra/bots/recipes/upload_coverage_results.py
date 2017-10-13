@@ -126,7 +126,7 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug'
+  builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All'
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,
