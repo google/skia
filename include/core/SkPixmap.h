@@ -206,34 +206,9 @@ public:
     */
     int shiftPerPixel() const { return fInfo.shiftPerPixel(); }
 
-#ifdef SK_SUPPORT_LEGACY_SAFESIZE64
-    /** Returns conservative memory required for pixel storage.
-        Includes unused memory on last row when rowBytesAsPixels() exceeds width().
-
-        @return  conservative pixel storage size
-    */
-    uint64_t getSize64() const { return sk_64_mul(fInfo.height(), fRowBytes); }
-
-    /** Returns minimum memory required for pixel storage.
-        Does not include unused memory on last row when rowBytesAsPixels() exceeds width().
-
-        @return  exact pixel storage size
-    */
-    uint64_t getSafeSize64() const { return fInfo.getSafeSize64(fRowBytes); }
-
-    /** Returns minimum memory required for pixel storage.
-        Does not include unused memory on last row when rowBytesAsPixels() exceeds width().
-        Returns zero if value is does not fit in a signed 32-bit integer.
-        The largest value than can be returned is 2,147,483,647.
-
-        @return  exact pixel storage size if size fits in signed 32 bits
-    */
-    size_t getSafeSize() const { return fInfo.getSafeSize(fRowBytes); }
-#endif
-
     /**
      *  Returns the size (in bytes) of the pixmap's image buffer.
-     *  If the calculation overflows, or if the height is 0, this returns 0.
+     *  If the calculation overflows, this returns max_size_t.
      */
     size_t computeByteSize() const { return fInfo.computeByteSize(fRowBytes); }
 
