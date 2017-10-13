@@ -1685,6 +1685,20 @@ public:
         this->writeEndTag(tagType, tagID.c_str(), spaces);
     }
 
+    void writeIncompleteTag(const char* tagType, const string& tagID, int spaces = 1) {
+        this->writeString(string("#") + tagType + " " + tagID);
+        this->writeSpace(spaces);
+        this->writeString("incomplete");
+        this->writeSpace();
+        this->writeString("##");
+        this->lf(1);
+    }
+
+    void writeIncompleteTag(const char* tagType) {
+        this->writeString(string("#") + tagType + " incomplete ##");
+        this->lf(1);
+    }
+
     void writeTableHeader(const char* col1, size_t pad, const char* col2) {
         this->lf(1);
         this->writeString("#Table");
