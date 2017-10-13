@@ -5,7 +5,7 @@
       "cp",
       "-Z",
       "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.profraw"
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
     ],
     "name": "upload raw data",
     "~followup_annotations": [
@@ -19,7 +19,7 @@
       "cp",
       "-Z",
       "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.profraw"
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
     ],
     "name": "upload raw data (attempt 2)",
     "~followup_annotations": [
@@ -33,7 +33,7 @@
       "cp",
       "-Z",
       "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.profraw"
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
     ],
     "name": "upload raw data (attempt 3)",
     "~followup_annotations": [
@@ -47,7 +47,7 @@
       "cp",
       "-Z",
       "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.profraw"
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
     ],
     "name": "upload raw data (attempt 4)",
     "~followup_annotations": [
@@ -61,7 +61,7 @@
       "cp",
       "-Z",
       "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.profraw"
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
     ],
     "name": "upload raw data (attempt 5)",
     "~followup_annotations": [
