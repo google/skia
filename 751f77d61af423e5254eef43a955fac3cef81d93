@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6370042a_be8d2bd1",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-10-13T16:58:20Z",
+      "side": 1,
+      "message": "I\u0027ll just remove it then.  Are you sure echo doesn\u0027t work on windows?  Don\u0027t they have it on the cmd?",
+      "parentUuid": "1c967526_476e2381",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 78
+      },
+      "revId": "751f77d61af423e5254eef43a955fac3cef81d93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8be8298a_b1a0d1da",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "751f77d61af423e5254eef43a955fac3cef81d93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ef578f1_58fa05b3",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-10-13T16:58:20Z",
+      "side": 1,
+      "message": "Agreed.  It was left over from early testing.",
+      "parentUuid": "8be8298a_b1a0d1da",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 0
+      },
+      "revId": "751f77d61af423e5254eef43a955fac3cef81d93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
