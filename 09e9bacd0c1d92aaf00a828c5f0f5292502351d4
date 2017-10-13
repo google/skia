@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "70cd9700_aa9bcd18",
+        "filename": "experimental/svg/model/SkSVGRenderContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-13T18:15:02Z",
+      "side": 1,
+      "message": "Yeah, I see it being used in several places in Skia, and also in Chromium.\n\nRemoved after change below.",
+      "parentUuid": "0bf80c80_4983bd20",
+      "revId": "09e9bacd0c1d92aaf00a828c5f0f5292502351d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "abf10a0e_124cb917",
         "filename": "experimental/svg/model/SkSVGRenderContext.cpp",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "207f02da_e82ca664",
+        "filename": "experimental/svg/model/SkSVGRenderContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-13T18:15:02Z",
+      "side": 1,
+      "message": "We can.  std::copy is pretty much equivalent in this case, and seems to be preferred in Chromium (more idiomatic?).\n\nI don\u0027t really have a strong preference, changed to memcpy.",
+      "parentUuid": "abf10a0e_124cb917",
+      "revId": "09e9bacd0c1d92aaf00a828c5f0f5292502351d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8ff9ed77_8d415eee",
         "filename": "experimental/svg/model/SkSVGTypes.h",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-10-13T17:58:43Z",
       "side": 1,
       "message": "Do we need this ctor? What does it do with kDashArray type ?",
+      "revId": "09e9bacd0c1d92aaf00a828c5f0f5292502351d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57e28f70_912cd711",
+        "filename": "experimental/svg/model/SkSVGTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-13T18:15:02Z",
+      "side": 1,
+      "message": "\u003e Do we need this ctor?\n\nUsed to instantiate kInherited, kNone values in the parser.\n\n\u003e What does it do with kDashArray type ?\n\nInstantiates with an empty dash array, but not really used/useful in practice.",
+      "parentUuid": "8ff9ed77_8d415eee",
       "revId": "09e9bacd0c1d92aaf00a828c5f0f5292502351d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
