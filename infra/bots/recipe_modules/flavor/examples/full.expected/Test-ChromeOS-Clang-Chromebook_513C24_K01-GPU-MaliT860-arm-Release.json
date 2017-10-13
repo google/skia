@@ -323,6 +323,19 @@
   },
   {
     "cmd": [
+      "echo"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "Comparing verison \"-1\" to \"42\""
+  },
+  {
+    "cmd": [
       "ssh",
       "-oConnectTimeout=15",
       "-oBatchMode=yes",
@@ -475,6 +488,19 @@
   },
   {
     "cmd": [
+      "echo"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "Comparing verison \"-1\" to \"42\" (2)"
+  },
+  {
+    "cmd": [
       "ssh",
       "-oConnectTimeout=15",
       "-oBatchMode=yes",
@@ -624,6 +650,19 @@
     "infra_step": true,
     "name": "read /home/chronos/user/SVG_VERSION",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "echo"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "Comparing verison \"-1\" to \"42\" (3)"
   },
   {
     "cmd": [
