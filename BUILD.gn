@@ -16,6 +16,7 @@ if (!defined(is_skia_standalone)) {
 is_skia_dev_build = is_skia_standalone && !is_official_build
 
 declare_args() {
+  skia_settings = ""
   skia_use_angle = false
   skia_use_egl = false
   skia_use_expat = true
@@ -73,6 +74,10 @@ declare_args() {
       skia_vulkan_headers = "$skia_vulkan_sdk/include"
     }
   }
+}
+
+if (skia_settings != "") {
+  import(skia_settings)
 }
 
 # Our tools require static linking (they use non-exported symbols).
