@@ -179,11 +179,18 @@ void commitToPaint<SkSVGAttribute::kStrokeDashArray>(const SkSVGPresentationAttr
 
     SkASSERT((intervals.count() & 1) == 0);
 
-    // TODO: phase support
-    const SkScalar phase = 0;
+    const SkScalar phase = ctx.lengthContext().resolve(*pctx->fInherited.fStrokeDashOffset.get(),
+                                                       SkSVGLengthContext::LengthType::kOther);
     pctx->fStrokePaint.setPathEffect(SkDashPathEffect::Make(intervals.begin(),
                                                             intervals.count(),
                                                             phase));
+}
+
+template <>
+void commitToPaint<SkSVGAttribute::kStrokeDashOffset>(const SkSVGPresentationAttributes&,
+                                                      const SkSVGRenderContext&,
+                                                      SkSVGPresentationContext*) {
+    // Applied via kStrokeDashArray.
 }
 
 template <>
@@ -330,6 +337,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(FillRule);
     ApplyLazyInheritedAttribute(ClipRule);
     ApplyLazyInheritedAttribute(Stroke);
+    ApplyLazyInheritedAttribute(StrokeDashOffset);
     ApplyLazyInheritedAttribute(StrokeDashArray);
     ApplyLazyInheritedAttribute(StrokeLineCap);
     ApplyLazyInheritedAttribute(StrokeLineJoin);

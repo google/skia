@@ -94,6 +94,10 @@ void SkSVGNode::setStrokeDashArray(const SkSVGDashArray& dashArray) {
     fPresentationAttributes.fStrokeDashArray.set(dashArray);
 }
 
+void SkSVGNode::setStrokeDashOffset(const SkSVGLength& dashOffset) {
+    fPresentationAttributes.fStrokeDashOffset.set(dashOffset);
+}
+
 void SkSVGNode::setStrokeOpacity(const SkSVGNumberType& opacity) {
     fPresentationAttributes.fStrokeOpacity.set(
         SkSVGNumberType(SkTPin<SkScalar>(opacity.value(), 0, 1)));
@@ -147,6 +151,11 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     case SkSVGAttribute::kStrokeDashArray:
         if (const SkSVGDashArrayValue* dashArray = v.as<SkSVGDashArrayValue>()) {
             this->setStrokeDashArray(*dashArray);
+        }
+        break;
+    case SkSVGAttribute::kStrokeDashOffset:
+        if (const SkSVGLengthValue* dashOffset= v.as<SkSVGLengthValue>()) {
+            this->setStrokeDashOffset(*dashOffset);
         }
         break;
     case SkSVGAttribute::kStrokeOpacity:

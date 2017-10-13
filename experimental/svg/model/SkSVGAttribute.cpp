@@ -17,6 +17,7 @@ SkSVGPresentationAttributes SkSVGPresentationAttributes::MakeInitial() {
 
     result.fStroke.set(SkSVGPaint(SkSVGPaint::Type::kNone));
     result.fStrokeDashArray.set(SkSVGDashArray(SkSVGDashArray::Type::kNone));
+    result.fStrokeDashOffset.set(SkSVGLength(0));
     result.fStrokeLineCap.set(SkSVGLineCap(SkSVGLineCap::Type::kButt));
     result.fStrokeLineJoin.set(SkSVGLineJoin(SkSVGLineJoin::Type::kMiter));
     result.fStrokeMiterLimit.set(SkSVGNumberType(4));
