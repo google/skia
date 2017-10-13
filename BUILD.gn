@@ -75,6 +75,10 @@ declare_args() {
   }
 }
 
+if (defined(skia_settings)) {
+  import(skia_settings)
+}
+
 # Our tools require static linking (they use non-exported symbols).
 skia_enable_tools = skia_enable_tools && !is_component_build
 
