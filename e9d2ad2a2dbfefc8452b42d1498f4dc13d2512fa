@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "d2dd4d9b_ece42a2d",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-13T05:33:44Z",
+      "side": 1,
+      "message": "We can modify this to enum but it requires changes in many places and function call. Can we do this change in other CL if it\u0027s ok?",
+      "parentUuid": "e029bdd1_ec17916c",
+      "range": {
+        "startLine": 102,
+        "startChar": 4,
+        "endLine": 102,
+        "endChar": 11
+      },
+      "revId": "e9d2ad2a2dbfefc8452b42d1498f4dc13d2512fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c6cbcea6_63739027",
         "filename": "include/core/SkColorSpace.h",
         "patchSetId": 3
