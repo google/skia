@@ -36,6 +36,9 @@ DECLARE_bool(analyticAA);
 DECLARE_bool(forceAnalyticAA);
 DECLARE_bool(deltaAA);
 DECLARE_bool(forceDeltaAA);
+#if SK_SUPPORT_GPU
+DECLARE_bool(cachePathMasks);
+#endif
 
 DECLARE_string(key);
 DECLARE_string(properties);

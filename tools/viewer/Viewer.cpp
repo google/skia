@@ -140,8 +140,8 @@ static DEFINE_string2(match, m, nullptr,
                "If a bench does not match any list entry,\n"
                "it is skipped unless some list entry starts with ~");
 
-DEFINE_string(slide, "", "Start on this sample.");
-DEFINE_bool(list, false, "List samples?");
+static DEFINE_string(slide, "", "Start on this sample.");
+static DEFINE_bool(list, false, "List samples?");
 
 #ifdef SK_VULKAN
 #    define BACKENDS_STR "\"sw\", \"gl\", and \"vk\""
@@ -159,10 +159,11 @@ static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
 
 static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
 
-DEFINE_int32(msaa, 0, "Number of subpixel samples. 0 for no HW antialiasing.");
+static DEFINE_int32(msaa, 0, "Number of subpixel samples. 0 for no HW antialiasing.");
+static DEFINE_bool(cachePathMasks, true, "Allows path mask textures to be cached in GPU configs.");
 DEFINE_pathrenderer_flag;
 
-DEFINE_bool(instancedRendering, false, "Enable instanced rendering on GPU backends.");
+static DEFINE_bool(instancedRendering, false, "Enable instanced rendering on GPU backends.");
 DECLARE_int32(threads)
 
 const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
@@ -304,6 +305,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     displayParams.fMSAASampleCount = FLAGS_msaa;
     displayParams.fGrContextOptions.fEnableInstancedRendering = FLAGS_instancedRendering;
     displayParams.fGrContextOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    displayParams.fGrContextOptions.fAllowPathMaskCaching = FLAGS_cachePathMasks;
     displayParams.fGrContextOptions.fExecutor = GpuExecutorForTools();
     fWindow->setRequestedDisplayParams(displayParams);
 
