@@ -41,6 +41,7 @@ tests_sources = [
   "$_tests/ColorPrivTest.cpp",
   "$_tests/ColorSpaceTest.cpp",
   "$_tests/ColorSpaceXformTest.cpp",
+  "$_tests/ColorSpaceXformV2Test.cpp",
   "$_tests/ColorTest.cpp",
   "$_tests/CopySurfaceTest.cpp",
   "$_tests/CPlusPlusEleven.cpp",
