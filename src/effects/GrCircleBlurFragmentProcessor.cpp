@@ -263,6 +263,12 @@ public:
         const GrCircleBlurFragmentProcessor& _outer =
                 args.fFp.cast<GrCircleBlurFragmentProcessor>();
         (void)_outer;
+        auto circleRect = _outer.circleRect();
+        (void)circleRect;
+        auto textureRadius = _outer.textureRadius();
+        (void)textureRadius;
+        auto solidRadius = _outer.solidRadius();
+        (void)solidRadius;
         fCircleDataVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                           kDefault_GrSLPrecision, "circleData");
         fragBuilder->codeAppendf(

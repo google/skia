@@ -23,6 +23,12 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrCircleEffect& _outer = args.fFp.cast<GrCircleEffect>();
         (void)_outer;
+        auto edgeType = _outer.edgeType();
+        (void)edgeType;
+        auto center = _outer.center();
+        (void)center;
+        auto radius = _outer.radius();
+        (void)radius;
         prevRadius = -1.0;
         fCircleVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                       kDefault_GrSLPrecision, "circle");
