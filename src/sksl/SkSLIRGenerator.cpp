@@ -1955,7 +1955,6 @@ void IRGenerator::convertProgram(const char* text,
     Parser parser(text, length, types, fErrors);
     std::vector<std::unique_ptr<ASTDeclaration>> parsed = parser.file();
     if (fErrors.errorCount()) {
-        printf("float type has name: '%s'\n", fContext.fFloat_Type->name().c_str());
         return;
     }
     for (size_t i = 0; i < parsed.size(); i++) {

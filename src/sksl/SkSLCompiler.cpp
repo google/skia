@@ -12,6 +12,7 @@
 #include "SkSLGLSLCodeGenerator.h"
 #include "SkSLHCodeGenerator.h"
 #include "SkSLIRGenerator.h"
+#include "SkSLMetalCodeGenerator.h"
 #include "SkSLSPIRVCodeGenerator.h"
 #include "ir/SkSLExpression.h"
 #include "ir/SkSLExpressionStatement.h"
@@ -1232,6 +1233,13 @@ bool Compiler::toGLSL(const Program& program, String* out) {
     if (result) {
         *out = buffer.str();
     }
+    return result;
+}
+
+bool Compiler::toMetal(const Program& program, OutputStream& out) {
+    MetalCodeGenerator cg(&fContext, &program, this, &out);
+    bool result = cg.generateCode();
+    this->writeErrorCount();
     return result;
 }
 

@@ -155,6 +155,14 @@ bool StringFragment::operator!=(const char* s) const {
     return strncmp(fChars, s, fLength);
 }
 
+bool operator==(const char* s1, StringFragment s2) {
+    return s2 == s1;
+}
+
+bool operator!=(const char* s1, StringFragment s2) {
+    return s2 != s1;
+}
+
 String to_string(int32_t value) {
     return SkSL::String::printf("%d", value);
 }
