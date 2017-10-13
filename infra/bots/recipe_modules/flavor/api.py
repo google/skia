@@ -150,6 +150,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
                                                 fail_build_on_failure=False)
       if not device_version:
         device_version = VERSION_NONE
+      self.m.run(self.m.step, 'Comparing verison "%s" to "%s"' %
+                (device_version, host_version), cmd=["echo"], infra_step=True)
       if device_version != host_version:
         self.remove_file_on_device(device_version_file)
         self.create_clean_device_dir(device_path)
