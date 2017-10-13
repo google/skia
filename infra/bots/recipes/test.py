@@ -227,7 +227,7 @@ def dm_flags(api, bot):
     # Test coverage counting path renderer.
     if 'CCPR' in bot:
       configs = [c for c in configs if c == 'gl' or c == 'gles']
-      args.extend(['--pr', 'ccpr'])
+      args.extend(['--pr', 'ccpr', '--cachePathMasks', 'false'])
 
   args.append('--config')
   args.extend(configs)

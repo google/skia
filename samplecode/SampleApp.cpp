@@ -858,6 +858,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
 #if SK_SUPPORT_GPU
     fBackendOptions.fGrContextOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    fBackendOptions.fGrContextOptions.fAllowPathMaskCaching = FLAGS_cachePathMasks;
     fBackendOptions.fMSAASampleCount = FLAGS_msaa;
     fBackendOptions.fDeepColor = FLAGS_deepColor;
 #endif
