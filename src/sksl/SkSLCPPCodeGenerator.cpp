@@ -443,6 +443,41 @@ void CPPCodeGenerator::writePrivateVarValues() {
     }
 }
 
+void CPPCodeGenerator::writeCodeAppend(const String& code) {
+    // codeAppendf can only handle appending 1024 bytes at a time, so we need to break the string
+    // into chunks. Unfortunately we can't tell exactly how long the string is going to end up,
+    // because printf escape sequences get replaced by strings of unknown length, but keeping the
+    // format string below 512 bytes is probably safe.
+    static constexpr size_t maxChunkSize = 512;
+    size_t start = 0;
+    size_t index = 0;
+    size_t argStart = 0;
+    size_t argCount;
+    while (index < code.size()) {
+        argCount = 0;
+        this->write("        fragBuilder->codeAppendf(\"");
+        while (index < code.size() && index < start + maxChunkSize) {
+            if ('%' == code[index]) {
+                if (index == start + maxChunkSize - 1 || index == code.size() - 1) {
+                    break;
+                }
+                if (code[index + 1] != '%') {
+                    ++argCount;
+                }
+            }
+            ++index;
+        }
+        fOut->write(code.c_str() + start, index - start);
+        this->write("\"");
+        for (size_t i = argStart; i < argStart + argCount; ++i) {
+            this->writef(", %s", fFormatArgs[i].c_str());
+        }
+        this->write(");\n");
+        argStart += argCount;
+        start = index;
+    }
+}
+
 bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
     this->write("    void emitCode(EmitArgs& args) override {\n"
                 "        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;\n");
@@ -468,13 +503,9 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
     fOut = &mainBuffer;
     bool result = INHERITED::generateCode();
     fOut = old;
-    this->writef("%s        fragBuilder->codeAppendf(\"%s\"", fExtraEmitCodeCode.c_str(),
-                 mainBuffer.str().c_str());
-    for (const auto& s : fFormatArgs) {
-        this->writef(", %s", s.c_str());
-    }
-    this->write(");\n"
-                "    }\n");
+    this->writef("%s", fExtraEmitCodeCode.c_str());
+    this->writeCodeAppend(mainBuffer.str());
+    this->write("    }\n");
     return result;
 }
 

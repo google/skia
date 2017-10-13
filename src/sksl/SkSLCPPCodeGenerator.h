@@ -68,6 +68,8 @@ private:
 
     void writePrivateVarValues();
 
+    void writeCodeAppend(const String& code);
+
     bool writeEmitCode(std::vector<const Variable*>& uniforms);
 
     void writeSetData(std::vector<const Variable*>& uniforms);
