@@ -22,6 +22,13 @@ this remote anything you want, as long as you use that name for `get push`.
     git remote set-url origin 'https://skia.googlesource.com/skia.git'
 
 
+authentication
+--------------
+
+Go to [skia.googlesource.com/new-password](https://skia.googlesource.com/new-password)
+and follow the instructions.
+
+
 creating a change
 -----------------
 
