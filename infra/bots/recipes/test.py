@@ -339,6 +339,11 @@ def dm_flags(api, bot):
     blacklist('_ test _ GrSurfaceRenderability')
     blacklist('_ test _ ES2BlendWithNoTexture')
 
+  if api.vars.internal_hardware_label == 2:
+    # skia:7160
+    blacklist('_ test _ SRGBReadWritePixels')
+    blacklist('_ test _ SRGBMipMap')
+
 
   # skia:4095
   bad_serialize_gms = ['bleed_image',
@@ -1057,6 +1062,25 @@ def GenTests(api):
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]',
                    internal_hardware_label=1) +
+    api.path.exists(
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skimage', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skp', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
+        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
+    )
+  )
+
+  yield (
+    api.test('internal_bot_2') +
+    api.properties(buildername=builder,
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   internal_hardware_label=2) +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
