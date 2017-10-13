@@ -28,6 +28,7 @@ public:
     bool parseIRI(SkSVGStringType*);
     bool parseSpreadMethod(SkSVGSpreadMethod*);
     bool parseVisibility(SkSVGVisibility*);
+    bool parseDashArray(SkSVGDashArray*);
 
 private:
     // Stack-only
@@ -40,6 +41,7 @@ private:
     bool parseWSToken();
     bool parseEOSToken();
     bool parseSepToken();
+    bool parseCommaWSP();
     bool parseExpectedStringToken(const char*);
     bool parseScalarToken(SkScalar*);
     bool parseHexToken(uint32_t*);

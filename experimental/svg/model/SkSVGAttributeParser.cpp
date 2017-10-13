@@ -72,6 +72,20 @@ inline bool SkSVGAttributeParser::parseExpectedStringToken(const char* expected)
     return true;
 }
 
+// https://www.w3.org/TR/SVG/types.html#CommaWSP
+inline bool SkSVGAttributeParser::parseCommaWSP() {
+    // comma-wsp:
+    //     (wsp+ comma? wsp*) | (comma wsp*)
+    bool wsp   = this->parseWSToken();
+    bool comma = this->parseExpectedStringToken(",");
+    if (!(wsp || comma)) {
+        return false;
+    }
+    this->parseWSToken();
+
+    return true;
+}
+
 bool SkSVGAttributeParser::parseScalarToken(SkScalar* res) {
     if (const char* next = SkParse::FindScalar(fCurPos, res)) {
         fCurPos = next;
@@ -546,14 +560,9 @@ bool SkSVGAttributeParser::parsePoints(SkSVGPointsType* points) {
             break;
         }
 
-        // comma-wsp:
-        //     (wsp+ comma? wsp*) | (comma wsp*)
-        bool wsp   = this->parseWSToken();
-        bool comma = this->parseExpectedStringToken(",");
-        if (!(wsp || comma)) {
+        if (!this->parseCommaWSP()) {
             break;
         }
-        this->parseWSToken();
 
         if (!this->parseScalarToken(&y)) {
             break;
@@ -612,6 +621,38 @@ bool SkSVGAttributeParser::parseVisibility(SkSVGVisibility* visibility) {
             *visibility = SkSVGVisibility(parseInfo.fType);
             parsedValue = true;
             break;
+        }
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
+// https://www.w3.org/TR/SVG/painting.html#StrokeDasharrayProperty
+bool SkSVGAttributeParser::parseDashArray(SkSVGDashArray* dashArray) {
+    bool parsedValue = false;
+    if (this->parseExpectedStringToken("none")) {
+        *dashArray = SkSVGDashArray(SkSVGDashArray::Type::kNone);
+        parsedValue = true;
+    } else if (this->parseExpectedStringToken("inherit")) {
+        *dashArray = SkSVGDashArray(SkSVGDashArray::Type::kInherit);
+        parsedValue = true;
+    } else {
+        SkTDArray<SkSVGLength> dashes;
+        for (;;) {
+            this->parseWSToken();
+
+            SkSVGLength dash;
+            // parseLength() also consumes trailing separators.
+            if (!this->parseLength(&dash)) {
+                break;
+            }
+
+            dashes.push(dash);
+            parsedValue = true;
+        }
+
+        if (parsedValue) {
+            *dashArray = SkSVGDashArray(std::move(dashes));
         }
     }
 
