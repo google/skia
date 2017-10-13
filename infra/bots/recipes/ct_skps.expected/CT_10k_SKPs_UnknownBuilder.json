@@ -1,7 +1,7 @@
 [
   {
     "name": "$result",
-    "reason": "Uncaught Exception: Exception('Do not recognise the buildername Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_UnknownTool_10k_SKPs.',)",
+    "reason": "Uncaught Exception: Exception('Do not recognise the buildername Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_UnknownTool_10k_SKPs.',)",
     "status_code": -1
   }
 ]

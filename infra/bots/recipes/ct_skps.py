@@ -252,7 +252,7 @@ def GenTests(api):
   yield(
     api.test('CT_DM_10k_SKPs') +
     api.properties(
-        buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-' +
+        buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-' +
                      'CT_DM_10k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
@@ -266,8 +266,8 @@ def GenTests(api):
   yield(
     api.test('CT_IMG_DECODE_10k_SKPs') +
     api.properties(
-        buildername='Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_'
-                    '10k_SKPs',
+        buildername='Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-'
+                    'CT_IMG_DECODE_10k_SKPs',
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -280,7 +280,7 @@ def GenTests(api):
   yield(
     api.test('CT_DM_100k_SKPs') +
     api.properties(
-        buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-' +
+        buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-' +
                      'CT_DM_100k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
@@ -294,8 +294,8 @@ def GenTests(api):
   yield(
     api.test('CT_IMG_DECODE_100k_SKPs') +
     api.properties(
-        buildername='Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_'
-                    '100k_SKPs',
+        buildername='Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-'
+                    'CT_IMG_DECODE_100k_SKPs',
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -308,8 +308,8 @@ def GenTests(api):
   yield(
     api.test('CT_GPU_BENCH_1k_SKPs') +
     api.properties(
-        buildername=
-            'Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs',
+        buildername=('Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-All-'
+                     'CT_BENCH_1k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -326,8 +326,8 @@ def GenTests(api):
   yield(
     api.test('CT_CPU_BENCH_10k_SKPs') +
     api.properties(
-        buildername=
-            'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_10k_SKPs',
+        buildername=('Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-'
+                     'CT_BENCH_10k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -344,8 +344,8 @@ def GenTests(api):
   yield(
     api.test('CT_GPU_BENCH_10k_SKPs') +
     api.properties(
-        buildername=
-            'Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs',
+        buildername=('Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-All-'
+                     'CT_BENCH_10k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -362,7 +362,8 @@ def GenTests(api):
   yield(
     api.test('CT_DM_1m_SKPs') +
     api.properties(
-        buildername='Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs',
+        buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-'
+                     'CT_DM_1m_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -375,7 +376,7 @@ def GenTests(api):
   yield (
     api.test('CT_DM_SKPs_UnknownBuilder') +
     api.properties(
-        buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-' +
+        buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-' +
                      'CT_DM_UnknownRepo_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
@@ -390,7 +391,7 @@ def GenTests(api):
   yield (
     api.test('CT_10k_SKPs_UnknownBuilder') +
     api.properties(
-        buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-' +
+        buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-' +
                      'CT_UnknownTool_10k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
@@ -406,7 +407,8 @@ def GenTests(api):
     api.test('CT_DM_1m_SKPs_slave3_failure') +
     api.step_data('ct-dm-3', retcode=1) +
     api.properties(
-        buildername='Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs',
+        buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-' +
+                     'CT_DM_1m_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -421,7 +423,8 @@ def GenTests(api):
     api.step_data('ct-dm-1', retcode=1) +
     api.step_data('ct-dm-3', retcode=1) +
     api.properties(
-        buildername='Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs',
+        buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All'+
+                     '-CT_DM_1m_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
@@ -431,7 +434,7 @@ def GenTests(api):
     )
   )
 
-  builder = 'Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs'
+  builder = 'Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_10k_SKPs'
   yield(
     api.test('CT_DM_10k_SKPs_Trybot') +
     api.properties(
@@ -449,8 +452,8 @@ def GenTests(api):
     )
   )
 
-  builder = ('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_'
-             '10k_SKPs')
+  builder = ('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-'
+             'CT_IMG_DECODE_10k_SKPs')
   yield(
     api.test('CT_IMG_DECODE_10k_SKPs_Trybot') +
     api.properties(
