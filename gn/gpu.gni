@@ -32,6 +32,10 @@ skia_gpu_sources = [
   "$_include/gpu/gl/GrGLInterface.h",
   "$_include/gpu/gl/GrGLTypes.h",
 
+  "$_include/atlastext/SkAtlasTextContext.h",
+  "$_include/atlastext/SkAtlasTextRenderer.h",
+  "$_include/atlastext/SkAtlasTextTarget.h",
+
   # Private includes
   "$_include/private/GrAuditTrail.h",
   "$_include/private/GrGLSL.h",

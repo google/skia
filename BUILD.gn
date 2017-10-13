@@ -93,6 +93,7 @@ skia_public_includes = [
   "include/pathops",
   "include/ports",
   "include/svg",
+  "include/atlastext",
   "include/utils",
   "include/utils/mac",
 ]
@@ -996,6 +997,7 @@ if (skia_enable_tools) {
         "tools/gpu/GrContextFactory.cpp",
         "tools/gpu/GrTest.cpp",
         "tools/gpu/TestContext.cpp",
+        "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
         "tools/gpu/gl/GLTestContext.cpp",
         "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
         "tools/gpu/gl/debug/DebugGLTestContext.cpp",

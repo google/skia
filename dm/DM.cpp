@@ -1247,7 +1247,9 @@ struct Task {
 
 static SkTDArray<skiatest::Test> gParallelTests, gSerialTests;
 
+#include "gpu/
 static void gather_tests() {
+
     if (!FLAGS_src.contains("tests")) {
         return;
     }
