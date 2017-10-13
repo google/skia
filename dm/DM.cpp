@@ -1341,6 +1341,7 @@ int main(int argc, char** argv) {
     GrContextOptions grCtxOptions;
 #if SK_SUPPORT_GPU
     grCtxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    grCtxOptions.fAllowPathMaskCaching = FLAGS_cachePathMasks;
     grCtxOptions.fExecutor = GpuExecutorForTools();
 #endif
 

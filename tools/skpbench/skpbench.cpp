@@ -10,6 +10,7 @@
 #include "SkGr.h"
 
 #include "SkCanvas.h"
+#include "SkCommonFlags.h"
 #include "SkCommonFlagsPathRenderer.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
@@ -277,6 +278,7 @@ int main(int argc, char** argv) {
     // Create a context.
     GrContextOptions ctxOptions;
     ctxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    ctxOptions.fAllowPathMaskCaching = FLAGS_cachePathMasks;
     sk_gpu_test::GrContextFactory factory(ctxOptions);
     sk_gpu_test::ContextInfo ctxInfo =
         factory.getContextInfo(config->getContextType(), config->getContextOverrides());
