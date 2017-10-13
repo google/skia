@@ -7,8 +7,6 @@
 
 #include "SkSLGLSLCodeGenerator.h"
 
-#include "GLSL.std.450.h"
-
 #include "SkSLCompiler.h"
 #include "ir/SkSLExpressionStatement.h"
 #include "ir/SkSLExtension.h"
