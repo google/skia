@@ -617,3 +617,33 @@ bool SkSVGAttributeParser::parseVisibility(SkSVGVisibility* visibility) {
 
     return parsedValue && this->parseEOSToken();
 }
+
+// https://www.w3.org/TR/SVG/painting.html#StrokeDasharrayProperty
+bool SkSVGAttributeParser::parseDashArray(SkSVGDashArray* dashArray) {
+    bool parsedValue = false;
+    if (this->parseExpectedStringToken("none")) {
+        *dashArray = SkSVGDashArray(SkSVGDashArray::Type::kNone);
+        parsedValue = true;
+    } else if (this->parseExpectedStringToken("inherit")) {
+        *dashArray = SkSVGDashArray(SkSVGDashArray::Type::kInherit);
+        parsedValue = true;
+    } else {
+        SkTDArray<SkSVGLength> dashes;
+        for (;;) {
+            SkSVGLength dash;
+            // parseLength() also consumes trailing separators.
+            if (!this->parseLength(&dash)) {
+                break;
+            }
+
+            dashes.push(dash);
+            parsedValue = true;
+        }
+
+        if (parsedValue) {
+            *dashArray = SkSVGDashArray(std::move(dashes));
+        }
+    }
+
+    return parsedValue && this->parseEOSToken();
+}

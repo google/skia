@@ -28,6 +28,7 @@ public:
     bool parseIRI(SkSVGStringType*);
     bool parseSpreadMethod(SkSVGSpreadMethod*);
     bool parseVisibility(SkSVGVisibility*);
+    bool parseDashArray(SkSVGDashArray*);
 
 private:
     // Stack-only
