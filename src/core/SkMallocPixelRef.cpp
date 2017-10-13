@@ -38,36 +38,6 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeDirect(const SkImageInfo& info,
 sk_sp<SkPixelRef> SkMallocPixelRef::MakeUsing(void*(*allocProc)(size_t),
                                               const SkImageInfo& info,
                                               size_t requestedRowBytes) {
-#ifdef SK_SUPPORT_LEGACY_SAFESIZE64
-    if (!is_valid(info)) {
-        return nullptr;
-    }
-
-    // only want to permit 31bits of rowBytes
-    int64_t minRB = (int64_t)info.minRowBytes64();
-    if (minRB < 0 || !sk_64_isS32(minRB)) {
-        return nullptr;    // allocation will be too large
-    }
-    if (requestedRowBytes > 0 && (int32_t)requestedRowBytes < minRB) {
-        return nullptr;    // cannot meet requested rowbytes
-    }
-
-    int32_t rowBytes;
-    if (requestedRowBytes) {
-        rowBytes = SkToS32(requestedRowBytes);
-    } else {
-        rowBytes = minRB;
-    }
-
-    int64_t bigSize = (int64_t)info.height() * rowBytes;
-    if (!sk_64_isS32(bigSize)) {
-        return nullptr;
-    }
-
-    size_t size = sk_64_asS32(bigSize);
-    SkASSERT(size >= info.getSafeSize(rowBytes));
-    SkASSERT(info.getSafeSize(rowBytes) == info.computeByteSize(rowBytes));
-#else
     size_t rowBytes = requestedRowBytes;
     if (rowBytes == 0) {
         rowBytes = info.minRowBytes();
@@ -84,8 +54,6 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeUsing(void*(*allocProc)(size_t),
             return nullptr;
         }
     }
-#endif
-
     void* addr = allocProc(size);
     if (nullptr == addr) {
         return nullptr;

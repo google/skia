@@ -143,35 +143,9 @@ public:
 
     /**
      *  Returns the size (in bytes) of the bitmap's image buffer.
-     *  If the calculation overflows, or if the height is 0, this returns 0.
+     *  If the calculation overflows, this returns max_size_t.
      */
     size_t computeByteSize() const { return fInfo.computeByteSize(fRowBytes); }
-
-#ifdef SK_SUPPORT_LEGACY_SAFESIZE64
-    size_t getSize() const { return fInfo.height() * fRowBytes; }
-
-    /** Return the number of bytes from the pointer returned by getPixels()
-        to the end of the allocated space in the buffer. Required in
-        cases where extractSubset has been called.
-    */
-    size_t getSafeSize() const { return fInfo.getSafeSize(fRowBytes); }
-
-    /**
-     *  Return the full size of the bitmap, in bytes.
-     */
-    int64_t computeSize64() const {
-        return sk_64_mul(fInfo.height(), fRowBytes);
-    }
-
-    /**
-     *  Return the number of bytes from the pointer returned by getPixels()
-     *  to the end of the allocated space in the buffer. This may be smaller
-     *  than computeSize64() if there is any rowbytes padding beyond the width.
-     */
-    int64_t computeSafeSize64() const {
-        return fInfo.getSafeSize64(fRowBytes);
-    }
-#endif
 
     /** Returns true if this bitmap is marked as immutable, meaning that the
         contents of its pixels will not change for the lifetime of the bitmap.
