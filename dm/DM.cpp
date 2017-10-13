@@ -1247,7 +1247,12 @@ struct Task {
 
 static SkTDArray<skiatest::Test> gParallelTests, gSerialTests;
 
+#include "gpu/atlastext/GLTestAtlasTextRenderer.h"
+#include "SkAtlasTextRenderer.h"
+
 static void gather_tests() {
+    auto x = sk_gpu_test::MakeGLTestAtlasTextRenderer();
+
     if (!FLAGS_src.contains("tests")) {
         return;
     }
