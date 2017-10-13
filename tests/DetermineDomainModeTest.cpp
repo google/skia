@@ -342,6 +342,7 @@ static const SkRect* no_inset(const RectInfo& enclosing,
                          insetAmount, halfFilterWidth, 0, name);
 }
 
+#if 0
 static void proxy_test(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider) {
     GrTextureProducer_TestAccess::DomainMode actualMode, expectedMode;
     SkRect actualDomainRect;
@@ -444,4 +445,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DetermineDomainModeTest, reporter, ctxInfo) {
     proxy_test(reporter, context->resourceProvider());
 }
 
+#endif
 #endif
