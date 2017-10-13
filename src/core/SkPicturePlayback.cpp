@@ -333,22 +333,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawDRRect(outer, inner, *paint);
             }
         } break;
-        case BEGIN_COMMENT_GROUP: {
-            SkString tmp;
-            reader->readString(&tmp);
-            // deprecated (M44)
-            break;
-        }
-        case COMMENT: {
-            SkString tmp;
-            reader->readString(&tmp);
-            reader->readString(&tmp);
-            // deprecated (M44)
-            break;
-        }
-        case END_COMMENT_GROUP:
-            // deprecated (M44)
-            break;
         case DRAW_IMAGE: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkImage* image = fPictureData->getImage(reader);
@@ -389,7 +373,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
 
             canvas->drawImageNine(image, center, dst, paint);
         } break;
-        case DRAW_IMAGE_RECT_STRICT:
         case DRAW_IMAGE_RECT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkImage* image = fPictureData->getImage(reader);
