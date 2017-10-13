@@ -222,6 +222,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     lmInverse.postScale(scaleAdjust[0], scaleAdjust[1]);
 
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(texColorSpace.get(),
+                                                                       proxy->config(),
                                                                        args.fDstColorSpace);
     std::unique_ptr<GrFragmentProcessor> inner;
     if (doBicubic) {

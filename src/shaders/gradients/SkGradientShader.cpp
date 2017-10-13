@@ -1379,7 +1379,7 @@ static inline void set_after_interp_color_uni_array(
         SkAutoSTArray<4 * kSmallCount, float> vals(4 * count);
 
         for (int i = 0; i < count; i++) {
-            colorSpaceXform->srcToDst().mapScalars(colors[i].vec(), &vals[4 * i]);
+            colorSpaceXform->gamutXform().mapScalars(colors[i].vec(), &vals[4 * i]);
         }
 
         pdman.set4fv(uni, count, vals.get());
@@ -1407,7 +1407,7 @@ static inline void set_before_interp_color_uni_array(
 
     if (colorSpaceXform) {
         for (int i = 0; i < count; i++) {
-            colorSpaceXform->srcToDst().mapScalars(&vals[4 * i]);
+            colorSpaceXform->gamutXform().mapScalars(&vals[4 * i]);
         }
     }
 

@@ -18,28 +18,56 @@
  */
 class GrGLSLColorSpaceXformHelper : public SkNoncopyable {
 public:
-    GrGLSLColorSpaceXformHelper() : fValid(false) {}
+    GrGLSLColorSpaceXformHelper() : fFlags(0) {}
 
     void emitCode(GrGLSLUniformHandler* uniformHandler, const GrColorSpaceXform* colorSpaceXform,
                   uint32_t visibility = kFragment_GrShaderFlag) {
         SkASSERT(uniformHandler);
         if (colorSpaceXform) {
-            fGamutXformVar = uniformHandler->addUniform(visibility, kHalf4x4_GrSLType,
-                                                        "ColorXform");
-            fValid = true;
+            fFlags = colorSpaceXform->fFlags;
+            if (this->applyGamutXform()) {
+                fGamutXformVar = uniformHandler->addUniform(visibility,
+                                                            kHalf4x4_GrSLType,
+                                                            "ColorXform");
+            }
+            if (this->applyTransferFn()) {
+                fTransferFnVar = uniformHandler->addUniformArray(visibility,
+                                                                 kHalf_GrSLType,
+                                                                 "TransferFn",
+                                                                 kNumTransferFnCoeffs);
+            }
         }
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrColorSpaceXform* colorSpaceXform) {
-        pdman.setSkMatrix44(fGamutXformVar, colorSpaceXform->srcToDst());
+        if (this->applyGamutXform()) {
+            pdman.setSkMatrix44(fGamutXformVar, colorSpaceXform->gamutXform());
+        }
+        if (this->applyTransferFn()) {
+            pdman.set1fv(fTransferFnVar, kNumTransferFnCoeffs, colorSpaceXform->transferFnCoeffs());
+        }
     }
 
-    bool isValid() const { return fValid; }
-    GrGLSLProgramDataManager::UniformHandle const gamutXformUniform() { return fGamutXformVar; }
+    bool isValid() const { return (0 != fFlags); }
+    bool applyInverseSRGB() const {
+        return SkToBool(fFlags & GrColorSpaceXform::kApplyInverseSRGB_Flag);
+    }
+    bool applyTransferFn() const {
+        return SkToBool(fFlags & GrColorSpaceXform::kApplyTransferFn_Flag);
+    }
+    bool applyGamutXform() const {
+        return SkToBool(fFlags & GrColorSpaceXform::kApplyGamutXform_Flag);
+    }
+
+    GrGLSLProgramDataManager::UniformHandle gamutXformUniform() const { return fGamutXformVar; }
+    GrGLSLProgramDataManager::UniformHandle transferFnUniform() const { return fTransferFnVar; }
 
 private:
+    static const int kNumTransferFnCoeffs = 7;
+
     GrGLSLProgramDataManager::UniformHandle fGamutXformVar;
-    bool fValid;
+    GrGLSLProgramDataManager::UniformHandle fTransferFnVar;
+    uint32_t fFlags;
 };
 
 #endif

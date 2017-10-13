@@ -979,8 +979,8 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     if (!proxy) {
         return;
     }
-    sk_sp<GrColorSpaceXform> colorSpaceXform =
-        GrColorSpaceXform::Make(bitmap.colorSpace(), fRenderTargetContext->getColorSpace());
+    auto colorSpaceXform = GrColorSpaceXform::Make(bitmap.colorSpace(), proxy->config(),
+                                                   fRenderTargetContext->getColorSpace());
 
     // Compute a matrix that maps the rect we will draw to the src rect.
     const SkMatrix texMatrix = SkMatrix::MakeRectToRect(dstRect, srcRect,
@@ -1086,8 +1086,8 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     SkPaint tmpUnfiltered(paint);
     tmpUnfiltered.setImageFilter(nullptr);
 
-    sk_sp<GrColorSpaceXform> colorSpaceXform =
-        GrColorSpaceXform::Make(result->getColorSpace(), fRenderTargetContext->getColorSpace());
+    auto colorSpaceXform = GrColorSpaceXform::Make(result->getColorSpace(), proxy->config(),
+                                                   fRenderTargetContext->getColorSpace());
 
     auto fp = GrSimpleTextureEffect::Make(std::move(proxy), std::move(colorSpaceXform),
                                           SkMatrix::I());
