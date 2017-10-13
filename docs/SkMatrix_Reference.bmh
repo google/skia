@@ -3,14 +3,17 @@
 
 #Class SkMatrix
 
-Matrix holds a 3x3 matrix for transforming coordinates.
-Matrix elements are in column major order.
+Matrix holds a 3x3 matrix for transforming coordinates. This allows mapping
+Points and Vectors with translation, scaling, skewing, rotation, and
+perspective.
 
-SkMatrix does not have a constructor, so it must be explicitly initialized
-using either reset() - to construct an identity matrix, or one of the set
-functions (e.g. setTranslate, setRotate, etc.).
+Matrix elements are in row major order. Matrix does not have a constructor,
+so it must be explicitly initialized. setIdentityMatrix initializes Matrix
+so it has no effect. setTranslate, setScale, setSkew, setRotate, set9 and setAll
+initializes all Matrix elements with the corresponding mapping.
 
-SkMatrix is not thread safe unless getType is called first.
+Matrix includes a hidden variable that classifies the type of matrix to 
+improve performance. Matrix is not thread safe unless getType is called first.
 
 #Topic Overview
 
@@ -26,19 +29,19 @@ SkMatrix is not thread safe unless getType is called first.
 #Subtopic Operators
 #Table
 #Legend
-# description                                                         # function ##
+# function                                         # description ##
 #Legend ##
-# friend SK_API bool operator!=(const SkMatrix& a, const SkMatrix& b) # Returns true if members are unequal. ##
-# friend SK_API bool operator==(const SkMatrix& a, const SkMatrix& b) # Returns true if members are equal. ##
-# SkScalar operator[](int index) const # Returns one of nine Matrix values. ##
-# SkScalar& operator[](int index) # Returns a writable reference to one of nine Matrix values. ##
+# operator!=(const SkMatrix& a, const SkMatrix& b) # Returns true if members are unequal. ##
+# operator==(const SkMatrix& a, const SkMatrix& b) # Returns true if members are equal. ##
+# operator[](int index) const                      # Returns Matrix value. ##
+# operator[](int index)                            # Returns writable reference to Matrix value. ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Member_Functions
 #Table
 #Legend
-# description            # function ##
+# function               # description ##
 #Legend ##
 # Concat                 # Returns the concatenation of Matrix pair. ##
 # GetMapPtsProc          # Returns optimal function to map Point array. ##
@@ -53,9 +56,9 @@ SkMatrix is not thread safe unless getType is called first.
 # cheapEqualTo           # Compares Matrix pair using memcmp(). ##
 # decomposeScale         # Separates scale if possible. ##
 # dirtyMatrixTypeCache   # Private; used by testing. ##
-# dump                   # Sends text representation using floats to standard output. ##
+# dump()                 # Sends text representation using floats to standard output. ##
 # fixedStepInX           # Returns step in x for a position in y. ##
-# get                    # Returns one of nine Matrix values. ##
+# get()                  # Returns one of nine Matrix values. ##
 # get9                   # Returns all nine Matrix values. ##
 # getMapPtsProc          # Returns optimal function to map Point array. ##
 # getMapXYProc           # Returns optimal function to map one Point. ##
@@ -65,72 +68,72 @@ SkMatrix is not thread safe unless getType is called first.
 # getPerspX              # Returns horizontal perspective factor. ##
 # getPerspY              # Returns vertical perspective factor. ##
 # getScaleX              # Returns horizontal scale factor. ##
-# getScaleY              # Returns vertical scale factor.##
+# getScaleY              # Returns vertical scale factor. ##
 # getSkewX               # Returns horizontal skew factor. ##
 # getSkewY               # Returns vertical skew factor. ##
-# getTranslateX          # Returns horizontal translation factor. ##
-# getTranslateY          # Returns vertical translation factor. ##
+# getTranslateX          # Returns horizontal translation. ##
+# getTranslateY          # Returns vertical translation. ##
 # getType                # Returns transform complexity. ##
 # hasPerspective         # Returns if transform includes perspective. ##
-# invert                 # Returns inverse, if possible. ##
+# invert()               # Returns inverse, if possible. ##
 # isFinite               # Returns if all Matrix values are not infinity, NaN. ##
 # isFixedStepInX         # Returns if transformation supports fixed step in x. ##
 # isIdentity             # Returns if matrix equals the identity Matrix .##
 # isScaleTranslate       # Returns if transform is limited to scale and translate. ##
 # isSimilarity           # Returns if transform is limited to square scale and rotation. ##
 # isTranslate            # Returns if transform is limited to translate. ##
-# mapHomogeneousPoints   # ##
-# mapPoints              # ##
-# mapPointsWithStride    # ##
-# mapRadius              # ##
-# mapRect                # ##
-# mapRectScaleTranslate  # ##
-# mapRectToQuad          # ##
-# mapVector              # ##
-# mapVectors             # ##
-# mapXY                  # ##
-# postConcat             # ##
-# postIDiv               # ##
-# postRotate             # ##
-# postScale              # ##
-# postSkew               # ##
-# postTranslate          # ##
-# preConcat              # ##
-# preRotate              # ##
-# preScale               # ##
-# preSkew                # ##
-# preTranslate           # ##
-# preservesAxisAlignment # ##
-# preservesRightAngles   # ##
-# readFromMemory         # ##
-# rectStaysRect          # ##
-# reset                  # ##
-# set                    # ##
-# set9                   # ##
-# setAffine              # ##
-# setAll                 # ##
-# setConcat              # ##
-# setIDiv                # ##
-# setIdentity            # ##
-# setPerspX              # ##
-# setPerspY              # ##
-# setPolyToPoly          # ##
-# setRSXform             # ##
-# setRectToRect          # ##
-# setRotate              # ##
-# setScale               # ##
-# setScaleTranslate      # ##
-# setScaleX              # ##
-# setScaleY              # ##
-# setSinCos              # ##
-# setSkew                # ##
-# setSkewX               # ##
-# setSkewY               # ##
-# setTranslate           # ##
-# setTranslateX          # ##
-# setTranslateY          # ##
-# toString               # ##
-# writeToMemory          # ##
+# mapHomogeneousPoints   # Maps Point3 array. ##
+# mapPoints              # Maps Point array. ##
+# mapPointsWithStride    # Maps Point array with padding. ##
+# mapRadius              # Returns mean radius of mapped Circle. ##
+# mapRect                # Returns bounds of mapped Rect. ##
+# mapRectScaleTranslate  # Returns bounds of mapped Rect. ##
+# mapRectToQuad          # Maps Rect to Point array. ##
+# mapVector              # Maps Vector. ##
+# mapVectors             # Maps Vector array. ##
+# mapXY                  # Maps Point. ##
+# postConcat             # Post-multiplies Matrix by Matrix parameter. ##
+# postIDiv               # Post-multiplies Matrix by inverse scale. ##
+# postRotate             # Post-multiplies Matrix by rotation. ##
+# postScale              # Post-multiplies Matrix by scale. ##
+# postSkew               # Post-multiplies Matrix by skew. ##
+# postTranslate          # Post-multiplies Matrix by translation. ##
+# preConcat              # Pre-multiplies Matrix by Matrix parameter.##
+# preRotate              # Pre-multiplies Matrix by rotation. ##
+# preScale               # Pre-multiplies Matrix by scale. ##
+# preSkew                # Pre-multiplies Matrix by skew. ##
+# preTranslate           # Pre-multiplies Matrix by translation. ##
+# preservesAxisAlignment # Returns if mapping restricts to 90 degree multiples and mirroring. ##
+# preservesRightAngles   # Returns if mapped 90 angle remains 90 degrees. ##
+# readFromMemory         # Sets Matrix from buffer pointing to Scalar array. ##
+# rectStaysRect          # Returns if mapped Rect can be represented by another Rect. ##
+# reset()                # Sets Matrix to identity. ##
+# set()                  # Sets one value. ##
+# set9                   # Sets all values from Scalar array. ##
+# setAffine              # Sets left two columns. ##
+# setAll                 # Sets all values from parameters. ##
+# setConcat              # Sets to Matrix parameter multiplied by Matrix parameter. ##
+# setIDiv                # Sets to inverse scale. ##
+# setIdentity            # Sets Matrix to identity. ##
+# setPerspX              # Sets input x perspective factor. ##
+# setPerspY              # Sets input y perspective factor. ##
+# setPolyToPoly          # Sets to map one to four points to an equal array of points. ##
+# setRSXform             # Sets to rotate, scale, and translate. ##
+# setRectToRect          # Sets to map one Rect to another. ##
+# setRotate              # Sets to rotate about a point. ##
+# setScale               # Sets to scale about a point. ##
+# setScaleTranslate      # Sets to scale and translate. ##
+# setScaleX              # Sets horizontal scale factor. ##
+# setScaleY              # Sets vertical scale factor ##
+# setSinCos              # Sets to rotate and scale about a point. ##
+# setSkew                # Sets to skew about a point. ##
+# setSkewX               # Sets horizontal skew factor. ##
+# setSkewY               # Sets vertical skew factor. ##
+# setTranslate           # Sets to translate in x and y.  ##
+# setTranslateX          # Sets horizontal translation. ##
+# setTranslateY          # Sets vertical translation. ##
+# toString               # Converts Matrix to machine readable form. ##
+# writeToMemory          # Writes array of Scalar to buffer.  ##
 #Table ##
 #Subtopic ##
 
@@ -140,16 +143,26 @@ SkMatrix is not thread safe unless getType is called first.
 
 #Method static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy)
 
-#Param sx  incomplete ##
-#Param sy  incomplete ##
+Sets Matrix to scale by (sx, sy). Returned matrix is:
 
-#Return  incomplete ##
-
-#Example
-// incomplete
+#Table
+# sx  #  0  #  0  ##
+#  0  # sy  #  0  ##
+#  0  #  0  #  1  ##
 ##
 
-#ToDo incomplete ##
+#Param sx  horizontal scale factor ##
+#Param sy  vertical scale factor ##
+
+#Return  Matrix with scale ##
+
+#Example
+#Image 4
+canvas->concat(SkMatrix::MakeScale(4, 3));
+canvas->drawBitmap(source, 0, 0);
+##
+
+#SeeAlso setScale postScale preScale
 
 ##
 
@@ -157,15 +170,25 @@ SkMatrix is not thread safe unless getType is called first.
 
 #Method static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar scale)
 
-#Param scale  incomplete ##
+Sets Matrix to scale by (scale, scale). Returned matrix is:
 
-#Return  incomplete ##
-
-#Example
-// incomplete
+#Table
+# scale #   0   #   0   ##
+#   0   # scale #   0   ##
+#   0   #   0   #   1   ##
 ##
 
-#ToDo incomplete ##
+#Param scale  horizontal and vertical scale factor ##
+
+#Return  Matrix with scale ##
+
+#Example
+#Image 4
+canvas->concat(SkMatrix::MakeScale(4));
+canvas->drawBitmap(source, 0, 0);
+##
+
+#SeeAlso setScale postScale preScale
 
 ##
 
@@ -173,16 +196,29 @@ SkMatrix is not thread safe unless getType is called first.
 
 #Method static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy)
 
-#Param dx  incomplete ##
-#Param dy  incomplete ##
+Sets Matrix to translate by (dx, dy). Returned matrix is:
 
-#Return  incomplete ##
-
-#Example
-// incomplete
+#Table
+#  1  #  0  #  0  ##
+#  0  #  1  #  0  ##
+# dx  # dy  #  1  ##
 ##
 
-#ToDo incomplete ##
+#Param dx  horizontal translation ##
+#Param dy  vertical translation ##
+
+#Return  Matrix with translation ##
+
+#Example
+#Image 4
+SkMatrix matrix = SkMatrix::MakeTrans(64, 48);
+for (int i = 0; i < 4; ++i) {
+    canvas->drawBitmap(source, 0, 0);
+    canvas->concat(matrix);
+}
+##
+
+#SeeAlso setTranslate postTranslate preTranslate
 
 ##
 
@@ -200,29 +236,57 @@ SkMatrix is not thread safe unless getType is called first.
     };
 ##
 
-Enum of bit fields for the mask return by getType().
-Use this to identify the complexity of the matrix.
+Enum of bit fields for mask returned by getType.
+Used to identify the complexity of Matrix, to optimize performance.
 
-#Const kIdentity_Mask = 0
+#Const kIdentity_Mask 0
+all bits clear if Matrix is identity
 ##
-#Const kTranslate_Mask = 0x01
-set if the matrix has translation
+#Const kTranslate_Mask 1
+set if Matrix has translation
 ##
-#Const kScale_Mask = 0x02
-set if the matrix has x or y scale
+#Const kScale_Mask 2
+set if Matrix has x or y scale
 ##
-#Const kAffine_Mask = 0x04
-set if the matrix skews or rotates
+#Const kAffine_Mask 4
+set if Matrix skews or rotates
 ##
-#Const kPerspective_Mask = 0x08
-set if the matrix is in perspective
+#Const kPerspective_Mask 8
+set if Matrix has perspective
 ##
 
 #Example
-// incomplete
+    auto debugster = [](const char* prefix, const SkMatrix& matrix) -> void {
+        SkString typeMask;
+        typeMask += SkMatrix::kIdentity_Mask == matrix.getType() ? "kIdentity_Mask " : "";
+        typeMask += SkMatrix::kTranslate_Mask & matrix.getType() ? "kTranslate_Mask " : "";
+        typeMask += SkMatrix::kScale_Mask & matrix.getType() ? "kScale_Mask " : "";
+        typeMask += SkMatrix::kAffine_Mask & matrix.getType() ? "kAffine_Mask " : "";
+        typeMask += SkMatrix::kPerspective_Mask & matrix.getType() ? "kPerspective_Mask" : "";
+        SkDebugf("after %s: %s\n", prefix, typeMask.c_str());
+    };
+SkMatrix matrix;
+matrix.reset();
+debugster("reset", matrix);
+matrix.postTranslate(1, 0);
+debugster("postTranslate", matrix);
+matrix.postScale(2, 1);
+debugster("postScale", matrix);
+matrix.postRotate(45);
+debugster("postScale", matrix);
+SkPoint polys[][4] = {{{0, 0}, {0, 1}, {1, 1}, {1, 0}}, {{0, 0}, {0, 1}, {2, 1}, {1, 0}}};
+matrix.setPolyToPoly(polys[0], polys[1], 4);
+debugster("setPolyToPoly", matrix);
+#StdOut
+after reset: kIdentity_Mask 
+after postTranslate: kTranslate_Mask 
+after postScale: kTranslate_Mask kScale_Mask 
+after postScale: kTranslate_Mask kScale_Mask kAffine_Mask 
+after setPolyToPoly: kTranslate_Mask kScale_Mask kAffine_Mask kPerspective_Mask
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso getType
 
 ##
 
@@ -232,17 +296,26 @@ set if the matrix is in perspective
 
 Returns a bit field describing the transformations the matrix may
 perform. The bit field is computed conservatively, so it may include
-false positives. For example, when kPerspective_Mask is true, all
-other bits may be set to true even in the case of a pure perspective
-transform.
+false positives. For example, when kPerspective_Mask is set, all
+other bits are set.
 
-#Return  incomplete ##
-
-#Example
-// incomplete
+#Return  kIdentity_Mask, or combinations of: kTranslate_Mask, kScale_Mask,
+         kAffine_Mask, kPerspective_Mask 
 ##
 
-#ToDo incomplete ##
+#Example
+SkMatrix matrix;
+matrix.setAll(1, 0, 0,   0, 1, 0,    0, 0, 1);
+SkDebugf("identity flags hex: %0x decimal: %d\n", matrix.getType(), matrix.getType());
+matrix.setAll(1, 0, 0,   0, 1, 0,    0, 0, .5f);
+SkDebugf("set all  flags hex: %0x decimal: %d\n", matrix.getType(), matrix.getType());
+#StdOut
+identity flags hex: 0 decimal: 0
+set all  flags hex: f decimal: 15
+##
+##
+
+#SeeAlso TypeMask
 
 ##
 
@@ -250,15 +323,29 @@ transform.
 
 #Method bool isIdentity() const
 
-Returns true if the matrix is identity.
+Returns true if Matrix is identity.  Identity matrix is:
 
-#Return  incomplete ##
-
-#Example
-// incomplete
+#Table
+#  1  #  0  #  0  ##
+#  0  #  1  #  0  ##
+#  0  #  0  #  1  ##
 ##
 
-#ToDo incomplete ##
+#Return  true if Matrix has no effect ##
+
+#Example
+SkMatrix matrix;
+matrix.setAll(1, 0, 0,   0, 1, 0,    0, 0, 1);
+SkDebugf("is identity: %s\n", matrix.isIdentity() ? "true" : "false");
+matrix.setAll(1, 0, 0,   0, 1, 0,    0, 0, 2);
+SkDebugf("is identity: %s\n", matrix.isIdentity() ? "true" : "false");
+#StdOut
+is identity: true
+is identity: false
+##
+##
+
+#SeeAlso reset() setIdentity getType
 
 ##
 
@@ -266,13 +353,34 @@ Returns true if the matrix is identity.
 
 #Method bool isScaleTranslate() const
 
-#Return  incomplete ##
+Returns true if Matrix at most scales and translates. Matrix may be identity,
+contain only scale elements, only translate elements, or both. Matrix form is:
 
-#Example
-// incomplete
+#Table
+# scale-x #    0    # translate-x ##
+#    0    # scale-y # translate-y ##
+#    0    #    0    #      1      ##
 ##
 
-#ToDo incomplete ##
+#Return  true if Matrix is identity; or scales, translates, or both ##
+
+#Example
+SkMatrix matrix;
+for (SkScalar scaleX : { 1, 2 } ) {
+    for (SkScalar translateX : { 0, 20 } ) {
+        matrix.setAll(scaleX, 0, translateX,   0, 1, 0,    0, 0, 1);
+        SkDebugf("is scale-translate: %s\n", matrix.isScaleTranslate() ? "true" : "false");
+    }
+}
+#StdOut
+is scale-translate: true
+is scale-translate: true
+is scale-translate: true
+is scale-translate: true
+##
+##
+
+#SeeAlso setScale isTranslate setTranslate getType
 
 ##
 
@@ -280,13 +388,33 @@ Returns true if the matrix is identity.
 
 #Method bool isTranslate() const
 
-#Return  incomplete ##
+Returns true if Matrix is identity, or translates. Matrix form is:
 
-#Example
-// incomplete
+#Table
+#    1    #    0    # translate-x ##
+#    0    #    1    # translate-y ##
+#    0    #    0    #      1      ##
 ##
 
-#ToDo incomplete ##
+#Return  true if Matrix is identity, or translates ##
+
+#Example
+SkMatrix matrix;
+for (SkScalar scaleX : { 1, 2 } ) {
+    for (SkScalar translateX : { 0, 20 } ) {
+        matrix.setAll(scaleX, 0, translateX,   0, 1, 0,    0, 0, 1);
+        SkDebugf("is translate: %s\n", matrix.isTranslate() ? "true" : "false");
+    }
+}
+#StdOut
+is translate: true
+is translate: true
+is translate: false
+is translate: false
+##
+##
+
+#SeeAlso setTranslate getType
 
 ##
 
@@ -294,17 +422,46 @@ Returns true if the matrix is identity.
 
 #Method bool rectStaysRect() const
 
-Returns true if will map a rectangle to another rectangle. This can be
-true if the matrix is identity, scale-only, or rotates a multiple of
-90 degrees, or mirrors in x or y.
+Returns true Matrix maps Rect to another Rect. If true, Matrix is identity,
+or scales, or rotates a multiple of 90 degrees, or mirrors in x or y. In all
+cases, Matrix may also have translation. Matrix form is either:
 
-#Return  incomplete ##
-
-#Example
-// incomplete
+#Table
+# scale-x #    0    # translate-x ##
+#    0    # scale-y # translate-y ##
+#    0    #    0    #      1      ##
 ##
 
-#ToDo incomplete ##
+or
+
+#Table
+#    0     # rotate-x # translate-x ##
+# rotate-y #    0     # translate-y ##
+#    0     #    0     #      1      ##
+##
+
+for non-zero values of scale-x, scale-y, rotate-x, and rotate-y.
+
+Also called preservesAxisAlignment; use the one that provides better inline
+documentation.
+
+#Return  true if Matrix maps one Rect into another  ##
+
+#Example
+SkMatrix matrix;
+for (SkScalar angle: { 0, 90, 180, 270 } ) {
+    matrix.setRotate(angle);
+    SkDebugf("rectStaysRect: %s\n", matrix.rectStaysRect() ? "true" : "false");
+}
+#StdOut
+rectStaysRect: true
+rectStaysRect: true
+rectStaysRect: true
+rectStaysRect: true
+##
+##
+
+#SeeAlso preservesAxisAlignment preservesRightAngles
 
 ##
 
@@ -312,15 +469,47 @@ true if the matrix is identity, scale-only, or rotates a multiple of
 
 #Method bool preservesAxisAlignment() const
 
-alias for rectStaysRect()
 
-#Return  incomplete ##
+Returns true Matrix maps Rect to another Rect. If true, Matrix is identity,
+or scales, or rotates a multiple of 90 degrees, or mirrors in x or y. In all
+cases, Matrix may also have translation. Matrix form is either:
 
-#Example
-// incomplete
+#Table
+# scale-x #    0    # translate-x ##
+#    0    # scale-y # translate-y ##
+#    0    #    0    #      1      ##
 ##
 
-#ToDo incomplete ##
+or
+
+#Table
+#    0     # rotate-x # translate-x ##
+# rotate-y #    0     # translate-y ##
+#    0     #    0     #      1      ##
+##
+
+for non-zero values of scale-x, scale-y, rotate-x, and rotate-y.
+
+Also called rectStaysRect; use the one that provides better inline
+documentation.
+
+#Return  true if Matrix maps one Rect into another  ##
+
+#Example
+SkMatrix matrix;
+for (SkScalar angle: { 0, 90, 180, 270 } ) {
+    matrix.setRotate(angle);
+    SkDebugf("preservesAxisAlignment: %s\n", matrix.preservesAxisAlignment() ? "true" : "false");
+}
+#StdOut
+preservesAxisAlignment: true
+preservesAxisAlignment: true
+preservesAxisAlignment: true
+preservesAxisAlignment: true
+##
+##
+
+#SeeAlso rectStaysRect preservesRightAngles
 
 ##
 
@@ -328,15 +517,35 @@ alias for rectStaysRect()
 
 #Method bool hasPerspective() const
 
-Returns true if the matrix contains perspective elements.
+Returns true if the matrix contains perspective elements. Matrix form is:
 
-#Return  incomplete ##
-
-#Example
-// incomplete
+#Table
+#       --       #      --        #       --           ##
+#       --       #      --        #       --           ##
+# perspective-x  # perspective-y  # perspective-scale  ##
 ##
 
-#ToDo incomplete ##
+where perspective-x or perspective-y is non-zero, or perspective-scale is 
+not one. All other elements may have any value.
+
+#Return  true if Matrix is in most general form ##
+
+#Example
+SkMatrix matrix;
+SkPoint bitmapBounds[4], perspect[4] = {{50, 10}, {180, 40}, {236, 176}, {10, 206}};
+SkRect::Make(source.bounds()).toQuad(bitmapBounds);
+matrix.setPolyToPoly(bitmapBounds, perspect, 4);
+canvas->concat(matrix);
+SkString string;
+string.printf("hasPerspective %s", matrix.hasPerspective() ? "true" : "false");
+canvas->drawBitmap(source, 0, 0);
+SkPaint paint;
+paint.setAntiAlias(true);
+paint.setTextSize(48);
+canvas->drawString(string, 0, source.bounds().height() + 48, paint);
+##
+
+#SeeAlso setAll set9 
 
 ##
 
@@ -344,18 +553,50 @@ Returns true if the matrix contains perspective elements.
 
 #Method bool isSimilarity(SkScalar tol = SK_ScalarNearlyZero) const
 
-Returns true if the matrix contains only translation, rotation/reflection or uniform scale.
-Returns false if other transformation types are included or is degenerate
+Returns true if Matrix contains only translation, rotation, reflection, and
+uniform scale.
+Returns false if Matrix contains different scales, skewing, perspective, or
+degenerate forms that collapse to a line or point.
 
-#Param tol  incomplete ##
+Describes that the Matrix makes rendering with and without the matrix are 
+visually alike; a transformed circle remains a circle. Mathematically, this is
+referred to as similarity of a Euclidean space, or a similarity transformation.
 
-#Return  incomplete ##
+Preserves right angles, keeping the arms of the angle equal lengths.
+
+#Param tol  to be deprecated ##
+
+#Return  true if Matrix only rotates, uniformly scales, translates ##
 
 #Example
-// incomplete
+#Description
+String is drawn four times through but only two are visible. Drawing the pair
+with isSimilarity false reveals the pair not visible through the matrix.
+##
+    SkPaint p;
+    p.setAntiAlias(true);
+    SkMatrix m;
+    int below = 175;
+    for (SkScalar sx : { -1, 1 } ) {
+        for (SkScalar sy : { -1, 1 } ) {
+            m.setAll(sx, 1, 128,    1, sy, 32,   0, 0, 1);
+            bool isSimilarity = m.isSimilarity();
+            SkString str;
+            str.printf("sx: %g sy: %g sim: %s", sx, sy, isSimilarity ? "true" : "false");
+            {
+                SkAutoCanvasRestore autoRestore(canvas, true);
+                canvas->concat(m);
+                canvas->drawString(str, 0, 0, p);    
+            }
+            if (!isSimilarity) {
+                canvas->drawString(str, 40, below, p);
+                below += 20;
+            }
+        }
+    }
 ##
 
-#ToDo incomplete ##
+#SeeAlso isScaleTranslate preservesRightAngles rectStaysRect isFixedStepInX
 
 ##
 
@@ -363,25 +604,51 @@ Returns false if other transformation types are included or is degenerate
 
 #Method bool preservesRightAngles(SkScalar tol = SK_ScalarNearlyZero) const
 
-Returns true if the matrix contains only translation, rotation/reflection or scale
-(non-uniform scale is allowed).
-Returns false if other transformation types are included or is degenerate
+Returns true if Matrix contains only translation, rotation, reflection, and
+scale. Scale may differ along rotated axes.
+Returns false if Matrix skewing, perspective, or degenerate forms that collapse 
+to a line or point.
 
-#Param tol  incomplete ##
+Preserves right angles, but not requiring that the arms of the angle
+retain equal lengths.
 
-#Return  incomplete ##
+#Param tol  to be deprecated ##
+
+#Return  true if Matrix only rotates, scales, translates ##
 
 #Example
-// incomplete
+#Description
+Equal scale is both similar and preserves right angles.
+Unequal scale is not similar but preserves right angles.
+Skews are not similar and do not preserve right angles.
+##
+SkPaint p;
+p.setAntiAlias(true);
+SkMatrix m;
+int pos = 0;
+for (SkScalar sx : { 1, 2 } ) {
+    for (SkScalar kx : { 0, 1 } ) {
+        m.setAll(sx, kx, 16,    0, 1, 32,   0, 0, 1);
+        bool isSimilarity = m.isSimilarity();
+        bool preservesRightAngles = m.preservesRightAngles();
+        SkString str;
+        str.printf("sx: %g kx: %g %s %s", sx, kx, isSimilarity ? "sim" : "",
+                    preservesRightAngles ? "right" : "");
+        SkAutoCanvasRestore autoRestore(canvas, true);
+        canvas->concat(m);
+        canvas->drawString(str, 0, pos, p);    
+        pos += 20;
+    }
+}
 ##
 
-#ToDo incomplete ##
+#SeeAlso isScaleTranslate isSimilarity rectStaysRect isFixedStepInX
 
 ##
 
 # ------------------------------------------------------------------------------
 
-#Enum _anonymous
+#Enum
 
 #Code
     enum {
@@ -397,36 +664,65 @@ Returns false if other transformation types are included or is degenerate
     };
 ##
 
+Matrix organizes its values in row order. This enum members corresponds to
+each value in Matrix.
+
 #Const kMScaleX 0
+horizontal scale factor
 ##
 #Const kMSkewX 1
+horizontal skew factor
 ##
 #Const kMTransX 2
+horizontal translation
 ##
 #Const kMSkewY 3
+vertical skew factor
 ##
 #Const kMScaleY 4
+vertical scale factor
 ##
 #Const kMTransY 5
+vertical translation
 ##
 #Const kMPersp0 6
+input x perspective factor
 ##
 #Const kMPersp1 7
+input y perspective factor
 ##
 #Const kMPersp2 8
+perspective bias
 ##
 
 #Example
-// incomplete
+SkPaint black;
+black.setAntiAlias(true);
+black.setTextSize(48);
+SkPaint gray = black;
+gray.setColor(0xFF9f9f9f);
+SkScalar offset[] = { 1.5f, 1.5f, 20,   1.5f, 1.5f, 20,   .03f, .01f, 2 };
+for (int i : { SkMatrix::kMScaleX, SkMatrix::kMSkewX,  SkMatrix::kMTransX,
+               SkMatrix::kMSkewY,  SkMatrix::kMScaleY, SkMatrix::kMTransY,
+               SkMatrix::kMPersp0, SkMatrix::kMPersp1, SkMatrix::kMPersp2 } ) {
+    SkMatrix m;
+    m.setIdentity();
+    m.set(i, offset[i]);
+    SkAutoCanvasRestore autoRestore(canvas, true);
+    canvas->translate(22 + (i % 3) * 88, 44 + (i / 3) * 88);
+    canvas->drawString("&", 0, 0, gray);
+    canvas->concat(m);
+    canvas->drawString("&", 0, 0, black);
+}
 ##
 
-#ToDo incomplete ##
+#SeeAlso get() set()
 
 ##
 
 # ------------------------------------------------------------------------------
 
-#Enum _anonymous_2
+#Enum
 
 #Code
     enum {
@@ -439,20 +735,26 @@ Returns false if other transformation types are included or is degenerate
     };
 ##
 
-Affine arrays are in column major order
-because that is how PDF and XPS like it.
+Affine arrays are in column major order to match the matrix used by
+PDF and XPS.
 
 #Const kAScaleX 0
+horizontal scale factor
 ##
 #Const kASkewY 1
+vertical skew factor
 ##
 #Const kASkewX 2
+horizontal skew factor
 ##
 #Const kAScaleY 3
+vertical scale factor
 ##
 #Const kATransX 4
+horizontal translation
 ##
 #Const kATransY 5
+vertical translation
 ##
 
 #Example
@@ -467,15 +769,27 @@ because that is how PDF and XPS like it.
 
 #Method SkScalar operator[](int index) const
 
-#Param index  incomplete ##
+Returns one matrix value. Asserts if index is out of range and SK_DEBUG is
+defined.
 
-#Return  incomplete ##
-
-#Example
-// incomplete
+#Param index  one of: kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY,
+                      kMPersp0, kMPersp1, kMPersp2
 ##
 
-#ToDo incomplete ##
+#Return  value corresponding to index ##
+
+#Example
+SkMatrix matrix;
+matrix.setScale(42, 24);
+SkDebugf("matrix[SkMatrix::kMScaleX] %c= 42\n", matrix[SkMatrix::kMScaleX] == 42 ? '=' : '!');
+SkDebugf("matrix[SkMatrix::kMScaleY] %c= 24\n", matrix[SkMatrix::kMScaleY] == 24 ? '=' : '!');
+#StdOut
+matrix[SkMatrix::kMScaleX] == 42
+matrix[SkMatrix::kMScaleY] == 24
+##
+##
+
+#SeeAlso get set
 
 ##
 
@@ -483,15 +797,27 @@ because that is how PDF and XPS like it.
 
 #Method SkScalar get(int index) const
 
-#Param index  incomplete ##
+Returns one matrix value. Asserts if index is out of range and SK_DEBUG is
+defined.
 
-#Return  incomplete ##
-
-#Example
-// incomplete
+#Param index  one of: kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY,
+                      kMPersp0, kMPersp1, kMPersp2
 ##
 
-#ToDo incomplete ##
+#Return  value corresponding to index ##
+
+#Example
+SkMatrix matrix;
+matrix.setSkew(42, 24);
+SkDebugf("matrix[SkMatrix::kMSkewX] %c= 42\n", matrix[SkMatrix::kMSkewX] == 42 ? '=' : '!');
+SkDebugf("matrix[SkMatrix::kMSkewY] %c= 24\n", matrix[SkMatrix::kMSkewY] == 24 ? '=' : '!');
+#StdOut
+matrix[SkMatrix::kMScaleX] == 42
+matrix[SkMatrix::kMScaleY] == 24
+##
+##
+
+#SeeAlso operator[](int index) set
 
 ##
 
@@ -499,13 +825,21 @@ because that is how PDF and XPS like it.
 
 #Method SkScalar getScaleX() const
 
-#Return  incomplete ##
+Returns scale factor multiplied by x input, contributing to x output.
+With mapPoints, scales Points along the x-axis.
+
+#Return  horizontal scale factor ##
 
 #Example
-// incomplete
+SkMatrix matrix;
+matrix.setScale(42, 24);
+SkDebugf("matrix.getScaleX() %c= 42\n", matrix.getScaleX() == 42 ? '=' : '!');
+#StdOut
+matrix.getScaleX() == 42
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso get getScaleY setScaleX setScale
 
 ##
 
@@ -513,13 +847,21 @@ because that is how PDF and XPS like it.
 
 #Method SkScalar getScaleY() const
 
-#Return  incomplete ##
+Returns scale factor multiplied by y input, contributing to y output.
+With mapPoints, scales Points along the y-axis.
+
+#Return  vertical scale factor ##
 
 #Example
-// incomplete
+SkMatrix matrix;
+matrix.setScale(42, 24);
+SkDebugf("matrix.getScaleY() %c= 24\n", matrix.getScaleY() == 24 ? '=' : '!');
+#StdOut
+matrix.getScaleY() == 24
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso get getScaleX setScaleY setScale
 
 ##
 
@@ -527,13 +869,22 @@ because that is how PDF and XPS like it.
 
 #Method SkScalar getSkewY() const
 
-#Return  incomplete ##
+Returns scale factor multiplied by x input, contributing to y output.
+With mapPoints, skews Points along the y-axis.
+Skew x and y together can rotate Points.
+
+#Return  vertical skew factor ##
 
 #Example
-// incomplete
+SkMatrix matrix;
+matrix.setSkew(42, 24);
+SkDebugf("matrix.getSkewY() %c= 24\n", matrix.getSkewY() == 24 ? '=' : '!');
+#StdOut
+matrix.getSkewY() == 24
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso get getSkewX setSkewY setSkew
 
 ##
 
@@ -541,13 +892,22 @@ because that is how PDF and XPS like it.
 
 #Method SkScalar getSkewX() const
 
-#Return  incomplete ##
+Returns scale factor multiplied by y input, contributing to x output.
+With mapPoints, skews Points along the x-axis.
+Skew x and y together can rotate Points.
+
+#Return  horizontal scale factor ##
 
 #Example
-// incomplete
+SkMatrix matrix;
+matrix.setSkew(42, 24);
+SkDebugf("matrix.getSkewX() %c= 42\n", matrix.getSkewX() == 42 ? '=' : '!');
+#StdOut
+matrix.getSkewX() == 42
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso get getSkewY setSkewX setSkew
 
 ##
 
@@ -555,13 +915,21 @@ because that is how PDF and XPS like it.
 
 #Method SkScalar getTranslateX() const
 
-#Return  incomplete ##
+Returns translation contributing to x output.
+With mapPoints, moves Points along the x-axis.
+
+#Return  horizontal translation factor ##
 
 #Example
-// incomplete
+SkMatrix matrix;
+matrix.setTranslate(42, 24);
+SkDebugf("matrix.getTranslateX() %c= 42\n", matrix.getTranslateX() == 42 ? '=' : '!');
+#StdOut
+matrix.getTranslateX() == 42
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso get getTranslateY setTranslateX setTranslate
 
 ##
 
@@ -569,13 +937,21 @@ because that is how PDF and XPS like it.
 
 #Method SkScalar getTranslateY() const
 
-#Return  incomplete ##
+Returns translation contributing to y output.
+With mapPoints, moves Points along the y-axis.
+
+#Return  vertical translation factor ##
 
 #Example
-// incomplete
+SkMatrix matrix;
+matrix.setTranslate(42, 24);
+SkDebugf("matrix.getTranslateY() %c= 24\n", matrix.getTranslateY() == 24 ? '=' : '!');
+#StdOut
+matrix.getTranslateY() == 24
+##
 ##
 
-#ToDo incomplete ##
+#SeeAlso get getTranslateX setTranslateY setTranslate
 
 ##
 
@@ -767,7 +1143,18 @@ because that is how PDF and XPS like it.
 #Param persp2  incomplete ##
 
 #Example
-// incomplete
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setTextSize(64);
+    SkMatrix m;
+    for (SkScalar sx : { -1, 1 } ) {
+        for (SkScalar sy : { -1, 1 } ) {
+            SkAutoCanvasRestore autoRestore(canvas, true);
+            m.setAll(sx, 1, 128,    0, sy, 128,   0, 0, 1);
+            canvas->concat(m);
+            canvas->drawString("K", 0, 0, p);
+        }
+    }
 ##
 
 #ToDo incomplete ##
@@ -884,7 +1271,18 @@ specified transformation.
 #Param py  incomplete ##
 
 #Example
-// incomplete
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setTextSize(64);
+    SkMatrix m;
+    for (SkScalar sx : { -1, 1 } ) {
+        for (SkScalar sy : { -1, 1 } ) {
+            SkAutoCanvasRestore autoRestore(canvas, true);
+            m.setScale(sx, sy, 128, 128);
+            canvas->concat(m);
+            canvas->drawString("K", 128, 128, p);
+        }
+    }
 ##
 
 #ToDo incomplete ##
@@ -901,7 +1299,19 @@ Set the matrix to scale by sx and sy.
 #Param sy  incomplete ##
 
 #Example
-// incomplete
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setTextSize(64);
+    SkMatrix m;
+    for (SkScalar sx : { -1, 1 } ) {
+        for (SkScalar sy : { -1, 1 } ) {
+            SkAutoCanvasRestore autoRestore(canvas, true);
+            m.setScale(sx, sy);
+            m.postTranslate(128, 128);
+            canvas->concat(m);
+            canvas->drawString("K", 0, 0, p);
+        }
+    }
 ##
 
 #ToDo incomplete ##
