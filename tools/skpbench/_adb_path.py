@@ -9,9 +9,9 @@ import subprocess
 
 __ADB = None
 
-def init(device_serial):
+def init(device_serial, adb_binary):
   global __ADB
-  __ADB = Adb(device_serial)
+  __ADB = Adb(device_serial, adb_binary)
 
 def join(*pathnames):
   return '/'.join(pathnames)

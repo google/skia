@@ -9,8 +9,8 @@ import subprocess
 import sys
 
 class Adb:
-  def __init__(self, device_serial=None, echo=False):
-    self.__invocation = ['adb']
+  def __init__(self, device_serial=None, adb_binary=None, echo=False):
+    self.__invocation = [adb_binary]
     if device_serial:
       self.__invocation.extend(['-s', device_serial])
     self.__echo = echo
