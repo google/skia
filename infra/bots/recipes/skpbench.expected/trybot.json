@@ -209,6 +209,8 @@
       "/data/local/tmp/skpbench",
       "/sdcard/revenge_of_the_skiabot/skps",
       "--adb",
+      "--adb_binary",
+      "adb.1.0.35",
       "--resultsfile",
       "[CUSTOM_[SWARM_OUT_DIR]]/table",
       "--config",
