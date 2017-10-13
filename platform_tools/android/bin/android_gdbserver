@@ -17,7 +17,7 @@ fi
 
 IS_64_BIT="false"
 GN_TARGET_CPU=$(grep target_cpu ${SKIA_OUT}/args.gn)
-if [ -z "$GN_TARGET_CPU"]; then
+if [ -z "$GN_TARGET_CPU" ]; then
   IS_64_BIT="true"
 elif [[ $GN_TARGET_CPU == *64* ]]; then
   IS_64_BIT="true"
