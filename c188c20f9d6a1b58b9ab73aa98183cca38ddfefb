@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e50292b_98f27ee1",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-13T13:28:29Z",
+      "side": 1,
+      "message": "Is it possible to just keep all the new code here in SkBlurImageFilter.cpp?\n\nI feel like I\u0027m bound to get really confused about the difference between SkImageBlurFilter and SkBlurImageFilter.  And this just doesn\u0027t strike me as code that benefits from being an object. Aren\u0027t these two lines a roundabout way of a single function call?\n\n   result \u003d combined_pass_blur(sigma, source, input, inputBounds, dstBounds);\n\n?",
+      "range": {
+        "startLine": 220,
+        "startChar": 16,
+        "endLine": 221,
+        "endChar": 76
+      },
+      "revId": "c188c20f9d6a1b58b9ab73aa98183cca38ddfefb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
