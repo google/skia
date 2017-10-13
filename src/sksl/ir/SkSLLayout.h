@@ -232,18 +232,6 @@ struct Layout {
             result += separator + "when = " + fWhen;
             separator = ", ";
         }
-        switch (fKey) {
-            case kNo_Key:
-                break;
-            case kKey_Key:
-                result += separator + "key";
-                separator = ", ";
-                break;
-            case kIdentity_Key:
-                result += separator + "key=identity";
-                separator = ", ";
-                break;
-        }
         if (result.size() > 0) {
             result = "layout (" + result + ")";
         }
