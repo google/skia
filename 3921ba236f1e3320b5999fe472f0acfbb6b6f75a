@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa04c8db_f054c7b2",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2017-10-14T00:15:57Z",
+      "side": 0,
+      "message": "Is this right? This unconditionally declares a C++ struct AHardwareBuffer for everyone who includes this file, including Chrome code built without NDK platform level 26 support, but the actual declaration in the NDK header is:\n\nextern \"C\" {\ntypedef struct AHardwareBuffer AHardwareBuffer;\n}\n\nAs far as I know this isn\u0027t fully equivalent, for example callers in another namespace would have to use \"::AHardwareBuffer\" for the C++ struct vs unprefixed \"AHardwareBuffer\" for the extern \"C\" struct.\n\nI\u0027m working on changes that will add AHardwareBuffer-related methods to Chrome and that will use the \"C\" definition, and want to make sure that we won\u0027t get conflicts for code that includes both. See for example: https://chromium-review.googlesource.com/c/chromium/src/+/679961/7/ui/gl/gl_bindings.h",
+      "revId": "3921ba236f1e3320b5999fe472f0acfbb6b6f75a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
