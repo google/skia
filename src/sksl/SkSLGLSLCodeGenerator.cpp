@@ -449,6 +449,9 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_VERTEXID_BUILTIN:
             this->write("gl_VertexID");
             break;
+        case SK_INSTANCEID_BUILTIN:
+            this->write("gl_InstanceID");
+            break;
         case SK_CLIPDISTANCE_BUILTIN:
             this->write("gl_ClipDistance");
             break;

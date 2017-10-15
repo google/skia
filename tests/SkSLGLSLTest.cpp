@@ -1037,6 +1037,18 @@ DEF_TEST(SkSLVertexID, r) {
          SkSL::Program::kVertex_Kind);
 }
 
+DEF_TEST(SkSLInstanceID, r) {
+    test(r,
+         "out int id; void main() { id = sk_InstanceID; }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out int id;\n"
+         "void main() {\n"
+         "    id = gl_InstanceID;\n"
+         "}\n",
+         SkSL::Program::kVertex_Kind);
+}
+
 DEF_TEST(SkSLClipDistance, r) {
     test(r,
          "void main() { sk_ClipDistance[0] = 0; }",
