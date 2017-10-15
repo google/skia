@@ -41,6 +41,7 @@ Differences from GLSL
 * use sk_Position instead of gl_Position
 * use sk_PointSize instead of gl_PointSize
 * use sk_VertexID instead of gl_VertexID
+* use sk_InstanceID instead of gl_InstanceID
 * the fragment coordinate is sk_FragCoord, and is always relative to the upper
   left.
 * you do not need to include ".0" to make a number a float (meaning that
