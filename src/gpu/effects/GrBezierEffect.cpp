@@ -78,7 +78,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->emitAttributes(gp);
 
     GrGLSLVertToFrag v(kFloat4_GrSLType);
-    varyingHandler->addVarying("ConicCoeffs", &v, kHigh_GrSLPrecision);
+    varyingHandler->addVarying("ConicCoeffs", &v);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs()->fName);
 
     GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -555,14 +555,14 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     fDevKLMUniform = uniformHandler->addUniform(kVertex_GrShaderFlag, kFloat3x3_GrSLType, "KLM",
                                                 &devkLMMatrixName);
     GrGLSLVertToFrag v(kFloat3_GrSLType);
-    varyingHandler->addVarying("CubicCoeffs", &v, kHigh_GrSLPrecision);
+    varyingHandler->addVarying("CubicCoeffs", &v);
     vertBuilder->codeAppendf("%s = %s * float3(%s, 1);",
                              v.vsOut(), devkLMMatrixName, gpArgs->fPositionVar.c_str());
 
 
     GrGLSLVertToFrag gradCoeffs(kFloat4_GrSLType);
     if (kFillAA_GrProcessorEdgeType == fEdgeType || kHairlineAA_GrProcessorEdgeType == fEdgeType) {
-        varyingHandler->addVarying("GradCoeffs", &gradCoeffs, kHigh_GrSLPrecision);
+        varyingHandler->addVarying("GradCoeffs", &gradCoeffs);
         vertBuilder->codeAppendf("float k = %s[0], l = %s[1], m = %s[2];",
                                  v.vsOut(), v.vsOut(), v.vsOut());
         vertBuilder->codeAppendf("float2 gk = float2(%s[0][0], %s[1][0]), "

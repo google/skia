@@ -41,7 +41,7 @@ GrCCPRTriangleEdgeShader::WindHandling
 GrCCPRTriangleEdgeShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code,
                                          const char* position, const char* coverage,
                                          const char* wind) {
-    varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind, kLow_GrSLPrecision);
+    varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind);
     code->appendf("%s = %s * %s;", fCoverageTimesWind.gsOut(), coverage, wind);
     return WindHandling::kHandled;
 }
