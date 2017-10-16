@@ -13,8 +13,7 @@
 
 GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying(
                                                                        const char* name,
-                                                                       GrGLSLVertToFrag* v,
-                                                                       GrSLPrecision fsPrecision) {
+                                                                       GrGLSLVertToFrag* v) {
 #ifdef SK_DEBUG
     GrGLProgramBuilder* glPB = (GrGLProgramBuilder*) fProgramBuilder;
     // This call is not used for non-NVPR backends.
@@ -23,7 +22,7 @@ GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying
              !glPB->fPrimProc.willUseGeoShader() &&
              glPB->fPrimProc.numAttribs() == 0);
 #endif
-    this->addVarying(name, v, fsPrecision);
+    this->addVarying(name, v);
     auto varyingInfo = fPathProcVaryingInfos.push_back();
     varyingInfo.fLocation = fPathProcVaryingInfos.count() - 1;
     return VaryingHandle(varyingInfo.fLocation);

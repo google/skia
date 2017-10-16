@@ -421,7 +421,7 @@ void GLSLInstanceProcessor::Backend::init(GrGLSLVaryingHandler* varyingHandler,
     this->onInit(varyingHandler, v);
 
     if (!fColor.vsOut()) {
-        varyingHandler->addFlatVarying("color", &fColor, kLow_GrSLPrecision);
+        varyingHandler->addFlatVarying("color", &fColor);
         v->codeAppendf("%s = %s;", fColor.vsOut(), fInputs.attr(Attrib::kColor));
     }
 }
@@ -602,8 +602,8 @@ private:
 void GLSLInstanceProcessor::BackendNonAA::onInit(GrGLSLVaryingHandler* varyingHandler,
                                                  GrGLSLVertexBuilder*) {
     if (kRect_ShapeFlag != fOpInfo.fShapeTypes) {
-        varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc, kLow_GrSLPrecision);
-        varyingHandler->addVarying("arcCoords", &fArcCoords, kMedium_GrSLPrecision);
+        varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc);
+        varyingHandler->addVarying("arcCoords", &fArcCoords);
     }
 }
 
@@ -622,10 +622,10 @@ void GLSLInstanceProcessor::BackendNonAA::setupOval(GrGLSLVertexBuilder* v) {
 
 void GLSLInstanceProcessor::BackendNonAA::onInitInnerShape(GrGLSLVaryingHandler* varyingHandler,
                                                            GrGLSLVertexBuilder*) {
-    varyingHandler->addVarying("innerShapeCoords", &fInnerShapeCoords, kMedium_GrSLPrecision);
+    varyingHandler->addVarying("innerShapeCoords", &fInnerShapeCoords);
     if (kRect_ShapeFlag != fOpInfo.fInnerShapeTypes &&
         kOval_ShapeFlag != fOpInfo.fInnerShapeTypes) {
-        varyingHandler->addFlatVarying("innerRRect", &fInnerRRect, kMedium_GrSLPrecision);
+        varyingHandler->addFlatVarying("innerRRect", &fInnerRRect);
     }
 }
 
@@ -765,24 +765,23 @@ void GLSLInstanceProcessor::BackendCoverage::onInit(GrGLSLVaryingHandler* varyin
 
     if (kOval_ShapeFlag != fOpInfo.fShapeTypes) {
         if (fTweakAlphaForCoverage) {
-            varyingHandler->addVarying("colorTimesRectCoverage", &fColorTimesRectCoverage,
-                                       kLow_GrSLPrecision);
+            varyingHandler->addVarying("colorTimesRectCoverage", &fColorTimesRectCoverage);
             if (kRect_ShapeFlag == fOpInfo.fShapeTypes) {
                 fColor = fColorTimesRectCoverage;
             }
         } else {
-            varyingHandler->addVarying("rectCoverage", &fRectCoverage, kLow_GrSLPrecision);
+            varyingHandler->addVarying("rectCoverage", &fRectCoverage);
         }
         v->codeAppend("half rectCoverage = 0.0;");
     }
     if (kRect_ShapeFlag != fOpInfo.fShapeTypes) {
-        varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc, kLow_GrSLPrecision);
+        varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc);
         if (!fShapeIsCircle) {
-            varyingHandler->addVarying("ellipseCoords", &fEllipseCoords, kMedium_GrSLPrecision);
-            varyingHandler->addFlatVarying("ellipseName", &fEllipseName, kHigh_GrSLPrecision);
+            varyingHandler->addVarying("ellipseCoords", &fEllipseCoords);
+            varyingHandler->addFlatVarying("ellipseName", &fEllipseName);
         } else {
-            varyingHandler->addVarying("circleCoords", &fEllipseCoords, kHigh_GrSLPrecision);
-            varyingHandler->addFlatVarying("bloatedRadius", &fBloatedRadius, kHigh_GrSLPrecision);
+            varyingHandler->addVarying("circleCoords", &fEllipseCoords);
+            varyingHandler->addFlatVarying("bloatedRadius", &fBloatedRadius);
         }
     }
 }
@@ -881,20 +880,15 @@ void GLSLInstanceProcessor::BackendCoverage::onInitInnerShape(GrGLSLVaryingHandl
     v->codeAppend("half2 innerShapeHalfSize = shapeHalfSize / outer2Inner.xy;");
 
     if (kOval_ShapeFlag == fOpInfo.fInnerShapeTypes) {
-        varyingHandler->addVarying("innerEllipseCoords", &fInnerEllipseCoords,
-                                   kMedium_GrSLPrecision);
-        varyingHandler->addFlatVarying("innerEllipseName", &fInnerEllipseName, kHigh_GrSLPrecision);
+        varyingHandler->addVarying("innerEllipseCoords", &fInnerEllipseCoords);
+        varyingHandler->addFlatVarying("innerEllipseName", &fInnerEllipseName);
     } else {
-        varyingHandler->addVarying("distanceToInnerEdge", &fDistanceToInnerEdge,
-                                   kMedium_GrSLPrecision);
-        varyingHandler->addFlatVarying("innerShapeBloatedHalfSize", &fInnerShapeBloatedHalfSize,
-                                       kMedium_GrSLPrecision);
+        varyingHandler->addVarying("distanceToInnerEdge", &fDistanceToInnerEdge);
+        varyingHandler->addFlatVarying("innerShapeBloatedHalfSize", &fInnerShapeBloatedHalfSize);
         if (kRect_ShapeFlag != fOpInfo.fInnerShapeTypes) {
-            varyingHandler->addVarying("innerShapeCoords", &fInnerShapeCoords,
-                                       kMedium_GrSLPrecision);
-            varyingHandler->addFlatVarying("innerEllipseName", &fInnerEllipseName,
-                                           kHigh_GrSLPrecision);
-            varyingHandler->addFlatVarying("innerRRect", &fInnerRRect, kMedium_GrSLPrecision);
+            varyingHandler->addVarying("innerShapeCoords", &fInnerShapeCoords);
+            varyingHandler->addFlatVarying("innerEllipseName", &fInnerEllipseName);
+            varyingHandler->addFlatVarying("innerRRect", &fInnerRRect);
         }
     }
 }
@@ -1144,46 +1138,39 @@ void GLSLInstanceProcessor::BackendMultisample::onInit(GrGLSLVaryingHandler* var
                                                        GrGLSLVertexBuilder* v) {
     if (!this->isMixedSampled()) {
         if (kRect_ShapeFlag != fOpInfo.fShapeTypes) {
-            varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc, kLow_GrSLPrecision);
-            varyingHandler->addVarying("arcCoords", &fArcCoords, kHigh_GrSLPrecision);
+            varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc);
+            varyingHandler->addVarying("arcCoords", &fArcCoords);
             if (!fOpInfo.fHasPerspective) {
-                varyingHandler->addFlatVarying("arcInverseMatrix", &fArcInverseMatrix,
-                                               kHigh_GrSLPrecision);
-                varyingHandler->addFlatVarying("fragArcHalfSpan", &fFragArcHalfSpan,
-                                               kHigh_GrSLPrecision);
+                varyingHandler->addFlatVarying("arcInverseMatrix", &fArcInverseMatrix);
+                varyingHandler->addFlatVarying("fragArcHalfSpan", &fFragArcHalfSpan);
             }
         } else if (!fOpInfo.fInnerShapeTypes) {
             return;
         }
     } else {
-        varyingHandler->addVarying("shapeCoords", &fShapeCoords, kHigh_GrSLPrecision);
+        varyingHandler->addVarying("shapeCoords", &fShapeCoords);
         if (!fOpInfo.fHasPerspective) {
-            varyingHandler->addFlatVarying("shapeInverseMatrix", &fShapeInverseMatrix,
-                                           kHigh_GrSLPrecision);
-            varyingHandler->addFlatVarying("fragShapeHalfSpan", &fFragShapeHalfSpan,
-                                           kHigh_GrSLPrecision);
+            varyingHandler->addFlatVarying("shapeInverseMatrix", &fShapeInverseMatrix);
+            varyingHandler->addFlatVarying("fragShapeHalfSpan", &fFragShapeHalfSpan);
         }
         if (fOpInfo.fShapeTypes & kRRect_ShapesMask) {
-            varyingHandler->addVarying("arcCoords", &fArcCoords, kHigh_GrSLPrecision);
-            varyingHandler->addVarying("arcTest", &fArcTest, kHigh_GrSLPrecision);
+            varyingHandler->addVarying("arcCoords", &fArcCoords);
+            varyingHandler->addVarying("arcTest", &fArcTest);
             if (!fOpInfo.fHasPerspective) {
-                varyingHandler->addFlatVarying("arcInverseMatrix", &fArcInverseMatrix,
-                                               kHigh_GrSLPrecision);
-                varyingHandler->addFlatVarying("fragArcHalfSpan", &fFragArcHalfSpan,
-                                               kHigh_GrSLPrecision);
+                varyingHandler->addFlatVarying("arcInverseMatrix", &fArcInverseMatrix);
+                varyingHandler->addFlatVarying("fragArcHalfSpan", &fFragArcHalfSpan);
             }
         } else if (fOpInfo.fShapeTypes & kOval_ShapeFlag) {
             fArcCoords = fShapeCoords;
             fArcInverseMatrix = fShapeInverseMatrix;
             fFragArcHalfSpan = fFragShapeHalfSpan;
             if (fOpInfo.fShapeTypes & kRect_ShapeFlag) {
-                varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc,
-                                               kLow_GrSLPrecision);
+                varyingHandler->addFlatVarying("triangleIsArc", &fTriangleIsArc);
             }
         }
         if (kRect_ShapeFlag != fOpInfo.fShapeTypes) {
             v->defineConstantf("int", "SAMPLE_MASK_ALL", "0x%x", (1 << fEffectiveSampleCnt) - 1);
-            varyingHandler->addFlatVarying("earlyAccept", &fEarlyAccept, kHigh_GrSLPrecision);
+            varyingHandler->addFlatVarying("earlyAccept", &fEarlyAccept);
         }
     }
     if (!fOpInfo.fHasPerspective) {
@@ -1317,18 +1304,16 @@ void GLSLInstanceProcessor::BackendMultisample::onSetupRRect(GrGLSLVertexBuilder
 void
 GLSLInstanceProcessor::BackendMultisample::onInitInnerShape(GrGLSLVaryingHandler* varyingHandler,
                                                             GrGLSLVertexBuilder* v) {
-    varyingHandler->addVarying("innerShapeCoords", &fInnerShapeCoords, kHigh_GrSLPrecision);
+    varyingHandler->addVarying("innerShapeCoords", &fInnerShapeCoords);
     if (kOval_ShapeFlag != fOpInfo.fInnerShapeTypes &&
         kRect_ShapeFlag != fOpInfo.fInnerShapeTypes) {
-        varyingHandler->addFlatVarying("innerRRect", &fInnerRRect, kHigh_GrSLPrecision);
+        varyingHandler->addFlatVarying("innerRRect", &fInnerRRect);
     }
     if (!fOpInfo.fHasPerspective) {
-        varyingHandler->addFlatVarying("innerShapeInverseMatrix", &fInnerShapeInverseMatrix,
-                                       kHigh_GrSLPrecision);
+        varyingHandler->addFlatVarying("innerShapeInverseMatrix", &fInnerShapeInverseMatrix);
         v->codeAppendf("%s = shapeInverseMatrix * float2x2(outer2Inner.x, 0, 0, outer2Inner.y);",
                        fInnerShapeInverseMatrix.vsOut());
-        varyingHandler->addFlatVarying("fragInnerShapeHalfSpan", &fFragInnerShapeHalfSpan,
-                                       kHigh_GrSLPrecision);
+        varyingHandler->addFlatVarying("fragInnerShapeHalfSpan", &fFragInnerShapeHalfSpan);
         v->codeAppendf("%s = 0.5 * fragShapeSpan * outer2Inner.xy;",
                        fFragInnerShapeHalfSpan.vsOut());
     }
