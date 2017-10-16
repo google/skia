@@ -730,7 +730,7 @@
       "adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android/data"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -740,7 +740,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android/data"
+    "name": "pull /sdcard/revenge_of_the_skiabot/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android/data"
   },
   {
     "cmd": [

@@ -5,7 +5,7 @@
       "cp",
       "-Z",
       "[START_DIR]/output.profraw",
-      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.profraw"
+      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
     ],
     "name": "upload raw data"
   },
@@ -26,7 +26,7 @@
       "cp",
       "-Z",
       "[START_DIR]/output.profdata",
-      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.profdata"
+      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
     ],
     "name": "upload parsed data"
   },
@@ -48,7 +48,7 @@
       "cp",
       "-Z",
       "[START_DIR]/coverage_text/index.txt",
-      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.summary"
+      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.summary"
     ],
     "name": "upload coverage summary"
   },
@@ -67,7 +67,7 @@
       "cp",
       "-Z",
       "[START_DIR]/coverage.text.tar",
-      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.text.tar"
+      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.text.tar"
     ],
     "name": "upload text coverage data"
   },
@@ -98,7 +98,7 @@
       "cp",
       "-Z",
       "[START_DIR]/coverage.html.tar",
-      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug.html.tar"
+      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.html.tar"
     ],
     "name": "upload html coverage data"
   },

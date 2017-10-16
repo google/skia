@@ -31,7 +31,8 @@ def GenTests(api):
       )
     )
 
-  buildername = 'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-ANGLE'
+  buildername = ('Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-' +
+                 'Debug-All-ANGLE')
   yield (
       api.test('no_persistent_checkout') +
       api.properties(buildername=buildername,

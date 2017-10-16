@@ -191,7 +191,7 @@
       "gitHash",
       "abc123",
       "builder",
-      "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
+      "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-All",
       "issue",
       "456789",
       "patchset",

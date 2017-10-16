@@ -196,7 +196,7 @@
       "gitHash",
       "abc123",
       "builder",
-      "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug",
+      "Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All",
       "swarming_bot_id",
       "",
       "swarming_task_id",
