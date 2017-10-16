@@ -1,0 +1,251 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73e7e7aa_d5269bf2",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T20:09:56Z",
+      "side": 1,
+      "message": "Probably best to make these both const or both constexpr.  Reads weird as-is.",
+      "range": {
+        "startLine": 34,
+        "startChar": 7,
+        "endLine": 34,
+        "endChar": 13
+      },
+      "revId": "19f534022a0e83aa5f31b798dad9d419d2dc0e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "977d86e6_2da7a3d1",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T20:09:56Z",
+      "side": 1,
+      "message": "Maybe just \"And this implementation also avoids a trap that\u0027s easy to fall into resulting in blending in too many zeroes near the edge.\" ?",
+      "range": {
+        "startLine": 179,
+        "startChar": 30,
+        "endLine": 182,
+        "endChar": 67
+      },
+      "revId": "19f534022a0e83aa5f31b798dad9d419d2dc0e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c71350f2_3cd7d9e1",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T20:09:56Z",
+      "side": 1,
+      "message": "-\u003e we can ?",
+      "range": {
+        "startLine": 186,
+        "startChar": 75,
+        "endLine": 186,
+        "endChar": 84
+      },
+      "revId": "19f534022a0e83aa5f31b798dad9d419d2dc0e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbb632d2_84de4e55",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T20:09:56Z",
+      "side": 1,
+      "message": "Why does the GaussBlur class exist?  Don\u0027t we just Make() a GaussBlur and then immediately call blur() on it?  That just seems like a function.",
+      "range": {
+        "startLine": 218,
+        "startChar": 6,
+        "endLine": 218,
+        "endChar": 15
+      },
+      "revId": "19f534022a0e83aa5f31b798dad9d419d2dc0e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65b5277e_ed14cc1d",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T20:09:56Z",
+      "side": 1,
+      "message": "More things to be int?",
+      "revId": "19f534022a0e83aa5f31b798dad9d419d2dc0e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d8a89fd_6ec639b0",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T20:09:56Z",
+      "side": 1,
+      "message": "More ints?",
+      "range": {
+        "startLine": 256,
+        "startChar": 4,
+        "endLine": 258,
+        "endChar": 29
+      },
+      "revId": "19f534022a0e83aa5f31b798dad9d419d2dc0e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3890c638_561db937",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T20:09:56Z",
+      "side": 1,
+      "message": "More ints?",
+      "range": {
+        "startLine": 264,
+        "startChar": 40,
+        "endLine": 266,
+        "endChar": 40
+      },
+      "revId": "19f534022a0e83aa5f31b798dad9d419d2dc0e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7579a11b_730cbb85",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T20:09:56Z",
+      "side": 1,
+      "message": "int?",
+      "range": {
+        "startLine": 269,
+        "startChar": 4,
+        "endLine": 269,
+        "endChar": 10
+      },
+      "revId": "19f534022a0e83aa5f31b798dad9d419d2dc0e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14a13719_ce4cf4f5",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T20:09:56Z",
+      "side": 1,
+      "message": "Thanks, this was just enough!",
+      "range": {
+        "startLine": 332,
+        "startChar": 38,
+        "endLine": 333,
+        "endChar": 80
+      },
+      "revId": "19f534022a0e83aa5f31b798dad9d419d2dc0e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "524db0a8_a658f9f4",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T20:09:56Z",
+      "side": 1,
+      "message": "I kind of feel like we meant to have a number here.\n\nAnd isn\u0027t it, for a window of size 6, the border value is 8?",
+      "range": {
+        "startLine": 373,
+        "startChar": 3,
+        "endLine": 373,
+        "endChar": 23
+      },
+      "revId": "19f534022a0e83aa5f31b798dad9d419d2dc0e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea7541c9_4ddbee8b",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T20:09:56Z",
+      "side": 1,
+      "message": "Seems like we can reduce some code redundancy by sharing this setup among the three interesting cases, e.g.\n\nif (windowW \u003d\u003d 1 \u0026\u0026 windowH \u003d\u003d 1) {\n    return input-\u003emakeSubset(inputBounds);\n}\n\n... these 7 lines shared by remaining 3 cases ... \nif (windowW \u003d\u003d 1) { blurH() }\nif (windowH \u003d\u003d 1) { blurW() }\nelse              { blurW(), blurH() }\nreturn ...",
+      "range": {
+        "startLine": 512,
+        "startChar": 0,
+        "endLine": 518,
+        "endChar": 88
+      },
+      "revId": "19f534022a0e83aa5f31b798dad9d419d2dc0e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
