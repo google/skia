@@ -385,7 +385,7 @@ void GrCCPRCoverageOp::setBuffers(sk_sp<GrBuffer> pointsBuffer, sk_sp<GrBuffer> 
 }
 
 void GrCCPRCoverageOp::onExecute(GrOpFlushState* flushState) {
-    using RenderPass = GrCCPRCoverageProcessor::RenderPass;
+    using Mode = GrCCPRCoverageProcessor::Mode;
 
     SkDEBUGCODE(GrCCPRCoverageProcessor::Validate(flushState->drawOpArgs().fProxy));
     SkASSERT(fPointsBuffer);
@@ -399,34 +399,34 @@ void GrCCPRCoverageOp::onExecute(GrOpFlushState* flushState) {
 
     // Triangles.
     auto constexpr kTrianglesGrPrimitiveType = GrCCPRCoverageProcessor::kTrianglesGrPrimitiveType;
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleHulls,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kTriangleHulls,
                              kTrianglesGrPrimitiveType, 3, &PrimitiveTallies::fTriangles);
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleEdges,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kTriangleEdges,
                              kTrianglesGrPrimitiveType, 3, &PrimitiveTallies::fTriangles);
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleCorners,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kTriangleCorners,
                              kTrianglesGrPrimitiveType, 3, &PrimitiveTallies::fTriangles);
 
     // Quadratics.
     auto constexpr kQuadraticsGrPrimitiveType = GrCCPRCoverageProcessor::kQuadraticsGrPrimitiveType;
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kQuadraticHulls,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kQuadraticHulls,
                              kQuadraticsGrPrimitiveType, 3, &PrimitiveTallies::fQuadratics);
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kQuadraticCorners,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kQuadraticCorners,
                              kQuadraticsGrPrimitiveType, 3, &PrimitiveTallies::fQuadratics);
 
     // Cubics.
     auto constexpr kCubicsGrPrimitiveType = GrCCPRCoverageProcessor::kCubicsGrPrimitiveType;
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kSerpentineHulls,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kSerpentineHulls,
                              kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fSerpentines);
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kLoopHulls,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kLoopHulls,
                              kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fLoops);
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kSerpentineCorners,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kSerpentineCorners,
                              kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fSerpentines);
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kLoopCorners,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kLoopCorners,
                              kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fLoops);
 }
 
 void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPipeline& pipeline,
-                                          GrCCPRCoverageProcessor::RenderPass renderPass,
+                                          GrCCPRCoverageProcessor::Mode mode,
                                           GrPrimitiveType primType, int vertexCount,
                                           int PrimitiveTallies::* instanceType) const {
     using ScissorMode = GrCCPRCoverageOpsBuilder::ScissorMode;
@@ -463,7 +463,7 @@ void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPi
     SkASSERT(fMeshesScratchBuffer.count() == fDynamicStatesScratchBuffer.count());
 
     if (!fMeshesScratchBuffer.empty()) {
-        GrCCPRCoverageProcessor proc(renderPass, fPointsBuffer.get());
+        GrCCPRCoverageProcessor proc(mode, fPointsBuffer.get());
         SkASSERT(flushState->rtCommandBuffer());
         flushState->rtCommandBuffer()->draw(pipeline, proc, fMeshesScratchBuffer.begin(),
                                             fDynamicStatesScratchBuffer.begin(),

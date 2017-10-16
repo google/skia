@@ -12,22 +12,21 @@
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
 
-class GrGLSLPPFragmentBuilder;
-class GrGLSLShaderBuilder;
+class GrGLSLFragmentBuilder;
 
 /**
  * This is the geometry processor for the simple convex primitive shapes (triangles and closed curve
  * segments) from which ccpr paths are composed. The output is a single-channel alpha value,
- * positive for clockwise shapes and negative for counter-clockwise, that indicates coverage.
+ * positive for clockwise primitives and negative for counter-clockwise, that indicates coverage.
  *
- * The caller is responsible to execute all render passes for all applicable primitives into a
- * cleared, floating point, alpha-only render target using SkBlendMode::kPlus (see RenderPass
- * below). Once all of a path's primitives have been drawn, the render target contains a composite
- * coverage count that can then be used to draw the path (see GrCCPRPathProcessor).
+ * The caller is responsible to render all modes for all applicable primitives into a cleared,
+ * floating point, alpha-only render target using SkBlendMode::kPlus. Once all of a path's
+ * primitives have been drawn, the render target contains a composite coverage count that can then
+ * be used to draw the path (see GrCCPRPathProcessor).
  *
- * Caller provides the primitives' (x,y) input points in an fp32x2 (RG) texel buffer, and an
- * instance buffer with a single int32x4 attrib (for triangles) or int32x2 (for curves) defined
- * below. There are no vertex attribs.
+ * Caller provides the primitives' (x,y) points in an fp32x2 (RG) texel buffer, and an instance
+ * buffer with a single int32x4 attrib (for triangles) or int32x2 (for curves) defined below. There
+ * are no vertex attribs.
  *
  * Draw calls are instanced, with one vertex per bezier point (3 for triangles). They use the
  * corresponding GrPrimitiveType as defined below.
@@ -57,12 +56,7 @@ public:
 
     GR_STATIC_ASSERT(2 * 4 == sizeof(CurveInstance));
 
-    /**
-     * All primitive shapes (triangles and convex closed curve segments) require more than one
-     * render pass. Here we enumerate every render pass needed in order to produce a complete
-     * coverage count mask. This is an exhaustive list of all ccpr coverage shaders.
-     */
-    enum class RenderPass {
+    enum class Mode {
         // Triangles.
         kTriangleHulls,
         kTriangleEdges,
@@ -78,132 +72,22 @@ public:
         kSerpentineCorners,
         kLoopCorners
     };
+    static constexpr GrVertexAttribType InstanceArrayFormat(Mode mode) {
+        return mode < Mode::kQuadraticHulls ? kInt4_GrVertexAttribType : kInt2_GrVertexAttribType;
+    }
+    static const char* GetProcessorName(Mode);
 
-    static const char* GetRenderPassName(RenderPass);
-
-    /**
-     * This serves as the base class for each RenderPass's Shader. It indicates what type of
-     * geometry the Impl should generate and provides implementation-independent code to process
-     * the inputs and calculate coverage in the fragment Shader.
-     */
-    class Shader {
-    public:
-        using TexelBufferHandle = GrGLSLGeometryProcessor::TexelBufferHandle;
-
-        // This enum specifies the type of geometry that should be generated for a Shader instance.
-        // Subclasses are limited to three built-in types of geometry to choose from:
-        enum class GeometryType {
-            // Generates a conservative raster hull around the input points. This is the geometry
-            // that causes a pixel to be rasterized if it is touched anywhere by the input polygon.
-            // Coverage is +1 all around.
-            //
-            // Logically, the conservative raster hull is equivalent to the convex hull of pixel
-            // size boxes centered around each input point.
-            kHull,
-
-            // Generates the conservative rasters of the input edges (i.e. convex hull of two
-            // pixel-size boxes centered on both endpoints). Coverage is -1 on the outside border of
-            // the edge geometry and 0 on the inside. This is the only geometry type that associates
-            // coverage values with the output points. It effectively converts a jagged conservative
-            // raster edge into a smooth antialiased edge.
-            kEdges,
-
-            // Generates the conservative rasters of the corners specified by the geometry provider
-            // (i.e. pixel-size box centered on the corner point). Coverage is +1 all around.
-            kCorners
-        };
-
-        virtual GeometryType getGeometryType() const = 0;
-        virtual int getNumInputPoints() const = 0;
-
-        // Returns the number of independent geometric segments to generate for the render pass
-        // (number of wedges for a hull, number of edges, or number of corners.)
-        virtual int getNumSegments() const = 0;
-
-        // Appends an expression that fetches input point # "pointId" from the texel buffer.
-        virtual void appendInputPointFetch(const GrCCPRCoverageProcessor&, GrGLSLShaderBuilder*,
-                                           const TexelBufferHandle& pointsBuffer,
-                                           const char* pointId) const = 0;
-
-        // Determines the winding direction of the primitive. The subclass must write a value of
-        // either -1, 0, or +1 to "outputWind" (e.g. "sign(area)"). Fractional values are not valid.
-        virtual void emitWind(GrGLSLShaderBuilder*, const char* pts, const char* rtAdjust,
-                              const char* outputWind) const = 0;
-
-        union GeometryVars {
-            struct {
-                const char* fAlternatePoints; // floatNx2 (if left null, will use input points).
-                const char* fAlternateMidpoint; // float2 (if left null, finds euclidean midpoint).
-            } fHullVars;
-
-            struct {
-                const char* fPoint; // float2
-            } fCornerVars;
-
-            GeometryVars() { memset(this, 0, sizeof(*this)); }
-        };
-
-        // Called before generating geometry. Subclasses must fill out the applicable fields in
-        // GeometryVars (if any), and may also use this opportunity to setup internal member
-        // variables that will be needed during onEmitVaryings (e.g. transformation matrices).
-        virtual void emitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* segmentId,
-                                   const char* bloat, const char* wind, const char* rtAdjust,
-                                   GeometryVars*) const {}
-
-        void emitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
-                          const char* coverage, const char* wind);
-
-        void emitFragmentCode(const GrCCPRCoverageProcessor& proc, GrGLSLPPFragmentBuilder*,
-                              const char* skOutputColor, const char* skOutputCoverage) const;
-
-        // Defines an equation ("dot(float3(pt, 1), distance_equation)") that is -1 on the outside
-        // border of a conservative raster edge and 0 on the inside (see emitEdgeGeometry).
-        static void EmitEdgeDistanceEquation(GrGLSLShaderBuilder*, const char* leftPt,
-                                             const char* rightPt,
-                                             const char* outputDistanceEquation);
-
-        // Defines a global float2 array that contains MSAA sample locations as offsets from pixel
-        // center. Subclasses can use this for software multisampling.
-        //
-        // Returns the number of samples.
-        static int DefineSoftSampleLocations(GrGLSLPPFragmentBuilder* f, const char* samplesName);
-
-        virtual ~Shader() {}
-
-    protected:
-        enum class WindHandling : bool {
-            kHandled,
-            kNotHandled
-        };
-
-        // Here the subclass adds its internal varyings to the handler and produces code to
-        // initialize those varyings from a given position, coverage value, and wind.
-        //
-        // Returns whether the subclass will handle wind modulation or if this base class should
-        // take charge of multiplying the final coverage output by "wind".
-        //
-        // NOTE: the coverage parameter is only relevant for edges (see comments in GeometryType).
-        // Otherwise it is +1 all around.
-        virtual WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code,
-                                            const char* position, const char* coverage,
-                                            const char* wind) = 0;
-
-        // Emits the fragment code that calculates a pixel's coverage value. If using
-        // WindHandling::kHandled, this value must be signed appropriately.
-        virtual void onEmitFragmentCode(GrGLSLPPFragmentBuilder*,
-                                        const char* outputCoverage) const = 0;
-
-    private:
-        GrGLSLGeoToFrag fWind{kHalf_GrSLType};
-    };
-
-    GrCCPRCoverageProcessor(RenderPass, GrBuffer* pointsBuffer);
+    GrCCPRCoverageProcessor(Mode, GrBuffer* pointsBuffer);
 
     const char* instanceAttrib() const { return fInstanceAttrib.fName; }
-    const char* name() const override { return GetRenderPassName(fRenderPass); }
+    int atlasOffsetIdx() const {
+        return kInt4_GrVertexAttribType == InstanceArrayFormat(fMode) ? 3 : 1;
+    }
+    const char* name() const override { return GetProcessorName(fMode); }
     SkString dumpInfo() const override {
         return SkStringPrintf("%s\n%s", this->name(), this->INHERITED::dumpInfo().c_str());
     }
+
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
@@ -217,27 +101,152 @@ public:
     static void Validate(GrRenderTargetProxy* atlasProxy);
 #endif
 
-    class GSImpl;
+    class PrimitiveProcessor;
 
 private:
+    const Mode          fMode;
+    const Attribute&    fInstanceAttrib;
+    BufferAccess        fPointsBufferAccess;
+    SkDEBUGCODE(float   fDebugBloat = false;)
+
+    typedef GrGeometryProcessor INHERITED;
+};
+
+/**
+ * This class represents the actual SKSL implementation for the various primitives and modes of
+ * GrCCPRCoverageProcessor.
+ */
+class GrCCPRCoverageProcessor::PrimitiveProcessor : public GrGLSLGeometryProcessor {
+protected:
     // Slightly undershoot a bloat radius of 0.5 so vertices that fall on integer boundaries don't
     // accidentally bleed into neighbor pixels.
     static constexpr float kAABloatRadius = 0.491111f;
 
-    static GrGLSLPrimitiveProcessor* CreateGSImpl(std::unique_ptr<Shader>);
+    // Specifies how the fragment shader should calculate sk_FragColor.a.
+    enum class CoverageType {
+        kOne, // Output +1 all around, modulated by wind.
+        kInterpolated, // Interpolate the coverage values that the geometry shader associates with
+                       // each point, modulated by wind.
+        kShader // Call emitShaderCoverage and let the subclass decide, then a modulate by wind.
+    };
 
-    int atlasOffsetIdx() const {
-        SkASSERT(kInt2_GrVertexAttribType == fInstanceAttrib.fType ||
-                 kInt4_GrVertexAttribType == fInstanceAttrib.fType);
-        return kInt4_GrVertexAttribType == fInstanceAttrib.fType ? 3 : 1;
+    PrimitiveProcessor(CoverageType coverageType)
+            : fCoverageType(coverageType)
+            , fGeomWind("wind", kHalf_GrSLType, GrShaderVar::kNonArray, kLow_GrSLPrecision)
+            , fFragWind(kHalf_GrSLType)
+            , fFragCoverageTimesWind(kHalf_GrSLType) {}
+
+    // Called before generating shader code. Subclass should add its custom varyings to the handler
+    // and update its corresponding internal member variables.
+    virtual void resetVaryings(GrGLSLVaryingHandler*) {}
+
+    // Here the subclass fetches its vertex from the texel buffer, translates by atlasOffset, and
+    // sets "fPositionVar" in the GrGPArgs.
+    virtual void onEmitVertexShader(const GrCCPRCoverageProcessor&, GrGLSLVertexBuilder*,
+                                    const TexelBufferHandle& pointsBuffer, const char* atlasOffset,
+                                    const char* rtAdjust, GrGPArgs*) const = 0;
+
+    // Here the subclass determines the winding direction of its primitive. It must write a value of
+    // either -1, 0, or +1 to "outputWind" (e.g. "sign(area)"). Fractional values are not valid.
+    virtual void emitWind(GrGLSLGeometryBuilder*, const char* rtAdjust,
+                          const char* outputWind) const = 0;
+
+    // This is where the subclass generates the actual geometry to be rasterized by hardware:
+    //
+    //   emitVertexFn(point1, coverage);
+    //   emitVertexFn(point2, coverage);
+    //   ...
+    //   EndPrimitive();
+    //
+    // Generally a subclass will want to use emitHullGeometry and/or emitEdgeGeometry rather than
+    // calling emitVertexFn directly.
+    //
+    // Subclass must also call GrGLSLGeometryBuilder::configure.
+    virtual void onEmitGeometryShader(GrGLSLGeometryBuilder*, const char* emitVertexFn,
+                                      const char* wind, const char* rtAdjust) const = 0;
+
+    // This is a hook to inject code in the geometry shader's "emitVertex" function. Subclass
+    // should use this to write values to its custom varyings.
+    // NOTE: even flat varyings should be rewritten at each vertex.
+    virtual void emitPerVertexGeometryCode(SkString* fnBody, const char* position,
+                                           const char* coverage, const char* wind) const {}
+
+    // Called when the subclass has selected CoverageType::kShader. Primitives should produce
+    // coverage values between +0..1. Base class modulates the sign for wind.
+    // TODO: subclasses might have good spots to stuff the winding information without burning a
+    // whole new varying slot. Consider requiring them to generate the correct coverage sign.
+    virtual void emitShaderCoverage(GrGLSLFragmentBuilder*, const char* outputCoverage) const {
+        SK_ABORT("Shader coverage not implemented when using CoverageType::kShader.");
     }
 
-    const RenderPass    fRenderPass;
-    const Attribute&    fInstanceAttrib;
-    BufferAccess        fPointsBufferAccess;
-    SkDEBUGCODE(float   fDebugBloat = 0;)
+    // Emits one wedge of the conservative raster hull of a convex polygon. The complete hull has
+    // one wedge for each side of the polygon (i.e. call this N times, generally from different
+    // geometry shader invocations). Coverage is +1 all around.
+    //
+    // Logically, the conservative raster hull is equivalent to the convex hull of pixel-size boxes
+    // centered on the vertices.
+    //
+    // Geometry shader must be configured to output triangle strips.
+    //
+    // Returns the maximum number of vertices that will be emitted.
+    int emitHullGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn, const char* polygonPts,
+                         int numSides, const char* wedgeIdx, const char* midpoint = nullptr) const;
 
-    typedef GrGeometryProcessor INHERITED;
+    // Emits the conservative raster of an edge (i.e. convex hull of two pixel-size boxes centered
+    // on the endpoints). Coverage is -1 on the outside border of the edge geometry and 0 on the
+    // inside. This effectively converts a jagged conservative raster edge into a smooth antialiased
+    // edge when using CoverageType::kInterpolated.
+    //
+    // If the subclass has already called emitEdgeDistanceEquation, then provide the distance
+    // equation. Otherwise this function will call emitEdgeDistanceEquation implicitly.
+    //
+    // Geometry shader must be configured to output triangle strips.
+    //
+    // Returns the maximum number of vertices that will be emitted.
+    int emitEdgeGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn, const char* leftPt,
+                         const char* rightPt, const char* distanceEquation = nullptr) const;
+
+    // Defines an equation ("dot(float3(pt, 1), distance_equation)") that is -1 on the outside
+    // border of a conservative raster edge and 0 on the inside (see emitEdgeGeometry).
+    void emitEdgeDistanceEquation(GrGLSLGeometryBuilder*, const char* leftPt, const char* rightPt,
+                                  const char* outputDistanceEquation) const;
+
+    // Emits the conservative raster of a single point (i.e. pixel-size box centered on the point).
+    // Coverage is +1 all around.
+    //
+    // Geometry shader must be configured to output triangle strips.
+    //
+    // Returns the number of vertices that were emitted.
+    int emitCornerGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn, const char* pt) const;
+
+    // Defines a global float2 array that contains MSAA sample locations as offsets from pixel
+    // center. Subclasses can use this for software multisampling.
+    //
+    // Returns the number of samples.
+    int defineSoftSampleLocations(GrGLSLFragmentBuilder*, const char* samplesName) const;
+
+private:
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
+                 FPCoordTransformIter&& transformIter) final {
+        this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
+    }
+
+    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final;
+
+    void emitVertexShader(const GrCCPRCoverageProcessor&, GrGLSLVertexBuilder*,
+                          const TexelBufferHandle& pointsBuffer, const char* rtAdjust,
+                          GrGPArgs* gpArgs) const;
+    void emitGeometryShader(const GrCCPRCoverageProcessor&, GrGLSLGeometryBuilder*,
+                            const char* rtAdjust) const;
+    void emitCoverage(const GrCCPRCoverageProcessor&, GrGLSLFragmentBuilder*,
+                      const char* outputColor, const char* outputCoverage) const;
+
+    const CoverageType   fCoverageType;
+    GrShaderVar          fGeomWind;
+    GrGLSLGeoToFrag      fFragWind;
+    GrGLSLGeoToFrag      fFragCoverageTimesWind;
+
+    typedef GrGLSLGeometryProcessor INHERITED;
 };
 
 #endif

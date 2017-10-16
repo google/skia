@@ -149,9 +149,9 @@ private:
                     const PrimitiveTallies baseInstances[kNumScissorModes],
                     const PrimitiveTallies endInstances[kNumScissorModes]);
 
-    void drawMaskPrimitives(GrOpFlushState*, const GrPipeline&,
-                            const GrCCPRCoverageProcessor::RenderPass, GrPrimitiveType,
-                            int vertexCount, int PrimitiveTallies::* instanceType) const;
+    void drawMaskPrimitives(GrOpFlushState*, const GrPipeline&, const GrCCPRCoverageProcessor::Mode,
+                            GrPrimitiveType, int vertexCount,
+                            int PrimitiveTallies::* instanceType) const;
 
     sk_sp<GrBuffer>                      fPointsBuffer;
     sk_sp<GrBuffer>                      fInstanceBuffer;
