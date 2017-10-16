@@ -7,6 +7,7 @@
 
 // This test only works with the GPU backend.
 
+#include <GrQuad.h>
 #include "gm.h"
 
 #if SK_SUPPORT_GPU
@@ -85,7 +86,8 @@ private:
             return;
         }
 
-        fRect.toQuad(verts);
+        GrQuad quad(fRect);
+        memcpy(verts, quad.points(), sizeof(SkPoint) * 4);
 
         helper.recordDraw(
                 target, gp.get(),
