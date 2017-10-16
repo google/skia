@@ -2156,7 +2156,8 @@
       "priority": 0.8,
       "tasks": [
         "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_1m_SKPs"
-      ]
+      ],
+      "trigger": "weekly"
     },
     "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_IMG_DECODE_100k_SKPs": {
       "priority": 0.8,
