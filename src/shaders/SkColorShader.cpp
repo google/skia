@@ -209,8 +209,10 @@ SkShader::GradientType SkColor4Shader::asAGradient(GradientInfo* info) const {
 #include "GrColorSpaceXform.h"
 std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
         const AsFPArgs& args) const {
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
-                                                                       args.fDstColorSpace);
+    // TODO: Assert that fColorSpace has linear transfer function, or actually apply it.
+    // For now, we only concern ourselves with gamut.
+    auto colorSpaceXform = GrColorSpaceXform::MakeGamutXform(fColorSpace.get(),
+                                                             args.fDstColorSpace);
     GrColor4f color = GrColor4f::FromSkColor4f(fColor4);
     if (colorSpaceXform) {
         color = colorSpaceXform->apply(color);

@@ -113,7 +113,7 @@ static void draw_texture_affine(const SkPaint& paint, const SkMatrix& ctm, const
         SkAssertResult(srcRect.intersect(SkRect::MakeIWH(proxy->width(), proxy->height())));
         srcToDst.mapRect(&dstRect, srcRect);
     }
-    auto csxf = GrColorSpaceXform::Make(colorSpace, rtc->getColorSpace());
+    auto csxf = GrColorSpaceXform::Make(colorSpace, proxy->config(), rtc->getColorSpace());
     GrSamplerState::Filter filter;
     switch (paint.getFilterQuality()) {
         case kNone_SkFilterQuality:

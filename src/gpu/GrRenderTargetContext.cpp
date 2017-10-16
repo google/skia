@@ -122,7 +122,8 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
     if (fColorSpace) {
         // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation
         auto srgbColorSpace = SkColorSpace::MakeSRGB();
-        fColorXformFromSRGB = GrColorSpaceXform::Make(srgbColorSpace.get(), fColorSpace.get());
+        fColorXformFromSRGB = GrColorSpaceXform::MakeGamutXform(srgbColorSpace.get(),
+                                                                fColorSpace.get());
     }
 
 #ifndef MDB_ALLOC_RESOURCES
