@@ -293,7 +293,7 @@ def perf_steps(api):
     args.extend(['--outResultsFile', json_path])
     args.extend(properties)
 
-    keys_blacklist = ['configuration', 'role', 'is_trybot']
+    keys_blacklist = ['configuration', 'role', 'test_filter']
     args.append('--key')
     for k in sorted(api.vars.builder_cfg.keys()):
       if not k in keys_blacklist:
@@ -335,34 +335,36 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
-  'Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan',
-  'Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-Android',
-  'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-Android',
-  'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-Android',
-  'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android',
-  'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan',
-  'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench',
-  'Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release',
-  'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug',
-  'Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release',
-  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-UBSAN_float_cast_overflow',
-  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release',
-  'Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release',
-  'Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release',
-  'Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-CommandBuffer',
-  'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
-  'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release',
-  ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
-   '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
-  ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
-   '-Valgrind_SK_CPU_LIMIT_SSE41'),
-  'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan',
-  'Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE',
-  'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE',
-  'Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE',
-  'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug',
-  'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release',
-  'Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release',
+  ('Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-'
+   'Android_Vulkan'),
+  'Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android',
+  'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
+  'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android',
+  'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android',
+  'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
+  'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench',
+  'Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release-All',
+  'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug-All',
+  'Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All',
+  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN_float_cast_overflow',
+  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All',
+  'Perf-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All',
+  'Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All',
+  ('Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
+   'CommandBuffer'),
+  'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan',
+  'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All',
+  ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
+   'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
+  ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
+   'Valgrind_SK_CPU_LIMIT_SSE41'),
+  'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan',
+  'Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE',
+  'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE',
+  'Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE',
+  'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-All',
+  'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-All',
+  'Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All',
 ]
 
 
@@ -402,7 +404,7 @@ def GenTests(api):
 
     yield test
 
-  builder = 'Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release'
+  builder = 'Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All'
   yield (
     api.test('trybot') +
     api.properties(buildername=builder,
@@ -427,7 +429,8 @@ def GenTests(api):
     )
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-Android'
+  builder = ('Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-All-' +
+             'Android')
   yield (
     api.test('failed_push') +
     api.properties(buildername=builder,

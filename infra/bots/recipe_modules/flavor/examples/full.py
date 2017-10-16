@@ -79,23 +79,24 @@ TEST_BUILDERS = [
   'Build-Win-Clang-x86_64-Release-Vulkan',
   'Build-Win-MSVC-x86-Debug-Exceptions',
   'Housekeeper-PerCommit-CheckGeneratedFiles',
-  'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android',
-  'Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-Android',
-  'Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release',
-  'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release',
-  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN',
-  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-ASAN',
-  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-UBSAN_float_cast_overflow',
-  'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs',
-  'Test-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Coverage',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN',
-  'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release',
-  'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
-  ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release'
+  'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android',
+  'Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android',
+  'Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release-All',
+  'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All',
+  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
+  'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN',
+  ('Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-'
+   'UBSAN_float_cast_overflow'),
+  'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs',
+  'Test-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release-All',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
+  'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All',
+  'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan',
+  ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
-  'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug',
-  'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug',
+  'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-All',
+  'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All',
 ]
 
 
@@ -119,7 +120,7 @@ def GenTests(api):
           stdout=api.raw_io.output('192.168.1.2:5555'))
     yield test
 
-  builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release'
+  builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All'
   yield (
       api.test('exceptions') +
       api.properties(buildername=builder,
@@ -130,7 +131,7 @@ def GenTests(api):
                      is_testing_exceptions='True')
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android'
+  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
       api.test('failed_infra_step') +
       api.properties(buildername=builder,
@@ -141,7 +142,7 @@ def GenTests(api):
       api.step_data('dump log', retcode=1)
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android'
+  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
       api.test('failed_read_version') +
       api.properties(buildername=builder,
@@ -153,7 +154,7 @@ def GenTests(api):
                     retcode=1)
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android'
+  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
       api.test('retry_adb_command') +
       api.properties(buildername=builder,
@@ -165,7 +166,7 @@ def GenTests(api):
                     retcode=1)
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android'
+  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   fail_step_name = 'mkdir /sdcard/revenge_of_the_skiabot/resources'
   yield (
       api.test('retry_adb_command_retries_exhausted') +
