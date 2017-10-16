@@ -1012,7 +1012,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 	if strings.Contains(name, "-Nightly-") {
 		j.Trigger = specs.TRIGGER_NIGHTLY
-	} else if strings.Contains(name, "-Weekly-") || name == "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs" {
+	} else if strings.Contains(name, "-Weekly-") || strings.Contains(name, "CT_DM_1m_SKPs") {
 		j.Trigger = specs.TRIGGER_WEEKLY
 	} else if strings.Contains(name, "Flutter") || strings.Contains(name, "PDFium") || strings.Contains(name, "CommandBuffer") {
 		j.Trigger = specs.TRIGGER_MASTER_ONLY
