@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "dd0a61f5_6b52ef91",
+        "filename": "src/gpu/GrRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-16T17:01:32Z",
+      "side": 1,
+      "message": "You mean why a ref? The caller moves in a sk_sp that we consume on line 79.",
+      "parentUuid": "09aebec4_60ae16b7",
+      "revId": "3d826bb96ddc0bf00d7e79cbdbe01251c406d1f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4d71b88d_2ace6ab0",
         "filename": "src/gpu/GrResourceProvider.h",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "3d826bb96ddc0bf00d7e79cbdbe01251c406d1f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f74f4902_6433b040",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-16T17:01:32Z",
+      "side": 1,
+      "message": "Done. Also removed the \"T\".",
+      "parentUuid": "4d71b88d_2ace6ab0",
+      "revId": "3d826bb96ddc0bf00d7e79cbdbe01251c406d1f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "4b9b249d_b3cdd5f3",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-16T17:01:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "237b4b82_620a4928",
+      "revId": "3d826bb96ddc0bf00d7e79cbdbe01251c406d1f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "50dacb1c_ddc5bca2",
         "filename": "src/gpu/ops/GrAAFillRectOp.cpp",
         "patchSetId": 2
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "c9e635f8_d50cc719",
+        "filename": "src/gpu/ops/GrAAFillRectOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-16T17:01:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50dacb1c_ddc5bca2",
+      "revId": "3d826bb96ddc0bf00d7e79cbdbe01251c406d1f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "def11806_0bef892c",
         "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
         "patchSetId": 2
@@ -84,6 +156,24 @@
       "revId": "3d826bb96ddc0bf00d7e79cbdbe01251c406d1f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60039659_20ae8165",
+        "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-16T17:01:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "def11806_0bef892c",
+      "revId": "3d826bb96ddc0bf00d7e79cbdbe01251c406d1f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
