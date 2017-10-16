@@ -118,8 +118,8 @@ public:
                                                                   args.fOutputColor);
                 }
                 args.fFragBuilder->codeAppend("float2 texCoord;");
-                args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureCoords, "texCoord",
-                                                              kHigh_GrSLPrecision);
+                args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureCoords,
+                                                              "texCoord");
                 if (textureGP.numTextureSamplers() > 1) {
                     SkASSERT(args.fShaderCaps->integerSupport());
                     args.fFragBuilder->codeAppend("int texIdx;");

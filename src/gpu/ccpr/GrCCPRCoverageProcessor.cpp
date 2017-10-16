@@ -47,7 +47,7 @@ void GrCCPRCoverageProcessor::Shader::emitVaryings(GrGLSLVaryingHandler* varying
     WindHandling windHandling = this->onEmitVaryings(varyingHandler, code, position, coverage,
                                                      wind);
     if (WindHandling::kNotHandled == windHandling) {
-        varyingHandler->addFlatVarying("wind", &fWind, kLow_GrSLPrecision);
+        varyingHandler->addFlatVarying("wind", &fWind);
         code->appendf("%s = %s;", fWind.gsOut(), wind);
     }
 }

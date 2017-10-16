@@ -99,11 +99,9 @@ public:
      * addPassThroughAttribute.
      * TODO convert most uses of addVarying to addPassThroughAttribute
      */
-    void addVarying(const char* name,
-                    GrGLSLVarying* varying,
-                    GrSLPrecision precision = kDefault_GrSLPrecision) {
+    void addVarying(const char* name, GrGLSLVarying* varying) {
         SkASSERT(GrSLTypeIsFloatType(varying->type())); // Integers must use addFlatVarying.
-        this->internalAddVarying(name, varying, precision, false /*flat*/);
+        this->internalAddVarying(name, varying, false /*flat*/);
     }
 
     /*
@@ -112,10 +110,8 @@ public:
      * Flat interpolation is not always supported and the user must check the caps before using.
      * TODO: Some platforms can change the provoking vertex. Should we be resetting this knob?
      */
-    void addFlatVarying(const char* name,
-                        GrGLSLVarying* varying,
-                        GrSLPrecision precision = kDefault_GrSLPrecision) {
-        this->internalAddVarying(name, varying, precision, true /*flat*/);
+    void addFlatVarying(const char* name, GrGLSLVarying* varying) {
+        this->internalAddVarying(name, varying, true /*flat*/);
     }
 
     /*
@@ -126,10 +122,8 @@ public:
      * that will be set as the output varying for all emitted vertices.
      * TODO it might be nicer behavior to have a flag to declare output inside these calls
      */
-    void addPassThroughAttribute(const GrGeometryProcessor::Attribute*, const char* output,
-                                 GrSLPrecision = kDefault_GrSLPrecision);
-    void addFlatPassThroughAttribute(const GrGeometryProcessor::Attribute*, const char* output,
-                                     GrSLPrecision = kDefault_GrSLPrecision);
+    void addPassThroughAttribute(const GrGeometryProcessor::Attribute*, const char* output);
+    void addFlatPassThroughAttribute(const GrGeometryProcessor::Attribute*, const char* output);
 
     void emitAttributes(const GrGeometryProcessor& gp);
 
@@ -144,7 +138,6 @@ public:
 protected:
     struct VaryingInfo {
         GrSLType         fType;
-        GrSLPrecision    fPrecision;
         bool             fIsFlat;
         SkString         fVsOut;
         SkString         fGsOut;
@@ -167,7 +160,7 @@ protected:
     GrGLSLProgramBuilder* fProgramBuilder;
 
 private:
-    void internalAddVarying(const char* name, GrGLSLVarying*, GrSLPrecision, bool flat);
+    void internalAddVarying(const char* name, GrGLSLVarying*, bool flat);
     void writePassThroughAttribute(const GrGeometryProcessor::Attribute*, const char* output,
                                    const GrGLSLVarying&);
 

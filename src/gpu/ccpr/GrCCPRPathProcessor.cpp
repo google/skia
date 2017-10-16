@@ -126,9 +126,9 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     GrGLSLVertToFrag texcoord(kFloat2_GrSLType);
     GrGLSLVertToFrag color(kHalf4_GrSLType);
-    varyingHandler->addVarying("texcoord", &texcoord, kHigh_GrSLPrecision);
+    varyingHandler->addVarying("texcoord", &texcoord);
     varyingHandler->addFlatPassThroughAttribute(&proc.getInstanceAttrib(InstanceAttribs::kColor),
-                                                args.fOutputColor, kLow_GrSLPrecision);
+                                                args.fOutputColor);
 
     // Vertex shader.
     GrGLSLVertexBuilder* v = args.fVertBuilder;

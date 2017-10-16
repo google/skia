@@ -645,7 +645,7 @@ public:
                                  &uv, &texIdx, &st);
 
         GrGLSLVertToFrag delta(kFloat_GrSLType);
-        varyingHandler->addVarying("Delta", &delta, kHigh_GrSLPrecision);
+        varyingHandler->addVarying("Delta", &delta);
         if (dfTexEffect.getFlags() & kBGR_DistanceFieldEffectFlag) {
             vertBuilder->codeAppendf("%s = -%s.x/3.0;", delta.vsOut(), atlasSizeInvName);
         } else {

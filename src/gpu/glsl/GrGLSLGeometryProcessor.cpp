@@ -53,7 +53,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
         strVaryingName.printf("TransformedCoords_%d", i);
 
         GrGLSLVertToFrag v(varyingType);
-        varyingHandler->addVarying(strVaryingName.c_str(), &v, kHigh_GrSLPrecision);
+        varyingHandler->addVarying(strVaryingName.c_str(), &v);
 
         SkASSERT(kFloat2_GrSLType == varyingType || kFloat3_GrSLType == varyingType);
         handler->specifyCoordsForCurrCoordTransform(SkString(v.fsIn()), varyingType);

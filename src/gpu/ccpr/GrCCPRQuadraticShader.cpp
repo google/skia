@@ -63,7 +63,7 @@ GrCCPRQuadraticShader::WindHandling
 GrCCPRQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code,
                                       const char* position, const char* /*coverage*/,
                                       const char* /*wind*/) {
-    varyingHandler->addVarying("xyd", &fXYD, kHigh_GrSLPrecision);
+    varyingHandler->addVarying("xyd", &fXYD);
     code->appendf("%s.xy = (%s * float3(%s, 1)).xy;",
                   fXYD.gsOut(), fCanonicalMatrix.c_str(), position);
     code->appendf("%s.z = dot(%s.xy, %s) + %s.z;",
@@ -95,7 +95,7 @@ void GrCCPRQuadraticHullShader::onEmitSetupCode(GrGLSLShaderBuilder* s, const ch
 
 void GrCCPRQuadraticHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                                SkString* code) {
-    varyingHandler->addVarying("grad", &fGrad, kHigh_GrSLPrecision);
+    varyingHandler->addVarying("grad", &fGrad);
     code->appendf("%s = float2(2 * %s.x, -1) * %s;",
                   fGrad.gsOut(), fXYD.gsOut(), fCanonicalDerivatives.c_str());
 }
@@ -121,12 +121,12 @@ void GrCCPRQuadraticCornerShader::onEmitSetupCode(GrGLSLShaderBuilder* s, const 
 
 void GrCCPRQuadraticCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                                  SkString* code) {
-    varyingHandler->addFlatVarying("dXYDdx", &fdXYDdx, kHigh_GrSLPrecision);
+    varyingHandler->addFlatVarying("dXYDdx", &fdXYDdx);
     code->appendf("%s = float3(%s[0].x, %s[0].y, %s.x);",
                   fdXYDdx.gsOut(), fCanonicalDerivatives.c_str(), fCanonicalDerivatives.c_str(),
                   fEdgeDistanceDerivatives.c_str());
 
-    varyingHandler->addFlatVarying("dXYDdy", &fdXYDdy, kHigh_GrSLPrecision);
+    varyingHandler->addFlatVarying("dXYDdy", &fdXYDdy);
     code->appendf("%s = float3(%s[1].x, %s[1].y, %s.y);",
                   fdXYDdy.gsOut(), fCanonicalDerivatives.c_str(), fCanonicalDerivatives.c_str(),
                   fEdgeDistanceDerivatives.c_str());

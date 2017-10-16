@@ -1093,13 +1093,13 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // XY refers to dashPos, Z is the dash interval length
     GrGLSLVertToFrag inDashParams(kFloat3_GrSLType);
-    varyingHandler->addVarying("DashParams", &inDashParams, GrSLPrecision::kHigh_GrSLPrecision);
+    varyingHandler->addVarying("DashParams", &inDashParams);
     vertBuilder->codeAppendf("%s = %s;", inDashParams.vsOut(), de.inDashParams()->fName);
 
     // The rect uniform's xyzw refer to (left + 0.5, top + 0.5, right - 0.5, bottom - 0.5),
     // respectively.
     GrGLSLVertToFrag inRectParams(kFloat4_GrSLType);
-    varyingHandler->addVarying("RectParams", &inRectParams, GrSLPrecision::kHigh_GrSLPrecision);
+    varyingHandler->addVarying("RectParams", &inRectParams);
     vertBuilder->codeAppendf("%s = %s;", inRectParams.vsOut(), de.inRectParams()->fName);
 
     GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
