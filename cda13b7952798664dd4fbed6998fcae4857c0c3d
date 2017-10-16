@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab35cabb_8465a0fb",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-16T15:15:17Z",
+      "side": 1,
+      "message": "I think this is better expressed as Gray | RGB (i.e. as it was before).",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 106,
+        "endChar": 29
+      },
+      "revId": "cda13b7952798664dd4fbed6998fcae4857c0c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e0f6a37_3672055f",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-16T15:15:17Z",
+      "side": 1,
+      "message": "You\u0027ve removed the \"or equals\", so this comment is out of date.",
+      "range": {
+        "startLine": 241,
+        "startChar": 23,
+        "endLine": 241,
+        "endChar": 44
+      },
+      "revId": "cda13b7952798664dd4fbed6998fcae4857c0c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
