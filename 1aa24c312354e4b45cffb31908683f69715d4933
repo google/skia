@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2cfc3db4_740b4817",
+        "filename": "bin/try",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-16T18:23:18Z",
+      "side": 1,
+      "message": "Fair point. Renamed and added the wrappers.",
+      "parentUuid": "5b2c3d74_366d6286",
+      "revId": "1aa24c312354e4b45cffb31908683f69715d4933",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8ce7dd65_7cfd3b85",
         "filename": "bin/try",
         "patchSetId": 2
@@ -30,6 +48,30 @@
       "writtenOn": "2017-10-16T18:03:37Z",
       "side": 1,
       "message": "Might want to note somewhere that you will not be able to match and trigger chromium try jobs with this.\nThis might be a good place: \u0027Helper script for triggering Skia try jobs.\u0027 (or something similar).",
+      "range": {
+        "startLine": 29,
+        "startChar": 48,
+        "endLine": 29,
+        "endChar": 56
+      },
+      "revId": "1aa24c312354e4b45cffb31908683f69715d4933",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fac8a79a_0f36f6be",
+        "filename": "bin/try",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-16T18:23:18Z",
+      "side": 1,
+      "message": "Changed description to point directly to jobs.json which should eliminate confusion, as internal jobs and jobs from other repos (eg. infra) can\u0027t be triggered using this script.",
+      "parentUuid": "8ce7dd65_7cfd3b85",
       "range": {
         "startLine": 29,
         "startChar": 48,
