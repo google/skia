@@ -409,20 +409,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fBlacklistCoverageCounting = true;
     }
 
-    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
 #ifndef SK_BUILD_FOR_MAC
-        if (kIntel_GrGLDriver == ctxInfo.driver()) {
-            // Every Windows Intel bot either crashes with CCPR or does not draw properly. Hopefully
-            // this issue resolves itself when we move away from geometry shaders.
-            fBlacklistCoverageCounting = true;
-        }
-#endif
-        if (kMesa_GrGLDriver == ctxInfo.driver()) {
-            // Blocking old Intel/Mesa setups while we investigate
-            // https://bugs.chromium.org/p/skia/issues/detail?id=7134.
-            fBlacklistCoverageCounting = version < GR_GL_VER(4,0);
-        }
+    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
+        // Non-Mac Intel bots across the board either crash with CCPR or do not draw properly.
+        // Hopefully this issue resolves itself when we move away from geometry shaders.
+        fBlacklistCoverageCounting = true;
     }
+#endif
 
     if (!contextOptions.fAvoidStencilBuffers) {
         // To reduce surface area, if we avoid stencil buffers, we also disable MSAA.
