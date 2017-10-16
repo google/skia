@@ -137,7 +137,11 @@ def compile_modified(args):
       cwd=args.skiadir)
 
   print "Compiling stashed code"
-  subprocess.check_call(['git', 'stash'], cwd=args.skiadir)
+  stash_output = subprocess.check_output(['git', 'stash'], cwd=args.skiadir)
+  if 'No local changes to save' in stash_output:
+    subprocess.check_call(['git', 'reset', 'HEAD^', '--soft'])
+    subprocess.check_call(['git', 'stash'])
+
   subprocess.check_call(
       ['ninja', '-C', args.ninjadir, 'nanobench'], cwd=args.skiadir)
   subprocess.check_call(
