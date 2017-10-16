@@ -229,6 +229,14 @@ def dm_flags(api, bot):
       configs = [c for c in configs if c == 'gl' or c == 'gles']
       args.extend(['--pr', 'ccpr', '--cachePathMasks', 'false'])
 
+  tf = api.vars.builder_cfg.get('test_filter')
+ # print "foo %s %s\n" % (bot, tf)
+  if 'All' != tf:
+    cfg = tf.replace('_', '-')
+    if tf == 'tiles_rt_8888':
+      cfg = 'tiles_rt-8888'
+    configs = [cfg]
+
   args.append('--config')
   args.extend(configs)
 
@@ -870,6 +878,8 @@ TEST_BUILDERS = [
   'Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-8888-Coverage',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-tiles_rt_8888-Coverage',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All'
    '-SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),

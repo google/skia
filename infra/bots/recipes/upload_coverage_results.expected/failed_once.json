@@ -1,34 +1,10 @@
 [
   {
     "cmd": [
-      "gsutil",
-      "cp",
-      "-Z",
-      "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
-    ],
-    "name": "upload raw data",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_FAILURE@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "gsutil",
-      "cp",
-      "-Z",
-      "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
-    ],
-    "name": "upload raw data (attempt 2)"
-  },
-  {
-    "cmd": [
       "[START_DIR]/clang_linux/bin/llvm-profdata",
       "merge",
       "-sparse",
-      "[START_DIR]/output.profraw",
+      "*.profraw",
       "-o",
       "[START_DIR]/output.profdata"
     ],
@@ -42,7 +18,21 @@
       "[START_DIR]/output.profdata",
       "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
     ],
-    "name": "upload parsed data"
+    "name": "upload parsed data",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-Z",
+      "[START_DIR]/output.profdata",
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
+    ],
+    "name": "upload parsed data (attempt 2)"
   },
   {
     "cmd": [

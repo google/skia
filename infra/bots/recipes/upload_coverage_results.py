@@ -42,7 +42,7 @@ def RunSteps(api):
   bucket = api.properties['gs_bucket']
 
   # The raw data is brought in as an isolated input.
-  raw_data = api.path['start_dir'].join('output.profraw')
+  #raw_data = api.path['start_dir'].join('output.profraw')
   # The instrumented executable is brought in as an isolated input.
   executable = api.path['start_dir'].join('out','Debug','dm')
   # clang_dir is brought in via CIPD.
@@ -56,9 +56,14 @@ def RunSteps(api):
   if issue and patchset:
     path = TRY_JOB_FOLDER % (issue, patchset)
 
-  gcs_file = RAW_FILE % builder_name
-  api.gsutil.cp('raw data', raw_data,
-                   'gs://%s/%s%s' % (bucket, path, gcs_file), ['-Z'])
+  #gcs_file = RAW_FILE % builder_name
+  #api.gsutil.cp('raw data', raw_data,
+  #                 'gs://%s/%s%s' % (bucket, path, gcs_file), ['-Z'])
+
+  #TODO(kjlubick): Do a inline python step that globs for *.profraw and
+  # echos it out as a | seperated list.  Then parse that into an array,
+  # then upload them all to GCS, then
+  # list all those files in the merge command and carry on like normal.
 
   # Merge and Index the data.
   indexed_data = api.path['start_dir'].join('output.profdata')
@@ -66,7 +71,7 @@ def RunSteps(api):
            cmd=[clang_dir.join('llvm-profdata'),
                'merge',
                '-sparse',
-               raw_data,
+               '*.profraw',
                '-o',
                indexed_data ])
 
@@ -149,7 +154,7 @@ def GenTests(api):
                    gs_bucket='skia-coverage',
                    revision='abc123',
                    path_config='kitchen') +
-    api.step_data('upload raw data', retcode=1)
+    api.step_data('upload parsed data', retcode=1)
   )
 
   yield (
@@ -158,11 +163,11 @@ def GenTests(api):
                    gs_bucket='skia-coverage',
                    revision='abc123',
                    path_config='kitchen') +
-    api.step_data('upload raw data', retcode=1) +
-    api.step_data('upload raw data (attempt 2)', retcode=1) +
-    api.step_data('upload raw data (attempt 3)', retcode=1) +
-    api.step_data('upload raw data (attempt 4)', retcode=1) +
-    api.step_data('upload raw data (attempt 5)', retcode=1)
+    api.step_data('upload parsed data', retcode=1) +
+    api.step_data('upload parsed data (attempt 2)', retcode=1) +
+    api.step_data('upload parsed data (attempt 3)', retcode=1) +
+    api.step_data('upload parsed data (attempt 4)', retcode=1) +
+    api.step_data('upload parsed data (attempt 5)', retcode=1)
   )
 
   yield (
