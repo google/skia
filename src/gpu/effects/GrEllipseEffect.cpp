@@ -38,18 +38,20 @@ public:
                 "Z);\ngrad_dot = half(max(float(grad_dot), 0.0001));\nhalf approx_dist = "
                 "float(implicit) * inversesqrt(float(grad_dot));\n@if (useScale) {\n    "
                 "approx_dist *= %s.x;\n}\nhalf alpha;\n@switch (%d) {\n    case 0:\n        alpha "
-                "= half(float(approx_dist) > 0.0 ? 0.0 : 1.0);\n        break;\n    case 1:\n      "
-                "  alpha = half(clamp(0.5 - float(approx_dist), 0.0, 1.0));\n        break;\n    "
-                "case 2:\n        alpha = half(float(approx_dist) > 0.0 ? 1.0 : 0.0);\n        "
-                "break;\n    case 3:\n        alpha = half(clamp(0.5 + float(approx_dist), 0.0, "
-                "1.0));\n        break;\n    default:\n        discard;\n}\n%s = %s * alpha;\n",
+                "= half(float(approx_dist) > 0.0 ? 0.0 : 1.",
                 prevRadii.fX, prevRadii.fY, (useScale ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(fEllipseVar),
                 fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar) : "half2(0)",
                 args.fUniformHandler->getUniformCStr(fEllipseVar),
                 fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar) : "half2(0)",
-                _outer.edgeType(), args.fOutputColor,
-                args.fInputColor ? args.fInputColor : "half4(1)");
+                _outer.edgeType());
+        fragBuilder->codeAppendf(
+                "0);\n        break;\n    case 1:\n        alpha = half(clamp(0.5 - "
+                "float(approx_dist), 0.0, 1.0));\n        break;\n    case 2:\n        alpha = "
+                "half(float(approx_dist) > 0.0 ? 1.0 : 0.0);\n        break;\n    case 3:\n        "
+                "alpha = half(clamp(0.5 + float(approx_dist), 0.0, 1.0));\n        break;\n    "
+                "default:\n        discard;\n}\n%s = %s * alpha;\n",
+                args.fOutputColor, args.fInputColor ? args.fInputColor : "half4(1)");
     }
 
 private:
