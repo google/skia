@@ -2063,8 +2063,8 @@ static const int kNumRRectsInIndexBuffer = 256;
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
-static const GrBuffer* ref_rrect_index_buffer(RRectType type,
-                                              GrResourceProvider* resourceProvider) {
+static sk_sp<const GrBuffer> get_rrect_index_buffer(RRectType type,
+                                                    GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gStrokeRRectOnlyIndexBufferKey);
     GR_DEFINE_STATIC_UNIQUE_KEY(gRRectOnlyIndexBufferKey);
     switch (type) {
@@ -2203,8 +2203,8 @@ private:
 
         // drop out the middle quad if we're stroked
         int indicesPerInstance = fStroked ? kIndicesPerStrokeRRect : kIndicesPerFillRRect;
-        sk_sp<const GrBuffer> indexBuffer(ref_rrect_index_buffer(
-                fStroked ? kStroke_RRectType : kFill_RRectType, target->resourceProvider()));
+        sk_sp<const GrBuffer> indexBuffer = get_rrect_index_buffer(
+                fStroked ? kStroke_RRectType : kFill_RRectType, target->resourceProvider());
 
         PatternHelper helper(GrPrimitiveType::kTriangles);
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(

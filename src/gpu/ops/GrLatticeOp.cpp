@@ -106,7 +106,7 @@ private:
             return;
         }
 
-        sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
+        sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
         PatternHelper helper(GrPrimitiveType::kTriangles);
         void* vertices = helper.init(target, vertexStride, indexBuffer.get(), kVertsPerRect,
                                      kIndicesPerRect, numRects);
