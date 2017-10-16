@@ -87,10 +87,10 @@ private:
                       const GrBuffer* vertexBuffer,
                       const GrBuffer* instanceBuffer);
 
-    sk_sp<GrVkPipelineState> prepareDrawState(const GrPipeline&,
-                                              const GrPrimitiveProcessor&,
-                                              GrPrimitiveType,
-                                              bool hasDynamicState);
+    GrVkPipelineState* prepareDrawState(const GrPipeline&,
+                                        const GrPrimitiveProcessor&,
+                                        GrPrimitiveType,
+                                        bool hasDynamicState);
 
     void onDraw(const GrPipeline& pipeline,
                 const GrPrimitiveProcessor& primProc,

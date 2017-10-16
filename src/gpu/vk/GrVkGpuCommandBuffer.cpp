@@ -498,15 +498,14 @@ void GrVkGpuRTCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
     }
 }
 
-sk_sp<GrVkPipelineState> GrVkGpuRTCommandBuffer::prepareDrawState(
-                                                               const GrPipeline& pipeline,
-                                                               const GrPrimitiveProcessor& primProc,
-                                                               GrPrimitiveType primitiveType,
-                                                               bool hasDynamicState) {
+GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(const GrPipeline& pipeline,
+                                                            const GrPrimitiveProcessor& primProc,
+                                                            GrPrimitiveType primitiveType,
+                                                            bool hasDynamicState) {
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
     SkASSERT(cbInfo.fRenderPass);
 
-    sk_sp<GrVkPipelineState> pipelineState =
+    GrVkPipelineState* pipelineState =
         fGpu->resourceProvider().findOrCreateCompatiblePipelineState(pipeline,
                                                                      primProc,
                                                                      primitiveType,
@@ -516,11 +515,11 @@ sk_sp<GrVkPipelineState> GrVkGpuRTCommandBuffer::prepareDrawState(
     }
 
     if (!cbInfo.fIsEmpty &&
-        fLastPipelineState && fLastPipelineState != pipelineState.get() &&
+        fLastPipelineState && fLastPipelineState != pipelineState &&
         fGpu->vkCaps().newCBOnPipelineChange()) {
         this->addAdditionalCommandBuffer();
     }
-    fLastPipelineState = pipelineState.get();
+    fLastPipelineState = pipelineState;
 
     pipelineState->setData(fGpu, primProc, pipeline);
 
@@ -598,10 +597,10 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPipeline& pipeline,
     }
 
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
-    sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,
-                                                                    primProc,
-                                                                    primitiveType,
-                                                                    SkToBool(dynamicStates));
+    GrVkPipelineState* pipelineState = this->prepareDrawState(pipeline,
+                                                              primProc,
+                                                              primitiveType,
+                                                              SkToBool(dynamicStates));
     if (!pipelineState) {
         return;
     }

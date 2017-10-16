@@ -100,10 +100,10 @@ public:
     // The refcount is incremented and a pointer returned.
     GrVkSampler* findOrCreateCompatibleSampler(const GrSamplerState&, uint32_t maxMipLevel);
 
-    sk_sp<GrVkPipelineState> findOrCreateCompatiblePipelineState(const GrPipeline&,
-                                                                 const GrPrimitiveProcessor&,
-                                                                 GrPrimitiveType,
-                                                                 const GrVkRenderPass& renderPass);
+    GrVkPipelineState* findOrCreateCompatiblePipelineState(const GrPipeline&,
+                                                           const GrPrimitiveProcessor&,
+                                                           GrPrimitiveType,
+                                                           const GrVkRenderPass& renderPass);
 
     void getSamplerDescriptorSetHandle(VkDescriptorType type,
                                        const GrVkUniformHandler&,
@@ -170,10 +170,10 @@ private:
 
         void abandon();
         void release();
-        sk_sp<GrVkPipelineState> refPipelineState(const GrPipeline&,
-                                                  const GrPrimitiveProcessor&,
-                                                  GrPrimitiveType,
-                                                  const GrVkRenderPass& renderPass);
+        GrVkPipelineState* refPipelineState(const GrPipeline&,
+                                            const GrPrimitiveProcessor&,
+                                            GrPrimitiveType,
+                                            const GrVkRenderPass& renderPass);
 
     private:
         enum {
