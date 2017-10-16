@@ -41,8 +41,14 @@ class GrResourceProvider {
 public:
     GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* owner);
 
-    template <typename T> T* findAndRefTByUniqueKey(const GrUniqueKey& key) {
-        return static_cast<T*>(this->findAndRefResourceByUniqueKey(key));
+    /**
+     * Finds a resource in the cache, based on the specified key. Prior to calling this, the caller
+     * must be sure that if a resource of exists in the cache with the given unique key then it is
+     * of type T.
+     */
+    template <typename T>
+    sk_sp<T> findByUniqueKey(const GrUniqueKey& key) {
+        return sk_sp<T>(static_cast<T*>(this->findResourceByUniqueKey(key).release()));
     }
 
     /*
@@ -138,12 +144,12 @@ public:
      *
      * @return The index buffer if successful, otherwise nullptr.
      */
-    const GrBuffer* findOrCreatePatternedIndexBuffer(const uint16_t* pattern,
-                                                     int patternSize,
-                                                     int reps,
-                                                     int vertCount,
-                                                     const GrUniqueKey& key) {
-        if (GrBuffer* buffer = this->findAndRefTByUniqueKey<GrBuffer>(key)) {
+    sk_sp<const GrBuffer> findOrCreatePatternedIndexBuffer(const uint16_t* pattern,
+                                                           int patternSize,
+                                                           int reps,
+                                                           int vertCount,
+                                                           const GrUniqueKey& key) {
+        if (auto buffer = this->findByUniqueKey<GrBuffer>(key)) {
             return buffer;
         }
         return this->createPatternedIndexBuffer(pattern, patternSize, reps, vertCount, key);
@@ -156,9 +162,8 @@ public:
      * Draw with GrPrimitiveType::kTriangles
      * @ return the quad index buffer
      */
-    const GrBuffer* refQuadIndexBuffer() {
-        if (GrBuffer* buffer =
-            this->findAndRefTByUniqueKey<GrBuffer>(fQuadIndexBufferKey)) {
+    sk_sp<const GrBuffer> refQuadIndexBuffer() {
+        if (auto buffer = this->findByUniqueKey<const GrBuffer>(fQuadIndexBufferKey)) {
             return buffer;
         }
         return this->createQuadIndexBuffer();
@@ -230,13 +235,6 @@ public:
      */
     void assignUniqueKeyToResource(const GrUniqueKey&, GrGpuResource*);
 
-    /**
-     * Finds a resource in the cache, based on the specified key. This is intended for use in
-     * conjunction with addResourceToCache(). The return value will be NULL if not found. The
-     * caller must balance with a call to unref().
-     */
-    GrGpuResource* findAndRefResourceByUniqueKey(const GrUniqueKey&);
-
     sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true);
 
     sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
@@ -263,7 +261,7 @@ public:
     const GrCaps* caps() const { return fCaps.get(); }
 
 private:
-    GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
+    sk_sp<GrGpuResource> findResourceByUniqueKey(const GrUniqueKey&);
 
     // Attempts to find a resource in the cache that exactly matches the GrSurfaceDesc. Failing that
     // it returns null. If non-null, the resulting texture is always budgeted.
@@ -286,13 +284,13 @@ private:
         return !SkToBool(fCache);
     }
 
-    const GrBuffer* createPatternedIndexBuffer(const uint16_t* pattern,
-                                               int patternSize,
-                                               int reps,
-                                               int vertCount,
-                                               const GrUniqueKey& key);
+    sk_sp<const GrBuffer> createPatternedIndexBuffer(const uint16_t* pattern,
+                                                     int patternSize,
+                                                     int reps,
+                                                     int vertCount,
+                                                     const GrUniqueKey& key);
 
-    const GrBuffer* createQuadIndexBuffer();
+    sk_sp<const GrBuffer> createQuadIndexBuffer();
 
     GrResourceCache*    fCache;
     GrGpu*              fGpu;

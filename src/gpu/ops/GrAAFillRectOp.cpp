@@ -32,7 +32,7 @@ static const int kNumAAFillRectsInIndexBuffer = 256;
 static const int kVertsPerAAFillRect = 8;
 static const int kIndicesPerAAFillRect = 30;
 
-const GrBuffer* get_index_buffer(GrResourceProvider* resourceProvider) {
+static sk_sp<const GrBuffer> get_index_buffer(GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
 
     // clang-format off
@@ -251,7 +251,7 @@ private:
 
         size_t vertexStride = gp->getVertexStride();
 
-        sk_sp<const GrBuffer> indexBuffer(get_index_buffer(target->resourceProvider()));
+        sk_sp<const GrBuffer> indexBuffer = get_index_buffer(target->resourceProvider());
         PatternHelper helper(GrPrimitiveType::kTriangles);
         void* vertices =
                 helper.init(target, vertexStride, indexBuffer.get(), kVertsPerAAFillRect,

@@ -213,7 +213,7 @@ private:
     static const int kBevelVertexCnt = 24;
     static const int kNumBevelRectsInIndexBuffer = 256;
 
-    static const GrBuffer* GetIndexBuffer(GrResourceProvider* resourceProvider, bool miterStroke);
+    static sk_sp<const GrBuffer> GetIndexBuffer(GrResourceProvider*, bool miterStroke);
 
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     bool miterStroke() const { return fMiterStroke; }
@@ -272,8 +272,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
     int indicesPerInstance = this->miterStroke() ? kMiterIndexCnt : kBevelIndexCnt;
     int instanceCount = fRects.count();
 
-    const sk_sp<const GrBuffer> indexBuffer(
-            GetIndexBuffer(target->resourceProvider(), this->miterStroke()));
+    sk_sp<const GrBuffer> indexBuffer = GetIndexBuffer(target->resourceProvider(), this->miterStroke());
     PatternHelper helper(GrPrimitiveType::kTriangles);
     void* vertices =
             helper.init(target, vertexStride, indexBuffer.get(),
@@ -301,8 +300,8 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
     helper.recordDraw(target, gp.get(), fHelper.makePipeline(target));
 }
 
-const GrBuffer* AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvider,
-                                               bool miterStroke) {
+sk_sp<const GrBuffer> AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvider,
+                                                     bool miterStroke) {
     if (miterStroke) {
         // clang-format off
         static const uint16_t gMiterIndices[] = {

@@ -76,7 +76,7 @@ sk_sp<GrBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(const GrUnique
                                                                   GrBufferType intendedType,
                                                                   size_t size, const void* data) {
     GrResourceProvider* rp = fDrawingMgr->getContext()->resourceProvider();
-    sk_sp<GrBuffer> buffer(rp->findAndRefTByUniqueKey<GrBuffer>(key));
+    sk_sp<GrBuffer> buffer(rp->findByUniqueKey<GrBuffer>(key));
     if (!buffer) {
         buffer.reset(rp->createBuffer(size, intendedType, kStatic_GrAccessPattern, 0, data));
         if (!buffer) {
