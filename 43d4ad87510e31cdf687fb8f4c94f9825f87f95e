@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5328b21_9731dab7",
+        "filename": "src/codec/SkCodecImageGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-16T12:51:08Z",
+      "side": 1,
+      "message": "We\u0027ll probably want to move this stuff to a private header so it can be shared by SkImageGenerator_CG and SkImageGenerator_WIC",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 70
+      },
+      "revId": "43d4ad87510e31cdf687fb8f4c94f9825f87f95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff0b2831_a97f673d",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-16T12:51:08Z",
+      "side": 1,
+      "message": "We have a template that makes this a little simpler:\n\n  dstRow \u003d SkTAddOffset\u003cT\u003e(dstRow, dst.rowBytes());",
+      "range": {
+        "startLine": 407,
+        "startChar": 8,
+        "endLine": 407,
+        "endChar": 54
+      },
+      "revId": "43d4ad87510e31cdf687fb8f4c94f9825f87f95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
