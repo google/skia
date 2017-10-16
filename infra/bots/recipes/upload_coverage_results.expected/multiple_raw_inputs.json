@@ -28,10 +28,20 @@
       "gsutil",
       "cp",
       "-Z",
-      "[START_DIR]/All.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All_All.profraw"
+      "[START_DIR]/8888.profraw",
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta_8888.profraw"
     ],
-    "name": "upload raw data (All.profraw)"
+    "name": "upload raw data (8888.profraw)"
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-Z",
+      "[START_DIR]/srgb.profraw",
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta_srgb.profraw"
+    ],
+    "name": "upload raw data (srgb.profraw)"
   },
   {
     "cmd": [
@@ -40,7 +50,8 @@
       "-sparse",
       "-o",
       "[START_DIR]/output.profdata",
-      "[START_DIR]/All.profraw"
+      "[START_DIR]/8888.profraw",
+      "[START_DIR]/srgb.profraw"
     ],
     "name": "merge and index"
   },
@@ -50,23 +61,9 @@
       "cp",
       "-Z",
       "[START_DIR]/output.profdata",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.profdata"
     ],
-    "name": "upload parsed data",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_FAILURE@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "gsutil",
-      "cp",
-      "-Z",
-      "[START_DIR]/output.profdata",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
-    ],
-    "name": "upload parsed data (attempt 2)"
+    "name": "upload parsed data"
   },
   {
     "cmd": [
@@ -86,7 +83,7 @@
       "cp",
       "-Z",
       "[START_DIR]/coverage_text/index.txt",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.summary"
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.summary"
     ],
     "name": "upload coverage summary"
   },
@@ -105,7 +102,7 @@
       "cp",
       "-Z",
       "[START_DIR]/coverage.text.tar",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.text.tar"
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.text.tar"
     ],
     "name": "upload text coverage data"
   },
@@ -136,7 +133,7 @@
       "cp",
       "-Z",
       "[START_DIR]/coverage.html.tar",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.html.tar"
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.html.tar"
     ],
     "name": "upload html coverage data"
   },
