@@ -6,6 +6,7 @@
  */
 
 #include "SkAtomics.h"
+#include "SkExternalPicture.h"
 #include "SkImageDeserializer.h"
 #include "SkImageGenerator.h"
 #include "SkPicture.h"
@@ -54,6 +55,8 @@ SkPictInfo SkPicture::createHeader() const {
     info.setVersion(CURRENT_PICTURE_VERSION);
     info.fCullRect = this->cullRect();
     info.fFlags = SkPictInfo::kCrossProcess_Flag;
+    if (isExternal())
+        info.fFlags |= SkPictInfo::kExternal_Flag;
     // TODO: remove this flag, since we're always float (now)
     info.fFlags |= SkPictInfo::kScalarIsFloat_Flag;
 
@@ -129,7 +132,7 @@ sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info,
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, SkImageDeserializer* factory) {
-    return MakeFromStream(stream, factory, nullptr);
+    return MakeFromStream(stream, factory, nullptr, -1, nullptr);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream) {
@@ -140,7 +143,7 @@ sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream) {
 sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size,
                                          SkImageDeserializer* factory) {
     SkMemoryStream stream(data, size);
-    return MakeFromStream(&stream, factory, nullptr);
+    return MakeFromStream(&stream, factory, nullptr, -1, nullptr);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, SkImageDeserializer* factory) {
@@ -148,17 +151,28 @@ sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, SkImageDeserializer
         return nullptr;
     }
     SkMemoryStream stream(data->data(), data->size());
-    return MakeFromStream(&stream, factory, nullptr);
+    return MakeFromStream(&stream, factory, nullptr, -1, nullptr);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, SkImageDeserializer* factory,
-                                           SkTypefacePlayback* typefaces) {
+                                           SkTypefacePlayback* typefaces,
+                                           int index,
+                                           SkExtPictureMap* pics) {
     SkPictInfo info;
     if (!InternalOnly_StreamIsSKP(stream, &info) || !stream->readBool()) {
         return nullptr;
     }
+
     std::unique_ptr<SkPictureData> data(
-            SkPictureData::CreateFromStream(stream, info, factory, typefaces));
+            SkPictureData::CreateFromStream(stream, info, factory, typefaces, pics));
+    if (pics && (info.fFlags & SkPictInfo::kExternal_Flag) && index >= 0) {
+      // For external picture, look for external resource first.
+      // If we have it, use it; otherwise, fallback to what is in the stream which
+      // should be an empty picture.
+      auto elem = pics->find(index);
+      if (elem != pics->end())
+        return sk_make_sp<SkExternalPicture>(info.fCullRect, elem->second);
+    }
     return Forwardport(info, data.get(), nullptr);
 }
 
@@ -181,25 +195,26 @@ SkPictureData* SkPicture::backport() const {
 }
 
 void SkPicture::serialize(SkWStream* stream, SkPixelSerializer* pixelSerializer) const {
-    this->serialize(stream, pixelSerializer, nullptr);
+    this->serialize(stream, pixelSerializer, nullptr, nullptr);
 }
 
 sk_sp<SkData> SkPicture::serialize(SkPixelSerializer* pixelSerializer) const {
     SkDynamicMemoryWStream stream;
-    this->serialize(&stream, pixelSerializer, nullptr);
+    this->serialize(&stream, pixelSerializer, nullptr, nullptr);
     return stream.detachAsData();
 }
 
 void SkPicture::serialize(SkWStream* stream,
                           SkPixelSerializer* pixelSerializer,
-                          SkRefCntSet* typefaceSet) const {
+                          SkRefCntSet* typefaceSet,
+                          SkExtPictureUIDMap* picIdMap) const {
     SkPictInfo info = this->createHeader();
     std::unique_ptr<SkPictureData> data(this->backport());
 
     stream->write(&info, sizeof(info));
     if (data) {
         stream->writeBool(true);
-        data->serialize(stream, pixelSerializer, typefaceSet);
+        data->serialize(stream, pixelSerializer, typefaceSet, picIdMap);
     } else {
         stream->writeBool(false);
     }

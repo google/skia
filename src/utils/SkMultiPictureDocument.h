@@ -34,5 +34,23 @@ SK_API int SkMultiPictureDocumentReadPageCount(SkStreamSeekable* src);
 SK_API bool SkMultiPictureDocumentRead(SkStreamSeekable* src,
                                        SkDocumentPage* dstArray,
                                        int dstArrayCount);
+/**
+ *  Writes into a file format that is similar to SkPicture::serialize().
+ *  Also output the external picture reference map to ids.
+ */
+SK_API sk_sp<SkDocument> SkMakeMultiPictureContainerDocument(
+    SkWStream* dst, SkExtPictureUIDMap* ids);
+
+/**
+ *  Read the SkMultiPictureDocument into the provided array of pages,
+ *  given all the external pictures in a map pics.
+ *  dstArrayCount must equal SkMultiPictureDocumentReadPageCount().
+ *  Return false on error.
+ */
+SK_API bool SkMultiPictureContainerDocumentRead(
+    SkStreamSeekable* src,
+    SkExtPictureMap* pics,
+    SkDocumentPage* dstArray,
+    int dstArrayCount);
 
 #endif  // SkMultiPictureDocument_DEFINED

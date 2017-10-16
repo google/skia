@@ -7,6 +7,7 @@
 
 #include "SkBBoxHierarchy.h"
 #include "SkBigPicture.h"
+#include "SkImageDeserializer.h"
 #include "SkPictureCommon.h"
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
@@ -66,6 +67,15 @@ size_t SkBigPicture::approximateBytesUsed() const {
     size_t bytes = sizeof(*this) + fRecord->bytesUsed() + fApproxBytesUsedBySubPictures;
     if (fBBH) { bytes += fBBH->bytesUsed(); }
     return bytes;
+}
+
+sk_sp<SkPicture> SkBigPicture::MakeFromStream(SkStream* stream, SkExtPictureMap* pics) {
+  SkImageDeserializer factory;
+  return SkPicture::MakeFromStream(stream, &factory, nullptr, -1, pics);
+}
+
+void SkBigPicture::serialize(SkWStream* stream, SkPixelSerializer* pixelSerializer, SkExtPictureUIDMap* picIdMap) const {
+  SkPicture::serialize(stream, pixelSerializer, nullptr, picIdMap);
 }
 
 int SkBigPicture::drawableCount() const {
