@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c93d5f11_12e3a528",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-16T18:47:32Z",
+      "side": 1,
+      "message": "In the current code we are using ICCTypeFlag as enum and passing the same as arguments to many function so we can\u0027t express as gray | rgb.\nIf we want to modify the above code we need to change the function argument to int or char instead of ICCTypeFlag",
+      "parentUuid": "ab35cabb_8465a0fb",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 106,
+        "endChar": 29
+      },
+      "revId": "cda13b7952798664dd4fbed6998fcae4857c0c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3e0f6a37_3672055f",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-10-16T15:15:17Z",
       "side": 1,
       "message": "You\u0027ve removed the \"or equals\", so this comment is out of date.",
+      "range": {
+        "startLine": 241,
+        "startChar": 23,
+        "endLine": 241,
+        "endChar": 44
+      },
+      "revId": "cda13b7952798664dd4fbed6998fcae4857c0c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8e51f95_37de8dfd",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-16T18:47:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e0f6a37_3672055f",
       "range": {
         "startLine": 241,
         "startChar": 23,
