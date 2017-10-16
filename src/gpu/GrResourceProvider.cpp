@@ -353,7 +353,7 @@ static constexpr int kMaxQuads = 1 << 12;  // max possible: (1 << 14) - 1;
 
 sk_sp<const GrBuffer> GrResourceProvider::createQuadIndexBuffer() {
     GR_STATIC_ASSERT(4 * kMaxQuads <= 65535);
-    static const uint16_t kPattern[] = { 0, 1, 2, 0, 2, 3 };
+    static const uint16_t kPattern[] = { 0, 1, 2, 2, 1, 3 };
     return this->createPatternedIndexBuffer(kPattern, 6, kMaxQuads, 4, fQuadIndexBufferKey);
 }
 

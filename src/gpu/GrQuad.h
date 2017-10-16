@@ -13,7 +13,8 @@
 #include "SkMatrixPriv.h"
 
 /**
- * GrQuad is a collection of 4 points which can be used to represent an arbitrary quadrilateral
+ * GrQuad is a collection of 4 points which can be used to represent an arbitrary quadrilateral. The
+ * points make a trip strip with CCW triangles (top-left, bottom-left, top-right, bottom-right).
  */
 class GrQuad {
 public:
@@ -28,7 +29,10 @@ public:
     }
 
     void set(const SkRect& rect) {
-        fPoints->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+        fPoints[0].set(rect.fLeft, rect.fTop);
+        fPoints[1].set(rect.fLeft, rect.fBottom);
+        fPoints[2].set(rect.fRight, rect.fTop);
+        fPoints[3].set(rect.fRight, rect.fBottom);
     }
 
     void map(const SkMatrix& matrix) {
@@ -36,7 +40,7 @@ public:
     }
 
     void setFromMappedRect(const SkRect& rect, const SkMatrix& matrix) {
-        SkMatrixPriv::SetMappedRectFan(matrix, rect, fPoints);
+        SkMatrixPriv::SetMappedRectTriStrip(matrix, rect, fPoints);
     }
 
     const GrQuad& operator=(const GrQuad& that) {
