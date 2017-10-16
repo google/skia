@@ -20,6 +20,7 @@
 #include "SkValidationUtils.h"
 #include "SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
+#include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrFixedClip.h"
 #include "GrRenderTargetContext.h"

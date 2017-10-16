@@ -32,10 +32,6 @@ in uniform half outerThreshold;
     SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y()))
 }
 
-@header {
-    #include "GrColorSpaceXform.h"
-}
-
 @cpp {
     inline GrFragmentProcessor::OptimizationFlags GrAlphaThresholdFragmentProcessor::optFlags(
                                                                              float outerThreshold) {

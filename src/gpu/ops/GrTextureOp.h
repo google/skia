@@ -6,9 +6,10 @@
  */
 
 #include "GrColor.h"
-#include "GrColorSpaceXform.h"
 #include "GrSamplerState.h"
+#include "SkRefCnt.h"
 
+class GrColorSpaceXform;
 class GrDrawOp;
 class GrTextureProxy;
 struct SkRect;

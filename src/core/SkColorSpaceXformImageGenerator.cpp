@@ -55,6 +55,7 @@ bool SkColorSpaceXformImageGenerator::onGetPixels(const SkImageInfo& info, void*
 #if SK_SUPPORT_GPU
 
 #include "GrClip.h"
+#include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrPaint.h"
 #include "GrRenderTargetContext.h"
