@@ -1,13 +1,58 @@
 [
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport glob\nimport os\nimport sys\n\ndir = sys.argv[1]\nglob_pattern = '*.profraw'\n\npath = os.path.join(dir, glob_pattern)\nprint '|'.join(glob.glob(path))\n",
+      "[START_DIR]"
+    ],
+    "infra_step": true,
+    "name": "find raw inputs",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import glob@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@dir = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@glob_pattern = '*.profraw'@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = os.path.join(dir, glob_pattern)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print '|'.join(glob.glob(path))@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "gsutil",
       "cp",
       "-Z",
-      "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
+      "[START_DIR]/All.profraw",
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All_All.profraw"
     ],
-    "name": "upload raw data",
+    "name": "upload raw data (All.profraw)"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/clang_linux/bin/llvm-profdata",
+      "merge",
+      "-sparse",
+      "-o",
+      "[START_DIR]/output.profdata",
+      "[START_DIR]/All.profraw"
+    ],
+    "name": "merge and index"
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-Z",
+      "[START_DIR]/output.profdata",
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
+    ],
+    "name": "upload parsed data",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
@@ -18,10 +63,10 @@
       "gsutil",
       "cp",
       "-Z",
-      "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
+      "[START_DIR]/output.profdata",
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
     ],
-    "name": "upload raw data (attempt 2)",
+    "name": "upload parsed data (attempt 2)",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
@@ -32,10 +77,10 @@
       "gsutil",
       "cp",
       "-Z",
-      "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
+      "[START_DIR]/output.profdata",
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
     ],
-    "name": "upload raw data (attempt 3)",
+    "name": "upload parsed data (attempt 3)",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
@@ -46,10 +91,10 @@
       "gsutil",
       "cp",
       "-Z",
-      "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
+      "[START_DIR]/output.profdata",
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
     ],
-    "name": "upload raw data (attempt 4)",
+    "name": "upload parsed data (attempt 4)",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
@@ -60,10 +105,10 @@
       "gsutil",
       "cp",
       "-Z",
-      "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
+      "[START_DIR]/output.profdata",
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
     ],
-    "name": "upload raw data (attempt 5)",
+    "name": "upload parsed data (attempt 5)",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
@@ -71,7 +116,7 @@
   },
   {
     "name": "$result",
-    "reason": "Step('upload raw data (attempt 5)') failed with return_code 1",
+    "reason": "Step('upload parsed data (attempt 5)') failed with return_code 1",
     "recipe_result": null,
     "status_code": 1
   }

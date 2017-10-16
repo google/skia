@@ -773,12 +773,22 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		// which are used to deal with the raw coverage data output by the Test step.
 		pkgs := []*specs.CipdPackage{}
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
+		deps := []string{compileTaskName}
+		if name == "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Meta-Coverage" {
+			configs := []string{"8888", "srgb", "pdf", "565", "f16", "sp_8888", "2ndpic_8888", "lite_8888", "gbr_8888", "serialize_8888", "tiles_rt_8888", "pic_8888"}
+			for _, c := range configs {
+				deps = append(deps, strings.Replace(name, "Meta", c, 1))
+			}
+			deps = append(deps, name)
+		} else {
+			deps = append(deps, name)
+		}
 		b.MustAddTask(uploadName, &specs.TaskSpec{
 			// A dependency on compileTaskName makes the TaskScheduler link the
 			// isolated output of the compile step to the input of the upload step,
 			// which gives us access to the instrumented binary. The binary is
 			// needed to figure out symbol names and line numbers.
-			Dependencies: []string{name, compileTaskName},
+			Dependencies: deps,
 			Dimensions:   linuxGceDimensions(),
 			CipdPackages: pkgs,
 			ExtraArgs: []string{
