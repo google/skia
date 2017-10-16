@@ -15,6 +15,10 @@
 #include "SkScalar.h"
 #include "SkShader.h"
 
+#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#include <android/hardware_buffer.h>
+#endif
+
 class SkData;
 class SkCanvas;
 class SkImageGenerator;
@@ -27,8 +31,6 @@ class GrBackendTexture;
 class GrContext;
 class GrContextThreadSafeProxy;
 class GrTexture;
-
-struct AHardwareBuffer;
 
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the

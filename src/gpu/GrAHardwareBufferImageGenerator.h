@@ -9,7 +9,9 @@
 
 #include "SkImageGenerator.h"
 
-struct AHardwareBuffer;
+extern "C" {
+    typedef struct AHardwareBuffer AHardwareBuffer;
+}
 
 /**
  *  GrAHardwareBufferImageGenerator allows to create an SkImage attached to
