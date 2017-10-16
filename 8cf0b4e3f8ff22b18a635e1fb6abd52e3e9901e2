@@ -1,0 +1,245 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7359380c_fb04af63",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T17:31:24Z",
+      "side": 1,
+      "message": "three",
+      "range": {
+        "startLine": 174,
+        "startChar": 88,
+        "endLine": 174,
+        "endChar": 92
+      },
+      "revId": "8cf0b4e3f8ff22b18a635e1fb6abd52e3e9901e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e86ac42_1c17734f",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T17:31:24Z",
+      "side": 1,
+      "message": "This part might want a rewrite assuming that the existing implementation has been deleted.  It\u0027s going to be hard to know what you\u0027re talking about once you\u0027ve landed all this and the point of reference is gone.",
+      "range": {
+        "startLine": 176,
+        "startChar": 22,
+        "endLine": 177,
+        "endChar": 78
+      },
+      "revId": "8cf0b4e3f8ff22b18a635e1fb6abd52e3e9901e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f512464_50039301",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T17:31:24Z",
+      "side": 1,
+      "message": "This part is probably worth going a bit more into.  I\u0027m not quite grasping this immediately..",
+      "range": {
+        "startLine": 181,
+        "startChar": 4,
+        "endLine": 181,
+        "endChar": 57
+      },
+      "revId": "8cf0b4e3f8ff22b18a635e1fb6abd52e3e9901e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69eb1dba_06e1bc04",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T17:31:24Z",
+      "side": 1,
+      "message": "We generally use int to count things that are not bytes...",
+      "range": {
+        "startLine": 217,
+        "startChar": 11,
+        "endLine": 217,
+        "endChar": 17
+      },
+      "revId": "8cf0b4e3f8ff22b18a635e1fb6abd52e3e9901e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86cfb1c2_c709af0b",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T17:31:24Z",
+      "side": 1,
+      "message": "Window is just \"a number of pixels\" right?\n\nThat strikes me as the sort of thing we usually count with \"int\" too.\n\nThis lets things that really are logically exactly uint32_t (like fWeight and fHalf?) stand out.",
+      "range": {
+        "startLine": 222,
+        "startChar": 36,
+        "endLine": 222,
+        "endChar": 44
+      },
+      "revId": "8cf0b4e3f8ff22b18a635e1fb6abd52e3e9901e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14cb9a78_3df0de3f",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T17:31:24Z",
+      "side": 1,
+      "message": "Might be nice to scooch these all over to line up with the others.",
+      "range": {
+        "startLine": 245,
+        "startChar": 12,
+        "endLine": 245,
+        "endChar": 19
+      },
+      "revId": "8cf0b4e3f8ff22b18a635e1fb6abd52e3e9901e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc0a6a7b_0f53fcba",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T17:31:24Z",
+      "side": 1,
+      "message": "This would be a good point to explain what the border is.",
+      "revId": "8cf0b4e3f8ff22b18a635e1fb6abd52e3e9901e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d0a0d31_8cf47398",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T17:31:24Z",
+      "side": 1,
+      "message": "Looks like a good place to use sk_bzero().",
+      "revId": "8cf0b4e3f8ff22b18a635e1fb6abd52e3e9901e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23e4220a_69084cd9",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T17:31:24Z",
+      "side": 1,
+      "message": "Probably Sk4u\u0026 leadingEdge?",
+      "range": {
+        "startLine": 387,
+        "startChar": 42,
+        "endLine": 387,
+        "endChar": 44
+      },
+      "revId": "8cf0b4e3f8ff22b18a635e1fb6abd52e3e9901e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d09c1e1e_ac4dd126",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T17:31:24Z",
+      "side": 1,
+      "message": "uint32_t*?  etc?",
+      "range": {
+        "startLine": 410,
+        "startChar": 14,
+        "endLine": 410,
+        "endChar": 24
+      },
+      "revId": "8cf0b4e3f8ff22b18a635e1fb6abd52e3e9901e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b763028_12f6ba74",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-16T17:31:24Z",
+      "side": 1,
+      "message": "Let\u0027s bump this up to global so we can use it twice instead of re-defining it as kCrossToSmall?",
+      "range": {
+        "startLine": 694,
+        "startChar": 4,
+        "endLine": 694,
+        "endChar": 59
+      },
+      "revId": "8cf0b4e3f8ff22b18a635e1fb6abd52e3e9901e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
