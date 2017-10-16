@@ -49,14 +49,13 @@ GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
     return CanDrawPath::kYes;
 }
 
-static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const GrShape& shape) {
+static sk_sp<GrPath> get_gr_path(GrResourceProvider* resourceProvider, const GrShape& shape) {
     GrUniqueKey key;
     bool isVolatile;
     GrPath::ComputeKey(shape, &key, &isVolatile);
     sk_sp<GrPath> path;
     if (!isVolatile) {
-        path.reset(
-            static_cast<GrPath*>(resourceProvider->findAndRefResourceByUniqueKey(key)));
+        path = resourceProvider->findByUniqueKey<GrPath>(key);
     }
     if (!path) {
         SkPath skPath;
@@ -72,7 +71,7 @@ static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const GrShape& 
         SkASSERT(path->isEqualTo(skPath, shape.style()));
 #endif
     }
-    return path.release();
+    return path;
 }
 
 void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {

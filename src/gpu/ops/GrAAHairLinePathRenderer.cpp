@@ -62,7 +62,7 @@ static const int kQuadNumVertices = 5;
 static const int kQuadsNumInIdxBuffer = 256;
 GR_DECLARE_STATIC_UNIQUE_KEY(gQuadsIndexBufferKey);
 
-static const GrBuffer* ref_quads_index_buffer(GrResourceProvider* resourceProvider) {
+static sk_sp<const GrBuffer> get_quads_index_buffer(GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gQuadsIndexBufferKey);
     return resourceProvider->findOrCreatePatternedIndexBuffer(
         kQuadIdxBufPattern, kIdxsPerQuad, kQuadsNumInIdxBuffer, kQuadNumVertices,
@@ -96,7 +96,7 @@ static const int kLineSegsNumInIdxBuffer = 256;
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gLinesIndexBufferKey);
 
-static const GrBuffer* ref_lines_index_buffer(GrResourceProvider* resourceProvider) {
+static sk_sp<const GrBuffer> get_lines_index_buffer(GrResourceProvider* resourceProvider) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gLinesIndexBufferKey);
     return resourceProvider->findOrCreatePatternedIndexBuffer(
         kLineSegIdxBufPattern, kIdxsPerLineSeg,  kLineSegsNumInIdxBuffer, kLineSegNumVertices,
@@ -945,8 +945,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
                                                    *geometryProcessorViewM);
         }
 
-        sk_sp<const GrBuffer> linesIndexBuffer(
-            ref_lines_index_buffer(target->resourceProvider()));
+        sk_sp<const GrBuffer> linesIndexBuffer = get_lines_index_buffer(target->resourceProvider());
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
@@ -994,8 +993,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         const GrBuffer* vertexBuffer;
         int firstVertex;
 
-        sk_sp<const GrBuffer> quadsIndexBuffer(
-            ref_quads_index_buffer(target->resourceProvider()));
+        sk_sp<const GrBuffer> quadsIndexBuffer = get_quads_index_buffer(target->resourceProvider());
 
         size_t vertexStride = sizeof(BezierVertex);
         int vertexCount = kQuadNumVertices * quadCount + kQuadNumVertices * conicCount;

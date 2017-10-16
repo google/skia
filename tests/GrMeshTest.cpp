@@ -362,9 +362,8 @@ sk_sp<const GrBuffer> DrawMeshHelper::makeVertexBuffer(const T* data, int count)
 
 sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
     GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
-    return sk_sp<const GrBuffer>(
-        fState->resourceProvider()->findOrCreatePatternedIndexBuffer(
-            kIndexPattern, 6, kIndexPatternRepeatCount, 4, gIndexBufferKey));
+    return fState->resourceProvider()->findOrCreatePatternedIndexBuffer(
+            kIndexPattern, 6, kIndexPatternRepeatCount, 4, gIndexBufferKey);
 }
 
 void DrawMeshHelper::drawMesh(const GrMesh& mesh) {

@@ -70,13 +70,13 @@ void GrRenderTarget::onAbandon() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrRenderTargetPriv::attachStencilAttachment(GrStencilAttachment* stencil) {
+bool GrRenderTargetPriv::attachStencilAttachment(sk_sp<GrStencilAttachment> stencil) {
     if (!stencil && !fRenderTarget->fStencilAttachment) {
         // No need to do any work since we currently don't have a stencil attachment and
         // we're not actually adding one.
         return true;
     }
-    fRenderTarget->fStencilAttachment = stencil;
+    fRenderTarget->fStencilAttachment = stencil.release();
     if (!fRenderTarget->completeStencilAttachment()) {
         SkSafeSetNull(fRenderTarget->fStencilAttachment);
         return false;

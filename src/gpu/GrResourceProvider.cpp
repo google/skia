@@ -284,20 +284,10 @@ void GrResourceProvider::removeUniqueKeyFromProxy(const GrUniqueKey& key, GrText
     fCache->processInvalidProxyUniqueKey(key, proxy, true);
 }
 
-GrGpuResource* GrResourceProvider::findAndRefResourceByUniqueKey(const GrUniqueKey& key) {
+sk_sp<GrGpuResource> GrResourceProvider::findResourceByUniqueKey(const GrUniqueKey& key) {
     ASSERT_SINGLE_OWNER
-    return this->isAbandoned() ? nullptr : fCache->findAndRefUniqueResource(key);
-}
-
-GrTexture* GrResourceProvider::findAndRefTextureByUniqueKey(const GrUniqueKey& key) {
-    ASSERT_SINGLE_OWNER
-    GrGpuResource* resource = this->findAndRefResourceByUniqueKey(key);
-    if (resource) {
-        GrTexture* texture = static_cast<GrSurface*>(resource)->asTexture();
-        SkASSERT(texture);
-        return texture;
-    }
-    return nullptr;
+    return this->isAbandoned() ? nullptr
+                               : sk_sp<GrGpuResource>(fCache->findAndRefUniqueResource(key));
 }
 
 void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
@@ -322,11 +312,11 @@ sk_sp<GrTextureProxy> GrResourceProvider::findOrCreateProxyByUniqueKey(const GrU
     return this->isAbandoned() ? nullptr : fCache->findOrCreateProxyByUniqueKey(key, origin);
 }
 
-const GrBuffer* GrResourceProvider::createPatternedIndexBuffer(const uint16_t* pattern,
-                                                               int patternSize,
-                                                               int reps,
-                                                               int vertCount,
-                                                               const GrUniqueKey& key) {
+sk_sp<const GrBuffer> GrResourceProvider::createPatternedIndexBuffer(const uint16_t* pattern,
+                                                                     int patternSize,
+                                                                     int reps,
+                                                                     int vertCount,
+                                                                     const GrUniqueKey& key) {
     size_t bufferSize = patternSize * reps * sizeof(uint16_t);
 
     // This is typically used in GrMeshDrawOps, so we assume kNoPendingIO.
@@ -356,15 +346,14 @@ const GrBuffer* GrResourceProvider::createPatternedIndexBuffer(const uint16_t* p
         buffer->unmap();
     }
     this->assignUniqueKeyToResource(key, buffer.get());
-    return buffer.release();
+    return std::move(buffer);
 }
 
 static constexpr int kMaxQuads = 1 << 12;  // max possible: (1 << 14) - 1;
 
-const GrBuffer* GrResourceProvider::createQuadIndexBuffer() {
+sk_sp<const GrBuffer> GrResourceProvider::createQuadIndexBuffer() {
     GR_STATIC_ASSERT(4 * kMaxQuads <= 65535);
     static const uint16_t kPattern[] = { 0, 1, 2, 0, 2, 3 };
-
     return this->createPatternedIndexBuffer(kPattern, 6, kMaxQuads, 4, fQuadIndexBufferKey);
 }
 
@@ -461,24 +450,23 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
         SkDEBUGCODE(bool newStencil = false;)
         GrStencilAttachment::ComputeSharedStencilAttachmentKey(width, height,
                                                                rt->numStencilSamples(), &sbKey);
-        GrStencilAttachment* stencil = static_cast<GrStencilAttachment*>(
-            this->findAndRefResourceByUniqueKey(sbKey));
+        auto stencil = this->findByUniqueKey<GrStencilAttachment>(sbKey);
         if (!stencil) {
             // Need to try and create a new stencil
-            stencil = this->gpu()->createStencilAttachmentForRenderTarget(rt, width, height);
+            stencil.reset(this->gpu()->createStencilAttachmentForRenderTarget(rt, width, height));
             if (stencil) {
-                this->assignUniqueKeyToResource(sbKey, stencil);
+                this->assignUniqueKeyToResource(sbKey, stencil.get());
                 SkDEBUGCODE(newStencil = true;)
             }
         }
-        if (rt->renderTargetPriv().attachStencilAttachment(stencil)) {
+        if (rt->renderTargetPriv().attachStencilAttachment(std::move(stencil))) {
 #ifdef SK_DEBUG
             // Fill the SB with an inappropriate value. opLists that use the
             // SB should clear it properly.
             if (newStencil) {
-                SkASSERT(stencil->isDirty());
+                SkASSERT(rt->renderTargetPriv().getStencilAttachment()->isDirty());
                 this->gpu()->clearStencil(rt, 0xFFFF);
-                SkASSERT(stencil->isDirty());
+                SkASSERT(rt->renderTargetPriv().getStencilAttachment()->isDirty());
             }
 #endif
         }

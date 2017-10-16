@@ -50,7 +50,7 @@ void GrMeshDrawOp::PatternHelper::recordDraw(Target* target, const GrGeometryPro
 }
 
 void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int quadsToDraw) {
-    sk_sp<const GrBuffer> quadIndexBuffer(target->resourceProvider()->refQuadIndexBuffer());
+    sk_sp<const GrBuffer> quadIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
     if (!quadIndexBuffer) {
         SkDebugf("Could not get quad index buffer.");
         return nullptr;

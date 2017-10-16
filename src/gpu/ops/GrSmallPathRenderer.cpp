@@ -276,7 +276,7 @@ private:
                                                  &vertexBuffer,
                                                  &flushInfo.fVertexOffset);
         flushInfo.fVertexBuffer.reset(SkRef(vertexBuffer));
-        flushInfo.fIndexBuffer.reset(target->resourceProvider()->refQuadIndexBuffer());
+        flushInfo.fIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
         if (!vertices || !flushInfo.fIndexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;

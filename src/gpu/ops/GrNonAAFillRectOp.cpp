@@ -182,7 +182,7 @@ private:
         size_t vertexStride = gp->getVertexStride();
         int rectCount = fRects.count();
 
-        sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
+        sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
         PatternHelper helper(GrPrimitiveType::kTriangles);
         void* vertices = helper.init(target, vertexStride, indexBuffer.get(), kVertsPerRect,
                                      kIndicesPerRect, rectCount);
@@ -310,7 +310,7 @@ private:
         size_t vertexStride = gp->getVertexStride();
         int rectCount = fRects.count();
 
-        sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
+        sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
         PatternHelper helper(GrPrimitiveType::kTriangles);
         void* vertices = helper.init(target, vertexStride, indexBuffer.get(), kVertsPerRect,
                                      kIndicesPerRect, rectCount);
