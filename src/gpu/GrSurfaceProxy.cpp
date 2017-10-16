@@ -263,7 +263,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     GrSurfaceDesc copyDesc = desc;
     copyDesc.fSampleCnt = caps->getSampleCount(desc.fSampleCnt, desc.fConfig);
 
-#ifdef SK_DISABLE_DEFERRED_PROXIES
+#if 0 //def SK_DISABLE_DEFERRED_PROXIES
     // Temporarily force instantiation for crbug.com/769760 and crbug.com/769898
     sk_sp<GrTexture> tex;
 

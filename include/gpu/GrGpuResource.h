@@ -128,6 +128,7 @@ private:
         }
     }
 
+public:
     mutable int32_t fRefCnt;
     mutable int32_t fPendingReads;
     mutable int32_t fPendingWrites;

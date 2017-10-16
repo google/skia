@@ -234,6 +234,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
                                                                     scratchFlags);
         if (resource) {
             GrSurface* surface = static_cast<GrSurface*>(resource);
+
             return sk_sp<GrTexture>(surface->asTexture());
         }
     }

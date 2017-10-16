@@ -629,7 +629,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
 #ifdef SK_BUILD_FOR_WIN
     // On ANGLE deferring flushes can lead to GPU starvation
-    fPreferVRAMUseOverFlushes = !isANGLE;
+    fPreferVRAMUseOverFlushes = false; // !isANGLE;
 #endif
 
     if (kChromium_GrGLDriver == ctxInfo.driver()) {
