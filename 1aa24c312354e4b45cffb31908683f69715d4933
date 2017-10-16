@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b2c3d74_366d6286",
+        "filename": "bin/try",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-16T18:03:37Z",
+      "side": 1,
+      "message": "Some people might say that python files should end in .py and an executable wrapper should call it like gclient in depot_tools (one of the reasons I have heard is that their editors apply py syntax for .py files only). But I don\u0027t see those people here.",
+      "revId": "1aa24c312354e4b45cffb31908683f69715d4933",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ce7dd65_7cfd3b85",
+        "filename": "bin/try",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-16T18:03:37Z",
+      "side": 1,
+      "message": "Might want to note somewhere that you will not be able to match and trigger chromium try jobs with this.\nThis might be a good place: \u0027Helper script for triggering Skia try jobs.\u0027 (or something similar).",
+      "range": {
+        "startLine": 29,
+        "startChar": 48,
+        "endLine": 29,
+        "endChar": 56
+      },
+      "revId": "1aa24c312354e4b45cffb31908683f69715d4933",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
