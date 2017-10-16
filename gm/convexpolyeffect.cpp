@@ -15,6 +15,7 @@
 #include "GrDefaultGeoProcFactory.h"
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
+#include "GrQuad.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrTest.h"
 #include "SkColorPriv.h"
@@ -85,7 +86,8 @@ private:
             return;
         }
 
-        fRect.toQuad(verts);
+        reinterpret_cast<SkPoint*>(verts)->setRectTriStrip(fRect.fLeft, fRect.fTop, fRect.fRight,
+                                                           fRect.fBottom, sizeof(SkPoint));
 
         helper.recordDraw(
                 target, gp.get(),
