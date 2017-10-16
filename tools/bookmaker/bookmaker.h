@@ -1267,7 +1267,7 @@ public:
 , { "Alias",       nullptr,      MarkType::kAlias,        R_N, E_N, 0 }
 , { "Bug",         nullptr,      MarkType::kBug,          R_N, E_N, 0 }
 , { "Class",       &fClassMap,   MarkType::kClass,        R_Y, E_O, M_CSST | M(Root) }
-, { "Code",        nullptr,      MarkType::kCode,         R_O, E_N, M_CSST | M_E }
+, { "Code",        nullptr,      MarkType::kCode,         R_O, E_N, M_CSST | M_E | M(Method) }
 , { "",            nullptr,      MarkType::kColumn,       R_Y, E_N, M(Row) }
 , { "",            nullptr,      MarkType::kComment,      R_N, E_N, 0 }
 , { "Const",       &fConstMap,   MarkType::kConst,        R_Y, E_N, M_E | M_ST  }
@@ -1683,6 +1683,20 @@ public:
 
     void writeEndTag(const char* tagType, const string& tagID, int spaces = 1) {
         this->writeEndTag(tagType, tagID.c_str(), spaces);
+    }
+
+    void writeIncompleteTag(const char* tagType, const string& tagID, int spaces = 1) {
+        this->writeString(string("#") + tagType + " " + tagID);
+        this->writeSpace(spaces);
+        this->writeString("incomplete");
+        this->writeSpace();
+        this->writeString("##");
+        this->lf(1);
+    }
+
+    void writeIncompleteTag(const char* tagType) {
+        this->writeString(string("#") + tagType + " incomplete ##");
+        this->lf(1);
     }
 
     void writeTableHeader(const char* col1, size_t pad, const char* col2) {
