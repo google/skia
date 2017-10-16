@@ -500,17 +500,21 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
             return false;
         }
 
-        if (tempProxy->priv().hasPendingIO()) {
-            this->flush(tempProxy.get());
-        }
         if (!tempProxy->instantiate(fContext->resourceProvider())) {
             return false;
         }
         GrTexture* texture = tempProxy->priv().peekTexture();
+
+        if (tempProxy->priv().hasPendingIO()) {
+            this->flush(tempProxy.get());
+        }
+
         if (!fContext->fGpu->writePixels(texture, tempProxy->origin(), 0, 0, width, height,
                                          tempDrawInfo.fWriteConfig, buffer, rowBytes)) {
             return false;
         }
+        tempProxy = nullptr;
+
         SkMatrix matrix;
         matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
         GrRenderTargetContext* renderTargetContext = dst->asRenderTargetContext();
