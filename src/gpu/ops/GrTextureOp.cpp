@@ -373,10 +373,10 @@ private:
                     vertices[1 + 4 * i].fTextureCoords = {tl, tb};
                     vertices[1 + 4 * i].fColor = fDraws[i].fColor;
                     vertices[2 + 4 * i].fPosition = fDraws[i].fQuad.points()[2];
-                    vertices[2 + 4 * i].fTextureCoords = {tr, tb};
+                    vertices[2 + 4 * i].fTextureCoords = {tr, tt};
                     vertices[2 + 4 * i].fColor = fDraws[i].fColor;
                     vertices[3 + 4 * i].fPosition = fDraws[i].fQuad.points()[3];
-                    vertices[3 + 4 * i].fTextureCoords = {tr, tt};
+                    vertices[3 + 4 * i].fTextureCoords = {tr, tb};
                     vertices[3 + 4 * i].fColor = fDraws[i].fColor;
                 }
             } else {
@@ -412,11 +412,11 @@ private:
                     vertices[1 + 4 * i].fColor = fDraws[i].fColor;
                     vertices[2 + 4 * i].fPosition = fDraws[i].fQuad.points()[2];
                     vertices[2 + 4 * i].fTextureIdx = t;
-                    vertices[2 + 4 * i].fTextureCoords = {tr, tb};
+                    vertices[2 + 4 * i].fTextureCoords = {tr, tt};
                     vertices[2 + 4 * i].fColor = fDraws[i].fColor;
                     vertices[3 + 4 * i].fPosition = fDraws[i].fQuad.points()[3];
                     vertices[3 + 4 * i].fTextureIdx = t;
-                    vertices[3 + 4 * i].fTextureCoords = {tr, tt};
+                    vertices[3 + 4 * i].fTextureCoords = {tr, tb};
                     vertices[3 + 4 * i].fColor = fDraws[i].fColor;
                 }
             }
@@ -444,13 +444,13 @@ private:
             vertices[0].fPosition = fDraws[0].fQuad.points()[0];
             vertices[0].fTextureCoords = {tl, tt};
             vertices[0].fColor = fDraws[0].fColor;
-            vertices[1].fPosition = fDraws[0].fQuad.points()[3];
-            vertices[1].fTextureCoords = {tr, tt};
+            vertices[1].fPosition = fDraws[0].fQuad.points()[1];
+            vertices[1].fTextureCoords = {tl, tb};
             vertices[1].fColor = fDraws[0].fColor;
-            vertices[2].fPosition = fDraws[0].fQuad.points()[1];
-            vertices[2].fTextureCoords = {tl, tb};
+            vertices[2].fPosition = fDraws[0].fQuad.points()[2];
+            vertices[2].fTextureCoords = {tr, tt};
             vertices[2].fColor = fDraws[0].fColor;
-            vertices[3].fPosition = fDraws[0].fQuad.points()[2];
+            vertices[3].fPosition = fDraws[0].fQuad.points()[3];
             vertices[3].fTextureCoords = {tr, tb};
             vertices[3].fColor = fDraws[0].fColor;
             GrMesh mesh(GrPrimitiveType::kTriangleStrip);
