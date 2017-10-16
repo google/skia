@@ -23,6 +23,12 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrEllipseEffect& _outer = args.fFp.cast<GrEllipseEffect>();
         (void)_outer;
+        auto edgeType = _outer.edgeType();
+        (void)edgeType;
+        auto center = _outer.center();
+        (void)center;
+        auto radii = _outer.radii();
+        (void)radii;
         prevRadii = half2(-1.0);
         useScale = sk_Caps.floatPrecisionVaries;
         fEllipseVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
