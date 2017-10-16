@@ -128,13 +128,14 @@ private:
         indices[0] = 0;
         indices[1] = 1;
         indices[2] = 2;
-        indices[3] = 0;
-        indices[4] = 2;
+        indices[3] = 2;
+        indices[4] = 1;
         indices[5] = 3;
 
         // Setup positions
         SkPoint* position = (SkPoint*) vertices;
-        position->setRectFan(fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom, vertexStride);
+        position->setRectTriStrip(fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
+                                  vertexStride);
 
         // Setup vertex colors
         GrColor* color = (GrColor*)((intptr_t)vertices + kColorOffset);
