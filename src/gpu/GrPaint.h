@@ -11,13 +11,13 @@
 #define GrPaint_DEFINED
 
 #include "GrColor.h"
-#include "GrColorSpaceXform.h"
 #include "GrFragmentProcessor.h"
 #include "SkBlendMode.h"
 #include "SkRefCnt.h"
 #include "SkRegion.h"
 #include "SkTLazy.h"
 
+class GrColorSpaceXform;
 class GrTextureProxy;
 class GrXPFactory;
 

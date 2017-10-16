@@ -6,6 +6,7 @@
  */
 
 #include "GrTestUtils.h"
+#include "GrColorSpaceXform.h"
 #include "GrProcessorUnitTest.h"
 #include "GrStyle.h"
 #include "SkColorSpace_Base.h"

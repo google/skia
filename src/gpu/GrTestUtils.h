@@ -14,13 +14,13 @@
 
 #include "../private/SkTemplates.h"
 #include "GrColor.h"
-#include "GrColorSpaceXform.h"
 #include "GrSamplerState.h"
 #include "SkPathEffect.h"
 #include "SkRandom.h"
 #include "SkShaderBase.h"
 #include "SkStrokeRec.h"
 
+class GrColorSpaceXform;
 struct GrProcessorTestData;
 class GrStyle;
 class SkMatrix;
