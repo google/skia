@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "653b01f1_74912bd1",
+        "filename": "gm/convexpolyeffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-16T19:19:37Z",
+      "side": 1,
+      "message": "Do we need this include ?",
+      "revId": "73d20c3cad6e1548caa64d55dbe2ad8aaff6a41c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16525c1e_53c02d04",
+        "filename": "gm/convexpolyeffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-16T19:19:37Z",
+      "side": 1,
+      "message": "Why do we need the reinterpret_cast here ?",
+      "revId": "73d20c3cad6e1548caa64d55dbe2ad8aaff6a41c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7c26e6c_33de3ffd",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-16T19:19:37Z",
+      "side": 1,
+      "message": "very very low priority - it seems like this could be a helper method on GrQuad ...",
+      "revId": "73d20c3cad6e1548caa64d55dbe2ad8aaff6a41c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59d31146_3748cef0",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-16T19:19:37Z",
+      "side": 1,
+      "message": "Do you think we would get any mileage out of passing a stride into SetMappedRectTriStrip ?",
+      "revId": "73d20c3cad6e1548caa64d55dbe2ad8aaff6a41c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23a7e27f_c6cf0a6a",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-16T19:19:37Z",
+      "side": 1,
+      "message": "?",
+      "revId": "73d20c3cad6e1548caa64d55dbe2ad8aaff6a41c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
