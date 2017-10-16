@@ -23,6 +23,16 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrArithmeticFP& _outer = args.fFp.cast<GrArithmeticFP>();
         (void)_outer;
+        auto k1 = _outer.k1();
+        (void)k1;
+        auto k2 = _outer.k2();
+        (void)k2;
+        auto k3 = _outer.k3();
+        (void)k3;
+        auto k4 = _outer.k4();
+        (void)k4;
+        auto enforcePMColor = _outer.enforcePMColor();
+        (void)enforcePMColor;
         fKVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat4_GrSLType,
                                                  kDefault_GrSLPrecision, "k");
         SkString _child0("_child0");

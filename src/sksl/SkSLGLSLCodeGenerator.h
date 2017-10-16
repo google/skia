@@ -142,7 +142,7 @@ protected:
 
     void writeFieldAccess(const FieldAccess& f);
 
-    void writeSwizzle(const Swizzle& swizzle);
+    virtual void writeSwizzle(const Swizzle& swizzle);
 
     static Precedence GetBinaryPrecedence(Token::Kind op);
 

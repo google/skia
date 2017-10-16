@@ -24,6 +24,8 @@ public:
         const GrBlurredEdgeFragmentProcessor& _outer =
                 args.fFp.cast<GrBlurredEdgeFragmentProcessor>();
         (void)_outer;
+        auto mode = _outer.mode();
+        (void)mode;
         fragBuilder->codeAppendf(
                 "half factor = half(1.0 - float(%s.w));\n@switch (%d) {\n    case 0:\n        "
                 "factor = half(exp(float(float(-factor * factor) * 4.0)) - "

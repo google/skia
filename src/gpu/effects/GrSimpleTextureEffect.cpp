@@ -23,6 +23,10 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrSimpleTextureEffect& _outer = args.fFp.cast<GrSimpleTextureEffect>();
         (void)_outer;
+        auto colorXform = _outer.colorXform();
+        (void)colorXform;
+        auto matrix = _outer.matrix();
+        (void)matrix;
         fColorSpaceHelper.emitCode(args.fUniformHandler, _outer.colorXform().get());
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(

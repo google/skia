@@ -34,6 +34,12 @@ public:
         const GrAlphaThresholdFragmentProcessor& _outer =
                 args.fFp.cast<GrAlphaThresholdFragmentProcessor>();
         (void)_outer;
+        auto colorXform = _outer.colorXform();
+        (void)colorXform;
+        auto innerThreshold = _outer.innerThreshold();
+        (void)innerThreshold;
+        auto outerThreshold = _outer.outerThreshold();
+        (void)outerThreshold;
         fColorSpaceHelper.emitCode(args.fUniformHandler, _outer.colorXform().get());
         fInnerThresholdVar = args.fUniformHandler->addUniform(
                 kFragment_GrShaderFlag, kHalf_GrSLType, kDefault_GrSLPrecision, "innerThreshold");

@@ -23,6 +23,8 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrDitherEffect& _outer = args.fFp.cast<GrDitherEffect>();
         (void)_outer;
+        auto rangeType = _outer.rangeType();
+        (void)rangeType;
         fragBuilder->codeAppendf(
                 "half value;\nhalf range;\n@switch (%d) {\n    case 0:\n        range = "
                 "0.0039215686274509803;\n        break;\n    case 1:\n        range = "

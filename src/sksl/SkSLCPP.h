@@ -10,7 +10,10 @@
 
 // functions used by CPP programs created by skslc
 
+#include <cmath>
 #include "SkPoint.h"
+
+using std::abs;
 
 // macros to make sk_Caps.<cap name> work from C++ code
 #define sk_Caps (*args.fShaderCaps)
