@@ -341,14 +341,6 @@ void SkMatrix::setScale(SkScalar sx, SkScalar sy) {
     }
 }
 
-bool SkMatrix::setIDiv(int divx, int divy) {
-    if (!divx || !divy) {
-        return false;
-    }
-    this->setScale(SkScalarInvert(divx), SkScalarInvert(divy));
-    return true;
-}
-
 void SkMatrix::preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
     if (1 == sx && 1 == sy) {
         return;
