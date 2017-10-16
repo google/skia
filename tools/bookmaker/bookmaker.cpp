@@ -1160,6 +1160,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kFile:
         case MarkType::kHeight:
         case MarkType::kImage:
+        case MarkType::kLiteral:
         case MarkType::kPlatform:
         case MarkType::kSeeAlso:
         case MarkType::kSubstitute:
@@ -2001,6 +2002,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kFile:
         case MarkType::kHeight:
         case MarkType::kImage:
+        case MarkType::kLiteral:
         case MarkType::kPlatform:
         case MarkType::kReturn:
         case MarkType::kSeeAlso:
