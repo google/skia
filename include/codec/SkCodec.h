@@ -15,6 +15,7 @@
 #include "SkEncodedImageFormat.h"
 #include "SkEncodedInfo.h"
 #include "SkImageInfo.h"
+#include "SkPixmap.h"
 #include "SkSize.h"
 #include "SkStream.h"
 #include "SkTypes.h"
@@ -353,6 +354,10 @@ public:
      */
     Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
         return this->getPixels(info, pixels, rowBytes, nullptr);
+    }
+
+    Result getPixels(const SkPixmap& pm, const Options* opts = nullptr) {
+        return this->getPixels(pm.info(), pm.writable_addr(), pm.rowBytes(), opts);
     }
 
     /**
