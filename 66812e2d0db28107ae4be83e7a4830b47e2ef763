@@ -22,6 +22,30 @@
       "revId": "66812e2d0db28107ae4be83e7a4830b47e2ef763",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7e94a24_b205d32c",
+        "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
+        "patchSetId": 17
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-16T16:25:55Z",
+      "side": 1,
+      "message": "Yes. I\u0027ll do it in the future CL as I\u0027d like to keep the current bot as simple as possible. After landing this CL, I still have to figure out if it works for normal bots (now I only tested it on trybots), and how I can parse and trigger alerts (send emails to myself) automatically. I think that I\u0027ll handle cases like cpu vs gpu, compiler, etc. after that.",
+      "parentUuid": "5989bbb5_9adebae1",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 10
+      },
+      "revId": "66812e2d0db28107ae4be83e7a4830b47e2ef763",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
