@@ -675,11 +675,13 @@ void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
         // collapse full->normal hinting if we're not doing LCD
         h = SkPaint::kNormal_Hinting;
     }
+#ifdef SK_IGNORE_SUBPIXEL_HINTING_FIX
     if ((rec->fFlags & SkScalerContext::kSubpixelPositioning_Flag)) {
         if (SkPaint::kNo_Hinting != h) {
             h = SkPaint::kSlight_Hinting;
         }
     }
+#endif
 
     // rotated text looks bad with hinting, so we disable it as needed
     if (!isAxisAligned(*rec)) {
