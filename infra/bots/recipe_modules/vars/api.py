@@ -41,6 +41,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     # Compile bots keep a persistent checkout.
     if self.is_compile_bot:
       self.persistent_checkout = True
+    if 'Calmbench' in self.builder_name:
+      self.persistent_checkout = True
     if 'Housekeeper' in self.builder_name:
       self.persistent_checkout = True
     if '-CT_' in self.builder_name:
@@ -110,7 +112,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.builder_cfg = self.m.builder_name_schema.DictForBuilderName(
         self.builder_name)
     self.role = self.builder_cfg['role']
-    if self.role == self.m.builder_name_schema.BUILDER_ROLE_HOUSEKEEPER:
+    if self.role in [self.m.builder_name_schema.BUILDER_ROLE_HOUSEKEEPER,
+                     self.m.builder_name_schema.BUILDER_ROLE_CALMBENCH]:
       self.configuration = CONFIG_RELEASE
     else:
       self.configuration = self.builder_cfg.get('configuration', CONFIG_DEBUG)

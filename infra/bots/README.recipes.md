@@ -21,6 +21,7 @@
 **[Recipes](#Recipes)**
   * [builder_name_schema:examples/full](#recipes-builder_name_schema_examples_full)
   * [bundle_recipes](#recipes-bundle_recipes)
+  * [calmbench](#recipes-calmbench)
   * [check_generated_files](#recipes-check_generated_files)
   * [compile](#recipes-compile)
   * [core:examples/full](#recipes-core_examples_full)
@@ -57,9 +58,9 @@
 
 #### **class [BuilderNameSchemaApi](/infra/bots/recipe_modules/builder_name_schema/api.py#14)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-&mdash; **def [DictForBuilderName](/infra/bots/recipe_modules/builder_name_schema/api.py#33)(self, \*args, \*\*kwargs):**
+&mdash; **def [DictForBuilderName](/infra/bots/recipe_modules/builder_name_schema/api.py#34)(self, \*args, \*\*kwargs):**
 
-&mdash; **def [MakeBuilderName](/infra/bots/recipe_modules/builder_name_schema/api.py#30)(self, \*args, \*\*kwargs):**
+&mdash; **def [MakeBuilderName](/infra/bots/recipe_modules/builder_name_schema/api.py#31)(self, \*args, \*\*kwargs):**
 ### *recipe_modules* / [core](/infra/bots/recipe_modules/core)
 
 [DEPS](/infra/bots/recipe_modules/core/__init__.py#5): [depot\_tools/bot\_update][depot_tools/recipe_modules/bot_update], [depot\_tools/gclient][depot_tools/recipe_modules/gclient], [depot\_tools/tryserver][depot_tools/recipe_modules/tryserver], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
@@ -655,7 +656,7 @@ Does nothing if script's version is already known.
 
 #### **class [SkiaVarsApi](/infra/bots/recipe_modules/vars/api.py#16)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-&emsp; **@property**<br>&mdash; **def [is\_linux](/infra/bots/recipe_modules/vars/api.py#158)(self):**
+&emsp; **@property**<br>&mdash; **def [is\_linux](/infra/bots/recipe_modules/vars/api.py#161)(self):**
 
 &mdash; **def [make\_path](/infra/bots/recipe_modules/vars/api.py#18)(self, \*path):**
 
@@ -665,13 +666,13 @@ Return a Path object for the given path.
 
 Prepare the variables.
 
-&emsp; **@property**<br>&mdash; **def [swarming\_bot\_id](/infra/bots/recipe_modules/vars/api.py#200)(self):**
+&emsp; **@property**<br>&mdash; **def [swarming\_bot\_id](/infra/bots/recipe_modules/vars/api.py#203)(self):**
 
-&emsp; **@property**<br>&mdash; **def [swarming\_task\_id](/infra/bots/recipe_modules/vars/api.py#211)(self):**
+&emsp; **@property**<br>&mdash; **def [swarming\_task\_id](/infra/bots/recipe_modules/vars/api.py#214)(self):**
 
-&emsp; **@property**<br>&mdash; **def [upload\_dm\_results](/infra/bots/recipe_modules/vars/api.py#162)(self):**
+&emsp; **@property**<br>&mdash; **def [upload\_dm\_results](/infra/bots/recipe_modules/vars/api.py#165)(self):**
 
-&emsp; **@property**<br>&mdash; **def [upload\_perf\_results](/infra/bots/recipe_modules/vars/api.py#180)(self):**
+&emsp; **@property**<br>&mdash; **def [upload\_perf\_results](/infra/bots/recipe_modules/vars/api.py#183)(self):**
 ## Recipes
 
 ### *recipes* / [builder\_name\_schema:examples/full](/infra/bots/recipe_modules/builder_name_schema/examples/full.py)
@@ -684,6 +685,11 @@ Prepare the variables.
 [DEPS](/infra/bots/recipes/bundle_recipes.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [git](#recipe_modules-git)
 
 &mdash; **def [RunSteps](/infra/bots/recipes/bundle_recipes.py#18)(api):**
+### *recipes* / [calmbench](/infra/bots/recipes/calmbench.py)
+
+[DEPS](/infra/bots/recipes/calmbench.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [core](#recipe_modules-core), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+
+&mdash; **def [RunSteps](/infra/bots/recipes/calmbench.py#23)(api):**
 ### *recipes* / [check\_generated\_files](/infra/bots/recipes/check_generated_files.py)
 
 [DEPS](/infra/bots/recipes/check_generated_files.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [core](#recipe_modules-core), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)

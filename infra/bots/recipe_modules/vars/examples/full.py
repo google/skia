@@ -31,6 +31,7 @@ TEST_BUILDERS = [
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN',
   'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs',
   'Upload-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Coverage',
+  'Calmbench-Debian9'
 ]
 
 
