@@ -46,6 +46,7 @@
 #include "ops/GrTextureOp.h"
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
+#include "GrQuad.h"
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
 #define ASSERT_SINGLE_OWNER \
@@ -509,12 +510,12 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
                     return;
                 }
                 // Does the rect bound the RT?
-                SkPoint srcSpaceRTQuad[4];
-                invM.mapRectToQuad(srcSpaceRTQuad, rtRect);
-                if (rect_contains_inclusive(rect, srcSpaceRTQuad[0]) &&
-                    rect_contains_inclusive(rect, srcSpaceRTQuad[1]) &&
-                    rect_contains_inclusive(rect, srcSpaceRTQuad[2]) &&
-                    rect_contains_inclusive(rect, srcSpaceRTQuad[3])) {
+                GrQuad quad;
+                quad.setFromMappedRect(rtRect, invM);
+                if (rect_contains_inclusive(rect, quad.point(0)) &&
+                    rect_contains_inclusive(rect, quad.point(1)) &&
+                    rect_contains_inclusive(rect, quad.point(2)) &&
+                    rect_contains_inclusive(rect, quad.point(3))) {
                     // Will it blend?
                     GrColor clearColor;
                     if (paint.isConstantBlendedColor(&clearColor)) {
