@@ -320,10 +320,10 @@ travel counterclockwise.
 
 <table>
   <tr>
-    <td><a name="SkPath_kCW_Direction"> <code><strong>SkPath::kCW_Direction </strong></code> </a></td><td>0</td><td><a href="#Contour">Contour</a> travels in a clockwise direction.</td>
+    <td><a name="SkPath_kCW_Direction"> <code><strong>SkPath::kCW_Direction </strong></code> </a></td><td>0</td><td><a href="#Contour">Contour</a> travels in a clockwise direction</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kCCW_Direction"> <code><strong>SkPath::kCCW_Direction </strong></code> </a></td><td>1</td><td><a href="#Contour">Contour</a> travels in a counterclockwise direction.</td>
+    <td><a name="SkPath_kCCW_Direction"> <code><strong>SkPath::kCCW_Direction </strong></code> </a></td><td>1</td><td><a href="#Contour">Contour</a> travels in a counterclockwise direction</td>
   </tr>
 </table>
 
@@ -2818,10 +2818,10 @@ Four <a href="undocumented#Oval">Oval</a> parts with radii (rx, ry) start at las
 
 <table>
   <tr>
-    <td><a name="SkPath_kSmall_ArcSize"> <code><strong>SkPath::kSmall_ArcSize </strong></code> </a></td><td>0</td><td>Smaller of <a href="#Arc">Arc</a> pair.</td>
+    <td><a name="SkPath_kSmall_ArcSize"> <code><strong>SkPath::kSmall_ArcSize </strong></code> </a></td><td>0</td><td>smaller of <a href="#Arc">Arc</a> pair</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kLarge_ArcSize"> <code><strong>SkPath::kLarge_ArcSize </strong></code> </a></td><td>1</td><td>Larger of <a href="#Arc">Arc</a> pair.</td>
+    <td><a name="SkPath_kLarge_ArcSize"> <code><strong>SkPath::kLarge_ArcSize </strong></code> </a></td><td>1</td><td>larger of <a href="#Arc">Arc</a> pair</td>
   </tr>
 </table>
 
