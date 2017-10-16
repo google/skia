@@ -7,6 +7,7 @@
 
 // This test only works with the GPU backend.
 
+#include <GrQuad.h>
 #include "gm.h"
 
 #if SK_SUPPORT_GPU
@@ -85,7 +86,8 @@ private:
             return;
         }
 
-        fRect.toQuad(verts);
+        reinterpret_cast<SkPoint*>(verts)->setRectTriStrip(fRect.fLeft, fRect.fTop, fRect.fRight,
+                                                           fRect.fBottom, sizeof(SkPoint));
 
         helper.recordDraw(
                 target, gp.get(),
