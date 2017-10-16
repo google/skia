@@ -677,6 +677,34 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 	return name
 }
 
+// calmbench generates a calmbench task. Returns the name of the last task in the
+// generated chain of tasks, which the Job should add as a dependency.
+func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
+	s := &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("clang_linux")},
+		Dimensions:   linuxGceDimensions(),
+		ExtraArgs: []string{
+			"--workdir", "../../..", "calmbench",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", name),
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:  relpath("infra_skia.isolate"),
+		Priority: 0.8,
+	}
+
+	s.Dependencies = append(s.Dependencies, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
+
+	b.MustAddTask(name, s)
+
+	return name
+}
+
 // doUpload indicates whether the given Job should upload its results.
 func doUpload(name string) bool {
 	for _, s := range CONFIG.NoUpload {
@@ -940,6 +968,11 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		deps = append(deps, compile(b, name, parts))
 	}
 
+	// Calmbench bots.
+	if parts["role"] == "Calmbench" {
+		deps = append(deps, calmbench(b, name, parts));
+	}
+
 	// Most remaining bots need a compile task.
 	compileTaskName := deriveCompileTaskName(name, parts)
 	compileTaskParts, err := jobNameSchema.ParseJobName(compileTaskName)
@@ -947,7 +980,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		glog.Fatal(err)
 	}
 	// These bots do not need a compile task.
-	if parts["role"] != "Build" &&
+	if parts["role"] != "Build" && parts["role"] != "Calmbench" &&
 		name != "Housekeeper-PerCommit-BundleRecipes" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		name != "Housekeeper-PerCommit-CheckGeneratedFiles" &&

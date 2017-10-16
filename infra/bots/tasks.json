@@ -539,6 +539,12 @@
         "Build-Win-MSVC-x86_64-Release-Vulkan"
       ]
     },
+    "Calmbench-Debian9": {
+      "priority": 0.8,
+      "tasks": [
+        "Calmbench-Debian9"
+      ]
+    },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
       "priority": 0.8,
       "tasks": [
@@ -5391,6 +5397,40 @@
         "patch_set=<(PATCHSET)"
       ],
       "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Calmbench-Debian9": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:10"
+        }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "calmbench",
+        "repository=<(REPO)",
+        "buildername=Calmbench-Debian9",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "infra_skia.isolate",
       "priority": 0.8
     },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
