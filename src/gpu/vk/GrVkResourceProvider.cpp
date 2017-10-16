@@ -177,7 +177,7 @@ GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(const GrSampler
     return sampler;
 }
 
-sk_sp<GrVkPipelineState> GrVkResourceProvider::findOrCreateCompatiblePipelineState(
+GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
                                                                  const GrPipeline& pipeline,
                                                                  const GrPrimitiveProcessor& proc,
                                                                  GrPrimitiveType primitiveType,
