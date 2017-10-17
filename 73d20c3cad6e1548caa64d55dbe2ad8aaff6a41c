@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3aebcafb_4b6e1cb7",
+        "filename": "gm/convexpolyeffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-17T13:11:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "653b01f1_74912bd1",
+      "revId": "73d20c3cad6e1548caa64d55dbe2ad8aaff6a41c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "16525c1e_53c02d04",
         "filename": "gm/convexpolyeffect.cpp",
         "patchSetId": 10
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "10a22d7a_24906f73",
+        "filename": "gm/convexpolyeffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-17T13:11:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16525c1e_53c02d04",
+      "revId": "73d20c3cad6e1548caa64d55dbe2ad8aaff6a41c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7c26e6c_33de3ffd",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 10
@@ -47,6 +83,24 @@
       "writtenOn": "2017-10-16T19:19:37Z",
       "side": 1,
       "message": "very very low priority - it seems like this could be a helper method on GrQuad ...",
+      "revId": "73d20c3cad6e1548caa64d55dbe2ad8aaff6a41c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66eea81f_a20d2101",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-17T13:11:20Z",
+      "side": 1,
+      "message": "eh, if there was another place we\u0027d use it I\u0027d do it but it is a somewhat specific function, GrQuad::containedInclusivelyBy(SkRect).",
+      "parentUuid": "a7c26e6c_33de3ffd",
       "revId": "73d20c3cad6e1548caa64d55dbe2ad8aaff6a41c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "a884c201_33cead25",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-17T13:11:20Z",
+      "side": 1,
+      "message": "AFAICT it would only be used here.",
+      "parentUuid": "59d31146_3748cef0",
+      "revId": "73d20c3cad6e1548caa64d55dbe2ad8aaff6a41c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "23a7e27f_c6cf0a6a",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 10
@@ -81,6 +153,24 @@
       "writtenOn": "2017-10-16T19:19:37Z",
       "side": 1,
       "message": "?",
+      "revId": "73d20c3cad6e1548caa64d55dbe2ad8aaff6a41c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb18a5e1_05b19024",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-17T13:11:20Z",
+      "side": 1,
+      "message": "oops!",
+      "parentUuid": "23a7e27f_c6cf0a6a",
       "revId": "73d20c3cad6e1548caa64d55dbe2ad8aaff6a41c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
