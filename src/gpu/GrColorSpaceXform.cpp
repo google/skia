@@ -10,6 +10,9 @@
 #include "SkColorSpace_Base.h"
 #include "SkMatrix44.h"
 #include "SkSpinlock.h"
+#include "glsl/GrGLSLColorSpaceXformHelper.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 class GrColorSpaceXformCache {
 public:
@@ -126,4 +129,96 @@ GrColor4f GrColorSpaceXform::apply(const GrColor4f& srcColor) {
         result.fRGBA[i] = SkTPin(result.fRGBA[i], 0.0f, 1.0f);
     }
     return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+class GrGLColorSpaceXformEffect : public GrGLSLFragmentProcessor {
+public:
+    void emitCode(EmitArgs& args) override {
+        const GrColorSpaceXformEffect& csxe = args.fFp.cast<GrColorSpaceXformEffect>();
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+
+        fColorSpaceHelper.emitCode(uniformHandler, csxe.colorXform());
+
+        SkString childColor("src_color");
+        this->emitChild(0, &childColor, args);
+
+        SkString xformedColor;
+        fragBuilder->appendColorGamutXform(&xformedColor, childColor.c_str(), &fColorSpaceHelper);
+        fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputColor, xformedColor.c_str(),
+                                 args.fInputColor);
+    }
+
+private:
+    void onSetData(const GrGLSLProgramDataManager& pdman,
+                   const GrFragmentProcessor& processor) override {
+        const GrColorSpaceXformEffect& csxe = processor.cast<GrColorSpaceXformEffect>();
+        if (fColorSpaceHelper.isValid()) {
+            fColorSpaceHelper.setData(pdman, csxe.colorXform());
+        }
+    }
+
+    GrGLSLColorSpaceXformHelper fColorSpaceHelper;
+
+    typedef GrGLSLFragmentProcessor INHERITED;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+GrColorSpaceXformEffect::GrColorSpaceXformEffect(std::unique_ptr<GrFragmentProcessor> child,
+                                                 sk_sp<GrColorSpaceXform> colorXform)
+        : INHERITED(kGrColorSpaceXformEffect_ClassID, OptFlags(child.get()))
+        , fColorXform(std::move(colorXform)) {
+    this->registerChildProcessor(std::move(child));
+}
+
+std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::clone() const {
+    return std::unique_ptr<GrFragmentProcessor>(
+            new GrColorSpaceXformEffect(this->childProcessor(0).clone(), fColorXform));
+}
+
+bool GrColorSpaceXformEffect::onIsEqual(const GrFragmentProcessor& s) const {
+    const GrColorSpaceXformEffect& other = s.cast<GrColorSpaceXformEffect>();
+    return GrColorSpaceXform::Equals(fColorXform.get(), other.fColorXform.get());
+}
+
+void GrColorSpaceXformEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+                                                    GrProcessorKeyBuilder* b) const {
+    b->add32(GrColorSpaceXform::XformKey(fColorXform.get()));
+}
+
+GrGLSLFragmentProcessor* GrColorSpaceXformEffect::onCreateGLSLInstance() const {
+    return new GrGLColorSpaceXformEffect();
+}
+
+GrFragmentProcessor::OptimizationFlags GrColorSpaceXformEffect::OptFlags(
+        const GrFragmentProcessor* child) {
+    // TODO: Implement constant output for constant input
+    OptimizationFlags flags = kNone_OptimizationFlags;
+    if (child->compatibleWithCoverageAsAlpha()) {
+        flags |= kCompatibleWithCoverageAsAlpha_OptimizationFlag;
+    }
+    if (child->preservesOpaqueInput()) {
+        flags |= kPreservesOpaqueInput_OptimizationFlag;
+    }
+    return flags;
+}
+
+std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(
+        std::unique_ptr<GrFragmentProcessor> child,
+        const SkColorSpace* src,
+        const SkColorSpace* dst) {
+    if (!child) {
+        return nullptr;
+    }
+
+    auto colorXform = GrColorSpaceXform::Make(src, dst);
+    if (colorXform) {
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrColorSpaceXformEffect(std::move(child), std::move(colorXform)));
+    } else {
+        return child;
+    }
 }
