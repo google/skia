@@ -93,6 +93,22 @@ The command output should include a URL, similar to
 (https://skia-review.googlesource.com/c/4559/), indicating where your changelist
 can be reviewed.
 
+### Submit try jobs
+
+Skia's trybots allow testing and verification of changes before they land in the
+repo. You need to have permission to trigger try jobs; if you need permission,
+ask a committer. Try jobs may be triggered via the Gerrit UI, or using "git cl
+try". There is a small wrapper for "git cl try" which helps to choose try jobs.
+From a Skia checkout:
+
+    bin/try --list
+
+You can also search using regular expressions:
+
+    bin/try "Test.*GTX660.*Release"
+
+For more information about testing, see [testing infrastructure](https://skia.org/dev/testing/automated_testing).
+
 ### Request review
 
 Go to the supplied URL or go to the code review page and select the **Your**
