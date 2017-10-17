@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "059005d1_a471129a",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-17T19:23:00Z",
+      "side": 1,
+      "message": "Changing it to an int would be consistent with e.g. SkPaint::setFlags.",
+      "parentUuid": "c93d5f11_12e3a528",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 106,
+        "endChar": 29
+      },
+      "revId": "cda13b7952798664dd4fbed6998fcae4857c0c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3e0f6a37_3672055f",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 6
