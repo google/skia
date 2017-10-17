@@ -855,7 +855,7 @@ DEF_TEST(ImageFilterBlurThenShadowBounds, reporter) {
     sk_sp<SkImageFilter> filter2(make_drop_shadow(std::move(filter1)));
 
     SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
-    SkIRect expectedBounds = SkIRect::MakeXYWH(-132, -132, 234, 234);
+    SkIRect expectedBounds = SkIRect::MakeXYWH(-133, -133, 236, 236);
     bounds = filter2->filterBounds(bounds, SkMatrix::I());
 
     REPORTER_ASSERT(reporter, bounds == expectedBounds);
@@ -866,7 +866,7 @@ DEF_TEST(ImageFilterShadowThenBlurBounds, reporter) {
     sk_sp<SkImageFilter> filter2(make_blur(std::move(filter1)));
 
     SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
-    SkIRect expectedBounds = SkIRect::MakeXYWH(-132, -132, 234, 234);
+    SkIRect expectedBounds = SkIRect::MakeXYWH(-133, -133, 236, 236);
     bounds = filter2->filterBounds(bounds, SkMatrix::I());
 
     REPORTER_ASSERT(reporter, bounds == expectedBounds);
@@ -895,7 +895,7 @@ DEF_TEST(ImageFilterScaledBlurRadius, reporter) {
         scaleMatrix.setScale(2, 2);
         SkIRect bounds = SkIRect::MakeLTRB(0, 0, 200, 200);
 
-        SkIRect expectedBlurBounds = SkIRect::MakeLTRB(-5, -5, 205, 205);
+        SkIRect expectedBlurBounds = SkIRect::MakeLTRB(-6, -6, 206, 206);
         SkIRect blurBounds = blur->filterBounds(
             bounds, scaleMatrix, SkImageFilter::kForward_MapDirection);
         REPORTER_ASSERT(reporter, blurBounds == expectedBlurBounds);
@@ -920,7 +920,7 @@ DEF_TEST(ImageFilterScaledBlurRadius, reporter) {
         scaleMatrix.setScale(1, -1);
         SkIRect bounds = SkIRect::MakeLTRB(0, -100, 100, 0);
 
-        SkIRect expectedBlurBounds = SkIRect::MakeLTRB(-2, -102, 102, 2);
+        SkIRect expectedBlurBounds = SkIRect::MakeLTRB(-3, -103, 103, 3);
         SkIRect blurBounds = blur->filterBounds(
             bounds, scaleMatrix, SkImageFilter::kForward_MapDirection);
         REPORTER_ASSERT(reporter, blurBounds == expectedBlurBounds);
@@ -949,7 +949,7 @@ DEF_TEST(ImageFilterComposedBlurFastBounds, reporter) {
 
     SkRect boundsSrc = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
     SkRect expectedBounds = SkRect::MakeXYWH(
-        SkIntToScalar(-4), SkIntToScalar(-4), SkIntToScalar(108), SkIntToScalar(108));
+        SkIntToScalar(-6), SkIntToScalar(-6), SkIntToScalar(112), SkIntToScalar(112));
     SkRect boundsDst = composedFilter->computeFastBounds(boundsSrc);
 
     REPORTER_ASSERT(reporter, boundsDst == expectedBounds);
