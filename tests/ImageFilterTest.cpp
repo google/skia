@@ -836,6 +836,8 @@ DEF_TEST(ImageFilterDrawMatrixBBH, reporter) {
     }
 }
 
+#if !defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
+
 static sk_sp<SkImageFilter> make_blur(sk_sp<SkImageFilter> input) {
     return SkBlurImageFilter::Make(SK_Scalar1, SK_Scalar1, std::move(input));
 }
@@ -952,6 +954,8 @@ DEF_TEST(ImageFilterComposedBlurFastBounds, reporter) {
 
     REPORTER_ASSERT(reporter, boundsDst == expectedBounds);
 }
+
+#endif
 
 DEF_TEST(ImageFilterUnionBounds, reporter) {
     sk_sp<SkImageFilter> offset(SkOffsetImageFilter::Make(50, 0, nullptr));
