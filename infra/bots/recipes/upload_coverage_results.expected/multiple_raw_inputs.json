@@ -28,7 +28,8 @@
       "tar",
       "-zcvf",
       "[START_DIR]/raw_data.profraw.tar.gz",
-      "[START_DIR]/All.profraw"
+      "[START_DIR]/8888.profraw",
+      "[START_DIR]/srgb.profraw"
     ],
     "name": "create raw data archive"
   },
@@ -37,7 +38,7 @@
       "gsutil",
       "cp",
       "[START_DIR]/raw_data.profraw.tar.gz",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw.tar.gz"
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.profraw.tar.gz"
     ],
     "name": "upload raw data archive"
   },
@@ -48,7 +49,8 @@
       "-sparse",
       "-o",
       "[START_DIR]/output.profdata",
-      "[START_DIR]/All.profraw"
+      "[START_DIR]/8888.profraw",
+      "[START_DIR]/srgb.profraw"
     ],
     "name": "merge and index"
   },
@@ -58,7 +60,7 @@
       "cp",
       "-Z",
       "[START_DIR]/output.profdata",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.profdata"
     ],
     "name": "upload parsed data"
   },
@@ -80,7 +82,7 @@
       "cp",
       "-Z",
       "[START_DIR]/coverage_text/index.txt",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.summary"
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.summary"
     ],
     "name": "upload coverage summary"
   },
@@ -99,7 +101,7 @@
       "cp",
       "-Z",
       "[START_DIR]/coverage.text.tar",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.text.tar"
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.text.tar"
     ],
     "name": "upload text coverage data"
   },
@@ -130,7 +132,7 @@
       "cp",
       "-Z",
       "[START_DIR]/coverage.html.tar",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.html.tar"
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.html.tar"
     ],
     "name": "upload html coverage data"
   },
