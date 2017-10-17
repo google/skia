@@ -45,6 +45,52 @@
       "revId": "8a313c8ec26c7383c9e7ea00c3061b3fff5744a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c3574cd_8c5386b0",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-17T18:47:20Z",
+      "side": 1,
+      "message": "I would avoid any specificity in the public documents about what type of caching is enabled or disabled by the various hint levels.",
+      "range": {
+        "startLine": 795,
+        "startChar": 25,
+        "endLine": 795,
+        "endChar": 64
+      },
+      "revId": "8a313c8ec26c7383c9e7ea00c3061b3fff5744a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92d61fc4_b2ab7f4c",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-17T18:47:20Z",
+      "side": 1,
+      "message": "What is the reason for this?",
+      "range": {
+        "startLine": 804,
+        "startChar": 8,
+        "endLine": 805,
+        "endChar": 20
+      },
+      "revId": "8a313c8ec26c7383c9e7ea00c3061b3fff5744a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
