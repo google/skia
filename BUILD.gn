@@ -594,6 +594,7 @@ optional("jpeg") {
   public_defines = [ "SK_HAS_JPEG_LIBRARY" ]
 
   deps = [
+    "//third_party/libexif:libexif",
     "//third_party/libjpeg-turbo:libjpeg",
   ]
   sources = [
