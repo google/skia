@@ -70,6 +70,29 @@
       "revId": "00ecdd4ecf95f462e540c556090db9820bb96698",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "54a24151_d9a1032f",
+        "filename": "tools/gpucts/gm_runner.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-17T18:43:10Z",
+      "side": 1,
+      "message": "Should we make this just require SK_SUPPORT_GPU?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 18
+      },
+      "revId": "00ecdd4ecf95f462e540c556090db9820bb96698",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
