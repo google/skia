@@ -98,6 +98,7 @@ public:
         kGrCCPRPathProcessor_ClassID,
         kGrCircleBlurFragmentProcessor_ClassID,
         kGrCircleEffect_ClassID,
+        kGrColorSpaceXformEffect_ClassID,
         kGrConfigConversionEffect_ClassID,
         kGrConicEffect_ClassID,
         kGrConstColorProcessor_ClassID,
