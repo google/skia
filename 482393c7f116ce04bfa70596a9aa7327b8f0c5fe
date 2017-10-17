@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2bec3f5_562f0145",
+        "filename": "include/core/SkMatrix.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-10-17T14:45:33Z",
+      "side": 1,
+      "message": "Insert: \"as long as it doesn\u0027t introduce skew\"",
+      "range": {
+        "startLine": 825,
+        "startChar": 37,
+        "endLine": 825,
+        "endChar": 38
+      },
+      "revId": "482393c7f116ce04bfa70596a9aa7327b8f0c5fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
