@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "fc17f656_51a03423",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-17T19:27:34Z",
+      "side": 1,
+      "message": "Ah, never mind.  Should have read the CL description first.",
+      "parentUuid": "177cbbcb_2a24f283",
+      "range": {
+        "startLine": 169,
+        "startChar": 12,
+        "endLine": 169,
+        "endChar": 19
+      },
+      "revId": "ce787b7647755efe4d4a45f0c536863ebf99249b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0a2f21a3_a46bf724",
         "filename": "src/images/SkJpegEncoder.cpp",
         "patchSetId": 3
