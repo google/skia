@@ -67,7 +67,7 @@ SkScalar strokeWidths[] = {
         10,
         0
 };
-SkPath ((*paths[])(SkScalar, SkScalar, SkScalar)) = {
+SkPath (*paths[])(SkScalar, SkScalar, SkScalar) = {
         generate_square,
         generate_rect_line,
         generate_circle,

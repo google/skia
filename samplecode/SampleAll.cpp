@@ -303,12 +303,12 @@ protected:
         short utf16simple[] = {'u', 't', 'f', '1', '6', '!' };
 
         makePath(path);
-        SkTDArray<SkPoint>(pos);
+        SkTDArray<SkPoint> pos;
         pos.setCount(asciiLength);
         for (index = 0;  index < asciiLength; index++)
             pos[index].set(SkIntToScalar((unsigned int)index * 10),
                                        SkIntToScalar((unsigned int)index * 2));
-        SkTDArray<SkPoint>(pos2);
+        SkTDArray<SkPoint> pos2;
         pos2.setCount(asciiLength);
         for (index = 0;  index < asciiLength; index++)
             pos2[index].set(SkIntToScalar((unsigned int)index * 10),
