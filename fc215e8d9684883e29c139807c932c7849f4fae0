@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b2f7d70_7c2657fe",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 791,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-17T05:05:14Z",
+      "side": 1,
+      "message": "This would be the default value.",
+      "revId": "fc215e8d9684883e29c139807c932c7849f4fae0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
