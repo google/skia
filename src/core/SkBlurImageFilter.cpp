@@ -417,7 +417,7 @@ static void blur_one_direction(Sk4u* buffer, int window,
 static sk_sp<SkSpecialImage> combined_pass_blur(
         SkVector sigma,
         SkSpecialImage* source, const sk_sp<SkSpecialImage>& input,
-        SkIRect inputBounds, SkIRect dstBounds) {
+        SkIRect srcBounds, SkIRect dstBounds) {
     SkBitmap inputBM;
 
     if (!input->getROPixels(&inputBM)) {
@@ -428,18 +428,18 @@ static sk_sp<SkSpecialImage> combined_pass_blur(
         return nullptr;
     }
 
-    SkBitmap src;
-    inputBM.extractSubset(&src, inputBounds);
-
-    // Make everything relative to the destination bounds.
-    inputBounds.offset(-dstBounds.x(), -dstBounds.y());
-    dstBounds.offset(  -dstBounds.x(), -dstBounds.y());
-
     auto windowW = calculate_window(sigma.x()),
          windowH = calculate_window(sigma.y());
 
-    auto srcW = inputBounds.width(),
-         srcH = inputBounds.height(),
+    SkBitmap src;
+    inputBM.extractSubset(&src, srcBounds);
+
+    // Make everything relative to the destination bounds.
+    srcBounds.offset(-dstBounds.x(), -dstBounds.y());
+    dstBounds.offset(-dstBounds.x(), -dstBounds.y());
+
+    auto srcW = srcBounds.width(),
+         srcH = srcBounds.height(),
          dstW = dstBounds.width(),
          dstH = dstBounds.height();
 
@@ -469,7 +469,7 @@ static sk_sp<SkSpecialImage> combined_pass_blur(
         // Blur horizontally, and transpose.
         blur_one_direction(
                 buffer, windowW,
-                inputBounds.left(), inputBounds.right(), dstBounds.right(),
+                srcBounds.left(), srcBounds.right(), dstBounds.right(),
                 static_cast<uint32_t*>(src.getPixels()), 1, src.rowBytesAsPixels(), srcH,
                 tmp, tmpW, 1);
 
@@ -477,7 +477,7 @@ static sk_sp<SkSpecialImage> combined_pass_blur(
         // and transpose back to the original orientation.
         blur_one_direction(
                 buffer, windowH,
-                inputBounds.top(), inputBounds.bottom(), dstBounds.bottom(),
+                srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
                 tmp, 1, tmpW, tmpH,
                 static_cast<uint32_t*>(dst.getPixels()), dst.rowBytesAsPixels(), 1);
     } else if (windowW > 1) {
@@ -485,7 +485,7 @@ static sk_sp<SkSpecialImage> combined_pass_blur(
 
         blur_one_direction(
                 buffer, windowW,
-                inputBounds.left(), inputBounds.right(), dstBounds.right(),
+                srcBounds.left(), srcBounds.right(), dstBounds.right(),
                 static_cast<uint32_t*>(src.getPixels()), 1, src.rowBytesAsPixels(), srcH,
                 static_cast<uint32_t*>(dst.getPixels()), 1, dst.rowBytesAsPixels());
     } else if (windowH > 1) {
@@ -493,13 +493,34 @@ static sk_sp<SkSpecialImage> combined_pass_blur(
 
         blur_one_direction(
                 buffer, windowH,
-                inputBounds.top(), inputBounds.bottom(), dstBounds.bottom(),
+                srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
                 static_cast<uint32_t*>(src.getPixels()), src.rowBytesAsPixels(), 1, srcW,
                 static_cast<uint32_t*>(dst.getPixels()), dst.rowBytesAsPixels(), 1);
     } else {
-        // Nothing to do.
+        // There is no blurring to do, but we still need to copy the source to account for the
+        // dstBounds.
+        int y = 0;
+        for (;y < srcBounds.top(); y++) {
+            sk_bzero(dst.getAddr32(0, y), dst.rowBytes());
+        }
+        for (;y < srcBounds.bottom(); y++) {
+            int x = 0;
+            uint32_t* dstPtr = dst.getAddr32(0, y);
+            for (;x < srcBounds.left(); x++) {
+                *dstPtr++ = 0;
+            }
+            std::memcpy(dstPtr, src.getAddr32(x - srcBounds.left(), y - srcBounds.top()), srcW *
+                    sizeof(uint32_t));
+            dstPtr += srcW;
+            x += srcW;
 
-        return input->makeSubset(inputBounds);
+            for (;x < dstBounds.right(); x++) {
+                *dstPtr++ = 0;
+            }
+        }
+        for (;y < dstBounds.bottom(); y++) {
+            sk_bzero(dst.getAddr32(0, y), dst.rowBytes());
+        }
     }
 
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(),
@@ -719,26 +740,14 @@ const {
 
 SkRect SkBlurImageFilterImpl::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
-#if defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
     bounds.outset(fSigma.width() * 3, fSigma.height() * 3);
-#else
-    auto borderW = calculate_border(calculate_window(fSigma.width())),
-         borderH = calculate_border(calculate_window(fSigma.height()));
-    bounds.outset(borderW, borderH);
-#endif
     return bounds;
 }
 
 SkIRect SkBlurImageFilterImpl::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                               MapDirection) const {
     SkVector sigma = map_sigma(fSigma, ctm);
-#if defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
     return src.makeOutset(SkScalarCeilToInt(sigma.x() * 3), SkScalarCeilToInt(sigma.y() * 3));
-#else
-    auto borderW = calculate_border(calculate_window(sigma.x())),
-         borderH = calculate_border(calculate_window(sigma.y()));
-    return src.makeOutset(borderW, borderH);
-#endif
 }
 
 #ifndef SK_IGNORE_TO_STRING
