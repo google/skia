@@ -132,7 +132,7 @@
       "gitHash",
       "abc123",
       "builder",
-      "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage",
+      "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_10-Coverage",
       "swarming_bot_id",
       "skia-bot-123",
       "swarming_task_id",
@@ -160,6 +160,10 @@
       "pdf",
       "--randomProcessorTest",
       "--nogpu",
+      "--shard",
+      "00",
+      "--shards",
+      "10",
       "--config",
       "8888",
       "srgb",
@@ -461,7 +465,7 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "LLVM_PROFILE_FILE": "[CUSTOM_[SWARM_OUT_DIR]]/output.profraw",
+      "LLVM_PROFILE_FILE": "[CUSTOM_[SWARM_OUT_DIR]]/shard_00_10.profraw",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },

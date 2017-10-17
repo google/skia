@@ -28,7 +28,8 @@
       "tar",
       "-cvf",
       "[START_DIR]/raw_data.profraw.tar",
-      "[START_DIR]/All.profraw"
+      "[START_DIR]/8888.profraw",
+      "[START_DIR]/srgb.profraw"
     ],
     "name": "create raw data archive"
   },
@@ -38,7 +39,7 @@
       "cp",
       "-Z",
       "[START_DIR]/raw_data.profraw.tar",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw.tar"
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.profraw.tar"
     ],
     "name": "upload raw data archive"
   },
@@ -49,7 +50,8 @@
       "-sparse",
       "-o",
       "[START_DIR]/output.profdata",
-      "[START_DIR]/All.profraw"
+      "[START_DIR]/8888.profraw",
+      "[START_DIR]/srgb.profraw"
     ],
     "name": "merge and index"
   },
@@ -59,74 +61,85 @@
       "cp",
       "-Z",
       "[START_DIR]/output.profdata",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.profdata"
     ],
-    "name": "upload parsed data",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_FAILURE@@@"
-    ]
+    "name": "upload parsed data"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/clang_linux/bin/llvm-cov",
+      "show",
+      "[START_DIR]/out/Debug/dm",
+      "-instr-profile=[START_DIR]/output.profdata",
+      "-use-color=0",
+      "-format=text",
+      "-output-dir=[START_DIR]/coverage_text"
+    ],
+    "name": "create text summary"
   },
   {
     "cmd": [
       "gsutil",
       "cp",
       "-Z",
-      "[START_DIR]/output.profdata",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
+      "[START_DIR]/coverage_text/index.txt",
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.summary"
     ],
-    "name": "upload parsed data (attempt 2)",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_FAILURE@@@"
-    ]
+    "name": "upload coverage summary"
+  },
+  {
+    "cmd": [
+      "tar",
+      "-cvf",
+      "[START_DIR]/coverage.text.tar",
+      "[START_DIR]/coverage_text"
+    ],
+    "name": "create text coverage archive"
   },
   {
     "cmd": [
       "gsutil",
       "cp",
       "-Z",
-      "[START_DIR]/output.profdata",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
+      "[START_DIR]/coverage.text.tar",
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.text.tar"
     ],
-    "name": "upload parsed data (attempt 3)",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_FAILURE@@@"
-    ]
+    "name": "upload text coverage data"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/clang_linux/bin/llvm-cov",
+      "show",
+      "[START_DIR]/out/Debug/dm",
+      "-instr-profile=[START_DIR]/output.profdata",
+      "-use-color=1",
+      "-format=html",
+      "-output-dir=[START_DIR]/coverage_html"
+    ],
+    "name": "create html summary"
+  },
+  {
+    "cmd": [
+      "tar",
+      "-cvf",
+      "[START_DIR]/coverage.html.tar",
+      "[START_DIR]/coverage_html"
+    ],
+    "name": "create html coverage archive"
   },
   {
     "cmd": [
       "gsutil",
       "cp",
       "-Z",
-      "[START_DIR]/output.profdata",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
+      "[START_DIR]/coverage.html.tar",
+      "gs://skia-coverage/commit/abc123/Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta.html.tar"
     ],
-    "name": "upload parsed data (attempt 4)",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_FAILURE@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "gsutil",
-      "cp",
-      "-Z",
-      "[START_DIR]/output.profdata",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
-    ],
-    "name": "upload parsed data (attempt 5)",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_FAILURE@@@"
-    ]
+    "name": "upload html coverage data"
   },
   {
     "name": "$result",
-    "reason": "Step('upload parsed data (attempt 5)') failed with return_code 1",
     "recipe_result": null,
-    "status_code": 1
+    "status_code": 0
   }
 ]

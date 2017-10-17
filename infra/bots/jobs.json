@@ -326,7 +326,7 @@
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86-Debug-All",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN",
-  "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage",
+  "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-16_Shard-Coverage",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN_float_cast_overflow",
