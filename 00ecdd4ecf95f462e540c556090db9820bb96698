@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa64280_099069d1",
+        "filename": "tools/gpucts/gm_knowledge.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-10-17T16:48:46Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be a pointer ? Just curious.",
+      "range": {
+        "startLine": 42,
+        "startChar": 16,
+        "endLine": 42,
+        "endChar": 34
+      },
+      "revId": "00ecdd4ecf95f462e540c556090db9820bb96698",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
