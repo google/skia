@@ -10,19 +10,21 @@ import calendar
 
 
 DEPS = [
+  'gsutil',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
+  'recipe_engine/python',
+  'recipe_engine/raw_io',
   'recipe_engine/step',
   'recipe_engine/time',
-  'gsutil',
 ]
 
 
 TRY_JOB_FOLDER = 'trybot/%s/%s/' # % (issue_number, patchset_number)
 COMMIT_FOLDER = 'commit/%s/'      # % (git_revision)
 
-RAW_FILE = '%s.profraw'
+RAW_FILE = '*.profraw'
 PARSED_FILE = '%s.profdata'
 SUMMARY_FILE = '%s.summary'
 # Text is an easier format to read with machines (e.g. for Gerrit).
@@ -41,8 +43,27 @@ def RunSteps(api):
   builder_name = api.properties['buildername']
   bucket = api.properties['gs_bucket']
 
-  # The raw data is brought in as an isolated input.
-  raw_data = api.path['start_dir'].join('output.profraw')
+  # The raw data files are brought in as isolated inputs. It is possible
+  # for there to be 1 if the coverage task wasn't broken up.
+  raw_inputs = api.m.python.inline(
+        name='find raw inputs',
+        program='''
+import glob
+import os
+import sys
+
+dir = sys.argv[1]
+glob_pattern = '%s'
+
+path = os.path.join(dir, glob_pattern)
+print '|'.join(glob.glob(path))
+''' % str(RAW_FILE),
+        args=[api.path['start_dir']],
+        stdout=api.m.raw_io.output(),
+        infra_step=True).stdout
+  raw_inputs = raw_inputs.rstrip().split('|')
+
+
   # The instrumented executable is brought in as an isolated input.
   executable = api.path['start_dir'].join('out','Debug','dm')
   # clang_dir is brought in via CIPD.
@@ -56,19 +77,22 @@ def RunSteps(api):
   if issue and patchset:
     path = TRY_JOB_FOLDER % (issue, patchset)
 
-  gcs_file = RAW_FILE % builder_name
-  api.gsutil.cp('raw data', raw_data,
-                   'gs://%s/%s%s' % (bucket, path, gcs_file), ['-Z'])
+  # Upload the raw files
+  for f in raw_inputs:
+    gcs_file = '%s_%s' % (builder_name, api.path.basename(f))
+    api.gsutil.cp('raw data (%s)' % api.path.basename(f), f,
+                  'gs://%s/%s%s' % (bucket, path, gcs_file), ['-Z'])
 
-  # Merge and Index the data.
+  # Merge all the raw data files together, then index the data.
   indexed_data = api.path['start_dir'].join('output.profdata')
+  cmd = [clang_dir.join('llvm-profdata'),
+         'merge',
+         '-sparse',
+         '-o',
+         indexed_data]
+  cmd.extend(raw_inputs)
   api.step('merge and index',
-           cmd=[clang_dir.join('llvm-profdata'),
-               'merge',
-               '-sparse',
-               raw_data,
-               '-o',
-               indexed_data ])
+           cmd=cmd)
 
   gcs_file = PARSED_FILE % builder_name
   api.gsutil.cp('parsed data', indexed_data,
@@ -132,7 +156,9 @@ def GenTests(api):
     api.properties(buildername=builder,
                    gs_bucket='skia-coverage',
                    revision='abc123',
-                   path_config='kitchen')
+                   path_config='kitchen') +
+    api.step_data('find raw inputs',
+                  stdout=api.raw_io.output('[START_DIR]/All.profraw'))
   )
 
   yield (
@@ -140,7 +166,9 @@ def GenTests(api):
     api.properties(buildername=builder,
                    gs_bucket='skia-coverage-alt',
                    revision='abc123',
-                   path_config='kitchen')
+                   path_config='kitchen') +
+    api.step_data('find raw inputs',
+                  stdout=api.raw_io.output('[START_DIR]/All.profraw'))
   )
 
   yield (
@@ -149,7 +177,9 @@ def GenTests(api):
                    gs_bucket='skia-coverage',
                    revision='abc123',
                    path_config='kitchen') +
-    api.step_data('upload raw data', retcode=1)
+    api.step_data('upload parsed data', retcode=1) +
+    api.step_data('find raw inputs',
+                  stdout=api.raw_io.output('[START_DIR]/All.profraw'))
   )
 
   yield (
@@ -158,11 +188,13 @@ def GenTests(api):
                    gs_bucket='skia-coverage',
                    revision='abc123',
                    path_config='kitchen') +
-    api.step_data('upload raw data', retcode=1) +
-    api.step_data('upload raw data (attempt 2)', retcode=1) +
-    api.step_data('upload raw data (attempt 3)', retcode=1) +
-    api.step_data('upload raw data (attempt 4)', retcode=1) +
-    api.step_data('upload raw data (attempt 5)', retcode=1)
+    api.step_data('find raw inputs',
+                  stdout=api.raw_io.output('[START_DIR]/All.profraw')) +
+    api.step_data('upload parsed data', retcode=1) +
+    api.step_data('upload parsed data (attempt 2)', retcode=1) +
+    api.step_data('upload parsed data (attempt 3)', retcode=1) +
+    api.step_data('upload parsed data (attempt 4)', retcode=1) +
+    api.step_data('upload parsed data (attempt 5)', retcode=1)
   )
 
   yield (
@@ -177,5 +209,19 @@ def GenTests(api):
           buildername=builder,
           gerrit_project='skia',
           gerrit_url='https://skia-review.googlesource.com/',
-      )
+      ) +
+      api.step_data('find raw inputs',
+                  stdout=api.raw_io.output('[START_DIR]/All.profraw'))
+  )
+
+  builder = 'Upload-Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-Meta'
+  yield (
+    api.test('multiple_raw_inputs') +
+    api.properties(buildername=builder,
+                   gs_bucket='skia-coverage',
+                   revision='abc123',
+                   path_config='kitchen') +
+    api.step_data('find raw inputs',
+                  stdout=api.raw_io.output('[START_DIR]/8888.profraw|'
+                                           '[START_DIR]/srgb.profraw'))
   )
