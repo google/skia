@@ -377,7 +377,7 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
 
     SkRasterPipeline_<256> postPipeline;
 
-    p->append(SkRasterPipeline::seed_shader);
+    p->append_seed_shader();
     p->append_matrix(alloc, matrix);
     this->appendGradientStages(alloc, p, &postPipeline);
 

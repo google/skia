@@ -240,7 +240,7 @@ DEF_TEST(SkRasterPipeline_2d, r) {
     SkRasterPipeline p(&alloc);
 
     // Splat out the (2d) dst coordinates: (0.5,0.5), (1.5,0.5), (0.5,1.5), (1.5,1.5).
-    p.append(SkRasterPipeline::seed_shader);
+    p.append_seed_shader();
 
     // Scale down to [0,1] range to write out as bytes.
     p.append_matrix(&alloc, SkMatrix::Concat(SkMatrix::MakeScale(0.5f),
