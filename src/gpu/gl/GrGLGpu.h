@@ -135,6 +135,8 @@ public:
     // Thus this is the implementation of the clear call for the corresponding passthrough function
     // on GrGLGpuRTCommandBuffer.
     void clear(const GrFixedClip&, GrColor, GrRenderTarget*, GrSurfaceOrigin);
+    void clearColorAsDraw(const GrFixedClip&, GrGLfloat r, GrGLfloat g, GrGLfloat b, GrGLfloat a,
+                          GrRenderTarget*, GrSurfaceOrigin);
 
     // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clearStencil call for the corresponding passthrough
@@ -420,6 +422,7 @@ private:
     bool createCopyProgram(GrTexture* srcTexture);
     bool createMipmapProgram(int progIdx);
     bool createStencilClipClearProgram();
+    bool createClearColorProgram();
 
     // GL program-related state
     ProgramCache*               fProgramCache;
@@ -617,23 +620,30 @@ private:
 
     /** IDs for copy surface program. (4 sampler types) */
     struct {
-        GrGLuint    fProgram;
-        GrGLint     fTextureUniform;
-        GrGLint     fTexCoordXformUniform;
-        GrGLint     fPosXformUniform;
+        GrGLuint    fProgram = 0;
+        GrGLint     fTextureUniform = 0;
+        GrGLint     fTexCoordXformUniform = 0;
+        GrGLint     fPosXformUniform = 0;
     }                                       fCopyPrograms[4];
     sk_sp<GrGLBuffer>                       fCopyProgramArrayBuffer;
 
     /** IDs for texture mipmap program. (4 filter configurations) */
     struct {
-        GrGLuint    fProgram;
-        GrGLint     fTextureUniform;
-        GrGLint     fTexCoordXformUniform;
+        GrGLuint    fProgram = 0;
+        GrGLint     fTextureUniform = 0;
+        GrGLint     fTexCoordXformUniform = 0;
     }                                       fMipmapPrograms[4];
     sk_sp<GrGLBuffer>                       fMipmapProgramArrayBuffer;
 
-    GrGLuint                                fStencilClipClearProgram;
+    GrGLuint                                fStencilClipClearProgram = 0;
     sk_sp<GrGLBuffer>                       fStencilClipClearArrayBuffer;
+
+    /** IDs for clear render target color program. */
+    struct {
+        GrGLuint    fProgram = 0;
+        GrGLint     fColorUniform = 0;
+    }                                       fClearColorProgram;
+    sk_sp<GrGLBuffer>                       fClearProgramArrayBuffer;
 
     static int TextureToCopyProgramIdx(GrTexture* texture);
 

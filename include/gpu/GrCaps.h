@@ -55,8 +55,6 @@ public:
     bool usesMixedSamples() const { return fUsesMixedSamples; }
     bool preferClientSideDynamicBuffers() const { return fPreferClientSideDynamicBuffers; }
 
-    bool useDrawInsteadOfClear() const { return fUseDrawInsteadOfClear; }
-
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
     /**
@@ -210,7 +208,6 @@ protected:
     bool fMustClearUploadedBufferData                : 1;
 
     // Driver workaround
-    bool fUseDrawInsteadOfClear                      : 1;
     bool fAvoidInstancedDrawsToFPTargets             : 1;
     bool fBlacklistCoverageCounting                  : 1;
     bool fAvoidStencilBuffers                        : 1;
