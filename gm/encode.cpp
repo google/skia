@@ -48,3 +48,29 @@ private:
 
 DEF_GM( return new EncodeGM; )
 }
+
+///////////
+
+#if 0
+DEF_SIMPLE_GM(jpeg_orientation, canvas, 1000, 1000) {
+    static sk_sp<SkImage> imgs[8];
+    if (!imgs[0]) {
+        for (int i = 0; i < 8; ++i) {
+            SkString path;
+            path.printf("/skia/orientation/Landscape_%d.jpg", i + 1);
+            auto stream = SkStream::MakeFromFile(path.c_str());
+            auto data = SkData::MakeFromStream(stream.get(), stream->getLength());
+            imgs[i] = SkImage::MakeFromEncoded(data, nullptr);
+        }
+    }
+    canvas->scale(0.25, 0.25);
+    for (int i = 0; i < 8; ++i) {
+        SkImage* img = imgs[i].get();
+        canvas->drawImage(img, 0, 0, nullptr);
+        canvas->translate(0, img->height());
+        if (i == 3) {
+            canvas->translate(img->width(), -4*img->height());
+        }
+    }
+}
+#endif
