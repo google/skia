@@ -46,6 +46,30 @@
       "revId": "00ecdd4ecf95f462e540c556090db9820bb96698",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "800c3b37_197beb53",
+        "filename": "tools/gpucts/gm_knowledge.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-10-17T18:35:09Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "cfa86627_98429f88",
+      "range": {
+        "startLine": 42,
+        "startChar": 16,
+        "endLine": 42,
+        "endChar": 34
+      },
+      "revId": "00ecdd4ecf95f462e540c556090db9820bb96698",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
