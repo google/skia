@@ -214,11 +214,10 @@ SI U32 ix_and_ptr(T** ptr, const SkJumper_GatherCtx* ctx, F x, F y) {
 
 // Now finally, normal Stages!
 
-STAGE(seed_shader, Ctx::None) {
+STAGE(seed_shader, const float* iota) {
     // It's important for speed to explicitly cast(dx) and cast(dy),
     // which has the effect of splatting them to vectors before converting to floats.
     // On Intel this breaks a data dependency on previous loop iterations' registers.
-    float iota[] = { 0.5f,1.5f,2.5f,3.5f,4.5f,5.5f,6.5f,7.5f };
     r = cast(dx) + unaligned_load<F>(iota);
     g = cast(dy) + 0.5f;
     b = 1.0f;
