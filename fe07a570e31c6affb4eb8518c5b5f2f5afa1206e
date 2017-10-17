@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9f040c3_ec6ed68a",
+        "filename": "tests/ClearTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-17T20:55:24Z",
+      "side": 1,
+      "message": "Probably just #if 0 this out until I can reland it",
+      "revId": "fe07a570e31c6affb4eb8518c5b5f2f5afa1206e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
