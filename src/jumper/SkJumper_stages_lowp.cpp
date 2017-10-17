@@ -42,12 +42,16 @@
     using U8  = uint8_t  __attribute__((ext_vector_type(16)));
     using U16 = uint16_t __attribute__((ext_vector_type(16)));
     using I16 =  int16_t __attribute__((ext_vector_type(16)));
+    using I32 =  int32_t __attribute__((ext_vector_type(16)));
     using U32 = uint32_t __attribute__((ext_vector_type(16)));
+    using F   = float    __attribute__((ext_vector_type(16)));
 #else
     using U8  = uint8_t  __attribute__((ext_vector_type(8)));
     using U16 = uint16_t __attribute__((ext_vector_type(8)));
     using I16 =  int16_t __attribute__((ext_vector_type(8)));
+    using I32 =  int32_t __attribute__((ext_vector_type(8)));
     using U32 = uint32_t __attribute__((ext_vector_type(8)));
+    using F   = float    __attribute__((ext_vector_type(8)));
 #endif
 
 static const size_t N = sizeof(U16) / sizeof(uint16_t);
@@ -78,7 +82,49 @@ ABI extern "C" void WRAP(start_pipeline)(const size_t x0,
 ABI extern "C" void WRAP(just_return)(size_t,void**,size_t,size_t,
                                       U16,U16,U16,U16, U16,U16,U16,U16) {}
 
-#define STAGE(name, ...)                                                               \
+// All stages use the same function call ABI to chain into each other, but there are three types:
+//   GG: geometry in, geometry out  -- think, a matrix
+//   GP: geometry in, pixels out.   -- think, a memory gather
+//   PP: pixels in, pixels out.     -- think, a blend mode
+//
+// (Some stages ignore their inputs or produce no logical output.  That's perfectly fine.)
+//
+// These three STAGE_ macros let you define each type of stage,
+// and will have (x,y) geometry and/or (r,g,b,a, dr,dg,db,da) pixel arguments as appropriate.
+
+#define STAGE_GG(name, ...)                                                            \
+    SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y);      \
+    ABI extern "C" void WRAP(name)(size_t tail, void** program, size_t dx, size_t dy,  \
+                                   U16  r, U16  g, U16  b, U16  a,                     \
+                                   U16 dr, U16 dg, U16 db, U16 da) {                   \
+        auto x = join<F>(r,g),                                                         \
+             y = join<F>(b,a);                                                         \
+        name##_k(Ctx{program}, dx,dy,tail, x,y);                                       \
+        split(x, &r,&g);                                                               \
+        split(y, &b,&a);                                                               \
+        auto next = (Stage)load_and_inc(program);                                      \
+        next(tail,program,dx,dy, r,g,b,a, dr,dg,db,da);                                \
+    }                                                                                  \
+    SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y)
+
+#define STAGE_GP(name, ...)                                                            \
+    SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F x, F y,         \
+                     U16&  r, U16&  g, U16&  b, U16&  a,                               \
+                     U16& dr, U16& dg, U16& db, U16& da);                              \
+    ABI extern "C" void WRAP(name)(size_t tail, void** program, size_t dx, size_t dy,  \
+                                   U16  r, U16  g, U16  b, U16  a,                     \
+                                   U16 dr, U16 dg, U16 db, U16 da) {                   \
+        auto x = join<F>(r,g),                                                         \
+             y = join<F>(b,a);                                                         \
+        name##_k(Ctx{program}, dx,dy,tail, x,y, r,g,b,a, dr,dg,db,da);                 \
+        auto next = (Stage)load_and_inc(program);                                      \
+        next(tail,program,dx,dy, r,g,b,a, dr,dg,db,da);                                \
+    }                                                                                  \
+    SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F x, F y,         \
+                     U16&  r, U16&  g, U16&  b, U16&  a,                               \
+                     U16& dr, U16& dg, U16& db, U16& da)
+
+#define STAGE_PP(name, ...)                                                            \
     SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
                      U16&  r, U16&  g, U16&  b, U16&  a,                               \
                      U16& dr, U16& dg, U16& db, U16& da);                              \
@@ -136,50 +182,72 @@ SI D join(S lo, S hi) {
     return v;
 }
 
+// TODO: do we need platform-specific intrinsics for any of these?
+SI F if_then_else(I32 c, F t, F e) {
+    return bit_cast<F>( (bit_cast<I32>(t) & c) | (bit_cast<I32>(e) & ~c) );
+}
+SI F max(F x, F y) { return if_then_else(x < y, y, x); }
+SI F min(F x, F y) { return if_then_else(x < y, x, y); }
+
+SI F mad(F f, F m, F a) { return f*m+a; }
+SI U32 trunc_(F x) { return (U32)cast<I32>(x); }
+
 // ~~~~~~ Basic / misc. stages ~~~~~~ //
 
-STAGE(uniform_color, const SkJumper_UniformColorCtx* c) {
+STAGE_GG(seed_shader, const float* iota) {
+    x = cast<F>(I32(dx)) + unaligned_load<F>(iota);
+    y = cast<F>(I32(dy)) + 0.5f;
+}
+
+STAGE_GG(matrix_2x3, const float* m) {
+    auto X = mad(x,m[0], mad(y,m[2], m[4])),
+         Y = mad(x,m[1], mad(y,m[3], m[5]));
+    x = X;
+    y = Y;
+}
+
+STAGE_PP(uniform_color, const SkJumper_UniformColorCtx* c) {
     r = c->rgba[0];
     g = c->rgba[1];
     b = c->rgba[2];
     a = c->rgba[3];
 }
-STAGE(black_color, Ctx::None) { r = g = b =   0; a = 255; }
-STAGE(white_color, Ctx::None) { r = g = b = 255; a = 255; }
+STAGE_PP(black_color, Ctx::None) { r = g = b =   0; a = 255; }
+STAGE_PP(white_color, Ctx::None) { r = g = b = 255; a = 255; }
 
-STAGE(set_rgb, const float rgb[3]) {
+STAGE_PP(set_rgb, const float rgb[3]) {
     r = from_float(rgb[0]);
     g = from_float(rgb[1]);
     b = from_float(rgb[2]);
 }
 
-STAGE(premul, Ctx::None) {
+STAGE_PP(premul, Ctx::None) {
     r = div255(r * a);
     g = div255(g * a);
     b = div255(b * a);
 }
 
-STAGE(swap_rb, Ctx::None) {
+STAGE_PP(swap_rb, Ctx::None) {
     auto tmp = r;
     r = b;
     b = tmp;
 }
 
-STAGE(move_src_dst, Ctx::None) {
+STAGE_PP(move_src_dst, Ctx::None) {
     dr = r;
     dg = g;
     db = b;
     da = a;
 }
 
-STAGE(move_dst_src, Ctx::None) {
+STAGE_PP(move_dst_src, Ctx::None) {
     r = dr;
     g = dg;
     b = db;
     a = da;
 }
 
-STAGE(invert, Ctx::None) {
+STAGE_PP(invert, Ctx::None) {
     r = inv(r);
     g = inv(g);
     b = inv(b);
@@ -191,7 +259,7 @@ STAGE(invert, Ctx::None) {
 // The same logic applied to all 4 channels.
 #define BLEND_MODE(name)                                 \
     SI U16 name##_channel(U16 s, U16 d, U16 sa, U16 da); \
-    STAGE(name, Ctx::None) {                             \
+    STAGE_PP(name, Ctx::None) {                          \
         r = name##_channel(r,dr,a,da);                   \
         g = name##_channel(g,dg,a,da);                   \
         b = name##_channel(b,db,a,da);                   \
@@ -218,7 +286,7 @@ STAGE(invert, Ctx::None) {
 // The same logic applied to color, and srcover for alpha.
 #define BLEND_MODE(name)                                 \
     SI U16 name##_channel(U16 s, U16 d, U16 sa, U16 da); \
-    STAGE(name, Ctx::None) {                             \
+    STAGE_PP(name, Ctx::None) {                          \
         r = name##_channel(r,dr,a,da);                   \
         g = name##_channel(g,dg,a,da);                   \
         b = name##_channel(b,db,a,da);                   \
@@ -246,6 +314,19 @@ STAGE(invert, Ctx::None) {
 template <typename T>
 SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, size_t dx, size_t dy) {
     return (T*)ctx->pixels + dy*ctx->stride + dx;
+}
+
+template <typename T>
+SI U32 ix_and_ptr(T** ptr, const SkJumper_GatherCtx* ctx, F x, F y) {
+    auto clamp = [](F v, F limit) {
+        limit = bit_cast<F>( bit_cast<U32>(limit) - 1 );  // Exclusive -> inclusive.
+        return min(max(0, v), limit);
+    };
+    x = clamp(x, ctx->width);
+    y = clamp(y, ctx->height);
+
+    *ptr = (const T*)ctx->pixels;
+    return trunc_(y)*ctx->stride + trunc_(x);
 }
 
 template <typename V, typename T>
@@ -297,7 +378,47 @@ SI void store(T* ptr, size_t tail, V v) {
     }
 }
 
+template <typename V, typename T>
+SI V gather(const T* ptr, U32 ix) {
+#if defined(__AVX2__)
+    return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],
+              ptr[ix[ 4]], ptr[ix[ 5]], ptr[ix[ 6]], ptr[ix[ 7]],
+              ptr[ix[ 8]], ptr[ix[ 9]], ptr[ix[10]], ptr[ix[11]],
+              ptr[ix[12]], ptr[ix[13]], ptr[ix[14]], ptr[ix[15]], };
+#else
+    return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],
+              ptr[ix[ 4]], ptr[ix[ 5]], ptr[ix[ 6]], ptr[ix[ 7]], };
+#endif
+}
+// TODO: AVX2 gather instructions where possible
+
+
 // ~~~~~~ 32-bit memory loads and stores ~~~~~~ //
+
+SI void from_8888(U32 rgba, U16* r, U16* g, U16* b, U16* a) {
+#if 1 && defined(__AVX2__)
+    // Swap the middle 128-bit lanes to make _mm256_packus_epi32() in cast_U16() work out nicely.
+    __m256i _01,_23;
+    split(rgba, &_01, &_23);
+    __m256i _02 = _mm256_permute2x128_si256(_01,_23, 0x20),
+            _13 = _mm256_permute2x128_si256(_01,_23, 0x31);
+    rgba = join<U32>(_02, _13);
+
+    auto cast_U16 = [](U32 v) -> U16 {
+        __m256i _02,_13;
+        split(v, &_02,&_13);
+        return _mm256_packus_epi32(_02,_13);
+    };
+#else
+    auto cast_U16 = [](U32 v) -> U16 {
+        return cast<U16>(v);
+    };
+#endif
+    *r = cast_U16(rgba & 65535) & 255;
+    *g = cast_U16(rgba & 65535) >>  8;
+    *b = cast_U16(rgba >>   16) & 255;
+    *a = cast_U16(rgba >>   16) >>  8;
+}
 
 SI void load_8888(const uint32_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
 #if 1 && defined(__ARM_NEON)
@@ -316,32 +437,8 @@ SI void load_8888(const uint32_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16*
     *g = cast<U16>(rgba.val[1]);
     *b = cast<U16>(rgba.val[2]);
     *a = cast<U16>(rgba.val[3]);
-#elif 1 && defined(__AVX2__)
-    // Load normally.
-    U32 rgba = load<U32>(ptr, tail);
-
-    // Swap the middle 128-bit lanes to make _mm256_packus_epi32() in cast_U16() work out nicely.
-    __m256i _01,_23;
-    split(rgba, &_01, &_23);
-    __m256i _02 = _mm256_permute2x128_si256(_01,_23, 0x20),
-            _13 = _mm256_permute2x128_si256(_01,_23, 0x31);
-    rgba = join<U32>(_02, _13);
-
-    auto cast_U16 = [](U32 v) -> U16 {
-        __m256i _02,_13;
-        split(v, &_02,&_13);
-        return _mm256_packus_epi32(_02,_13);
-    };
-    *r = cast_U16(rgba & 65535) & 255;
-    *g = cast_U16(rgba & 65535) >>  8;
-    *b = cast_U16(rgba >>   16) & 255;
-    *a = cast_U16(rgba >>   16) >>  8;
 #else
-    U32 rgba = load<U32>(ptr, tail);
-    *r = cast<U16>(rgba & 65535) & 255;
-    *g = cast<U16>(rgba & 65535) >>  8;
-    *b = cast<U16>(rgba >>   16) & 255;
-    *a = cast<U16>(rgba >>   16) >>  8;
+    from_8888(load<U32>(ptr, tail), r,g,b,a);
 #endif
 }
 SI void store_8888(uint32_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
@@ -368,24 +465,30 @@ SI void store_8888(uint32_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
 #endif
 }
 
-STAGE(load_8888, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(load_8888, const SkJumper_MemoryCtx* ctx) {
     load_8888(ptr_at_xy<const uint32_t>(ctx, dx,dy), tail, &r,&g,&b,&a);
 }
-STAGE(load_8888_dst, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(load_8888_dst, const SkJumper_MemoryCtx* ctx) {
     load_8888(ptr_at_xy<const uint32_t>(ctx, dx,dy), tail, &dr,&dg,&db,&da);
 }
-STAGE(store_8888, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(store_8888, const SkJumper_MemoryCtx* ctx) {
     store_8888(ptr_at_xy<uint32_t>(ctx, dx,dy), tail, r,g,b,a);
 }
 
-STAGE(load_bgra, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(load_bgra, const SkJumper_MemoryCtx* ctx) {
     load_8888(ptr_at_xy<const uint32_t>(ctx, dx,dy), tail, &b,&g,&r,&a);
 }
-STAGE(load_bgra_dst, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(load_bgra_dst, const SkJumper_MemoryCtx* ctx) {
     load_8888(ptr_at_xy<const uint32_t>(ctx, dx,dy), tail, &db,&dg,&dr,&da);
 }
-STAGE(store_bgra, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(store_bgra, const SkJumper_MemoryCtx* ctx) {
     store_8888(ptr_at_xy<uint32_t>(ctx, dx,dy), tail, b,g,r,a);
+}
+
+STAGE_GP(gather_8888, const SkJumper_GatherCtx* ctx) {
+    const uint32_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, x,y);
+    from_8888(gather<U32>(ptr, ix), &r, &g, &b, &a);
 }
 
 // ~~~~~~ 16-bit memory loads and stores ~~~~~~ //
@@ -413,15 +516,15 @@ SI void store_565(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b) {
                    | B <<  0);
 }
 
-STAGE(load_565, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(load_565, const SkJumper_MemoryCtx* ctx) {
     load_565(ptr_at_xy<const uint16_t>(ctx, dx,dy), tail, &r,&g,&b);
     a = 255;
 }
-STAGE(load_565_dst, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(load_565_dst, const SkJumper_MemoryCtx* ctx) {
     load_565(ptr_at_xy<const uint16_t>(ctx, dx,dy), tail, &dr,&dg,&db);
     da = 255;
 }
-STAGE(store_565, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(store_565, const SkJumper_MemoryCtx* ctx) {
     store_565(ptr_at_xy<uint16_t>(ctx, dx,dy), tail, r,g,b);
 }
 
@@ -434,41 +537,41 @@ SI void store_8(uint8_t* ptr, size_t tail, U16 v) {
     store(ptr, tail, cast<U8>(v));
 }
 
-STAGE(load_a8, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(load_a8, const SkJumper_MemoryCtx* ctx) {
     r = g = b = 0;
     a = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
 }
-STAGE(load_a8_dst, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(load_a8_dst, const SkJumper_MemoryCtx* ctx) {
     dr = dg = db = 0;
     da = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
 }
-STAGE(store_a8, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(store_a8, const SkJumper_MemoryCtx* ctx) {
     store_8(ptr_at_xy<uint8_t>(ctx, dx,dy), tail, a);
 }
 
-STAGE(load_g8, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(load_g8, const SkJumper_MemoryCtx* ctx) {
     r = g = b = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
     a = 255;
 }
-STAGE(load_g8_dst, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(load_g8_dst, const SkJumper_MemoryCtx* ctx) {
     dr = dg = db = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
     da = 255;
 }
-STAGE(luminance_to_alpha, Ctx::None) {
+STAGE_PP(luminance_to_alpha, Ctx::None) {
     a = (r*54 + g*183 + b*19)/256;  // 0.2126, 0.7152, 0.0722 with 256 denominator.
     r = g = b = 0;
 }
 
 // ~~~~~~ Coverage scales / lerps ~~~~~~ //
 
-STAGE(scale_1_float, const float* f) {
+STAGE_PP(scale_1_float, const float* f) {
     U16 c = from_float(*f);
     r = div255( r * c );
     g = div255( g * c );
     b = div255( b * c );
     a = div255( a * c );
 }
-STAGE(lerp_1_float, const float* f) {
+STAGE_PP(lerp_1_float, const float* f) {
     U16 c = from_float(*f);
     r = lerp(dr, r, c);
     g = lerp(dg, g, c);
@@ -476,14 +579,14 @@ STAGE(lerp_1_float, const float* f) {
     a = lerp(da, a, c);
 }
 
-STAGE(scale_u8, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(scale_u8, const SkJumper_MemoryCtx* ctx) {
     U16 c = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
     r = div255( r * c );
     g = div255( g * c );
     b = div255( b * c );
     a = div255( a * c );
 }
-STAGE(lerp_u8, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(lerp_u8, const SkJumper_MemoryCtx* ctx) {
     U16 c = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
     r = lerp(dr, r, c);
     g = lerp(dg, g, c);
@@ -496,7 +599,7 @@ SI U16 alpha_coverage_from_rgb_coverage(U16 a, U16 da, U16 cr, U16 cg, U16 cb) {
     return if_then_else(a < da, min(cr,cg,cb)
                               , max(cr,cg,cb));
 }
-STAGE(scale_565, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(scale_565, const SkJumper_MemoryCtx* ctx) {
     U16 cr,cg,cb;
     load_565(ptr_at_xy<const uint16_t>(ctx, dx,dy), tail, &cr,&cg,&cb);
     U16 ca = alpha_coverage_from_rgb_coverage(a,da, cr,cg,cb);
@@ -506,7 +609,7 @@ STAGE(scale_565, const SkJumper_MemoryCtx* ctx) {
     b = div255( b * cb );
     a = div255( a * ca );
 }
-STAGE(lerp_565, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(lerp_565, const SkJumper_MemoryCtx* ctx) {
     U16 cr,cg,cb;
     load_565(ptr_at_xy<const uint16_t>(ctx, dx,dy), tail, &cr,&cg,&cb);
     U16 ca = alpha_coverage_from_rgb_coverage(a,da, cr,cg,cb);
@@ -519,7 +622,7 @@ STAGE(lerp_565, const SkJumper_MemoryCtx* ctx) {
 
 // ~~~~~~ Compound stages ~~~~~~ //
 
-STAGE(srcover_rgba_8888, const SkJumper_MemoryCtx* ctx) {
+STAGE_PP(srcover_rgba_8888, const SkJumper_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
 
     load_8888(ptr, tail, &dr,&dg,&db,&da);

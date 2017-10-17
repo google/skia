@@ -113,7 +113,8 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**);
     M(difference)        \
     M(exclusion)         \
     M(hardlight)         \
-    M(overlay)
+    M(overlay)           \
+    M(seed_shader) M(matrix_2x3) M(gather_8888)
 
 extern "C" {
 
