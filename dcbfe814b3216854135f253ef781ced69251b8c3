@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "979315e2_52addc12",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-17T21:55:24Z",
+      "side": 1,
+      "message": "ymmv, but I think it might be more readable on two lines,\n\nreturn SkASSERT(SkTFitsIn\u003cD\u003e(s)),\n    static_cast\u003cD\u003e(s);",
+      "range": {
+        "startLine": 210,
+        "startChar": 37,
+        "endLine": 210,
+        "endChar": 38
+      },
+      "revId": "dcbfe814b3216854135f253ef781ced69251b8c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
