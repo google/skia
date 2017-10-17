@@ -55,7 +55,7 @@
     #define JUMPER_HAS_NEON_LOWP
 #endif
 
-static const int SkJumper_kMaxStride = 8;
+static const int SkJumper_kMaxStride = 16;
 
 struct SkJumper_MemoryCtx {
     void* pixels;
