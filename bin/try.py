@@ -17,10 +17,15 @@ import subprocess
 import sys
 
 
-BUCKET = 'skia.primary'
+BUCKET_SKIA_PRIMARY = 'skia.primary'
 CHECKOUT_ROOT = os.path.realpath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), os.pardir))
-JOBS_JSON = os.path.join(CHECKOUT_ROOT, 'infra', 'bots', 'jobs.json')
+INFRA_BOTS = os.path.join(CHECKOUT_ROOT, 'infra', 'bots')
+JOBS_JSON = os.path.join(INFRA_BOTS, 'jobs.json')
+
+sys.path.insert(0, INFRA_BOTS)
+
+import update_meta_config
 
 
 def main():
@@ -33,19 +38,31 @@ def main():
                       help='Job name or regular expression to match job names.')
   args = parser.parse_args()
 
-  # Load and filter the list of jobs.
+  # Load and filter the list of Skia jobs.
+  jobs = []
   with open(JOBS_JSON) as f:
-    jobs = json.load(f)
+    jobs.append((BUCKET_SKIA_PRIMARY, json.load(f)))
+  jobs.extend(update_meta_config.CQ_INCLUDE_CHROMIUM_TRYBOTS)
   if args.job:
-    jobs = [j for j in jobs if re.search(args.job, j)]
+    new_jobs = []
+    for bucket, job_list in jobs:
+      filtered = [j for j in job_list if re.search(args.job, j)]
+      if len(filtered) > 0:
+        new_jobs.append((bucket, filtered))
+    jobs = new_jobs
 
   # Display the list of jobs.
   if len(jobs) == 0:
     print 'Found no jobs matching "%s"' % repr(args.job)
     sys.exit(1)
-  print 'Found %d jobs:' % len(jobs)
-  for j in jobs:
-    print '  %s' % j
+  count = 0
+  for bucket, job_list in jobs:
+    count += len(job_list)
+  print 'Found %d jobs:' % count
+  for bucket, job_list in jobs:
+    print '  %s:' % bucket
+    for j in job_list:
+      print '    %s' % j
   if args.list:
     return
 
@@ -55,15 +72,16 @@ def main():
     sys.exit(1)
 
   # Trigger the try jobs.
-  cmd = ['git', 'cl', 'try', '-B', BUCKET]
-  for j in jobs:
-    cmd.extend(['-b', j])
-  try:
-    subprocess.check_call(cmd)
-  except subprocess.CalledProcessError:
-    # Output from the command will fall through, so just exit here rather than
-    # printing a stack trace.
-    sys.exit(1)
+  for bucket, job_list in jobs:
+    cmd = ['git', 'cl', 'try', '-B', bucket]
+    for j in job_list:
+      cmd.extend(['-b', j])
+    try:
+      subprocess.check_call(cmd)
+    except subprocess.CalledProcessError:
+      # Output from the command will fall through, so just exit here rather than
+      # printing a stack trace.
+      sys.exit(1)
 
 
 if __name__ == '__main__':
