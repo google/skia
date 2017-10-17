@@ -31,7 +31,8 @@ def RunSteps(api):
         'python', 'tools/calmbench/calmbench.py', 'modified',
         '--ninjadir', api.vars.skia_out.join("Release"),
         '--extraarg', extra_arg,
-        '--writedir', api.vars.swarming_out_dir
+        '--writedir', api.vars.swarming_out_dir,
+        '--concise'
     ]
     api.run(api.step, 'Run calmbench', cmd=command)
   api.run.check_failure()

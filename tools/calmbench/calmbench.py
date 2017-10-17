@@ -101,9 +101,12 @@ def parse_args():
       help=skip_base_help)
   parser.add_argument('--noinit', dest='noinit', action="store_true",
       help=noinit_help)
+  parser.add_argument('--concise', dest='concise', action="store_true",
+      help="If set, no verbose thread info will be printed.")
   parser.set_defaults(no_compile=False);
   parser.set_defaults(skipbase=False);
   parser.set_defaults(noinit=False);
+  parser.set_defaults(concise=False);
 
   args = parser.parse_args()
   if not args.basearg:
@@ -185,6 +188,9 @@ def main():
     str(args.threads if args.config in ["8888", "565"] else 1),
     "true" if args.noinit else "false"
   ]
+
+  if args.concise:
+    command.append("--concise")
 
   p = subprocess.Popen(command, cwd=args.skiadir)
   try:

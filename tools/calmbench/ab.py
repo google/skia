@@ -74,6 +74,10 @@ def parse_args():
   parser.add_argument('noinit', type=str, help=("whether to skip running B"
                                                 " ('true' or 'false')"))
 
+  parser.add_argument('--concise', dest='concise', action="store_true",
+      help="If set, no verbose thread info will be printed.")
+  parser.set_defaults(concise=False)
+
   args = parser.parse_args()
   args.skip_b = args.skip_b == "true"
   args.noinit = args.noinit == "true"
@@ -112,7 +116,8 @@ def append_times_from_file(args, name, filename):
 
 class ThreadRunner:
   """Simplest and stupidiest threaded executer."""
-  def __init__(self):
+  def __init__(self, args):
+    self.concise = args.concise
     self.threads = []
 
   def add(self, args, fn):
@@ -138,12 +143,16 @@ class ThreadRunner:
         time.sleep(0.5)
         i += 1
 
-    ts = Thread(target = spin);
-    ts.start()
+    if not self.concise:
+      ts = Thread(target = spin);
+      ts.start()
+
     for t in self.threads:
         t.join()
     self.threads = []
-    ts.join()
+
+    if not self.concise:
+      ts.join()
 
 
 def split_arg(arg):
@@ -183,7 +192,7 @@ def run(args, threadRunner, name, nano, arg, i):
 
 
 def init_run(args):
-  threadRunner = ThreadRunner()
+  threadRunner = ThreadRunner(args)
   for i in range(1, max(args.repeat, args.threads / 2) + 1):
     run(args, threadRunner, args.a, args.nano_a, args.arg_a, i)
     run(args, threadRunner, args.b, args.nano_b, args.arg_b, i)
@@ -261,7 +270,7 @@ def test():
       break
 
     print "Number of suspects at iteration %d: %d" % (it, len(suspects))
-    threadRunner = ThreadRunner()
+    threadRunner = ThreadRunner(args)
     for j in range(1, max(1, args.threads / 2) + 1):
       run(args, threadRunner, args.a, args.nano_a,
           args.arg_a + suspects_arg(suspects), -j)

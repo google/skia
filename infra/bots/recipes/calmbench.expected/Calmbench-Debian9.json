@@ -210,7 +210,8 @@
       "--extraarg",
       "--svgs [START_DIR]/svg --skps [START_DIR]/skp",
       "--writedir",
-      "[CUSTOM_[SWARM_OUT_DIR]]"
+      "[CUSTOM_[SWARM_OUT_DIR]]",
+      "--concise"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
