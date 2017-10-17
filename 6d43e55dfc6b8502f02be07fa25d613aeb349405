@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "299e7ba6_e063347c",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 10
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-17T16:59:41Z",
+      "side": 1,
+      "message": "Nit: personally I\u0027d prefer \"Shard16\" as it\u0027s generally nicer to have common elements at the front.",
+      "range": {
+        "startLine": 329,
+        "startChar": 48,
+        "endLine": 329,
+        "endChar": 56
+      },
+      "revId": "6d43e55dfc6b8502f02be07fa25d613aeb349405",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3052617d_11bea174",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-17T16:59:41Z",
+      "side": 1,
+      "message": "Nit: IMO we should raise an exception if we get an invalid task name.",
+      "range": {
+        "startLine": 236,
+        "startChar": 0,
+        "endLine": 236,
+        "endChar": 23
+      },
+      "revId": "6d43e55dfc6b8502f02be07fa25d613aeb349405",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3730336_bcf12d1e",
+        "filename": "infra/bots/recipes/upload_coverage_results.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-17T16:59:41Z",
+      "side": 1,
+      "message": "Why not api.file.glob_paths(...)?",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 45
+      },
+      "revId": "6d43e55dfc6b8502f02be07fa25d613aeb349405",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cd22e80_d8aa638b",
+        "filename": "infra/bots/recipes/upload_coverage_results.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-17T16:59:41Z",
+      "side": 1,
+      "message": "What\u0027s Meta used for?",
+      "range": {
+        "startLine": 225,
+        "startChar": 63,
+        "endLine": 225,
+        "endChar": 67
+      },
+      "revId": "6d43e55dfc6b8502f02be07fa25d613aeb349405",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
