@@ -11,9 +11,6 @@
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 
-#include "SkCanvas.h"
-#include "SkSurface.h"
-
 static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t expectedValue,
                        uint32_t* actualValue, int* failX, int* failY) {
     int w = rect.width();
@@ -205,63 +202,4 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
                failX, failY);
     }
 }
-
-// From crbug.com/768134
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FullScreenClearWithLayers, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
-
-    const SkImageInfo ii = SkImageInfo::Make(400, 77, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-
-    sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii);
-    SkCanvas* canvas = surf->getCanvas();
-
-    SkPaint paints[2];
-    paints[0].setColor(SK_ColorGREEN);
-    paints[1].setColor(SK_ColorGRAY);
-
-    static const int kLeftX = 158;
-    static const int kMidX = 258;
-    static const int kRightX = 383;
-    static const int kTopY = 26;
-    static const int kBotY = 51;
-
-    const SkRect rects[2] = {
-        { kLeftX, kTopY, kMidX, kBotY },
-        { kMidX, kTopY, kRightX, kBotY },
-    };
-
-    for (int i = 0; i < 2; ++i) {
-        // the bounds parameter is required to cause a full screen clear
-        canvas->saveLayer(&rects[i], nullptr);
-            canvas->drawRect(rects[i], paints[i]);
-        canvas->restore();
-    }
-
-    SkBitmap bm;
-    bm.allocPixels(ii, 0);
-
-    SkAssertResult(surf->readPixels(bm, 0, 0));
-
-    bool isCorrect = true;
-    for (int y = kTopY; isCorrect && y < kBotY; ++y) {
-        const uint32_t* sl = bm.getAddr32(0, y);
-
-        for (int x = kLeftX; x < kMidX; ++x) {
-            if (SK_ColorGREEN != sl[x]) {
-                isCorrect = false;
-                break;
-            }
-        }
-
-        for (int x = kMidX; x < kRightX; ++x) {
-            if (SK_ColorGRAY != sl[x]) {
-                isCorrect = false;
-                break;
-            }
-        }
-    }
-
-    REPORTER_ASSERT(reporter, isCorrect);
-}
-
 #endif
