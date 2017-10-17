@@ -308,9 +308,8 @@ config("warnings") {
         "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
       ]
 
-      if ((target_cpu == "x86" && is_android) ||
-          (target_cpu == "arm" && is_ios)) {
-        # Clang seems to think new/malloc will only be 4-byte aligned on x86 Android and 32-bit iOS.
+      if (target_cpu == "arm" && is_ios) {
+        # Clang seems to think new/malloc will only be 4-byte aligned on 32-bit iOS.
         # We're pretty sure it's actually 8-byte alignment.
         cflags += [ "-Wno-over-aligned" ]
       }
