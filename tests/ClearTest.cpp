@@ -43,8 +43,7 @@ sk_sp<GrRenderTargetContext> newRTC(GrContext* context, int w, int h) {
                                                     kRGBA_8888_GrPixelConfig, nullptr);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+static void test_clears(GrContext* context, skiatest::Reporter* reporter) {
     static const int kW = 10;
     static const int kH = 10;
 
@@ -200,6 +199,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
         !check_rect(rtContext.get(), outerBottomEdge, kColor1, &actualValue, &failX, &failY)) {
         ERRORF(reporter, "Expected 0x%08x but got 0x%08x at (%d, %d).", kColor1, actualValue,
                failX, failY);
+    }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
+    test_clears(ctxInfo.grContext(), reporter);
+    if (ctxInfo.backend() == kOpenGL_GrBackend) {
+        GrContextOptions options(ctxInfo.options());
+        options.fUseDrawInsteadOfGLClear = GrContextOptions::Enable::kYes;
+        sk_gpu_test::GrContextFactory workaroundFactory(options);
+        auto ctx = workaroundFactory.get(ctxInfo.type());
+        test_clears(ctx, reporter);
     }
 }
 #endif
