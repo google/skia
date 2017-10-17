@@ -22,6 +22,30 @@
       "revId": "0e986e5a6cd99240b772e07645b41750be345f7d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23776a6e_3cea5de4",
+        "filename": "tools/gpucts/gm_runner.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-10-17T15:23:38Z",
+      "side": 1,
+      "message": "comments added.\n\nYou now just call GetGMFactories() to get the enumeration.",
+      "parentUuid": "c69563e3_75e44d60",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 0
+      },
+      "revId": "0e986e5a6cd99240b772e07645b41750be345f7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
