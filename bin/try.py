@@ -15,17 +15,39 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 
 
 BUCKET_SKIA_PRIMARY = 'skia.primary'
+BUCKET_SKIA_INTERNAL = 'skia.internal'
 CHECKOUT_ROOT = os.path.realpath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), os.pardir))
 INFRA_BOTS = os.path.join(CHECKOUT_ROOT, 'infra', 'bots')
 JOBS_JSON = os.path.join(INFRA_BOTS, 'jobs.json')
+REPO_INTERNAL = 'https://skia.googlesource.com/internal_test.git'
+TMP_DIR = os.path.join(tempfile.gettempdir(), 'sktry')
 
 sys.path.insert(0, INFRA_BOTS)
 
 import update_meta_config
+import utils
+
+
+def get_jobs(repo):
+  """Obtain the list of jobs from the given repo."""
+  # Maintain a copy of the repo in the temp dir.
+  if not os.path.isdir(TMP_DIR):
+    os.mkdir(TMP_DIR)
+  with utils.chdir(TMP_DIR):
+    dirname = repo.split('/')[-1]
+    if not os.path.isdir(dirname):
+      subprocess.check_call([
+          utils.GIT, 'clone', '--mirror', repo, dirname])
+    with utils.chdir(dirname):
+      subprocess.check_call([utils.GIT, 'remote', 'update'])
+      jobs = json.loads(subprocess.check_output([
+          utils.GIT, 'show', 'master:infra/bots/jobs.json']))
+      return (BUCKET_SKIA_INTERNAL, jobs)
 
 
 def main():
@@ -34,14 +56,19 @@ def main():
   parser = argparse.ArgumentParser(description=d)
   parser.add_argument('--list', action='store_true', default=False,
                       help='Just list the jobs; do not trigger anything.')
+  parser.add_argument('--internal', action='store_true', default=False,
+                      help=('If set, include internal jobs. You must have '
+                            'permission to view internal repos.'))
   parser.add_argument('job', nargs='?', default=None,
                       help='Job name or regular expression to match job names.')
   args = parser.parse_args()
 
-  # Load and filter the list of Skia jobs.
+  # Load and filter the list of jobs.
   jobs = []
   with open(JOBS_JSON) as f:
     jobs.append((BUCKET_SKIA_PRIMARY, json.load(f)))
+  if args.internal:
+    jobs.append(get_jobs(REPO_INTERNAL))
   jobs.extend(update_meta_config.CQ_INCLUDE_CHROMIUM_TRYBOTS)
   if args.job:
     new_jobs = []
