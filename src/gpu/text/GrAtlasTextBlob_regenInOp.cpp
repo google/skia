@@ -112,7 +112,7 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
     if (regenTexCoords) {
         uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
         textureCoords[0] = u1;
-        textureCoords[1] = v1;
+        textureCoords[1] = v0;
     }
     vertex += vertexStride;
 
@@ -131,7 +131,7 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
     if (regenTexCoords) {
         uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
         textureCoords[0] = u1;
-        textureCoords[1] = v0;
+        textureCoords[1] = v1;
     }
 }
 

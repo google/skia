@@ -66,7 +66,7 @@ public:
         }
     }
 
-    static void SetMappedRectFan(const SkMatrix& mx, const SkRect& rect, SkPoint quad[4]) {
+    static void SetMappedRectTriStrip(const SkMatrix& mx, const SkRect& rect, SkPoint quad[4]) {
         SkMatrix::TypeMask tm = mx.getType();
         SkScalar l = rect.fLeft;
         SkScalar t = rect.fTop;
@@ -88,12 +88,9 @@ public:
                 r = sx * r + tx;
                 b = sy * b + ty;
             }
-            quad[0].set(l, t);
-            quad[1].set(l, b);
-            quad[2].set(r, b);
-            quad[3].set(r, t);
+            quad[0].setRectTriStrip(l, t, r, b, sizeof(SkPoint));
         } else {
-            quad[0].setRectFan(l, t, r, b);
+            quad[0].setRectTriStrip(l, t, r, b, sizeof(SkPoint));
             mx.mapPoints(quad, quad, 4);
         }
     }
