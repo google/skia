@@ -447,4 +447,95 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo)
         }
     }
 }
+
+static sk_sp<SkSurface> create_surf(GrContext* context, int width, int height) {
+    const SkImageInfo ii = SkImageInfo::Make(width, height,
+                                             kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii);
+    surf->flush();
+    return surf;
+}
+
+static sk_sp<SkImage> upload(const sk_sp<SkSurface>& surf, SkColor color) {
+    const SkImageInfo smII = SkImageInfo::Make(16, 16, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    SkBitmap bm;
+    bm.allocPixels(smII);
+    bm.eraseColor(color);
+
+    surf->getCanvas()->writePixels(bm, 0, 0);
+
+    return surf->makeImageSnapshot();
+}
+
+// This is tests whether the first writePixels is completed before the
+// second writePixels takes effect (i.e., that writePixels correctly flushes
+// in between uses of the shared backing resource).
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    static const int kFullSize = 62;
+    static const int kHalfSize = 31;
+
+    static const uint32_t kLeftColor = 0xFF222222;
+    static const uint32_t kRightColor = 0xFFAAAAAA;
+
+    const SkImageInfo fullII = SkImageInfo::Make(kFullSize, kFullSize,
+                                                 kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    const SkImageInfo halfII = SkImageInfo::Make(kHalfSize, kFullSize,
+                                                 kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    sk_sp<SkSurface> dest = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, fullII);
+
+    {
+        // Seed the resource cached with a scratch texture that will be
+        // reused by writeSurfacePixels
+        GrSurfaceDesc desc;
+        desc.fFlags = kNone_GrSurfaceFlags;
+        desc.fWidth = 32;
+        desc.fHeight = 64;
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
+
+        sk_sp<GrTextureProxy> temp = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc,
+                                                                  SkBackingFit::kApprox,
+                                                                  SkBudgeted::kYes);
+        temp->instantiate(context->resourceProvider());
+    }
+
+    // Create the surfaces and flush them to ensure there is no lingering pendingIO
+    sk_sp<SkSurface> leftSurf = create_surf(context, kHalfSize, kFullSize);
+    sk_sp<SkSurface> rightSurf = create_surf(context, kHalfSize, kFullSize);
+
+    sk_sp<SkImage> leftImg = upload(std::move(leftSurf), kLeftColor);
+    dest->getCanvas()->drawImage(std::move(leftImg), 0, 0);
+
+    sk_sp<SkImage> rightImg = upload(std::move(rightSurf), kRightColor);
+    dest->getCanvas()->drawImage(std::move(rightImg), kHalfSize, 0);
+
+    SkBitmap bm;
+    bm.allocPixels(fullII);
+    SkAssertResult(dest->readPixels(bm, 0, 0));
+
+    bool isCorrect = true;
+    for (int y = 0; isCorrect && y < 16; ++y) {
+        const uint32_t* sl = bm.getAddr32(0, y);
+
+        for (int x = 0; x < 16; ++x) {
+            if (kLeftColor != sl[x]) {
+                isCorrect = false;
+                break;
+            }
+        }
+        for (int x = kHalfSize; x < kHalfSize+16; ++x) {
+            if (kRightColor != sl[x]) {
+                isCorrect = false;
+                break;
+            }
+        }
+    }
+
+    REPORTER_ASSERT(reporter, isCorrect);
+}
+
+
 #endif
