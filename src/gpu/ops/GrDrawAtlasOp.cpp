@@ -57,9 +57,9 @@ GrDrawAtlasOp::GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor color,
     int paintAlpha = GrColorUnpackA(installedGeo.fColor);
     for (int spriteIndex = 0; spriteIndex < spriteCount; ++spriteIndex) {
         // Transform rect
-        SkPoint strip[4];
+        SkPoint quad[4];
         const SkRect& currRect = rects[spriteIndex];
-        xforms[spriteIndex].toTriStrip(currRect.width(), currRect.height(), strip);
+        xforms[spriteIndex].toQuad(currRect.width(), currRect.height(), quad);
 
         // Copy colors if necessary
         if (colors) {
@@ -79,28 +79,28 @@ GrDrawAtlasOp::GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor color,
         }
 
         // Copy position and uv to verts
-        *(reinterpret_cast<SkPoint*>(currVertex)) = strip[0];
+        *(reinterpret_cast<SkPoint*>(currVertex)) = quad[0];
         *(reinterpret_cast<SkPoint*>(currVertex + texOffset)) =
                 SkPoint::Make(currRect.fLeft, currRect.fTop);
-        bounds.growToInclude(strip[0]);
+        bounds.growToInclude(quad[0]);
         currVertex += vertexStride;
 
-        *(reinterpret_cast<SkPoint*>(currVertex)) = strip[1];
-        *(reinterpret_cast<SkPoint*>(currVertex + texOffset)) =
-                SkPoint::Make(currRect.fLeft, currRect.fBottom);
-        bounds.growToInclude(strip[1]);
-        currVertex += vertexStride;
-
-        *(reinterpret_cast<SkPoint*>(currVertex)) = strip[2];
+        *(reinterpret_cast<SkPoint*>(currVertex)) = quad[1];
         *(reinterpret_cast<SkPoint*>(currVertex + texOffset)) =
                 SkPoint::Make(currRect.fRight, currRect.fTop);
-        bounds.growToInclude(strip[2]);
+        bounds.growToInclude(quad[1]);
         currVertex += vertexStride;
 
-        *(reinterpret_cast<SkPoint*>(currVertex)) = strip[3];
+        *(reinterpret_cast<SkPoint*>(currVertex)) = quad[2];
         *(reinterpret_cast<SkPoint*>(currVertex + texOffset)) =
                 SkPoint::Make(currRect.fRight, currRect.fBottom);
-        bounds.growToInclude(strip[3]);
+        bounds.growToInclude(quad[2]);
+        currVertex += vertexStride;
+
+        *(reinterpret_cast<SkPoint*>(currVertex)) = quad[3];
+        *(reinterpret_cast<SkPoint*>(currVertex + texOffset)) =
+                SkPoint::Make(currRect.fLeft, currRect.fBottom);
+        bounds.growToInclude(quad[3]);
         currVertex += vertexStride;
     }
 

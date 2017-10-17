@@ -92,7 +92,7 @@ private:
             return;
         }
         SkRect rect = this->rect();
-        pts[0].setRectTriStrip(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
+        pts[0].setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
         helper.recordDraw(target, this->gp(), this->makePipeline(target));
     }
 
@@ -267,8 +267,8 @@ private:
             return;
         }
         SkRect rect = this->rect();
-        verts[0].fPosition.setRectTriStrip(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
-                                           sizeof(Vertex));
+        verts[0].fPosition.setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
+                                      sizeof(Vertex));
         for (int v = 0; v < 4; ++v) {
             SkScalar pt3[3] = {verts[v].fPosition.x(), verts[v].fPosition.y(), 1.f};
             fKLM.mapHomogeneousPoints(verts[v].fKLM, pt3, 1);
@@ -481,8 +481,8 @@ private:
             return;
         }
         SkRect rect = this->rect();
-        verts[0].fPosition.setRectTriStrip(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
-                                           sizeof(Vertex));
+        verts[0].fPosition.setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
+                                      sizeof(Vertex));
         fDevToUV.apply<4, sizeof(Vertex), sizeof(SkPoint)>(verts);
         helper.recordDraw(target, this->gp(), this->makePipeline(target));
     }

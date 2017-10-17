@@ -96,7 +96,7 @@ private:
         QuadHelper helper;
         size_t vertexStride = gp->getVertexStride();
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.init(target, vertexStride, 1));
-        vertices->setRectTriStrip(0.f, 0.f, 1.f, 1.f, vertexStride);
+        vertices->setRectFan(0.f, 0.f, 1.f, 1.f, vertexStride);
         helper.recordDraw(target, gp.get(),
                           target->makePipeline(0, GrProcessorSet::MakeEmptySet(),
                                                target->detachAppliedClip()));

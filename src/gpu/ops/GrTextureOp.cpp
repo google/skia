@@ -344,89 +344,120 @@ private:
             SkDebugf("Could not allocate vertices\n");
             return;
         }
-        if (1 == fProxyCnt) {
-            SkASSERT(gp->getVertexStride() == sizeof(TextureGeometryProcessor::Vertex));
-            for (int i = 0; i < fDraws.count(); ++i) {
-                auto vertices = static_cast<TextureGeometryProcessor::Vertex*>(vdata);
-                GrTexture* texture = proxies[0]->priv().peekTexture();
-                float iw = 1.f / texture->width();
-                float ih = 1.f / texture->height();
-                float tl = iw * fDraws[i].fSrcRect.fLeft;
-                float tr = iw * fDraws[i].fSrcRect.fRight;
-                float tt = ih * fDraws[i].fSrcRect.fTop;
-                float tb = ih * fDraws[i].fSrcRect.fBottom;
-                if (proxies[0]->origin() == kBottomLeft_GrSurfaceOrigin) {
-                    tt = 1.f - tt;
-                    tb = 1.f - tb;
-                }
-                vertices[0 + 4 * i].fPosition = fDraws[i].fQuad.points()[0];
-                vertices[0 + 4 * i].fTextureCoords = {tl, tt};
-                vertices[0 + 4 * i].fColor = fDraws[i].fColor;
-                vertices[1 + 4 * i].fPosition = fDraws[i].fQuad.points()[1];
-                vertices[1 + 4 * i].fTextureCoords = {tl, tb};
-                vertices[1 + 4 * i].fColor = fDraws[i].fColor;
-                vertices[2 + 4 * i].fPosition = fDraws[i].fQuad.points()[2];
-                vertices[2 + 4 * i].fTextureCoords = {tr, tt};
-                vertices[2 + 4 * i].fColor = fDraws[i].fColor;
-                vertices[3 + 4 * i].fPosition = fDraws[i].fQuad.points()[3];
-                vertices[3 + 4 * i].fTextureCoords = {tr, tb};
-                vertices[3 + 4 * i].fColor = fDraws[i].fColor;
-            }
-        } else {
-            SkASSERT(gp->getVertexStride() == sizeof(TextureGeometryProcessor::MultiTextureVertex));
-            GrTexture* textures[kMaxTextures];
-            float iw[kMaxTextures];
-            float ih[kMaxTextures];
-            for (int t = 0; t < fProxyCnt; ++t) {
-                textures[t] = proxies[t]->priv().peekTexture();
-                iw[t] = 1.f / textures[t]->width();
-                ih[t] = 1.f / textures[t]->height();
-            }
-            for (int i = 0; i < fDraws.count(); ++i) {
-                int t = fDraws[i].fTextureIdx;
-                auto vertices = static_cast<TextureGeometryProcessor::MultiTextureVertex*>(vdata);
-                float tl = iw[t] * fDraws[i].fSrcRect.fLeft;
-                float tr = iw[t] * fDraws[i].fSrcRect.fRight;
-                float tt = ih[t] * fDraws[i].fSrcRect.fTop;
-                float tb = ih[t] * fDraws[i].fSrcRect.fBottom;
-                if (proxies[t]->origin() == kBottomLeft_GrSurfaceOrigin) {
-                    tt = 1.f - tt;
-                    tb = 1.f - tb;
-                }
-                vertices[0 + 4 * i].fPosition = fDraws[i].fQuad.points()[0];
-                vertices[0 + 4 * i].fTextureIdx = t;
-                vertices[0 + 4 * i].fTextureCoords = {tl, tt};
-                vertices[0 + 4 * i].fColor = fDraws[i].fColor;
-                vertices[1 + 4 * i].fPosition = fDraws[i].fQuad.points()[1];
-                vertices[1 + 4 * i].fTextureIdx = t;
-                vertices[1 + 4 * i].fTextureCoords = {tl, tb};
-                vertices[1 + 4 * i].fColor = fDraws[i].fColor;
-                vertices[2 + 4 * i].fPosition = fDraws[i].fQuad.points()[2];
-                vertices[2 + 4 * i].fTextureIdx = t;
-                vertices[2 + 4 * i].fTextureCoords = {tr, tt};
-                vertices[2 + 4 * i].fColor = fDraws[i].fColor;
-                vertices[3 + 4 * i].fPosition = fDraws[i].fQuad.points()[3];
-                vertices[3 + 4 * i].fTextureIdx = t;
-                vertices[3 + 4 * i].fTextureCoords = {tr, tb};
-                vertices[3 + 4 * i].fColor = fDraws[i].fColor;
-            }
-        }
-        GrPrimitiveType primitiveType =
-                fDraws.count() > 1 ? GrPrimitiveType::kTriangles : GrPrimitiveType::kTriangleStrip;
-        GrMesh mesh(primitiveType);
+        sk_sp<const GrBuffer> ibuffer;
         if (fDraws.count() > 1) {
-            sk_sp<const GrBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
+            ibuffer = target->resourceProvider()->refQuadIndexBuffer();
             if (!ibuffer) {
                 SkDebugf("Could not allocate quad indices\n");
                 return;
             }
+            if (1 == fProxyCnt) {
+                SkASSERT(gp->getVertexStride() == sizeof(TextureGeometryProcessor::Vertex));
+                for (int i = 0; i < fDraws.count(); ++i) {
+                    auto vertices = static_cast<TextureGeometryProcessor::Vertex*>(vdata);
+                    GrTexture* texture = proxies[0]->priv().peekTexture();
+                    float iw = 1.f / texture->width();
+                    float ih = 1.f / texture->height();
+                    float tl = iw * fDraws[i].fSrcRect.fLeft;
+                    float tr = iw * fDraws[i].fSrcRect.fRight;
+                    float tt = ih * fDraws[i].fSrcRect.fTop;
+                    float tb = ih * fDraws[i].fSrcRect.fBottom;
+                    if (proxies[0]->origin() == kBottomLeft_GrSurfaceOrigin) {
+                        tt = 1.f - tt;
+                        tb = 1.f - tb;
+                    }
+                    vertices[0 + 4 * i].fPosition = fDraws[i].fQuad.points()[0];
+                    vertices[0 + 4 * i].fTextureCoords = {tl, tt};
+                    vertices[0 + 4 * i].fColor = fDraws[i].fColor;
+                    vertices[1 + 4 * i].fPosition = fDraws[i].fQuad.points()[1];
+                    vertices[1 + 4 * i].fTextureCoords = {tl, tb};
+                    vertices[1 + 4 * i].fColor = fDraws[i].fColor;
+                    vertices[2 + 4 * i].fPosition = fDraws[i].fQuad.points()[2];
+                    vertices[2 + 4 * i].fTextureCoords = {tr, tb};
+                    vertices[2 + 4 * i].fColor = fDraws[i].fColor;
+                    vertices[3 + 4 * i].fPosition = fDraws[i].fQuad.points()[3];
+                    vertices[3 + 4 * i].fTextureCoords = {tr, tt};
+                    vertices[3 + 4 * i].fColor = fDraws[i].fColor;
+                }
+            } else {
+                SkASSERT(gp->getVertexStride() ==
+                         sizeof(TextureGeometryProcessor::MultiTextureVertex));
+                GrTexture* textures[kMaxTextures];
+                float iw[kMaxTextures];
+                float ih[kMaxTextures];
+                for (int t = 0; t < fProxyCnt; ++t) {
+                    textures[t] = proxies[t]->priv().peekTexture();
+                    iw[t] = 1.f / textures[t]->width();
+                    ih[t] = 1.f / textures[t]->height();
+                }
+                for (int i = 0; i < fDraws.count(); ++i) {
+                    int t = fDraws[i].fTextureIdx;
+                    auto vertices =
+                            static_cast<TextureGeometryProcessor::MultiTextureVertex*>(vdata);
+                    float tl = iw[t] * fDraws[i].fSrcRect.fLeft;
+                    float tr = iw[t] * fDraws[i].fSrcRect.fRight;
+                    float tt = ih[t] * fDraws[i].fSrcRect.fTop;
+                    float tb = ih[t] * fDraws[i].fSrcRect.fBottom;
+                    if (proxies[t]->origin() == kBottomLeft_GrSurfaceOrigin) {
+                        tt = 1.f - tt;
+                        tb = 1.f - tb;
+                    }
+                    vertices[0 + 4 * i].fPosition = fDraws[i].fQuad.points()[0];
+                    vertices[0 + 4 * i].fTextureIdx = t;
+                    vertices[0 + 4 * i].fTextureCoords = {tl, tt};
+                    vertices[0 + 4 * i].fColor = fDraws[i].fColor;
+                    vertices[1 + 4 * i].fPosition = fDraws[i].fQuad.points()[1];
+                    vertices[1 + 4 * i].fTextureIdx = t;
+                    vertices[1 + 4 * i].fTextureCoords = {tl, tb};
+                    vertices[1 + 4 * i].fColor = fDraws[i].fColor;
+                    vertices[2 + 4 * i].fPosition = fDraws[i].fQuad.points()[2];
+                    vertices[2 + 4 * i].fTextureIdx = t;
+                    vertices[2 + 4 * i].fTextureCoords = {tr, tb};
+                    vertices[2 + 4 * i].fColor = fDraws[i].fColor;
+                    vertices[3 + 4 * i].fPosition = fDraws[i].fQuad.points()[3];
+                    vertices[3 + 4 * i].fTextureIdx = t;
+                    vertices[3 + 4 * i].fTextureCoords = {tr, tt};
+                    vertices[3 + 4 * i].fColor = fDraws[i].fColor;
+                }
+            }
+            GrMesh mesh(GrPrimitiveType::kTriangles);
             mesh.setIndexedPatterned(ibuffer.get(), 6, 4, fDraws.count(),
                                      GrResourceProvider::QuadCountOfQuadBuffer());
+            mesh.setVertexData(vbuffer, vstart);
+            target->draw(gp.get(), pipeline, mesh);
         } else {
+            // If there is only one draw then there can only be one proxy.
+            SkASSERT(1 == fProxyCnt);
+            SkASSERT(gp->getVertexStride() == sizeof(TextureGeometryProcessor::Vertex));
+            auto vertices = static_cast<TextureGeometryProcessor::Vertex*>(vdata);
+            GrTexture* texture = proxies[0]->priv().peekTexture();
+            float iw = 1.f / texture->width();
+            float ih = 1.f / texture->height();
+            float tl = iw * fDraws[0].fSrcRect.fLeft;
+            float tr = iw * fDraws[0].fSrcRect.fRight;
+            float tt = ih * fDraws[0].fSrcRect.fTop;
+            float tb = ih * fDraws[0].fSrcRect.fBottom;
+            if (proxies[0]->origin() == kBottomLeft_GrSurfaceOrigin) {
+                tt = 1.f - tt;
+                tb = 1.f - tb;
+            }
+            vertices[0].fPosition = fDraws[0].fQuad.points()[0];
+            vertices[0].fTextureCoords = {tl, tt};
+            vertices[0].fColor = fDraws[0].fColor;
+            vertices[1].fPosition = fDraws[0].fQuad.points()[3];
+            vertices[1].fTextureCoords = {tr, tt};
+            vertices[1].fColor = fDraws[0].fColor;
+            vertices[2].fPosition = fDraws[0].fQuad.points()[1];
+            vertices[2].fTextureCoords = {tl, tb};
+            vertices[2].fColor = fDraws[0].fColor;
+            vertices[3].fPosition = fDraws[0].fQuad.points()[2];
+            vertices[3].fTextureCoords = {tr, tb};
+            vertices[3].fColor = fDraws[0].fColor;
+            GrMesh mesh(GrPrimitiveType::kTriangleStrip);
             mesh.setNonIndexedNonInstanced(4);
+            mesh.setVertexData(vbuffer, vstart);
+            target->draw(gp.get(), pipeline, mesh);
         }
-        mesh.setVertexData(vbuffer, vstart);
-        target->draw(gp.get(), pipeline, mesh);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

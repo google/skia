@@ -1326,15 +1326,15 @@ private:
             verts[1].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[1].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
-            verts[2].fPos = SkPoint::Make(ellipse.fDevBounds.fRight, ellipse.fDevBounds.fTop);
+            verts[2].fPos = SkPoint::Make(ellipse.fDevBounds.fRight, ellipse.fDevBounds.fBottom);
             verts[2].fColor = color;
-            verts[2].fOffset = SkPoint::Make(xMaxOffset, -yMaxOffset);
+            verts[2].fOffset = SkPoint::Make(xMaxOffset, yMaxOffset);
             verts[2].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[2].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
-            verts[3].fPos = SkPoint::Make(ellipse.fDevBounds.fRight, ellipse.fDevBounds.fBottom);
+            verts[3].fPos = SkPoint::Make(ellipse.fDevBounds.fRight, ellipse.fDevBounds.fTop);
             verts[3].fColor = color;
-            verts[3].fOffset = SkPoint::Make(xMaxOffset, yMaxOffset);
+            verts[3].fOffset = SkPoint::Make(xMaxOffset, -yMaxOffset);
             verts[3].fOuterRadii = SkPoint::Make(xRadRecip, yRadRecip);
             verts[3].fInnerRadii = SkPoint::Make(xInnerRadRecip, yInnerRadRecip);
 
@@ -1549,15 +1549,15 @@ private:
             verts[1].fOuterOffset = SkPoint::Make(-1.0f - offsetDx, 1.0f + offsetDy);
             verts[1].fInnerOffset = SkPoint::Make(-innerRatioX - offsetDx, innerRatioY + offsetDy);
 
-            verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
+            verts[2].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
             verts[2].fColor = color;
-            verts[2].fOuterOffset = SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy);
-            verts[2].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
+            verts[2].fOuterOffset = SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy);
+            verts[2].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, innerRatioY + offsetDy);
 
-            verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
+            verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
             verts[3].fColor = color;
-            verts[3].fOuterOffset = SkPoint::Make(1.0f + offsetDx, 1.0f + offsetDy);
-            verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, innerRatioY + offsetDy);
+            verts[3].fOuterOffset = SkPoint::Make(1.0f + offsetDx, -1.0f - offsetDy);
+            verts[3].fInnerOffset = SkPoint::Make(innerRatioX + offsetDx, -innerRatioY - offsetDy);
 
             verts += kVerticesPerQuad;
         }
