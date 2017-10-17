@@ -2741,22 +2741,22 @@
         "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All"
       ]
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FAAA": {
+    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FAAA": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FAAA"
+        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FAAA"
       ]
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FDAA": {
+    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FDAA": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FDAA"
+        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FDAA"
       ]
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FSAA": {
+    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FSAA": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FSAA"
+        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FSAA"
       ]
     },
     "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All": {
@@ -2765,22 +2765,22 @@
         "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All"
       ]
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FAAA": {
+    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FAAA": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FAAA"
+        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FAAA"
       ]
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FDAA": {
+    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FDAA": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FDAA"
+        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FDAA"
       ]
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FSAA": {
+    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FSAA": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FSAA"
+        "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FSAA"
       ]
     },
     "Test-Win8-Clang-Golo-CPU-AVX-x86_64-Debug-All": {
@@ -21981,7 +21981,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FAAA": {
+    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FAAA": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -22016,7 +22016,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FAAA",
+        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FAAA",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22029,7 +22029,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FDAA": {
+    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FDAA": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -22064,7 +22064,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FDAA",
+        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FDAA",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22077,7 +22077,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FSAA": {
+    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FSAA": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -22112,7 +22112,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FSAA",
+        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FSAA",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22173,7 +22173,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FAAA": {
+    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FAAA": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -22208,7 +22208,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FAAA",
+        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FAAA",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22221,7 +22221,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FDAA": {
+    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FDAA": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -22256,7 +22256,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FDAA",
+        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FDAA",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22269,7 +22269,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FSAA": {
+    "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FSAA": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -22304,7 +22304,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FSAA",
+        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FSAA",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -29160,9 +29160,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FAAA": {
+    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FAAA": {
       "dependencies": [
-        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FAAA"
+        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FAAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -29175,7 +29175,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FAAA",
+        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FAAA",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -29187,9 +29187,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FDAA": {
+    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FDAA": {
       "dependencies": [
-        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FDAA"
+        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FDAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -29202,7 +29202,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FDAA",
+        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FDAA",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -29214,9 +29214,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FSAA": {
+    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FSAA": {
       "dependencies": [
-        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FSAA"
+        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FSAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -29229,7 +29229,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All_FSAA",
+        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All-FSAA",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -29268,9 +29268,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FAAA": {
+    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FAAA": {
       "dependencies": [
-        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FAAA"
+        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FAAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -29283,7 +29283,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FAAA",
+        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FAAA",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -29295,9 +29295,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FDAA": {
+    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FDAA": {
       "dependencies": [
-        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FDAA"
+        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FDAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -29310,7 +29310,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FDAA",
+        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FDAA",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -29322,9 +29322,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FSAA": {
+    "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FSAA": {
       "dependencies": [
-        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FSAA"
+        "Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FSAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -29337,7 +29337,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-FSAA",
+        "buildername=Test-Win7-MSVC-Golo-CPU-AVX-x86-Release-All-FSAA",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
