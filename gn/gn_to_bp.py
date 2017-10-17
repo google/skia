@@ -166,6 +166,7 @@ cc_test {
 gn_args = {
   'is_official_build':  'true',
   'skia_enable_tools':  'true',
+  'skia_use_libexif' :  'false',
   'skia_use_libheif':   'true',
   'skia_use_vulkan':    'true',
   'target_cpu':         '"none"',
