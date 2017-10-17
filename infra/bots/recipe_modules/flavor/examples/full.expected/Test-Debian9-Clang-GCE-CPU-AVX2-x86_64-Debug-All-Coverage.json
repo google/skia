@@ -200,7 +200,7 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "LLVM_PROFILE_FILE": "[CUSTOM_[SWARM_OUT_DIR]]/output.profraw",
+      "LLVM_PROFILE_FILE": "[CUSTOM_[SWARM_OUT_DIR]]/All.profraw",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
