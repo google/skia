@@ -682,6 +682,13 @@ def dm_flags(api, bot):
       or 'Win8-MSVC-ShuttleB' in bot):
     args.append('--noRAW_threading')
 
+  if 'FSAA' in bot:
+    args.extend(['--analyticAA', 'false', '--deltaAA', 'false'])
+  if 'FAAA' in bot:
+    args.extend(['--deltaAA', 'false', '--forceAnalyticAA'])
+  if 'FDAA' in bot:
+    args.extend(['--deltaAA', '--forceDeltaAA'])
+
   # Let's make all bots produce verbose output by default.
   args.append('--verbose')
 
@@ -898,6 +905,9 @@ TEST_BUILDERS = [
   'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan',
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Debug-All-Vulkan',
   'Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All-Vulkan',
+  'Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All-Vulkan_FSAA',
+  'Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All-Vulkan_FAAA',
+  'Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All-Vulkan_FDAA',
   'Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-ANGLE',
   'Test-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-ANGLE',
   'Test-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
