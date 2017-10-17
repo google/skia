@@ -72,7 +72,7 @@ static void tesselate(intptr_t vertices,
                       const GrQuad* localQuad) {
     SkPoint* positions = reinterpret_cast<SkPoint*>(vertices);
 
-    positions->setRectTriStrip(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
+    positions->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
 
     if (viewMatrix) {
         SkMatrixPriv::MapPointsWithStride(*viewMatrix, positions, vertexStride, kVertsPerRect);

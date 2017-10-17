@@ -123,14 +123,14 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
 
         // V2
         position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fRight, positions.fTop);
+        position->set(positions.fRight, positions.fBottom);
         colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
         *colorPtr = color;
         vertex += vertexStride;
 
         // V3
         position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fRight, positions.fBottom);
+        position->set(positions.fRight, positions.fTop);
         colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
         *colorPtr = color;
     } else {
@@ -146,12 +146,12 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
 
         // V2
         position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fRight, positions.fTop);
+        position->set(positions.fRight, positions.fBottom);
         vertex += vertexStride;
 
         // V3
         position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fRight, positions.fBottom);
+        position->set(positions.fRight, positions.fTop);
     }
     subRun->appendVertices(vertexStride);
     fGlyphs[subRun->glyphEndIndex()] = glyph;

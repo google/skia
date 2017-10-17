@@ -7,11 +7,11 @@
  */
 
 #include "GrSmallPathRenderer.h"
+
 #include "GrBuffer.h"
 #include "GrContext.h"
 #include "GrDistanceFieldGenFromVector.h"
 #include "GrDrawOpTest.h"
-#include "GrQuad.h"
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkAutoMalloc.h"
@@ -641,26 +641,26 @@ private:
         // vertex positions
         // TODO make the vertex attributes a struct
         if (fUsesDistanceField && !ctm.hasPerspective()) {
-            GrQuad quad;
-            quad.setFromMappedRect(translatedBounds, ctm);
+            SkPoint quad[4];
+            ctm.mapRectToQuad(quad, translatedBounds);
             intptr_t positionOffset = offset;
             SkPoint* position = (SkPoint*)positionOffset;
-            *position = quad.point(0);
+            *position = quad[0];
             positionOffset += vertexStride;
             position = (SkPoint*)positionOffset;
-            *position = quad.point(1);
+            *position = quad[3];
             positionOffset += vertexStride;
             position = (SkPoint*)positionOffset;
-            *position = quad.point(2);
+            *position = quad[2];
             positionOffset += vertexStride;
             position = (SkPoint*)positionOffset;
-            *position = quad.point(3);
+            *position = quad[1];
         } else {
-            positions->setRectTriStrip(translatedBounds.left(),
-                                       translatedBounds.top(),
-                                       translatedBounds.right(),
-                                       translatedBounds.bottom(),
-                                       vertexStride);
+            positions->setRectFan(translatedBounds.left(),
+                                  translatedBounds.top(),
+                                  translatedBounds.right(),
+                                  translatedBounds.bottom(),
+                                  vertexStride);
         }
 
         // colors
@@ -687,11 +687,11 @@ private:
         textureCoordOffset += vertexStride;
         textureCoords = (uint16_t*)textureCoordOffset;
         textureCoords[0] = r;
-        textureCoords[1] = t;
+        textureCoords[1] = b;
         textureCoordOffset += vertexStride;
         textureCoords = (uint16_t*)textureCoordOffset;
         textureCoords[0] = r;
-        textureCoords[1] = b;
+        textureCoords[1] = t;
     }
 
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {

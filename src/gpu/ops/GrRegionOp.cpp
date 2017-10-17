@@ -34,7 +34,7 @@ static void tesselate_region(intptr_t vertices,
     while (!iter.done()) {
         SkRect rect = SkRect::Make(iter.rect());
         SkPoint* position = (SkPoint*)verts;
-        position->setRectTriStrip(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
+        position->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
 
         static const int kColorOffset = sizeof(SkPoint);
         GrColor* vertColor = reinterpret_cast<GrColor*>(verts + kColorOffset);

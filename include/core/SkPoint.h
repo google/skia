@@ -205,6 +205,14 @@ struct SK_API SkPoint {
     void setIRectFan(int l, int t, int r, int b, size_t stride);
 
     // counter-clockwise fan
+    void setRectFan(SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
+        SkPoint* v = this;
+        v[0].set(l, t);
+        v[1].set(l, b);
+        v[2].set(r, b);
+        v[3].set(r, t);
+    }
+
     void setRectFan(SkScalar l, SkScalar t, SkScalar r, SkScalar b, size_t stride) {
         SkASSERT(stride >= sizeof(SkPoint));
 
@@ -214,15 +222,6 @@ struct SK_API SkPoint {
         ((SkPoint*)((intptr_t)this + 3 * stride))->set(r, t);
     }
 
-    // tri strip with two counter-clockwise triangles
-    void setRectTriStrip(SkScalar l, SkScalar t, SkScalar r, SkScalar b, size_t stride) {
-        SkASSERT(stride >= sizeof(SkPoint));
-
-        ((SkPoint*)((intptr_t)this + 0 * stride))->set(l, t);
-        ((SkPoint*)((intptr_t)this + 1 * stride))->set(l, b);
-        ((SkPoint*)((intptr_t)this + 2 * stride))->set(r, t);
-        ((SkPoint*)((intptr_t)this + 3 * stride))->set(r, b);
-    }
 
     static void Offset(SkPoint points[], int count, const SkPoint& offset) {
         Offset(points, count, offset.fX, offset.fY);
