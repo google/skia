@@ -23,6 +23,7 @@ void SkRasterPipeline::reset() {
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
     SkASSERT(stage != from_srgb);      // Please use append_from_srgb().
     SkASSERT(stage != uniform_color);  // Please use append_constant_color().
+    SkASSERT(stage != seed_shader);    // Please use append_seed_shader().
     this->unchecked_append(stage, ctx);
 }
 void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
@@ -189,4 +190,12 @@ void SkRasterPipeline::clamp_if_unclamped(SkAlphaType alphaType) {
                                                       : SkRasterPipeline::clamp_1);
         fClamped = true;
     }
+}
+
+void SkRasterPipeline::append_seed_shader() {
+    static const float iota[] = {
+        0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
+        8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
+    };
+    this->unchecked_append(SkRasterPipeline::seed_shader, const_cast<float*>(iota));
 }

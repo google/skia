@@ -87,7 +87,7 @@ protected:
         return nullptr;
     }
     bool onAppendStages(const StageRec& rec) const override {
-        rec.fPipeline->append(SkRasterPipeline::seed_shader);
+        rec.fPipeline->append_seed_shader();
         rec.fPipeline->append(SkRasterPipeline::matrix_4x3, &fM43);
         // In theory we should never need to clamp. However, either due to imprecision in our
         // matrix43, or the scan converter passing us pixel centers that in fact are not within

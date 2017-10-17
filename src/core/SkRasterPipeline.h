@@ -144,6 +144,9 @@ public:
         this->append_constant_color(alloc, color.vec());
     }
 
+    // Helper to append(seed_shader) with the normal {+0.5,+1.5,+2.5,...} argument it expects.
+    void append_seed_shader();
+
     bool empty() const { return fStages == nullptr; }
 
     // Used to track if we're handling values outside [0.0f, 1.0f],
