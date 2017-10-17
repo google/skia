@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6c34d8a3_b1b19d74",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 10
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-10-17T18:45:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "299e7ba6_e063347c",
+      "range": {
+        "startLine": 329,
+        "startChar": 48,
+        "endLine": 329,
+        "endChar": 56
+      },
+      "revId": "6d43e55dfc6b8502f02be07fa25d613aeb349405",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3052617d_11bea174",
         "filename": "infra/bots/recipes/test.py",
         "patchSetId": 10
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "bea3a8ae_4abcf8d0",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-10-17T18:45:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3052617d_11bea174",
+      "range": {
+        "startLine": 236,
+        "startChar": 0,
+        "endLine": 236,
+        "endChar": 23
+      },
+      "revId": "6d43e55dfc6b8502f02be07fa25d613aeb349405",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f3730336_bcf12d1e",
         "filename": "infra/bots/recipes/upload_coverage_results.py",
         "patchSetId": 10
@@ -59,6 +107,30 @@
       "writtenOn": "2017-10-17T16:59:41Z",
       "side": 1,
       "message": "Why not api.file.glob_paths(...)?",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 45
+      },
+      "revId": "6d43e55dfc6b8502f02be07fa25d613aeb349405",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81ac8af2_0c630d5f",
+        "filename": "infra/bots/recipes/upload_coverage_results.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-10-17T18:45:17Z",
+      "side": 1,
+      "message": "Didn\u0027t know that was a thing.",
+      "parentUuid": "f3730336_bcf12d1e",
       "range": {
         "startLine": 50,
         "startChar": 0,
@@ -91,6 +163,30 @@
       "revId": "6d43e55dfc6b8502f02be07fa25d613aeb349405",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ed94d15_166038ba",
+        "filename": "infra/bots/recipes/upload_coverage_results.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-10-17T18:45:17Z",
+      "side": 1,
+      "message": "Oops, that was left over from a previous iteration.",
+      "parentUuid": "0cd22e80_d8aa638b",
+      "range": {
+        "startLine": 225,
+        "startChar": 63,
+        "endLine": 225,
+        "endChar": 67
+      },
+      "revId": "6d43e55dfc6b8502f02be07fa25d613aeb349405",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
