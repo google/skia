@@ -25,13 +25,19 @@ Configure and Compile Skia with MSAN
     cat > out/msan/args.gn <<- EOF
         cc = "${CLANGDIR}/bin/clang"
         cxx = "${CLANGDIR}/bin/clang++"
-        extra_ldflags = [ "-Wl,-rpath", "-Wl,${CLANGDIR}/msan" ]
+        extra_cflags = [ "-B${CLANGDIR}/bin" ]
+        extra_ldflags = [ "-B${CLANGDIR}/bin", "-fuse-ld=lld", "-L${CLANGDIR}/msan" ]
         sanitize = "MSAN"
         skia_use_fontconfig = false
     EOF
     python tools/git-sync-deps
     bin/gn gen out/msan
     ninja -C out/msan
+
+You may also need to install the following packages to run the MSAN binary
+
+    sudo apt-get install libc++dev libc++abi-dev
+
 
 Configure and Compile Skia with ASAN
 ------------------------------------
