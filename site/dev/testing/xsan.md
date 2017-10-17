@@ -25,7 +25,8 @@ Configure and Compile Skia with MSAN
     cat > out/msan/args.gn <<- EOF
         cc = "${CLANGDIR}/bin/clang"
         cxx = "${CLANGDIR}/bin/clang++"
-        extra_ldflags = [ "-Wl,-rpath", "-Wl,${CLANGDIR}/msan" ]
+        extra_cflags = [ "-B${CLANGDIR}/bin", "-O1" ]
+        extra_ldflags = [ "-B${CLANGDIR}/bin", "-fuse-ld=lld", "-L${CLANGDIR}/msan" ]
         sanitize = "MSAN"
         skia_use_fontconfig = false
     EOF
