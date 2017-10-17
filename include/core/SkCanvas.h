@@ -483,12 +483,13 @@ public:
     */
     bool writePixels(const SkBitmap& bitmap, int x, int y);
 
-    /** Saves SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most platforms).
-        Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
-        restoring the SkMatrix, clip, and SkDrawFilter to their state when save() was called.
+    /** Saves MatrixHint, SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most
+        platforms). Calling restore() discards changes to MatrixHint, SkMatrix, clip, and
+        SkDrawFilter, restoring them to their original state when save() was called.
 
-        SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(), setMatrix(),
-        and resetMatrix(). Clip may be changed by clipRect(), clipRRect(), clipPath(), clipRegion().
+        MatrixHint may be changed by matrixHint(). SkMatrix may be changed by translate(), scale(),
+        rotate(), skew(), concat(), setMatrix(), and resetMatrix(). Clip may be changed by
+        clipRect(), clipRRect(), clipPath(), clipRegion().
 
         Saved SkCanvas state is put on a stack; multiple calls to save() should be balance
         by an equal number of calls to restore().
@@ -499,14 +500,14 @@ public:
     */
     int save();
 
-    /** Saves SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most platforms),
-        and allocates a SkBitmap for subsequent drawing.
-        Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
+    /** Saves MatrixHint, SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most
+        platforms), and allocates a SkBitmap for subsequent drawing.
+        Calling restore() discards changes to MatrixHint, SkMatrix, clip, and SkDrawFilter,
         and draws the SkBitmap.
 
-        SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
-        setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
-        clipPath(), clipRegion().
+        MatrixHint may be changed by matrixHint(). SkMatrix may be changed by translate(), scale(),
+        rotate(), skew(), concat(), setMatrix(), and resetMatrix(). Clip may be changed by
+        clipRect(), clipRRect(), clipPath(), clipRegion().
 
         SkRect bounds suggests but does not define the SkBitmap size. To clip drawing to
         a specific rectangle, use clipRect().
@@ -522,14 +523,14 @@ public:
     */
     int saveLayer(const SkRect* bounds, const SkPaint* paint);
 
-    /** Saves SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most platforms),
-        and allocates a SkBitmap for subsequent drawing.
-        Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
+    /** Saves MatrixHint, SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most
+        platforms), and allocates a SkBitmap for subsequent drawing.
+        Calling restore() discards changes to MatrixHint, SkMatrix, clip, and SkDrawFilter,
         and draws the SkBitmap.
 
-        SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
-        setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
-        clipPath(), clipRegion().
+        MatrixHint may be changed by matrixHint(). SkMatrix may be changed by translate(), scale(),
+        rotate(), skew(), concat(), setMatrix(), and resetMatrix(). Clip may be changed by
+        clipRect(), clipRRect(), clipPath(), clipRegion().
 
         SkRect bounds suggests but does not define the layer size. To clip drawing to
         a specific rectangle, use clipRect().
@@ -547,16 +548,16 @@ public:
         return this->saveLayer(&bounds, paint);
     }
 
-    /** Saves SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most platforms),
-        and allocates a SkBitmap for subsequent drawing.
+    /** Saves MatrixHint, SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most
+        platforms), and allocates a SkBitmap for subsequent drawing.
         lcd text is preserved when the layer is drawn to the prior layer.
 
-        Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
+        Calling restore() discards changes to MatrixHint, SkMatrix, clip, and SkDrawFilter,
         and draws layer.
 
-        SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
-        setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
-        clipPath(), clipRegion().
+        MatrixHint may be changed by matrixHint(). SkMatrix may be changed by translate(), scale(),
+        rotate(), skew(), concat(), setMatrix(), and resetMatrix(). Clip may be changed by
+        clipRect(), clipRRect(), clipPath(), clipRegion().
 
         SkRect bounds suggests but does not define the layer size. To clip drawing to
         a specific rectangle, use clipRect().
@@ -576,15 +577,15 @@ public:
     */
     int saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPaint* paint);
 
-    /** Saves SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most platforms),
-        and allocates SkBitmap for subsequent drawing.
+    /** Saves MatrixHint, SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most
+        platforms), and allocates SkBitmap for subsequent drawing.
 
-        Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
+        Calling restore() discards changes to MatrixHint, SkMatrix, clip, and SkDrawFilter,
         and blends layer with alpha opacity onto prior layer.
 
-        SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
-        setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
-        clipPath(), clipRegion().
+        MatrixHint may be changed by matrixHint(). SkMatrix may be changed by translate(), scale(),
+        rotate(), skew(), concat(), setMatrix(), and resetMatrix(). Clip may be changed by
+        clipRect(), clipRRect(), clipPath(), clipRegion().
 
         SkRect bounds suggests but does not define layer size. To clip drawing to
         a specific rectangle, use clipRect().
@@ -731,15 +732,15 @@ public:
 
     };
 
-    /** Saves SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most platforms),
-        and allocates SkBitmap for subsequent drawing.
+    /** Saves MatrixHint, SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most
+        platforms), and allocates SkBitmap for subsequent drawing.
 
-        Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,
+        Calling restore() discards changes to MatrixHint, SkMatrix, clip, and SkDrawFilter,
         and blends SkBitmap with color alpha opacity onto the prior layer.
 
-        SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
-        setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
-        clipPath(), clipRegion().
+        MatrixHint may be changed by matrixHint(). SkMatrix may be changed by translate(), scale(),
+        rotate(), skew(), concat(), setMatrix(), and resetMatrix(). Clip may be changed by
+        clipRect(), clipRRect(), clipPath(), clipRegion().
 
         SaveLayerRec contains the state used to create the layer.
 
@@ -774,6 +775,42 @@ public:
         @param saveCount  depth of state stack to restore
     */
     void restoreToCount(int saveCount);
+
+    /** \enum SkCanvas::MatrixHint
+
+        MatrixHint indicates what type of transformations a canvas can generally expect on
+        individual objects from draw to draw. The implementation uses this hint to decide what
+        information (if any) to cache about paths, masks, etc. for reuse in subsequent draws.
+
+        NOTE: if an SkPath is marked volatile, nothing will be cached, regardless of the MatrixHint.
+    */
+    enum class MatrixHint {
+        /** Individual objects will only be translated by full pixels, if transformed at all. With
+            this hint the implementation may choose to cache fully rasterized bitmaps.
+        */
+        kIntegerTranslates,
+
+        /** The client will only transform individual objects in a way that preserves absolute
+            distances between points (i.e. translation, rotation, reflection). This is good, for
+            example, for caching tessellated geometry on the GPU.
+        */
+        kRigidTransforms,
+
+        /** The implementation can expect any matrix, including with perspective. Only resolution-
+            independent data will be cached.
+        */
+        kGeneralTransforms,
+
+        /** Cache nothing; memory is sparse and/or objects may not be drawn more than once. */
+        kDoNotCache
+    };
+
+    /** Replace MatrixHint if the provided value is broader. Otherwise do nothing.
+        (e.g. MatrixHint = max(MatrixHint, matrixHint))
+
+        @param matrixHint  value with which to potentially replace existing MatrixHint.
+    */
+    void matrixHint(MatrixHint matrixHint);
 
     /** Translate SkMatrix by dx along the x-axis and dy along the y-axis.
 
