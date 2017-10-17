@@ -540,20 +540,14 @@ def DM_ARGS(asan):
   if asan:
     # The ASAN we use with Bazel has some strict checks, so omit tests that
     # trigger them.
+    # All of the following are due to
+    # https://bugs.chromium.org/p/skia/issues/detail?id=7052
     match += [
-        "~^bigrect$$",
         "~^clippedcubic2$$",
-        "~^conicpaths$$",
-        "~^DashPathEffectTest_asPoints_limit$$",
-        "~^Matrix$$",
-        "~^Matrix44$$",
-        "~^PathBigCubic$$",
         "~^PathOpsCubicIntersection$$",
         "~^PathOpsCubicLineIntersection$$",
-        "~^PathOpsFailOp$$",
         "~^PathOpsOpCubicsThreaded$$",
         "~^PathOpsOpLoopsThreaded$$",
-        "~^Point$$",
     ]
   return ["--src"] + source + ["--config"] + config + ["--match"] + match
 
