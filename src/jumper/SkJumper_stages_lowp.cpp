@@ -53,7 +53,7 @@
 static const size_t N = sizeof(U16) / sizeof(uint16_t);
 
 // We pass program as the second argument so that load_and_inc() will find it in %rsi on x86-64.
-using Stage = void (ABI*)(size_t tail, void** program, size_t x, size_t y,
+using Stage = void (ABI*)(size_t tail, void** program, size_t dx, size_t dy,
                           U16  r, U16  g, U16  b, U16  a,
                           U16 dr, U16 dg, U16 db, U16 da);
 
@@ -64,13 +64,13 @@ ABI extern "C" void WRAP(start_pipeline)(const size_t x0,
                                          const size_t ylimit,
                                          void** program) {
     auto start = (Stage)load_and_inc(program);
-    for (size_t y = y0; y < ylimit; y++) {
-        size_t x = x0;
-        for (; x + N <= xlimit; x += N) {
-            start(   0,program,x,y, 0,0,0,0, 0,0,0,0);
+    for (size_t dy = y0; dy < ylimit; dy++) {
+        size_t dx = x0;
+        for (; dx + N <= xlimit; dx += N) {
+            start(   0,program,dx,dy, 0,0,0,0, 0,0,0,0);
         }
-        if (size_t tail = xlimit - x) {
-            start(tail,program,x,y, 0,0,0,0, 0,0,0,0);
+        if (size_t tail = xlimit - dx) {
+            start(tail,program,dx,dy, 0,0,0,0, 0,0,0,0);
         }
     }
 }
@@ -79,17 +79,17 @@ ABI extern "C" void WRAP(just_return)(size_t,void**,size_t,size_t,
                                       U16,U16,U16,U16, U16,U16,U16,U16) {}
 
 #define STAGE(name, ...)                                                               \
-    SI void name##_k(__VA_ARGS__, size_t x, size_t y, size_t tail,                     \
+    SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
                      U16&  r, U16&  g, U16&  b, U16&  a,                               \
                      U16& dr, U16& dg, U16& db, U16& da);                              \
-    ABI extern "C" void WRAP(name)(size_t tail, void** program, size_t x, size_t y,    \
+    ABI extern "C" void WRAP(name)(size_t tail, void** program, size_t dx, size_t dy,  \
                                    U16  r, U16  g, U16  b, U16  a,                     \
                                    U16 dr, U16 dg, U16 db, U16 da) {                   \
-        name##_k(Ctx{program}, x,y,tail, r,g,b,a, dr,dg,db,da);                        \
+        name##_k(Ctx{program}, dx,dy,tail, r,g,b,a, dr,dg,db,da);                      \
         auto next = (Stage)load_and_inc(program);                                      \
-        next(tail,program,x,y, r,g,b,a, dr,dg,db,da);                                  \
+        next(tail,program,dx,dy, r,g,b,a, dr,dg,db,da);                                \
     }                                                                                  \
-    SI void name##_k(__VA_ARGS__, size_t x, size_t y, size_t tail,                     \
+    SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
                      U16&  r, U16&  g, U16&  b, U16&  a,                               \
                      U16& dr, U16& dg, U16& db, U16& da)
 
@@ -244,8 +244,8 @@ STAGE(invert, Ctx::None) {
 // ~~~~~~ Helpers for interacting with memory ~~~~~~ //
 
 template <typename T>
-SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, size_t x, size_t y) {
-    return (T*)ctx->pixels + y*ctx->stride + x;
+SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, size_t dx, size_t dy) {
+    return (T*)ctx->pixels + dy*ctx->stride + dx;
 }
 
 template <typename V, typename T>
@@ -369,23 +369,23 @@ SI void store_8888(uint32_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
 }
 
 STAGE(load_8888, const SkJumper_MemoryCtx* ctx) {
-    load_8888(ptr_at_xy<const uint32_t>(ctx, x,y), tail, &r,&g,&b,&a);
+    load_8888(ptr_at_xy<const uint32_t>(ctx, dx,dy), tail, &r,&g,&b,&a);
 }
 STAGE(load_8888_dst, const SkJumper_MemoryCtx* ctx) {
-    load_8888(ptr_at_xy<const uint32_t>(ctx, x,y), tail, &dr,&dg,&db,&da);
+    load_8888(ptr_at_xy<const uint32_t>(ctx, dx,dy), tail, &dr,&dg,&db,&da);
 }
 STAGE(store_8888, const SkJumper_MemoryCtx* ctx) {
-    store_8888(ptr_at_xy<uint32_t>(ctx, x,y), tail, r,g,b,a);
+    store_8888(ptr_at_xy<uint32_t>(ctx, dx,dy), tail, r,g,b,a);
 }
 
 STAGE(load_bgra, const SkJumper_MemoryCtx* ctx) {
-    load_8888(ptr_at_xy<const uint32_t>(ctx, x,y), tail, &b,&g,&r,&a);
+    load_8888(ptr_at_xy<const uint32_t>(ctx, dx,dy), tail, &b,&g,&r,&a);
 }
 STAGE(load_bgra_dst, const SkJumper_MemoryCtx* ctx) {
-    load_8888(ptr_at_xy<const uint32_t>(ctx, x,y), tail, &db,&dg,&dr,&da);
+    load_8888(ptr_at_xy<const uint32_t>(ctx, dx,dy), tail, &db,&dg,&dr,&da);
 }
 STAGE(store_bgra, const SkJumper_MemoryCtx* ctx) {
-    store_8888(ptr_at_xy<uint32_t>(ctx, x,y), tail, b,g,r,a);
+    store_8888(ptr_at_xy<uint32_t>(ctx, dx,dy), tail, b,g,r,a);
 }
 
 // ~~~~~~ 16-bit memory loads and stores ~~~~~~ //
@@ -414,15 +414,15 @@ SI void store_565(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b) {
 }
 
 STAGE(load_565, const SkJumper_MemoryCtx* ctx) {
-    load_565(ptr_at_xy<const uint16_t>(ctx, x,y), tail, &r,&g,&b);
+    load_565(ptr_at_xy<const uint16_t>(ctx, dx,dy), tail, &r,&g,&b);
     a = 255;
 }
 STAGE(load_565_dst, const SkJumper_MemoryCtx* ctx) {
-    load_565(ptr_at_xy<const uint16_t>(ctx, x,y), tail, &dr,&dg,&db);
+    load_565(ptr_at_xy<const uint16_t>(ctx, dx,dy), tail, &dr,&dg,&db);
     da = 255;
 }
 STAGE(store_565, const SkJumper_MemoryCtx* ctx) {
-    store_565(ptr_at_xy<uint16_t>(ctx, x,y), tail, r,g,b);
+    store_565(ptr_at_xy<uint16_t>(ctx, dx,dy), tail, r,g,b);
 }
 
 // ~~~~~~ 8-bit memory loads and stores ~~~~~~ //
@@ -436,22 +436,22 @@ SI void store_8(uint8_t* ptr, size_t tail, U16 v) {
 
 STAGE(load_a8, const SkJumper_MemoryCtx* ctx) {
     r = g = b = 0;
-    a = load_8(ptr_at_xy<const uint8_t>(ctx, x,y), tail);
+    a = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
 }
 STAGE(load_a8_dst, const SkJumper_MemoryCtx* ctx) {
     dr = dg = db = 0;
-    da = load_8(ptr_at_xy<const uint8_t>(ctx, x,y), tail);
+    da = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
 }
 STAGE(store_a8, const SkJumper_MemoryCtx* ctx) {
-    store_8(ptr_at_xy<uint8_t>(ctx, x,y), tail, a);
+    store_8(ptr_at_xy<uint8_t>(ctx, dx,dy), tail, a);
 }
 
 STAGE(load_g8, const SkJumper_MemoryCtx* ctx) {
-    r = g = b = load_8(ptr_at_xy<const uint8_t>(ctx, x,y), tail);
+    r = g = b = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
     a = 255;
 }
 STAGE(load_g8_dst, const SkJumper_MemoryCtx* ctx) {
-    dr = dg = db = load_8(ptr_at_xy<const uint8_t>(ctx, x,y), tail);
+    dr = dg = db = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
     da = 255;
 }
 STAGE(luminance_to_alpha, Ctx::None) {
@@ -477,14 +477,14 @@ STAGE(lerp_1_float, const float* f) {
 }
 
 STAGE(scale_u8, const SkJumper_MemoryCtx* ctx) {
-    U16 c = load_8(ptr_at_xy<const uint8_t>(ctx, x,y), tail);
+    U16 c = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
     r = div255( r * c );
     g = div255( g * c );
     b = div255( b * c );
     a = div255( a * c );
 }
 STAGE(lerp_u8, const SkJumper_MemoryCtx* ctx) {
-    U16 c = load_8(ptr_at_xy<const uint8_t>(ctx, x,y), tail);
+    U16 c = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
     r = lerp(dr, r, c);
     g = lerp(dg, g, c);
     b = lerp(db, b, c);
@@ -498,7 +498,7 @@ SI U16 alpha_coverage_from_rgb_coverage(U16 a, U16 da, U16 cr, U16 cg, U16 cb) {
 }
 STAGE(scale_565, const SkJumper_MemoryCtx* ctx) {
     U16 cr,cg,cb;
-    load_565(ptr_at_xy<const uint16_t>(ctx, x,y), tail, &cr,&cg,&cb);
+    load_565(ptr_at_xy<const uint16_t>(ctx, dx,dy), tail, &cr,&cg,&cb);
     U16 ca = alpha_coverage_from_rgb_coverage(a,da, cr,cg,cb);
 
     r = div255( r * cr );
@@ -508,7 +508,7 @@ STAGE(scale_565, const SkJumper_MemoryCtx* ctx) {
 }
 STAGE(lerp_565, const SkJumper_MemoryCtx* ctx) {
     U16 cr,cg,cb;
-    load_565(ptr_at_xy<const uint16_t>(ctx, x,y), tail, &cr,&cg,&cb);
+    load_565(ptr_at_xy<const uint16_t>(ctx, dx,dy), tail, &cr,&cg,&cb);
     U16 ca = alpha_coverage_from_rgb_coverage(a,da, cr,cg,cb);
 
     r = lerp(dr, r, cr);
@@ -520,7 +520,7 @@ STAGE(lerp_565, const SkJumper_MemoryCtx* ctx) {
 // ~~~~~~ Compound stages ~~~~~~ //
 
 STAGE(srcover_rgba_8888, const SkJumper_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<uint32_t>(ctx, x,y);
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
 
     load_8888(ptr, tail, &dr,&dg,&db,&da);
     r = r + div255( dr*inv(a) );
