@@ -242,8 +242,9 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # This is the output file for the coverage data. Just running the binary
       # will produce the output. The output_file is in the swarming_out_dir and
       # thus will be an isolated output of the Test step.
+      profname = '%s.profraw' % self.m.vars.builder_cfg.get('test_filter','o')
       env['LLVM_PROFILE_FILE'] = self.m.path.join(self.m.vars.swarming_out_dir,
-                                                  'output.profraw')
+                                                  profname)
 
     if path:
       env['PATH'] = '%%(PATH)s:%s' % ':'.join('%s' % p for p in path)
