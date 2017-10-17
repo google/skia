@@ -11,7 +11,7 @@
 #include "GrStyle.h"
 #include "SkColorSpace_Base.h"
 #include "SkDashPathPriv.h"
-#include "SkMatrix.h"
+#include "SkMatrixPriv.h"
 #include "SkPath.h"
 #include "SkRRect.h"
 
@@ -72,7 +72,7 @@ const SkMatrix& TestMatrixPreservesRightAngles(SkRandom* random) {
         gMatrices[4].setRotate(47);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gMatrices); i++) {
-            SkASSERT(gMatrices[i].preservesRightAngles());
+            SkASSERT(SkMatrixPriv::PreservesRightAngles(gMatrices[i]));
         }
     }
     return gMatrices[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gMatrices)))];

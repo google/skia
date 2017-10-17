@@ -97,6 +97,14 @@ public:
             mx.mapPoints(quad, quad, 4);
         }
     }
+
+    static bool CircleStaysCircle(const SkMatrix& mat) {
+        return mat.circleStaysCircle();
+    }
+
+    static bool PreservesRightAngles(const SkMatrix& mat) {
+        return mat.preservesRightAngles();
+    }
 };
 
 #endif

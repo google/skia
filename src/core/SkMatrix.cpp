@@ -196,7 +196,7 @@ static inline bool is_degenerate_2x2(SkScalar scaleX, SkScalar skewX,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkMatrix::isSimilarity(SkScalar tol) const {
+bool SkMatrix::circleStaysCircle() const {
     // if identity or translate matrix
     TypeMask mask = this->getType();
     if (mask <= kTranslate_Mask) {
@@ -221,11 +221,11 @@ bool SkMatrix::isSimilarity(SkScalar tol) const {
 
     // upper 2x2 is rotation/reflection + uniform scale if basis vectors
     // are 90 degree rotations of each other
-    return (SkScalarNearlyEqual(mx, my, tol) && SkScalarNearlyEqual(sx, -sy, tol))
-        || (SkScalarNearlyEqual(mx, -my, tol) && SkScalarNearlyEqual(sx, sy, tol));
+    return (SkScalarNearlyEqual(mx, my) && SkScalarNearlyEqual(sx, -sy))
+        || (SkScalarNearlyEqual(mx, -my) && SkScalarNearlyEqual(sx, sy));
 }
 
-bool SkMatrix::preservesRightAngles(SkScalar tol) const {
+bool SkMatrix::preservesRightAngles() const {
     TypeMask mask = this->getType();
 
     if (mask <= kTranslate_Mask) {
@@ -252,7 +252,7 @@ bool SkMatrix::preservesRightAngles(SkScalar tol) const {
     vec[0].set(mx, sy);
     vec[1].set(sx, my);
 
-    return SkScalarNearlyZero(vec[0].dot(vec[1]), SkScalarSquare(tol));
+    return SkScalarNearlyZero(vec[0].dot(vec[1]), SkScalarSquare(SK_ScalarNearlyZero));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

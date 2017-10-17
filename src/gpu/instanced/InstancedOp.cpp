@@ -11,7 +11,7 @@
 #include "GrGpu.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTargetOpList.h"
-
+#include "SkMatrixPriv.h"
 
 namespace gr_instanced {
 
@@ -444,7 +444,7 @@ inline bool OpAllocator::selectAntialiasMode(const SkMatrix& viewMatrix, GrAA aa
             return true;
         }
 
-        if (info.canUseCoverageAA() && viewMatrix.preservesRightAngles()) {
+        if (info.canUseCoverageAA() && SkMatrixPriv::PreservesRightAngles(viewMatrix)) {
             *aaType = GrAAType::kCoverage;
             return true;
         }

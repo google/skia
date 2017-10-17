@@ -103,17 +103,6 @@ public:
                         kPerspective_Mask);
     }
 
-    /** Returns true if the matrix contains only translation, rotation/reflection or uniform scale
-        Returns false if other transformation types are included or is degenerate
-     */
-    bool isSimilarity(SkScalar tol = SK_ScalarNearlyZero) const;
-
-    /** Returns true if the matrix contains only translation, rotation/reflection or scale
-        (non-uniform scale is allowed).
-        Returns false if other transformation types are included or is degenerate
-     */
-    bool preservesRightAngles(SkScalar tol = SK_ScalarNearlyZero) const;
-
     enum {
         kMScaleX,
         kMSkewX,
@@ -821,6 +810,17 @@ private:
             fTypeMask &= ~kTranslate_Mask;
         }
     }
+
+    /** Returns true if the matrix contains only translation, rotation/reflection or uniform scale
+        Returns false if other transformation types are included or is degenerate
+     */
+    bool circleStaysCircle() const;
+
+    /** Returns true if the matrix contains only translation, rotation/reflection or scale
+        as long as it doesn't introduce skew (non-uniform scale is allowed).
+        Returns false if other transformation types are included or is degenerate
+     */
+    bool preservesRightAngles() const;
 
     bool SK_WARN_UNUSED_RESULT invertNonIdentity(SkMatrix* inverse) const;
 

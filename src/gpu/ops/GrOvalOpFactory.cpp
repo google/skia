@@ -13,6 +13,7 @@
 #include "GrResourceProvider.h"
 #include "GrShaderCaps.h"
 #include "GrStyle.h"
+#include "SkMatrixPriv.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -42,7 +43,10 @@ struct DIEllipseVertex {
     SkPoint fInnerOffset;
 };
 
-static inline bool circle_stays_circle(const SkMatrix& m) { return m.isSimilarity(); }
+static inline bool circle_stays_circle(const SkMatrix& m) {
+    return SkMatrixPriv::CircleStaysCircle(m);
+}
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////

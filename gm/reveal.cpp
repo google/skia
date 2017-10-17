@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 #include "SkAnimTimer.h"
 #include "SkBlurMaskFilter.h"
+#include "SkMatrixPriv.h"
 #include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
@@ -47,7 +48,7 @@ public:
     }
 
     bool asDevSpaceRRect(const SkMatrix& ctm, SkRRect* rr) const override {
-        if (!ctm.isSimilarity()) { // the corners have to remain circular
+        if (!SkMatrixPriv::CircleStaysCircle(ctm)) { // the corners have to remain circular
             return false;
         }
 
@@ -163,7 +164,7 @@ public:
     }
 
     bool asDevSpaceRRect(const SkMatrix& ctm, SkRRect* rr) const override {
-        if (!ctm.isSimilarity()) { // circles have to remain circles
+        if (!SkMatrixPriv::CircleStaysCircle(ctm)) { // circles have to remain circles
             return false;
         }
 

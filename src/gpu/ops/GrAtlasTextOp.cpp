@@ -13,6 +13,7 @@
 
 #include "SkGlyphCache.h"
 #include "SkMathPriv.h"
+#include "SkMatrixPriv.h"
 
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
@@ -246,7 +247,7 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(
                                                 const sk_sp<GrTextureProxy> p[kMaxTextures]) const {
     bool isLCD = this->isLCD();
     // set up any flags
-    uint32_t flags = viewMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+    uint32_t flags = SkMatrixPriv::CircleStaysCircle(viewMatrix) ? kSimilarity_DistanceFieldEffectFlag : 0;
     flags |= viewMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     flags |= fUseGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
     flags |= (kAliasedDistanceField_MaskType == fMaskType) ? kAliased_DistanceFieldEffectFlag : 0;

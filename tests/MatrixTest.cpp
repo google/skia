@@ -7,6 +7,7 @@
 
 #include "SkMath.h"
 #include "SkMatrix.h"
+#include "SkMatrixPriv.h"
 #include "SkMatrixUtils.h"
 #include "SkRandom.h"
 #include "Test.h"
@@ -302,91 +303,91 @@ static void test_matrix_preserve_shape(skiatest::Reporter* reporter) {
 
     // identity
     mat.setIdentity();
-    REPORTER_ASSERT(reporter, mat.isSimilarity());
-    REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
 
     // translation only
     mat.reset();
     mat.setTranslate(SkIntToScalar(100), SkIntToScalar(100));
-    REPORTER_ASSERT(reporter, mat.isSimilarity());
-    REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
 
     // scale with same size
     mat.reset();
     mat.setScale(SkIntToScalar(15), SkIntToScalar(15));
-    REPORTER_ASSERT(reporter, mat.isSimilarity());
-    REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
 
     // scale with one negative
     mat.reset();
     mat.setScale(SkIntToScalar(-15), SkIntToScalar(15));
-    REPORTER_ASSERT(reporter, mat.isSimilarity());
-    REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
 
     // scale with different size
     mat.reset();
     mat.setScale(SkIntToScalar(15), SkIntToScalar(20));
-    REPORTER_ASSERT(reporter, !mat.isSimilarity());
-    REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
 
     // scale with same size at a pivot point
     mat.reset();
     mat.setScale(SkIntToScalar(15), SkIntToScalar(15),
                  SkIntToScalar(2), SkIntToScalar(2));
-    REPORTER_ASSERT(reporter, mat.isSimilarity());
-    REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
 
     // scale with different size at a pivot point
     mat.reset();
     mat.setScale(SkIntToScalar(15), SkIntToScalar(20),
                  SkIntToScalar(2), SkIntToScalar(2));
-    REPORTER_ASSERT(reporter, !mat.isSimilarity());
-    REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
 
     // skew with same size
     mat.reset();
     mat.setSkew(SkIntToScalar(15), SkIntToScalar(15));
-    REPORTER_ASSERT(reporter, !mat.isSimilarity());
-    REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::PreservesRightAngles(mat));
 
     // skew with different size
     mat.reset();
     mat.setSkew(SkIntToScalar(15), SkIntToScalar(20));
-    REPORTER_ASSERT(reporter, !mat.isSimilarity());
-    REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::PreservesRightAngles(mat));
 
     // skew with same size at a pivot point
     mat.reset();
     mat.setSkew(SkIntToScalar(15), SkIntToScalar(15),
                 SkIntToScalar(2), SkIntToScalar(2));
-    REPORTER_ASSERT(reporter, !mat.isSimilarity());
-    REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::PreservesRightAngles(mat));
 
     // skew with different size at a pivot point
     mat.reset();
     mat.setSkew(SkIntToScalar(15), SkIntToScalar(20),
                 SkIntToScalar(2), SkIntToScalar(2));
-    REPORTER_ASSERT(reporter, !mat.isSimilarity());
-    REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::PreservesRightAngles(mat));
 
     // perspective x
     mat.reset();
     mat.setPerspX(SK_Scalar1 / 2);
-    REPORTER_ASSERT(reporter, !mat.isSimilarity());
-    REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::PreservesRightAngles(mat));
 
     // perspective y
     mat.reset();
     mat.setPerspY(SK_Scalar1 / 2);
-    REPORTER_ASSERT(reporter, !mat.isSimilarity());
-    REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::PreservesRightAngles(mat));
 
     // rotate
     for (int angle = 0; angle < 360; ++angle) {
         mat.reset();
         mat.setRotate(SkIntToScalar(angle));
-        REPORTER_ASSERT(reporter, mat.isSimilarity());
-        REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+        REPORTER_ASSERT(reporter, SkMatrixPriv::CircleStaysCircle(mat));
+        REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
     }
 
     // see if there are any accumulated precision issues
@@ -394,61 +395,61 @@ static void test_matrix_preserve_shape(skiatest::Reporter* reporter) {
     for (int i = 1; i < 360; i++) {
         mat.postRotate(SkIntToScalar(1));
     }
-    REPORTER_ASSERT(reporter, mat.isSimilarity());
-    REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
 
     // rotate + translate
     mat.reset();
     mat.setRotate(SkIntToScalar(30));
     mat.postTranslate(SkIntToScalar(10), SkIntToScalar(20));
-    REPORTER_ASSERT(reporter, mat.isSimilarity());
-    REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
 
     // rotate + uniform scale
     mat.reset();
     mat.setRotate(SkIntToScalar(30));
     mat.postScale(SkIntToScalar(2), SkIntToScalar(2));
-    REPORTER_ASSERT(reporter, mat.isSimilarity());
-    REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
 
     // rotate + non-uniform scale
     mat.reset();
     mat.setRotate(SkIntToScalar(30));
     mat.postScale(SkIntToScalar(3), SkIntToScalar(2));
-    REPORTER_ASSERT(reporter, !mat.isSimilarity());
-    REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::PreservesRightAngles(mat));
 
     // non-uniform scale + rotate
     mat.reset();
     mat.setScale(SkIntToScalar(3), SkIntToScalar(2));
     mat.postRotate(SkIntToScalar(30));
-    REPORTER_ASSERT(reporter, !mat.isSimilarity());
-    REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
 
     // all zero
     mat.setAll(0, 0, 0, 0, 0, 0, 0, 0, 0);
-    REPORTER_ASSERT(reporter, !mat.isSimilarity());
-    REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::PreservesRightAngles(mat));
 
     // all zero except perspective
     mat.reset();
     mat.setAll(0, 0, 0, 0, 0, 0, 0, 0, SK_Scalar1);
-    REPORTER_ASSERT(reporter, !mat.isSimilarity());
-    REPORTER_ASSERT(reporter, !mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, !SkMatrixPriv::PreservesRightAngles(mat));
 
     // scales zero, only skews (rotation)
     mat.setAll(0, SK_Scalar1, 0,
                -SK_Scalar1, 0, 0,
                0, 0, SkMatrix::I()[8]);
-    REPORTER_ASSERT(reporter, mat.isSimilarity());
-    REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
 
     // scales zero, only skews (reflection)
     mat.setAll(0, SK_Scalar1, 0,
                SK_Scalar1, 0, 0,
                0, 0, SkMatrix::I()[8]);
-    REPORTER_ASSERT(reporter, mat.isSimilarity());
-    REPORTER_ASSERT(reporter, mat.preservesRightAngles());
+    REPORTER_ASSERT(reporter, SkMatrixPriv::CircleStaysCircle(mat));
+    REPORTER_ASSERT(reporter, SkMatrixPriv::PreservesRightAngles(mat));
 }
 
 // For test_matrix_decomposition, below.
