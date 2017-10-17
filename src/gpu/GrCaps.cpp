@@ -54,8 +54,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fFenceSyncSupport = false;
     fCrossContextTextureSupport = false;
 
-    fUseDrawInsteadOfClear = false;
-
     fInstancedSupport = InstancedSupport::kNone;
 
     fBlendEquationSupport = kBasic_BlendEquationSupport;
@@ -148,7 +146,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Fence sync support", fFenceSyncSupport);
     writer->appendBool("Cross context texture support", fCrossContextTextureSupport);
 
-    writer->appendBool("Draw Instead of Clear [workaround]", fUseDrawInsteadOfClear);
     writer->appendBool("Blacklist Coverage Counting Path Renderer [workaround]",
                        fBlacklistCoverageCounting);
     writer->appendBool("Prefer VRAM Use over flushes [workaround]", fPreferVRAMUseOverFlushes);
