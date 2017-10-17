@@ -29,7 +29,7 @@ class CCPRPathDrawer {
 public:
     CCPRPathDrawer(GrContext* ctx)
             : fCtx(ctx)
-            , fCCPR(GrCoverageCountingPathRenderer::CreateIfSupported(*fCtx->caps()))
+            , fCCPR(GrCoverageCountingPathRenderer::CreateIfSupported(*fCtx->caps(), true))
             , fRTC(fCtx->makeDeferredRenderTargetContext(SkBackingFit::kExact, kCanvasSize,
                                                          kCanvasSize, kRGBA_8888_GrPixelConfig,
                                                          nullptr)) {

@@ -37,13 +37,17 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
 }
 
 sk_sp<GrCoverageCountingPathRenderer>
-GrCoverageCountingPathRenderer::CreateIfSupported(const GrCaps& caps) {
-    return sk_sp<GrCoverageCountingPathRenderer>(IsSupported(caps) ?
-                                                 new GrCoverageCountingPathRenderer : nullptr);
+GrCoverageCountingPathRenderer::CreateIfSupported(const GrCaps& caps, bool drawCachablePaths) {
+    auto ccpr = IsSupported(caps) ? new GrCoverageCountingPathRenderer(drawCachablePaths) : nullptr;
+    return sk_sp<GrCoverageCountingPathRenderer>(ccpr);
 }
 
 GrPathRenderer::CanDrawPath
 GrCoverageCountingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    if (args.fShape->hasUnstyledKey() && !fDrawCachablePaths) {
+        return CanDrawPath::kNo;
+    }
+
     if (!args.fShape->style().isSimpleFill() ||
         args.fShape->inverseFilled() ||
         args.fViewMatrix->hasPerspective() ||
