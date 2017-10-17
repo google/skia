@@ -16,6 +16,24 @@
       "revId": "2f70f05a52b39abceefbe5f85a2e43d398b57eb6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a42095bd_e722d4b0",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-10-17T14:47:16Z",
+      "side": 1,
+      "message": "The value for software is defined by the window equation. The value for GPU is different because it is directly evaluating the gaussian. So, it is cut off at 10-bits resolution.",
+      "parentUuid": "e59c0f21_08d16188",
+      "revId": "2f70f05a52b39abceefbe5f85a2e43d398b57eb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
