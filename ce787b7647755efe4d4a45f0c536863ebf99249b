@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1546e54c_fa5e78c5",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-17T19:57:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "818e2eda_f44cb2cc",
+      "range": {
+        "startLine": 610,
+        "startChar": 15,
+        "endLine": 610,
+        "endChar": 44
+      },
+      "revId": "ce787b7647755efe4d4a45f0c536863ebf99249b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "698ca3ea_975a4e0f",
         "filename": "DEPS",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-10-17T19:26:57Z",
       "side": 1,
       "message": "I don\u0027t suppose this happens to be at any sort of human-friendly version tag?  Something like, @1.0.0, or @o-release?",
+      "range": {
+        "startLine": 14,
+        "startChar": 102,
+        "endLine": 14,
+        "endChar": 142
+      },
+      "revId": "ce787b7647755efe4d4a45f0c536863ebf99249b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b88601fe_b4865c88",
+        "filename": "DEPS",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-17T19:57:20Z",
+      "side": 1,
+      "message": "I don\u0027t see one, unfortunately. (Chromium has its own mirror (sorry - two mirrors), which is (are) on the same upstream version, although I have not found that Chromium is actually using it.)",
+      "parentUuid": "698ca3ea_975a4e0f",
       "range": {
         "startLine": 14,
         "startChar": 102,
@@ -118,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "ac1a0804_adeb7526",
+        "filename": "src/images/SkJpegEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-17T19:57:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a2f21a3_a46bf724",
+      "range": {
+        "startLine": 242,
+        "startChar": 48,
+        "endLine": 242,
+        "endChar": 75
+      },
+      "revId": "ce787b7647755efe4d4a45f0c536863ebf99249b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "79a0135d_a5989501",
         "filename": "src/images/SkJpegEncoder.cpp",
         "patchSetId": 3
@@ -141,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "d12e1bf4_f7a4496c",
+        "filename": "src/images/SkJpegEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-17T19:57:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79a0135d_a5989501",
+      "range": {
+        "startLine": 252,
+        "startChar": 8,
+        "endLine": 252,
+        "endChar": 65
+      },
+      "revId": "ce787b7647755efe4d4a45f0c536863ebf99249b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "07d715bd_365c8676",
         "filename": "third_party/libexif/BUILD.gn",
         "patchSetId": 3
@@ -152,6 +248,30 @@
       "writtenOn": "2017-10-17T19:26:57Z",
       "side": 1,
       "message": "Out of curiosity, are these all necessary?",
+      "range": {
+        "startLine": 21,
+        "startChar": 5,
+        "endLine": 44,
+        "endChar": 63
+      },
+      "revId": "ce787b7647755efe4d4a45f0c536863ebf99249b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f0de167_ec101f47",
+        "filename": "third_party/libexif/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-17T19:57:20Z",
+      "side": 1,
+      "message": "I believe so.",
+      "parentUuid": "07d715bd_365c8676",
       "range": {
         "startLine": 21,
         "startChar": 5,
