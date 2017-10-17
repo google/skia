@@ -27,11 +27,12 @@ static_assert(52 == kNumGlyphs, "expected 52 glyphs");
  */
 class PathTextBench : public Benchmark {
 public:
+    PathTextBench(bool cached) : fCached(cached) {}
     bool isVisual() override { return true; }
 
 private:
     const char* onGetName() override {
-        return "path_text";
+        return fCached ? "path_text" : "path_text_uncached";
     }
     SkIPoint onGetSize() override { return SkIPoint::Make(kScreenWidth, kScreenHeight); }
 
@@ -42,6 +43,7 @@ private:
         for (int i = 0; i < kNumGlyphs; ++i) {
             SkGlyphID id = cache->unicharToGlyph(kGlyphs[i]);
             cache->getScalerContext()->getPath(SkPackedGlyphID(id), &fGlyphs[i]);
+            fGlyphs[i].setIsVolatile(!fCached);
         }
 
         SkRandom rand;
@@ -76,6 +78,7 @@ private:
         }
     }
 
+    const bool fCached;
     SkPath fGlyphs[kNumGlyphs];
     SkPaint fPaints[kNumDraws];
     SkMatrix fXforms[kNumDraws];
@@ -83,4 +86,5 @@ private:
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH(return new PathTextBench;)
+DEF_BENCH(return new PathTextBench(false);)
+DEF_BENCH(return new PathTextBench(true);)

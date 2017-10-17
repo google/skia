@@ -32,7 +32,8 @@ class GrCoverageCountingPathRenderer
 
 public:
     static bool IsSupported(const GrCaps&);
-    static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(const GrCaps&);
+    static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(const GrCaps&,
+                                                                   bool drawCachablePaths);
 
     // GrPathRenderer overrides.
     StencilSupport onGetStencilSupport(const GrShape&) const override {
@@ -121,7 +122,8 @@ public:
     };
 
 private:
-    GrCoverageCountingPathRenderer() = default;
+    GrCoverageCountingPathRenderer(bool drawCachablePaths)
+            : fDrawCachablePaths(drawCachablePaths) {}
 
     void setupPerFlushResources(GrOnFlushResourceProvider*, const uint32_t* opListIDs,
                                 int numOpListIDs, SkTArray<sk_sp<GrRenderTargetContext>>* results);
@@ -143,6 +145,8 @@ private:
     GrSTAllocator<4, GrCCPRAtlas>      fPerFlushAtlases;
     bool                               fPerFlushResourcesAreValid;
     SkDEBUGCODE(bool                   fFlushing = false;)
+
+    const bool                         fDrawCachablePaths;
 };
 
 #endif
