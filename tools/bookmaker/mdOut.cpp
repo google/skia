@@ -349,7 +349,7 @@ void MdOut::childrenOut(const Definition* def, const char* start) {
     } else if (MarkType::kEnumClass == def->fMarkType) {
         fEnumClass = def;
     }
-    BmhParser::Resolvable resolvable = this->resolvable(def->fMarkType);
+    BmhParser::Resolvable resolvable = this->resolvable(def);
     for (auto& child : def->fChildren) {
         end = child->fStart;
         if (BmhParser::Resolvable::kNo != resolvable) {
@@ -742,6 +742,8 @@ void MdOut::markTypeOut(Definition* def) {
             fprintf(fOut, "<table>");
             this->lf(1);
             break;
+        case MarkType::kLiteral:
+            break;
         case MarkType::kMarkChar:
             fBmhParser.fMC = def->fContentStart[0];
             break;
@@ -1004,6 +1006,24 @@ void MdOut::mdHeaderOutLF(int depth, int lf) {
 }
 
 void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable resolvable) {
+    if (BmhParser::Resolvable::kLiteral == resolvable && end > start) {
+        while ('\n' == *start) {
+            ++start;
+        }
+        const char* spaceStart = start;
+        while (' ' == *start) {
+            ++start;
+        }
+        if (start > spaceStart) {
+            fIndent =  start - spaceStart;
+        }
+        this->writeBlockTrim(end - start, start);
+        if ('\n' == end[-1]) {
+            this->lf(1);
+        }
+        fIndent = 0;
+        return;
+    }
     // FIXME: this needs the markdown character present when the def was defined,
     // not the last markdown character the parser would have seen...
     while (fBmhParser.fMC == end[-1]) {
