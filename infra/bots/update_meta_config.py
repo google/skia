@@ -63,8 +63,14 @@ def addChromiumTrybots(f):
       f.write('\tbuilder = %s\n' % bot)
 
 
-def main(gitcookies, repo_name, tasks_json):
-  skia_repo = SKIA_REPO_TEMPLATE % repo_name
+def main():
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--gitcookies")
+  parser.add_argument("--repo_name")
+  parser.add_argument("--tasks_json")
+  args = parser.parse_args()
+
+  skia_repo = SKIA_REPO_TEMPLATE % args.repo_name
   with git_utils.NewGitCheckout(repository=skia_repo):
     # Fetch and checkout the meta/config branch.
     subprocess.check_call(['git', 'fetch', skia_repo, 'refs/meta/config:cfg'])
@@ -72,7 +78,7 @@ def main(gitcookies, repo_name, tasks_json):
 
     # Create list of tryjobs from tasks_json.
     tryjobs = []
-    with open(tasks_json) as tasks_json:
+    with open(args.tasks_json) as tasks_json:
       data = json.load(tasks_json)
       for job in data['jobs'].keys():
         if not job.startswith('Upload-'):
@@ -83,7 +89,7 @@ def main(gitcookies, repo_name, tasks_json):
     buildbucket_config = os.path.join(os.getcwd(), 'buildbucket.config')
     with open(buildbucket_config, 'w') as f:
 
-      if repo_name == 'skia':
+      if args.repo_name == 'skia':
         addChromiumTrybots(f)
 
       # Adding all Skia jobs.
@@ -95,7 +101,7 @@ def main(gitcookies, repo_name, tasks_json):
     config_dict = {
       'user.name': SKIA_COMMITTER_NAME,
       'user.email': SKIA_COMMITTER_EMAIL,
-      'http.cookiefile': gitcookies,
+      'http.cookiefile': args.gitcookies,
     }
     with git_utils.GitLocalConfig(config_dict):
       subprocess.check_call(['git', 'add', 'buildbucket.config'])
@@ -110,9 +116,4 @@ def main(gitcookies, repo_name, tasks_json):
 
 
 if '__main__' == __name__:
-  parser = argparse.ArgumentParser()
-  parser.add_argument("--gitcookies")
-  parser.add_argument("--repo_name")
-  parser.add_argument("--tasks_json")
-  args = parser.parse_args()
-  main(args.gitcookies, args.repo_name, args.tasks_json)
+  main()
