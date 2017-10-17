@@ -311,7 +311,7 @@
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/linux_vulkan_intel_driver_debug:[START_DIR]/linux_vulkan_sdk/lib",
       "LIBGL_DRIVERS_PATH": "[START_DIR]/linux_vulkan_intel_driver_debug",
-      "LLVM_PROFILE_FILE": "[CUSTOM_[SWARM_OUT_DIR]]/output.profraw",
+      "LLVM_PROFILE_FILE": "[CUSTOM_[SWARM_OUT_DIR]]/All.profraw",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]:[START_DIR]/linux_vulkan_sdk/bin",
       "SKIA_OUT": "[START_DIR]/out",
       "VK_ICD_FILENAMES": "[START_DIR]/linux_vulkan_intel_driver_debug/intel_icd.x86_64.json"

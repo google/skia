@@ -836,17 +836,17 @@ benchmark Skia using skpbench.
 
 [DEPS](/infra/bots/recipes/test.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [core](#recipe_modules-core), [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
-&mdash; **def [RunSteps](/infra/bots/recipes/test.py#842)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/test.py#852)(api):**
 
 &mdash; **def [dm\_flags](/infra/bots/recipes/test.py#27)(api, bot):**
 
-&mdash; **def [key\_params](/infra/bots/recipes/test.py#698)(api):**
+&mdash; **def [key\_params](/infra/bots/recipes/test.py#708)(api):**
 
 Build a unique key from the builder name (as a list).
 
 E.g.  arch x86 gpu GeForce320M mode MacMini4.1 os Mac10.6
 
-&mdash; **def [test\_steps](/infra/bots/recipes/test.py#714)(api):**
+&mdash; **def [test\_steps](/infra/bots/recipes/test.py#724)(api):**
 
 Run the DM test.
 ### *recipes* / [update\_meta\_config](/infra/bots/recipes/update_meta_config.py)
@@ -858,9 +858,9 @@ Recipe for the Bot that updates meta config.
 &mdash; **def [RunSteps](/infra/bots/recipes/update_meta_config.py#38)(api):**
 ### *recipes* / [upload\_coverage\_results](/infra/bots/recipes/upload_coverage_results.py)
 
-[DEPS](/infra/bots/recipes/upload_coverage_results.py#12): [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [gsutil](#recipe_modules-gsutil)
+[DEPS](/infra/bots/recipes/upload_coverage_results.py#12): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [gsutil](#recipe_modules-gsutil)
 
-&mdash; **def [RunSteps](/infra/bots/recipes/upload_coverage_results.py#33)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/upload_coverage_results.py#38)(api):**
 ### *recipes* / [upload\_dm\_results](/infra/bots/recipes/upload_dm_results.py)
 
 [DEPS](/infra/bots/recipes/upload_dm_results.py#12): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [gsutil](#recipe_modules-gsutil)

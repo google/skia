@@ -329,7 +329,7 @@
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN_FSAA",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN_FAAA",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN_FDAA",
-  "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage",
+  "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_16-Coverage",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN_FSAA",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN_FAAA",

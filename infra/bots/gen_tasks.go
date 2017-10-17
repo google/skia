@@ -19,6 +19,7 @@ import (
 	"regexp"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -795,39 +796,94 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			Priority: 0.8,
 		})
 		return uploadName
-	} else if strings.Contains(name, "Coverage") {
-		uploadName := fmt.Sprintf("%s%s%s", "Upload", jobNameSchema.Sep, name)
-		// We need clang_linux to get access to the llvm-profdata and llvm-cov binaries
-		// which are used to deal with the raw coverage data output by the Test step.
-		pkgs := []*specs.CipdPackage{}
-		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
-		b.MustAddTask(uploadName, &specs.TaskSpec{
-			// A dependency on compileTaskName makes the TaskScheduler link the
-			// isolated output of the compile step to the input of the upload step,
-			// which gives us access to the instrumented binary. The binary is
-			// needed to figure out symbol names and line numbers.
-			Dependencies: []string{name, compileTaskName},
-			Dimensions:   linuxGceDimensions(),
-			CipdPackages: pkgs,
+	}
+
+	return name
+}
+
+func coverage(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
+	shards := 1
+	deps := []string{}
+
+	tf := parts["test_filter"]
+	if strings.Contains(tf, "Shard") {
+		// Expected Shard_NN
+		shardstr := strings.Split(tf, "_")[1]
+		var err error
+		shards, err = strconv.Atoi(shardstr)
+		if err != nil {
+			glog.Fatalf("Expected int for number of shards %q in %s: %s", shardstr, name, err)
+		}
+	}
+	for i := 0; i < shards; i++ {
+		n := strings.Replace(name, tf, fmt.Sprintf("shard_%02d_%02d", i, shards), 1)
+		s := &specs.TaskSpec{
+			CipdPackages:     pkgs,
+			Dependencies:     []string{compileTaskName},
+			Dimensions:       swarmDimensions(parts),
+			ExecutionTimeout: 4 * time.Hour,
+			Expiration:       20 * time.Hour,
 			ExtraArgs: []string{
-				"--workdir", "../../..", "upload_coverage_results",
+				"--workdir", "../../..", "test",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
-				fmt.Sprintf("buildername=%s", name),
+				fmt.Sprintf("buildername=%s", n),
 				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 				fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
 				fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
-				fmt.Sprintf("gs_bucket=%s", CONFIG.GsBucketCoverage),
 			},
-			Isolate:  relpath("upload_coverage_results.isolate"),
-			Priority: 0.8,
-		})
-		return uploadName
+			IoTimeout:   40 * time.Minute,
+			Isolate:     relpath("test_skia.isolate"),
+			MaxAttempts: 1,
+			Priority:    0.8,
+		}
+		if useBundledRecipes(parts) {
+			s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
+			if strings.Contains(parts["os"], "Win") {
+				s.Isolate = relpath("test_skia_bundled_win.isolate")
+			} else {
+				s.Isolate = relpath("test_skia_bundled_unix.isolate")
+			}
+		}
+		if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
+			s.Dependencies = append(s.Dependencies, deps...)
+		}
+		b.MustAddTask(n, s)
+		deps = append(deps, n)
 	}
 
-	return name
+	uploadName := fmt.Sprintf("%s%s%s", "Upload", jobNameSchema.Sep, name)
+	// We need clang_linux to get access to the llvm-profdata and llvm-cov binaries
+	// which are used to deal with the raw coverage data output by the Test step.
+	pkgs = append([]*specs.CipdPackage{}, b.MustGetCipdPackageFromAsset("clang_linux"))
+	deps = append(deps, compileTaskName)
+
+	b.MustAddTask(uploadName, &specs.TaskSpec{
+		// A dependency on compileTaskName makes the TaskScheduler link the
+		// isolated output of the compile step to the input of the upload step,
+		// which gives us access to the instrumented binary. The binary is
+		// needed to figure out symbol names and line numbers.
+		Dependencies: deps,
+		Dimensions:   linuxGceDimensions(),
+		CipdPackages: pkgs,
+		ExtraArgs: []string{
+			"--workdir", "../../..", "upload_coverage_results",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", name),
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+			fmt.Sprintf("gs_bucket=%s", CONFIG.GsBucketCoverage),
+		},
+		Isolate:  relpath("upload_coverage_results.isolate"),
+		Priority: 0.8,
+	})
+	return uploadName
 }
 
 // perf generates a Perf task. Returns the name of the last task in the
@@ -1028,8 +1084,14 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 
 	// Test bots.
-	if parts["role"] == "Test" && !strings.Contains(name, "-CT_") {
-		deps = append(deps, test(b, name, parts, compileTaskName, pkgs))
+
+	if parts["role"] == "Test" {
+		if strings.Contains(parts["extra_config"], "Coverage") {
+			deps = append(deps, coverage(b, name, parts, compileTaskName, pkgs))
+		} else if !strings.Contains(name, "-CT_") {
+			deps = append(deps, test(b, name, parts, compileTaskName, pkgs))
+		}
+
 	}
 
 	// Perf bots.

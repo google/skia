@@ -229,6 +229,16 @@ def dm_flags(api, bot):
       configs = [c for c in configs if c == 'gl' or c == 'gles']
       args.extend(['--pr', 'ccpr', '--cachePathMasks', 'false'])
 
+  tf = api.vars.builder_cfg.get('test_filter')
+  if 'All' != tf:
+    # Expected format: shard_XX_YY
+    parts = tf.split('_')
+    if len(parts) == 3:
+      args.extend(['--shard', parts[1]])
+      args.extend(['--shards', parts[2]])
+    else:
+      raise Exception('Invalid task name - bad shards') #pragma: nocover
+
   args.append('--config')
   args.extend(configs)
 
@@ -876,7 +886,7 @@ TEST_BUILDERS = [
   'Test-ChromeOS-Clang-Chromebook_CB5_312T-GPU-PowerVRGX6250-arm-Debug-All',
   'Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_10-Coverage',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All'
    '-SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),

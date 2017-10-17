@@ -1,36 +1,55 @@
 [
   {
     "cmd": [
-      "gsutil",
-      "cp",
-      "-Z",
-      "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]",
+      "*.profraw"
     ],
-    "name": "upload raw data",
+    "infra_step": true,
+    "name": "find raw inputs",
+    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_FAILURE@@@"
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/a.raw@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/b.raw@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/c.raw@@@",
+      "@@@STEP_LOG_END@glob@@@"
     ]
+  },
+  {
+    "cmd": [
+      "tar",
+      "-zcvf",
+      "[START_DIR]/raw_data.profraw.tar.gz",
+      "[START_DIR]/a.raw",
+      "[START_DIR]/b.raw",
+      "[START_DIR]/c.raw"
+    ],
+    "name": "create raw data archive"
   },
   {
     "cmd": [
       "gsutil",
       "cp",
-      "-Z",
-      "[START_DIR]/output.profraw",
-      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
+      "[START_DIR]/raw_data.profraw.tar.gz",
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw.tar.gz"
     ],
-    "name": "upload raw data (attempt 2)"
+    "name": "upload raw data archive"
   },
   {
     "cmd": [
       "[START_DIR]/clang_linux/bin/llvm-profdata",
       "merge",
       "-sparse",
-      "[START_DIR]/output.profraw",
       "-o",
-      "[START_DIR]/output.profdata"
+      "[START_DIR]/output.profdata",
+      "[START_DIR]/a.raw",
+      "[START_DIR]/b.raw",
+      "[START_DIR]/c.raw"
     ],
     "name": "merge and index"
   },
@@ -42,7 +61,21 @@
       "[START_DIR]/output.profdata",
       "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
     ],
-    "name": "upload parsed data"
+    "name": "upload parsed data",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-Z",
+      "[START_DIR]/output.profdata",
+      "gs://skia-coverage/commit/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profdata"
+    ],
+    "name": "upload parsed data (attempt 2)"
   },
   {
     "cmd": [
