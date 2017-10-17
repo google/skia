@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6cb35cd8_e2ffdd15",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 782,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-17T19:04:18Z",
+      "side": 1,
+      "message": "An individual object can be drawn a multiple times in a single frame. What do we do in the case that the same glyph path is drawn at various scales and locations in a single frame?",
+      "parentUuid": "323ed5a7_16f15fa8",
+      "range": {
+        "startLine": 782,
+        "startChar": 32,
+        "endLine": 782,
+        "endChar": 44
+      },
+      "revId": "8a313c8ec26c7383c9e7ea00c3061b3fff5744a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1cb672c1_2a17cd29",
         "filename": "include/core/SkCanvas.h",
         "patchSetId": 4
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "20ab01f2_0a3cfc35",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-17T19:04:18Z",
+      "side": 1,
+      "message": "Done.\n\nDo you feel the same way about saying we can cache fully rasterized bitmaps in the integer translates case? I feel okay with that one.",
+      "parentUuid": "2c3574cd_8c5386b0",
+      "range": {
+        "startLine": 795,
+        "startChar": 25,
+        "endLine": 795,
+        "endChar": 64
+      },
+      "revId": "8a313c8ec26c7383c9e7ea00c3061b3fff5744a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "92d61fc4_b2ab7f4c",
         "filename": "include/core/SkCanvas.h",
         "patchSetId": 4
@@ -82,6 +130,30 @@
       "writtenOn": "2017-10-17T18:47:20Z",
       "side": 1,
       "message": "What is the reason for this?",
+      "range": {
+        "startLine": 804,
+        "startChar": 8,
+        "endLine": 805,
+        "endChar": 20
+      },
+      "revId": "8a313c8ec26c7383c9e7ea00c3061b3fff5744a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b020d75d_3d11f0a0",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-17T19:04:18Z",
+      "side": 1,
+      "message": "Maybe you created a new context to do a one-shot rendering, and it\u0027s a huge pain to mark every single path as volatile, especially since in a different context the same SkPath is not volatile. Also, paths are the only objects that you can exempt from caching by marking them volatile, so this would be the only way to disable caching for things like masks in a one-shot rendering.",
+      "parentUuid": "92d61fc4_b2ab7f4c",
       "range": {
         "startLine": 804,
         "startChar": 8,
