@@ -1,22 +1,54 @@
 [
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport glob\nimport os\nimport sys\n\ndir = sys.argv[1]\nglob_pattern = '*.profraw'\n\npath = os.path.join(dir, glob_pattern)\nprint '|'.join(glob.glob(path))\n",
+      "[START_DIR]"
+    ],
+    "infra_step": true,
+    "name": "find raw inputs",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import glob@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@dir = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@glob_pattern = '*.profraw'@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = os.path.join(dir, glob_pattern)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print '|'.join(glob.glob(path))@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "tar",
+      "-zcvf",
+      "[START_DIR]/raw_data.profraw.tar.gz",
+      "[START_DIR]/All.profraw"
+    ],
+    "name": "create raw data archive"
+  },
+  {
+    "cmd": [
       "gsutil",
       "cp",
-      "-Z",
-      "[START_DIR]/output.profraw",
-      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw"
+      "[START_DIR]/raw_data.profraw.tar.gz",
+      "gs://skia-coverage/trybot/456789/12/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All.profraw.tar.gz"
     ],
-    "name": "upload raw data"
+    "name": "upload raw data archive"
   },
   {
     "cmd": [
       "[START_DIR]/clang_linux/bin/llvm-profdata",
       "merge",
       "-sparse",
-      "[START_DIR]/output.profraw",
       "-o",
-      "[START_DIR]/output.profdata"
+      "[START_DIR]/output.profdata",
+      "[START_DIR]/All.profraw"
     ],
     "name": "merge and index"
   },
