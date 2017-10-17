@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e59c0f21_08d16188",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-10-17T14:26:47Z",
+      "side": 1,
+      "message": "Hey what\u0027s the deal here?  I guess I was confused earlier thinking these were the same value... but not quite eh?",
+      "revId": "2f70f05a52b39abceefbe5f85a2e43d398b57eb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
