@@ -719,26 +719,14 @@ const {
 
 SkRect SkBlurImageFilterImpl::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
-#if defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
     bounds.outset(fSigma.width() * 3, fSigma.height() * 3);
-#else
-    auto borderW = calculate_border(calculate_window(fSigma.width())),
-         borderH = calculate_border(calculate_window(fSigma.height()));
-    bounds.outset(borderW, borderH);
-#endif
     return bounds;
 }
 
 SkIRect SkBlurImageFilterImpl::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                               MapDirection) const {
     SkVector sigma = map_sigma(fSigma, ctm);
-#if defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
     return src.makeOutset(SkScalarCeilToInt(sigma.x() * 3), SkScalarCeilToInt(sigma.y() * 3));
-#else
-    auto borderW = calculate_border(calculate_window(sigma.x())),
-         borderH = calculate_border(calculate_window(sigma.y()));
-    return src.makeOutset(borderW, borderH);
-#endif
 }
 
 #ifndef SK_IGNORE_TO_STRING
