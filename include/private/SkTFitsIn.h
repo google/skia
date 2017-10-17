@@ -66,7 +66,7 @@ template <typename A, typename B> struct SkTHasMoreDigits
  *  Used when it is statically known that source values are in the range of the Destination.
  */
 template <typename S> struct SkTInRange_True {
-    static bool fits(S) {
+    static constexpr bool fits(S) {
         return true;
     }
 };
@@ -75,7 +75,7 @@ template <typename S> struct SkTInRange_True {
  *  This is not valid for uX -> sx and sx -> uX conversions.
  */
 template <typename D, typename S> struct SkTInRange_Cast {
-    static bool fits(S s) {
+    static constexpr bool fits(S s) {
         using S_is_bigger = SkTHasMoreDigits<S, D>;
         using D_is_bigger = SkTHasMoreDigits<D, S>;
 
@@ -95,7 +95,7 @@ template <typename D, typename S> struct SkTInRange_Cast {
  *  Assumes that Max(S) >= Max(D).
  */
 template <typename D, typename S> struct SkTInRange_LE_MaxD {
-    static bool fits(S s) {
+    static constexpr bool fits(S s) {
         using precondition = SkTHasMoreDigits<S, D>;
         static_assert(precondition::value, "maxS < maxD");
 
@@ -106,7 +106,7 @@ template <typename D, typename S> struct SkTInRange_LE_MaxD {
 
 /** Tests if the source value >= 0. */
 template <typename D, typename S> struct SkTInRange_GE_Zero {
-    static bool fits(S s) {
+    static constexpr bool fits(S s) {
         return static_cast<S>(0) <= s;
     }
 };
@@ -197,7 +197,7 @@ template <typename T> struct underlying_type<T, false> {
 } // namespace sktfitsin
 
 /** Returns true if the integer source value 's' will fit in the integer destination type 'D'. */
-template <typename D, typename S> inline bool SkTFitsIn(S s) {
+template <typename D, typename S> constexpr inline bool SkTFitsIn(S s) {
     static_assert(std::is_integral<S>::value || std::is_enum<S>::value, "S must be integral.");
     static_assert(std::is_integral<D>::value || std::is_enum<D>::value, "D must be integral.");
 
