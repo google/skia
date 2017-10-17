@@ -46,8 +46,7 @@ sk_sp<GrRenderTargetContext> newRTC(GrContext* context, int w, int h) {
                                                     kRGBA_8888_GrPixelConfig, nullptr);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+static void clear_op_test(skiatest::Reporter* reporter, GrContext* context) {
     static const int kW = 10;
     static const int kH = 10;
 
@@ -206,10 +205,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
     }
 }
 
-// From crbug.com/768134
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FullScreenClearWithLayers, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
+    clear_op_test(reporter, ctxInfo.grContext());
+    if (ctxInfo.backend() == kOpenGL_GrBackend) {
+        GrContextOptions options(ctxInfo.options());
+        options.fUseDrawInsteadOfGLClear = GrContextOptions::Enable::kYes;
+        sk_gpu_test::GrContextFactory workaroundFactory(options);
+        clear_op_test(reporter, workaroundFactory.get(ctxInfo.type()));
+    }
+}
 
+void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, GrContext* context) {
     const SkImageInfo ii = SkImageInfo::Make(400, 77, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
     sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii);
@@ -262,6 +268,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FullScreenClearWithLayers, reporter, ctxInfo)
     }
 
     REPORTER_ASSERT(reporter, isCorrect);
+}
+// From crbug.com/768134
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FullScreenClearWithLayers, reporter, ctxInfo) {
+    fullscreen_clear_with_layer_test(reporter, ctxInfo.grContext());
+    if (ctxInfo.backend() == kOpenGL_GrBackend) {
+        GrContextOptions options(ctxInfo.options());
+        options.fUseDrawInsteadOfGLClear = GrContextOptions::Enable::kYes;
+        sk_gpu_test::GrContextFactory workaroundFactory(options);
+        fullscreen_clear_with_layer_test(reporter, workaroundFactory.get(ctxInfo.type()));
+    }
 }
 
 #endif
