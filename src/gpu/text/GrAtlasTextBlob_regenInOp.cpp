@@ -21,7 +21,7 @@
 template <bool regenPos, bool regenCol, bool regenTexCoords>
 inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexStride,
                            bool useDistanceFields, SkScalar transX, SkScalar transY,
-                           GrColor color) {
+                           GrColor color, const SkIRect& clipRect) {
     uint16_t u0, v0, u1, v1;
     if (regenTexCoords) {
         SkASSERT(glyph);
@@ -200,7 +200,7 @@ void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fon
 
         regen_vertices<regenPos, regenCol, regenTexCoords>(vertex, glyph, vertexStride,
                                                            info->drawAsDistanceFields(), transX,
-                                                           transY, color);
+                                                           transY, color, fClipRect);
         vertex += vertexStride * GrAtlasTextOp::kVerticesPerGlyph;
         helper->incGlyphCount();
     }
