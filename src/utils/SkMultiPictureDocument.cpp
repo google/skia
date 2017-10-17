@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBigPicture.h"
 #include "SkMultiPictureDocument.h"
 #include "SkMultiPictureDocumentPriv.h"
 #include "SkNWayCanvas.h"
@@ -49,8 +50,9 @@ struct MultiPictureDocument final : public SkDocument {
     SkSize fCurrentPageSize;
     SkTArray<sk_sp<SkPicture>> fPages;
     SkTArray<SkSize> fSizes;
-    MultiPictureDocument(SkWStream* s, void (*d)(SkWStream*, bool))
-        : SkDocument(s, d) {}
+    SkExtPictureUIDMap* fIds;
+    MultiPictureDocument(SkWStream* s, void (*d)(SkWStream*, bool), SkExtPictureUIDMap* ids)
+        : SkDocument(s, d), fIds(ids) {}
     ~MultiPictureDocument() override { this->close(); }
 
     SkCanvas* onBeginPage(SkScalar w, SkScalar h) override {
@@ -77,7 +79,10 @@ struct MultiPictureDocument final : public SkDocument {
             c->drawAnnotation(SkRect::MakeEmpty(), kEndPage, nullptr);
         }
         sk_sp<SkPicture> p = fPictureRecorder.finishRecordingAsPicture();
-        p->serialize(wStream);
+        if (p->asSkBigPicture() && fIds)
+            p->asSkBigPicture()->serialize(wStream, nullptr, fIds);
+        else
+            p->serialize(wStream);
         fPages.reset();
         fSizes.reset();
         return;
@@ -90,7 +95,11 @@ struct MultiPictureDocument final : public SkDocument {
 }
 
 sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream) {
-    return sk_make_sp<MultiPictureDocument>(wStream, nullptr);
+    return sk_make_sp<MultiPictureDocument>(wStream, nullptr, nullptr);
+}
+
+sk_sp<SkDocument> SkMakeMultiPictureContainerDocument(SkWStream* wStream, SkExtPictureUIDMap* ids) {
+    return sk_make_sp<MultiPictureDocument>(wStream, nullptr, ids);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -172,6 +181,13 @@ struct PagerCanvas : public SkNWayCanvas {
 bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
                                 SkDocumentPage* dstArray,
                                 int dstArrayCount) {
+  return SkMultiPictureContainerDocumentRead(stream, nullptr, dstArray, dstArrayCount);
+}
+
+bool SkMultiPictureContainerDocumentRead(SkStreamSeekable* stream,
+                                SkExtPictureMap* pics,
+                                SkDocumentPage* dstArray,
+                                int dstArrayCount) {
     if (!SkMultiPictureDocumentReadPageSizes(stream, dstArray, dstArrayCount)) {
         return false;
     }
@@ -181,7 +197,7 @@ bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
                         SkTMax(joined.height(), dstArray[i].fSize.height())};
     }
 
-    auto picture = SkPicture::MakeFromStream(stream);
+    auto picture = SkBigPicture::MakeFromStream(stream, pics);
 
     PagerCanvas canvas(joined.toCeil(), dstArray, dstArrayCount);
     // Must call playback(), not drawPicture() to reach
