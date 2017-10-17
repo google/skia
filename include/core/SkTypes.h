@@ -206,9 +206,9 @@ typedef unsigned U16CPU;
 typedef uint8_t SkBool8;
 
 #include "../private/SkTFitsIn.h"
-template <typename D, typename S> D SkTo(S s) {
-    SkASSERT(SkTFitsIn<D>(s));
-    return static_cast<D>(s);
+template <typename D, typename S> constexpr D SkTo(S s) {
+    return SkASSERT(SkTFitsIn<D>(s)),
+           static_cast<D>(s);
 }
 #define SkToS8(x)    SkTo<int8_t>(x)
 #define SkToU8(x)    SkTo<uint8_t>(x)
