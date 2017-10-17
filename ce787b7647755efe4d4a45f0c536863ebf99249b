@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "818e2eda_f44cb2cc",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-17T19:26:57Z",
+      "side": 1,
+      "message": "It\u0027s pretty common to abbreviate this sort of thing as \"//third_party/libexif\".",
+      "range": {
+        "startLine": 610,
+        "startChar": 15,
+        "endLine": 610,
+        "endChar": 44
+      },
+      "revId": "ce787b7647755efe4d4a45f0c536863ebf99249b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "698ca3ea_975a4e0f",
+        "filename": "DEPS",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-17T19:26:57Z",
+      "side": 1,
+      "message": "I don\u0027t suppose this happens to be at any sort of human-friendly version tag?  Something like, @1.0.0, or @o-release?",
+      "range": {
+        "startLine": 14,
+        "startChar": 102,
+        "endLine": 14,
+        "endChar": 142
+      },
+      "revId": "ce787b7647755efe4d4a45f0c536863ebf99249b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "177cbbcb_2a24f283",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-17T19:26:57Z",
+      "side": 1,
+      "message": "Is this a TODO?",
+      "range": {
+        "startLine": 169,
+        "startChar": 12,
+        "endLine": 169,
+        "endChar": 19
+      },
+      "revId": "ce787b7647755efe4d4a45f0c536863ebf99249b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a2f21a3_a46bf724",
+        "filename": "src/images/SkJpegEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-17T19:26:57Z",
+      "side": 1,
+      "message": "Seems like we need a note on SkCodec::Origin that it needs to match some enum in libexif / the exif standard?",
+      "range": {
+        "startLine": 242,
+        "startChar": 48,
+        "endLine": 242,
+        "endChar": 75
+      },
+      "revId": "ce787b7647755efe4d4a45f0c536863ebf99249b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79a0135d_a5989501",
+        "filename": "src/images/SkJpegEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-17T19:26:57Z",
+      "side": 1,
+      "message": "Can we fail harder here?",
+      "range": {
+        "startLine": 252,
+        "startChar": 8,
+        "endLine": 252,
+        "endChar": 65
+      },
+      "revId": "ce787b7647755efe4d4a45f0c536863ebf99249b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07d715bd_365c8676",
+        "filename": "third_party/libexif/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-17T19:26:57Z",
+      "side": 1,
+      "message": "Out of curiosity, are these all necessary?",
+      "range": {
+        "startLine": 21,
+        "startChar": 5,
+        "endLine": 44,
+        "endChar": 63
+      },
+      "revId": "ce787b7647755efe4d4a45f0c536863ebf99249b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
