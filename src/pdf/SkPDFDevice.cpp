@@ -1385,7 +1385,7 @@ void SkPDFDevice::internalDrawText(
         const SkScalar pos[], SkTextBlob::GlyphPositioning positioning,
         SkPoint offset, const SkPaint& srcPaint, const uint32_t* clusters,
         uint32_t textByteLength, const char* utf8Text) {
-    if (0 == sourceByteCount || !sourceText) {
+    if (0 == sourceByteCount || !sourceText || srcPaint.getTextSize() <= 0) {
         return;
     }
     if (this->cs().isEmpty(this->bounds())) {
