@@ -52,6 +52,15 @@ bucket to which the request will be submitted. Most public Skia repos use the
 "skia.primary" bucket, and most private Skia repos use the "skia.internal"
 bucket.
 
+There is also a convenience wrapper script which helps to choose try jobs.
+From a Skia checkout:
+
+    bin/try --list
+
+You can also search using regular expressions:
+
+    bin/try "Test.*GTX660.*Release"
+
 
 Status View
 ------------
