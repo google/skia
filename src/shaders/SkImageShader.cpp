@@ -221,17 +221,14 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 
     lmInverse.postScale(scaleAdjust[0], scaleAdjust[1]);
 
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(texColorSpace.get(),
-                                                                       args.fDstColorSpace);
     std::unique_ptr<GrFragmentProcessor> inner;
     if (doBicubic) {
-        inner = GrBicubicEffect::Make(std::move(proxy), std::move(colorSpaceXform), lmInverse,
-                                      wrapModes);
+        inner = GrBicubicEffect::Make(std::move(proxy), lmInverse, wrapModes);
     } else {
-        inner = GrSimpleTextureEffect::Make(std::move(proxy), std::move(colorSpaceXform), lmInverse,
-                                            samplerState);
+        inner = GrSimpleTextureEffect::Make(std::move(proxy), nullptr, lmInverse, samplerState);
     }
-
+    inner = GrColorSpaceXformEffect::Make(std::move(inner), texColorSpace.get(),
+                                          args.fDstColorSpace);
     if (isAlphaOnly) {
         return inner;
     }

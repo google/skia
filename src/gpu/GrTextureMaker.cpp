@@ -117,12 +117,9 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
                             proxy.get(),
                             nullptr, fmForDetermineDomain, &domain);
     SkASSERT(kTightCopy_DomainMode != domainMode);
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(texColorSpace.get(),
-                                                                       dstColorSpace);
-    return CreateFragmentProcessorForDomainAndFilter(std::move(proxy),
-                                                     std::move(colorSpaceXform),
-                                                     adjustedMatrix, domainMode, domain,
-                                                     filterOrNullForBicubic);
+    auto fp = CreateFragmentProcessorForDomainAndFilter(std::move(proxy), adjustedMatrix,
+                                                        domainMode, domain, filterOrNullForBicubic);
+    return GrColorSpaceXformEffect::Make(std::move(fp), texColorSpace.get(), dstColorSpace);
 }
 
 sk_sp<GrTextureProxy> GrTextureMaker::generateTextureProxyForParams(const CopyParams& copyParams,

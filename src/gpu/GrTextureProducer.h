@@ -13,7 +13,6 @@
 #include "SkImageInfo.h"
 
 class GrContext;
-class GrColorSpaceXform;
 class GrFragmentProcessor;
 class GrTexture;
 class GrTextureProxy;
@@ -138,7 +137,6 @@ protected:
 
     static std::unique_ptr<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
             sk_sp<GrTextureProxy> proxy,
-            sk_sp<GrColorSpaceXform>,
             const SkMatrix& textureMatrix,
             DomainMode,
             const SkRect& domain,

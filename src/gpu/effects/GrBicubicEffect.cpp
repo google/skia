@@ -8,7 +8,6 @@
 #include "GrBicubicEffect.h"
 
 #include "GrTexture.h"
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
@@ -22,7 +21,6 @@ public:
                               GrProcessorKeyBuilder* b) {
         const GrBicubicEffect& bicubicEffect = effect.cast<GrBicubicEffect>();
         b->add32(GrTextureDomain::GLDomain::DomainKey(bicubicEffect.domain()));
-        b->add32(GrColorSpaceXform::XformKey(bicubicEffect.colorSpaceXform()));
     }
 
 protected:
@@ -32,7 +30,6 @@ private:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
     UniformHandle               fImageIncrementUni;
-    GrGLSLColorSpaceXformHelper fColorSpaceHelper;
     GrTextureDomain::GLDomain   fDomain;
 
     typedef GrGLSLFragmentProcessor INHERITED;
@@ -46,8 +43,6 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
                                                     "ImageIncrement");
 
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
-
-    fColorSpaceHelper.emitCode(uniformHandler, bicubicEffect.colorSpaceXform());
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
@@ -105,11 +100,6 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
             y);
     }
     SkString bicubicColor("(wy.x * s0 + wy.y * s1 + wy.z * s2 + wy.w * s3)");
-    if (fColorSpaceHelper.isValid()) {
-        SkString xformedColor;
-        fragBuilder->appendColorGamutXform(&xformedColor, bicubicColor.c_str(), &fColorSpaceHelper);
-        bicubicColor.swap(xformedColor);
-    }
     fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputColor, bicubicColor.c_str(),
                              args.fInputColor);
 }
@@ -125,34 +115,27 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     imageIncrement[1] = 1.0f / texture->height();
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
     fDomain.setData(pdman, bicubicEffect.domain(), proxy);
-    if (SkToBool(bicubicEffect.colorSpaceXform())) {
-        fColorSpaceHelper.setData(pdman, bicubicEffect.colorSpaceXform());
-    }
 }
 
 GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
-                                 sk_sp<GrColorSpaceXform> colorSpaceXform,
                                  const SkMatrix& matrix,
                                  const GrSamplerState::WrapMode wrapModes[2])
         : INHERITED{kGrBicubicEffect_ClassID, ModulateByConfigOptimizationFlags(proxy->config())}
         , fCoordTransform(matrix, proxy.get())
         , fDomain(GrTextureDomain::IgnoredDomain())
         , fTextureSampler(std::move(proxy),
-                          GrSamplerState(wrapModes, GrSamplerState::Filter::kNearest))
-        , fColorSpaceXform(std::move(colorSpaceXform)) {
+                          GrSamplerState(wrapModes, GrSamplerState::Filter::kNearest)) {
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
 
 GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
-                                 sk_sp<GrColorSpaceXform> colorSpaceXform,
                                  const SkMatrix& matrix,
                                  const SkRect& domain)
         : INHERITED(kGrBicubicEffect_ClassID, ModulateByConfigOptimizationFlags(proxy->config()))
         , fCoordTransform(matrix, proxy.get())
         , fDomain(proxy.get(), domain, GrTextureDomain::kClamp_Mode)
-        , fTextureSampler(std::move(proxy))
-        , fColorSpaceXform(std::move(colorSpaceXform)) {
+        , fTextureSampler(std::move(proxy)) {
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
@@ -161,8 +144,7 @@ GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
         : INHERITED(kGrBicubicEffect_ClassID, that.optimizationFlags())
         , fCoordTransform(that.fCoordTransform)
         , fDomain(that.fDomain)
-        , fTextureSampler(that.fTextureSampler)
-        , fColorSpaceXform(that.fColorSpaceXform) {
+        , fTextureSampler(that.fTextureSampler) {
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
@@ -187,11 +169,9 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(d->fRandom);
     static const GrSamplerState::WrapMode kClampClamp[] = {GrSamplerState::WrapMode::kClamp,
                                                            GrSamplerState::WrapMode::kClamp};
-    return GrBicubicEffect::Make(d->textureProxy(texIdx), std::move(colorSpaceXform),
-                                 SkMatrix::I(), kClampClamp);
+    return GrBicubicEffect::Make(d->textureProxy(texIdx), SkMatrix::I(), kClampClamp);
 }
 #endif
 
