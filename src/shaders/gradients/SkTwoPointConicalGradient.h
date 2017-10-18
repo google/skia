@@ -15,7 +15,7 @@ class SkTwoPointConicalGradient final : public SkGradientShaderBase {
 public:
     static sk_sp<SkShader> Create(const SkPoint& start, SkScalar startRadius,
                                   const SkPoint& end, SkScalar endRadius,
-                                  bool flippedGrad, const Descriptor&);
+                                  const Descriptor&);
 
     SkShader::GradientType asAGradient(GradientInfo* info) const  override;
 #if SK_SUPPORT_GPU
@@ -29,7 +29,6 @@ public:
     const SkPoint& getStartCenter() const { return fCenter1; }
     const SkPoint& getEndCenter() const { return fCenter2; }
     SkScalar getEndRadius() const { return fRadius2; }
-    bool isFlippedGrad() const { return fFlippedGrad; }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTwoPointConicalGradient)
@@ -51,14 +50,12 @@ private:
 
     SkTwoPointConicalGradient(const SkPoint& c0, SkScalar r0,
                               const SkPoint& c1, SkScalar r1,
-                              bool flippedGrad, const Descriptor&,
-                              Type, const SkMatrix&);
+                              const Descriptor&, Type, const SkMatrix&);
 
     SkPoint  fCenter1;
     SkPoint  fCenter2;
     SkScalar fRadius1;
     SkScalar fRadius2;
-    bool     fFlippedGrad;
     Type     fType;
 
     friend class SkGradientShader;
