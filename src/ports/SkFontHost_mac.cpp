@@ -1056,12 +1056,8 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
 
 #include "SkColorData.h"
 
-static void build_power_table(uint8_t table[]) {
-    for (int i = 0; i < 256; i++) {
-        float x = i / 255.f;
-        int xx = SkScalarRoundToInt(x * x * 255);
-        table[i] = SkToU8(xx);
-    }
+static constexpr uint8_t sk_pow2_table(size_t i) {
+    return SkToU8(((i * i + 128) / 255));
 }
 
 /**
@@ -1071,15 +1067,7 @@ static void build_power_table(uint8_t table[]) {
  *  CoreGraphics obscurely defaults to 2.0 as the smoothing gamma value.
  *  The color space used does not appear to affect this choice.
  */
-static const uint8_t* getInverseGammaTableCoreGraphicSmoothing() {
-    static bool gInited;
-    static uint8_t gTableCoreGraphicsSmoothing[256];
-    if (!gInited) {
-        build_power_table(gTableCoreGraphicsSmoothing);
-        gInited = true;
-    }
-    return gTableCoreGraphicsSmoothing;
-}
+static constexpr auto gLinearCoverageFromCGLCDValue = SkMakeArray<256>(sk_pow2_table);
 
 static void cgpixels_to_bits(uint8_t dst[], const CGRGBPixel src[], int count) {
     while (count > 0) {
@@ -1179,7 +1167,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     if ((glyph.fMaskFormat == SkMask::kLCD16_Format) ||
         (glyph.fMaskFormat == SkMask::kA8_Format && supports_LCD() && generateA8FromLCD))
     {
-        const uint8_t* table = getInverseGammaTableCoreGraphicSmoothing();
+        const uint8_t* linear = gLinearCoverageFromCGLCDValue.data();
 
         //Note that the following cannot really be integrated into the
         //pre-blend, since we may not be applying the pre-blend; when we aren't
@@ -1192,7 +1180,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
                 int r = (addr[x] >> 16) & 0xFF;
                 int g = (addr[x] >>  8) & 0xFF;
                 int b = (addr[x] >>  0) & 0xFF;
-                addr[x] = (table[r] << 16) | (table[g] << 8) | table[b];
+                addr[x] = (linear[r] << 16) | (linear[g] << 8) | linear[b];
             }
             addr = SkTAddOffset<CGRGBPixel>(addr, cgRowBytes);
         }
