@@ -97,6 +97,7 @@ protected:
         }
 
         canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorWHITE));
+        canvas->clipRect(SkRect::MakeLTRB(0, 0, 2000, 500));
 
         SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, canvas->imageInfo().colorType(),
                                              kPremul_SkAlphaType,
@@ -118,12 +119,12 @@ protected:
                 yOffset += stride;
 
                 // This will draw as black boxes
-                c->drawTextBlob(fBlob, 10, SkIntToScalar(yOffset), paint);
-                surface->draw(canvas, 0, 0, nullptr);
+                //c->drawTextBlob(fBlob, 10, SkIntToScalar(yOffset), paint);
+                //surface->draw(canvas, 0, 0, nullptr);
 
-                // free gpu resources and verify
-                yOffset += stride;
-                canvas->getGrContext()->freeGpuResources();
+                //// free gpu resources and verify
+                //yOffset += stride;
+                //canvas->getGrContext()->freeGpuResources();
                 canvas->drawTextBlob(fBlob, 10, SkIntToScalar(yOffset), paint);
 
                 yOffset += stride;

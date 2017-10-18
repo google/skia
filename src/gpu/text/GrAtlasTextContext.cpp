@@ -163,7 +163,8 @@ void GrAtlasTextContext::RegenerateTextBlob(GrAtlasTextBlob* cacheBlob,
                                             GrAtlasGlyphCache* fontCache,
                                             const GrShaderCaps& shaderCaps,
                                             const GrTextUtils::Paint& paint,
-                                            uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
+                                            uint32_t scalerContextFlags,
+                                            const SkMatrix& viewMatrix,
                                             const SkSurfaceProps& props, const SkTextBlob* blob,
                                             SkScalar x, SkScalar y, SkDrawFilter* drawFilter) {
     cacheBlob->initReusableBlob(paint.luminanceColor(), viewMatrix, x, y);
@@ -237,6 +238,7 @@ GrAtlasTextContext::MakeDrawTextBlob(GrTextBlobCache* blobCache,
                                      const GrTextUtils::Paint& paint,
                                      uint32_t scalerContextFlags,
                                      const SkMatrix& viewMatrix,
+                                     const SkIRect& clipBounds,
                                      const SkSurfaceProps& props,
                                      const char text[], size_t byteLength,
                                      SkScalar x, SkScalar y) {
@@ -264,6 +266,7 @@ GrAtlasTextContext::MakeDrawPosTextBlob(GrTextBlobCache* blobCache,
                                         const GrTextUtils::Paint& paint,
                                         uint32_t scalerContextFlags,
                                         const SkMatrix& viewMatrix,
+                                        const SkIRect& clipBounds,
                                         const SkSurfaceProps& props,
                                         const char text[], size_t byteLength,
                                         const SkScalar pos[], int scalarsPerPosition, const
@@ -300,7 +303,7 @@ void GrAtlasTextContext::drawText(GrContext* context, GrRenderTargetContext* rtc
             MakeDrawTextBlob(context->getTextBlobCache(), context->getAtlasGlyphCache(),
                              *context->caps()->shaderCaps(),
                              paint, ComputeScalerContextFlags(rtc),
-                             viewMatrix, props,
+                             viewMatrix, regionClipBounds, props,
                              text, byteLength, x, y));
         if (blob) {
             blob->flushThrowaway(context, rtc, props, fDistanceAdjustTable.get(), paint, clip,
@@ -328,7 +331,7 @@ void GrAtlasTextContext::drawPosText(GrContext* context, GrRenderTargetContext* 
             MakeDrawPosTextBlob(context->getTextBlobCache(), context->getAtlasGlyphCache(),
                                 *context->caps()->shaderCaps(),
                                 paint, ComputeScalerContextFlags(rtc),
-                                viewMatrix, props,
+                                viewMatrix, regionClipBounds, props,
                                 text, byteLength,
                                 pos, scalarsPerPosition,
                                 offset));
@@ -389,10 +392,11 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
 
     // right now we don't handle textblobs, nor do we handle drawPosText. Since we only intend to
     // test the text op with this unit test, that is okay.
+    SkIRect garbage;
     sk_sp<GrAtlasTextBlob> blob(GrAtlasTextContext::MakeDrawTextBlob(
             context->getTextBlobCache(), context->getAtlasGlyphCache(),
             *context->caps()->shaderCaps(), utilsPaint,
-            GrAtlasTextContext::kTextBlobOpScalerContextFlags, viewMatrix, gSurfaceProps, text,
+            GrAtlasTextContext::kTextBlobOpScalerContextFlags, viewMatrix, garbage, gSurfaceProps, text,
             static_cast<size_t>(textLen), x, y));
 
     return blob->test_makeOp(textLen, 0, 0, viewMatrix, x, y, utilsPaint, gSurfaceProps,

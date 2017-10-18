@@ -68,6 +68,7 @@ private:
                                                           const GrTextUtils::Paint&,
                                                           uint32_t scalerContextFlags,
                                                           const SkMatrix& viewMatrix,
+                                                          const SkIRect& clipBounds,
                                                           const SkSurfaceProps&,
                                                           const char text[], size_t byteLength,
                                                           SkScalar x, SkScalar y);
@@ -76,6 +77,7 @@ private:
                                                              const GrTextUtils::Paint&,
                                                              uint32_t scalerContextFlags,
                                                              const SkMatrix& viewMatrix,
+                                                             const SkIRect& clipBounds,
                                                              const SkSurfaceProps&,
                                                              const char text[], size_t byteLength,
                                                              const SkScalar pos[],
