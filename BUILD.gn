@@ -23,6 +23,7 @@ declare_args() {
   skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_gdi = false
   skia_use_icu = !is_fuchsia && !is_ios && !is_win  # TODO: Windows
+  skia_use_libexif = !is_win  # TODO: Windows
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
@@ -610,6 +611,11 @@ optional("jpeg") {
     "src/images/SkJPEGWriteUtility.cpp",
     "src/images/SkJpegEncoder.cpp",
   ]
+
+  if (skia_use_libexif) {
+    public_defines += [ "SK_HAS_EXIF_LIBRARY" ]
+    deps += [ "//third_party/libexif" ]
+  }
 }
 
 optional("pdf") {
