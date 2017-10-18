@@ -264,29 +264,14 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
     // TODO: in a post-MDB world this should be handled at the OpList level.
     // An op-list that is initially cleared and has no other ops should receive an
     // extra draw.
-    if (fRenderTargetContext->fContext->caps()->useDrawInsteadOfClear()) {
-        // This works around a driver bug with clear by drawing a rect instead.
-        // The driver will ignore a clear if it is the only thing rendered to a
-        // target before the target is read.
-        GrPaint paint;
-        paint.setColor4f(GrColor4f::FromGrColor(color));
-        paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-
-        // We don't call drawRect() here to avoid the cropping to the, possibly smaller,
-        // RenderTargetProxy bounds
-        std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFill(
-                std::move(paint), SkMatrix::I(), SkRect::Make(rtRect), GrAAType::kNone);
-        fRenderTargetContext->addDrawOp(GrNoClip(), std::move(op));
-    } else {
-        // This path doesn't handle coalescing of full screen clears b.c. it
-        // has to clear the entire render target - not just the content area.
-        // It could be done but will take more finagling.
-        std::unique_ptr<GrOp> op(GrClearOp::Make(rtRect, color, !clearRect));
-        if (!op) {
-            return;
-        }
-        fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
+    // This path doesn't handle coalescing of full screen clears b.c. it
+    // has to clear the entire render target - not just the content area.
+    // It could be done but will take more finagling.
+    std::unique_ptr<GrOp> op(GrClearOp::Make(rtRect, color, !clearRect));
+    if (!op) {
+        return;
     }
+    fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
 void GrRenderTargetContextPriv::clear(const GrFixedClip& clip,
@@ -312,23 +297,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
                  clip.scissorRect().contains(SkIRect::MakeWH(this->width(), this->height()));
     }
 
-    if (fContext->caps()->useDrawInsteadOfClear()) {
-        // This works around a driver bug with clear by drawing a rect instead.
-        // The driver will ignore a clear if it is the only thing rendered to a
-        // target before the target is read.
-        SkIRect clearRect = SkIRect::MakeWH(this->width(), this->height());
-        if (isFull) {
-            this->discard();
-        } else if (!clearRect.intersect(clip.scissorRect())) {
-            return;
-        }
-
-        GrPaint paint;
-        paint.setColor4f(GrColor4f::FromGrColor(color));
-        paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-
-        this->drawRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), SkRect::Make(clearRect));
-    } else if (isFull) {
+    if (isFull) {
         this->getRTOpList()->fullClear(*this->caps(), color);
     } else {
         std::unique_ptr<GrOp> op(GrClearOp::Make(clip, color, this->asSurfaceProxy()));
@@ -498,30 +467,27 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
 
     const SkStrokeRec& stroke = style->strokeRec();
     if (stroke.getStyle() == SkStrokeRec::kFill_Style) {
-
-        if (!fContext->caps()->useDrawInsteadOfClear()) {
-            // Check if this is a full RT draw and can be replaced with a clear. We don't bother
-            // checking cases where the RT is fully inside a stroke.
-            SkRect rtRect = fRenderTargetProxy->getBoundsRect();
-            // Does the clip contain the entire RT?
-            if (clip.quickContains(rtRect)) {
-                SkMatrix invM;
-                if (!viewMatrix.invert(&invM)) {
+        // Check if this is a full RT draw and can be replaced with a clear. We don't bother
+        // checking cases where the RT is fully inside a stroke.
+        SkRect rtRect = fRenderTargetProxy->getBoundsRect();
+        // Does the clip contain the entire RT?
+        if (clip.quickContains(rtRect)) {
+            SkMatrix invM;
+            if (!viewMatrix.invert(&invM)) {
+                return;
+            }
+            // Does the rect bound the RT?
+            GrQuad quad;
+            quad.setFromMappedRect(rtRect, invM);
+            if (rect_contains_inclusive(rect, quad.point(0)) &&
+                rect_contains_inclusive(rect, quad.point(1)) &&
+                rect_contains_inclusive(rect, quad.point(2)) &&
+                rect_contains_inclusive(rect, quad.point(3))) {
+                // Will it blend?
+                GrColor clearColor;
+                if (paint.isConstantBlendedColor(&clearColor)) {
+                    this->clear(nullptr, clearColor, true);
                     return;
-                }
-                // Does the rect bound the RT?
-                GrQuad quad;
-                quad.setFromMappedRect(rtRect, invM);
-                if (rect_contains_inclusive(rect, quad.point(0)) &&
-                    rect_contains_inclusive(rect, quad.point(1)) &&
-                    rect_contains_inclusive(rect, quad.point(2)) &&
-                    rect_contains_inclusive(rect, quad.point(3))) {
-                    // Will it blend?
-                    GrColor clearColor;
-                    if (paint.isConstantBlendedColor(&clearColor)) {
-                        this->clear(nullptr, clearColor, true);
-                        return;
-                    }
                 }
             }
         }

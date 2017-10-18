@@ -160,7 +160,6 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fUsesMixedSamples = false;
     fGpuTracingSupport = false;
 
-    fUseDrawInsteadOfClear = false;
     fFenceSyncSupport = true;   // always available in Metal
     fCrossContextTextureSupport = false;
 

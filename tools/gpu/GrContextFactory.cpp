@@ -116,7 +116,8 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             context.fShareIndex == shareIndex &&
             !context.fAbandoned) {
             context.fTestContext->makeCurrent();
-            return ContextInfo(context.fType, context.fTestContext, context.fGrContext);
+            return ContextInfo(context.fType, context.fTestContext, context.fGrContext,
+                               context.fOptions);
         }
     }
 
@@ -288,7 +289,8 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     context.fAbandoned = false;
     context.fShareContext = shareContext;
     context.fShareIndex = shareIndex;
-    return ContextInfo(context.fType, context.fTestContext, context.fGrContext);
+    context.fOptions = grOptions;
+    return ContextInfo(context.fType, context.fTestContext, context.fGrContext, context.fOptions);
 }
 
 ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides overrides) {

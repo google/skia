@@ -56,6 +56,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fClearToBoundaryValuesIsBroken = false;
     fClearTextureSupport = false;
     fDrawArraysBaseVertexIsBroken = false;
+    fUseDrawToClearColor = false;
     fUseDrawToClearStencilClip = false;
     fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = false;
     fUseDrawInsteadOfAllRenderTargetWrites = false;
@@ -565,7 +566,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
         (kAdreno3xx_GrGLRenderer == ctxInfo.renderer() &&
          ctxInfo.driver() != kChromium_GrGLDriver)) {
-        fUseDrawInsteadOfClear = true;
+        fUseDrawToClearColor = true;
     }
 
 #ifdef SK_BUILD_FOR_MAC
@@ -574,7 +575,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // crbug.com/773107 - On MacBook Pros, a wide range of Intel GPUs don't always
     // perform full screen clears.
     if (kIntel_GrGLVendor == ctxInfo.vendor()) {
-        fUseDrawInsteadOfClear = true;
+        fUseDrawToClearColor = true;
     }
 #endif
 
@@ -583,7 +584,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // See crbug.com/768134. This is also needed for full clears and was seen on an nVidia K620
     // but only for D3D11 ANGLE.
     if (GrGLANGLEBackend::kD3D11 == ctxInfo.angleBackend()) {
-        fUseDrawInsteadOfClear = true;
+        fUseDrawToClearColor = true;
     }
 
     if (kAdreno4xx_GrGLRenderer == ctxInfo.renderer()) {
@@ -1389,6 +1390,8 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Texture swizzle support", fTextureSwizzleSupport);
     writer->appendBool("BGRA to RGBA readback conversions are slow",
                        fRGBAToBGRAReadbackConversionsAreSlow);
+    writer->appendBool("Draw To clear color", fUseDrawToClearColor);
+    writer->appendBool("Draw To clear stencil clip", fUseDrawToClearStencilClip);
     writer->appendBool("Intermediate texture for partial updates of unorm textures ever bound to FBOs",
                        fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO);
     writer->appendBool("Intermediate texture for all updates of textures bound to FBOs",
@@ -2353,6 +2356,11 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
     }
     if (options.fUseDrawInsteadOfPartialRenderTargetWrite) {
         fUseDrawInsteadOfAllRenderTargetWrites = true;
+    }
+    if (GrContextOptions::Enable::kNo == options.fUseDrawInsteadOfGLClear) {
+        fUseDrawToClearColor = false;
+    } else if (GrContextOptions::Enable::kYes == options.fUseDrawInsteadOfGLClear) {
+        fUseDrawToClearColor = true;
     }
 }
 

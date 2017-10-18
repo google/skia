@@ -159,6 +159,7 @@ private:
     struct Context {
         ContextType       fType;
         ContextOverrides  fOverrides;
+        GrContextOptions  fOptions;
         GrBackend         fBackend;
         TestContext*      fTestContext;
         GrContext*        fGrContext;
@@ -189,19 +190,18 @@ public:
         return static_cast<GLTestContext*>(fTestContext);
     }
 
+    const GrContextOptions& options() const { return fOptions; }
+
 private:
-    ContextInfo(GrContextFactory::ContextType type,
-                TestContext* testContext,
-                GrContext* grContext)
-        : fType(type)
-        , fTestContext(testContext)
-        , fGrContext(grContext) {
-    }
+    ContextInfo(GrContextFactory::ContextType type, TestContext* testContext, GrContext* grContext,
+                const GrContextOptions& options)
+            : fType(type), fTestContext(testContext), fGrContext(grContext), fOptions(options) {}
 
     GrContextFactory::ContextType fType = GrContextFactory::kGL_ContextType;
     // Valid until the factory destroys it via abandonContexts() or destroyContexts().
-    TestContext*    fTestContext = nullptr;
-    GrContext*      fGrContext = nullptr;
+    TestContext* fTestContext = nullptr;
+    GrContext* fGrContext = nullptr;
+    GrContextOptions fOptions;
 
     friend class GrContextFactory;
 };
