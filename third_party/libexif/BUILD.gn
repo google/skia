@@ -1,0 +1,47 @@
+# Copyright 2017 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  skia_use_system_exif = is_official_build
+}
+
+import("../third_party.gni")
+
+if (skia_use_system_exif) {
+  system("libexif") {
+    libs = [ "exif" ]
+  }
+} else {
+  third_party("libexif") {
+    public_include_dirs = [ "../externals/libexif" ]
+
+    sources = [
+      "../externals/libexif/libexif/canon/exif-mnote-data-canon.c",
+      "../externals/libexif/libexif/canon/mnote-canon-entry.c",
+      "../externals/libexif/libexif/canon/mnote-canon-tag.c",
+      "../externals/libexif/libexif/exif-byte-order.c",
+      "../externals/libexif/libexif/exif-content.c",
+      "../externals/libexif/libexif/exif-data.c",
+      "../externals/libexif/libexif/exif-entry.c",
+      "../externals/libexif/libexif/exif-format.c",
+      "../externals/libexif/libexif/exif-ifd.c",
+      "../externals/libexif/libexif/exif-loader.c",
+      "../externals/libexif/libexif/exif-log.c",
+      "../externals/libexif/libexif/exif-mem.c",
+      "../externals/libexif/libexif/exif-mnote-data.c",
+      "../externals/libexif/libexif/exif-tag.c",
+      "../externals/libexif/libexif/exif-utils.c",
+      "../externals/libexif/libexif/fuji/exif-mnote-data-fuji.c",
+      "../externals/libexif/libexif/fuji/mnote-fuji-entry.c",
+      "../externals/libexif/libexif/fuji/mnote-fuji-tag.c",
+      "../externals/libexif/libexif/olympus/exif-mnote-data-olympus.c",
+      "../externals/libexif/libexif/olympus/mnote-olympus-entry.c",
+      "../externals/libexif/libexif/olympus/mnote-olympus-tag.c",
+      "../externals/libexif/libexif/pentax/exif-mnote-data-pentax.c",
+      "../externals/libexif/libexif/pentax/mnote-pentax-entry.c",
+      "../externals/libexif/libexif/pentax/mnote-pentax-tag.c",
+    ]
+  }
+}

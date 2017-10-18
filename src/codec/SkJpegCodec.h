@@ -107,7 +107,7 @@ private:
      *                   takes ownership
      */
     SkJpegCodec(int width, int height, const SkEncodedInfo& info, std::unique_ptr<SkStream> stream,
-            JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin);
+            JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, SkEncodedOrigin origin);
 
     /*
      * Checks if the conversion between the input image and the requested output

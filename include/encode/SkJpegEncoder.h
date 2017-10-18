@@ -9,6 +9,9 @@
 #define SkJpegEncoder_DEFINED
 
 #include "SkEncoder.h"
+#ifdef SK_HAS_EXIF_LIBRARY
+#include "SkEncodedOrigin.h"
+#endif
 
 class SkJpegEncoderMgr;
 class SkWStream;
@@ -62,6 +65,13 @@ public:
          */
         AlphaOption fAlphaOption = AlphaOption::kIgnore;
         SkTransferFunctionBehavior fBlendBehavior = SkTransferFunctionBehavior::kRespect;
+
+#ifdef SK_HAS_EXIF_LIBRARY
+        /**
+         *  Origin to be written to EXIF, if anything other than the default.
+         */
+        SkEncodedOrigin fOrigin = kDefault_SkEncodedOrigin;
+#endif
     };
 
     /**

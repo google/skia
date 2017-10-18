@@ -9,7 +9,7 @@
 #define SkPixmapPriv_DEFINED
 
 #include "SkPixmap.h"
-#include "SkCodec.h"
+#include "SkEncodedOrigin.h"
 
 class SkPixmapPriv {
 public:
@@ -20,7 +20,7 @@ public:
         kSwapXY  = 1 << 2,
     };
 
-    static OrientFlags OriginToOrient(SkCodec::Origin);
+    static OrientFlags OriginToOrient(SkEncodedOrigin);
 
     /**
      *  Copy the pixels in this pixmap into dst, applying the orientation transformations specified
