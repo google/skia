@@ -16,6 +16,24 @@
       "revId": "fe07a570e31c6affb4eb8518c5b5f2f5afa1206e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df0bb6a9_3a07ebac",
+        "filename": "tests/ClearTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-18T12:33:54Z",
+      "side": 1,
+      "message": "Done, I just added the entire test back behind #if 0",
+      "parentUuid": "a9f040c3_ec6ed68a",
+      "revId": "fe07a570e31c6affb4eb8518c5b5f2f5afa1206e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
