@@ -62,6 +62,10 @@ enum GrGLRenderer {
     /** T-6xx, T-7xx, or T-8xx */
     kMaliT_GrGLRenderer,
     kANGLE_GrGLRenderer,
+
+    kAMDRadeonHD7xxx_GrGLRenderer, // AMD Radeon HD 7000 Series
+    kAMDRadeonR9M4xx_GrGLRenderer, // AMD Radeon R9 M400 Series
+
     kOther_GrGLRenderer
 };
 
