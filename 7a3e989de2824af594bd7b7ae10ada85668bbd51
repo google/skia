@@ -46,6 +46,30 @@
       "revId": "7a3e989de2824af594bd7b7ae10ada85668bbd51",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d35d000f_af9b1cbc",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-18T13:47:01Z",
+      "side": 0,
+      "message": "I\u0027m not worried that it\u0027s wrong now, but if it ever broke in the future because we did some large refactor of this thing we might not notice since it would still draw correctly.",
+      "parentUuid": "3e73c914_1d7c67c6",
+      "range": {
+        "startLine": 185,
+        "startChar": 10,
+        "endLine": 187,
+        "endChar": 17
+      },
+      "revId": "7a3e989de2824af594bd7b7ae10ada85668bbd51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
