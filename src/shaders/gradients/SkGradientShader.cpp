@@ -288,26 +288,6 @@ void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
     desc.flatten(buffer);
 }
 
-void SkGradientShaderBase::FlipGradientColors(SkColor* colorDst, Rec* recDst,
-                                              SkColor* colorSrc, Rec* recSrc,
-                                              int count) {
-    SkAutoSTArray<8, SkColor> colorsTemp(count);
-    for (int i = 0; i < count; ++i) {
-        int offset = count - i - 1;
-        colorsTemp[i] = colorSrc[offset];
-    }
-    if (count > 2) {
-        SkAutoSTArray<8, Rec> recsTemp(count);
-        for (int i = 0; i < count; ++i) {
-            int offset = count - i - 1;
-            recsTemp[i].fPos = SK_Fixed1 - recSrc[offset].fPos;
-            recsTemp[i].fScale = recSrc[offset].fScale;
-        }
-        memcpy(recDst, recsTemp.get(), count * sizeof(Rec));
-    }
-    memcpy(colorDst, colorsTemp.get(), count * sizeof(SkColor));
-}
-
 static void add_stop_color(SkJumper_GradientCtx* ctx, size_t stop, SkPM4f Fs, SkPM4f Bs) {
     (ctx->fs[0])[stop] = Fs.r();
     (ctx->fs[1])[stop] = Fs.g();
@@ -903,25 +883,11 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
     }
 }
 
-void SkGradientShaderBase::commonAsAGradient(GradientInfo* info, bool flipGrad) const {
+void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
     if (info) {
         if (info->fColorCount >= fColorCount) {
-            SkColor* colorLoc;
-            Rec*     recLoc;
-            SkAutoSTArray<8, SkColor> colorStorage;
-            SkAutoSTArray<8, Rec> recStorage;
-            if (flipGrad && (info->fColors || info->fColorOffsets)) {
-                colorStorage.reset(fColorCount);
-                recStorage.reset(fColorCount);
-                colorLoc = colorStorage.get();
-                recLoc = recStorage.get();
-                FlipGradientColors(colorLoc, recLoc, fOrigColors, fRecs, fColorCount);
-            } else {
-                colorLoc = fOrigColors;
-                recLoc = fRecs;
-            }
             if (info->fColors) {
-                memcpy(info->fColors, colorLoc, fColorCount * sizeof(SkColor));
+                memcpy(info->fColors, fOrigColors, fColorCount * sizeof(SkColor));
             }
             if (info->fColorOffsets) {
                 if (fColorCount == 2) {
@@ -929,7 +895,7 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info, bool flipGrad) 
                     info->fColorOffsets[1] = SK_Scalar1;
                 } else if (fColorCount > 2) {
                     for (int i = 0; i < fColorCount; ++i) {
-                        info->fColorOffsets[i] = SkFixedToScalar(recLoc[i].fPos);
+                        info->fColorOffsets[i] = SkFixedToScalar(fRecs[i].fPos);
                     }
                 }
             }
@@ -1191,36 +1157,10 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
 
     ColorStopOptimizer opt(colors, pos, colorCount, mode);
 
-    bool flipGradient = startRadius > endRadius;
-
     SkGradientShaderBase::Descriptor desc;
-
-    if (!flipGradient) {
-        desc_init(&desc, opt.fColors, std::move(colorSpace), opt.fPos, opt.fCount, mode, flags,
-                  localMatrix);
-        return SkTwoPointConicalGradient::Create(start, startRadius, end, endRadius, flipGradient,
-                                                 desc);
-    } else {
-        SkAutoSTArray<8, SkColor4f> colorsNew(opt.fCount);
-        SkAutoSTArray<8, SkScalar> posNew(opt.fCount);
-        for (int i = 0; i < opt.fCount; ++i) {
-            colorsNew[i] = opt.fColors[opt.fCount - i - 1];
-        }
-
-        if (pos) {
-            for (int i = 0; i < opt.fCount; ++i) {
-                posNew[i] = 1 - opt.fPos[opt.fCount - i - 1];
-            }
-            desc_init(&desc, colorsNew.get(), std::move(colorSpace), posNew.get(), opt.fCount, mode,
-                      flags, localMatrix);
-        } else {
-            desc_init(&desc, colorsNew.get(), std::move(colorSpace), nullptr, opt.fCount, mode,
-                      flags, localMatrix);
-        }
-
-        return SkTwoPointConicalGradient::Create(end, endRadius, start, startRadius, flipGradient,
-                                                 desc);
-    }
+    desc_init(&desc, opt.fColors, std::move(colorSpace), opt.fPos, opt.fCount, mode, flags,
+              localMatrix);
+    return SkTwoPointConicalGradient::Create(start, startRadius, end, endRadius, desc);
 }
 
 sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
