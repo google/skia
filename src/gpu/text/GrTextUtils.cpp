@@ -181,7 +181,6 @@ void GrTextUtils::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     int x = vx + glyph->fBounds.fLeft;
     int y = vy + glyph->fBounds.fTop;
 
-    // keep them as ints until we've done the clip-test
     int width = glyph->fBounds.width();
     int height = glyph->fBounds.height();
 
