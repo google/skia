@@ -2,8 +2,27 @@
 
 # Copies the latest bot-generated SKP set to ./skps.
 
-set -x
-set -e
+# Copyright 2017 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 
-DOWNLOAD_SCRIPT=$(cd $(dirname $0)/..; pwd)/infra/bots/assets/skp/download.py
-python ${DOWNLOAD_SCRIPT} -t $(pwd)/skps
+set -x
+
+if ! command -v gsutil > /dev/null; then
+  echo gsutil not found. >&2
+  exit 1
+fi
+
+SKIA_DIR="$(dirname "$0")/.."
+VERSION=$(cat "$SKIA_DIR"/infra/bots/assets/skp/VERSION)
+T=$(mktemp "${TMPDIR:-/tmp}/tmp.XXXXXXXXXX")
+
+if ! gsutil cp "gs://skia-buildbots/assets/skp/${VERSION}.zip" "$T"; then
+  printf '\n \033[7m gsutil failed; try authenticating with `gcloud auth login`. \033[0m\n\n' >&2
+  exit 2
+fi
+rm -f ${SKIA_DIR}/skps/*
+python -c "import zipfile; zipfile.ZipFile('${T}', 'r').extractall('${SKIA_DIR}/skps')"
+rm "$T"
+
