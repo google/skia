@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "445374d1_cb7c3923",
+        "filename": "site/dev/contrib/submit.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-18T17:17:24Z",
+      "side": 1,
+      "message": "There is already a section for tryjobs in https://skia.org/dev/testing/automated_testing\nmaybe that is a better place for this?\nyou can still add a link to that section from here if you prefer",
+      "revId": "42432dbad8512ae11e06e8103baf3b0613841ce7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6d68d4e_bf58aed5",
+        "filename": "site/dev/contrib/submit.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-18T17:17:24Z",
+      "side": 1,
+      "message": "Might help to enumerate here-\n\n\nTry jobs may be triggered in the following ways:\n\n* Via the Gerrit UI in skia-review.googlesource.com.\n\n* Using \"git cl try\".\n\n* Convenience wrapper for \"git cl try\"...",
+      "range": {
+        "startLine": 100,
+        "startChar": 17,
+        "endLine": 100,
+        "endChar": 46
+      },
+      "revId": "42432dbad8512ae11e06e8103baf3b0613841ce7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
