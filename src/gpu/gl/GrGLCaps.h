@@ -376,6 +376,9 @@ public:
     // https://bugs.chromium.org/p/skia/issues/detail?id=6650
     bool drawArraysBaseVertexIsBroken() const { return fDrawArraysBaseVertexIsBroken; }
 
+    // Many drivers have issues with color clears.
+    bool useDrawToClearColor() const { return fUseDrawToClearColor; }
+
     /// Adreno 4xx devices experience an issue when there are a large number of stencil clip bit
     /// clears. The minimal repro steps are not precisely known but drawing a rect with a stencil
     /// op instead of using glClear seems to resolve the issue.
@@ -482,6 +485,7 @@ private:
     bool fClearToBoundaryValuesIsBroken : 1;
     bool fClearTextureSupport : 1;
     bool fDrawArraysBaseVertexIsBroken : 1;
+    bool fUseDrawToClearColor : 1;
     bool fUseDrawToClearStencilClip : 1;
     bool fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO : 1;
     bool fUseDrawInsteadOfAllRenderTargetWrites : 1;
