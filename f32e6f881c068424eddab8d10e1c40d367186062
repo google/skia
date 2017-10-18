@@ -22,6 +22,30 @@
       "revId": "f32e6f881c068424eddab8d10e1c40d367186062",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "914b550b_069709a7",
+        "filename": "include/core/SkPoint3.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-10-18T15:47:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a62894d1_c80bdcaf",
+      "range": {
+        "startLine": 58,
+        "startChar": 9,
+        "endLine": 58,
+        "endChar": 20
+      },
+      "revId": "f32e6f881c068424eddab8d10e1c40d367186062",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
