@@ -13,6 +13,7 @@
 #include "SkRect.h"
 
 struct SkRSXform;
+struct SkPoint3;
 class SkString;
 
 /** \class SkMatrix
@@ -475,13 +476,13 @@ public:
         and write the transformed points into the array of scalars specified by dst.
         dst[] = M * src[]
         @param dst  Where the transformed coordinates are written. It must
-                    contain at least 3 * count entries
+                    contain at least count entries
         @param src  The original coordinates that are to be transformed. It
-                    must contain at least 3 * count entries
-        @param count The number of triples (homogeneous points) in src to read,
+                    must contain at least count entries
+        @param count The number of homogeneous points in src to read,
                      and then transform into dst.
     */
-    void mapHomogeneousPoints(SkScalar dst[], const SkScalar src[], int count) const;
+    void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const;
 
     void mapXY(SkScalar x, SkScalar y, SkPoint* result) const {
         SkASSERT(result);

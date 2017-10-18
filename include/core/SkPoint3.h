@@ -8,7 +8,7 @@
 #ifndef SkPoint3_DEFINED
 #define SkPoint3_DEFINED
 
-#include "SkScalar.h"
+#include "SkPoint.h"
 
 struct SK_API SkPoint3 {
     SkScalar fX, fY, fZ;

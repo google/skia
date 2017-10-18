@@ -18,6 +18,7 @@
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkGeometry.h"
+#include "SkPoint3.h"
 #include "SkStroke.h"
 #include "SkTemplates.h"
 #include "effects/GrBezierEffect.h"
@@ -597,8 +598,8 @@ static void set_conic_coeffs(const SkPoint p[3], BezierVertex verts[kQuadNumVert
     GrPathUtils::getConicKLM(p, weight, &klm);
 
     for (int i = 0; i < kQuadNumVertices; ++i) {
-        const SkScalar pt3[3] = {verts[i].fPos.x(), verts[i].fPos.y(), 1.f};
-        klm.mapHomogeneousPoints(verts[i].fConic.fKLM, pt3, 1);
+        const SkPoint3 pt3 = {verts[i].fPos.x(), verts[i].fPos.y(), 1.f};
+        klm.mapHomogeneousPoints((SkPoint3* ) verts[i].fConic.fKLM, &pt3, 1);
     }
 }
 
