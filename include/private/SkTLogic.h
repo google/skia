@@ -14,6 +14,7 @@
 #ifndef SkTLogic_DEFINED
 #define SkTLogic_DEFINED
 
+#include <array>
 #include <stddef.h>
 #include <stdint.h>
 #include <type_traits>
@@ -39,6 +40,8 @@ template <typename T> using add_cv_t = typename std::add_cv<T>::type;
 template <typename T> using add_pointer_t = typename std::add_pointer<T>::type;
 template <typename T> using add_lvalue_reference_t = typename std::add_lvalue_reference<T>::type;
 
+template <typename T> using result_of_t = typename std::result_of<T>::type;
+
 template <typename... T> using common_type_t = typename std::common_type<T...>::type;
 
 // Chromium currently requires gcc 4.8.2 or a recent clang compiler, but uses libstdc++4.6.4.
@@ -63,6 +66,25 @@ template <typename T> using underlying_type = std::underlying_type<T>;
 template <typename T> using is_trivially_destructible = std::is_trivially_destructible<T>;
 #endif
 template <typename T> using underlying_type_t = typename skstd::underlying_type<T>::type;
+
+
+template <std::size_t... Ints> struct index_sequence {
+    using type = index_sequence;
+    using value_type = size_t;
+    static constexpr std::size_t size() noexcept { return sizeof...(Ints); }
+};
+
+template <typename S1, typename S2> struct make_index_sequence_combine;
+template <size_t... I1, size_t... I2>
+struct make_index_sequence_combine<skstd::index_sequence<I1...>, skstd::index_sequence<I2...>>
+  : skstd::index_sequence<I1..., (sizeof...(I1)+I2)...>
+{ };
+
+template <size_t N> struct make_index_sequence
+  : make_index_sequence_combine<typename skstd::make_index_sequence<N/2>::type,
+                                typename skstd::make_index_sequence<N - N/2>::type> {};
+template<> struct make_index_sequence<0> : skstd::index_sequence<> { };
+template<> struct make_index_sequence<1> : skstd::index_sequence<0> { };
 
 }  // namespace skstd
 
@@ -97,6 +119,18 @@ template <typename D, typename S> using same_volatile =copy_volatile<skstd::remo
 template <typename D, typename S> using same_volatile_t = typename same_volatile<D, S>::type;
 template <typename D, typename S> using same_cv = copy_cv<skstd::remove_cv_t<D>, S>;
 template <typename D, typename S> using same_cv_t = typename same_cv<D, S>::type;
+
+
+template<typename C, std::size_t... Is>
+constexpr auto make_array_from_index_sequence(C c, skstd::index_sequence<Is...>)
+-> std::array<skstd::result_of_t<C(std::size_t)>, sizeof...(Is)> {
+    return {{ c(Is)... }};
+}
+
+template<size_t N, typename C> constexpr auto make_array(C c)
+-> std::array<skstd::result_of_t<C(std::size_t)>, N> {
+    return sknonstd::make_array_from_index_sequence(c, skstd::make_index_sequence<N>{});
+}
 
 }  // namespace sknonstd
 

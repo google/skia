@@ -1056,13 +1056,11 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
 
 #include "SkColorData.h"
 
-static void build_power_table(uint8_t table[]) {
-    for (int i = 0; i < 256; i++) {
-        float x = i / 255.f;
-        int xx = SkScalarRoundToInt(x * x * 255);
-        table[i] = SkToU8(xx);
-    }
+constexpr uint8_t fun(int i) {
+  return SkToU8(((i * i + 128) / 255));
 }
+
+constexpr auto gTableCoreGraphicsSmoothing = skstd::make_array<256>(fun);
 
 /**
  *  This will invert the gamma applied by CoreGraphics, so we can get linear
@@ -1072,13 +1070,7 @@ static void build_power_table(uint8_t table[]) {
  *  The color space used does not appear to affect this choice.
  */
 static const uint8_t* getInverseGammaTableCoreGraphicSmoothing() {
-    static bool gInited;
-    static uint8_t gTableCoreGraphicsSmoothing[256];
-    if (!gInited) {
-        build_power_table(gTableCoreGraphicsSmoothing);
-        gInited = true;
-    }
-    return gTableCoreGraphicsSmoothing;
+    return gTableCoreGraphicsSmoothing.data();
 }
 
 static void cgpixels_to_bits(uint8_t dst[], const CGRGBPixel src[], int count) {
