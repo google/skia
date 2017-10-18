@@ -94,9 +94,22 @@ def main():
     return
 
   # Prompt before triggering jobs.
-  resp = raw_input('\nDo you want to trigger these jobs? (y/n) ')
-  if resp != 'y':
+  resp = raw_input('\nDo you want to trigger these jobs? (y/n or i for '
+                   'interactive): ')
+  print ''
+  if resp != 'y' and resp != 'i':
     sys.exit(1)
+  if resp == 'i':
+    new_jobs = []
+    for bucket, job_list in jobs:
+      new_job_list = []
+      for j in job_list:
+        incl = raw_input(('%s (y/n): ' % j))
+        if incl == 'y':
+          new_job_list.append(j)
+      if len(new_job_list) > 0:
+        new_jobs.append((bucket, new_job_list))
+    jobs = new_jobs
 
   # Trigger the try jobs.
   for bucket, job_list in jobs:
