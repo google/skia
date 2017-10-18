@@ -1128,7 +1128,7 @@ bool SkMatrix::mapRect(SkRect* dst, const SkRect& src) const {
         src.toQuad(quad);
         this->mapPoints(quad, quad, 4);
         dst->set(quad, 4);
-        return false;
+        return this->rectStaysRect();   // might still return true if rotated by 90, etc.
     }
 }
 
