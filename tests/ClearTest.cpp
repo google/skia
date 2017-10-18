@@ -212,8 +212,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
     }
 }
 
-#if 0
-
 void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, GrContext* context) {
     const SkImageInfo ii = SkImageInfo::Make(400, 77, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
@@ -278,7 +276,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FullScreenClearWithLayers, reporter, ctxInfo)
         fullscreen_clear_with_layer_test(reporter, workaroundFactory.get(ctxInfo.type()));
     }
 }
-
-#endif
 
 #endif
