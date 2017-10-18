@@ -11,6 +11,9 @@
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 
+#include "SkCanvas.h"
+#include "SkSurface.h"
+
 static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t expectedValue,
                        uint32_t* actualValue, int* failX, int* failY) {
     int w = rect.width();
@@ -212,9 +215,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
     }
 }
 
-#if 0
 
-void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, GrContext* context) {
+// From crbug.com/768134
+void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
     const SkImageInfo ii = SkImageInfo::Make(400, 77, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
     sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii);
@@ -266,19 +271,53 @@ void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, GrContext* c
         }
     }
 
+    if (!isCorrect) {
+
+        const char* names[] = {
+            "kGL",
+            "kGLES",
+            "kANGLE_D3D9_ES2",
+            "kANGLE_D3D11_ES2",
+            "kANGLE_D3D11_ES3",
+            "kANGLE_GL_ES2",
+            "kANGLE_GL_ES3",
+            "kCommandBuffer",
+            "kMESA",
+            "kNullGL",
+            "kDebugGL",
+            "kVulkan",
+            "kMetal",
+            "kMock"
+        };
+
+        SkDebugf("%s\n", names[ctxInfo.type()]);
+        for (int y = kTopY; y < kBotY; ++y) {
+            const uint32_t* sl = bm.getAddr32(0, y);
+
+            SkDebugf("/* %d */ {", y);
+            for (int x = kLeftX; x < kRightX; ++x) {
+                SkDebugf("0x%x, ", sl[x]);
+            }
+            SkDebugf("},\n");
+        }
+    }
+
     REPORTER_ASSERT(reporter, isCorrect);
 }
 // From crbug.com/768134
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FullScreenClearWithLayers, reporter, ctxInfo) {
-    fullscreen_clear_with_layer_test(reporter, ctxInfo.grContext());
+    fullscreen_clear_with_layer_test(reporter, ctxInfo);
+#if 0
     if (ctxInfo.backend() == kOpenGL_GrBackend) {
         GrContextOptions options(ctxInfo.options());
         options.fUseDrawInsteadOfGLClear = GrContextOptions::Enable::kYes;
         sk_gpu_test::GrContextFactory workaroundFactory(options);
         fullscreen_clear_with_layer_test(reporter, workaroundFactory.get(ctxInfo.type()));
     }
+#endif
 }
 
-#endif
+//static const unsigned int kData[25][225] = {
+//};
 
 #endif

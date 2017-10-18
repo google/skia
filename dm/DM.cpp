@@ -62,7 +62,7 @@ extern void SkPDFImageDumpStats();
 extern bool gSkForceRasterPipelineBlitter;
 
 DECLARE_bool(undefok);
-DEFINE_string(src, "tests gm skp image", "Source types to test.");
+DEFINE_string(src, "tests", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
             "to FLAGS_writePath[0]/<config>/<sourceType>/<sourceOptions>/<name>.png");
@@ -1307,6 +1307,12 @@ extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle )
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
+
+    FLAGS_src.reset();
+    FLAGS_src.append("tests", 5);
+
+    FLAGS_match.reset();
+    FLAGS_match.append("FullScreenClearWithLayers", 25);
 
     initializeEventTracingForTools();
 
