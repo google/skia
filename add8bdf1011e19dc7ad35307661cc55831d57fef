@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fda90505_4e4b9c5f",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-18T15:50:18Z",
+      "side": 1,
+      "message": "bug number please :)",
+      "range": {
+        "startLine": 567,
+        "startChar": 4,
+        "endLine": 567,
+        "endChar": 46
+      },
+      "revId": "add8bdf1011e19dc7ad35307661cc55831d57fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
