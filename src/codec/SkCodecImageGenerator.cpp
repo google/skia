@@ -15,23 +15,23 @@
 #define kSwapXY     SkPixmapPriv::kSwapXY
 
 const uint8_t gOrientationFlags[] = {
-    0,                              // kTopLeft_SkEncodedOrigin
-    kMirrorX,                       // kTopRight_SkEncodedOrigin
-    kMirrorX | kMirrorY,            // kBottomRight_SkEncodedOrigin
-               kMirrorY,            // kBottomLeft_SkEncodedOrigin
-                          kSwapXY,  // kLeftTop_SkEncodedOrigin
-    kMirrorX            | kSwapXY,  // kRightTop_SkEncodedOrigin
-    kMirrorX | kMirrorY | kSwapXY,  // kRightBottom_SkEncodedOrigin
-               kMirrorY | kSwapXY,  // kLeftBottom_SkEncodedOrigin
+    0,                              // kTopLeft_Origin
+    kMirrorX,                       // kTopRight_Origin
+    kMirrorX | kMirrorY,            // kBottomRight_Origin
+               kMirrorY,            // kBottomLeft_Origin
+                          kSwapXY,  // kLeftTop_Origin
+    kMirrorX            | kSwapXY,  // kRightTop_Origin
+    kMirrorX | kMirrorY | kSwapXY,  // kRightBottom_Origin
+               kMirrorY | kSwapXY,  // kLeftBottom_Origin
 };
 
-SkPixmapPriv::OrientFlags SkPixmapPriv::OriginToOrient(SkEncodedOrigin o) {
+SkPixmapPriv::OrientFlags SkPixmapPriv::OriginToOrient(SkCodec::Origin o) {
     unsigned io = static_cast<int>(o) - 1;
     SkASSERT(io < SK_ARRAY_COUNT(gOrientationFlags));
     return static_cast<SkPixmapPriv::OrientFlags>(gOrientationFlags[io]);
 }
 
-static bool should_swap_width_height(SkEncodedOrigin o) {
+static bool should_swap_width_height(SkCodec::Origin o) {
     return SkToBool(SkPixmapPriv::OriginToOrient(o) & kSwapXY);
 }
 
@@ -73,12 +73,12 @@ SkData* SkCodecImageGenerator::onRefEncodedData() {
 
 bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* requestPixels,
                                         size_t requestRowBytes, const Options& opts) {
-    const auto origin = fCodec->getOrigin();
+    const SkCodec::Origin origin = fCodec->getOrigin();
     const SkPixmap request(requestInfo, requestPixels, requestRowBytes);
     const SkPixmap* codecMap = &request;
     SkAutoPixmapStorage storage;    // used if we have to post-orient the output from the codec
 
-    if (origin != kTopLeft_SkEncodedOrigin) {
+    if (origin != SkCodec::kTopLeft_Origin) {
         SkImageInfo info = requestInfo;
         if (should_swap_width_height(origin)) {
             info = swap_width_height(info);

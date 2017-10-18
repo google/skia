@@ -128,7 +128,7 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromData(sk_sp<SkData> data, SkPngChunkRea
 
 SkCodec::SkCodec(int width, int height, const SkEncodedInfo& info,
         XformFormat srcFormat, std::unique_ptr<SkStream> stream,
-        sk_sp<SkColorSpace> colorSpace, SkEncodedOrigin origin)
+        sk_sp<SkColorSpace> colorSpace, Origin origin)
     : fEncodedInfo(info)
     , fSrcInfo(info.makeImageInfo(width, height, std::move(colorSpace)))
     , fSrcXformFormat(srcFormat)
@@ -142,8 +142,7 @@ SkCodec::SkCodec(int width, int height, const SkEncodedInfo& info,
 {}
 
 SkCodec::SkCodec(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
-        XformFormat srcFormat, std::unique_ptr<SkStream> stream,
-        SkEncodedOrigin origin)
+        XformFormat srcFormat, std::unique_ptr<SkStream> stream, Origin origin)
     : fEncodedInfo(info)
     , fSrcInfo(imageInfo)
     , fSrcXformFormat(srcFormat)

@@ -45,7 +45,7 @@ static uint32_t get_endian_int(const uint8_t* data, bool littleEndian) {
 const uint32_t kExifHeaderSize = 14;
 const uint32_t kExifMarker = JPEG_APP0 + 1;
 
-static bool is_orientation_marker(jpeg_marker_struct* marker, SkEncodedOrigin* orientation) {
+static bool is_orientation_marker(jpeg_marker_struct* marker, SkCodec::Origin* orientation) {
     if (kExifMarker != marker->marker || marker->data_length < kExifHeaderSize) {
         return false;
     }
@@ -87,8 +87,8 @@ static bool is_orientation_marker(jpeg_marker_struct* marker, SkEncodedOrigin* o
         uint32_t count = get_endian_int(data + 4, littleEndian);
         if (kOriginTag == tag && kOriginType == type && 1 == count) {
             uint16_t val = get_endian_short(data + 8, littleEndian);
-            if (0 < val && val <= kLast_SkEncodedOrigin) {
-                *orientation = (SkEncodedOrigin) val;
+            if (0 < val && val <= SkCodec::kLast_Origin) {
+                *orientation = (SkCodec::Origin) val;
                 return true;
             }
         }
@@ -97,15 +97,15 @@ static bool is_orientation_marker(jpeg_marker_struct* marker, SkEncodedOrigin* o
     return false;
 }
 
-static SkEncodedOrigin get_exif_orientation(jpeg_decompress_struct* dinfo) {
-    SkEncodedOrigin orientation;
+static SkCodec::Origin get_exif_orientation(jpeg_decompress_struct* dinfo) {
+    SkCodec::Origin orientation;
     for (jpeg_marker_struct* marker = dinfo->marker_list; marker; marker = marker->next) {
         if (is_orientation_marker(marker, &orientation)) {
             return orientation;
         }
     }
 
-    return kDefault_SkEncodedOrigin;
+    return SkCodec::kDefault_Origin;
 }
 
 static bool is_icc_marker(jpeg_marker_struct* marker) {
@@ -227,7 +227,7 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         // Create image info object and the codec
         SkEncodedInfo info = SkEncodedInfo::Make(color, SkEncodedInfo::kOpaque_Alpha, 8);
 
-        SkEncodedOrigin orientation = get_exif_orientation(decoderMgr->dinfo());
+        Origin orientation = get_exif_orientation(decoderMgr->dinfo());
         sk_sp<SkData> iccData = get_icc_profile(decoderMgr->dinfo());
         sk_sp<SkColorSpace> colorSpace = nullptr;
         if (iccData) {
@@ -284,7 +284,7 @@ std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(std::unique_ptr<SkStream> s
 
 SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info,
                          std::unique_ptr<SkStream> stream, JpegDecoderMgr* decoderMgr,
-                         sk_sp<SkColorSpace> colorSpace, SkEncodedOrigin origin)
+                         sk_sp<SkColorSpace> colorSpace, Origin origin)
     : INHERITED(width, height, info, SkColorSpaceXform::kRGBA_8888_ColorFormat, std::move(stream),
                 std::move(colorSpace), origin)
     , fDecoderMgr(decoderMgr)

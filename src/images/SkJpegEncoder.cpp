@@ -11,19 +11,12 @@
 
 #include "SkColorData.h"
 #include "SkColorSpace_Base.h"
-#include "SkEncodedOrigin.h"
 #include "SkImageEncoderFns.h"
 #include "SkImageInfoPriv.h"
 #include "SkJpegEncoder.h"
 #include "SkJPEGWriteUtility.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
-
-#ifdef SK_HAS_EXIF_LIBRARY
-#include "libexif/exif-byte-order.h"
-#include "libexif/exif-data.h"
-#include "libexif/exif-format.h"
-#endif
 
 #include <stdio.h>
 
@@ -219,38 +212,6 @@ std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& s
 
         jpeg_write_marker(encoderMgr->cinfo(), kICCMarker, markerData->bytes(), markerData->size());
     }
-
-#ifdef SK_HAS_EXIF_LIBRARY
-    if (options.fOrigin != kDefault_SkEncodedOrigin) {
-        // Create ExifData.
-        const auto kByteOrder = EXIF_BYTE_ORDER_INTEL;
-        SkAutoTCallVProc<ExifData, exif_data_unref> exif(exif_data_new());
-        exif_data_set_option(exif.get(), EXIF_DATA_OPTION_FOLLOW_SPECIFICATION);
-        exif_data_set_data_type(exif.get(), EXIF_DATA_TYPE_COMPRESSED);
-        exif_data_set_byte_order(exif.get(), kByteOrder);
-        exif_data_fix(exif.get());
-
-        // Create entry for rotation.
-        SkAutoTCallVProc<ExifMem, exif_mem_unref> mem(exif_mem_new_default());
-        SkAutoTCallVProc<ExifEntry, exif_entry_unref> entry(exif_entry_new_mem(mem));
-        size_t size = exif_format_get_size(EXIF_FORMAT_SHORT);
-        entry->data = reinterpret_cast<unsigned char*>(exif_mem_alloc(mem, size));
-        entry->size = size;
-        entry->tag = EXIF_TAG_ORIENTATION;
-        entry->components = 1;
-        entry->format = EXIF_FORMAT_SHORT;
-        exif_content_add_entry(exif->ifd[EXIF_IFD_0], entry);
-        exif_set_short(entry->data, kByteOrder, (ExifShort) options.fOrigin);
-
-        // Serialize the data.
-        unsigned char* exif_data;
-        unsigned int exif_data_len;
-        exif_data_save_data(exif.get(), &exif_data, &exif_data_len);
-        const uint32_t kExifMarker = JPEG_APP0 + 1;
-        jpeg_write_marker(encoderMgr->cinfo(), kExifMarker, exif_data, exif_data_len);
-        sk_free(exif_data);
-    }
-#endif
 
     return std::unique_ptr<SkJpegEncoder>(new SkJpegEncoder(std::move(encoderMgr), src));
 }
