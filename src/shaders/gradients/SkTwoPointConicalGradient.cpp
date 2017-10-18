@@ -205,7 +205,7 @@ void SkTwoPointConicalGradient::toString(SkString* str) const {
 void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* p,
                                                      SkRasterPipeline* postPipeline) const {
     const auto dRadius = fRadius2 - fRadius1;
-    SkASSERT(dRadius >= 0);
+//    SkASSERT(dRadius >= 0);
 
     if (fType == Type::kRadial) {
         p->append(SkRasterPipeline::xy_to_radius);
@@ -238,24 +238,29 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
         p->append(SkRasterPipeline::xy_to_2pt_conical_linear, ctx);
         isWellBehaved = false;
     } else {
-        if (dCenter + fRadius1 > fRadius2) {
-            // The focal point is outside the end circle.
+        isWellBehaved = SkScalarAbs(dRadius) >= dCenter;
+        //bool isFlipped = isWellBehaved ? dRadius < 0 : dRadius >= 0;
+        bool isFlipped = isWellBehaved && dRadius < 0;
+        p->append(isFlipped ? SkRasterPipeline::xy_to_2pt_conical_quadratic_min
+                            : SkRasterPipeline::xy_to_2pt_conical_quadratic_max, ctx);
+//        if (dCenter + fRadius1 > fRadius2) {
+//            // The focal point is outside the end circle.
 
-            // We want the larger root, per spec:
-            //   "For all values of ω where r(ω) > 0, starting with the value of ω nearest
-            //    to positive infinity and ending with the value of ω nearest to negative
-            //    infinity, draw the circumference of the circle with radius r(ω) at position
-            //    (x(ω), y(ω)), with the color at ω, but only painting on the parts of the
-            //    bitmap that have not yet been painted on by earlier circles in this step for
-            //    this rendering of the gradient."
-            // (https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-createradialgradient)
-            p->append(fFlippedGrad ? SkRasterPipeline::xy_to_2pt_conical_quadratic_min
-                                   : SkRasterPipeline::xy_to_2pt_conical_quadratic_max, ctx);
-            isWellBehaved = false;
-        } else {
-            // The focal point is inside (well-behaved case).
-            p->append(SkRasterPipeline::xy_to_2pt_conical_quadratic_max, ctx);
-        }
+//            // We want the larger root, per spec:
+//            //   "For all values of ω where r(ω) > 0, starting with the value of ω nearest
+//            //    to positive infinity and ending with the value of ω nearest to negative
+//            //    infinity, draw the circumference of the circle with radius r(ω) at position
+//            //    (x(ω), y(ω)), with the color at ω, but only painting on the parts of the
+//            //    bitmap that have not yet been painted on by earlier circles in this step for
+//            //    this rendering of the gradient."
+//            // (https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-createradialgradient)
+//            p->append(fFlippedGrad ? SkRasterPipeline::xy_to_2pt_conical_quadratic_min
+//                                   : SkRasterPipeline::xy_to_2pt_conical_quadratic_max, ctx);
+//            isWellBehaved = false;
+//        } else {
+//            // The focal point is inside (well-behaved case).
+//            p->append(SkRasterPipeline::xy_to_2pt_conical_quadratic_max, ctx);
+//        }
     }
 
     if (!isWellBehaved) {

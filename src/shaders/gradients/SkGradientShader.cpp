@@ -1192,6 +1192,7 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
     ColorStopOptimizer opt(colors, pos, colorCount, mode);
 
     bool flipGradient = startRadius > endRadius;
+    flipGradient = false;
 
     SkGradientShaderBase::Descriptor desc;
 
