@@ -41,16 +41,22 @@ file is up to date:
 Try Jobs
 --------
 
-It is useful to know how your change will perform before it is submitted. After
-uploading your CL to [Gerrit](https://skia-review.googlesource.com/), you may
-trigger a try job for any job listed in tasks.json:
+Skia's trybots allow testing and verification of changes before they land in the
+repo. You need to have permission to trigger try jobs; if you need permission,
+ask a committer. After uploading your CL to [Gerrit](https://skia-review.googlesource.com/),
+you may trigger a try job for any job listed in tasks.json, either via the
+Gerrit UI, using "git cl try", eg.
 
-	$ git cl try -B <bucket name> -b <job name>
+    git cl try -B skia.primary -b Some-Tryjob-Name
 
-The bucket name refers to the [Buildbucket](https://chromium.googlesource.com/infra/infra/+/master/appengine/cr-buildbucket/README.md)
-bucket to which the request will be submitted. Most public Skia repos use the
-"skia.primary" bucket, and most private Skia repos use the "skia.internal"
-bucket.
+or using bin/try, a small wrapper for "git cl try" which helps to choose try jobs.
+From a Skia checkout:
+
+    bin/try --list
+
+You can also search using regular expressions:
+
+    bin/try "Test.*GTX660.*Release"
 
 
 Status View
