@@ -16,6 +16,24 @@
       "revId": "5762c3a28c7dc39f0a770c9d821428d1a003b830",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a663cc6_94ac5dca",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-10-18T17:33:56Z",
+      "side": 1,
+      "message": "Done\n\nYeah, as I wrote this I kept adding more constexpr and static everywhere... missed these. I also wanted to make this a lambda, but apparently they can\u0027t be constexpr until C++17.",
+      "parentUuid": "2add6d69_2d0bf202",
+      "revId": "5762c3a28c7dc39f0a770c9d821428d1a003b830",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -22,6 +22,30 @@
       "revId": "5f03a1042ab69f9c10c79b8c2039daff787d4817",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3099048_77c68c14",
+        "filename": "include/private/SkTemplates.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-10-18T17:33:56Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a4ae8d4d_37c58376",
+      "range": {
+        "startLine": 486,
+        "startChar": 21,
+        "endLine": 486,
+        "endChar": 26
+      },
+      "revId": "5f03a1042ab69f9c10c79b8c2039daff787d4817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
