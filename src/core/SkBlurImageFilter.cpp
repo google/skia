@@ -7,11 +7,16 @@
 
 #include "SkBlurImageFilter.h"
 
+#include <algorithm>
+
+#include "SkArenaAlloc.h"
 #include "SkAutoPixmapStorage.h"
+#include "SkBitmap.h"
 #include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
 #include "SkTFitsIn.h"
 #include "SkGpuBlurUtils.h"
+#include "SkNx.h"
 #include "SkOpts.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
@@ -23,13 +28,18 @@
 #include "SkGr.h"
 #endif
 
+// The value where the three pass window calculation results in a zero window.
+// N[Solve[sigma*3*Sqrt[2 Pi]/4 == 1/2, sigma], 16]
+static constexpr double kZeroWindow = 0.26596152026762;
+static constexpr double kPi = 3.14159265358979323846264338327950288;
+
 class SkBlurImageFilterImpl final : public SkImageFilter {
 public:
     SkBlurImageFilterImpl(SkScalar sigmaX,
-                      SkScalar sigmaY,
-                      sk_sp<SkImageFilter> input,
-                      const CropRect* cropRect,
-                      SkBlurImageFilter::TileMode tileMode);
+                          SkScalar sigmaY,
+                          sk_sp<SkImageFilter> input,
+                          const CropRect* cropRect,
+                          SkBlurImageFilter::TileMode tileMode);
 
     SkRect computeFastBounds(const SkRect&) const override;
 
@@ -162,6 +172,367 @@ static void get_box3_params(SkScalar s, int *kernelSize, int* kernelSize3, int *
     }
 }
 
+#if !defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
+
+// This is defined by the SVG spec:
+// https://drafts.fxtf.org/filter-effects/#feGaussianBlurElement
+static int calculate_window(double sigma) {
+    // NB 136 is the largest sigma that will not cause a buffer full of 255 mask values to overflow
+    // using the Gauss filter. It also limits the size of buffers used hold intermediate values.
+    // Explanation of maximums:
+    //   sum0 = window * 255
+    //   sum1 = window * sum0 -> window * window * 255
+    //   sum2 = window * sum1 -> window * window * window * 255 -> window^3 * 255
+    //
+    //   The value window^3 * 255 must fit in a uint32_t. So,
+    //      window^3 < 2^32. window = 255.
+    //
+    //   window = floor(sigma * 3 * sqrt(2 * kPi) / 4 + 0.5)
+    //   For window <= 255, the largest value for sigma is 136.
+    sigma = SkTPin(sigma, 0.0, 136.0);
+    auto possibleWindow = static_cast<int>(floor(sigma * 3 * sqrt(2 * kPi) / 4 + 0.5));
+    return std::max(1, possibleWindow);
+}
+
+// Calculating the border is tricky. The border is the distance in pixels between the first dst
+// pixel and the first src pixel (or the last src pixel and the last dst pixel).
+// I will go through the odd case which is simpler, and then through the even case. Given a
+// stack of filters seven wide for the odd case of three passes.
+//
+//        S
+//     aaaAaaa
+//     bbbBbbb
+//     cccCccc
+//        D
+//
+// The furthest changed pixel is when the filters are in the following configuration.
+//
+//                 S
+//           aaaAaaa
+//        bbbBbbb
+//     cccCccc
+//        D
+//
+//  The A pixel is calculated using the value S, the B uses A, and the C uses B, and
+// finally D is C. So, with a window size of seven the border is nine. In the odd case, the
+// border is 3*((window - 1)/2).
+//
+// For even cases the filter stack is more complicated. The spec specifies two passes
+// of even filters and a final pass of odd filters. A stack for a width of six looks like
+// this.
+//
+//       S
+//    aaaAaa
+//     bbBbbb
+//    cccCccc
+//       D
+//
+// The furthest pixel looks like this.
+//
+//               S
+//          aaaAaa
+//        bbBbbb
+//    cccCccc
+//       D
+//
+// For a window of six, the border value is eight. In the even case the border is 3 *
+// (window/2) - 1.
+static int calculate_border(int window) {
+    return (window & 1) == 1 ? 3 * ((window - 1) / 2) : 3 * (window / 2) - 1;
+}
+
+static int calculate_buffer(int window) {
+    int bufferSize = window - 1;
+    return (window & 1) == 1 ? 3 * bufferSize : 3 * bufferSize + 1;
+}
+
+// blur_one_direction implements the common three pass box filter approximation of Gaussian blur,
+// but combines all three passes into a single pass. This approach is facilitated by three circular
+// buffers the width of the window which track values for trailing edges of each of the three
+// passes. This allows the algorithm to use more precision in the calculation because the values
+// are not rounded each pass. And this implementation also avoids a trap that's easy to fall
+// into resulting in blending in too many zeroes near the edge.
+//
+//  In general, a window sum has the form:
+//     sum_n+1 = sum_n + leading_edge - trailing_edge.
+//  If instead we do the subtraction at the end of the previous iteration, we can just
+// calculate the sums instead of having to do the subtractions too.
+//
+//      In previous iteration:
+//      sum_n+1 = sum_n - trailing_edge.
+//
+//      In this iteration:
+//      sum_n+1 = sum_n + leading_edge.
+//
+//  Now we can stack all three sums and do them at once. Sum0 gets its leading edge from the
+// actual data. Sum1's leading edge is just Sum0, and Sum2's leading edge is Sum1. So, doing the
+// three passes at the same time has the form:
+//
+//    sum0_n+1 = sum0_n + leading edge
+//    sum1_n+1 = sum1_n + sum0_n+1
+//    sum2_n+1 = sum2_n + sum1_n+1
+//
+//    sum2_n+1 / window^3 is the new value of the destination pixel.
+//
+//    Reduce the sums by the trailing edges which were stored in the circular buffers,
+// for the next go around. This is the case for odd sized windows, even windows the the third
+// circular buffer is one larger then the first two circular buffers.
+//
+//    sum2_n+2 = sum2_n+1 - buffer2[i];
+//    buffer2[i] = sum1;
+//    sum1_n+2 = sum1_n+1 - buffer1[i];
+//    buffer1[i] = sum0;
+//    sum0_n+2 = sum0_n+1 - buffer0[i];
+//    buffer0[i] = leading edge
+//
+//   This is all encapsulated in the processValue function below.
+//
+using Pass0And1 = Sk4u[2];
+// The would be dLeft parameter is assumed to be 0.
+static void blur_one_direction(Sk4u* buffer, int window,
+                               int srcLeft, int srcRight, int dstRight,
+                               const uint32_t* src, int srcXStride, int srcYStride, int srcH,
+                                     uint32_t* dst, int dstXStride, int dstYStride) {
+
+    // The circular buffers are one less than the window.
+    auto pass0Count = window - 1,
+         pass1Count = window - 1,
+         pass2Count = (window & 1) == 1 ? window - 1 : window;
+
+    Pass0And1* buffer01Start = (Pass0And1*)buffer;
+    Sk4u*      buffer2Start  = buffer + pass0Count + pass1Count;
+    Pass0And1* buffer01End   = (Pass0And1*)buffer2Start;
+    Sk4u*      buffer2End    = buffer2Start + pass2Count;
+
+    // If the window is odd then the divisor is just window ^ 3 otherwise,
+    // it is window * window * (window + 1) = window ^ 3 + window ^ 2;
+    auto window2 = window * window;
+    auto window3 = window2 * window;
+    auto divisor = (window & 1) == 1 ? window3 : window3 + window2;
+
+    // NB the sums in the blur code use the following technique to avoid
+    // adding 1/2 to round the divide.
+    //
+    //   Sum/d + 1/2 == (Sum + h) / d
+    //   Sum + d(1/2) ==  Sum + h
+    //     h == (1/2)d
+    //
+    // But the d/2 it self should be rounded.
+    //    h == d/2 + 1/2 == (d + 1) / 2
+    //
+    // weight = 1 / d * 2 ^ 32
+    auto weight = static_cast<uint32_t>(round(1.0 / divisor * (1ull << 32)));
+    auto half = static_cast<uint32_t>((divisor + 1) / 2);
+
+    auto border = calculate_border(window);
+
+    // Calculate the start and end of the source pixels with respect to the destination start.
+    auto srcStart = srcLeft - border,
+         srcEnd   = srcRight - border,
+         dstEnd   = dstRight;
+
+    for (auto y = 0; y < srcH; y++) {
+        auto buffer01Cursor = buffer01Start;
+        auto buffer2Cursor  = buffer2Start;
+
+        Sk4u sum0{0u};
+        Sk4u sum1{0u};
+        Sk4u sum2{half};
+
+        sk_bzero(buffer01Start, (buffer2End - (Sk4u *) (buffer01Start)) * sizeof(*buffer2Start));
+
+        // Given an expanded input pixel, move the window ahead using the leadingEdge value.
+        auto processValue = [&](const Sk4u& leadingEdge) -> Sk4u {
+            sum0 += leadingEdge;
+            sum1 += sum0;
+            sum2 += sum1;
+
+            Sk4u value = sum2.mulHi(weight);
+
+            sum2 -= *buffer2Cursor;
+            *buffer2Cursor = sum1;
+            buffer2Cursor = (buffer2Cursor + 1) < buffer2End ? buffer2Cursor + 1 : buffer2Start;
+
+            sum1 -= (*buffer01Cursor)[1];
+            (*buffer01Cursor)[1] = sum0;
+            sum0 -= (*buffer01Cursor)[0];
+            (*buffer01Cursor)[0] = leadingEdge;
+            buffer01Cursor =
+                    (buffer01Cursor + 1) < buffer01End ? buffer01Cursor + 1 : buffer01Start;
+
+            return value;
+        };
+
+        auto srcIdx = srcStart;
+        auto dstIdx = 0;
+        const uint32_t* srcCursor = src;
+              uint32_t* dstCursor = dst;
+
+        // The destination pixels are not effected by the src pixels,
+        // change to zero as per the spec.
+        // https://drafts.fxtf.org/filter-effects/#FilterPrimitivesOverviewIntro
+        while (dstIdx < srcIdx) {
+            *dstCursor = 0;
+            dstCursor += dstXStride;
+            SK_PREFETCH(dstCursor);
+            dstIdx++;
+        }
+
+        // The edge of the source is before the edge of the destination. Calculate the sums for
+        // the pixels before the start of the destination.
+        while (dstIdx > srcIdx) {
+            Sk4u leadingEdge = srcIdx < srcEnd ? SkNx_cast<uint32_t>(Sk4b::Load(srcCursor)) : 0;
+            (void) processValue(leadingEdge);
+            srcCursor += srcXStride;
+            srcIdx++;
+        }
+
+        // The dstIdx and srcIdx are in sync now; the code just uses the dstIdx for both now.
+        // Consume the source generating pixels to dst.
+        auto loopEnd = std::min(dstEnd, srcEnd);
+        while (dstIdx < loopEnd) {
+            Sk4u leadingEdge = SkNx_cast<uint32_t>(Sk4b::Load(srcCursor));
+            SkNx_cast<uint8_t>(processValue(leadingEdge)).store(dstCursor);
+            srcCursor += srcXStride;
+            dstCursor += dstXStride;
+            SK_PREFETCH(dstCursor);
+            dstIdx++;
+        }
+
+        // The leading edge is beyond the end of the source. Assume that the pixels
+        // are now 0x0000 until the end of the destination.
+        loopEnd = dstEnd;
+        while (dstIdx < loopEnd) {
+            SkNx_cast<uint8_t>(processValue(0u)).store(dstCursor);
+            dstCursor += dstXStride;
+            SK_PREFETCH(dstCursor);
+            dstIdx++;
+        }
+
+        src += srcYStride;
+        dst += dstYStride;
+    }
+}
+
+static sk_sp<SkSpecialImage> combined_pass_blur(
+        SkVector sigma,
+        SkSpecialImage* source, const sk_sp<SkSpecialImage>& input,
+        SkIRect srcBounds, SkIRect dstBounds) {
+    SkBitmap inputBM;
+
+    if (!input->getROPixels(&inputBM)) {
+        return nullptr;
+    }
+
+    if (inputBM.colorType() != kN32_SkColorType) {
+        return nullptr;
+    }
+
+    auto windowW = calculate_window(sigma.x()),
+         windowH = calculate_window(sigma.y());
+
+    SkBitmap src;
+    inputBM.extractSubset(&src, srcBounds);
+
+    // Make everything relative to the destination bounds.
+    srcBounds.offset(-dstBounds.x(), -dstBounds.y());
+    dstBounds.offset(-dstBounds.x(), -dstBounds.y());
+
+    auto srcW = srcBounds.width(),
+         srcH = srcBounds.height(),
+         dstW = dstBounds.width(),
+         dstH = dstBounds.height();
+
+    SkImageInfo dstInfo = SkImageInfo::Make(dstW, dstH, inputBM.colorType(), inputBM.alphaType());
+
+    SkBitmap dst;
+    if (!dst.tryAllocPixels(dstInfo)) {
+        return nullptr;
+    }
+
+    auto bufferSizeW = calculate_buffer(windowW),
+         bufferSizeH = calculate_buffer(windowH);
+
+    // The amount 1024 is enough for buffers up to 10 sigma. The tmp bitmap will be
+    // allocated on the heap.
+    SkSTArenaAlloc<1024> alloc;
+    Sk4u* buffer = alloc.makeArrayDefault<Sk4u>(std::max(bufferSizeW, bufferSizeH));
+
+    if (windowW > 1 && windowH > 1) {
+        // Blur both directions.
+
+        auto tmpW = srcH,
+             tmpH = dstW;
+
+        auto tmp = alloc.makeArrayDefault<uint32_t>(tmpW * tmpH);
+
+        // Blur horizontally, and transpose.
+        blur_one_direction(
+                buffer, windowW,
+                srcBounds.left(), srcBounds.right(), dstBounds.right(),
+                static_cast<uint32_t*>(src.getPixels()), 1, src.rowBytesAsPixels(), srcH,
+                tmp, tmpW, 1);
+
+        // Blur vertically (scan in memory order because of the transposition),
+        // and transpose back to the original orientation.
+        blur_one_direction(
+                buffer, windowH,
+                srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
+                tmp, 1, tmpW, tmpH,
+                static_cast<uint32_t*>(dst.getPixels()), dst.rowBytesAsPixels(), 1);
+    } else if (windowW > 1) {
+        // Blur only horizontally.
+
+        blur_one_direction(
+                buffer, windowW,
+                srcBounds.left(), srcBounds.right(), dstBounds.right(),
+                static_cast<uint32_t*>(src.getPixels()), 1, src.rowBytesAsPixels(), srcH,
+                static_cast<uint32_t*>(dst.getPixels()), 1, dst.rowBytesAsPixels());
+    } else if (windowH > 1) {
+        // Blur only vertically.
+
+        blur_one_direction(
+                buffer, windowH,
+                srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
+                static_cast<uint32_t*>(src.getPixels()), src.rowBytesAsPixels(), 1, srcW,
+                static_cast<uint32_t*>(dst.getPixels()), dst.rowBytesAsPixels(), 1);
+    } else {
+        // There is no blurring to do, but we still need to copy the source while accounting for the
+        // dstBounds. Remember that the src was intersected with the dst.
+        int y = 0;
+        size_t dstWBytes = dstW * sizeof(uint32_t);
+        for (;y < srcBounds.top(); y++) {
+            sk_bzero(dst.getAddr32(0, y), dstWBytes);
+        }
+        for (;y < srcBounds.bottom(); y++) {
+            int x = 0;
+            uint32_t* dstPtr = dst.getAddr32(0, y);
+            for (;x < srcBounds.left(); x++) {
+                *dstPtr++ = 0;
+            }
+
+            memcpy(dstPtr,
+                   src.getAddr32(x - srcBounds.left(), y - srcBounds.top()),
+                   srcW * sizeof(uint32_t));
+
+            dstPtr += srcW;
+            x += srcW;
+
+            for (;x < dstBounds.right(); x++) {
+                *dstPtr++ = 0;
+            }
+        }
+        for (;y < dstBounds.bottom(); y++) {
+            sk_bzero(dst.getAddr32(0, y), dstWBytes);
+        }
+    }
+
+    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(),
+                                                          dstBounds.height()),
+                                          dst, &source->props());
+}
+#endif
+
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* source,
                                                            const Context& ctx,
                                                            SkIPoint* offset) const {
@@ -207,12 +578,16 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
     } else
     #endif
     {
-        #if defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
-        result = this->cpuFilter(source, sigma, input, inputBounds, dstBounds);
-        #else
-        // The new code will go here.
-        result = this->cpuFilter(source, sigma, input, inputBounds, dstBounds);
-        #endif
+        // If both sigmas will result in a zero width window, there is nothing to do.
+        if (sigma.x() < kZeroWindow && sigma.y() < kZeroWindow) {
+            result = input->makeSubset(inputBounds);
+        } else {
+            #if defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
+                result = this->cpuFilter(source, sigma, input, inputBounds, dstBounds);
+            #else
+                result = combined_pass_blur(sigma, source, input, inputBounds, dstBounds);
+            #endif
+        }
     }
 
     // Return the resultOffset if the blur succeeded.
@@ -235,8 +610,8 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
     // The raw cross arm value c = E^-s
     // The normalized cross arm value = c/n
     // N[Solve[{c/n == 1/2048, sigma > 0}, sigma], 16]
-    static constexpr double kCrossTooSmall = 0.2561130112451658;
-    if (sigma.x() < kCrossTooSmall && sigma.y() < kCrossTooSmall) {
+    static constexpr double kZeroWindowGPU = 0.2561130112451658;
+    if (sigma.x() < kZeroWindowGPU && sigma.y() < kZeroWindowGPU) {
         return input->makeSubset(inputBounds);
     }
 
@@ -280,13 +655,6 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::cpuFilter(
         SkVector sigma, const sk_sp<SkSpecialImage> &input,
         SkIRect inputBounds, SkIRect dstBounds) const
 {
-    // If both sigmas will result in a zero width window, there is nothing to do.
-    // N[Solve[sigma*3*Sqrt[2 Pi]/4 == 1/2, sigma], 16]
-    static constexpr double kZeroWindow = 0.2659615202676218;
-    if (sigma.x() < kZeroWindow && sigma.y() < kZeroWindow) {
-        return input->makeSubset(inputBounds);
-    }
-
     int kernelSizeX, kernelSizeX3, lowOffsetX, highOffsetX;
     int kernelSizeY, kernelSizeY3, lowOffsetY, highOffsetY;
     get_box3_params(sigma.x(), &kernelSizeX, &kernelSizeX3, &lowOffsetX, &highOffsetX);
