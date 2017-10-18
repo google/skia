@@ -28,12 +28,13 @@ public:
     typedef GrAtlasTextBlob Blob;
     struct Geometry {
         SkMatrix fViewMatrix;
-        Blob* fBlob;
+        SkRect   fClipRect;
+        Blob*    fBlob;
         SkScalar fX;
         SkScalar fY;
-        int fRun;
-        int fSubRun;
-        GrColor fColor;
+        int      fRun;
+        int      fSubRun;
+        GrColor  fColor;
     };
 
     static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrPaint&& paint, GrMaskFormat maskFormat,
@@ -174,9 +175,7 @@ private:
     static constexpr auto kMaxTextures = 4;
 
     // TODO just use class params
-    sk_sp<GrGeometryProcessor> setupDfProcessor(const SkMatrix& viewMatrix, SkColor luminanceColor,
-                                                GrColor color,
-                                                const sk_sp<GrTextureProxy> [kMaxTextures]) const;
+    sk_sp<GrGeometryProcessor> setupDfProcessor(const SkMatrix& localMatrix) const;
 
 
     // The minimum number of Geometry we will try to allocate.
