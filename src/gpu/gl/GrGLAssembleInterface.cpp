@@ -535,6 +535,13 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(GetInternalformativ);
     }
 
+    // FIXME need to figure out what versions actually support this
+    if (glVer >= GR_GL_VER(4, 0)) {
+        GET_PROC(GetProgramBinary);
+        GET_PROC(ProgramBinary);
+        GET_PROC(ProgramParameteri);
+    }
+
     interface->fStandard = kGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
