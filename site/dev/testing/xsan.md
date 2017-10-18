@@ -34,10 +34,10 @@ Configure and Compile Skia with MSAN
     bin/gn gen out/msan
     ninja -C out/msan
 
-You may also need to install the following packages to run the MSAN binary
+When you run a binary built with MSAN, make sure you force it to use our
+MSAN-instrumented libc++:
 
-    sudo apt-get install libc++dev libc++abi-dev
-
+    env LD_LIBRARY_PATH=$CLANGDIR/msan out/dm ...
 
 Configure and Compile Skia with ASAN
 ------------------------------------
