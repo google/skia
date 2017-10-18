@@ -212,22 +212,11 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     SK_TO_STRING_OVERRIDE()
 
-    void commonAsAGradient(GradientInfo*, bool flipGrad = false) const;
+    void commonAsAGradient(GradientInfo*) const;
 
     bool onAsLuminanceColor(SkColor*) const override;
 
     void initLinearBitmap(SkBitmap* bitmap) const;
-
-    /*
-     * Takes in pointers to gradient color and Rec info as colorSrc and recSrc respectively.
-     * Count is the number of colors in the gradient
-     * It will then flip all the color and rec information and return in their respective Dst
-     * pointers. It is assumed that space has already been allocated for the Dst pointers.
-     * The rec src and dst are only assumed to be valid if count > 2
-     */
-    static void FlipGradientColors(SkColor* colorDst, Rec* recDst,
-                                   SkColor* colorSrc, Rec* recSrc,
-                                   int count);
 
     bool onAppendStages(const StageRec&) const override;
 

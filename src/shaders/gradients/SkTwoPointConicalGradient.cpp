@@ -12,14 +12,15 @@
 
 sk_sp<SkShader> SkTwoPointConicalGradient::Create(const SkPoint& c0, SkScalar r0,
                                                   const SkPoint& c1, SkScalar r1,
-                                                  bool flipped, const Descriptor& desc) {
+                                                  const Descriptor& desc) {
     SkMatrix gradientMatrix;
     Type     gradientType;
 
     if (SkScalarNearlyZero((c0 - c1).length())) {
         // Concentric case: we can pretend we're radial (with a tiny twist).
+        const SkScalar scale = 1.0f / SkTMax(r0, r1);
         gradientMatrix = SkMatrix::MakeTrans(-c1.x(), -c1.y());
-        gradientMatrix.postScale(1 / r1, 1 / r1);
+        gradientMatrix.postScale(scale, scale);
 
         gradientType = Type::kRadial;
     } else {
@@ -35,21 +36,19 @@ sk_sp<SkShader> SkTwoPointConicalGradient::Create(const SkPoint& c0, SkScalar r0
         gradientType = Type::kTwoPoint;
     }
 
-    return sk_sp<SkShader>(new SkTwoPointConicalGradient(c0, r0, c1, r1, flipped, desc,
+    return sk_sp<SkShader>(new SkTwoPointConicalGradient(c0, r0, c1, r1, desc,
                                                          gradientType, gradientMatrix));
 }
 
 SkTwoPointConicalGradient::SkTwoPointConicalGradient(
         const SkPoint& start, SkScalar startRadius,
         const SkPoint& end, SkScalar endRadius,
-        bool flippedGrad, const Descriptor& desc,
-        Type type, const SkMatrix& gradientMatrix)
+        const Descriptor& desc, Type type, const SkMatrix& gradientMatrix)
     : SkGradientShaderBase(desc, gradientMatrix)
     , fCenter1(start)
     , fCenter2(end)
     , fRadius1(startRadius)
     , fRadius2(endRadius)
-    , fFlippedGrad(flippedGrad)
     , fType(type)
 {
     // this is degenerate, and should be caught by our caller
@@ -64,18 +63,13 @@ bool SkTwoPointConicalGradient::isOpaque() const {
 }
 
 // Returns the original non-sorted version of the gradient
-SkShader::GradientType SkTwoPointConicalGradient::asAGradient(
-    GradientInfo* info) const {
+SkShader::GradientType SkTwoPointConicalGradient::asAGradient(GradientInfo* info) const {
     if (info) {
-        commonAsAGradient(info, fFlippedGrad);
+        commonAsAGradient(info);
         info->fPoint[0] = fCenter1;
         info->fPoint[1] = fCenter2;
         info->fRadius[0] = fRadius1;
         info->fRadius[1] = fRadius2;
-        if (fFlippedGrad) {
-            SkTSwap(info->fPoint[0], info->fPoint[1]);
-            SkTSwap(info->fRadius[0], info->fRadius[1]);
-        }
     }
     return kConical_GradientType;
 }
@@ -90,7 +84,8 @@ sk_sp<SkFlattenable> SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer)
     SkScalar r1 = buffer.readScalar();
     SkScalar r2 = buffer.readScalar();
 
-    if (buffer.readBool()) {    // flipped
+    if (buffer.isVersionLT(SkReadBuffer::k2PtConicalNoFlip_Version) && buffer.readBool()) {
+        // legacy flipped gradient
         SkTSwap(c1, c2);
         SkTSwap(r1, r2);
 
@@ -125,7 +120,6 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fCenter2);
     buffer.writeScalar(fRadius1);
     buffer.writeScalar(fRadius2);
-    buffer.writeBool(fFlippedGrad);
 }
 
 #if SK_SUPPORT_GPU
@@ -150,29 +144,11 @@ std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProces
 #endif
 
 sk_sp<SkShader> SkTwoPointConicalGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    SkSTArray<8, SkColor> origColorsStorage(fColorCount);
-    SkSTArray<8, SkScalar> origPosStorage(fColorCount);
-    SkSTArray<8, SkColor> xformedColorsStorage(fColorCount);
-    SkColor* origColors = origColorsStorage.begin();
-    SkScalar* origPos = fOrigPos ? origPosStorage.begin() : nullptr;
-    SkColor* xformedColors = xformedColorsStorage.begin();
-
-    // Flip if necessary
-    SkPoint center1 = fFlippedGrad ? fCenter2 : fCenter1;
-    SkPoint center2 = fFlippedGrad ? fCenter1 : fCenter2;
-    SkScalar radius1 = fFlippedGrad ? fRadius2 : fRadius1;
-    SkScalar radius2 = fFlippedGrad ? fRadius1 : fRadius2;
-    for (int i = 0; i < fColorCount; i++) {
-        origColors[i] = fFlippedGrad ? fOrigColors[fColorCount - i - 1] : fOrigColors[i];
-        if (origPos) {
-            origPos[i] = fFlippedGrad ? 1.0f - fOrigPos[fColorCount - i - 1] : fOrigPos[i];
-        }
-    }
-
-    xformer->apply(xformedColors, origColors, fColorCount);
-    return SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2, xformedColors,
-                                                 origPos, fColorCount, fTileMode, fGradFlags,
-                                                 &this->getLocalMatrix());
+    SkSTArray<8, SkColor> xformedColors(fColorCount);
+    xformer->apply(xformedColors.begin(), fOrigColors, fColorCount);
+    return SkGradientShader::MakeTwoPointConical(fCenter1, fRadius1, fCenter2, fRadius2,
+                                                 xformedColors.begin(), fOrigPos, fColorCount,
+                                                 fTileMode, fGradFlags, &this->getLocalMatrix());
 }
 
 
@@ -205,13 +181,12 @@ void SkTwoPointConicalGradient::toString(SkString* str) const {
 void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* p,
                                                      SkRasterPipeline* postPipeline) const {
     const auto dRadius = fRadius2 - fRadius1;
-    SkASSERT(dRadius >= 0);
 
     if (fType == Type::kRadial) {
         p->append(SkRasterPipeline::xy_to_radius);
 
         // Tiny twist: radial computes a t for [0, r2], but we want a t for [r1, r2].
-        auto scale =  fRadius2 / dRadius;
+        auto scale =  SkTMax(fRadius1, fRadius2) / dRadius;
         auto bias  = -fRadius1 / dRadius;
 
         p->append_matrix(alloc, SkMatrix::Concat(SkMatrix::MakeTrans(bias, 0),
@@ -238,24 +213,21 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
         p->append(SkRasterPipeline::xy_to_2pt_conical_linear, ctx);
         isWellBehaved = false;
     } else {
-        if (dCenter + fRadius1 > fRadius2) {
-            // The focal point is outside the end circle.
+        isWellBehaved = SkScalarAbs(dRadius) >= dCenter;
+        bool isFlipped = isWellBehaved && dRadius < 0;
 
-            // We want the larger root, per spec:
-            //   "For all values of ω where r(ω) > 0, starting with the value of ω nearest
-            //    to positive infinity and ending with the value of ω nearest to negative
-            //    infinity, draw the circumference of the circle with radius r(ω) at position
-            //    (x(ω), y(ω)), with the color at ω, but only painting on the parts of the
-            //    bitmap that have not yet been painted on by earlier circles in this step for
-            //    this rendering of the gradient."
-            // (https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-createradialgradient)
-            p->append(fFlippedGrad ? SkRasterPipeline::xy_to_2pt_conical_quadratic_min
-                                   : SkRasterPipeline::xy_to_2pt_conical_quadratic_max, ctx);
-            isWellBehaved = false;
-        } else {
-            // The focal point is inside (well-behaved case).
-            p->append(SkRasterPipeline::xy_to_2pt_conical_quadratic_max, ctx);
-        }
+        // We want the larger root, per spec:
+        //   "For all values of ω where r(ω) > 0, starting with the value of ω nearest
+        //    to positive infinity and ending with the value of ω nearest to negative
+        //    infinity, draw the circumference of the circle with radius r(ω) at position
+        //    (x(ω), y(ω)), with the color at ω, but only painting on the parts of the
+        //    bitmap that have not yet been painted on by earlier circles in this step for
+        //    this rendering of the gradient."
+        // (https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-createradialgradient)
+        //
+        // ... except when the gradient is flipped.
+        p->append(isFlipped ? SkRasterPipeline::xy_to_2pt_conical_quadratic_min
+                            : SkRasterPipeline::xy_to_2pt_conical_quadratic_max, ctx);
     }
 
     if (!isWellBehaved) {
