@@ -85,7 +85,8 @@ private:
             return;
         }
 
-        fRect.toQuad(verts);
+        verts->setRectTriStrip(fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
+                               sizeof(SkPoint));
 
         helper.recordDraw(
                 target, gp.get(),

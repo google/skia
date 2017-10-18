@@ -17,6 +17,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
 #include "GrPathRenderer.h"
+#include "GrQuad.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
@@ -509,12 +510,12 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
                     return;
                 }
                 // Does the rect bound the RT?
-                SkPoint srcSpaceRTQuad[4];
-                invM.mapRectToQuad(srcSpaceRTQuad, rtRect);
-                if (rect_contains_inclusive(rect, srcSpaceRTQuad[0]) &&
-                    rect_contains_inclusive(rect, srcSpaceRTQuad[1]) &&
-                    rect_contains_inclusive(rect, srcSpaceRTQuad[2]) &&
-                    rect_contains_inclusive(rect, srcSpaceRTQuad[3])) {
+                GrQuad quad;
+                quad.setFromMappedRect(rtRect, invM);
+                if (rect_contains_inclusive(rect, quad.point(0)) &&
+                    rect_contains_inclusive(rect, quad.point(1)) &&
+                    rect_contains_inclusive(rect, quad.point(2)) &&
+                    rect_contains_inclusive(rect, quad.point(3))) {
                     // Will it blend?
                     GrColor clearColor;
                     if (paint.isConstantBlendedColor(&clearColor)) {

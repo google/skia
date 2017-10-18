@@ -62,6 +62,7 @@ struct SkRSXform {
     void toQuad(const SkSize& size, SkPoint quad[4]) const {
         this->toQuad(size.width(), size.height(), quad);
     }
+    void toTriStrip(SkScalar width, SkScalar height, SkPoint strip[4]) const;
 };
 
 #endif
