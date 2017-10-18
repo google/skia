@@ -1029,7 +1029,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColor
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    paint.addColorTextureProcessor(fProxy, nullptr, SkMatrix::I());
+    paint.addColorTextureProcessor(fProxy, SkMatrix::I());
     paint.addColorFragmentProcessor(std::move(xform));
 
     const SkRect rect = SkRect::MakeIWH(this->width(), this->height());

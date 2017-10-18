@@ -123,7 +123,7 @@ protected:
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                     auto fp = GrTextureDomainEffect::Make(
-                            proxy, nullptr, textureMatrices[tm],
+                            proxy, textureMatrices[tm],
                             GrTextureDomain::MakeTexelDomainForMode(texelDomains[d], mode), mode,
                             GrSamplerState::Filter::kNearest);
 
