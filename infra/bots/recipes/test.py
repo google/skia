@@ -564,6 +564,7 @@ def dm_flags(api, bot):
                   '~shadertext$',
                   '~bitmapfilters'])
     match.append('~GrContextFactory_abandon') #skia:6209
+    match.append('~FullScreenClearWithLayers') #skia:7191
     # skia:7018
     match.extend(['~ClearOp',
                   '~ComposedImageFilterBounds_Gpu',
