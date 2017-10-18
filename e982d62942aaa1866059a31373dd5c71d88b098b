@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4682d11_085b6ad6",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-10-18T15:28:14Z",
+      "side": 1,
+      "message": "more like, \"while accounting\"?",
+      "range": {
+        "startLine": 500,
+        "startChar": 76,
+        "endLine": 500,
+        "endChar": 86
+      },
+      "revId": "e982d62942aaa1866059a31373dd5c71d88b098b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9745407f_1dc82f61",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-10-18T15:28:14Z",
+      "side": 1,
+      "message": "Might want to swap these to width * sizeof(uint32_t) to match source, and to make it a little clearer that there\u0027s nothing tricky with subsetting and rowbytes going on here?",
+      "range": {
+        "startLine": 504,
+        "startChar": 42,
+        "endLine": 504,
+        "endChar": 56
+      },
+      "revId": "e982d62942aaa1866059a31373dd5c71d88b098b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d05609ac_5a1f500b",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-10-18T15:28:14Z",
+      "side": 1,
+      "message": "We tend to use C\u0027s memcpy(), but I assume std::memcpy is identical?",
+      "range": {
+        "startLine": 512,
+        "startChar": 12,
+        "endLine": 512,
+        "endChar": 17
+      },
+      "revId": "e982d62942aaa1866059a31373dd5c71d88b098b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cb23408_c5308537",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-10-18T15:28:14Z",
+      "side": 1,
+      "message": "This bit might read more clearly with each of the three arguments on its own line.",
+      "range": {
+        "startLine": 512,
+        "startChar": 24,
+        "endLine": 513,
+        "endChar": 36
+      },
+      "revId": "e982d62942aaa1866059a31373dd5c71d88b098b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
