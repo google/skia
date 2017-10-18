@@ -764,6 +764,7 @@ DEFINE_int32(measureMS, 0, "Number of miliseconds to measure the FPS before clos
                            "If it's 0, we won't measure the FPS or close SampleApp automatically.");
 DEFINE_int32(width, 1024, "Width of the window");
 DEFINE_int32(height, 768, "Height of the window");
+DEFINE_string(keys, "", "List of chars to automate keystrokes for on startup.");
 
 #include "SkTaskGroup.h"
 
@@ -2534,7 +2535,14 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     if (false) { // avoid bit rot, suppress warning
         test();
     }
-    return new SampleWindow(hwnd, argc, argv, nullptr);
+    SkOSWindow* window = new SampleWindow(hwnd, argc, argv, nullptr);
+    for (int i = 0; i < FLAGS_keys.count(); ++i) {
+        const char* keys = FLAGS_keys[i];
+        while (char keystroke = *keys++) {
+            window->handleChar(keystroke);
+        }
+    }
+    return window;
 }
 
 #ifdef SK_BUILD_FOR_IOS
