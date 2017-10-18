@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad883125_2f158c3e",
+        "filename": "src/gpu/GrColorSpaceXform.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-18T13:24:34Z",
+      "side": 1,
+      "message": "Seems like this could be worth it for constant color draws, but maybe we will already handle that in paint conversion or elsewhere before we get to making a FP?",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 198,
+        "endChar": 57
+      },
+      "revId": "1ca3b6468288c8701ef1cbe3ca550ff77bfa18ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
