@@ -11,6 +11,9 @@
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 
+#include "SkCanvas.h"
+#include "SkSurface.h"
+
 static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t expectedValue,
                        uint32_t* actualValue, int* failX, int* failY) {
     int w = rect.width();
@@ -212,9 +215,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
     }
 }
 
-#if 0
+#include "gl/GrGLUtil.h"
 
-void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, GrContext* context) {
+// From crbug.com/768134
+void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
     const SkImageInfo ii = SkImageInfo::Make(400, 77, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
     sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii);
@@ -266,19 +272,106 @@ void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, GrContext* c
         }
     }
 
+    if (!isCorrect) {
+        const GrGLInterface* gl = reinterpret_cast<const GrGLInterface*>(
+                    ctxInfo.testContext()->backendContext());
+
+        const GrGLubyte* str;
+        GR_GL_CALL_RET(gl, str, GetString(GR_GL_VERSION));
+        SkDebugf("version: %s\n", (const char*) str);
+
+        GR_GL_CALL_RET(gl, str, GetString(GR_GL_RENDERER));
+        SkDebugf("rendeer: %s\n", (const char*) str);
+
+        GR_GL_CALL_RET(gl, str, GetString(GR_GL_VENDOR));
+        SkDebugf("vendor: %s\n", (const char*) str);
+
+        GR_GL_CALL_RET(gl, str, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
+        SkDebugf("lang: %s\n", (const char*) str);
+
+        const char* names[] = {
+            "kGL",
+            "kGLES",
+            "kANGLE_D3D9_ES2",
+            "kANGLE_D3D11_ES2",
+            "kANGLE_D3D11_ES3",
+            "kANGLE_GL_ES2",
+            "kANGLE_GL_ES3",
+            "kCommandBuffer",
+            "kMESA",
+            "kNullGL",
+            "kDebugGL",
+            "kVulkan",
+            "kMetal",
+            "kMock"
+        };
+
+        SkDebugf("%s\n", names[ctxInfo.type()]);
+        for (int y = kTopY; y < kBotY; ++y) {
+            const uint32_t* sl = bm.getAddr32(0, y);
+
+            SkDebugf("/* %d */ {", y);
+            for (int x = kLeftX; x < kRightX; ++x) {
+                SkDebugf("0x%x, ", sl[x]);
+            }
+            SkDebugf("},\n");
+        }
+    }
+
     REPORTER_ASSERT(reporter, isCorrect);
 }
+// const char* kNameX =
+//static const unsigned int kDataX[25][225] = {
+
+//const char* kName0 = "kANGLE_GL_ES2";
+//static const unsigned int kData0[25][225] = {
+//};
+
+//const char* kName1 = "kANGLE_GL_ES3";
+//static const unsigned int kData1[25][225] = {
+//};
+
+//Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All
+//           Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-Vulkan
+//Test-Win10-Clang-ShuttleA-GPU-AMDHD7770-x86_64-Debug-All
+//Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-ANGLE
+
+#if 0
+const char* kName0 = "";
+static const unsigned int kData0[25][225] = {
+};
+
+static void doit(const char* nameIn, const void* data) {
+    SkBitmap bm;
+
+    const SkImageInfo ii = SkImageInfo::Make(225, 25, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    bm.installPixels(ii, (void*) data, 4*225);
+
+    char name[256];
+    snprintf(name, 256, "d:\\src\\output\\%s.png", nameIn);
+    name[255] = '\0';
+
+    SkFILEWStream file(name);
+    SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100);
+}
+#endif
+
 // From crbug.com/768134
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FullScreenClearWithLayers, reporter, ctxInfo) {
-    fullscreen_clear_with_layer_test(reporter, ctxInfo.grContext());
+#if 0
+    doit(kName0, &kData0[0][0]);
+//    doit(kName1, &kData1[0][0]);
+#else
+    fullscreen_clear_with_layer_test(reporter, ctxInfo);
+#endif
+#if 0
     if (ctxInfo.backend() == kOpenGL_GrBackend) {
         GrContextOptions options(ctxInfo.options());
         options.fUseDrawInsteadOfGLClear = GrContextOptions::Enable::kYes;
         sk_gpu_test::GrContextFactory workaroundFactory(options);
         fullscreen_clear_with_layer_test(reporter, workaroundFactory.get(ctxInfo.type()));
     }
-}
-
 #endif
+}
 
 #endif
