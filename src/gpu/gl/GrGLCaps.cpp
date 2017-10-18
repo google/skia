@@ -569,6 +569,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fUseDrawToClearColor = true;
     }
 
+    // A lot of GPUs have trouble with full screen clears (skbug.com/7195)
+    if (kAMDRadeonHD7xxx_GrGLRenderer == ctxInfo.renderer() ||
+        kAMDRadeonR9M4xx_GrGLRenderer == ctxInfo.renderer()) {
+        fUseDrawToClearColor = true;
+    }
+
 #ifdef SK_BUILD_FOR_MAC
     // crbug.com/768134 - On MacBook Pros, the Intel Iris Pro doesn't always perform
     // full screen clears
