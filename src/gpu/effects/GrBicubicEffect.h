@@ -28,28 +28,24 @@ public:
 
     const GrTextureDomain& domain() const { return fDomain; }
 
-    const GrColorSpaceXform* colorSpaceXform() const { return fColorSpaceXform.get(); }
-
     /**
      * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState::WrapMode wrapModes[2]) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrBicubicEffect(
-                std::move(proxy), std::move(colorSpaceXform), matrix, wrapModes));
+        return std::unique_ptr<GrFragmentProcessor>(new GrBicubicEffect(std::move(proxy), matrix,
+                                                                        wrapModes));
     }
 
     /**
      * Create a Mitchell filter effect with a texture matrix and a domain.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                      const SkMatrix& matrix,
                                                      const SkRect& domain) {
-        return std::unique_ptr<GrFragmentProcessor>(
-                new GrBicubicEffect(std::move(proxy), std::move(colorSpaceXform), matrix, domain));
+        return std::unique_ptr<GrFragmentProcessor>(new GrBicubicEffect(std::move(proxy), matrix,
+                                                                        domain));
     }
 
     /**
@@ -63,10 +59,9 @@ public:
                                  GrSamplerState::Filter* filterMode);
 
 private:
-    GrBicubicEffect(sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>, const SkMatrix& matrix,
+    GrBicubicEffect(sk_sp<GrTextureProxy>, const SkMatrix& matrix,
                     const GrSamplerState::WrapMode wrapModes[2]);
-    GrBicubicEffect(sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>,
-                    const SkMatrix &matrix, const SkRect& domain);
+    GrBicubicEffect(sk_sp<GrTextureProxy>, const SkMatrix &matrix, const SkRect& domain);
     explicit GrBicubicEffect(const GrBicubicEffect&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -78,7 +73,6 @@ private:
     GrCoordTransform fCoordTransform;
     GrTextureDomain fDomain;
     TextureSampler fTextureSampler;
-    sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

@@ -979,8 +979,6 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     if (!proxy) {
         return;
     }
-    sk_sp<GrColorSpaceXform> colorSpaceXform =
-        GrColorSpaceXform::Make(bitmap.colorSpace(), fRenderTargetContext->getColorSpace());
 
     // Compute a matrix that maps the rect we will draw to the src rect.
     const SkMatrix texMatrix = SkMatrix::MakeRectToRect(dstRect, srcRect,
@@ -1006,23 +1004,21 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
             domain.fTop = domain.fBottom = srcRect.centerY();
         }
         if (bicubic) {
-            fp = GrBicubicEffect::Make(std::move(proxy),
-                                       std::move(colorSpaceXform), texMatrix, domain);
+            fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, domain);
         } else {
-            fp = GrTextureDomainEffect::Make(std::move(proxy), std::move(colorSpaceXform),
-                                             texMatrix, domain, GrTextureDomain::kClamp_Mode,
-                                             samplerState.filter());
+            fp = GrTextureDomainEffect::Make(std::move(proxy), nullptr, texMatrix, domain,
+                                             GrTextureDomain::kClamp_Mode, samplerState.filter());
         }
     } else if (bicubic) {
         SkASSERT(GrSamplerState::Filter::kNearest == samplerState.filter());
         GrSamplerState::WrapMode wrapMode[2] = {samplerState.wrapModeX(), samplerState.wrapModeY()};
-        fp = GrBicubicEffect::Make(std::move(proxy), std::move(colorSpaceXform), texMatrix,
-                                   wrapMode);
+        fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, wrapMode);
     } else {
-        fp = GrSimpleTextureEffect::Make(std::move(proxy), std::move(colorSpaceXform), texMatrix,
-                                         samplerState);
+        fp = GrSimpleTextureEffect::Make(std::move(proxy), nullptr, texMatrix, samplerState);
     }
 
+    fp = GrColorSpaceXformEffect::Make(std::move(fp), bitmap.colorSpace(),
+                                       fRenderTargetContext->getColorSpace());
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext.get(), paint, viewMatrix,
                                      std::move(fp), kAlpha_8_SkColorType == bitmap.colorType(),
@@ -1086,11 +1082,9 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     SkPaint tmpUnfiltered(paint);
     tmpUnfiltered.setImageFilter(nullptr);
 
-    sk_sp<GrColorSpaceXform> colorSpaceXform =
-        GrColorSpaceXform::Make(result->getColorSpace(), fRenderTargetContext->getColorSpace());
-
-    auto fp = GrSimpleTextureEffect::Make(std::move(proxy), std::move(colorSpaceXform),
-                                          SkMatrix::I());
+    auto fp = GrSimpleTextureEffect::Make(std::move(proxy), nullptr, SkMatrix::I());
+    fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(),
+                                       fRenderTargetContext->getColorSpace());
     if (GrPixelConfigIsAlphaOnly(config)) {
         fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
     } else {
