@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "143d7ecd_13b351bb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-18T21:12:54Z",
+      "side": 1,
+      "message": "http://cl/172474970",
+      "range": {
+        "startLine": 15,
+        "startChar": 3,
+        "endLine": 15,
+        "endChar": 53
+      },
+      "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "39e5b70a_7463ed58",
         "filename": "tools/rebaseline/add_legacy_flag.py",
         "patchSetId": 9
