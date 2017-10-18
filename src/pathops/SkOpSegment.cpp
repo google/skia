@@ -1377,10 +1377,14 @@ bool SkOpSegment::moveNearby() {
     debugValidate();
     // release undeleted spans pointing to this seg that are linked to the primary span
     SkOpSpanBase* spanBase = &fHead;
+    int escapeHatch = 9999;  // the largest count for a regular test is 50; for a fuzzer, 500
     do {
         SkOpPtT* ptT = spanBase->ptT();
         const SkOpPtT* headPtT = ptT;
         while ((ptT = ptT->next()) != headPtT) {
+            if (!--escapeHatch) {
+                return false;
+            }
             SkOpSpanBase* test = ptT->span();
             if (ptT->segment() == this && !ptT->deleted() && test != spanBase
                     && test->ptT() == ptT) {
@@ -1398,7 +1402,6 @@ bool SkOpSegment::moveNearby() {
         }
         spanBase = spanBase->upCast()->next();
     } while (!spanBase->final());
-
     // This loop looks for adjacent spans which are near by
     spanBase = &fHead;
     do {  // iterate through all spans associated with start
