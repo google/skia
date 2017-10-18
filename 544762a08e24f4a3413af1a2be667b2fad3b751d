@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39e5b70a_7463ed58",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-18T21:11:14Z",
+      "side": 1,
+      "message": "This looks good, except it contains a lot of Google-confidential information. My best suggestion is to ask devs to symlink from $HOME/skia-g3 to /home/build/google3/chrome/skia and check this function into google3, e.g. at //chrome/skia/scripts/add_legacy_flag.py. (Note that /home/build/google3 is probably also Google-confidential, so you\u0027ll need to document that on the sites page: https://sites.google.com/a/google.com/skia/.)",
+      "range": {
+        "startLine": 38,
+        "startChar": 4,
+        "endLine": 38,
+        "endChar": 18
+      },
+      "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99cc0fcd_a332116c",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-18T21:11:14Z",
+      "side": 1,
+      "message": "--autosubmit?",
+      "range": {
+        "startLine": 67,
+        "startChar": 25,
+        "endLine": 67,
+        "endChar": 37
+      },
+      "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d356425_7f73827b",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-18T21:11:14Z",
+      "side": 1,
+      "message": "Not sure about this one, but generally \"corp\" URLs are Google-confidential.",
+      "range": {
+        "startLine": 172,
+        "startChar": 61,
+        "endLine": 172,
+        "endChar": 65
+      },
+      "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "858224ef_3512fb9a",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-18T21:11:14Z",
+      "side": 1,
+      "message": "You\u0027ve swapped Android and Chromium here.",
+      "range": {
+        "startLine": 172,
+        "startChar": 31,
+        "endLine": 172,
+        "endChar": 56
+      },
+      "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd239700_6ca33f29",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-18T21:11:14Z",
+      "side": 1,
+      "message": "http://goto.google.com/cl",
+      "range": {
+        "startLine": 179,
+        "startChar": 23,
+        "endLine": 179,
+        "endChar": 55
+      },
+      "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
