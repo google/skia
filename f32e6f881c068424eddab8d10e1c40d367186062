@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a62894d1_c80bdcaf",
+        "filename": "include/core/SkPoint3.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-10-18T15:27:01Z",
+      "side": 1,
+      "message": "Does the public need this method, or can we just make it a local helper where we need it?\n\ne.g.\n\nstatic SkPoint project_down(const SkPoint3\u0026 p) {\n    return { p.fX / p.fZ, p.fY / p.fZ };\n}",
+      "range": {
+        "startLine": 58,
+        "startChar": 9,
+        "endLine": 58,
+        "endChar": 20
+      },
+      "revId": "f32e6f881c068424eddab8d10e1c40d367186062",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
