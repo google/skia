@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "0cdb2e85_d0a166c4",
+        "filename": "site/dev/contrib/submit.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-18T18:09:51Z",
+      "side": 1,
+      "message": "Sure, bringing that whole \"git cl try\" section here would work too.",
+      "parentUuid": "f0aac9c8_cd2fb4fe",
+      "revId": "42432dbad8512ae11e06e8103baf3b0613841ce7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b6d68d4e_bf58aed5",
         "filename": "site/dev/contrib/submit.md",
         "patchSetId": 2
