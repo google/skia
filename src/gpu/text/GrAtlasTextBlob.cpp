@@ -7,6 +7,7 @@
 
 #include "GrAtlasTextBlob.h"
 #include "GrBlurUtils.h"
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextUtils.h"
@@ -258,8 +259,9 @@ bool GrAtlasTextBlob::mustRegenerate(const GrTextUtils::Paint& paint,
 
 inline std::unique_ptr<GrDrawOp> GrAtlasTextBlob::makeOp(
         const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
-        const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const GrTextUtils::Paint& paint,
-        const SkSurfaceProps& props, const GrDistanceFieldAdjustTable* distanceAdjustTable,
+        const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkRect& clipRect,
+        const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
+        const GrDistanceFieldAdjustTable* distanceAdjustTable,
         GrAtlasGlyphCache* cache, GrRenderTargetContext* renderTargetContext) {
     GrMaskFormat format = info.maskFormat();
 
@@ -279,6 +281,7 @@ inline std::unique_ptr<GrDrawOp> GrAtlasTextBlob::makeOp(
     }
     GrAtlasTextOp::Geometry& geometry = op->geometry();
     geometry.fViewMatrix = viewMatrix;
+    geometry.fClipRect = clipRect;
     geometry.fBlob = SkRef(this);
     geometry.fRun = run;
     geometry.fSubRun = subRun;
@@ -302,10 +305,30 @@ inline void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrClip& 
         if (0 == glyphCount) {
             continue;
         }
-        auto op = this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, std::move(paint),
-                               props, distanceAdjustTable, cache, rtc);
+
+        SkRect bounds = SkRect::MakeWH(rtc->width(), rtc->height());
+        SkRRect clipRRect;
+        GrAA aa;
+        // we can clip geometrically if we're not using SDFs,
+        // and we have an axis-aligned rectangular non-AA clip
+        bool skipClip = false;
+        if (!info.drawAsDistanceFields() && clip.isRRect(bounds, &clipRRect, &aa) &&
+            clipRRect.isRect() && GrAA::kNo == aa) {
+            skipClip = true;
+            bounds = clipRRect.getBounds();
+        } else {
+            bounds = SkRect::MakeEmpty();
+        }
+
+        auto op = this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, bounds,
+                               std::move(paint), props, distanceAdjustTable, cache, rtc);
         if (op) {
-            rtc->addDrawOp(clip, std::move(op));
+            if (skipClip) {
+                GrNoClip noClip;
+                rtc->addDrawOp(noClip, std::move(op));
+            } else {
+                rtc->addDrawOp(clip, std::move(op));
+            }
         }
     }
 }
@@ -427,8 +450,9 @@ std::unique_ptr<GrDrawOp> GrAtlasTextBlob::test_makeOp(
         const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
         GrRenderTargetContext* rtc) {
     const GrAtlasTextBlob::Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
-    return this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, paint, props,
-                        distanceAdjustTable, cache, rtc);
+    SkRect emptyRect = SkRect::MakeEmpty();
+    return this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, emptyRect,
+                        paint, props, distanceAdjustTable, cache, rtc);
 }
 
 void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlob& r) {
