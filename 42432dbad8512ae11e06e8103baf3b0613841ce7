@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "542a0696_057efeca",
+        "filename": "site/dev/contrib/submit.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-18T18:16:10Z",
+      "side": 1,
+      "message": "I made both segments the same, containing the information in either.",
+      "parentUuid": "0cdb2e85_d0a166c4",
+      "revId": "42432dbad8512ae11e06e8103baf3b0613841ce7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b6d68d4e_bf58aed5",
         "filename": "site/dev/contrib/submit.md",
         "patchSetId": 2
@@ -66,6 +84,30 @@
       "writtenOn": "2017-10-18T17:17:24Z",
       "side": 1,
       "message": "Might help to enumerate here-\n\n\nTry jobs may be triggered in the following ways:\n\n* Via the Gerrit UI in skia-review.googlesource.com.\n\n* Using \"git cl try\".\n\n* Convenience wrapper for \"git cl try\"...",
+      "range": {
+        "startLine": 100,
+        "startChar": 17,
+        "endLine": 100,
+        "endChar": 46
+      },
+      "revId": "42432dbad8512ae11e06e8103baf3b0613841ce7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14121d8a_0f27fbcc",
+        "filename": "site/dev/contrib/submit.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-18T18:16:10Z",
+      "side": 1,
+      "message": "I didn\u0027t switch to a bulleted list because it looked strange to have the code segments in between bullets.",
+      "parentUuid": "b6d68d4e_bf58aed5",
       "range": {
         "startLine": 100,
         "startChar": 17,
