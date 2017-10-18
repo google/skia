@@ -329,8 +329,171 @@ protected:
 private:
     typedef SampleView INHERITED;
 };
+DEF_SAMPLE(return new PatchView;);
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new PatchView; }
-static SkViewRegister reg(MyFactory);
+const int gSpiralToYX[] = {
+    0, 1, 2, 3,
+    7, 11, 15, 14,
+    13, 12, 8, 4,
+    5, 6, 10, 9,
+};
+
+class Tensor {
+    const int fW, fH;
+    SkPoint  fCtrl[16];
+    SkPoint* fGrid; // (fW+1)*(fH+1)
+
+    static void build_coeff(float coeff[4], float t) {
+        coeff[0] = (1 - t) * (1 - t) * (1 - t);
+        coeff[1] = 3 * t * (1 - t) * (1 - t);
+        coeff[2] = 3 * t * t * (1 - t);
+        coeff[3] = t * t * t;
+    }
+
+public:
+    Tensor(int w, int h, const SkPoint ctrl[16]) : fW(w), fH(h) {
+        for (int i = 0; i < 16; ++i) {
+            fCtrl[gSpiralToYX[i]] = ctrl[i];
+        }
+
+        fGrid = new SkPoint[(w+1)*(h+1)];
+
+        int index = 0;
+        for (int y = 0; y <= h; ++y) {
+            for (int x = 0; x <= w; ++x) {
+                fGrid[index++] = this->eval(x, y);
+            }
+        }
+    }
+
+    SkPoint eval(int ix, int iy) const {
+        SkASSERT((unsigned)ix <= (unsigned)fW);
+        SkASSERT((unsigned)iy <= (unsigned)fH);
+
+        float xcoeff[4], ycoeff[4];
+        build_coeff(xcoeff, SkIntToFloat(ix) / fW);
+        build_coeff(ycoeff, SkIntToFloat(iy) / fH);
+
+        SkPoint p = { 0, 0 };
+        int index = 0;
+        for (int y = 0; y < 4; ++y) {
+            for (int x = 0; x < 4; ++x) {
+                p += fCtrl[index++] * (xcoeff[x] * ycoeff[y]);
+            }
+        }
+        return p;
+    }
+
+    void draw(SkCanvas* canvas, const SkPaint& p) {
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, (fW+1)*(fH+1), fGrid, p);
+    }
+};
+
+class TensorView : public SampleView {
+    SkScalar    fAngle;
+    sk_sp<SkShader> fShader0;
+    sk_sp<SkShader> fShader1;
+    SkIPoint    fSize0, fSize1;
+    SkPoint     fPts[16];
+
+public:
+    TensorView() : fAngle(0) {
+        fShader0 = make_shader0(&fSize0);
+        fSize1 = fSize0;
+        if (fSize0.fX == 0 || fSize0.fY == 0) {
+            fSize1.set(2, 2);
+        }
+        fShader1 = make_shader1(fSize1);
+
+        const SkScalar S = SkIntToScalar(50);
+        const SkScalar T = SkIntToScalar(40);
+        fPts[0].set(S*0, T);
+        fPts[1].set(S*1, T);
+        fPts[2].set(S*2, T);
+        fPts[3].set(S*3, T);
+        fPts[4].set(S*3, T*2);
+        fPts[5].set(S*3, T*3);
+        fPts[6].set(S*3, T*4);
+        fPts[7].set(S*2, T*4);
+        fPts[8].set(S*1, T*4);
+        fPts[9].set(S*0, T*4);
+        fPts[10].set(S*0, T*3);
+        fPts[11].set(S*0, T*2);
+
+        fPts[12].set(S*1, T*2);
+        fPts[13].set(S*2, T*2);
+        fPts[14].set(S*2, T*3);
+        fPts[15].set(S*1, T*3);
+
+        this->setBGColor(SK_ColorGRAY);
+    }
+
+protected:
+    // overrides from SkEventSink
+    bool onQuery(SkEvent* evt)  override {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "Tensor");
+            return true;
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        const int nu = 10;
+        const int nv = 10;
+
+        Tensor tensor(nu, nv, fPts);
+
+        canvas->translate(DX, DY);
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(3);
+        paint.setColor(SK_ColorBLUE);
+        tensor.draw(canvas, paint);
+
+        paint.setStrokeWidth(6);
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, SK_ARRAY_COUNT(fPts), fPts, paint);
+    }
+
+    bool onAnimate(const SkAnimTimer& timer) override {
+        fAngle = timer.scaled(60, 360);
+        return true;
+    }
+
+    class PtClick : public Click {
+    public:
+        int fIndex;
+        PtClick(SkView* view, int index) : Click(view), fIndex(index) {}
+    };
+
+    static bool hittest(const SkPoint& pt, SkScalar x, SkScalar y) {
+        return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(5);
+    }
+
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+        x -= DX;
+        y -= DY;
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
+            if (hittest(fPts[i], x, y)) {
+                return new PtClick(this, (int)i);
+            }
+        }
+        return this->INHERITED::onFindClickHandler(x, y, modi);
+    }
+
+    bool onClick(Click* click) override {
+        fPts[((PtClick*)click)->fIndex].set(click->fCurr.fX - DX, click->fCurr.fY - DY);
+        this->inval(nullptr);
+        return true;
+    }
+
+private:
+    typedef SampleView INHERITED;
+};
+DEF_SAMPLE(return new TensorView;);
+
+
