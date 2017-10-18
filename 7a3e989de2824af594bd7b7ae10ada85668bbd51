@@ -22,6 +22,30 @@
       "revId": "7a3e989de2824af594bd7b7ae10ada85668bbd51",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e73c914_1d7c67c6",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-18T13:38:16Z",
+      "side": 0,
+      "message": "So there are two \"MIP\" things going on here. First is whether or not the GrBackendTexture the client passed in is labeled as having Mips. If it does then the proxy we return here will also have mips (this was change from last week). The second is whether or not we will then use this Image in a way that requires mips. If we will need mips and the proxy (GrBackendTexture) didn\u0027t have mips, then we will need to a copy of the backend image into our own mipped one.\n\nWe don\u0027t have an explicit test for this, but we do we have a test that if a GrBackendTexture is labels as having mips than the proxy will say it has mips. I can try to find a way to explicitly test the second part, that we don\u0027t make a copy, if we\u0027re worried about the if check above.",
+      "parentUuid": "a37d516d_8728e4c7",
+      "range": {
+        "startLine": 185,
+        "startChar": 10,
+        "endLine": 187,
+        "endChar": 17
+      },
+      "revId": "7a3e989de2824af594bd7b7ae10ada85668bbd51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

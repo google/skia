@@ -39,6 +39,30 @@
       "revId": "f6fdf11a0b376d83f841eb8c4e153974e110e6da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f2a9713_aee2b195",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-18T13:38:16Z",
+      "side": 1,
+      "message": "Okay after talking with Brian the reason for this is that we decided since this is a cross context thing we never want to change the layout of the borrowed image. Thus we restrict ourselves to only allowing copy as draw for borrowed images. Thus it has nothing to do with subsetting.\n\nI\u0027ll update the comment",
+      "parentUuid": "7dcd6b6d_d812a65e",
+      "range": {
+        "startLine": 179,
+        "startChar": 59,
+        "endLine": 180,
+        "endChar": 61
+      },
+      "revId": "f6fdf11a0b376d83f841eb8c4e153974e110e6da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
