@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f0aac9c8_cd2fb4fe",
+        "filename": "site/dev/contrib/submit.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-18T17:41:08Z",
+      "side": 1,
+      "message": "IMO the \"how to trigger try jobs\" segment belongs in the \"how to contribute code\" section.  The automated testing page is more about how that whole infrastructure works, which IMO isn\u0027t needed if you just want to trigger some try jobs before submitting a CL.  I\u0027ll tweak that page too though.",
+      "parentUuid": "445374d1_cb7c3923",
+      "revId": "42432dbad8512ae11e06e8103baf3b0613841ce7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b6d68d4e_bf58aed5",
         "filename": "site/dev/contrib/submit.md",
         "patchSetId": 2
