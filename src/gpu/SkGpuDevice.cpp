@@ -1086,11 +1086,9 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     SkPaint tmpUnfiltered(paint);
     tmpUnfiltered.setImageFilter(nullptr);
 
-    sk_sp<GrColorSpaceXform> colorSpaceXform =
-        GrColorSpaceXform::Make(result->getColorSpace(), fRenderTargetContext->getColorSpace());
-
-    auto fp = GrSimpleTextureEffect::Make(std::move(proxy), std::move(colorSpaceXform),
-                                          SkMatrix::I());
+    auto fp = GrSimpleTextureEffect::Make(std::move(proxy), nullptr, SkMatrix::I());
+    fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(),
+                                       fRenderTargetContext->getColorSpace());
     if (GrPixelConfigIsAlphaOnly(config)) {
         fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
     } else {
