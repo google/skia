@@ -1072,12 +1072,11 @@ static void build_power_table(uint8_t table[]) {
  *  The color space used does not appear to affect this choice.
  */
 static const uint8_t* getInverseGammaTableCoreGraphicSmoothing() {
-    static bool gInited;
     static uint8_t gTableCoreGraphicsSmoothing[256];
-    if (!gInited) {
+    static SkOnce once;
+    once([]{
         build_power_table(gTableCoreGraphicsSmoothing);
-        gInited = true;
-    }
+    });
     return gTableCoreGraphicsSmoothing;
 }
 
