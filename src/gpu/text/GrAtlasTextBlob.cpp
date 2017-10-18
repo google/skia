@@ -7,6 +7,7 @@
 
 #include "GrAtlasTextBlob.h"
 #include "GrBlurUtils.h"
+#include "GrClip.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextUtils.h"
@@ -302,10 +303,14 @@ inline void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrClip& 
         if (0 == glyphCount) {
             continue;
         }
+        //**** need a way to know that this subrun can be clipped geometrically
+        //**** info tells us if it's distance field, clip tells us if it's aliased and axis-aligned
+        //**** need to store clip in op? Could union with matrix.
         auto op = this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, std::move(paint),
                                props, distanceAdjustTable, cache, rtc);
+        GrNoClip noClip;
         if (op) {
-            rtc->addDrawOp(clip, std::move(op));
+            rtc->addDrawOp(noClip, std::move(op));
         }
     }
 }

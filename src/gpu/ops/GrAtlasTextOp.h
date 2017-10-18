@@ -27,7 +27,10 @@ public:
 
     typedef GrAtlasTextBlob Blob;
     struct Geometry {
-        SkMatrix fViewMatrix;
+        union {
+            SkMatrix fViewMatrix;
+            SkRect   fClipRect;
+        };
         Blob* fBlob;
         SkScalar fX;
         SkScalar fY;
@@ -174,9 +177,7 @@ private:
     static constexpr auto kMaxTextures = 4;
 
     // TODO just use class params
-    sk_sp<GrGeometryProcessor> setupDfProcessor(const SkMatrix& viewMatrix, SkColor luminanceColor,
-                                                GrColor color,
-                                                const sk_sp<GrTextureProxy> [kMaxTextures]) const;
+    sk_sp<GrGeometryProcessor> setupDfProcessor(const SkMatrix& localMatrix) const;
 
 
     // The minimum number of Geometry we will try to allocate.

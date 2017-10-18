@@ -199,8 +199,8 @@ void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fon
         }
 
         regen_vertices<regenPos, regenCol, regenTexCoords>(vertex, glyph, vertexStride,
-                                                           info->drawAsDistanceFields(), transX,
-                                                           transY, color);
+                                                           info->drawAsDistanceFields(),
+                                                           transX, transY, color);
         vertex += vertexStride * GrAtlasTextOp::kVerticesPerGlyph;
         helper->incGlyphCount();
     }
