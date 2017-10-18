@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbb3fa25_1f5404d4",
+        "filename": "src/effects/SkArithmeticImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-10-18T13:59:52Z",
+      "side": 1,
+      "message": "Soon, GrTextureDomain (and simple texture, etc...) won\u0027t need the xform at all, and this argument goes away.",
+      "revId": "e2ed1eb7f08de132dc14af4bbfbaa6f2861bc695",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
