@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrRenderTargetContext.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrSemaphore.h"
@@ -170,35 +171,27 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex), fSurfaceOrigin);
 
     if (0 == origin.fX && 0 == origin.fY &&
-        info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height()) {
+        info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&
+        (!willNeedMipMaps || proxy->isMipMapped())) {
         // If the caller wants the entire texture, we're done
         return proxy;
     } else {
         // Otherwise, make a copy of the requested subset. Make sure our temporary is renderable,
         // because Vulkan will want to do the copy as a draw.
-        GrSurfaceDesc desc;
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fOrigin = proxy->origin();
-        desc.fWidth = info.width();
-        desc.fHeight = info.height();
-        desc.fConfig = proxy->config();
-        // TODO: We should support the case where we can allocate the mips ahead of time then copy
-        // the subregion into the base layer and then let the GPU generate the rest of the mip
-        // levels.
-        SkASSERT(!proxy->isMipMapped());
+        sk_sp<GrRenderTargetContext> rtContext(context->makeDeferredRenderTargetContext(
+                SkBackingFit::kExact, info.width(), info.height(), proxy->config(), nullptr,
+                0, willNeedMipMaps, proxy->origin(), nullptr, SkBudgeted::kYes));
 
-        sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeDeferredSurfaceContext(
-            desc, SkBackingFit::kExact, SkBudgeted::kYes));
-        if (!sContext) {
+        if (!rtContext) {
             return nullptr;
         }
 
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
-        if (!sContext->copy(proxy.get(), subset, SkIPoint::Make(0, 0))) {
+        if (!rtContext->copy(proxy.get(), subset, SkIPoint::Make(0, 0))) {
             return nullptr;
         }
 
-        return sContext->asTextureProxyRef();
+        return rtContext->asTextureProxyRef();
     }
 }
 #endif
