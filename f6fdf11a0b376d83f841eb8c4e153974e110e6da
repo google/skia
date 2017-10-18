@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1de9dcae_bbf2572a",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-10-18T13:27:21Z",
+      "side": 1,
+      "message": "Update this comment?",
+      "revId": "f6fdf11a0b376d83f841eb8c4e153974e110e6da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7dcd6b6d_d812a65e",
         "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
         "patchSetId": 1
