@@ -1308,6 +1308,12 @@ extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle )
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
+    FLAGS_src.reset();
+    FLAGS_src.append("tests", 5);
+
+    FLAGS_match.reset();
+    FLAGS_match.append("FullScreenClearWithLayers", 25);
+
     initializeEventTracingForTools();
 
 #if !defined(GOOGLE3) && defined(SK_BUILD_FOR_IOS)

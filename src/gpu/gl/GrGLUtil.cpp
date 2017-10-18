@@ -350,6 +350,28 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
                 return kIntel6xxx_GrGLRenderer;
             }
         }
+
+        {
+            char amdGeneration, amdTier, amdRevision;
+            // This string can have a, somewhat arbitrary, preamble and postamble
+            // (see skbug.com/7195)
+            n = sscanf(rendererString, "%*s Radeon (TM) R9 M%c%c%c%*s",
+                                       &amdGeneration, &amdTier, &amdRevision);
+            if (3 == n) {
+                if ('4' == amdGeneration) {
+                    return kAMDRadeonR9M4xx_GrGLRenderer;
+                }
+            }
+        }
+
+        {
+            char amd0, amd1, amd2;
+            n = sscanf(rendererString, "AMD Radeon HD 7%c%c%c Series", &amd0, &amd1, &amd2);
+            if (3 == n) {
+                return kAMDRadeonHD7xxx_GrGLRenderer;
+            }
+        }
+
         if (0 == strcmp("Mesa Offscreen", rendererString)) {
             return kOSMesa_GrGLRenderer;
         }
