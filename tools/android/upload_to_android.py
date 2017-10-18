@@ -52,7 +52,7 @@ def get_change_details(change_num):
   return json.loads(content[5:])
 
 
-def upload_to_android(work_dir, change_num, debug):
+def init_work_dir(work_dir):
   if not os.path.isdir(work_dir):
     print 'Creating %s' % work_dir
     os.makedirs(work_dir)
@@ -105,6 +105,11 @@ About to run repo init. If it hangs asking you to run glogin then please:
       'git config review.%s/.autoupload true' % ANDROID_REPO_URL, shell=True)
   subprocess.check_call(
       'git config user.email %s@google.com' % getpass.getuser(), shell=True)
+
+  return repo_binary
+
+def upload_to_android(work_dir, change_num, debug):
+  repo_binary = init_work_dir(work_dir)
 
   # Create repo branch.
   subprocess.check_call('%s start %s .' % (repo_binary, REPO_BRANCH_NAME),
