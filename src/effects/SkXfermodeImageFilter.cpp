@@ -294,12 +294,12 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
     if (backgroundProxy) {
         SkMatrix bgMatrix = SkMatrix::MakeTrans(-SkIntToScalar(backgroundOffset.fX),
                                                 -SkIntToScalar(backgroundOffset.fY));
-        sk_sp<GrColorSpaceXform> bgXform = GrColorSpaceXform::Make(background->getColorSpace(),
-                                                                   outputProperties.colorSpace());
-        bgFP = GrTextureDomainEffect::Make(std::move(backgroundProxy), std::move(bgXform), bgMatrix,
+        bgFP = GrTextureDomainEffect::Make(std::move(backgroundProxy), nullptr, bgMatrix,
                                            GrTextureDomain::MakeTexelDomain(background->subset()),
                                            GrTextureDomain::kDecal_Mode,
                                            GrSamplerState::Filter::kNearest);
+        bgFP = GrColorSpaceXformEffect::Make(std::move(bgFP), background->getColorSpace(),
+                                             outputProperties.colorSpace());
     } else {
         bgFP = GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                            GrConstColorProcessor::kIgnore_InputMode);
@@ -308,12 +308,13 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
     if (foregroundProxy) {
         SkMatrix fgMatrix = SkMatrix::MakeTrans(-SkIntToScalar(foregroundOffset.fX),
                                                 -SkIntToScalar(foregroundOffset.fY));
-        sk_sp<GrColorSpaceXform> fgXform = GrColorSpaceXform::Make(foreground->getColorSpace(),
-                                                                   outputProperties.colorSpace());
         auto foregroundFP = GrTextureDomainEffect::Make(
-                std::move(foregroundProxy), std::move(fgXform), fgMatrix,
+                std::move(foregroundProxy), nullptr, fgMatrix,
                 GrTextureDomain::MakeTexelDomain(foreground->subset()),
                 GrTextureDomain::kDecal_Mode, GrSamplerState::Filter::kNearest);
+        foregroundFP = GrColorSpaceXformEffect::Make(std::move(foregroundFP),
+                                                     foreground->getColorSpace(),
+                                                     outputProperties.colorSpace());
         paint.addColorFragmentProcessor(std::move(foregroundFP));
 
         std::unique_ptr<GrFragmentProcessor> xferFP = this->makeFGFrag(std::move(bgFP));
