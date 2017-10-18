@@ -157,7 +157,7 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
                                               SkIntToScalar(-textureOriginInDeviceSpace.fY));
     maskMatrix.preConcat(viewMatrix);
     paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
-            std::move(proxy), nullptr, maskMatrix, GrSamplerState::Filter::kNearest));
+            std::move(proxy), maskMatrix, GrSamplerState::Filter::kNearest));
     DrawNonAARect(renderTargetContext, std::move(paint), userStencilSettings, clip, SkMatrix::I(),
                   dstRect, invert);
 }

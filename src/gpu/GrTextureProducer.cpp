@@ -59,11 +59,11 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
         // better!
         SkASSERT(copyParams.fFilter != GrSamplerState::Filter::kMipMap);
         paint.addColorFragmentProcessor(
-            GrTextureDomainEffect::Make(std::move(inputProxy), nullptr, SkMatrix::I(),
-                                        domain, GrTextureDomain::kClamp_Mode, copyParams.fFilter));
+            GrTextureDomainEffect::Make(std::move(inputProxy), SkMatrix::I(), domain,
+                                        GrTextureDomain::kClamp_Mode, copyParams.fFilter));
     } else {
         GrSamplerState samplerState(GrSamplerState::WrapMode::kClamp, copyParams.fFilter);
-        paint.addColorTextureProcessor(std::move(inputProxy), nullptr, SkMatrix::I(), samplerState);
+        paint.addColorTextureProcessor(std::move(inputProxy), SkMatrix::I(), samplerState);
     }
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -228,13 +228,12 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorF
     SkASSERT(kTightCopy_DomainMode != domainMode);
     if (filterOrNullForBicubic) {
         if (kDomain_DomainMode == domainMode) {
-            return GrTextureDomainEffect::Make(std::move(proxy), nullptr, textureMatrix, domain,
+            return GrTextureDomainEffect::Make(std::move(proxy), textureMatrix, domain,
                                                GrTextureDomain::kClamp_Mode,
                                                *filterOrNullForBicubic);
         } else {
             GrSamplerState samplerState(GrSamplerState::WrapMode::kClamp, *filterOrNullForBicubic);
-            return GrSimpleTextureEffect::Make(std::move(proxy), nullptr, textureMatrix,
-                                               samplerState);
+            return GrSimpleTextureEffect::Make(std::move(proxy), textureMatrix, samplerState);
         }
     } else {
         if (kDomain_DomainMode == domainMode) {

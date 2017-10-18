@@ -17,7 +17,6 @@
 #include "SkRegion.h"
 #include "SkTLazy.h"
 
-class GrColorSpaceXform;
 class GrTextureProxy;
 class GrXPFactory;
 
@@ -110,10 +109,8 @@ public:
      * Helpers for adding color or coverage effects that sample a texture. The matrix is applied
      * to the src space position to compute texture coordinates.
      */
-    void addColorTextureProcessor(sk_sp<GrTextureProxy>,
-                                  sk_sp<GrColorSpaceXform>, const SkMatrix&);
-    void addColorTextureProcessor(sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>, const SkMatrix&,
-                                  const GrSamplerState&);
+    void addColorTextureProcessor(sk_sp<GrTextureProxy>, const SkMatrix&);
+    void addColorTextureProcessor(sk_sp<GrTextureProxy>, const SkMatrix&, const GrSamplerState&);
 
     void addCoverageTextureProcessor(sk_sp<GrTextureProxy>, const SkMatrix&);
     void addCoverageTextureProcessor(sk_sp<GrTextureProxy>, const SkMatrix&, const GrSamplerState&);

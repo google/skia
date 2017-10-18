@@ -55,7 +55,6 @@ bool SkColorSpaceXformImageGenerator::onGetPixels(const SkImageInfo& info, void*
 #if SK_SUPPORT_GPU
 
 #include "GrClip.h"
-#include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrPaint.h"
 #include "GrRenderTargetContext.h"
@@ -95,8 +94,7 @@ sk_sp<GrTextureProxy> SkColorSpaceXformImageGenerator::onGenerateTexture(
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    paint.addColorTextureProcessor(std::move(proxy), nullptr,
-                                   SkMatrix::MakeTrans(origin.fX, origin.fY));
+    paint.addColorTextureProcessor(std::move(proxy), SkMatrix::MakeTrans(origin.fX, origin.fY));
     paint.addColorFragmentProcessor(std::move(xform));
 
     const SkRect rect = SkRect::MakeWH(info.width(), info.height());
