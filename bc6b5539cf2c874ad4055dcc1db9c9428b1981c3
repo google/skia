@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03b17cbc_4119e9bb",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1388,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-10-18T18:13:49Z",
+      "side": 1,
+      "message": "I believe all the raster back-ends will simply draw negative sizes upside-down. However, I can agree that there probably aren\u0027t that many people actually doing that.",
+      "range": {
+        "startLine": 1388,
+        "startChar": 47,
+        "endLine": 1388,
+        "endChar": 74
+      },
+      "revId": "bc6b5539cf2c874ad4055dcc1db9c9428b1981c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
