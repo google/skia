@@ -19,6 +19,7 @@
 #include "SkMakeUnique.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
+#include "SkOnce.h"
 #include "SkOTTable_maxp.h"
 #include "SkOTTable_name.h"
 #include "SkOTUtils.h"
@@ -1045,24 +1046,11 @@ static void build_power_table(uint8_t table[], float ee) {
  *  that shifting into other color spaces is imprecise.
  */
 static const uint8_t* getInverseGammaTableGDI() {
-    // Since build_power_table is idempotent, many threads can build gTableGdi
-    // simultaneously.
-
-    // Microsoft Specific:
-    // Making gInited volatile provides read-aquire and write-release in vc++.
-    // In VS2012, see compiler option /volatile:(ms|iso).
-    // Replace with C++11 atomics when possible.
-    static volatile bool gInited;
+    static SkOnce once;
     static uint8_t gTableGdi[256];
-    if (gInited) {
-        // Need a L/L (read) barrier (full acquire not needed). If gInited is observed
-        // true then gTableGdi is observable, but it must be requested.
-    } else {
+    once([]{
         build_power_table(gTableGdi, 2.3f);
-        // Need a S/S (write) barrier (full release not needed) here so that this
-        // write to gInited becomes observable after gTableGdi.
-        gInited = true;
-    }
+    });
     return gTableGdi;
 }
 
@@ -1074,29 +1062,16 @@ static const uint8_t* getInverseGammaTableGDI() {
  *  If this value is not specified, the default is a gamma of 1.4.
  */
 static const uint8_t* getInverseGammaTableClearType() {
-    // We don't expect SPI_GETFONTSMOOTHINGCONTRAST to ever change, so building
-    // gTableClearType with build_power_table is effectively idempotent.
-
-    // Microsoft Specific:
-    // Making gInited volatile provides read-aquire and write-release in vc++.
-    // In VS2012, see compiler option /volatile:(ms|iso).
-    // Replace with C++11 atomics when possible.
-    static volatile bool gInited;
+    static SkOnce once;
     static uint8_t gTableClearType[256];
-    if (gInited) {
-        // Need a L/L (read) barrier (acquire not needed). If gInited is observed
-        // true then gTableClearType is observable, but it must be requested.
-    } else {
+    once([]{
         UINT level = 0;
         if (!SystemParametersInfo(SPI_GETFONTSMOOTHINGCONTRAST, 0, &level, 0) || !level) {
             // can't get the data, so use a default
             level = 1400;
         }
         build_power_table(gTableClearType, level / 1000.0f);
-        // Need a S/S (write) barrier (release not needed) here so that this
-        // write to gInited becomes observable after gTableClearType.
-        gInited = true;
-    }
+    });
     return gTableClearType;
 }
 
