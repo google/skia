@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7dcd6b6d_d812a65e",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-18T13:22:20Z",
+      "side": 1,
+      "message": "Does vulkan do copy as draw when we\u0027re copying the whole thing, or is it only relevant for subsetting?",
+      "range": {
+        "startLine": 179,
+        "startChar": 59,
+        "endLine": 180,
+        "endChar": 61
+      },
+      "revId": "f6fdf11a0b376d83f841eb8c4e153974e110e6da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

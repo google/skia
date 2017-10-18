@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a37d516d_8728e4c7",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-18T13:22:20Z",
+      "side": 0,
+      "message": "Is it the case that the client can originally indicate that they want MIPs so that we don\u0027t have to make the copy? I think so, but just checking.\n\nDo we have any tests for this? Where \"this\" is that if MIPs is requested that the returned proxy has MIPs and that if it was originally created with MIPs we don\u0027t make a copy.",
+      "range": {
+        "startLine": 185,
+        "startChar": 10,
+        "endLine": 187,
+        "endChar": 17
+      },
+      "revId": "7a3e989de2824af594bd7b7ae10ada85668bbd51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
