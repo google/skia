@@ -294,7 +294,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
     if (backgroundProxy) {
         SkMatrix bgMatrix = SkMatrix::MakeTrans(-SkIntToScalar(backgroundOffset.fX),
                                                 -SkIntToScalar(backgroundOffset.fY));
-        bgFP = GrTextureDomainEffect::Make(std::move(backgroundProxy), nullptr, bgMatrix,
+        bgFP = GrTextureDomainEffect::Make(std::move(backgroundProxy), bgMatrix,
                                            GrTextureDomain::MakeTexelDomain(background->subset()),
                                            GrTextureDomain::kDecal_Mode,
                                            GrSamplerState::Filter::kNearest);
@@ -309,7 +309,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
         SkMatrix fgMatrix = SkMatrix::MakeTrans(-SkIntToScalar(foregroundOffset.fX),
                                                 -SkIntToScalar(foregroundOffset.fY));
         auto foregroundFP = GrTextureDomainEffect::Make(
-                std::move(foregroundProxy), nullptr, fgMatrix,
+                std::move(foregroundProxy), fgMatrix,
                 GrTextureDomain::MakeTexelDomain(foreground->subset()),
                 GrTextureDomain::kDecal_Mode, GrSamplerState::Filter::kNearest);
         foregroundFP = GrColorSpaceXformEffect::Make(std::move(foregroundFP),

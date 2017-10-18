@@ -22,6 +22,7 @@
 class GrBackendSemaphore;
 class GrCCPRAtlas;
 class GrClip;
+class GrColorSpaceXform;
 class GrCoverageCountingPathRenderer;
 class GrDrawingManager;
 class GrDrawOp;

@@ -256,7 +256,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
                          {GrSamplerState::Filter::kMipMap, "filter-mipmap"}};
 
     for (auto filter : kNamedFilters) {
-        auto fp = GrSimpleTextureEffect::Make(sContext->asTextureProxyRef(), nullptr, SkMatrix::I(),
+        auto fp = GrSimpleTextureEffect::Make(sContext->asTextureProxyRef(), SkMatrix::I(),
                                               filter.fMode);
         REPORTER_ASSERT(reporter, fp);
         if (!fp) {

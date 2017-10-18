@@ -329,7 +329,7 @@ static GrColor4f input_texel_color4f(int i, int j) {
 void test_draw_op(GrRenderTargetContext* rtc, std::unique_ptr<GrFragmentProcessor> fp,
                   sk_sp<GrTextureProxy> inputDataProxy) {
     GrPaint paint;
-    paint.addColorTextureProcessor(std::move(inputDataProxy), nullptr, SkMatrix::I());
+    paint.addColorTextureProcessor(std::move(inputDataProxy), SkMatrix::I());
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 

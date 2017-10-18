@@ -225,7 +225,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     if (doBicubic) {
         inner = GrBicubicEffect::Make(std::move(proxy), lmInverse, wrapModes);
     } else {
-        inner = GrSimpleTextureEffect::Make(std::move(proxy), nullptr, lmInverse, samplerState);
+        inner = GrSimpleTextureEffect::Make(std::move(proxy), lmInverse, samplerState);
     }
     inner = GrColorSpaceXformEffect::Make(std::move(inner), texColorSpace.get(),
                                           args.fDstColorSpace);

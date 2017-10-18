@@ -13,7 +13,6 @@
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "SkFloatingPoint.h"
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -67,8 +66,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                                               const char* outColor,
                                               const SkString& inCoords,
                                               GrGLSLFragmentProcessor::SamplerHandle sampler,
-                                              const char* inModulateColor,
-                                              GrGLSLColorSpaceXformHelper* colorXformHelper) {
+                                              const char* inModulateColor) {
     SkASSERT((Mode)-1 == fMode || textureDomain.mode() == fMode);
     SkDEBUGCODE(fMode = textureDomain.mode();)
 
@@ -87,7 +85,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
         case kIgnore_Mode: {
             builder->codeAppendf("%s = ", outColor);
             builder->appendTextureLookupAndModulate(inModulateColor, sampler, inCoords.c_str(),
-                                                    kFloat2_GrSLType, colorXformHelper);
+                                                    kFloat2_GrSLType);
             builder->codeAppend(";");
             break;
         }
@@ -98,7 +96,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
 
             builder->codeAppendf("%s = ", outColor);
             builder->appendTextureLookupAndModulate(inModulateColor, sampler, clampedCoords.c_str(),
-                                                    kFloat2_GrSLType, colorXformHelper);
+                                                    kFloat2_GrSLType);
             builder->codeAppend(";");
             break;
         }
@@ -117,7 +115,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                 builder->codeAppend("half4 outside = half4(0.0, 0.0, 0.0, 0.0);");
                 builder->codeAppend("half4 inside = ");
                 builder->appendTextureLookupAndModulate(inModulateColor, sampler, inCoords.c_str(),
-                                                        kFloat2_GrSLType, colorXformHelper);
+                                                        kFloat2_GrSLType);
                 builder->codeAppend(";");
 
                 builder->codeAppendf("float x = (%s).x;", inCoords.c_str());
@@ -138,7 +136,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                 builder->codeAppendf("%s = any(outside) ? half4(0.0, 0.0, 0.0, 0.0) : ",
                                        outColor);
                 builder->appendTextureLookupAndModulate(inModulateColor, sampler, inCoords.c_str(),
-                                                        kFloat2_GrSLType, colorXformHelper);
+                                                        kFloat2_GrSLType);
                 builder->codeAppend(";");
             }
             break;
@@ -151,7 +149,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
 
             builder->codeAppendf("%s = ", outColor);
             builder->appendTextureLookupAndModulate(inModulateColor, sampler, clampedCoords.c_str(),
-                                                    kFloat2_GrSLType, colorXformHelper);
+                                                    kFloat2_GrSLType);
             builder->codeAppend(";");
             break;
         }
@@ -207,23 +205,20 @@ inline GrFragmentProcessor::OptimizationFlags GrTextureDomainEffect::OptFlags(
 
 std::unique_ptr<GrFragmentProcessor> GrTextureDomainEffect::Make(
         sk_sp<GrTextureProxy> proxy,
-        sk_sp<GrColorSpaceXform> colorSpaceXform,
         const SkMatrix& matrix,
         const SkRect& domain,
         GrTextureDomain::Mode mode,
         GrSamplerState::Filter filterMode) {
     if (GrTextureDomain::kIgnore_Mode == mode ||
         (GrTextureDomain::kClamp_Mode == mode && can_ignore_rect(proxy.get(), domain))) {
-        return GrSimpleTextureEffect::Make(std::move(proxy),
-                                           std::move(colorSpaceXform), matrix, filterMode);
+        return GrSimpleTextureEffect::Make(std::move(proxy), matrix, filterMode);
     } else {
         return std::unique_ptr<GrFragmentProcessor>(new GrTextureDomainEffect(
-                std::move(proxy), std::move(colorSpaceXform), matrix, domain, mode, filterMode));
+                std::move(proxy), matrix, domain, mode, filterMode));
     }
 }
 
 GrTextureDomainEffect::GrTextureDomainEffect(sk_sp<GrTextureProxy> proxy,
-                                             sk_sp<GrColorSpaceXform> colorSpaceXform,
                                              const SkMatrix& matrix,
                                              const SkRect& domain,
                                              GrTextureDomain::Mode mode,
@@ -231,8 +226,7 @@ GrTextureDomainEffect::GrTextureDomainEffect(sk_sp<GrTextureProxy> proxy,
         : INHERITED(kGrTextureDomainEffect_ClassID, OptFlags(proxy->config(), mode))
         , fCoordTransform(matrix, proxy.get())
         , fTextureDomain(proxy.get(), domain, mode)
-        , fTextureSampler(std::move(proxy), filterMode)
-        , fColorSpaceXform(std::move(colorSpaceXform)) {
+        , fTextureSampler(std::move(proxy), filterMode) {
     SkASSERT(mode != GrTextureDomain::kRepeat_Mode ||
              filterMode == GrSamplerState::Filter::kNearest);
     this->addCoordTransform(&fCoordTransform);
@@ -243,8 +237,7 @@ GrTextureDomainEffect::GrTextureDomainEffect(const GrTextureDomainEffect& that)
         : INHERITED(kGrTextureDomainEffect_ClassID, that.optimizationFlags())
         , fCoordTransform(that.fCoordTransform)
         , fTextureDomain(that.fTextureDomain)
-        , fTextureSampler(that.fTextureSampler)
-        , fColorSpaceXform(that.fColorSpaceXform) {
+        , fTextureSampler(that.fTextureSampler) {
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);
 }
@@ -252,7 +245,6 @@ GrTextureDomainEffect::GrTextureDomainEffect(const GrTextureDomainEffect& that)
 void GrTextureDomainEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
     b->add32(GrTextureDomain::GLDomain::DomainKey(fTextureDomain));
-    b->add32(GrColorSpaceXform::XformKey(this->colorSpaceXform()));
 }
 
 GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
@@ -265,7 +257,6 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
 
-            fColorSpaceHelper.emitCode(args.fUniformHandler, tde.colorSpaceXform());
             fGLDomain.sampleTexture(fragBuilder,
                                     args.fUniformHandler,
                                     args.fShaderCaps,
@@ -273,8 +264,7 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
                                     args.fOutputColor,
                                     coords2D,
                                     args.fTexSamplers[0],
-                                    args.fInputColor,
-                                    &fColorSpaceHelper);
+                                    args.fInputColor);
         }
 
     protected:
@@ -285,14 +275,10 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
             GrSurfaceProxy* proxy = tde.textureSampler(0).proxy();
 
             fGLDomain.setData(pdman, domain, proxy);
-            if (SkToBool(tde.colorSpaceXform())) {
-                fColorSpaceHelper.setData(pdman, tde.colorSpaceXform());
-            }
         }
 
     private:
         GrTextureDomain::GLDomain         fGLDomain;
-        GrGLSLColorSpaceXformHelper       fColorSpaceHelper;
     };
 
     return new GLSLProcessor;
@@ -321,10 +307,8 @@ std::unique_ptr<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcess
         (GrTextureDomain::Mode) d->fRandom->nextULessThan(GrTextureDomain::kModeCount);
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
     bool bilerp = mode != GrTextureDomain::kRepeat_Mode ? d->fRandom->nextBool() : false;
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(d->fRandom);
     return GrTextureDomainEffect::Make(
             std::move(proxy),
-            std::move(colorSpaceXform),
             matrix,
             domain,
             mode,

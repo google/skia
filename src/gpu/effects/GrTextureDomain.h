@@ -10,12 +10,10 @@
 
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
-#include "GrColorSpaceXform.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
 class GrGLProgramBuilder;
-class GrGLSLColorSpaceXformHelper;
 class GrGLSLShaderBuilder;
 class GrInvariantOutput;
 class GrGLSLUniformHandler;
@@ -111,8 +109,7 @@ public:
                            const char* outColor,
                            const SkString& inCoords,
                            GrGLSLFragmentProcessor::SamplerHandle sampler,
-                           const char* inModulateColor = nullptr,
-                           GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
+                           const char* inModulateColor = nullptr);
 
         /**
          * Call this from GrGLSLFragmentProcessor::setData() to upload uniforms necessary for the
@@ -154,7 +151,6 @@ protected:
 class GrTextureDomainEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
-                                                     sk_sp<GrColorSpaceXform>,
                                                      const SkMatrix&,
                                                      const SkRect& domain,
                                                      GrTextureDomain::Mode,
@@ -179,10 +175,8 @@ private:
     GrCoordTransform fCoordTransform;
     GrTextureDomain fTextureDomain;
     TextureSampler fTextureSampler;
-    sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
     GrTextureDomainEffect(sk_sp<GrTextureProxy>,
-                          sk_sp<GrColorSpaceXform>,
                           const SkMatrix&,
                           const SkRect& domain,
                           GrTextureDomain::Mode,
@@ -197,8 +191,6 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    const GrColorSpaceXform* colorSpaceXform() const { return fColorSpaceXform.get(); }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

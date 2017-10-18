@@ -280,7 +280,6 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             domain.inset((i < scaleFactorX) ? SK_ScalarHalf : 0.0f,
                          (i < scaleFactorY) ? SK_ScalarHalf : 0.0f);
             auto fp = GrTextureDomainEffect::Make(std::move(srcProxy),
-                                                  nullptr,
                                                   SkMatrix::I(),
                                                   domain,
                                                   modeForScaling,
@@ -289,7 +288,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             srcRect.offset(-srcOffset);
             srcOffset.set(0, 0);
         } else {
-            paint.addColorTextureProcessor(std::move(srcProxy), nullptr, SkMatrix::I(),
+            paint.addColorTextureProcessor(std::move(srcProxy), SkMatrix::I(),
                                            GrSamplerState::ClampBilerp());
         }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -400,7 +399,6 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         if (GrTextureDomain::kIgnore_Mode != mode) {
             SkRect domain = SkRect::Make(localSrcBounds);
             auto fp = GrTextureDomainEffect::Make(std::move(srcProxy),
-                                                  nullptr,
                                                   SkMatrix::I(),
                                                   domain,
                                                   modeForScaling,
@@ -408,7 +406,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             paint.addColorFragmentProcessor(std::move(fp));
         } else {
             // FIXME:  this should be mitchell, not bilinear.
-            paint.addColorTextureProcessor(std::move(srcProxy), nullptr, SkMatrix::I(),
+            paint.addColorTextureProcessor(std::move(srcProxy), SkMatrix::I(),
                                            GrSamplerState::ClampBilerp());
         }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
