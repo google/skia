@@ -170,6 +170,7 @@ public:
 
     const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }
 
+    // These values match the orientation www.exif.org/Exif2-2.PDF.
     enum Origin {
         kTopLeft_Origin     = 1, // Default
         kTopRight_Origin    = 2, // Reflected across y-axis

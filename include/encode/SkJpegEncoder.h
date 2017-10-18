@@ -8,6 +8,7 @@
 #ifndef SkJpegEncoder_DEFINED
 #define SkJpegEncoder_DEFINED
 
+#include "SkCodec.h"
 #include "SkEncoder.h"
 
 class SkJpegEncoderMgr;
@@ -62,6 +63,11 @@ public:
          */
         AlphaOption fAlphaOption = AlphaOption::kIgnore;
         SkTransferFunctionBehavior fBlendBehavior = SkTransferFunctionBehavior::kRespect;
+
+        /**
+         *  Origin to be written to EXIF, if anything other than the default.
+         */
+        SkCodec::Origin fOrigin = SkCodec::kTopLeft_Origin;
     };
 
     /**
