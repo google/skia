@@ -71,12 +71,12 @@ def main():
     jobs.append(get_jobs(REPO_INTERNAL))
   jobs.extend(update_meta_config.CQ_INCLUDE_CHROMIUM_TRYBOTS)
   if args.job:
-    new_jobs = []
+    filtered_jobs = []
     for bucket, job_list in jobs:
       filtered = [j for j in job_list if re.search(args.job, j)]
       if len(filtered) > 0:
-        new_jobs.append((bucket, filtered))
-    jobs = new_jobs
+        filtered_jobs.append((bucket, filtered))
+    jobs = filtered_jobs
 
   # Display the list of jobs.
   if len(jobs) == 0:
@@ -94,9 +94,22 @@ def main():
     return
 
   # Prompt before triggering jobs.
-  resp = raw_input('\nDo you want to trigger these jobs? (y/n) ')
-  if resp != 'y':
+  resp = raw_input('\nDo you want to trigger these jobs? (y/n or i for '
+                   'interactive): ')
+  print ''
+  if resp != 'y' and resp != 'i':
     sys.exit(1)
+  if resp == 'i':
+    filtered_jobs = []
+    for bucket, job_list in jobs:
+      new_job_list = []
+      for j in job_list:
+        incl = raw_input(('Trigger %s? (y/n): ' % j))
+        if incl == 'y':
+          new_job_list.append(j)
+      if len(new_job_list) > 0:
+        filtered_jobs.append((bucket, new_job_list))
+    jobs = filtered_jobs
 
   # Trigger the try jobs.
   for bucket, job_list in jobs:
