@@ -517,11 +517,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
 
     GrContext* context = ctxInfo.grContext();
 
-    if (context->caps()->useDrawInsteadOfClear()) {
-        // TODO: fix the buffer issues so this can run on all devices
-        return;
-    }
-
     AtlasObject object;
 
     // For now (until we add a GrSuperDeferredSimpleTextureEffect), we create the final atlas

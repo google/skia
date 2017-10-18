@@ -15,6 +15,17 @@
 class SkExecutor;
 
 struct GrContextOptions {
+    enum class Enable {
+        /** Forces an option to be disabled. */
+        kNo,
+        /** Forces an option to be enabled. */
+        kYes,
+        /**
+         * Uses Skia's default behavior, which may use runtime properties (e.g. driver version).
+         */
+        kDefault
+    };
+
     GrContextOptions() {}
 
     // Suppress prints for the GrContext.
@@ -87,6 +98,12 @@ struct GrContextOptions {
      * allocating stencil buffers and use alternate rasterization paths, avoiding the leak.
      */
     bool fAvoidStencilBuffers = false;
+
+    /**
+     * Enables driver workaround to use draws instead of glClear. This only applies to
+     * kOpenGL_GrBackend.
+     */
+    Enable fUseDrawInsteadOfGLClear = Enable::kDefault;
 
 #if GR_TEST_UTILS
     /**
