@@ -46,13 +46,13 @@ public:
                                                //                  | 1   1 |
         std::array<float, 4>     fViewMatrix;  // {kScaleX, kSkewy, kSkewX, kScaleY}
         std::array<float, 2>     fViewTranslate;
-        std::array<int32_t, 2>   fAtlasOffset;
+        std::array<int16_t, 2>   fAtlasOffset;
         uint32_t                 fColor;
 
         GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
     };
 
-    GR_STATIC_ASSERT(4 * 17 == sizeof(Instance)); // FIXME: 4 * 16 by making fAtlasOffset int16_t's.
+    GR_STATIC_ASSERT(4 * 16 == sizeof(Instance));
 
     GrCCPRPathProcessor(GrResourceProvider*, sk_sp<GrTextureProxy> atlas, SkPath::FillType,
                        const GrShaderCaps&);
