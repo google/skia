@@ -11,7 +11,7 @@
 #include "Sk4fGradientPriv.h"
 #include "SkColor.h"
 #include "SkGradientShaderPriv.h"
-#include "SkMatrix.h"
+#include "SkMatrixPriv.h"
 #include "SkNx.h"
 #include "SkPM4f.h"
 #include "SkShaderBase.h"
@@ -65,7 +65,7 @@ public:
 protected:
     Sk4fGradientIntervalBuffer fIntervals;
     SkMatrix                   fDstToPos;
-    SkMatrix::MapXYProc        fDstToPosProc;
+    SkMatrixPriv::MapXYProc    fDstToPosProc;
     uint8_t                    fFlags;
     bool                       fColorsArePremul;
     bool                       fDither;

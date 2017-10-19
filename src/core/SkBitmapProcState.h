@@ -13,7 +13,7 @@
 #include "SkBitmapProvider.h"
 #include "SkFixed.h"
 #include "SkFloatBits.h"
-#include "SkMatrix.h"
+#include "SkMatrixPriv.h"
 #include "SkMipMap.h"
 #include "SkPaint.h"
 #include "SkShader.h"
@@ -78,7 +78,7 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
     typedef U16CPU (*FixedTileProc)(SkFixed);   // returns 0..0xFFFF
     typedef U16CPU (*IntTileProc)(int value, int count);   // returns 0..count-1
 
-    SkMatrix::MapXYProc fInvProc;           // chooseProcs
+    SkMatrixPriv::MapXYProc fInvProc;           // chooseProcs
     SkFractionalInt     fInvSxFractionalInt;
     SkFractionalInt     fInvKyFractionalInt;
 
