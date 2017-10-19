@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be6201bf_94add8af",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-19T16:29:14Z",
+      "side": 1,
+      "message": "Should I have technically added kShort_GrSLType?",
+      "revId": "2856ddbe4f8eedbd54988eff960db578bbc031c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bcbba50_804e31f1",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-19T16:29:14Z",
+      "side": 1,
+      "message": "Is this on purpose? Or was it just because there isn\u0027t a kUshort2_GrSLType?",
+      "revId": "2856ddbe4f8eedbd54988eff960db578bbc031c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
