@@ -7,7 +7,9 @@
 
 #include "gm.h"
 #include "SkAlphaThresholdFilter.h"
+#include "SkImageSource.h"
 #include "SkOffsetImageFilter.h"
+#include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkSurface.h"
 
@@ -153,3 +155,43 @@ private:
 DEF_GM(return new ImageAlphaThresholdGM(true);)
 DEF_GM(return new ImageAlphaThresholdGM(false);)
 DEF_GM(return new ImageAlphaThresholdSurfaceGM();)
+
+//////////////////////////////////////////////////////////////////////////////
+
+static sk_sp<SkImage> make_img() {
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeS32(WIDTH, HEIGHT, kPremul_SkAlphaType));
+    SkCanvas canvas(bitmap);
+
+    SkPaint paint;
+    SkRect rect = SkRect::MakeWH(WIDTH, HEIGHT);
+    SkRandom rnd;
+
+    while (!rect.isEmpty()) {
+        paint.setColor(rnd.nextU() | (0xFF << 24));
+        canvas.drawRect(rect, paint);
+        rect.inset(25, 25);
+    }
+
+    return SkImage::MakeFromBitmap(bitmap);
+}
+
+DEF_SIMPLE_GM_BG(imagealphathreshold_image, canvas, WIDTH * 2, HEIGHT, SK_ColorBLACK) {
+    sk_sp<SkImage> image(make_img());
+
+    SkIRect rects[2];
+    rects[0] = SkIRect::MakeXYWH(0, 150, WIDTH, HEIGHT - 300);
+    rects[1] = SkIRect::MakeXYWH(150, 0, WIDTH - 300, HEIGHT);
+    SkRegion region;
+    region.setRects(rects, 2);
+
+    SkPaint filterPaint;
+    sk_sp<SkImageFilter> imageSource(SkImageSource::Make(image));
+    filterPaint.setImageFilter(SkAlphaThresholdFilter::Make(region, 0.2f, 0.7f,
+                                                            std::move(imageSource)));
+
+    canvas->saveLayer(nullptr, &filterPaint);
+    canvas->restore();
+    canvas->translate(WIDTH, 0);
+    canvas->drawImage(image, 0, 0);
+}
