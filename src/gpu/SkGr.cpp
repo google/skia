@@ -9,6 +9,7 @@
 
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
+#include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
