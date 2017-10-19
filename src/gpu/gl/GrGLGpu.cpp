@@ -4403,15 +4403,6 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
         mipLevels = SkMipMap::ComputeLevelCount(w, h) + 1;
     }
 
-    size_t bpp = GrBytesPerPixel(config);
-    size_t baseLayerSize = bpp * w * h;
-    SkAutoMalloc defaultStorage(baseLayerSize);
-    if (!pixels) {
-        // Fill in the texture with all zeros so we don't have random garbage
-        pixels = defaultStorage.get();
-        memset(pixels, 0, baseLayerSize);
-    }
-
     int width = w;
     int height = h;
     for (int i = 0; i < mipLevels; ++i) {
