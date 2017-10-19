@@ -13,6 +13,17 @@
 
 class SkMatrixPriv {
 public:
+    typedef SkMatrix::MapXYProc MapXYProc;
+    typedef SkMatrix::MapPtsProc MapPtsProc;
+
+    static MapPtsProc GetMapPtsProc(const SkMatrix& matrix) {
+        return SkMatrix::GetMapPtsProc(matrix.getType());
+    }
+
+    static MapXYProc GetMapXYProc(const SkMatrix& matrix) {
+        return SkMatrix::GetMapXYProc(matrix.getType());
+    }
+
     /**
      *  Attempt to map the rect through the inverse of the matrix. If it is not invertible,
      *  then this returns false and dst is unchanged.

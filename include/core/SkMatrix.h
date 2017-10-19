@@ -572,30 +572,6 @@ public:
     */
     SkScalar mapRadius(SkScalar radius) const;
 
-    typedef void (*MapXYProc)(const SkMatrix& mat, SkScalar x, SkScalar y,
-                                 SkPoint* result);
-
-    static MapXYProc GetMapXYProc(TypeMask mask) {
-        SkASSERT((mask & ~kAllMasks) == 0);
-        return gMapXYProcs[mask & kAllMasks];
-    }
-
-    MapXYProc getMapXYProc() const {
-        return GetMapXYProc(this->getType());
-    }
-
-    typedef void (*MapPtsProc)(const SkMatrix& mat, SkPoint dst[],
-                                  const SkPoint src[], int count);
-
-    static MapPtsProc GetMapPtsProc(TypeMask mask) {
-        SkASSERT((mask & ~kAllMasks) == 0);
-        return gMapPtsProcs[mask & kAllMasks];
-    }
-
-    MapPtsProc getMapPtsProc() const {
-        return GetMapPtsProc(this->getType());
-    }
-
     /** Returns true if the matrix can be stepped in X (not complex
         perspective).
     */
@@ -821,6 +797,30 @@ private:
         } else {
             fTypeMask &= ~kTranslate_Mask;
         }
+    }
+
+    typedef void (*MapXYProc)(const SkMatrix& mat, SkScalar x, SkScalar y,
+                                 SkPoint* result);
+
+    static MapXYProc GetMapXYProc(TypeMask mask) {
+        SkASSERT((mask & ~kAllMasks) == 0);
+        return gMapXYProcs[mask & kAllMasks];
+    }
+
+    MapXYProc getMapXYProc() const {
+        return GetMapXYProc(this->getType());
+    }
+
+    typedef void (*MapPtsProc)(const SkMatrix& mat, SkPoint dst[],
+                                  const SkPoint src[], int count);
+
+    static MapPtsProc GetMapPtsProc(TypeMask mask) {
+        SkASSERT((mask & ~kAllMasks) == 0);
+        return gMapPtsProcs[mask & kAllMasks];
+    }
+
+    MapPtsProc getMapPtsProc() const {
+        return GetMapPtsProc(this->getType());
     }
 
     bool SK_WARN_UNUSED_RESULT invertNonIdentity(SkMatrix* inverse) const;

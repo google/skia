@@ -11,6 +11,7 @@
 #include "SkData.h"
 #include "SkGeometry.h"
 #include "SkMath.h"
+#include "SkMatrixPriv.h"
 #include "SkPathPriv.h"
 #include "SkPathRef.h"
 #include "SkRRect.h"
@@ -1526,7 +1527,7 @@ void SkPath::addPath(const SkPath& path, const SkMatrix& matrix, AddPathMode mod
     SkPoint pts[4];
     Verb    verb;
 
-    SkMatrix::MapPtsProc proc = matrix.getMapPtsProc();
+    SkMatrixPriv::MapPtsProc proc = SkMatrixPriv::GetMapPtsProc(matrix);
     bool firstVerb = true;
     while ((verb = iter.next(pts)) != kDone_Verb) {
         switch (verb) {

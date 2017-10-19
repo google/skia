@@ -12,6 +12,7 @@
 #include "SkAutoKern.h"
 #include "SkGlyph.h"
 #include "SkGlyphCache.h"
+#include "SkMatrixPriv.h"
 #include "SkPaint.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
@@ -235,7 +236,7 @@ private:
     class GeneralMapper final : public MapperInterface {
     public:
         GeneralMapper(const SkMatrix& matrix, const SkPoint origin)
-            : fOrigin(origin), fMatrix(matrix), fMapProc(matrix.getMapXYProc()) { }
+            : fOrigin(origin), fMatrix(matrix), fMapProc(SkMatrixPriv::GetMapXYProc(matrix)) { }
 
         SkPoint map(SkPoint position) const override {
             SkPoint result;
@@ -246,7 +247,7 @@ private:
     private:
         const SkPoint fOrigin;
         const SkMatrix& fMatrix;
-        const SkMatrix::MapXYProc fMapProc;
+        const SkMatrixPriv::MapXYProc fMapProc;
     };
 
     // TextAlignmentAdjustment handles shifting the glyph based on its width.

@@ -512,7 +512,7 @@ SkGradientShaderBase::GradientShaderBaseContext::GradientShaderBaseContext(
     fDstToIndex.setConcat(shader.fPtsToUnit, inverse);
     SkASSERT(!fDstToIndex.hasPerspective());
 
-    fDstToIndexProc = fDstToIndex.getMapXYProc();
+    fDstToIndexProc = SkMatrixPriv::GetMapXYProc(fDstToIndex);
 
     // now convert our colors in to PMColors
     unsigned paintAlpha = this->getPaintAlpha();

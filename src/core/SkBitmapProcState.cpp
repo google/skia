@@ -155,7 +155,7 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
  *    and may be removed.
  */
 bool SkBitmapProcState::chooseProcs() {
-    fInvProc            = fInvMatrix.getMapXYProc();
+    fInvProc            = SkMatrixPriv::GetMapXYProc(fInvMatrix);
     fInvSx              = SkScalarToFixed(fInvMatrix.getScaleX());
     fInvSxFractionalInt = SkScalarToFractionalInt(fInvMatrix.getScaleX());
     fInvKy              = SkScalarToFixed(fInvMatrix.getSkewY());

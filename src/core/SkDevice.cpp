@@ -14,6 +14,7 @@
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
 #include "SkLatticeIter.h"
+#include "SkMatrixPriv.h"
 #include "SkPatchUtils.h"
 #include "SkPathMeasure.h"
 #include "SkPathPriv.h"
@@ -328,7 +329,7 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 
 static void morphpoints(SkPoint dst[], const SkPoint src[], int count,
                         SkPathMeasure& meas, const SkMatrix& matrix) {
-    SkMatrix::MapXYProc proc = matrix.getMapXYProc();
+    SkMatrixPriv::MapXYProc proc = SkMatrixPriv::GetMapXYProc(matrix);
 
     for (int i = 0; i < count; i++) {
         SkPoint pos;

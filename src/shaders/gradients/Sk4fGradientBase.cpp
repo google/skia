@@ -293,7 +293,7 @@ GradientShaderBase4fContext::GradientShaderBase4fContext(const SkGradientShaderB
     const SkMatrix& inverse = this->getTotalInverse();
     fDstToPos.setConcat(shader.fPtsToUnit, inverse);
     SkASSERT(!fDstToPos.hasPerspective());
-    fDstToPosProc = fDstToPos.getMapXYProc();
+    fDstToPosProc = SkMatrixPriv::GetMapXYProc(fDstToPos);
 
     if (shader.fColorsAreOpaque && this->getPaintAlpha() == SK_AlphaOPAQUE) {
         fFlags |= kOpaqueAlpha_Flag;

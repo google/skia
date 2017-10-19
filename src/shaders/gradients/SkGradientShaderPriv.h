@@ -16,6 +16,7 @@
 #include "SkClampRange.h"
 #include "SkColorData.h"
 #include "SkColorSpace.h"
+#include "SkMatrixPriv.h"
 #include "SkOnce.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
@@ -162,7 +163,7 @@ public:
 
     protected:
         SkMatrix    fDstToIndex;
-        SkMatrix::MapXYProc fDstToIndexProc;
+        SkMatrixPriv::MapXYProc fDstToIndexProc;
         uint8_t     fDstToIndexClass;
         uint8_t     fFlags;
         bool        fDither;
