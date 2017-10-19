@@ -204,13 +204,10 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
     SkFontStyle  expanded_obliqu_900(SkFontStyle::kBlack_Weight, SkFontStyle::kExpanded_Width,  SkFontStyle::kOblique_Slant);
 
     SkFontStyle normal_normal_100(SkFontStyle::kThin_Weight,       SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
-    SkFontStyle normal_normal_200(SkFontStyle::kExtraLight_Weight, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
     SkFontStyle normal_normal_300(SkFontStyle::kLight_Weight,      SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
     SkFontStyle normal_normal_400(SkFontStyle::kNormal_Weight,     SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
     SkFontStyle normal_normal_500(SkFontStyle::kMedium_Weight,     SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
     SkFontStyle normal_normal_600(SkFontStyle::kSemiBold_Weight,   SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
-    SkFontStyle normal_normal_700(SkFontStyle::kBold_Weight,       SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
-    SkFontStyle normal_normal_800(SkFontStyle::kExtraBold_Weight,  SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
     SkFontStyle normal_normal_900(SkFontStyle::kBlack_Weight,      SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
 
     struct StyleSetTest {
