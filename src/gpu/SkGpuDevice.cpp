@@ -8,6 +8,7 @@
 #include "SkGpuDevice.h"
 #include "GrBitmapTextureMaker.h"
 #include "GrBlurUtils.h"
+#include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrImageTextureMaker.h"

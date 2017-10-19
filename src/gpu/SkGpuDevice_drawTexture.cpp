@@ -8,6 +8,7 @@
 #include "SkGpuDevice.h"
 #include "GrBlurUtils.h"
 #include "GrCaps.h"
+#include "GrColorSpaceXform.h"
 #include "GrRenderTargetContext.h"
 #include "GrStyle.h"
 #include "GrTextureAdjuster.h"

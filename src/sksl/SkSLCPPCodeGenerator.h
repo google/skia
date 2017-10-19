@@ -88,7 +88,6 @@ private:
     String fExtraEmitCodeCode;
     std::vector<String> fFormatArgs;
     std::set<int> fWrittenTransformedCoords;
-    bool fNeedColorSpaceHelper = false;
     // if true, we are writing a C++ expression instead of a GLSL expression
     bool fCPPMode = false;
 
