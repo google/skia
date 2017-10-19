@@ -184,7 +184,6 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(SamplerCubeArrayShadow);
     ADD_TYPE(GSampler2DArrayShadow);
     ADD_TYPE(GSamplerCubeArrayShadow);
-    ADD_TYPE(ColorSpaceXform);
     ADD_TYPE(FragmentProcessor);
 
     StringFragment skCapsName("sk_Caps");

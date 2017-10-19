@@ -184,7 +184,6 @@ public:
                                      fBool3_Type.get(), fBool4_Type.get() }))
     , fSkCaps_Type(new Type("$sk_Caps"))
     , fSkArgs_Type(new Type("$sk_Args"))
-    , fColorSpaceXform_Type(new Type("colorSpaceXform", *fFloat_Type, 4, 4))
     , fFragmentProcessor_Type(new Type("fragmentProcessor"))
     , fDefined_Expression(new Defined(*fInvalid_Type)) {}
 
@@ -333,7 +332,6 @@ public:
 
     const std::unique_ptr<Type> fSkCaps_Type;
     const std::unique_ptr<Type> fSkArgs_Type;
-    const std::unique_ptr<Type> fColorSpaceXform_Type;
     const std::unique_ptr<Type> fFragmentProcessor_Type;
 
     // dummy expression used to mark that a variable has a value during dataflow analysis (when it

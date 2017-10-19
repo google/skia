@@ -156,12 +156,6 @@ private:
                                                  std::unique_ptr<Block> main,
                                                  std::vector<std::unique_ptr<ProgramElement>>* out);
 
-    /**
-     * Wraps an expression in code that applies a colorspace transformation to it. This is used
-     * to implement texture(sampler, coord, colorSpaceXForm).
-     */
-    std::unique_ptr<Expression> applyColorSpace(std::unique_ptr<Expression> texture,
-                                                std::unique_ptr<Expression> xform);
     void fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments);
     void checkValid(const Expression& expr);
     void markWrittenTo(const Expression& expr, bool readWrite);

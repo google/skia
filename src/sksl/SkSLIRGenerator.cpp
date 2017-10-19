@@ -922,9 +922,6 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
         ASSERT(ctor);
         return this->call(-1, std::move(ctor), std::move(args));
     }
-    if (type == *fContext.fColorSpaceXform_Type && expr->fType == *fContext.fFloat4x4_Type) {
-        return expr;
-    }
     std::vector<std::unique_ptr<Expression>> args;
     args.push_back(std::move(expr));
     return std::unique_ptr<Expression>(new Constructor(-1, type, std::move(args)));
@@ -1435,20 +1432,6 @@ int IRGenerator::callCost(const FunctionDeclaration& function,
     return total;
 }
 
-std::unique_ptr<Expression> IRGenerator::applyColorSpace(std::unique_ptr<Expression> texture,
-                                                         std::unique_ptr<Expression> xform) {
-    // Before: texture(img, coords, xform);
-    // After: COLORSPACE(texture(img, coords), xform)
-    int offset = texture->fOffset;
-    std::vector<std::unique_ptr<Expression>> args;
-    args.push_back(std::move(texture));
-    args.push_back(std::move(xform));
-    const Symbol* colorspaceSymbol = (*fSymbolTable)["COLORSPACE"];
-    ASSERT(colorspaceSymbol->fKind == Symbol::kFunctionDeclaration_Kind);
-    const FunctionDeclaration& colorspaceFunction = (FunctionDeclaration&) *colorspaceSymbol;
-    return this->call(offset, colorspaceFunction, std::move(args));
-}
-
 std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               std::unique_ptr<Expression> functionValue,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
@@ -1462,16 +1445,6 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         return nullptr;
     }
     FunctionReference* ref = (FunctionReference*) functionValue.get();
-    if (ref->fFunctions[0]->fName == "texture" &&
-        arguments.back()->fType == *fContext.fColorSpaceXform_Type) {
-        std::unique_ptr<Expression> colorspace = std::move(arguments.back());
-        arguments.pop_back();
-        return this->applyColorSpace(this->call(offset,
-                                                std::move(functionValue),
-                                                std::move(arguments)),
-                                     std::move(colorspace));
-    }
-
     int bestCost = INT_MAX;
     const FunctionDeclaration* best = nullptr;
     if (ref->fFunctions.size() > 1) {
