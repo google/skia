@@ -402,13 +402,7 @@ public:
 
     PremulType getPremulType() const { return fPremulType; }
 
-    const SkColor* getColors(int pos) const {
-        SkASSERT(fColorType != kTexture_ColorType);
-        SkASSERT(pos < fColors.count());
-        return &fColors[pos];
-    }
-
-    const SkColor4f* getColors4f(int pos) const {
+    const GrColor4f* getColors4f(int pos) const {
         SkASSERT(fColorType != kTexture_ColorType);
         SkASSERT(pos < fColors4f.count());
         return &fColors4f[pos];
@@ -453,11 +447,9 @@ protected:
 private:
     static OptimizationFlags OptFlags(bool isOpaque);
 
-    // If we're in legacy mode, then fColors will be populated. If we're gamma-correct, then
-    // fColors4f and fColorSpaceXform will be populated.
-    SkTDArray<SkColor> fColors;
+    SkTDArray<GrColor4f> fColors4f;
 
-    SkTDArray<SkColor4f> fColors4f;
+    // Only present if a color space transformation is needed
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
     SkTDArray<SkScalar> fPositions;

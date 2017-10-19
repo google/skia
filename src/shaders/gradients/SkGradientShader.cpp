@@ -1308,93 +1308,6 @@ void GrGradientEffect::GLSLProcessor::emitUniforms(GrGLSLUniformHandler* uniform
     }
 }
 
-static inline void set_after_interp_color_uni_array(
-                                                  const GrGLSLProgramDataManager& pdman,
-                                                  const GrGLSLProgramDataManager::UniformHandle uni,
-                                                  const SkTDArray<SkColor4f>& colors,
-                                                  const GrColorSpaceXform* colorSpaceXform) {
-    int count = colors.count();
-    if (colorSpaceXform) {
-        constexpr int kSmallCount = 10;
-        SkAutoSTArray<4 * kSmallCount, float> vals(4 * count);
-
-        for (int i = 0; i < count; i++) {
-            colorSpaceXform->srcToDst().mapScalars(colors[i].vec(), &vals[4 * i]);
-        }
-
-        pdman.set4fv(uni, count, vals.get());
-    } else {
-        pdman.set4fv(uni, count, (float*)&colors[0]);
-    }
-}
-
-static inline void set_before_interp_color_uni_array(
-                                                  const GrGLSLProgramDataManager& pdman,
-                                                  const GrGLSLProgramDataManager::UniformHandle uni,
-                                                  const SkTDArray<SkColor4f>& colors,
-                                                  const GrColorSpaceXform* colorSpaceXform) {
-    int count = colors.count();
-    constexpr int kSmallCount = 10;
-    SkAutoSTArray<4 * kSmallCount, float> vals(4 * count);
-
-    for (int i = 0; i < count; i++) {
-        float a = colors[i].fA;
-        vals[4 * i + 0] = colors[i].fR * a;
-        vals[4 * i + 1] = colors[i].fG * a;
-        vals[4 * i + 2] = colors[i].fB * a;
-        vals[4 * i + 3] = a;
-    }
-
-    if (colorSpaceXform) {
-        for (int i = 0; i < count; i++) {
-            colorSpaceXform->srcToDst().mapScalars(&vals[4 * i]);
-        }
-    }
-
-    pdman.set4fv(uni, count, vals.get());
-}
-
-static inline void set_after_interp_color_uni_array(const GrGLSLProgramDataManager& pdman,
-                                       const GrGLSLProgramDataManager::UniformHandle uni,
-                                       const SkTDArray<SkColor>& colors) {
-    int count = colors.count();
-    constexpr int kSmallCount = 10;
-
-    SkAutoSTArray<4*kSmallCount, float> vals(4*count);
-
-    for (int i = 0; i < colors.count(); i++) {
-        // RGBA
-        vals[4*i + 0] = SkColorGetR(colors[i]) / 255.f;
-        vals[4*i + 1] = SkColorGetG(colors[i]) / 255.f;
-        vals[4*i + 2] = SkColorGetB(colors[i]) / 255.f;
-        vals[4*i + 3] = SkColorGetA(colors[i]) / 255.f;
-    }
-
-    pdman.set4fv(uni, colors.count(), vals.get());
-}
-
-static inline void set_before_interp_color_uni_array(const GrGLSLProgramDataManager& pdman,
-                                              const GrGLSLProgramDataManager::UniformHandle uni,
-                                              const SkTDArray<SkColor>& colors) {
-    int count = colors.count();
-    constexpr int kSmallCount = 10;
-
-    SkAutoSTArray<4*kSmallCount, float> vals(4*count);
-
-    for (int i = 0; i < count; i++) {
-        float a = SkColorGetA(colors[i]) / 255.f;
-        float aDiv255 = a / 255.f;
-
-        // RGBA
-        vals[4*i + 0] = SkColorGetR(colors[i]) * aDiv255;
-        vals[4*i + 1] = SkColorGetG(colors[i]) * aDiv255;
-        vals[4*i + 2] = SkColorGetB(colors[i]) * aDiv255;
-        vals[4*i + 3] = a;
-    }
-
-    pdman.set4fv(uni, count, vals.get());
-}
-
 void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& pdman,
                                                 const GrFragmentProcessor& processor) {
     const GrGradientEffect& e = processor.cast<GrGradientEffect>();
@@ -1412,24 +1325,7 @@ void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& 
         case GrGradientEffect::kHardStopLeftEdged_ColorType:
         case GrGradientEffect::kHardStopRightEdged_ColorType:
         case GrGradientEffect::kTwo_ColorType: {
-            if (e.fColors4f.count() > 0) {
-                // Gamma-correct / color-space aware
-                if (GrGradientEffect::kBeforeInterp_PremulType == e.getPremulType()) {
-                    set_before_interp_color_uni_array(pdman, fColorsUni, e.fColors4f,
-                                                      e.fColorSpaceXform.get());
-                } else {
-                    set_after_interp_color_uni_array(pdman, fColorsUni, e.fColors4f,
-                                                     e.fColorSpaceXform.get());
-                }
-            } else {
-                // Legacy mode. Would be nice if we had converted the 8-bit colors to float earlier
-                if (GrGradientEffect::kBeforeInterp_PremulType == e.getPremulType()) {
-                    set_before_interp_color_uni_array(pdman, fColorsUni, e.fColors);
-                } else {
-                    set_after_interp_color_uni_array(pdman, fColorsUni, e.fColors);
-                }
-            }
-
+            pdman.set4fv(fColorsUni, e.fColors4f.count(), (float*)&e.fColors4f[0]);
             break;
         }
 
@@ -1645,13 +1541,36 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
 
     fColorType = this->determineColorType(shader);
     fColorSpaceXform = std::move(args.fColorSpaceXform);
+    fWrapMode = args.fWrapMode;
 
-    if (kTexture_ColorType != fColorType) {
-        SkASSERT(shader.fOrigColors && shader.fOrigColors4f);
-        if (args.fGammaCorrect) {
-            fColors4f = SkTDArray<SkColor4f>(shader.fOrigColors4f, shader.fColorCount);
+    if (kTexture_ColorType == fColorType) {
+        // Doesn't matter how this is set, just be consistent because it is part of the effect key.
+        fPremulType = kBeforeInterp_PremulType;
+    } else {
+        if (SkGradientShader::kInterpolateColorsInPremul_Flag & shader.getGradFlags()) {
+            fPremulType = kBeforeInterp_PremulType;
         } else {
-            fColors = SkTDArray<SkColor>(shader.fOrigColors, shader.fColorCount);
+            fPremulType = kAfterInterp_PremulType;
+        }
+
+        // Convert input colors to GrColor4f, possibly premul, and apply color space xform
+        SkASSERT(shader.fOrigColors && shader.fOrigColors4f);
+        fColors4f.setCount(shader.fColorCount);
+        for (int i = 0; i < shader.fColorCount; ++i) {
+            if (args.fGammaCorrect) {
+                fColors4f[i] = GrColor4f::FromSkColor4f(shader.fOrigColors4f[i]);
+            } else {
+                GrColor grColor = SkColorToUnpremulGrColor(shader.fOrigColors[i]);
+                fColors4f[i] = GrColor4f::FromGrColor(grColor);
+            }
+
+            if (kBeforeInterp_PremulType == fPremulType) {
+                fColors4f[i] = fColors4f[i].premul();
+            }
+
+            if (fColorSpaceXform) {
+                fColorSpaceXform->srcToDst().mapScalars(fColors4f[i].fRGBA, fColors4f[i].fRGBA);
+            }
         }
 
         if (shader.fOrigPos) {
@@ -1662,31 +1581,17 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         }
     }
 
-    fWrapMode = args.fWrapMode;
-
     switch (fColorType) {
-        // The two and three color specializations do not currently support tiling.
         case kTwo_ColorType:
         case kThree_ColorType:
         case kHardStopLeftEdged_ColorType:
         case kHardStopRightEdged_ColorType:
         case kSingleHardStop_ColorType:
             fRow = -1;
-
-            if (SkGradientShader::kInterpolateColorsInPremul_Flag & shader.getGradFlags()) {
-                fPremulType = kBeforeInterp_PremulType;
-            } else {
-                fPremulType = kAfterInterp_PremulType;
-            }
-
             fCoordTransform.reset(*args.fMatrix);
-
             break;
-        case kTexture_ColorType:
-            // doesn't matter how this is set, just be consistent because it is part of the
-            // effect key.
-            fPremulType = kBeforeInterp_PremulType;
 
+        case kTexture_ColorType:
             SkGradientShaderBase::GradientBitmapType bitmapType =
                 SkGradientShaderBase::GradientBitmapType::kLegacy;
             if (args.fGammaCorrect) {
@@ -1756,7 +1661,6 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
 
 GrGradientEffect::GrGradientEffect(const GrGradientEffect& that)
         : INHERITED(that.classID(), OptFlags(that.fIsOpaque))
-        , fColors(that.fColors)
         , fColors4f(that.fColors4f)
         , fColorSpaceXform(that.fColorSpaceXform)
         , fPositions(that.fPositions)
@@ -1802,16 +1706,10 @@ bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
             }
         }
         if (this->getPremulType() != ge.getPremulType() ||
-            this->fColors.count() != ge.fColors.count() ||
             this->fColors4f.count() != ge.fColors4f.count()) {
             return false;
         }
 
-        for (int i = 0; i < this->fColors.count(); i++) {
-            if (*this->getColors(i) != *ge.getColors(i)) {
-                return false;
-            }
-        }
         for (int i = 0; i < this->fColors4f.count(); i++) {
             if (*this->getColors4f(i) != *ge.getColors4f(i)) {
                 return false;
