@@ -240,8 +240,8 @@ public:
     // The color here is the GrPaint color, and it is used to determine whether we
     // have to regenerate LCD text blobs.
     // We use this color vs the SkPaint color because it has the colorfilter applied.
-    void initReusableBlob(SkColor luminanceColor, const SkMatrix& viewMatrix, SkScalar x,
-                          SkScalar y) {
+    void initReusableBlob(SkColor luminanceColor, const SkMatrix& viewMatrix,
+                          SkScalar x, SkScalar y) {
         fLuminanceColor = luminanceColor;
         this->setupViewMatrix(viewMatrix, x, y);
     }
@@ -463,7 +463,7 @@ private:
             GrColor fColor;
             GrMaskFormat fMaskFormat;
             uint32_t fFlags;
-        };
+        };  // SubRunInfo
 
         SubRunInfo& push_back() {
             // Forward glyph / vertex information to seed the new sub run
@@ -490,7 +490,7 @@ private:
         std::unique_ptr<SkAutoDescriptor> fOverrideDescriptor; // df properties
         bool fInitialized;
         bool fDrawAsPaths;
-    };
+    };  // Run
 
     template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
     void regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fontCache, GrBlobRegenHelper* helper,
@@ -498,8 +498,9 @@ private:
                    size_t vertexStride, GrColor color, SkScalar transX, SkScalar transY) const;
 
     inline std::unique_ptr<GrDrawOp> makeOp(const Run::SubRunInfo& info, int glyphCount, int run,
-                                            int subRun, const SkMatrix& viewMatrix, SkScalar x,
-                                            SkScalar y, const GrTextUtils::Paint& paint,
+                                            int subRun, const SkMatrix& viewMatrix,
+                                            SkScalar x, SkScalar y, const SkIRect& clipRect,
+                                            const GrTextUtils::Paint& paint,
                                             const SkSurfaceProps& props,
                                             const GrDistanceFieldAdjustTable* distanceAdjustTable,
                                             GrAtlasGlyphCache* cache, GrRenderTargetContext*);

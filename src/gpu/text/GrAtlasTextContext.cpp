@@ -163,7 +163,8 @@ void GrAtlasTextContext::RegenerateTextBlob(GrAtlasTextBlob* cacheBlob,
                                             GrAtlasGlyphCache* fontCache,
                                             const GrShaderCaps& shaderCaps,
                                             const GrTextUtils::Paint& paint,
-                                            uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
+                                            uint32_t scalerContextFlags,
+                                            const SkMatrix& viewMatrix,
                                             const SkSurfaceProps& props, const SkTextBlob* blob,
                                             SkScalar x, SkScalar y, SkDrawFilter* drawFilter) {
     cacheBlob->initReusableBlob(paint.luminanceColor(), viewMatrix, x, y);
