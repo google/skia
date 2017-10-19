@@ -216,7 +216,7 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 
 ## <a name="SkPath_Verb"></a> Enum SkPath::Verb
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#Verb">Verb</a> {
 <a href="#SkPath_kMove_Verb">kMove Verb</a>, 
 <a href="#SkPath_kLine_Verb">kLine Verb</a>, 
@@ -298,7 +298,7 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 
 ## <a name="SkPath_Direction"></a> Enum SkPath::Direction
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#Direction">Direction</a> {
 <a href="#SkPath_kCW_Direction">kCW Direction</a>, 
 <a href="#SkPath_kCCW_Direction">kCCW Direction</a>, 
@@ -320,10 +320,10 @@ travel counterclockwise.
 
 <table>
   <tr>
-    <td><a name="SkPath_kCW_Direction"> <code><strong>SkPath::kCW_Direction </strong></code> </a></td><td>0</td><td><a href="#Contour">Contour</a> travels in a clockwise direction.</td>
+    <td><a name="SkPath_kCW_Direction"> <code><strong>SkPath::kCW_Direction </strong></code> </a></td><td>0</td><td><a href="#Contour">Contour</a> travels in a clockwise direction</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kCCW_Direction"> <code><strong>SkPath::kCCW_Direction </strong></code> </a></td><td>1</td><td><a href="#Contour">Contour</a> travels in a counterclockwise direction.</td>
+    <td><a name="SkPath_kCCW_Direction"> <code><strong>SkPath::kCCW_Direction </strong></code> </a></td><td>1</td><td><a href="#Contour">Contour</a> travels in a counterclockwise direction</td>
   </tr>
 </table>
 
@@ -668,7 +668,7 @@ true if <a href="#Path">Path</a> has one owner
 
 ## <a name="SkPath_FillType"></a> Enum SkPath::FillType
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPath_FillType">FillType</a> {
 <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, 
 <a href="#SkPath_kEvenOdd_FillType">kEvenOdd FillType</a>, 
@@ -842,7 +842,7 @@ unmodified by the original <a href="#SkPath_FillType">FillType</a>.
 
 ## <a name="SkPath_Convexity"></a> Enum SkPath::Convexity
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#Convexity">Convexity</a> : uint8_t {
 <a href="#SkPath_kUnknown_Convexity">kUnknown Convexity</a>, 
 <a href="#SkPath_kConvex_Convexity">kConvex Convexity</a>,
@@ -2805,7 +2805,7 @@ line (156,20),(200,20)
 
 ## <a name="SkPath_ArcSize"></a> Enum SkPath::ArcSize
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPath_ArcSize">ArcSize</a> {
 <a href="#SkPath_kSmall_ArcSize">kSmall ArcSize</a>, 
 <a href="#SkPath_kLarge_ArcSize">kLarge ArcSize</a>, 
@@ -2818,10 +2818,10 @@ Four <a href="undocumented#Oval">Oval</a> parts with radii (rx, ry) start at las
 
 <table>
   <tr>
-    <td><a name="SkPath_kSmall_ArcSize"> <code><strong>SkPath::kSmall_ArcSize </strong></code> </a></td><td>0</td><td>Smaller of <a href="#Arc">Arc</a> pair.</td>
+    <td><a name="SkPath_kSmall_ArcSize"> <code><strong>SkPath::kSmall_ArcSize </strong></code> </a></td><td>0</td><td>smaller of <a href="#Arc">Arc</a> pair</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kLarge_ArcSize"> <code><strong>SkPath::kLarge_ArcSize </strong></code> </a></td><td>1</td><td>Larger of <a href="#Arc">Arc</a> pair.</td>
+    <td><a name="SkPath_kLarge_ArcSize"> <code><strong>SkPath::kLarge_ArcSize </strong></code> </a></td><td>1</td><td>larger of <a href="#Arc">Arc</a> pair</td>
   </tr>
 </table>
 
@@ -3725,7 +3725,7 @@ true to add <a href="undocumented#Line">Line</a> connecting <a href="#Contour">C
 
 ## <a name="SkPath_AddPathMode"></a> Enum SkPath::AddPathMode
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPath_AddPathMode">AddPathMode</a> {
 <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a>, 
 <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a>, 
@@ -4096,7 +4096,7 @@ set value of <a href="#Last_Point">Last Point</a></td>
 
 ## <a name="SkPath_SegmentMask"></a> Enum SkPath::SegmentMask
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPath_SegmentMask">SegmentMask</a> {
 <a href="#SkPath_kLine_SegmentMask">kLine SegmentMask</a> = 1 << 0,
 <a href="#SkPath_kQuad_SegmentMask">kQuad SegmentMask</a> = 1 << 1,
@@ -4554,7 +4554,7 @@ Iterates through <a href="#Verb_Array">Verb Array</a>, and associated <a href="#
 Provides options to treat open <a href="#Contour">Contours</a> as closed, and to ignore
 degenerate data.
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 class <a href="#SkPath_Iter_Iter">Iter</a> {
 public:
 <a href="#SkPath_Iter_Iter">Iter()</a>;
@@ -4899,7 +4899,7 @@ with close(),    forceClose is true : isClosedContour returns true
 Iterates through <a href="#Verb_Array">Verb Array</a>, and associated <a href="#Point_Array">Point Array</a> and <a href="#Conic_Weight">Conic Weight</a>.
 <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Conic Weight</a> are returned unaltered. 
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 class <a href="#SkPath_RawIter_RawIter">RawIter</a> {
 public:
 <a href="#SkPath_RawIter_RawIter">RawIter()</a>;
