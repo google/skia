@@ -79,14 +79,14 @@ bool SkHeifCodec::IsHeif(const void* buffer, size_t bytesRead) {
     return false;
 }
 
-static SkCodec::Origin get_orientation(const HeifFrameInfo& frameInfo) {
+static SkEncodedOrigin get_orientation(const HeifFrameInfo& frameInfo) {
     switch (frameInfo.mRotationAngle) {
-        case 0:   return SkCodec::kTopLeft_Origin;
-        case 90:  return SkCodec::kRightTop_Origin;
-        case 180: return SkCodec::kBottomRight_Origin;
-        case 270: return SkCodec::kLeftBottom_Origin;
+        case 0:   return kTopLeft_SkEncodedOrigin;
+        case 90:  return kRightTop_SkEncodedOrigin;
+        case 180: return kBottomRight_SkEncodedOrigin;
+        case 270: return kLeftBottom_SkEncodedOrigin;
     }
-    return SkCodec::kDefault_Origin;
+    return kDefault_SkEncodedOrigin;
 }
 
 struct SkHeifStreamWrapper : public HeifStream {
@@ -136,7 +136,7 @@ std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(
     SkEncodedInfo info = SkEncodedInfo::Make(
             SkEncodedInfo::kYUV_Color, SkEncodedInfo::kOpaque_Alpha, 8);
 
-    Origin orientation = get_orientation(frameInfo);
+    SkEncodedOrigin orientation = get_orientation(frameInfo);
 
     sk_sp<SkColorSpace> colorSpace = nullptr;
     if ((frameInfo.mIccSize > 0) && (frameInfo.mIccData != nullptr)) {
@@ -154,7 +154,7 @@ std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(
 }
 
 SkHeifCodec::SkHeifCodec(int width, int height, const SkEncodedInfo& info,
-        HeifDecoder* heifDecoder, sk_sp<SkColorSpace> colorSpace, Origin origin)
+        HeifDecoder* heifDecoder, sk_sp<SkColorSpace> colorSpace, SkEncodedOrigin origin)
     : INHERITED(width, height, info, SkColorSpaceXform::kRGBA_8888_ColorFormat,
             nullptr, std::move(colorSpace), origin)
     , fHeifDecoder(heifDecoder)

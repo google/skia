@@ -11,6 +11,7 @@
 #include "SkCodec.h"
 #include "SkColorSpace.h"
 #include "SkColorSpaceXform.h"
+#include "SkEncodedOrigin.h"
 #include "SkImageInfo.h"
 #include "SkSwizzler.h"
 #include "SkStream.h"
@@ -49,7 +50,7 @@ private:
      * Called only by NewFromStream
      */
     SkHeifCodec(int width, int height, const SkEncodedInfo&,
-            HeifDecoder*, sk_sp<SkColorSpace>, Origin);
+            HeifDecoder*, sk_sp<SkColorSpace>, SkEncodedOrigin);
 
     /*
      * Checks if the conversion between the input image and the requested output
