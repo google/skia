@@ -344,7 +344,7 @@ static float png_inverted_fixed_point_to_float(png_fixed_point x) {
 // the encoded data.  If the encoded data contains an invalid/unsupported color space,
 // this will return NULL. If there is no color space information, it will guess sRGB
 sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr,
-                                     SkColorSpace_Base::ICCTypeFlag iccType) {
+                                     int iccType) {
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
 
@@ -361,7 +361,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr,
     int compression;
     if (PNG_INFO_iCCP == png_get_iCCP(png_ptr, info_ptr, &name, &compression, &profile,
             &length)) {
-        return SkColorSpace_Base::MakeICC(profile, length, iccType);
+        return SkColorSpace::MakeICC(profile, length, iccType);
     }
 
     // Second, check for sRGB.
@@ -911,9 +911,9 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
 
     if (fOutCodec) {
         SkASSERT(nullptr == *fOutCodec);
-        SkColorSpace_Base::ICCTypeFlag iccType = SkColorSpace_Base::kRGB_ICCTypeFlag;
+        int iccType = SkColorSpace::kRGB_ICCTypeFlag;
         if (SkEncodedInfo::kGray_Color == color || SkEncodedInfo::kGrayAlpha_Color == color) {
-            iccType |= SkColorSpace_Base::kGray_ICCTypeFlag;
+            iccType |= SkColorSpace::kGray_ICCTypeFlag;
         }
         sk_sp<SkColorSpace> colorSpace = read_color_space(fPng_ptr, fInfo_ptr, iccType);
         if (!colorSpace) {
