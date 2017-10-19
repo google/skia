@@ -34,39 +34,25 @@ public:
         const GrAlphaThresholdFragmentProcessor& _outer =
                 args.fFp.cast<GrAlphaThresholdFragmentProcessor>();
         (void)_outer;
-        auto colorXform = _outer.colorXform();
-        (void)colorXform;
         auto innerThreshold = _outer.innerThreshold();
         (void)innerThreshold;
         auto outerThreshold = _outer.outerThreshold();
         (void)outerThreshold;
-        fColorSpaceHelper.emitCode(args.fUniformHandler, _outer.colorXform().get());
         fInnerThresholdVar = args.fUniformHandler->addUniform(
                 kFragment_GrShaderFlag, kHalf_GrSLType, kDefault_GrSLPrecision, "innerThreshold");
         fOuterThresholdVar = args.fUniformHandler->addUniform(
                 kFragment_GrShaderFlag, kHalf_GrSLType, kDefault_GrSLPrecision, "outerThreshold");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
-        SkString sk_TransformedCoords2D_1 = fragBuilder->ensureCoords2D(args.fTransformedCoords[1]);
         fragBuilder->codeAppendf(
-                "half4 _tmpVar1;half4 color = %stexture(%s, %s).%s%s;\nhalf4 mask_color = "
-                "texture(%s, %s).%s;\nif (float(mask_color.w) < 0.5) {\n    if (color.w > %s) {\n  "
-                "      half scale = %s / color.w;\n        color.xyz *= scale;\n        color.w = "
-                "%s;\n    }\n} else if (color.w < %s) {\n    half scale = float(%s) / max(0.001, "
-                "float(color.w));\n    color.xyz *= scale;\n    color.w = %s;\n}\n%s = color;\n",
-                fColorSpaceHelper.isValid() ? "(_tmpVar1 = " : "",
+                "half4 color = %s;\nhalf4 mask_color = texture(%s, %s).%s;\nif "
+                "(float(mask_color.w) < 0.5) {\n    if (color.w > %s) {\n        half scale = %s / "
+                "color.w;\n        color.xyz *= scale;\n        color.w = %s;\n    }\n} else if "
+                "(color.w < %s) {\n    half scale = float(%s) / max(0.001, float(color.w));\n    "
+                "color.xyz *= scale;\n    color.w = %s;\n}\n%s = color;\n",
+                args.fInputColor ? args.fInputColor : "half4(1)",
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
-                fColorSpaceHelper.isValid()
-                        ? SkStringPrintf(", half4(clamp((%s * half4(_tmpVar1.rgb, 1.0)).rgb, 0.0, "
-                                         "_tmpVar1.a), _tmpVar1.a))",
-                                         args.fUniformHandler->getUniformCStr(
-                                                 fColorSpaceHelper.gamutXformUniform()))
-                                  .c_str()
-                        : "",
-                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[1]).c_str(),
-                sk_TransformedCoords2D_1.c_str(),
-                fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[1]).c_str(),
                 args.fUniformHandler->getUniformCStr(fOuterThresholdVar),
                 args.fUniformHandler->getUniformCStr(fOuterThresholdVar),
                 args.fUniformHandler->getUniformCStr(fOuterThresholdVar),
@@ -81,31 +67,22 @@ private:
         const GrAlphaThresholdFragmentProcessor& _outer =
                 _proc.cast<GrAlphaThresholdFragmentProcessor>();
         {
-            if (fColorSpaceHelper.isValid()) {
-                fColorSpaceHelper.setData(pdman, _outer.colorXform().get());
-            }
             pdman.set1f(fInnerThresholdVar, _outer.innerThreshold());
             pdman.set1f(fOuterThresholdVar, _outer.outerThreshold());
         }
     }
-    UniformHandle fImageVar;
     UniformHandle fMaskVar;
     UniformHandle fInnerThresholdVar;
     UniformHandle fOuterThresholdVar;
-    GrGLSLColorSpaceXformHelper fColorSpaceHelper;
 };
 GrGLSLFragmentProcessor* GrAlphaThresholdFragmentProcessor::onCreateGLSLInstance() const {
     return new GrGLSLAlphaThresholdFragmentProcessor();
 }
 void GrAlphaThresholdFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                              GrProcessorKeyBuilder* b) const {
-    b->add32(GrColorSpaceXform::XformKey(fColorXform.get()));
-}
+                                                              GrProcessorKeyBuilder* b) const {}
 bool GrAlphaThresholdFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     const GrAlphaThresholdFragmentProcessor& that = other.cast<GrAlphaThresholdFragmentProcessor>();
     (void)that;
-    if (fImage != that.fImage) return false;
-    if (fColorXform != that.fColorXform) return false;
     if (fMask != that.fMask) return false;
     if (fInnerThreshold != that.fInnerThreshold) return false;
     if (fOuterThreshold != that.fOuterThreshold) return false;
@@ -114,16 +91,11 @@ bool GrAlphaThresholdFragmentProcessor::onIsEqual(const GrFragmentProcessor& oth
 GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         const GrAlphaThresholdFragmentProcessor& src)
         : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, src.optimizationFlags())
-        , fImage(src.fImage)
-        , fColorXform(src.fColorXform)
         , fMask(src.fMask)
         , fInnerThreshold(src.fInnerThreshold)
         , fOuterThreshold(src.fOuterThreshold)
-        , fImageCoordTransform(src.fImageCoordTransform)
         , fMaskCoordTransform(src.fMaskCoordTransform) {
-    this->addTextureSampler(&fImage);
     this->addTextureSampler(&fMask);
-    this->addCoordTransform(&fImageCoordTransform);
     this->addCoordTransform(&fMaskCoordTransform);
 }
 std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::clone() const {
@@ -133,7 +105,6 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAlphaThresholdFragmentProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(
         GrProcessorTestData* testData) {
-    sk_sp<GrTextureProxy> bmpProxy = testData->textureProxy(GrProcessorUnitTest::kSkiaPMTextureIdx);
     sk_sp<GrTextureProxy> maskProxy = testData->textureProxy(GrProcessorUnitTest::kAlphaTextureIdx);
     // Make the inner and outer thresholds be in (0, 1) exclusive and be sorted correctly.
     float innerThresh = testData->fRandom->nextUScalar1() * .99f + 0.005f;
@@ -145,9 +116,7 @@ std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCrea
     uint32_t x = testData->fRandom->nextULessThan(kMaxWidth - width);
     uint32_t y = testData->fRandom->nextULessThan(kMaxHeight - height);
     SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(testData->fRandom);
-    return GrAlphaThresholdFragmentProcessor::Make(std::move(bmpProxy), colorSpaceXform,
-                                                   std::move(maskProxy), innerThresh, outerThresh,
+    return GrAlphaThresholdFragmentProcessor::Make(std::move(maskProxy), innerThresh, outerThresh,
                                                    bounds);
 }
 #endif
