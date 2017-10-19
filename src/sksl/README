@@ -110,10 +110,6 @@ Within an '.fp' fragment processor file:
   coordinates. sk_TransformedCoords2D[0] is equivalent to calling
   fragBuilder->ensureCoords2D(args.fTransformedCoords[0]) (and the result is
   cached, so you need not worry about using the value repeatedly).
-* 'colorSpaceXform' is a supported type. It is reflected within SkSL as a mat4,
-  and on the C++ side as sk_sp<GrColorSpaceXform>.
-* the texture() function can be passed a colorSpaceXform as an additional
-  parameter
 * Uniform variables support an additional 'when' layout key.
   'layout(when=foo) uniform int x;' means that this uniform will only be
   emitted when the 'foo' expression is true.

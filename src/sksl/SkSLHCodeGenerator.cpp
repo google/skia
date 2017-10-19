@@ -36,8 +36,6 @@ String HCodeGenerator::ParameterType(const Context& context, const Type& type) {
         return "SkMatrix44";
     } else if (type.kind() == Type::kSampler_Kind) {
         return "sk_sp<GrTextureProxy>";
-    } else if (type == *context.fColorSpaceXform_Type) {
-        return "sk_sp<GrColorSpaceXform>";
     } else if (type == *context.fFragmentProcessor_Type) {
         return "std::unique_ptr<GrFragmentProcessor>";
     }
@@ -256,8 +254,7 @@ bool HCodeGenerator::generateCode() {
                  "#if SK_SUPPORT_GPU\n");
     this->writeSection(HEADER_SECTION);
     this->writef("#include \"GrFragmentProcessor.h\"\n"
-                 "#include \"GrCoordTransform.h\"\n"
-                 "#include \"GrColorSpaceXform.h\"\n");
+                 "#include \"GrCoordTransform.h\"\n");
     this->writef("class %s : public GrFragmentProcessor {\n"
                  "public:\n",
                  fFullName.c_str());

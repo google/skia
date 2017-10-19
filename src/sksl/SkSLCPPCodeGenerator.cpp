@@ -13,8 +13,7 @@
 namespace SkSL {
 
 static bool needs_uniform_var(const Variable& var) {
-    return (var.fModifiers.fFlags & Modifiers::kUniform_Flag) &&
-           var.fType.fName != "colorSpaceXform";
+    return (var.fModifiers.fFlags & Modifiers::kUniform_Flag);
 }
 
 CPPCodeGenerator::CPPCodeGenerator(const Context* context, const Program* program,
@@ -116,9 +115,6 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
 }
 
 static String default_value(const Type& type) {
-    if (type.fName == "colorSpaceXform") {
-        return "float4x4(1.0)";
-    }
     switch (type.kind()) {
         case Type::kScalar_Kind: return "0";
         case Type::kVector_Kind: return type.name() + "(0)";
@@ -224,17 +220,8 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
             if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {
                 this->write("%s");
                 String name = ref.fVariable.fName;
-                String var;
-                if (ref.fVariable.fType == *fContext.fColorSpaceXform_Type) {
-                    ASSERT(fNeedColorSpaceHelper);
-                    var = String::printf("fColorSpaceHelper.isValid() ? "
-                                         "args.fUniformHandler->getUniformCStr("
-                                                  "fColorSpaceHelper.gamutXformUniform()) : \"%s\"",
-                           default_value(ref.fVariable.fType).c_str());
-                } else {
-                    var = String::printf("args.fUniformHandler->getUniformCStr(%sVar)",
-                                         HCodeGenerator::FieldName(name.c_str()).c_str());
-                }
+                String var = String::printf("args.fUniformHandler->getUniformCStr(%sVar)",
+                                            HCodeGenerator::FieldName(name.c_str()).c_str());
                 String code;
                 if (ref.fVariable.fModifiers.fLayout.fWhen.size()) {
                     code = String::printf("%sVar.isValid() ? %s : \"%s\"",
@@ -298,21 +285,6 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                               ", args);\n";
         this->write("%s");
         fFormatArgs.push_back(childName + ".c_str()");
-        return;
-    }
-    if (c.fFunction.fBuiltin && c.fFunction.fName == "COLORSPACE") {
-        String tmpVar = "_tmpVar" + to_string(++fVarCount);
-        fFunctionHeader += "half4 " + tmpVar + ";";
-        ASSERT(c.fArguments.size() == 2);
-        this->write("%s");
-        fFormatArgs.push_back("fColorSpaceHelper.isValid() ? \"(" + tmpVar + " = \" : \"\"");
-        this->writeExpression(*c.fArguments[0], kTopLevel_Precedence);
-        ASSERT(c.fArguments[1]->fKind == Expression::kVariableReference_Kind);
-        String xform("args.fUniformHandler->getUniformCStr(fColorSpaceHelper.gamutXformUniform())");
-        this->write("%s");
-        fFormatArgs.push_back("fColorSpaceHelper.isValid() ? SkStringPrintf(\", "
-                              "half4(clamp((%s * half4(" + tmpVar + ".rgb, 1.0)).rgb, 0.0, " +
-                              tmpVar + ".a), " + tmpVar + ".a))\", " + xform + ").c_str() : \"\"");
         return;
     }
     INHERITED::writeFunctionCall(c);
@@ -409,8 +381,7 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
         type = "kFloat4_GrSLType";
     } else if (var.fType == *fContext.fHalf4_Type) {
         type = "kHalf4_GrSLType";
-    } else if (var.fType == *fContext.fFloat4x4_Type ||
-               var.fType == *fContext.fColorSpaceXform_Type) {
+    } else if (var.fType == *fContext.fFloat4x4_Type) {
         type = "kFloat4x4_GrSLType";
     } else if (var.fType == *fContext.fHalf4x4_Type) {
         type = "kHalf4x4_GrSLType";
@@ -534,15 +505,6 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
     this->writePrivateVarValues();
     for (const auto u : uniforms) {
         this->addUniform(*u);
-        if (u->fType == *fContext.fColorSpaceXform_Type) {
-            if (fNeedColorSpaceHelper) {
-                fErrors.error(u->fOffset, "only a single ColorSpaceXform is supported");
-            }
-            fNeedColorSpaceHelper = true;
-            this->writef("        fColorSpaceHelper.emitCode(args.fUniformHandler, "
-                                                            "_outer.%s().get());\n",
-                         String(u->fName).c_str());
-        }
     }
     this->writeSection(EMIT_CODE_SECTION);
     OutputStream* old = fOut;
@@ -584,12 +546,6 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                              "        %s.setMatrix4f(%sVar, %sValue);\n",
                              name, name, name, pdman, HCodeGenerator::FieldName(name).c_str(),
                              name);
-            } else if (u->fType == *fContext.fColorSpaceXform_Type) {
-                ASSERT(fNeedColorSpaceHelper);
-                this->writef("        if (fColorSpaceHelper.isValid()) {\n"
-                             "            fColorSpaceHelper.setData(%s, _outer.%s().get());\n"
-                             "        }\n",
-                             pdman, name);
             } else if (u->fType == *fContext.fFragmentProcessor_Type) {
                 // do nothing
             } else {
@@ -702,11 +658,6 @@ void CPPCodeGenerator::writeGetKey() {
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         String nameString(param->fName);
         const char* name = nameString.c_str();
-        if (param->fType == *fContext.fColorSpaceXform_Type) {
-            this->writef("    b->add32(GrColorSpaceXform::XformKey(%s.get()));\n",
-                         HCodeGenerator::FieldName(name).c_str());
-            continue;
-        }
         if (param->fModifiers.fLayout.fKey != Layout::kNo_Key &&
             (param->fModifiers.fFlags & Modifiers::kUniform_Flag)) {
             fErrors.error(param->fOffset,
@@ -770,8 +721,7 @@ bool CPPCodeGenerator::generateCode() {
     this->writef("#include \"%s.h\"\n"
                  "#if SK_SUPPORT_GPU\n", fullName);
     this->writeSection(CPP_SECTION);
-    this->writef("#include \"glsl/GrGLSLColorSpaceXformHelper.h\"\n"
-                 "#include \"glsl/GrGLSLFragmentProcessor.h\"\n"
+    this->writef("#include \"glsl/GrGLSLFragmentProcessor.h\"\n"
                  "#include \"glsl/GrGLSLFragmentShaderBuilder.h\"\n"
                  "#include \"glsl/GrGLSLProgramBuilder.h\"\n"
                  "#include \"SkSLCPP.h\"\n"
@@ -795,9 +745,6 @@ bool CPPCodeGenerator::generateCode() {
             this->writef("    UniformHandle %sVar;\n",
                          HCodeGenerator::FieldName(String(param->fName).c_str()).c_str());
         }
-    }
-    if (fNeedColorSpaceHelper) {
-        this->write("    GrGLSLColorSpaceXformHelper fColorSpaceHelper;\n");
     }
     this->writef("};\n"
                  "GrGLSLFragmentProcessor* %s::onCreateGLSLInstance() const {\n"

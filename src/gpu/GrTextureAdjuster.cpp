@@ -7,6 +7,7 @@
 
 #include "GrTextureAdjuster.h"
 
+#include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"

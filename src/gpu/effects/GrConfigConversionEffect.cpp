@@ -10,7 +10,6 @@
  */
 #include "GrConfigConversionEffect.h"
 #if SK_SUPPORT_GPU
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"

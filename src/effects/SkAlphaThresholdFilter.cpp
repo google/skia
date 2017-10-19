@@ -16,6 +16,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrAlphaThresholdFragmentProcessor.h"
+#include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrFixedClip.h"
 #include "GrRenderTargetContext.h"

@@ -14,7 +14,6 @@
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
-#include "GrColorSpaceXform.h"
 class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
 public:
     inline OptimizationFlags optFlags(float outerThreshold);

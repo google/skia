@@ -20,7 +20,6 @@ inline GrFragmentProcessor::OptimizationFlags GrAlphaThresholdFragmentProcessor:
         return kCompatibleWithCoverageAsAlpha_OptimizationFlag;
     }
 }
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"

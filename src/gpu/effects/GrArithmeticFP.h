@@ -14,7 +14,6 @@
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
-#include "GrColorSpaceXform.h"
 class GrArithmeticFP : public GrFragmentProcessor {
 public:
     float k1() const { return fK1; }

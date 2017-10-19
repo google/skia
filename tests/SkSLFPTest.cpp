@@ -82,7 +82,6 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              "#if SK_SUPPORT_GPU\n"
              "#include \"GrFragmentProcessor.h\"\n"
              "#include \"GrCoordTransform.h\"\n"
-             "#include \"GrColorSpaceXform.h\"\n"
              "class GrTest : public GrFragmentProcessor {\n"
              "public:\n"
              "    static std::unique_ptr<GrFragmentProcessor> Make() {\n"
@@ -118,7 +117,6 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              " */\n"
              "#include \"GrTest.h\"\n"
              "#if SK_SUPPORT_GPU\n"
-             "#include \"glsl/GrGLSLColorSpaceXformHelper.h\"\n"
              "#include \"glsl/GrGLSLFragmentProcessor.h\"\n"
              "#include \"glsl/GrGLSLFragmentShaderBuilder.h\"\n"
              "#include \"glsl/GrGLSLProgramBuilder.h\"\n"
@@ -343,32 +341,6 @@ DEF_TEST(SkSLFPSections, r) {
              "std::unique_ptr<GrFragmentProcessor> GrTest::TestCreate(GrProcessorTestData* testDataName) {\n"
              " testDataName section }\n"
              "#endif"
-         });
-}
-
-DEF_TEST(SkSLFPColorSpaceXform, r) {
-    test(r,
-         "in uniform sampler2D image;"
-         "in uniform colorSpaceXform colorXform;"
-         "void main() {"
-         "sk_OutColor = sk_InColor * texture(image, float2(0, 0), colorXform);"
-         "}",
-         *SkSL::ShaderCapsFactory::Default(),
-         {
-             "sk_sp<GrColorSpaceXform> colorXform() const { return fColorXform; }",
-             "GrTest(sk_sp<GrTextureProxy> image, sk_sp<GrColorSpaceXform> colorXform)",
-             "this->addTextureSampler(&fImage);",
-             "sk_sp<GrColorSpaceXform> fColorXform;"
-         },
-         {
-             "fragBuilder->codeAppendf(\"half4 _tmpVar1;%s = %s * %stexture(%s, "
-             "float2(0.0, 0.0)).%s%s;\\n\", args.fOutputColor, args.fInputColor ? args.fInputColor : "
-             "\"half4(1)\", fColorSpaceHelper.isValid() ? \"(_tmpVar1 = \" : \"\", "
-             "fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(), "
-             "fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(), "
-             "fColorSpaceHelper.isValid() ? SkStringPrintf(\", half4(clamp((%s * half4(_tmpVar1.rgb, "
-             "1.0)).rgb, 0.0, _tmpVar1.a), _tmpVar1.a))\", args.fUniformHandler->getUniformCStr("
-             "fColorSpaceHelper.gamutXformUniform())).c_str() : \"\");"
          });
 }
 
