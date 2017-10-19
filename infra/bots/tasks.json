@@ -8210,7 +8210,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:11c0-384.59",
+        "gpu:10de:11c0-384.90",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8257,7 +8257,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:11c0-384.59",
+        "gpu:10de:11c0-384.90",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16916,7 +16916,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:11c0-384.59",
+        "gpu:10de:11c0-384.90",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16963,7 +16963,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:11c0-384.59",
+        "gpu:10de:11c0-384.90",
         "os:Debian-9.1",
         "pool:Skia"
       ],

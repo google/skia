@@ -304,7 +304,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				gpu, ok := map[string]string{
 					"GT610":    "10de:104a-384.59",
 					"GTX550Ti": "10de:1244-384.59",
-					"GTX660":   "10de:11c0-384.59",
+					"GTX660":   "10de:11c0-384.90",
 					"GTX960":   "10de:1401-384.59",
 					// Intel drivers come from CIPD, so no need to specify the version here.
 					"IntelBayTrail": "8086:0f31",
@@ -1026,7 +1026,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 
 	// Calmbench bots.
 	if parts["role"] == "Calmbench" {
-		deps = append(deps, calmbench(b, name, parts));
+		deps = append(deps, calmbench(b, name, parts))
 	}
 
 	// Most remaining bots need a compile task.
