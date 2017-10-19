@@ -33,6 +33,8 @@ __argparse.add_argument('skpbench',
   help="path to the skpbench binary")
 __argparse.add_argument('--adb',
   action='store_true', help="execute skpbench over adb")
+__argparse.add_argument('--adb_binary', default='adb',
+  help="The name of the adb binary to use.")
 __argparse.add_argument('-s', '--device-serial',
   help="if using adb, ID of the specific device to target "
        "(only required if more than 1 device is attached)")
@@ -54,6 +56,12 @@ __argparse.add_argument('--gpu',
   help="perform timing on the gpu clock instead of cpu (gpu work only)")
 __argparse.add_argument('--fps',
   action='store_true', help="use fps instead of ms")
+__argparse.add_argument('--pr',
+  help="comma- or space-separated list of GPU path renderers, including: "
+       "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "
+       "[~]aalinearizing [~]small [~]tess]")
+__argparse.add_argument('--nocache',
+  action='store_true', help="disable caching of path mask textures")
 __argparse.add_argument('-c', '--config',
   default='gl', help="comma- or space-separated list of GPU configs")
 __argparse.add_argument('-a', '--resultsfile',
@@ -61,8 +69,6 @@ __argparse.add_argument('-a', '--resultsfile',
 __argparse.add_argument('skps',
   nargs='+',
   help=".skp files or directories to expand for .skp files")
-__argparse.add_argument('--adb_binary', default='adb',
-  help="The name of the adb binary to use.")
 
 FLAGS = __argparse.parse_args()
 if FLAGS.adb:
@@ -110,6 +116,10 @@ class SKPBench:
     ARGV.extend(['--gpuClock', 'true'])
   if FLAGS.fps:
     ARGV.extend(['--fps', 'true'])
+  if FLAGS.pr:
+    ARGV.extend(['--pr'] + re.split(r'[ ,]', FLAGS.pr))
+  if FLAGS.nocache:
+    ARGV.extend(['--cachePathMasks', 'false'])
   if FLAGS.adb:
     if FLAGS.device_serial is None:
       ARGV[:0] = [FLAGS.adb_binary, 'shell']
