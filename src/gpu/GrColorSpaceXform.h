@@ -37,7 +37,8 @@ public:
 
     static bool Equals(const GrColorSpaceXform* a, const GrColorSpaceXform* b);
 
-    GrColor4f apply(const GrColor4f& srcColor);
+    GrColor4f unclampedXform(const GrColor4f& srcColor);
+    GrColor4f clampedXform(const GrColor4f& srcColor);
 
 private:
     SkMatrix44 fSrcToDst;

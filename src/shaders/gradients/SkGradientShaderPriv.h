@@ -516,11 +516,11 @@ private:
                              const char* inputColor);
 
     enum {
-        // First bit for premul before/after interp
+        // First bit for premul before/after interpolation
         kPremulBeforeInterpKey  =  1,
 
         // Next three bits for 2/3 color type or different special
-        // hard stop cases (neither means using texture atlas)
+        // hard stop cases ('none' means using texture atlas)
         kTwoColorKey            =  2,
         kThreeColorKey          =  4,
 

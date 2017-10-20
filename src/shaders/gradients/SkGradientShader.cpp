@@ -809,8 +809,7 @@ SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
  *  over and over, we'd like to return exactly the same "bitmap" if possible,
  *  allowing the client to utilize a cache of our bitmap (e.g. with a GPU).
  *  To do that, we maintain a private cache of built-bitmaps, based on our
- *  colors and positions. Note: we don't try to flatten the fMapper, so if one
- *  is present, we skip the cache for now.
+ *  colors and positions.
  */
 void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
                                                   GradientBitmapType bitmapType) const {
@@ -864,13 +863,11 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
             switch (bitmapType) {
                 case GradientBitmapType::kSRGB:
                     info = SkImageInfo::Make(kCache32Count, 1, kRGBA_8888_SkColorType,
-                                             kPremul_SkAlphaType,
-                                             SkColorSpace::MakeSRGB());
+                                             kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
                     break;
                 case GradientBitmapType::kHalfFloat:
-                    info = SkImageInfo::Make(
-                        kCache32Count, 1, kRGBA_F16_SkColorType, kPremul_SkAlphaType,
-                        SkColorSpace::MakeSRGBLinear());
+                    info = SkImageInfo::Make(kCache32Count, 1, kRGBA_F16_SkColorType,
+                                             kPremul_SkAlphaType, SkColorSpace::MakeSRGBLinear());
                     break;
                 default:
                     SK_ABORT("Unexpected bitmap type");
@@ -1483,12 +1480,10 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
             break;
     }
 
-    // We could skip this step if both colors are known to be opaque. Two
-    // considerations:
+    // We could skip this step if all colors are known to be opaque. Two considerations:
     // The gradient SkShader reporting opaque is more restrictive than necessary in the two
     // pt case. Make sure the key reflects this optimization (and note that it can use the
-    // same shader as thekBeforeIterp case). This same optimization applies to the 3 color
-    // case below.
+    // same shader as the kBeforeInterp case).
     if (GrGradientEffect::kAfterInterp_PremulType == ge.getPremulType()) {
         fragBuilder->codeAppend("colorTemp.rgb *= colorTemp.a;");
     }
@@ -1569,7 +1564,8 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
             }
 
             if (fColorSpaceXform) {
-                fColorSpaceXform->srcToDst().mapScalars(fColors4f[i].fRGBA, fColors4f[i].fRGBA);
+                // We defer clamping to after interpolation (see emitAnalyticalColor)
+                fColors4f[i] = fColorSpaceXform->unclampedXform(fColors4f[i]);
             }
         }
 

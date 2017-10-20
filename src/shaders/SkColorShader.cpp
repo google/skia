@@ -213,7 +213,7 @@ std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
                                                                        args.fDstColorSpace);
     GrColor4f color = GrColor4f::FromSkColor4f(fColor4);
     if (colorSpaceXform) {
-        color = colorSpaceXform->apply(color);
+        color = colorSpaceXform->clampedXform(color);
     }
     return GrConstColorProcessor::Make(color.premul(), GrConstColorProcessor::kModulateA_InputMode);
 }
