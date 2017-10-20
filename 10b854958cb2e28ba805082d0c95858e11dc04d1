@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b516a66_2e73ef0e",
+        "filename": "tools/skpbench/skpbench.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-20T16:03:10Z",
+      "side": 1,
+      "message": "I\u0027m surprised they didn\u0027t detect this is mostly just a whitespace change in indentation.",
+      "range": {
+        "startLine": 247,
+        "startChar": 14,
+        "endLine": 247,
+        "endChar": 21
+      },
+      "revId": "10b854958cb2e28ba805082d0c95858e11dc04d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
