@@ -15,9 +15,11 @@
 
 #define MINI   0.01f
 #define SMALL   SkIntToScalar(2)
-#define REAL    1.5f
+#define REAL    0.5f
 #define BIG     SkIntToScalar(10)
 #define REALBIG 100.5f
+// The value that produces a sigma of just over 2.
+#define CUTOVER 2.6f
 
 static const char* gStyleName[] = {
     "normal",
@@ -111,5 +113,6 @@ DEF_BENCH(return new BlurBench(BIG, kNormal_SkBlurStyle, SkBlurMaskFilter::kHigh
 DEF_BENCH(return new BlurBench(REALBIG, kNormal_SkBlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
 
 DEF_BENCH(return new BlurBench(REAL, kNormal_SkBlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
+DEF_BENCH(return new BlurBench(CUTOVER, kNormal_SkBlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
 
 DEF_BENCH(return new BlurBench(0, kNormal_SkBlurStyle);)
