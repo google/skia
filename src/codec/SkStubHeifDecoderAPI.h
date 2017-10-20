@@ -14,7 +14,6 @@
 #include <memory>
 #include <stddef.h>
 #include <stdint.h>
-using off64_t = int64_t;
 
 enum HeifColorFormat {
     kHeifColorFormat_RGB565,

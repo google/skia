@@ -34,7 +34,7 @@ bool SkHeifCodec::IsHeif(const void* buffer, size_t bytesRead) {
         return false;
     }
 
-    off64_t offset = 8;
+    int64_t offset = 8;
     if (chunkSize == 1) {
         // This indicates that the next 8 bytes represent the chunk size,
         // and chunk data comes after that.
@@ -56,7 +56,7 @@ bool SkHeifCodec::IsHeif(const void* buffer, size_t bytesRead) {
     if (chunkSize > bytesRead) {
         chunkSize = bytesRead;
     }
-    off64_t chunkDataSize = chunkSize - offset;
+    int64_t chunkDataSize = chunkSize - offset;
     // It should at least have major brand (4-byte) and minor version (4-bytes).
     // The rest of the chunk (if any) is a list of (4-byte) compatible brands.
     if (chunkDataSize < 8) {
