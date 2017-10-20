@@ -5,9 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "SkMatrixPriv.h"
 #include "SkReader32.h"
 #include "SkString.h"
 #include "SkWriter32.h"
+
+void SkWriter32::writeMatrix(const SkMatrix& matrix) {
+    size_t size = SkMatrixPriv::WriteToMemory(matrix, nullptr);
+    SkASSERT(SkAlign4(size) == size);
+    SkMatrixPriv::WriteToMemory(matrix, this->reserve(size));
+}
 
 /*
  *  Strings are stored as: length[4-bytes] + string_data + '\0' + pad_to_mul_4

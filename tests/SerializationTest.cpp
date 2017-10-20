@@ -14,6 +14,7 @@
 #include "SkImageSource.h"
 #include "SkMakeUnique.h"
 #include "SkMallocPixelRef.h"
+#include "SkMatrixPriv.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkShaderBase.h"
@@ -29,6 +30,9 @@
 static const uint32_t kArraySize = 64;
 static const int kBitmapSize = 256;
 
+class SerializationTest {
+public:
+
 template<typename T>
 static void TestAlignment(T* testObj, skiatest::Reporter* reporter) {
     // Test memory read/write functions directly
@@ -38,6 +42,7 @@ static void TestAlignment(T* testObj, skiatest::Reporter* reporter) {
     size_t bytesReadFromMemory = testObj->readFromMemory(dataWritten, bytesWrittenToMemory);
     REPORTER_ASSERT(reporter, SkAlign4(bytesReadFromMemory) == bytesReadFromMemory);
 }
+};
 
 template<typename T> struct SerializationUtils {
     // Generic case for flattenables
@@ -183,7 +188,7 @@ static void TestObjectSerializationNoAlign(T* testObj, skiatest::Reporter* repor
 template<typename T>
 static void TestObjectSerialization(T* testObj, skiatest::Reporter* reporter) {
     TestObjectSerializationNoAlign<T, false>(testObj, reporter);
-    TestAlignment(testObj, reporter);
+    SerializationTest::TestAlignment(testObj, reporter);
 }
 
 template<typename T>
@@ -467,7 +472,7 @@ DEF_TEST(Serialization, reporter) {
         SkRect rect = SkRect::MakeXYWH(1, 2, 20, 30);
         SkVector corners[4] = { {1, 2}, {2, 3}, {3,4}, {4,5} };
         rrect.setRectRadii(rect, corners);
-        TestAlignment(&rrect, reporter);
+        SerializationTest::TestAlignment(&rrect, reporter);
     }
 
     // Test readByteArray
