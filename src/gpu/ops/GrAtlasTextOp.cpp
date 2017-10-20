@@ -83,10 +83,11 @@ static void clip_quads(const SkIRect& clipRect,
         SkPoint* blobPositionLT = reinterpret_cast<SkPoint*>(blobVertices);
         SkPoint* blobPositionRB = reinterpret_cast<SkPoint*>(blobVertices + 3*vertexStride);
 
-        SkRect positionRect = SkRect::MakeLTRB(blobPositionLT->fX,
-                                               blobPositionLT->fY,
-                                               blobPositionRB->fX,
-                                               blobPositionRB->fY);
+        // positions for bitmap glyphs are pixel boundary aligned
+        SkIRect positionRect = SkIRect::MakeLTRB(blobPositionLT->fX,
+                                                 blobPositionLT->fY,
+                                                 blobPositionRB->fX,
+                                                 blobPositionRB->fY);
         if (clipRect.contains(positionRect)) {
             memcpy(currVertex, blobVertices, 4 * vertexStride);
             currVertex += 4 * vertexStride;
@@ -95,82 +96,82 @@ static void clip_quads(const SkIRect& clipRect,
             // In the LCD case the color will be garbage, but we'll overwrite it with the texcoords
             // and it avoids a lot of conditionals.
             SkColor color = *reinterpret_cast<SkColor*>(blobVertices + sizeof(SkPoint));
-            size_t coordOffset = vertexStride - sizeof(SkIPoint16);
-            SkIPoint16* blobCoordsLT = reinterpret_cast<SkIPoint16*>(blobVertices + coordOffset);
-            SkIPoint16* blobCoordsRB = reinterpret_cast<SkIPoint16*>(blobVertices +
-                                                                     3*vertexStride +
-                                                                     coordOffset);
-            SkIRect coordsRect = SkIRect::MakeLTRB(blobCoordsLT->fX / 2,
-                                                   blobCoordsLT->fY / 2,
-                                                   blobCoordsRB->fX / 2,
-                                                   blobCoordsRB->fY / 2);
-            int pageIndexX = blobCoordsLT->fX & 0x1;
-            int pageIndexY = blobCoordsLT->fY & 0x1;
+            size_t coordOffset = vertexStride - 2*sizeof(uint16_t);
+            uint16_t* blobCoordsLT = reinterpret_cast<uint16_t*>(blobVertices + coordOffset);
+            uint16_t* blobCoordsRB = reinterpret_cast<uint16_t*>(blobVertices + 3*vertexStride +
+                                                                 coordOffset);
+            // Pull out the texel coordinates and texture index bits
+            uint16_t coordsRectL = blobCoordsLT[0] >> 1;
+            uint16_t coordsRectT = blobCoordsLT[1] >> 1;
+            uint16_t coordsRectR = blobCoordsRB[0] >> 1;
+            uint16_t coordsRectB = blobCoordsRB[1] >> 1;
+            uint16_t pageIndexX = blobCoordsLT[0] & 0x1;
+            uint16_t pageIndexY = blobCoordsLT[1] & 0x1;
 
-            SkASSERT(positionRect.width() == coordsRect.width());
+            int positionRectWidth = positionRect.width();
+            int positionRectHeight = positionRect.height();
+            SkASSERT(positionRectWidth == (coordsRectR - coordsRectL));
+            SkASSERT(positionRectHeight == (coordsRectB - coordsRectT));
 
             // Clip position and texCoords to the clipRect
-            if (positionRect.fLeft < clipRect.fLeft) {
-                coordsRect.fLeft += clipRect.fLeft - positionRect.fLeft;
-                positionRect.fLeft = clipRect.fLeft;
-            }
-            if (positionRect.fTop < clipRect.fTop) {
-                coordsRect.fTop += clipRect.fTop - positionRect.fTop;
-                positionRect.fTop = clipRect.fTop;
-            }
-            if (positionRect.fRight > clipRect.fRight) {
-                coordsRect.fRight += clipRect.fRight - positionRect.fRight;
-                positionRect.fRight = clipRect.fRight;
-            }
-            if (positionRect.fBottom > clipRect.fBottom) {
-                coordsRect.fBottom += clipRect.fBottom - positionRect.fBottom;
-                positionRect.fBottom = clipRect.fBottom;
-            }
-            if (positionRect.fLeft > positionRect.fRight) {
-                positionRect.fLeft = positionRect.fRight;
-            }
-            if (positionRect.fTop > positionRect.fBottom) {
-                positionRect.fTop = positionRect.fBottom;
-            }
-            coordsRect.fLeft = 2 * coordsRect.fLeft | pageIndexX;
-            coordsRect.fTop = 2 * coordsRect.fTop | pageIndexY;
-            coordsRect.fRight = 2 * coordsRect.fRight | pageIndexX;
-            coordsRect.fBottom = 2 * coordsRect.fBottom | pageIndexY;
+            unsigned int delta;
+            delta = SkTMin(SkTMax(clipRect.fLeft - positionRect.fLeft, 0), positionRectWidth);
+            coordsRectL += delta;
+            positionRect.fLeft += delta;
 
+            delta = SkTMin(SkTMax(clipRect.fTop - positionRect.fTop, 0), positionRectHeight);
+            coordsRectT += delta;
+            positionRect.fTop += delta;
+
+            delta = SkTMin(SkTMax(positionRect.fRight - clipRect.fRight, 0), positionRectWidth);
+            coordsRectR -= delta;
+            positionRect.fRight -= delta;
+
+            delta = SkTMin(SkTMax(positionRect.fBottom - clipRect.fBottom, 0), positionRectHeight);
+            coordsRectB -= delta;
+            positionRect.fBottom -= delta;
+
+            // Repack texel coordinates and index
+            coordsRectL = coordsRectL << 1 | pageIndexX;
+            coordsRectT = coordsRectT << 1 | pageIndexY;
+            coordsRectR = coordsRectR << 1 | pageIndexX;
+            coordsRectB = coordsRectB << 1 | pageIndexY;
+
+            // Set new positions and coords
             SkPoint* currPosition = reinterpret_cast<SkPoint*>(currVertex);
             currPosition->fX = positionRect.fLeft;
             currPosition->fY = positionRect.fTop;
             *(reinterpret_cast<SkColor*>(currVertex + sizeof(SkPoint))) = color;
-            SkIPoint16* currCoords = reinterpret_cast<SkIPoint16*>(currVertex + coordOffset);
-            currCoords->fX = coordsRect.fLeft;
-            currCoords->fY = coordsRect.fTop;
+            uint16_t* currCoords = reinterpret_cast<uint16_t*>(currVertex + coordOffset);
+            currCoords[0] = coordsRectL;
+            currCoords[1] = coordsRectT;
             currVertex += vertexStride;
 
             currPosition = reinterpret_cast<SkPoint*>(currVertex);
             currPosition->fX = positionRect.fLeft;
             currPosition->fY = positionRect.fBottom;
             *(reinterpret_cast<SkColor*>(currVertex + sizeof(SkPoint))) = color;
-            currCoords = reinterpret_cast<SkIPoint16*>(currVertex + coordOffset);
-            currCoords->fX = coordsRect.fLeft;
-            currCoords->fY = coordsRect.fBottom;
+            currCoords = reinterpret_cast<uint16_t*>(currVertex + coordOffset);
+            currCoords[0] = coordsRectL;
+            currCoords[1] = coordsRectB;
             currVertex += vertexStride;
 
             currPosition = reinterpret_cast<SkPoint*>(currVertex);
             currPosition->fX = positionRect.fRight;
             currPosition->fY = positionRect.fTop;
             *(reinterpret_cast<SkColor*>(currVertex + sizeof(SkPoint))) = color;
-            currCoords = reinterpret_cast<SkIPoint16*>(currVertex + coordOffset);
-            currCoords->fX = coordsRect.fRight;
-            currCoords->fY = coordsRect.fTop;
+            currCoords = reinterpret_cast<uint16_t*>(currVertex + coordOffset);
+            currCoords[0] = coordsRectR;
+            currCoords[1] = coordsRectT;
             currVertex += vertexStride;
 
             currPosition = reinterpret_cast<SkPoint*>(currVertex);
             currPosition->fX = positionRect.fRight;
             currPosition->fY = positionRect.fBottom;
             *(reinterpret_cast<SkColor*>(currVertex + sizeof(SkPoint))) = color;
-            currCoords = reinterpret_cast<SkIPoint16*>(currVertex + coordOffset);
-            currCoords->fX = coordsRect.fRight;
-            currCoords->fY = coordsRect.fBottom;
+            currCoords = reinterpret_cast<uint16_t*>(currVertex + coordOffset);
+            currCoords[0] = coordsRectR;
+            currCoords[1] = coordsRectB;
             currVertex += vertexStride;
         }
 
