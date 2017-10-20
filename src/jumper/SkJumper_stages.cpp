@@ -1091,8 +1091,8 @@ STAGE(matrix_translate, const float* m) {
     g += m[1];
 }
 STAGE(matrix_scale_translate, const float* m) {
-    r = mad(r,m[2], m[0]);
-    g = mad(g,m[3], m[1]);
+    r = mad(r,m[0], m[2]);
+    g = mad(g,m[1], m[3]);
 }
 STAGE(matrix_2x3, const float* m) {
     auto R = mad(r,m[0], mad(g,m[2], m[4])),

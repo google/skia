@@ -166,10 +166,10 @@ void SkRasterPipeline::append_matrix(SkArenaAlloc* alloc, const SkMatrix& matrix
     } else if ((mt | (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) ==
                      (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
         float* scaleTrans = alloc->makeArrayDefault<float>(4);
-        scaleTrans[0] = matrix.getTranslateX();
-        scaleTrans[1] = matrix.getTranslateY();
-        scaleTrans[2] = matrix.getScaleX();
-        scaleTrans[3] = matrix.getScaleY();
+        scaleTrans[0] = matrix.getScaleX();
+        scaleTrans[1] = matrix.getScaleY();
+        scaleTrans[2] = matrix.getTranslateX();
+        scaleTrans[3] = matrix.getTranslateY();
         this->append(SkRasterPipeline::matrix_scale_translate, scaleTrans);
     } else {
         float* storage = alloc->makeArrayDefault<float>(9);
