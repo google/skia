@@ -243,45 +243,53 @@ def emit_result(line, resultsfile=None):
     resultsfile.flush()
 
 def run_benchmarks(configs, skps, hardware, resultsfile=None):
-  emit_result(SKPBench.get_header(), resultsfile)
+  hasheader = False
   benches = collections.deque([(skp, config, FLAGS.max_stddev)
                                for skp in skps
                                for config in configs])
   while benches:
-    benchargs = benches.popleft()
-    with SKPBench(*benchargs) as skpbench:
-      try:
-        skpbench.execute(hardware)
-        if skpbench.best_result:
-          emit_result(skpbench.best_result.format(FLAGS.suffix), resultsfile)
-        else:
-          print("WARNING: no result for %s with config %s" %
-                (skpbench.skp, skpbench.config), file=sys.stderr)
-
-      except StddevException:
-        retry_max_stddev = skpbench.max_stddev * math.sqrt(2)
-        if FLAGS.verbosity >= 1:
-          print("stddev is too high for %s/%s (%s%%, max=%.2f%%), "
-                "re-queuing with max=%.2f%%." %
-                (skpbench.best_result.config, skpbench.best_result.bench,
-                 skpbench.best_result.stddev, skpbench.max_stddev,
-                 retry_max_stddev),
-                file=sys.stderr)
-        benches.append((skpbench.skp, skpbench.config, retry_max_stddev,
-                        skpbench.best_result))
-
-      except HardwareException as exception:
-        skpbench.terminate()
-        if FLAGS.verbosity >= 4:
-          hardware.print_debug_diagnostics()
-        if FLAGS.verbosity >= 1:
-          print("%s; taking a %i second nap..." %
-                (exception.message, exception.sleeptime), file=sys.stderr)
-        benches.appendleft(benchargs) # retry the same bench next time.
-        hardware.sleep(exception.sleeptime)
-        if FLAGS.verbosity >= 4:
-          hardware.print_debug_diagnostics()
+    try:
+      with hardware:
         SKPBench.run_warmup(hardware.warmup_time, configs[0])
+        if not hasheader:
+          emit_result(SKPBench.get_header(), resultsfile)
+          hasheader = True
+        while benches:
+          benchargs = benches.popleft()
+          with SKPBench(*benchargs) as skpbench:
+            try:
+              skpbench.execute(hardware)
+              if skpbench.best_result:
+                emit_result(skpbench.best_result.format(FLAGS.suffix),
+                            resultsfile)
+              else:
+                print("WARNING: no result for %s with config %s" %
+                      (skpbench.skp, skpbench.config), file=sys.stderr)
+
+            except StddevException:
+              retry_max_stddev = skpbench.max_stddev * math.sqrt(2)
+              if FLAGS.verbosity >= 1:
+                print("stddev is too high for %s/%s (%s%%, max=%.2f%%), "
+                      "re-queuing with max=%.2f%%." %
+                      (skpbench.best_result.config, skpbench.best_result.bench,
+                       skpbench.best_result.stddev, skpbench.max_stddev,
+                       retry_max_stddev),
+                      file=sys.stderr)
+              benches.append((skpbench.skp, skpbench.config, retry_max_stddev,
+                              skpbench.best_result))
+
+            except HardwareException as exception:
+              skpbench.terminate()
+              if FLAGS.verbosity >= 4:
+                hardware.print_debug_diagnostics()
+              if FLAGS.verbosity >= 1:
+                print("%s; exiting benchmark mode to take a %i second nap..." %
+                      (exception.message, exception.sleeptime), file=sys.stderr)
+              benches.appendleft(benchargs) # retry the same bench next time.
+              raise # wake hw up from benchmarking mode before the nap.
+
+    except HardwareException as exception:
+      time.sleep(exception.sleeptime)
 
 def main():
   # Delimiter is ',' or ' ', skip if nested inside parens (e.g. gpu(a=b,c=d)).
@@ -296,6 +304,9 @@ def main():
     if model == 'Pixel C':
       from _hardware_pixel_c import HardwarePixelC
       hardware = HardwarePixelC(adb)
+    elif model == 'Pixel':
+      from _hardware_pixel import HardwarePixel
+      hardware = HardwarePixel(adb)
     elif model == 'Nexus 6P':
       from _hardware_nexus_6p import HardwareNexus6P
       hardware = HardwareNexus6P(adb)
@@ -307,13 +318,11 @@ def main():
   else:
     hardware = Hardware()
 
-  with hardware:
-    SKPBench.run_warmup(hardware.warmup_time, configs[0])
-    if FLAGS.resultsfile:
-      with open(FLAGS.resultsfile, mode='a+') as resultsfile:
-        run_benchmarks(configs, skps, hardware, resultsfile=resultsfile)
-    else:
-      run_benchmarks(configs, skps, hardware)
+  if FLAGS.resultsfile:
+    with open(FLAGS.resultsfile, mode='a+') as resultsfile:
+      run_benchmarks(configs, skps, hardware, resultsfile=resultsfile)
+  else:
+    run_benchmarks(configs, skps, hardware)
 
 
 if __name__ == '__main__':

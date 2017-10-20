@@ -15,13 +15,14 @@ class HardwarePixelC(HardwareAndroid):
     HardwareAndroid.__init__(self, adb)
 
   def __enter__(self):
+    HardwareAndroid.__enter__(self)
     self._lock_clocks()
-    return HardwareAndroid.__enter__(self)
+    return self
 
   def __exit__(self, exception_type, exception_value, exception_traceback):
+    self._unlock_clocks()
     HardwareAndroid.__exit__(self, exception_type,
                              exception_value, exception_traceback)
-    self._unlock_clocks()
 
   def filter_line(self, line):
     JUNK = ['NvRmPrivGetChipPlatform: Could not read platform information',
@@ -109,8 +110,3 @@ class HardwarePixelC(HardwareAndroid):
       [Expectation(str, exact_value=GPU_EMC_PROFILE, name='gpu/emc profile')]
 
     Expectation.check_all(expectations, result.splitlines())
-
-  def sleep(self, sleeptime):
-    self._unlock_clocks()
-    HardwareAndroid.sleep(self, sleeptime)
-    self._lock_clocks()

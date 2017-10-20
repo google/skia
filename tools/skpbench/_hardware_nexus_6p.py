@@ -14,13 +14,14 @@ class HardwareNexus6P(HardwareAndroid):
     HardwareAndroid.__init__(self, adb)
 
   def __enter__(self):
+    HardwareAndroid.__enter__(self)
     self._lock_clocks()
-    return HardwareAndroid.__enter__(self)
+    return self
 
   def __exit__(self, exception_type, exception_value, exception_traceback):
+    self._unlock_clocks()
     HardwareAndroid.__exit__(self, exception_type,
                              exception_value, exception_traceback)
-    self._unlock_clocks()
 
   def _lock_clocks(self):
     if not self._adb.is_root():
@@ -148,8 +149,3 @@ class HardwareNexus6P(HardwareAndroid):
        for i in range(4, 7)]
 
     Expectation.check_all(expectations, result.splitlines())
-
-  def sleep(self, sleeptime):
-    self._unlock_clocks()
-    HardwareAndroid.sleep(self, sleeptime)
-    self._lock_clocks()
