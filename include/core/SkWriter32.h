@@ -141,11 +141,7 @@ public:
         path.writeToMemory(this->reserve(size));
     }
 
-    void writeMatrix(const SkMatrix& matrix) {
-        size_t size = matrix.writeToMemory(nullptr);
-        SkASSERT(SkAlign4(size) == size);
-        matrix.writeToMemory(this->reserve(size));
-    }
+    void writeMatrix(const SkMatrix& matrix);
 
     void writeRegion(const SkRegion& rgn) {
         size_t size = rgn.writeToMemory(nullptr);

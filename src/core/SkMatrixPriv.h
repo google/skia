@@ -13,8 +13,22 @@
 
 class SkMatrixPriv {
 public:
+    enum {
+        // writeTo/readFromMemory will never return a value larger than this
+        kMaxFlattenSize = 9 * sizeof(SkScalar) + sizeof(uint32_t),
+    };
+
+    static size_t WriteToMemory(const SkMatrix& matrix, void* buffer) {
+        return matrix.writeToMemory(buffer);
+    }
+
+    static size_t ReadFromMemory(SkMatrix* matrix, const void* buffer, size_t length) {
+        return matrix->readFromMemory(buffer, length);
+    }
+
     typedef SkMatrix::MapXYProc MapXYProc;
     typedef SkMatrix::MapPtsProc MapPtsProc;
+
 
     static MapPtsProc GetMapPtsProc(const SkMatrix& matrix) {
         return SkMatrix::GetMapPtsProc(matrix.getType());

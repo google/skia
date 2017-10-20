@@ -601,22 +601,6 @@ public:
         return !(a == b);
     }
 
-    enum {
-        // writeTo/readFromMemory will never return a value larger than this
-        kMaxFlattenSize = 9 * sizeof(SkScalar) + sizeof(uint32_t),
-    };
-    // return the number of bytes written, whether or not buffer is null
-    size_t writeToMemory(void* buffer) const;
-    /**
-     * Reads data from the buffer parameter
-     *
-     * @param buffer Memory to read from
-     * @param length Amount of memory available in the buffer
-     * @return number of bytes read (must be a multiple of 4) or
-     *         0 if there was not enough memory available
-     */
-    size_t readFromMemory(const void* buffer, size_t length);
-
     void dump() const;
     void toString(SkString* str) const;
 
@@ -850,8 +834,22 @@ private:
 
     static const MapPtsProc gMapPtsProcs[];
 
+    // return the number of bytes written, whether or not buffer is null
+    size_t writeToMemory(void* buffer) const;
+    /**
+     * Reads data from the buffer parameter
+     *
+     * @param buffer Memory to read from
+     * @param length Amount of memory available in the buffer
+     * @return number of bytes read (must be a multiple of 4) or
+     *         0 if there was not enough memory available
+     */
+    size_t readFromMemory(const void* buffer, size_t length);
+
     friend class SkPerspIter;
     friend class SkMatrixPriv;
+    friend class SkReader32;
+    friend class SerializationTest;
 };
 SK_END_REQUIRE_DENSE
 

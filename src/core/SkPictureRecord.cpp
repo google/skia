@@ -8,6 +8,7 @@
 #include "SkPictureRecord.h"
 #include "SkDrawShadowInfo.h"
 #include "SkImage_Base.h"
+#include "SkMatrixPriv.h"
 #include "SkPatchUtils.h"
 #include "SkPixelRef.h"
 #include "SkRRect.h"
@@ -111,7 +112,7 @@ void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
     }
     if (rec.fClipMatrix) {
         flatFlags |= SAVELAYERREC_HAS_CLIPMATRIX;
-        size += rec.fClipMatrix->writeToMemory(nullptr);
+        size += SkMatrixPriv::WriteToMemory(*rec.fClipMatrix, nullptr);
     }
 
     const size_t initialOffset = this->addDraw(SAVE_LAYER_SAVELAYERREC, &size);
@@ -225,7 +226,7 @@ void SkPictureRecord::didConcat(const SkMatrix& matrix) {
 void SkPictureRecord::recordConcat(const SkMatrix& matrix) {
     this->validate(fWriter.bytesWritten(), 0);
     // op + matrix
-    size_t size = kUInt32Size + matrix.writeToMemory(nullptr);
+    size_t size = kUInt32Size + SkMatrixPriv::WriteToMemory(matrix, nullptr);
     size_t initialOffset = this->addDraw(CONCAT, &size);
     this->addMatrix(matrix);
     this->validate(initialOffset, size);
@@ -234,7 +235,7 @@ void SkPictureRecord::recordConcat(const SkMatrix& matrix) {
 void SkPictureRecord::didSetMatrix(const SkMatrix& matrix) {
     this->validate(fWriter.bytesWritten(), 0);
     // op + matrix
-    size_t size = kUInt32Size + matrix.writeToMemory(nullptr);
+    size_t size = kUInt32Size + SkMatrixPriv::WriteToMemory(matrix, nullptr);
     size_t initialOffset = this->addDraw(SET_MATRIX, &size);
     this->addMatrix(matrix);
     this->validate(initialOffset, size);
@@ -623,7 +624,8 @@ void SkPictureRecord::onDrawTextOnPath(const void* text, size_t byteLength, cons
                                        const SkMatrix* matrix, const SkPaint& paint) {
     // op + paint index + length + 'length' worth of data + path index + matrix
     const SkMatrix& m = matrix ? *matrix : SkMatrix::I();
-    size_t size = 3 * kUInt32Size + SkAlign4(byteLength) + kUInt32Size + m.writeToMemory(nullptr);
+    size_t size = 3 * kUInt32Size + SkAlign4(byteLength) + kUInt32Size +
+        SkMatrixPriv::WriteToMemory(m, nullptr);
     size_t initialOffset = this->addDraw(DRAW_TEXT_ON_PATH, &size);
     this->addPaint(paint);
     this->addText(text, byteLength);
@@ -682,7 +684,7 @@ void SkPictureRecord::onDrawPicture(const SkPicture* picture, const SkMatrix* ma
         this->addPicture(picture);
     } else {
         const SkMatrix& m = matrix ? *matrix : SkMatrix::I();
-        size += m.writeToMemory(nullptr) + kUInt32Size;    // matrix + paint
+        size += SkMatrixPriv::WriteToMemory(m, nullptr) + kUInt32Size;    // matrix + paint
         initialOffset = this->addDraw(DRAW_PICTURE_MATRIX_PAINT, &size);
         this->addPaintPtr(paint);
         this->addMatrix(m);
@@ -700,7 +702,7 @@ void SkPictureRecord::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matri
         initialOffset = this->addDraw(DRAW_DRAWABLE, &size);
         this->addDrawable(drawable);
     } else {
-        size += matrix->writeToMemory(nullptr);    // matrix
+        size += SkMatrixPriv::WriteToMemory(*matrix, nullptr);    // matrix
         initialOffset = this->addDraw(DRAW_DRAWABLE_MATRIX, &size);
         this->addMatrix(*matrix);
         this->addDrawable(drawable);

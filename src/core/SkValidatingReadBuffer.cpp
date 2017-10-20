@@ -6,6 +6,7 @@
  */
 
 #include "SkBitmap.h"
+#include "SkMatrixPriv.h"
 #include "SkValidatingReadBuffer.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
@@ -135,7 +136,7 @@ void SkValidatingReadBuffer::readPoint3(SkPoint3* point) {
 void SkValidatingReadBuffer::readMatrix(SkMatrix* matrix) {
     size_t size = 0;
     if (!fError) {
-        size = matrix->readFromMemory(fReader.peek(), fReader.available());
+        size = SkMatrixPriv::ReadFromMemory(matrix, fReader.peek(), fReader.available());
         this->validate((SkAlign4(size) == size) && (0 != size));
     }
     if (!fError) {
