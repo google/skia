@@ -37,7 +37,12 @@ public:
 
     static bool Equals(const GrColorSpaceXform* a, const GrColorSpaceXform* b);
 
-    GrColor4f apply(const GrColor4f& srcColor);
+    enum class Clamp {
+        kNo,
+        kYes,
+    };
+
+    GrColor4f apply(const GrColor4f& srcColor, Clamp clamp);
 
 private:
     SkMatrix44 fSrcToDst;
