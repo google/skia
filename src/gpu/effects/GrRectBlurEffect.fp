@@ -7,6 +7,14 @@ in uniform float4 rect;
 in float sigma;
 in uniform sampler2D blurProfile;
 
+@constructorParams {
+    GrSamplerState samplerParams
+}
+
+@samplerParams(blurProfile) {
+    samplerParams
+}
+
 // in OpenGL ES, mediump floats have a minimum range of 2^14. If we have coordinates bigger than
 // that, the shader math will end up with infinities and result in the blur effect not working
 // correctly. To avoid this, we switch into highp when the coordinates are too big. As 2^14 is the
@@ -75,8 +83,9 @@ uniform half profileSize;
             return nullptr;
          }
 
-         return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(rect, sigma,
-                                                                          std::move(blurProfile)));
+         return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(
+            rect, sigma, std::move(blurProfile),
+            GrSamplerState(GrSamplerState::WrapMode::kClamp, GrSamplerState::Filter::kBilerp)));
      }
 }
 

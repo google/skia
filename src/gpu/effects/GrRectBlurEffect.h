@@ -71,20 +71,22 @@ public:
             return nullptr;
         }
 
-        return std::unique_ptr<GrFragmentProcessor>(
-                new GrRectBlurEffect(rect, sigma, std::move(blurProfile)));
+        return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(
+                rect, sigma, std::move(blurProfile),
+                GrSamplerState(GrSamplerState::WrapMode::kClamp, GrSamplerState::Filter::kBilerp)));
     }
     GrRectBlurEffect(const GrRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RectBlurEffect"; }
 
 private:
-    GrRectBlurEffect(SkRect rect, float sigma, sk_sp<GrTextureProxy> blurProfile)
+    GrRectBlurEffect(SkRect rect, float sigma, sk_sp<GrTextureProxy> blurProfile,
+                     GrSamplerState samplerParams)
             : INHERITED(kGrRectBlurEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , fRect(rect)
             , fSigma(sigma)
-            , fBlurProfile(std::move(blurProfile)) {
+            , fBlurProfile(std::move(blurProfile), samplerParams) {
         this->addTextureSampler(&fBlurProfile);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
