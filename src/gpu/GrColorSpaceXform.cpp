@@ -121,11 +121,16 @@ bool GrColorSpaceXform::Equals(const GrColorSpaceXform* a, const GrColorSpaceXfo
     return a->fSrcToDst == b->fSrcToDst;
 }
 
-GrColor4f GrColorSpaceXform::apply(const GrColor4f& srcColor) {
+GrColor4f GrColorSpaceXform::unclampedXform(const GrColor4f& srcColor) {
     GrColor4f result;
     fSrcToDst.mapScalars(srcColor.fRGBA, result.fRGBA);
-    // We always operate on unpremul colors, so clamp to [0,1].
+    return result;
+}
+
+GrColor4f GrColorSpaceXform::clampedXform(const GrColor4f& srcColor) {
+    GrColor4f result = this->unclampedXform(srcColor);
     for (int i = 0; i < 4; ++i) {
+        // We always operate on unpremul colors, so clamp to [0,1].
         result.fRGBA[i] = SkTPin(result.fRGBA[i], 0.0f, 1.0f);
     }
     return result;
