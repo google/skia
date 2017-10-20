@@ -20,9 +20,11 @@ DEF_SIMPLE_GM(blurSmallRadii, canvas, 100, 100) {
         paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, sigma));
         canvas->drawString("Guest", 20, 10, paint);
 
+        /*
         paint.setMaskFilter(nullptr);
         paint.setColor(SK_ColorWHITE);
         canvas->drawString("Guest", 20, 10, paint);
+         */
         canvas->translate(0, 20);
     }
 }
