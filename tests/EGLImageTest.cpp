@@ -107,6 +107,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         return;
     }
 
+    // On the Nexus5 there is a bug where the TexSubImage2D calls after this won't happen unless we
+    // call finish here. The issue has to do with us uploading 0's into the texture at creation
+    // time during createTestingOnlyBackendTexture. If we do the initial clear upload, we don't see
+    // the results of the TexSubImage2D below. If we don't do the initial clear or call finsih here
+    // the the TexSubImage2D works.
+    GR_GL_CALL(glCtx1->gl(), Finish());
+
     // Populate the texture using GL context 1. Important to use TexSubImage as TexImage orphans
     // the EGL image. Also, this must be done after creating the EGLImage as the texture
     // contents may not be preserved when the image is created.
