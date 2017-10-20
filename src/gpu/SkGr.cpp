@@ -342,7 +342,7 @@ GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace,
     }
 
     if (gamutXform) {
-        color = gamutXform->apply(color);
+        color = gamutXform->apply(color, GrColorSpaceXform::Clamp::kYes);
     }
 
     return color;
