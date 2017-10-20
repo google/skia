@@ -550,6 +550,101 @@ bool SkMaskBlurFilter::hasNoBlur() const {
     return (3 * fSigmaW <= 1) && (3 * fSigmaH <= 1);
 }
 
+class DirectGaussBlurX {
+public:
+    DirectGaussBlurX(double sigma) {
+
+    }
+
+    static constexpr uint16_t kHalf = 0x80;
+
+
+    std::tuple<Sk8h, Sk8h> blurX3(const Sk8h& v, const Sk8h& lastAcc0) {
+
+        Sk8h acc0 = lastAcc0, acc1{kHalf};
+
+        Sk8h vv = (v << 8) | v;
+        Sk8h vs = vv.mulHi(fGauss[1]);
+        acc0 += vs;
+        Sk8h vs0{0u, 0u, vs[0], vs[1], vs[2], vs[3], vs[4], vs[5]};
+        Sk8h vs1{vs[6], vs[7], 0u, 0u, 0u, 0u, 0u, 0u};
+        acc0 += vs0;
+        acc1 += vs1;
+        vs = vv.mulHi(fGauss[0]);
+        vs0 = Sk8h{0u, vs[0], vs[1], vs[2], vs[3], vs[4], vs[5], vs[6]};
+        vs1 = Sk8h{vs[7], 0u, 0u, 0u, 0u, 0u, 0u, 0u};
+        acc0 += vs0;
+        acc1 += vs1;
+        acc0 = acc0 >> 8;
+
+        return std::make_tuple(acc0, acc1);
+    }
+
+    std::tuple<Sk8h, Sk8h> blurX5(const Sk8h& v, const Sk8h& lastAcc0) {
+
+        Sk8h acc0 = lastAcc0, acc1{kHalf};
+
+        Sk8h vv = (v << 8) | v;
+        Sk8h vs = vv.mulHi(fGauss[2]);
+        acc0 += vs;
+        Sk8h vs0{0u, 0u, 0u, 0u, vs[0], vs[1], vs[2], vs[3]};
+        Sk8h vs1{vs[4], vs[5], vs[6], vs[7], 0u, 0u, 0u, 0u};
+        acc0 += vs0;
+        acc1 += vs1;
+
+        vs = vv.mulHi(fGauss[1]);
+        vs0 = Sk8h{0u, vs[0], vs[1], vs[2], vs[3], vs[4], vs[5], vs[6]};
+        vs1 = Sk8h{vs[7], 0u, 0u, 0u, 0u, 0u, 0u, 0u};
+        acc0 += vs0;
+        acc1 += vs1;
+        vs0 = Sk8h{0u, 0u, 0u, vs[0], vs[1], vs[2], vs[3], vs[4]};
+        vs1 = Sk8h{vs[5], vs[6], vs[7], 0u, 0u, 0u, 0u, 0u};
+        acc0 += vs0;
+        acc1 += vs1;
+
+        vs = vv.mulHi(fGauss[0]);
+        vs0 = Sk8h{0u, 0u, vs[0], vs[1], vs[2], vs[3], vs[4], vs[5]};
+        vs1 = Sk8h{vs[6], vs[7], 0u, 0u, 0u, 0u, 0u, 0u};
+        acc0 += vs0;
+        acc1 += vs1;
+        acc0 = acc0 >> 8;
+
+        return std::make_tuple(acc0, acc1);
+    }
+
+
+    void blurY3(const SkMask& srcMask, SkMask* dstMask) {
+        const uint8_t* src = srcMask.fImage;
+        uint8_t* dst = dstMask->fImage;
+        uint8_t* dstEnd = dst + dstMask->fRowBytes;
+
+
+        Sk8h acc0{0}, acc1{0};
+
+        while (dst < dstEnd) {
+
+            Sk8h v{SkNx_cast<uint16_t>(Sk8b::Load(src))};
+            Sk8h vv = (v << 8) | v;
+            Sk8h vs = vv.mulHi(fGauss[1]);
+            acc1 += vs;
+            acc1 = acc1 >> 8;
+            SkNx_cast<uint8_t>(acc1).store(dst);
+            acc1 = vs + kHalf;
+
+            vs = vv.mulHi(fGauss[0]);
+            acc0 += vs;
+
+            std::swap(acc0, acc1);
+
+            dst += dstMask->fRowBytes;
+            src += srcMask.fRowBytes;
+        }
+    }
+private:
+    uint16_t fGauss[4];
+};
+
+
 SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
 
     // 1024 is a place holder guess until more analysis can be done.
