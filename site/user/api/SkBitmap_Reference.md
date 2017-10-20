@@ -134,7 +134,7 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 
 # <a name="SkBitmap::Allocator"></a> Class SkBitmap::Allocator
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 class <a href="#SkBitmap_Allocator">Allocator</a> : public <a href="undocumented#SkRefCnt">SkRefCnt</a> {
 public:
 virtual bool <a href="#SkBitmap_Allocator_allocPixelRef">allocPixelRef(SkBitmap* bitmap)</a> = 0;
@@ -172,7 +172,7 @@ true if <a href="undocumented#Pixel_Ref">Pixel Ref</a> was allocated
 
 # <a name="SkBitmap::HeapAllocator"></a> Class SkBitmap::HeapAllocator
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 class <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> : public <a href="#SkBitmap_Allocator">Allocator</a> {
 public:
 bool <a href="#SkBitmap_HeapAllocator_allocPixelRef">allocPixelRef(SkBitmap* bitmap)</a> override;
@@ -1699,7 +1699,7 @@ true if <a href="#Info">Image Info</a> set successfully
 
 ## <a name="SkBitmap_AllocFlags"></a> Enum SkBitmap::AllocFlags
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkBitmap_AllocFlags">AllocFlags</a> {
 <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> = 1 << 0,
 };</pre>
