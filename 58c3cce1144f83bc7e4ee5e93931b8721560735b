@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e293ff38_0b6dee91",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-10-20T14:10:51Z",
+      "side": 0,
+      "message": "Just for future FYI, I believe this right shift was fine.",
+      "range": {
+        "startLine": 103,
+        "startChar": 51,
+        "endLine": 103,
+        "endChar": 72
+      },
+      "revId": "58c3cce1144f83bc7e4ee5e93931b8721560735b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25b660e3_904e553f",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-10-20T14:10:51Z",
+      "side": 0,
+      "message": "...and we\u0027ve invented SkLeftShift() for situations like this where you want to left shift a possibly-negative value (and know it\u0027s small enough that it won\u0027t overflow).",
+      "range": {
+        "startLine": 135,
+        "startChar": 31,
+        "endLine": 135,
+        "endChar": 52
+      },
+      "revId": "58c3cce1144f83bc7e4ee5e93931b8721560735b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
