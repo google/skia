@@ -324,6 +324,13 @@ public:
         return pun.us[k&7];
     }
 
+    AI SkNx mulHi(const SkNx& m) const {
+        uint32x4_t hi = vmull_u16(vget_high_u16(fVec), vget_high_u16(m.fVec));
+        uint32x4_t lo = vmull_u16( vget_low_u16(fVec),  vget_low_u16(m.fVec));
+
+        return { vcombine_u16(vshrn_n_u32(lo,16), vshrn_n_u32(hi,16)) };
+    }
+
     AI SkNx thenElse(const SkNx& t, const SkNx& e) const {
         return vbslq_u16(fVec, t.fVec, e.fVec);
     }
