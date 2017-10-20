@@ -15,7 +15,16 @@
 #include "SkImageInfo.h"
 #include "SkSwizzler.h"
 #include "SkStream.h"
-#include "HeifDecoderAPI.h"
+
+#if !defined(__has_include)
+    #define __has_include(x) 0
+#endif
+
+#if __has_include("HeifDecoderAPI.h")
+    #include "HeifDecoderAPI.h"
+#else
+    #include "SkStubHeifDecoderAPI.h"
+#endif
 
 class SkHeifCodec : public SkCodec {
 public:
