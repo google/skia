@@ -815,7 +815,7 @@ class AAGeometryView : public SampleView {
     bool fHandlePathMove;
     bool fShowLegend;
     bool fHideAll;
-    const int kHitToleranace = 5;
+    const int kHitToleranace = 25;
 
 public:
 
@@ -1807,10 +1807,10 @@ static struct KeyCommand {
     { ' ',  0,  "space",   "center path", &AAGeometryView::scaleToFit },
     { '-',  0,  "-",          "zoom out", &AAGeometryView::scaleDown },
     { '+', '=', "+/=",         "zoom in", &AAGeometryView::scaleUp },
-    { 'd',  0,  "d",   "dump to console", &AAGeometryView::pathDump },
-    { 'h',  0,  "h",     "hide controls", &AAGeometryView::hideAll },
-    { 'r',  0,  "r",        "reset path", &AAGeometryView::constructPath },
-    { 'z',  0,  "z",              "undo", &AAGeometryView::undo },
+    { 'D',  0,  "D",   "dump to console", &AAGeometryView::pathDump },
+    { 'H',  0,  "H",     "hide controls", &AAGeometryView::hideAll },
+    { 'R',  0,  "R",        "reset path", &AAGeometryView::constructPath },
+    { 'Z',  0,  "Z",              "undo", &AAGeometryView::undo },
     { '?',  0,  "?",       "show legend", &AAGeometryView::showLegend },
 };
 
