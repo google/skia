@@ -31,6 +31,8 @@ public:
     // values filled.
     int filterDouble(double values[5]) const;
 
+    int filterUint16(uint16_t values[5]) const;
+
 private:
     double fBasis[5];
     int    fN;
