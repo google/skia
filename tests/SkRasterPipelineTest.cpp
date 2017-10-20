@@ -232,33 +232,3 @@ DEF_TEST(SkRasterPipeline_lowp, r) {
         }
     }
 }
-
-DEF_TEST(SkRasterPipeline_2d, r) {
-    uint32_t rgba[2*2] = {0,0,0,0};
-
-    SkSTArenaAlloc<256> alloc;
-    SkRasterPipeline p(&alloc);
-
-    // Splat out the (2d) dst coordinates: (0.5,0.5), (1.5,0.5), (0.5,1.5), (1.5,1.5).
-    p.append_seed_shader();
-
-    // Scale down to [0,1] range to write out as bytes.
-    p.append_matrix(&alloc, SkMatrix::Concat(SkMatrix::MakeScale(0.5f),
-                                             SkMatrix::MakeTrans(-0.5f, -0.5f)));
-
-    // Write out to rgba, with row stride = 2 pixels.
-    SkJumper_MemoryCtx ctx = { rgba, 2 };
-    p.append(SkRasterPipeline::store_8888, &ctx);
-
-    p.run(0,0, 2,2);
-
-    REPORTER_ASSERT(r, ((rgba[0] >> 0) & 0xff) ==   0);
-    REPORTER_ASSERT(r, ((rgba[1] >> 0) & 0xff) == 128);
-    REPORTER_ASSERT(r, ((rgba[2] >> 0) & 0xff) ==   0);
-    REPORTER_ASSERT(r, ((rgba[3] >> 0) & 0xff) == 128);
-
-    REPORTER_ASSERT(r, ((rgba[0] >> 8) & 0xff) ==   0);
-    REPORTER_ASSERT(r, ((rgba[1] >> 8) & 0xff) ==   0);
-    REPORTER_ASSERT(r, ((rgba[2] >> 8) & 0xff) == 128);
-    REPORTER_ASSERT(r, ((rgba[3] >> 8) & 0xff) == 128);
-}
