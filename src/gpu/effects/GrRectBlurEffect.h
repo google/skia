@@ -84,7 +84,7 @@ private:
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , fRect(rect)
             , fSigma(sigma)
-            , fBlurProfile(std::move(blurProfile)) {
+            , fBlurProfile(std::move(blurProfile), GrSamplerState::Filter::kBilerp) {
         this->addTextureSampler(&fBlurProfile);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
