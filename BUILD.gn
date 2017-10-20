@@ -31,7 +31,7 @@ declare_args() {
   skia_use_piex = !is_win
   skia_use_zlib = true
   skia_use_metal = false
-  skia_use_libheif = false
+  skia_use_libheif = is_skia_dev_build
 
   skia_android_serial = ""
   skia_enable_discrete_gpu = true
