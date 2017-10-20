@@ -11,6 +11,7 @@
 #include <climits>
 
 #include "SkArenaAlloc.h"
+#include "SkGaussFilter.h"
 #include "SkNx.h"
 #include "SkSafeMath.h"
 
@@ -353,7 +354,7 @@ public:
 
     size_t border()     const override { return fBorder; }
 
-    bool needsBlur()    const override { return true; }
+    bool needsBlur()    const override { return fPass0Size > 0; }
 
     BlurScanInterface* makeBlurScan(
         SkArenaAlloc* alloc, size_t width, uint32_t* buffer) const override
@@ -541,6 +542,441 @@ SkMaskBlurFilter::SkMaskBlurFilter(double sigmaW, double sigmaH)
 bool SkMaskBlurFilter::hasNoBlur() const {
     return (3 * fSigmaW <= 1) && (3 * fSigmaH <= 1);
 }
+static constexpr uint16_t _____ = 0u;
+
+using Acc = Sk8h&;
+using Val = const Sk8h&;
+
+static SK_ALWAYS_INLINE void blur_x_radius_1(
+        Val vv,
+        Acc acc0, Acc acc1,
+        Val gauss0,
+        Val gauss1,
+        Val gauss2,
+        Val gauss3,
+        Val gauss4) {
+    auto v0 = vv.mulHi(gauss0);
+    auto v1 = vv.mulHi(gauss1);
+
+    acc0 += v1;
+
+    acc0 += Sk8h{_____, v0[0], v0[1], v0[2], v0[3], v0[4], v0[5], v0[6]};
+    acc1 += Sk8h{v0[7], _____, _____, _____, _____, _____, _____, _____};
+
+    acc0 += Sk8h{_____, _____, v1[0], v1[1], v1[2], v1[3], v1[4], v1[5]};
+    acc1 += Sk8h{v1[6], v1[7], _____, _____, _____, _____, _____, _____};
+
+}
+
+static SK_ALWAYS_INLINE void blur_x_radius_2(
+        Val vv,
+        Acc acc0, Acc acc1,
+        Val gauss0,
+        Val gauss1,
+        Val gauss2,
+        Val gauss3,
+        Val gauss4) {
+
+    auto v2 = vv.mulHi(gauss2);
+    auto v1 = vv.mulHi(gauss1);
+    auto v0 = vv.mulHi(gauss0);
+
+    acc0 += v2;
+    acc0 += Sk8h{_____, _____, _____, _____, v2[0], v2[1], v2[2], v2[3]};
+    acc1 += Sk8h{v2[4], v2[5], v2[6], v2[7], _____, _____, _____, _____};
+
+    acc0 += Sk8h{_____, v1[0], v1[1], v1[2], v1[3], v1[4], v1[5], v1[6]};
+    acc1 += Sk8h{v1[7], _____, _____, _____, _____, _____, _____, _____};
+
+    acc0 += Sk8h{_____, _____, _____, v1[0], v1[1], v1[2], v1[3], v1[4]};
+    acc1 += Sk8h{v1[5], v1[6], v1[7], _____, _____, _____, _____, _____};
+
+
+    acc0 += Sk8h{_____, _____, v0[0], v0[1], v0[2], v0[3], v0[4], v0[5]};
+    acc1 += Sk8h{v0[6], v0[7], _____, _____, _____, _____, _____, _____};
+
+}
+
+static SK_ALWAYS_INLINE void blur_x_radius_3(
+        Val vv,
+        Acc acc0, Acc acc1,
+        Val gauss0,
+        Val gauss1,
+        Val gauss2,
+        Val gauss3,
+        Val gauss4) {
+    auto v0 = vv.mulHi(gauss0);
+    auto v1 = vv.mulHi(gauss1);
+    auto v2 = vv.mulHi(gauss2);
+    auto v3 = vv.mulHi(gauss3);
+
+    acc0 += v3;
+
+    acc0 += Sk8h{_____, v2[0], v2[1], v2[2], v2[3], v2[4], v2[5], v2[6]};
+    acc1 += Sk8h{v2[7], _____, _____, _____, _____, _____, _____, _____};
+
+    acc0 += Sk8h{_____, _____, v1[0], v1[1], v1[2], v1[3], v1[4], v1[5]};
+    acc1 += Sk8h{v1[6], v1[7], _____, _____, _____, _____, _____, _____};
+
+    acc0 += Sk8h{_____, _____, _____, v0[0], v0[1], v0[2], v0[3], v0[4]};
+    acc1 += Sk8h{v0[5], v0[6], v0[7], _____, _____, _____, _____, _____};
+
+    acc0 += Sk8h{_____, _____, _____, _____, v1[0], v1[1], v1[2], v1[3]};
+    acc1 += Sk8h{v1[4], v1[5], v1[6], v1[7], _____, _____, _____, _____};
+
+    acc0 += Sk8h{_____, _____, _____, _____, _____, v2[0], v2[1], v2[2]};
+    acc1 += Sk8h{v2[3], v2[4], v2[5], v2[6], v2[7], _____, _____, _____};
+
+    acc0 += Sk8h{_____, _____, _____, _____, _____, _____, v3[0], v3[1]};
+    acc1 += Sk8h{v3[2], v3[3], v3[4], v3[5], v3[6], v3[7], _____, _____};
+}
+
+static SK_ALWAYS_INLINE void blur_x_radius_4(
+        Val vv,
+        Acc acc0, Acc acc1,
+        Val gauss0,
+        Val gauss1,
+        Val gauss2,
+        Val gauss3,
+        Val gauss4) {
+    auto v0 = vv.mulHi(gauss0);
+    auto v1 = vv.mulHi(gauss1);
+    auto v2 = vv.mulHi(gauss2);
+    auto v3 = vv.mulHi(gauss3);
+    auto v4 = vv.mulHi(gauss4);
+
+    acc0 += v4;
+
+    acc0 += Sk8h{_____, v3[0], v3[1], v3[2], v3[3], v3[4], v3[5], v3[6]};
+    acc1 += Sk8h{v3[7], _____, _____, _____, _____, _____, _____, _____};
+
+    acc0 += Sk8h{_____, _____, v2[0], v2[1], v2[2], v2[3], v2[4], v2[5]};
+    acc1 += Sk8h{v2[6], v2[7], _____, _____, _____, _____, _____, _____};
+
+    acc0 += Sk8h{_____, _____, _____, v1[0], v1[1], v1[2], v1[3], v1[4]};
+    acc1 += Sk8h{v1[5], v1[6], v1[7], _____, _____, _____, _____, _____};
+
+    acc0 += Sk8h{_____, _____, _____, _____, v0[0], v0[1], v0[2], v0[3]};
+    acc1 += Sk8h{v0[4], v0[5], v0[6], v0[7], _____, _____, _____, _____};
+
+    acc0 += Sk8h{_____, _____, _____, _____, _____, v1[0], v1[1], v1[2]};
+    acc1 += Sk8h{v1[3], v1[4], v1[5], v1[6], v1[7], _____, _____, _____};
+
+    acc0 += Sk8h{_____, _____, _____, _____, _____, _____, v2[0], v2[1]};
+    acc1 += Sk8h{v2[2], v2[3], v2[4], v2[5], v2[6], v2[7], _____, _____};
+
+    acc0 += Sk8h{_____, _____, _____, _____, _____, _____, _____, v3[0]};
+    acc1 += Sk8h{v3[1], v3[2], v3[3], v3[4], v3[5], v3[6], v3[7], _____};
+
+    acc1 += v4;
+}
+
+template<typename Blur>
+static SK_ALWAYS_INLINE void blur_row(
+        Blur blur,
+        Val gauss0, Val gauss1, Val gauss2, Val gauss3, Val gauss4,
+        const uint8_t* src, int srcW,
+              uint8_t* dst, int dstW) {
+    Sk8h acc0{0u}, acc1{0u};
+    uint8_t tailBuffer[8] = {0};
+    auto load = [&](const uint8_t* from, int width) {
+        if (width < 8) {
+            for (int i = 0; i < width; i++){
+                tailBuffer[i] = from[i];
+            }
+            from = tailBuffer;
+        }
+        auto v = SkNx_cast<uint16_t>(Sk8b::Load(from));
+        return (v << 8) | v;
+    };
+
+    auto store = [&](uint8_t* to, const Sk8h& v, int width) {
+        Sk8b b = SkNx_cast<uint8_t>(v >> 8);
+        if (width == 8) {
+            b.store(to);
+        } else {
+            b.store(tailBuffer);
+            for (int i = 0; i < width; i++) {
+                to[i] = tailBuffer[i];
+            }
+        }
+    };
+
+    int x = 0;
+    for (; x <= srcW - 8; x += 8) {
+        blur(load(src, 8), acc0, acc1, gauss0, gauss1, gauss2, gauss3, gauss4);
+
+        store(dst, acc0, 8);
+
+        acc0 = acc1;
+        acc1 = Sk8h{0u};
+
+        src += 8;
+        dst += 8;
+    }
+
+    int srcTail = srcW - x;
+    if (srcTail > 0) {
+
+        blur(load(src, srcTail), acc0, acc1, gauss0, gauss1, gauss2, gauss3, gauss4);
+
+        int dstTail = std::min(8, dstW - x);
+        store(dst, acc0, dstTail);
+
+        acc0 = acc1;
+        dst += dstTail;
+        x += dstTail;
+    }
+
+    int dstTail = dstW - x;
+    if (dstTail > 0) {
+        store(dst, acc0, dstTail);
+    }
+}
+
+template<typename Blur>
+static SK_ALWAYS_INLINE void blur_x_rect(
+        Blur blur,
+        uint16_t* gauss,
+        const uint8_t* src, size_t srcStride, int srcW,
+              uint8_t* dst, size_t dstStride, int dstW, int dstH) {
+
+    Sk8h gauss0{gauss[0]},
+         gauss1{gauss[1]},
+         gauss2{gauss[2]},
+         gauss3{gauss[3]},
+         gauss4{gauss[4]};
+
+    for (int y = 0; y < dstH; y++) {
+        blur_row(blur,
+                 gauss0, gauss1, gauss2, gauss3, gauss4,
+                 src, srcW,
+                 dst, dstW);
+        src += srcStride;
+        dst += dstStride;
+    }
+}
+
+static void direct_blur_x(
+    int radius, uint16_t* gauss,
+    const uint8_t* src, size_t srcStride, int srcW,
+          uint8_t* dst, size_t dstStride, int dstW, int dstH) {
+
+    // These are ordered by frequency gather from analysis of the top 10K websites.
+    if (radius == 2) {
+        blur_x_rect(blur_x_radius_2, gauss, src, srcStride, srcW, dst, dstStride, dstW, dstH);
+    } else if (radius == 3) {
+        blur_x_rect(blur_x_radius_3, gauss, src, srcStride, srcW, dst, dstStride, dstW, dstH);
+    } else if (radius == 4) {
+        blur_x_rect(blur_x_radius_4, gauss, src, srcStride, srcW, dst, dstStride, dstW, dstH);
+    } else {
+        // radius == 1
+        blur_x_rect(blur_x_radius_1, gauss, src, srcStride, srcW, dst, dstStride, dstW, dstH);
+    }
+}
+
+static SK_ALWAYS_INLINE Sk8h blur_y_radius_1(
+        Val vv,
+        Acc acc0, Acc acc1, Acc acc2, Acc acc3, Acc acc4, Acc acc5, Acc acc6, Acc acc7,
+        Val gauss0, Val gauss1, Val gauss2, Val gauss3, Val gauss4) {
+    auto v0 = vv.mulHi(gauss0);
+    Sk8h v1 = vv.mulHi(gauss1);
+
+    acc0 += v1;
+    Sk8h answer = acc0;
+
+    acc0 = acc1 + v0;
+    acc1 =        v1;
+
+    return answer;
+}
+
+static SK_ALWAYS_INLINE Sk8h blur_y_radius_2(
+        Val vv,
+        Acc acc0, Acc acc1, Acc acc2, Acc acc3, Acc acc4, Acc acc5, Acc acc6, Acc acc7,
+        Val gauss0, Val gauss1, Val gauss2, Val gauss3, Val gauss4) {
+    auto v0 = vv.mulHi(gauss0);
+    auto v1 = vv.mulHi(gauss1);
+    auto v2 = vv.mulHi(gauss2);
+
+    acc0 += v2;
+    Sk8h answer = acc0;
+
+    acc0 = acc1 + v1;
+    acc1 = acc2 + v0;
+    acc2 = acc3 + v1;
+    acc3 =        v2;
+
+    return answer;
+}
+
+static SK_ALWAYS_INLINE Sk8h blur_y_radius_3(
+        Val vv,
+        Acc acc0, Acc acc1, Acc acc2, Acc acc3, Acc acc4, Acc acc5, Acc acc6, Acc acc7,
+        Val gauss0, Val gauss1, Val gauss2, Val gauss3, Val gauss4) {
+    auto v0 = vv.mulHi(gauss0);
+    auto v1 = vv.mulHi(gauss1);
+    auto v2 = vv.mulHi(gauss2);
+    auto v3 = vv.mulHi(gauss3);
+
+    acc0 += v3;
+    Sk8h answer = acc0;
+
+    acc0 = acc1 + v2;
+    acc1 = acc2 + v1;
+    acc2 = acc3 + v0;
+    acc3 = acc4 + v1;
+    acc4 = acc5 + v2;
+    acc5 =        v3;
+
+    return answer;
+}
+
+static SK_ALWAYS_INLINE Sk8h blur_y_radius_4(
+    Val vv,
+    Acc acc0, Acc acc1, Acc acc2, Acc acc3, Acc acc4, Acc acc5, Acc acc6, Acc acc7,
+    Val gauss0, Val gauss1, Val gauss2, Val gauss3, Val gauss4) {
+    auto v0 = vv.mulHi(gauss0);
+    auto v1 = vv.mulHi(gauss1);
+    auto v2 = vv.mulHi(gauss2);
+    auto v3 = vv.mulHi(gauss3);
+    auto v4 = vv.mulHi(gauss4);
+
+    acc0 += v4;
+    Sk8h answer = acc0;
+
+    acc0 = acc1 + v3;
+    acc1 = acc2 + v2;
+    acc2 = acc3 + v1;
+    acc3 = acc4 + v0;
+    acc4 = acc5 + v1;
+    acc5 = acc6 + v2;
+    acc6 = acc7 + v3;
+    acc7 =        v4;
+
+    return answer;
+}
+
+template<typename Blur>
+static SK_ALWAYS_INLINE void blur_column(
+        Blur blur, int radius, int width,
+        Val gauss0, Val gauss1, Val gauss2, Val gauss3, Val gauss4,
+        const uint8_t* src, size_t srcStride, int srcH,
+        uint8_t* dst, size_t dstStride) {
+    Sk8h acc0{0u}, acc1{0u}, acc2{0u}, acc3{0u},
+         acc4{0u}, acc5{0u}, acc6{0u}, acc7{0u};
+
+    uint8_t tailBuffer[8];
+    auto load = [&](const uint8_t* from) {
+        if (width < 8) {
+            for (int i = 0; i < width; i++){
+                tailBuffer[i] = from[i];
+            }
+            from = tailBuffer;
+        }
+        auto v = SkNx_cast<uint16_t>(Sk8b::Load(from));
+        return (v << 8) | v;
+    };
+
+    auto store = [&](uint8_t* to, const Sk8h& v) {
+        Sk8b b = SkNx_cast<uint8_t>(v >> 8);
+        if (width == 8) {
+            b.store(to);
+        } else {
+            b.store(tailBuffer);
+            for (int i = 0; i < width; i++) {
+                to[i] = tailBuffer[i];
+            }
+        }
+    };
+
+    auto flush = [&](uint8_t* to, Val v0, Val v1) {
+        store(to, v0);
+        to += dstStride;
+        store(to, v1);
+        return to + dstStride;
+    };
+
+    for (int y = 0; y < srcH; y += 1) {
+        auto v = load(src);
+        auto m = blur(v,
+                      acc0, acc1, acc2, acc3, acc4, acc5, acc6, acc7,
+                      gauss0, gauss1, gauss2, gauss3, gauss4);
+        store(dst, m);
+        src += srcStride;
+        dst += dstStride;
+    }
+
+    if (radius >= 1) {
+        dst = flush(dst, acc0, acc1);
+    }
+    if (radius >= 2) {
+        dst = flush(dst, acc2, acc3);
+    }
+    if (radius >= 3) {
+        dst = flush(dst, acc4, acc5);
+    }
+    if (radius >= 4) {
+              flush(dst, acc6, acc7);
+    }
+}
+
+template<typename Blur>
+static SK_ALWAYS_INLINE void blur_y_rect(
+        Blur blur, int radius, uint16_t *gauss,
+        const uint8_t *src, size_t srcStride, int srcW, int srcH,
+        uint8_t *dst, size_t dstStride) {
+
+    Sk8h gauss0{gauss[0]},
+         gauss1{gauss[1]},
+         gauss2{gauss[2]},
+         gauss3{gauss[3]},
+         gauss4{gauss[4]};
+
+    int x = 0;
+    for (; x <= srcW - 8; x += 8) {
+        blur_column(blur, radius, 8,
+                    gauss0, gauss1, gauss2, gauss3, gauss4,
+                    src, srcStride, srcH,
+                    dst, dstStride);
+        src += 8;
+        dst += 8;
+    }
+
+    int xTail = srcW - x;
+    if (xTail > 0) {
+        blur_column(blur, radius, xTail,
+                    gauss0, gauss1, gauss2, gauss3, gauss4,
+                    src, srcStride, srcH,
+                    dst, dstStride);
+    }
+}
+
+static void direct_blur_y(
+        int radius, uint16_t* gauss,
+        const uint8_t* src, size_t srcStride, int srcW, int srcH,
+              uint8_t* dst, size_t dstStride) {
+
+    // These are ordered by frequency gather from analysis of the top 10K websites.
+    if (radius == 2) {
+        blur_y_rect(blur_y_radius_2, 2, gauss,
+                    src, srcStride, srcW, srcH,
+                    dst, dstStride);
+    } else if (radius == 3) {
+        blur_y_rect(blur_y_radius_3, 3, gauss,
+                    src, srcStride, srcW, srcH,
+                    dst, dstStride);
+    } else if (radius == 4) {
+        blur_y_rect(blur_y_radius_4, 4, gauss,
+                    src, srcStride, srcW, srcH,
+                    dst, dstStride);
+    } else {
+        // radius == 1
+        blur_y_rect(blur_y_radius_1, 1, gauss,
+                    src, srcStride, srcW, srcH,
+                    dst, dstStride);
+    }
+}
 
 static SkMask prepare_destination(int radiusX, int radiusY, const SkMask& src) {
     SkSafeMath safe;
@@ -568,7 +1004,63 @@ static SkMask prepare_destination(int radiusX, int radiusY, const SkMask& src) {
     return dst;
 }
 
+static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMask* dst) {
+    SkASSERT(0 <= sigmaX && sigmaX < 2);
+    SkASSERT(0 <= sigmaY && sigmaY < 2);
+
+    SkGaussFilter filterX{sigmaX, SkGaussFilter::Type::Bessel},
+                  filterY{sigmaY, SkGaussFilter::Type::Bessel};
+
+    int radiusX = filterX.radius(),
+        radiusY = filterY.radius();
+
+    SkASSERT(radiusX <= 4 && radiusY <= 4);
+
+    uint16_t gaussFactorsX[5],
+             gaussFactorsY[5];
+
+    filterX.filterUint16(gaussFactorsX);
+    filterY.filterUint16(gaussFactorsY);
+
+    *dst = prepare_destination(radiusX, radiusY, src);
+    if (src.fImage == nullptr) {
+        return {SkTo<int32_t>(radiusX), SkTo<int32_t>(radiusY)};
+    }
+    if (dst->fImage == nullptr) {
+        dst->fBounds.setEmpty();
+        return {0, 0};
+    }
+
+    int srcW = src.fBounds.width(),
+        srcH = src.fBounds.height();
+
+    int dstW = dst->fBounds.width(),
+        dstH = dst->fBounds.height();
+
+    size_t srcStride = src.fRowBytes,
+           dstStride = dst->fRowBytes;
+
+    //TODO: handle bluring in only one direction.
+    // Blur vertically and copy to destination.
+    direct_blur_y(radiusY, gaussFactorsY,
+                  src.fImage,  srcStride, srcW, srcH,
+                  dst->fImage + radiusX, dstStride);
+
+    // Blur horizontally in place.
+    direct_blur_x(radiusX, gaussFactorsX,
+                  dst->fImage + radiusX,  dstStride, srcW,
+                  dst->fImage,            dstStride, dstW, dstH);
+
+    return {radiusX, radiusY};
+}
+
 SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
+
+    #if !defined(SK_USE_LEGACY_INTERP_BLUR)
+        if (fSigmaW < 2.0 && fSigmaH < 2.0) {
+            return small_blur(fSigmaW, fSigmaH, src, dst);
+        }
+    #endif
 
     // 1024 is a place holder guess until more analysis can be done.
     SkSTArenaAlloc<1024> alloc;
@@ -623,7 +1115,6 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
                         tmpStart, tmpW, tmpStart + tmpW * tmpH);
         }
 
-
         // Blur vertically (scan in memory order because of the transposition),
         // and transpose back to the original orientation.
         auto scanH = planH->makeBlurScan(&alloc, tmpW, buffer);
@@ -670,7 +1161,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         }
     } else {
         // Copy to dst. No Blur.
-        SkASSERT(false);    // should not get here
+        //SkASSERT(false);    // should not get here
         for (size_t y = 0; y < srcH; y++) {
             std::memcpy(&dst->fImage[y * dst->fRowBytes], &src.fImage[y * src.fRowBytes], dstW);
         }
@@ -678,5 +1169,3 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
 
     return {SkTo<int32_t>(borderW), SkTo<int32_t>(borderH)};
 }
-
-

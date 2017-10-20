@@ -143,9 +143,16 @@ SkGaussFilter::SkGaussFilter(double sigma, Type type) {
     }
 }
 
-int SkGaussFilter::filterDouble(double* values) const {
+int SkGaussFilter::filterDouble(double values[5]) const {
     for (int i = 0; i < fN; i++) {
         values[i] = fBasis[i];
+    }
+    return fN;
+}
+
+int SkGaussFilter::filterUint16(uint16_t values[5]) const {
+    for (int i = 0; i < fN; i++) {
+        values[i] = static_cast<uint16_t>(round(fBasis[i] * (1 << 16)));
     }
     return fN;
 }
