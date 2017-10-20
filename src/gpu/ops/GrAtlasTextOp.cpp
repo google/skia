@@ -100,10 +100,10 @@ static void clip_quads(const SkIRect& clipRect,
             SkIPoint16* blobCoordsRB = reinterpret_cast<SkIPoint16*>(blobVertices +
                                                                      3*vertexStride +
                                                                      coordOffset);
-            SkIRect coordsRect = SkIRect::MakeLTRB(blobCoordsLT->fX >> 1,
-                                                   blobCoordsLT->fY >> 1,
-                                                   blobCoordsRB->fX >> 1,
-                                                   blobCoordsRB->fY >> 1);
+            SkIRect coordsRect = SkIRect::MakeLTRB(blobCoordsLT->fX / 2,
+                                                   blobCoordsLT->fY / 2,
+                                                   blobCoordsRB->fX / 2,
+                                                   blobCoordsRB->fY / 2);
             int pageIndexX = blobCoordsLT->fX & 0x1;
             int pageIndexY = blobCoordsLT->fY & 0x1;
 
@@ -132,10 +132,10 @@ static void clip_quads(const SkIRect& clipRect,
             if (positionRect.fTop > positionRect.fBottom) {
                 positionRect.fTop = positionRect.fBottom;
             }
-            coordsRect.fLeft = coordsRect.fLeft << 1 | pageIndexX;
-            coordsRect.fTop = coordsRect.fTop << 1 | pageIndexY;
-            coordsRect.fRight = coordsRect.fRight << 1 | pageIndexX;
-            coordsRect.fBottom = coordsRect.fBottom << 1 | pageIndexY;
+            coordsRect.fLeft = 2 * coordsRect.fLeft | pageIndexX;
+            coordsRect.fTop = 2 * coordsRect.fTop | pageIndexY;
+            coordsRect.fRight = 2 * coordsRect.fRight | pageIndexX;
+            coordsRect.fBottom = 2 * coordsRect.fBottom | pageIndexY;
 
             SkPoint* currPosition = reinterpret_cast<SkPoint*>(currVertex);
             currPosition->fX = positionRect.fLeft;
