@@ -15,7 +15,7 @@
 
 #define MINI   0.01f
 #define SMALL   SkIntToScalar(2)
-#define REAL    1.5f
+#define REAL    0.788675f
 #define BIG     SkIntToScalar(10)
 #define REALBIG 100.5f
 
