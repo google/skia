@@ -7,7 +7,9 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
+#include "SkColorSpace_Base.h"
 #include "SkGradientShader.h"
+#include "SkSurface.h"
 
 namespace skiagm {
 
@@ -1118,5 +1120,89 @@ DEF_SIMPLE_GM(gradients_interesting, canvas, 640, 1300) {
             }
         }
         canvas->translate(0, size * 1.1f);
+    }
+}
+
+// Tests the behavior of gradients that go out of gamut
+// Covers analytic and texture-based on GPU, premul/unpremul, and out-of-gamut colors vs. xform
+// putting colors out of gamut.
+DEF_SIMPLE_GM(gradients4f_clamping, canvas, 562, 562) {
+    const uint32_t kFlags[] = { 0, SkGradientShader::kInterpolateColorsInPremul_Flag };
+    const float kAlphas[] = { 1.0f, 0.5f };
+    const SkPoint kPoints[] = { SkPoint::Make(0, 0), SkPoint::Make(128, 0) };
+    sk_sp<SkColorSpace> rec2020 = SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma,
+                                                        SkColorSpace::kRec2020_Gamut);
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGBLinear();
+    const SkMatrix44* toXYZ = as_CSB(rec2020)->toXYZD50();
+    const SkMatrix44* fromXYZ = as_CSB(srgb)->fromXYZD50();
+    SkMatrix44 rec2020ToSRGB;
+    rec2020ToSRGB.setConcat(*fromXYZ, *toXYZ);
+
+    SkRect rect = SkRect::MakeWH(128, 128);
+    SkPaint outlinePaint;
+    outlinePaint.setStyle(SkPaint::kStroke_Style);
+    SkPaint pointPaint;
+    pointPaint.setColor(SK_ColorCYAN);
+
+    canvas->translate(10, 10);
+
+    for (auto flags : kFlags) {
+        for (auto alpha : kAlphas) {
+            canvas->save();
+            for (bool preXform : { false, true }) {
+                for (int numStops : { 2, 4 }) {
+                    // Prepare our colors. Red becomes much larger than 1, so it's a good test.
+                    SkColor4f colors[4];
+                    for (int i = 0; i < numStops; ++i) {
+                        colors[i].fR = static_cast<float>(i) / (numStops - 1);
+                        colors[i].fG = 0.0f;
+                        colors[i].fB = 0.0f;
+                        colors[i].fA = alpha;
+
+                        if (preXform) {
+                            rec2020ToSRGB.mapScalars(colors[i].vec(), colors[i].vec());
+                        }
+                    }
+
+                    SkPaint paint;
+                    paint.setShader(SkGradientShader::MakeLinear(kPoints, colors,
+                                                                 preXform ? nullptr : rec2020,
+                                                                 nullptr, numStops,
+                                                                 SkShader::kClamp_TileMode, flags,
+                                                                 nullptr));
+
+                    auto surface(canvas->makeSurface(canvas->imageInfo().makeWH(128, 128)));
+                    if (!surface) {
+                        surface = SkSurface::MakeRaster(SkImageInfo::MakeS32(128, 128,
+                                                                             kPremul_SkAlphaType));
+                    }
+                    surface->getCanvas()->drawRect(rect, paint);
+                    sk_sp<SkImage> image = surface->makeImageSnapshot();
+
+                    SkBitmap bmp;
+                    bmp.allocPixels(SkImageInfo::MakeS32(128, 128, kPremul_SkAlphaType));
+                    SkAssertResult(surface->readPixels(bmp, 0, 0));
+
+                    SkTArray<SkPoint> points;
+                    for (int i = 0; i < bmp.width(); ++i) {
+                        uint32_t pixel = *bmp.getAddr32(i, 0);
+                        SkPoint p = {
+                            SkIntToScalar(i),
+                            SkIntToScalar(128 - SkColorGetR(pixel) / 2)
+                        };
+                        points.push_back(p);
+                    }
+
+                    canvas->drawRect(rect, paint);
+                    canvas->drawRect(rect, outlinePaint);
+                    canvas->drawPoints(SkCanvas::kPoints_PointMode, points.count(), points.begin(),
+                                       pointPaint);
+
+                    canvas->translate(138, 0);
+                }
+            }
+            canvas->restore();
+            canvas->translate(0, 138);
+        }
     }
 }

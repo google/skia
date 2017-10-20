@@ -1335,7 +1335,7 @@ std::unique_ptr<GrFragmentProcessor> Gr2PtConicalGradientEffect::Make(
     }
 
     GrGradientEffect::CreateArgs newArgs(args.fContext, args.fShader, &matrix, args.fWrapMode,
-                                         std::move(args.fColorSpaceXform), args.fGammaCorrect);
+                                         args.fDstColorSpace);
 
     if (shader.getStartRadius() < kErrorTol) {
         SkScalar focalX;
