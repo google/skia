@@ -184,11 +184,9 @@ std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
-                                                                       args.fDstColorSpace);
+
     auto inner = GrRadialGradient::Make(GrGradientEffect::CreateArgs(
-            args.fContext, this, &matrix, fTileMode, std::move(colorSpaceXform),
-            SkToBool(args.fDstColorSpace)));
+            args.fContext, this, &matrix, fTileMode, args.fDstColorSpace));
     if (!inner) {
         return nullptr;
     }

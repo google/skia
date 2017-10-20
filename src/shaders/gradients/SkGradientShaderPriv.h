@@ -328,13 +328,11 @@ public:
                    const SkGradientShaderBase* shader,
                    const SkMatrix* matrix,
                    SkShader::TileMode tileMode,
-                   sk_sp<GrColorSpaceXform> colorSpaceXform,
-                   bool gammaCorrect)
+                   const SkColorSpace* dstColorSpace)
                 : fContext(context)
                 , fShader(shader)
                 , fMatrix(matrix)
-                , fColorSpaceXform(std::move(colorSpaceXform))
-                , fGammaCorrect(gammaCorrect) {
+                , fDstColorSpace(dstColorSpace) {
             switch (tileMode) {
                 case SkShader::kClamp_TileMode:
                     fWrapMode = GrSamplerState::WrapMode::kClamp;
@@ -352,21 +350,18 @@ public:
                    const SkGradientShaderBase* shader,
                    const SkMatrix* matrix,
                    GrSamplerState::WrapMode wrapMode,
-                   sk_sp<GrColorSpaceXform> colorSpaceXform,
-                   bool gammaCorrect)
+                   const SkColorSpace* dstColorSpace)
                 : fContext(context)
                 , fShader(shader)
                 , fMatrix(matrix)
                 , fWrapMode(wrapMode)
-                , fColorSpaceXform(std::move(colorSpaceXform))
-                , fGammaCorrect(gammaCorrect) {}
+                , fDstColorSpace(dstColorSpace) {}
 
         GrContext*                  fContext;
         const SkGradientShaderBase* fShader;
         const SkMatrix*             fMatrix;
         GrSamplerState::WrapMode    fWrapMode;
-        sk_sp<GrColorSpaceXform>    fColorSpaceXform;
-        bool                        fGammaCorrect;
+        const SkColorSpace*         fDstColorSpace;
     };
 
     class GLSLProcessor;

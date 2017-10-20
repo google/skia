@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
+#include "SkColorSpace_Base.h"
 #include "SkGradientShader.h"
 
 namespace skiagm {
@@ -1118,5 +1119,63 @@ DEF_SIMPLE_GM(gradients_interesting, canvas, 640, 1300) {
             }
         }
         canvas->translate(0, size * 1.1f);
+    }
+}
+
+// Tests the behavior of gradients that go out of gamut
+// Covers analytic and texture-based on GPU, premul/unpremul, and out-of-gamut colors vs. xform
+// putting colors out of gamut.
+DEF_SIMPLE_GM(gradients4f_clamping, canvas, 500, 500) {
+    const uint32_t kFlags[] = { 0, SkGradientShader::kInterpolateColorsInPremul_Flag };
+    const float kAlphas[] = { 1.0f, 0.5f };
+    const SkPoint kPoints[] = { SkPoint::Make(0, 0), SkPoint::Make(90, 0) };
+    sk_sp<SkColorSpace> rec2020 = SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma,
+                                                        SkColorSpace::kRec2020_Gamut);
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGBLinear();
+    const SkMatrix44* toXYZ = as_CSB(rec2020)->toXYZD50();
+    const SkMatrix44* fromXYZ = as_CSB(srgb)->fromXYZD50();
+    SkMatrix44 rec2020ToSRGB;
+    rec2020ToSRGB.setConcat(*fromXYZ, *toXYZ);
+
+    SkRect rect = SkRect::MakeWH(90, 90);
+    SkPaint outlinePaint;
+    outlinePaint.setStyle(SkPaint::kStroke_Style);
+
+    canvas->translate(10, 10);
+
+    for (auto flags : kFlags) {
+        for (auto alpha : kAlphas) {
+            canvas->save();
+            for (bool preXform : { false, true }) {
+                for (int numStops : { 2, 4 }) {
+                    // Prepare our colors. Red becomes much larger than 1, so it's a good test.
+                    SkColor4f colors[4];
+                    for (int i = 0; i < numStops; ++i) {
+                        colors[i].fR = static_cast<float>(i) / (numStops - 1);
+                        colors[i].fG = 0.0f;
+                        colors[i].fB = 0.0f;
+                        colors[i].fA = alpha;
+
+                        if (preXform) {
+                            rec2020ToSRGB.mapScalars(colors[i].vec(), colors[i].vec());
+                        }
+                    }
+
+                    auto shader = SkGradientShader::MakeLinear(kPoints, colors,
+                                                               preXform ? nullptr : rec2020,
+                                                               nullptr, numStops,
+                                                               SkShader::kClamp_TileMode, flags,
+                                                               nullptr);
+
+                    SkPaint paint;
+                    paint.setShader(std::move(shader));
+                    canvas->drawRect(rect, paint);
+                    canvas->drawRect(rect, outlinePaint);
+                    canvas->translate(100, 0);
+                }
+            }
+            canvas->restore();
+            canvas->translate(0, 100);
+        }
     }
 }

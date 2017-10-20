@@ -1535,7 +1535,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
     fIsOpaque = shader.isOpaque();
 
     fColorType = this->determineColorType(shader);
-    fColorSpaceXform = std::move(args.fColorSpaceXform);
+    fColorSpaceXform = GrColorSpaceXform::Make(shader.fColorSpace.get(), args.fDstColorSpace);
     fWrapMode = args.fWrapMode;
 
     if (kTexture_ColorType == fColorType) {
@@ -1552,7 +1552,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         SkASSERT(shader.fOrigColors && shader.fOrigColors4f);
         fColors4f.setCount(shader.fColorCount);
         for (int i = 0; i < shader.fColorCount; ++i) {
-            if (args.fGammaCorrect) {
+            if (args.fDstColorSpace) {
                 fColors4f[i] = GrColor4f::FromSkColor4f(shader.fOrigColors4f[i]);
             } else {
                 GrColor grColor = SkColorToUnpremulGrColor(shader.fOrigColors[i]);
@@ -1590,7 +1590,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         case kTexture_ColorType:
             SkGradientShaderBase::GradientBitmapType bitmapType =
                 SkGradientShaderBase::GradientBitmapType::kLegacy;
-            if (args.fGammaCorrect) {
+            if (args.fDstColorSpace) {
                 // Try to use F16 if we can
                 if (args.fContext->caps()->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
                     bitmapType = SkGradientShaderBase::GradientBitmapType::kHalfFloat;
