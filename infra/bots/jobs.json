@@ -137,6 +137,8 @@
   "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-All-Android",
   "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench",
   "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Vulkan_Skpbench",
+  "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_CCPR_Skpbench",
+  "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_CCPR_Skpbench",
   "Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Debug-All",
   "Perf-ChromeOS-Clang-Chromebook_303C12-GPU-MaliT604-arm-Release-All",
   "Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Debug-All",
