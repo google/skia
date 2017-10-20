@@ -207,7 +207,6 @@
       "-u",
       "[START_DIR]/skia/tools/skpbench/skpbench.py",
       "/data/local/tmp/skpbench",
-      "/sdcard/revenge_of_the_skiabot/skps",
       "--adb",
       "--adb_binary",
       "adb.1.0.35",
@@ -215,8 +214,8 @@
       "[CUSTOM_[SWARM_OUT_DIR]]/table",
       "--config",
       "vk",
-      "-v",
-      "5"
+      "-v5",
+      "/sdcard/revenge_of_the_skiabot/skps"
     ],
     "env": {
       "BUILDTYPE": "Release",

@@ -46,19 +46,30 @@ def skpbench_steps(api):
   skpbench_dir = api.vars.slave_dir.join('skia', 'tools', 'skpbench')
   table = api.path.join(api.vars.swarming_out_dir, 'table')
 
-  config = 'gles,glesinst4'
   if 'Vulkan' in api.vars.builder_name:
     config = 'vk'
+  elif 'CCPR' in api.vars.builder_name:
+    config = 'gles'
+  else:
+    config = 'gles,glesinst4'
 
   skpbench_args = [
         api.path.join(api.vars.android_bin_dir, 'skpbench'),
-        api.path.join(api.vars.android_data_dir, 'skps'),
         '--adb',
         '--adb_binary', ADB_BINARY,
         '--resultsfile', table,
         '--config', config,
         # TODO(dogben): Track down what's causing bots to die.
-        '-v', '5']
+        '-v5']
+  if 'CCPR' in api.vars.builder_name:
+    skpbench_args += [
+        '--pr', 'ccpr',
+        '--nocache',
+        api.path.join(api.vars.android_data_dir, 'skps/desk_*svg.skp'),
+        api.path.join(api.vars.android_data_dir, 'skps/desk_chalkboard.skp')]
+  else:
+    skpbench_args += [
+        api.path.join(api.vars.android_data_dir, 'skps')]
 
   api.run(api.python, 'skpbench',
       script=skpbench_dir.join('skpbench.py'),
@@ -115,6 +126,8 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench',
   ('Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-'
    'Android_Vulkan_Skpbench'),
+  ('Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-'
+   'Android_CCPR_Skpbench'),
 ]
 
 
