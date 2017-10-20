@@ -114,7 +114,9 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**);
     M(exclusion)         \
     M(hardlight)         \
     M(overlay)           \
-    M(seed_shader) M(matrix_2x3) M(gather_8888)
+    M(seed_shader)       \
+    M(matrix_translate) M(matrix_scale_translate) M(matrix_2x3) \
+    M(gather_8888) M(gather_bgra) M(gather_565) M(gather_a8) M(gather_g8)
 
 extern "C" {
 
