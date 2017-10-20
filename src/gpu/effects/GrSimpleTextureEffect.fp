@@ -60,6 +60,13 @@ void main() {
                                                : GrProcessorUnitTest::kAlphaTextureIdx;
     GrSamplerState::WrapMode wrapModes[2];
     GrTest::TestWrapModes(testData->fRandom, wrapModes);
+    if (!testData->caps()->npotTextureTileSupport()) {
+        // Performing repeat sampling on npot textures will cause asserts on HW
+        // that lacks support.
+        wrapModes[0] = GrSamplerState::WrapMode::kClamp;
+        wrapModes[1] = GrSamplerState::WrapMode::kClamp;
+    }
+
     GrSamplerState params(wrapModes, testData->fRandom->nextBool()
                                                                ? GrSamplerState::Filter::kBilerp
                                                                : GrSamplerState::Filter::kNearest);
