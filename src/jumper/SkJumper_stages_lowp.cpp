@@ -181,6 +181,14 @@ SI D join(S lo, S hi) {
     memcpy((char*)&v + 1*sizeof(S), &hi, sizeof(S));
     return v;
 }
+template <typename V, typename H>
+SI V map(V v, H (*fn)(H)) {
+    H lo,hi;
+    split(v, &lo,&hi);
+    lo = fn(lo);
+    hi = fn(hi);
+    return join<V>(lo,hi);
+}
 
 // TODO: do we need platform-specific intrinsics for any of these?
 SI F if_then_else(I32 c, F t, F e) {
@@ -192,6 +200,21 @@ SI F min(F x, F y) { return if_then_else(x < y, x, y); }
 SI F mad(F f, F m, F a) { return f*m+a; }
 SI U32 trunc_(F x) { return (U32)cast<I32>(x); }
 
+SI F rcp(F x) {
+#if defined(__AVX2__)
+    return map(x, _mm256_rcp_ps);
+#elif defined(__SSE__)
+    return map(x, _mm_rcp_ps);
+#elif defined(__ARM_NEON)
+    return map(x, +[](float32x4_t v) {
+        auto est = vrecpeq_f32(v);
+        return vrecpsq_f32(v,est)*est;
+    });
+#else
+    return 1.0f / x;
+#endif
+}
+
 // ~~~~~~ Basic / misc. stages ~~~~~~ //
 
 STAGE_GG(seed_shader, const float* iota) {
@@ -199,11 +222,27 @@ STAGE_GG(seed_shader, const float* iota) {
     y = cast<F>(I32(dy)) + 0.5f;
 }
 
+STAGE_GG(matrix_translate, const float* m) {
+    x += m[0];
+    y += m[1];
+}
+STAGE_GG(matrix_scale_translate, const float* m) {
+    x = mad(x,m[0], m[2]);
+    y = mad(y,m[1], m[3]);
+}
 STAGE_GG(matrix_2x3, const float* m) {
     auto X = mad(x,m[0], mad(y,m[2], m[4])),
          Y = mad(x,m[1], mad(y,m[3], m[5]));
     x = X;
     y = Y;
+}
+STAGE_GG(matrix_perspective, const float* m) {
+    // N.B. Unlike the other matrix_ stages, this matrix is row-major.
+    auto X = mad(x,m[0], mad(y,m[1], m[2])),
+         Y = mad(x,m[3], mad(y,m[4], m[5])),
+         Z = mad(x,m[6], mad(y,m[7], m[8]));
+    x = X * rcp(Z);
+    y = Y * rcp(Z);
 }
 
 STAGE_PP(uniform_color, const SkJumper_UniformColorCtx* c) {
@@ -490,12 +529,16 @@ STAGE_GP(gather_8888, const SkJumper_GatherCtx* ctx) {
     U32 ix = ix_and_ptr(&ptr, ctx, x,y);
     from_8888(gather<U32>(ptr, ix), &r, &g, &b, &a);
 }
+STAGE_GP(gather_bgra, const SkJumper_GatherCtx* ctx) {
+    const uint32_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, x,y);
+    from_8888(gather<U32>(ptr, ix), &b, &g, &r, &a);
+}
 
 // ~~~~~~ 16-bit memory loads and stores ~~~~~~ //
 
-SI void load_565(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
+SI void from_565(U16 rgb, U16* r, U16* g, U16* b) {
     // Format for 565 buffers: 15|rrrrr gggggg bbbbb|0
-    U16 rgb = load<U16>(ptr, tail);
     U16 R = (rgb >> 11) & 31,
         G = (rgb >>  5) & 63,
         B = (rgb >>  0) & 31;
@@ -504,6 +547,9 @@ SI void load_565(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
     *r = (R << 3) | (R >> 2);
     *g = (G << 2) | (G >> 4);
     *b = (B << 3) | (B >> 2);
+}
+SI void load_565(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
+    from_565(load<U16>(ptr, tail), r,g,b);
 }
 SI void store_565(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b) {
     // Select the top 5,6,5 bits.
@@ -527,6 +573,12 @@ STAGE_PP(load_565_dst, const SkJumper_MemoryCtx* ctx) {
 STAGE_PP(store_565, const SkJumper_MemoryCtx* ctx) {
     store_565(ptr_at_xy<uint16_t>(ctx, dx,dy), tail, r,g,b);
 }
+STAGE_GP(gather_565, const SkJumper_GatherCtx* ctx) {
+    const uint16_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, x,y);
+    from_565(gather<U16>(ptr, ix), &r, &g, &b);
+    a = 255;
+}
 
 // ~~~~~~ 8-bit memory loads and stores ~~~~~~ //
 
@@ -548,6 +600,12 @@ STAGE_PP(load_a8_dst, const SkJumper_MemoryCtx* ctx) {
 STAGE_PP(store_a8, const SkJumper_MemoryCtx* ctx) {
     store_8(ptr_at_xy<uint8_t>(ctx, dx,dy), tail, a);
 }
+STAGE_GP(gather_a8, const SkJumper_GatherCtx* ctx) {
+    const uint8_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, x,y);
+    r = g = b = 0;
+    a = cast<U16>(gather<U8>(ptr, ix));
+}
 
 STAGE_PP(load_g8, const SkJumper_MemoryCtx* ctx) {
     r = g = b = load_8(ptr_at_xy<const uint8_t>(ctx, dx,dy), tail);
@@ -560,6 +618,12 @@ STAGE_PP(load_g8_dst, const SkJumper_MemoryCtx* ctx) {
 STAGE_PP(luminance_to_alpha, Ctx::None) {
     a = (r*54 + g*183 + b*19)/256;  // 0.2126, 0.7152, 0.0722 with 256 denominator.
     r = g = b = 0;
+}
+STAGE_GP(gather_g8, const SkJumper_GatherCtx* ctx) {
+    const uint8_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, x,y);
+    r = g = b = cast<U16>(gather<U8>(ptr, ix));
+    a = 255;
 }
 
 // ~~~~~~ Coverage scales / lerps ~~~~~~ //
