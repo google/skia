@@ -31,6 +31,12 @@ public:
     // values filled.
     int filterDouble(double values[5]) const;
 
+    // Fill in the array values with gaussian factors scaled by 2^16 resulting in a 0.16 format.
+    // Because all the prescaled values sum to one, then all of the values will be less than 2^16.
+    // This code assumes that the degenerate case where value[0] == 1 and count == 1 are handled by
+    // other code.
+    int filterUint16(uint16_t values[5]) const;
+
 private:
     double fBasis[5];
     int    fN;
