@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d1f89dd_55c78683",
+        "filename": "src/gpu/GrColorSpaceXform.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-10-20T15:14:53Z",
+      "side": 1,
+      "message": "Might be less awkward to read/write at the call sites if this were two methods?\n\n  GrColor4f unclampedXform(const GrColor4f\u0026);\n  GrColor4f   clampedXform(const GrColor4f\u0026);\n\n?",
+      "revId": "2160b07d3bf4a35293beafa3dce305f12167fda8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
