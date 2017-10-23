@@ -50,7 +50,10 @@
       "configuration"
     ],
     "Calmbench": [
-      "os"
+      "os",
+      "compiler",
+      "target_arch",
+      "configuration"
     ]
   },
   "builder_name_sep": "-"

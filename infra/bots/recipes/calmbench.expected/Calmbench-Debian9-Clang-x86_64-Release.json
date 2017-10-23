@@ -174,7 +174,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Release",
-      "--args=is_debug=false"
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false target_cpu=\"x86_64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
