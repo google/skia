@@ -89,13 +89,13 @@ private:
     size_t onGpuMemorySize() const override {
         return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
                                       this->numStencilSamples(),
-                                      this->texturePriv().hasMipMaps());
+                                      this->texturePriv().mipMapped());
     }
 
     void computeScratchKey(GrScratchKey* key) const override {
         GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
                                          true, this->numStencilSamples(),
-                                         this->texturePriv().hasMipMaps(), key);
+                                         this->texturePriv().mipMapped(), key);
     }
 };
 
