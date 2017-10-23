@@ -283,7 +283,7 @@ def run_benchmarks(configs, skps, hardware, resultsfile=None):
               if FLAGS.verbosity >= 4:
                 hardware.print_debug_diagnostics()
               if FLAGS.verbosity >= 1:
-                print("%s; exiting benchmark mode to take a %i second nap..." %
+                print("%s; rebooting and taking a %i second nap..." %
                       (exception.message, exception.sleeptime), file=sys.stderr)
               benches.appendleft(benchargs) # retry the same bench next time.
               raise # wake hw up from benchmarking mode before the nap.
