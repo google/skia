@@ -798,19 +798,58 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
 
 }
 
-static bool check_decompScale(const SkMatrix& matrix) {
+static bool check_decompScale(const SkMatrix& original) {
     SkSize scale;
     SkMatrix remaining;
 
-    if (!matrix.decomposeScale(&scale, &remaining)) {
+    if (!original.decomposeScale(&scale, &remaining)) {
         return false;
     }
     if (scale.width() <= 0 || scale.height() <= 0) {
         return false;
     }
-    remaining.preScale(scale.width(), scale.height());
-    return nearly_equal(matrix, remaining);
+
+    // First ensure that the decomposition reconstitutes back to the original
+    {
+        SkMatrix reconstituted = remaining;
+
+        reconstituted.preScale(scale.width(), scale.height());
+        if (!nearly_equal(original, reconstituted)) {
+            return false;
+        }
+    }
+
+    // Then push some points through both paths and make sure they are the
+    // same.
+    static const int kNumPoints = 5;
+    const SkPoint testPts[kNumPoints] = {
+        {  0.0f,  0.0f },
+        {  1.0f,  1.0f },
+        {  1.0f,  0.5f },
+        { -1.0f, -0.5f },
+        { -1.0f,  2.0f }
+    };
+
+    SkPoint v1[kNumPoints];
+    original.mapPoints(v1, testPts, kNumPoints);
+
+    SkPoint v2[kNumPoints];
+    SkMatrix scaleMat = SkMatrix::MakeScale(scale.width(), scale.height());
+
+    //Note, we intend the decomposition to be applied in the order:
+    // scale then remainder.
+    scaleMat.mapPoints(v2, testPts, kNumPoints);
+    remaining.mapPoints(v2, kNumPoints);
+
+    for (int i = 0; i < kNumPoints; ++i) {
+        if (!v1[i].equalsWithinTolerance(v2[i], 0.00001f)) {
+            return false;
+        }
+    }
+
+    return true;
 }
+
 
 static void test_decompScale(skiatest::Reporter* reporter) {
     SkMatrix m;
@@ -824,9 +863,17 @@ static void test_decompScale(skiatest::Reporter* reporter) {
 
     m.setScale(1, 0);
     REPORTER_ASSERT(reporter, !check_decompScale(m));
+
+    m.setRotate(35, 0, 0);
+    m.preScale(2, 3);
+    REPORTER_ASSERT(reporter, check_decompScale(m));
+
+    m.setRotate(35, 0, 0);
+    m.postScale(2, 3);
+    REPORTER_ASSERT(reporter, check_decompScale(m));
 }
 
-DEF_TEST(Matrix, reporter) {
+DEF_TEST(Matrix1, reporter) {
     SkMatrix    mat, inverse, iden1, iden2;
 
     mat.reset();
