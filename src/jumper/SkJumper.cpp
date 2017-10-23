@@ -73,49 +73,6 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**);
     #define ASM(name, suffix) _sk_##name##_##suffix
 #endif
 
-// Some stages have 8-bit versions from SkJumper_stages_lowp.cpp.
-#define LOWP_STAGES(M)   \
-    M(black_color) M(white_color) M(uniform_color) \
-    M(set_rgb)            \
-    M(premul)             \
-    M(luminance_to_alpha) \
-    M(load_8888) M(load_8888_dst) M(store_8888) \
-    M(load_bgra) M(load_bgra_dst) M(store_bgra) \
-    M(load_a8)   M(load_a8_dst)   M(store_a8)   \
-    M(load_g8)   M(load_g8_dst)                 \
-    M(load_565)  M(load_565_dst)  M(store_565)  \
-    M(swap_rb)           \
-    M(srcover_rgba_8888) \
-    M(lerp_1_float)      \
-    M(lerp_u8)           \
-    M(lerp_565)          \
-    M(scale_1_float)     \
-    M(scale_u8)          \
-    M(scale_565)         \
-    M(move_src_dst)      \
-    M(move_dst_src)      \
-    M(clear)             \
-    M(srcatop)           \
-    M(dstatop)           \
-    M(srcin)             \
-    M(dstin)             \
-    M(srcout)            \
-    M(dstout)            \
-    M(srcover)           \
-    M(dstover)           \
-    M(modulate)          \
-    M(multiply)          \
-    M(screen)            \
-    M(xor_)              \
-    M(plus_)             \
-    M(darken)            \
-    M(lighten)           \
-    M(difference)        \
-    M(exclusion)         \
-    M(hardlight)         \
-    M(overlay)           \
-    M(seed_shader) M(matrix_2x3) M(gather_8888)
-
 extern "C" {
 
 #if !SK_JUMPER_USE_ASSEMBLY
@@ -147,18 +104,15 @@ extern "C" {
             ASM(just_return,sse41_lowp),
             ASM(just_return, sse2_lowp);
 
-    #define M(st) StageFn ASM(st,  skx), \
-                          ASM(st,  hsw), \
-                          ASM(st,  avx), \
-                          ASM(st,sse41), \
-                          ASM(st, sse2);
-        SK_RASTER_PIPELINE_STAGES(M)
-    #undef M
-
-    #define M(st) StageFn ASM(st,  hsw_lowp), \
+    #define M(st) StageFn ASM(st,  skx),      \
+                          ASM(st,  hsw),      \
+                          ASM(st,  avx),      \
+                          ASM(st,sse41),      \
+                          ASM(st, sse2),      \
+                          ASM(st,  hsw_lowp), \
                           ASM(st,sse41_lowp), \
                           ASM(st, sse2_lowp);
-        LOWP_STAGES(M)
+        SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 
 #elif defined(__i386__) || defined(_M_IX86)
@@ -202,7 +156,7 @@ extern "C" {
         template <SkRasterPipeline::StockStage st>
         static constexpr StageFn* sse2_lowp() { return nullptr; }
 
-        #define M(st) \
+        #define LOWP(st) \
             template <> constexpr StageFn* hsw_lowp<SkRasterPipeline::st>() {   \
                 return ASM(st,hsw_lowp);                                        \
             }                                                                   \
@@ -212,31 +166,70 @@ extern "C" {
             template <> constexpr StageFn* sse2_lowp<SkRasterPipeline::st>() {  \
                 return ASM(st,sse2_lowp);                                       \
             }
-            LOWP_STAGES(M)
-        #undef M
 
     #elif defined(__i386__) || defined(_M_IX86)
         template <SkRasterPipeline::StockStage st>
         static constexpr StageFn* sse2_lowp() { return nullptr; }
 
-        #define M(st) \
+        #define LOWP(st) \
             template <> constexpr StageFn* sse2_lowp<SkRasterPipeline::st>() {  \
                 return ASM(st,sse2_lowp);                                       \
             }
-            LOWP_STAGES(M)
-        #undef M
 
     #elif defined(JUMPER_NEON_HAS_LOWP)
         template <SkRasterPipeline::StockStage st>
         static constexpr StageFn* neon_lowp() { return nullptr; }
 
-        #define M(st)                                                            \
+        #define LOWP(st)                                                         \
             template <> constexpr StageFn* neon_lowp<SkRasterPipeline::st>() {   \
                 return sk_##st##_lowp;                                           \
             }
-            LOWP_STAGES(M)
-        #undef M
+    #else
+        #define LOWP(st)
+
     #endif
+
+    LOWP(black_color) LOWP(white_color) LOWP(uniform_color)
+    LOWP(set_rgb)
+    LOWP(premul)
+    LOWP(luminance_to_alpha)
+    LOWP(load_8888) LOWP(load_8888_dst) LOWP(store_8888)
+    LOWP(load_bgra) LOWP(load_bgra_dst) LOWP(store_bgra)
+    LOWP(load_a8)   LOWP(load_a8_dst)   LOWP(store_a8)
+    LOWP(load_g8)   LOWP(load_g8_dst)
+    LOWP(load_565)  LOWP(load_565_dst)  LOWP(store_565)
+    LOWP(swap_rb)
+    LOWP(srcover_rgba_8888)
+    LOWP(lerp_1_float)
+    LOWP(lerp_u8)
+    LOWP(lerp_565)
+    LOWP(scale_1_float)
+    LOWP(scale_u8)
+    LOWP(scale_565)
+    LOWP(move_src_dst)
+    LOWP(move_dst_src)
+    LOWP(clear)
+    LOWP(srcatop)
+    LOWP(dstatop)
+    LOWP(srcin)
+    LOWP(dstin)
+    LOWP(srcout)
+    LOWP(dstout)
+    LOWP(srcover)
+    LOWP(dstover)
+    LOWP(modulate)
+    LOWP(multiply)
+    LOWP(screen)
+    LOWP(xor_)
+    LOWP(plus_)
+    LOWP(darken)
+    LOWP(lighten)
+    LOWP(difference)
+    LOWP(exclusion)
+    LOWP(hardlight)
+    LOWP(overlay)
+    LOWP(seed_shader) LOWP(matrix_2x3) LOWP(gather_8888)
+    #undef LOWP
 #endif
 
 // Engines comprise everything we need to run SkRasterPipelines.
