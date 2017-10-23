@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2b98ef73_e3aee34e",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-10-23T17:47:44Z",
+      "side": 1,
+      "message": "Let\u0027s go ahead and add it.",
+      "parentUuid": "be6201bf_94add8af",
+      "revId": "2856ddbe4f8eedbd54988eff960db578bbc031c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2bcbba50_804e31f1",
         "filename": "include/private/GrTypesPriv.h",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-10-19T16:29:14Z",
       "side": 1,
       "message": "Is this on purpose? Or was it just because there isn\u0027t a kUshort2_GrSLType?",
+      "revId": "2856ddbe4f8eedbd54988eff960db578bbc031c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65893129_e7ba3477",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-10-23T17:47:44Z",
+      "side": 1,
+      "message": "I believe this was just an oversight; change it to ushort2 and let\u0027s see what happens :-).",
+      "parentUuid": "2bcbba50_804e31f1",
       "revId": "2856ddbe4f8eedbd54988eff960db578bbc031c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
