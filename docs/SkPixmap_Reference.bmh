@@ -55,13 +55,11 @@ to manage pixel memory; Pixel_Ref is safe across threads.
 # bounds()         # Returns width and height as Rectangle. ##
 # colorSpace       # Returns Image_Info Color_Space. ##
 # colorType        # Returns Image_Info Color_Type. ##
+# computeByteSize  # Returns size required for pixels. ##
 # computeIsOpaque  # Returns true if all pixels are opaque. ##
 # erase()          # Writes Color to pixels. ##
 # extractSubset    # Sets pointer to portion of original. ##
 # getColor         # Returns one pixel as Unpremultiplied Color. ##
-# getSafeSize      # Returns minimum size required for pixels in 32 bits. ##
-# getSafeSize64    # Returns minimum size required for pixels in 64 bits. ##
-# getSize64        # Returns conservative size required for pixels. ##
 # height()         # Returns pixel row count. ##
 # info()           # Returns Image_Info. ##
 # isOpaque         # Returns true if Image_Info describes opaque pixels. ##
@@ -715,66 +713,6 @@ color: kRGBA_F16_SkColorType  bytesPerPixel: 8 shiftPerPixel: 3
 #SeeAlso rowBytes rowBytesAsPixels width SkImageInfo::bytesPerPixel
 
 ##
-
-# ------------------------------------------------------------------------------
-
-#Method uint64_t getSize64() const 
-
-#Deprecated
-##
-
-Returns conservative memory required for pixel storage.
-Includes unused memory on last row when rowBytesAsPixels exceeds width().
-
-#Return  conservative pixel storage size ##
-
-#NoExample
-##
-
-#SeeAlso getSafeSize64 getSafeSize height() rowBytes width() SkImageInfo::bytesPerPixel
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method uint64_t getSafeSize64() const 
-
-#Deprecated
-##
-
-Returns minimum memory required for pixel storage.
-Does not include unused memory on last row when rowBytesAsPixels exceeds width().
-
-#Return  exact pixel storage size ##
-
-#NoExample
-##
-
-#SeeAlso getSize64 getSafeSize height() rowBytes width() SkImageInfo::bytesPerPixel
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method size_t getSafeSize() const 
-
-#Deprecated
-##
-
-Returns minimum memory required for pixel storage.
-Does not include unused memory on last row when rowBytesAsPixels exceeds width().
-Returns zero if value is does not fit in a signed 32-bit integer.
-The largest value than can be returned is 2,147,483,647.
-
-#Return  exact pixel storage size if size fits in signed 32 bits ##
-
-#NoExample
-##
-
-#SeeAlso getSize64 getSafeSize64 height() rowBytes width() SkImageInfo::bytesPerPixel sk_64_isS32
-
-##
-
 
 # ------------------------------------------------------------------------------
 

@@ -89,8 +89,7 @@ is useful to position one or more Bitmaps within a shared pixel array.
 # bytesPerPixel        # Returns number of bytes in pixel based on Color_Type. ##
 # colorSpace           # Returns Image_Info Color_Space. ##
 # colorType            # Returns Image_Info Color_Type. ##
-# computeSafeSize64    # Returns minimum size required for pixels in 64 bits. ##
-# computeSize64        # Returns conservative size required for pixels. ##
+# computeByteSize      # Returns size required for pixels. ##
 # dimensions           # Returns width and height. ##
 # drawsNothing         # Returns true if no width, no height, or no Pixel_Ref. ##
 # empty()              # Returns true if Image_Info has zero width or height. ##
@@ -109,8 +108,6 @@ is useful to position one or more Bitmaps within a shared pixel array.
 # getColor             # Returns one pixel as Unpremultiplied Color. ##
 # getGenerationID      # Returns unique ID. ##
 # getPixels            # Returns address of pixels. ##
-# getSafeSize          # Returns minimum size required for pixels in 32 bits. ##
-# getSize              # Returns conservative size required for pixels in 32 bits. ##
 # getSubset            # Returns bounds offset by origin. ##
 # hasHardwareMipMap    # Returns Mip_Map support present; Android only. ##
 # height               # Returns pixel row count. ##
@@ -999,171 +996,6 @@ width: 1000000 height: 1000000 computeByteSize: 4999999000000
 ##
 
 #SeeAlso SkImageInfo::computeByteSize
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method size_t getSize() const
-
-Returns conservative memory required for pixel storage.
-Includes unused memory on last row when rowBytesAsPixels exceeds width().
-
-Does not check to see if result fits in 32 bits. Use getSize64() if the
-result may exceed 32 bits.
-
-#Return  height() times rowBytes() ##
-
-#Example
-#Description
-getSize results are not useful when width() and height() are large.
-##
-void draw(SkCanvas* canvas) {
-    SkBitmap bitmap;
-    for (int width : { 1, 1000, 1000000 } ) {
-        for (int height: { 1, 1000, 1000000 } ) {
-            SkImageInfo imageInfo = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);
-            bitmap.setInfo(imageInfo, width * 5);
-            SkDebugf("width: %7d height: %7d getSize: %9zu\n", width, height, bitmap.getSize());
-        }
-    }
-}
-#StdOut
-width:       1 height:       1 getSize:         5
-width:       1 height:    1000 getSize:      5000
-width:       1 height: 1000000 getSize:   5000000
-width:    1000 height:       1 getSize:      5000
-width:    1000 height:    1000 getSize:   5000000
-width:    1000 height: 1000000 getSize: 705032704
-width: 1000000 height:       1 getSize:   5000000
-width: 1000000 height:    1000 getSize: 705032704
-width: 1000000 height: 1000000 getSize: 658067456
-##
-##
-
-#SeeAlso getSafeSize computeSize64 rowBytes width()
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method size_t getSafeSize() const
-
-Returns minimum memory required for pixel storage.
-Does not include unused memory on last row when rowBytesAsPixels exceeds width().
-
-Returns zero if size does not fit in 32 bits. Use computeSafeSize64 if the
-result may exceed 32 bits.
-
-The pixel storage visible may be a subset of the Pixel_Ref. Accessing memory
-beyond the result may generate an exception.
-
-#Return  exact pixel storage size ##
-
-#Example
-#Description
-getSafeSize results are not useful when width() and height() are large.
-##
-void draw(SkCanvas* canvas) {
-    SkBitmap bitmap;
-    for (int width : { 1, 1000, 1000000 } ) {
-        for (int height: { 1, 1000, 1000000 } ) {
-            SkImageInfo imageInfo = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);
-            bitmap.setInfo(imageInfo, width * 5);
-            SkDebugf("width: %7d height: %7d getSafeSize: %9zu\n", width, height, bitmap.getSafeSize());
-        }
-    }
-}
-#StdOut
-width:       1 height:       1 getSafeSize:         4
-width:       1 height:    1000 getSafeSize:      4999
-width:       1 height: 1000000 getSafeSize:   4999999
-width:    1000 height:       1 getSafeSize:      4000
-width:    1000 height:    1000 getSafeSize:   4999000
-width:    1000 height: 1000000 getSafeSize:         0
-width: 1000000 height:       1 getSafeSize:   4000000
-width: 1000000 height:    1000 getSafeSize:         0
-width: 1000000 height: 1000000 getSafeSize:         0
-##
-##
-
-#SeeAlso getSize computeSafeSize64 rowBytes width()
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method int64_t computeSize64() const
-
-Returns conservative memory required for pixel storage.
-Includes unused memory on last row when rowBytesAsPixels exceeds width().
-
-#Return  conservative pixel storage size ##
-
-#Example
-void draw(SkCanvas* canvas) {
-    SkBitmap bitmap;
-    for (int width : { 1, 1000, 1000000 } ) {
-        for (int height: { 1, 1000, 1000000 } ) {
-            SkImageInfo imageInfo = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);
-            bitmap.setInfo(imageInfo, width * 5);
-            SkDebugf("width: %7d height: %7d computeSize64: %13lld\n", width, height,
-                     bitmap.computeSize64());
-        }
-    }
-}
-#StdOut
-width:       1 height:       1 computeSize64:             5
-width:       1 height:    1000 computeSize64:          5000
-width:       1 height: 1000000 computeSize64:       5000000
-width:    1000 height:       1 computeSize64:          5000
-width:    1000 height:    1000 computeSize64:       5000000
-width:    1000 height: 1000000 computeSize64:    5000000000
-width: 1000000 height:       1 computeSize64:       5000000
-width: 1000000 height:    1000 computeSize64:    5000000000
-width: 1000000 height: 1000000 computeSize64: 5000000000000
-##
-##
-
-#SeeAlso getSize computeSafeSize64 rowBytes width()
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method int64_t computeSafeSize64() const
-
-Returns minimum memory required for pixel storage.
-Does not include unused memory on last row when rowBytesAsPixels exceeds width().
-
-#Return  exact pixel storage size ##
-
-#Example
-void draw(SkCanvas* canvas) {
-    SkBitmap bitmap;
-    for (int width : { 1, 1000, 1000000 } ) {
-        for (int height: { 1, 1000, 1000000 } ) {
-            SkImageInfo imageInfo = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);
-            bitmap.setInfo(imageInfo, width * 5);
-            SkDebugf("width: %7d height: %7d computeSafeSize64: %13lld\n", width, height,
-                     bitmap.computeSafeSize64());
-        }
-    }
-}
-#StdOut
-width:       1 height:       1 computeSafeSize64:             4
-width:       1 height:    1000 computeSafeSize64:          4999
-width:       1 height: 1000000 computeSafeSize64:       4999999
-width:    1000 height:       1 computeSafeSize64:          4000
-width:    1000 height:    1000 computeSafeSize64:       4999000
-width:    1000 height: 1000000 computeSafeSize64:    4999999000
-width: 1000000 height:       1 computeSafeSize64:       4000000
-width: 1000000 height:    1000 computeSafeSize64:    4999000000
-width: 1000000 height: 1000000 computeSafeSize64: 4999999000000
-##
-##
-
-#SeeAlso getSafeSize computeSize64 rowBytes width()
 
 ##
 

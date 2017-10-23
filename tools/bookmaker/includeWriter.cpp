@@ -816,7 +816,23 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     bool inStruct = false;
     bool inConstructor = false;
     bool inInline = false;
+    bool eatOperator = false;
     for (auto& child : def->fTokens) {
+        if (KeyWord::kOperator == child.fKeyWord && method &&
+                Definition::MethodType::kOperator == method->fMethodType) {
+            eatOperator = true;
+            continue;
+        }
+        if (eatOperator) {
+            if (Bracket::kSquare == child.fBracket || Bracket::kParen == child.fBracket) {
+                continue;
+            }
+            eatOperator = false;
+            fContinuation = nullptr;
+            if (KeyWord::kConst == child.fKeyWord) {
+                continue;
+            }
+        }
         if (memberEnd) {
             if (memberEnd != &child) {
                 continue;
@@ -972,6 +988,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             inConstructor = root->fName == child.fName;
             fContinuation = child.fContentEnd;
             method = root->find(methodName, RootDefinition::AllowParens::kNo);
+            if (!method) {
+                method = root->find(methodName + "()", RootDefinition::AllowParens::kNo);
+            }
             if (!method) {
                 continue;
             }
