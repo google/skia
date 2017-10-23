@@ -117,6 +117,30 @@
       "revId": "cda13b7952798664dd4fbed6998fcae4857c0c3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63ffb091_219aa54e",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-23T13:57:32Z",
+      "side": 1,
+      "message": "No longer necessary to remove \u0027Note the \"or equals\"\u0027, now that you\u0027ve revived it. But I think it\u0027s clear enough without it, so it\u0027s fine as is (removed).",
+      "parentUuid": "a8e51f95_37de8dfd",
+      "range": {
+        "startLine": 241,
+        "startChar": 23,
+        "endLine": 241,
+        "endChar": 44
+      },
+      "revId": "cda13b7952798664dd4fbed6998fcae4857c0c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
