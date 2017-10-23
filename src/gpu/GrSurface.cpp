@@ -51,7 +51,7 @@ size_t GrSurface::ComputeSize(GrPixelConfig config,
                               int width,
                               int height,
                               int colorSamplesPerPixel,
-                              bool hasMIPMaps,
+                              GrMipMapped mipMapped,
                               bool useNextPow2) {
     width = useNextPow2 ? GrNextPow2(width) : width;
     height = useNextPow2 ? GrNextPow2(height) : height;
@@ -62,7 +62,7 @@ size_t GrSurface::ComputeSize(GrPixelConfig config,
 
     size_t finalSize = colorSamplesPerPixel * colorSize;
 
-    if (hasMIPMaps) {
+    if (GrMipMapped::kYes == mipMapped) {
         // We don't have to worry about the mipmaps being a different size than
         // we'd expect because we never change fDesc.fWidth/fHeight.
         finalSize += colorSize/3;

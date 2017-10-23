@@ -46,14 +46,15 @@ public:
 
     /**
      * New device that will create an offscreen renderTarget based on the ImageInfo and
-     * sampleCount. The Budgeted param controls whether the device's backing store counts against
-     * the resource cache budget. On failure, returns nullptr.
+     * sampleCount. The mipMapped flag tells the gpu to create the underlying render target with
+     * mips. The Budgeted param controls whether the device's backing store counts against the
+     * resource cache budget. On failure, returns nullptr.
      * This entry point creates a kExact backing store. It is used when creating SkGpuDevices
      * for SkSurfaces.
      */
     static sk_sp<SkGpuDevice> Make(GrContext*, SkBudgeted, const SkImageInfo&,
-                                   int sampleCount, GrSurfaceOrigin,
-                                   const SkSurfaceProps*, InitContents);
+                                   int sampleCount, GrSurfaceOrigin, const SkSurfaceProps*,
+                                   GrMipMapped mipMapped, InitContents);
 
     ~SkGpuDevice() override {}
 
@@ -260,7 +261,8 @@ private:
                                                                 const SkImageInfo&,
                                                                 int sampleCount,
                                                                 GrSurfaceOrigin,
-                                                                const SkSurfaceProps*);
+                                                                const SkSurfaceProps*,
+                                                                GrMipMapped);
 
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps

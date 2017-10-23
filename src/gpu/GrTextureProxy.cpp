@@ -16,7 +16,7 @@
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
                                const void* srcData, size_t /*rowBytes*/, uint32_t flags)
         : INHERITED(srcDesc, fit, budgeted, flags)
-        , fIsMipMapped(false)
+        , fMipMapped(GrMipMapped::kNo)
         , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
         , fCache(nullptr)
         , fDeferredUploader(nullptr) {
@@ -25,7 +25,7 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, S
 
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
-        , fIsMipMapped(fTarget->asTexture()->texturePriv().hasMipMaps())
+        , fMipMapped(fTarget->asTexture()->texturePriv().mipMapped())
         , fMipColorMode(fTarget->asTexture()->texturePriv().mipColorMode())
         , fCache(nullptr)
         , fDeferredUploader(nullptr) {
@@ -48,11 +48,12 @@ GrTextureProxy::~GrTextureProxy() {
 
 bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
     if (!this->instantiateImpl(resourceProvider, 0, /* needsStencil = */ false,
-                               kNone_GrSurfaceFlags, fIsMipMapped, fMipColorMode,
+                               kNone_GrSurfaceFlags, fMipMapped, fMipColorMode,
                                fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
         return false;
     }
 
+    SkASSERT(!fTarget->asRenderTarget());
     SkASSERT(fTarget->asTexture());
     return true;
 }
@@ -61,11 +62,12 @@ sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvi
     sk_sp<GrSurface> surface= this->createSurfaceImpl(resourceProvider, 0,
                                                       /* needsStencil = */ false,
                                                       kNone_GrSurfaceFlags,
-                                                      fIsMipMapped, fMipColorMode);
+                                                      fMipMapped, fMipColorMode);
     if (!surface) {
         return nullptr;
     }
 
+    SkASSERT(!surface->asRenderTarget());
     SkASSERT(surface->asTexture());
     return surface;
 }
@@ -107,10 +109,9 @@ GrSamplerState::Filter GrTextureProxy::highestFilterMode() const {
 }
 
 size_t GrTextureProxy::onUninstantiatedGpuMemorySize() const {
-    static const bool kHasMipMaps = true;
     // TODO: add tracking of mipmap state to improve the estimate. We track whether we are created
     // with mip maps but not whether a texture read from the proxy will lazily generate mip maps.
-    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, 1, kHasMipMaps,
+    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, 1, GrMipMapped::kYes,
                                   SkBackingFit::kApprox == fFit);
 }
 

@@ -101,7 +101,7 @@ protected:
         // The plus 1 is to account for the resolve texture or if not using msaa the RT itself
         int numColorSamples = this->numColorSamples() + 1;
         return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                      numColorSamples, false);
+                                      numColorSamples, GrMipMapped::kNo);
     }
 
     void createFramebuffer(GrVkGpu* gpu);

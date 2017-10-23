@@ -223,13 +223,17 @@ bool SkSurface_Gpu::Valid(GrContext* context, GrPixelConfig config, SkColorSpace
 
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
                                              const SkImageInfo& info, int sampleCount,
-                                             GrSurfaceOrigin origin, const SkSurfaceProps* props) {
+                                             GrSurfaceOrigin origin, const SkSurfaceProps* props,
+                                             bool shouldCreateWithMips) {
     if (!SkSurface_Gpu::Valid(info)) {
         return nullptr;
     }
 
+    GrMipMapped mipMapped = shouldCreateWithMips ? GrMipMapped::kYes : GrMipMapped::kNo;
+
     sk_sp<SkGpuDevice> device(SkGpuDevice::Make(
-            ctx, budgeted, info, sampleCount, origin, props, SkGpuDevice::kClear_InitContents));
+            ctx, budgeted, info, sampleCount, origin, props, mipMapped,
+            SkGpuDevice::kClear_InitContents));
     if (!device) {
         return nullptr;
     }

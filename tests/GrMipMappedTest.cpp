@@ -86,14 +86,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
             }
 
             if (GrMipMapped::kYes == mipMapped) {
-                REPORTER_ASSERT(reporter, texture->texturePriv().hasMipMaps());
+                REPORTER_ASSERT(reporter, GrMipMapped::kYes == texture->texturePriv().mipMapped());
                 if (isRT) {
                     REPORTER_ASSERT(reporter, texture->texturePriv().mipMapsAreDirty());
                 } else {
                     REPORTER_ASSERT(reporter, !texture->texturePriv().mipMapsAreDirty());
                 }
             } else {
-                REPORTER_ASSERT(reporter, !texture->texturePriv().hasMipMaps());
+                REPORTER_ASSERT(reporter, GrMipMapped::kNo == texture->texturePriv().mipMapped());
             }
             context->getGpu()->deleteTestingOnlyBackendTexture(backendHandle);
         }

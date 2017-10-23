@@ -37,7 +37,7 @@ void GrTexture::markMipMapsClean() {
 
 size_t GrTexture::onGpuMemorySize() const {
     return GrSurface::ComputeSize(this->config(), this->width(), this->height(), 1,
-                                  this->texturePriv().hasMipMaps(), false);
+                                  this->texturePriv().mipMapped(), false);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -84,12 +84,12 @@ void GrTexture::computeScratchKey(GrScratchKey* key) const {
     }
     GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
                                      SkToBool(rt), sampleCount,
-                                     this->texturePriv().hasMipMaps(), key);
+                                     this->texturePriv().mipMapped(), key);
 }
 
 void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int height,
                                       bool isRenderTarget, int sampleCnt,
-                                      bool isMipMapped, GrScratchKey* key) {
+                                      GrMipMapped mipMapped, GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
     uint32_t flags = isRenderTarget;
 
@@ -100,16 +100,17 @@ void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int heigh
     SkASSERT(static_cast<int>(config) < (1 << 5));
     SkASSERT(sampleCnt < (1 << 8));
     SkASSERT(flags < (1 << 10));
+    SkASSERT(static_cast<int>(mipMapped) <= 1);
 
     GrScratchKey::Builder builder(key, kType, 3);
     builder[0] = width;
     builder[1] = height;
-    builder[2] = config | (isMipMapped << 5) | (sampleCnt << 6) | (flags << 14);
+    builder[2] = config | (static_cast<uint8_t>(mipMapped) << 5) | (sampleCnt << 6) | (flags << 14);
 }
 
 void GrTexturePriv::ComputeScratchKey(const GrSurfaceDesc& desc, GrScratchKey* key) {
     // Note: the fOrigin field is not used in the scratch key
     return ComputeScratchKey(desc.fConfig, desc.fWidth, desc.fHeight,
                              SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag), desc.fSampleCnt,
-                             false, key);
+                             GrMipMapped::kNo, key);
 }

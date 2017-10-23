@@ -248,7 +248,7 @@ sk_sp<SkSurface> SkSurface::MakeNull(int width, int height) {
 #if !SK_SUPPORT_GPU
 
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&,
-                                             int, GrSurfaceOrigin, const SkSurfaceProps*) {
+                                             int, GrSurfaceOrigin, const SkSurfaceProps*, bool) {
     return nullptr;
 }
 
