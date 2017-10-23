@@ -29,8 +29,11 @@ public:
         return GrMipMapsStatus::kValid != fTexture->fMipMapsStatus;
     }
 
-    bool hasMipMaps() const {
-        return GrMipMapsStatus::kNotAllocated != fTexture->fMipMapsStatus;
+    GrMipMapped mipMapped() const {
+        if (GrMipMapsStatus::kNotAllocated != fTexture->fMipMapsStatus) {
+            return GrMipMapped::kYes;
+        }
+        return GrMipMapped::kNo;
     }
 
     void setMaxMipMapLevel(int maxMipMapLevel) const {
@@ -62,7 +65,7 @@ public:
     static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
     static void ComputeScratchKey(GrPixelConfig config, int width, int height,
                                   bool isRenderTarget, int sampleCnt,
-                                  bool isMipMapped, GrScratchKey* key);
+                                  GrMipMapped, GrScratchKey* key);
 
 
 private:

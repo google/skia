@@ -154,8 +154,19 @@ GrTextureProxy* GrRenderTargetContext::asTextureProxy() {
     return fRenderTargetProxy->asTextureProxy();
 }
 
+const GrTextureProxy* GrRenderTargetContext::asTextureProxy() const {
+    return fRenderTargetProxy->asTextureProxy();
+}
+
 sk_sp<GrTextureProxy> GrRenderTargetContext::asTextureProxyRef() {
     return sk_ref_sp(fRenderTargetProxy->asTextureProxy());
+}
+
+GrMipMapped GrRenderTargetContext::mipMapped() const {
+    if (const GrTextureProxy* proxy = this->asTextureProxy()) {
+        return proxy->mipMapped();
+    }
+    return GrMipMapped::kNo;
 }
 
 GrRenderTargetOpList* GrRenderTargetContext::getRTOpList() {

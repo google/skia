@@ -62,9 +62,9 @@ static bool attach_stencil_if_needed(GrResourceProvider* resourceProvider,
 sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
                                                 GrResourceProvider* resourceProvider,
                                                 int sampleCnt, bool needsStencil,
-                                                GrSurfaceFlags flags, bool isMipMapped,
+                                                GrSurfaceFlags flags, GrMipMapped mipMapped,
                                                 SkDestinationSurfaceColorMode mipColorMode) const {
-    SkASSERT(!isMipMapped);
+    SkASSERT(GrMipMapped::kNo == mipMapped);
     GrSurfaceDesc desc;
     desc.fFlags = flags;
     if (fNeedsClear) {
@@ -108,7 +108,7 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 }
 
 bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
-                                     bool needsStencil, GrSurfaceFlags flags, bool isMipMapped,
+                                     bool needsStencil, GrSurfaceFlags flags, GrMipMapped mipMapped,
                                      SkDestinationSurfaceColorMode mipColorMode,
                                      const GrUniqueKey* uniqueKey) {
     if (fTarget) {
@@ -119,7 +119,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     }
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, needsStencil,
-                                                       flags, isMipMapped, mipColorMode);
+                                                       flags, mipMapped, mipColorMode);
     if (!surface) {
         return false;
     }
@@ -142,16 +142,16 @@ void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
     }
 
     const GrTextureProxy* tp = this->asTextureProxy();
-    bool hasMipMaps = false;
+    GrMipMapped mipMapped = GrMipMapped::kNo;
     if (tp) {
-        hasMipMaps = tp->isMipMapped();
+        mipMapped = tp->mipMapped();
     }
 
     int width = this->worstCaseWidth();
     int height = this->worstCaseHeight();
 
     GrTexturePriv::ComputeScratchKey(this->config(), width, height, SkToBool(rtp), sampleCount,
-                                     hasMipMaps, key);
+                                     mipMapped, key);
 }
 
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {

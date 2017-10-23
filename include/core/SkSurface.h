@@ -116,11 +116,14 @@ public:
 
     /**
      *  Return a new surface whose contents will be drawn to an offscreen
-     *  render target, allocated by the surface.
+     *  render target, allocated by the surface. The optional shouldCreateWithMips flag is a hint
+     *  that this surface may be snapped to an SkImage which will be used with mip maps so we should
+     *  create the backend gpu RenderTarget with mips to avoid a copy later on.
      */
     static sk_sp<SkSurface> MakeRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&,
                                              int sampleCount, GrSurfaceOrigin,
-                                             const SkSurfaceProps*);
+                                             const SkSurfaceProps*,
+                                             bool shouldCreateWithMips = false);
 
     static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& info, int sampleCount,

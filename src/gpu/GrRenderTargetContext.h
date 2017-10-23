@@ -337,6 +337,7 @@ public:
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     GrColorSpaceXform* getColorXformFromSRGB() const { return fColorXformFromSRGB.get(); }
     GrSurfaceOrigin origin() const { return fRenderTargetProxy->origin(); }
+    GrMipMapped mipMapped() const;
 
     bool wasAbandoned() const;
 
@@ -356,6 +357,7 @@ public:
     sk_sp<GrSurfaceProxy> asSurfaceProxyRef() override { return fRenderTargetProxy; }
 
     GrTextureProxy* asTextureProxy() override;
+    const GrTextureProxy* asTextureProxy() const override;
     sk_sp<GrTextureProxy> asTextureProxyRef() override;
 
     GrRenderTargetProxy* asRenderTargetProxy() override { return fRenderTargetProxy.get(); }

@@ -96,6 +96,7 @@ public:
     virtual sk_sp<GrSurfaceProxy> asSurfaceProxyRef() = 0;
 
     virtual GrTextureProxy* asTextureProxy() = 0;
+    virtual const GrTextureProxy* asTextureProxy() const = 0;
     virtual sk_sp<GrTextureProxy> asTextureProxyRef() = 0;
 
     virtual GrRenderTargetProxy* asRenderTargetProxy() = 0;

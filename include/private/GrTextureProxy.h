@@ -37,7 +37,7 @@ public:
         }
     }
 
-    bool isMipMapped() const { return fIsMipMapped; }
+    GrMipMapped mipMapped() const { return fMipMapped; }
 
     /**
      * Return the texture proxy's unique key. It will be invalid if the proxy doesn't have one.
@@ -85,7 +85,7 @@ protected:
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
 private:
-    bool fIsMipMapped;
+    GrMipMapped fMipMapped;
     SkDestinationSurfaceColorMode fMipColorMode;
 
     GrUniqueKey fUniqueKey;
