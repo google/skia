@@ -14,12 +14,22 @@
 // This alignment mask will give correct alignments for using the std430 block layout. If you want
 // the std140 alignment, you can use this, but then make sure if you have an array type it is
 // aligned to 16 bytes (i.e. has mask of 0xF).
+// These are spec'd in OpenGL 4.5, Section 7.6.2.2, page 137.
+// https://www.khronos.org/registry/OpenGL/specs/gl/glspec45.core.pdf#page=159
 uint32_t grsltype_to_alignment_mask(GrSLType type) {
     switch(type) {
         case kShort_GrSLType: // fall through
-        case kInt_GrSLType:
+        case kUShort_GrSLType:
+            return 0x1;
+        case kShort2_GrSLType: // fall through
+        case kUShort2_GrSLType:
             return 0x3;
-        case kUShort_GrSLType: // fall through
+        case kShort3_GrSLType: // fall through
+        case kShort4_GrSLType:
+        case kUShort3_GrSLType:
+        case kUShort4_GrSLType:
+            return 0x7;
+        case kInt_GrSLType:
         case kUint_GrSLType:
             return 0x3;
         case kHalf_GrSLType: // fall through
@@ -35,7 +45,7 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
         case kFloat4_GrSLType:
             return 0xF;
         case kUint2_GrSLType:
-            return 0x3;
+            return 0x7;
         case kInt2_GrSLType:
             return 0x7;
         case kInt3_GrSLType:
