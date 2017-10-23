@@ -435,6 +435,38 @@ static bool apply_orientation(const SkPixmap& dst, const SkPixmap& src, unsigned
     return true;
 }
 
+static bool draw_orientation(const SkPixmap& dst, const SkPixmap& src, unsigned flags) {
+    auto surf = SkSurface::MakeRasterDirect(dst.info(), dst.writable_addr(), dst.rowBytes());
+
+    SkBitmap bm;
+    bm.installPixels(src);
+
+    SkMatrix m;
+    m.setIdentity();
+
+    SkScalar W = SkIntToScalar(src.width());
+    SkScalar H = SkIntToScalar(src.height());
+    if (flags & SkPixmapPriv::kSwapXY) {
+        SkMatrix s;
+        s.setAll(0, 1, 0, 1, 0, 0, 0, 0, 1);
+        m.postConcat(s);
+        SkTSwap(W, H);
+    }
+    if (flags & SkPixmapPriv::kMirrorX) {
+        m.postScale(-1, 1);
+        m.postTranslate(W, 0);
+    }
+    if (flags & SkPixmapPriv::kMirrorY) {
+        m.postScale(1, -1);
+        m.postTranslate(0, H);
+    }
+    SkPaint p;
+    p.setBlendMode(SkBlendMode::kSrc);
+    surf->getCanvas()->concat(m);
+    surf->getCanvas()->drawBitmap(bm, 0, 0, &p);
+    return true;
+}
+
 bool SkPixmapPriv::Orient(const SkPixmap& dst, const SkPixmap& src, OrientFlags flags) {
     SkASSERT((flags & ~(kMirrorX | kMirrorY | kSwapXY)) == 0);
     if (src.colorType() != dst.colorType()) {
@@ -457,6 +489,9 @@ bool SkPixmapPriv::Orient(const SkPixmap& dst, const SkPixmap& src, OrientFlags 
     // check for aliasing to self
     if (src.addr() == dst.addr()) {
         return flags == 0;
+    }
+    if (true) {
+        return draw_orientation(dst, src, flags);
     }
     return apply_orientation(dst, src, flags);
 }
