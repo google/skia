@@ -233,11 +233,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
     }
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_PICTURESHADER_ROUNDING
-    const SkISize tileSize = scaledSize.toRound();
-#else
     const SkISize tileSize = scaledSize.toCeil();
-#endif
     if (tileSize.isEmpty()) {
         return SkShader::MakeEmptyShader();
     }
