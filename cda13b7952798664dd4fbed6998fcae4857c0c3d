@@ -141,6 +141,30 @@
       "revId": "cda13b7952798664dd4fbed6998fcae4857c0c3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab8a6557_499b1f76",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-23T18:53:26Z",
+      "side": 1,
+      "message": "Yes it\u0027s not required. Can we merge this patch?",
+      "parentUuid": "63ffb091_219aa54e",
+      "range": {
+        "startLine": 241,
+        "startChar": 23,
+        "endLine": 241,
+        "endChar": 44
+      },
+      "revId": "cda13b7952798664dd4fbed6998fcae4857c0c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
