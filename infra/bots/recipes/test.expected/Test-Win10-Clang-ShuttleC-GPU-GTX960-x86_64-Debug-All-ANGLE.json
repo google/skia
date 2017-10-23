@@ -106,7 +106,7 @@
       "[START_DIR]\\tmp\\uninteresting_hashes.txt"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
+      "BUILDTYPE": "Debug_x64",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]\\out"
@@ -177,7 +177,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]\\out\\Release_x64\\dm",
+      "[START_DIR]\\out\\Debug_x64\\dm",
       "--resourcePath",
       "[START_DIR]\\skia\\resources",
       "--skps",
@@ -191,7 +191,7 @@
       "gitHash",
       "abc123",
       "builder",
-      "Test-Win10-MSVC-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE",
+      "Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE",
       "swarming_bot_id",
       "skia-bot-123",
       "swarming_task_id",
@@ -202,17 +202,17 @@
       "arch",
       "x86_64",
       "compiler",
-      "MSVC",
+      "Clang",
       "configuration",
-      "Release",
+      "Debug",
       "cpu_or_gpu",
       "GPU",
       "cpu_or_gpu_value",
-      "IntelHD4400",
+      "GTX960",
       "extra_config",
       "ANGLE",
       "model",
-      "NUCD34010WYKH",
+      "ShuttleC",
       "os",
       "Win10",
       "--uninterestingHashesFile",
@@ -228,6 +228,8 @@
       "angle_d3d9_es2",
       "angle_gl_es2",
       "angle_d3d11_es3",
+      "angle_d3d11_es2_msaa8",
+      "angle_d3d11_es3_msaa8",
       "--src",
       "tests",
       "gm",
@@ -379,14 +381,10 @@
       "image",
       "_",
       ".SRW",
-      "angle_d3d9_es2",
-      "gm",
-      "_",
-      "lighting",
       "--verbose"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
+      "BUILDTYPE": "Debug_x64",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]\\out"
