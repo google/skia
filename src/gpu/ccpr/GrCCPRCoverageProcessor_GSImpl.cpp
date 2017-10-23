@@ -7,8 +7,7 @@
 
 #include "GrCCPRCoverageProcessor.h"
 
-#include "glsl/GrGLSLGeometryShaderBuilder.h"
-#include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 
 using Shader = GrCCPRCoverageProcessor::Shader;
 
@@ -70,7 +69,7 @@ protected:
 
         GrShaderVar wind("wind", kHalf_GrSLType);
         g->declareGlobal(wind);
-        fShader->emitWind(g, "pts", rtAdjust, wind.c_str());
+        fShader->emitWind(g, "pts", wind.c_str());
 
         SkString emitVertexFn;
         SkSTArray<2, GrShaderVar> emitArgs;
@@ -79,21 +78,21 @@ protected:
         g->emitFunction(kVoid_GrSLType, "emitVertex", emitArgs.count(), emitArgs.begin(), [&]() {
             SkString fnBody;
             fShader->emitVaryings(varyingHandler, &fnBody, position, coverage, wind.c_str());
-            fnBody.append("sk_Position = float4(position, 0, 1);");
-            fnBody.append("EmitVertex();");
+            g->emitVertex(&fnBody, position, rtAdjust);
             return fnBody;
         }().c_str(), &emitVertexFn);
 
-        g->codeAppendf("float2 bloat = %f * abs(%s.xz);", kAABloatRadius, rtAdjust);
+        float bloat = kAABloatRadius;
 #ifdef SK_DEBUG
         if (proc.debugVisualizationsEnabled()) {
-            g->codeAppendf("bloat *= %f;", proc.debugBloat());
+            bloat *= proc.debugBloat();
         }
 #endif
+        g->defineConstant("bloat", bloat);
 
         Shader::GeometryVars vars;
-        fShader->emitSetupCode(g, "pts", "sk_InvocationID", "bloat", wind.c_str(), rtAdjust, &vars);
-        int maxPoints = this->onEmitGeometryShader(g, wind, emitVertexFn.c_str(), rtAdjust, vars);
+        fShader->emitSetupCode(g, "pts", "sk_InvocationID", wind.c_str(), &vars);
+        int maxPoints = this->onEmitGeometryShader(g, wind, emitVertexFn.c_str(), vars);
 
         int numInputPoints = fShader->getNumInputPoints();
         SkASSERT(3 == numInputPoints || 4 == numInputPoints);
@@ -104,7 +103,7 @@ protected:
     }
 
     virtual int onEmitGeometryShader(GrGLSLGeometryBuilder*, const GrShaderVar& wind,
-                                     const char* emitVertexFn, const char* rtAdjust,
+                                     const char* emitVertexFn,
                                      const Shader::GeometryVars&) const = 0;
 
     virtual ~GSImpl() {}
@@ -119,7 +118,7 @@ public:
     GSHullImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
 
     int onEmitGeometryShader(GrGLSLGeometryBuilder* g, const GrShaderVar& wind,
-                             const char* emitVertexFn, const char* rtAdjust,
+                             const char* emitVertexFn,
                              const Shader::GeometryVars& vars) const override {
         int numSides = fShader->getNumSegments();
         SkASSERT(numSides >= 3);
@@ -190,7 +189,7 @@ public:
         g->codeAppend ("if (all(dnotequal)) {");
         g->codeAppendf(    "%s(self + bloat * float2(-dl.y, dl.x), 1);", emitVertexFn);
         g->codeAppend ("}");
-        g->codeAppend ("EndPrimitive();");
+        g->endPrimitive();
 
         return 5;
     }
@@ -201,7 +200,7 @@ public:
     GSEdgeImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
 
     int onEmitGeometryShader(GrGLSLGeometryBuilder* g, const GrShaderVar& wind,
-                             const char* emitVertexFn, const char* rtAdjust,
+                             const char* emitVertexFn,
                              const Shader::GeometryVars&) const override {
         int numSides = fShader->getNumSegments();
 
@@ -238,7 +237,7 @@ public:
         g->codeAppend ("if (!aligned) {");
         g->codeAppendf(    "%s(outer_pts[1], outer_coverage[1]);", emitVertexFn);
         g->codeAppend ("}");
-        g->codeAppend ("EndPrimitive();");
+        g->endPrimitive();
 
         return 6;
     }
@@ -249,16 +248,16 @@ public:
     GSCornerImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
 
     int onEmitGeometryShader(GrGLSLGeometryBuilder* g, const GrShaderVar& wind,
-                             const char* emitVertexFn, const char* rtAdjust,
+                             const char* emitVertexFn,
                              const Shader::GeometryVars& vars) const override {
         const char* corner = vars.fCornerVars.fPoint;
         SkASSERT(corner);
 
-        g->codeAppendf("%s(%s + float2(-bloat.x, -bloat.y), 1);", emitVertexFn, corner);
-        g->codeAppendf("%s(%s + float2(-bloat.x, +bloat.y), 1);", emitVertexFn, corner);
-        g->codeAppendf("%s(%s + float2(+bloat.x, -bloat.y), 1);", emitVertexFn, corner);
-        g->codeAppendf("%s(%s + float2(+bloat.x, +bloat.y), 1);", emitVertexFn, corner);
-        g->codeAppend ("EndPrimitive();");
+        g->codeAppendf("%s(%s + float2(-bloat, -bloat), 1);", emitVertexFn, corner);
+        g->codeAppendf("%s(%s + float2(-bloat, +bloat), 1);", emitVertexFn, corner);
+        g->codeAppendf("%s(%s + float2(+bloat, -bloat), 1);", emitVertexFn, corner);
+        g->codeAppendf("%s(%s + float2(+bloat, +bloat), 1);", emitVertexFn, corner);
+        g->endPrimitive();
 
         return 4;
     }

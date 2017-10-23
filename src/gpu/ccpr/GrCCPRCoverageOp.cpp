@@ -387,7 +387,6 @@ void GrCCPRCoverageOp::setBuffers(sk_sp<GrBuffer> pointsBuffer, sk_sp<GrBuffer> 
 void GrCCPRCoverageOp::onExecute(GrOpFlushState* flushState) {
     using RenderPass = GrCCPRCoverageProcessor::RenderPass;
 
-    SkDEBUGCODE(GrCCPRCoverageProcessor::Validate(flushState->drawOpArgs().fProxy));
     SkASSERT(fPointsBuffer);
     SkASSERT(fInstanceBuffer);
 
