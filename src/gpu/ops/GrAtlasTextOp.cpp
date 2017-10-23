@@ -298,6 +298,10 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
+    if (this->fNumGlyphs >= 256) {
+        return false;
+    }
+
     if (!this->usesDistanceFields()) {
         if (kColorBitmapMask_MaskType == fMaskType && this->color() != that->color()) {
             return false;
