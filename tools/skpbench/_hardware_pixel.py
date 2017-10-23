@@ -26,16 +26,8 @@ class HardwarePixel(HardwareAndroid):
 
   def __enter__(self):
     HardwareAndroid.__enter__(self)
-    self._lock_clocks()
-    return self
-
-  def __exit__(self, exception_type, exception_value, exception_traceback):
-    # pixel struggles waking up; just pull a hard reboot.
-    self._adb.reboot()
-
-  def _lock_clocks(self):
     if not self._adb.is_root():
-      return
+      return self
 
     self._adb.shell('\n'.join(['''\
       stop thermal-engine
@@ -79,48 +71,7 @@ class HardwarePixel(HardwareAndroid):
 
       self._devfreq_lock_cmds))
 
-  def _unlock_clocks(self):
-    if not self._adb.is_root():
-      return
-
-    self._adb.shell('\n'.join(
-      self._devfreq_unlock_cmds + [
-
-      # restore gpu settings to default.
-      '''
-      echo 133000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq
-      echo 600000000 > /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
-      echo 0 > /sys/class/kgsl/kgsl-3d0/gpuclk
-      echo msm-adreno-tz > /sys/class/kgsl/kgsl-3d0/devfreq/governor
-      echo 6 > /sys/class/kgsl/kgsl-3d0/min_pwrlevel
-      echo 0 > /sys/class/kgsl/kgsl-3d0/max_pwrlevel
-      echo 1 > /sys/class/kgsl/kgsl-3d0/thermal_pwrlevel
-      echo 0 > /sys/class/kgsl/kgsl-3d0/idle_timer
-      echo 0 > /sys/class/kgsl/kgsl-3d0/force_clk_on
-      echo 0 > /sys/class/kgsl/kgsl-3d0/force_rail_on
-      echo 0 > /sys/class/kgsl/kgsl-3d0/force_bus_on
-      echo 1 > /sys/class/kgsl/kgsl-3d0/bus_split''',
-
-      # turn the disabled cores back on.
-      '''
-      for N in 0 1; do
-        echo 1 > /sys/devices/system/cpu/cpu$N/online
-      done''',
-
-      # unlock the 2 enabled big cores.
-      '''
-      for N in 2 3; do
-        echo 307200 > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_min_freq
-        echo 2150400 > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_max_freq
-        echo 0 > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_setspeed
-        echo sched > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_governor
-      done''',
-
-      '''
-      start mpdecision
-      start perfd
-      start thermald
-      start thermal-engine''']))
+    return self
 
   def sanity_check(self):
     HardwareAndroid.sanity_check(self)
@@ -160,7 +111,6 @@ class HardwarePixel(HardwareAndroid):
 
   def _discover_devfreqs(self):
     self._devfreq_lock_cmds = list()
-    self._devfreq_unlock_cmds = list()
     self._devfreq_sanity_knobs = list()
     self._devfreq_sanity_expectations = list()
 
@@ -191,8 +141,6 @@ class HardwarePixel(HardwareAndroid):
         continue
 
       self._devfreq_lock_cmds.append('echo performance > %s/governor' % path)
-      self._devfreq_unlock_cmds.append('echo %s > %s/governor' %
-                                       (knobs.governor, path))
 
       frequencies = map(int, knobs.available_frequencies.split())
       if frequencies:
@@ -207,10 +155,6 @@ class HardwarePixel(HardwareAndroid):
                                       (bench_frequency, path))
         self._devfreq_lock_cmds.append('echo %i > %s/max_freq' %
                                       (bench_frequency, path))
-        self._devfreq_unlock_cmds.append('echo %s > %s/min_freq' %
-                                        (knobs.min_freq, path))
-        self._devfreq_unlock_cmds.append('echo %s > %s/max_freq' %
-                                        (knobs.max_freq, path))
         self._devfreq_sanity_knobs.append('%s/cur_freq' % path)
         self._devfreq_sanity_expectations.append(
           Expectation(int, exact_value=bench_frequency,
