@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7612ea2c_3f02b950",
+        "filename": "src/gpu/GrTextureProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-23T20:06:38Z",
+      "side": 1,
+      "message": "fixed. And in follow on CL I actually grab the actually mip value.",
+      "parentUuid": "1239d6de_918cb738",
+      "revId": "7205a70f8c4f702cf16fa7467fb3d05427346316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9e6655a8_b7065968",
         "filename": "src/gpu/GrTextureRenderTargetProxy.cpp",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "7205a70f8c4f702cf16fa7467fb3d05427346316",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27b7565d_46ad40ae",
+        "filename": "src/gpu/GrTextureRenderTargetProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-23T20:06:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e6655a8_b7065968",
+      "revId": "7205a70f8c4f702cf16fa7467fb3d05427346316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
