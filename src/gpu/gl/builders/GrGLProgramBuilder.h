@@ -47,6 +47,14 @@ private:
     GrGLProgramBuilder(GrGLGpu*, const GrPipeline&, const GrPrimitiveProcessor&,
                        GrProgramDesc*);
 
+    bool compileAndAttachShaders(const char* glsl,
+                                 int length,
+                                 GrGLuint programId,
+                                 GrGLenum type,
+                                 SkTDArray<GrGLuint>* shaderIds,
+                                 const SkSL::Program::Settings& settings,
+                                 const SkSL::Program::Inputs& inputs);
+
     bool compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                  GrGLuint programId,
                                  GrGLenum type,
@@ -67,10 +75,13 @@ private:
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
     GrGLSLVaryingHandler* varyingHandler() override { return &fVaryingHandler; }
 
+    SkString getString(GrGLSLShaderBuilder& shader);
 
     GrGLGpu*              fGpu;
     GrGLVaryingHandler    fVaryingHandler;
     GrGLUniformHandler    fUniformHandler;
+
+    GrContextOptions::PersistentCache::Shader fCached;
 
     typedef GrGLSLProgramBuilder INHERITED;
 };
