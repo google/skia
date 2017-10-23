@@ -150,6 +150,12 @@
         "Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
       ]
     },
+    "Build-Debian9-Clang-x86_64-Debug-SafeStack": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-Clang-x86_64-Debug-SafeStack"
+      ]
+    },
     "Build-Debian9-Clang-x86_64-Debug-UBSAN_float_cast_overflow": {
       "priority": 0.8,
       "tasks": [
@@ -966,6 +972,12 @@
       "priority": 0.8,
       "tasks": [
         "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
+      ]
+    },
+    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack"
       ]
     },
     "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN_float_cast_overflow": {
@@ -2035,6 +2047,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
+      ]
+    },
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack"
       ]
     },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN_float_cast_overflow": {
@@ -3629,6 +3647,36 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-Clang-x86_64-Debug-SafeStack": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:10"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-x86_64-Debug-SafeStack",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7852,6 +7900,54 @@
         "perf",
         "repository=<(REPO)",
         "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:32"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:91"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-Clang-x86_64-Debug-SafeStack",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15593,6 +15689,54 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:32"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:91"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-Clang-x86_64-Debug-SafeStack",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26540,6 +26684,33 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack": {
+      "dependencies": [
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
