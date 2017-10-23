@@ -45,10 +45,12 @@ static AttribLayout attrib_layout(GrVertexAttribType type) {
             return {true, 1, GR_GL_UNSIGNED_BYTE};
         case kUByte4_norm_GrVertexAttribType:
             return {true, 4, GR_GL_UNSIGNED_BYTE};
-        case kUShort2_norm_GrVertexAttribType:
-            return {true, 2, GR_GL_UNSIGNED_SHORT};
+        case kShort2_GrVertexAttribType:
+            return {false, 2, GR_GL_SHORT};
         case kUShort2_GrVertexAttribType:
             return {false, 2, GR_GL_UNSIGNED_SHORT};
+        case kUShort2_norm_GrVertexAttribType:
+            return {true, 2, GR_GL_UNSIGNED_SHORT};
         case kInt_GrVertexAttribType:
             return {false, 1, GR_GL_INT};
         case kUint_GrVertexAttribType:
@@ -87,10 +89,12 @@ static bool GrVertexAttribTypeIsIntType(const GrShaderCaps* shaderCaps,
             return false;
         case kUByte4_norm_GrVertexAttribType:
             return false;
+        case kShort2_GrVertexAttribType:
+            return true;
+        case kUShort2_GrVertexAttribType:
+            return shaderCaps->integerSupport(); // FIXME: caller should handle this.
         case kUShort2_norm_GrVertexAttribType:
             return false;
-        case kUShort2_GrVertexAttribType:
-            return shaderCaps->integerSupport();
         case kInt_GrVertexAttribType:
             return true;
         case kUint_GrVertexAttribType:
