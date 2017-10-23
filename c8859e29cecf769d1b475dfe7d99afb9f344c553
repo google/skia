@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13633efe_9682ef0b",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-23T23:01:22Z",
+      "side": 1,
+      "message": "I think this might have been a bug",
+      "range": {
+        "startLine": 48,
+        "startChar": 19,
+        "endLine": 48,
+        "endChar": 22
+      },
+      "revId": "c8859e29cecf769d1b475dfe7d99afb9f344c553",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
