@@ -384,11 +384,11 @@ protected:
     void assign(sk_sp<GrSurface> surface);
 
     sk_sp<GrSurface> createSurfaceImpl(GrResourceProvider*, int sampleCnt, bool needsStencil,
-                                       GrSurfaceFlags flags, bool isMipMapped,
+                                       GrSurfaceFlags flags, GrMipMapped mipMapped,
                                        SkDestinationSurfaceColorMode mipColorMode) const;
 
     bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt, bool needsStencil,
-                         GrSurfaceFlags flags, bool isMipMapped,
+                         GrSurfaceFlags flags, GrMipMapped mipMapped,
                          SkDestinationSurfaceColorMode mipColorMode, const GrUniqueKey*);
 
     // For wrapped resources, 'fConfig', 'fWidth', 'fHeight', and 'fOrigin; will always be filled in

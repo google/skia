@@ -77,8 +77,7 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     context->getResourceCache()->insertCrossContextGpuResource(texture.get());
 
     GrBackend backend = context->contextPriv().getBackend();
-    GrMipMapped mipMapped = texture->texturePriv().hasMipMaps() ? GrMipMapped::kYes
-                                                                : GrMipMapped::kNo;
+    GrMipMapped mipMapped = texture->texturePriv().mipMapped();
     GrBackendTexture backendTexture = make_backend_texture_from_handle(backend,
                                                                        texture->width(),
                                                                        texture->height(),
@@ -177,7 +176,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
     if (0 == origin.fX && 0 == origin.fY &&
         info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&
-        (!willNeedMipMaps || proxy->isMipMapped())) {
+        (!willNeedMipMaps || GrMipMapped::kYes == proxy->mipMapped())) {
         // If the caller wants the entire texture and we have the correct mip support, we're done
         return proxy;
     } else {

@@ -61,7 +61,7 @@ public:
 
     static size_t WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2 = false);
     static size_t ComputeSize(GrPixelConfig config, int width, int height, int colorSamplesPerPixel,
-                              bool hasMIPMaps, bool useNextPow2 = false);
+                              GrMipMapped, bool useNextPow2 = false);
 
 protected:
     // Methods made available via GrSurfacePriv

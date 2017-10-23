@@ -266,5 +266,5 @@ size_t GrVkTextureRenderTarget::onGpuMemorySize() const {
     int numColorSamples = this->numColorSamples() + 1;
     return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
                                   numColorSamples,  // TODO: this still correct?
-                                  this->texturePriv().hasMipMaps());
+                                  this->texturePriv().mipMapped());
 }
