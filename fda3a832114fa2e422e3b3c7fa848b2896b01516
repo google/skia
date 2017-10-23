@@ -39,6 +39,23 @@
       "revId": "fda3a832114fa2e422e3b3c7fa848b2896b01516",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b1b9005_56c1e052",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-23T15:49:46Z",
+      "side": 1,
+      "message": "Nice!",
+      "revId": "fda3a832114fa2e422e3b3c7fa848b2896b01516",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
