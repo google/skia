@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe68f349_99cb9632",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-23T18:32:29Z",
+      "side": 1,
+      "message": "This is just so stuff stays the same color after we change the sense of wind, now that Y is pointing down instead of up in the geometry Shader.",
+      "revId": "9ad9d2e287eb2ef7394bea39e2a1c785bc42ad67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
