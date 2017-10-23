@@ -91,7 +91,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE\\data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE\\data"
     ],
     "infra_step": true,
     "name": "rmtree data"
@@ -106,7 +106,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE\\data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE\\data"
     ],
     "infra_step": true,
     "name": "makedirs data"
@@ -182,7 +182,7 @@
       "~inc0.webp",
       "~inc1.webp",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE\\data\\nanobench_abc123_1337000001.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE\\data\\nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -194,7 +194,7 @@
       "arch",
       "x86_64",
       "compiler",
-      "MSVC",
+      "Clang",
       "cpu_or_gpu",
       "GPU",
       "cpu_or_gpu_value",
@@ -224,7 +224,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
