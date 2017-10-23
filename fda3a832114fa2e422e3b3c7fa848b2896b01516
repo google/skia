@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fa6a6bd_5b22a584",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-23T15:43:05Z",
+      "side": 1,
+      "message": "maybe, and cc_wrapper !\u003d \"\"?",
+      "revId": "fda3a832114fa2e422e3b3c7fa848b2896b01516",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85b4c339_c77f16e0",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-23T15:43:05Z",
+      "side": 1,
+      "message": "sp",
+      "range": {
+        "startLine": 292,
+        "startChar": 66,
+        "endLine": 292,
+        "endChar": 71
+      },
+      "revId": "fda3a832114fa2e422e3b3c7fa848b2896b01516",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
