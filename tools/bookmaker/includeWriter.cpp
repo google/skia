@@ -518,6 +518,9 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
 
 // walk children and output complete method doxygen description
 void IncludeWriter::methodOut(const Definition* method, const Definition& child) {
+    if ("SkBitmap::hasHardwareMipMap" == method->fName) {
+        SkDebugf("");
+    }
     fBmhMethod = method;
     fMethodDef = &child;
     fContinuation = nullptr;
@@ -816,7 +819,23 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     bool inStruct = false;
     bool inConstructor = false;
     bool inInline = false;
+    bool eatOperator = false;
     for (auto& child : def->fTokens) {
+        if (KeyWord::kOperator == child.fKeyWord && method &&
+                Definition::MethodType::kOperator == method->fMethodType) {
+            eatOperator = true;
+            continue;
+        }
+        if (eatOperator) {
+            if (Bracket::kSquare == child.fBracket || Bracket::kParen == child.fBracket) {
+                continue;
+            }
+            eatOperator = false;
+            fContinuation = nullptr;
+            if (KeyWord::kConst == child.fKeyWord) {
+                continue;
+            }
+        }
         if (memberEnd) {
             if (memberEnd != &child) {
                 continue;
@@ -972,6 +991,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             inConstructor = root->fName == child.fName;
             fContinuation = child.fContentEnd;
             method = root->find(methodName, RootDefinition::AllowParens::kNo);
+//            if (!method) {
+//                method = root->find(methodName + "()", RootDefinition::AllowParens::kNo);
+//            }
             if (!method) {
                 continue;
             }
@@ -1016,6 +1038,14 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                                 child.fContentStart;
                         this->writeBlockTrim((int) (bodyEnd - fStart), fStart);
                         fStart = child.fContentStart;
+                        if (!fInStruct && child.fName != root->fName) {
+                            root = &fBmhParser->fClassMap[child.fName];
+                            fRootTopic = root->fParent;
+                            SkASSERT(!root->fVisited);
+                            root->clearVisited();
+                            fIndent = 0;
+                            fStructDef = root;
+                        }
                         if (child.fName == root->fName) {
                             if (Definition* parent = root->fParent) {
                                 if (MarkType::kTopic == parent->fMarkType ||
@@ -1030,6 +1060,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                                 SkASSERT(0); // incomplete
                             }
                         } else {
+                            SkASSERT(fInStruct);
                             structDef = root->find(child.fName, RootDefinition::AllowParens::kNo);
                             if (nullptr == structDef) {
                                 structDef = root->find(root->fName + "::" + child.fName,

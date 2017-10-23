@@ -1146,7 +1146,11 @@ fLeft <= x < fRight && fTop <= y < fBottom
 .
 Returns false if Rect is empty.
 
-Considers input to describe constructed IRect (x, y, x + 1, y + 1) and
+Considers input to describe constructed IRect 
+#Formula
+(x, y, x + 1, y + 1)
+##
+and
 returns true if constructed area is completely enclosed by IRect area.
 
 #Param x  test Point x-coordinate ##

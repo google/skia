@@ -107,6 +107,7 @@ enum class MarkType {
     kLegend,
     kLink,
     kList,
+    kLiteral,  // don't lookup hyperlinks, do substitution, etc
     kMarkChar,
     kMember,
     kMethod,
@@ -1100,6 +1101,9 @@ public:
         writePending();
         if (fDebugOut) {
             string check(data, size);
+            if (string::npos != check.find("SK_BUILD_FOR_ANDROID_FRAMEWORK")) {
+                SkDebugf("");
+            }
             SkDebugf("%s", check.c_str());
         }
         fprintf(fOut, "%.*s", size, data);
@@ -1151,6 +1155,9 @@ public:
         }
         writePending();
         if (fDebugOut) {
+            if (string::npos != string(str).find("SK_BUILD_FOR_ANDROID_FRAMEWORK")) {
+                SkDebugf("");
+            }
             SkDebugf("%s", str);
         }
         fprintf(fOut, "%s", str);
@@ -1226,6 +1233,7 @@ public:
         kNo,    // neither resolved nor output
         kYes,   // resolved, output
         kOut,   // not resolved, but output
+        kLiteral, // output untouched (FIXME: is this really different from kOut?)
     };
 
     enum class Exemplary {
@@ -1267,7 +1275,7 @@ public:
 , { "Alias",       nullptr,      MarkType::kAlias,        R_N, E_N, 0 }
 , { "Bug",         nullptr,      MarkType::kBug,          R_N, E_N, 0 }
 , { "Class",       &fClassMap,   MarkType::kClass,        R_Y, E_O, M_CSST | M(Root) }
-, { "Code",        nullptr,      MarkType::kCode,         R_O, E_N, M_CSST | M_E }
+, { "Code",        nullptr,      MarkType::kCode,         R_O, E_N, M_CSST | M_E | M(Method) }
 , { "",            nullptr,      MarkType::kColumn,       R_Y, E_N, M(Row) }
 , { "",            nullptr,      MarkType::kComment,      R_N, E_N, 0 }
 , { "Const",       &fConstMap,   MarkType::kConst,        R_Y, E_N, M_E | M_ST  }
@@ -1291,6 +1299,7 @@ public:
 , { "Legend",      nullptr,      MarkType::kLegend,       R_Y, E_N, M(Table) }
 , { "",            nullptr,      MarkType::kLink,         R_N, E_N, M(Anchor) }
 , { "List",        nullptr,      MarkType::kList,         R_Y, E_N, M(Method) | M_CSST | M_E | M_D }
+, { "Literal",     nullptr,      MarkType::kLiteral,      R_N, E_N, M(Code) }
 , { "",            nullptr,      MarkType::kMarkChar,     R_N, E_N, 0 }
 , { "Member",      nullptr,      MarkType::kMember,       R_Y, E_N, M(Class) | M(Struct) }
 , { "Method",      &fMethodMap,  MarkType::kMethod,       R_Y, E_Y, M_CSST }
@@ -1474,6 +1483,7 @@ public:
         , { nullptr,        MarkType::kLegend }
         , { nullptr,        MarkType::kLink }
         , { nullptr,        MarkType::kList }
+        , { nullptr,        MarkType::kLiteral }
         , { nullptr,        MarkType::kMarkChar }
         , { nullptr,        MarkType::kMember }
         , { nullptr,        MarkType::kMethod }
@@ -1683,6 +1693,20 @@ public:
 
     void writeEndTag(const char* tagType, const string& tagID, int spaces = 1) {
         this->writeEndTag(tagType, tagID.c_str(), spaces);
+    }
+
+    void writeIncompleteTag(const char* tagType, const string& tagID, int spaces = 1) {
+        this->writeString(string("#") + tagType + " " + tagID);
+        this->writeSpace(spaces);
+        this->writeString("incomplete");
+        this->writeSpace();
+        this->writeString("##");
+        this->lf(1);
+    }
+
+    void writeIncompleteTag(const char* tagType) {
+        this->writeString(string("#") + tagType + " incomplete ##");
+        this->lf(1);
     }
 
     void writeTableHeader(const char* col1, size_t pad, const char* col2) {
@@ -1988,7 +2012,15 @@ private:
         fInList = false;
     }
 
-    BmhParser::Resolvable resolvable(MarkType markType) {
+    BmhParser::Resolvable resolvable(const Definition* definition) const {
+        MarkType markType = definition->fMarkType;
+        if (MarkType::kCode == markType) {
+            for (auto child : definition->fChildren) {
+                if (MarkType::kLiteral == child->fMarkType) {
+                    return BmhParser::Resolvable::kLiteral;
+                }
+            }
+        }
         if ((MarkType::kExample == markType
                 || MarkType::kFunction == markType) && fHasFiddle) {
             return BmhParser::Resolvable::kNo;

@@ -1499,7 +1499,7 @@ Returns true if<a href="#SkIRect_fLeft">fLeft</a> <= <a href="#SkIRect_x">x</a> 
 
 Returns false if <a href="SkRect_Reference#Rect">Rect</a> is empty.
 
-Considers input to describe constructed <a href="#IRect">IRect</a> (<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + 1, <a href="#SkIRect_y">y</a> + 1) and
+Considers input to describe constructed <a href="#IRect">IRect</a>(<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + 1, <a href="#SkIRect_y">y</a> + 1)and
 returns true if constructed area is completely enclosed by <a href="#IRect">IRect</a> area.
 
 ### Parameters
