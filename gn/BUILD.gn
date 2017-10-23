@@ -288,6 +288,11 @@ config("warnings") {
       "/wd4291",  # no matching operator delete found;
                   # memory will not be freed if initialization throws an exception
     ]
+    if (is_clang) {
+      # Shouldn't be necessary for local builds. With distributed builds, files may lose
+      # their case during copy, causing case-sensitivity mismatch on remote machines.
+      cflags += [ "-Wno-nonportable-include-path" ]
+    }
   } else {
     cflags += [
       "-Wall",
