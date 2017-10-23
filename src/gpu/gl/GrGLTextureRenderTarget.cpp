@@ -81,5 +81,5 @@ sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
 size_t GrGLTextureRenderTarget::onGpuMemorySize() const {
     return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
                                     this->numSamplesOwnedPerPixel(),
-                                    this->texturePriv().hasMipMaps());
+                                    this->texturePriv().mipMapped());
 }
