@@ -1065,10 +1065,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 }
 
 SampleWindow::~SampleWindow() {
-    if (fMeasureFPS) {
-        SkDebugf("Average frame time of the last slide: %.4f ms\n",
-                 fCumulativeFPS_Time / (float)SkTMax(1, fCumulativeFPS_Count));
-    }
     SkSafeUnref(fDevManager);
 }
 
@@ -2289,6 +2285,8 @@ bool SampleWindow::getRawTitle(SkString* title) {
 
 void SampleWindow::updateTitle() {
     if (fMeasureMS > 0 && (int)gAnimTimer.msec() > fMeasureMS) {
+        SkDebugf("Average frame time of the last slide: %.4f ms\n",
+            fCumulativeFPS_Time / (float)SkTMax(1, fCumulativeFPS_Count));
         this->closeWindow();
     }
 
