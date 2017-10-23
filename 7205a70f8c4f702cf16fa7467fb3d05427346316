@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1239d6de_918cb738",
+        "filename": "src/gpu/GrTextureProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-23T20:00:34Z",
+      "side": 1,
+      "message": "This is a change. Don\u0027t we know the mipmap state now ?",
+      "revId": "7205a70f8c4f702cf16fa7467fb3d05427346316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e6655a8_b7065968",
+        "filename": "src/gpu/GrTextureRenderTargetProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-23T20:00:34Z",
+      "side": 1,
+      "message": "same here ?",
+      "revId": "7205a70f8c4f702cf16fa7467fb3d05427346316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
