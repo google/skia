@@ -1420,7 +1420,7 @@ bool SkAAClip::setPath(const SkPath& path, const SkRegion* clip, bool doAA) {
     BuilderBlitter blitter(&builder);
 
     if (doAA) {
-#ifdef SK_SUPPORT_LEGACY_DELTA_AA
+#ifdef SK_SUPPORT_LEGACY_AA_CHOICE
         if (gSkUseAnalyticAA.load()) {
             SkScan::AAAFillPath(path, snugClip, &blitter, true);
         } else {
