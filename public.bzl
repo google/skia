@@ -131,7 +131,8 @@ def opts_cflags(opts):
   elif opts == SKIA_OPTS_NEON:
     return ["-mfpu=neon"]
   elif opts == SKIA_OPTS_CRC32:
-    return ["-march=armv8-a+crc"]
+    # Older Clangs don't know -march=armv8-a+crc, but the assembler does.
+    return ["-Xassembler -march=armv8-a+crc"]
   else:
     return []
 
@@ -176,7 +177,7 @@ def skia_opts_deps(cpu):
 
   if cpu == SKIA_CPU_ARM64:
     res += [":opts_crc32"]
-  
+
   if cpu == SKIA_CPU_X86:
     res += [
         ":opts_sse2",
