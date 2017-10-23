@@ -93,6 +93,29 @@
       "revId": "2e90993de09647d36f44a9c494cb1b66e6bb8b3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f760362_57e47c3a",
+        "filename": "tests/CodecPartialTest.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-23T17:11:13Z",
+      "side": 1,
+      "message": "Why did these get removed?",
+      "range": {
+        "startLine": 143,
+        "startChar": 4,
+        "endLine": 143,
+        "endChar": 37
+      },
+      "revId": "2e90993de09647d36f44a9c494cb1b66e6bb8b3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

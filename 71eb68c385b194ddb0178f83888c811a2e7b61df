@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33d2ef59_3b7513c9",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 45
+      },
+      "lineNbr": 818,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-23T17:11:13Z",
+      "side": 1,
+      "message": "This got moved above the fLinesToSkip code. What happens if we\u0027re doing a a subset decode on a progressive image?",
+      "range": {
+        "startLine": 818,
+        "startChar": 4,
+        "endLine": 818,
+        "endChar": 23
+      },
+      "revId": "71eb68c385b194ddb0178f83888c811a2e7b61df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a399df92_d0c46002",
+        "filename": "src/codec/SkJpegUtility.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-23T17:11:13Z",
+      "side": 1,
+      "message": "Did you test on any images with restart markers? (I believe raptor.jpg, included in a Chromium checkout, has them, though I don\u0027t remember for sure.)",
+      "range": {
+        "startLine": 42,
+        "startChar": 9,
+        "endLine": 42,
+        "endChar": 22
+      },
+      "revId": "71eb68c385b194ddb0178f83888c811a2e7b61df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
