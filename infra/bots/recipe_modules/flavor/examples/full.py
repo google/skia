@@ -97,6 +97,7 @@ TEST_BUILDERS = [
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-All',
   'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack',
 ]
 
 
