@@ -39,6 +39,10 @@ struct skjpeg_source_mgr : jpeg_source_mgr {
         kBufferSize = 1024
     };
     uint8_t fBuffer[kBufferSize];
+    bool fNeedsRestart;
+    int fNextReadPosition;
+    int fRestartPosition;
+    const JOCTET* fLastSetByte;
 };
 
 #endif

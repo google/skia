@@ -29,6 +29,10 @@ static void sk_init_buffered_source(j_decompress_ptr dinfo) {
     skjpeg_source_mgr* src = (skjpeg_source_mgr*) dinfo->src;
     src->next_input_byte = (const JOCTET*) src->fBuffer;
     src->bytes_in_buffer = 0;
+    src->fNeedsRestart = false;
+    src->fNextReadPosition = 0;
+    src->fRestartPosition = 0;
+    src->fLastSetByte = nullptr;
 }
 
 /*
@@ -36,18 +40,34 @@ static void sk_init_buffered_source(j_decompress_ptr dinfo) {
  */
 static boolean sk_fill_buffered_input_buffer(j_decompress_ptr dinfo) {
     skjpeg_source_mgr* src = (skjpeg_source_mgr*) dinfo->src;
-    size_t bytes = src->fStream->read(src->fBuffer, skjpeg_source_mgr::kBufferSize);
 
-    // libjpeg is still happy with a less than full read, as long as the result is non-zero
+    if (src->fNeedsRestart) {
+        src->fNeedsRestart = false;
+        src->fNextReadPosition = src->fRestartPosition;
+        src->fStream->seek(src->fNextReadPosition);
+    } else {
+        if (src->fLastSetByte != dinfo->src->next_input_byte) {
+            // next_input_byte was updated by jpeg, meaning that it found a restart
+            // position.
+            src->fRestartPosition = src->fNextReadPosition - dinfo->src->bytes_in_buffer;
+        }
+    }
+
+    size_t bytes = src->fStream->read(src->fBuffer, skjpeg_source_mgr::kBufferSize);
     if (bytes == 0) {
         // Let libjpeg know that the buffer needs to be refilled
         src->next_input_byte = nullptr;
         src->bytes_in_buffer = 0;
+        src->fLastSetByte = nullptr;
+        src->fNeedsRestart = true;
         return false;
     }
 
     src->next_input_byte = (const JOCTET*) src->fBuffer;
     src->bytes_in_buffer = bytes;
+    src->fNextReadPosition += bytes;
+    src->fLastSetByte = (const JOCTET*) src->fBuffer;
+
     return true;
 }
 
@@ -66,12 +86,17 @@ static void sk_skip_buffered_input_data(j_decompress_ptr dinfo, long numBytes) {
             return;
         }
 
+        src->fNextReadPosition =  src->fNextReadPosition + bytesToSkip - src->bytes_in_buffer;
         src->next_input_byte = (const JOCTET*) src->fBuffer;
         src->bytes_in_buffer = 0;
     } else {
         src->next_input_byte += numBytes;
         src->bytes_in_buffer -= numBytes;
     }
+
+    // This is a valid restart position.
+    src->fRestartPosition = src->fNextReadPosition - src->bytes_in_buffer;
+    src->fLastSetByte = src->next_input_byte;
 }
 
 /*

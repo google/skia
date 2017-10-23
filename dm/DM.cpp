@@ -421,12 +421,6 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
         case CodecSrc::kScanline_Mode:
             folder.append("scanline");
             break;
-        case CodecSrc::kStripe_Mode:
-            folder.append("stripe");
-            break;
-        case CodecSrc::kCroppedScanline_Mode:
-            folder.append("crop");
-            break;
         case CodecSrc::kSubset_Mode:
             folder.append("codec_subset");
             break;
@@ -614,8 +608,6 @@ static void push_codec_srcs(Path path) {
     switch (codec->getEncodedFormat()) {
         case SkEncodedImageFormat::kJPEG:
             nativeModes.push_back(CodecSrc::kScanline_Mode);
-            nativeModes.push_back(CodecSrc::kStripe_Mode);
-            nativeModes.push_back(CodecSrc::kCroppedScanline_Mode);
             supportsNativeScaling = true;
             break;
         case SkEncodedImageFormat::kWEBP:
@@ -649,13 +641,6 @@ static void push_codec_srcs(Path path) {
     for (CodecSrc::Mode mode : nativeModes) {
         for (CodecSrc::DstColorType colorType : colorTypes) {
             for (SkAlphaType alphaType : alphaModes) {
-                // Only test kCroppedScanline_Mode when the alpha type is premul.  The test is
-                // slow and won't be interestingly different with different alpha types.
-                if (CodecSrc::kCroppedScanline_Mode == mode &&
-                        kPremul_SkAlphaType != alphaType) {
-                    continue;
-                }
-
                 push_codec_src(path, mode, colorType, alphaType, 1.0f);
 
                 // Skip kNonNative on different native scales.  It won't be interestingly
