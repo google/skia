@@ -358,10 +358,10 @@ TEST_BUILDERS = [
    'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
    'Valgrind_SK_CPU_LIMIT_SSE41'),
+  'Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE',
+  'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan',
-  'Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE',
-  'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE',
-  'Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE',
+  'Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE',
   'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-All',
   'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-All',
   'Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All',

@@ -91,7 +91,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE\\data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE\\data"
     ],
     "infra_step": true,
     "name": "rmtree data"
@@ -106,7 +106,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE\\data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE\\data"
     ],
     "infra_step": true,
     "name": "makedirs data"
@@ -160,8 +160,8 @@
       "--nocpu",
       "--config",
       "angle_d3d11_es2",
+      "angle_d3d11_es2_msaa8",
       "--match",
-      "~tile_image_filter_tiled_64",
       "~inc0.gif",
       "~inc1.gif",
       "~incInterlaced.gif",
@@ -182,7 +182,7 @@
       "~inc0.webp",
       "~inc1.webp",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE\\data\\nanobench_abc123_1337000001.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE\\data\\nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -194,15 +194,15 @@
       "arch",
       "x86_64",
       "compiler",
-      "MSVC",
+      "Clang",
       "cpu_or_gpu",
       "GPU",
       "cpu_or_gpu_value",
-      "IntelIris540",
+      "RadeonR9M470X",
       "extra_config",
       "ANGLE",
       "model",
-      "NUC6i5SYK",
+      "AlphaR2",
       "os",
       "Win10"
     ],
@@ -224,7 +224,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
