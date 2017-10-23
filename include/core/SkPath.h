@@ -51,8 +51,8 @@ public:
     travel counterclockwise.
 */
 enum Direction {
-    kCW_Direction,  //!< Contour travels in a clockwise direction.
-    kCCW_Direction, //!< Contour travels in a counterclockwise direction.
+    kCW_Direction,  //!< Contour travels in a clockwise direction
+    kCCW_Direction, //!< Contour travels in a counterclockwise direction
 };
 
     /** By default, SkPath has no SkPath::Verb, no SkPoint, and no weights.
@@ -886,8 +886,8 @@ enum Direction {
         ArcSize and Direction select one of the four oval parts.
     */
     enum ArcSize {
-        kSmall_ArcSize, //!< Smaller of arc pair.
-        kLarge_ArcSize, //!< Larger of arc pair.
+        kSmall_ArcSize, //!< smaller of arc pair
+        kLarge_ArcSize, //!< larger of arc pair
     };
 
     /** Append arc to SkPath. Arc is implemented by one or more conics weighted to describe part of oval
@@ -1587,9 +1587,9 @@ enum Direction {
     */
     bool contains(SkScalar x, SkScalar y) const;
 
-    /** Writes text representation of SkPath to stream. If stream is nullptr, dump() writes to
-        standard output. Set forceClose to true to get
-        edges used to fill SkPath. Set dumpAsHex true to get exact binary representations
+    /** Writes text representation of SkPath to stream. If stream is nullptr, writes to
+        standard output. Set forceClose to true to get edges used to fill SkPath.
+        Set dumpAsHex true to generate exact binary representations
         of floating point numbers used in SkPoint arrays and conic weights.
 
         @param stream      writable SkFlattenable receiving SkPath text representation; may be nullptr

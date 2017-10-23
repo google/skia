@@ -24,8 +24,8 @@ struct SkMask;
     Use SkBitmap to draw pixels referenced by SkPixmap; use SkSurface to draw into
     pixels referenced by SkPixmap.
 
-    SkPixmap does not try to manage the lifetime of the pixel memory. Use PixelRef
-    to manage pixel memory; PixelRef is safe across threads.
+    SkPixmap does not try to manage the lifetime of the pixel memory. Use SkPixelRef
+    to manage pixel memory; SkPixelRef is safe across threads.
 */
 class SK_API SkPixmap {
 public:
@@ -130,7 +130,8 @@ public:
         is at least as large as
         width() * info().bytesPerPixel().
 
-        It is up to the SkPixmap creator to ensure that row bytes is a useful value.
+        Returns zero if colorType() is kUnknown_SkColorType.
+        It is up to the SkBitmap creator to ensure that row bytes is a useful value.
 
         @return  byte length of pixel row
     */
@@ -145,7 +146,7 @@ public:
     const void* addr() const { return fPixels; }
 
     /** Returns pixel count in each pixel row. Should be equal or less than:
-        rowBytes() / info.bytesPerPixel().
+        rowBytes() / info().bytesPerPixel().
 
         @return  pixel width in SkImageInfo
     */
@@ -172,14 +173,17 @@ public:
     */
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
 
-    /** Returns SkColorSpace associated with SkImageInfo.
+    /** Returns SkColorSpace associated with SkImageInfo. The
+        reference count of SkColorSpace is unchanged. The returned SkColorSpace is
+        immutable.
 
-        @return  SkColorSpace in SkImageInfo
+        @return  SkColorSpace, the range of colors, in SkImageInfo
     */
     SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
 
     /** Returns true if SkAlphaType is kOpaque_SkAlphaType.
-        Does not check if SkColorType allows alpha, or alpha in pixel values.
+        Does not check if SkColorType allows alpha, or if any pixel value has
+        transparency.
 
         @return  true if SkImageInfo has opaque SkAlphaType
     */
@@ -206,10 +210,14 @@ public:
     */
     int shiftPerPixel() const { return fInfo.shiftPerPixel(); }
 
-    /**
-     *  Returns the size (in bytes) of the pixmap's image buffer.
-     *  If the calculation overflows, this returns max_size_t.
-     */
+    /** Returns minimum memory required for pixel storage.
+        Does not include unused memory on last row when rowBytesAsPixels() exceeds width().
+        Returns zero if result does not fit in size_t.
+        Returns zero if height() or width() is 0.
+        Returns height() times rowBytes() if colorType() is kUnknown_SkColorType.
+
+        @return  size in bytes of image buffer
+    */
     size_t computeByteSize() const { return fInfo.computeByteSize(fRowBytes); }
 
     /** Returns true if all pixels are opaque. SkColorType determines how pixels
@@ -226,7 +234,7 @@ public:
 
         Returns false for kUnknown_SkColorType.
 
-        @return  true all pixels have opaque values or SkColorType is opaque
+        @return  true if all pixels have opaque values or SkColorType is opaque
     */
     bool computeIsOpaque() const;
 
@@ -248,10 +256,13 @@ public:
     */
     SkColor getColor(int x, int y) const;
 
-    /** Returns readable pixel address at (x, y).
+    /** Returns readable pixel address at (x, y). Returns nullptr if SkPixelRef is nullptr.
 
         Input is not validated: out of bounds values of x or y trigger an assert() if
-        built with SK_DEBUG defined. Returns zero if SkColorType is kUnknown_SkColorType.
+        built with SK_DEBUG defined. Returns nullptr if SkColorType is kUnknown_SkColorType.
+
+        Performs a lookup of pixel size; for better performance, call
+        one of: addr8, addr16, addr32, addr64, or addrF16().
 
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
@@ -534,7 +545,7 @@ public:
         If behavior is SkTransferFunctionBehavior::kRespect: converts source
         pixels to a linear space before converting to dstInfo.
         If behavior is SkTransferFunctionBehavior::kIgnore: source
-        pixels are treated as if they are linear, regardless of their encoding.
+        pixels are treated as if they are linear, regardless of how they are encoded.
 
         @param dstInfo      destination width, height, SkColorType, SkAlphaType, SkColorSpace
         @param dstPixels    destination pixel storage
