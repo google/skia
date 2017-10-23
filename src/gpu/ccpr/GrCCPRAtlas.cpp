@@ -105,7 +105,6 @@ sk_sp<GrRenderTargetContext> GrCCPRAtlas::finalize(GrOnFlushResourceProvider* on
     SkASSERT(!fTextureProxy);
 
     GrSurfaceDesc desc;
-    desc.fOrigin = GrCCPRCoverageProcessor::kAtlasOrigin;
     desc.fWidth = fWidth;
     desc.fHeight = fHeight;
     desc.fConfig = kAlpha_half_GrPixelConfig;
