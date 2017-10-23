@@ -10,10 +10,12 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrRenderTargetContext.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrSemaphore.h"
 #include "GrTexture.h"
+#include "GrTexturePriv.h"
 
 #include "SkGr.h"
 #include "SkMessageBus.h"
@@ -32,11 +34,12 @@ GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
 static GrBackendTexture make_backend_texture_from_handle(GrBackend backend,
                                                          int width, int height,
                                                          GrPixelConfig config,
+                                                         GrMipMapped mipMapped,
                                                          GrBackendObject handle) {
     switch (backend) {
         case kOpenGL_GrBackend: {
             const GrGLTextureInfo* glInfo = (const GrGLTextureInfo*)(handle);
-            return GrBackendTexture(width, height, config, *glInfo);
+            return GrBackendTexture(width, height, config, mipMapped, *glInfo);
         }
 #ifdef SK_VULKAN
         case kVulkan_GrBackend: {
@@ -46,7 +49,7 @@ static GrBackendTexture make_backend_texture_from_handle(GrBackend backend,
 #endif
         case kMock_GrBackend: {
             const GrMockTextureInfo* mockInfo = (const GrMockTextureInfo*)(handle);
-            return GrBackendTexture(width, height, config, *mockInfo);
+            return GrBackendTexture(width, height, config, mipMapped, *mockInfo);
         }
         default:
             return GrBackendTexture();
@@ -74,10 +77,13 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     context->getResourceCache()->insertCrossContextGpuResource(texture.get());
 
     GrBackend backend = context->contextPriv().getBackend();
+    GrMipMapped mipMapped = texture->texturePriv().hasMipMaps() ? GrMipMapped::kYes
+                                                                : GrMipMapped::kNo;
     GrBackendTexture backendTexture = make_backend_texture_from_handle(backend,
                                                                        texture->width(),
                                                                        texture->height(),
                                                                        texture->config(),
+                                                                       mipMapped,
                                                                        texture->getTextureHandle());
 
     SkImageInfo info = SkImageInfo::Make(texture->width(), texture->height(), colorType, alphaType,
@@ -170,35 +176,28 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex), fSurfaceOrigin);
 
     if (0 == origin.fX && 0 == origin.fY &&
-        info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height()) {
-        // If the caller wants the entire texture, we're done
+        info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&
+        (!willNeedMipMaps || proxy->isMipMapped())) {
+        // If the caller wants the entire texture and we have the correct mip support, we're done
         return proxy;
     } else {
         // Otherwise, make a copy of the requested subset. Make sure our temporary is renderable,
-        // because Vulkan will want to do the copy as a draw.
-        GrSurfaceDesc desc;
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        desc.fOrigin = proxy->origin();
-        desc.fWidth = info.width();
-        desc.fHeight = info.height();
-        desc.fConfig = proxy->config();
-        // TODO: We should support the case where we can allocate the mips ahead of time then copy
-        // the subregion into the base layer and then let the GPU generate the rest of the mip
-        // levels.
-        SkASSERT(!proxy->isMipMapped());
+        // because Vulkan will want to do the copy as a draw. All other copies would require a
+        // layout change in Vulkan and we do not change the layout of borrowed images.
+        sk_sp<GrRenderTargetContext> rtContext(context->makeDeferredRenderTargetContext(
+                SkBackingFit::kExact, info.width(), info.height(), proxy->config(), nullptr,
+                0, willNeedMipMaps, proxy->origin(), nullptr, SkBudgeted::kYes));
 
-        sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeDeferredSurfaceContext(
-            desc, SkBackingFit::kExact, SkBudgeted::kYes));
-        if (!sContext) {
+        if (!rtContext) {
             return nullptr;
         }
 
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
-        if (!sContext->copy(proxy.get(), subset, SkIPoint::Make(0, 0))) {
+        if (!rtContext->copy(proxy.get(), subset, SkIPoint::Make(0, 0))) {
             return nullptr;
         }
 
-        return sContext->asTextureProxyRef();
+        return rtContext->asTextureProxyRef();
     }
 }
 #endif
