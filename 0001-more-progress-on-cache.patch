@@ -1,0 +1,372 @@
+From b9c121dfb87e9fc005573c10642c1680e0ee37b1 Mon Sep 17 00:00:00 2001
+From: Ethan Nicholas <ethannicholas@google.com>
+Date: Tue, 17 Oct 2017 15:41:30 -0400
+Subject: [PATCH] more progress on cache
+
+---
+ include/gpu/gl/GrGLFunctions.h             |   3 +
+ include/gpu/gl/GrGLInterface.h             |   7 +-
+ src/gpu/gl/GrGLAssembleInterface.cpp       |   7 ++
+ src/gpu/gl/GrGLDefines.h                   |   3 +
+ src/gpu/gl/GrGLGpuProgramCache.cpp         |  38 ++++------
+ src/gpu/gl/builders/GrGLProgramBuilder.cpp | 107 +++++++++++++++--------------
+ src/gpu/gl/builders/GrGLProgramBuilder.h   |  18 ++---
+ 7 files changed, 95 insertions(+), 88 deletions(-)
+
+diff --git a/include/gpu/gl/GrGLFunctions.h b/include/gpu/gl/GrGLFunctions.h
+index 90c3de1caa..3ccfb62a4d 100644
+--- a/include/gpu/gl/GrGLFunctions.h
++++ b/include/gpu/gl/GrGLFunctions.h
+@@ -91,6 +91,7 @@ typedef GrGLenum (* GrGLGetErrorProc)();
+ typedef GrGLvoid (* GrGLGetFramebufferAttachmentParameterivProc)(GrGLenum target, GrGLenum attachment, GrGLenum pname, GrGLint* params);
+ typedef GrGLvoid (* GrGLGetIntegervProc)(GrGLenum pname, GrGLint* params);
+ typedef GrGLvoid (* GrGLGetMultisamplefvProc)(GrGLenum pname, GrGLuint index, GrGLfloat* val);
++typedef GrGLvoid (* GrGLGetProgramBinaryProc)(GrGLuint program, GrGLsizei bufsize, GrGLsizei* length, GrGLenum *binaryFormat, void *binary);
+ typedef GrGLvoid (* GrGLGetProgramInfoLogProc)(GrGLuint program, GrGLsizei bufsize, GrGLsizei* length, char* infolog);
+ typedef GrGLvoid (* GrGLGetProgramivProc)(GrGLuint program, GrGLenum pname, GrGLint* params);
+ typedef GrGLvoid (* GrGLGetQueryivProc)(GrGLenum GLtarget, GrGLenum pname, GrGLint *params);
+@@ -125,6 +126,8 @@ typedef GrGLvoid* (* GrGLMemoryBarrierByRegionProc)(GrGLbitfield barriers);
+ typedef GrGLvoid (* GrGLPixelStoreiProc)(GrGLenum pname, GrGLint param);
+ typedef GrGLvoid (* GrGLPolygonModeProc)(GrGLenum face, GrGLenum mode);
+ typedef GrGLvoid (* GrGLPopGroupMarkerProc)();
++typedef GrGLvoid (* GrGLProgramBinaryProc)(GrGLuint program, GrGLenum binaryFormat, void *binary, GrGLsizei length);
++typedef GrGLvoid (* GrGLProgramParameteriProc)(GrGLuint program, GrGLenum pname, GrGLint value);
+ typedef GrGLvoid (* GrGLPushGroupMarkerProc)(GrGLsizei length, const char* marker);
+ typedef GrGLvoid (* GrGLQueryCounterProc)(GrGLuint id, GrGLenum target);
+ typedef GrGLvoid (* GrGLRasterSamplesProc)(GrGLuint samples, GrGLboolean fixedsamplelocations);
+diff --git a/include/gpu/gl/GrGLInterface.h b/include/gpu/gl/GrGLInterface.h
+index f1785326fb..e752c2d6e8 100644
+--- a/include/gpu/gl/GrGLInterface.h
++++ b/include/gpu/gl/GrGLInterface.h
+@@ -177,13 +177,14 @@ public:
+         GrGLFunction<GrGLGetFramebufferAttachmentParameterivProc> fGetFramebufferAttachmentParameteriv;
+         GrGLFunction<GrGLGetIntegervProc> fGetIntegerv;
+         GrGLFunction<GrGLGetMultisamplefvProc> fGetMultisamplefv;
++        GrGLFunction<GrGLGetProgramBinaryProc> fGetProgramBinary;
++        GrGLFunction<GrGLGetProgramInfoLogProc> fGetProgramInfoLog;
++        GrGLFunction<GrGLGetProgramivProc> fGetProgramiv;
+         GrGLFunction<GrGLGetQueryObjecti64vProc> fGetQueryObjecti64v;
+         GrGLFunction<GrGLGetQueryObjectivProc> fGetQueryObjectiv;
+         GrGLFunction<GrGLGetQueryObjectui64vProc> fGetQueryObjectui64v;
+         GrGLFunction<GrGLGetQueryObjectuivProc> fGetQueryObjectuiv;
+         GrGLFunction<GrGLGetQueryivProc> fGetQueryiv;
+-        GrGLFunction<GrGLGetProgramInfoLogProc> fGetProgramInfoLog;
+-        GrGLFunction<GrGLGetProgramivProc> fGetProgramiv;
+         GrGLFunction<GrGLGetRenderbufferParameterivProc> fGetRenderbufferParameteriv;
+         GrGLFunction<GrGLGetShaderInfoLogProc> fGetShaderInfoLog;
+         GrGLFunction<GrGLGetShaderivProc> fGetShaderiv;
+@@ -202,6 +203,8 @@ public:
+         GrGLFunction<GrGLIsTextureProc> fIsTexture;
+         GrGLFunction<GrGLLineWidthProc> fLineWidth;
+         GrGLFunction<GrGLLinkProgramProc> fLinkProgram;
++        GrGLFunction<GrGLProgramBinaryProc> fProgramBinary;
++        GrGLFunction<GrGLProgramParameteriProc> fProgramParameteri;
+         GrGLFunction<GrGLMapBufferProc> fMapBuffer;
+         GrGLFunction<GrGLMapBufferRangeProc> fMapBufferRange;
+         GrGLFunction<GrGLMapBufferSubDataProc> fMapBufferSubData;
+diff --git a/src/gpu/gl/GrGLAssembleInterface.cpp b/src/gpu/gl/GrGLAssembleInterface.cpp
+index d33a8b6cb1..cefb24fa5c 100644
+--- a/src/gpu/gl/GrGLAssembleInterface.cpp
++++ b/src/gpu/gl/GrGLAssembleInterface.cpp
+@@ -535,6 +535,13 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
+         GET_PROC(GetInternalformativ);
+     }
+ 
++    // FIXME need to figure out what versions actually support this
++    if (glVer >= GR_GL_VER(4, 0)) {
++        GET_PROC(GetProgramBinary);
++        GET_PROC(ProgramBinary);
++        GET_PROC(ProgramParameteri);
++    }
++
+     interface->fStandard = kGL_GrGLStandard;
+     interface->fExtensions.swap(&extensions);
+ 
+diff --git a/src/gpu/gl/GrGLDefines.h b/src/gpu/gl/GrGLDefines.h
+index b62c26bcc2..40fe630810 100644
+--- a/src/gpu/gl/GrGLDefines.h
++++ b/src/gpu/gl/GrGLDefines.h
+@@ -1079,4 +1079,7 @@
+ #define GR_EGL_NONE                                         0x3038
+ #define GR_EGL_NO_IMAGE                                    ((GrEGLImage)0)
+ 
++/* Programs */
++#define GR_GL_PROGRAM_BINARY_RETRIEVABLE_HINT               0x8257  
++#define GL_PROGRAM_BINARY_LENGTH                            0x8741
+ #endif
+diff --git a/src/gpu/gl/GrGLGpuProgramCache.cpp b/src/gpu/gl/GrGLGpuProgramCache.cpp
+index 3b830dbd51..95c345b3b0 100644
+--- a/src/gpu/gl/GrGLGpuProgramCache.cpp
++++ b/src/gpu/gl/GrGLGpuProgramCache.cpp
+@@ -83,44 +83,34 @@ class ShaderCache : public GrGLProgramBuilder::PersistentCache {
+         return result;
+     }
+ 
+-    bool load(const GrProgramDesc& key, GrGLProgramBuilder::PersistentCache::Shader* outVS,
+-              GrGLProgramBuilder::PersistentCache::Shader* outGS,
+-              GrGLProgramBuilder::PersistentCache::Shader* outFS) override {
++    bool load(const GrProgramDesc& key, GrGLProgramBuilder::PersistentCache::Shader* out) override {
+         std::ifstream in(this->getFilename(key).c_str());
+         if (!in.good()) {
+             return false;
+         }
+-        std::string vs;
+-        std::getline(in, vs, '\0');
+-        outVS->fText = vs.c_str();
+-        in.read((char*) &outVS->fInputs, sizeof(outVS->fInputs));
+-        std::string gs;
+-        std::getline(in, gs, '\0');
+-        outGS->fText = gs.c_str();
+-        in.read((char*) &outGS->fInputs, sizeof(outGS->fInputs));
+-        std::string fs;
+-        std::getline(in, fs, '\0');
+-        outFS->fText = fs.c_str();
+-        in.read((char*) &outFS->fInputs, sizeof(outFS->fInputs));
++        in.read((char*) &out->fBinaryFormat, sizeof(out->fBinaryFormat));
++        size_t length;
++        in.read((char*) &length, sizeof(length));
++        out->fProgramBinary.insert(out->fProgramBinary.begin(), length, 0);
++        in.read(out->fProgramBinary.data(), length);
++        in.read((char*) &out->fInputs, sizeof(out->fInputs));
+         if (in.bad()) {
+             return false;
+         }
+         return true;
+     }
+ 
+-    void store(const GrProgramDesc& key, const GrGLProgramBuilder::PersistentCache::Shader& vs,
+-               const GrGLProgramBuilder::PersistentCache::Shader& gs,
+-               const GrGLProgramBuilder::PersistentCache::Shader& fs) override {
++    void store(const GrProgramDesc& key,
++               const GrGLProgramBuilder::PersistentCache::Shader& shader) override {
+         std::ofstream out(this->getFilename(key).c_str());
+         if (out.bad()) {
+             return;
+         }
+-        out << vs.fText.c_str() << '\0';
+-        out.write((char*) &vs.fInputs, sizeof(vs.fInputs));
+-        out << gs.fText.c_str() << '\0';
+-        out.write((char*) &gs.fInputs, sizeof(gs.fInputs));
+-        out << fs.fText.c_str() << '\0';
+-        out.write((char*) &fs.fInputs, sizeof(fs.fInputs));
++        out.write((char*) &shader.fBinaryFormat, sizeof(shader.fBinaryFormat));
++        size_t length = shader.fProgramBinary.size();
++        out.write((char*) &length, sizeof(length));
++        out.write(shader.fProgramBinary.data(), length);
++        out.write((char*) &shader.fInputs, sizeof(shader.fInputs));
+     }
+ };
+ 
+diff --git a/src/gpu/gl/builders/GrGLProgramBuilder.cpp b/src/gpu/gl/builders/GrGLProgramBuilder.cpp
+index 780b415e4d..a0fcd6c23c 100644
+--- a/src/gpu/gl/builders/GrGLProgramBuilder.cpp
++++ b/src/gpu/gl/builders/GrGLProgramBuilder.cpp
+@@ -43,7 +43,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPipeline& pipeline,
+     GrGLProgramBuilder builder(gpu, pipeline, primProc, desc, cache);
+ 
+     if (cache) {
+-        cache->load(*desc, &builder.fCachedVS, &builder.fCachedGS, &builder.fCachedFS);
++        cache->load(*desc, &builder.fCached);
+         // the eventual end goal is to completely skip emitAndInstallProcs on a cache hit, but it's
+         // doing necessary setup in addition to generating the SkSL code. Currently we are only able
+         // to skip the SkSL->GLSL step on a cache hit.
+@@ -140,6 +140,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
+     // verify we can get a program id
+     GrGLuint programID;
+     GL_CALL_RET(programID, CreateProgram());
++    GL_CALL(ProgramParameteri(programID, GR_GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GR_GL_TRUE));
+     if (0 == programID) {
+         this->cleanupFragmentProcessors();
+         return nullptr;
+@@ -154,16 +155,13 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
+     settings.fFlipY = this->pipeline().proxy()->origin() != kTopLeft_GrSurfaceOrigin;
+     SkSL::Program::Inputs inputs;
+     SkTDArray<GrGLuint> shadersToDelete;
+-    SkSL::String vsGLSL;
+-    SkSL::String gsGLSL;
+-    SkSL::String fsGLSL;
+-    bool cached = fCachedVS.fText.size();
++    bool cached = fCached.fProgramBinary.size();
+     if (cached) {
+-        vsGLSL = std::move(fCachedVS.fText);
+-        gsGLSL = std::move(fCachedGS.fText);
+-        fsGLSL = std::move(fCachedFS.fText);
+-        inputs = fCachedFS.fInputs;
++        inputs = fCached.fInputs;
++        GL_CALL(ProgramBinary(programID, fCached.fBinaryFormat, fCached.fProgramBinary.data(),
++                              fCached.fProgramBinary.size()));
+     } else {
++        SkSL::String vsGLSL;
+         std::unique_ptr<SkSL::Program> vs = GrSkSLtoGLSL(gpu()->glContext(),
+                                                          GR_GL_VERTEX_SHADER,
+                                                          fVS.fCompilerStrings.begin(),
+@@ -171,6 +169,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
+                                                          fVS.fCompilerStrings.count(),
+                                                          settings,
+                                                          &vsGLSL);
++        SkSL::String gsGLSL;
+         std::unique_ptr<SkSL::Program> gs;
+         if (primProc.willUseGeoShader()) {
+             gs = GrSkSLtoGLSL(gpu()->glContext(),
+@@ -184,6 +183,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
+         if (fFS.fForceHighPrecision) {
+             settings.fForceHighPrecision = true;
+         }
++        SkSL::String fsGLSL;
+         std::unique_ptr<SkSL::Program> fs = GrSkSLtoGLSL(gpu()->glContext(),
+                                                          GR_GL_FRAGMENT_SHADER,
+                                                          fFS.fCompilerStrings.begin(),
+@@ -192,52 +192,44 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
+                                                          settings,
+                                                          &fsGLSL);
+         inputs = fs->fInputs;
+-        if (fCache) {
+-            fCache->store(*this->desc(),
+-                          { vsGLSL, vs->fInputs },
+-                          { gsGLSL, gs ? gs->fInputs : SkSL::Program::Inputs() },
+-                          { fsGLSL, fs->fInputs });
++    
++        if (!this->compileAndAttachShaders(vsGLSL.c_str(), vsGLSL.size(), programID,
++                                           GR_GL_VERTEX_SHADER, &shadersToDelete, settings,
++                                           inputs)) {
++            this->cleanupProgram(programID, shadersToDelete);
++            return nullptr;
+         }
+-    }
+-    if (inputs.fRTHeight) {
+-        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
+-    }
+-
+-    if (!this->compileAndAttachShaders(vsGLSL.c_str(), vsGLSL.size(), programID,
+-                                       GR_GL_VERTEX_SHADER, &shadersToDelete, settings,
+-                                       fCachedVS.fInputs)) {
+-        this->cleanupProgram(programID, shadersToDelete);
+-        return nullptr;
+-    }
+-
+-    // NVPR actually requires a vertex shader to compile
+-    bool useNvpr = primProc.isPathRendering();
+-    if (!useNvpr) {
+-        int vaCount = primProc.numAttribs();
+-        for (int i = 0; i < vaCount; i++) {
+-            GL_CALL(BindAttribLocation(programID, i, primProc.getAttrib(i).fName));
++    
++        // NVPR actually requires a vertex shader to compile
++        bool useNvpr = primProc.isPathRendering();
++        if (!useNvpr) {
++            int vaCount = primProc.numAttribs();
++            for (int i = 0; i < vaCount; i++) {
++                GL_CALL(BindAttribLocation(programID, i, primProc.getAttrib(i).fName));
++            }
+         }
+-    }
+-
+-    if (primProc.willUseGeoShader() &&
+-        !this->compileAndAttachShaders(gsGLSL.c_str(), gsGLSL.size(), programID,
+-                                       GR_GL_GEOMETRY_SHADER, &shadersToDelete, settings,
+-                                       fCachedGS.fInputs)) {
+-        this->cleanupProgram(programID, shadersToDelete);
+-        return nullptr;
+-    }
++    
++        if (primProc.willUseGeoShader() &&
++            !this->compileAndAttachShaders(gsGLSL.c_str(), gsGLSL.size(), programID,
++                                           GR_GL_GEOMETRY_SHADER, &shadersToDelete, settings,
++                                           inputs)) {
++            this->cleanupProgram(programID, shadersToDelete);
++            return nullptr;
++        }
++    
++        if (!this->compileAndAttachShaders(fsGLSL.c_str(), fsGLSL.size(), programID,
++                                           GR_GL_FRAGMENT_SHADER, &shadersToDelete, settings,
++                                           inputs)) {
++            this->cleanupProgram(programID, shadersToDelete);
++            return nullptr;
++        }
++        if (inputs.fRTHeight) {
++            this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
++        }
++        this->bindProgramResourceLocations(programID);
+ 
+-    if (!this->compileAndAttachShaders(fsGLSL.c_str(), fsGLSL.size(), programID,
+-                                       GR_GL_FRAGMENT_SHADER, &shadersToDelete, settings,
+-                                       fCachedFS.fInputs)) {
+-        this->cleanupProgram(programID, shadersToDelete);
+-        return nullptr;
++        GL_CALL(LinkProgram(programID));
+     }
+-
+-    this->bindProgramResourceLocations(programID);
+-
+-    GL_CALL(LinkProgram(programID));
+-
+     // Calling GetProgramiv is expensive in Chromium. Assume success in release builds.
+     bool checkLinked = kChromium_GrGLDriver != fGpu->ctxInfo().driver();
+ #ifdef SK_DEBUG
+@@ -266,6 +258,19 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
+     this->resolveProgramResourceLocations(programID);
+ 
+     this->cleanupShaders(shadersToDelete);
++    if (!cached && fCache) {
++        GrGLsizei length = 0;
++        GrGLenum binaryFormat;
++        GL_CALL(GetProgramiv(programID, GL_PROGRAM_BINARY_LENGTH, &length));
++        char* binary = new char[length];
++        GL_CALL(GetProgramBinary(programID, length, &length, &binaryFormat, binary));
++        PersistentCache::Shader shader;
++        shader.fBinaryFormat = binaryFormat;
++        shader.fProgramBinary.resize(length);
++        memcpy(shader.fProgramBinary.data(), binary, length);
++        fCache->store(*this->desc(), shader);
++        delete[] binary;
++    }
+     return this->createProgram(programID);
+ }
+ 
+diff --git a/src/gpu/gl/builders/GrGLProgramBuilder.h b/src/gpu/gl/builders/GrGLProgramBuilder.h
+index add2c5f036..dc8e768f63 100644
+--- a/src/gpu/gl/builders/GrGLProgramBuilder.h
++++ b/src/gpu/gl/builders/GrGLProgramBuilder.h
+@@ -30,22 +30,20 @@ public:
+     class PersistentCache {
+     public:
+         struct Shader {
+-            SkSL::String fText;
++            GrGLenum fBinaryFormat;
++            std::vector<char> fProgramBinary;
+             SkSL::Program::Inputs fInputs;
+         };
+ 
+         virtual ~PersistentCache() {}
+ 
+         /**
+-         * If the shader for this key exists, returns true and stores the saved strings into
+-         * outVS (vertex), outGS (geometry), and outFS (fragment). If the shader was not cached,
+-         * returns false and leaves the strings unmodified.
++         * If the shader for this key exists, returns true and stores the shader into out.
++         * If the shader was not cached, returns false and leaves out unmodified.
+          */
+-        virtual bool load(const GrProgramDesc& key, Shader* outVS, Shader* outGS,
+-                          Shader* outFS) = 0;
++        virtual bool load(const GrProgramDesc& key, Shader* out) = 0;
+ 
+-        virtual void store(const GrProgramDesc& key, const Shader& vs, const Shader& gs,
+-                           const Shader& fs) = 0;
++        virtual void store(const GrProgramDesc& key, const Shader& shader) = 0;
+     };
+ 
+     /** Generates a shader program.
+@@ -108,9 +106,7 @@ private:
+ 
+     PersistentCache* fCache;
+ 
+-    PersistentCache::Shader fCachedVS;
+-    PersistentCache::Shader fCachedGS;
+-    PersistentCache::Shader fCachedFS;
++    PersistentCache::Shader fCached;
+ 
+     typedef GrGLSLProgramBuilder INHERITED;
+ };
+-- 
+2.15.0.rc0.271.g36b669edcc-goog
+

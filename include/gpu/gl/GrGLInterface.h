@@ -177,13 +177,14 @@ public:
         GrGLFunction<GrGLGetFramebufferAttachmentParameterivProc> fGetFramebufferAttachmentParameteriv;
         GrGLFunction<GrGLGetIntegervProc> fGetIntegerv;
         GrGLFunction<GrGLGetMultisamplefvProc> fGetMultisamplefv;
+        GrGLFunction<GrGLGetProgramBinaryProc> fGetProgramBinary;
+        GrGLFunction<GrGLGetProgramInfoLogProc> fGetProgramInfoLog;
+        GrGLFunction<GrGLGetProgramivProc> fGetProgramiv;
         GrGLFunction<GrGLGetQueryObjecti64vProc> fGetQueryObjecti64v;
         GrGLFunction<GrGLGetQueryObjectivProc> fGetQueryObjectiv;
         GrGLFunction<GrGLGetQueryObjectui64vProc> fGetQueryObjectui64v;
         GrGLFunction<GrGLGetQueryObjectuivProc> fGetQueryObjectuiv;
         GrGLFunction<GrGLGetQueryivProc> fGetQueryiv;
-        GrGLFunction<GrGLGetProgramInfoLogProc> fGetProgramInfoLog;
-        GrGLFunction<GrGLGetProgramivProc> fGetProgramiv;
         GrGLFunction<GrGLGetRenderbufferParameterivProc> fGetRenderbufferParameteriv;
         GrGLFunction<GrGLGetShaderInfoLogProc> fGetShaderInfoLog;
         GrGLFunction<GrGLGetShaderivProc> fGetShaderiv;
@@ -202,6 +203,8 @@ public:
         GrGLFunction<GrGLIsTextureProc> fIsTexture;
         GrGLFunction<GrGLLineWidthProc> fLineWidth;
         GrGLFunction<GrGLLinkProgramProc> fLinkProgram;
+        GrGLFunction<GrGLProgramBinaryProc> fProgramBinary;
+        GrGLFunction<GrGLProgramParameteriProc> fProgramParameteri;
         GrGLFunction<GrGLMapBufferProc> fMapBuffer;
         GrGLFunction<GrGLMapBufferRangeProc> fMapBufferRange;
         GrGLFunction<GrGLMapBufferSubDataProc> fMapBufferSubData;
