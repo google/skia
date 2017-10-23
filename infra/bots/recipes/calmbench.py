@@ -38,7 +38,7 @@ def RunSteps(api):
   api.run.check_failure()
 
 def GenTests(api):
-  builder = "Calmbench-Debian9"
+  builder = "Calmbench-Debian9-Clang-x86_64-Release"
   test = (
     api.test(builder) +
     api.properties(buildername=builder,
