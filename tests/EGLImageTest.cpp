@@ -107,6 +107,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         return;
     }
 
+    // Since we are dealing with two different GL contexts here, we need to call finish so that the
+    // clearing of the texture that happens in createTextingOnlyBackendTexture occurs before we call
+    // TexSubImage below on the other context. Otherwise, it is possible the calls get reordered and
+    // the clearing overwrites the TexSubImage writes.
+    GR_GL_CALL(glCtx1->gl(), Finish());
+
     // Populate the texture using GL context 1. Important to use TexSubImage as TexImage orphans
     // the EGL image. Also, this must be done after creating the EGLImage as the texture
     // contents may not be preserved when the image is created.
