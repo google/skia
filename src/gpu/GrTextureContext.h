@@ -32,6 +32,7 @@ public:
     sk_sp<GrSurfaceProxy> asSurfaceProxyRef() override { return fTextureProxy; }
 
     GrTextureProxy* asTextureProxy() override { return fTextureProxy.get(); }
+    const GrTextureProxy* asTextureProxy() const override { return fTextureProxy.get(); }
     sk_sp<GrTextureProxy> asTextureProxyRef() override { return fTextureProxy; }
 
     GrRenderTargetProxy* asRenderTargetProxy() override;

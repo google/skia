@@ -52,11 +52,12 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
     if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNeedsStencil, kFlags,
-                               /* isMipped = */ false,
+                               GrMipMapped::kNo,
                                SkDestinationSurfaceColorMode::kLegacy, nullptr)) {
         return false;
     }
     SkASSERT(fTarget->asRenderTarget());
+    SkASSERT(!fTarget->asTexture());
     // Check that our a priori computation matched the ultimate reality
     SkASSERT(fRenderTargetFlags == fTarget->asRenderTarget()->renderTargetPriv().flags());
 
@@ -67,12 +68,13 @@ sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resource
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt, fNeedsStencil,
-                                                       kFlags, /* isMipped = */ false,
+                                                       kFlags, GrMipMapped::kNo,
                                                        SkDestinationSurfaceColorMode::kLegacy);
     if (!surface) {
         return nullptr;
     }
     SkASSERT(surface->asRenderTarget());
+    SkASSERT(!surface->asTexture());
     // Check that our a priori computation matched the ultimate reality
     SkASSERT(fRenderTargetFlags == surface->asRenderTarget()->renderTargetPriv().flags());
 
@@ -81,8 +83,9 @@ sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resource
 
 size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
     int colorSamplesPerPixel = this->numColorSamples() + 1;
+
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, colorSamplesPerPixel, false,
+    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, colorSamplesPerPixel, GrMipMapped::kNo,
                                   SkBackingFit::kApprox == fFit);
 }
 

@@ -42,7 +42,7 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
     if (fOriginalKey.isValid()) {
         proxy = this->context()->resourceProvider()->findOrCreateProxyByUniqueKey(
                                                             fOriginalKey, kTopLeft_GrSurfaceOrigin);
-        if (proxy && (!willBeMipped || proxy->isMipMapped())) {
+        if (proxy && (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped())) {
             return proxy;
         }
     }
@@ -61,7 +61,7 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
                 this->context()->resourceProvider()->assignUniqueKeyToProxy(fOriginalKey,
                                                                             proxy.get());
             }
-            if (!willBeMipped || proxy->isMipMapped()) {
+            if (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped()) {
                 SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
                 if (fOriginalKey.isValid()) {
                     GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
@@ -73,7 +73,7 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
 
     if (proxy) {
         SkASSERT(willBeMipped);
-        SkASSERT(!proxy->isMipMapped());
+        SkASSERT(GrMipMapped::kNo == proxy->mipMapped());
         // We need a mipped proxy, but we either found a proxy earlier that wasn't mipped or
         // generated a non mipped proxy. Thus we generate a new mipped surface and copy the original
         // proxy into the base layer. We will then let the gpu generate the rest of the mips.
