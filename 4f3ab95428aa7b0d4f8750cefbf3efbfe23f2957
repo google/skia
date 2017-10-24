@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4b8d20ef_14daa358",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-24T18:01:50Z",
+      "side": 1,
+      "message": "Already fixed.",
+      "range": {
+        "startLine": 571,
+        "startChar": 19,
+        "endLine": 571,
+        "endChar": 36
+      },
+      "revId": "4f3ab95428aa7b0d4f8750cefbf3efbfe23f2957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a90ce1e8_531fc53b",
         "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
         "patchSetId": 2
@@ -85,6 +108,30 @@
       "side": 1,
       "message": "Look at GrTypesPriv.h GrVertexAttribToSLType. It has kUShort2_GrVertexAttribType mapped to kUint2_GrSLType. This needs to be updated",
       "parentUuid": "b1173dea_79ba8438",
+      "range": {
+        "startLine": 119,
+        "startChar": 23,
+        "endLine": 119,
+        "endChar": 29
+      },
+      "revId": "4f3ab95428aa7b0d4f8750cefbf3efbfe23f2957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "167eaad4_fb194f0f",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-24T18:01:50Z",
+      "side": 1,
+      "message": "Ok, making sense now. I believe this change already fixed the usage you were talking about, which explains why I didn\u0027t think I found any users.",
+      "parentUuid": "53dc57eb_1e09af7d",
       "range": {
         "startLine": 119,
         "startChar": 23,
