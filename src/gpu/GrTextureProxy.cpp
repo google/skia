@@ -109,9 +109,7 @@ GrSamplerState::Filter GrTextureProxy::highestFilterMode() const {
 }
 
 size_t GrTextureProxy::onUninstantiatedGpuMemorySize() const {
-    // TODO: add tracking of mipmap state to improve the estimate. We track whether we are created
-    // with mip maps but not whether a texture read from the proxy will lazily generate mip maps.
-    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, 1, GrMipMapped::kYes,
+    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, 1, this->mipMapped(),
                                   SkBackingFit::kApprox == fFit);
 }
 
