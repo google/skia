@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "c52b6e2f_67a19cf9",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T15:36:29Z",
+      "side": 1,
+      "message": "Done (except the documentation to https://sites.google.com/a/google.com/skia/)",
+      "parentUuid": "39e5b70a_7463ed58",
+      "range": {
+        "startLine": 38,
+        "startChar": 4,
+        "endLine": 38,
+        "endChar": 18
+      },
+      "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "99cc0fcd_a332116c",
         "filename": "tools/rebaseline/add_legacy_flag.py",
         "patchSetId": 9
@@ -68,6 +92,30 @@
       "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4dad2417_fa23d40b",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T15:36:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99cc0fcd_a332116c",
+      "range": {
+        "startLine": 67,
+        "startChar": 25,
+        "endLine": 67,
+        "endChar": 37
+      },
+      "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +165,54 @@
     },
     {
       "key": {
+        "uuid": "0800f2cf_c2f7bc85",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T15:36:29Z",
+      "side": 1,
+      "message": "Changed to http://goto.google.com/androidcl",
+      "parentUuid": "5d356425_7f73827b",
+      "range": {
+        "startLine": 172,
+        "startChar": 61,
+        "endLine": 172,
+        "endChar": 65
+      },
+      "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0bfe8116_604c2b30",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T15:36:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "858224ef_3512fb9a",
+      "range": {
+        "startLine": 172,
+        "startChar": 31,
+        "endLine": 172,
+        "endChar": 56
+      },
+      "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dd239700_6ca33f29",
         "filename": "tools/rebaseline/add_legacy_flag.py",
         "patchSetId": 9
@@ -137,6 +233,30 @@
       "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "368e4e68_672739b9",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T15:36:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd239700_6ca33f29",
+      "range": {
+        "startLine": 179,
+        "startChar": 23,
+        "endLine": 179,
+        "endChar": 55
+      },
+      "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
