@@ -274,8 +274,8 @@ inline std::unique_ptr<GrDrawOp> GrAtlasTextBlob::makeOp(
         bool useBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
         op = GrAtlasTextOp::MakeDistanceField(
                 std::move(grPaint), glyphCount, cache, distanceAdjustTable,
-                renderTargetContext->isGammaCorrect(), paint.luminanceColor(), info.hasUseLCDText(),
-                useBGR, info.isAntiAliased());
+                renderTargetContext->colorSpaceInfo().isGammaCorrect(), paint.luminanceColor(),
+                info.hasUseLCDText(), useBGR, info.isAntiAliased());
     } else {
         op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format, glyphCount, cache);
     }

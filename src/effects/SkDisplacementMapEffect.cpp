@@ -310,7 +310,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         if (!renderTargetContext) {
             return nullptr;
         }
-        paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
+        paint.setGammaCorrect(renderTargetContext->colorSpaceInfo().isGammaCorrect());
 
         renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, matrix,
                                       SkRect::Make(colorBounds));
@@ -318,11 +318,11 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         offset->fX = bounds.left();
         offset->fY = bounds.top();
         return SkSpecialImage::MakeDeferredFromGpu(
-                                            context,
-                                            SkIRect::MakeWH(bounds.width(), bounds.height()),
-                                            kNeedNewImageUniqueID_SpecialImage,
-                                            renderTargetContext->asTextureProxyRef(),
-                                            renderTargetContext->refColorSpace());
+                context,
+                SkIRect::MakeWH(bounds.width(), bounds.height()),
+                kNeedNewImageUniqueID_SpecialImage,
+                renderTargetContext->asTextureProxyRef(),
+                renderTargetContext->colorSpaceInfo().refColorSpace());
     }
 #endif
 

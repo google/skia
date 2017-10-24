@@ -331,11 +331,9 @@ public:
     const GrCaps* caps() const { return fContext->caps(); }
     int width() const { return fRenderTargetProxy->width(); }
     int height() const { return fRenderTargetProxy->height(); }
-    GrPixelConfig config() const { return fRenderTargetProxy->config(); }
     int numColorSamples() const { return fRenderTargetProxy->numColorSamples(); }
     int numStencilSamples() const { return fRenderTargetProxy->numStencilSamples(); }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
-    GrColorSpaceXform* getColorXformFromSRGB() const { return fColorXformFromSRGB.get(); }
     GrSurfaceOrigin origin() const { return fRenderTargetProxy->origin(); }
     GrMipMapped mipMapped() const;
 
@@ -451,7 +449,6 @@ private:
     sk_sp<GrRenderTargetOpList>       fOpList;
     GrInstancedPipelineInfo           fInstancedPipelineInfo;
 
-    sk_sp<GrColorSpaceXform>          fColorXformFromSRGB;
     SkSurfaceProps                    fSurfaceProps;
     bool                              fManagedOpList;
 

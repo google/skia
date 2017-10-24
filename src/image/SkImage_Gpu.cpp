@@ -410,9 +410,9 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
     ctx->contextPriv().flushSurfaceWrites(renderTargetContext->asSurfaceProxy());
 
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
-    return sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
-                                   kOpaque_SkAlphaType, renderTargetContext->asTextureProxyRef(),
-                                   renderTargetContext->refColorSpace(), budgeted);
+    return sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID, kOpaque_SkAlphaType,
+                                   renderTargetContext->asTextureProxyRef(),
+                                   renderTargetContext->colorSpaceInfo().refColorSpace(), budgeted);
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,

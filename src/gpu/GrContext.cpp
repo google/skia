@@ -435,9 +435,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     // We need to guarantee round-trip conversion if we are reading and writing 8888 non-sRGB data,
     // without any color spaces attached, and the caller wants us to premul.
     bool useConfigConversionEffect =
-                        premul &&
-                        pm_upm_must_round_trip(srcConfig, srcColorSpace) &&
-                        pm_upm_must_round_trip(dstProxy->config(), dst->getColorSpace());
+            premul && pm_upm_must_round_trip(srcConfig, srcColorSpace) &&
+            pm_upm_must_round_trip(dstProxy->config(), dst->colorSpaceInfo().colorSpace());
 
     // Are we going to try to premul as part of a draw? For the non-legacy case, we always allow
     // this. GrConfigConversionEffect fails on some GPUs, so only allow this if it works perfectly.
@@ -524,8 +523,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        paint.setAllowSRGBInputs(SkToBool(dst->getColorSpace()) ||
-                                 GrPixelConfigIsSRGB(renderTargetContext->config()));
+        paint.setAllowSRGBInputs(dst->colorSpaceInfo().isGammaCorrect() ||
+                                 GrPixelConfigIsSRGB(dst->colorSpaceInfo().config()));
         SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
         renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, matrix, rect,
                                         nullptr);
@@ -569,9 +568,9 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     // We need to guarantee round-trip conversion if we are reading and writing 8888 non-sRGB data,
     // without any color spaces attached, and the caller wants us to unpremul.
     bool useConfigConversionEffect =
-                    unpremul &&
-                    pm_upm_must_round_trip(srcProxy->config(), src->getColorSpace()) &&
-                    pm_upm_must_round_trip(dstConfig, dstColorSpace);
+            unpremul &&
+            pm_upm_must_round_trip(srcProxy->config(), src->colorSpaceInfo().colorSpace()) &&
+            pm_upm_must_round_trip(dstConfig, dstColorSpace);
 
     // Are we going to try to unpremul as part of a draw? For the non-legacy case, we always allow
     // this. GrConfigConversionEffect fails on some GPUs, so only allow this if it works perfectly.

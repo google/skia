@@ -163,18 +163,16 @@ bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSema
 bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* data) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
 
-    data->set(rtc->origin(), rtc->width(), rtc->height(),
-              rtc->config(), rtc->numColorSamples());
+    data->set(rtc->origin(), rtc->width(), rtc->height(), rtc->colorSpaceInfo().config(),
+              rtc->numColorSamples());
     return true;
 }
 
 bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
 
-    return data.origin() == rtc->origin() &&
-           data.width() == rtc->width() &&
-           data.height() == rtc->height() &&
-           data.config() == rtc->config() &&
+    return data.origin() == rtc->origin() && data.width() == rtc->width() &&
+           data.height() == rtc->height() && data.config() == rtc->colorSpaceInfo().config() &&
            data.sampleCount() == rtc->numColorSamples();
 }
 
