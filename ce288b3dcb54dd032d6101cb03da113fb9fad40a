@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4326e51d_9a4bd635",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-24T16:55:17Z",
+      "side": 1,
+      "message": "Sorry if I\u0027m being stupid, but doesn\u0027t this mean the new define will be before \"#endif // SkUserConfigManual_DEFINED\\n\"? Is that what is intended?",
+      "range": {
+        "startLine": 57,
+        "startChar": 12,
+        "endLine": 57,
+        "endChar": 13
+      },
+      "revId": "ce288b3dcb54dd032d6101cb03da113fb9fad40a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46b66cfd_dc5b96bb",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-24T16:55:17Z",
+      "side": 1,
+      "message": "nit: consider writing as:\ncontent \u003d (\"#ifndef {0}\\n\"\n           \"#define {0}\\n\"\n           \"#endif\\n\\n\").format(args.flag)",
+      "range": {
+        "startLine": 98,
+        "startChar": 12,
+        "endLine": 98,
+        "endChar": 68
+      },
+      "revId": "ce288b3dcb54dd032d6101cb03da113fb9fad40a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52df0b1e_01dc51aa",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-24T16:55:17Z",
+      "side": 1,
+      "message": "Same Q as above.",
+      "range": {
+        "startLine": 99,
+        "startChar": 36,
+        "endLine": 99,
+        "endChar": 37
+      },
+      "revId": "ce288b3dcb54dd032d6101cb03da113fb9fad40a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e31b72c_105b453f",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-24T16:55:17Z",
+      "side": 1,
+      "message": "prodaccess is Google-confidential",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 39
+      },
+      "revId": "ce288b3dcb54dd032d6101cb03da113fb9fad40a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a553b833_19f153d2",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-24T16:55:17Z",
+      "side": 1,
+      "message": "directory?\n\nAlso provide link to doc.",
+      "range": {
+        "startLine": 114,
+        "startChar": 59,
+        "endLine": 114,
+        "endChar": 67
+      },
+      "revId": "ce288b3dcb54dd032d6101cb03da113fb9fad40a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
