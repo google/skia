@@ -315,18 +315,22 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         }
     }
 
+    if (this->fNumGlyphs + that->fNumGlyphs > 512) {
+        return false;
+    }
+
     fNumGlyphs += that->numGlyphs();
 
     // Reallocate space for geo data if necessary and then import that's geo data.
     int newGeoCount = that->fGeoCount + fGeoCount;
-    // We assume (and here enforce) that the allocation size is the smallest power of two that
-    // is greater than or equal to the number of geometries (and at least
-    // kMinGeometryAllocated).
-    int newAllocSize = GrNextPow2(newGeoCount);
-    int currAllocSize = SkTMax<int>(kMinGeometryAllocated, GrNextPow2(fGeoCount));
 
-    if (newGeoCount > currAllocSize) {
+    if (newGeoCount > fGeoDataAllocSize) {
+        int newAllocSize = fGeoDataAllocSize + fGeoDataAllocSize/2;
+        while (newAllocSize < newGeoCount) {
+            newAllocSize += newAllocSize / 2;
+        }
         fGeoData.realloc(newAllocSize);
+        fGeoDataAllocSize = newAllocSize;
     }
 
     // We steal the ref on the blobs from the other AtlasTextOp and set its count to 0 so that
