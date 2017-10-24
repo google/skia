@@ -76,18 +76,13 @@ void GrCCPRCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLShaderBuild
                                                                const char* leftPt,
                                                                const char* rightPt,
                                                                const char* outputDistanceEquation) {
-    // Which quadrant does the vector from left -> right fall into?
-    s->codeAppendf("float2 qlr = sign(%s - %s);", rightPt, leftPt);
-    s->codeAppend ("float2 d1 = float2(qlr.y, -qlr.x);");
-
     s->codeAppendf("float2 n = float2(%s.y - %s.y, %s.x - %s.x);",
                    rightPt, leftPt, leftPt, rightPt);
-    s->codeAppendf("float2 kk = n * float2x2(%s + bloat * d1, %s - bloat * d1);",
-                   leftPt, leftPt);
-    // Clamp for when n=0. wind=0 when n=0 so as long as we don't get Inf or NaN we are fine.
-    s->codeAppendf("float scale = 1 / max(kk[0] - kk[1], 1e-30);");
-
-    s->codeAppendf("%s = half3(-n, kk[1]) * scale;", outputDistanceEquation);
+    s->codeAppend ("float nwidth = (abs(n.x) + abs(n.y)) * (bloat * 2);");
+    // When nwidth=0, wind must also be 0 (and coverage * wind = 0). So it doesn't matter what we
+    // come up with here as long as it isn't NaN or Inf.
+    s->codeAppend ("n /= (0 != nwidth) ? nwidth : 1;");
+    s->codeAppendf("%s = float3(-n, dot(n, %s) - .5);", outputDistanceEquation, leftPt);
 }
 
 int GrCCPRCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLPPFragmentBuilder* f,
