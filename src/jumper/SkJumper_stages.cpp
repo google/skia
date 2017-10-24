@@ -502,6 +502,30 @@ STAGE(srcover_rgba_8888, const SkJumper_MemoryCtx* ctx) {
     store(ptr, dst, tail);
 }
 
+STAGE(srcover_bgra_8888, const SkJumper_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+
+    U32 dst = load<U32>(ptr, tail);
+    db = cast((dst      ) & 0xff);
+    dg = cast((dst >>  8) & 0xff);
+    dr = cast((dst >> 16) & 0xff);
+    da = cast((dst >> 24)       );
+    // {dr,dg,db,da} are in [0,255]
+    // { r, g, b, a} are in [0,  1]
+
+    r = mad(dr, inv(a), r*255.0f);
+    g = mad(dg, inv(a), g*255.0f);
+    b = mad(db, inv(a), b*255.0f);
+    a = mad(da, inv(a), a*255.0f);
+    // { r, g, b, a} are now in [0,255]
+
+    dst = round(b, 1.0f)
+        | round(g, 1.0f) <<  8
+        | round(r, 1.0f) << 16
+        | round(a, 1.0f) << 24;
+    store(ptr, dst, tail);
+}
+
 STAGE(clamp_0, Ctx::None) {
     r = max(r, 0);
     g = max(g, 0);

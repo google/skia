@@ -199,7 +199,7 @@ extern "C" {
     LOWP(load_g8)   LOWP(load_g8_dst)
     LOWP(load_565)  LOWP(load_565_dst)  LOWP(store_565)
     LOWP(swap_rb)
-    LOWP(srcover_rgba_8888)
+    LOWP(srcover_rgba_8888) LOWP(srcover_bgra_8888)
     LOWP(lerp_1_float)
     LOWP(lerp_u8)
     LOWP(lerp_565)
