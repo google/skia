@@ -47,12 +47,7 @@ const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
         case kFloat4_GrSLType:
             return "float4";
         case kUint2_GrSLType:
-            if (shaderCaps->integerSupport()) {
-                return "uint2";
-            } else {
-                // uint2 (aka uvec2) isn't supported in GLSL ES 1.00/GLSL 1.20
-                return "float2";
-            }
+            return "uint2";
         case kInt2_GrSLType:
             return "int2";
         case kInt3_GrSLType:
@@ -89,8 +84,27 @@ const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
             return "uint";
         case kShort_GrSLType:
             return "short";
+        case kShort2_GrSLType:
+            return "short2";
+        case kShort3_GrSLType:
+            return "short3";
+        case kShort4_GrSLType:
+            return "short4";
         case kUShort_GrSLType:
             return "ushort";
+        case kUShort2_GrSLType:
+            if (shaderCaps->integerSupport()) {
+                return "ushort2";
+            } else {
+                // uint2 (aka uvec2) isn't supported in GLSL ES 1.00/GLSL 1.20
+                // FIXME: this should be handled by the client code rather than relying on
+                // unconventional ushort2 behavior.
+                return "float2";
+            }
+        case kUShort3_GrSLType:
+            return "ushort3";
+        case kUShort4_GrSLType:
+            return "ushort4";
         case kTexture2D_GrSLType:
             return "texture2D";
         case kSampler_GrSLType:
