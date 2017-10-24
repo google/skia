@@ -20,6 +20,10 @@ DEPS = [
   'vars',
 ]
 
+# TODO (liyuqian): Currently, this recipe combines both compile and nanobench
+# functions. In the future, we may want to break it into two recipes, which
+# would be useful for Android/iOS tests. To do that, I also have to add compile-
+# only option to tools/calmbench/calmbench.py.
 def RunSteps(api):
   api.core.setup()
   api.flavor.install(skps=True, svgs=True)
