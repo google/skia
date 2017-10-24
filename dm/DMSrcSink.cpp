@@ -458,8 +458,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     SkAutoMalloc pixels(safeSize);
 
     SkCodec::Options options;
-    options.fPremulBehavior = canvas->imageInfo().colorSpace() ?
-            SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
+    options.fPremulBehavior = canvas->imageInfo().colorSpace() ? SkBlendBehavior::kLinear
+                                                               : SkBlendBehavior::kNonlinear;
     if (kCodecZeroInit_Mode == fMode) {
         memset(pixels.get(), 0, size.height() * rowBytes);
         options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
@@ -971,8 +971,8 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     SkImageInfo decodeInfo = gen->getInfo().makeAlphaType(fDstAlphaType);
 
     SkImageGenerator::Options options;
-    options.fBehavior = canvas->imageInfo().colorSpace() ?
-            SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
+    options.fBehavior = canvas->imageInfo().colorSpace() ? SkBlendBehavior::kLinear
+                                                         : SkBlendBehavior::kNonlinear;
 
     int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
     size_t rowBytes = decodeInfo.width() * bpp;
@@ -1441,8 +1441,8 @@ static bool encode_png_base64(const SkBitmap& bitmap, SkString* dst) {
     SkPngEncoder::Options options;
     options.fFilterFlags = SkPngEncoder::FilterFlag::kAll;
     options.fZLibLevel = 9;
-    options.fUnpremulBehavior = pm.colorSpace() ? SkTransferFunctionBehavior::kRespect
-                                                : SkTransferFunctionBehavior::kIgnore;
+    options.fUnpremulBehavior = pm.colorSpace() ? SkBlendBehavior::kLinear
+                                                : SkBlendBehavior::kNonlinear;
 
     SkDynamicMemoryWStream wStream;
     if (!SkPngEncoder::Encode(&wStream, pm, options)) {

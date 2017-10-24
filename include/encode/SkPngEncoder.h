@@ -58,7 +58,7 @@ public:
          *  The encoder can convert to linear before unpremultiplying or ignore the transfer
          *  function and unpremultiply the input as is.
          */
-        SkTransferFunctionBehavior fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
+        SkBlendBehavior fUnpremulBehavior = SkBlendBehavior::kLinear;
 
         /**
          *  Represents comments in the tEXt ancillary chunk of the png.

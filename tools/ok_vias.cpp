@@ -171,8 +171,8 @@ struct Png : Dst {
         SkPngEncoder::Options options;
         options.fFilterFlags      = SkPngEncoder::FilterFlag::kNone;
         options.fZLibLevel        = 1;
-        options.fUnpremulBehavior = pm.colorSpace() ? SkTransferFunctionBehavior::kRespect
-                                                    : SkTransferFunctionBehavior::kIgnore;
+        options.fUnpremulBehavior = pm.colorSpace() ? SkBlendBehavior::kLinear
+                                                    : SkBlendBehavior::kNonlinear;
         return SkPngEncoder::Encode(&dst, pm, options) ? Status::OK
                                                        : Status::Failed;
     }

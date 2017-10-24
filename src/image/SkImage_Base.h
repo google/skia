@@ -91,7 +91,7 @@ public:
     virtual void onUnpinAsTexture(GrContext*) const {}
 
     virtual sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
-                                            SkTransferFunctionBehavior) const = 0;
+                                            SkBlendBehavior) const = 0;
 protected:
     SkImage_Base(int width, int height, uint32_t uniqueID);
 

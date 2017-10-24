@@ -11,10 +11,8 @@
 #include "SkImageEncoder.h"
 #include "SkImageInfoPriv.h"
 
-static inline bool SkPixmapIsValid(const SkPixmap& src,
-                                   SkTransferFunctionBehavior unpremulBehavior)
-{
-    if (SkTransferFunctionBehavior::kRespect == unpremulBehavior) {
+static inline bool SkPixmapIsValid(const SkPixmap& src, SkBlendBehavior unpremulBehavior) {
+    if (SkBlendBehavior::kLinear == unpremulBehavior) {
         if (!SkImageInfoIsValidRenderingCS(src.info())) {
             return false;
         }

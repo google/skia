@@ -74,7 +74,7 @@ bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
 }
 
 bool SkPixmap::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB, int x, int y,
-                          SkTransferFunctionBehavior behavior) const {
+                          SkBlendBehavior behavior) const {
     if (!SkImageInfoValidConversion(dstInfo, fInfo)) {
         return false;
     }

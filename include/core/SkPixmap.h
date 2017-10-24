@@ -546,7 +546,7 @@ public:
         @return             true if pixels are copied to dstPixels
     */
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY, SkTransferFunctionBehavior behavior) const;
+                    int srcX, int srcY, SkBlendBehavior behavior) const;
 
     /** Copies a SkRect of pixels to dstPixels. Copy starts at (0, 0), and does not
         exceed
@@ -606,7 +606,7 @@ public:
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX,
                     int srcY) const {
         return this->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY,
-                                SkTransferFunctionBehavior::kRespect);
+                                SkBlendBehavior::kLinear);
     }
 
     /** Copies a SkRect of pixels to dst. Copy starts at (srcX, srcY), and does not

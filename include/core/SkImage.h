@@ -490,8 +490,7 @@ public:
      *  be performed in the gamma encoded space.  If it is kRespect, premultiplication is
      *  assumed to be linear.
      */
-    sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target,
-                                  SkTransferFunctionBehavior premulBehavior) const;
+    sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target, SkBlendBehavior premulBehavior) const;
 
 private:
     SkImage(int width, int height, uint32_t uniqueID);

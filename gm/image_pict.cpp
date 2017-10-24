@@ -165,7 +165,7 @@ public:
 protected:
     sk_sp<GrTextureProxy> onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
                                             const SkIPoint& origin,
-                                            SkTransferFunctionBehavior,
+                                            SkBlendBehavior,
                                             bool willBeMipped) override {
         SkASSERT(ctx);
         SkASSERT(ctx == fCtx.get());

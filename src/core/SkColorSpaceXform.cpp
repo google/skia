@@ -299,13 +299,13 @@ void SkColorSpaceXform_Base::BuildDstGammaTables(const uint8_t* dstGammaTables[3
 
 std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* src,
                                                           SkColorSpace* dst) {
-    return SkColorSpaceXform_Base::New(src, dst, SkTransferFunctionBehavior::kRespect);
+    return SkColorSpaceXform_Base::New(src, dst, SkBlendBehavior::kLinear);
 }
 
 std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform_Base::New(
         SkColorSpace* src,
         SkColorSpace* dst,
-        SkTransferFunctionBehavior premulBehavior) {
+        SkBlendBehavior premulBehavior) {
 
     if (!src || !dst) {
         // Invalid input
@@ -352,7 +352,7 @@ static inline int num_tables(SkColorSpace_XYZ* space) {
 
 SkColorSpaceXform_XYZ::SkColorSpaceXform_XYZ(SkColorSpace_XYZ* src,
                                              SkColorSpace_XYZ* dst,
-                                             SkTransferFunctionBehavior premulBehavior)
+                                             SkBlendBehavior premulBehavior)
     : fPremulBehavior(premulBehavior)
 {
     fColorSpacesAreIdentical = SkColorSpace::Equals(src, dst);
@@ -532,7 +532,7 @@ bool SkColorSpaceXform_XYZ::onApply(ColorFormat dstColorFormat, void* dst,
         }
     }
 
-    if (kPremul_SkAlphaType == alphaType && SkTransferFunctionBehavior::kRespect == fPremulBehavior)
+    if (kPremul_SkAlphaType == alphaType && SkBlendBehavior::kLinear == fPremulBehavior)
     {
         pipeline.append(SkRasterPipeline::premul);
     }
@@ -556,7 +556,7 @@ bool SkColorSpaceXform_XYZ::onApply(ColorFormat dstColorFormat, void* dst,
             break;
     }
 
-    if (kPremul_SkAlphaType == alphaType && SkTransferFunctionBehavior::kIgnore == fPremulBehavior)
+    if (kPremul_SkAlphaType == alphaType && SkBlendBehavior::kNonlinear == fPremulBehavior)
     {
         pipeline.append(SkRasterPipeline::premul);
     }
@@ -594,8 +594,7 @@ bool SkColorSpaceXform_XYZ::onApply(ColorFormat dstColorFormat, void* dst,
 }
 
 std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space) {
-    auto xform = skstd::make_unique<SkColorSpaceXform_XYZ>(space, space,
-                                                           SkTransferFunctionBehavior::kRespect);
+    auto xform = skstd::make_unique<SkColorSpaceXform_XYZ>(space, space, SkBlendBehavior::kLinear);
     xform->pretendNotToBeIdentityForTesting();
     return std::move(xform);
 }

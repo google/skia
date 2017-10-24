@@ -58,7 +58,7 @@ public:
     sk_sp<SkColorSpace> refColorSpace() { return fColorSpace; }
 
     sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
-                                    SkTransferFunctionBehavior) const override;
+                                    SkBlendBehavior) const override;
 
     bool onIsValid(GrContext*) const override;
 

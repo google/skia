@@ -38,7 +38,7 @@ public:
                     SkShader::TileMode tmy,
                     const SkSize& scale,
                     const SkMatrix& localMatrix,
-                    SkTransferFunctionBehavior blendBehavior)
+                    SkBlendBehavior blendBehavior)
         : fColorSpace(std::move(colorSpace))
         , fTile(tile)
         , fTmx(tmx)
@@ -79,7 +79,7 @@ private:
     SkShader::TileMode         fTmx, fTmy;
     SkSize                     fScale;
     SkScalar                   fLocalMatrixStorage[9];
-    SkTransferFunctionBehavior fBlendBehavior;
+    SkBlendBehavior            fBlendBehavior;
 
     SkDEBUGCODE(uint32_t fEndOfStruct;)
 };
@@ -247,8 +247,8 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
     // should perform color correct rendering and xform at draw time.
     SkASSERT(!fColorSpace || !dstColorSpace);
     sk_sp<SkColorSpace> keyCS = dstColorSpace ? sk_ref_sp(dstColorSpace) : fColorSpace;
-    SkTransferFunctionBehavior blendBehavior = dstColorSpace ? SkTransferFunctionBehavior::kRespect
-                                                             : SkTransferFunctionBehavior::kIgnore;
+    SkBlendBehavior blendBehavior = dstColorSpace ? SkBlendBehavior::kLinear
+                                                  : SkBlendBehavior::kNonlinear;
 
     sk_sp<SkShader> tileShader;
     BitmapShaderKey key(std::move(keyCS),
@@ -273,7 +273,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
         }
 
         if (fColorSpace) {
-            tileImage = tileImage->makeColorSpace(fColorSpace, SkTransferFunctionBehavior::kIgnore);
+            tileImage = tileImage->makeColorSpace(fColorSpace, SkBlendBehavior::kNonlinear);
         }
 
         SkMatrix shaderMatrix = this->getLocalMatrix();
