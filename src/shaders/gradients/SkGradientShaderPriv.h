@@ -122,26 +122,18 @@ public:
     // The cache is initialized on-demand when getCache32 is called.
     class GradientShaderCache : public SkRefCnt {
     public:
-        GradientShaderCache(U8CPU alpha, bool dither, const SkGradientShaderBase& shader);
+        GradientShaderCache(const SkGradientShaderBase& shader);
         ~GradientShaderCache();
 
         const SkPMColor*    getCache32();
 
         SkPixelRef* getCache32PixelRef() const { return fCache32PixelRef.get(); }
 
-        unsigned getAlpha() const { return fCacheAlpha; }
-        bool getDither() const { return fCacheDither; }
-
     private:
         // Working pointer. If it's nullptr, we need to recompute the cache values.
         SkPMColor*  fCache32;
 
         sk_sp<SkPixelRef> fCache32PixelRef;
-        const unsigned    fCacheAlpha;        // The alpha value we used when we computed the cache.
-                                              // Larger than 8bits so we can store uninitialized
-                                              // value.
-        const bool        fCacheDither;       // The dither flag used when we computed the cache.
-
         const SkGradientShaderBase& fShader;
 
         // Make sure we only initialize the cache once.
@@ -150,7 +142,7 @@ public:
         static void initCache32(GradientShaderCache* cache);
 
         static void Build32bitCache(SkPMColor[], SkColor c0, SkColor c1, int count,
-                                    U8CPU alpha, uint32_t gradFlags, bool dither);
+                                    uint32_t gradFlags);
     };
 
     class GradientShaderBaseContext : public Context {
@@ -166,7 +158,6 @@ public:
         SkMatrixPriv::MapXYProc fDstToIndexProc;
         uint8_t     fDstToIndexClass;
         uint8_t     fFlags;
-        bool        fDither;
 
         sk_sp<GradientShaderCache> fCache;
 
@@ -262,7 +253,7 @@ public:
 private:
     bool                fColorsAreOpaque;
 
-    sk_sp<GradientShaderCache> refCache(U8CPU alpha, bool dither) const;
+    sk_sp<GradientShaderCache> refCache() const;
     mutable SkMutex                    fCacheMutex;
     mutable sk_sp<GradientShaderCache> fCache;
 
