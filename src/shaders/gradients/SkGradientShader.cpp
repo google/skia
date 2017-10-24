@@ -813,9 +813,6 @@ SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
  */
 void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
                                                   GradientBitmapType bitmapType) const {
-    // our caller assumes no external alpha, so we ensure that our cache is built with 0xFF
-    sk_sp<GradientShaderCache> cache(this->refCache(0xFF, true));
-
     // build our key: [numColors + colors[] + {positions[]} + flags + colorType ]
     int count = 1 + fColorCount + 1 + 1;
     if (fColorCount > 2) {
@@ -851,6 +848,14 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
 
     if (!gCache->find(storage.get(), size, bitmap)) {
         if (GradientBitmapType::kLegacy == bitmapType) {
+#ifdef SK_SUPPORT_LEGACY_GPU_GRADIENT_DITHER
+            static constexpr bool dither = true;
+#else
+            static constexpr bool dither = false;
+#endif
+            // our caller assumes no external alpha, so we ensure that our cache is built with 0xFF
+            sk_sp<GradientShaderCache> cache(this->refCache(0xFF, dither));
+
             // force our cache32pixelref to be built
             (void)cache->getCache32();
             bitmap->setInfo(SkImageInfo::MakeN32Premul(kCache32Count, 1));
