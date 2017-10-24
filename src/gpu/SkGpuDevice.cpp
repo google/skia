@@ -1062,8 +1062,8 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     sk_sp<SkSpecialImage> result;
     if (paint.getImageFilter()) {
         result = this->filterTexture(special1, left, top,
-                                      &offset,
-                                      paint.getImageFilter());
+                                     &offset,
+                                     paint.getImageFilter());
         if (!result) {
             return;
         }

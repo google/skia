@@ -130,6 +130,16 @@ DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
         SkXfermodeImageFilter::Make(SkBlendMode::kSrcOver, nullptr),
     };
 
+    SkPaint stroke;
+    stroke.setStyle(SkPaint::kStroke_Style);
+    stroke.setStrokeWidth(1.0f);
+    stroke.setColor(SK_ColorRED);
+
+    SkPaint redFill;
+    redFill.setStyle(SkPaint::kStroke_Style);
+    redFill.setStrokeWidth(5.0f);
+    redFill.setColor(SK_ColorGREEN);
+
     for (auto& filter : filters) {
         paint.setAntiAlias(false);
         paint.setImageFilter(filter);
@@ -137,12 +147,20 @@ DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
         canvas->save();
 
         canvas->drawRect(r, paint);
+        canvas->drawRect(r, stroke);
 
         canvas->translate(150, 0);
+
         canvas->save();
             canvas->rotate(30, 100, 100);
             canvas->drawRect(r, paint);
         canvas->restore();
+#if 0
+        canvas->save();
+            canvas->rotate(30, 100, 100);
+            canvas->drawRect(r, stroke);
+        canvas->restore();
+#endif
 
         paint.setAntiAlias(true);
         canvas->translate(150, 0);
@@ -150,6 +168,12 @@ DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
             canvas->rotate(30, 100, 100);
             canvas->drawRect(r, paint);
         canvas->restore();
+#if 0
+        canvas->save();
+            canvas->rotate(30, 100, 100);
+            canvas->drawRect(r, stroke);
+        canvas->restore();
+#endif
 
         canvas->restore();
         canvas->translate(0, 150);
