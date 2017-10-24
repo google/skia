@@ -231,6 +231,10 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted
 
     GrMipMapped mipMapped = shouldCreateWithMips ? GrMipMapped::kYes : GrMipMapped::kNo;
 
+    if (!ctx->caps()->mipMapSupport()) {
+        mipMapped = GrMipMapped::kNo;
+    }
+
     sk_sp<SkGpuDevice> device(SkGpuDevice::Make(
             ctx, budgeted, info, sampleCount, origin, props, mipMapped,
             SkGpuDevice::kClear_InitContents));
