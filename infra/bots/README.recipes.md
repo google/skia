@@ -48,6 +48,7 @@
   * [swarming_client:examples/full](#recipes-swarming_client_examples_full)
   * [test](#recipes-test)
   * [update_meta_config](#recipes-update_meta_config) &mdash; Recipe for the Bot that updates meta config.
+  * [upload_calmbench_results](#recipes-upload_calmbench_results)
   * [upload_coverage_results](#recipes-upload_coverage_results)
   * [upload_dm_results](#recipes-upload_dm_results)
   * [upload_nano_results](#recipes-upload_nano_results)
@@ -689,7 +690,7 @@ Prepare the variables.
 
 [DEPS](/infra/bots/recipes/calmbench.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [core](#recipe_modules-core), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
-&mdash; **def [RunSteps](/infra/bots/recipes/calmbench.py#23)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/calmbench.py#27)(api):**
 ### *recipes* / [check\_generated\_files](/infra/bots/recipes/check_generated_files.py)
 
 [DEPS](/infra/bots/recipes/check_generated_files.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [core](#recipe_modules-core), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
@@ -856,6 +857,13 @@ Run the DM test.
 Recipe for the Bot that updates meta config.
 
 &mdash; **def [RunSteps](/infra/bots/recipes/update_meta_config.py#38)(api):**
+### *recipes* / [upload\_calmbench\_results](/infra/bots/recipes/upload_calmbench_results.py)
+
+[DEPS](/infra/bots/recipes/upload_calmbench_results.py#12): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [core](#recipe_modules-core), [vars](#recipe_modules-vars)
+
+&mdash; **def [FindFile](/infra/bots/recipes/upload_calmbench_results.py#24)(api, suffix):**
+
+&mdash; **def [RunSteps](/infra/bots/recipes/upload_calmbench_results.py#36)(api):**
 ### *recipes* / [upload\_coverage\_results](/infra/bots/recipes/upload_coverage_results.py)
 
 [DEPS](/infra/bots/recipes/upload_coverage_results.py#12): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [gsutil](#recipe_modules-gsutil)

@@ -548,7 +548,7 @@
     "Calmbench-Debian9-Clang-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Calmbench-Debian9-Clang-x86_64-Release"
+        "Upload-Calmbench-Debian9-Clang-x86_64-Release"
       ]
     },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
@@ -23021,6 +23021,33 @@
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia_bundled_unix.isolate",
       "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Upload-Calmbench-Debian9-Clang-x86_64-Release": {
+      "dependencies": [
+        "Calmbench-Debian9-Clang-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_calmbench_results",
+        "repository=<(REPO)",
+        "buildername=Calmbench-Debian9-Clang-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-calmbench"
+      ],
+      "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
     "Upload-Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android": {

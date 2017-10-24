@@ -2,6 +2,7 @@
   "gs_bucket_gm": "skia-infra-gm",
   "gs_bucket_nano": "skia-perf",
   "gs_bucket_coverage": "skia-coverage",
+  "gs_bucket_calm": "skia-calmbench",
   "pool": "Skia",
   "no_upload": [
     "ASAN",

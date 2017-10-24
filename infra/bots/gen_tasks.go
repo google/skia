@@ -54,6 +54,7 @@ var (
 		GsBucketCoverage string   `json:"gs_bucket_coverage"`
 		GsBucketGm       string   `json:"gs_bucket_gm"`
 		GsBucketNano     string   `json:"gs_bucket_nano"`
+		GsBucketCalm     string   `json:"gs_bucket_calm"`
 		NoUpload         []string `json:"no_upload"`
 		Pool             string   `json:"pool"`
 	}
@@ -702,6 +703,31 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string) s
 	s.Dependencies = append(s.Dependencies, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
 
 	b.MustAddTask(name, s)
+
+	// Upload results if necessary.
+	if strings.Contains(name, "Release") && doUpload(name) {
+		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
+		b.MustAddTask(uploadName, &specs.TaskSpec{
+			Dependencies: []string{name},
+			Dimensions:   linuxGceDimensions(),
+			ExtraArgs: []string{
+				"--workdir", "../../..", "upload_calmbench_results",
+				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+				fmt.Sprintf("buildername=%s", name),
+				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+				fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+				fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+				fmt.Sprintf("gs_bucket=%s", CONFIG.GsBucketCalm),
+			},
+			// We're using the same isolate as upload_nano_results
+			Isolate:  relpath("upload_nano_results.isolate"),
+			Priority: 0.8,
+		})
+		return uploadName
+	}
 
 	return name
 }
