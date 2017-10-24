@@ -11,15 +11,31 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 
 void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
-    GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
-    vBuilder->transformToNormalizedDeviceSpace(gpArgs.fPositionVar, args.fRTAdjustName);
-    if (kFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
-        kHalf2_GrSLType == gpArgs.fPositionVar.getType()) {
+    SkASSERT(kFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
+             kFloat3_GrSLType == gpArgs.fPositionVar.getType());
+
+    GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
+    if (!args.fGP.willUseGeoShader()) {
+        // Emit the vertex position to the hardware in the normalized window coordinates it expects.
+        vBuilder->emitNormalizedSkPosition(gpArgs.fPositionVar.c_str(), args.fRTAdjustName,
+                                           gpArgs.fPositionVar.getType());
+    } else {
+        // Since we have a geometry shader, leave the vertex position in Skia device space for now.
+        // The geometry Shader will operate in device space, and then convert the final positions to
+        // normalized hardware window coordinates under the hood, once everything else has finished.
+        vBuilder->codeAppendf("sk_Position = float4(%s", gpArgs.fPositionVar.c_str());
+        if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
+            vBuilder->codeAppend(", 0");
+        }
+        vBuilder->codeAppend(", 1);");
+    }
+
+    if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
         args.fVaryingHandler->setNoPerspective();
     }
 }

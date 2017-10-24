@@ -19,7 +19,7 @@
 #include "GrResourceProvider.h"
 #include "GrResourceKey.h"
 #include "SkMakeUnique.h"
-#include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
