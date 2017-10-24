@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9660e00e_ef47c26b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T17:05:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "143d7ecd_13b351bb",
+      "range": {
+        "startLine": 15,
+        "startChar": 3,
+        "endLine": 15,
+        "endChar": 53
+      },
+      "revId": "544762a08e24f4a3413af1a2be667b2fad3b751d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "39e5b70a_7463ed58",
         "filename": "tools/rebaseline/add_legacy_flag.py",
         "patchSetId": 9

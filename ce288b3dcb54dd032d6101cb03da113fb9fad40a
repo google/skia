@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8d30e8ef_06bad578",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T17:05:14Z",
+      "side": 1,
+      "message": "Yes, that\u0027s intended. Please see https://googleplex-android-review.git.corp.google.com/#/c/platform/external/skia/+/3099427/ for an example.",
+      "parentUuid": "4326e51d_9a4bd635",
+      "range": {
+        "startLine": 57,
+        "startChar": 12,
+        "endLine": 57,
+        "endChar": 13
+      },
+      "revId": "ce288b3dcb54dd032d6101cb03da113fb9fad40a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "46b66cfd_dc5b96bb",
         "filename": "tools/rebaseline/add_legacy_flag.py",
         "patchSetId": 11
@@ -45,6 +69,30 @@
       "revId": "ce288b3dcb54dd032d6101cb03da113fb9fad40a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cfcecc0_43f87709",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T17:05:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "46b66cfd_dc5b96bb",
+      "range": {
+        "startLine": 98,
+        "startChar": 12,
+        "endLine": 98,
+        "endChar": 68
+      },
+      "revId": "ce288b3dcb54dd032d6101cb03da113fb9fad40a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ebeb8f1f_471a420f",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T17:05:14Z",
+      "side": 1,
+      "message": "Yes, it\u0027s also intended. Please see https://chromium-review.googlesource.com/c/chromium/src/+/725820 for an example.",
+      "parentUuid": "52df0b1e_01dc51aa",
+      "range": {
+        "startLine": 99,
+        "startChar": 36,
+        "endLine": 99,
+        "endChar": 37
+      },
+      "revId": "ce288b3dcb54dd032d6101cb03da113fb9fad40a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2e31b72c_105b453f",
         "filename": "tools/rebaseline/add_legacy_flag.py",
         "patchSetId": 11
@@ -82,6 +154,30 @@
       "writtenOn": "2017-10-24T16:55:17Z",
       "side": 1,
       "message": "prodaccess is Google-confidential",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 39
+      },
+      "revId": "ce288b3dcb54dd032d6101cb03da113fb9fad40a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "078d14d4_d5ffe077",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T17:05:14Z",
+      "side": 1,
+      "message": "Hmm... but if I don\u0027t run prodaccess, the ~/skia-g3 will be unaccessible even if it\u0027s correctly symlinked. Any suggestion on how to solve this?",
+      "parentUuid": "2e31b72c_105b453f",
       "range": {
         "startLine": 109,
         "startChar": 0,
