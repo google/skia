@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01176dff_b6210b82",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-24T18:58:50Z",
+      "side": 1,
+      "message": "Should we make the things that are loaded/stored be opaque to the client? Maybe use SkData? It would allow us to change our mind about the representation or eventually store a variety of things in the cache without updating client code. For example, we could store cache VkPipelines in on the Vulkan backend.",
+      "revId": "3e39babfa434caf1ef43d620033facc534cac9d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b86e683b_1c0a1116",
+        "filename": "include/gpu/gl/GrGLInterface.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-24T18:58:50Z",
+      "side": 1,
+      "message": "We will have to update this code once this lands:\n\nhttps://cs.chromium.org/chromium/src/gpu/skia_bindings/gl_bindings_skia_cmd_buffer.cc",
+      "range": {
+        "startLine": 180,
+        "startChar": 47,
+        "endLine": 180,
+        "endChar": 64
+      },
+      "revId": "3e39babfa434caf1ef43d620033facc534cac9d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
