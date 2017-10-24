@@ -190,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "5f714755_cbea95d3",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-24T17:32:20Z",
+      "side": 1,
+      "message": "I don\u0027t have suggestions. You could ask someone if it\u0027s OK to mention prodaccess in an open-source project, but I don\u0027t know who to ask and the answer is likely to be \"no,\" even though there are already a couple mentions of it in ClusterFuzz docs and ChromeOS Loas code.\n\nMaybe just:\n  G3_SCRIPT_DIR \u003d os.path.expanduser(\"~/skia-g3/scripts\")\n  if not os.path.isdir(G3_SCRIPT_DIR):\n    print \"Please see https://sites.google.com/a/google.com/skia/add_legacy_flag for Google3 setup.\"",
+      "parentUuid": "078d14d4_d5ffe077",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 39
+      },
+      "revId": "ce288b3dcb54dd032d6101cb03da113fb9fad40a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a553b833_19f153d2",
         "filename": "tools/rebaseline/add_legacy_flag.py",
         "patchSetId": 11
