@@ -1057,16 +1057,19 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
 
     // TODO: clipImage support.
 
-    SkIPoint offset = { 0, 0 };
-
     sk_sp<SkSpecialImage> result;
     if (paint.getImageFilter()) {
+        SkIPoint offset = { 0, 0 };
+
         result = this->filterTexture(special1, left, top,
-                                      &offset,
-                                      paint.getImageFilter());
+                                     &offset,
+                                     paint.getImageFilter());
         if (!result) {
             return;
         }
+
+        left = offset.fX;
+        top = offset.fY;
     } else {
         result = sk_ref_sp(special1);
     }
@@ -1104,8 +1107,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
             std::move(grPaint),
             GrBoolToAA(paint.isAntiAlias()),
             SkMatrix::I(),
-            SkRect::Make(SkIRect::MakeXYWH(left + offset.fX, top + offset.fY, subset.width(),
-                                           subset.height())),
+            SkRect::Make(SkIRect::MakeXYWH(left, top, subset.width(), subset.height())),
             SkRect::Make(subset));
 }
 
