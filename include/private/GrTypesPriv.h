@@ -507,8 +507,9 @@ enum GrVertexAttribType {
     kUByte4_norm_GrVertexAttribType, // vector of 4 unsigned bytes, e.g. colors, 0 -> 0.0f,
                                      // 255 -> 1.0f.
 
-    kUShort2_GrVertexAttribType,      // vector of 2 shorts. 0 -> 0, 65535 -> 65535.
-    kUShort2_norm_GrVertexAttribType, // vector of 2 shorts. 0 -> 0.0f, 65535 -> 1.0f.
+    kShort2_GrVertexAttribType,       // vector of 2 16-bit shorts.
+    kUShort2_GrVertexAttribType,      // vector of 2 unsigned shorts. 0 -> 0, 65535 -> 65535.
+    kUShort2_norm_GrVertexAttribType, // vector of 2 unsigned shorts. 0 -> 0.0f, 65535 -> 1.0f.
 
     kInt_GrVertexAttribType,
     kUint_GrVertexAttribType,
@@ -548,9 +549,11 @@ static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
             return 1 * sizeof(char);
         case kUByte4_norm_GrVertexAttribType:
             return 4 * sizeof(char);
-        case kUShort2_norm_GrVertexAttribType: // fall through
-        case kUShort2_GrVertexAttribType:
+        case kShort2_GrVertexAttribType:
             return 2 * sizeof(int16_t);
+        case kUShort2_GrVertexAttribType: // fall through
+        case kUShort2_norm_GrVertexAttribType:
+            return 2 * sizeof(uint16_t);
         case kInt_GrVertexAttribType:
             return sizeof(int32_t);
         case kUint_GrVertexAttribType:
@@ -565,10 +568,12 @@ static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
  */
 static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
     switch (type) {
-        case kUShort2_norm_GrVertexAttribType: // fall through
-            return kFloat2_GrSLType;
+        case kShort2_GrVertexAttribType:
+            return kShort2_GrSLType;
         case kUShort2_GrVertexAttribType:
             return kUShort2_GrSLType;
+        case kUShort2_norm_GrVertexAttribType:
+            return kFloat2_GrSLType;
         case kUByte_norm_GrVertexAttribType:   // fall through
         case kFloat_GrVertexAttribType:
             return kFloat_GrSLType;
