@@ -91,11 +91,7 @@ void GrCCPRTriangleCornerShader::emitSetupCode(GrGLSLShaderBuilder* s, const cha
     s->codeAppendf(    "%s[i][0] = -dot(n, corner) + .5;", fAABoxTranslates.c_str());
 
     // The Y component runs perpendicular to the edge (i.e. distance-to-edge).
-    // NOTE: if we are back in device space and bloat.x == bloat.y, we will not need to find and
-    // divide by nwidth a second time.
     s->codeAppend (    "n = (i == 0) ? float2(-n.y, n.x) : float2(n.y, -n.x);");
-    s->codeAppend (    "nwidth = (abs(n.x) + abs(n.y)) * (bloat * 2);");
-    s->codeAppend (    "n /= nwidth;");
     s->codeAppendf(    "%s[i][1] = n;", fAABoxMatrices.c_str());
     s->codeAppendf(    "%s[i][1] = -dot(n, corner) + .5;", fAABoxTranslates.c_str());
 

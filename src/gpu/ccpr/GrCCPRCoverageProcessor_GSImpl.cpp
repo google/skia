@@ -211,12 +211,13 @@ public:
 
         Shader::EmitEdgeDistanceEquation(g, "left", "right", "float3 edge_distance_equation");
 
-        // qlr is defined in EmitEdgeDistanceEquation. TODO: address in a followup CL!
+        // Which quadrant does the vector from left -> right fall into?
+        g->codeAppend ("float2 qlr = sign(right - left);");
         g->codeAppend ("float2x2 outer_pts = float2x2(left - bloat * qlr, right + bloat * qlr);");
         g->codeAppend ("half2 outer_coverage = edge_distance_equation.xy * outer_pts + "
                                               "edge_distance_equation.z;");
 
-        // d1 is defined in EmitEdgeDistanceEquation. TODO: address in a followup CL!
+        g->codeAppend ("float2 d1 = float2(qlr.y, -qlr.x);");
         g->codeAppend ("float2 d2 = d1;");
         g->codeAppend ("bool aligned = qlr.x == 0 || qlr.y == 0;");
         g->codeAppend ("if (aligned) {");

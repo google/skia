@@ -153,7 +153,8 @@ public:
                               const char* skOutputColor, const char* skOutputCoverage) const;
 
         // Defines an equation ("dot(float3(pt, 1), distance_equation)") that is -1 on the outside
-        // border of a conservative raster edge and 0 on the inside (see emitEdgeGeometry).
+        // border of a conservative raster edge and 0 on the inside. 'leftPt' and 'rightPt' must be
+        // ordered clockwise.
         static void EmitEdgeDistanceEquation(GrGLSLShaderBuilder*, const char* leftPt,
                                              const char* rightPt,
                                              const char* outputDistanceEquation);

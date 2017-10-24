@@ -52,7 +52,6 @@ protected:
 
     const CubicType   fCubicType;
     GrShaderVar       fKLMMatrix{"klm_matrix", kFloat3x3_GrSLType};
-    GrShaderVar       fKLMDerivatives{"klm_derivatives", kFloat2_GrSLType, 3};
     GrShaderVar       fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
     GrGLSLGeoToFrag   fKLMD{kFloat4_GrSLType};
 };
@@ -84,7 +83,6 @@ private:
     void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
-    GrShaderVar        fEdgeDistanceDerivatives{"edge_distance_derivatives", kFloat2_GrSLType};
     GrGLSLGeoToFrag    fdKLMDdx{kFloat4_GrSLType};
     GrGLSLGeoToFrag    fdKLMDdy{kFloat4_GrSLType};
 };
