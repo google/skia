@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "b8b18b19_13f01ed9",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-24T18:07:01Z",
+      "side": 1,
+      "message": "Yes definitely not a small change and totally optional.",
+      "parentUuid": "b3783b7a_e97b791b",
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb01e5e2_53b19795",
         "filename": "tools/rebaseline/add_legacy_flag.py",
         "patchSetId": 12
@@ -119,6 +137,24 @@
     },
     {
       "key": {
+        "uuid": "c3b114a4_ef00eac1",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-24T18:07:01Z",
+      "side": 1,
+      "message": "That is a good point. Adding to the end is good for a quick test for a throwaway change, but not for one that you are trying to get committed.",
+      "parentUuid": "e476c606_38bf9f20",
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8709f24_a4eb6b03",
         "filename": "tools/rebaseline/add_legacy_flag.py",
         "patchSetId": 12
@@ -183,6 +219,24 @@
       "side": 1,
       "message": "My major concern is that the chromium reviewers probably also want the guard flag to be appended to the same place as before (rather than to the end of the file).",
       "parentUuid": "fc741fd3_2aa5ca5a",
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fcf7031c_57cae631",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-24T18:07:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1129acb4_eb546985",
       "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
