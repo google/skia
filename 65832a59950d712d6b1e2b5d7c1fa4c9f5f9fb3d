@@ -16,6 +16,24 @@
       "revId": "65832a59950d712d6b1e2b5d7c1fa4c9f5f9fb3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b715237_a929d9e6",
+        "filename": "site/dev/testing/automated_testing.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-24T15:29:32Z",
+      "side": 1,
+      "message": "This is my reasoning: I really want to have a \"how to trigger try jobs\" section on the \"how to contribute code\" page.  IMO it doesn\u0027t make sense to link to that page from this one, so I just duplicated it.  The procedure shouldn\u0027t change all that much, so I don\u0027t think it does a lot of harm to have it in two places.",
+      "parentUuid": "f8ffabc8_5ebd6d71",
+      "revId": "65832a59950d712d6b1e2b5d7c1fa4c9f5f9fb3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
