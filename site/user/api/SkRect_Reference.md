@@ -2016,7 +2016,7 @@ rect: 5, 1, 55, 86
 # <a name="Intersection"></a> Intersection
 <a href="#Rect">Rects</a> <a href="#SkRect_intersect">intersect</a> when they enclose a common area. To <a href="#SkRect_intersect">intersect</a>, each of the pair 
 must describe area; <a href="#SkRect_fLeft">fLeft</a> is less than <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fTop">fTop</a> is less than <a href="#SkRect_fBottom">fBottom</a>;
-empty() returns false. The intersection of <a href="#Rect">Rect</a> a and <a href="#Rect">Rect</a> b can be described by:
+empty() returns false. The intersection of <a href="#Rect">Rect</a> pair can be described by:
 (max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
 min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))The intersection is only meaningful if the resulting <a href="#Rect">Rect</a> is not empty and
 describes an area: <a href="#SkRect_fLeft">fLeft</a> is less than <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fTop">fTop</a> is less than <a href="#SkRect_fBottom">fBottom</a>.

@@ -874,6 +874,10 @@ void setImmutable()
 
 ---
 
+# <a name="Point3"></a> Point3
+
+# <a name="SkPoint3"></a> Struct SkPoint3
+
 # <a name="Premultiply"></a> Premultiply
 
 # <a name="Raster_Engine"></a> Raster Engine

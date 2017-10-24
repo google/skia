@@ -49,13 +49,11 @@ to manage pixel memory; <a href="undocumented#Pixel_Ref">Pixel Ref</a> is safe a
 | <a href="#SkPixmap_bounds">bounds</a> | Returns <a href="#SkPixmap_width">width</a> and <a href="#SkPixmap_height">height</a> as Rectangle. |
 | <a href="#SkPixmap_colorSpace">colorSpace</a> | Returns <a href="#Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a>. |
 | <a href="#SkPixmap_colorType">colorType</a> | Returns <a href="#Info">Image Info</a> <a href="undocumented#Color_Type">Color Type</a>. |
+| <a href="#SkPixmap_computeByteSize">computeByteSize</a> | Returns size required for pixels. |
 | <a href="#SkPixmap_computeIsOpaque">computeIsOpaque</a> | Returns true if all pixels are opaque. |
 | <a href="#SkPixmap_erase">erase</a> | Writes <a href="undocumented#Color">Color</a> to pixels. |
 | <a href="#SkPixmap_extractSubset">extractSubset</a> | Sets pointer to portion of original. |
 | <a href="#SkPixmap_getColor">getColor</a> | Returns one pixel as <a href="#Unpremultiply">Unpremultiplied</a> <a href="undocumented#Color">Color</a>. |
-| <a href="#SkPixmap_getSafeSize">getSafeSize</a> | Returns minimum size required for pixels in 32 bits. |
-| <a href="#SkPixmap_getSafeSize64">getSafeSize64</a> | Returns minimum size required for pixels in 64 bits. |
-| <a href="#SkPixmap_getSize64">getSize64</a> | Returns conservative size required for pixels. |
 | <a href="#SkPixmap_height">height</a> | Returns pixel row count. |
 | <a href="#SkPixmap_info">info</a> | Returns <a href="#Info">Image Info</a>. |
 | <a href="#SkPixmap_isOpaque">isOpaque</a> | Returns true if <a href="#Info">Image Info</a> describes opaque pixels. |
@@ -756,68 +754,6 @@ color: kRGBA_F16_SkColorType  bytesPerPixel: 8 shiftPerPixel: 3
 ### See Also
 
 <a href="#SkPixmap_rowBytes">rowBytes</a> <a href="#SkPixmap_rowBytesAsPixels">rowBytesAsPixels</a> <a href="#SkPixmap_width">width</a> <a href="#SkImageInfo_bytesPerPixel">SkImageInfo::bytesPerPixel</a>
-
----
-
-<a name="SkPixmap_getSize64"></a>
-## getSize64
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-uint64_t getSize64() const
-</pre>
-
-Returns conservative memory required for pixel storage.
-Includes unused memory on last row when <a href="#SkPixmap_rowBytesAsPixels">rowBytesAsPixels</a> exceeds <a href="#SkPixmap_width">width</a>.
-
-### Return Value
-
-conservative pixel storage size
-
-### See Also
-
-<a href="#SkPixmap_getSafeSize64">getSafeSize64</a> <a href="#SkPixmap_getSafeSize">getSafeSize</a> <a href="#SkPixmap_height">height</a> <a href="#SkPixmap_rowBytes">rowBytes</a> <a href="#SkPixmap_width">width</a> <a href="#SkImageInfo_bytesPerPixel">SkImageInfo::bytesPerPixel</a>
-
----
-
-<a name="SkPixmap_getSafeSize64"></a>
-## getSafeSize64
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-uint64_t getSafeSize64() const
-</pre>
-
-Returns minimum memory required for pixel storage.
-Does not include unused memory on last row when <a href="#SkPixmap_rowBytesAsPixels">rowBytesAsPixels</a> exceeds <a href="#SkPixmap_width">width</a>.
-
-### Return Value
-
-exact pixel storage size
-
-### See Also
-
-<a href="#SkPixmap_getSize64">getSize64</a> <a href="#SkPixmap_getSafeSize">getSafeSize</a> <a href="#SkPixmap_height">height</a> <a href="#SkPixmap_rowBytes">rowBytes</a> <a href="#SkPixmap_width">width</a> <a href="#SkImageInfo_bytesPerPixel">SkImageInfo::bytesPerPixel</a>
-
----
-
-<a name="SkPixmap_getSafeSize"></a>
-## getSafeSize
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-size_t getSafeSize() const
-</pre>
-
-Returns minimum memory required for pixel storage.
-Does not include unused memory on last row when <a href="#SkPixmap_rowBytesAsPixels">rowBytesAsPixels</a> exceeds <a href="#SkPixmap_width">width</a>.
-Returns zero if value is does not fit in a signed 32-bit integer.
-The largest value than can be returned is 2,147,483,647.
-
-### Return Value
-
-exact pixel storage size if size fits in signed 32 bits
-
-### See Also
-
-<a href="#SkPixmap_getSize64">getSize64</a> <a href="#SkPixmap_getSafeSize64">getSafeSize64</a> <a href="#SkPixmap_height">height</a> <a href="#SkPixmap_rowBytes">rowBytes</a> <a href="#SkPixmap_width">width</a> <a href="#SkImageInfo_bytesPerPixel">SkImageInfo::bytesPerPixel</a> <a href="undocumented#sk_64_isS32">sk 64 isS32</a>
 
 ---
 

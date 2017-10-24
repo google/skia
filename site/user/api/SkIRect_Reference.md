@@ -1758,7 +1758,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 # <a name="Intersection"></a> Intersection
 IRects <a href="#SkIRect_intersect">intersect</a> when they enclose a common area. To <a href="#SkIRect_intersect">intersect</a>, each of the pair 
 must describe area; <a href="#SkIRect_fLeft">fLeft</a> is less than <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fTop">fTop</a> is less than <a href="#SkIRect_fBottom">fBottom</a>;
-empty() returns false. The intersection of <a href="#IRect">IRect</a> a and <a href="#IRect">IRect</a> b can be described by:
+empty() returns false. The intersection of <a href="#IRect">IRect</a> pair can be described by:
 (max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
 min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))The intersection is only meaningful if the resulting <a href="#IRect">IRect</a> is not empty and
 describes an area: <a href="#SkIRect_fLeft">fLeft</a> is less than <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fTop">fTop</a> is less than <a href="#SkIRect_fBottom">fBottom</a>.

@@ -6142,8 +6142,8 @@ Restores Canvas to saved state.
 
 #Method void restore()
 
-Restores Canvas to saved state immediately. Subsequent calls and class 
-destructor have no effect.
+Restores Canvas to saved state immediately. Subsequent calls and
+~SkAutoCanvasRestore have no effect.
 
 #Example
 // incomplete

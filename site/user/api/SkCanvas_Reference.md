@@ -430,7 +430,7 @@ storage of <a href="undocumented#Raster_Surface">Raster Surface</a></td>
 
 ## <a name="SkCanvas_ColorBehavior"></a> Enum SkCanvas::ColorBehavior
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum class <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> {
 <a href="#SkCanvas_ColorBehavior_kLegacy">kLegacy</a>,
 };</pre>
@@ -1554,7 +1554,7 @@ depth of saved stack
 
 ## <a name="SkCanvas__anonymous"></a> Enum SkCanvas::_anonymous
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum {
 <a href="#SkCanvas_kIsOpaque_SaveLayerFlag">kIsOpaque SaveLayerFlag</a> = 1 << 0,
 <a href="#SkCanvas_kPreserveLCDText_SaveLayerFlag">kPreserveLCDText SaveLayerFlag</a> = 1 << 1,
@@ -1596,7 +1596,7 @@ scalePaint blends <a href="#Layer">Layer</a> back with transparency.</div></fidd
 
 # <a name="SkCanvas_SaveLayerRec"></a> Struct SkCanvas::SaveLayerRec
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 struct <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a> {
 <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a>*(...
 
@@ -2732,7 +2732,7 @@ graphics state used to fill <a href="#Canvas">Canvas</a></td>
 
 ## <a name="SkCanvas_PointMode"></a> Enum SkCanvas::PointMode
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkCanvas_PointMode">PointMode</a> {
 <a href="#SkCanvas_kPoints_PointMode">kPoints PointMode</a>,
 <a href="#SkCanvas_kLines_PointMode">kLines PointMode</a>,
@@ -3389,7 +3389,7 @@ and so on; or nullptr</td>
 
 ## <a name="SkCanvas_SrcRectConstraint"></a> Enum SkCanvas::SrcRectConstraint
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> {
 <a href="#SkCanvas_kStrict_SrcRectConstraint">kStrict SrcRectConstraint</a>, 
 <a href="#SkCanvas_kFast_SrcRectConstraint">kFast SrcRectConstraint</a>, 
@@ -4015,7 +4015,7 @@ entries are proportionately scaled down to fit.
 The grid entries not on even columns and rows are scaled to fit the
 remaining space, if any.
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 struct <a href="#SkCanvas_Lattice">Lattice</a> {
 enum <a href="#SkCanvas_Lattice_Flags">Flags</a> {...
 
@@ -4029,7 +4029,7 @@ const <a href="SkIRect_Reference#SkIRect">SkIRect</a>* <a href="#SkCanvas_Lattic
 
 ## <a name="SkCanvas_Lattice_Flags"></a> Enum SkCanvas::Lattice::Flags
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkCanvas_Lattice_Flags">Flags</a> : uint8_t {
 <a href="#SkCanvas_Lattice_kTransparent_Flags">kTransparent Flags</a> = 1 << 0,
 };</pre>
@@ -5306,8 +5306,8 @@ Restores <a href="#Canvas">Canvas</a> to saved state.
 void restore()
 </pre>
 
-Restores <a href="#Canvas">Canvas</a> to saved state immediately. Subsequent calls and class 
-destructor have no effect.
+Restores <a href="#Canvas">Canvas</a> to saved state immediately. Subsequent calls and
+<a href="#SkAutoCanvasRestore_destructor">~SkAutoCanvasRestore</a> have no effect.
 
 ### Example
 

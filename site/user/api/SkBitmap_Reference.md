@@ -74,8 +74,7 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a> | Returns number of bytes in pixel based on <a href="undocumented#Color_Type">Color Type</a>. |
 | <a href="#SkBitmap_colorSpace">colorSpace</a> | Returns <a href="#Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a>. |
 | <a href="#SkBitmap_colorType">colorType</a> | Returns <a href="#Info">Image Info</a> <a href="undocumented#Color_Type">Color Type</a>. |
-| <a href="#SkBitmap_computeSafeSize64">computeSafeSize64</a> | Returns minimum size required for pixels in 64 bits. |
-| <a href="#SkBitmap_computeSize64">computeSize64</a> | Returns conservative size required for pixels. |
+| <a href="#SkBitmap_computeByteSize">computeByteSize</a> | Returns size required for pixels. |
 | <a href="#SkBitmap_dimensions">dimensions</a> | Returns <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a>. |
 | <a href="#SkBitmap_drawsNothing">drawsNothing</a> | Returns true if no <a href="#SkBitmap_width">width</a>, no <a href="#SkBitmap_height">height</a>, or no <a href="undocumented#Pixel_Ref">Pixel Ref</a>. |
 | <a href="#SkBitmap_empty">empty</a> | Returns true if <a href="#Info">Image Info</a> has zero <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a>. |
@@ -94,8 +93,6 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_getColor">getColor</a> | Returns one pixel as <a href="#Unpremultiply">Unpremultiplied</a> <a href="undocumented#Color">Color</a>. |
 | <a href="#SkBitmap_getGenerationID">getGenerationID</a> | Returns unique ID. |
 | <a href="#SkBitmap_getPixels">getPixels</a> | Returns address of pixels. |
-| <a href="#SkBitmap_getSafeSize">getSafeSize</a> | Returns minimum size required for pixels in 32 bits. |
-| <a href="#SkBitmap_getSize">getSize</a> | Returns conservative size required for pixels in 32 bits. |
 | <a href="#SkBitmap_getSubset">getSubset</a> | Returns <a href="#SkBitmap_bounds">bounds</a> offset by origin. |
 | <a href="#SkBitmap_hasHardwareMipMap">hasHardwareMipMap</a> | Returns <a href="undocumented#Mip_Map">Mip Map</a> support present; <a href="undocumented#Android">Android</a> only. |
 | <a href="#SkBitmap_height">height</a> | Returns pixel row count. |
@@ -134,7 +131,7 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 
 # <a name="SkBitmap::Allocator"></a> Class SkBitmap::Allocator
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 class <a href="#SkBitmap_Allocator">Allocator</a> : public <a href="undocumented#SkRefCnt">SkRefCnt</a> {
 public:
 virtual bool <a href="#SkBitmap_Allocator_allocPixelRef">allocPixelRef(SkBitmap* bitmap)</a> = 0;
@@ -172,7 +169,7 @@ true if <a href="undocumented#Pixel_Ref">Pixel Ref</a> was allocated
 
 # <a name="SkBitmap::HeapAllocator"></a> Class SkBitmap::HeapAllocator
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 class <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> : public <a href="#SkBitmap_Allocator">Allocator</a> {
 public:
 bool <a href="#SkBitmap_HeapAllocator_allocPixelRef">allocPixelRef(SkBitmap* bitmap)</a> override;
@@ -1096,175 +1093,6 @@ width: 1000000 height: 1000000 computeByteSize: 4999999000000
 
 ---
 
-<a name="SkBitmap_getSize"></a>
-## getSize
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-size_t getSize() const
-</pre>
-
-Returns conservative memory required for pixel storage.
-Includes unused memory on last row when <a href="#SkBitmap_rowBytesAsPixels">rowBytesAsPixels</a> exceeds <a href="#SkBitmap_width">width</a>.
-
-Does not check to see if result fits in 32 bits. Use getSize64() if the
-result may exceed 32 bits.
-
-### Return Value
-
-<a href="#SkBitmap_height">height</a> times <a href="#SkBitmap_rowBytes">rowBytes</a>
-
-### Example
-
-<div><fiddle-embed name="798d5f259dbd1ead4f3b1eac955c2cde"><div><a href="#SkBitmap_getSize">getSize</a> results are not useful when <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a> are large.</div>
-
-#### Example Output
-
-~~~~
-width:       1 height:       1 getSize:         5
-width:       1 height:    1000 getSize:      5000
-width:       1 height: 1000000 getSize:   5000000
-width:    1000 height:       1 getSize:      5000
-width:    1000 height:    1000 getSize:   5000000
-width:    1000 height: 1000000 getSize: 705032704
-width: 1000000 height:       1 getSize:   5000000
-width: 1000000 height:    1000 getSize: 705032704
-width: 1000000 height: 1000000 getSize: 658067456
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkBitmap_getSafeSize">getSafeSize</a> <a href="#SkBitmap_computeSize64">computeSize64</a> <a href="#SkBitmap_rowBytes">rowBytes</a> <a href="#SkBitmap_width">width</a>
-
----
-
-<a name="SkBitmap_getSafeSize"></a>
-## getSafeSize
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-size_t getSafeSize() const
-</pre>
-
-Returns minimum memory required for pixel storage.
-Does not include unused memory on last row when <a href="#SkBitmap_rowBytesAsPixels">rowBytesAsPixels</a> exceeds <a href="#SkBitmap_width">width</a>.
-
-Returns zero if size does not fit in 32 bits. Use <a href="#SkBitmap_computeSafeSize64">computeSafeSize64</a> if the
-result may exceed 32 bits.
-
-The pixel storage visible may be a subset of the <a href="undocumented#Pixel_Ref">Pixel Ref</a>. Accessing memory
-beyond the result may generate an exception.
-
-### Return Value
-
-exact pixel storage size
-
-### Example
-
-<div><fiddle-embed name="47a93c44326c86371dbf42d2544e76be"><div><a href="#SkBitmap_getSafeSize">getSafeSize</a> results are not useful when <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a> are large.</div>
-
-#### Example Output
-
-~~~~
-width:       1 height:       1 getSafeSize:         4
-width:       1 height:    1000 getSafeSize:      4999
-width:       1 height: 1000000 getSafeSize:   4999999
-width:    1000 height:       1 getSafeSize:      4000
-width:    1000 height:    1000 getSafeSize:   4999000
-width:    1000 height: 1000000 getSafeSize:         0
-width: 1000000 height:       1 getSafeSize:   4000000
-width: 1000000 height:    1000 getSafeSize:         0
-width: 1000000 height: 1000000 getSafeSize:         0
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkBitmap_getSize">getSize</a> <a href="#SkBitmap_computeSafeSize64">computeSafeSize64</a> <a href="#SkBitmap_rowBytes">rowBytes</a> <a href="#SkBitmap_width">width</a>
-
----
-
-<a name="SkBitmap_computeSize64"></a>
-## computeSize64
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-int64_t computeSize64() const
-</pre>
-
-Returns conservative memory required for pixel storage.
-Includes unused memory on last row when <a href="#SkBitmap_rowBytesAsPixels">rowBytesAsPixels</a> exceeds <a href="#SkBitmap_width">width</a>.
-
-### Return Value
-
-conservative pixel storage size
-
-### Example
-
-<div><fiddle-embed name="e7deb420416751aa68c1bd7956596833">
-
-#### Example Output
-
-~~~~
-width:       1 height:       1 computeSize64:             5
-width:       1 height:    1000 computeSize64:          5000
-width:       1 height: 1000000 computeSize64:       5000000
-width:    1000 height:       1 computeSize64:          5000
-width:    1000 height:    1000 computeSize64:       5000000
-width:    1000 height: 1000000 computeSize64:    5000000000
-width: 1000000 height:       1 computeSize64:       5000000
-width: 1000000 height:    1000 computeSize64:    5000000000
-width: 1000000 height: 1000000 computeSize64: 5000000000000
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkBitmap_getSize">getSize</a> <a href="#SkBitmap_computeSafeSize64">computeSafeSize64</a> <a href="#SkBitmap_rowBytes">rowBytes</a> <a href="#SkBitmap_width">width</a>
-
----
-
-<a name="SkBitmap_computeSafeSize64"></a>
-## computeSafeSize64
-
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-int64_t computeSafeSize64() const
-</pre>
-
-Returns minimum memory required for pixel storage.
-Does not include unused memory on last row when <a href="#SkBitmap_rowBytesAsPixels">rowBytesAsPixels</a> exceeds <a href="#SkBitmap_width">width</a>.
-
-### Return Value
-
-exact pixel storage size
-
-### Example
-
-<div><fiddle-embed name="ff12ff8354c1add9ea00797412f6342c">
-
-#### Example Output
-
-~~~~
-width:       1 height:       1 computeSafeSize64:             4
-width:       1 height:    1000 computeSafeSize64:          4999
-width:       1 height: 1000000 computeSafeSize64:       4999999
-width:    1000 height:       1 computeSafeSize64:          4000
-width:    1000 height:    1000 computeSafeSize64:       4999000
-width:    1000 height: 1000000 computeSafeSize64:    4999999000
-width: 1000000 height:       1 computeSafeSize64:       4000000
-width: 1000000 height:    1000 computeSafeSize64:    4999000000
-width: 1000000 height: 1000000 computeSafeSize64: 4999999000000
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkBitmap_getSafeSize">getSafeSize</a> <a href="#SkBitmap_computeSize64">computeSize64</a> <a href="#SkBitmap_rowBytes">rowBytes</a> <a href="#SkBitmap_width">width</a>
-
----
-
 <a name="SkBitmap_isImmutable"></a>
 ## isImmutable
 
@@ -1699,7 +1527,7 @@ true if <a href="#Info">Image Info</a> set successfully
 
 ## <a name="SkBitmap_AllocFlags"></a> Enum SkBitmap::AllocFlags
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkBitmap_AllocFlags">AllocFlags</a> {
 <a href="#SkBitmap_kZeroPixels_AllocFlag">kZeroPixels AllocFlag</a> = 1 << 0,
 };</pre>
