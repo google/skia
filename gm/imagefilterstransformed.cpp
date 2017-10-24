@@ -119,6 +119,8 @@ DEF_GM( return new ImageFiltersTransformedGM; )
 //////////////////////////////////////////////////////////////////////////////
 #include "SkXfermodeImageFilter.h"
 
+#define VIZ_DEST 0
+
 DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
     SkPaint paint;
 
@@ -130,6 +132,13 @@ DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
         SkXfermodeImageFilter::Make(SkBlendMode::kSrcOver, nullptr),
     };
 
+#if VIZ_DEST
+    SkPaint stroke;
+    stroke.setStyle(SkPaint::kStroke_Style);
+    stroke.setStrokeWidth(1.0f);
+    stroke.setColor(SK_ColorRED);
+#endif
+
     for (auto& filter : filters) {
         paint.setAntiAlias(false);
         paint.setImageFilter(filter);
@@ -137,12 +146,22 @@ DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
         canvas->save();
 
         canvas->drawRect(r, paint);
+#if VIZ_DEST
+        canvas->drawRect(r, stroke);
+#endif
 
         canvas->translate(150, 0);
+
         canvas->save();
             canvas->rotate(30, 100, 100);
             canvas->drawRect(r, paint);
         canvas->restore();
+#if VIZ_DEST
+        canvas->save();
+            canvas->rotate(30, 100, 100);
+            canvas->drawRect(r, stroke);
+        canvas->restore();
+#endif
 
         paint.setAntiAlias(true);
         canvas->translate(150, 0);
@@ -150,6 +169,12 @@ DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
             canvas->rotate(30, 100, 100);
             canvas->drawRect(r, paint);
         canvas->restore();
+#if VIZ_DEST
+        canvas->save();
+            canvas->rotate(30, 100, 100);
+            canvas->drawRect(r, stroke);
+        canvas->restore();
+#endif
 
         canvas->restore();
         canvas->translate(0, 150);
