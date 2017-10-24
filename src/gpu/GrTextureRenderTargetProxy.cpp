@@ -36,11 +36,8 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf,
 size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
     int colorSamplesPerPixel = this->numColorSamples() + 1;
 
-    // TODO: add tracking of mipmap state to improve the estimate. We track whether we are created
-    // with mip maps but not whether a texture read from the proxy will lazily generate mip maps.
-
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, colorSamplesPerPixel, GrMipMapped::kYes,
+    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, colorSamplesPerPixel, this->mipMapped(),
                                   SkBackingFit::kApprox == fFit);
 }
 
