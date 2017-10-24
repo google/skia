@@ -15,10 +15,10 @@
 #include "SkTypes.h"
 #include "../private/GrAuditTrail.h"
 #include "../private/GrSingleOwner.h"
+#include "GrContextOptions.h"
 
 class GrAtlasGlyphCache;
 class GrBackendSemaphore;
-struct GrContextOptions;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
 class GrDrawingManager;
@@ -334,6 +334,8 @@ public:
 
     GrAuditTrail* getAuditTrail() { return &fAuditTrail; }
 
+    GrContextOptions::PersistentCache* getPersistentCache() { return fPersistentCache; }
+
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fSingleOwner; } )
 
@@ -378,6 +380,8 @@ private:
     GrAuditTrail                            fAuditTrail;
 
     GrBackend                               fBackend;
+
+    GrContextOptions::PersistentCache*      fPersistentCache;
 
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
