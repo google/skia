@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "932fe96b_9edfdf90",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-24T18:23:22Z",
+      "side": 1,
+      "message": "Oops, please remove.",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 39
+      },
+      "revId": "af1c57f3c45c0b809542707055f84c58dbf25ed2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
