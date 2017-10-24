@@ -23,8 +23,7 @@ public:
                                const TexelBufferHandle& pointsBuffer,
                                const char* pointId) const final;
 
-    void emitWind(GrGLSLShaderBuilder* s, const char* pts, const char* rtAdjust,
-                  const char* outputWind) const final;
+    void emitWind(GrGLSLShaderBuilder* s, const char* pts, const char* outputWind) const final;
 };
 
 /**
@@ -64,8 +63,7 @@ class GrCCPRTriangleCornerShader : public GrCCPRTriangleShader {
     GeometryType getGeometryType() const override { return GeometryType::kCorners; }
 
     void emitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* cornerId,
-                       const char* bloat, const char* wind, const char* rtAdjust,
-                       GeometryVars*) const override;
+                       const char* wind, GeometryVars*) const override;
     WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
                                 const char* coverage, const char* wind) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder* f, const char* outputCoverage) const override;

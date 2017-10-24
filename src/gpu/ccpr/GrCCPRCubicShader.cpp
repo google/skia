@@ -18,15 +18,14 @@ void GrCCPRCubicShader::appendInputPointFetch(const GrCCPRCoverageProcessor& pro
 }
 
 void GrCCPRCubicShader::emitWind(GrGLSLShaderBuilder* s, const char* pts,
-                                           const char* rtAdjust, const char* outputWind) const {
+                                 const char* outputWind) const {
 
     s->codeAppendf("float area_times_2 = determinant(float3x3(1, %s[0], "
                                                              "1, %s[2], "
                                                              "0, %s[3] - %s[1]));",
                                                              pts, pts, pts, pts);
     // Drop curves that are nearly flat. The KLM  math becomes unstable in this case.
-    s->codeAppendf("if (2 * abs(area_times_2) < length((%s[3] - %s[0]) * %s.zx)) {",
-                   pts, pts, rtAdjust);
+    s->codeAppendf("if (2 * abs(area_times_2) < length(%s[3] - %s[0])) {", pts, pts);
 #ifndef SK_BUILD_FOR_MAC
     s->codeAppend (    "return;");
 #else
@@ -38,8 +37,8 @@ void GrCCPRCubicShader::emitWind(GrGLSLShaderBuilder* s, const char* pts,
 }
 
 void GrCCPRCubicShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
-                                      const char* segmentId, const char* bloat, const char* wind,
-                                      const char* rtAdjust, GeometryVars* vars) const {
+                                      const char* segmentId, const char* wind,
+                                      GeometryVars* vars) const {
     // Evaluate the cubic at T=.5 for an mid-ish point.
     s->codeAppendf("float2 midpoint = %s * float4(.125, .375, .375, .125);", pts);
 
@@ -93,13 +92,14 @@ void GrCCPRCubicShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
                                   "0, orientation[0], 0, "
                                   "0, 0, orientation[1]);", fKLMMatrix.c_str());
 
+    // TODO: remove in followup CL.
     s->declareGlobal(fKLMDerivatives);
-    s->codeAppendf("%s[0] = %s[0].xy * %s.xz;",
-                   fKLMDerivatives.c_str(), fKLMMatrix.c_str(), rtAdjust);
-    s->codeAppendf("%s[1] = %s[1].xy * %s.xz;",
-                   fKLMDerivatives.c_str(), fKLMMatrix.c_str(), rtAdjust);
-    s->codeAppendf("%s[2] = %s[2].xy * %s.xz;",
-                   fKLMDerivatives.c_str(), fKLMMatrix.c_str(), rtAdjust);
+    s->codeAppendf("%s[0] = %s[0].xy;",
+                   fKLMDerivatives.c_str(), fKLMMatrix.c_str());
+    s->codeAppendf("%s[1] = %s[1].xy;",
+                   fKLMDerivatives.c_str(), fKLMMatrix.c_str());
+    s->codeAppendf("%s[2] = %s[2].xy;",
+                   fKLMDerivatives.c_str(), fKLMMatrix.c_str());
 
     // Determine the amount of additional coverage to subtract out for the flat edge (P3 -> P0).
     s->declareGlobal(fEdgeDistanceEquation);
@@ -108,7 +108,7 @@ void GrCCPRCubicShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
     s->codeAppendf("float2 edgept1 = %s[3 - edgeidx0];", pts);
     Shader::EmitEdgeDistanceEquation(s, "edgept0", "edgept1", fEdgeDistanceEquation.c_str());
 
-    this->onEmitSetupCode(s, pts, segmentId, rtAdjust, vars);
+    this->onEmitSetupCode(s, pts, segmentId, vars);
 }
 
 GrCCPRCubicShader::WindHandling
@@ -125,8 +125,7 @@ GrCCPRCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString
 }
 
 void GrCCPRCubicHullShader::onEmitSetupCode(GrGLSLShaderBuilder* s, const char* /*pts*/,
-                                            const char* /*wedgeId*/, const char* /*rtAdjust*/,
-                                            GeometryVars* vars) const {
+                                            const char* /*wedgeId*/, GeometryVars* vars) const {
     // "midpoint" was just defined by the base class.
     vars->fHullVars.fAlternateMidpoint = "midpoint";
 }
@@ -150,11 +149,11 @@ void GrCCPRCubicHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
 }
 
 void GrCCPRCubicCornerShader::onEmitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
-                                              const char* cornerId, const char* rtAdjust,
-                                              GeometryVars* vars) const {
+                                              const char* cornerId, GeometryVars* vars) const {
+    // TODO: remove in followup CL.
     s->declareGlobal(fEdgeDistanceDerivatives);
-    s->codeAppendf("%s = %s.xy * %s.xz;",
-                   fEdgeDistanceDerivatives.c_str(), fEdgeDistanceEquation.c_str(), rtAdjust);
+    s->codeAppendf("%s = %s.xy;",
+                   fEdgeDistanceDerivatives.c_str(), fEdgeDistanceEquation.c_str());
 
     s->codeAppendf("float2 corner = %s[%s * 3];", pts, cornerId);
     vars->fCornerVars.fPoint = "corner";
@@ -170,9 +169,6 @@ void GrCCPRCubicCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandle
     code->appendf("%s = float4(%s[0].y, %s[1].y, %s[2].y, %s.y);",
                     fdKLMDdy.gsOut(), fKLMDerivatives.c_str(), fKLMDerivatives.c_str(),
                     fKLMDerivatives.c_str(), fEdgeDistanceDerivatives.c_str());
-
-    // Otherwise, fEdgeDistances = fEdgeDistances * sign(wind * rtAdjust.x * rdAdjust.z).
-    GR_STATIC_ASSERT(kTopLeft_GrSurfaceOrigin == GrCCPRCoverageProcessor::kAtlasOrigin);
 }
 
 void GrCCPRCubicCornerShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,

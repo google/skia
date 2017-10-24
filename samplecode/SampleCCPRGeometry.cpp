@@ -70,9 +70,9 @@ private:
 
     SkPoint fPoints[4] = {
         {100.05f, 100.05f},
-        {100.05f, 300.95f},
+        {400.75f, 100.05f},
         {400.75f, 300.95f},
-        {400.75f, 100.05f}
+        {100.05f, 300.95f}
     };
 
     SkTArray<SkPoint>   fGpuPoints;

@@ -174,15 +174,3 @@ const char* GrCCPRCoverageProcessor::GetRenderPassName(RenderPass renderPass) {
     SK_ABORT("Unexpected GrCCPRCoverageProcessor::RenderPass.");
     return nullptr;
 }
-
-#ifdef SK_DEBUG
-
-#include "GrRenderTargetProxy.h"
-
-void GrCCPRCoverageProcessor::Validate(GrRenderTargetProxy* atlasProxy) {
-    SkASSERT(kAtlasOrigin == atlasProxy->origin());
-    SkASSERT(GrPixelConfigIsAlphaOnly(atlasProxy->config()));
-    SkASSERT(GrPixelConfigIsFloatingPoint(atlasProxy->config()));
-}
-
-#endif

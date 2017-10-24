@@ -8,8 +8,7 @@
 #include "GrCCPRTriangleShader.h"
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLGeometryShaderBuilder.h"
-#include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 
 void GrCCPRTriangleShader::appendInputPointFetch(const GrCCPRCoverageProcessor& proc,
                                                  GrGLSLShaderBuilder* s,
@@ -19,8 +18,8 @@ void GrCCPRTriangleShader::appendInputPointFetch(const GrCCPRCoverageProcessor& 
                         SkStringPrintf("%s[%s]", proc.instanceAttrib(), pointId).c_str());
 }
 
-void GrCCPRTriangleShader::emitWind(GrGLSLShaderBuilder* s, const char* pts, const char* rtAdjust,
-              const char* outputWind) const {
+void GrCCPRTriangleShader::emitWind(GrGLSLShaderBuilder* s, const char* pts,
+                                    const char* outputWind) const {
     s->codeAppendf("%s = sign(determinant(float2x2(%s[1] - %s[0], %s[2] - %s[0])));",
                    outputWind, pts, pts, pts, pts);
 }
@@ -52,8 +51,7 @@ void GrCCPRTriangleEdgeShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
 }
 
 void GrCCPRTriangleCornerShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
-                                               const char* cornerId, const char* bloat,
-                                               const char* wind, const char* rtAdjust,
+                                               const char* cornerId, const char* wind,
                                                GeometryVars* vars) const {
     s->codeAppendf("float2 corner = %s[sk_InvocationID];", pts);
     vars->fCornerVars.fPoint = "corner";
@@ -87,7 +85,7 @@ void GrCCPRTriangleCornerShader::emitSetupCode(GrGLSLShaderBuilder* s, const cha
     s->codeAppendf("for (int i = 0; i < 2; ++i) {");
     // The X component runs parallel to the edge (i.e. distance to the corner).
     s->codeAppendf(    "float2 n = -vectors[%s > 0 ? i : 1 - i];", wind);
-    s->codeAppend (    "float nwidth = dot(abs(n), bloat) * 2;");
+    s->codeAppend (    "float nwidth = (abs(n.x) + abs(n.y)) * (bloat * 2);");
     s->codeAppend (    "n /= nwidth;"); // nwidth != 0 because both vectors != 0.
     s->codeAppendf(    "%s[i][0] = n;", fAABoxMatrices.c_str());
     s->codeAppendf(    "%s[i][0] = -dot(n, corner) + .5;", fAABoxTranslates.c_str());
@@ -96,7 +94,7 @@ void GrCCPRTriangleCornerShader::emitSetupCode(GrGLSLShaderBuilder* s, const cha
     // NOTE: if we are back in device space and bloat.x == bloat.y, we will not need to find and
     // divide by nwidth a second time.
     s->codeAppend (    "n = (i == 0) ? float2(-n.y, n.x) : float2(n.y, -n.x);");
-    s->codeAppend (    "nwidth = dot(abs(n), bloat) * 2;");
+    s->codeAppend (    "nwidth = (abs(n.x) + abs(n.y)) * (bloat * 2);");
     s->codeAppend (    "n /= nwidth;");
     s->codeAppendf(    "%s[i][1] = n;", fAABoxMatrices.c_str());
     s->codeAppendf(    "%s[i][1] = -dot(n, corner) + .5;", fAABoxTranslates.c_str());
