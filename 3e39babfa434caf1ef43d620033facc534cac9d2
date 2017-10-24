@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "472382e0_54626f63",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-10-24T20:30:42Z",
+      "side": 1,
+      "message": "I like the idea to make it opaque. If we change the code, we should not add a memcpy after \"load\" for the  program binary. Program binaries are about 160KB for 10 shaders in gmail. Performance of \"store\" is not so important, because it runs once when an app is installed (so we could afford to memcpy in a flat buffer).",
+      "parentUuid": "01176dff_b6210b82",
+      "revId": "3e39babfa434caf1ef43d620033facc534cac9d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b86e683b_1c0a1116",
         "filename": "include/gpu/gl/GrGLInterface.h",
         "patchSetId": 10
