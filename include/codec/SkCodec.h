@@ -250,7 +250,7 @@ public:
             , fSubset(nullptr)
             , fFrameIndex(0)
             , fPriorFrame(kNone)
-            , fPremulBehavior(SkTransferFunctionBehavior::kRespect)
+            , fPremulBehavior(SkBlendBehavior::kLinear)
         {}
 
         ZeroInitialized            fZeroInitialized;
@@ -301,7 +301,7 @@ public:
          *  In the case where the dst SkColorSpace is nullptr, this flag is ignored and
          *  we will always do a legacy premultiply.
          */
-        SkTransferFunctionBehavior fPremulBehavior;
+        SkBlendBehavior            fPremulBehavior;
     };
 
     /**
@@ -800,7 +800,8 @@ protected:
     virtual int onOutputScanline(int inputScanline) const;
 
     bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha,
-                              SkTransferFunctionBehavior premulBehavior);
+                              SkBlendBehavior premulBehavior);
+
     // Some classes never need a colorXform e.g.
     // - ICO uses its embedded codec's colorXform
     // - WBMP is just Black/White

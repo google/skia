@@ -54,7 +54,7 @@ public:
     bool setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::Options& options);
     bool setColorSpace(const SkImageInfo& info);
     bool writeInfo(const SkImageInfo& srcInfo);
-    void chooseProc(const SkImageInfo& srcInfo, SkTransferFunctionBehavior unpremulBehavior);
+    void chooseProc(const SkImageInfo& srcInfo, SkBlendBehavior unpremulBehavior);
 
     png_structp pngPtr() { return fPngPtr; }
     png_infop infoPtr() { return fInfoPtr; }
@@ -198,9 +198,9 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::
 }
 
 static transform_scanline_proc choose_proc(const SkImageInfo& info,
-                                           SkTransferFunctionBehavior unpremulBehavior) {
+                                           SkBlendBehavior unpremulBehavior) {
     const bool isSRGBTransferFn =
-            (SkTransferFunctionBehavior::kRespect == unpremulBehavior) && info.gammaCloseToSRGB();
+            (SkBlendBehavior::kLinear == unpremulBehavior) && info.gammaCloseToSRGB();
     switch (info.colorType()) {
         case kRGBA_8888_SkColorType:
             switch (info.alphaType()) {
@@ -309,7 +309,7 @@ bool SkPngEncoderMgr::writeInfo(const SkImageInfo& srcInfo) {
 }
 
 void SkPngEncoderMgr::chooseProc(const SkImageInfo& srcInfo,
-                                 SkTransferFunctionBehavior unpremulBehavior) {
+                                 SkBlendBehavior unpremulBehavior) {
     fProc = choose_proc(srcInfo, unpremulBehavior);
 }
 

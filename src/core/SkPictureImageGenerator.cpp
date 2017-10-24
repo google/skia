@@ -60,8 +60,7 @@ SkPictureImageGenerator::SkPictureImageGenerator(const SkImageInfo& info, sk_sp<
 
 bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                           const Options& opts) {
-    bool useXformCanvas =
-            SkTransferFunctionBehavior::kIgnore == opts.fBehavior && info.colorSpace();
+    bool useXformCanvas = SkBlendBehavior::kNonlinear == opts.fBehavior && info.colorSpace();
 
     SkImageInfo canvasInfo = useXformCanvas ? info.makeColorSpace(nullptr) : info;
     std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(canvasInfo, pixels, rowBytes);
@@ -102,9 +101,9 @@ SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
 #if SK_SUPPORT_GPU
 sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(
         GrContext* ctx, const SkImageInfo& info, const SkIPoint& origin,
-        SkTransferFunctionBehavior behavior, bool willNeedMipMaps) {
+        SkBlendBehavior behavior, bool willNeedMipMaps) {
     SkASSERT(ctx);
-    bool useXformCanvas = SkTransferFunctionBehavior::kIgnore == behavior && info.colorSpace();
+    bool useXformCanvas = SkBlendBehavior::kNonlinear == behavior && info.colorSpace();
 
     //
     // TODO: respect the usage, by possibly creating a different (pow2) surface

@@ -620,14 +620,14 @@ static inline SkColorSpaceXform::ColorFormat select_xform_format_ct(SkColorType 
 }
 
 bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha encodedAlpha,
-                                   SkTransferFunctionBehavior premulBehavior) {
+                                   SkBlendBehavior premulBehavior) {
     fColorXform = nullptr;
     fXformOnDecode = false;
     if (!this->usesColorXform()) {
         return true;
     }
     bool needsColorCorrectPremul = needs_premul(dstInfo.alphaType(), encodedAlpha) &&
-                                   SkTransferFunctionBehavior::kRespect == premulBehavior;
+                                   SkBlendBehavior::kLinear == premulBehavior;
     if (needs_color_xform(dstInfo, fSrcInfo.colorSpace(), needsColorCorrectPremul)) {
         fColorXform = SkColorSpaceXform_Base::New(fSrcInfo.colorSpace(), dstInfo.colorSpace(),
                                                   premulBehavior);

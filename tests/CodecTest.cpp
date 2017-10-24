@@ -1441,7 +1441,7 @@ DEF_TEST(Codec_InvalidAnimated, r) {
 }
 
 static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap,
-                          SkTransferFunctionBehavior unpremulBehavior,
+                          SkBlendBehavior unpremulBehavior,
                           SkEncodedImageFormat format) {
     SkPngEncoder::Options pngOptions;
     SkWebpEncoder::Options webpOptions;
@@ -1464,7 +1464,7 @@ static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap
 }
 
 static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
-                            SkTransferFunctionBehavior unpremulBehavior) {
+                            SkBlendBehavior unpremulBehavior) {
     // Test with sRGB color space.
     SkBitmap srgbBitmap;
     SkImageInfo srgbInfo = SkImageInfo::MakeS32(1, 1, kOpaque_SkAlphaType);
@@ -1502,12 +1502,12 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
 }
 
 DEF_TEST(Codec_EncodeICC, r) {
-    test_encode_icc(r, SkEncodedImageFormat::kPNG, SkTransferFunctionBehavior::kRespect);
-    test_encode_icc(r, SkEncodedImageFormat::kJPEG, SkTransferFunctionBehavior::kRespect);
-    test_encode_icc(r, SkEncodedImageFormat::kWEBP, SkTransferFunctionBehavior::kRespect);
-    test_encode_icc(r, SkEncodedImageFormat::kPNG, SkTransferFunctionBehavior::kIgnore);
-    test_encode_icc(r, SkEncodedImageFormat::kJPEG, SkTransferFunctionBehavior::kIgnore);
-    test_encode_icc(r, SkEncodedImageFormat::kWEBP, SkTransferFunctionBehavior::kIgnore);
+    test_encode_icc(r, SkEncodedImageFormat::kPNG, SkBlendBehavior::kLinear);
+    test_encode_icc(r, SkEncodedImageFormat::kJPEG, SkBlendBehavior::kLinear);
+    test_encode_icc(r, SkEncodedImageFormat::kWEBP, SkBlendBehavior::kLinear);
+    test_encode_icc(r, SkEncodedImageFormat::kPNG, SkBlendBehavior::kNonlinear);
+    test_encode_icc(r, SkEncodedImageFormat::kJPEG, SkBlendBehavior::kNonlinear);
+    test_encode_icc(r, SkEncodedImageFormat::kWEBP, SkBlendBehavior::kNonlinear);
 }
 
 DEF_TEST(Codec_webp_rowsDecoded, r) {

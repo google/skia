@@ -1037,8 +1037,8 @@ static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
     options.fComments         = SkDataTable::MakeCopyArrays((const void**)comments, lengths, 4);
     options.fFilterFlags      = SkPngEncoder::FilterFlag::kNone;
     options.fZLibLevel        = 1;
-    options.fUnpremulBehavior = pm.colorSpace() ? SkTransferFunctionBehavior::kRespect
-                                                : SkTransferFunctionBehavior::kIgnore;
+    options.fUnpremulBehavior = pm.colorSpace() ? SkBlendBehavior::kLinear
+                                                : SkBlendBehavior::kNonlinear;
     return SkPngEncoder::Encode(&dst, pm, options);
 }
 

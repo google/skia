@@ -171,17 +171,22 @@ private:
     using INHERITED = SkRefCnt;
 };
 
-enum class SkTransferFunctionBehavior {
+enum class SkBlendBehavior {
     /**
      *  Converts to a linear space before premultiplying, unpremultiplying, or blending.
      */
-    kRespect,
+    kLinear,
 
     /**
-     *  Premultiplies, unpremultiplies, and blends ignoring the transfer function.  Pixels are
-     *  treated as if they are linear, regardless of their transfer function encoding.
+     *  Premultiplies, unpremultiplies, and blends while keeping values encoded with their
+     *  transfer function.
      */
-    kIgnore,
+    kNonlinear,
+};
+
+struct SkTransferFunctionBehavior {
+    const static SkBlendBehavior kRespect = SkBlendBehavior::kLinear;
+    const static SkBlendBehavior kIgnore = SkBlendBehavior::kNonlinear;
 };
 
 #endif

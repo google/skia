@@ -1001,8 +1001,8 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
 }
 
 sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColorType,
-                                             SkTransferFunctionBehavior premulBehavior) const {
-    if (SkTransferFunctionBehavior::kRespect == premulBehavior) {
+                                             SkBlendBehavior premulBehavior) const {
+    if (SkBlendBehavior::kLinear == premulBehavior) {
         // TODO: Implement this.
         return nullptr;
     }

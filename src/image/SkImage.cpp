@@ -302,7 +302,7 @@ bool SkImage::isAlphaOnly() const {
 }
 
 sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target,
-                                       SkTransferFunctionBehavior premulBehavior) const {
+                                       SkBlendBehavior premulBehavior) const {
     SkColorSpaceTransferFn fn;
     if (!target || !target->isNumericalTransferFn(&fn)) {
         return nullptr;
@@ -317,7 +317,7 @@ sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target,
     }
 
     SkColorType targetColorType = kN32_SkColorType;
-    if (SkTransferFunctionBehavior::kRespect == premulBehavior && target->gammaIsLinear()) {
+    if (SkBlendBehavior::kLinear == premulBehavior && target->gammaIsLinear()) {
         targetColorType = kRGBA_F16_SkColorType;
     }
 

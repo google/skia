@@ -20,7 +20,7 @@ public:
     // A somewhat more powerful SkColorSpaceXform::New() that allows tweaking premulBehavior.
     static std::unique_ptr<SkColorSpaceXform> New(SkColorSpace* srcSpace,
                                                   SkColorSpace* dstSpace,
-                                                  SkTransferFunctionBehavior premulBehavior);
+                                                  SkBlendBehavior premulBehavior);
 
     static constexpr int kDstGammaTableSize = 1024;
     static void BuildDstGammaTables(const uint8_t* outGammaTables[3],
@@ -47,7 +47,7 @@ enum DstGamma {
 
 class SkColorSpaceXform_XYZ : public SkColorSpaceXform_Base {
 public:
-    SkColorSpaceXform_XYZ(SkColorSpace_XYZ* src, SkColorSpace_XYZ* dst, SkTransferFunctionBehavior);
+    SkColorSpaceXform_XYZ(SkColorSpace_XYZ* src, SkColorSpace_XYZ* dst, SkBlendBehavior);
 
     bool onApply(ColorFormat dstFormat, void* dst,
                  ColorFormat srcFormat, const void* src,
@@ -69,7 +69,7 @@ private:
     bool                       fColorSpacesAreIdentical;
     SrcGamma                   fSrcGamma;
     DstGamma                   fDstGamma;
-    SkTransferFunctionBehavior fPremulBehavior;
+    SkBlendBehavior            fPremulBehavior;
 };
 
 struct LoadTablesContext {

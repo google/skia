@@ -20,7 +20,7 @@ static inline void read_into_pixmap(SkPixmap* dst, SkImageInfo dstInfo, void* ds
 }
 
 static inline sk_sp<SkImage> encode_pixmap_and_make_image(const SkPixmap& src,
-        SkJpegEncoder::AlphaOption alphaOption, SkTransferFunctionBehavior blendBehavior) {
+        SkJpegEncoder::AlphaOption alphaOption, SkBlendBehavior blendBehavior) {
     SkDynamicMemoryWStream dst;
     SkJpegEncoder::Options options;
     options.fAlphaOption = alphaOption;
@@ -52,8 +52,8 @@ protected:
                 canvas->imageInfo().colorSpace() ? SkColorSpace::MakeSRGB() : nullptr);
         read_into_pixmap(&src, info, fStorage.get(), srcImg);
 
-        SkTransferFunctionBehavior behavior = canvas->imageInfo().colorSpace() ?
-                SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
+        SkBlendBehavior behavior = canvas->imageInfo().colorSpace() ? SkBlendBehavior::kLinear
+                                                                    : SkBlendBehavior::kNonlinear;
 
         // Encode 8888 premul.
         sk_sp<SkImage> img0 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kIgnore,

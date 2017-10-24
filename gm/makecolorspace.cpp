@@ -12,7 +12,7 @@
 #include "SkImage.h"
 #include "SkImagePriv.h"
 
-sk_sp<SkImage> make_raster_image(const char* path, SkTransferFunctionBehavior behavior) {
+sk_sp<SkImage> make_raster_image(const char* path, SkBlendBehavior behavior) {
     SkString resourcePath = GetResourcePath(path);
     sk_sp<SkData> resourceData = SkData::MakeFromFileName(resourcePath.c_str());
     std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(resourceData);
@@ -27,8 +27,8 @@ sk_sp<SkImage> make_raster_image(const char* path, SkTransferFunctionBehavior be
 }
 
 sk_sp<SkImage> make_color_space(sk_sp<SkImage> orig, sk_sp<SkColorSpace> colorSpace,
-                                SkTransferFunctionBehavior behavior) {
-    sk_sp<SkImage> xform = orig->makeColorSpace(colorSpace, behavior);
+                                SkBlendBehavior behavior) {
+    sk_sp<SkImage> xform = orig->makeColorSpace(colorSpace, SkTransferFunctionBehavior::kIgnore);
 
     // Assign an sRGB color space on the xformed image, so we can see the effects of the xform
     // when we draw.
@@ -53,8 +53,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkTransferFunctionBehavior behavior = canvas->imageInfo().colorSpace() ?
-                SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
+        SkBlendBehavior behavior = canvas->imageInfo().colorSpace() ? SkBlendBehavior::kLinear
+                                                                    : SkBlendBehavior::kNonlinear;
 
         sk_sp<SkColorSpace> wideGamut = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                                               SkColorSpace::kAdobeRGB_Gamut);

@@ -500,7 +500,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 
     const bool blendWithPrevFrame = !independent && frame.blend_method == WEBP_MUX_BLEND
         && frame.has_alpha;
-    if (blendWithPrevFrame && options.fPremulBehavior == SkTransferFunctionBehavior::kRespect) {
+    if (blendWithPrevFrame && options.fPremulBehavior == SkBlendBehavior::kLinear) {
         // Blending is done with SkRasterPipeline, which requires a color space that is valid for
         // rendering.
         const auto* cs = dstInfo.colorSpace();
@@ -573,7 +573,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     const auto srcAlpha = 0 == index ? srcInfo.alphaType() : alpha_type(frame.has_alpha);
     const auto xformAlphaType = select_xform_alpha(dstInfo.alphaType(), srcAlpha);
     const bool needsSrgbToLinear = dstInfo.gammaCloseToSRGB() &&
-            options.fPremulBehavior == SkTransferFunctionBehavior::kRespect;
+            options.fPremulBehavior == SkBlendBehavior::kLinear;
 
     const size_t dstBpp = SkColorTypeBytesPerPixel(dstInfo.colorType());
     dst = SkTAddOffset<void>(dst, dstBpp * dstX + rowBytes * dstY);

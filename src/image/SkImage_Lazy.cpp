@@ -89,7 +89,7 @@ public:
     bool onIsLazyGenerated() const override { return true; }
     bool onCanLazyGenerateOnGPU() const override;
     sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
-                                    SkTransferFunctionBehavior) const override;
+                                    SkBlendBehavior) const override;
 
     bool onIsValid(GrContext*) const override;
 
@@ -101,7 +101,7 @@ public:
     bool lockAsBitmapOnlyIfAlreadyCached(SkBitmap*, CachedFormat) const;
     // Call the underlying generator directly
     bool directGeneratePixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
-                              int srcX, int srcY, SkTransferFunctionBehavior behavior) const;
+                              int srcX, int srcY, SkBlendBehavior behavior) const;
 
     // SkImageCacherator interface
 #if SK_SUPPORT_GPU
@@ -134,17 +134,17 @@ private:
      *  false, the bitmap will be reset to empty.
      */
     bool lockAsBitmap(SkBitmap*, SkImage::CachingHint, CachedFormat, const SkImageInfo&,
-                      SkTransferFunctionBehavior) const;
+                      SkBlendBehavior) const;
 
     /**
      * Populates parameters to pass to the generator for reading pixels or generating a texture.
      * For image generators, legacy versus true color blending is indicated using a
-     * SkTransferFunctionBehavior, and the target color space is specified on the SkImageInfo.
+     * SkBlendBehavior, and the target color space is specified on the SkImageInfo.
      * If generatorImageInfo has no color space set, set its color space to this SkImage's color
-     * space, and return "ignore" behavior, indicating legacy mode. If generatorImageInfo has a
-     * color space set, return "respect" behavior, indicating linear blending mode.
+     * space, and return "kNonlinear" behavior, indicating legacy mode. If generatorImageInfo has a
+     * color space set, return "kLinear" behavior, indicating linear blending mode.
      */
-    SkTransferFunctionBehavior getGeneratorBehaviorAndInfo(SkImageInfo* generatorImageInfo) const;
+    SkBlendBehavior getGeneratorBehaviorAndInfo(SkImageInfo* generatorImageInfo) const;
 
     sk_sp<SharedGenerator> fSharedGenerator;
     // Note that fInfo is not necessarily the info from the generator. It may be cropped by
@@ -425,8 +425,7 @@ static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
 }
 
 bool SkImage_Lazy::directGeneratePixels(const SkImageInfo& info, void* pixels, size_t rb,
-                                        int srcX, int srcY,
-                                        SkTransferFunctionBehavior behavior) const {
+                                        int srcX, int srcY, SkBlendBehavior behavior) const {
     ScopedGenerator generator(fSharedGenerator);
     const SkImageInfo& genInfo = generator->getInfo();
     // Currently generators do not natively handle subsets, so check that first.
@@ -436,7 +435,7 @@ bool SkImage_Lazy::directGeneratePixels(const SkImageInfo& info, void* pixels, s
 
     SkImageGenerator::Options opts;
     // TODO: This should respect the behavior argument.
-    opts.fBehavior = SkTransferFunctionBehavior::kIgnore;
+    opts.fBehavior = SkBlendBehavior::kNonlinear;
     return generator->getPixels(info, pixels, rb, &opts);
 }
 
@@ -450,7 +449,7 @@ bool SkImage_Lazy::lockAsBitmapOnlyIfAlreadyCached(SkBitmap* bitmap, CachedForma
 }
 
 static bool generate_pixels(SkImageGenerator* gen, const SkPixmap& pmap, int originX, int originY,
-                            SkTransferFunctionBehavior behavior) {
+                            SkBlendBehavior behavior) {
     const int genW = gen->getInfo().width();
     const int genH = gen->getInfo().height();
     const SkIRect srcR = SkIRect::MakeWH(genW, genH);
@@ -489,8 +488,7 @@ static bool generate_pixels(SkImageGenerator* gen, const SkPixmap& pmap, int ori
 }
 
 bool SkImage_Lazy::lockAsBitmap(SkBitmap* bitmap, SkImage::CachingHint chint, CachedFormat format,
-                                const SkImageInfo& info,
-                                SkTransferFunctionBehavior behavior) const {
+                                const SkImageInfo& info, SkBlendBehavior behavior) const {
     if (this->lockAsBitmapOnlyIfAlreadyCached(bitmap, format)) {
         return true;
     }
@@ -544,7 +542,7 @@ bool SkImage_Lazy::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, siz
     if (kDisallow_CachingHint == chint) {
         CachedFormat cacheFormat = this->chooseCacheFormat(dstColorSpace);
         SkImageInfo genPixelsInfo = dstInfo;
-        SkTransferFunctionBehavior behavior = getGeneratorBehaviorAndInfo(&genPixelsInfo);
+        SkBlendBehavior behavior = getGeneratorBehaviorAndInfo(&genPixelsInfo);
         if (this->lockAsBitmapOnlyIfAlreadyCached(&bm, cacheFormat)) {
             return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
         } else {
@@ -574,7 +572,7 @@ bool SkImage_Lazy::getROPixels(SkBitmap* bitmap, SkColorSpace* dstColorSpace,
     CachedFormat cacheFormat = this->chooseCacheFormat(dstColorSpace);
     const SkImageInfo cacheInfo = this->buildCacheInfo(cacheFormat);
     SkImageInfo genPixelsInfo = cacheInfo;
-    SkTransferFunctionBehavior behavior = getGeneratorBehaviorAndInfo(&genPixelsInfo);
+    SkBlendBehavior behavior = getGeneratorBehaviorAndInfo(&genPixelsInfo);
     return this->lockAsBitmap(bitmap, chint, cacheFormat, genPixelsInfo, behavior);
 }
 
@@ -592,9 +590,9 @@ bool SkImage_Lazy::onCanLazyGenerateOnGPU() const {
 #endif
 }
 
-SkTransferFunctionBehavior SkImage_Lazy::getGeneratorBehaviorAndInfo(SkImageInfo* generatorImageInfo) const {
+SkBlendBehavior SkImage_Lazy::getGeneratorBehaviorAndInfo(SkImageInfo* generatorImageInfo) const {
     if (generatorImageInfo->colorSpace()) {
-        return SkTransferFunctionBehavior::kRespect;
+        return SkBlendBehavior::kLinear;
     }
     // Only specify an output color space if color conversion can be done on the color type.
     switch (generatorImageInfo->colorType()) {
@@ -607,7 +605,7 @@ SkTransferFunctionBehavior SkImage_Lazy::getGeneratorBehaviorAndInfo(SkImageInfo
         default:
             break;
     }
-    return SkTransferFunctionBehavior::kIgnore;
+    return SkBlendBehavior::kNonlinear;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -638,7 +636,7 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset) const {
 
 sk_sp<SkImage> SkImage_Lazy::onMakeColorSpace(sk_sp<SkColorSpace> target,
                                               SkColorType targetColorType,
-                                              SkTransferFunctionBehavior premulBehavior) const {
+                                              SkBlendBehavior premulBehavior) const {
     SkAutoExclusive autoAquire(fOnMakeColorSpaceMutex);
     if (target && fOnMakeColorSpaceTarget &&
         SkColorSpace::Equals(target.get(), fOnMakeColorSpaceTarget.get())) {
@@ -780,7 +778,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
     // info to get the one that we're going to decode to.
     const SkImageInfo cacheInfo = this->buildCacheInfo(format);
     SkImageInfo genPixelsInfo = cacheInfo;
-    SkTransferFunctionBehavior behavior = getGeneratorBehaviorAndInfo(&genPixelsInfo);
+    SkBlendBehavior behavior = getGeneratorBehaviorAndInfo(&genPixelsInfo);
 
     // 2. Ask the generator to natively create one
     if (!proxy) {

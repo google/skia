@@ -66,7 +66,7 @@ bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes
 
 sk_sp<GrTextureProxy> SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& info,
                                                         const SkIPoint& origin,
-                                                        SkTransferFunctionBehavior behavior,
+                                                        SkBlendBehavior behavior,
                                                         bool willNeedMipMaps) {
     SkIRect srcRect = SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height());
     if (!SkIRect::MakeWH(fInfo.width(), fInfo.height()).contains(srcRect)) {
@@ -76,8 +76,7 @@ sk_sp<GrTextureProxy> SkImageGenerator::generateTexture(GrContext* ctx, const Sk
 }
 
 sk_sp<GrTextureProxy> SkImageGenerator::onGenerateTexture(GrContext*, const SkImageInfo&,
-                                                          const SkIPoint&,
-                                                          SkTransferFunctionBehavior,
+                                                          const SkIPoint&, SkBlendBehavior,
                                                           bool willNeedMipMaps) {
     return nullptr;
 }

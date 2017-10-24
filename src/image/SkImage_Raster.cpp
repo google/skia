@@ -110,7 +110,7 @@ public:
     }
 
     sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
-                                    SkTransferFunctionBehavior) const override;
+                                    SkBlendBehavior) const override;
 
     bool onIsValid(GrContext* context) const override { return true; }
 
@@ -379,7 +379,7 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) c
 
 sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target,
                                                 SkColorType targetColorType,
-                                                SkTransferFunctionBehavior premulBehavior) const {
+                                                SkBlendBehavior premulBehavior) const {
     SkPixmap src;
     SkAssertResult(fBitmap.peekPixels(&src));
 

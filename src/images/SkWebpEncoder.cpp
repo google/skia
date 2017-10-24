@@ -43,9 +43,9 @@ extern "C" {
 }
 
 static transform_scanline_proc choose_proc(const SkImageInfo& info,
-                                           SkTransferFunctionBehavior unpremulBehavior) {
+                                           SkBlendBehavior unpremulBehavior) {
     const bool isSRGBTransferFn =
-            (SkTransferFunctionBehavior::kRespect == unpremulBehavior) && info.gammaCloseToSRGB();
+            (SkBlendBehavior::kLinear == unpremulBehavior) && info.gammaCloseToSRGB();
     switch (info.colorType()) {
         case kRGBA_8888_SkColorType:
             switch (info.alphaType()) {

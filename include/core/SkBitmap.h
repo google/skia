@@ -502,11 +502,11 @@ public:
      *  - If the src pixels are not available.
      */
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY, SkTransferFunctionBehavior behavior) const;
+                    int srcX, int srcY, SkBlendBehavior behavior) const;
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY) const {
         return this->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY,
-                SkTransferFunctionBehavior::kRespect);
+                                SkBlendBehavior::kLinear);
     }
     bool readPixels(const SkPixmap& dst, int srcX, int srcY) const;
     bool readPixels(const SkPixmap& dst) const {
@@ -519,13 +519,13 @@ public:
      *  This is logically the same as creating a bitmap around src, and calling readPixels on it
      *  with this bitmap as the dst.
      */
+    bool writePixels(const SkPixmap& src, int x, int y, SkBlendBehavior behavior);
     bool writePixels(const SkPixmap& src, int dstX, int dstY) {
-        return this->writePixels(src, dstX, dstY, SkTransferFunctionBehavior::kRespect);
+        return this->writePixels(src, dstX, dstY, SkBlendBehavior::kLinear);
     }
     bool writePixels(const SkPixmap& src) {
         return this->writePixels(src, 0, 0);
     }
-    bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior behavior);
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     bool hasHardwareMipMap() const {

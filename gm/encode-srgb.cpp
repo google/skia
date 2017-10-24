@@ -73,8 +73,8 @@ static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat fo
 
     SkPngEncoder::Options pngOptions;
     SkWebpEncoder::Options webpOptions;
-    SkTransferFunctionBehavior behavior = bitmap.colorSpace()
-            ? SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
+    SkBlendBehavior behavior = bitmap.colorSpace() ? SkBlendBehavior::kLinear
+                                                   : SkBlendBehavior::kNonlinear;
     pngOptions.fUnpremulBehavior = behavior;
     webpOptions.fUnpremulBehavior = behavior;
 

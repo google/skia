@@ -500,7 +500,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkBitmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, size_t dstRB,
-                          int x, int y, SkTransferFunctionBehavior behavior) const {
+                          int x, int y, SkBlendBehavior behavior) const {
     SkPixmap src;
     if (!this->peekPixels(&src)) {
         return false;
@@ -512,8 +512,7 @@ bool SkBitmap::readPixels(const SkPixmap& dst, int srcX, int srcY) const {
     return this->readPixels(dst.info(), dst.writable_addr(), dst.rowBytes(), srcX, srcY);
 }
 
-bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY,
-                           SkTransferFunctionBehavior behavior) {
+bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY, SkBlendBehavior behavior) {
     if (!SkImageInfoValidConversion(fInfo, src.info())) {
         return false;
     }
@@ -545,8 +544,7 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha, int 
         return false;
     }
     SkConvertPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
-                    pmap.info(), pmap.addr(), pmap.rowBytes(), nullptr,
-                    SkTransferFunctionBehavior::kRespect);
+                    pmap.info(), pmap.addr(), pmap.rowBytes(), nullptr, SkBlendBehavior::kLinear);
     return true;
 }
 
