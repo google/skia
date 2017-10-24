@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "59bd22cd_104d844d",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-24T14:05:54Z",
+      "side": 1,
+      "message": "I\u0027d rather have this point to the Vulkan docs (basically the same thing) https://www.khronos.org/registry/vulkan/specs/1.0-wsi_extensions/html/vkspec.html#interfaces-resources-layout",
+      "range": {
+        "startLine": 17,
+        "startChar": 3,
+        "endLine": 18,
+        "endChar": 78
+      },
+      "revId": "c8859e29cecf769d1b475dfe7d99afb9f344c553",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "13633efe_9682ef0b",
         "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
         "patchSetId": 1
@@ -18,6 +41,75 @@
         "startChar": 19,
         "endLine": 48,
         "endChar": 22
+      },
+      "revId": "c8859e29cecf769d1b475dfe7d99afb9f344c553",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0dd91d9_30b33d69",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-24T14:05:54Z",
+      "side": 1,
+      "message": "since we are handling non floats, lets update this comment",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 84,
+        "endChar": 87
+      },
+      "revId": "c8859e29cecf769d1b475dfe7d99afb9f344c553",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66dbac38_021754cd",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-24T14:05:54Z",
+      "side": 1,
+      "message": "need to fix this",
+      "range": {
+        "startLine": 86,
+        "startChar": 6,
+        "endLine": 86,
+        "endChar": 59
+      },
+      "revId": "c8859e29cecf769d1b475dfe7d99afb9f344c553",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0886f588_4a9987ec",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-24T14:05:54Z",
+      "side": 1,
+      "message": "like above this looks wrong and should be 16.",
+      "range": {
+        "startLine": 88,
+        "startChar": 8,
+        "endLine": 88,
+        "endChar": 45
       },
       "revId": "c8859e29cecf769d1b475dfe7d99afb9f344c553",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
