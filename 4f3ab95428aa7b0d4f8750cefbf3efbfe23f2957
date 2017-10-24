@@ -22,6 +22,30 @@
       "revId": "4f3ab95428aa7b0d4f8750cefbf3efbfe23f2957",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46a13af5_5320c9fa",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-24T17:11:22Z",
+      "side": 1,
+      "message": "Okay we\u0027ve figured this out!!! There was a renaming confusion at some point. Originally this was Vec2us (vector 2 unsigned short). So this is the same as the kUShort2 you\u0027re adding. You should check if anyone was using Uint2 and update them to be UShort2",
+      "parentUuid": "a90ce1e8_531fc53b",
+      "range": {
+        "startLine": 119,
+        "startChar": 23,
+        "endLine": 119,
+        "endChar": 29
+      },
+      "revId": "4f3ab95428aa7b0d4f8750cefbf3efbfe23f2957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

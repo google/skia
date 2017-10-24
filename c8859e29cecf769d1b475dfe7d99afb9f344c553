@@ -119,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "5976a001_234fd3b0",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-24T17:11:22Z",
+      "side": 1,
+      "message": "The comment here still says its for floating point GrSLTypes. Should say Float or int types",
+      "parentUuid": "5439feed_d279b8f0",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 84,
+        "endChar": 87
+      },
+      "revId": "c8859e29cecf769d1b475dfe7d99afb9f344c553",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "66dbac38_021754cd",
         "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
         "patchSetId": 1
