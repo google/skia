@@ -147,12 +147,12 @@ public:
             return nullptr;
         }
         sk_sp<SkSpecialImage> tmp(SkSpecialImage::MakeDeferredFromGpu(
-                                                   fCanvas->getGrContext(),
-                                                   this->subset(),
-                                                   kNeedNewImageUniqueID_SpecialImage,
-                                                   fRenderTargetContext->asTextureProxyRef(),
-                                                   fRenderTargetContext->refColorSpace(),
-                                                   &this->props()));
+                fCanvas->getGrContext(),
+                this->subset(),
+                kNeedNewImageUniqueID_SpecialImage,
+                fRenderTargetContext->asTextureProxyRef(),
+                fRenderTargetContext->colorSpaceInfo().refColorSpace(),
+                &this->props()));
         fRenderTargetContext = nullptr;
         return tmp;
     }

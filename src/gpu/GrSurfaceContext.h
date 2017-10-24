@@ -9,7 +9,7 @@
 #define GrSurfaceContext_DEFINED
 
 #include "../private/GrSurfaceProxy.h"
-
+#include "GrColorSpaceInfo.h"
 #include "SkRefCnt.h"
 
 class GrAuditTrail;
@@ -33,9 +33,7 @@ class SK_API GrSurfaceContext : public SkRefCnt {
 public:
     ~GrSurfaceContext() override {}
 
-    SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
-    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
-    bool isGammaCorrect() const { return static_cast<bool>(fColorSpace); }
+    const GrColorSpaceInfo& colorSpaceInfo() const { return fColorSpaceInfo; }
 
     // TODO: these two calls would be way cooler if this object had a GrSurfaceProxy pointer
     int width() const { return this->asSurfaceProxy()->width(); }
@@ -113,8 +111,8 @@ public:
 protected:
     friend class GrSurfaceContextPriv;
 
-    GrSurfaceContext(GrContext*, GrDrawingManager*,
-                     sk_sp<SkColorSpace>, GrAuditTrail*, GrSingleOwner*);
+    GrSurfaceContext(GrContext*, GrDrawingManager*, GrPixelConfig, sk_sp<SkColorSpace>,
+                     GrAuditTrail*, GrSingleOwner*);
 
     GrDrawingManager* drawingManager() { return fDrawingManager; }
     const GrDrawingManager* drawingManager() const { return fDrawingManager; }
@@ -124,12 +122,13 @@ protected:
 
     SkDEBUGCODE(GrSingleOwner* singleOwner() { return fSingleOwner; })
 
-    GrContext*            fContext;
-    sk_sp<SkColorSpace>   fColorSpace;
-    GrAuditTrail*         fAuditTrail;
+    GrContext* fContext;
+    GrAuditTrail* fAuditTrail;
 
 private:
-    GrDrawingManager*     fDrawingManager;
+    GrColorSpaceInfo fColorSpaceInfo;
+
+    GrDrawingManager* fDrawingManager;
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)

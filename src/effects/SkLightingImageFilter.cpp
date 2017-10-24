@@ -442,7 +442,7 @@ void SkLightingImageFilterInternal::drawRect(GrRenderTargetContext* renderTarget
                                              const SkIRect& bounds) const {
     SkRect srcRect = dstRect.makeOffset(SkIntToScalar(bounds.x()), SkIntToScalar(bounds.y()));
     GrPaint paint;
-    paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
+    paint.setGammaCorrect(renderTargetContext->colorSpaceInfo().isGammaCorrect());
     auto fp = this->makeFragmentProcessor(std::move(srcProxy), matrix, srcBounds, boundaryMode);
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -509,11 +509,11 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
                    kBottomRight_BoundaryMode, pSrcBounds, offsetBounds);
 
     return SkSpecialImage::MakeDeferredFromGpu(
-                                       context,
-                                       SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height()),
-                                       kNeedNewImageUniqueID_SpecialImage,
-                                       renderTargetContext->asTextureProxyRef(),
-                                       renderTargetContext->refColorSpace());
+            context,
+            SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height()),
+            kNeedNewImageUniqueID_SpecialImage,
+            renderTargetContext->asTextureProxyRef(),
+            renderTargetContext->colorSpaceInfo().refColorSpace());
 }
 #endif
 

@@ -9,6 +9,7 @@
 #define GrTextUtils_DEFINED
 
 #include "GrColor.h"
+#include "GrColorSpaceInfo.h"
 #include "SkColorFilter.h"
 #include "SkGr.h"
 #include "SkPaint.h"
@@ -47,12 +48,10 @@ public:
      */
     class Paint {
     public:
-        explicit Paint(const SkPaint* paint,
-                       SkColorSpace* dstColorSpace,
-                       GrColorSpaceXform* colorXformFromSRGB)
+        explicit Paint(const SkPaint* paint, const GrColorSpaceInfo& dstColorSpaceInfo)
                 : fPaint(paint)
-                , fDstColorSpace(dstColorSpace)
-                , fColorXformFromSRGB(colorXformFromSRGB) {
+                , fDstColorSpace(dstColorSpaceInfo.colorSpace())
+                , fColorXformFromSRGB(dstColorSpaceInfo.colorSpaceXformFromSRGB()) {
             this->initFilteredColor();
         }
 

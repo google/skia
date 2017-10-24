@@ -113,19 +113,13 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
                                              GrAuditTrail* auditTrail,
                                              GrSingleOwner* singleOwner,
                                              bool managedOpList)
-    : GrSurfaceContext(context, drawingMgr, std::move(colorSpace), auditTrail, singleOwner)
-    , fRenderTargetProxy(std::move(rtp))
-    , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
-    , fInstancedPipelineInfo(fRenderTargetProxy.get())
-    , fColorXformFromSRGB(nullptr)
-    , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
-    , fManagedOpList(managedOpList) {
-    if (fColorSpace) {
-        // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation
-        auto srgbColorSpace = SkColorSpace::MakeSRGB();
-        fColorXformFromSRGB = GrColorSpaceXform::Make(srgbColorSpace.get(), fColorSpace.get());
-    }
-
+        : GrSurfaceContext(context, drawingMgr, rtp->config(), std::move(colorSpace), auditTrail,
+                           singleOwner)
+        , fRenderTargetProxy(std::move(rtp))
+        , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
+        , fInstancedPipelineInfo(fRenderTargetProxy.get())
+        , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
+        , fManagedOpList(managedOpList) {
 #ifndef MDB_ALLOC_RESOURCES
     // MDB TODO: to ensure all resources still get allocated in the correct order in the hybrid
     // world we need to get the correct opList here so that it, in turn, can grab and hold
@@ -779,7 +773,7 @@ void GrRenderTargetContext::drawTextureAffine(const GrClip& clip, sk_sp<GrTextur
         return;
     }
 
-    bool allowSRGB = SkToBool(this->getColorSpace());
+    bool allowSRGB = SkToBool(this->colorSpaceInfo().colorSpace());
     this->addDrawOp(clip, GrTextureOp::Make(std::move(proxy), filter, color, clippedSrcRect,
                                             clippedDstRect, viewMatrix, std::move(colorSpaceXform),
                                             allowSRGB));
@@ -856,9 +850,10 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
 
     SkASSERT(vertices);
     GrAAType aaType = this->chooseAAType(GrAA::kNo, GrAllowMixedSamples::kNo);
-    std::unique_ptr<GrDrawOp> op =
-            GrDrawVerticesOp::Make(std::move(paint), std::move(vertices), viewMatrix, aaType,
-                                   this->isGammaCorrect(), fColorXformFromSRGB, overridePrimType);
+    std::unique_ptr<GrDrawOp> op = GrDrawVerticesOp::Make(
+            std::move(paint), std::move(vertices), viewMatrix, aaType,
+            this->colorSpaceInfo().isGammaCorrect(),
+            this->colorSpaceInfo().refColorSpaceXformFromSRGB(), overridePrimType);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -1611,17 +1606,16 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
     GrPaint paint;
     paint.setCoverageSetOpXPFactory(op, invert);
 
-    GrPathRenderer::DrawPathArgs args{
-            fRenderTargetContext->drawingManager()->getContext(),
-            std::move(paint),
-            ss,
-            fRenderTargetContext,
-            &clip,
-            &clipConservativeBounds,
-            &viewMatrix,
-            &shape,
-            aaType,
-            fRenderTargetContext->isGammaCorrect()};
+    GrPathRenderer::DrawPathArgs args{fRenderTargetContext->drawingManager()->getContext(),
+                                      std::move(paint),
+                                      ss,
+                                      fRenderTargetContext,
+                                      &clip,
+                                      &clipConservativeBounds,
+                                      &viewMatrix,
+                                      &shape,
+                                      aaType,
+                                      fRenderTargetContext->colorSpaceInfo().isGammaCorrect()};
     pr->drawPath(args);
     return true;
 }
@@ -1723,7 +1717,7 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
                                       &viewMatrix,
                                       &shape,
                                       aaType,
-                                      this->isGammaCorrect()};
+                                      this->colorSpaceInfo().isGammaCorrect()};
     pr->drawPath(args);
 }
 
@@ -1779,7 +1773,8 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
         this->setNeedsStencil();
     }
 
-    GrPixelConfigIsClamped dstIsClamped = GrGetPixelConfigIsClamped(this->config());
+    GrPixelConfigIsClamped dstIsClamped =
+            GrGetPixelConfigIsClamped(this->colorSpaceInfo().config());
     GrXferProcessor::DstProxy dstProxy;
     if (GrDrawOp::RequiresDstTexture::kYes == op->finalize(*this->caps(), &appliedClip,
                                                            dstIsClamped)) {

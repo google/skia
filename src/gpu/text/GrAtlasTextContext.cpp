@@ -50,10 +50,10 @@ SkColor GrAtlasTextContext::ComputeCanonicalColor(const SkPaint& paint, bool lcd
     return canonicalColor;
 }
 
-uint32_t GrAtlasTextContext::ComputeScalerContextFlags(GrRenderTargetContext* rtc) {
+uint32_t GrAtlasTextContext::ComputeScalerContextFlags(const GrColorSpaceInfo& colorSpaceInfo) {
     // If we're doing gamma-correct rendering, then we can disable the gamma hacks.
     // Otherwise, leave them on. In either case, we still want the contrast boost:
-    if (rtc->isGammaCorrect()) {
+    if (colorSpaceInfo.isGammaCorrect()) {
         return SkPaint::kBoostContrast_ScalerContextFlag;
     } else {
         return SkPaint::kFakeGammaAndBoostContrast_ScalerContextFlags;
@@ -93,7 +93,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrRenderTargetContext*
     bool canCache = !(skPaint.getPathEffect() ||
                       (mf && !mf->asABlur(&blurRec)) ||
                       drawFilter);
-    uint32_t scalerContextFlags = ComputeScalerContextFlags(rtc);
+    uint32_t scalerContextFlags = ComputeScalerContextFlags(rtc->colorSpaceInfo());
 
     GrTextBlobCache* cache = context->getTextBlobCache();
     if (canCache) {
@@ -118,7 +118,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrRenderTargetContext*
         cacheBlob = cache->find(key);
     }
 
-    GrTextUtils::Paint paint(&skPaint, rtc->getColorSpace(), rtc->getColorXformFromSRGB());
+    GrTextUtils::Paint paint(&skPaint, rtc->colorSpaceInfo());
     if (cacheBlob) {
         if (cacheBlob->mustRegenerate(paint, blurRec, viewMatrix, x, y)) {
             // We have to remake the blob because changes may invalidate our masks.
@@ -295,14 +295,13 @@ void GrAtlasTextContext::drawText(GrContext* context, GrRenderTargetContext* rtc
     if (context->abandoned()) {
         return;
     }
-    GrTextUtils::Paint paint(&skPaint, rtc->getColorSpace(), rtc->getColorXformFromSRGB());
+    GrTextUtils::Paint paint(&skPaint, rtc->colorSpaceInfo());
     if (this->canDraw(skPaint, viewMatrix, props, *context->caps()->shaderCaps())) {
         sk_sp<GrAtlasTextBlob> blob(
-            MakeDrawTextBlob(context->getTextBlobCache(), context->getAtlasGlyphCache(),
-                             *context->caps()->shaderCaps(),
-                             paint, ComputeScalerContextFlags(rtc),
-                             viewMatrix, props,
-                             text, byteLength, x, y));
+                MakeDrawTextBlob(context->getTextBlobCache(), context->getAtlasGlyphCache(),
+                                 *context->caps()->shaderCaps(), paint,
+                                 ComputeScalerContextFlags(rtc->colorSpaceInfo()), viewMatrix,
+                                 props, text, byteLength, x, y));
         if (blob) {
             blob->flushThrowaway(context, rtc, props, fDistanceAdjustTable.get(), paint, clip,
                                  viewMatrix, regionClipBounds, x, y);
@@ -321,18 +320,15 @@ void GrAtlasTextContext::drawPosText(GrContext* context, GrRenderTargetContext* 
                                      const char text[], size_t byteLength, const SkScalar pos[],
                                      int scalarsPerPosition, const SkPoint& offset,
                                      const SkIRect& regionClipBounds) {
-    GrTextUtils::Paint paint(&skPaint, rtc->getColorSpace(), rtc->getColorXformFromSRGB());
+    GrTextUtils::Paint paint(&skPaint, rtc->colorSpaceInfo());
     if (context->abandoned()) {
         return;
     } else if (this->canDraw(skPaint, viewMatrix, props, *context->caps()->shaderCaps())) {
         sk_sp<GrAtlasTextBlob> blob(
-            MakeDrawPosTextBlob(context->getTextBlobCache(), context->getAtlasGlyphCache(),
-                                *context->caps()->shaderCaps(),
-                                paint, ComputeScalerContextFlags(rtc),
-                                viewMatrix, props,
-                                text, byteLength,
-                                pos, scalarsPerPosition,
-                                offset));
+                MakeDrawPosTextBlob(context->getTextBlobCache(), context->getAtlasGlyphCache(),
+                                    *context->caps()->shaderCaps(), paint,
+                                    ComputeScalerContextFlags(rtc->colorSpaceInfo()), viewMatrix,
+                                    props, text, byteLength, pos, scalarsPerPosition, offset));
         if (blob) {
             blob->flushThrowaway(context, rtc, props, fDistanceAdjustTable.get(), paint, clip,
                                  viewMatrix, regionClipBounds, offset.fX, offset.fY);
@@ -374,7 +370,7 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     skPaint.setLCDRenderText(random->nextBool());
     skPaint.setAntiAlias(skPaint.isLCDRenderText() ? true : random->nextBool());
     skPaint.setSubpixelText(random->nextBool());
-    GrTextUtils::Paint utilsPaint(&skPaint, rtc->getColorSpace(), rtc->getColorXformFromSRGB());
+    GrTextUtils::Paint utilsPaint(&skPaint, rtc->colorSpaceInfo());
 
     const char* text = "The quick brown fox jumps over the lazy dog.";
     int textLen = (int)strlen(text);

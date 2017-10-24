@@ -44,9 +44,11 @@ bool GrTextUtils::Paint::toGrPaint(GrMaskFormat maskFormat, GrRenderTargetContex
     // TODO: this is the last use of GrSurfaceContextPriv
     GrContext* context = rtc->surfPriv().getContext();
     if (kARGB_GrMaskFormat == maskFormat) {
-        return SkPaintToGrPaintWithPrimitiveColor(context, rtc, this->skPaint(), grPaint);
+        return SkPaintToGrPaintWithPrimitiveColor(context, rtc->colorSpaceInfo(), this->skPaint(),
+                                                  grPaint);
     } else {
-        return SkPaintToGrPaint(context, rtc, this->skPaint(), viewMatrix, grPaint);
+        return SkPaintToGrPaint(context, rtc->colorSpaceInfo(), this->skPaint(), viewMatrix,
+                                grPaint);
     }
 }
 

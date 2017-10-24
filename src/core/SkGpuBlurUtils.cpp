@@ -79,7 +79,7 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  GrTextureDomain::Mode mode,
                                  int bounds[2]) {
     GrPaint paint;
-    paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
+    paint.setGammaCorrect(renderTargetContext->colorSpaceInfo().isGammaCorrect());
 
     std::unique_ptr<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
             std::move(proxy), direction, radius, sigma, mode, bounds));
@@ -107,7 +107,7 @@ static void convolve_gaussian_2d(GrRenderTargetContext* renderTargetContext,
     SkISize size = SkISize::Make(2 * radiusX + 1,  2 * radiusY + 1);
     SkIPoint kernelOffset = SkIPoint::Make(radiusX, radiusY);
     GrPaint paint;
-    paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
+    paint.setGammaCorrect(renderTargetContext->colorSpaceInfo().isGammaCorrect());
 
     auto conv = GrMatrixConvolutionEffect::MakeGaussian(std::move(proxy), srcBounds, size, 1.0, 0.0,
                                                         kernelOffset, mode, true, sigmaX, sigmaY);
@@ -273,7 +273,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         }
 
         GrPaint paint;
-        paint.setGammaCorrect(dstRenderTargetContext->isGammaCorrect());
+        paint.setGammaCorrect(dstRenderTargetContext->colorSpaceInfo().isGammaCorrect());
 
         if (GrTextureDomain::kIgnore_Mode != mode && i == 1) {
             SkRect domain = SkRect::Make(localSrcBounds);
@@ -394,7 +394,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         }
 
         GrPaint paint;
-        paint.setGammaCorrect(dstRenderTargetContext->isGammaCorrect());
+        paint.setGammaCorrect(dstRenderTargetContext->colorSpaceInfo().isGammaCorrect());
 
         if (GrTextureDomain::kIgnore_Mode != mode) {
             SkRect domain = SkRect::Make(localSrcBounds);

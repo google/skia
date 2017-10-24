@@ -23,9 +23,10 @@ GrTextureContext::GrTextureContext(GrContext* context,
                                    sk_sp<SkColorSpace> colorSpace,
                                    GrAuditTrail* auditTrail,
                                    GrSingleOwner* singleOwner)
-    : GrSurfaceContext(context, drawingMgr, std::move(colorSpace), auditTrail, singleOwner)
-    , fTextureProxy(std::move(textureProxy))
-    , fOpList(sk_ref_sp(fTextureProxy->getLastTextureOpList())) {
+        : GrSurfaceContext(context, drawingMgr, textureProxy->config(), std::move(colorSpace),
+                           auditTrail, singleOwner)
+        , fTextureProxy(std::move(textureProxy))
+        , fOpList(sk_ref_sp(fTextureProxy->getLastTextureOpList())) {
     SkDEBUGCODE(this->validate();)
 }
 

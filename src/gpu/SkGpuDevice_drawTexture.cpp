@@ -114,7 +114,7 @@ static void draw_texture_affine(const SkPaint& paint, const SkMatrix& ctm, const
         SkAssertResult(srcRect.intersect(SkRect::MakeIWH(proxy->width(), proxy->height())));
         srcToDst.mapRect(&dstRect, srcRect);
     }
-    auto csxf = GrColorSpaceXform::Make(colorSpace, rtc->getColorSpace());
+    auto csxf = GrColorSpaceXform::Make(colorSpace, rtc->colorSpaceInfo().colorSpace());
     GrSamplerState::Filter filter;
     switch (paint.getFilterQuality()) {
         case kNone_SkFilterQuality:
@@ -160,9 +160,9 @@ void SkGpuDevice::drawTextureMaker(GrTextureMaker* maker, int imageW, int imageH
         sk_sp<SkColorSpace> cs;
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto proxy = maker->refTextureProxyForParams(GrSamplerState::ClampNearest(),
-                                                     fRenderTargetContext->getColorSpace(), &cs,
-                                                     nullptr);
+        auto proxy = maker->refTextureProxyForParams(
+                GrSamplerState::ClampNearest(), fRenderTargetContext->colorSpaceInfo().colorSpace(),
+                &cs, nullptr);
         if (!proxy) {
             return;
         }
@@ -284,16 +284,17 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
         }
         textureMatrix = &tempMatrix;
     }
-    auto fp = producer->createFragmentProcessor(*textureMatrix, clippedSrcRect, constraintMode,
-                                                coordsAllInsideSrcRect, filterMode,
-                                                fRenderTargetContext->getColorSpace());
+    auto fp = producer->createFragmentProcessor(
+            *textureMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode,
+            fRenderTargetContext->colorSpaceInfo().colorSpace());
     if (!fp) {
         return;
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(fContext.get(), fRenderTargetContext.get(), paint, viewMatrix,
-                                     std::move(fp), producer->isAlphaOnly(), &grPaint)) {
+    if (!SkPaintToGrPaintWithTexture(fContext.get(), fRenderTargetContext->colorSpaceInfo(), paint,
+                                     viewMatrix, std::move(fp), producer->isAlphaOnly(),
+                                     &grPaint)) {
         return;
     }
     GrAA aa = GrBoolToAA(paint.isAntiAlias());

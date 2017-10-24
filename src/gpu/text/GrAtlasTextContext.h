@@ -51,7 +51,7 @@ private:
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     inline static SkColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     // Determines if we need to use fake gamma (and contrast boost):
-    inline static uint32_t ComputeScalerContextFlags(GrRenderTargetContext*);
+    inline static uint32_t ComputeScalerContextFlags(const GrColorSpaceInfo&);
     static void RegenerateTextBlob(GrAtlasTextBlob* bmp,
                                    GrAtlasGlyphCache*,
                                    const GrShaderCaps&,
