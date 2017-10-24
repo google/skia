@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6452cc3_9a09ad9f",
+        "filename": "src/gpu/glsl/GrGLSL.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-24T23:23:24Z",
+      "side": 1,
+      "message": "This is definitely just an old GL problem right? Cause this will break Vulkan since we need to size all our uniforms into buffers correctly",
+      "range": {
+        "startLine": 99,
+        "startChar": 12,
+        "endLine": 102,
+        "endChar": 32
+      },
+      "revId": "59f672ddeaccf110315c8b1167ab7eaf034f7926",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
