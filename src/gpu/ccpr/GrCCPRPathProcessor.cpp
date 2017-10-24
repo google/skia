@@ -56,9 +56,7 @@ GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTexture
     this->addInstanceAttrib("devbounds45", kFloat4_GrVertexAttribType);
     this->addInstanceAttrib("view_matrix", kFloat4_GrVertexAttribType);
     this->addInstanceAttrib("view_translate", kFloat2_GrVertexAttribType);
-    // FIXME: this could be a vector of two shorts if it were supported by Ganesh.
-    // Note: this should be doable now with kUShort2_GrVertexAttribType
-    this->addInstanceAttrib("atlas_offset", kInt2_GrVertexAttribType);
+    this->addInstanceAttrib("atlas_offset", kShort2_GrVertexAttribType);
     this->addInstanceAttrib("color", kUByte4_norm_GrVertexAttribType);
 
     SkASSERT(offsetof(Instance, fDevBounds) ==
