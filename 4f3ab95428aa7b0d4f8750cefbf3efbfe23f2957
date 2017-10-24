@@ -46,6 +46,30 @@
       "revId": "4f3ab95428aa7b0d4f8750cefbf3efbfe23f2957",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1173dea_79ba8438",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-24T17:20:16Z",
+      "side": 1,
+      "message": "Ah. Yeah I grepped through the code base and didn\u0027t find any users.",
+      "parentUuid": "46a13af5_5320c9fa",
+      "range": {
+        "startLine": 119,
+        "startChar": 23,
+        "endLine": 119,
+        "endChar": 29
+      },
+      "revId": "4f3ab95428aa7b0d4f8750cefbf3efbfe23f2957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
