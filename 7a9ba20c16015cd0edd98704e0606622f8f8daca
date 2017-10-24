@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "38b5c039_9142917c",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T14:04:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0443edc5_891c2482",
+      "range": {
+        "startLine": 726,
+        "startChar": 29,
+        "endLine": 726,
+        "endChar": 38
+      },
+      "revId": "7a9ba20c16015cd0edd98704e0606622f8f8daca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c37e1a1c_b44cd68e",
         "filename": "infra/bots/recipes/upload_calmbench_results.py",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "7a9ba20c16015cd0edd98704e0606622f8f8daca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26144393_36380e94",
+        "filename": "infra/bots/recipes/upload_calmbench_results.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T14:04:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c37e1a1c_b44cd68e",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 9
+      },
+      "revId": "7a9ba20c16015cd0edd98704e0606622f8f8daca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
