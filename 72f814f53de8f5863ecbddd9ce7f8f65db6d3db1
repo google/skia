@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3a46e71_b4cce9a9",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-24T17:30:26Z",
+      "side": 1,
+      "message": "I think a lot of the steps in this function could be achieved by modifying upload_to_android.py further.\ni.e. making modifying SkUserConfigManual.h vs SkUserConfig.h configurable, making the flag name configurable, making the commit message configurable, skipping the fetch process.\n\nUp to you if you want to go through all that, what you have works. The disadvantage is that if the android repo/upload flow ever changes then 2 files have to be updated instead of one, but that is probably very unlikely.",
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb01e5e2_53b19795",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-24T17:30:26Z",
+      "side": 1,
+      "message": "Can make this a constant called something like REPO_BRANCH_NAME",
+      "range": {
+        "startLine": 50,
+        "startChar": 34,
+        "endLine": 50,
+        "endChar": 38
+      },
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d78b637c_cce60d61",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-24T17:30:26Z",
+      "side": 1,
+      "message": "I guess it is unlikely that this line will change, but it still seems fragile to depend on the comment staying exactly the same.\nWhy not just append to the file like upload_to_android.py is doing:\nhttps://skia.googlesource.com/skia/+/master/tools/android/upload_to_android.py#127",
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8709f24_a4eb6b03",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-24T17:30:26Z",
+      "side": 1,
+      "message": "This should be in a finally block with a try at around line 51.",
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc741fd3_2aa5ca5a",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-24T17:30:26Z",
+      "side": 1,
+      "message": "Same comment as for SkUserConfigManual.h, can just append to end of file instead of looking for an exact string.",
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6990bd4d_c6420fe2",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-24T17:30:26Z",
+      "side": 1,
+      "message": "These 2 lines should also be in a finally block with a try at around line 94.",
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
