@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkCanvas.h"
 #include "SkTypes.h"
 #include "Test.h"
 

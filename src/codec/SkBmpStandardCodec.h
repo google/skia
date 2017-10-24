@@ -11,7 +11,6 @@
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkSwizzler.h"
-#include "SkTypes.h"
 
 /*
  * This class implements the decoding for bmp images that use "standard" modes,

@@ -8,8 +8,6 @@
 #define SkGifCodec_DEFINED
 
 #include "SkCodec.h"
-#include "SkCodecAnimation.h"
-#include "SkColorSpace.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkSwizzler.h"

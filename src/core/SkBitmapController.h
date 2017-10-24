@@ -8,7 +8,6 @@
 #ifndef SkBitmapController_DEFINED
 #define SkBitmapController_DEFINED
 
-#include "SkBitmap.h"
 #include "SkBitmapCache.h"
 #include "SkFilterQuality.h"
 #include "SkMatrix.h"
@@ -52,8 +51,6 @@ protected:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "SkMipMap.h"
 
 class SkDefaultBitmapController : public SkBitmapController {
 public:

@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "SkCanvas.h"
 #include "SkClipStack.h"
 #include "SkPath.h"
 #include "SkRandom.h"

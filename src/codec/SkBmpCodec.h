@@ -8,12 +8,8 @@
 #define SkBmpCodec_DEFINED
 
 #include "SkCodec.h"
-#include "SkColorSpace.h"
-#include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkStream.h"
-#include "SkSwizzler.h"
-#include "SkTypes.h"
 
 /*
  * This class enables code sharing between its bmp codec subclasses.  The

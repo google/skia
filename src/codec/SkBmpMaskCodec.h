@@ -11,7 +11,6 @@
 #include "SkBmpBaseCodec.h"
 #include "SkImageInfo.h"
 #include "SkMaskSwizzler.h"
-#include "SkTypes.h"
 
 /*
  * This class implements the decoding for bmp images using bit masks

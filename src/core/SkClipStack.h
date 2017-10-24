@@ -9,13 +9,11 @@
 #define SkClipStack_DEFINED
 
 #include "../private/SkMessageBus.h"
-#include "SkCanvas.h"
 #include "SkClipOpPriv.h"
 #include "SkDeque.h"
 #include "SkPath.h"
 #include "SkRRect.h"
 #include "SkRect.h"
-#include "SkRegion.h"
 #include "SkTLazy.h"
 
 #if SK_SUPPORT_GPU
