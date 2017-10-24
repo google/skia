@@ -2529,7 +2529,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
 #include "SkImageFilter.h"
 
 void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPaint& paint,
-                              SkImage* clipImage, const SkMatrix& clipMatrix) {
+                              SkImage* clipImage, const SkMatrix& clipMatrix, const SkMatrix& rest) {
     SkASSERT(!srcImg->isTextureBacked());
 
     //TODO: clipImage support

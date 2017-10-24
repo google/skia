@@ -461,7 +461,25 @@ SkIRect SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     SkIRect totalBounds;
     for (int i = 0; i < this->countInputs(); ++i) {
         SkImageFilter* filter = this->getInput(i);
-        SkIRect rect = filter ? filter->filterBounds(src, ctm, direction) : src;
+        SkIRect rect;
+        if (filter) {
+            rect = filter->filterBounds(src, ctm, direction);
+        } else {
+#if 0
+            SkMatrix mat;
+            if (kReverse_MapDirection == direction) {
+                ctm.invert(&mat);
+            } else {
+                mat = ctm;
+            }
+
+            SkRect srcRect = SkRect::Make(src);
+            mat.mapRect(&srcRect);
+            srcRect.roundOut(&rect);
+#else
+            rect = src;
+#endif
+        }
         if (0 == i) {
             totalBounds = rect;
         } else {

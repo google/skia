@@ -403,7 +403,7 @@ private:
 }  // anonymous ns
 
 void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPaint& origPaint,
-                                 SkImage* clipImage, const SkMatrix& clipMatrix) {
+                                 SkImage* clipImage, const SkMatrix& clipMatrix, const SkMatrix& rest) {
     SkASSERT(!src->isTextureBacked());
 
     sk_sp<SkSpecialImage> filteredImage;
@@ -411,9 +411,11 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
 
     if (SkImageFilter* filter = paint->getImageFilter()) {
         SkIPoint offset = SkIPoint::Make(0, 0);
+        // The MatrixImageFilter needs to see the final landing position in order
+        // to transform it correctly
         const SkMatrix matrix = SkMatrix::Concat(
-            SkMatrix::MakeTrans(SkIntToScalar(-x), SkIntToScalar(-y)), this->ctm());
-        const SkIRect clipBounds = fRCStack.rc().getBounds().makeOffset(-x, -y);
+            SkMatrix::MakeTrans(SkIntToScalar(x), SkIntToScalar(y)), this->ctm());
+        const SkIRect clipBounds = fRCStack.rc().getBounds().makeOffset(x, y);
         sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
         SkImageFilter::OutputProperties outputProperties(fBitmap.colorSpace());
         SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
@@ -425,12 +427,17 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
 
         src = filteredImage.get();
         paint.writable()->setImageFilter(nullptr);
-        x += offset.x();
-        y += offset.y();
+
+        SkPoint p = { (float) x, (float) y };
+        rest.mapPoints(&p, 1);
+
+        x = offset.x();
+        y = offset.y();
     }
 
     if (!clipImage) {
         SkBitmap resultBM;
+
         if (src->getROPixels(&resultBM)) {
             this->drawSprite(resultBM, x, y, *paint);
         }

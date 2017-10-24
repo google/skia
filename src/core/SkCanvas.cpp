@@ -251,16 +251,18 @@ struct DeviceCM {
     std::unique_ptr<const SkPaint> fPaint; // may be null (in the future)
     SkMatrix                       fStashedMatrix; // original CTM; used by imagefilter in saveLayer
     sk_sp<SkImage>                 fClipImage;
-    SkMatrix                       fClipMatrix;
+    SkMatrix                       fClipMatrix1;
+    SkMatrix                       fRest;
 
     DeviceCM(sk_sp<SkBaseDevice> device, const SkPaint* paint, const SkMatrix& stashed,
-             const SkImage* clipImage, const SkMatrix* clipMatrix)
+             const SkImage* clipImage, const SkMatrix* clipMatrix, const SkMatrix* rest)
         : fNext(nullptr)
         , fDevice(std::move(device))
         , fPaint(paint ? skstd::make_unique<SkPaint>(*paint) : nullptr)
         , fStashedMatrix(stashed)
         , fClipImage(sk_ref_sp(const_cast<SkImage*>(clipImage)))
-        , fClipMatrix(clipMatrix ? *clipMatrix : SkMatrix::I())
+        , fClipMatrix1(clipMatrix ? *clipMatrix : SkMatrix::I())
+        , fRest(rest ? *rest : SkMatrix::I())
     {}
 
     void reset(const SkIRect& bounds) {
@@ -642,7 +644,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
 
     SkASSERT(sizeof(DeviceCM) <= sizeof(fDeviceCMStorage));
     fMCRec->fLayer = (DeviceCM*)fDeviceCMStorage;
-    new (fDeviceCMStorage) DeviceCM(sk_ref_sp(device), nullptr, fMCRec->fMatrix, nullptr, nullptr);
+    new (fDeviceCMStorage) DeviceCM(sk_ref_sp(device), nullptr, fMCRec->fMatrix, nullptr, nullptr, nullptr);
 
     fMCRec->fTopLayer = fMCRec->fLayer;
 
@@ -942,7 +944,7 @@ bool SkCanvas::BoundsAffectsClip(SaveLayerFlags saveLayerFlags) {
     return !(saveLayerFlags & SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag);
 }
 
-bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlags,
+bool SkCanvas::clipRectBounds(const SkMatrix&, const SkRect* bounds, SaveLayerFlags saveLayerFlags,
                               SkIRect* intersection, const SkImageFilter* imageFilter) {
     SkIRect clipBounds = this->getDeviceClipBounds();
     if (clipBounds.isEmpty()) {
@@ -1031,7 +1033,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
     int y = src->getOrigin().y() - dstOrigin.y();
     auto special = src->snapSpecial();
     if (special) {
-        dst->drawSpecial(special.get(), x, y, p, nullptr, SkMatrix::I());
+        dst->drawSpecial(special.get(), x, y, p, nullptr, SkMatrix::I(), SkMatrix::I());
     }
 }
 
@@ -1060,7 +1062,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     SkLazyPaint lazyP;
     SkImageFilter* imageFilter = paint ? paint->getImageFilter() : nullptr;
     SkMatrix stashedMatrix = fMCRec->fMatrix;
-    SkMatrix remainder;
+    SkMatrix remainder = SkMatrix::I();
     SkSize scale;
     /*
      *  ImageFilters (so far) do not correctly handle matrices (CTM) that contain rotation/skew/etc.
@@ -1096,7 +1098,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     this->internalSave();
 
     SkIRect ir;
-    if (!this->clipRectBounds(bounds, saveLayerFlags, &ir, imageFilter)) {
+    if (!this->clipRectBounds(stashedMatrix, bounds, saveLayerFlags, &ir, imageFilter)) {
         return;
     }
 
@@ -1138,7 +1140,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
             return;
         }
     }
-    DeviceCM* layer = new DeviceCM(newDevice, paint, stashedMatrix, rec.fClipMask, rec.fClipMatrix);
+    DeviceCM* layer = new DeviceCM(newDevice, paint, stashedMatrix, rec.fClipMask, rec.fClipMatrix, &remainder);
 
     // only have a "next" if this new layer doesn't affect the clip (rare)
     layer->fNext = BoundsAffectsClip(saveLayerFlags) ? nullptr : fMCRec->fTopLayer;
@@ -1200,7 +1202,7 @@ void SkCanvas::internalRestore() {
             const SkIPoint& origin = layer->fDevice->getOrigin();
             this->internalDrawDevice(layer->fDevice.get(), origin.x(), origin.y(),
                                      layer->fPaint.get(),
-                                     layer->fClipImage.get(), layer->fClipMatrix);
+                                     layer->fClipImage.get(), layer->fClipMatrix1, layer->fRest);
             // restore what we smashed in internalSaveLayer
             fMCRec->fMatrix = layer->fStashedMatrix;
             // reset this, since internalDrawDevice will have set it to true
@@ -1294,7 +1296,7 @@ bool SkCanvas::onAccessTopLayerPixels(SkPixmap* pmap) {
 /////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPaint* paint,
-                                  SkImage* clipImage, const SkMatrix& clipMatrix) {
+                                  SkImage* clipImage, const SkMatrix& clipMatrix, const SkMatrix& rest) {
     SkPaint tmp;
     if (nullptr == paint) {
         paint = &tmp;
@@ -1311,7 +1313,7 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPa
             sk_sp<SkSpecialImage> specialImage = srcDev->snapSpecial();
             if (specialImage) {
                 dstDev->drawSpecial(specialImage.get(), pos.x(), pos.y(), *paint,
-                                    clipImage, clipMatrix);
+                                    clipImage, clipMatrix, rest);
             }
         } else {
             dstDev->drawDevice(srcDev, pos.x(), pos.y(), *paint);
@@ -2220,7 +2222,7 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
             iter.fDevice->drawSpecial(special.get(),
                                       SkScalarRoundToInt(pt.fX),
                                       SkScalarRoundToInt(pt.fY), pnt,
-                                      nullptr, SkMatrix::I());
+                                      nullptr, SkMatrix::I(), SkMatrix::I());
         } else {
             iter.fDevice->drawImage(image, x, y, pnt);
         }
@@ -2298,7 +2300,7 @@ void SkCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, cons
             iter.fDevice->drawSpecial(special.get(),
                                       SkScalarRoundToInt(pt.fX),
                                       SkScalarRoundToInt(pt.fY), pnt,
-                                      nullptr, SkMatrix::I());
+                                      nullptr, SkMatrix::I(), SkMatrix::I());
         } else {
             iter.fDevice->drawBitmap(bitmap, x, y, looper.paint());
         }

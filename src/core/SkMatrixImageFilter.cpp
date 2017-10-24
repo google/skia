@@ -55,16 +55,13 @@ sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(SkSpecialImage* source,
         return nullptr;
     }
 
-    SkMatrix matrix;
-    if (!ctx.ctm().invert(&matrix)) {
-        return nullptr;
-    }
+    SkMatrix matrix = ctx.ctm();
     matrix.postConcat(fTransform);
-    matrix.postConcat(ctx.ctm());
 
     const SkIRect srcBounds = SkIRect::MakeXYWH(inputOffset.x(), inputOffset.y(),
                                                 input->width(), input->height());
     const SkRect srcRect = SkRect::Make(srcBounds);
+    SkDebugf("srcRect %d %d %d %d\n", srcBounds.fLeft, srcBounds.fTop, srcBounds.fRight, srcBounds.fBottom);
 
     SkRect dstRect;
     matrix.mapRect(&dstRect, srcRect);
@@ -114,20 +111,16 @@ SkRect SkMatrixImageFilter::computeFastBounds(const SkRect& src) const {
 
 SkIRect SkMatrixImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                                 MapDirection direction) const {
-    SkMatrix matrix;
-    if (!ctm.invert(&matrix)) {
-        return src;
-    }
-    if (kForward_MapDirection == direction) {
-        matrix.postConcat(fTransform);
-    } else {
-        SkMatrix transformInverse;
-        if (!fTransform.invert(&transformInverse)) {
+
+    SkMatrix matrix = ctm;
+    matrix.postConcat(fTransform);
+
+    if (kReverse_MapDirection == direction) {
+        if (!matrix.invert(&matrix)) {
             return src;
         }
-        matrix.postConcat(transformInverse);
     }
-    matrix.postConcat(ctm);
+
     SkRect floatBounds;
     matrix.mapRect(&floatBounds, SkRect::Make(src));
     return floatBounds.roundOut();

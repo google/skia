@@ -266,7 +266,7 @@ protected:
                                  const SkPaint&);
 
     virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
-                             SkImage* clipImage, const SkMatrix& clipMatrix);
+                             SkImage* clipImage, const SkMatrix& clipMatrix, const SkMatrix& rest);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
     virtual sk_sp<SkSpecialImage> snapSpecial();

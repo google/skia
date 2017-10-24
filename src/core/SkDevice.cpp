@@ -286,7 +286,7 @@ void SkBaseDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkBaseDevice::drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
-                               SkImage*, const SkMatrix&) {}
+                               SkImage*, const SkMatrix&, const SkMatrix& rest) {}
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkBitmap&) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkImage*) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() { return nullptr; }

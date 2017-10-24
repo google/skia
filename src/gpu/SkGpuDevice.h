@@ -112,7 +112,7 @@ public:
                            const SkRect& dst, const SkPaint&) override;
 
     void drawSpecial(SkSpecialImage*, int left, int top, const SkPaint& paint,
-                     SkImage*, const SkMatrix&) override;
+                     SkImage*, const SkMatrix&, const SkMatrix& rest) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial() override;

@@ -1046,12 +1046,12 @@ void SkGpuDevice::drawSprite(const SkBitmap& bitmap,
         return;
     }
 
-    this->drawSpecial(srcImg.get(), left, top, paint, nullptr, SkMatrix::I());
+    this->drawSpecial(srcImg.get(), left, top, paint, nullptr, SkMatrix::I(), SkMatrix::I());
 }
 
 
 void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const SkPaint& paint,
-                              SkImage* clipImage,const SkMatrix& clipMatrix) {
+                              SkImage* clipImage,const SkMatrix& clipMatrix, const SkMatrix& rest) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpecial", fContext.get());
 
@@ -1265,7 +1265,7 @@ void SkGpuDevice::drawDevice(SkBaseDevice* device,
         return;
     }
 
-    this->drawSpecial(srcImg.get(), left, top, paint, nullptr, SkMatrix::I());
+    this->drawSpecial(srcImg.get(), left, top, paint, nullptr, SkMatrix::I(), SkMatrix::I());
 }
 
 void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint& paint) {

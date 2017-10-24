@@ -38,7 +38,9 @@ protected:
         canvas->scale(deviceScaleX, deviceScaleY);
         canvas->translate(-rect.x(), -rect.y());
         SkMatrix matrix;
-        matrix.setScale(SkScalarInvert(deviceScaleX), SkScalarInvert(deviceScaleY));
+        matrix.setTranslate(rect.x(), rect.y());
+        matrix.preScale(SkScalarInvert(deviceScaleX), SkScalarInvert(deviceScaleY));
+        matrix.preTranslate(-rect.x(), -rect.y());
         sk_sp<SkImageFilter> filter(SkImageFilter::MakeMatrixFilter(matrix,
                                                                     filterQuality,
                                                                     std::move(input)));
