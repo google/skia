@@ -131,7 +131,9 @@ def opts_cflags(opts):
   elif opts == SKIA_OPTS_NEON:
     return ["-mfpu=neon"]
   elif opts == SKIA_OPTS_CRC32:
-    return ["-march=armv8-a+crc"]
+    # NDK r11's Clang (3.8) doesn't pass along this -march setting correctly to an external
+    # assembler, so we do it manually with -Wa.  This is just a bug, fixed in later Clangs.
+    return ["-march=armv8-a+crc", "-Wa,-march=armv8-a+crc"]
   else:
     return []
 
@@ -176,7 +178,7 @@ def skia_opts_deps(cpu):
 
   if cpu == SKIA_CPU_ARM64:
     res += [":opts_crc32"]
-  
+
   if cpu == SKIA_CPU_X86:
     res += [
         ":opts_sse2",
