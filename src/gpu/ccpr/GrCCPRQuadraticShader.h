@@ -42,7 +42,6 @@ protected:
     virtual void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) = 0;
 
     const GrShaderVar   fCanonicalMatrix{"canonical_matrix", kFloat3x3_GrSLType};
-    const GrShaderVar   fCanonicalDerivatives{"canonical_derivatives", kFloat2x2_GrSLType};
     const GrShaderVar   fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
     GrGLSLGeoToFrag     fXYD{kFloat3_GrSLType};
 };
@@ -77,7 +76,6 @@ class GrCCPRQuadraticCornerShader : public GrCCPRQuadraticShader {
     void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
-    const GrShaderVar   fEdgeDistanceDerivatives{"edge_distance_derivatives", kFloat2_GrSLType};
     GrGLSLGeoToFrag     fdXYDdx{kFloat3_GrSLType};
     GrGLSLGeoToFrag     fdXYDdy{kFloat3_GrSLType};
 };

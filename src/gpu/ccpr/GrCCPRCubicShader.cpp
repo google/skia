@@ -92,15 +92,6 @@ void GrCCPRCubicShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
                                   "0, orientation[0], 0, "
                                   "0, 0, orientation[1]);", fKLMMatrix.c_str());
 
-    // TODO: remove in followup CL.
-    s->declareGlobal(fKLMDerivatives);
-    s->codeAppendf("%s[0] = %s[0].xy;",
-                   fKLMDerivatives.c_str(), fKLMMatrix.c_str());
-    s->codeAppendf("%s[1] = %s[1].xy;",
-                   fKLMDerivatives.c_str(), fKLMMatrix.c_str());
-    s->codeAppendf("%s[2] = %s[2].xy;",
-                   fKLMDerivatives.c_str(), fKLMMatrix.c_str());
-
     // Determine the amount of additional coverage to subtract out for the flat edge (P3 -> P0).
     s->declareGlobal(fEdgeDistanceEquation);
     s->codeAppendf("short edgeidx0 = %s > 0 ? 3 : 0;", wind);
@@ -133,9 +124,9 @@ void GrCCPRCubicHullShader::onEmitSetupCode(GrGLSLShaderBuilder* s, const char* 
 void GrCCPRCubicHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code) {
     // "klm" was just defined by the base class.
     varyingHandler->addVarying("grad_matrix", &fGradMatrix);
-    code->appendf("%s[0] = 3 * klm[0] * %s[0];", fGradMatrix.gsOut(), fKLMDerivatives.c_str());
+    code->appendf("%s[0] = 3 * klm[0] * %s[0].xy;", fGradMatrix.gsOut(), fKLMMatrix.c_str());
     code->appendf("%s[1] = -klm[1] * %s[2].xy - klm[2] * %s[1].xy;",
-                    fGradMatrix.gsOut(), fKLMDerivatives.c_str(), fKLMDerivatives.c_str());
+                    fGradMatrix.gsOut(), fKLMMatrix.c_str(), fKLMMatrix.c_str());
 }
 
 void GrCCPRCubicHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
@@ -150,11 +141,6 @@ void GrCCPRCubicHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
 
 void GrCCPRCubicCornerShader::onEmitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
                                               const char* cornerId, GeometryVars* vars) const {
-    // TODO: remove in followup CL.
-    s->declareGlobal(fEdgeDistanceDerivatives);
-    s->codeAppendf("%s = %s.xy;",
-                   fEdgeDistanceDerivatives.c_str(), fEdgeDistanceEquation.c_str());
-
     s->codeAppendf("float2 corner = %s[%s * 3];", pts, cornerId);
     vars->fCornerVars.fPoint = "corner";
 }
@@ -162,13 +148,13 @@ void GrCCPRCubicCornerShader::onEmitSetupCode(GrGLSLShaderBuilder* s, const char
 void GrCCPRCubicCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code) {
     varyingHandler->addFlatVarying("dklmddx", &fdKLMDdx);
     code->appendf("%s = float4(%s[0].x, %s[1].x, %s[2].x, %s.x);",
-                    fdKLMDdx.gsOut(), fKLMDerivatives.c_str(), fKLMDerivatives.c_str(),
-                    fKLMDerivatives.c_str(), fEdgeDistanceDerivatives.c_str());
+                  fdKLMDdx.gsOut(), fKLMMatrix.c_str(), fKLMMatrix.c_str(),
+                  fKLMMatrix.c_str(), fEdgeDistanceEquation.c_str());
 
     varyingHandler->addFlatVarying("dklmddy", &fdKLMDdy);
     code->appendf("%s = float4(%s[0].y, %s[1].y, %s[2].y, %s.y);",
-                    fdKLMDdy.gsOut(), fKLMDerivatives.c_str(), fKLMDerivatives.c_str(),
-                    fKLMDerivatives.c_str(), fEdgeDistanceDerivatives.c_str());
+                  fdKLMDdy.gsOut(), fKLMMatrix.c_str(), fKLMMatrix.c_str(),
+                  fKLMMatrix.c_str(), fEdgeDistanceEquation.c_str());
 }
 
 void GrCCPRCubicCornerShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
