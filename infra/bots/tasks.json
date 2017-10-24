@@ -824,10 +824,22 @@
         "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_CCPR_Skpbench"
       ]
     },
+    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench"
+      ]
+    },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan": {
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan"
+      ]
+    },
+    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan_Skpbench": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan_Skpbench"
       ]
     },
     "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-All-Android": {
@@ -7006,6 +7018,38 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP"
+      ],
+      "dimensions": [
+        "device_os:OPR3.170623.008",
+        "device_type:sailfish",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "skpbench",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "skpbench_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan": {
       "dependencies": [
         "Build-Debian9-Clang-arm64-Release-Android_Vulkan",
@@ -7037,6 +7081,38 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan_Skpbench": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm64-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP"
+      ],
+      "dimensions": [
+        "device_os:OPR3.170623.008",
+        "device_type:sailfish",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "skpbench",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan_Skpbench",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "skpbench_skia_bundled_unix.isolate",
       "max_attempts": 1,
       "priority": 0.8
     },
@@ -23509,6 +23585,33 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
+    "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench": {
+      "dependencies": [
+        "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan": {
       "dependencies": [
         "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan"
@@ -23525,6 +23628,33 @@
         "upload_nano_results",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan_Skpbench": {
+      "dependencies": [
+        "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan_Skpbench"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan_Skpbench",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
