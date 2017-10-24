@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b3783b7a_e97b791b",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T17:57:17Z",
+      "side": 1,
+      "message": "That\u0027s a good idea. However, that seems to be a medium change to upload_to_android.py. Just to keep this CL simple, I\u0027ll probably create a new CL to modify upload_to_android.py so we can just focus the change there.",
+      "parentUuid": "f3a46e71_b4cce9a9",
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb01e5e2_53b19795",
         "filename": "tools/rebaseline/add_legacy_flag.py",
         "patchSetId": 12
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "605a8294_e0aff1c9",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T17:57:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb01e5e2_53b19795",
+      "range": {
+        "startLine": 50,
+        "startChar": 34,
+        "endLine": 50,
+        "endChar": 38
+      },
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d78b637c_cce60d61",
         "filename": "tools/rebaseline/add_legacy_flag.py",
         "patchSetId": 12
@@ -56,6 +98,24 @@
       "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e476c606_38bf9f20",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T17:57:17Z",
+      "side": 1,
+      "message": "I did that first (as that\u0027s much easier) but the Android reviewer doesn\u0027t like that. They want the flag to be inside the \"#endif // SkUserConfigManual_DEFINED\" to keep the style/format identical among all legacy flags.",
+      "parentUuid": "d78b637c_cce60d61",
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "a6f04dcf_007b4172",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T17:57:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8709f24_a4eb6b03",
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc741fd3_2aa5ca5a",
         "filename": "tools/rebaseline/add_legacy_flag.py",
         "patchSetId": 12
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "1129acb4_eb546985",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T17:57:17Z",
+      "side": 1,
+      "message": "My major concern is that the chromium reviewers probably also want the guard flag to be appended to the same place as before (rather than to the end of the file).",
+      "parentUuid": "fc741fd3_2aa5ca5a",
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6990bd4d_c6420fe2",
         "filename": "tools/rebaseline/add_legacy_flag.py",
         "patchSetId": 12
@@ -107,6 +203,24 @@
       "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c855b916_dc775220",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-24T17:57:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6990bd4d_c6420fe2",
+      "revId": "72f814f53de8f5863ecbddd9ce7f8f65db6d3db1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
