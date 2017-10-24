@@ -298,6 +298,10 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
+    if (this->fGeoData[0].fClipRect != that->fGeoData[0].fClipRect) {
+        return false;
+    }
+
     if (!this->usesDistanceFields()) {
         if (kColorBitmapMask_MaskType == fMaskType && this->color() != that->color()) {
             return false;
