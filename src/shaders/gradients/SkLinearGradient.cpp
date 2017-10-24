@@ -101,7 +101,10 @@ public:
 
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args) {
         auto processor = std::unique_ptr<GrLinearGradient>(new GrLinearGradient(args));
-        return processor->isValid() ? std::move(processor) : nullptr;
+        const SkColorSpace* gradientCS = processor->getOutputColorSpace();
+        return processor->isValid()
+            ? GrColorSpaceXformEffect::Make(std::move(processor), gradientCS, args.fDstColorSpace)
+            : nullptr;
     }
 
     const char* name() const override { return "Linear Gradient"; }
@@ -212,11 +215,8 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
     }
     matrix.postConcat(fPtsToUnit);
 
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
-                                                                       args.fDstColorSpace);
     auto inner = GrLinearGradient::Make(GrGradientEffect::CreateArgs(
-            args.fContext, this, &matrix, fTileMode, std::move(colorSpaceXform),
-            SkToBool(args.fDstColorSpace)));
+            args.fContext, this, &matrix, fTileMode, args.fDstColorSpace));
     if (!inner) {
         return nullptr;
     }

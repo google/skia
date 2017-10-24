@@ -61,6 +61,7 @@ void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {
 #if SK_SUPPORT_GPU
 
 #include "SkGr.h"
+#include "GrColorSpaceXform.h"
 #include "GrShaderCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
@@ -70,7 +71,10 @@ public:
 
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args) {
         auto processor = std::unique_ptr<GrRadialGradient>(new GrRadialGradient(args));
-        return processor->isValid() ? std::move(processor) : nullptr;
+        const SkColorSpace* gradientCS = processor->getOutputColorSpace();
+        return processor->isValid()
+            ? GrColorSpaceXformEffect::Make(std::move(processor), gradientCS, args.fDstColorSpace)
+            : nullptr;
     }
 
     const char* name() const override { return "Radial Gradient"; }
@@ -184,11 +188,9 @@ std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
-                                                                       args.fDstColorSpace);
+
     auto inner = GrRadialGradient::Make(GrGradientEffect::CreateArgs(
-            args.fContext, this, &matrix, fTileMode, std::move(colorSpaceXform),
-            SkToBool(args.fDstColorSpace)));
+            args.fContext, this, &matrix, fTileMode, args.fDstColorSpace));
     if (!inner) {
         return nullptr;
     }

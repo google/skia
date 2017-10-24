@@ -9,6 +9,7 @@
 #include "SkTwoPointConicalGradient.h"
 
 #if SK_SUPPORT_GPU
+#include "GrColorSpaceXform.h"
 #include "GrCoordTransform.h"
 #include "GrPaint.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -65,7 +66,10 @@ public:
 
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args) {
         auto processor = std::unique_ptr<Edge2PtConicalEffect>(new Edge2PtConicalEffect(args));
-        return processor->isValid() ? std::move(processor) : nullptr;
+        const SkColorSpace* gradientCS = processor->getOutputColorSpace();
+        return processor->isValid()
+            ? GrColorSpaceXformEffect::Make(std::move(processor), gradientCS, args.fDstColorSpace)
+            : nullptr;
     }
 
     const char* name() const override {
@@ -385,7 +389,10 @@ public:
                                                      bool isFlipped) {
         auto processor = std::unique_ptr<FocalOutside2PtConicalEffect>(
                 new FocalOutside2PtConicalEffect(args, focalX, isFlipped));
-        return processor->isValid() ? std::move(processor) : nullptr;
+        const SkColorSpace* gradientCS = processor->getOutputColorSpace();
+        return processor->isValid()
+            ? GrColorSpaceXformEffect::Make(std::move(processor), gradientCS, args.fDstColorSpace)
+            : nullptr;
     }
 
     const char* name() const override {
@@ -592,7 +599,10 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args, SkScalar focalX) {
         auto processor = std::unique_ptr<FocalInside2PtConicalEffect>(
                 new FocalInside2PtConicalEffect(args, focalX));
-        return processor->isValid() ? std::move(processor) : nullptr;
+        const SkColorSpace* gradientCS = processor->getOutputColorSpace();
+        return processor->isValid()
+            ? GrColorSpaceXformEffect::Make(std::move(processor), gradientCS, args.fDstColorSpace)
+            : nullptr;
     }
 
     const char* name() const override {
@@ -850,7 +860,10 @@ public:
                                                      const CircleConicalInfo& info) {
         auto processor = std::unique_ptr<CircleInside2PtConicalEffect>(
                 new CircleInside2PtConicalEffect(args, info));
-        return processor->isValid() ? std::move(processor) : nullptr;
+        const SkColorSpace* gradientCS = processor->getOutputColorSpace();
+        return processor->isValid()
+            ? GrColorSpaceXformEffect::Make(std::move(processor), gradientCS, args.fDstColorSpace)
+            : nullptr;
     }
 
     const char* name() const override { return "Two-Point Conical Gradient Inside"; }
@@ -1069,7 +1082,12 @@ public:
 
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args,
                                                      const CircleConicalInfo& info) {
-        return std::unique_ptr<GrFragmentProcessor>(new CircleOutside2PtConicalEffect(args, info));
+        auto processor = std::unique_ptr<CircleOutside2PtConicalEffect>(
+                new CircleOutside2PtConicalEffect(args, info));
+        const SkColorSpace* gradientCS = processor->getOutputColorSpace();
+        return processor->isValid()
+            ? GrColorSpaceXformEffect::Make(std::move(processor), gradientCS, args.fDstColorSpace)
+            : nullptr;
     }
 
     const char* name() const override { return "Two-Point Conical Gradient Outside"; }
@@ -1335,7 +1353,7 @@ std::unique_ptr<GrFragmentProcessor> Gr2PtConicalGradientEffect::Make(
     }
 
     GrGradientEffect::CreateArgs newArgs(args.fContext, args.fShader, &matrix, args.fWrapMode,
-                                         std::move(args.fColorSpaceXform), args.fGammaCorrect);
+                                         args.fDstColorSpace);
 
     if (shader.getStartRadius() < kErrorTol) {
         SkScalar focalX;

@@ -286,10 +286,8 @@ static inline int next_dither_toggle(int toggle) {
 
 #if SK_SUPPORT_GPU
 
-#include "GrColorSpaceXform.h"
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
@@ -328,13 +326,11 @@ public:
                    const SkGradientShaderBase* shader,
                    const SkMatrix* matrix,
                    SkShader::TileMode tileMode,
-                   sk_sp<GrColorSpaceXform> colorSpaceXform,
-                   bool gammaCorrect)
+                   const SkColorSpace* dstColorSpace)
                 : fContext(context)
                 , fShader(shader)
                 , fMatrix(matrix)
-                , fColorSpaceXform(std::move(colorSpaceXform))
-                , fGammaCorrect(gammaCorrect) {
+                , fDstColorSpace(dstColorSpace) {
             switch (tileMode) {
                 case SkShader::kClamp_TileMode:
                     fWrapMode = GrSamplerState::WrapMode::kClamp;
@@ -352,21 +348,18 @@ public:
                    const SkGradientShaderBase* shader,
                    const SkMatrix* matrix,
                    GrSamplerState::WrapMode wrapMode,
-                   sk_sp<GrColorSpaceXform> colorSpaceXform,
-                   bool gammaCorrect)
+                   const SkColorSpace* dstColorSpace)
                 : fContext(context)
                 , fShader(shader)
                 , fMatrix(matrix)
                 , fWrapMode(wrapMode)
-                , fColorSpaceXform(std::move(colorSpaceXform))
-                , fGammaCorrect(gammaCorrect) {}
+                , fDstColorSpace(dstColorSpace) {}
 
         GrContext*                  fContext;
         const SkGradientShaderBase* fShader;
         const SkMatrix*             fMatrix;
         GrSamplerState::WrapMode    fWrapMode;
-        sk_sp<GrColorSpaceXform>    fColorSpaceXform;
-        bool                        fGammaCorrect;
+        const SkColorSpace*         fDstColorSpace;
     };
 
     class GLSLProcessor;
@@ -445,13 +438,15 @@ protected:
         return fColorType != kTexture_ColorType || fTextureSampler.isInitialized();
     }
 
+    const SkColorSpace* getOutputColorSpace() const { return fOutputColorSpace.get(); }
+
 private:
     static OptimizationFlags OptFlags(bool isOpaque);
 
     SkTDArray<GrColor4f> fColors4f;
 
-    // Only present if a color space transformation is needed
-    sk_sp<GrColorSpaceXform> fColorSpaceXform;
+    // Depending on color type, our effect may produce colors in source or destination color space.
+    sk_sp<const SkColorSpace> fOutputColorSpace;
 
     SkTDArray<SkScalar> fPositions;
     GrSamplerState::WrapMode fWrapMode;
@@ -541,7 +536,6 @@ private:
     GrGLSLProgramDataManager::UniformHandle fColorsUni;
     GrGLSLProgramDataManager::UniformHandle fExtraStopT;
     GrGLSLProgramDataManager::UniformHandle fFSYUni;
-    GrGLSLColorSpaceXformHelper             fColorSpaceHelper;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
