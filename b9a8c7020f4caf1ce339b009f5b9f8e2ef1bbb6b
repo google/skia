@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "99f32a85_ca46d7b5",
+        "filename": "src/gpu/ccpr/GrCCPRAtlas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-24T17:00:42Z",
+      "side": 0,
+      "message": "No, either origin will work now. The geometry shaders can always assume device space and GrCCPRPathProcessor always supported both origins.",
+      "parentUuid": "ba7ae1d1_05fed84a",
+      "range": {
+        "startLine": 108,
+        "startChar": 4,
+        "endLine": 108,
+        "endChar": 57
+      },
+      "revId": "b9a8c7020f4caf1ce339b009f5b9f8e2ef1bbb6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "43efe934_1f54e06a",
         "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "b9a8c7020f4caf1ce339b009f5b9f8e2ef1bbb6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9737e538_024c6623",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-24T17:00:42Z",
+      "side": 0,
+      "message": "The main reason for the validate was to make sure the RT had the correct orientation. That was an obscure requirement that the user couldn\u0027t have expected. The float one is pretty obvious and the alpha-only requirement isn\u0027t even valid with debug visualizations enabled. I just felt like the method was more clutter than useful at this point.",
+      "parentUuid": "43efe934_1f54e06a",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 1
+      },
+      "revId": "b9a8c7020f4caf1ce339b009f5b9f8e2ef1bbb6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

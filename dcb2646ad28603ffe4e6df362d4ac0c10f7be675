@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fedb1280_c9b66872",
+        "filename": "src/gpu/ccpr/GrCCPRTriangleShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-24T17:00:42Z",
+      "side": 1,
+      "message": "That was the idea, since \u0027bloat\u0027 is a global const now.",
+      "parentUuid": "8a95b47a_8ffb2e4b",
+      "range": {
+        "startLine": 88,
+        "startChar": 63,
+        "endLine": 88,
+        "endChar": 74
+      },
+      "revId": "dcb2646ad28603ffe4e6df362d4ac0c10f7be675",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b3f5c63_d6342e78",
         "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "dcb2646ad28603ffe4e6df362d4ac0c10f7be675",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c97bc2a_51c381fa",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-24T17:00:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b3f5c63_d6342e78",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 32,
+        "endChar": 5
+      },
+      "revId": "dcb2646ad28603ffe4e6df362d4ac0c10f7be675",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
