@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a76efa24_0f1199f7",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 45
+      },
+      "lineNbr": 818,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-24T06:27:17Z",
+      "side": 1,
+      "message": "I will move this code",
+      "parentUuid": "33d2ef59_3b7513c9",
+      "range": {
+        "startLine": 818,
+        "startChar": 4,
+        "endLine": 818,
+        "endChar": 23
+      },
+      "revId": "71eb68c385b194ddb0178f83888c811a2e7b61df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a399df92_d0c46002",
         "filename": "src/codec/SkJpegUtility.h",
         "patchSetId": 45
@@ -36,6 +60,30 @@
       "writtenOn": "2017-10-23T17:11:13Z",
       "side": 1,
       "message": "Did you test on any images with restart markers? (I believe raptor.jpg, included in a Chromium checkout, has them, though I don\u0027t remember for sure.)",
+      "range": {
+        "startLine": 42,
+        "startChar": 9,
+        "endLine": 42,
+        "endChar": 22
+      },
+      "revId": "71eb68c385b194ddb0178f83888c811a2e7b61df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de10d0fe_7e0320bb",
+        "filename": "src/codec/SkJpegUtility.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-24T06:27:17Z",
+      "side": 1,
+      "message": "Tested raptor.jpg working fine",
+      "parentUuid": "a399df92_d0c46002",
       "range": {
         "startLine": 42,
         "startChar": 9,

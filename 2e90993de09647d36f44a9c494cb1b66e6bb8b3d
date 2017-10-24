@@ -116,6 +116,30 @@
       "revId": "2e90993de09647d36f44a9c494cb1b66e6bb8b3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df0fc62e_b5aa409f",
+        "filename": "tests/CodecPartialTest.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-10-24T06:27:17Z",
+      "side": 1,
+      "message": "This image has jpeg_has_multiple_scans support. So we can\u0027t compare with getPixels with incremental decoder. Currently we are not supporting buffered image in getPixels.",
+      "parentUuid": "1f760362_57e47c3a",
+      "range": {
+        "startLine": 143,
+        "startChar": 4,
+        "endLine": 143,
+        "endChar": 37
+      },
+      "revId": "2e90993de09647d36f44a9c494cb1b66e6bb8b3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
