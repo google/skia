@@ -696,5 +696,15 @@ STAGE_PP(srcover_rgba_8888, const SkJumper_MemoryCtx* ctx) {
     a = a + div255( da*inv(a) );
     store_8888(ptr, tail, r,g,b,a);
 }
+STAGE_PP(srcover_bgra_8888, const SkJumper_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+
+    load_8888(ptr, tail, &db,&dg,&dr,&da);
+    r = r + div255( dr*inv(a) );
+    g = g + div255( dg*inv(a) );
+    b = b + div255( db*inv(a) );
+    a = a + div255( da*inv(a) );
+    store_8888(ptr, tail, b,g,r,a);
+}
 
 #endif//defined(__clang__)
