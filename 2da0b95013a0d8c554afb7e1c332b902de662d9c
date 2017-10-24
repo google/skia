@@ -46,6 +46,30 @@
       "revId": "2da0b95013a0d8c554afb7e1c332b902de662d9c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ec5ca8d_f44e6019",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 851,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-10-24T15:38:59Z",
+      "side": 1,
+      "message": "Yup, we have two trivial diffs: https://storage.googleapis.com/chromium-layout-test-archives/linux_trusty_blink_rel/17583/layout-test-results/results.html\n\nAdding guard to Chrome.",
+      "parentUuid": "357628b4_b44e3b5a",
+      "range": {
+        "startLine": 851,
+        "startChar": 7,
+        "endLine": 851,
+        "endChar": 44
+      },
+      "revId": "2da0b95013a0d8c554afb7e1c332b902de662d9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
