@@ -34,6 +34,24 @@
       "revId": "65832a59950d712d6b1e2b5d7c1fa4c9f5f9fb3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "258d6b6d_1fe73b51",
+        "filename": "site/dev/testing/automated_testing.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-24T15:31:06Z",
+      "side": 1,
+      "message": "I agree with having the section here. I was suggesting removing it completely from the old place.",
+      "parentUuid": "7b715237_a929d9e6",
+      "revId": "65832a59950d712d6b1e2b5d7c1fa4c9f5f9fb3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
