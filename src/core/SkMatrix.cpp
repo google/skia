@@ -1615,7 +1615,8 @@ bool SkMatrix::decomposeScale(SkSize* scale, SkMatrix* remaining) const {
     }
     if (remaining) {
         *remaining = *this;
-        remaining->postScale(SkScalarInvert(sx), SkScalarInvert(sy));
+        // Wrong way - should be preScale!!
+        remaining->preScale(SkScalarInvert(sx), SkScalarInvert(sy));
     }
     return true;
 }

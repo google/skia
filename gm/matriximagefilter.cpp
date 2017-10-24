@@ -13,7 +13,7 @@
 static void draw(SkCanvas* canvas, const SkRect& rect, const SkBitmap& bitmap,
                  const SkMatrix& matrix, SkFilterQuality filter) {
         SkPaint paint;
-        paint.setImageFilter(SkImageFilter::MakeMatrixFilter(matrix, filter, nullptr));
+        paint.setImageFilter(SkImageFilter::MakeMatrixFilter(SkSize::Make(1.0f, 1.0f), matrix, filter, nullptr));
         canvas->saveLayer(&rect, &paint);
         canvas->drawBitmap(bitmap, 0, 0);
         canvas->restore();

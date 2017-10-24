@@ -411,9 +411,14 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
 
     if (SkImageFilter* filter = paint->getImageFilter()) {
         SkIPoint offset = SkIPoint::Make(0, 0);
+#if 0
         const SkMatrix matrix = SkMatrix::Concat(
             SkMatrix::MakeTrans(SkIntToScalar(-x), SkIntToScalar(-y)), this->ctm());
         const SkIRect clipBounds = fRCStack.rc().getBounds().makeOffset(-x, -y);
+#else
+        const SkMatrix matrix = this->ctm();
+        const SkIRect clipBounds = fRCStack.rc().getBounds();
+#endif
         sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
         SkImageFilter::OutputProperties outputProperties(fBitmap.colorSpace());
         SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
@@ -427,6 +432,9 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
         paint.writable()->setImageFilter(nullptr);
         x += offset.x();
         y += offset.y();
+        // old way
+        x = 31;
+        y = 31;
     }
 
     if (!clipImage) {

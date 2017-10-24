@@ -56,17 +56,17 @@ config("default") {
 
     _include_dirs = [
       #2017
-      "$windk/VC/Tools/MSVC/14.10.25017/include",
+      "$windk/VC/Tools/MSVC/14.11.25503/include",
 
       #2015
       "$windk/VC/include",
 
       # For local builds.
       # 2017
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/shared",
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/ucrt",
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/um",
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/winrt",
+      "$windk/../../../Windows Kits/10/Include/10.0.15063.0/shared",
+      "$windk/../../../Windows Kits/10/Include/10.0.15063.0/ucrt",
+      "$windk/../../../Windows Kits/10/Include/10.0.15063.0/um",
+      "$windk/../../../Windows Kits/10/Include/10.0.15063.0/winrt",
 
       # 2015
       "$windk/../Windows Kits/8.1/Include/shared",
@@ -75,10 +75,10 @@ config("default") {
       "$windk/../Windows Kits/8.1/Include/winrt",
 
       # For builds using win_toolchain asset.
-      "$windk/win_sdk/Include/10.0.14393.0/shared",
-      "$windk/win_sdk/Include/10.0.14393.0/ucrt",
-      "$windk/win_sdk/Include/10.0.14393.0/um",
-      "$windk/win_sdk/Include/10.0.14393.0/winrt",
+      "$windk/win_sdk/Include/10.0.15063.0/shared",
+      "$windk/win_sdk/Include/10.0.15063.0/ucrt",
+      "$windk/win_sdk/Include/10.0.15063.0/um",
+      "$windk/win_sdk/Include/10.0.15063.0/winrt",
     ]
     if (is_clang) {
       foreach(dir, _include_dirs) {
@@ -94,20 +94,20 @@ config("default") {
     lib_dirs = [
       # For local builds.
       # 2017
-      "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/ucrt/$target_cpu",
-      "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/um/$target_cpu",
+      "$windk/../../../Windows Kits/10/Lib/10.0.15063.0/ucrt/$target_cpu",
+      "$windk/../../../Windows Kits/10/Lib/10.0.15063.0/um/$target_cpu",
 
       #2015
       "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/$target_cpu",
       "$windk/../Windows Kits/8.1/Lib/winv6.3/um/$target_cpu",
 
       # For builds using win_toolchain asset.
-      "$windk/win_sdk/Lib/10.0.14393.0/ucrt/$target_cpu",
-      "$windk/win_sdk/Lib/10.0.14393.0/um/$target_cpu",
+      "$windk/win_sdk/Lib/10.0.15063.0/ucrt/$target_cpu",
+      "$windk/win_sdk/Lib/10.0.15063.0/um/$target_cpu",
     ]
 
     #2017
-    lib_dirs += [ "$windk/VC/Tools/MSVC/14.10.25017/lib/$target_cpu" ]
+    lib_dirs += [ "$windk/VC/Tools/MSVC/14.11.25503/lib/$target_cpu" ]
 
     #2015
     if (target_cpu == "x86") {
@@ -236,12 +236,9 @@ config("default") {
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
     if (sanitize == "ASAN") {
-      sanitizers = "address,bool,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr"
+      sanitizers = "address,bool,integer-divide-by-zero,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr"
       if (!is_mac) {
-        sanitizers += ",function"  # Not supported on Mac.
-      }
-      if (!is_debug) {
-        sanitizers += ",object-size"  # No-op with somewhat annoying warning at -O0.
+        sanitizers += ",function"
       }
     } else if (sanitize == "TSAN") {
       sanitizers = "thread"
@@ -308,8 +305,9 @@ config("warnings") {
         "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
       ]
 
-      if (target_cpu == "arm" && is_ios) {
-        # Clang seems to think new/malloc will only be 4-byte aligned on 32-bit iOS.
+      if ((target_cpu == "x86" && is_android) ||
+          (target_cpu == "arm" && is_ios)) {
+        # Clang seems to think new/malloc will only be 4-byte aligned on x86 Android and 32-bit iOS.
         # We're pretty sure it's actually 8-byte alignment.
         cflags += [ "-Wno-over-aligned" ]
       }

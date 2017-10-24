@@ -232,7 +232,7 @@ public:
     /**
      * Return an imagefilter which transforms its input by the given matrix.
      */
-    static sk_sp<SkImageFilter> MakeMatrixFilter(const SkMatrix& matrix,
+    static sk_sp<SkImageFilter> MakeMatrixFilter(const SkSize& scale, const SkMatrix& matrix,
                                                  SkFilterQuality quality,
                                                  sk_sp<SkImageFilter> input);
 

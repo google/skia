@@ -19,7 +19,7 @@ DEF_SIMPLE_GM(imageresizetiled, canvas, WIDTH, HEIGHT) {
         SkPaint paint;
         SkMatrix matrix;
         matrix.setScale(RESIZE_FACTOR, RESIZE_FACTOR);
-        paint.setImageFilter(SkImageFilter::MakeMatrixFilter(matrix,
+        paint.setImageFilter(SkImageFilter::MakeMatrixFilter(SkSize::Make(1.0f, 1.0f), matrix,
                                                              kNone_SkFilterQuality,
                                                              nullptr));
         const SkScalar tile_size = SkIntToScalar(100);

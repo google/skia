@@ -25,7 +25,7 @@ public:
      *                       passed to filterImage() is used instead.
      */
 
-    static sk_sp<SkImageFilter> Make(const SkMatrix& transform,
+    static sk_sp<SkImageFilter> Make(const SkSize& scale, const SkMatrix& transform,
                                      SkFilterQuality filterQuality,
                                      sk_sp<SkImageFilter> input);
 
@@ -35,7 +35,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixImageFilter)
 
 protected:
-    SkMatrixImageFilter(const SkMatrix& transform,
+    SkMatrixImageFilter(const SkSize& scale, const SkMatrix& transform,
                         SkFilterQuality,
                         sk_sp<SkImageFilter> input);
     void flatten(SkWriteBuffer&) const override;
@@ -46,7 +46,8 @@ protected:
     SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
 
 private:
-    SkMatrix              fTransform;
+    SkSize                fScale;
+    SkMatrix              fTransform1;
     SkFilterQuality       fFilterQuality;
     typedef SkImageFilter INHERITED;
 };

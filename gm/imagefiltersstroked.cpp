@@ -62,7 +62,7 @@ protected:
                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
                 nullptr),
             SkOffsetImageFilter::Make(-16, 32, nullptr),
-            SkImageFilter::MakeMatrixFilter(resizeMatrix, kNone_SkFilterQuality, nullptr),
+            SkImageFilter::MakeMatrixFilter(SkSize::Make(1.0f, 1.0f), resizeMatrix, kNone_SkFilterQuality, nullptr),
         };
 
         SkRect r = SkRect::MakeWH(64, 64);

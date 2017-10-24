@@ -108,7 +108,7 @@ protected:
             SkDilateImageFilter::Make(2, 2, checkerboard),
             SkErodeImageFilter::Make(2, 2, checkerboard),
             SkOffsetImageFilter::Make(SkIntToScalar(-16), SkIntToScalar(32), nullptr),
-            SkImageFilter::MakeMatrixFilter(resizeMatrix, kNone_SkFilterQuality, nullptr),
+            SkImageFilter::MakeMatrixFilter(SkSize::Make(1.0f, 1.0f), resizeMatrix, kNone_SkFilterQuality, nullptr),
             SkLightingImageFilter::MakePointLitDiffuse(pointLocation, SK_ColorWHITE, SK_Scalar1,
                                                        SkIntToScalar(2), checkerboard),
 

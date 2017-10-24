@@ -48,7 +48,7 @@ DEF_SIMPLE_GM(imagefilters_xfermodes, canvas, 480, 480) {
         canvas->translate(10, 10);
 
         // just need an imagefilter to trigger the code-path (which creates a tmp layer)
-        sk_sp<SkImageFilter> imf(SkImageFilter::MakeMatrixFilter(SkMatrix::I(),
+        sk_sp<SkImageFilter> imf(SkImageFilter::MakeMatrixFilter(SkSize::Make(1.0f, 1.0f), SkMatrix::I(),
                                                                  kNone_SkFilterQuality,
                                                                  nullptr));
 

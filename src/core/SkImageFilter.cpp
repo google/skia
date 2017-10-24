@@ -483,10 +483,10 @@ SkImageFilter::Context SkImageFilter::mapContext(const Context& ctx) const {
     return Context(ctx.ctm(), clipBounds, ctx.cache(), ctx.outputProperties());
 }
 
-sk_sp<SkImageFilter> SkImageFilter::MakeMatrixFilter(const SkMatrix& matrix,
+sk_sp<SkImageFilter> SkImageFilter::MakeMatrixFilter(const SkSize& scale, const SkMatrix& matrix,
                                                      SkFilterQuality filterQuality,
                                                      sk_sp<SkImageFilter> input) {
-    return SkMatrixImageFilter::Make(matrix, filterQuality, std::move(input));
+    return SkMatrixImageFilter::Make(scale, matrix, filterQuality, std::move(input));
 }
 
 sk_sp<SkImageFilter> SkImageFilter::makeWithLocalMatrix(const SkMatrix& matrix) const {

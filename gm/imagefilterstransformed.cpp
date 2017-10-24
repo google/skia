@@ -67,6 +67,7 @@ protected:
         sk_sp<SkImageFilter> checkerboard(SkImageSource::Make(fCheckerboard));
         sk_sp<SkImageFilter> filters[] = {
             SkBlurImageFilter::Make(12, 0, nullptr),
+#if 1
             SkDropShadowImageFilter::Make(0, 15, 8, 0, SK_ColorGREEN,
                 SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode, nullptr),
             SkDisplacementMapEffect::Make(SkDisplacementMapEffect::kR_ChannelSelectorType,
@@ -76,12 +77,15 @@ protected:
                                           checkerboard),
             SkDilateImageFilter::Make(2, 2, checkerboard),
             SkErodeImageFilter::Make(2, 2, checkerboard),
+#endif
         };
 
         const SkScalar margin = SkIntToScalar(20);
         const SkScalar size = SkIntToScalar(60);
 
         for (size_t j = 0; j < 3; j++) {
+//            canvas->translate(4*(size + margin), size + margin);
+
             canvas->save();
             canvas->translate(margin, 0);
             for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
@@ -125,10 +129,20 @@ DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
     const SkRect r = SkRect::MakeXYWH(50, 50, 100, 100);
 
     sk_sp<SkImageFilter> filters[] = {
-        nullptr,
-        SkBlurImageFilter::Make(6, 0, nullptr),
+//        nullptr,
+//        SkBlurImageFilter::Make(6, 0, nullptr),
         SkXfermodeImageFilter::Make(SkBlendMode::kSrcOver, nullptr),
     };
+
+    SkPaint stroke;
+    stroke.setStyle(SkPaint::kStroke_Style);
+    stroke.setStrokeWidth(1.0f);
+    stroke.setColor(SK_ColorRED);
+
+    SkPaint redFill;
+    redFill.setStyle(SkPaint::kStroke_Style);
+    redFill.setStrokeWidth(5.0f);
+    redFill.setColor(SK_ColorGREEN);
 
     for (auto& filter : filters) {
         paint.setAntiAlias(false);
@@ -136,20 +150,53 @@ DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
 
         canvas->save();
 
+#if 0
         canvas->drawRect(r, paint);
+        canvas->drawRect(r, stroke);
 
         canvas->translate(150, 0);
+#endif
+
+#if 0
+        SkMatrix m;
+        m.setRotate(30, 100, 100);
+
+        SkPoint p[4] = {
+            { r.fLeft, r.fTop },
+            { r.fLeft, r.fBottom },
+            { r.fRight, r.fTop },
+            { r.fRight, r.fBottom },
+        };
+
+        m.mapPoints(p, 4);
+
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, p, redFill);
+
+        SkRect rect;
+        rect.set(p, 4);
+#endif
+
         canvas->save();
             canvas->rotate(30, 100, 100);
             canvas->drawRect(r, paint);
         canvas->restore();
+        canvas->save();
+            canvas->rotate(30, 100, 100);
+            canvas->drawRect(r, stroke);
+        canvas->restore();
 
+#if 0
         paint.setAntiAlias(true);
         canvas->translate(150, 0);
         canvas->save();
             canvas->rotate(30, 100, 100);
             canvas->drawRect(r, paint);
         canvas->restore();
+        canvas->save();
+            canvas->rotate(30, 100, 100);
+            canvas->drawRect(r, stroke);
+        canvas->restore();
+#endif
 
         canvas->restore();
         canvas->translate(0, 150);

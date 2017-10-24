@@ -97,7 +97,7 @@ static void create_paints(SkTArray<SkPaint>* paints, sk_sp<SkImageFilter> source
         scale.setScale(2.0f, 2.0f);
 
         sk_sp<SkImageFilter> scaleMIF(
-            SkImageFilter::MakeMatrixFilter(scale, kLow_SkFilterQuality, source));
+            SkImageFilter::MakeMatrixFilter(SkSize::Make(1.0f, 1.0f), scale, kLow_SkFilterQuality, source));
 
         add_paint(paints, std::move(scaleMIF));
     }
@@ -107,7 +107,7 @@ static void create_paints(SkTArray<SkPaint>* paints, sk_sp<SkImageFilter> source
         rot.setRotate(-33.3f);
 
         sk_sp<SkImageFilter> rotMIF(
-            SkImageFilter::MakeMatrixFilter(rot, kLow_SkFilterQuality, source));
+            SkImageFilter::MakeMatrixFilter(SkSize::Make(1.0f, 1.0f), rot, kLow_SkFilterQuality, source));
 
         add_paint(paints, std::move(rotMIF));
     }

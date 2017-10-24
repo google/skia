@@ -1084,7 +1084,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         // We will restore the matrix (which we are overwriting here) in restore via fStashedMatrix
         this->internalSetMatrix(SkMatrix::MakeScale(scale.width(), scale.height()));
         SkPaint* p = lazyP.set(*paint);
-        p->setImageFilter(SkImageFilter::MakeMatrixFilter(remainder,
+        p->setImageFilter(SkImageFilter::MakeMatrixFilter(scale, remainder,
                                                           SkFilterQuality::kLow_SkFilterQuality,
                                                           sk_ref_sp(imageFilter)));
         imageFilter = p->getImageFilter();

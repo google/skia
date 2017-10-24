@@ -15,18 +15,20 @@
 #include "SkWriteBuffer.h"
 #include "SkRect.h"
 
-SkMatrixImageFilter::SkMatrixImageFilter(const SkMatrix& transform,
+SkMatrixImageFilter::SkMatrixImageFilter(const SkSize& scale, const SkMatrix& transform,
                                          SkFilterQuality filterQuality,
                                          sk_sp<SkImageFilter> input)
     : INHERITED(&input, 1, nullptr)
-    , fTransform(transform)
+    , fScale(scale)
+    , fTransform1(transform)
     , fFilterQuality(filterQuality) {
 }
 
-sk_sp<SkImageFilter> SkMatrixImageFilter::Make(const SkMatrix& transform,
+sk_sp<SkImageFilter> SkMatrixImageFilter::Make(const SkSize& scale,
+                                               const SkMatrix& transform,
                                                SkFilterQuality filterQuality,
                                                sk_sp<SkImageFilter> input) {
-    return sk_sp<SkImageFilter>(new SkMatrixImageFilter(transform,
+    return sk_sp<SkImageFilter>(new SkMatrixImageFilter(scale, transform,
                                                         filterQuality,
                                                         std::move(input)));
 }
@@ -36,12 +38,12 @@ sk_sp<SkFlattenable> SkMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
     SkFilterQuality quality = static_cast<SkFilterQuality>(buffer.readInt());
-    return Make(matrix, quality, common.getInput(0));
+    return Make(SkSize::Make(1.0f, 1.0f), matrix, quality, common.getInput(0));
 }
 
 void SkMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeMatrix(fTransform);
+    buffer.writeMatrix(fTransform1);
     buffer.writeInt(fFilterQuality);
 }
 
@@ -55,12 +57,23 @@ sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(SkSpecialImage* source,
         return nullptr;
     }
 
+#if 0
     SkMatrix matrix;
     if (!ctx.ctm().invert(&matrix)) {
         return nullptr;
     }
     matrix.postConcat(fTransform);
     matrix.postConcat(ctx.ctm());
+#else
+    SkMatrix matrix;
+    if (!ctx.ctm().invert(&matrix)) {
+        return nullptr;
+    }
+    matrix.postScale(fScale.fWidth, fScale.fHeight);
+    matrix.postConcat(fTransform1);
+    matrix.postScale(1.0f/fScale.fWidth, 1.0f/fScale.fHeight);
+    matrix.postConcat(ctx.ctm());
+#endif
 
     const SkIRect srcBounds = SkIRect::MakeXYWH(inputOffset.x(), inputOffset.y(),
                                                 input->width(), input->height());
@@ -100,7 +113,7 @@ sk_sp<SkImageFilter> SkMatrixImageFilter::onMakeColorSpace(SkColorSpaceXformer* 
     SkASSERT(1 == this->countInputs());
     auto input = xformer->apply(this->getInput(0));
     if (input.get() != this->getInput(0)) {
-        return SkMatrixImageFilter::Make(fTransform, fFilterQuality, std::move(input));
+        return SkMatrixImageFilter::Make(fScale, fTransform1, fFilterQuality, std::move(input));
     }
     return this->refMe();
 }
@@ -108,26 +121,51 @@ sk_sp<SkImageFilter> SkMatrixImageFilter::onMakeColorSpace(SkColorSpaceXformer* 
 SkRect SkMatrixImageFilter::computeFastBounds(const SkRect& src) const {
     SkRect bounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(src) : src;
     SkRect dst;
-    fTransform.mapRect(&dst, bounds);
+    fTransform1.mapRect(&dst, bounds);
     return dst;
 }
 
 SkIRect SkMatrixImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                                 MapDirection direction) const {
+
+#if 0
     SkMatrix matrix;
     if (!ctm.invert(&matrix)) {
         return src;
     }
     if (kForward_MapDirection == direction) {
         matrix.postConcat(fTransform);
+        matrix.postConcat(ctm);
     } else {
         SkMatrix transformInverse;
         if (!fTransform.invert(&transformInverse)) {
             return src;
         }
         matrix.postConcat(transformInverse);
+        matrix.postConcat(ctm);
     }
-    matrix.postConcat(ctm);
+#else
+    SkMatrix matrix;
+    if (!ctm.invert(&matrix)) {
+        return src;
+    }
+    if (kForward_MapDirection == direction) {
+        matrix.postScale(fScale.fWidth, fScale.fHeight);
+        matrix.postConcat(fTransform1);
+        matrix.postScale(1.0f/fScale.fWidth, 1.0f/fScale.fHeight);
+        matrix.postConcat(ctm);
+    } else {
+        SkMatrix transformInverse;
+        if (!fTransform1.invert(&transformInverse)) {
+            return src;
+        }
+        matrix.postScale(fScale.fWidth, fScale.fHeight);
+        matrix.postConcat(transformInverse);
+        matrix.postScale(1.0f/fScale.fWidth, 1.0f/fScale.fHeight);
+        matrix.postConcat(ctm);
+    }
+#endif
+
     SkRect floatBounds;
     matrix.mapRect(&floatBounds, SkRect::Make(src));
     return floatBounds.roundOut();
@@ -138,15 +176,15 @@ void SkMatrixImageFilter::toString(SkString* str) const {
     str->appendf("SkMatrixImageFilter: (");
 
     str->appendf("transform: (%f %f %f %f %f %f %f %f %f)",
-                 fTransform[SkMatrix::kMScaleX],
-                 fTransform[SkMatrix::kMSkewX],
-                 fTransform[SkMatrix::kMTransX],
-                 fTransform[SkMatrix::kMSkewY],
-                 fTransform[SkMatrix::kMScaleY],
-                 fTransform[SkMatrix::kMTransY],
-                 fTransform[SkMatrix::kMPersp0],
-                 fTransform[SkMatrix::kMPersp1],
-                 fTransform[SkMatrix::kMPersp2]);
+                 fTransform1[SkMatrix::kMScaleX],
+                 fTransform1[SkMatrix::kMSkewX],
+                 fTransform1[SkMatrix::kMTransX],
+                 fTransform1[SkMatrix::kMSkewY],
+                 fTransform1[SkMatrix::kMScaleY],
+                 fTransform1[SkMatrix::kMTransY],
+                 fTransform1[SkMatrix::kMPersp0],
+                 fTransform1[SkMatrix::kMPersp1],
+                 fTransform1[SkMatrix::kMPersp2]);
 
     str->append("<dt>FilterLevel:</dt><dd>");
     static const char* gFilterLevelStrings[] = { "None", "Low", "Medium", "High" };
