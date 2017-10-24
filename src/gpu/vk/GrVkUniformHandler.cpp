@@ -14,22 +14,12 @@
 // This alignment mask will give correct alignments for using the std430 block layout. If you want
 // the std140 alignment, you can use this, but then make sure if you have an array type it is
 // aligned to 16 bytes (i.e. has mask of 0xF).
-// These are designated in the Vulkan spec, section 14.5.4 "Offset and Stride Assignment".
-// https://www.khronos.org/registry/vulkan/specs/1.0-wsi_extensions/html/vkspec.html#interfaces-resources-layout
 uint32_t grsltype_to_alignment_mask(GrSLType type) {
     switch(type) {
         case kShort_GrSLType: // fall through
-        case kUShort_GrSLType:
-            return 0x1;
-        case kShort2_GrSLType: // fall through
-        case kUShort2_GrSLType:
-            return 0x3;
-        case kShort3_GrSLType: // fall through
-        case kShort4_GrSLType:
-        case kUShort3_GrSLType:
-        case kUShort4_GrSLType:
-            return 0x7;
         case kInt_GrSLType:
+            return 0x3;
+        case kUShort_GrSLType: // fall through
         case kUint_GrSLType:
             return 0x3;
         case kHalf_GrSLType: // fall through
@@ -45,7 +35,7 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
         case kFloat4_GrSLType:
             return 0xF;
         case kUint2_GrSLType:
-            return 0x7;
+            return 0x3;
         case kInt2_GrSLType:
             return 0x7;
         case kInt3_GrSLType:
@@ -80,27 +70,15 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
     return 0;
 }
 
-/** Returns the size in bytes taken up in vulkanbuffers for GrSLTypes. */
+/** Returns the size in bytes taken up in vulkanbuffers for floating point GrSLTypes.
+    For non floating point type returns 0. Currently this reflects the std140 alignment
+    so a float2x2 takes up 8 floats. */
 static inline uint32_t grsltype_to_vk_size(GrSLType type) {
     switch(type) {
-        case kShort_GrSLType:
-            return sizeof(int16_t);
-        case kShort2_GrSLType:
-            return 2 * sizeof(int16_t);
-        case kShort3_GrSLType:
-            return 3 * sizeof(int16_t);
-        case kShort4_GrSLType:
-            return 4 * sizeof(int16_t);
-        case kUShort_GrSLType:
-            return sizeof(uint16_t);
-        case kUShort2_GrSLType:
-            return 2 * sizeof(uint16_t);
-        case kUShort3_GrSLType:
-            return 3 * sizeof(uint16_t);
-        case kUShort4_GrSLType:
-            return 4 * sizeof(uint16_t);
+        case kShort_GrSLType: // fall through
         case kInt_GrSLType:
             return sizeof(int32_t);
+        case kUShort_GrSLType: // fall through
         case kUint_GrSLType:
             return sizeof(int32_t);
         case kHalf_GrSLType: // fall through
@@ -116,7 +94,7 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
         case kFloat4_GrSLType:
             return 4 * sizeof(float);
         case kUint2_GrSLType:
-            return 2 * sizeof(uint32_t);
+            return 2 * sizeof(uint16_t);
         case kInt2_GrSLType:
             return 2 * sizeof(int32_t);
         case kInt3_GrSLType:
