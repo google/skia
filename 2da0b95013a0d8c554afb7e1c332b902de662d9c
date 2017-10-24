@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8dc07127_aa39c048",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 851,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-24T15:00:36Z",
+      "side": 1,
+      "message": "for rebaselining?",
+      "range": {
+        "startLine": 851,
+        "startChar": 7,
+        "endLine": 851,
+        "endChar": 44
+      },
+      "revId": "2da0b95013a0d8c554afb7e1c332b902de662d9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
