@@ -140,6 +140,8 @@ private:
 
     int layoutInt();
 
+    StringFragment layoutIdentifier();
+
     String layoutCode();
 
     Layout::Key layoutKey();
