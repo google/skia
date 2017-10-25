@@ -54,9 +54,9 @@ bool GrTextUtils::Paint::toGrPaint(GrMaskFormat maskFormat, GrRenderTargetContex
 
 void GrTextUtils::Paint::initFilteredColor() {
     // This mirrors the logic in skpaint_to_grpaint_impl for handling paint colors
-    if (fDstColorSpace) {
-        GrColor4f filteredColor = SkColorToUnpremulGrColor4f(fPaint->getColor(), fDstColorSpace,
-                                                             fColorXformFromSRGB);
+    if (fDstColorSpaceInfo->colorSpace()) {
+        GrColor4f filteredColor =
+                SkColorToUnpremulGrColor4f(fPaint->getColor(), *fDstColorSpaceInfo);
         if (fPaint->getColorFilter()) {
             filteredColor = GrColor4f::FromSkColor4f(
                 fPaint->getColorFilter()->filterColor4f(filteredColor.toSkColor4f()));

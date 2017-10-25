@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkLinearGradient.h"
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpaceXformer.h"
-#include "SkLinearGradient.h"
 #include "SkRefCnt.h"
 
 static SkMatrix pts_to_unit_matrix(const SkPoint pts[2]) {
@@ -88,7 +88,6 @@ SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
 
 #if SK_SUPPORT_GPU
 
-#include "GrColorSpaceXform.h"
 #include "GrShaderCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "SkGr.h"
@@ -214,7 +213,7 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
     matrix.postConcat(fPtsToUnit);
 
     return GrLinearGradient::Make(GrGradientEffect::CreateArgs(
-            args.fContext, this, &matrix, fTileMode, args.fDstColorSpace));
+            args.fContext, this, &matrix, fTileMode, args.fDstColorSpaceInfo->colorSpace()));
 }
 
 

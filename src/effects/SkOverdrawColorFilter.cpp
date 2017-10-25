@@ -109,7 +109,7 @@ private:
 };
 
 std::unique_ptr<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(
-        GrContext*, SkColorSpace*) const {
+        GrContext*, const GrColorSpaceInfo&) const {
     return OverdrawFragmentProcessor::Make(fColors);
 }
 

@@ -35,8 +35,8 @@ public:
     ~SkHighContrast_Filter() override {}
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrContext*,
-                                                             SkColorSpace*) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
+            GrContext*, const GrColorSpaceInfo&) const override;
  #endif
 
     void onAppendStages(SkRasterPipeline* p,
@@ -353,7 +353,7 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
 }
 
 std::unique_ptr<GrFragmentProcessor> SkHighContrast_Filter::asFragmentProcessor(
-        GrContext*, SkColorSpace*) const {
+        GrContext*, const GrColorSpaceInfo&) const {
     return HighContrastFilterEffect::Make(fConfig);
 }
 #endif

@@ -103,8 +103,8 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-std::unique_ptr<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(GrContext*,
-                                                                            SkColorSpace*) const {
+std::unique_ptr<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(
+        GrContext*, const GrColorSpaceInfo&) const {
     return LumaColorFilterEffect::Make();
 }
 #endif
