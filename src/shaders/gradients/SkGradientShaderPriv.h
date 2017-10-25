@@ -8,73 +8,19 @@
 #ifndef SkGradientShaderPriv_DEFINED
 #define SkGradientShaderPriv_DEFINED
 
-#include "SkGradientBitmapCache.h"
 #include "SkGradientShader.h"
 
 #include "SkArenaAlloc.h"
 #include "SkAutoMalloc.h"
-#include "SkClampRange.h"
-#include "SkColorData.h"
-#include "SkColorSpace.h"
-#include "SkMatrixPriv.h"
-#include "SkOnce.h"
-#include "SkPM4fPriv.h"
-#include "SkRasterPipeline.h"
-#include "SkReadBuffer.h"
+#include "SkFixed.h"
+#include "SkMatrix.h"
 #include "SkShaderBase.h"
-#include "SkUtils.h"
-#include "SkWriteBuffer.h"
+#include "SkTDArray.h"
 
-static inline void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
-                               int count) {
-    if (count > 0) {
-        if (v0 == v1) {
-            sk_memset32(dst, v0, count);
-        } else {
-            int pairs = count >> 1;
-            for (int i = 0; i < pairs; i++) {
-                *dst++ = v0;
-                *dst++ = v1;
-            }
-            if (count & 1) {
-                *dst = v0;
-            }
-        }
-    }
-}
-
-//  Clamp
-
-static inline SkFixed clamp_tileproc(SkFixed x) {
-    return SkClampMax(x, 0xFFFF);
-}
-
-// Repeat
-
-static inline SkFixed repeat_tileproc(SkFixed x) {
-    return x & 0xFFFF;
-}
-
-// Mirror
-
-static inline SkFixed mirror_tileproc(SkFixed x) {
-    int s = SkLeftShift(x, 15) >> 31;
-    return (x ^ s) & 0xFFFF;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-typedef SkFixed (*TileProc)(SkFixed);
-
-///////////////////////////////////////////////////////////////////////////////
-
-static const TileProc gTileProcs[] = {
-    clamp_tileproc,
-    repeat_tileproc,
-    mirror_tileproc
-};
-
-///////////////////////////////////////////////////////////////////////////////
+class SkColorSpace;
+class SkRasterPipeline;
+class SkReadBuffer;
+class SkWriteBuffer;
 
 class SkGradientShaderBase : public SkShaderBase {
 public:
@@ -119,32 +65,6 @@ public:
     SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit);
     ~SkGradientShaderBase() override;
 
-    // The cache is initialized on-demand when getCache32 is called.
-    class GradientShaderCache : public SkRefCnt {
-    public:
-        GradientShaderCache(const SkGradientShaderBase& shader);
-        ~GradientShaderCache();
-
-        const SkPMColor*    getCache32();
-
-        SkPixelRef* getCache32PixelRef() const { return fCache32PixelRef.get(); }
-
-    private:
-        // Working pointer. If it's nullptr, we need to recompute the cache values.
-        SkPMColor*  fCache32;
-
-        sk_sp<SkPixelRef> fCache32PixelRef;
-        const SkGradientShaderBase& fShader;
-
-        // Make sure we only initialize the cache once.
-        SkOnce fCache32InitOnce;
-
-        static void initCache32(GradientShaderCache* cache);
-
-        static void Build32bitCache(SkPMColor[], SkColor c0, SkColor c1, int count,
-                                    uint32_t gradFlags);
-    };
-
     bool isOpaque() const override;
 
     enum class GradientBitmapType : uint8_t {
@@ -154,19 +74,6 @@ public:
     };
 
     void getGradientTableBitmap(SkBitmap*, GradientBitmapType bitmapType) const;
-
-    enum {
-        /// Seems like enough for visual accuracy. TODO: if pos[] deserves
-        /// it, use a larger cache.
-        kCache32Bits    = 8,
-        kCache32Count   = (1 << kCache32Bits),
-        kCache32Shift   = 16 - kCache32Bits,
-        kSqrt32Shift    = 8 - kCache32Bits,
-
-        /// This value is used to *read* the dither cache; it may be 0
-        /// if dithering is disabled.
-        kDitherStride32 = kCache32Count,
-    };
 
     uint32_t getGradFlags() const { return fGradFlags; }
 
@@ -206,7 +113,6 @@ protected:
 
     const SkMatrix fPtsToUnit;
     TileMode       fTileMode;
-    TileProc       fTileProc;
     uint8_t        fGradFlags;
     Rec*           fRecs;
 
@@ -233,25 +139,10 @@ public:
 private:
     bool                fColorsAreOpaque;
 
-    sk_sp<GradientShaderCache> refCache() const;
-    mutable SkMutex                    fCacheMutex;
-    mutable sk_sp<GradientShaderCache> fCache;
-
     void initCommon();
 
     typedef SkShaderBase INHERITED;
 };
-
-
-static inline int init_dither_toggle(int x, int y) {
-    x &= 1;
-    y = (y & 1) << 1;
-    return (x | y) * SkGradientShaderBase::kDitherStride32;
-}
-
-static inline int next_dither_toggle(int toggle) {
-    return toggle ^ SkGradientShaderBase::kDitherStride32;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 

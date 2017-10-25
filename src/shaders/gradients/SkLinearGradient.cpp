@@ -6,9 +6,11 @@
  */
 
 #include "SkLinearGradient.h"
+
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpaceXformer.h"
-#include "SkRefCnt.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 
 static SkMatrix pts_to_unit_matrix(const SkPoint pts[2]) {
     SkVector    vec = pts[1] - pts[0];

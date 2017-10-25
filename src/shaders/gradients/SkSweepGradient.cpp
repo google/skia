@@ -6,10 +6,11 @@
  */
 
 #include "SkColorSpaceXformer.h"
+#include "SkReadBuffer.h"
 #include "SkSweepGradient.h"
-
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
+#include "SkWriteBuffer.h"
 
 SkSweepGradient::SkSweepGradient(const SkPoint& center, SkScalar t0, SkScalar t1,
                                  const Descriptor& desc)

@@ -7,6 +7,9 @@
 
 #include "SkColorSpaceXformer.h"
 #include "SkRadialGradient.h"
+#include "SkRasterPipeline.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 
 namespace {
 
