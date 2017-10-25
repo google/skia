@@ -306,31 +306,39 @@ inline void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrClip& 
             continue;
         }
 
+        bool skipClip = false;
+        bool submitOp = true;
+        SkIRect clipRect = SkIRect::MakeEmpty();
         SkRect rtBounds = SkRect::MakeWH(rtc->width(), rtc->height());
         SkRRect clipRRect;
         GrAA aa;
-        // we can clip geometrically if we're not using SDFs,
+        // We can clip geometrically if we're not using SDFs,
         // and we have an axis-aligned rectangular non-AA clip
-        bool skipClip = false;
-        SkIRect clipRect = SkIRect::MakeEmpty();
         if (!info.drawAsDistanceFields() && clip.isRRect(rtBounds, &clipRRect, &aa) &&
             clipRRect.isRect() && GrAA::kNo == aa) {
             skipClip = true;
-            // we only need to do clipping work if the subrun isn't contained by the clip
+            // We only need to do clipping work if the subrun isn't contained by the clip
             SkRect subRunBounds;
             this->computeSubRunBounds(&subRunBounds, run, subRun, viewMatrix, x, y);
             if (!clipRRect.getBounds().contains(subRunBounds)) {
-                clipRRect.getBounds().round(&clipRect);
+                // If the subrun is completely outside, don't add an op for it
+                if (!clipRRect.getBounds().intersects(subRunBounds)) {
+                    submitOp = false;
+                } else {
+                    clipRRect.getBounds().round(&clipRect);
+                }
             }
         }
 
-        auto op = this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, clipRect,
-                               std::move(paint), props, distanceAdjustTable, cache, rtc);
-        if (op) {
-            if (skipClip) {
-                rtc->addDrawOp(GrNoClip(), std::move(op));
-            } else {
-                rtc->addDrawOp(clip, std::move(op));
+        if (submitOp) {
+            auto op = this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, clipRect,
+                                   std::move(paint), props, distanceAdjustTable, cache, rtc);
+            if (op) {
+                if (skipClip) {
+                    rtc->addDrawOp(GrNoClip(), std::move(op));
+                } else {
+                    rtc->addDrawOp(clip, std::move(op));
+                }
             }
         }
     }

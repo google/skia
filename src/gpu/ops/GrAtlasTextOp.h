@@ -117,8 +117,12 @@ public:
                                 GrPixelConfigIsClamped dstIsClamped) override;
 
 private:
+    // The minimum number of Geometry we will try to allocate.
+    static constexpr auto kMinGeometryAllocated = 4;
+
     GrAtlasTextOp(GrPaint&& paint)
             : INHERITED(ClassID())
+            , fGeoDataAllocSize(kMinGeometryAllocated)
             , fColor(paint.getColor())
             , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
             , fProcessors(std::move(paint)) {}
@@ -176,9 +180,6 @@ private:
 
     sk_sp<GrGeometryProcessor> setupDfProcessor() const;
 
-    // The minimum number of Geometry we will try to allocate.
-    enum { kMinGeometryAllocated = 4 };
-
     enum MaskType {
         kGrayscaleCoverageMask_MaskType,
         kLCDCoverageMask_MaskType,
@@ -190,6 +191,7 @@ private:
     };
 
     SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
+    int fGeoDataAllocSize;
     GrColor fColor;
     uint32_t fSRGBFlags;
     GrProcessorSet fProcessors;
