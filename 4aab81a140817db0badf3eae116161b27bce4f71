@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "765ce386_036d18a2",
+        "filename": "src/core/SkPixmapPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-10-25T14:28:25Z",
+      "side": 1,
+      "message": "How can the caller know we failed to allocate?",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 46
+      },
+      "revId": "4aab81a140817db0badf3eae116161b27bce4f71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
