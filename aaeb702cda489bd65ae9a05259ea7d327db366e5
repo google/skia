@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4746ff00_513a57c7",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-25T15:06:11Z",
+      "side": 1,
+      "message": "This is a bit iffy...",
+      "range": {
+        "startLine": 543,
+        "startChar": 66,
+        "endLine": 543,
+        "endChar": 90
+      },
+      "revId": "aaeb702cda489bd65ae9a05259ea7d327db366e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a59f49c_d88bb1df",
+        "filename": "src/gpu/GrTestUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-25T15:06:11Z",
+      "side": 1,
+      "message": "... as is this.",
+      "range": {
+        "startLine": 339,
+        "startChar": 66,
+        "endLine": 339,
+        "endChar": 90
+      },
+      "revId": "aaeb702cda489bd65ae9a05259ea7d327db366e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a314e739_0f99de68",
+        "filename": "src/gpu/GrTestUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-25T15:06:11Z",
+      "side": 1,
+      "message": "This had to be defined here because this implicitly calls std::unique_ptr\u003cGrColorSpaceInfo\u003e::~std::unique_ptr which calls ~GrColorSpaceInfo which requires having GrColorSpaceInfo defined rather than simply declared. #including \"GrColorSpaceInfo.h\" in GrTestUtils.h creates a circular dependency. This is the same reason that fColorSpaceInfo is owned by unique_ptr rather than just being a non-pointer class member.",
+      "range": {
+        "startLine": 348,
+        "startChar": 0,
+        "endLine": 348,
+        "endChar": 32
+      },
+      "revId": "aaeb702cda489bd65ae9a05259ea7d327db366e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
