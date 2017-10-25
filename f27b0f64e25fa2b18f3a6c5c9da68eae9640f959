@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "686a634b_566fab07",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-25T19:40:39Z",
+      "side": 1,
+      "message": "When making a subset do you think we should match the mip status of the original proxy?",
+      "range": {
+        "startLine": 252,
+        "startChar": 72,
+        "endLine": 252,
+        "endChar": 89
+      },
+      "revId": "f27b0f64e25fa2b18f3a6c5c9da68eae9640f959",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
