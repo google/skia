@@ -69,8 +69,9 @@ public:
     class GLSLRadialProcessor;
 
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args) {
-        auto processor = std::unique_ptr<GrRadialGradient>(new GrRadialGradient(args));
-        return processor->isValid() ? std::move(processor) : nullptr;
+        return GrGradientEffect::AdjustFP(std::unique_ptr<GrRadialGradient>(
+                new GrRadialGradient(args)),
+                args);
     }
 
     const char* name() const override { return "Radial Gradient"; }
@@ -184,15 +185,9 @@ std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
-                                                                       args.fDstColorSpace);
-    auto inner = GrRadialGradient::Make(GrGradientEffect::CreateArgs(
-            args.fContext, this, &matrix, fTileMode, std::move(colorSpaceXform),
-            SkToBool(args.fDstColorSpace)));
-    if (!inner) {
-        return nullptr;
-    }
-    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
+
+    return GrRadialGradient::Make(GrGradientEffect::CreateArgs(
+            args.fContext, this, &matrix, fTileMode, args.fDstColorSpace));
 }
 
 #endif

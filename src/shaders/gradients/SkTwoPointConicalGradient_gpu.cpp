@@ -64,8 +64,9 @@ public:
     class GLSLEdge2PtConicalProcessor;
 
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args) {
-        auto processor = std::unique_ptr<Edge2PtConicalEffect>(new Edge2PtConicalEffect(args));
-        return processor->isValid() ? std::move(processor) : nullptr;
+        return GrGradientEffect::AdjustFP(std::unique_ptr<Edge2PtConicalEffect>(
+                new Edge2PtConicalEffect(args)),
+                args);
     }
 
     const char* name() const override {
@@ -383,9 +384,9 @@ public:
 
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args, SkScalar focalX,
                                                      bool isFlipped) {
-        auto processor = std::unique_ptr<FocalOutside2PtConicalEffect>(
-                new FocalOutside2PtConicalEffect(args, focalX, isFlipped));
-        return processor->isValid() ? std::move(processor) : nullptr;
+        return GrGradientEffect::AdjustFP(std::unique_ptr<FocalOutside2PtConicalEffect>(
+                new FocalOutside2PtConicalEffect(args, focalX, isFlipped)),
+                args);
     }
 
     const char* name() const override {
@@ -590,9 +591,9 @@ public:
     class GLSLFocalInside2PtConicalProcessor;
 
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args, SkScalar focalX) {
-        auto processor = std::unique_ptr<FocalInside2PtConicalEffect>(
-                new FocalInside2PtConicalEffect(args, focalX));
-        return processor->isValid() ? std::move(processor) : nullptr;
+        return GrGradientEffect::AdjustFP(std::unique_ptr<FocalInside2PtConicalEffect>(
+                new FocalInside2PtConicalEffect(args, focalX)),
+                args);
     }
 
     const char* name() const override {
@@ -848,9 +849,9 @@ public:
 
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args,
                                                      const CircleConicalInfo& info) {
-        auto processor = std::unique_ptr<CircleInside2PtConicalEffect>(
-                new CircleInside2PtConicalEffect(args, info));
-        return processor->isValid() ? std::move(processor) : nullptr;
+        return GrGradientEffect::AdjustFP(std::unique_ptr<CircleInside2PtConicalEffect>(
+                new CircleInside2PtConicalEffect(args, info)),
+                args);
     }
 
     const char* name() const override { return "Two-Point Conical Gradient Inside"; }
@@ -1069,7 +1070,9 @@ public:
 
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args,
                                                      const CircleConicalInfo& info) {
-        return std::unique_ptr<GrFragmentProcessor>(new CircleOutside2PtConicalEffect(args, info));
+        return GrGradientEffect::AdjustFP(std::unique_ptr<CircleOutside2PtConicalEffect>(
+                new CircleOutside2PtConicalEffect(args, info)),
+                args);
     }
 
     const char* name() const override { return "Two-Point Conical Gradient Outside"; }
@@ -1335,7 +1338,7 @@ std::unique_ptr<GrFragmentProcessor> Gr2PtConicalGradientEffect::Make(
     }
 
     GrGradientEffect::CreateArgs newArgs(args.fContext, args.fShader, &matrix, args.fWrapMode,
-                                         std::move(args.fColorSpaceXform), args.fGammaCorrect);
+                                         args.fDstColorSpace);
 
     if (shader.getStartRadius() < kErrorTol) {
         SkScalar focalX;

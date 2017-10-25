@@ -1147,11 +1147,11 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 #if SK_SUPPORT_GPU
 
+#include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrShaderCaps.h"
 #include "GrTextureStripAtlas.h"
 #include "gl/GrGLContext.h"
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
@@ -1254,9 +1254,6 @@ void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& 
                 pdman.set1f(fFSYUni, yCoord);
                 fCachedYCoord = yCoord;
             }
-            if (SkToBool(e.fColorSpaceXform)) {
-                fColorSpaceHelper.setData(pdman, e.fColorSpaceXform.get());
-            }
             break;
         }
     }
@@ -1294,8 +1291,6 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
             key |= kMirrorTileMode;
             break;
     }
-
-    key |= GrColorSpaceXform::XformKey(e.fColorSpaceXform.get()) << kReservedBits;
 
     return key;
 }
@@ -1409,9 +1404,10 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
     if (GrGradientEffect::kAfterInterp_PremulType == ge.getPremulType()) {
         fragBuilder->codeAppend("colorTemp.rgb *= colorTemp.a;");
     }
-    if (ge.fColorSpaceXform) {
-        fragBuilder->codeAppend("colorTemp.rgb = clamp(colorTemp.rgb, 0, colorTemp.a);");
-    }
+
+    // If the input colors were floats, or there was a color space xform, we may end up out of
+    // range. The simplest solution is to always clamp our (premul) value here.
+    fragBuilder->codeAppend("colorTemp.rgb = clamp(colorTemp.rgb, 0, colorTemp.a);");
 
     fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
 }
@@ -1430,14 +1426,12 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
         return;
     }
 
-    fColorSpaceHelper.emitCode(uniformHandler, ge.fColorSpaceXform.get());
-
     const char* fsyuni = uniformHandler->getUniformCStr(fFSYUni);
 
     fragBuilder->codeAppendf("half2 coord = half2(%s, %s);", gradientTValue, fsyuni);
     fragBuilder->codeAppendf("%s = ", outputColor);
     fragBuilder->appendTextureLookupAndModulate(inputColor, texSamplers[0], "coord",
-                                                kFloat2_GrSLType, &fColorSpaceHelper);
+                                                kFloat2_GrSLType);
     fragBuilder->codeAppend(";");
 }
 
@@ -1457,7 +1451,6 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
     fIsOpaque = shader.isOpaque();
 
     fColorType = this->determineColorType(shader);
-    fColorSpaceXform = std::move(args.fColorSpaceXform);
     fWrapMode = args.fWrapMode;
 
     if (kTexture_ColorType == fColorType) {
@@ -1471,10 +1464,12 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         }
 
         // Convert input colors to GrColor4f, possibly premul, and apply color space xform
+        auto colorSpaceXform = GrColorSpaceXform::Make(shader.fColorSpace.get(),
+                                                       args.fDstColorSpace);
         SkASSERT(shader.fOrigColors && shader.fOrigColors4f);
         fColors4f.setCount(shader.fColorCount);
         for (int i = 0; i < shader.fColorCount; ++i) {
-            if (args.fGammaCorrect) {
+            if (args.fDstColorSpace) {
                 fColors4f[i] = GrColor4f::FromSkColor4f(shader.fOrigColors4f[i]);
             } else {
                 GrColor grColor = SkColorToUnpremulGrColor(shader.fOrigColors[i]);
@@ -1485,9 +1480,9 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
                 fColors4f[i] = fColors4f[i].premul();
             }
 
-            if (fColorSpaceXform) {
+            if (colorSpaceXform) {
                 // We defer clamping to after interpolation (see emitAnalyticalColor)
-                fColors4f[i] = fColorSpaceXform->unclampedXform(fColors4f[i]);
+                fColors4f[i] = colorSpaceXform->unclampedXform(fColors4f[i]);
             }
         }
 
@@ -1512,7 +1507,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         case kTexture_ColorType:
             SkGradientShaderBase::GradientBitmapType bitmapType =
                 SkGradientShaderBase::GradientBitmapType::kLegacy;
-            if (args.fGammaCorrect) {
+            if (args.fDstColorSpace) {
                 // Try to use F16 if we can
                 if (args.fContext->caps()->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
                     bitmapType = SkGradientShaderBase::GradientBitmapType::kHalfFloat;
@@ -1580,7 +1575,6 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
 GrGradientEffect::GrGradientEffect(const GrGradientEffect& that)
         : INHERITED(that.classID(), OptFlags(that.fIsOpaque))
         , fColors4f(that.fColors4f)
-        , fColorSpaceXform(that.fColorSpaceXform)
         , fPositions(that.fPositions)
         , fWrapMode(that.fWrapMode)
         , fCoordTransform(that.fCoordTransform)
@@ -1634,7 +1628,7 @@ bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
             }
         }
     }
-    return GrColorSpaceXform::Equals(this->fColorSpaceXform.get(), ge.fColorSpaceXform.get());
+    return true;
 }
 
 #if GR_TEST_UTILS

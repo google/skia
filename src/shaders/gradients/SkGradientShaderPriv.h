@@ -280,7 +280,6 @@ static inline int next_dither_toggle(int toggle) {
 #include "GrColorSpaceXform.h"
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
-#include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 
@@ -319,13 +318,11 @@ public:
                    const SkGradientShaderBase* shader,
                    const SkMatrix* matrix,
                    SkShader::TileMode tileMode,
-                   sk_sp<GrColorSpaceXform> colorSpaceXform,
-                   bool gammaCorrect)
+                   const SkColorSpace* dstColorSpace)
                 : fContext(context)
                 , fShader(shader)
                 , fMatrix(matrix)
-                , fColorSpaceXform(std::move(colorSpaceXform))
-                , fGammaCorrect(gammaCorrect) {
+                , fDstColorSpace(dstColorSpace) {
             switch (tileMode) {
                 case SkShader::kClamp_TileMode:
                     fWrapMode = GrSamplerState::WrapMode::kClamp;
@@ -343,21 +340,18 @@ public:
                    const SkGradientShaderBase* shader,
                    const SkMatrix* matrix,
                    GrSamplerState::WrapMode wrapMode,
-                   sk_sp<GrColorSpaceXform> colorSpaceXform,
-                   bool gammaCorrect)
+                   const SkColorSpace* dstColorSpace)
                 : fContext(context)
                 , fShader(shader)
                 , fMatrix(matrix)
                 , fWrapMode(wrapMode)
-                , fColorSpaceXform(std::move(colorSpaceXform))
-                , fGammaCorrect(gammaCorrect) {}
+                , fDstColorSpace(dstColorSpace) {}
 
         GrContext*                  fContext;
         const SkGradientShaderBase* fShader;
         const SkMatrix*             fMatrix;
         GrSamplerState::WrapMode    fWrapMode;
-        sk_sp<GrColorSpaceXform>    fColorSpaceXform;
-        bool                        fGammaCorrect;
+        const SkColorSpace*         fDstColorSpace;
     };
 
     class GLSLProcessor;
@@ -404,7 +398,28 @@ protected:
     GrGradientEffect(ClassID classID, const CreateArgs&, bool isOpaque);
     explicit GrGradientEffect(const GrGradientEffect&);  // facilitates clone() implementations
 
-    #if GR_TEST_UTILS
+    // Helper function used by derived class factories to handle color space transformation and
+    // modulation by input alpha.
+    static std::unique_ptr<GrFragmentProcessor> AdjustFP(
+            std::unique_ptr<GrGradientEffect> gradientFP, const CreateArgs& args) {
+        if (!gradientFP->isValid()) {
+            return nullptr;
+        }
+        std::unique_ptr<GrFragmentProcessor> fp;
+        // With analytic gradients, we pre-convert the stops to the destination color space, so no
+        // xform is needed. With texture-based gradients, we leave the data in the source color
+        // space (to avoid clamping if we can't use F16)... Add an extra FP to do the xform.
+        if (kTexture_ColorType == gradientFP->getColorType()) {
+            fp = GrColorSpaceXformEffect::Make(std::move(gradientFP),
+                                               args.fShader->fColorSpace.get(),
+                                               args.fDstColorSpace);
+        } else {
+            fp = std::move(gradientFP);
+        }
+        return GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
+    }
+
+#if GR_TEST_UTILS
     /** Helper struct that stores (and populates) parameters to construct a random gradient.
         If fUseColors4f is true, then the SkColor4f factory should be called, with fColors4f and
         fColorSpace. Otherwise, the SkColor factory should be called, with fColors. fColorCount
@@ -440,9 +455,6 @@ private:
     static OptimizationFlags OptFlags(bool isOpaque);
 
     SkTDArray<GrColor4f> fColors4f;
-
-    // Only present if a color space transformation is needed
-    sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
     SkTDArray<SkScalar> fPositions;
     GrSamplerState::WrapMode fWrapMode;
@@ -532,7 +544,6 @@ private:
     GrGLSLProgramDataManager::UniformHandle fColorsUni;
     GrGLSLProgramDataManager::UniformHandle fExtraStopT;
     GrGLSLProgramDataManager::UniformHandle fFSYUni;
-    GrGLSLColorSpaceXformHelper             fColorSpaceHelper;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
