@@ -121,7 +121,7 @@ private:
         this->didRemoveRefOrPendingIO(kPendingWrite_CntType);
     }
 
-private:
+public:
     void didRemoveRefOrPendingIO(CntType cntTypeRemoved) const {
         if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
             static_cast<const DERIVED*>(this)->notifyAllCntsAreZero(cntTypeRemoved);

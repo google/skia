@@ -173,6 +173,8 @@ GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
     return 0;
 }
 
+#include "gl/GrGLTexture.h"
+
 GrTexture* SkImage_Gpu::onGetTexture() const {
     GrTextureProxy* proxy = this->peekProxy();
     if (!proxy) {
@@ -183,7 +185,9 @@ GrTexture* SkImage_Gpu::onGetTexture() const {
         return nullptr;
     }
 
-    return proxy->priv().peekTexture();
+    GrTexture* tex = proxy->priv().peekTexture();
+    printf("onGetTexture %d\n", ((GrGLTexture*)tex)->textureID());
+    return tex;
 }
 
 bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,

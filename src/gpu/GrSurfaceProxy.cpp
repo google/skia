@@ -80,7 +80,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
     if (SkBackingFit::kApprox == fFit) {
         surface.reset(resourceProvider->createApproxTexture(desc, fFlags).release());
     } else {
-        surface.reset(resourceProvider->createTexture(desc, fBudgeted, fFlags).release());
+        surface.reset(resourceProvider->createTexture2(desc, fBudgeted, fFlags).release());
     }
     if (!surface) {
         return nullptr;
@@ -107,11 +107,38 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 #endif
 }
 
+#include "gl/GrGLTexture.h"
+#include "gl/GrGLRenderTarget.h"
+
+#include <stdio.h>
+
+void printme(const char* preamble, int proxyID, GrSurface* surf) {
+    if (surf->asTexture()) {
+        GrGLTexture* glT = (GrGLTexture*) surf->asTexture();
+        printf("-------------------- %s %d -> %d (%d %d) ^%d^ [ %d %d %d ]\n",
+            preamble, proxyID,
+            glT->textureID(),
+            glT->width(), glT->height(),
+            glT->uniqueID().asUInt(),
+            surf->fRefCnt, surf->fPendingReads, surf->fPendingWrites);
+    } else {
+        GrGLRenderTarget* glRT = (GrGLRenderTarget*) surf->asRenderTarget();
+        printf("-------------------- %s %d -> %d %d (%d %d) ^%d^ [ %d %d %d ]\n",
+            preamble, proxyID,
+            glRT->textureFBOID(), glRT->renderFBOID(),
+            glRT->width(), glRT->height(),
+            glRT->uniqueID().asUInt(),
+            surf->fRefCnt, surf->fPendingReads, surf->fPendingWrites);
+    }
+}
+
+
 bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
                                      bool needsStencil, GrSurfaceFlags flags, GrMipMapped mipMapped,
                                      SkDestinationSurfaceColorMode mipColorMode,
                                      const GrUniqueKey* uniqueKey) {
     if (fTarget) {
+        printme("Already instaniated", this->uniqueID().asUInt(), fTarget);
         if (uniqueKey) {
             SkASSERT(fTarget->getUniqueKey() == *uniqueKey);
         }
@@ -123,6 +150,8 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     if (!surface) {
         return false;
     }
+
+    printme("Freshly instantiated", this->uniqueID().asUInt(), surface.get());
 
     // If there was an invalidation message pending for this key, we might have just processed it,
     // causing the key (stored on this proxy) to become invalid.
@@ -263,7 +292,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     GrSurfaceDesc copyDesc = desc;
     copyDesc.fSampleCnt = caps->getSampleCount(desc.fSampleCnt, desc.fConfig);
 
-#ifdef SK_DISABLE_DEFERRED_PROXIES
+#if 0//def SK_DISABLE_DEFERRED_PROXIES
     // Temporarily force instantiation for crbug.com/769760 and crbug.com/769898
     sk_sp<GrTexture> tex;
 
