@@ -48,10 +48,9 @@ public:
      */
     class Paint {
     public:
-        explicit Paint(const SkPaint* paint, const GrColorSpaceInfo& dstColorSpaceInfo)
+        explicit Paint(const SkPaint* paint, const GrColorSpaceInfo* dstColorSpaceInfo)
                 : fPaint(paint)
-                , fDstColorSpace(dstColorSpaceInfo.colorSpace())
-                , fColorXformFromSRGB(dstColorSpaceInfo.colorSpaceXformFromSRGB()) {
+                , fDstColorSpaceInfo(dstColorSpaceInfo) {
             this->initFilteredColor();
         }
 
@@ -67,15 +66,13 @@ public:
                        GrPaint*) const;
 
         // Just for RunPaint's constructor
-        SkColorSpace* dstColorSpace() const { return fDstColorSpace; }
-        GrColorSpaceXform* colorXformFromSRGB() const { return fColorXformFromSRGB; }
+        const GrColorSpaceInfo* dstColorSpaceInfo() const { return fDstColorSpaceInfo; }
 
     protected:
         void initFilteredColor();
         Paint() = default;
         const SkPaint* fPaint;
-        SkColorSpace* fDstColorSpace;
-        GrColorSpaceXform* fColorXformFromSRGB;
+        const GrColorSpaceInfo* fDstColorSpaceInfo;
         // This is the paint's color run through its color filter, if present. This color should
         // be used except when rendering bitmap text, in which case the bitmap must be filtered in
         // the fragment shader.
@@ -93,8 +90,7 @@ public:
                 : fOriginalPaint(paint), fFilter(filter), fProps(props) {
             // Initially we represent the original paint.
             fPaint = &fOriginalPaint->skPaint();
-            fDstColorSpace = fOriginalPaint->dstColorSpace();
-            fColorXformFromSRGB = fOriginalPaint->colorXformFromSRGB();
+            fDstColorSpaceInfo = fOriginalPaint->dstColorSpaceInfo();
             fFilteredPremulColor = fOriginalPaint->filteredPremulColor();
         }
 

@@ -104,7 +104,7 @@ private:
 };
 
 std::unique_ptr<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(GrContext*,
-                                                                            SkColorSpace*) const {
+                                                                            const GrColorSpaceInfo&) const {
     return LumaColorFilterEffect::Make();
 }
 #endif

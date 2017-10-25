@@ -286,7 +286,7 @@ static inline int next_dither_toggle(int toggle) {
 
 #if SK_SUPPORT_GPU
 
-#include "GrColorSpaceXform.h"
+#include "GrColorSpaceInfo.h"
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
@@ -328,13 +328,12 @@ public:
                    const SkGradientShaderBase* shader,
                    const SkMatrix* matrix,
                    SkShader::TileMode tileMode,
-                   sk_sp<GrColorSpaceXform> colorSpaceXform,
-                   bool gammaCorrect)
+                   const GrColorSpaceInfo& colorSpaceInfo)
                 : fContext(context)
                 , fShader(shader)
                 , fMatrix(matrix)
-                , fColorSpaceXform(std::move(colorSpaceXform))
-                , fGammaCorrect(gammaCorrect) {
+                , fColorSpaceXform(colorSpaceInfo.colorSpaceXformFromSRGB())
+                , fGammaCorrect(colorSpaceInfo.isGammaCorrect()) {
             switch (tileMode) {
                 case SkShader::kClamp_TileMode:
                     fWrapMode = GrSamplerState::WrapMode::kClamp;

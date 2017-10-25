@@ -133,7 +133,7 @@ void GrStencilAndCoverTextContext::uncachedDrawTextBlob(GrContext* context,
                                                         SkScalar x, SkScalar y,
                                                         SkDrawFilter* drawFilter,
                                                         const SkIRect& clipBounds) {
-    GrTextUtils::Paint paint(&skPaint, rtc->colorSpaceInfo());
+    GrTextUtils::Paint paint(&skPaint, &rtc->colorSpaceInfo());
     GrTextUtils::RunPaint runPaint(&paint, drawFilter, props);
     SkTextBlobRunIterator it(blob);
     for (;!it.done(); it.next()) {

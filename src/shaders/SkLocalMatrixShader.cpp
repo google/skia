@@ -19,7 +19,7 @@ std::unique_ptr<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
         tmp.preConcat(*args.fLocalMatrix);
     }
     return as_SB(fProxyShader)->asFragmentProcessor(AsFPArgs(
-        args.fContext, args.fViewMatrix, &tmp, args.fFilterQuality, args.fDstColorSpace));
+        args.fContext, args.fViewMatrix, &tmp, args.fFilterQuality, args.fDstColorSpaceInfo));
 }
 #endif
 

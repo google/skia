@@ -14,6 +14,7 @@
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "GrColorSpaceXform.h"
 class GrDitherEffect : public GrFragmentProcessor {
 public:
     int rangeType() const { return fRangeType; }

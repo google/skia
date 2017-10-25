@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "GrColorSpaceXform.h"
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpaceXformer.h"
 #include "SkLinearGradient.h"
@@ -212,11 +213,8 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
     }
     matrix.postConcat(fPtsToUnit);
 
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
-                                                                       args.fDstColorSpace);
     auto inner = GrLinearGradient::Make(GrGradientEffect::CreateArgs(
-            args.fContext, this, &matrix, fTileMode, std::move(colorSpaceXform),
-            SkToBool(args.fDstColorSpace)));
+            args.fContext, this, &matrix, fTileMode, *args.fDstColorSpaceInfo));
     if (!inner) {
         return nullptr;
     }
