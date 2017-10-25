@@ -16,6 +16,24 @@
       "revId": "b179caa472a85c5ddc8b39308b6221bd2e1748b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f9bd494_fb923c90",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-25T19:20:44Z",
+      "side": 1,
+      "message": "(Conversely, there is not need for GPU bots unless we have some GPU configs...)",
+      "parentUuid": "6413a3b9_3852eace",
+      "revId": "b179caa472a85c5ddc8b39308b6221bd2e1748b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
