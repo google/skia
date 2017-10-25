@@ -66,6 +66,7 @@ void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
 #if SK_SUPPORT_GPU
 
 #include "SkGr.h"
+#include "GrColorSpaceXform.h"
 #include "GrShaderCaps.h"
 #include "gl/GrGLContext.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -76,8 +77,9 @@ public:
 
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args, SkScalar tBias,
                                                      SkScalar tScale) {
-        auto processor = std::unique_ptr<GrSweepGradient>(new GrSweepGradient(args, tBias, tScale));
-        return processor->isValid() ? std::move(processor) : nullptr;
+        return GrGradientEffect::AdjustFP(std::unique_ptr<GrSweepGradient>(
+                new GrSweepGradient(args, tBias, tScale)),
+                args);
     }
 
     const char* name() const override { return "Sweep Gradient"; }
@@ -240,16 +242,10 @@ std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
     }
     matrix.postConcat(fPtsToUnit);
 
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
-                                                                       args.fDstColorSpace);
-    auto inner = GrSweepGradient::Make(
+    return GrSweepGradient::Make(
             GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
-                                         std::move(colorSpaceXform), SkToBool(args.fDstColorSpace)),
+                                         args.fDstColorSpace),
             fTBias, fTScale);
-    if (!inner) {
-        return nullptr;
-    }
-    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 #endif
