@@ -381,6 +381,9 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
         return;
     }
 
+    printf("notifyCntReachedZero ^%d^: %d %d %d",
+        resource->uniqueID().asUInt(), resource->fRefCnt, resource->fPendingReads, resource->fPendingWrites);
+
     SkASSERT(resource->isPurgeable());
     this->removeFromNonpurgeableArray(resource);
     fPurgeableQueue.insert(resource);
@@ -396,6 +399,9 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
             if (fBudgetedCount < fMaxCount &&
                 fBudgetedBytes + resource->gpuMemorySize() <= fMaxBytes) {
                 resource->resourcePriv().makeBudgeted();
+                printf("recycled unbudgeted ^%d^ [ %d %d %d ]\n",
+                    resource->uniqueID().asUInt(),
+                    resource->fRefCnt, resource->fPendingReads, resource->fPendingWrites);
                 return;
             }
         }
@@ -405,6 +411,9 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
         bool noKey = !resource->resourcePriv().getScratchKey().isValid() &&
                      !resource->getUniqueKey().isValid();
         if (!this->overBudget() && !noKey) {
+            printf("recycled budgeted ^%d^ [%d %d %d ]\n",
+                resource->uniqueID().asUInt(),
+                resource->fRefCnt, resource->fPendingReads, resource->fPendingWrites);
             return;
         }
     }

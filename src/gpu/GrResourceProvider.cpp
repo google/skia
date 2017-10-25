@@ -154,7 +154,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
     return GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
 }
 
-sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+sk_sp<GrTexture> GrResourceProvider::createTexture2(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                    uint32_t flags) {
     ASSERT_SINGLE_OWNER
 

@@ -87,7 +87,7 @@ public:
 
     /** Create an exact fit texture with no initial data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, uint32_t flags = 0);
+    sk_sp<GrTexture> createTexture2(const GrSurfaceDesc&, SkBudgeted, uint32_t flags = 0);
 
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted,
                                    const GrMipLevel texels[], int mipLevelCount,

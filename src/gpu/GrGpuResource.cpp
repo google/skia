@@ -160,6 +160,9 @@ bool GrGpuResource::notifyRefCountIsZero() const {
         return true;
     }
 
+    printf("notifyRefCountIsZero ^%d^: %d %d %d\n", this->uniqueID().asUInt(),
+        fRefCnt, fPendingReads, fPendingWrites);
+
     GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
     uint32_t flags = GrResourceCache::ResourceAccess::kRefCntReachedZero_RefNotificationFlag;
     if (!this->internalHasPendingIO()) {
