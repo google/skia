@@ -38,8 +38,8 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrContext*,
-                                                             SkColorSpace*) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
+            GrContext*, const GrColorSpaceInfo&) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
@@ -70,7 +70,7 @@ void SkGaussianColorFilter::toString(SkString* str) const {
 #if SK_SUPPORT_GPU
 
 std::unique_ptr<GrFragmentProcessor> SkGaussianColorFilter::asFragmentProcessor(
-        GrContext*, SkColorSpace*) const {
+        GrContext*, const GrColorSpaceInfo&) const {
     return GrBlurredEdgeFragmentProcessor::Make(GrBlurredEdgeFragmentProcessor::kGaussian_Mode);
 }
 #endif

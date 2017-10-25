@@ -91,7 +91,7 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 #include "effects/GrConstColorProcessor.h"
 std::unique_ptr<GrFragmentProcessor> SkColorShader::asFragmentProcessor(
         const AsFPArgs& args) const {
-    GrColor4f color = SkColorToPremulGrColor4f(fColor, args.fDstColorSpace);
+    GrColor4f color = SkColorToPremulGrColor4f(fColor, *args.fDstColorSpaceInfo);
     return GrConstColorProcessor::Make(color, GrConstColorProcessor::kModulateA_InputMode);
 }
 
@@ -204,13 +204,15 @@ SkShader::GradientType SkColor4Shader::asAGradient(GradientInfo* info) const {
 
 #if SK_SUPPORT_GPU
 
+#include "GrColorSpaceInfo.h"
+#include "GrColorSpaceXform.h"
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
-#include "GrColorSpaceXform.h"
+
 std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
         const AsFPArgs& args) const {
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
-                                                                       args.fDstColorSpace);
+    sk_sp<GrColorSpaceXform> colorSpaceXform =
+            GrColorSpaceXform::Make(fColorSpace.get(), args.fDstColorSpaceInfo->colorSpace());
     GrColor4f color = GrColor4f::FromSkColor4f(fColor4);
     if (colorSpaceXform) {
         color = colorSpaceXform->clampedXform(color);

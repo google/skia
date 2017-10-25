@@ -277,7 +277,7 @@ static inline int next_dither_toggle(int toggle) {
 
 #if SK_SUPPORT_GPU
 
-#include "GrColorSpaceXform.h"
+#include "GrColorSpaceInfo.h"
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"

@@ -118,7 +118,7 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrRenderTargetContext*
         cacheBlob = cache->find(key);
     }
 
-    GrTextUtils::Paint paint(&skPaint, rtc->colorSpaceInfo());
+    GrTextUtils::Paint paint(&skPaint, &rtc->colorSpaceInfo());
     if (cacheBlob) {
         if (cacheBlob->mustRegenerate(paint, blurRec, viewMatrix, x, y)) {
             // We have to remake the blob because changes may invalidate our masks.
@@ -295,7 +295,7 @@ void GrAtlasTextContext::drawText(GrContext* context, GrRenderTargetContext* rtc
     if (context->abandoned()) {
         return;
     }
-    GrTextUtils::Paint paint(&skPaint, rtc->colorSpaceInfo());
+    GrTextUtils::Paint paint(&skPaint, &rtc->colorSpaceInfo());
     if (this->canDraw(skPaint, viewMatrix, props, *context->caps()->shaderCaps())) {
         sk_sp<GrAtlasTextBlob> blob(
                 MakeDrawTextBlob(context->getTextBlobCache(), context->getAtlasGlyphCache(),
@@ -320,7 +320,7 @@ void GrAtlasTextContext::drawPosText(GrContext* context, GrRenderTargetContext* 
                                      const char text[], size_t byteLength, const SkScalar pos[],
                                      int scalarsPerPosition, const SkPoint& offset,
                                      const SkIRect& regionClipBounds) {
-    GrTextUtils::Paint paint(&skPaint, rtc->colorSpaceInfo());
+    GrTextUtils::Paint paint(&skPaint, &rtc->colorSpaceInfo());
     if (context->abandoned()) {
         return;
     } else if (this->canDraw(skPaint, viewMatrix, props, *context->caps()->shaderCaps())) {
@@ -370,7 +370,7 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     skPaint.setLCDRenderText(random->nextBool());
     skPaint.setAntiAlias(skPaint.isLCDRenderText() ? true : random->nextBool());
     skPaint.setSubpixelText(random->nextBool());
-    GrTextUtils::Paint utilsPaint(&skPaint, rtc->colorSpaceInfo());
+    GrTextUtils::Paint utilsPaint(&skPaint, &rtc->colorSpaceInfo());
 
     const char* text = "The quick brown fox jumps over the lazy dog.";
     int textLen = (int)strlen(text);

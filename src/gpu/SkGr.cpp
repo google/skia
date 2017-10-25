@@ -305,36 +305,18 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvid
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// TODO(bsalomon): Pass GrColorSpaceInfo to these conversion functions?
-
-GrColor4f SkColorToPremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace) {
+GrColor4f SkColorToPremulGrColor4f(SkColor c, const GrColorSpaceInfo& colorSpaceInfo) {
     // We want to premultiply after linearizing, so this is easy:
-    return SkColorToUnpremulGrColor4f(c, dstColorSpace).premul();
+    return SkColorToUnpremulGrColor4f(c, colorSpaceInfo).premul();
 }
 
-GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace) {
-    if (dstColorSpace) {
-        auto srgbColorSpace = SkColorSpace::MakeSRGB();
-        auto gamutXform = GrColorSpaceXform::Make(srgbColorSpace.get(), dstColorSpace);
-        return SkColorToUnpremulGrColor4f(c, dstColorSpace, gamutXform.get());
-    } else {
-        return SkColorToUnpremulGrColor4f(c, nullptr, nullptr);
-    }
+GrColor4f SkColorToPremulGrColor4fLegacy(SkColor c) {
+    return GrColor4f::FromGrColor(SkColorToUnpremulGrColor(c)).premul();
 }
 
-GrColor4f SkColorToPremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace,
-                                   GrColorSpaceXform* gamutXform) {
-    // We want to premultiply after linearizing, so this is easy:
-    return SkColorToUnpremulGrColor4f(c, dstColorSpace, gamutXform).premul();
-}
-
-GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace,
-                                     GrColorSpaceXform* gamutXform) {
-    // You can't be color-space aware in legacy mode
-    SkASSERT(dstColorSpace || !gamutXform);
-
+GrColor4f SkColorToUnpremulGrColor4f(SkColor c, const GrColorSpaceInfo& colorSpaceInfo) {
     GrColor4f color;
-    if (dstColorSpace) {
+    if (colorSpaceInfo.colorSpace()) {
         // SkColor4f::FromColor does sRGB -> Linear
         color = GrColor4f::FromSkColor4f(SkColor4f::FromColor(c));
     } else {
@@ -342,8 +324,8 @@ GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace,
         color = GrColor4f::FromGrColor(SkColorToUnpremulGrColor(c));
     }
 
-    if (gamutXform) {
-        color = gamutXform->clampedXform(color);
+    if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
+        color = xform->clampedXform(color);
     }
 
     return color;
@@ -451,9 +433,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     grPaint->setAllowSRGBInputs(colorSpaceInfo.isGammaCorrect());
 
     // Convert SkPaint color to 4f format, including optional linearizing and gamut conversion.
-    GrColor4f origColor =
-            SkColorToUnpremulGrColor4f(skPaint.getColor(), colorSpaceInfo.colorSpace(),
-                                       colorSpaceInfo.colorSpaceXformFromSRGB());
+    GrColor4f origColor = SkColorToUnpremulGrColor4f(skPaint.getColor(), colorSpaceInfo);
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
@@ -462,9 +442,8 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         if (shaderProcessor) {
             shaderFP = std::move(*shaderProcessor);
         } else if (const auto* shader = as_SB(skPaint.getShader())) {
-            shaderFP = shader->asFragmentProcessor(
-                    SkShaderBase::AsFPArgs(context, &viewM, nullptr, skPaint.getFilterQuality(),
-                                           colorSpaceInfo.colorSpace()));
+            shaderFP = shader->asFragmentProcessor(SkShaderBase::AsFPArgs(
+                    context, &viewM, nullptr, skPaint.getFilterQuality(), &colorSpaceInfo));
             if (!shaderFP) {
                 return false;
             }
@@ -547,11 +526,11 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                 grPaint->setColor4f(GrColor4f::FromSkColor4f(
                     colorFilter->filterColor4f(origColor.toSkColor4f())).premul());
             } else {
-                grPaint->setColor4f(SkColorToPremulGrColor4f(
-                    colorFilter->filterColor(skPaint.getColor()), nullptr, nullptr));
+                grPaint->setColor4f(SkColorToPremulGrColor4fLegacy(
+                        colorFilter->filterColor(skPaint.getColor())));
             }
         } else {
-            auto cfFP = colorFilter->asFragmentProcessor(context, colorSpaceInfo.colorSpace());
+            auto cfFP = colorFilter->asFragmentProcessor(context, colorSpaceInfo);
             if (cfFP) {
                 grPaint->addColorFragmentProcessor(std::move(cfFP));
             } else {
@@ -643,9 +622,8 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
     std::unique_ptr<GrFragmentProcessor> shaderFP;
     if (textureIsAlphaOnly) {
         if (const auto* shader = as_SB(paint.getShader())) {
-            shaderFP = shader->asFragmentProcessor(
-                    SkShaderBase::AsFPArgs(context, &viewM, nullptr, paint.getFilterQuality(),
-                                           colorSpaceInfo.colorSpace()));
+            shaderFP = shader->asFragmentProcessor(SkShaderBase::AsFPArgs(
+                    context, &viewM, nullptr, paint.getFilterQuality(), &colorSpaceInfo));
             if (!shaderFP) {
                 return false;
             }
