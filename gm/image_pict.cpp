@@ -186,8 +186,11 @@ protected:
         desc.fHeight = info.height();
         desc.fConfig = fProxy->config();
 
+        GrMipMapped mipMapped = willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo;
+
         sk_sp<GrSurfaceContext> dstContext(fCtx->contextPriv().makeDeferredSurfaceContext(
                                                                             desc,
+                                                                            mipMapped,
                                                                             SkBackingFit::kExact,
                                                                             SkBudgeted::kYes));
         if (!dstContext) {

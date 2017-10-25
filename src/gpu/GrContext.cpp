@@ -750,11 +750,19 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
 }
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfaceDesc& dstDesc,
+                                                                  GrMipMapped mipMapped,
                                                                   SkBackingFit fit,
                                                                   SkBudgeted isDstBudgeted) {
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(fContext->resourceProvider(),
-                                                               dstDesc, fit, isDstBudgeted);
+    sk_sp<GrTextureProxy> proxy;
+    if (GrMipMapped::kNo == mipMapped) {
+        proxy = GrSurfaceProxy::MakeDeferred(fContext->resourceProvider(), dstDesc, fit,
+                                             isDstBudgeted);
+    } else {
+        SkASSERT(SkBackingFit::kExact == fit);
+        proxy = GrSurfaceProxy::MakeDeferredMipMap(fContext->resourceProvider(), dstDesc,
+                                                   isDstBudgeted);
+    }
     if (!proxy) {
         return nullptr;
     }

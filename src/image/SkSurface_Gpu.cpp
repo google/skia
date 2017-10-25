@@ -110,7 +110,9 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
     if (!srcProxy || rtc->priv().refsWrappedObjects()) {
         SkASSERT(rtc->origin() == rtc->asSurfaceProxy()->origin());
 
-        srcProxy = GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), budgeted);
+        // TODO: We should look at the rtc to see if it is mipped and if so create the copy as well
+        // with mips.
+        srcProxy = GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), GrMipMapped::kNo, budgeted);
     }
 
     const SkImageInfo info = fDevice->imageInfo();
