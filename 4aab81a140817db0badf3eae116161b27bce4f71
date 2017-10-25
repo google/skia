@@ -22,6 +22,30 @@
       "revId": "4aab81a140817db0badf3eae116161b27bce4f71",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62fe0b53_16fa3965",
+        "filename": "src/core/SkPixmapPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-10-25T15:26:18Z",
+      "side": 1,
+      "message": "fPreOrientDst will be null. I\u0027ve added comments and a check for null in SkImageGeneratorCG.",
+      "parentUuid": "765ce386_036d18a2",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 46
+      },
+      "revId": "4aab81a140817db0badf3eae116161b27bce4f71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
