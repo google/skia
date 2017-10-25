@@ -8,6 +8,8 @@
 #include "SkTwoPointConicalGradient.h"
 
 #include "SkRasterPipeline.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "../../jumper/SkJumper.h"
 
 sk_sp<SkShader> SkTwoPointConicalGradient::Create(const SkPoint& c0, SkScalar r0,
