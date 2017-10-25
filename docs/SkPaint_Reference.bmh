@@ -4177,16 +4177,6 @@ void draw(SkCanvas* canvas) {
 
 #Struct FontMetrics
 
-    FontMetrics is filled out by getFontMetrics. FontMetrics contents reflect the values
-    computed by Font_Manager using Typeface. Values are set to zero if they are
-    not available.
-
-    fUnderlineThickness and fUnderlinePosition have a bit set in fFlags if their values
-    are valid, since their value may be zero.
-    
-    fStrikeoutThickness and fStrikeoutPosition have a bit set in fFlags if their values
-    are valid, since their value may be zero.
-
 #Code
     struct FontMetrics {
         enum FontMetricsFlags {
@@ -4220,11 +4210,17 @@ void draw(SkCanvas* canvas) {
     };
 ##
 
-    #Enum FontMetricsFlags
+    FontMetrics is filled out by getFontMetrics. FontMetrics contents reflect the values
+    computed by Font_Manager using Typeface. Values are set to zero if they are
+    not available.
 
-    FontMetricsFlags are set in fFlags when underline and strikeout metrics are valid;
-    the underline or strikeout metric may be valid and zero.
-    Fonts with embedded bitmaps may not have valid underline or strikeout metrics.
+    fUnderlineThickness and fUnderlinePosition have a bit set in fFlags if their values
+    are valid, since their value may be zero.
+    
+    fStrikeoutThickness and fStrikeoutPosition have a bit set in fFlags if their values
+    are valid, since their value may be zero.
+
+    #Enum FontMetricsFlags
 
     #Code
         enum FontMetricsFlags {
@@ -4234,6 +4230,10 @@ void draw(SkCanvas* canvas) {
             kStrikeoutPositionIsValid_Flag = 1 << 3,
         };
     ##
+
+    FontMetricsFlags are set in fFlags when underline and strikeout metrics are valid;
+    the underline or strikeout metric may be valid and zero.
+    Fonts with embedded bitmaps may not have valid underline or strikeout metrics.
 
         #Const kUnderlineThicknessIsValid_Flag 0x0001
             Set if fUnderlineThickness is valid.

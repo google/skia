@@ -216,7 +216,7 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 
 ## <a name="SkPath_Verb"></a> Enum SkPath::Verb
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#Verb">Verb</a> {
 <a href="#SkPath_kMove_Verb">kMove Verb</a>, 
 <a href="#SkPath_kLine_Verb">kLine Verb</a>, 
@@ -298,7 +298,7 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 
 ## <a name="SkPath_Direction"></a> Enum SkPath::Direction
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#Direction">Direction</a> {
 <a href="#SkPath_kCW_Direction">kCW Direction</a>, 
 <a href="#SkPath_kCCW_Direction">kCCW Direction</a>, 
@@ -320,10 +320,10 @@ travel counterclockwise.
 
 <table>
   <tr>
-    <td><a name="SkPath_kCW_Direction"> <code><strong>SkPath::kCW_Direction </strong></code> </a></td><td>0</td><td><a href="#Contour">Contour</a> travels in a clockwise direction.</td>
+    <td><a name="SkPath_kCW_Direction"> <code><strong>SkPath::kCW_Direction </strong></code> </a></td><td>0</td><td><a href="#Contour">Contour</a> travels in a clockwise direction</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kCCW_Direction"> <code><strong>SkPath::kCCW_Direction </strong></code> </a></td><td>1</td><td><a href="#Contour">Contour</a> travels in a counterclockwise direction.</td>
+    <td><a name="SkPath_kCCW_Direction"> <code><strong>SkPath::kCCW_Direction </strong></code> </a></td><td>1</td><td><a href="#Contour">Contour</a> travels in a counterclockwise direction</td>
   </tr>
 </table>
 
@@ -617,7 +617,9 @@ Interpolate between <a href="#Path">Paths</a> with equal sized <a href="SkPath_R
 Copy <a href="#Verb_Array">Verb Array</a> and <a href="#Weight">Weights</a> to <a href="#SkPath_interpolate_out">out</a>,
 and set <a href="#SkPath_interpolate_out">out</a> <a href="#Point_Array">Point Array</a> to a weighted average of this <a href="#Point_Array">Point Array</a> and <a href="#SkPath_interpolate_ending">ending</a> 
 <a href="#Point_Array">Point Array</a>, using the formula:
-(this->points * <a href="#SkPath_interpolate_weight">weight</a>) + ending->points * (1 - <a href="#SkPath_interpolate_weight">weight</a>)<a href="#SkPath_interpolate_weight">weight</a> is most useful when between zero (<a href="#SkPath_interpolate_ending">ending</a> <a href="#Point_Array">Point Array</a>) and 
+(this->points * <a href="#SkPath_interpolate_weight">weight</a>) + ending->points * (1 - <a href="#SkPath_interpolate_weight">weight</a>).
+
+<a href="#SkPath_interpolate_weight">weight</a> is most useful when between zero (<a href="#SkPath_interpolate_ending">ending</a> <a href="#Point_Array">Point Array</a>) and 
 one (this <a href="#Point_Array">Point Array</a>); will work with values outside of this 
 range.
 
@@ -668,7 +670,7 @@ true if <a href="#Path">Path</a> has one owner
 
 ## <a name="SkPath_FillType"></a> Enum SkPath::FillType
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPath_FillType">FillType</a> {
 <a href="#SkPath_kWinding_FillType">kWinding FillType</a>, 
 <a href="#SkPath_kEvenOdd_FillType">kEvenOdd FillType</a>, 
@@ -842,7 +844,7 @@ unmodified by the original <a href="#SkPath_FillType">FillType</a>.
 
 ## <a name="SkPath_Convexity"></a> Enum SkPath::Convexity
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#Convexity">Convexity</a> : uint8_t {
 <a href="#SkPath_kUnknown_Convexity">kUnknown Convexity</a>, 
 <a href="#SkPath_kConvex_Convexity">kConvex Convexity</a>,
@@ -2805,7 +2807,7 @@ line (156,20),(200,20)
 
 ## <a name="SkPath_ArcSize"></a> Enum SkPath::ArcSize
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPath_ArcSize">ArcSize</a> {
 <a href="#SkPath_kSmall_ArcSize">kSmall ArcSize</a>, 
 <a href="#SkPath_kLarge_ArcSize">kLarge ArcSize</a>, 
@@ -2818,10 +2820,10 @@ Four <a href="undocumented#Oval">Oval</a> parts with radii (rx, ry) start at las
 
 <table>
   <tr>
-    <td><a name="SkPath_kSmall_ArcSize"> <code><strong>SkPath::kSmall_ArcSize </strong></code> </a></td><td>0</td><td>Smaller of <a href="#Arc">Arc</a> pair.</td>
+    <td><a name="SkPath_kSmall_ArcSize"> <code><strong>SkPath::kSmall_ArcSize </strong></code> </a></td><td>0</td><td>smaller of <a href="#Arc">Arc</a> pair</td>
   </tr>
   <tr>
-    <td><a name="SkPath_kLarge_ArcSize"> <code><strong>SkPath::kLarge_ArcSize </strong></code> </a></td><td>1</td><td>Larger of <a href="#Arc">Arc</a> pair.</td>
+    <td><a name="SkPath_kLarge_ArcSize"> <code><strong>SkPath::kLarge_ArcSize </strong></code> </a></td><td>1</td><td>larger of <a href="#Arc">Arc</a> pair</td>
   </tr>
 </table>
 
@@ -2840,18 +2842,20 @@ void arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
            Direction sweep, SkScalar x, SkScalar y)
 </pre>
 
-Append <a href="#Arc">Arc</a> to <a href="#Path">Path</a>. <a href="#Arc">Arc</a> is implemented by one or more <a href="#Conic">Conics</a> weighted to describe part of <a href="undocumented#Oval">Oval</a>
-with radii (<a href="#SkPath_arcTo_4_rx">rx</a>, <a href="#SkPath_arcTo_4_ry">ry</a>) rotated by <a href="#SkPath_arcTo_4_xAxisRotate">xAxisRotate</a> degrees. <a href="#Arc">Arc</a> curves from last <a href="#Path">Path</a> <a href="undocumented#Point">Point</a> to (<a href="#SkPath_arcTo_4_x">x</a>, <a href="#SkPath_arcTo_4_y">y</a>),
-choosing one of four possible routes: clockwise or counterclockwise, and smaller or larger.
+Append <a href="#Arc">Arc</a> to <a href="#Path">Path</a>. <a href="#Arc">Arc</a> is implemented by one or more <a href="#Conic">Conics</a> weighted to
+describe part of <a href="undocumented#Oval">Oval</a> with radii (<a href="#SkPath_arcTo_4_rx">rx</a>, <a href="#SkPath_arcTo_4_ry">ry</a>) rotated by <a href="#SkPath_arcTo_4_xAxisRotate">xAxisRotate</a> degrees. <a href="#Arc">Arc</a>
+curves from last <a href="#Path">Path</a> <a href="undocumented#Point">Point</a> to (<a href="#SkPath_arcTo_4_x">x</a>, <a href="#SkPath_arcTo_4_y">y</a>), choosing one of four possible routes:
+clockwise or counterclockwise, and smaller or larger.
 
-<a href="#Arc">Arc</a> <a href="#SkPath_arcTo_4_sweep">sweep</a> is always less than 360 degrees. <a href="#SkPath_arcTo">arcTo</a> appends <a href="undocumented#Line">Line</a> to (<a href="#SkPath_arcTo_4_x">x</a>, <a href="#SkPath_arcTo_4_y">y</a>) if either radii are zero,
-or if last <a href="#Path">Path</a> <a href="undocumented#Point">Point</a> equals (<a href="#SkPath_arcTo_4_x">x</a>, <a href="#SkPath_arcTo_4_y">y</a>). <a href="#SkPath_arcTo">arcTo</a> scales radii (<a href="#SkPath_arcTo_4_rx">rx</a>, <a href="#SkPath_arcTo_4_ry">ry</a>) to fit last <a href="#Path">Path</a> <a href="undocumented#Point">Point</a> and
-(<a href="#SkPath_arcTo_4_x">x</a>, <a href="#SkPath_arcTo_4_y">y</a>) if both are greater than zero but too small.
+<a href="#Arc">Arc</a> <a href="#SkPath_arcTo_4_sweep">sweep</a> is always less than 360 degrees. <a href="#SkPath_arcTo">arcTo</a> appends <a href="undocumented#Line">Line</a> to (<a href="#SkPath_arcTo_4_x">x</a>, <a href="#SkPath_arcTo_4_y">y</a>) if
+either radii are zero, or if last <a href="#Path">Path</a> <a href="undocumented#Point">Point</a> equals (<a href="#SkPath_arcTo_4_x">x</a>, <a href="#SkPath_arcTo_4_y">y</a>). <a href="#SkPath_arcTo">arcTo</a> scales radii
+(<a href="#SkPath_arcTo_4_rx">rx</a>, <a href="#SkPath_arcTo_4_ry">ry</a>) to fit last <a href="#Path">Path</a> <a href="undocumented#Point">Point</a> and (<a href="#SkPath_arcTo_4_x">x</a>, <a href="#SkPath_arcTo_4_y">y</a>) if both are greater than zero but
+too small.
 
 <a href="#SkPath_arcTo">arcTo</a> appends up to four <a href="#Conic">Conic</a> curves.
-<a href="#SkPath_arcTo">arcTo</a> implements the functionality of <a href="#Arc">SVG Arc</a>, although <a href="undocumented#SVG">SVG</a> "" value is
-opposite the integer value of <a href="#SkPath_arcTo_4_sweep">sweep</a>; <a href="undocumented#SVG">SVG</a> "" uses 1 for clockwise, while <a href="#SkPath_kCW_Direction">kCW Direction</a> 
-cast to int is zero.
+<a href="#SkPath_arcTo">arcTo</a> implements the functionality of <a href="#Arc">SVG Arc</a>, although <a href="undocumented#SVG">SVG</a> "" value
+is opposite the integer value of <a href="#SkPath_arcTo_4_sweep">sweep</a>; <a href="undocumented#SVG">SVG</a> "" uses 1 for clockwise,
+while <a href="#SkPath_kCW_Direction">kCW Direction</a>  cast to int is zero.
 
 ### Parameters
 
@@ -2936,7 +2940,9 @@ void rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
 
 Append <a href="#Arc">Arc</a> to <a href="#Path">Path</a>, relative to last <a href="#Path">Path</a> <a href="undocumented#Point">Point</a>. <a href="#Arc">Arc</a> is implemented by one or 
 more <a href="#Conic">Conic</a>, weighted to describe part of <a href="undocumented#Oval">Oval</a> with radii (<a href="#SkPath_rArcTo_rx">rx</a>, <a href="#SkPath_rArcTo_ry">ry</a>) rotated by
-<a href="#SkPath_rArcTo_xAxisRotate">xAxisRotate</a> degrees. <a href="#Arc">Arc</a> curves from last <a href="#Path">Path</a> <a href="undocumented#Point">Point</a> (x0, y0) to end <a href="undocumented#Point">Point</a>(x0 + <a href="#SkPath_rArcTo_dx">dx</a>, y0 + <a href="#SkPath_rArcTo_dy">dy</a>), 
+<a href="#SkPath_rArcTo_xAxisRotate">xAxisRotate</a> degrees. <a href="#Arc">Arc</a> curves from last <a href="#Path">Path</a> <a href="undocumented#Point">Point</a> (x0, y0) to end <a href="undocumented#Point">Point</a>:
+
+(x0 + <a href="#SkPath_rArcTo_dx">dx</a>, y0 + <a href="#SkPath_rArcTo_dy">dy</a>), 
 choosing one of four possible routes: clockwise or
 counterclockwise, and smaller or larger. If <a href="#Path">Path</a> is empty, the start <a href="#Arc">Arc</a> <a href="undocumented#Point">Point</a>
 is (0, 0).
@@ -3118,7 +3124,9 @@ control <a href="undocumented#Point">Point</a> <a href="#SkPath_ConvertConicToQu
 Maximum <a href="#Quad">Quad</a> count is 2 to the <a href="#SkPath_ConvertConicToQuads_pow2">pow2</a>.
 Every third point in array shares last <a href="undocumented#Point">Point</a> of previous <a href="#Quad">Quad</a> and first <a href="undocumented#Point">Point</a> of 
 next <a href="#Quad">Quad</a>. Maximum <a href="#SkPath_ConvertConicToQuads_pts">pts</a> storage size is given by: 
-(1 + 2 * (1 << <a href="#SkPath_ConvertConicToQuads_pow2">pow2</a>)) * sizeof(SkPoint)<a href="#SkPath_ConvertConicToQuads">ConvertConicToQuads</a> returns <a href="#Quad">Quad</a> count used the approximation, which may be smaller
+(1 + 2 * (1 << <a href="#SkPath_ConvertConicToQuads_pow2">pow2</a>)) * sizeof(SkPoint).
+
+Returns <a href="#Quad">Quad</a> count used the approximation, which may be smaller
 than the number requested.
 <a href="#Conic_Weight">Conic Weight</a> determines the amount of influence <a href="#Conic">Conic</a> control point has on the curve.
 <a href="#SkPath_ConvertConicToQuads_w">w</a> less than one represents an elliptical section. <a href="#SkPath_ConvertConicToQuads_w">w</a> greater than one represents
@@ -3446,9 +3454,10 @@ void addCircle(SkScalar x, SkScalar y, SkScalar radius,
 </pre>
 
 Add <a href="undocumented#Circle">Circle</a> centered at (<a href="#SkPath_addCircle_x">x</a>, <a href="#SkPath_addCircle_y">y</a>) of size <a href="#SkPath_addCircle_radius">radius</a> to <a href="#Path">Path</a>, appending <a href="#SkPath_kMove_Verb">kMove Verb</a>,
-four <a href="#SkPath_kConic_Verb">kConic Verb</a>, and <a href="#SkPath_kClose_Verb">kClose Verb</a>. <a href="undocumented#Circle">Circle</a> begins at(<a href="#SkPath_addCircle_x">x</a> + <a href="#SkPath_addCircle_radius">radius</a>, <a href="#SkPath_addCircle_y">y</a>), 
-continuing clockwise if <a href="#SkPath_addCircle_dir">dir</a> is <a href="#SkPath_kCW_Direction">kCW Direction</a>, and counterclockwise if <a href="#SkPath_addCircle_dir">dir</a> is
-<a href="#SkPath_kCCW_Direction">kCCW Direction</a>.
+four <a href="#SkPath_kConic_Verb">kConic Verb</a>, and <a href="#SkPath_kClose_Verb">kClose Verb</a>. <a href="undocumented#Circle">Circle</a> begins at: 
+(<a href="#SkPath_addCircle_x">x</a> + <a href="#SkPath_addCircle_radius">radius</a>, <a href="#SkPath_addCircle_y">y</a>), 
+continuing
+clockwise if <a href="#SkPath_addCircle_dir">dir</a> is <a href="#SkPath_kCW_Direction">kCW Direction</a>, and counterclockwise if <a href="#SkPath_addCircle_dir">dir</a> is <a href="#SkPath_kCCW_Direction">kCCW Direction</a>.
 
 Has no effect if <a href="#SkPath_addCircle_radius">radius</a> is zero or negative.
 
@@ -3725,7 +3734,7 @@ true to add <a href="undocumented#Line">Line</a> connecting <a href="#Contour">C
 
 ## <a name="SkPath_AddPathMode"></a> Enum SkPath::AddPathMode
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPath_AddPathMode">AddPathMode</a> {
 <a href="#SkPath_kAppend_AddPathMode">kAppend AddPathMode</a>, 
 <a href="#SkPath_kExtend_AddPathMode">kExtend AddPathMode</a>, 
@@ -4096,7 +4105,7 @@ set value of <a href="#Last_Point">Last Point</a></td>
 
 ## <a name="SkPath_SegmentMask"></a> Enum SkPath::SegmentMask
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPath_SegmentMask">SegmentMask</a> {
 <a href="#SkPath_kLine_SegmentMask">kLine SegmentMask</a> = 1 << 0,
 <a href="#SkPath_kQuad_SegmentMask">kQuad SegmentMask</a> = 1 << 1,
@@ -4225,9 +4234,9 @@ true if <a href="undocumented#Point">Point</a> is in <a href="#Path">Path</a>
 void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const
 </pre>
 
-Writes text representation of <a href="#Path">Path</a> to <a href="#SkPath_dump_stream">stream</a>. If <a href="#SkPath_dump_stream">stream</a> is nullptr, <a href="#SkPath_dump_2">dump</a> writes to
-standard output. Set <a href="#SkPath_dump_forceClose">forceClose</a> to true to get
-edges used to fill <a href="#Path">Path</a>. Set <a href="#SkPath_dump_dumpAsHex">dumpAsHex</a> true to generate exact binary representations
+Writes text representation of <a href="#Path">Path</a> to <a href="#SkPath_dump_stream">stream</a>. If <a href="#SkPath_dump_stream">stream</a> is nullptr, writes to
+standard output. Set <a href="#SkPath_dump_forceClose">forceClose</a> to true to get edges used to fill <a href="#Path">Path</a>.
+Set <a href="#SkPath_dump_dumpAsHex">dumpAsHex</a> true to generate exact binary representations
 of floating point numbers used in <a href="#Point_Array">Point Array</a> and <a href="#Weight">Conic Weights</a>.
 
 ### Parameters
@@ -4554,7 +4563,7 @@ Iterates through <a href="#Verb_Array">Verb Array</a>, and associated <a href="#
 Provides options to treat open <a href="#Contour">Contours</a> as closed, and to ignore
 degenerate data.
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 class <a href="#SkPath_Iter_Iter">Iter</a> {
 public:
 <a href="#SkPath_Iter_Iter">Iter()</a>;
@@ -4899,7 +4908,7 @@ with close(),    forceClose is true : isClosedContour returns true
 Iterates through <a href="#Verb_Array">Verb Array</a>, and associated <a href="#Point_Array">Point Array</a> and <a href="#Conic_Weight">Conic Weight</a>.
 <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Conic_Weight">Conic Weight</a> are returned unaltered. 
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 class <a href="#SkPath_RawIter_RawIter">RawIter</a> {
 public:
 <a href="#SkPath_RawIter_RawIter">RawIter()</a>;
