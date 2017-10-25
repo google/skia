@@ -93,8 +93,7 @@ def dm_flags(api, bot):
     if '-GCE-' in bot:
       configs.extend(['565'])
       configs.extend(['f16'])
-      configs.extend(['sp-8888', '2ndpic-8888']) # Test niche uses of SkPicture.
-      configs.extend(['lite-8888'])              # Experimental display list.
+      configs.extend(['lite-8888'])  # Display list used by Android.
       configs.extend(['gbr-8888'])
 
     # NP is running out of RAM when we run all these modes.  skia:3255
@@ -417,25 +416,19 @@ def dm_flags(api, bot):
 
   # skia:4769
   for test in ['drawfilter']:
-    blacklist([    'sp-8888', 'gm', '_', test])
-    blacklist([   'pic-8888', 'gm', '_', test])
-    blacklist(['2ndpic-8888', 'gm', '_', test])
-    blacklist([  'lite-8888', 'gm', '_', test])
+    blacklist([ 'pic-8888', 'gm', '_', test])
+    blacklist(['lite-8888', 'gm', '_', test])
   # skia:4703
   for test in ['image-cacherator-from-picture',
                'image-cacherator-from-raster',
                'image-cacherator-from-ctable']:
-    blacklist([       'sp-8888', 'gm', '_', test])
     blacklist([      'pic-8888', 'gm', '_', test])
-    blacklist([   '2ndpic-8888', 'gm', '_', test])
     blacklist(['serialize-8888', 'gm', '_', test])
 
   # GM that requires raster-backed canvas
   for test in ['gamut', 'complexclip4_bw', 'complexclip4_aa']:
-    blacklist([       'sp-8888', 'gm', '_', test])
     blacklist([      'pic-8888', 'gm', '_', test])
     blacklist([     'lite-8888', 'gm', '_', test])
-    blacklist([   '2ndpic-8888', 'gm', '_', test])
     blacklist(['serialize-8888', 'gm', '_', test])
 
   # GM that not support tiles_rt
