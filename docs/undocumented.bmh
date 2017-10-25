@@ -11,7 +11,7 @@
  PDF XPS
  RFC
  NaN NaNs
- Bezier Coons Cartesian
+ Bezier Coons Cartesian Euclidean
  C C++ Destructor Subclasses
  SaveLayerFlags # not external; need to add typedef support
  SkUserConfig  # not external, but still thinking about how markup refers to this
@@ -336,6 +336,8 @@ FT_Load_Glyph
             ##
             #Method size_t computeByteSize(size_t rowBytes) const
             ##
+            #Method void validate() const
+            ##
         ## 
     #Subtopic ##
     #Class SkImage
@@ -360,6 +362,11 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Image_Scaling
+##
+
+#Topic ISize
+#Struct SkISize
+##
 ##
 
 #Topic Left_Side_Bearing 
@@ -559,6 +566,11 @@ FT_Load_Glyph
     #Subtopic ##
 #Topic ##
 
+#Topic Point3
+#Struct SkPoint3
+##
+#Topic ##
+
 #Topic PostScript
 #Substitute PostScript
 #Subtopic Arct
@@ -637,7 +649,8 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Size
-#Alias ISize
+#Struct SkSize
+##
 ##
 
 #Topic Sprite
@@ -645,7 +658,7 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Stream
-#Class SkFlattenable
+#Class SkStream
 #Class ##
 #Topic ##
 
@@ -702,6 +715,7 @@ FT_Load_Glyph
 ##
 
 #Topic Vector
+#Alias Vectors
 #Struct SkVector
 ##
 ##
