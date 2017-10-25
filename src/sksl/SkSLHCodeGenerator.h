@@ -37,9 +37,9 @@ public:
 
     bool generateCode() override;
 
-    static String ParameterType(const Context& context, const Type& type, const Layout& layout);
+    static String ParameterType(const Context& context, const Type& type);
 
-    static String FieldType(const Context& context, const Type& type, const Layout& layout);
+    static String FieldType(const Context& context, const Type& type);
 
     static String FieldName(const char* varName) {
         return String::printf("f%c%s", toupper(varName[0]), varName + 1);

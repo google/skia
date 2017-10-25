@@ -926,7 +926,7 @@ Token Lexer::next() {
     Token::Kind lastAccept = Token::Kind::INVALID;
     int lastAcceptEnd = startOffset + 1;
     while (offset < fLength) {
-        if ((uint8_t)fText[offset] >= 127) {
+        if ((uint8_t) fText[offset] >= 127) {
             break;
         }
         state = transitions[mappings[(int)fText[offset]]][state];

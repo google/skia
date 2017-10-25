@@ -130,8 +130,7 @@ static bool is_private(const Variable& var) {
            var.fModifiers.fLayout.fBuiltin == -1;
 }
 
-void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
-                                         const String& cppCode) {
+void CPPCodeGenerator::writeRuntimeValue(const Type& type, const String& cppCode) {
     if (type.isFloat()) {
         this->write("%f");
         fFormatArgs.push_back(cppCode);
@@ -147,17 +146,10 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
         fFormatArgs.push_back(cppCode + ".fY");
     } else if (type == *fContext.fFloat4_Type || type == *fContext.fHalf4_Type) {
         this->write(type.name() + "(%f, %f, %f, %f)");
-        if (layout.fCType == "SkPMColor") {
-            fFormatArgs.push_back("SkGetPackedR32(" + cppCode + ") / 255.0");
-            fFormatArgs.push_back("SkGetPackedG32(" + cppCode + ") / 255.0");
-            fFormatArgs.push_back("SkGetPackedB32(" + cppCode + ") / 255.0");
-            fFormatArgs.push_back("SkGetPackedA32(" + cppCode + ") / 255.0");
-        } else {
-            fFormatArgs.push_back(cppCode + ".left()");
-            fFormatArgs.push_back(cppCode + ".top()");
-            fFormatArgs.push_back(cppCode + ".right()");
-            fFormatArgs.push_back(cppCode + ".bottom()");
-        }
+        fFormatArgs.push_back(cppCode + ".left()");
+        fFormatArgs.push_back(cppCode + ".top()");
+        fFormatArgs.push_back(cppCode + ".right()");
+        fFormatArgs.push_back(cppCode + ".bottom()");
     } else {
         printf("unsupported runtime value type '%s'\n", String(type.fName).c_str());
         ASSERT(false);
@@ -166,7 +158,7 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
 
 void CPPCodeGenerator::writeVarInitializer(const Variable& var, const Expression& value) {
     if (is_private(var)) {
-        this->writeRuntimeValue(var.fType, var.fModifiers.fLayout, var.fName);
+        this->writeRuntimeValue(var.fType, var.fName);
     } else {
         this->writeExpression(value, kTopLevel_Precedence);
     }
@@ -242,7 +234,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
                 fFormatArgs.push_back(code);
             } else if (SectionAndParameterHelper::IsParameter(ref.fVariable)) {
                 String name(ref.fVariable.fName);
-                this->writeRuntimeValue(ref.fVariable.fType, ref.fVariable.fModifiers.fLayout,
+                this->writeRuntimeValue(ref.fVariable.fType,
                                         String::printf("_outer.%s()", name.c_str()).c_str());
             } else {
                 this->write(ref.fVariable.fName);
@@ -329,7 +321,7 @@ void CPPCodeGenerator::writeSetting(const Setting& s) {
     static constexpr const char* kPrefix = "sk_Args.";
     if (!strncmp(s.fName.c_str(), kPrefix, strlen(kPrefix))) {
         const char* name = s.fName.c_str() + strlen(kPrefix);
-        this->writeRuntimeValue(s.fType, Layout(), HCodeGenerator::FieldName(name).c_str());
+        this->writeRuntimeValue(s.fType, HCodeGenerator::FieldName(name).c_str());
     } else {
         this->write(s.fName.c_str());
     }
@@ -422,8 +414,7 @@ void CPPCodeGenerator::writePrivateVars() {
                         return;
                     }
                     this->writef("%s %s;\n",
-                                 HCodeGenerator::FieldType(fContext, decl.fVar->fType,
-                                                           decl.fVar->fModifiers.fLayout).c_str(),
+                                 HCodeGenerator::FieldType(fContext, decl.fVar->fType).c_str(),
                                  String(decl.fVar->fName).c_str());
                 }
             }
