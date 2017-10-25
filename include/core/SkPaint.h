@@ -180,8 +180,8 @@ public:
     */
     void unflatten(SkReadBuffer& buffer);
 
-    /** Sets all paint's contents to their initial values. This is equivalent to replacing
-        the paint with the result of SkPaint().
+    /** Sets all SkPaint contents to their initial values. This is equivalent to replacing
+        SkPaint with the result of SkPaint().
     */
     void reset();
 
@@ -1062,10 +1062,10 @@ public:
 
     /** \enum SkPaint::TextEncoding
         TextEncoding determines whether text specifies character codes and their encoded
-        size, or glyph indices. Character codes use the encoding specified by the Unicode standard.
+        size, or glyph indices. Characters are encoded as specified by the Unicode standard.
 
         Character codes encoded size are specified by UTF-8, UTF-16, or UTF-32.
-        All character encodings are able to represent all of Unicode, differing only
+        All character code formats are able to represent all of Unicode, differing only
         in the total storage required. UTF-8 (RFC 3629) encodes each character as one or more 8-bit bytes. UTF-16 (RFC 2781) encodes each character as one or two 16-bit words. UTF-32 encodes each character as one 32-bit word.
 
         font manager uses font data to convert character code points into glyph indices.
@@ -1100,24 +1100,15 @@ public:
     void setTextEncoding(TextEncoding encoding);
 
     /** \struct SkPaint::FontMetrics
-        FontMetrics is filled out by getFontMetrics(). FontMetrics contents reflect the values
-        computed by font manager using SkTypeface. Values are set to zero if they are
-        not available.
-
-        fUnderlineThickness and fUnderlinePosition have a bit set in fFlags if their values
-        are valid, since their value may be zero.
-
-        fStrikeoutThickness and fStrikeoutPosition have a bit set in fFlags if their values
-        are valid, since their value may be zero.
     */
     struct FontMetrics {
 
-        enum FontMetricsFlags {
-            kUnderlineThicknessIsValid_Flag = 1 << 0, //!< Set if fUnderlineThickness is valid.
-            kUnderlinePositionIsValid_Flag  = 1 << 1, //!< Set if fUnderlinePosition is valid.
-            kStrikeoutThicknessIsValid_Flag = 1 << 2, //!< Set if fStrikeoutThickness is valid.
-            kStrikeoutPositionIsValid_Flag  = 1 << 3, //!< Set if fStrikeoutPosition is valid.
-        };
+    enum FontMetricsFlags {
+        kUnderlineThicknessIsValid_Flag = 1 << 0, //!< Set if fUnderlineThickness is valid.
+        kUnderlinePositionIsValid_Flag  = 1 << 1, //!< Set if fUnderlinePosition is valid.
+        kStrikeoutThicknessIsValid_Flag = 1 << 2, //!< Set if fStrikeoutThickness is valid.
+        kStrikeoutPositionIsValid_Flag  = 1 << 3, //!< Set if fStrikeoutPosition is valid.
+    };
 
         uint32_t fFlags;              //!< fFlags is set when underline metrics are valid.
 
@@ -1297,8 +1288,7 @@ public:
         SkPaint::TextEncoding specifies how text represents characters or glyphs.
         glyphs may be nullptr, to compute the glyph count.
 
-        Does not check text for valid character encoding or valid
-        glyph indices.
+        Does not check text for valid character codes or valid glyph indices.
 
         If byteLength equals zero, returns zero.
         If byteLength includes a partial character, the partial character is ignored.
