@@ -228,13 +228,9 @@ extern "C" {
     LOWP(exclusion)
     LOWP(hardlight)
     LOWP(overlay)
-#if defined(SK_LEGACY_LOWP_STAGES)
-    LOWP(seed_shader) LOWP(matrix_2x3) LOWP(gather_8888)
-#else
     LOWP(seed_shader)
     LOWP(matrix_translate) LOWP(matrix_scale_translate) LOWP(matrix_2x3) LOWP(matrix_perspective)
     LOWP(gather_8888) LOWP(gather_bgra) LOWP(gather_565) LOWP(gather_a8) LOWP(gather_g8)
-#endif
     #undef LOWP
 #endif
 
