@@ -975,14 +975,11 @@ Canvas or Surface call may invalidate the pixmap values.
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY)
 
-Copies rectangle of pixels from Canvas into dstPixels. Matrix and Clip are
-ignored. Source rectangle corners are (srcX, srcY) and
-#Formula
-(this->imageInfo.width(), this->imageInfo.height())
-##
-.
+Copies Rect of pixels from Canvas into dstPixels. Matrix and Clip are
+ignored. Source Rect corners are (srcX, srcY) and
+(imageInfo().width(), imageInfo().height()).
 
-Destination rectangle corners are (0, 0) and (bitmap.width(), bitmap.height()).
+Destination Rect corners are (0, 0) and (bitmap.width(), bitmap.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to dstInfo.colorType() and dstInfo.alphaType() if required.
 
@@ -995,7 +992,7 @@ The destination pixel storage must be allocated by the caller.
 
 Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
 do not match. Only pixels within both source and destination rectangles
-are copied. dstPixels contents outside the rectangle intersection are unchanged.
+are copied. dstPixels contents outside Rect intersection are unchanged.
 
 Pass negative values for srcX or srcY to offset pixels across or down destination.
 
@@ -1070,14 +1067,11 @@ Does not copy, and returns false if:
 
 #Method bool readPixels(const SkPixmap& pixmap, int srcX, int srcY)
 
-Copies rectangle of pixels from Canvas into pixmap. Matrix and Clip are
-ignored. Source rectangle corners are (srcX, srcY) and
-#Formula
-(this->imageInfo.width(), this->imageInfo.height())
-##
-. 
+Copies Rect of pixels from Canvas into pixmap. Matrix and Clip are
+ignored. Source Rect corners are (srcX, srcY) and
+(imageInfo().width(), imageInfo().height()). 
 
-Destination rectangle corners are (0, 0) and (bitmap.width(), bitmap.height()).
+Destination Rect corners are (0, 0) and (bitmap.width(), bitmap.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to pixmap.colorType() and pixmap.alphaType() if required.
 
@@ -1089,8 +1083,8 @@ class like SkDumpCanvas.
 Caller must allocate pixel storage in pixmap if needed.
 
 Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
-do not match. Only pixels within both source and destination rectangles
-are copied. pixmap pixels contents outside the rectangle intersection are unchanged.
+do not match. Only pixels within both source and destination Rects
+are copied. pixmap pixels contents outside Rect intersection are unchanged.
 
 Pass negative values for srcX or srcY to offset pixels across or down pixmap.
 
@@ -1136,14 +1130,11 @@ Does not copy, and returns false if:
 
 #Method bool readPixels(const SkBitmap& bitmap, int srcX, int srcY)
 
-Copies rectangle of pixels from Canvas into bitmap. Matrix and Clip are
-ignored. Source rectangle corners are (srcX, srcY) and
-#Formula
-(this->imageInfo.width(), this->imageInfo.height())
-##
-. 
+Copies Rect of pixels from Canvas into bitmap. Matrix and Clip are
+ignored. Source Rect corners are (srcX, srcY) and
+(imageInfo().width(), imageInfo().height()). 
 
-Destination rectangle corners are (0, 0) and (bitmap.width(), bitmap.height()).
+Destination Rect corners are (0, 0) and (bitmap.width(), bitmap.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to bitmap.colorType() and bitmap.alphaType() if required.
 
@@ -1156,7 +1147,7 @@ Caller must allocate pixel storage in bitmap if needed.
 
 Bitmap values are converted only if Image_Color_Type and Image_Alpha_Type
 do not match. Only pixels within both source and destination rectangles
-are copied. Bitmap pixels outside the rectangle intersection are unchanged.
+are copied. Bitmap pixels outside Rect intersection are unchanged.
 
 Pass negative values for srcX or srcY to offset pixels across or down bitmap.
 
@@ -1202,24 +1193,13 @@ void draw(SkCanvas* canvas) {
 
 #Method bool writePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes, int x, int y)
 
-Copies rectangle from pixels to Canvas. Matrix and Clip are ignored.
-Source rectangle corners are (0, 0) and (info.width(), info.height()).
-Destination rectangle corners are (x, y) and
-#Formula
-(this->imageInfo.width(), this->imageInfo.height())
-##
-.
+Copies Rect from pixels to Canvas. Matrix and Clip are ignored.
+Source Rect corners are (0, 0) and (info.width(), info.height()).
+Destination Rect corners are (x, y) and
+(imageInfo().width(), imageInfo().height()).
 
 Copies each readable pixel intersecting both rectangles, without scaling,
-converting to
-#Formula
-this->imageInfo.colorType()
-##
-and
-#Formula
-this->imageInfo.alphaType()
-##
-if required.
+converting to imageInfo().colorType() and imageInfo().alphaType() if required.
 
 Pixels are writable when Device is raster, or backed by a GPU.
 Pixels are not writable when SkCanvas is returned by SkDocument::beginPage,
@@ -1228,7 +1208,7 @@ class like SkDumpCanvas.
 
 Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
 do not match. Only pixels within both source and destination rectangles
-are copied. Canvas pixels outside the rectangle intersection are unchanged.
+are copied. Canvas pixels outside Rect intersection are unchanged.
 
 Pass negative values for x or y to offset pixels to the left or
 above Canvas pixels.
@@ -1237,8 +1217,8 @@ Does not copy, and returns false if:
 
 #List
 # Source and destination rectangles do not intersect. ##
-# pixels could not be converted to this->imageInfo.colorType() or
-this->imageInfo.alphaType(). ##
+# pixels could not be converted to this->imageInfo().colorType() or
+this->imageInfo().alphaType(). ##
 # Canvas pixels are not writable; for instance, Canvas is document-based. ##
 # rowBytes is too small to contain one row of pixels. ##
 ##
@@ -1270,25 +1250,14 @@ this->imageInfo.alphaType(). ##
 
 #Method bool writePixels(const SkBitmap& bitmap, int x, int y)
 
-Copies rectangle from pixels to Canvas. Matrix and Clip are ignored.
-Source rectangle corners are (0, 0) and (bitmap.width(), bitmap.height()).
+Copies Rect from pixels to Canvas. Matrix and Clip are ignored.
+Source Rect corners are (0, 0) and (bitmap.width(), bitmap.height()).
 
-Destination rectangle corners are (x, y) and
-#Formula
-(this->imageInfo.width(), this->imageInfo.height())
-##
-.
+Destination Rect corners are (x, y) and
+(imageInfo().width(), imageInfo().height()).
 
 Copies each readable pixel intersecting both rectangles, without scaling,
-converting to
-#Formula
-this->imageInfo.colorType()
-##
-and
-#Formula
-this->imageInfo.alphaType()
-##
-if required.
+converting to imageInfo().colorType() and imageInfo().alphaType() if required.
 
 Pixels are writable when Device is raster, or backed by a GPU.
 Pixels are not writable when SkCanvas is returned by SkDocument::beginPage,
@@ -1297,7 +1266,7 @@ class like SkDumpCanvas.
 
 Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
 do not match. Only pixels within both source and destination rectangles
-are copied. Canvas pixels outside the rectangle intersection are unchanged.
+are copied. Canvas pixels outside Rect intersection are unchanged.
 
 Pass negative values for x or y to offset pixels to the left or
 above Canvas pixels.
@@ -1307,8 +1276,8 @@ Does not copy, and returns false if:
 #List
 # Source and destination rectangles do not intersect. ##
 # bitmap does not have allocated pixels. ##
-# bitmap pixels could not be converted to this->imageInfo.colorType() or
-this->imageInfo.alphaType(). ##
+# bitmap pixels could not be converted to this->imageInfo().colorType() or
+this->imageInfo().alphaType(). ##
 # Canvas pixels are not writable; for instance, Canvas is document based. ##
 # bitmap pixels are inaccessible; for instance, bitmap wraps a texture. ##
 ##
@@ -4687,14 +4656,6 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 #Struct Lattice
 
-    Lattice divides Bitmap or Image into a rectangular grid.
-    Grid entries on even columns and even rows are fixed; these entries are
-    always drawn at their original size if the destination is large enough.
-    If the destination side is too small to hold the fixed entries, all fixed
-    entries are proportionately scaled down to fit.
-    The grid entries not on even columns and rows are scaled to fit the
-    remaining space, if any.
-
 #Code
     struct Lattice {
         enum Flags {...
@@ -4707,6 +4668,14 @@ void draw(SkCanvas* canvas) {
         const SkIRect* fBounds;
     };
 ##
+
+    Lattice divides Bitmap or Image into a rectangular grid.
+    Grid entries on even columns and even rows are fixed; these entries are
+    always drawn at their original size if the destination is large enough.
+    If the destination side is too small to hold the fixed entries, all fixed
+    entries are proportionately scaled down to fit.
+    The grid entries not on even columns and rows are scaled to fit the
+    remaining space, if any.
 
     #Enum Flags
         #Code
@@ -6142,8 +6111,8 @@ Restores Canvas to saved state.
 
 #Method void restore()
 
-Restores Canvas to saved state immediately. Subsequent calls and class 
-destructor have no effect.
+Restores Canvas to saved state immediately. Subsequent calls and
+~SkAutoCanvasRestore have no effect.
 
 #Example
 // incomplete

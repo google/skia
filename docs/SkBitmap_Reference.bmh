@@ -89,8 +89,7 @@ is useful to position one or more Bitmaps within a shared pixel array.
 # bytesPerPixel        # Returns number of bytes in pixel based on Color_Type. ##
 # colorSpace           # Returns Image_Info Color_Space. ##
 # colorType            # Returns Image_Info Color_Type. ##
-# computeSafeSize64    # Returns minimum size required for pixels in 64 bits. ##
-# computeSize64        # Returns conservative size required for pixels. ##
+# computeByteSize      # Returns size required for pixels. ##
 # dimensions           # Returns width and height. ##
 # drawsNothing         # Returns true if no width, no height, or no Pixel_Ref. ##
 # empty()              # Returns true if Image_Info has zero width or height. ##
@@ -98,7 +97,7 @@ is useful to position one or more Bitmaps within a shared pixel array.
 # eraseARGB            # Writes Color to pixels. ##
 # eraseArea            # Deprecated ##
 # eraseColor           # Writes Color to pixels. ##
-# eraseRGB             # Writes opaque Color to pixels. ##
+# eraseRGB             # Deprecated ##
 # extractAlpha         # Creates Bitmap containing Alpha of pixels. ##
 # extractSubset        # Creates Bitmap, sharing pixels if possible. ##
 # getAddr              # Returns readable pixel address as void pointer. ##
@@ -109,8 +108,6 @@ is useful to position one or more Bitmaps within a shared pixel array.
 # getColor             # Returns one pixel as Unpremultiplied Color. ##
 # getGenerationID      # Returns unique ID. ##
 # getPixels            # Returns address of pixels. ##
-# getSafeSize          # Returns minimum size required for pixels in 32 bits. ##
-# getSize              # Returns conservative size required for pixels in 32 bits. ##
 # getSubset            # Returns bounds offset by origin. ##
 # hasHardwareMipMap    # Returns Mip_Map support present; Android only. ##
 # height               # Returns pixel row count. ##
@@ -144,6 +141,7 @@ is useful to position one or more Bitmaps within a shared pixel array.
 # tryAllocN32Pixels    # Allocates compatible Color_ARGB pixels if possible. ##
 # tryAllocPixels       # Allocates pixels from Image_Info if possible. ##
 # tryAllocPixelsFlags  # Allocates pixels from Image_Info with options if possible. ##
+# validate()           # Asserts if Bitmap is invalid (debug only). ##
 # width()              # Returns pixel column count. ##
 # writePixels          # Copies and converts pixels. ##
 #Table ##
@@ -480,6 +478,7 @@ width: 56 height: 56 color: BGRA_8888 alpha: Opaque
 #Method int width() const
 
 Returns pixel count in each pixel row. Should be equal or less than:
+
 #Formula
 rowBytes() / info().bytesPerPixel()
 ##
@@ -1004,171 +1003,6 @@ width: 1000000 height: 1000000 computeByteSize: 4999999000000
 
 # ------------------------------------------------------------------------------
 
-#Method size_t getSize() const
-
-Returns conservative memory required for pixel storage.
-Includes unused memory on last row when rowBytesAsPixels exceeds width().
-
-Does not check to see if result fits in 32 bits. Use getSize64() if the
-result may exceed 32 bits.
-
-#Return  height() times rowBytes() ##
-
-#Example
-#Description
-getSize results are not useful when width() and height() are large.
-##
-void draw(SkCanvas* canvas) {
-    SkBitmap bitmap;
-    for (int width : { 1, 1000, 1000000 } ) {
-        for (int height: { 1, 1000, 1000000 } ) {
-            SkImageInfo imageInfo = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);
-            bitmap.setInfo(imageInfo, width * 5);
-            SkDebugf("width: %7d height: %7d getSize: %9zu\n", width, height, bitmap.getSize());
-        }
-    }
-}
-#StdOut
-width:       1 height:       1 getSize:         5
-width:       1 height:    1000 getSize:      5000
-width:       1 height: 1000000 getSize:   5000000
-width:    1000 height:       1 getSize:      5000
-width:    1000 height:    1000 getSize:   5000000
-width:    1000 height: 1000000 getSize: 705032704
-width: 1000000 height:       1 getSize:   5000000
-width: 1000000 height:    1000 getSize: 705032704
-width: 1000000 height: 1000000 getSize: 658067456
-##
-##
-
-#SeeAlso getSafeSize computeSize64 rowBytes width()
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method size_t getSafeSize() const
-
-Returns minimum memory required for pixel storage.
-Does not include unused memory on last row when rowBytesAsPixels exceeds width().
-
-Returns zero if size does not fit in 32 bits. Use computeSafeSize64 if the
-result may exceed 32 bits.
-
-The pixel storage visible may be a subset of the Pixel_Ref. Accessing memory
-beyond the result may generate an exception.
-
-#Return  exact pixel storage size ##
-
-#Example
-#Description
-getSafeSize results are not useful when width() and height() are large.
-##
-void draw(SkCanvas* canvas) {
-    SkBitmap bitmap;
-    for (int width : { 1, 1000, 1000000 } ) {
-        for (int height: { 1, 1000, 1000000 } ) {
-            SkImageInfo imageInfo = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);
-            bitmap.setInfo(imageInfo, width * 5);
-            SkDebugf("width: %7d height: %7d getSafeSize: %9zu\n", width, height, bitmap.getSafeSize());
-        }
-    }
-}
-#StdOut
-width:       1 height:       1 getSafeSize:         4
-width:       1 height:    1000 getSafeSize:      4999
-width:       1 height: 1000000 getSafeSize:   4999999
-width:    1000 height:       1 getSafeSize:      4000
-width:    1000 height:    1000 getSafeSize:   4999000
-width:    1000 height: 1000000 getSafeSize:         0
-width: 1000000 height:       1 getSafeSize:   4000000
-width: 1000000 height:    1000 getSafeSize:         0
-width: 1000000 height: 1000000 getSafeSize:         0
-##
-##
-
-#SeeAlso getSize computeSafeSize64 rowBytes width()
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method int64_t computeSize64() const
-
-Returns conservative memory required for pixel storage.
-Includes unused memory on last row when rowBytesAsPixels exceeds width().
-
-#Return  conservative pixel storage size ##
-
-#Example
-void draw(SkCanvas* canvas) {
-    SkBitmap bitmap;
-    for (int width : { 1, 1000, 1000000 } ) {
-        for (int height: { 1, 1000, 1000000 } ) {
-            SkImageInfo imageInfo = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);
-            bitmap.setInfo(imageInfo, width * 5);
-            SkDebugf("width: %7d height: %7d computeSize64: %13lld\n", width, height,
-                     bitmap.computeSize64());
-        }
-    }
-}
-#StdOut
-width:       1 height:       1 computeSize64:             5
-width:       1 height:    1000 computeSize64:          5000
-width:       1 height: 1000000 computeSize64:       5000000
-width:    1000 height:       1 computeSize64:          5000
-width:    1000 height:    1000 computeSize64:       5000000
-width:    1000 height: 1000000 computeSize64:    5000000000
-width: 1000000 height:       1 computeSize64:       5000000
-width: 1000000 height:    1000 computeSize64:    5000000000
-width: 1000000 height: 1000000 computeSize64: 5000000000000
-##
-##
-
-#SeeAlso getSize computeSafeSize64 rowBytes width()
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method int64_t computeSafeSize64() const
-
-Returns minimum memory required for pixel storage.
-Does not include unused memory on last row when rowBytesAsPixels exceeds width().
-
-#Return  exact pixel storage size ##
-
-#Example
-void draw(SkCanvas* canvas) {
-    SkBitmap bitmap;
-    for (int width : { 1, 1000, 1000000 } ) {
-        for (int height: { 1, 1000, 1000000 } ) {
-            SkImageInfo imageInfo = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);
-            bitmap.setInfo(imageInfo, width * 5);
-            SkDebugf("width: %7d height: %7d computeSafeSize64: %13lld\n", width, height,
-                     bitmap.computeSafeSize64());
-        }
-    }
-}
-#StdOut
-width:       1 height:       1 computeSafeSize64:             4
-width:       1 height:    1000 computeSafeSize64:          4999
-width:       1 height: 1000000 computeSafeSize64:       4999999
-width:    1000 height:       1 computeSafeSize64:          4000
-width:    1000 height:    1000 computeSafeSize64:       4999000
-width:    1000 height: 1000000 computeSafeSize64:    4999999000
-width: 1000000 height:       1 computeSafeSize64:       4000000
-width: 1000000 height:    1000 computeSafeSize64:    4999000000
-width: 1000000 height: 1000000 computeSafeSize64: 4999999000000
-##
-##
-
-#SeeAlso getSafeSize computeSize64 rowBytes width()
-
-##
-
-# ------------------------------------------------------------------------------
-
 #Method bool isImmutable() const
 
 Returns true if pixels can not change.
@@ -1201,9 +1035,9 @@ copy is immutable
 
 #Method void setImmutable()
 
-Once set, pixels can not change. Any other bitmap sharing the same Pixel_Ref
-are also marked as immutable. Once Pixel_Ref is marked immutable, the setting
-cannot be cleared.
+Sets internal flag to mark Bitmap as immutable. Once set, pixels can not change.
+Any other bitmap sharing the same Pixel_Ref are also marked as immutable. 
+Once Pixel_Ref is marked immutable, the setting cannot be cleared.
 
 Writing to immutable Bitmap pixels triggers an assert on debug builds.
  
@@ -2547,7 +2381,7 @@ then Color_RGB is ignored.
     canvas->drawBitmap(bitmap, 0, 0);
 ##
 
-#SeeAlso eraseARGB eraseRGB erase
+#SeeAlso eraseARGB erase
 
 ##
 
@@ -2576,7 +2410,7 @@ then r, g, and b are ignored.
     canvas->drawBitmap(bitmap, .5f, .5f);
 ##
 
-#SeeAlso eraseColor eraseRGB erase
+#SeeAlso eraseColor erase
 
 ##
 
@@ -2584,22 +2418,13 @@ then r, g, and b are ignored.
 
 #Method void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const
 
-Replaces pixel values with Color built from r, g, and b with Color_Alpha set
-to 255. All pixels contained by bounds() are affected.
-If colorType is kAlpha_8_SkColorType, all pixels are set to 255.
+Deprecated. Use eraseARGB or eraseColor.
 
-#Param r    amount of Color_RGB_Red, from no red (0) to full red (255) ##
-#Param g    amount of Color_RGB_Green, from no green (0) to full green (255) ##
-#Param b    amount of Color_RGB_Blue, from no blue (0) to full blue (255) ##
+#Param r    amount of red ##
+#Param g    amount of green ##
+#Param b    amount of blue ##
 
-#Example
-#Height 80
-    SkBitmap bitmap; 
-    bitmap.allocPixels(SkImageInfo::MakeN32(1, 1, kPremul_SkAlphaType));
-    bitmap.eraseRGB(0xff, 0x7f, 0x3f);
-    canvas->scale(50, 50);
-    canvas->drawBitmap(bitmap, 0, 0);
-    canvas->drawBitmap(bitmap, .5f, .5f);
+#NoExample
 ##
 
 #SeeAlso eraseColor eraseARGB erase
@@ -2950,7 +2775,8 @@ match. If this->colorSpace is nullptr, dstInfo.colorSpace must match. Returns
 false if pixel conversion is not possible.
  
 srcX and srcY may be negative to copy only top or left of source. Returns
-false if width() or height() is zero or negative. Returns false if 
+false if width() or height() is zero or negative. 
+Returns false if 
 #Formula
 abs(srcX) >= this->width()
 ##
@@ -3034,7 +2860,8 @@ match. If this->colorSpace is nullptr, dstInfo.colorSpace must match. Returns
 false if pixel conversion is not possible.
  
 srcX and srcY may be negative to copy only top or left of source. Returns
-false if width() or height() is zero or negative. Returns false if 
+false if width() or height() is zero or negative.
+Returns false if 
 #Formula
 abs(srcX) >= this->width()
 ##
@@ -3108,7 +2935,8 @@ match. If this->colorSpace is nullptr, dst Color_Space must match. Returns
 false if pixel conversion is not possible.
  
 srcX and srcY may be negative to copy only top or left of source. Returns
-false if width() or height() is zero or negative. Returns false if 
+false if width() or height() is zero or negative. 
+Returns false if 
 #Formula
 abs(srcX) >= this->width()
 ##
@@ -3220,7 +3048,8 @@ match. If this->colorSpace is nullptr, src Color_Space must match. Returns
 false if pixel conversion is not possible.
  
 dstX and dstY may be negative to copy only top or left of source. Returns
-false if width() or height() is zero or negative. Returns false if 
+false if width() or height() is zero or negative.
+Returns false if 
 #Formula
 abs(dstX) >= this->width()
 ##
@@ -3541,11 +3370,11 @@ mask.
 
 #Method bool peekPixels(SkPixmap* pixmap) const
 
-If the pixels are available from this bitmap return true, and fill out the
-specified pixmap (if not null). If there are no pixels, return false and
-ignore the pixmap parameter.
-Note: if this returns true, the results (in the pixmap) are only valid until the bitmap
-is changed in any way, in which case the results are invalid.
+Copies Bitmap pixel address, row bytes, and Image_Info to pixmap, if address
+is available, and returns true. If pixel address is not available, return
+false and leave pixmap unchanged.
+
+pixmap contents become invalid on any future change to Bitmap.
 
 #Param pixmap  storage for pixel state if pixels are readable; otherwise, ignored ##
 
@@ -3585,6 +3414,20 @@ is changed in any way, in which case the results are invalid.
 ##
 
 #SeeAlso installPixels readPixels writePixels
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void validate() const;
+
+Asserts if internal values are illegal or inconsistent. Only available if 
+SK_DEBUG is defined at compile time.
+
+#NoExample
+##
+
+#SeeAlso SkImageInfo::validate() 
 
 ##
 

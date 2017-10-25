@@ -456,10 +456,10 @@ kCW_Direction travel clockwise; the same added with kCCW_Direction
 travel counterclockwise.
 
 #Const kCW_Direction 0
-    Contour travels in a clockwise direction. 
+    Contour travels in a clockwise direction
 ##
 #Const kCCW_Direction 1
-    Contour travels in a counterclockwise direction. 
+    Contour travels in a counterclockwise direction
 ##
 
 
@@ -744,6 +744,7 @@ Point_Array, using the formula:
 #Formula
 (this->points * weight) + ending->points * (1 - weight)
 ##
+.
 
 weight is most useful when between zero (ending Point_Array) and 
 one (this Point_Array); will work with values outside of this 
@@ -3464,10 +3465,10 @@ Four Oval parts with radii (rx, ry) start at last Path Point and ends at (x, y).
 ArcSize and Direction select one of the four Oval parts.
 
 #Const kSmall_ArcSize 0
-Smaller of Arc pair.
+smaller of Arc pair
 ##
 #Const kLarge_ArcSize 1
-Larger of Arc pair. 
+larger of Arc pair
 ##
 
 #Example
@@ -3505,18 +3506,20 @@ void draw(SkCanvas* canvas) {
 #Method void arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
                Direction sweep, SkScalar x, SkScalar y)
 
-Append Arc to Path. Arc is implemented by one or more Conics weighted to describe part of Oval
-with radii (rx, ry) rotated by xAxisRotate degrees. Arc curves from last Path Point to (x, y),
-choosing one of four possible routes: clockwise or counterclockwise, and smaller or larger.
+Append Arc to Path. Arc is implemented by one or more Conics weighted to
+describe part of Oval with radii (rx, ry) rotated by xAxisRotate degrees. Arc
+curves from last Path Point to (x, y), choosing one of four possible routes:
+clockwise or counterclockwise, and smaller or larger.
 
-Arc sweep is always less than 360 degrees. arcTo appends Line to (x, y) if either radii are zero,
-or if last Path Point equals (x, y). arcTo scales radii (rx, ry) to fit last Path Point and
-(x, y) if both are greater than zero but too small.
+Arc sweep is always less than 360 degrees. arcTo appends Line to (x, y) if
+either radii are zero, or if last Path Point equals (x, y). arcTo scales radii
+(rx, ry) to fit last Path Point and (x, y) if both are greater than zero but
+too small.
 
 arcTo appends up to four Conic curves.
-arcTo implements the functionality of SVG_Arc, although SVG "sweep-flag" value is
-opposite the integer value of sweep; SVG "sweep-flag" uses 1 for clockwise, while kCW_Direction 
-cast to int is zero.
+arcTo implements the functionality of SVG_Arc, although SVG "sweep-flag" value
+is opposite the integer value of sweep; SVG "sweep-flag" uses 1 for clockwise,
+while kCW_Direction  cast to int is zero.
 
 #Param rx           radius in x before x-axis rotation ##
 #Param ry           radius in y before x-axis rotation ##
@@ -3601,7 +3604,8 @@ void draw(SkCanvas* canvas) {
 
 Append Arc to Path, relative to last Path Point. Arc is implemented by one or 
 more Conic, weighted to describe part of Oval with radii (rx, ry) rotated by
-xAxisRotate degrees. Arc curves from last Path Point (x0, y0) to end Point
+xAxisRotate degrees. Arc curves from last Path Point (x0, y0) to end Point:
+
 #Formula
 (x0 + dx, y0 + dy)
 ##
@@ -3812,8 +3816,9 @@ next Quad. Maximum pts storage size is given by:
 #Formula
 (1 + 2 * (1 << pow2)) * sizeof(SkPoint)
 ##
+.
 
-ConvertConicToQuads returns Quad count used the approximation, which may be smaller
+Returns Quad count used the approximation, which may be smaller
 than the number requested.
  
 Conic_Weight determines the amount of influence Conic control point has on the curve.
@@ -4200,12 +4205,12 @@ void draw(SkCanvas* canvas) {
                    Direction dir = kCW_Direction)
 
 Add Circle centered at (x, y) of size radius to Path, appending kMove_Verb,
-four kConic_Verb, and kClose_Verb. Circle begins at 
+four kConic_Verb, and kClose_Verb. Circle begins at: 
 #Formula
 (x + radius, y)
 ##
-, continuing clockwise if dir is kCW_Direction, and counterclockwise if dir is
-kCCW_Direction.
+, continuing
+clockwise if dir is kCW_Direction, and counterclockwise if dir is kCCW_Direction.
 
 Has no effect if radius is zero or negative.
 
@@ -5040,9 +5045,9 @@ for (int y = 2; y < 256; y += 9) {
 
 #Method void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const
 
-Writes text representation of Path to stream. If stream is nullptr, dump() writes to
-standard output. Set forceClose to true to get
-edges used to fill Path. Set dumpAsHex true to generate exact binary representations
+Writes text representation of Path to stream. If stream is nullptr, writes to
+standard output. Set forceClose to true to get edges used to fill Path.
+Set dumpAsHex true to generate exact binary representations
 of floating point numbers used in Point_Array and Conic_Weights.
 
 #Param stream      writable Stream receiving Path text representation; may be nullptr ##
