@@ -162,7 +162,7 @@ static inline void append_gamut_transform(SkRasterPipeline* p,
 
 static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
     SkColor4f color4f = c;
-    if (src && dst) {
+    if (src && dst && !SkColorSpace::Equals(src, dst)) {
         SkJumper_MemoryCtx color4f_ptr = { &color4f, 0 };
 
         float scratch_matrix_3x4[12];
