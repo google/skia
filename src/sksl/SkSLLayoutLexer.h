@@ -61,8 +61,6 @@ struct LayoutToken {
         WHEN,
 #undef KEY
         KEY,
-#undef CTYPE
-        CTYPE,
 #undef INVALID
         INVALID,
     };

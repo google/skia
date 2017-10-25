@@ -64,14 +64,136 @@ sk_sp<SkFlattenable> SkOverdrawColorFilter::CreateProc(SkReadBuffer& buffer) {
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkOverdrawColorFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkOverdrawColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
+
 #if SK_SUPPORT_GPU
 
-#include "effects/GrOverdrawFragmentProcessor.h"
+#include "GrFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentProcessor.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
+
+class OverdrawFragmentProcessor : public GrFragmentProcessor {
+public:
+    static std::unique_ptr<GrFragmentProcessor> Make(const SkPMColor* colors);
+
+    const char* name() const override { return "Overdraw"; }
+
+    std::unique_ptr<GrFragmentProcessor> clone() const override {
+        return std::unique_ptr<GrFragmentProcessor>(new OverdrawFragmentProcessor(fColors));
+    }
+
+private:
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+    bool onIsEqual(const GrFragmentProcessor&) const override;
+
+    OverdrawFragmentProcessor(const GrColor4f* colors);
+
+    GrColor4f fColors[SkOverdrawColorFilter::kNumColors];
+
+    typedef GrFragmentProcessor INHERITED;
+};
+
+class GLOverdrawFragmentProcessor : public GrGLSLFragmentProcessor {
+public:
+    GLOverdrawFragmentProcessor(const GrColor4f* colors);
+
+    void emitCode(EmitArgs&) override;
+
+protected:
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override {}
+
+private:
+    GrColor4f fColors[SkOverdrawColorFilter::kNumColors];
+
+    typedef GrGLSLFragmentProcessor INHERITED;
+};
 
 std::unique_ptr<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(
         GrContext*, const GrColorSpaceInfo&) const {
-    return GrOverdrawFragmentProcessor::Make(fColors[0], fColors[1], fColors[2], fColors[3],
-                                             fColors[4], fColors[5]);
+    return OverdrawFragmentProcessor::Make(fColors);
+}
+
+std::unique_ptr<GrFragmentProcessor> OverdrawFragmentProcessor::Make(const SkPMColor* colors) {
+    GrColor4f grColors[SkOverdrawColorFilter::kNumColors];
+    for (int i = 0; i < SkOverdrawColorFilter::kNumColors; i++) {
+        grColors[i] = GrColor4f::FromGrColor(GrColorPackRGBA(SkGetPackedR32(colors[i]),
+                                                             SkGetPackedG32(colors[i]),
+                                                             SkGetPackedB32(colors[i]),
+                                                             SkGetPackedA32(colors[i])));
+    }
+
+    return std::unique_ptr<GrFragmentProcessor>(new OverdrawFragmentProcessor(grColors));
+}
+
+// This could implement the constant input -> constant output optimization, but we don't really
+// care given how this is used.
+OverdrawFragmentProcessor::OverdrawFragmentProcessor(const GrColor4f* colors)
+        : INHERITED(kOverdrawFragmentProcessor_ClassID, kNone_OptimizationFlags) {
+    memcpy(fColors, colors, SkOverdrawColorFilter::kNumColors * sizeof(GrColor4f));
+}
+
+GrGLSLFragmentProcessor* OverdrawFragmentProcessor::onCreateGLSLInstance() const {
+    return new GLOverdrawFragmentProcessor(fColors);
+}
+
+bool OverdrawFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const {
+    const OverdrawFragmentProcessor& that = other.cast<OverdrawFragmentProcessor>();
+    return 0 == memcmp(fColors, that.fColors,
+                       sizeof(GrColor4f) * SkOverdrawColorFilter::kNumColors);
+}
+
+GLOverdrawFragmentProcessor::GLOverdrawFragmentProcessor(const GrColor4f* colors) {
+    memcpy(fColors, colors, SkOverdrawColorFilter::kNumColors * sizeof(GrColor4f));
+}
+
+void GLOverdrawFragmentProcessor::emitCode(EmitArgs& args) {
+    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+    if (nullptr == args.fInputColor) {
+        fragBuilder->codeAppendf("%s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                     fColors[5].fRGBA[0],
+                                                                     fColors[5].fRGBA[1],
+                                                                     fColors[5].fRGBA[2],
+                                                                     fColors[5].fRGBA[3]);
+    } else {
+        fragBuilder->codeAppendf("half alpha = 255.0 * %s.a;", args.fInputColor);
+        fragBuilder->codeAppendf("if (alpha < 0.5) {");
+        fragBuilder->codeAppendf("    %s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                         fColors[0].fRGBA[0],
+                                                                         fColors[0].fRGBA[1],
+                                                                         fColors[0].fRGBA[2],
+                                                                         fColors[0].fRGBA[3]);
+        fragBuilder->codeAppendf("} else if (alpha < 1.5) {");
+        fragBuilder->codeAppendf("    %s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                         fColors[1].fRGBA[0],
+                                                                         fColors[1].fRGBA[1],
+                                                                         fColors[1].fRGBA[2],
+                                                                         fColors[1].fRGBA[3]);
+        fragBuilder->codeAppendf("} else if (alpha < 2.5) {");
+        fragBuilder->codeAppendf("    %s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                         fColors[2].fRGBA[0],
+                                                                         fColors[2].fRGBA[1],
+                                                                         fColors[2].fRGBA[2],
+                                                                         fColors[2].fRGBA[3]);
+        fragBuilder->codeAppendf("} else if (alpha < 3.5) {");
+        fragBuilder->codeAppendf("    %s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                         fColors[3].fRGBA[0],
+                                                                         fColors[3].fRGBA[1],
+                                                                         fColors[3].fRGBA[2],
+                                                                         fColors[3].fRGBA[3]);
+        fragBuilder->codeAppendf("} else if (alpha < 4.5) {");
+        fragBuilder->codeAppendf("    %s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                         fColors[4].fRGBA[0],
+                                                                         fColors[4].fRGBA[1],
+                                                                         fColors[4].fRGBA[2],
+                                                                         fColors[4].fRGBA[3]);
+        fragBuilder->codeAppendf("} else {");
+        fragBuilder->codeAppendf("    %s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                         fColors[5].fRGBA[0],
+                                                                         fColors[5].fRGBA[1],
+                                                                         fColors[5].fRGBA[2],
+                                                                         fColors[5].fRGBA[3]);
+        fragBuilder->codeAppendf("}");
+    }
 }
 
 #endif

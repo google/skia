@@ -100,7 +100,7 @@ struct Layout {
     Layout(int location, int offset, int binding, int index, int set, int builtin,
            int inputAttachmentIndex, bool originUpperLeft, bool overrideCoverage,
            bool blendSupportAllEquations, Format format, bool pushconstant, Primitive primitive,
-           int maxVertices, int invocations, String when, Key key, StringFragment ctype)
+           int maxVertices, int invocations, String when, Key key)
     : fLocation(location)
     , fOffset(offset)
     , fBinding(binding)
@@ -117,8 +117,7 @@ struct Layout {
     , fMaxVertices(maxVertices)
     , fInvocations(invocations)
     , fWhen(when)
-    , fKey(key)
-    , fCType(ctype) {}
+    , fKey(key) {}
 
     Layout()
     : fLocation(-1)
@@ -281,7 +280,6 @@ struct Layout {
     int fInvocations;
     String fWhen;
     Key fKey;
-    StringFragment fCType;
 };
 
 } // namespace
