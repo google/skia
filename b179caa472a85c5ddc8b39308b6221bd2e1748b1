@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6413a3b9_3852eace",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-25T19:16:10Z",
+      "side": 1,
+      "message": "I just remembered that gl config will sometimes call software path renderer which will end up in my scan converters. So maybe add a few common gl configurations to test them?",
+      "revId": "b179caa472a85c5ddc8b39308b6221bd2e1748b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
