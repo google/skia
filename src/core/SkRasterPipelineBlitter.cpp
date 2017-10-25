@@ -305,15 +305,6 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
     if (!fBlitRect) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
-    #if defined(SK_LEGACY_LOWP_STAGES)
-        if (fBlend == SkBlendMode::kSrcOver
-                && fDst.info().colorType() == kRGBA_8888_SkColorType
-                && !fDst.colorSpace()
-                && fDst.info().alphaType() != kUnpremul_SkAlphaType
-                && fDitherRate == 0.0f) {
-            p.clamp_if_unclamped(kPremul_SkAlphaType);
-            p.append(SkRasterPipeline::srcover_rgba_8888, &fDstPtr);
-    #else
         if (fBlend == SkBlendMode::kSrcOver
                 && (fDst.info().colorType() == kRGBA_8888_SkColorType ||
                     fDst.info().colorType() == kBGRA_8888_SkColorType)
@@ -325,7 +316,6 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
                        ? SkRasterPipeline::srcover_rgba_8888
                        : SkRasterPipeline::srcover_bgra_8888;
             p.append(stage, &fDstPtr);
-    #endif
         } else {
             if (fBlend != SkBlendMode::kSrc) {
                 this->append_load_dst(&p);
