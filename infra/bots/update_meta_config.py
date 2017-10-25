@@ -21,8 +21,15 @@ SKIA_REPO_TEMPLATE = 'https://skia.googlesource.com/%s.git'
 
 CQ_INCLUDE_CHROMIUM_TRYBOTS = [
     ('master.tryserver.blink', [
-        'linux_trusty_blink_rel',
+        'android_blink_rel',
         'linux_trusty_blink_dbg',
+        'linux_trusty_blink_rel',
+        'mac10.10_blink_rel',
+        'mac10.11_blink_rel',
+        'mac10.11_retina_blink_rel',
+        'mac10.12_blink_rel',
+        'win10_blink_rel',
+        'win7_blink_rel',
     ]),
     ('master.tryserver.chromium.linux', [
         'linux_chromium_compile_dbg_ng',
