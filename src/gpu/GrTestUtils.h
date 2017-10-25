@@ -20,6 +20,7 @@
 #include "SkShaderBase.h"
 #include "SkStrokeRec.h"
 
+class GrColorSpaceInfo;
 class GrColorSpaceXform;
 struct GrProcessorTestData;
 class GrStyle;
@@ -52,12 +53,13 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom*);
 class TestAsFPArgs {
 public:
     TestAsFPArgs(GrProcessorTestData*);
+    ~TestAsFPArgs();
     const SkShaderBase::AsFPArgs& args() const { return fArgs; }
 
 private:
     SkShaderBase::AsFPArgs fArgs;
     SkMatrix fViewMatrixStorage;
-    sk_sp<SkColorSpace> fColorSpaceStorage;
+    std::unique_ptr<GrColorSpaceInfo> fColorSpaceInfoStorage;
 };
 
 // We have a simplified dash path effect here to avoid relying on SkDashPathEffect which

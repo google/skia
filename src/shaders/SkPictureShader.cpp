@@ -21,8 +21,9 @@
 #include "SkResourceCache.h"
 
 #if SK_SUPPORT_GPU
-#include "GrContext.h"
 #include "GrCaps.h"
+#include "GrColorSpaceInfo.h"
+#include "GrContext.h"
 #include "GrFragmentProcessor.h"
 #endif
 
@@ -374,11 +375,14 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         maxTextureSize = args.fContext->caps()->maxTextureSize();
     }
     sk_sp<SkShader> bitmapShader(this->refBitmapShader(*args.fViewMatrix, args.fLocalMatrix,
-                                                       args.fDstColorSpace, maxTextureSize));
+                                                       args.fDstColorSpaceInfo->colorSpace(),
+                                                       maxTextureSize));
     if (!bitmapShader) {
         return nullptr;
     }
-    return as_SB(bitmapShader)->asFragmentProcessor(SkShaderBase::AsFPArgs(
-        args.fContext, args.fViewMatrix, nullptr, args.fFilterQuality, args.fDstColorSpace));
+    return as_SB(bitmapShader)
+            ->asFragmentProcessor(SkShaderBase::AsFPArgs(args.fContext, args.fViewMatrix, nullptr,
+                                                         args.fFilterQuality,
+                                                         args.fDstColorSpaceInfo));
 }
 #endif

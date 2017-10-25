@@ -240,12 +240,10 @@ std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
     }
     matrix.postConcat(fPtsToUnit);
 
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
-                                                                       args.fDstColorSpace);
-    auto inner = GrSweepGradient::Make(
-            GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
-                                         std::move(colorSpaceXform), SkToBool(args.fDstColorSpace)),
-            fTBias, fTScale);
+    auto inner =
+            GrSweepGradient::Make(GrGradientEffect::CreateArgs(args.fContext, this, &matrix,
+                                                               fTileMode, *args.fDstColorSpaceInfo),
+                                  fTBias, fTScale);
     if (!inner) {
         return nullptr;
     }
