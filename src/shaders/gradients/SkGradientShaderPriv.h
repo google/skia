@@ -188,7 +188,7 @@ protected:
 
     bool onAsLuminanceColor(SkColor*) const override;
 
-    void initLinearBitmap(SkBitmap* bitmap) const;
+    void initLinearBitmap(SkBitmap* bitmap, GradientBitmapType) const;
 
     bool onAppendStages(const StageRec&) const override;
 

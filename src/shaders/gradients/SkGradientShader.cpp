@@ -627,11 +627,11 @@ void SkGradientShaderBase::GradientShaderCache::initCache32(GradientShaderCache*
     }
 }
 
-void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap) const {
+void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap, GradientBitmapType bitmapType) const {
     const bool interpInPremul = SkToBool(fGradFlags &
                                          SkGradientShader::kInterpolateColorsInPremul_Flag);
     SkHalf* pixelsF16 = reinterpret_cast<SkHalf*>(bitmap->getPixels());
-    uint32_t* pixelsS32 = reinterpret_cast<uint32_t*>(bitmap->getPixels());
+    uint32_t* pixels32 = reinterpret_cast<uint32_t*>(bitmap->getPixels());
 
     typedef std::function<void(const Sk4f&, int)> pixelWriteFn_t;
 
@@ -643,16 +643,24 @@ void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap) const {
         pixelsF16[4*index+3] = c[3];
     };
     pixelWriteFn_t writeS32Pixel = [&](const Sk4f& c, int index) {
-        pixelsS32[index] = Sk4f_toS32(c);
+        pixels32[index] = Sk4f_toS32(c);
+    };
+    pixelWriteFn_t writeL32Pixel = [&](const Sk4f& c, int index) {
+        pixels32[index] = Sk4f_toL32(c);
     };
 
     pixelWriteFn_t writeSizedPixel =
-        (kRGBA_F16_SkColorType == bitmap->colorType()) ? writeF16Pixel : writeS32Pixel;
+        (bitmapType == GradientBitmapType::kHalfFloat) ? writeF16Pixel :
+        (bitmapType == GradientBitmapType::kSRGB     ) ? writeS32Pixel : writeL32Pixel;
     pixelWriteFn_t writeUnpremulPixel = [&](const Sk4f& c, int index) {
         writeSizedPixel(c * Sk4f(c[3], c[3], c[3], 1.0f), index);
     };
 
     pixelWriteFn_t writePixel = interpInPremul ? writeSizedPixel : writeUnpremulPixel;
+
+    // When not in legacy mode, we just want the original 4f colors - so we pass in
+    // our own CS for identity/no transform.
+    auto* cs = bitmapType != GradientBitmapType::kLegacy ? fColorSpace.get() : nullptr;
 
     int prevIndex = 0;
     for (int i = 1; i < fColorCount; i++) {
@@ -661,8 +669,11 @@ void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap) const {
         SkASSERT(nextIndex < kCache32Count);
 
         if (nextIndex > prevIndex) {
-            Sk4f c0 = Sk4f::Load(fOrigColors4f[i - 1].vec());
-            Sk4f c1 = Sk4f::Load(fOrigColors4f[i].vec());
+            SkColor4f color0 = this->getXformedColor(i - 1, cs),
+                      color1 = this->getXformedColor(i    , cs);
+            Sk4f          c0 = Sk4f::Load(color0.vec()),
+                          c1 = Sk4f::Load(color1.vec());
+
             if (interpInPremul) {
                 c0 = c0 * Sk4f(c0[3], c0[3], c0[3], 1.0f);
                 c1 = c1 * Sk4f(c1[3], c1[3], c1[3], 1.0f);
@@ -745,7 +756,11 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
     size_t size = count * sizeof(int32_t);
 
     if (!gCache->find(storage.get(), size, bitmap)) {
+#ifdef SK_SUPPORT_LEGACY_GPU_GRADIENT_TABLE
         if (GradientBitmapType::kLegacy == bitmapType) {
+#else
+        if (false) {
+#endif
             sk_sp<GradientShaderCache> cache(this->refCache());
 
             // force our cache32pixelref to be built
@@ -758,6 +773,10 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
 
             SkImageInfo info;
             switch (bitmapType) {
+                case GradientBitmapType::kLegacy:
+                    info = SkImageInfo::Make(kCache32Count, 1, kRGBA_8888_SkColorType,
+                                             kPremul_SkAlphaType);
+                break;
                 case GradientBitmapType::kSRGB:
                     info = SkImageInfo::Make(kCache32Count, 1, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
@@ -766,12 +785,9 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
                     info = SkImageInfo::Make(kCache32Count, 1, kRGBA_F16_SkColorType,
                                              kPremul_SkAlphaType, SkColorSpace::MakeSRGBLinear());
                     break;
-                default:
-                    SK_ABORT("Unexpected bitmap type");
-                    return;
             }
             bitmap->allocPixels(info);
-            this->initLinearBitmap(bitmap);
+            this->initLinearBitmap(bitmap, bitmapType);
         }
         gCache->add(storage.get(), size, *bitmap);
     }
