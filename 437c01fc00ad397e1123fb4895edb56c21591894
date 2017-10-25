@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a5c877a_37114195",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-25T16:38:54Z",
+      "side": 1,
+      "message": "What is the missing math for the 512? If we change the size of our vertex data can this automatically change too?",
+      "revId": "437c01fc00ad397e1123fb4895edb56c21591894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce096de8_c4ce7055",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-25T16:38:54Z",
+      "side": 1,
+      "message": "old-school",
+      "revId": "437c01fc00ad397e1123fb4895edb56c21591894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
