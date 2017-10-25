@@ -165,10 +165,9 @@ void SkImageShader::toString(SkString* str) const {
 
 #if SK_SUPPORT_GPU
 
-#include "SkGr.h"
-#include "GrColorSpaceXform.h"
+#include "GrColorSpaceInfo.h"
 #include "GrContext.h"
-#include "effects/GrSimpleTextureEffect.h"
+#include "SkGr.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 
@@ -213,7 +212,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     sk_sp<SkColorSpace> texColorSpace;
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
     sk_sp<GrTextureProxy> proxy(as_IB(fImage)->asTextureProxyRef(
-            args.fContext, samplerState, args.fDstColorSpace, &texColorSpace, scaleAdjust));
+            args.fContext, samplerState, args.fDstColorSpaceInfo->colorSpace(), &texColorSpace,
+            scaleAdjust));
     if (!proxy) {
         return nullptr;
     }
@@ -229,7 +229,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         inner = GrSimpleTextureEffect::Make(std::move(proxy), lmInverse, samplerState);
     }
     inner = GrColorSpaceXformEffect::Make(std::move(inner), texColorSpace.get(),
-                                          args.fDstColorSpace);
+                                          args.fDstColorSpaceInfo->colorSpace());
     if (isAlphaOnly) {
         return inner;
     }
