@@ -108,26 +108,25 @@ About to run repo init. If it hangs asking you to run glogin then please:
 
   return repo_binary
 
-def upload_to_android(work_dir, change_num, debug):
-  repo_binary = init_work_dir(work_dir)
 
-  # Create repo branch.
-  subprocess.check_call('%s start %s .' % (repo_binary, REPO_BRANCH_NAME),
-                        shell=True)
-  try:
-    change_details = get_change_details(change_num)
+class FetchModifier:
+  def __init__(self, change_num, debug):
+    self.change_num = change_num
+    self.debug = debug
 
+  def modify(self):
     # Download and cherry-pick the patch.
+    change_details = get_change_details(self.change_num)
     latest_patchset = len(change_details['revisions'])
-    mod = int(change_num) % 100
+    mod = int(self.change_num) % 100
     download_ref = 'refs/changes/%s/%s/%s' % (
-                       str(mod).zfill(2), change_num, latest_patchset)
+                       str(mod).zfill(2), self.change_num, latest_patchset)
     subprocess.check_call(
         'git fetch https://skia.googlesource.com/skia %s' % download_ref,
         shell=True)
     subprocess.check_call('git cherry-pick FETCH_HEAD', shell=True)
 
-    if debug:
+    if self.debug:
       # Add SK_DEBUG to SkUserConfig.h.
       with open(SK_USER_CONFIG_PATH, 'a') as f:
         f.write('#ifndef SK_DEBUG\n')
@@ -145,17 +144,30 @@ def upload_to_android(work_dir, change_num, debug):
         '[DO ' + 'NOT ' + 'SUBMIT] %s\n\n'
         'Test: Presubmit checks will test this change.' % (
             original_commit_message))
+
     subprocess.check_call('git commit --amend -m "%s"' % new_commit_message,
                           shell=True)
 
-    # Upload to Android Gerrit.
-    subprocess.check_call('%s upload --verify' % repo_binary, shell=True)
-
-    print """
+    return """
 
 Open the above URL and trigger TH by checking 'Presubmit-Ready'.
 You can download binaries (if required) from the TH link after it completes.
 """
+
+
+def upload_to_android(work_dir, modifier):
+  repo_binary = init_work_dir(work_dir)
+
+  # Create repo branch.
+  subprocess.check_call('%s start %s .' % (repo_binary, REPO_BRANCH_NAME),
+                        shell=True)
+  try:
+    message = modifier.modify()
+
+    # Upload to Android Gerrit.
+    subprocess.check_call('%s upload --verify' % repo_binary, shell=True)
+
+    print message
   finally:
     # Abandon repo branch.
     subprocess.call('%s abandon %s' % (repo_binary, REPO_BRANCH_NAME),
@@ -176,7 +188,7 @@ def main():
       '--debug', '-d', action='store_true', default=False,
       help='Adds SK_DEBUG to SkUserConfig.h.')
   args = parser.parse_args()
-  upload_to_android(args.work_dir, args.change_num, args.debug)
+  upload_to_android(args.work_dir, FetchModifier(args.change_num, args.debug))
 
 
 if __name__ == '__main__':

@@ -42,38 +42,49 @@ def insert_at(filename, pattern, offset, content):
       f.write(line)
 
 
-def add_to_android(args):
-  REPO_BRANCH_NAME = "flag"
-  sys.path.append(ANDROID_TOOLS_DIR)
-  import upload_to_android
+# Add a legacy flag if it doesn't exist, or remove it if it exists.
+class AndroidLegacyFlagModifier:
+  def __init__(self, flag):
+    self.flag = flag
 
-  repo_binary = upload_to_android.init_work_dir(args.android_dir);
+  def modify(self):
+    flag_line = "  #define %s\n" % self.flag
 
-  # Create repo branch.
-  subprocess.check_call('%s start %s .' % (repo_binary, REPO_BRANCH_NAME),
-                        shell=True)
-
-  try:
-    # Add flag to SkUserConfigManual.h.
     config_file = os.path.join('include', 'config', 'SkUserConfigManual.h')
 
-    insert_at(config_file,
-              "#endif // SkUserConfigManual_DEFINED\n",
-              0,
-              "  #define %s\n" % args.flag)
+    with open(config_file) as f:
+      lines = f.readlines()
+
+    if flag_line not in lines:
+      lines.insert(
+          lines.index("#endif // SkUserConfigManual_DEFINED\n"), flag_line)
+      verb = "Add"
+    else:
+      lines.remove(flag_line)
+      verb = "Remove"
+
+    with open(config_file, 'w') as f:
+      for line in lines:
+        f.write(line)
 
     subprocess.check_call('git add %s' % config_file, shell=True)
-
-    message = ('Add %s\n\n'
-               'Test: Presubmit checks will test this change.' % args.flag)
+    message = '%s %s\n\nTest: Presubmit checks will test this change.' % (
+        verb, self.flag)
 
     subprocess.check_call('git commit -m "%s"' % message, shell=True)
 
-    # Upload to Android Gerrit.
-    subprocess.check_call('%s upload --verify' % repo_binary, shell=True)
-  finally:
-    # Remove repo branch
-    subprocess.check_call('%s abandon flag' % repo_binary, shell=True)
+    return """
+
+Please open the above URL to review and land the change.
+"""
+
+
+def add_to_android(args):
+  sys.path.append(ANDROID_TOOLS_DIR)
+  import upload_to_android
+
+  modifier = AndroidLegacyFlagModifier(args.flag)
+  upload_to_android.upload_to_android(args.android_dir, modifier)
 
 
 def add_to_chromium(args):
