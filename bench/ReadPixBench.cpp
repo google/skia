@@ -62,7 +62,46 @@ private:
 
     typedef Benchmark INHERITED;
 };
+DEF_BENCH( return new ReadPixBench(); )
 
 ////////////////////////////////////////////////////////////////////////////////
+#include "SkBitmap.h"
+#include "SkPixmapPriv.h"
 
-DEF_BENCH( return new ReadPixBench(); )
+class PixmapOrientBench : public Benchmark {
+public:
+    PixmapOrientBench() {}
+
+protected:
+    void onDelayedSetup() override {
+        const SkImageInfo info = SkImageInfo::MakeN32Premul(2048, 1024);
+        fSrc.allocPixels(info);
+        fSrc.eraseColor(SK_ColorBLACK);
+        fDst.allocPixels(info.makeWH(info.height(), info.width()));
+    }
+
+    const char* onGetName() override {
+        return "orient_pixmap";
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        const SkPixmapPriv::OrientFlags flags = SkPixmapPriv::kSwapXY;
+
+        SkPixmap src, dst;
+        fSrc.peekPixels(&src);
+        fDst.peekPixels(&dst);
+        for (int i = 0; i < loops; ++i) {
+            SkPixmapPriv::Orient(dst, src, flags);
+        }
+    }
+
+private:
+    SkBitmap fSrc, fDst;
+
+    typedef Benchmark INHERITED;
+};
+DEF_BENCH( return new PixmapOrientBench(); )

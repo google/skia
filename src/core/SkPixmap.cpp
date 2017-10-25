@@ -385,53 +385,38 @@ bool SkPixmap::computeIsOpaque() const {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename T, typename F>
-void apply(const SkPixmap& dst, const SkPixmap& src, unsigned flags, F getAddr) {
-    const int maxX = dst.width() - 1;
-    const int maxY = dst.height() - 1;
-    T* dstRow = (T*)dst.writable_addr();
-    for (int dy = 0; dy < dst.height(); ++dy) {
-        for (int dx = 0; dx < dst.width(); ++dx) {
-            int sx = dx;
-            int sy = dy;
-            if (flags & SkPixmapPriv::kMirrorX) {
-                sx = maxX - sx;
-            }
-            if (flags & SkPixmapPriv::kMirrorY) {
-                sy = maxY - sy;
-            }
-            if (flags & SkPixmapPriv::kSwapXY) {
-                SkTSwap<int>(sx, sy);
-            }
-            dstRow[dx] = getAddr(src, sx, sy);
-        }
-        dstRow = SkTAddOffset<T>(dstRow, dst.rowBytes());
+static bool draw_orientation(const SkPixmap& dst, const SkPixmap& src, unsigned flags) {
+    auto surf = SkSurface::MakeRasterDirect(dst.info(), dst.writable_addr(), dst.rowBytes());
+    if (!surf) {
+        return false;
     }
-}
 
-static bool apply_orientation(const SkPixmap& dst, const SkPixmap& src, unsigned flags) {
-    SkASSERT(dst.colorType() == src.colorType());
+    SkBitmap bm;
+    bm.installPixels(src);
 
-    switch (dst.info().bytesPerPixel()) {
-        case 1:
-            apply<uint8_t>(dst, src, flags, [](const SkPixmap& pm, int x, int y) {
-                return *pm.addr8(x, y);
-            }); break;
-        case 2:
-            apply<uint16_t>(dst, src, flags, [](const SkPixmap& pm, int x, int y) {
-                return *pm.addr16(x, y);
-            }); break;
-        case 4:
-            apply<uint32_t>(dst, src, flags, [](const SkPixmap& pm, int x, int y) {
-                return *pm.addr32(x, y);
-            }); break;
-        case 8:
-            apply<uint64_t>(dst, src, flags, [](const SkPixmap& pm, int x, int y) {
-                return *pm.addr64(x, y);
-            }); break;
-        default:
-            return false;
+    SkMatrix m;
+    m.setIdentity();
+
+    SkScalar W = SkIntToScalar(src.width());
+    SkScalar H = SkIntToScalar(src.height());
+    if (flags & SkPixmapPriv::kSwapXY) {
+        SkMatrix s;
+        s.setAll(0, 1, 0, 1, 0, 0, 0, 0, 1);
+        m.postConcat(s);
+        SkTSwap(W, H);
     }
+    if (flags & SkPixmapPriv::kMirrorX) {
+        m.postScale(-1, 1);
+        m.postTranslate(W, 0);
+    }
+    if (flags & SkPixmapPriv::kMirrorY) {
+        m.postScale(1, -1);
+        m.postTranslate(0, H);
+    }
+    SkPaint p;
+    p.setBlendMode(SkBlendMode::kSrc);
+    surf->getCanvas()->concat(m);
+    surf->getCanvas()->drawBitmap(bm, 0, 0, &p);
     return true;
 }
 
@@ -458,6 +443,6 @@ bool SkPixmapPriv::Orient(const SkPixmap& dst, const SkPixmap& src, OrientFlags 
     if (src.addr() == dst.addr()) {
         return flags == 0;
     }
-    return apply_orientation(dst, src, flags);
+    return draw_orientation(dst, src, flags);
 }
 
