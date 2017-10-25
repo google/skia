@@ -16,6 +16,24 @@
 #include <io.h>
 #endif
 
+/*
+If you execute skp_parser with one argument, it spits out a json representation
+of the skp, but that's incomplete since it's missing many binary blobs (these
+could represent images or typefaces or just anything that doesn't currently
+have a json representation).  Each unique blob is labeled with a string in the
+form "data/%d".  So for example:
+
+    tools/git-sync-deps
+    bin/gn gen out/debug
+    ninja -C out/debug dm skp_parser
+    out/debug/dm -m grayscale -w /tmp/dm --config skp
+    out/debug/skp_parser /tmp/dm/skp/gm/grayscalejpg.skp | less
+    out/debug/skp_parser /tmp/dm/skp/gm/grayscalejpg.skp | grep data
+    out/debug/skp_parser /tmp/dm/skp/gm/grayscalejpg.skp data/0 | file -
+    out/debug/skp_parser /tmp/dm/skp/gm/grayscalejpg.skp data/0 > /tmp/data0.png
+
+"data/0" is an image that the SKP serializer has encoded as PNG.
+*/
 int main(int argc, char** argv) {
     if (argc < 2) {
         SkDebugf("Usage:\n  %s SKP_FILE [DATA_URL]\n", argv[0]);
