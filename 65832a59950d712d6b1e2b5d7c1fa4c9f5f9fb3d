@@ -70,6 +70,24 @@
       "revId": "65832a59950d712d6b1e2b5d7c1fa4c9f5f9fb3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85ea0425_da813959",
+        "filename": "site/dev/testing/automated_testing.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-25T11:52:01Z",
+      "side": 1,
+      "message": "I\u0027ll make a note to address the duplication in automated_testing somehow next time I\u0027m trooper",
+      "parentUuid": "4fac03b5_40e3c152",
+      "revId": "65832a59950d712d6b1e2b5d7c1fa4c9f5f9fb3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
