@@ -34,6 +34,24 @@
       "revId": "b179caa472a85c5ddc8b39308b6221bd2e1748b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef2ca98d_144ac459",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-25T19:30:51Z",
+      "side": 1,
+      "message": "Right. So tiles_rt-8888 may also not be needed. Let\u0027s just use 8888 config for now.",
+      "parentUuid": "0f9bd494_fb923c90",
+      "revId": "b179caa472a85c5ddc8b39308b6221bd2e1748b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
