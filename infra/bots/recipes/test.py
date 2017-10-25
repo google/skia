@@ -589,6 +589,8 @@ def dm_flags(api, bot):
     blacklist(['vk', 'gm', '_', 'aarectmodes'])
     blacklist(['vk', 'gm', '_', 'aaxfermodes'])
     blacklist(['vk', 'gm', '_', 'arithmode'])
+    blacklist(['vk', 'gm', '_', 'composeshader'])
+    blacklist(['vk', 'gm', '_', 'composeshader_alpha'])
     blacklist(['vk', 'gm', '_', 'composeshader_bitmap'])
     blacklist(['vk', 'gm', '_', 'composeshader_bitmap2'])
     blacklist(['vk', 'gm', '_', 'dftextCOLR'])
