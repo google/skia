@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "661db5f2_8e0eb0e3",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-25T19:13:34Z",
+      "side": 1,
+      "message": "Done, moved to GrColorSpaceInfo::colorSpaceXformFromSRGB().",
+      "parentUuid": "091e57d1_c1f6cc8d",
+      "revId": "973907ff3b9c2e02e1860b63767ca7c4ac8f25a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "41806f6e_23b0a466",
         "filename": "tests/TessellatingPathRendererTests.cpp",
         "patchSetId": 4
