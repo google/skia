@@ -1305,6 +1305,52 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle s
 
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
 
+/**
+ * Simple, brain-dead implementation just to provide a functioning example. A real cache will need
+ * to version its entries, purge entries when full, deal with keys that are too long to be used as
+ * filenames, etc.
+ */
+#include <fstream>
+#include "SkBase64.h"
+class ShaderCache : public GrContextOptions::PersistentCache {
+    SkString getFilename(const std::vector<char>& key) {
+        SkString result("/tmp/cache/");
+        size_t bufferSize = key.size() * 4 / 3 + 3;
+        std::unique_ptr<char> buffer = std::unique_ptr<char>((char*) malloc(bufferSize));
+        size_t length = SkBase64::Encode(key.data(), key.size(), buffer.get(),
+                               "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.@=");
+        SkASSERT(length <= bufferSize);
+        result.append(buffer.get(), length);
+        return result;
+    }
+
+    bool load(const std::vector<char>& key, sk_sp<SkData>* out) override {
+        std::ifstream in(this->getFilename(key).c_str());
+        if (!in.good()) {
+            return false;
+        }
+        size_t length;
+        in.read((char*) &length, sizeof(length));
+        std::unique_ptr<char> data((char*) malloc(length));
+        in.read(data.get(), length);
+        *out = SkData::MakeWithCopy(data.get(), length);
+        if (in.bad()) {
+            return false;
+        }
+        return true;
+    }
+
+    void store(const std::vector<char>& key,
+               const sk_sp<SkData>& shader) override {
+        std::ofstream out(this->getFilename(key).c_str());
+        if (out.bad()) {
+            return;
+        }
+        size_t length = shader->size();
+        out.write((char*) &length, sizeof(length));
+        out.write((char*) shader->data(), length);
+    }
+};
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
@@ -1343,6 +1389,8 @@ int main(int argc, char** argv) {
     grCtxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
     grCtxOptions.fAllowPathMaskCaching = FLAGS_cachePathMasks;
     grCtxOptions.fExecutor = GpuExecutorForTools();
+    ShaderCache shaderCache;
+    grCtxOptions.fPersistentCache = &shaderCache;
 #endif
 
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.

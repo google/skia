@@ -213,6 +213,8 @@ bool GrContext::init(const GrContextOptions& options) {
         fTaskGroup = skstd::make_unique<SkTaskGroup>(*options.fExecutor);
     }
 
+    fPersistentCache = options.fPersistentCache;
+
     return true;
 }
 
