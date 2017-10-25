@@ -145,26 +145,6 @@ public:
                                     uint32_t gradFlags);
     };
 
-    class GradientShaderBaseContext : public Context {
-    public:
-        GradientShaderBaseContext(const SkGradientShaderBase& shader, const ContextRec&);
-
-        uint32_t getFlags() const override { return fFlags; }
-
-        bool isValid() const;
-
-    protected:
-        SkMatrix    fDstToIndex;
-        SkMatrixPriv::MapXYProc fDstToIndexProc;
-        uint8_t     fDstToIndexClass;
-        uint8_t     fFlags;
-
-        sk_sp<GradientShaderCache> fCache;
-
-    private:
-        typedef Context INHERITED;
-    };
-
     bool isOpaque() const override;
 
     enum class GradientBitmapType : uint8_t {
