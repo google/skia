@@ -497,31 +497,6 @@ bool SkGradientShaderBase::onAsLuminanceColor(SkColor* lum) const {
     return true;
 }
 
-SkGradientShaderBase::GradientShaderBaseContext::GradientShaderBaseContext(
-        const SkGradientShaderBase& shader, const ContextRec& rec)
-    : INHERITED(shader, rec)
-    , fCache(shader.refCache())
-{
-    const SkMatrix& inverse = this->getTotalInverse();
-
-    fDstToIndex.setConcat(shader.fPtsToUnit, inverse);
-    SkASSERT(!fDstToIndex.hasPerspective());
-
-    fDstToIndexProc = SkMatrixPriv::GetMapXYProc(fDstToIndex);
-
-    // now convert our colors in to PMColors
-    unsigned paintAlpha = this->getPaintAlpha();
-
-    fFlags = this->INHERITED::getFlags();
-    if (shader.fColorsAreOpaque && paintAlpha == 0xFF) {
-        fFlags |= kOpaqueAlpha_Flag;
-    }
-}
-
-bool SkGradientShaderBase::GradientShaderBaseContext::isValid() const {
-    return fDstToIndex.isFinite();
-}
-
 SkGradientShaderBase::GradientShaderCache::GradientShaderCache(const SkGradientShaderBase& shader)
     : fCache32(nullptr) // Only initialize the cache in getCache32.
     , fShader(shader) {}
