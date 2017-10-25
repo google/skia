@@ -148,13 +148,13 @@ extern "C" {
 #if SK_JUMPER_USE_ASSEMBLY
     #if defined(__x86_64__) || defined(_M_X64)
         template <SkRasterPipeline::StockStage st>
-        static constexpr StageFn* hsw_lowp() { return nullptr; }
+        static constexpr StageFn* hsw_lowp();
 
         template <SkRasterPipeline::StockStage st>
-        static constexpr StageFn* sse41_lowp() { return nullptr; }
+        static constexpr StageFn* sse41_lowp();
 
         template <SkRasterPipeline::StockStage st>
-        static constexpr StageFn* sse2_lowp() { return nullptr; }
+        static constexpr StageFn* sse2_lowp();
 
         #define LOWP(st) \
             template <> constexpr StageFn* hsw_lowp<SkRasterPipeline::st>() {   \
@@ -166,72 +166,111 @@ extern "C" {
             template <> constexpr StageFn* sse2_lowp<SkRasterPipeline::st>() {  \
                 return ASM(st,sse2_lowp);                                       \
             }
+        #define NOPE(st) \
+            template <> constexpr StageFn* hsw_lowp<SkRasterPipeline::st>() {   \
+                return nullptr;                                                 \
+            }                                                                   \
+            template <> constexpr StageFn* sse41_lowp<SkRasterPipeline::st>() { \
+                return nullptr;                                                 \
+            }                                                                   \
+            template <> constexpr StageFn* sse2_lowp<SkRasterPipeline::st>() {  \
+                return nullptr;                                                 \
+            }
 
     #elif defined(__i386__) || defined(_M_IX86)
         template <SkRasterPipeline::StockStage st>
-        static constexpr StageFn* sse2_lowp() { return nullptr; }
+        static constexpr StageFn* sse2_lowp();
 
         #define LOWP(st) \
             template <> constexpr StageFn* sse2_lowp<SkRasterPipeline::st>() {  \
                 return ASM(st,sse2_lowp);                                       \
             }
+        #define NOPE(st) \
+            template <> constexpr StageFn* sse2_lowp<SkRasterPipeline::st>() {  \
+                return nullptr;                                                 \
+            }
 
     #elif defined(JUMPER_NEON_HAS_LOWP)
         template <SkRasterPipeline::StockStage st>
-        static constexpr StageFn* neon_lowp() { return nullptr; }
+        static constexpr StageFn* neon_lowp();
 
         #define LOWP(st)                                                         \
             template <> constexpr StageFn* neon_lowp<SkRasterPipeline::st>() {   \
                 return sk_##st##_lowp;                                           \
             }
+        #define NOPE(st)                                                         \
+            template <> constexpr StageFn* neon_lowp<SkRasterPipeline::st>() {   \
+                return nullptr;                                                  \
+            }
+
     #else
         #define LOWP(st)
+        #define NOPE(st)
 
     #endif
 
+    #define TODO(st) NOPE(st)  // stages that should be implemented in lowp, but aren't.
+
+    NOPE(callback)
+    LOWP(move_src_dst) LOWP(move_dst_src)
+    NOPE(clamp_0) NOPE(clamp_1) TODO(clamp_a) TODO(clamp_a_dst)
+    NOPE(unpremul) LOWP(premul) TODO(premul_dst)
+    LOWP(set_rgb) LOWP(swap_rb) LOWP(invert)
+    NOPE(from_srgb) NOPE(from_srgb_dst) NOPE(to_srgb)
     LOWP(black_color) LOWP(white_color) LOWP(uniform_color)
-    LOWP(set_rgb)
-    LOWP(premul)
-    LOWP(luminance_to_alpha)
-    LOWP(load_8888) LOWP(load_8888_dst) LOWP(store_8888)
-    LOWP(load_bgra) LOWP(load_bgra_dst) LOWP(store_bgra)
-    LOWP(load_a8)   LOWP(load_a8_dst)   LOWP(store_a8)
-    LOWP(load_g8)   LOWP(load_g8_dst)
-    LOWP(load_565)  LOWP(load_565_dst)  LOWP(store_565)
-    LOWP(swap_rb)
+    LOWP(seed_shader) TODO(dither)
+    LOWP(load_a8)   LOWP(load_a8_dst)   LOWP(store_a8)   LOWP(gather_a8)
+    LOWP(load_g8)   LOWP(load_g8_dst)                    LOWP(gather_g8)
+    LOWP(load_565)  LOWP(load_565_dst)  LOWP(store_565)  LOWP(gather_565)
+    TODO(load_4444) TODO(load_4444_dst) TODO(store_4444) TODO(gather_4444)
+    NOPE(load_f16)  NOPE(load_f16_dst)  NOPE(store_f16)  NOPE(gather_f16)
+    NOPE(load_f32)  NOPE(load_f32_dst)  NOPE(store_f32)
+    LOWP(load_8888) LOWP(load_8888_dst) LOWP(store_8888) LOWP(gather_8888)
+    LOWP(load_bgra) LOWP(load_bgra_dst) LOWP(store_bgra) LOWP(gather_bgra)
+    TODO(load_u16_be) TODO(load_rgb_u16_be) TODO(store_u16_be)
+    NOPE(load_tables_u16_be) NOPE(load_tables_rgb_u16_be) NOPE(load_tables)
+    NOPE(load_rgba) NOPE(store_rgba)
+    LOWP(scale_u8) LOWP(scale_565) LOWP(scale_1_float)
+    LOWP( lerp_u8) LOWP( lerp_565) LOWP( lerp_1_float)
+    LOWP(dstatop) LOWP(dstin) LOWP(dstout) LOWP(dstover)
+    LOWP(srcatop) LOWP(srcin) LOWP(srcout) LOWP(srcover)
+    LOWP(clear) LOWP(modulate) LOWP(multiply) LOWP(plus_) LOWP(screen) LOWP(xor_)
+    NOPE(colorburn) NOPE(colordodge) LOWP(darken) LOWP(difference)
+    LOWP(exclusion) LOWP(hardlight) LOWP(lighten) LOWP(overlay) NOPE(softlight)
+    NOPE(hue) NOPE(saturation) NOPE(color) NOPE(luminosity)
     LOWP(srcover_rgba_8888) LOWP(srcover_bgra_8888)
-    LOWP(lerp_1_float)
-    LOWP(lerp_u8)
-    LOWP(lerp_565)
-    LOWP(scale_1_float)
-    LOWP(scale_u8)
-    LOWP(scale_565)
-    LOWP(move_src_dst)
-    LOWP(move_dst_src)
-    LOWP(clear)
-    LOWP(srcatop)
-    LOWP(dstatop)
-    LOWP(srcin)
-    LOWP(dstin)
-    LOWP(srcout)
-    LOWP(dstout)
-    LOWP(srcover)
-    LOWP(dstover)
-    LOWP(modulate)
-    LOWP(multiply)
-    LOWP(screen)
-    LOWP(xor_)
-    LOWP(plus_)
-    LOWP(darken)
-    LOWP(lighten)
-    LOWP(difference)
-    LOWP(exclusion)
-    LOWP(hardlight)
-    LOWP(overlay)
-    LOWP(seed_shader)
-    LOWP(matrix_translate) LOWP(matrix_scale_translate) LOWP(matrix_2x3) LOWP(matrix_perspective)
-    LOWP(gather_8888) LOWP(gather_bgra) LOWP(gather_565) LOWP(gather_a8) LOWP(gather_g8)
+    LOWP(luminance_to_alpha)
+    LOWP(matrix_translate) LOWP(matrix_scale_translate)
+    LOWP(matrix_2x3) NOPE(matrix_3x4) TODO(matrix_4x5) TODO(matrix_4x3)
+    LOWP(matrix_perspective)
+    NOPE(parametric_r) NOPE(parametric_g) NOPE(parametric_b)
+    NOPE(parametric_a) NOPE(gamma)
+    NOPE(table_r) NOPE(table_g) NOPE(table_b) NOPE(table_a)
+    NOPE(lab_to_xyz)
+                    TODO(mirror_x)   TODO(repeat_x)
+                    TODO(mirror_y)   TODO(repeat_y)
+    TODO(clamp_x_1) TODO(mirror_x_1) TODO(repeat_x_1)
+    TODO(bilinear_nx) TODO(bilinear_px) TODO(bilinear_ny) TODO(bilinear_py)
+    TODO(bicubic_n3x) TODO(bicubic_n1x) TODO(bicubic_p1x) TODO(bicubic_p3x)
+    TODO(bicubic_n3y) TODO(bicubic_n1y) TODO(bicubic_p1y) TODO(bicubic_p3y)
+    TODO(save_xy) TODO(accumulate)
+    TODO(evenly_spaced_gradient)
+    TODO(gradient)
+    TODO(evenly_spaced_2_stop_gradient)
+    TODO(xy_to_unit_angle)
+    TODO(xy_to_radius)
+    TODO(xy_to_2pt_conical_quadratic_min)
+    TODO(xy_to_2pt_conical_quadratic_max)
+    TODO(xy_to_2pt_conical_linear)
+    TODO(mask_2pt_conical_degenerates) TODO(apply_vector_mask)
+    TODO(byte_tables) TODO(byte_tables_rgb)
+    NOPE(rgb_to_hsl) NOPE(hsl_to_rgb)
+    NOPE(clut_3D) NOPE(clut_4D)
+    NOPE(gauss_a_to_rgba)
+
     #undef LOWP
+    #undef TODO
+    #undef NOPE
 #endif
 
 // Engines comprise everything we need to run SkRasterPipelines.
