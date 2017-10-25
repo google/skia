@@ -25,6 +25,8 @@ SkCanvas* beginPage(SkScalar width, SkScalar height,
 
 # <a name="Size"></a> Size
 
+# <a name="SkSize"></a> Struct SkSize
+
 # <a name="Arc"></a> Arc
 
 # <a name="Line"></a> Line
@@ -84,6 +86,10 @@ bool equalsWithinTolerance(const SkPoint& p) const
 # <a name="HTML_Canvas"></a> HTML Canvas
 
 ## <a name="ArcTo"></a> ArcTo
+
+# <a name="ISize"></a> ISize
+
+# <a name="SkISize"></a> Struct SkISize
 
 # <a name="Alias"></a> Alias
 
@@ -873,6 +879,10 @@ void setImmutable()
 </pre>
 
 ---
+
+# <a name="Point3"></a> Point3
+
+# <a name="SkPoint3"></a> Struct SkPoint3
 
 # <a name="Premultiply"></a> Premultiply
 

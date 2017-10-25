@@ -32,7 +32,7 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | description | function |
 | --- | ---  |
 | <a href="#SkRect_Intersects">Intersects</a> | Returns true if areas overlap. |
-| <a href="#SkRect_Make">Make</a> | Constructs from <a href="#Size">ISize</a> returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
+| <a href="#SkRect_Make">Make</a> | Constructs from <a href="undocumented#ISize">ISize</a> returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_MakeEmpty">MakeEmpty</a> | Constructs from bounds of (0, 0, 0, 0). |
 | <a href="#SkRect_MakeFromIRect">MakeFromIRect</a> | Deprecated. |
 | <a href="#SkRect_MakeIWH">MakeIWH</a> | Constructs from int input returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
@@ -2016,7 +2016,7 @@ rect: 5, 1, 55, 86
 # <a name="Intersection"></a> Intersection
 <a href="#Rect">Rects</a> <a href="#SkRect_intersect">intersect</a> when they enclose a common area. To <a href="#SkRect_intersect">intersect</a>, each of the pair 
 must describe area; <a href="#SkRect_fLeft">fLeft</a> is less than <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fTop">fTop</a> is less than <a href="#SkRect_fBottom">fBottom</a>;
-empty() returns false. The intersection of <a href="#Rect">Rect</a> a and <a href="#Rect">Rect</a> b can be described by:
+empty() returns false. The intersection of <a href="#Rect">Rect</a> pair can be described by:
 (max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
 min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))The intersection is only meaningful if the resulting <a href="#Rect">Rect</a> is not empty and
 describes an area: <a href="#SkRect_fLeft">fLeft</a> is less than <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fTop">fTop</a> is less than <a href="#SkRect_fBottom">fBottom</a>.

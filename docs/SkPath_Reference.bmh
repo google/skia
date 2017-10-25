@@ -456,10 +456,10 @@ kCW_Direction travel clockwise; the same added with kCCW_Direction
 travel counterclockwise.
 
 #Const kCW_Direction 0
-    Contour travels in a clockwise direction. 
+    Contour travels in a clockwise direction
 ##
 #Const kCCW_Direction 1
-    Contour travels in a counterclockwise direction. 
+    Contour travels in a counterclockwise direction
 ##
 
 
@@ -3464,10 +3464,10 @@ Four Oval parts with radii (rx, ry) start at last Path Point and ends at (x, y).
 ArcSize and Direction select one of the four Oval parts.
 
 #Const kSmall_ArcSize 0
-Smaller of Arc pair.
+smaller of Arc pair
 ##
 #Const kLarge_ArcSize 1
-Larger of Arc pair. 
+larger of Arc pair
 ##
 
 #Example
@@ -5040,9 +5040,9 @@ for (int y = 2; y < 256; y += 9) {
 
 #Method void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const
 
-Writes text representation of Path to stream. If stream is nullptr, dump() writes to
-standard output. Set forceClose to true to get
-edges used to fill Path. Set dumpAsHex true to generate exact binary representations
+Writes text representation of Path to stream. If stream is nullptr, writes to
+standard output. Set forceClose to true to get edges used to fill Path.
+Set dumpAsHex true to generate exact binary representations
 of floating point numbers used in Point_Array and Conic_Weights.
 
 #Param stream      writable Stream receiving Path text representation; may be nullptr ##
