@@ -155,7 +155,6 @@ public:
             fStrings[i].set(str);
         }
 
-    private:
         void reset() { fStrings.reset(); }
 
         void append(const char* string) {
@@ -166,6 +165,7 @@ public:
             fStrings.push_back().set(string, length);
         }
 
+    private:
         SkTArray<SkString> fStrings;
 
         friend class SkFlagInfo;

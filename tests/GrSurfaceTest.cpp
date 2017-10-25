@@ -150,13 +150,52 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
 #include "GrSurfaceProxy.h"
 #include "GrTextureContext.h"
 
+const char* kContexts[] = {
+        "kGL_ContextType",             //! OpenGL context.
+        "kGLES_ContextType",           //! OpenGL ES context.
+        "kANGLE_D3D9_ES2_ContextType", //! ANGLE on Direct3D9 OpenGL ES 2 context.
+        "kANGLE_D3D11_ES2_ContextType",//! ANGLE on Direct3D11 OpenGL ES 2 context.
+        "kANGLE_D3D11_ES3_ContextType",//! ANGLE on Direct3D11 OpenGL ES 3 context.
+        "kANGLE_GL_ES2_ContextType",   //! ANGLE on OpenGL OpenGL ES 2 context.
+        "kANGLE_GL_ES3_ContextType",   //! ANGLE on OpenGL OpenGL ES 3 context.
+        "kCommandBuffer_ContextType",  //! Chromium command buffer OpenGL ES context.
+        "kMESA_ContextType",           //! MESA OpenGL context
+        "kNullGL_ContextType",         //! Non-rendering OpenGL mock context.
+        "kDebugGL_ContextType",        //! Non-rendering, state verifying OpenGL context.
+        "kVulkan_ContextType",         //! Vulkan
+        "kMetal_ContextType",          //! Metal
+        "kMock_ContextType",           //! Mock context that does not draw.
+};
+
+const char* kStrings[] = {
+    "kUnknown_GrPixelConfig",
+    "kAlpha_8_GrPixelConfig",
+    "kGray_8_GrPixelConfig",
+    "kRGB_565_GrPixelConfig",
+    "kRGBA_4444_GrPixelConfig",
+    "kRGBA_8888_GrPixelConfig",
+    "kBGRA_8888_GrPixelConfig",
+    "kSRGBA_8888_GrPixelConfig",
+    "kSBGRA_8888_GrPixelConfig",
+    "kRGBA_8888_sint_GrPixelConfig",
+    "kRGBA_float_GrPixelConfig",
+    "kRG_float_GrPixelConfig",
+    "kAlpha_half_GrPixelConfig",
+    "kRGBA_half_GrPixelConfig"
+};
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) {
     static constexpr int kSize = 100;
     GrSurfaceDesc desc;
     desc.fWidth = desc.fHeight = kSize;
     std::unique_ptr<uint32_t[]> data(new uint32_t[kSize * kSize]);
+//    if (sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES2_ContextType != context_info.type()) {
+//        return;
+//    }
     GrContext* context = context_info.grContext();
     for (int c = 0; c <= kLast_GrPixelConfig; ++c) {
+        SkDebugf("%s %s -------------------------------------\n", kContexts[context_info.type()], kStrings[c]);
+
         desc.fConfig = static_cast<GrPixelConfig>(c);
         if (!context_info.grContext()->caps()->isConfigTexturable(desc.fConfig)) {
             continue;
