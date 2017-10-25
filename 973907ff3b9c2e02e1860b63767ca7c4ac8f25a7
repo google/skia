@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41806f6e_23b0a466",
+        "filename": "tests/TessellatingPathRendererTests.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-25T15:56:18Z",
+      "side": 1,
+      "message": "And one more questionable pixel config.",
+      "range": {
+        "startLine": 382,
+        "startChar": 45,
+        "endLine": 382,
+        "endChar": 69
+      },
+      "revId": "973907ff3b9c2e02e1860b63767ca7c4ac8f25a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
