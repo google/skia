@@ -464,7 +464,8 @@ public:
             }
 
             sk_sp<GrTextureProxy> subsetProxy(GrSurfaceProxy::Copy(fContext, fTextureProxy.get(),
-                                                                   *subset, SkBudgeted::kYes));
+                                                                   GrMipMapped::kNo, *subset,
+                                                                   SkBudgeted::kYes));
             if (!subsetProxy) {
                 return nullptr;
             }
