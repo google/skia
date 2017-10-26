@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "float.h"
 #include "SkColorData.h"
 #include "SkEndian.h"
 #include "SkFDot6.h"
@@ -373,8 +374,8 @@ static void test_muldiv255ceiling(skiatest::Reporter* reporter) {
             int webkit_ceiling = (c * a + 254) / 255;
             REPORTER_ASSERT(reporter, expected_ceiling == webkit_ceiling);
             int skia_ceiling = SkMulDiv255Ceiling(c, a);
-            REPORTER_ASSERT(reporter, skia_ceiling == webkit_ceiling);
-        }
+            REPORTER_ASSERT(reporter, skia_ceiling == webkit_ceiling);}
+
     }
 }
 
@@ -716,4 +717,17 @@ DEF_TEST(DoubleSaturate, reporter) {
         int i = sk_double_saturate2int(r.fDouble);
         REPORTER_ASSERT(reporter, r.fExpectedInt == i);
     }
+}
+
+DEF_TEST(DoubleToFloat, reporter) {
+    static const double flt_max = FLT_MAX;
+    static const double turn = flt_max + double(FLT_MAX-SkBits2Float(SkFloat2Bits(FLT_MAX)-1))/2;
+
+    REPORTER_ASSERT(reporter, sk_float_isinf(sk_double_to_float(turn)));
+    double e = exp2(74);
+    REPORTER_ASSERT(reporter, turn-e==turn);
+    e *= 1 + DBL_EPSILON;
+    REPORTER_ASSERT(reporter, turn-e!=turn);
+    REPORTER_ASSERT(reporter, !sk_float_isinf(sk_double_to_float(turn-e)));
+    REPORTER_ASSERT(reporter, sk_float_isinf(sk_double_to_float(turn+e)));
 }
