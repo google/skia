@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b50088a_916866d9",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-26T15:23:54Z",
+      "side": 1,
+      "message": "Would it make sense to make the key also be SkData for consistency? I believe we could save a copy if key was passed as const SkData\u0026 and the SkData was constructed using SkData::MakeWithoutCopy.",
+      "range": {
+        "startLine": 43,
+        "startChar": 26,
+        "endLine": 43,
+        "endChar": 54
+      },
+      "revId": "7aa67a8a14d73e0b98769fba64fb46e5f513e722",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35190c40_2d43919c",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-26T15:23:54Z",
+      "side": 1,
+      "message": "Could this just return sk_sp\u003cSkData\u003e where a null sk_sp\u003c\u003e means failure?",
+      "range": {
+        "startLine": 43,
+        "startChar": 16,
+        "endLine": 43,
+        "endChar": 20
+      },
+      "revId": "7aa67a8a14d73e0b98769fba64fb46e5f513e722",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0875ad0_05f23c5b",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-26T15:23:54Z",
+      "side": 1,
+      "message": "Our convention is to pass sk_sp\u003c\u003es by value. If we call store() by std::move()ing our sk_sp\u003c\u003e in then there shouldn\u0027t be unnecessary ref churn.",
+      "revId": "7aa67a8a14d73e0b98769fba64fb46e5f513e722",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58199216_8d77bb4c",
+        "filename": "src/gpu/gl/builders/GrGLProgramBuilder.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-26T15:23:54Z",
+      "side": 1,
+      "message": "I should have noticed this earlier, but don\u0027t we have to check somewhere to make sure glProgramBinary/glGetProgramBinary are actually available? Usually we\u0027d add something to GrGLCaps, e.g. GrGLCaps::supportsBinaryPrograms().",
+      "range": {
+        "startLine": 270,
+        "startChar": 16,
+        "endLine": 270,
+        "endChar": 32
+      },
+      "revId": "7aa67a8a14d73e0b98769fba64fb46e5f513e722",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
