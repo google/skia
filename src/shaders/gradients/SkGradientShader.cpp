@@ -498,14 +498,10 @@ bool SkGradientShaderBase::onAsLuminanceColor(SkColor* lum) const {
     return true;
 }
 
-#ifdef SK_SUPPORT_LEGACY_FIXED_GRADIENT_POS
 static inline int SkFixedToFFFF(SkFixed x) {
     SkASSERT((unsigned)x <= SK_Fixed1);
     return x - (x >> 16);
 }
-
-static constexpr unsigned kCacheShift = 8;
-#endif
 
 static constexpr int kGradientTextureSize = 256;
 
@@ -544,14 +540,13 @@ void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap, GradientBitmapType
     // our own CS for identity/no transform.
     auto* cs = bitmapType != GradientBitmapType::kLegacy ? fColorSpace.get() : nullptr;
 
+    // TODO: refactor to avoid using fRecs.
+    static constexpr unsigned kCacheShift = 8;
+
     int prevIndex = 0;
     for (int i = 1; i < fColorCount; i++) {
-#ifdef SK_SUPPORT_LEGACY_FIXED_GRADIENT_POS
         int nextIndex = (fColorCount == 2) ? (kGradientTextureSize - 1)
             : SkFixedToFFFF(fRecs[i].fPos) >> kCacheShift;
-#else
-        int nextIndex = SkScalarRoundToInt(this->getPos(i) * (kGradientTextureSize - 1));
-#endif
         SkASSERT(nextIndex < kGradientTextureSize);
 
         if (nextIndex > prevIndex) {
@@ -659,8 +654,13 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
                 memcpy(info->fColors, fOrigColors, fColorCount * sizeof(SkColor));
             }
             if (info->fColorOffsets) {
-                for (int i = 0; i < fColorCount; ++i) {
-                    info->fColorOffsets[i] = this->getPos(i);
+                if (fColorCount == 2) {
+                    info->fColorOffsets[0] = 0;
+                    info->fColorOffsets[1] = SK_Scalar1;
+                } else if (fColorCount > 2) {
+                    for (int i = 0; i < fColorCount; ++i) {
+                        info->fColorOffsets[i] = SkFixedToScalar(fRecs[i].fPos);
+                    }
                 }
             }
         }
@@ -685,7 +685,7 @@ void SkGradientShaderBase::toString(SkString* str) const {
     if (fColorCount > 2) {
         str->append(" points: (");
         for (int i = 0; i < fColorCount; ++i) {
-            str->appendScalar(this->getPos(i));
+            str->appendScalar(SkFixedToScalar(fRecs[i].fPos));
             if (i < fColorCount-1) {
                 str->append(", ");
             }

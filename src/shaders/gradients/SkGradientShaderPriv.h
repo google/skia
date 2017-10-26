@@ -125,11 +125,6 @@ private:
     };
     SkColor             fStorage[(kStorageSize + 3) >> 2];
 public:
-    SkScalar getPos(int i) const {
-        SkASSERT(i < fColorCount);
-        return fOrigPos ? fOrigPos[i] : SkIntToScalar(i) / (fColorCount - 1);
-    }
-
     SkColor*            fOrigColors;   // original colors, before modulation by paint in context.
     SkColor4f*          fOrigColors4f; // original colors, as linear floats
     SkScalar*           fOrigPos;      // original positions
