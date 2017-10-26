@@ -17,6 +17,7 @@
 #include "../../src/effects/SkDashImpl.h"
 #include "SkDiscretePathEffect.h"
 #include "SkDisplacementMapEffect.h"
+#include "SkDrawableImageFilter.h"
 #include "SkDropShadowImageFilter.h"
 #include "../../src/effects/SkEmbossMaskFilter.h"
 #include "SkGradientShader.h"
@@ -98,6 +99,7 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SkXfermodeImageFilter::InitializeFlattenables();
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDilateImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDisplacementMapEffect)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDrawableImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDropShadowImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkErodeImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageSource)
