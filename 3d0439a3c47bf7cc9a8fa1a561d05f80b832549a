@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8dc8776_ad3330f4",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-26T16:25:02Z",
+      "side": 1,
+      "message": "typo \u0027if\u0027 -\u003e \u0027of\u0027",
+      "revId": "3d0439a3c47bf7cc9a8fa1a561d05f80b832549a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

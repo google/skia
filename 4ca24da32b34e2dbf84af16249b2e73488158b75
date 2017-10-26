@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be1acca9_97f55a72",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-26T16:25:02Z",
+      "side": 1,
+      "message": "Just curious: why does tryAllocPixelsFlags not have rowBytes?",
+      "revId": "4ca24da32b34e2dbf84af16249b2e73488158b75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f0625b9_72997432",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 984,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-26T16:25:02Z",
+      "side": 1,
+      "message": "Just curious: there are many repetitive things in the comments (e.g., dstInfo description). Considering our tendency to reduce repetitions in code, is there a good way to reduce such repetitions in comments so we don\u0027t have to modify multiple places for a single change in the future?",
+      "revId": "4ca24da32b34e2dbf84af16249b2e73488158b75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
