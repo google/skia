@@ -200,9 +200,9 @@ static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy)
 Sets <a href="#Matrix">Matrix</a> to translate by (<a href="#SkMatrix_MakeTrans_dx">dx</a>, <a href="#SkMatrix_MakeTrans_dy">dy</a>). Returned matrix is:
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-|  1  0 0 |
-|  0  1 0 |
-| dx dy 1 |</pre>
+| 1 0 dx |
+| 0 1 dy |
+| 0 0  1 |</pre>
 
 ### Parameters
 

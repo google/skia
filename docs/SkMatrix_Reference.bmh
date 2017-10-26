@@ -196,9 +196,9 @@ Sets Matrix to translate by (dx, dy). Returned matrix is:
 
 #Code
 #Literal
-|  1  0 0 |
-|  0  1 0 |
-| dx dy 1 |
+| 1 0 dx |
+| 0 1 dy |
+| 0 0  1 |
 ##
 
 #Param dx  horizontal translation ##
