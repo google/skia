@@ -881,7 +881,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-All-Android',
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android',
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR',
-  'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-All-Android',
+  'Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android',
   'Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-All-Android_Vulkan',
   'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android',
@@ -1061,7 +1061,7 @@ def GenTests(api):
                   '/sdcard/revenge_of_the_skiabot/resources', retcode=1)
   )
 
-  builder = 'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-All-Android'
+  builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android'
   yield (
     api.test('failed_pull') +
     api.properties(buildername=builder,
