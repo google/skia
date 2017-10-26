@@ -32,6 +32,7 @@ struct SkPictInfo {
         kCrossProcess_Flag      = 1 << 0,
         kScalarIsFloat_Flag     = 1 << 1,
         kPtrIs64Bit_Flag        = 1 << 2,
+        kExternal_Flag          = 1 << 3,
     };
 
     SkPictInfo() : fVersion(~0U) {}
@@ -81,12 +82,14 @@ public:
     static SkPictureData* CreateFromStream(SkStream*,
                                            const SkPictInfo&,
                                            SkImageDeserializer*,
-                                           SkTypefacePlayback*);
+                                           SkTypefacePlayback*,
+                                           SkExtPictureMap*);
     static SkPictureData* CreateFromBuffer(SkReadBuffer&, const SkPictInfo&);
 
     virtual ~SkPictureData();
 
     void serialize(SkWStream*, SkPixelSerializer*, SkRefCntSet*) const;
+    void serialize(SkWStream*, SkPixelSerializer*, SkRefCntSet*, SkExtPictureUIDMap*) const;
     void flatten(SkWriteBuffer&) const;
 
     bool containsBitmaps() const;
@@ -101,7 +104,7 @@ protected:
     explicit SkPictureData(const SkPictInfo& info);
 
     // Does not affect ownership of SkStream.
-    bool parseStream(SkStream*, SkImageDeserializer*, SkTypefacePlayback*);
+    bool parseStream(SkStream*, SkImageDeserializer*, SkTypefacePlayback*, SkExtPictureMap*);
     bool parseBuffer(SkReadBuffer& buffer);
 
 public:
@@ -173,7 +176,7 @@ private:
     // these help us with reading/writing
     // Does not affect ownership of SkStream.
     bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size,
-                        SkImageDeserializer*, SkTypefacePlayback*);
+                        SkImageDeserializer*, SkTypefacePlayback*, SkExtPictureMap*);
     bool parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&) const;
 

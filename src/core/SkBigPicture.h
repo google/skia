@@ -48,6 +48,10 @@ public:
     size_t approximateBytesUsed() const override;
     const SkBigPicture* asSkBigPicture() const override { return this; }
 
+// Custom serializer and deserializer only for PDF backend.
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, SkExtPictureMap*);
+    void serialize(SkWStream*, SkPixelSerializer*, SkExtPictureUIDMap*) const;
+
 // Used by GrLayerHoister
     void partialPlayback(SkCanvas*,
                          int start,
