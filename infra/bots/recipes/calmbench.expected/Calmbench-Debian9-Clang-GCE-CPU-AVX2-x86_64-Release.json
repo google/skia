@@ -174,7 +174,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false target_cpu=\"x86_64\""
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
@@ -211,7 +211,22 @@
       "--svgs [START_DIR]/svg --skps [START_DIR]/skp",
       "--writedir",
       "[CUSTOM_[SWARM_OUT_DIR]]",
-      "--concise"
+      "--concise",
+      "--githash",
+      "9046e2e693bb92a76e972b694580e5d17ad10748",
+      "--key",
+      "arch",
+      "x86_64",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "CPU",
+      "cpu_or_gpu_value",
+      "AVX2",
+      "model",
+      "GCE",
+      "os",
+      "Debian9"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

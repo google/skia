@@ -73,7 +73,7 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  builder = 'Calmbench-Debian9-Clang-x86_64-Release'
+  builder = 'Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release'
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,

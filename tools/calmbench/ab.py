@@ -78,6 +78,11 @@ def parse_args():
       help="If set, no verbose thread info will be printed.")
   parser.set_defaults(concise=False)
 
+  # Additional args for bots
+  BHELP = "bot specific options"
+  parser.add_argument('--githash', type=str, default=[], nargs='+', help=BHELP)
+  parser.add_argument('--keys', type=str, default=[], nargs='+', help=BHELP)
+
   args = parser.parse_args()
   args.skip_b = args.skip_b == "true"
   args.noinit = args.noinit == "true"
@@ -252,6 +257,13 @@ def format_r(r):
   return ('%6.2f' % percentage(r)) + "%"
 
 
+def normalize_r(r):
+  if r > 1.0:
+    return r - 1.0
+  else:
+    return 1.0 - 1/r
+
+
 def test():
   args = parse_args()
 
@@ -296,10 +308,26 @@ def test():
                 (format_r(r), suspect)
 
   with open("%s/bench_%s_%s.json" % (args.outdir, args.a, args.b), 'w') as f:
-    f.write(json.dumps(map(
-        lambda bench: {bench: regression(bench)},
-        suspects
-    )))
+    results = {}
+    for bench in timesA:
+      r = regression(bench) if bench in suspects else 1.0
+      results[bench] = {
+        args.config: {
+          "signed_regression": normalize_r(r),
+          "lower_quantile_ms": get_lower_upper(timesA[bench])[0] * 1e-6,
+          "upper_quantile_ms": get_lower_upper(timesA[bench])[1] * 1e-6
+        }
+      }
+
+    output = {"results": results}
+    if args.githash:
+      output["gitHash"] = args.githash
+    if args.keys:
+      keys = {}
+      for i in range(len(args.keys) / 2):
+        keys[args.keys[i * 2]] = args.keys[i * 2 + 1]
+      output["key"] = keys
+    f.write(json.dumps(output, indent=4))
     print ("\033[36mJSON results available in %s\033[0m" % f.name)
 
   with open("%s/bench_%s_%s.csv" % (args.outdir, args.a, args.b), 'w') as out:
