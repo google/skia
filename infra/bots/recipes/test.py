@@ -106,6 +106,7 @@ def dm_flags(api, bot):
     if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
       configs = ['8888', 'srgb']
 
+
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
 
