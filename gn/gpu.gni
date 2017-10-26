@@ -348,6 +348,8 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrMatrixConvolutionEffect.h",
   "$_src/gpu/effects/GrNonlinearColorSpaceXformEffect.cpp",
   "$_src/gpu/effects/GrNonlinearColorSpaceXformEffect.h",
+  "$_src/gpu/effects/GrOverdrawFragmentProcessor.cpp",
+  "$_src/gpu/effects/GrOverdrawFragmentProcessor.h",
   "$_src/gpu/effects/GrOvalEffect.cpp",
   "$_src/gpu/effects/GrOvalEffect.h",
   "$_src/gpu/effects/GrPorterDuffXferProcessor.cpp",
