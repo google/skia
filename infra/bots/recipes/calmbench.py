@@ -31,18 +31,26 @@ def RunSteps(api):
   with api.context(cwd=api.vars.skia_dir):
     extra_arg = '--svgs %s --skps %s' % (api.flavor.device_dirs.svg_dir,
                                          api.flavor.device_dirs.skp_dir)
-    command = [
+    command = [ # TODO liyuqian: handle GPU config in the future
         'python', 'tools/calmbench/calmbench.py', 'modified',
         '--ninjadir', api.vars.skia_out.join("Release"),
         '--extraarg', extra_arg,
         '--writedir', api.vars.swarming_out_dir,
-        '--concise'
+        '--concise',
+        '--githash', api.vars.got_revision,
     ]
+
+    keys_blacklist = ['configuration', 'role', 'test_filter']
+    command.append('--key')
+    for k in sorted(api.vars.builder_cfg.keys()):
+      if not k in keys_blacklist:
+        command.extend([k, api.vars.builder_cfg[k]])
+
     api.run(api.step, 'Run calmbench', cmd=command)
   api.run.check_failure()
 
 def GenTests(api):
-  builder = "Calmbench-Debian9-Clang-x86_64-Release"
+  builder = "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release"
   test = (
     api.test(builder) +
     api.properties(buildername=builder,

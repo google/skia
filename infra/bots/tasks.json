@@ -545,10 +545,10 @@
         "Build-Win-MSVC-x86_64-Release-Vulkan"
       ]
     },
-    "Calmbench-Debian9-Clang-x86_64-Release": {
+    "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Calmbench-Debian9-Clang-x86_64-Release"
+        "Upload-Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release"
       ]
     },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
@@ -5519,7 +5519,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Calmbench-Debian9-Clang-x86_64-Release": {
+    "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/clang_linux",
@@ -5542,7 +5542,7 @@
         "../../..",
         "calmbench",
         "repository=<(REPO)",
-        "buildername=Calmbench-Debian9-Clang-x86_64-Release",
+        "buildername=Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22939,9 +22939,9 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Upload-Calmbench-Debian9-Clang-x86_64-Release": {
+    "Upload-Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
-        "Calmbench-Debian9-Clang-x86_64-Release"
+        "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -22954,7 +22954,7 @@
         "../../..",
         "upload_calmbench_results",
         "repository=<(REPO)",
-        "buildername=Calmbench-Debian9-Clang-x86_64-Release",
+        "buildername=Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",

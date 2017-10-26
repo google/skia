@@ -89,7 +89,7 @@
   "Build-Win-MSVC-x86_64-Release",
   "Build-Win-MSVC-x86_64-Release-ANGLE",
   "Build-Win-MSVC-x86_64-Release-Vulkan",
-  "Calmbench-Debian9-Clang-x86_64-Release",
+  "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release",
   "Housekeeper-Nightly-RecreateSKPs_Canary",
   "Housekeeper-Nightly-UpdateMetaConfig",
   "Housekeeper-PerCommit",

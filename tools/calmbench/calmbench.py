@@ -88,7 +88,7 @@ def parse_args():
     ['--baseline',  str, 'master', baseline_help],
     ['--basearg',   str, '', basearg_help],
     ['--reps',      int, 2, reps_help],
-    ['--threads',   int, default_threads, threads_help]
+    ['--threads',   int, default_threads, threads_help],
   ]
 
   for d in definitions:
@@ -107,6 +107,11 @@ def parse_args():
   parser.set_defaults(skipbase=False);
   parser.set_defaults(noinit=False);
   parser.set_defaults(concise=False);
+
+  # Additional args for bots
+  BHELP = "bot specific options"
+  parser.add_argument('--githash', type=str, help=BHELP)
+  parser.add_argument('--keys', type=str, default=[], nargs='+', help=BHELP)
 
   args = parser.parse_args()
   if not args.basearg:
@@ -188,6 +193,11 @@ def main():
     str(args.threads if args.config in ["8888", "565"] else 1),
     "true" if args.noinit else "false"
   ]
+
+  if args.githash:
+    command += ['--githash', args.githash]
+  if args.keys:
+    command += (['--keys'] + args.keys)
 
   if args.concise:
     command.append("--concise")
