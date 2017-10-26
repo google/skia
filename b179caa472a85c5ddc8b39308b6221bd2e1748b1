@@ -52,6 +52,24 @@
       "revId": "b179caa472a85c5ddc8b39308b6221bd2e1748b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d39b5f77_d08fa5d8",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-10-26T17:01:22Z",
+      "side": 1,
+      "message": "Sorry, I\u0027m confused.\n\nThe current FxAA jobs are CPU jobs. Adding gl would mean adding new FxAA GPU jobs. If that is something you want, please see \"Adding new jobs\" here: https://skia.org/dev/testing/automated_testing#adding-new-jobs\n\nAFAICT, tiles_rt-8888 has nothing to do with gl or GPU. Also note that there are differences between tiles_rt-8888 and 8888 for FDAA -- see https://bugs.chromium.org/p/skia/issues/detail?id\u003d7179#c3. Are you sure you want to use only 8888 config for FxAA testing?",
+      "parentUuid": "ef2ca98d_144ac459",
+      "revId": "b179caa472a85c5ddc8b39308b6221bd2e1748b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
