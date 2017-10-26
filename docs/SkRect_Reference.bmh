@@ -1587,11 +1587,14 @@ rect: 5, 1, 55, 86
 
 Rects intersect when they enclose a common area. To intersect, each of the pair 
 must describe area; fLeft is less than fRight, and fTop is less than fBottom;
-empty() returns false. The intersection of Rect a and Rect b can be described by:
+empty() returns false. The intersection of Rect pair can be described by:
+
 #Formula
 (max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
  min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))
 ##
+.
+
 The intersection is only meaningful if the resulting Rect is not empty and
 describes an area: fLeft is less than fRight, and fTop is less than fBottom.
 
@@ -1896,6 +1899,7 @@ sorted: 10, 0, 55, 100
 #Method    void growToInclude(SkPoint pt)
 
 Grows Rect to include (pt.fX, pt.fY), modifying it so that:
+
 #Formula
 fLeft <= pt.fX <= fRight && fTop <= pt.fY <= fBottom
 ##
@@ -1962,8 +1966,10 @@ it so that:
 #Formula
 fLeft <= pt.fX <= fRight && fTop <= pt.fY <= fBottom
 ##
-. Point may be followed with other data in each array element. stride is number
- of bytes in element; the interval to skip to advance from one Point to
+. 
+
+Point may be followed with other data in each array element. stride is number
+of bytes in element; the interval to skip to advance from one Point to
 the next.
 
 If Rect is initialized with setLargestInverted, then Rect will contain bounds of
@@ -2148,6 +2154,7 @@ round: 30, 50, 41, 61
 
 Sets Rect by rounding up fLeft and fTop; and
 discarding the fractional portion of fRight and FBottom, using
+
 #Formula
 (SkScalarCeilToInt(fLeft), SkScalarCeilToInt(fTop),
  SkScalarFloorToInt(fRight), SkScalarFloorToInt(fBottom))
