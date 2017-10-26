@@ -515,7 +515,7 @@ std::unique_ptr<ASTParameter> Parser::parameter() {
                                                           this->text(name), std::move(sizes)));
 }
 
-/** (EQ INT_LITERAL)? */
+/** EQ INT_LITERAL */
 int Parser::layoutInt() {
     if (!this->expect(Token::EQ, "'='")) {
         return -1;
@@ -526,6 +526,19 @@ int Parser::layoutInt() {
     }
     return -1;
 }
+
+/** EQ IDENTIFIER */
+StringFragment Parser::layoutIdentifier() {
+    if (!this->expect(Token::EQ, "'='")) {
+        return StringFragment();
+    }
+    Token resultToken;
+    if (!this->expect(Token::IDENTIFIER, "an identifier", &resultToken)) {
+        return StringFragment();
+    }
+    return this->text(resultToken);
+}
+
 
 /** EQ <any sequence of tokens with balanced parentheses and no top-level comma> */
 String Parser::layoutCode() {
@@ -604,12 +617,13 @@ Layout Parser::layout() {
     int maxVertices = -1;
     int invocations = -1;
     String when;
+    StringFragment ctype;
     Layout::Key key = Layout::kNo_Key;
     if (this->checkNext(Token::LAYOUT)) {
         if (!this->expect(Token::LPAREN, "'('")) {
             return Layout(location, offset, binding, index, set, builtin, inputAttachmentIndex,
                           originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
-                          pushConstant, primitive, maxVertices, invocations, when, key);
+                          pushConstant, primitive, maxVertices, invocations, when, key, ctype);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -684,6 +698,9 @@ Layout Parser::layout() {
                     case LayoutToken::KEY:
                         key = this->layoutKey();
                         break;
+                    case LayoutToken::CTYPE:
+                        ctype = this->layoutIdentifier();
+                        break;
                     default:
                         ASSERT(false);
                 }
@@ -702,7 +719,7 @@ Layout Parser::layout() {
     }
     return Layout(location, offset, binding, index, set, builtin, inputAttachmentIndex,
                   originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
-                  pushConstant, primitive, maxVertices, invocations, when, key);
+                  pushConstant, primitive, maxVertices, invocations, when, key, ctype);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
