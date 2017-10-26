@@ -23,7 +23,7 @@ class SkDescriptor;
 
 class GrPathRange : public GrGpuResource {
 public:
-
+    const char* isa() const override { return "GrPathRange"; }
 
     enum PathIndexType {
         kU8_PathIndexType,   //!< uint8_t

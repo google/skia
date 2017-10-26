@@ -18,6 +18,8 @@ class GrResourceProvider;
  */
 class GrSoftwarePathRenderer : public GrPathRenderer {
 public:
+    const char* name() const override { return "SW"; }
+
     GrSoftwarePathRenderer(GrResourceProvider* resourceProvider, bool allowCaching)
             : fResourceProvider(resourceProvider)
             , fAllowCaching(allowCaching) {}

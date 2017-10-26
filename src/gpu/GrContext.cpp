@@ -419,6 +419,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     ASSERT_OWNED_PROXY_PRIV(dst->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "writeSurfacePixels", fContext);
 
+    printf("threadID: %lld\n", SkGetThreadID());
+
     if (!dst->asSurfaceProxy()->instantiate(fContext->resourceProvider())) {
         return false;
     }
@@ -458,6 +460,9 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
                                             srcConfig, &drawPreference, &tempDrawInfo)) {
         return false;
     }
+
+    printf("flush check ^%d^ %s\n", dstSurface->uniqueID().asUInt(),
+        dstSurface->surfacePriv().hasPendingIO() ? "hasPendingIO" : "noPendingIO");
 
     if (!(kDontFlush_PixelOpsFlag & pixelOpsFlags) && dstSurface->surfacePriv().hasPendingIO()) {
         this->flush(nullptr); // MDB TODO: tighten this

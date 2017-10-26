@@ -72,7 +72,7 @@ static sk_sp<GrTextureProxy> wrapped(skiatest::Reporter* reporter,
         tex = sk_sp<GrTexture>(provider->createApproxTexture(desc, 0));
     } else {
         // Only budgeted & wrapped external proxies get to carry uniqueKeys
-        tex = provider->createTexture(desc, SkBudgeted::kYes);
+        tex = provider->createTexture2(desc, SkBudgeted::kYes);
     }
 
     sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex),
@@ -99,7 +99,7 @@ static sk_sp<GrTextureProxy> wrapped_with_key(skiatest::Reporter* reporter,
         tex = sk_sp<GrTexture>(provider->createApproxTexture(desc, 0));
     } else {
         // Only budgeted & wrapped external proxies get to carry uniqueKeys
-        tex = provider->createTexture(desc, SkBudgeted::kYes);
+        tex = provider->createTexture2(desc, SkBudgeted::kYes);
     }
 
     tex->resourcePriv().setUniqueKey(key);
@@ -116,7 +116,7 @@ static sk_sp<GrTextureProxy> create_wrapped_backend(GrContext* context, SkBackin
 
     GrSurfaceDesc desc = make_desc(kNone_GrSurfaceFlags);
 
-    *backingSurface = provider->createTexture(desc, SkBudgeted::kNo);
+    *backingSurface = provider->createTexture2(desc, SkBudgeted::kNo);
     if (!(*backingSurface)) {
         return nullptr;
     }

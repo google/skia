@@ -25,6 +25,7 @@ class GrStencilAttachment;
  */
 class GrRenderTarget : virtual public GrSurface {
 public:
+    void detachSB();
     virtual bool alwaysClearStencil() const { return false; }
 
     // GrSurface overrides

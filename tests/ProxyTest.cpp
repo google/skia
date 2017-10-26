@@ -136,7 +136,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 if (SkBackingFit::kApprox == fit) {
                                     tex = provider->createApproxTexture(desc, 0);
                                 } else {
-                                    tex = provider->createTexture(desc, budgeted);
+                                    tex = provider->createTexture2(desc, budgeted);
                                 }
 
                                 sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(
@@ -170,7 +170,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 if (SkBackingFit::kApprox == fit) {
                                     tex = provider->createApproxTexture(desc, 0);
                                 } else {
-                                    tex = provider->createTexture(desc, budgeted);
+                                    tex = provider->createTexture2(desc, budgeted);
                                 }
 
                                 sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(provider,
@@ -248,7 +248,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     // Internal offscreen render target.
                     if (renderable) {
                         desc.fFlags = kRenderTarget_GrSurfaceFlag;
-                        tex = provider->createTexture(desc, budgeted);
+                        tex = provider->createTexture2(desc, budgeted);
                         if (!tex) {
                             continue; // This can fail on Mesa
                         }
@@ -266,7 +266,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     if (!tex) {
                         SkASSERT(kNone_GrSurfaceFlags == desc.fFlags );
                         desc.fSampleCnt = 0;
-                        tex = provider->createTexture(desc, budgeted);
+                        tex = provider->createTexture2(desc, budgeted);
                     }
 
                     sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(tex, origin));

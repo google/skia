@@ -19,6 +19,7 @@ class GrGpu;
  */
 class GrStencilAndCoverPathRenderer : public GrPathRenderer {
 public:
+    const char* name() const override { return "NVPR"; }
 
     static GrPathRenderer* Create(GrResourceProvider*, const GrCaps&);
 

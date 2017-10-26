@@ -346,6 +346,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         }
     }
 
+    printf("reason: clip\n");
+    fflush(stdout);
     renderTargetContext->setNeedsStencil();
 
     // This relies on the property that a reduced sub-rect of the last clip will contain all the

@@ -18,6 +18,8 @@
  */
 class SK_API GrDefaultPathRenderer : public GrPathRenderer {
 public:
+    const char* name() const override { return "Default"; }
+
     GrDefaultPathRenderer();
 
 private:

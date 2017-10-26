@@ -27,6 +27,7 @@ struct GrPoint;
 class SK_API GrPathRenderer : public SkRefCnt {
 public:
     GrPathRenderer();
+    virtual const char* name() const = 0;
 
     /**
      * A caller may wish to use a path renderer to draw a path into the stencil buffer. However,

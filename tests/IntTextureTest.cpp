@@ -7,7 +7,7 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
+#if 0
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"

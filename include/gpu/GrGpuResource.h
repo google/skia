@@ -121,7 +121,7 @@ private:
         this->didRemoveRefOrPendingIO(kPendingWrite_CntType);
     }
 
-private:
+public:
     void didRemoveRefOrPendingIO(CntType cntTypeRemoved) const {
         if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
             static_cast<const DERIVED*>(this)->notifyAllCntsAreZero(cntTypeRemoved);
@@ -144,6 +144,7 @@ private:
  */
 class SK_API GrGpuResource : public GrIORef<GrGpuResource> {
 public:
+    virtual const char* isa() const = 0;
 
     /**
      * Tests whether a object has been abandoned or released. All objects will

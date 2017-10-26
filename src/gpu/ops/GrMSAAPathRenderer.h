@@ -13,6 +13,8 @@
 
 class SK_API GrMSAAPathRenderer : public GrPathRenderer {
 private:
+    const char* name() const override { return "MSAA"; }
+
     StencilSupport onGetStencilSupport(const GrShape&) const override;
 
     CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;

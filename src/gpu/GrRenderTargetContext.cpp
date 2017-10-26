@@ -615,6 +615,8 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
     // attempt this in a situation that would require coverage AA.
     SkASSERT(!appliedClip.clipCoverageFragmentProcessor());
 
+    printf("reason: stencil path\n");
+    fflush(stdout);
     fRenderTargetContext->setNeedsStencil();
 
     std::unique_ptr<GrOp> op = GrStencilPathOp::Make(viewMatrix,
@@ -1770,6 +1772,8 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
         appliedClip.hasStencilClip()) {
         this->getOpList()->setStencilLoadOp(GrLoadOp::kClear);
 
+        printf("reason: draw op - stencil clip\n");
+        fflush(stdout);
         this->setNeedsStencil();
     }
 

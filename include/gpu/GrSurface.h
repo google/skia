@@ -20,6 +20,8 @@ class GrTexture;
 
 class SK_API GrSurface : public GrGpuResource {
 public:
+    const char* isa() const override { return "GrSurface"; }
+
     /**
      * Retrieves the width of the surface.
      */

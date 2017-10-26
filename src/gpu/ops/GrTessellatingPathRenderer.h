@@ -16,6 +16,7 @@
  */
 class SK_API GrTessellatingPathRenderer : public GrPathRenderer {
 public:
+    const char* name() const override { return "Tess"; }
     GrTessellatingPathRenderer();
 
 private:

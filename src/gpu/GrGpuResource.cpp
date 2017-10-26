@@ -138,6 +138,8 @@ void GrGpuResource::setUniqueKey(const GrUniqueKey& key) {
     get_resource_cache(fGpu)->resourceAccess().changeUniqueKey(this, key);
 }
 
+#include "GrRenderTarget.h"
+
 void GrGpuResource::notifyAllCntsAreZero(CntType lastCntTypeToReachZero) const {
     if (this->wasDestroyed()) {
         // We've already been removed from the cache. Goodbye cruel world!
@@ -149,6 +151,15 @@ void GrGpuResource::notifyAllCntsAreZero(CntType lastCntTypeToReachZero) const {
     SkASSERT(kRef_CntType != lastCntTypeToReachZero);
 
     GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
+
+    if (!strcmp(this->isa(), "GrSurface")) {
+        GrSurface* surf = (GrSurface*) mutableThis;
+
+        if (surf->asRenderTarget()) {
+            surf->asRenderTarget()->detachSB();
+        }
+    }
+
     static const uint32_t kFlag =
         GrResourceCache::ResourceAccess::kAllCntsReachedZero_RefNotificationFlag;
     get_resource_cache(fGpu)->resourceAccess().notifyCntReachedZero(mutableThis, kFlag);
@@ -159,6 +170,9 @@ bool GrGpuResource::notifyRefCountIsZero() const {
         // handle this in notifyAllCntsAreZero().
         return true;
     }
+
+    printf("notifyRefCountIsZero ^%d^: %d %d %d\n", this->uniqueID().asUInt(),
+        fRefCnt, fPendingReads, fPendingWrites);
 
     GrGpuResource* mutableThis = const_cast<GrGpuResource*>(this);
     uint32_t flags = GrResourceCache::ResourceAccess::kRefCntReachedZero_RefNotificationFlag;

@@ -358,6 +358,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
         }
     }
 
+    printf("PR: %s\n", pr ? pr->name() : "null");
     return pr;
 }
 

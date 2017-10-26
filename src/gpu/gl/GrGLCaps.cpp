@@ -631,6 +631,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // On ANGLE deferring flushes can lead to GPU starvation
     fPreferVRAMUseOverFlushes = !isANGLE;
 #endif
+    fPreferVRAMUseOverFlushes = false;
 
     if (kChromium_GrGLDriver == ctxInfo.driver()) {
         fMustClearUploadedBufferData = true;

@@ -14,6 +14,7 @@ class GrGpu;
 
 class GrBuffer : public GrGpuResource {
 public:
+    const char* isa() const override { return "GrBuffer"; }
     /**
      * Creates a client-side buffer.
      */

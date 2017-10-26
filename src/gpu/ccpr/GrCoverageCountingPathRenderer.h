@@ -31,6 +31,8 @@ class GrCoverageCountingPathRenderer
     struct RTPendingOps;
 
 public:
+    const char* name() const override { return "CCPR"; }
+
     static bool IsSupported(const GrCaps&);
     static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(const GrCaps&,
                                                                    bool drawCachablePaths);

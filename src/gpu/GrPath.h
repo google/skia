@@ -18,6 +18,7 @@ class GrShape;
 
 class GrPath : public GrGpuResource {
 public:
+    const char* isa() const override { return "GrPath"; }
     /**
      * Initialize to a path with a fixed stroke. Stroke must not be hairline.
      */

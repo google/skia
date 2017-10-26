@@ -102,7 +102,7 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
     desc.fHeight = kTextureHeight;
     desc.fConfig = config;
     desc.fSampleCnt = 0;
-    sk_sp<GrTexture> tex = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
+    sk_sp<GrTexture> tex = context->resourceProvider()->createTexture2(desc, SkBudgeted::kNo);
 
     //////////////////////////
     // transfer full data

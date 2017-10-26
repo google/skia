@@ -17,6 +17,7 @@ class GrResourceKey;
 
 class GrStencilAttachment : public GrGpuResource {
 public:
+    const char* isa() const override { return "GrStencilAttachment"; }
     ~GrStencilAttachment() override {
         // TODO: allow SB to be purged and detach itself from rts
     }
@@ -25,9 +26,9 @@ public:
     int height() const { return fHeight; }
     int bits() const { return fBits; }
     int numSamples() const { return fSampleCnt; }
-    bool isDirty() const { return fIsDirty; }
+    bool isDirty() const { return fIsDirty1; }
 
-    void cleared() { fIsDirty = false; }
+    void cleared() { fIsDirty1 = false; }
 
     // We create a unique stencil buffer at each width, height and sampleCnt and share it for
     // all render targets that require a stencil with those params.
@@ -41,7 +42,7 @@ protected:
             , fHeight(height)
             , fBits(bits)
             , fSampleCnt(sampleCnt)
-            , fIsDirty(true) {
+            , fIsDirty1(true) {
     }
 
 private:
@@ -50,7 +51,7 @@ private:
     int fHeight;
     int fBits;
     int fSampleCnt;
-    bool fIsDirty;
+    bool fIsDirty1;
 
     typedef GrGpuResource INHERITED;
 };

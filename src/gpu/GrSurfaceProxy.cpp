@@ -21,6 +21,48 @@
 #include "SkMathPriv.h"
 #include "SkMipMap.h"
 
+#include "gl/GrGLTexture.h"
+#include "gl/GrGLRenderTarget.h"
+
+#include <stdio.h>
+
+void printme(const char* preamble, int proxyID, GrSurface* surf) {
+    if (surf && surf->asTexture()) {
+        GrGLTexture* glT = (GrGLTexture*) surf->asTexture();
+        printf("-------------------- %s %d -> %d (%d %d) ^%d^ [ %d %d %d ]\n",
+            preamble, proxyID,
+            glT->textureID(),
+            glT->width(), glT->height(),
+            glT->uniqueID().asUInt(),
+            surf->fRefCnt, surf->fPendingReads, surf->fPendingWrites);
+    } else if (surf && surf->asRenderTarget()) {
+        GrGLRenderTarget* glRT = (GrGLRenderTarget*) surf->asRenderTarget();
+        printf("-------------------- %s %d -> %d %d (%d %d) ^%d^ [ %d %d %d ]\n",
+            preamble, proxyID,
+            glRT->textureFBOID(), glRT->renderFBOID(),
+            glRT->width(), glRT->height(),
+            glRT->uniqueID().asUInt(),
+            surf->fRefCnt, surf->fPendingReads, surf->fPendingWrites);
+    } else {
+        printf("-------------------- %s %d -> (? ?) ^-1^\n", preamble, proxyID);
+    }
+}
+
+GrSurfaceProxy::GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
+            : fConfig(desc.fConfig)
+            , fWidth(desc.fWidth)
+            , fHeight(desc.fHeight)
+            , fOrigin(desc.fOrigin)
+            , fFit(fit)
+            , fBudgeted(budgeted)
+            , fFlags(flags)
+            , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
+            , fGpuMemorySize(kInvalidGpuMemorySize)
+            , fLastOpList(nullptr) {
+        // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
+        printme("deferred GrSurfaceProxy", fUniqueID.asUInt(), nullptr);
+    }
+
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit)
         : INHERITED(std::move(surface))
         , fConfig(fTarget->config())
@@ -34,6 +76,7 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
+    printme("wrapped GrSurfaceProxy", fUniqueID.asUInt(), fTarget);
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
@@ -80,7 +123,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
     if (SkBackingFit::kApprox == fFit) {
         surface.reset(resourceProvider->createApproxTexture(desc, fFlags).release());
     } else {
-        surface.reset(resourceProvider->createTexture(desc, fBudgeted, fFlags).release());
+        surface.reset(resourceProvider->createTexture2(desc, fBudgeted, fFlags).release());
     }
     if (!surface) {
         return nullptr;
@@ -111,7 +154,9 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
                                      bool needsStencil, GrSurfaceFlags flags, GrMipMapped mipMapped,
                                      SkDestinationSurfaceColorMode mipColorMode,
                                      const GrUniqueKey* uniqueKey) {
+    printf("sampleCnt: %d\n", sampleCnt);
     if (fTarget) {
+        printme("Already instantiated", this->uniqueID().asUInt(), fTarget);
         if (uniqueKey) {
             SkASSERT(fTarget->getUniqueKey() == *uniqueKey);
         }
@@ -123,6 +168,9 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     if (!surface) {
         return false;
     }
+
+    printme("Freshly instantiated", this->uniqueID().asUInt(), surface.get());
+    fflush(stdout);
 
     // If there was an invalidation message pending for this key, we might have just processed it,
     // causing the key (stored on this proxy) to become invalid.
@@ -263,7 +311,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     GrSurfaceDesc copyDesc = desc;
     copyDesc.fSampleCnt = caps->getSampleCount(desc.fSampleCnt, desc.fConfig);
 
-#ifdef SK_DISABLE_DEFERRED_PROXIES
+#if 0//def SK_DISABLE_DEFERRED_PROXIES
     // Temporarily force instantiation for crbug.com/769760 and crbug.com/769898
     sk_sp<GrTexture> tex;
 

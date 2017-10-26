@@ -369,6 +369,7 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
         // the nonpurgeable array are indeed not purgeable. However, the movement from the array to
         // the purgeable queue happens just below in this function. So we mark it as an exception.
         if (resource->isPurgeable()) {
+            SkASSERT(!fNewlyPurgeableResourceForValidation);
             fNewlyPurgeableResourceForValidation = resource;
         }
 #endif
@@ -381,6 +382,9 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
         return;
     }
 
+    printf("notifyCntReachedZero %s ^%d^: %d %d %d -> ", resource->isa(),
+        resource->uniqueID().asUInt(), resource->fRefCnt, resource->fPendingReads, resource->fPendingWrites);
+
     SkASSERT(resource->isPurgeable());
     this->removeFromNonpurgeableArray(resource);
     fPurgeableQueue.insert(resource);
@@ -388,6 +392,28 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
     resource->cacheAccess().setTimeWhenResourceBecomePurgeable();
     fPurgeableBytes += resource->gpuMemorySize();
 
+    bool skip = false;
+
+#if 1
+    if (!strcmp(resource->isa(), "GrSurface")) {
+        printf("A\n");
+        GrSurface* surf = (GrSurface*) resource;
+        if (surf->width() == 2048 && surf->height() == 256) {
+            skip = true;
+        }
+
+    }
+#endif
+
+#if 0
+    if (!strcmp(resource->isa(), "GrStencilAttachment")) {
+        printf("B\n");
+        skip = true;
+    }
+#endif
+
+    if (!skip) {
+#if 1
     if (SkBudgeted::kNo == resource->resourcePriv().isBudgeted()) {
         // Check whether this resource could still be used as a scratch resource.
         if (!resource->resourcePriv().refsWrappedObjects() &&
@@ -396,6 +422,9 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
             if (fBudgetedCount < fMaxCount &&
                 fBudgetedBytes + resource->gpuMemorySize() <= fMaxBytes) {
                 resource->resourcePriv().makeBudgeted();
+                printf("recycled unbudgeted ^%d^ [ %d %d %d ]\n",
+                    resource->uniqueID().asUInt(),
+                    resource->fRefCnt, resource->fPendingReads, resource->fPendingWrites);
                 return;
             }
         }
@@ -405,10 +434,16 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
         bool noKey = !resource->resourcePriv().getScratchKey().isValid() &&
                      !resource->getUniqueKey().isValid();
         if (!this->overBudget() && !noKey) {
+            printf("recycled budgeted ^%d^ [ %d %d %d ]\n",
+                resource->uniqueID().asUInt(),
+                resource->fRefCnt, resource->fPendingReads, resource->fPendingWrites);
             return;
         }
     }
+#endif
+    }
 
+    printf("freeing ^%d^\n", resource->uniqueID().asUInt());
     SkDEBUGCODE(int beforeCount = this->getResourceCount();)
     resource->cacheAccess().release();
     // We should at least free this resource, perhaps dependent resources as well.
@@ -724,6 +759,7 @@ void GrResourceCache::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) c
 
 #ifdef SK_DEBUG
 void GrResourceCache::validate() const {
+#if 0
     // Reduce the frequency of validations for large resource counts.
     static SkRandom gRandom;
     int mask = (SkNextPow2(fCount + 1) >> 5) - 1;
@@ -807,6 +843,7 @@ void GrResourceCache::validate() const {
     size_t purgeableBytes = 0;
 
     for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
+        GrGpuResource* res = fNonpurgeableResources[i];
         SkASSERT(!fNonpurgeableResources[i]->isPurgeable() ||
                  fNewlyPurgeableResourceForValidation == fNonpurgeableResources[i]);
         SkASSERT(*fNonpurgeableResources[i]->cacheAccess().accessCacheIndex() == i);
@@ -843,6 +880,7 @@ void GrResourceCache::validate() const {
     // calls. This will be fixed when subresource registration is explicit.
     // bool overBudget = budgetedBytes > fMaxBytes || budgetedCount > fMaxCount;
     // SkASSERT(!overBudget || locked == count || fPurging);
+#endif
 }
 
 bool GrResourceCache::isInCache(const GrGpuResource* resource) const {

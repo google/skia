@@ -12,6 +12,7 @@
 
 class GrAALinearizingConvexPathRenderer : public GrPathRenderer {
 public:
+    const char* name() const override { return "Linearizing"; }
     GrAALinearizingConvexPathRenderer();
 
 private:

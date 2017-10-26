@@ -105,7 +105,7 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCount;
 
-    sk_sp<GrTexture> tex(provider->createTexture(desc, budgeted));
+    sk_sp<GrTexture> tex(provider->createTexture2(desc, budgeted));
     if (!tex || !tex->asRenderTarget()) {
         return nullptr;
     }
@@ -253,6 +253,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
 class TestResource : public GrGpuResource {
     enum ScratchConstructor { kScratchConstructor };
 public:
+    const char* isa() const override { return "TestResource"; }
     static const size_t kDefaultSize = 100;
 
     /** Property that distinctly categorizes the resource.
@@ -1632,7 +1633,7 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCnt;
 
-    return provider->createTexture(desc, SkBudgeted::kYes);
+    return provider->createTexture2(desc, SkBudgeted::kYes);
 }
 
 static sk_sp<GrTextureProxy> make_mipmap_proxy(GrResourceProvider* provider,

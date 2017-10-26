@@ -775,7 +775,9 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
     this->setScratchTextureUnit();
     GL_CALL(BindTexture(glTex->target(), glTex->textureID()));
 
-    return this->uploadTexData(glTex->config(), glTex->width(), glTex->height(),
+    printf("onWritePixels Bind %d ^%d^\n", glTex->textureID(), glTex->uniqueID().asUInt());
+
+    return this->uploadTexData1(glTex->config(), glTex->width(), glTex->height(),
                                origin, glTex->target(), kWrite_UploadType,
                                left, top, width, height, config, texels, mipLevelCount);
 }
@@ -1015,11 +1017,23 @@ void GrGLGpu::unbindCpuToGpuXferBuffer() {
 
 }
 
-bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
+bool GrGLGpu::uploadTexData1(GrPixelConfig texConfig, int texWidth, int texHeight,
                             GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType,
                             int left, int top, int width, int height, GrPixelConfig dataConfig,
                             const GrMipLevel texels[], int mipLevelCount,
                             GrMipMapsStatus* mipMapsStatus) {
+    uint32_t p0 = 0, p1 = 0;
+    bool hasData = false;
+    if (texels && mipLevelCount && texels[0].fPixels) {
+        const uint32_t* pix = (uint32_t*) texels[0].fPixels;
+        p0 = pix[0];
+        p1 = pix[1];
+        hasData = true;
+    }
+
+    printf("updateTexData to (%d %d %d %d) -> (%d %d) %x %x %s %d\n", left, top, width, height, texWidth, texHeight,
+           p0, p1, hasData ? "has" : "no data", mipLevelCount);
+
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
     SkDEBUGCODE(
         SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
@@ -1631,6 +1645,8 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
     this->setScratchTextureUnit();
     GL_CALL(BindTexture(info->fTarget, info->fID));
 
+    printf("createTextureImpl Bind %d ^%d^\n", info->fID, -1);
+
     if (renderTarget && this->glCaps().textureUsageSupport()) {
         // provides a hint about how this texture will be used
         GL_CALL(TexParameteri(info->fTarget,
@@ -1641,7 +1657,7 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
     if (info) {
         set_initial_texture_params(this->glInterface(), *info, initialTexParams);
     }
-    if (!this->uploadTexData(desc.fConfig, desc.fWidth, desc.fHeight, desc.fOrigin, info->fTarget,
+    if (!this->uploadTexData1(desc.fConfig, desc.fWidth, desc.fHeight, desc.fOrigin, info->fTarget,
                              kNewTexture_UploadType, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                              texels, mipLevelCount, mipMapsStatus)) {
         GL_CALL(DeleteTextures(1, &(info->fID)));

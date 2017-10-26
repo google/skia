@@ -12,6 +12,8 @@
 
 class GrAAHairLinePathRenderer : public GrPathRenderer {
 public:
+    const char* name() const override { return "AAHairline"; }
+
     GrAAHairLinePathRenderer() {}
 
     typedef SkTArray<SkPoint, true> PtArray;

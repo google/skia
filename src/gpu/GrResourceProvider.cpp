@@ -154,7 +154,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
     return GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
 }
 
-sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+sk_sp<GrTexture> GrResourceProvider::createTexture2(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                    uint32_t flags) {
     ASSERT_SINGLE_OWNER
 
@@ -433,6 +433,7 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
 bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
     SkASSERT(rt);
     if (rt->renderTargetPriv().getStencilAttachment()) {
+        printf("already have SB %d %d\n", rt->width(), rt->height());
         return true;
     }
 
@@ -452,6 +453,7 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
                                                                rt->numStencilSamples(), &sbKey);
         auto stencil = this->findByUniqueKey<GrStencilAttachment>(sbKey);
         if (!stencil) {
+            printf("creating new SB %d %d\n", width, height);
             // Need to try and create a new stencil
             stencil.reset(this->gpu()->createStencilAttachmentForRenderTarget(rt, width, height));
             if (stencil) {
@@ -461,6 +463,7 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
         }
         if (rt->renderTargetPriv().attachStencilAttachment(std::move(stencil))) {
 #ifdef SK_DEBUG
+            printf("attached SB %d %d %s\n", width, height, newStencil ? "isNew" : "isRecycled");
             // Fill the SB with an inappropriate value. opLists that use the
             // SB should clear it properly.
             if (newStencil) {

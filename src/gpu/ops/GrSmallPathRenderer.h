@@ -21,6 +21,7 @@ class GrContext;
 
 class GrSmallPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
 public:
+    const char* name() const override { return "SmallPath"; }
     GrSmallPathRenderer();
     ~GrSmallPathRenderer() override;
 
