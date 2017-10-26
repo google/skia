@@ -1998,6 +1998,21 @@ DEF_TEST(XfermodeImageFilterBounds, reporter) {
     REPORTER_ASSERT(reporter, bounds.isEmpty());
 }
 
+DEF_TEST(OffsetImageFilterBounds, reporter) {
+    SkIRect src = SkIRect::MakeXYWH(0, 0, 100, 100);
+    sk_sp<SkImageFilter> offset(SkOffsetImageFilter::Make(-50.5f, -50.5f, nullptr));
+
+    SkIRect expectedForward = SkIRect::MakeXYWH(-50, -50, 100, 100);
+    SkIRect boundsForward = offset->filterBounds(src, SkMatrix::I(),
+                                                 SkImageFilter::kForward_MapDirection);
+    REPORTER_ASSERT(reporter, boundsForward == expectedForward);
+
+    SkIRect expectedReverse = SkIRect::MakeXYWH(50, 50, 100, 100);
+    SkIRect boundsReverse = offset->filterBounds(src, SkMatrix::I(),
+                                                 SkImageFilter::kReverse_MapDirection);
+    REPORTER_ASSERT(reporter, boundsReverse == expectedReverse);
+}
+
 static void test_arithmetic_bounds(skiatest::Reporter* reporter, float k1, float k2, float k3,
                                    float k4, sk_sp<SkImageFilter> background,
                                    sk_sp<SkImageFilter> foreground,
