@@ -1079,4 +1079,8 @@
 #define GR_EGL_NONE                                         0x3038
 #define GR_EGL_NO_IMAGE                                    ((GrEGLImage)0)
 
+/* Programs */
+#define GR_GL_PROGRAM_BINARY_RETRIEVABLE_HINT               0x8257
+#define GL_PROGRAM_BINARY_LENGTH                            0x8741
+
 #endif

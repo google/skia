@@ -8,9 +8,12 @@
 #ifndef GrContextOptions_DEFINED
 #define GrContextOptions_DEFINED
 
+#include "SkData.h"
 #include "SkTypes.h"
 #include "GrTypes.h"
 #include "../private/GrTypesPriv.h"
+
+#include <vector>
 
 class SkExecutor;
 
@@ -24,6 +27,22 @@ struct GrContextOptions {
          * Uses Skia's default behavior, which may use runtime properties (e.g. driver version).
          */
         kDefault
+    };
+
+    /**
+     * Abstract class which stores compiled shaders in a cache that persists between sessions.
+     */
+    class PersistentCache {
+    public:
+        virtual ~PersistentCache() {}
+
+        /**
+         * If the shader for this key exists, returns true and stores the shader into out.
+         * If the shader was not cached, returns false and leaves out unmodified.
+         */
+        virtual bool load(const std::vector<char>& key, sk_sp<SkData>* out) = 0;
+
+        virtual void store(const std::vector<char>& key, const sk_sp<SkData>& data) = 0;
     };
 
     GrContextOptions() {}
@@ -104,6 +123,11 @@ struct GrContextOptions {
      * kOpenGL_GrBackend.
      */
     Enable fUseDrawInsteadOfGLClear = Enable::kDefault;
+
+    /**
+     * Cache in which to store compiled shader binaries between runs.
+     */
+    PersistentCache* fPersistentCache = nullptr;
 
 #if GR_TEST_UTILS
     /**
