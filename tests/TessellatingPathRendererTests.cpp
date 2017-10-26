@@ -379,9 +379,8 @@ static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrC
     SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
     sk_sp<SkShader> shader = SkGradientShader::MakeLinear(
         pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
-    GrColorSpaceInfo colorSpaceInfo(nullptr, kRGBA_8888_GrPixelConfig);
-    SkShaderBase::AsFPArgs args(ctx, &SkMatrix::I(), &SkMatrix::I(),
-                                SkFilterQuality::kLow_SkFilterQuality, &colorSpaceInfo);
+    SkShaderBase::AsFPArgs args(
+        ctx, &SkMatrix::I(), &SkMatrix::I(), SkFilterQuality::kLow_SkFilterQuality, nullptr);
     return as_SB(shader)->asFragmentProcessor(args);
 }
 

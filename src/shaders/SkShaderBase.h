@@ -13,7 +13,6 @@
 #include "SkShader.h"
 
 class GrContext;
-class GrColorSpaceInfo;
 class GrFragmentProcessor;
 class SkArenaAlloc;
 class SkColorSpace;
@@ -141,18 +140,18 @@ public:
                  const SkMatrix* viewMatrix,
                  const SkMatrix* localMatrix,
                  SkFilterQuality filterQuality,
-                 const GrColorSpaceInfo* dstColorSpaceInfo)
-                : fContext(context)
-                , fViewMatrix(viewMatrix)
-                , fLocalMatrix(localMatrix)
-                , fFilterQuality(filterQuality)
-                , fDstColorSpaceInfo(dstColorSpaceInfo) {}
+                 SkColorSpace* dstColorSpace)
+            : fContext(context)
+            , fViewMatrix(viewMatrix)
+            , fLocalMatrix(localMatrix)
+            , fFilterQuality(filterQuality)
+            , fDstColorSpace(dstColorSpace) {}
 
-        GrContext* fContext;
-        const SkMatrix* fViewMatrix;
-        const SkMatrix* fLocalMatrix;
-        SkFilterQuality fFilterQuality;
-        const GrColorSpaceInfo* fDstColorSpaceInfo;
+        GrContext*                    fContext;
+        const SkMatrix*               fViewMatrix;
+        const SkMatrix*               fLocalMatrix;
+        SkFilterQuality               fFilterQuality;
+        SkColorSpace*                 fDstColorSpace;
     };
 
     /**

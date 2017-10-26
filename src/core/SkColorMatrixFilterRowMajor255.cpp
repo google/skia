@@ -293,7 +293,7 @@ std::unique_ptr<GrFragmentProcessor> ColorMatrixEffect::TestCreate(GrProcessorTe
 #endif
 
 std::unique_ptr<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentProcessor(
-        GrContext*, const GrColorSpaceInfo&) const {
+        GrContext*, SkColorSpace*) const {
     return ColorMatrixEffect::Make(fMatrix);
 }
 

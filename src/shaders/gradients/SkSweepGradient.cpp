@@ -6,11 +6,10 @@
  */
 
 #include "SkColorSpaceXformer.h"
-#include "SkReadBuffer.h"
 #include "SkSweepGradient.h"
+
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
-#include "SkWriteBuffer.h"
 
 SkSweepGradient::SkSweepGradient(const SkPoint& center, SkScalar t0, SkScalar t1,
                                  const Descriptor& desc)
@@ -77,9 +76,8 @@ public:
 
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args, SkScalar tBias,
                                                      SkScalar tScale) {
-        return GrGradientEffect::AdjustFP(std::unique_ptr<GrSweepGradient>(
-                new GrSweepGradient(args, tBias, tScale)),
-                args);
+        auto processor = std::unique_ptr<GrSweepGradient>(new GrSweepGradient(args, tBias, tScale));
+        return processor->isValid() ? std::move(processor) : nullptr;
     }
 
     const char* name() const override { return "Sweep Gradient"; }
@@ -242,10 +240,16 @@ std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
     }
     matrix.postConcat(fPtsToUnit);
 
-    return GrSweepGradient::Make(
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
+                                                                       args.fDstColorSpace);
+    auto inner = GrSweepGradient::Make(
             GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
-                                         args.fDstColorSpaceInfo->colorSpace()),
+                                         std::move(colorSpaceXform), SkToBool(args.fDstColorSpace)),
             fTBias, fTScale);
+    if (!inner) {
+        return nullptr;
+    }
+    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 #endif

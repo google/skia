@@ -20,7 +20,5 @@ GrColorSpaceXform* GrColorSpaceInfo::colorSpaceXformFromSRGB() const {
         fColorXformFromSRGB = GrColorSpaceXform::Make(srgbColorSpace.get(), fColorSpace.get());
         fInitializedColorSpaceXformFromSRGB = true;
     }
-    // You can't be color-space aware in legacy mode
-    SkASSERT(fColorSpace || !fColorXformFromSRGB);
     return fColorXformFromSRGB.get();
 }
