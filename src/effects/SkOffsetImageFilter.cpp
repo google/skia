@@ -15,6 +15,11 @@
 #include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
 
+static SkIPoint map_offset_vector(const SkMatrix& ctm, const SkVector& offset) {
+    SkVector vec = ctm.mapVector(offset.fX, offset.fY);
+    return SkIPoint::Make(SkScalarRoundToInt(vec.fX), SkScalarRoundToInt(vec.fY));
+}
+
 sk_sp<SkImageFilter> SkOffsetImageFilter::Make(SkScalar dx, SkScalar dy,
                                                sk_sp<SkImageFilter> input,
                                                const CropRect* cropRect) {
@@ -34,12 +39,11 @@ sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
         return nullptr;
     }
 
-    SkVector vec;
-    ctx.ctm().mapVectors(&vec, &fOffset, 1);
+    SkIPoint vec = map_offset_vector(ctx.ctm(), fOffset);
 
     if (!this->cropRectIsSet()) {
-        offset->fX = srcOffset.fX + SkScalarRoundToInt(vec.fX);
-        offset->fY = srcOffset.fY + SkScalarRoundToInt(vec.fY);
+        offset->fX = srcOffset.fX + vec.fX;
+        offset->fY = srcOffset.fY + vec.fY;
         return input;
     } else {
         SkIRect bounds;
@@ -65,7 +69,7 @@ sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
         canvas->translate(SkIntToScalar(srcOffset.fX - bounds.fLeft),
                           SkIntToScalar(srcOffset.fY - bounds.fTop));
 
-        input->draw(canvas, vec.x(), vec.y(), &paint);
+        input->draw(canvas, vec.fX, vec.fY, &paint);
 
         offset->fX = bounds.fLeft;
         offset->fY = bounds.fTop;
@@ -92,13 +96,12 @@ SkRect SkOffsetImageFilter::computeFastBounds(const SkRect& src) const {
 
 SkIRect SkOffsetImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                                 MapDirection direction) const {
-    SkVector vec;
-    ctm.mapVectors(&vec, &fOffset, 1);
+    SkIPoint vec = map_offset_vector(ctm, fOffset);
     if (kReverse_MapDirection == direction) {
         vec.negate();
     }
 
-    return src.makeOffset(SkScalarCeilToInt(vec.fX), SkScalarCeilToInt(vec.fY));
+    return src.makeOffset(vec.fX, vec.fY);
 }
 
 sk_sp<SkFlattenable> SkOffsetImageFilter::CreateProc(SkReadBuffer& buffer) {
