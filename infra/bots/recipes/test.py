@@ -111,6 +111,7 @@ def dm_flags(api, bot):
       # configurations.
       configs = ['8888', 'tiles_rt-8888']
 
+
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
 
