@@ -324,7 +324,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
 bool MdOut::checkParamReturnBody(const Definition* def) const {
     TextParser paramBody(def);
     const char* descriptionStart = paramBody.fChar;
-    if (!islower(descriptionStart[0])) {
+    if (!islower(descriptionStart[0]) && !isdigit(descriptionStart[0])) {
         paramBody.skipToNonAlphaNum();
         string ref = string(descriptionStart, paramBody.fChar - descriptionStart);
         if (!this->isDefined(paramBody, ref, true)) {
@@ -349,7 +349,7 @@ void MdOut::childrenOut(const Definition* def, const char* start) {
     } else if (MarkType::kEnumClass == def->fMarkType) {
         fEnumClass = def;
     }
-    BmhParser::Resolvable resolvable = this->resolvable(def->fMarkType);
+    BmhParser::Resolvable resolvable = this->resolvable(def);
     for (auto& child : def->fChildren) {
         end = child->fStart;
         if (BmhParser::Resolvable::kNo != resolvable) {
@@ -640,7 +640,7 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kCode:
             this->lfAlways(2);
             fprintf(fOut, "<pre style=\"padding: 1em 1em 1em 1em;"
-                    "width: 44em; background-color: #f0f0f0\">");
+                    "width: 50em; background-color: #f0f0f0\">");
             this->lf(1);
             break;
         case MarkType::kColumn:
@@ -714,7 +714,7 @@ void MdOut::markTypeOut(Definition* def) {
                 fprintf(fOut, "<div><fiddle-embed name=\"%s\">", def->fHash.c_str());
             } else {
                 fprintf(fOut, "<pre style=\"padding: 1em 1em 1em 1em;"
-                        "width: 44em; background-color: #f0f0f0\">");
+                        "width: 50em; background-color: #f0f0f0\">");
                 this->lf(1);
             }
             } break;
@@ -742,6 +742,8 @@ void MdOut::markTypeOut(Definition* def) {
             fprintf(fOut, "<table>");
             this->lf(1);
             break;
+        case MarkType::kLiteral:
+            break;
         case MarkType::kMarkChar:
             fBmhParser.fMC = def->fContentStart[0];
             break;
@@ -768,7 +770,7 @@ void MdOut::markTypeOut(Definition* def) {
             }
 
             // TODO: put in css spec that we can define somewhere else (if markup supports that)
-            // TODO: 50em below should match limt = 80 in formatFunction()
+            // TODO: 50em below should match limit = 80 in formatFunction()
             this->writePending();
             string preformattedStr = preformat(formattedStr);
             fprintf(fOut, "<pre style=\"padding: 1em 1em 1em 1em;"
@@ -780,6 +782,8 @@ void MdOut::markTypeOut(Definition* def) {
             fMethod = def;
             } break;
         case MarkType::kNoExample:
+            break;
+        case MarkType::kOutdent:
             break;
         case MarkType::kParam: {
             if (TableState::kNone == fTableState) {
@@ -1004,6 +1008,24 @@ void MdOut::mdHeaderOutLF(int depth, int lf) {
 }
 
 void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable resolvable) {
+    if (BmhParser::Resolvable::kLiteral == resolvable && end > start) {
+        while ('\n' == *start) {
+            ++start;
+        }
+        const char* spaceStart = start;
+        while (' ' == *start) {
+            ++start;
+        }
+        if (start > spaceStart) {
+            fIndent =  start - spaceStart;
+        }
+        this->writeBlockTrim(end - start, start);
+        if ('\n' == end[-1]) {
+            this->lf(1);
+        }
+        fIndent = 0;
+        return;
+    }
     // FIXME: this needs the markdown character present when the def was defined,
     // not the last markdown character the parser would have seen...
     while (fBmhParser.fMC == end[-1]) {

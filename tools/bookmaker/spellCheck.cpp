@@ -202,6 +202,8 @@ bool SpellCheck::check(Definition* def) {
             break;
         case MarkType::kList:
             break;
+        case MarkType::kLiteral:
+            break;
         case MarkType::kMarkChar:
             break;
         case MarkType::kMember:
@@ -219,6 +221,8 @@ bool SpellCheck::check(Definition* def) {
             fMethod = def;
             } break;
         case MarkType::kNoExample:
+            break;
+        case MarkType::kOutdent:
             break;
         case MarkType::kParam: {
             if (TableState::kNone == fTableState) {
@@ -490,6 +494,7 @@ void SpellCheck::report(SkCommandLineFlags::StringArray report) {
     if (report.contains("all")) {
         int column = 0;
         char lastInitial = 'a';
+        int count = 0;
         for (auto iter : elems) {
             if (string::npos != iter.second.fFile.find("undocumented.bmh")) {
                 continue;
@@ -521,8 +526,9 @@ void SpellCheck::report(SkCommandLineFlags::StringArray report) {
             }
             SkDebugf("%s ", check.c_str());
             column += check.length();
+            ++count;
         }
-        SkDebugf("\n\n");
+        SkDebugf("\n\ncount = %d\n", count);
         return;
     }
     int index = 0;

@@ -25,6 +25,8 @@ SkCanvas* beginPage(SkScalar width, SkScalar height,
 
 # <a name="Size"></a> Size
 
+# <a name="SkSize"></a> Struct SkSize
+
 # <a name="Arc"></a> Arc
 
 # <a name="Line"></a> Line
@@ -84,6 +86,10 @@ bool equalsWithinTolerance(const SkPoint& p) const
 # <a name="HTML_Canvas"></a> HTML Canvas
 
 ## <a name="ArcTo"></a> ArcTo
+
+# <a name="ISize"></a> ISize
+
+# <a name="SkISize"></a> Struct SkISize
 
 # <a name="Alias"></a> Alias
 
@@ -521,6 +527,15 @@ size_t computeByteSize(size_t rowBytes) const
 
 ---
 
+<a name="SkImageInfo_validate"></a>
+## validate
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+void validate() const
+</pre>
+
+---
+
 # <a name="SkImage"></a> Class SkImage
 
 <a name="SkImage_makeShader"></a>
@@ -874,6 +889,10 @@ void setImmutable()
 
 ---
 
+# <a name="Point3"></a> Point3
+
+# <a name="SkPoint3"></a> Struct SkPoint3
+
 # <a name="Premultiply"></a> Premultiply
 
 # <a name="Raster_Engine"></a> Raster Engine
@@ -952,7 +971,7 @@ static sk_sp&lt;SkShader&gt; MakeBitmapShader(const SkBitmap& src, TileMode tmx,
 
 # <a name="Stream"></a> Stream
 
-# <a name="SkFlattenable"></a> Class SkFlattenable
+# <a name="SkStream"></a> Class SkStream
 
 # <a name="String"></a> String
 

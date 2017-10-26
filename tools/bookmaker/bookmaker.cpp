@@ -630,6 +630,9 @@ const Definition* Definition::hasParam(const string& ref) const {
 }
 
 bool Definition::methodHasReturn(const string& name, TextParser* methodParser) const {
+    if (methodParser->skipExact("static")) {
+        methodParser->skipWhiteSpace();
+    }
     const char* lastStart = methodParser->fChar;
     const char* nameInParser = methodParser->strnstr(name.c_str(), methodParser->fEnd);
     methodParser->skipTo(nameInParser);
@@ -1160,6 +1163,8 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kFile:
         case MarkType::kHeight:
         case MarkType::kImage:
+        case MarkType::kLiteral:
+        case MarkType::kOutdent:
         case MarkType::kPlatform:
         case MarkType::kSeeAlso:
         case MarkType::kSubstitute:
@@ -2001,6 +2006,8 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kFile:
         case MarkType::kHeight:
         case MarkType::kImage:
+        case MarkType::kLiteral:
+        case MarkType::kOutdent:
         case MarkType::kPlatform:
         case MarkType::kReturn:
         case MarkType::kSeeAlso:
@@ -2335,6 +2342,7 @@ int main(int argc, char** const argv) {
     }
     if (!done && !FLAGS_spellcheck.isEmpty() && FLAGS_examples.isEmpty()) {
         bmhParser.spellCheck(FLAGS_bmh[0], FLAGS_spellcheck);
+        bmhParser.fWroteOut = true;
         done = true;
     }
     int examples = 0;
