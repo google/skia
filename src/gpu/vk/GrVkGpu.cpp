@@ -1489,8 +1489,10 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
     SkASSERT(!err);
 
     // Clean up transfer resources
-    GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
-    VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
+    if (buffer != VK_NULL_HANDLE) { // workaround for an older NVidia driver crash
+        GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
+        VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
+    }
     VK_CALL(FreeCommandBuffers(fDevice, fCmdPool, 1, &cmdBuffer));
     VK_CALL(DestroyFence(fDevice, fence, nullptr));
 
