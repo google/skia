@@ -234,6 +234,14 @@ sk_sp<SkColorSpace> SkColorSpace::MakeSRGBLinear() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+SkColorSpace::Type SkColorSpace::type() const {
+    SkMatrix44  m(SkMatrix44::kUninitialized_Constructor);
+    if (!this->toXYZD50(&m)) {
+        return kCMYK_Type;
+    }
+    return m.isScale() ? kGray_Type : kRGB_Type;
+}
+
 bool SkColorSpace::gammaCloseToSRGB() const {
     return as_CSB(this)->onGammaCloseToSRGB();
 }
