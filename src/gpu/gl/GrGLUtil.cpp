@@ -372,6 +372,9 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
         if (0 == strcmp("Mesa Offscreen", rendererString)) {
             return kOSMesa_GrGLRenderer;
         }
+        if (strstr(rendererString, "llvmpipe")) {
+            return kGalliumLLVM_GrGLRenderer;
+        }
         static const char kMaliTStr[] = "Mali-T";
         if (0 == strncmp(rendererString, kMaliTStr, SK_ARRAY_COUNT(kMaliTStr) - 1)) {
             return kMaliT_GrGLRenderer;
