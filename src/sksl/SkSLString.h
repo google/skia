@@ -27,7 +27,7 @@ namespace SkSL {
 // Represents a (not necessarily null-terminated) slice of a string.
 struct StringFragment {
     StringFragment()
-    : fChars(nullptr)
+    : fChars("")
     , fLength(0) {}
 
     StringFragment(const char* chars)
