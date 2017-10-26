@@ -2142,6 +2142,14 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             fConfigTable[i].fFormats.fSizedInternalFormat :
             fConfigTable[i].fFormats.fBaseInternalFormat;
     }
+    // Gallium llvmpipe renderer on ES 3.0 does not have R8 so we use Alpha for
+    // kAlpha_8_GrPixelConfig. Alpha8 is not a valid signed internal format so we must use the base
+    // internal format for that config when doing TexImage calls.
+    if(kGalliumLLVM_GrGLRenderer == ctxInfo.renderer()) {
+        fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fInternalFormatTexImage =
+            fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat;
+    }
+
     // OpenGL ES 2.0 + GL_EXT_sRGB allows GL_SRGB_ALPHA to be specified as the <format>
     // param to Tex(Sub)Image. ES 2.0 requires the <internalFormat> and <format> params to match.
     // Thus, on ES 2.0 we will use GL_SRGB_ALPHA as the <format> param.
