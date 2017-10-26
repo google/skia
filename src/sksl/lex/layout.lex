@@ -20,4 +20,5 @@ MAX_VERTICES                = "max_vertices"
 INVOCATIONS                 = "invocations"
 WHEN                        = "when"
 KEY                         = "key"
+CTYPE                       = "ctype"
 INVALID                     = .
