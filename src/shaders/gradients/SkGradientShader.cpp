@@ -1251,8 +1251,9 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
     }
 
     // If the input colors were floats, or there was a color space xform, we may end up out of
-    // range. The simplest solution is to always clamp our (premul) value here.
-    fragBuilder->codeAppend("colorTemp.rgb = clamp(colorTemp.rgb, 0, colorTemp.a);");
+    // range. The simplest solution is to always clamp our (premul) value here. We only need to
+    // clamp RGB, but that causes hangs on the Tegra3 Nexus7. Clamping RGBA avoids the problem.
+    fragBuilder->codeAppend("colorTemp = clamp(colorTemp, 0, colorTemp.a);");
 
     fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
 }
