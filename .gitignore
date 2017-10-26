@@ -16,6 +16,7 @@ TAGS
 bower_components
 common
 imgui.ini
+infra/bots/README.recipes.md
 infra/bots/gen_tasks_aux.go
 infra/bots/tools/luci-go/linux64/cipd
 infra/bots/tools/luci-go/linux64/isolate
