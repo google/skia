@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e2cc1a5_d0e08108",
+        "filename": "src/effects/SkOffsetImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-26T11:39:42Z",
+      "side": 1,
+      "message": "map_offset_vector",
+      "revId": "1c1322beedb22522d0b815c6e141af3467e6f785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f68db37_291db1de",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2006,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-26T11:39:42Z",
+      "side": 1,
+      "message": "overlength ?",
+      "revId": "1c1322beedb22522d0b815c6e141af3467e6f785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "794ff129_20eaf03b",
+        "filename": "tests/ImageFilterTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2010,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-26T11:39:42Z",
+      "side": 1,
+      "message": "overlength ?",
+      "revId": "1c1322beedb22522d0b815c6e141af3467e6f785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
