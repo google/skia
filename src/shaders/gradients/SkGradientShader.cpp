@@ -1455,8 +1455,9 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         }
 
         // Convert input colors to GrColor4f, possibly premul, and apply color space xform
-        auto colorSpaceXform = GrColorSpaceXform::Make(shader.fColorSpace.get(),
-                                                       args.fDstColorSpace);
+        // TODO: Use full xform, to handle non-linear transfer functions?
+        auto colorSpaceXform = GrColorSpaceXform::MakeGamutXform(shader.fColorSpace.get(),
+                                                                 args.fDstColorSpace);
         SkASSERT(shader.fOrigColors && shader.fOrigColors4f);
         fColors4f.setCount(shader.fColorCount);
         for (int i = 0; i < shader.fColorCount; ++i) {
