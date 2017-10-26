@@ -40,6 +40,7 @@ using std::vector;
 enum class KeyWord {
     kNone,
     kSK_API,
+    kSK_BEGIN_REQUIRE_DENSE,
     kBool,
     kChar,
     kClass,
@@ -107,10 +108,12 @@ enum class MarkType {
     kLegend,
     kLink,
     kList,
+    kLiteral,  // don't lookup hyperlinks, do substitution, etc
     kMarkChar,
     kMember,
     kMethod,
     kNoExample,
+    kOutdent,
     kParam,
     kPlatform,
     kPrivate,
@@ -1063,6 +1066,7 @@ public:
         fMaxLF = 2;
         fPendingLF = 0;
         fPendingSpace = 0;
+        fOutdentNext = false;
         nl();
    }
 
@@ -1078,46 +1082,14 @@ public:
         fMaxLF = 1;
     }
 
-    bool writeBlockTrim(int size, const char* data) {
-        while (size && ' ' >= data[0]) {
-            ++data;
-            --size;
-        }
-        while (size && ' ' >= data[size - 1]) {
-            --size;
-        }
-        if (size <= 0) {
-            fLastChar = '\0';
-            return false;
-        }
-        SkASSERT(size < 16000);
-        if (size > 3 && !strncmp("#end", data, 4)) {
-            fMaxLF = 1;
-        }
-        if (this->leadingPunctuation(data, (size_t) size)) {
-            fPendingSpace = 0;
-        }
-        writePending();
-        if (fDebugOut) {
-            string check(data, size);
-            SkDebugf("%s", check.c_str());
-        }
-        fprintf(fOut, "%.*s", size, data);
-        int added = 0;
-        fLastChar = data[size - 1];
-        while (size > 0 && '\n' != data[--size]) {
-            ++added;
-        }
-        fColumn = size ? added : fColumn + added;
-        fSpaces = 0;
-        fLinefeeds = 0;
-        fMaxLF = added > 2 && !strncmp("#if", &data[size + (size > 0)], 3) ? 1 : 2;
-        return true;
-    }
 
     void writeBlock(int size, const char* data) {
         SkAssertResult(writeBlockTrim(size, data));
     }
+
+    void writeBlockIndent(int size, const char* data);
+    bool writeBlockTrim(int size, const char* data);
+
     void writeCommentHeader() {
         this->lf(2);
         this->writeString("/**");
@@ -1129,6 +1101,8 @@ public:
         this->lfcr();
     }
 
+    void writePending();
+
     // write a pending space, so that two consecutive calls
     // don't double write, and trailing spaces on lines aren't written
     void writeSpace(int count = 1) {
@@ -1139,62 +1113,12 @@ public:
         fPendingSpace = count;
     }
 
-    void writeString(const char* str) {
-        const size_t len = strlen(str);
-        SkASSERT(len > 0);
-        SkASSERT(' ' < str[0]);
-        fLastChar = str[len - 1];
-        SkASSERT(' ' < fLastChar);
-        SkASSERT(!strchr(str, '\n'));
-        if (this->leadingPunctuation(str, strlen(str))) {
-            fPendingSpace = 0;
-        }
-        writePending();
-        if (fDebugOut) {
-            SkDebugf("%s", str);
-        }
-        fprintf(fOut, "%s", str);
-        fColumn += len;
-        fSpaces = 0;
-        fLinefeeds = 0;
-        fMaxLF = 2;
-    }
+    void writeString(const char* str);
 
     void writeString(const string& str) {
         this->writeString(str.c_str());
     }
 
-    void writePending() {
-        fPendingLF = SkTMin(fPendingLF, fMaxLF);
-        bool wroteLF = false;
-        while (fLinefeeds < fPendingLF) {
-            if (fDebugOut) {
-                SkDebugf("\n");
-            }
-            fprintf(fOut, "\n");
-            ++fLinefeeds;
-            wroteLF = true;
-        }
-        fPendingLF = 0;
-        if (wroteLF) {
-            SkASSERT(0 == fColumn);
-            SkASSERT(fIndent >= fSpaces);
-            if (fDebugOut) {
-                SkDebugf("%*s", fIndent - fSpaces, "");
-            }
-            fprintf(fOut, "%*s", fIndent - fSpaces, "");
-            fColumn = fIndent;
-            fSpaces = fIndent;
-        }
-        for (int index = 0; index < fPendingSpace; ++index) {
-            if (fDebugOut) {
-                SkDebugf(" ");
-            }
-            fprintf(fOut, " ");
-            ++fColumn;
-        }
-        fPendingSpace = 0;
-    }
 
     unordered_map<string, sk_sp<SkData>> fRawData;
     unordered_map<string, vector<char>> fLFOnly;
@@ -1209,6 +1133,7 @@ public:
     int fPendingSpace; // one or two spaces should preceed the next string or block
     char fLastChar;    // last written
     bool fDebugOut;    // set true to write to std out
+    bool fOutdentNext; // set at end of embedded struct to prevent premature outdent
 private:
     typedef TextParser INHERITED;
 };
@@ -1226,6 +1151,7 @@ public:
         kNo,    // neither resolved nor output
         kYes,   // resolved, output
         kOut,   // not resolved, but output
+        kLiteral, // output untouched (FIXME: is this really different from kOut?)
     };
 
     enum class Exemplary {
@@ -1267,7 +1193,7 @@ public:
 , { "Alias",       nullptr,      MarkType::kAlias,        R_N, E_N, 0 }
 , { "Bug",         nullptr,      MarkType::kBug,          R_N, E_N, 0 }
 , { "Class",       &fClassMap,   MarkType::kClass,        R_Y, E_O, M_CSST | M(Root) }
-, { "Code",        nullptr,      MarkType::kCode,         R_O, E_N, M_CSST | M_E }
+, { "Code",        nullptr,      MarkType::kCode,         R_O, E_N, M_CSST | M_E | M(Method) }
 , { "",            nullptr,      MarkType::kColumn,       R_Y, E_N, M(Row) }
 , { "",            nullptr,      MarkType::kComment,      R_N, E_N, 0 }
 , { "Const",       &fConstMap,   MarkType::kConst,        R_Y, E_N, M_E | M_ST  }
@@ -1291,10 +1217,12 @@ public:
 , { "Legend",      nullptr,      MarkType::kLegend,       R_Y, E_N, M(Table) }
 , { "",            nullptr,      MarkType::kLink,         R_N, E_N, M(Anchor) }
 , { "List",        nullptr,      MarkType::kList,         R_Y, E_N, M(Method) | M_CSST | M_E | M_D }
+, { "Literal",     nullptr,      MarkType::kLiteral,      R_N, E_N, M(Code) }
 , { "",            nullptr,      MarkType::kMarkChar,     R_N, E_N, 0 }
 , { "Member",      nullptr,      MarkType::kMember,       R_Y, E_N, M(Class) | M(Struct) }
 , { "Method",      &fMethodMap,  MarkType::kMethod,       R_Y, E_Y, M_CSST }
 , { "NoExample",   nullptr,      MarkType::kNoExample,    R_Y, E_N, 0 }
+, { "Outdent",     nullptr,      MarkType::kOutdent,      R_N, E_N, M(Code) }
 , { "Param",       nullptr,      MarkType::kParam,        R_Y, E_N, M(Method) }
 , { "Platform",    nullptr,      MarkType::kPlatform,     R_N, E_N, M(Example) }
 , { "Private",     nullptr,      MarkType::kPrivate,      R_N, E_N, 0 }
@@ -1474,10 +1402,12 @@ public:
         , { nullptr,        MarkType::kLegend }
         , { nullptr,        MarkType::kLink }
         , { nullptr,        MarkType::kList }
+        , { nullptr,        MarkType::kLiteral }
         , { nullptr,        MarkType::kMarkChar }
         , { nullptr,        MarkType::kMember }
         , { nullptr,        MarkType::kMethod }
         , { nullptr,        MarkType::kNoExample }
+        , { nullptr,        MarkType::kOutdent }
         , { nullptr,        MarkType::kParam }
         , { nullptr,        MarkType::kPlatform }
         , { nullptr,        MarkType::kPrivate }
@@ -1685,6 +1615,20 @@ public:
         this->writeEndTag(tagType, tagID.c_str(), spaces);
     }
 
+    void writeIncompleteTag(const char* tagType, const string& tagID, int spaces = 1) {
+        this->writeString(string("#") + tagType + " " + tagID);
+        this->writeSpace(spaces);
+        this->writeString("incomplete");
+        this->writeSpace();
+        this->writeString("##");
+        this->lf(1);
+    }
+
+    void writeIncompleteTag(const char* tagType) {
+        this->writeString(string("#") + tagType + " incomplete ##");
+        this->lf(1);
+    }
+
     void writeTableHeader(const char* col1, size_t pad, const char* col2) {
         this->lf(1);
         this->writeString("#Table");
@@ -1858,11 +1802,13 @@ public:
         fBmhParser = nullptr;
         fEnumDef = nullptr;
         fMethodDef = nullptr;
-        fStructDef = nullptr;
+        fBmhStructDef = nullptr;
         fAttrDeprecated = nullptr;
         fAnonymousEnumCount = 1;
         fInStruct = false;
         fWroteMethod = false;
+        fIndentNext = false;
+        fPendingMethod = false;
     }
 
     string resolveMethod(const char* start, const char* end, bool first);
@@ -1880,7 +1826,7 @@ private:
     const Definition* fBmhMethod;
     const Definition* fEnumDef;
     const Definition* fMethodDef;
-    const Definition* fStructDef;
+    const Definition* fBmhStructDef;
     const Definition* fAttrDeprecated;
     const char* fContinuation;  // used to construct paren-qualified method name
     int fAnonymousEnumCount;
@@ -1891,6 +1837,8 @@ private:
     int fStructCommentTab;
     bool fInStruct;
     bool fWroteMethod;
+    bool fIndentNext;
+    bool fPendingMethod;
 
     typedef IncludeParser INHERITED;
 };
@@ -1988,7 +1936,15 @@ private:
         fInList = false;
     }
 
-    BmhParser::Resolvable resolvable(MarkType markType) {
+    BmhParser::Resolvable resolvable(const Definition* definition) const {
+        MarkType markType = definition->fMarkType;
+        if (MarkType::kCode == markType) {
+            for (auto child : definition->fChildren) {
+                if (MarkType::kLiteral == child->fMarkType) {
+                    return BmhParser::Resolvable::kLiteral;
+                }
+            }
+        }
         if ((MarkType::kExample == markType
                 || MarkType::kFunction == markType) && fHasFiddle) {
             return BmhParser::Resolvable::kNo;

@@ -55,13 +55,11 @@ to manage pixel memory; Pixel_Ref is safe across threads.
 # bounds()         # Returns width and height as Rectangle. ##
 # colorSpace       # Returns Image_Info Color_Space. ##
 # colorType        # Returns Image_Info Color_Type. ##
+# computeByteSize  # Returns size required for pixels. ##
 # computeIsOpaque  # Returns true if all pixels are opaque. ##
 # erase()          # Writes Color to pixels. ##
 # extractSubset    # Sets pointer to portion of original. ##
 # getColor         # Returns one pixel as Unpremultiplied Color. ##
-# getSafeSize      # Returns minimum size required for pixels in 32 bits. ##
-# getSafeSize64    # Returns minimum size required for pixels in 64 bits. ##
-# getSize64        # Returns conservative size required for pixels. ##
 # height()         # Returns pixel row count. ##
 # info()           # Returns Image_Info. ##
 # isOpaque         # Returns true if Image_Info describes opaque pixels. ##
@@ -395,7 +393,7 @@ width: 384 height: 384 color: BGRA_8888 alpha: Opaque
 #Method size_t rowBytes() const 
 
 Returns row bytes, the interval from one pixel row to the next. Row bytes
-is at least as large as 
+is at least as large as: 
 #Formula
 width() * info().bytesPerPixel()
 ##
@@ -461,6 +459,7 @@ inset address:  0x7f2a440fb210
 #Method int width() const 
 
 Returns pixel count in each pixel row. Should be equal or less than:
+
 #Formula
 rowBytes() / info().bytesPerPixel()
 ##
@@ -622,11 +621,7 @@ isOpaque: true
 
 #Method SkIRect bounds() const 
 
-Returns IRect
-#Formula
-{ 0, 0, width(), height() }
-##
-.
+Returns IRect { 0, 0, width(), height() }.
 
 #Return  integral rectangle from origin to width() and height() ##
 
@@ -715,66 +710,6 @@ color: kRGBA_F16_SkColorType  bytesPerPixel: 8 shiftPerPixel: 3
 #SeeAlso rowBytes rowBytesAsPixels width SkImageInfo::bytesPerPixel
 
 ##
-
-# ------------------------------------------------------------------------------
-
-#Method uint64_t getSize64() const 
-
-#Deprecated
-##
-
-Returns conservative memory required for pixel storage.
-Includes unused memory on last row when rowBytesAsPixels exceeds width().
-
-#Return  conservative pixel storage size ##
-
-#NoExample
-##
-
-#SeeAlso getSafeSize64 getSafeSize height() rowBytes width() SkImageInfo::bytesPerPixel
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method uint64_t getSafeSize64() const 
-
-#Deprecated
-##
-
-Returns minimum memory required for pixel storage.
-Does not include unused memory on last row when rowBytesAsPixels exceeds width().
-
-#Return  exact pixel storage size ##
-
-#NoExample
-##
-
-#SeeAlso getSize64 getSafeSize height() rowBytes width() SkImageInfo::bytesPerPixel
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method size_t getSafeSize() const 
-
-#Deprecated
-##
-
-Returns minimum memory required for pixel storage.
-Does not include unused memory on last row when rowBytesAsPixels exceeds width().
-Returns zero if value is does not fit in a signed 32-bit integer.
-The largest value than can be returned is 2,147,483,647.
-
-#Return  exact pixel storage size if size fits in signed 32 bits ##
-
-#NoExample
-##
-
-#SeeAlso getSize64 getSafeSize64 height() rowBytes width() SkImageInfo::bytesPerPixel sk_64_isS32
-
-##
-
 
 # ------------------------------------------------------------------------------
 
@@ -1574,11 +1509,8 @@ is drawn after overwriting bottom half float color with top half float color.
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY, SkTransferFunctionBehavior behavior) const
 
-Copies a Rect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not exceed
-#Formula
-(this->width(), this->height())
-##
-. 
+Copies a Rect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not
+exceed (this->width(), this->height()). 
 
 dstInfo specifies width, height, Color_Type, Alpha_Type, and 
 Color_Space of destination. dstRowBytes specifics the gap from one destination
@@ -1593,7 +1525,8 @@ match. If this->colorSpace is nullptr, dstInfo.colorSpace must match. Returns
 false if pixel conversion is not possible.
  
 srcX and srcY may be negative to copy only top or left of source. Returns
-false if width() or height() is zero or negative. Returns false if 
+false if width() or height() is zero or negative. Returns false if:
+
 #Formula
 abs(srcX) >= this->width()
 ##
@@ -1655,11 +1588,7 @@ void draw(SkCanvas* canvas) {
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes) const 
 
 Copies a Rect of pixels to dstPixels. Copy starts at (0, 0), and does not
-exceed
-#Formula
-(this->width(), this->height())
-##
-.
+exceed (this->width(), this->height()).
 
 dstInfo specifies width, height, Color_Type, Alpha_Type, and 
 Color_Space of destination. dstRowBytes specifics the gap from one destination
@@ -1722,11 +1651,7 @@ creates visible banding.
                     int srcY) const 
 
 Copies a Rect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not
-exceed
-#Formula
-(this->width(), this->height())
-##
-.
+exceed (this->width(), this->height()).
 
 dstInfo specifies width, height, Color_Type, Alpha_Type, and 
 Color_Space of destination. dstRowBytes specifics the gap from one destination
@@ -1741,7 +1666,8 @@ match. If this->colorSpace is nullptr, dstInfo.colorSpace must match. Returns
 false if pixel conversion is not possible.
  
 srcX and srcY may be negative to copy only top or left of source. Returns
-false if this->width() or this->height() is zero or negative. Returns false if 
+false if this->width() or this->height() is zero or negative. Returns false if:
+
 #Formula
 abs(srcX) >= this->width()
 ##
@@ -1803,7 +1729,8 @@ match. If this->colorSpace is nullptr, dst.info().colorSpace must match. Returns
 false if pixel conversion is not possible.
  
 srcX and srcY may be negative to copy only top or left of source. Returns
-false this->width() or this->height() is zero or negative. Returns false if 
+false this->width() or this->height() is zero or negative. Returns false if:
+
 #Formula
 abs(srcX) >= this->width()
 ##

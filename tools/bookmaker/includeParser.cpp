@@ -10,6 +10,7 @@
 const IncludeKey kKeyWords[] = {
     { "",           KeyWord::kNone,         KeyProperty::kNone           },
     { "SK_API",     KeyWord::kSK_API,       KeyProperty::kModifier       },
+    { "SK_BEGIN_REQUIRE_DENSE", KeyWord::kSK_BEGIN_REQUIRE_DENSE, KeyProperty::kModifier },
     { "bool",       KeyWord::kBool,         KeyProperty::kNumber         },
     { "char",       KeyWord::kChar,         KeyProperty::kNumber         },
     { "class",      KeyWord::kClass,        KeyProperty::kObject         },
@@ -105,7 +106,7 @@ void IncludeParser::checkForMissingParams(const vector<string>& methodParams,
             }
         }
         if (!found) {
-            this->writeEndTag("Param", methodParam, 2);
+            this->writeIncompleteTag("Param", methodParam, 2);
         }
     }
     for (auto& foundParam : foundParams) {
@@ -508,11 +509,16 @@ void IncludeParser::dumpClassTokens(IClassDefinition& classDef) {
         }
         this->lf(2);
         this->writeTag("Example");
+        this->lf(1);
+        this->writeString("// incomplete");
+        this->lf(1);
         this->writeEndTag();
         this->lf(2);
-        this->writeEndTag("ToDo", "incomplete");
+        this->writeTag("SeeAlso");
+        this->writeSpace();
+        this->writeString("incomplete");
         this->lf(2);
-        this->writeEndTag();
+        this->writeEndTag("Method");
         this->lf(2);
     }
 }
@@ -673,7 +679,7 @@ void IncludeParser::dumpComment(const Definition& token) {
                 this->nl();
             }
             this->lf(2);
-            this->writeEndTag("Return");
+            this->writeIncompleteTag("Return");
         }
     }
 }
@@ -1389,11 +1395,36 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
     auto tokenIter = child->fParent->fTokens.begin();
     std::advance(tokenIter, child->fParentIndex);
     tokenIter = std::prev(tokenIter);
-    string nameStr(tokenIter->fStart, tokenIter->fContentEnd - tokenIter->fStart);
+    const char* nameEnd = tokenIter->fContentEnd;
+    bool add2 = false;
+    if ('[' == tokenIter->fStart[0]) {
+        auto closeParen = std::next(tokenIter);
+        SkASSERT(Definition::Type::kBracket == closeParen->fType &&
+                '(' == closeParen->fContentStart[0]);
+        nameEnd = closeParen->fContentEnd + 1;
+        closeParen = std::next(closeParen);
+        add2 = true;
+        if (Definition::Type::kKeyWord == closeParen->fType &&
+                KeyWord::kConst == closeParen->fKeyWord) {
+            add2 = false;
+        }
+        tokenIter = std::prev(tokenIter);
+    }
+    string nameStr(tokenIter->fStart, nameEnd - tokenIter->fStart);
+    if (add2) {
+        nameStr += "_2";
+    }
     while (tokenIter != child->fParent->fTokens.begin()) {
         auto testIter = std::prev(tokenIter);
         switch (testIter->fType) {
             case Definition::Type::kWord:
+                if (testIter == child->fParent->fTokens.begin() &&
+                        (KeyWord::kIfdef == child->fParent->fKeyWord ||
+                        KeyWord::kIfndef == child->fParent->fKeyWord ||
+                        KeyWord::kIf == child->fParent->fKeyWord)) {
+                    std::next(tokenIter);
+                    break;
+                }
                 goto keepGoing;
             case Definition::Type::kKeyWord: {
                 KeyProperty keyProperty = kKeyWords[(int) testIter->fKeyWord].fProperty;
@@ -1608,7 +1639,9 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                     // pick up templated function pieces when method is found
                     break;
                 case Bracket::kDebugCode:
-                    // todo: handle this
+                    if (!this->parseObjects(child, markupDef)) {
+                        return false;
+                    }
                     break;
                 case Bracket::kSquare: {
                     // check to see if parent is operator, the only case we handle so far

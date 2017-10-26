@@ -430,7 +430,7 @@ storage of <a href="undocumented#Raster_Surface">Raster Surface</a></td>
 
 ## <a name="SkCanvas_ColorBehavior"></a> Enum SkCanvas::ColorBehavior
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum class <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> {
 <a href="#SkCanvas_ColorBehavior_kLegacy">kLegacy</a>,
 };</pre>
@@ -875,10 +875,11 @@ bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                 int srcX, int srcY)
 </pre>
 
-Copies rectangle of pixels from <a href="#Canvas">Canvas</a> into <a href="#SkCanvas_readPixels_dstPixels">dstPixels</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are
-ignored. Source rectangle corners are (<a href="#SkCanvas_readPixels_srcX">srcX</a>, <a href="#SkCanvas_readPixels_srcY">srcY</a>) and(this-><a href="#SkCanvas_imageInfo">imageInfo</a>.width(), this-><a href="#SkCanvas_imageInfo">imageInfo</a>.height()).
+Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Canvas">Canvas</a> into <a href="#SkCanvas_readPixels_dstPixels">dstPixels</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are
+ignored. Source <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkCanvas_readPixels_srcX">srcX</a>, <a href="#SkCanvas_readPixels_srcY">srcY</a>) and
+(<a href="#SkCanvas_imageInfo">imageInfo</a>.width(), <a href="#SkCanvas_imageInfo">imageInfo</a>.height()).
 
-Destination rectangle corners are (0, 0) and (bitmap.width(), bitmap.height()).
+Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (bitmap.width(), bitmap.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkCanvas_readPixels_dstInfo">dstInfo</a>.colorType() and <a href="#SkCanvas_readPixels_dstInfo">dstInfo</a>.alphaType() if required.
 
@@ -891,7 +892,7 @@ The destination pixel storage must be allocated by the caller.
 
 <a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="#Color_Type">Image Color Type</a> and <a href="#Alpha_Type">Image Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
-are copied. <a href="#SkCanvas_readPixels_dstPixels">dstPixels</a> contents outside the rectangle intersection are unchanged.
+are copied. <a href="#SkCanvas_readPixels_dstPixels">dstPixels</a> contents outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
 Pass negative values for <a href="#SkCanvas_readPixels_srcX">srcX</a> or <a href="#SkCanvas_readPixels_srcY">srcY</a> to offset pixels across or down destination.
 
@@ -956,10 +957,11 @@ pixel = 8056a9ff
 bool readPixels(const SkPixmap& pixmap, int srcX, int srcY)
 </pre>
 
-Copies rectangle of pixels from <a href="#Canvas">Canvas</a> into <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are
-ignored. Source rectangle corners are (<a href="#SkCanvas_readPixels_2_srcX">srcX</a>, <a href="#SkCanvas_readPixels_2_srcY">srcY</a>) and(this-><a href="#SkCanvas_imageInfo">imageInfo</a>.width(), this-><a href="#SkCanvas_imageInfo">imageInfo</a>.height()). 
+Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Canvas">Canvas</a> into <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are
+ignored. Source <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkCanvas_readPixels_2_srcX">srcX</a>, <a href="#SkCanvas_readPixels_2_srcY">srcY</a>) and
+(<a href="#SkCanvas_imageInfo">imageInfo</a>.width(), <a href="#SkCanvas_imageInfo">imageInfo</a>.height()). 
 
-Destination rectangle corners are (0, 0) and (bitmap.width(), bitmap.height()).
+Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (bitmap.width(), bitmap.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.colorType() and <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.alphaType() if required.
 
@@ -971,8 +973,8 @@ class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 Caller must allocate pixel storage in <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a> if needed.
 
 <a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="#Color_Type">Image Color Type</a> and <a href="#Alpha_Type">Image Alpha Type</a>
-do not match. Only pixels within both source and destination rectangles
-are copied. <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a> pixels contents outside the rectangle intersection are unchanged.
+do not match. Only pixels within both source and destination <a href="#Rect">Rects</a>
+are copied. <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a> pixels contents outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
 Pass negative values for <a href="#SkCanvas_readPixels_2_srcX">srcX</a> or <a href="#SkCanvas_readPixels_2_srcY">srcY</a> to offset pixels across or down <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.
 
@@ -1025,10 +1027,11 @@ pixel = 802b5580
 bool readPixels(const SkBitmap& bitmap, int srcX, int srcY)
 </pre>
 
-Copies rectangle of pixels from <a href="#Canvas">Canvas</a> into <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are
-ignored. Source rectangle corners are (<a href="#SkCanvas_readPixels_3_srcX">srcX</a>, <a href="#SkCanvas_readPixels_3_srcY">srcY</a>) and(this-><a href="#SkCanvas_imageInfo">imageInfo</a>.width(), this-><a href="#SkCanvas_imageInfo">imageInfo</a>.height()). 
+Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Canvas">Canvas</a> into <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are
+ignored. Source <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkCanvas_readPixels_3_srcX">srcX</a>, <a href="#SkCanvas_readPixels_3_srcY">srcY</a>) and
+(<a href="#SkCanvas_imageInfo">imageInfo</a>.width(), <a href="#SkCanvas_imageInfo">imageInfo</a>.height()). 
 
-Destination rectangle corners are (0, 0) and (<a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.width(), <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.height()).
+Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.width(), <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.colorType() and <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.alphaType() if required.
 
@@ -1041,7 +1044,7 @@ Caller must allocate pixel storage in <a href="#SkCanvas_readPixels_3_bitmap">bi
 
 <a href="SkBitmap_Reference#Bitmap">Bitmap</a> values are converted only if <a href="#Color_Type">Image Color Type</a> and <a href="#Alpha_Type">Image Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
-are copied. <a href="SkBitmap_Reference#Bitmap">Bitmap</a> pixels outside the rectangle intersection are unchanged.
+are copied. <a href="SkBitmap_Reference#Bitmap">Bitmap</a> pixels outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
 Pass negative values for <a href="#SkCanvas_readPixels_3_srcX">srcX</a> or <a href="#SkCanvas_readPixels_3_srcY">srcY</a> to offset pixels across or down <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.
 
@@ -1098,12 +1101,13 @@ bool writePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
                  int x, int y)
 </pre>
 
-Copies rectangle from <a href="#SkCanvas_writePixels_pixels">pixels</a> to <a href="#Canvas">Canvas</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are ignored.
-Source rectangle corners are (0, 0) and (<a href="#SkCanvas_writePixels_info">info</a>.width(), <a href="#SkCanvas_writePixels_info">info</a>.height()).
-Destination rectangle corners are (<a href="#SkCanvas_writePixels_x">x</a>, <a href="#SkCanvas_writePixels_y">y</a>) and(this-><a href="#SkCanvas_imageInfo">imageInfo</a>.width(), this-><a href="#SkCanvas_imageInfo">imageInfo</a>.height()).
+Copies <a href="SkRect_Reference#Rect">Rect</a> from <a href="#SkCanvas_writePixels_pixels">pixels</a> to <a href="#Canvas">Canvas</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are ignored.
+Source <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a href="#SkCanvas_writePixels_info">info</a>.width(), <a href="#SkCanvas_writePixels_info">info</a>.height()).
+Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkCanvas_writePixels_x">x</a>, <a href="#SkCanvas_writePixels_y">y</a>) and
+(<a href="#SkCanvas_imageInfo">imageInfo</a>.width(), <a href="#SkCanvas_imageInfo">imageInfo</a>.height()).
 
 Copies each readable pixel intersecting both rectangles, without scaling,
-converting tothis-><a href="#SkCanvas_imageInfo">imageInfo</a>.colorType()andthis-><a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType()if required.
+converting to <a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() and <a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType() if required.
 
 Pixels are writable when <a href="undocumented#Device">Device</a> is raster, or backed by a <a href="undocumented#GPU">GPU</a>.
 Pixels are not writable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
@@ -1112,7 +1116,7 @@ class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
 <a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="#Color_Type">Image Color Type</a> and <a href="#Alpha_Type">Image Alpha Type</a>
 do not match. Only <a href="#SkCanvas_writePixels_pixels">pixels</a> within both source and destination rectangles
-are copied. <a href="#Canvas">Canvas</a> <a href="#SkCanvas_writePixels_pixels">pixels</a> outside the rectangle intersection are unchanged.
+are copied. <a href="#Canvas">Canvas</a> <a href="#SkCanvas_writePixels_pixels">pixels</a> outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
 Pass negative values for <a href="#SkCanvas_writePixels_x">x</a> or <a href="#SkCanvas_writePixels_y">y</a> to offset <a href="#SkCanvas_writePixels_pixels">pixels</a> to the left or
 above <a href="#Canvas">Canvas</a> <a href="#SkCanvas_writePixels_pixels">pixels</a>.
@@ -1160,13 +1164,14 @@ true if <a href="#SkCanvas_writePixels_pixels">pixels</a> were written to <a hre
 bool writePixels(const SkBitmap& bitmap, int x, int y)
 </pre>
 
-Copies rectangle from pixels to <a href="#Canvas">Canvas</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are ignored.
-Source rectangle corners are (0, 0) and (<a href="#SkCanvas_writePixels_2_bitmap">bitmap</a>.width(), <a href="#SkCanvas_writePixels_2_bitmap">bitmap</a>.height()).
+Copies <a href="SkRect_Reference#Rect">Rect</a> from pixels to <a href="#Canvas">Canvas</a>. <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> are ignored.
+Source <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a href="#SkCanvas_writePixels_2_bitmap">bitmap</a>.width(), <a href="#SkCanvas_writePixels_2_bitmap">bitmap</a>.height()).
 
-Destination rectangle corners are (<a href="#SkCanvas_writePixels_2_x">x</a>, <a href="#SkCanvas_writePixels_2_y">y</a>) and(this-><a href="#SkCanvas_imageInfo">imageInfo</a>.width(), this-><a href="#SkCanvas_imageInfo">imageInfo</a>.height()).
+Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkCanvas_writePixels_2_x">x</a>, <a href="#SkCanvas_writePixels_2_y">y</a>) and
+(<a href="#SkCanvas_imageInfo">imageInfo</a>.width(), <a href="#SkCanvas_imageInfo">imageInfo</a>.height()).
 
 Copies each readable pixel intersecting both rectangles, without scaling,
-converting tothis-><a href="#SkCanvas_imageInfo">imageInfo</a>.colorType()andthis-><a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType()if required.
+converting to <a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() and <a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType() if required.
 
 Pixels are writable when <a href="undocumented#Device">Device</a> is raster, or backed by a <a href="undocumented#GPU">GPU</a>.
 Pixels are not writable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
@@ -1175,7 +1180,7 @@ class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
 <a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="#Color_Type">Image Color Type</a> and <a href="#Alpha_Type">Image Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
-are copied. <a href="#Canvas">Canvas</a> pixels outside the rectangle intersection are unchanged.
+are copied. <a href="#Canvas">Canvas</a> pixels outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
 Pass negative values for <a href="#SkCanvas_writePixels_2_x">x</a> or <a href="#SkCanvas_writePixels_2_y">y</a> to offset pixels to the left or
 above <a href="#Canvas">Canvas</a> pixels.
@@ -1554,7 +1559,7 @@ depth of saved stack
 
 ## <a name="SkCanvas__anonymous"></a> Enum SkCanvas::_anonymous
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum {
 <a href="#SkCanvas_kIsOpaque_SaveLayerFlag">kIsOpaque SaveLayerFlag</a> = 1 << 0,
 <a href="#SkCanvas_kPreserveLCDText_SaveLayerFlag">kPreserveLCDText SaveLayerFlag</a> = 1 << 1,
@@ -1596,7 +1601,7 @@ scalePaint blends <a href="#Layer">Layer</a> back with transparency.</div></fidd
 
 # <a name="SkCanvas_SaveLayerRec"></a> Struct SkCanvas::SaveLayerRec
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 struct <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a> {
 <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a>*(...
 
@@ -2732,7 +2737,7 @@ graphics state used to fill <a href="#Canvas">Canvas</a></td>
 
 ## <a name="SkCanvas_PointMode"></a> Enum SkCanvas::PointMode
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkCanvas_PointMode">PointMode</a> {
 <a href="#SkCanvas_kPoints_PointMode">kPoints PointMode</a>,
 <a href="#SkCanvas_kLines_PointMode">kLines PointMode</a>,
@@ -3389,7 +3394,7 @@ and so on; or nullptr</td>
 
 ## <a name="SkCanvas_SrcRectConstraint"></a> Enum SkCanvas::SrcRectConstraint
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> {
 <a href="#SkCanvas_kStrict_SrcRectConstraint">kStrict SrcRectConstraint</a>, 
 <a href="#SkCanvas_kFast_SrcRectConstraint">kFast SrcRectConstraint</a>, 
@@ -4007,15 +4012,8 @@ and below <a href="#SkCanvas_drawBitmapNine_center">center</a> to fill the remai
 ---
 
 # <a name="SkCanvas_Lattice"></a> Struct SkCanvas::Lattice
-<a href="#SkCanvas_Lattice">Lattice</a> divides <a href="SkBitmap_Reference#Bitmap">Bitmap</a> or <a href="undocumented#Image">Image</a> into a rectangular grid.
-Grid entries on even columns and even rows are fixed; these entries are
-always drawn at their original size if the destination is large enough.
-If the destination side is too small to hold the fixed entries, all fixed
-entries are proportionately scaled down to fit.
-The grid entries not on even columns and rows are scaled to fit the
-remaining space, if any.
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 struct <a href="#SkCanvas_Lattice">Lattice</a> {
 enum <a href="#SkCanvas_Lattice_Flags">Flags</a> {...
 
@@ -4027,9 +4025,17 @@ int            <a href="#SkCanvas_Lattice_fYCount">fYCount</a>;
 const <a href="SkIRect_Reference#SkIRect">SkIRect</a>* <a href="#SkCanvas_Lattice_fBounds">fBounds</a>;
 };</pre>
 
+<a href="#SkCanvas_Lattice">Lattice</a> divides <a href="SkBitmap_Reference#Bitmap">Bitmap</a> or <a href="undocumented#Image">Image</a> into a rectangular grid.
+Grid entries on even columns and even rows are fixed; these entries are
+always drawn at their original size if the destination is large enough.
+If the destination side is too small to hold the fixed entries, all fixed
+entries are proportionately scaled down to fit.
+The grid entries not on even columns and rows are scaled to fit the
+remaining space, if any.
+
 ## <a name="SkCanvas_Lattice_Flags"></a> Enum SkCanvas::Lattice::Flags
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkCanvas_Lattice_Flags">Flags</a> : uint8_t {
 <a href="#SkCanvas_Lattice_kTransparent_Flags">kTransparent Flags</a> = 1 << 0,
 };</pre>
@@ -5306,8 +5312,8 @@ Restores <a href="#Canvas">Canvas</a> to saved state.
 void restore()
 </pre>
 
-Restores <a href="#Canvas">Canvas</a> to saved state immediately. Subsequent calls and class 
-destructor have no effect.
+Restores <a href="#Canvas">Canvas</a> to saved state immediately. Subsequent calls and
+<a href="#SkAutoCanvasRestore_destructor">~SkAutoCanvasRestore</a> have no effect.
 
 ### Example
 

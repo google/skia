@@ -653,7 +653,7 @@ serialized data describing <a href="#Paint">Paint</a> content</td>
 
 ## <a name="SkPaint_Hinting"></a> Enum SkPaint::Hinting
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#Hinting">Hinting</a> {
 <a href="#SkPaint_kNo_Hinting">kNo Hinting</a>            = 0,
 <a href="#SkPaint_kSlight_Hinting">kSlight Hinting</a>        = 1,
@@ -776,7 +776,7 @@ paint1 == paint2
 
 ## <a name="SkPaint_Flags"></a> Enum SkPaint::Flags
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#Flags">Flags</a> {
 <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a>       = 0x01,
 <a href="#SkPaint_kDither_Flag">kDither Flag</a>          = 0x04,
@@ -845,7 +845,7 @@ multiple settings at once.
 
 ## <a name="SkPaint_ReserveFlags"></a> Enum SkPaint::ReserveFlags
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPaint_ReserveFlags">ReserveFlags</a> {
 <a href="#SkPaint_kUnderlineText_ReserveFlag">kUnderlineText ReserveFlag</a>   = 0x08,
 <a href="#SkPaint_kStrikeThruText_ReserveFlag">kStrikeThruText ReserveFlag</a>  = 0x10,
@@ -1356,7 +1356,7 @@ the outline glyph if <a href="#SkPaint_kEmbeddedBitmapText_Flag">kEmbeddedBitmap
 
 ### Example
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 <div>The "" <a href="undocumented#TrueType">TrueType</a> font in the <a href="undocumented#Skia">Skia</a> resources/fonts directory
 includes an embedded bitmap <a href="undocumented#Glyph">Glyph</a> at odd font sizes. This example works
 on platforms that use <a href="undocumented#FreeType">FreeType</a> as their <a href="#Engine">Font Engine</a>.
@@ -2066,7 +2066,7 @@ while stroking.
 
 ## <a name="SkPaint_Style"></a> Enum SkPaint::Style
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPaint_Style">Style</a> {
 <a href="#SkPaint_kFill_Style">kFill Style</a>,
 <a href="#SkPaint_kStroke_Style">kStroke Style</a>,
@@ -2110,7 +2110,7 @@ and the set <a href="#Fill_Type">Path Fill Type</a> is ignored.</td>
 
 ## <a name="SkPaint__anonymous"></a> Enum SkPaint::_anonymous
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum {
 <a href="#SkPaint_kStyleCount">kStyleCount</a> = <a href="#SkPaint_kStrokeAndFill_Style">kStrokeAndFill Style</a> + 1,
 };</pre>
@@ -2375,7 +2375,7 @@ default miter limit == 8
 
 ## <a name="SkPaint_Cap"></a> Enum SkPaint::Cap
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPaint_Cap">Cap</a> {
 <a href="#SkPaint_kButt_Cap">kButt Cap</a>,
 <a href="#SkPaint_kRound_Cap">kRound Cap</a>,
@@ -2520,7 +2520,7 @@ the following curve, the pair of curves meet at <a href="#Stroke_Join">Stroke Jo
 
 ## <a name="SkPaint_Join"></a> Enum SkPaint::Join
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPaint_Join">Join</a> {
 <a href="#SkPaint_kMiter_Join">kMiter Join</a>,
 <a href="#SkPaint_kRound_Join">kRound Join</a>,
@@ -3663,7 +3663,7 @@ sets <a href="undocumented#Draw_Looper">Draw Looper</a> to <a href="#SkPaint_set
 
 ## <a name="SkPaint_Align"></a> Enum SkPaint::Align
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPaint_Align">Align</a> {
 <a href="#SkPaint_kLeft_Align">kLeft Align</a>,
 <a href="#SkPaint_kCenter_Align">kCenter Align</a>,
@@ -3706,7 +3706,7 @@ and by its height if <a href="#SkPaint_Flags">Flags</a> has <a href="#SkPaint_kV
 
 ## <a name="SkPaint__anonymous_2"></a> Enum SkPaint::_anonymous_2
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum {
 <a href="#SkPaint_kAlignCount">kAlignCount</a> = 3,
 };</pre>
@@ -3944,7 +3944,7 @@ additional shear in x-axis relative to y-axis</td>
 
 ## <a name="SkPaint_TextEncoding"></a> Enum SkPaint::TextEncoding
 
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPaint_TextEncoding">TextEncoding</a> {
 <a href="#SkPaint_kUTF8_TextEncoding">kUTF8 TextEncoding</a>,
 <a href="#SkPaint_kUTF16_TextEncoding">kUTF16 TextEncoding</a>,
@@ -4075,16 +4075,8 @@ Y-axis values above the baseline are negative, and below the baseline are positi
 <div><fiddle-embed name="b5b76e0a15da0c3530071186a9006498"></fiddle-embed></div>
 
 # <a name="SkPaint_FontMetrics"></a> Struct SkPaint::FontMetrics
-<a href="#SkPaint_FontMetrics">FontMetrics</a> is filled out by <a href="#SkPaint_getFontMetrics">getFontMetrics</a>. <a href="#SkPaint_FontMetrics">FontMetrics</a> contents reflect the values
-computed by <a href="undocumented#Font_Manager">Font Manager</a> using <a href="undocumented#Typeface">Typeface</a>. Values are set to zero if they are
-not available.
 
-<a href="#SkPaint_FontMetrics_fUnderlineThickness">fUnderlineThickness</a> and <a href="#SkPaint_FontMetrics_fUnderlinePosition">fUnderlinePosition</a> have a bit set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a> if their values
-are valid, since their value may be zero.
-<a href="#SkPaint_FontMetrics_fStrikeoutThickness">fStrikeoutThickness</a> and <a href="#SkPaint_FontMetrics_fStrikeoutPosition">fStrikeoutPosition</a> have a bit set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a> if their values
-are valid, since their value may be zero.
-
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 struct <a href="#SkPaint_FontMetrics">FontMetrics</a> {
 enum <a href="#SkPaint_FontMetrics_FontMetricsFlags">FontMetricsFlags</a> {
 <a href="#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag">kUnderlineThicknessIsValid Flag</a> = 1 << 0,
@@ -4116,19 +4108,28 @@ bool <a href="#SkPaint_FontMetrics_hasStrikeoutThickness">hasStrikeoutThickness(
 bool <a href="#SkPaint_FontMetrics_hasStrikeoutPosition">hasStrikeoutPosition(SkScalar* position)</a> const;
 };</pre>
 
+<a href="#SkPaint_FontMetrics">FontMetrics</a> is filled out by <a href="#SkPaint_getFontMetrics">getFontMetrics</a>. <a href="#SkPaint_FontMetrics">FontMetrics</a> contents reflect the values
+computed by <a href="undocumented#Font_Manager">Font Manager</a> using <a href="undocumented#Typeface">Typeface</a>. Values are set to zero if they are
+not available.
+
+<a href="#SkPaint_FontMetrics_fUnderlineThickness">fUnderlineThickness</a> and <a href="#SkPaint_FontMetrics_fUnderlinePosition">fUnderlinePosition</a> have a bit set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a> if their values
+are valid, since their value may be zero.
+<a href="#SkPaint_FontMetrics_fStrikeoutThickness">fStrikeoutThickness</a> and <a href="#SkPaint_FontMetrics_fStrikeoutPosition">fStrikeoutPosition</a> have a bit set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a> if their values
+are valid, since their value may be zero.
+
 ## <a name="SkPaint_FontMetrics_FontMetricsFlags"></a> Enum SkPaint::FontMetrics::FontMetricsFlags
 
-<a href="#SkPaint_FontMetrics_FontMetricsFlags">FontMetricsFlags</a> are set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a> when underline and strikeout metrics are valid;
-the underline or strikeout metric may be valid and zero.
-Fonts with embedded bitmaps may not have valid underline or strikeout metrics.
-
-<pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 enum <a href="#SkPaint_FontMetrics_FontMetricsFlags">FontMetricsFlags</a> {
 <a href="#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag">kUnderlineThicknessIsValid Flag</a> = 1 << 0,
 <a href="#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag">kUnderlinePositionIsValid Flag</a> = 1 << 1,
 <a href="#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag">kStrikeoutThicknessIsValid Flag</a> = 1 << 2,
 <a href="#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag">kStrikeoutPositionIsValid Flag</a> = 1 << 3,
 };</pre>
+
+<a href="#SkPaint_FontMetrics_FontMetricsFlags">FontMetricsFlags</a> are set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a> when underline and strikeout metrics are valid;
+the underline or strikeout metric may be valid and zero.
+Fonts with embedded bitmaps may not have valid underline or strikeout metrics.
 
 ### Constants
 

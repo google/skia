@@ -34,7 +34,7 @@ its <a href="#SkIRect_top">top</a>, it is considered empty.
 | <a href="#SkIRect_MakeEmpty">MakeEmpty</a> | Returns bounds of (0, 0, 0, 0). |
 | <a href="#SkIRect_MakeLTRB">MakeLTRB</a> | Constructs from int <a href="#SkIRect_left">left</a>, <a href="#SkIRect_top">top</a>, <a href="#SkIRect_right">right</a>, <a href="#SkIRect_bottom">bottom</a>. |
 | <a href="#SkIRect_MakeLargest">MakeLargest</a> | Constructs from (<a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>). |
-| <a href="#SkIRect_MakeSize">MakeSize</a> | Constructs from <a href="#Size">ISize</a> returning (0, 0, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
+| <a href="#SkIRect_MakeSize">MakeSize</a> | Constructs from <a href="undocumented#ISize">ISize</a> returning (0, 0, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
 | <a href="#SkIRect_MakeWH">MakeWH</a> | Constructs from int input returning (0, 0, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
 | <a href="#SkIRect_MakeXYWH">MakeXYWH</a> | Constructs from int input returning (<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
 | <a href="#SkIRect_bottom">bottom</a> | Returns larger bounds in <a href="#SkIRect_y">y</a>, if sorted. |
@@ -66,7 +66,7 @@ its <a href="#SkIRect_top">top</a>, it is considered empty.
 | <a href="#SkIRect_setLargest">setLargest</a> | Sets to (<a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>). |
 | <a href="#SkIRect_setLargestInverted">setLargestInverted</a> | Sets to (<a href="undocumented#SK_MaxS32">SK MaxS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>, <a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MinS32">SK MinS32</a>). |
 | <a href="#SkIRect_setXYWH">setXYWH</a> | Sets to (<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
-| <a href="#SkIRect_size">size</a> | Returns <a href="#Size">ISize</a> (<a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
+| <a href="#SkIRect_size">size</a> | Returns <a href="undocumented#ISize">ISize</a> (<a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
 | <a href="#SkIRect_sort">sort</a> | Orders sides from smaller to larger. |
 | <a href="#SkIRect_top">top</a> | Returns smaller bounds in <a href="#SkIRect_y">y</a>, if sorted. |
 | <a href="#SkIRect_width">width</a> | Returns span in <a href="#SkIRect_x">x</a>. |
@@ -301,7 +301,8 @@ static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeXYWH(int32_t x, int32_t y,
                                                         int32_t w, int32_t h)
 </pre>
 
-Returns constructed <a href="#IRect">IRect</a> <a href="#SkIRect_set">set</a> to(<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + <a href="#SkIRect_MakeXYWH_w">w</a>, <a href="#SkIRect_y">y</a> + <a href="#SkIRect_MakeXYWH_h">h</a>). 
+Returns constructed <a href="#IRect">IRect</a> <a href="#SkIRect_set">set</a> to:
+(<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + <a href="#SkIRect_MakeXYWH_w">w</a>, <a href="#SkIRect_y">y</a> + <a href="#SkIRect_MakeXYWH_h">h</a>). 
 Does not validate input;
 <a href="#SkIRect_MakeXYWH_w">w</a> or <a href="#SkIRect_MakeXYWH_h">h</a> may be negative.
 
@@ -617,7 +618,7 @@ or if result fits in 32-bit signed integer; result may be negative.
 
 ### Return Value
 
-<a href="#Size">ISize</a> (<a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>)
+<a href="undocumented#ISize">ISize</a> (<a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>)
 
 ### Example
 
@@ -1019,7 +1020,8 @@ rect2: {3, 4, 1, 2}
 void setXYWH(int32_t x, int32_t y, int32_t width, int32_t height)
 </pre>
 
-Sets <a href="#IRect">IRect</a> to(<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + <a href="#SkIRect_width">width</a>, <a href="#SkIRect_y">y</a> + <a href="#SkIRect_height">height</a>). 
+Sets <a href="#IRect">IRect</a> to:
+(<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + <a href="#SkIRect_width">width</a>, <a href="#SkIRect_y">y</a> + <a href="#SkIRect_height">height</a>). 
 Does not validate input;
 <a href="#SkIRect_width">width</a> or <a href="#SkIRect_height">height</a> may be negative.
 
@@ -1495,11 +1497,13 @@ rect (7, 11, 13, 17) test(12, 16, 14, 18) quickReject false; intersects true
 bool contains(int32_t x, int32_t y) const
 </pre>
 
-Returns true if<a href="#SkIRect_fLeft">fLeft</a> <= <a href="#SkIRect_x">x</a> < <a href="#SkIRect_fRight">fRight</a> && <a href="#SkIRect_fTop">fTop</a> <= <a href="#SkIRect_y">y</a> < <a href="#SkIRect_fBottom">fBottom</a>.
+Returns true if:
+<a href="#SkIRect_fLeft">fLeft</a> <= <a href="#SkIRect_x">x</a> < <a href="#SkIRect_fRight">fRight</a> && <a href="#SkIRect_fTop">fTop</a> <= <a href="#SkIRect_y">y</a> < <a href="#SkIRect_fBottom">fBottom</a>.
 
 Returns false if <a href="SkRect_Reference#Rect">Rect</a> is empty.
 
-Considers input to describe constructed <a href="#IRect">IRect</a> (<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + 1, <a href="#SkIRect_y">y</a> + 1) and
+Considers input to describe constructed <a href="#IRect">IRect</a>:
+(<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + 1, <a href="#SkIRect_y">y</a> + 1)and
 returns true if constructed area is completely enclosed by <a href="#IRect">IRect</a> area.
 
 ### Parameters
@@ -1758,7 +1762,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 # <a name="Intersection"></a> Intersection
 IRects <a href="#SkIRect_intersect">intersect</a> when they enclose a common area. To <a href="#SkIRect_intersect">intersect</a>, each of the pair 
 must describe area; <a href="#SkIRect_fLeft">fLeft</a> is less than <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fTop">fTop</a> is less than <a href="#SkIRect_fBottom">fBottom</a>;
-empty() returns false. The intersection of <a href="#IRect">IRect</a> a and <a href="#IRect">IRect</a> b can be described by:
+empty() returns false. The intersection of <a href="#IRect">IRect</a> pair can be described by:
 (max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
 min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))The intersection is only meaningful if the resulting <a href="#IRect">IRect</a> is not empty and
 describes an area: <a href="#SkIRect_fLeft">fLeft</a> is less than <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fTop">fTop</a> is less than <a href="#SkIRect_fBottom">fBottom</a>.
