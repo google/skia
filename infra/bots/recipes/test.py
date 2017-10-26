@@ -106,6 +106,11 @@ def dm_flags(api, bot):
     if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
       configs = ['8888', 'srgb']
 
+    if 'FSAA' in bot or 'FAAA' in bot or 'FDAA' in bot:
+      # Scan converters shouldn't really be sensitive to different color
+      # configurations.
+      configs = ['8888', 'tiles_rt-8888']
+
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
 
@@ -922,9 +927,9 @@ TEST_BUILDERS = [
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Debug-All-Vulkan',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
   'Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All-Vulkan',
-  'Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All-Vulkan_FSAA',
-  'Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All-Vulkan_FAAA',
-  'Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All-Vulkan_FDAA',
+  'Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
+  'Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA',
+  'Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
   'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug-All',
   'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All',
 ]
