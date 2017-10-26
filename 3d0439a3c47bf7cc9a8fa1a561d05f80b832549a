@@ -16,6 +16,24 @@
       "revId": "3d0439a3c47bf7cc9a8fa1a561d05f80b832549a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44cb246d_6d2ad3d5",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-10-26T16:43:58Z",
+      "side": 1,
+      "message": "Thanks. I haven\u0027t figured out how to detect \u0027grammar\u0027 typos like this one.",
+      "parentUuid": "b8dc8776_ad3330f4",
+      "revId": "3d0439a3c47bf7cc9a8fa1a561d05f80b832549a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

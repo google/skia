@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ee01632c_87018087",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-10-26T16:43:58Z",
+      "side": 1,
+      "message": "No idea. Perhaps one of the authors can shed some light.",
+      "parentUuid": "be1acca9_97f55a72",
+      "revId": "4ca24da32b34e2dbf84af16249b2e73488158b75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0f0625b9_72997432",
         "filename": "include/core/SkBitmap.h",
         "patchSetId": 12
@@ -30,6 +48,24 @@
       "writtenOn": "2017-10-26T16:25:02Z",
       "side": 1,
       "message": "Just curious: there are many repetitive things in the comments (e.g., dstInfo description). Considering our tendency to reduce repetitions in code, is there a good way to reduce such repetitions in comments so we don\u0027t have to modify multiple places for a single change in the future?",
+      "revId": "4ca24da32b34e2dbf84af16249b2e73488158b75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "641f14fb_960cf0e2",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 984,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-10-26T16:43:58Z",
+      "side": 1,
+      "message": "I agree this is a concern. I have several thoughts about this.\n- While repetition is additional work for the author, it avoids having the reader find the information about how one thing works by referring to several sources.\n- The repetition can be (ideally) authored once and generated more than once. My long term plan is to permit single authorship, but I\u0027m not there yet.\n- Many times, the information, while similar, is not exactly the same. Repeating the information is the easiest way to edit the differences -- eventually I\u0027d like to provide tooling that folds the many small differences back together.\n- My assumption is that information here is read as a reference, not as a tutorial. Work (yet to be done) in the web version summarizes why there are many different versions of similar routines and how to choose the one appropriate for the task at hand.",
+      "parentUuid": "0f0625b9_72997432",
       "revId": "4ca24da32b34e2dbf84af16249b2e73488158b75",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
