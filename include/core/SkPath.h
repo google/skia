@@ -1411,8 +1411,7 @@ enum Direction {
         degenerate data.
     */
     class SK_API Iter {
-
-        public:
+    public:
 
         /** Initializes iter with an empty SkPath. next() on iter returns kDone_Verb.
             Call setPath to initialize iter at a later time.
@@ -1515,8 +1514,7 @@ enum Direction {
         verb array, SkPoint arrays, and conic weight are returned unaltered.
     */
     class SK_API RawIter {
-
-        public:
+    public:
 
         /** Initializes RawIter with an empty SkPath. next() on RawIter returns kDone_Verb.
             Call setPath to initialize iter at a later time.
