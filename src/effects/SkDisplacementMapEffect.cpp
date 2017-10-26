@@ -285,7 +285,6 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         SkMatrix offsetMatrix = SkMatrix::MakeTrans(SkIntToScalar(colorOffset.fX - displOffset.fX),
                                                     SkIntToScalar(colorOffset.fY - displOffset.fY));
         SkColorSpace* colorSpace = ctx.outputProperties().colorSpace();
-
         std::unique_ptr<GrFragmentProcessor> fp =
                 GrDisplacementMapEffect::Make(fXChannelSelector,
                                               fYChannelSelector,
