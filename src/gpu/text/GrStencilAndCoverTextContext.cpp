@@ -82,16 +82,9 @@ void GrStencilAndCoverTextContext::drawText(GrContext* context, GrRenderTargetCo
                      skPaint);
         }
         return;
-    } else if (fFallbackTextContext->canDraw(skPaint, viewMatrix, props,
-                                             *context->caps()->shaderCaps())) {
-        fFallbackTextContext->drawText(context, rtc, clip, skPaint, viewMatrix, props, text,
-                                       byteLength, x, y, clipBounds);
-        return;
     }
-
-    // fall back to drawing as a path
-    GrTextUtils::DrawTextAsPath(context, rtc, clip, skPaint, viewMatrix, text, byteLength, x, y,
-                                clipBounds);
+    fFallbackTextContext->drawText(context, rtc, clip, skPaint, viewMatrix, props, text,
+                                       byteLength, x, y, clipBounds);
 }
 
 void GrStencilAndCoverTextContext::drawPosText(GrContext* context, GrRenderTargetContext* rtc,
@@ -111,16 +104,9 @@ void GrStencilAndCoverTextContext::drawPosText(GrContext* context, GrRenderTarge
                      skPaint);
         }
         return;
-    } else if (fFallbackTextContext->canDraw(skPaint, viewMatrix, props,
-                                             *context->caps()->shaderCaps())) {
-        fFallbackTextContext->drawPosText(context, rtc, clip, skPaint, viewMatrix, props, text,
-                                          byteLength, pos, scalarsPerPosition, offset, clipBounds);
-        return;
     }
-
-    // fall back to drawing as a path
-    GrTextUtils::DrawPosTextAsPath(context, rtc, props, clip, skPaint, viewMatrix, text,
-                                   byteLength, pos, scalarsPerPosition, offset, clipBounds);
+    fFallbackTextContext->drawPosText(context, rtc, clip, skPaint, viewMatrix, props, text,
+                                      byteLength, pos, scalarsPerPosition, offset, clipBounds);
 }
 
 void GrStencilAndCoverTextContext::uncachedDrawTextBlob(GrContext* context,
