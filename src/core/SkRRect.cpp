@@ -10,6 +10,7 @@
 #include "SkBuffer.h"
 #include "SkMatrix.h"
 #include "SkScaleToSides.h"
+#include "SkUtils.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -122,7 +123,7 @@ static double compute_min_scale(double rad1, double rad2, double limit, double c
     return curMin;
 }
 
-void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
+void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4], const SkScalar exp[4]) {
     fRect = rect;
     fRect.sort();
 
@@ -159,6 +160,16 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
         return;
     }
 
+    if (exp) {
+        auto sanitize_exp = [](SkScalar e) -> SkScalar {
+            return (e >= 0 && SkScalarIsFinite(e)) ? e : 0;
+        };
+        for (int i = 0; i < 4; ++i) {
+            fExp[i] = sanitize_exp(exp[i]);
+        }
+    } else {
+        sk_memset_floats(fExp, 2.0f, 4);
+    }
     this->scaleRadii();
 }
 

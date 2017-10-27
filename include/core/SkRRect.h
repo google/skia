@@ -209,8 +209,13 @@ public:
 
     /**
      * Initialize the RR with potentially different radii for all four corners.
+     *
+     *  Optionally 4 exponents can also be specified. If not specified (i.e. nullptr is passed)
+     *  then the values default to 2, which gives an elliptical arc at each corner. Values must
+     *  be finite and >= 0.
      */
-    void setRectRadii(const SkRect& rect, const SkVector radii[4]);
+    void setRectRadii(const SkRect& rect, const SkVector radii[4],
+                      const SkScalar exp[4] = nullptr);
 
     // The radii are stored in UL, UR, LR, LL order.
     enum Corner {
@@ -221,8 +226,9 @@ public:
     };
 
     const SkRect& rect() const { return fRect; }
-    const SkVector& radii(Corner corner) const { return fRadii[corner]; }
     const SkRect& getBounds() const { return fRect; }
+    const SkVector& radii(Corner corner) const { return fRadii[corner]; }
+    SkScalar exponent(Corner corner) const { return fExp[corner]; }
 
     /**
      *  When a rrect is simple, all of its radii are equal. This returns one
@@ -339,11 +345,14 @@ private:
     SkRRect(const SkRect& rect, const SkVector radii[4], int32_t type)
         : fRect(rect)
         , fRadii{radii[0], radii[1], radii[2], radii[3]}
+        , fExp{2,2,2,2}
         , fType(type) {}
 
     SkRect fRect;
     // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]
     SkVector fRadii[4];
+    // In the same order as fRadii
+    SkScalar fExp[4];
     // use an explicitly sized type so we're sure the class is dense (no uninitialized bytes)
     int32_t fType;
     // TODO: add padding so we can use memcpy for flattening and not copy
