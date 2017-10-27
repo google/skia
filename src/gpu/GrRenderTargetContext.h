@@ -18,6 +18,7 @@
 #include "GrXferProcessor.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
+#include "text/GrTextUtils.h"
 
 class GrBackendSemaphore;
 class GrCCPRAtlas;
@@ -367,6 +368,8 @@ public:
     GrRenderTargetContextPriv priv();
     const GrRenderTargetContextPriv priv() const;
 
+    GrTextUtils::Target* textTarget() { return fTextTarget.get(); }
+
     bool isWrapped_ForTesting() const;
 
 protected:
@@ -377,6 +380,8 @@ protected:
     SkDEBUGCODE(void validate() const override;)
 
 private:
+    class TextTarget;
+
     inline GrAAType chooseAAType(GrAA aa, GrAllowMixedSamples allowMixedSamples) {
         return GrChooseAAType(aa, this->fsaaType(), allowMixedSamples, *this->caps());
     }
@@ -442,15 +447,16 @@ private:
     GrRenderTargetOpList* getRTOpList();
     GrOpList* getOpList() override;
 
-    sk_sp<GrRenderTargetProxy>        fRenderTargetProxy;
+    std::unique_ptr<GrTextUtils::Target> fTextTarget;
+    sk_sp<GrRenderTargetProxy> fRenderTargetProxy;
 
     // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpList should only ever be accessed via 'getOpList'.
-    sk_sp<GrRenderTargetOpList>       fOpList;
-    GrInstancedPipelineInfo           fInstancedPipelineInfo;
+    sk_sp<GrRenderTargetOpList> fOpList;
+    GrInstancedPipelineInfo fInstancedPipelineInfo;
 
-    SkSurfaceProps                    fSurfaceProps;
-    bool                              fManagedOpList;
+    SkSurfaceProps fSurfaceProps;
+    bool fManagedOpList;
 
     typedef GrSurfaceContext INHERITED;
 };

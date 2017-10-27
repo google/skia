@@ -11,19 +11,18 @@
 #include "GrColor.h"
 #include "GrColorSpaceInfo.h"
 #include "SkColorFilter.h"
-#include "SkGr.h"
 #include "SkPaint.h"
 #include "SkScalar.h"
 #include "SkTLazy.h"
 
 class GrAtlasGlyphCache;
 class GrAtlasTextBlob;
+class GrAtlasTextOp;
 class GrAtlasTextStrike;
 class GrClip;
 class GrColorSpaceXform;
 class GrContext;
 class GrPaint;
-class GrRenderTargetContext;
 class GrShaderCaps;
 class SkColorSpace;
 class SkDrawFilter;
@@ -41,6 +40,32 @@ class SkSurfaceProps;
  */
 class GrTextUtils {
 public:
+    class Target {
+    public:
+        virtual ~Target() = default;
+
+        int width() const { return fWidth; }
+        int height() const { return fHeight; }
+        const GrColorSpaceInfo& colorSpaceInfo() const { return fColorSpaceInfo; }
+
+        virtual void addDrawOp(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) = 0;
+
+        virtual void drawPath(const GrClip&, const SkPath&, const SkPaint&,
+                              const SkMatrix& viewMatrix, const SkMatrix* pathMatrix,
+                              const SkIRect& clipBounds) = 0;
+        virtual void makeGrPaint(GrMaskFormat, const SkPaint&, const SkMatrix& viewMatrix,
+                                 GrPaint*) = 0;
+
+    protected:
+        Target(int width, int height, const GrColorSpaceInfo& colorSpaceInfo)
+                : fWidth(width), fHeight(height), fColorSpaceInfo(colorSpaceInfo) {}
+
+    private:
+        int fWidth;
+        int fHeight;
+        const GrColorSpaceInfo& fColorSpaceInfo;
+    };
+
     /**
      *  This is used to wrap a SkPaint and its post-color filter color. It is also used by RunPaint
      *  (below). This keeps a pointer to the SkPaint it is initialized with and expects it to remain
@@ -60,9 +85,6 @@ public:
 
         const SkPaint& skPaint() const { return *fPaint; }
         operator const SkPaint&() const { return this->skPaint(); }
-
-        bool toGrPaint(GrMaskFormat, GrRenderTargetContext*, const SkMatrix& viewMatrix,
-                       GrPaint*) const;
 
         // Just for RunPaint's constructor
         const GrColorSpaceInfo* dstColorSpaceInfo() const { return fDstColorSpaceInfo; }
@@ -130,17 +152,15 @@ public:
                               int scalarsPerPosition, const SkPoint& offset);
 
     // Functions for drawing text as paths
-    static void DrawTextAsPath(GrContext*, GrRenderTargetContext*, const GrClip& clip,
-                               const SkPaint& paint, const SkMatrix& viewMatrix, const char text[],
-                               size_t byteLength, SkScalar x, SkScalar y,
-                               const SkIRect& clipBounds);
+    static void DrawTextAsPath(GrContext*, Target*, const GrClip& clip, const SkPaint& paint,
+                               const SkMatrix& viewMatrix, const char text[], size_t byteLength,
+                               SkScalar x, SkScalar y, const SkIRect& clipBounds);
 
-    static void DrawPosTextAsPath(GrContext* context, GrRenderTargetContext* rtc,
-                                  const SkSurfaceProps& props, const GrClip& clip,
-                                  const SkPaint& paint, const SkMatrix& viewMatrix,
-                                  const char text[], size_t byteLength, const SkScalar pos[],
-                                  int scalarsPerPosition, const SkPoint& offset,
-                                  const SkIRect& clipBounds);
+    static void DrawPosTextAsPath(GrContext* context, Target*, const SkSurfaceProps& props,
+                                  const GrClip& clip, const SkPaint& paint,
+                                  const SkMatrix& viewMatrix, const char text[], size_t byteLength,
+                                  const SkScalar pos[], int scalarsPerPosition,
+                                  const SkPoint& offset, const SkIRect& clipBounds);
 
     static bool ShouldDisableLCD(const SkPaint& paint);
 

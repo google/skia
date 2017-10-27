@@ -83,8 +83,8 @@ void GrStencilAndCoverTextContext::drawText(GrContext* context, GrRenderTargetCo
         }
         return;
     }
-    fFallbackTextContext->drawText(context, rtc, clip, skPaint, viewMatrix, props, text,
-                                       byteLength, x, y, clipBounds);
+    fFallbackTextContext->drawText(context, rtc->textTarget(), clip, skPaint, viewMatrix, props,
+                                   text, byteLength, x, y, clipBounds);
 }
 
 void GrStencilAndCoverTextContext::drawPosText(GrContext* context, GrRenderTargetContext* rtc,
@@ -105,8 +105,9 @@ void GrStencilAndCoverTextContext::drawPosText(GrContext* context, GrRenderTarge
         }
         return;
     }
-    fFallbackTextContext->drawPosText(context, rtc, clip, skPaint, viewMatrix, props, text,
-                                      byteLength, pos, scalarsPerPosition, offset, clipBounds);
+    fFallbackTextContext->drawPosText(context, rtc->textTarget(), clip, skPaint, viewMatrix, props,
+                                      text, byteLength, pos, scalarsPerPosition, offset,
+                                      clipBounds);
 }
 
 void GrStencilAndCoverTextContext::uncachedDrawTextBlob(GrContext* context,
@@ -161,8 +162,8 @@ void GrStencilAndCoverTextContext::drawTextBlob(GrContext* context, GrRenderTarg
     }
 
     if (!this->internalCanDraw(skPaint)) {
-        fFallbackTextContext->drawTextBlob(context, rtc, clip, skPaint, viewMatrix, props, skBlob,
-                                           x, y, drawFilter, clipBounds);
+        fFallbackTextContext->drawTextBlob(context, rtc->textTarget(), clip, skPaint, viewMatrix,
+                                           props, skBlob, x, y, drawFilter, clipBounds);
         return;
     }
 
@@ -598,9 +599,9 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
             fallbackSkPaint.setStrokeWidth(fStyle.strokeRec().getWidth() * fTextRatio);
         }
 
-        fallbackTextContext->drawTextBlob(ctx, renderTargetContext, clip, fallbackSkPaint,
-                                          viewMatrix, props, fFallbackTextBlob.get(), x, y, nullptr,
-                                          clipBounds);
+        fallbackTextContext->drawTextBlob(ctx, renderTargetContext->textTarget(), clip,
+                                          fallbackSkPaint, viewMatrix, props,
+                                          fFallbackTextBlob.get(), x, y, nullptr, clipBounds);
     }
 }
 

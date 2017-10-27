@@ -19,7 +19,6 @@
 #endif
 
 class GrDrawOp;
-class GrRenderTargetContext;
 class GrTextBlobCache;
 class SkGlyph;
 
@@ -33,17 +32,16 @@ public:
     bool canDraw(const SkPaint&, const SkMatrix& viewMatrix, const SkSurfaceProps&,
                  const GrShaderCaps&);
 
-    void drawText(GrContext*, GrRenderTargetContext*, const GrClip&, const SkPaint&,
+    void drawText(GrContext*, GrTextUtils::Target*, const GrClip&, const SkPaint&,
                   const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
                   size_t byteLength, SkScalar x, SkScalar y, const SkIRect& regionClipBounds);
-    void drawPosText(GrContext*, GrRenderTargetContext*, const GrClip&, const SkPaint&,
+    void drawPosText(GrContext*, GrTextUtils::Target*, const GrClip&, const SkPaint&,
                      const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
                      size_t byteLength, const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& regionClipBounds);
-    void drawTextBlob(GrContext*, GrRenderTargetContext*, const GrClip&, const SkPaint&,
+    void drawTextBlob(GrContext*, GrTextUtils::Target*, const GrClip&, const SkPaint&,
                       const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
-                      SkScalar x, SkScalar y,
-                      SkDrawFilter*, const SkIRect& clipBounds);
+                      SkScalar x, SkScalar y, SkDrawFilter*, const SkIRect& clipBounds);
 
 private:
     GrAtlasTextContext();
