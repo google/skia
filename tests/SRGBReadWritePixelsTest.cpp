@@ -176,8 +176,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
         context->caps()->isConfigTexturable(desc.fConfig)) {
 
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeDeferredSurfaceContext(
-                                                                    desc, SkBackingFit::kExact,
-                                                                    SkBudgeted::kNo);
+                                                                             desc, GrMipMapped::kNo,
+                                                                             SkBackingFit::kExact,
+                                                                             SkBudgeted::kNo);
         if (!sContext) {
             ERRORF(reporter, "Could not create SRGBA surface context.");
             return;
@@ -215,7 +216,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
         }
 
         desc.fConfig = kRGBA_8888_GrPixelConfig;
-        sContext = context->contextPriv().makeDeferredSurfaceContext(desc, SkBackingFit::kExact,
+        sContext = context->contextPriv().makeDeferredSurfaceContext(desc,
+                                                                     GrMipMapped::kNo,
+                                                                     SkBackingFit::kExact,
                                                                      SkBudgeted::kNo);
         if (!sContext) {
             ERRORF(reporter, "Could not create RGBA surface context.");

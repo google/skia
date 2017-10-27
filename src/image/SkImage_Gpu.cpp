@@ -249,6 +249,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
 
     sk_sp<GrSurfaceContext> sContext(fContext->contextPriv().makeDeferredSurfaceContext(
                                                                         desc,
+                                                                        GrMipMapped::kNo,
                                                                         SkBackingFit::kExact,
                                                                         fBudgeted));
     if (!sContext) {

@@ -85,6 +85,7 @@ static bool sw_draw_with_mask_filter(GrContext* context,
 
     sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeDeferredSurfaceContext(
                                                         desc,
+                                                        GrMipMapped::kNo,
                                                         SkBackingFit::kApprox,
                                                         SkBudgeted::kYes);
     if (!sContext) {
