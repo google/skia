@@ -21,47 +21,54 @@ class GrRenderTargetContext;
  */
 class SK_API GrReducedClip {
 public:
+    using Element = SkClipStack::Element;
+    using ElementList = SkTLList<SkClipStack::Element, 16>;
+
     GrReducedClip(const SkClipStack&, const SkRect& queryBounds, int maxWindowRectangles = 0);
 
     /**
-     * If hasIBounds() is true, this is the bounding box within which the clip elements are valid.
-     * The caller must not modify any pixels outside this box. Undefined if hasIBounds() is false.
+     * If hasScissor() is true, the clip mask is not valid outside this rect and the caller must
+     * enforce this scissor during draw.
      */
-    const SkIRect& ibounds() const { SkASSERT(fHasIBounds); return fIBounds; }
-    int left() const { return this->ibounds().left(); }
-    int top() const { return this->ibounds().top(); }
-    int width() const { return this->ibounds().width(); }
-    int height() const { return this->ibounds().height(); }
+    const SkIRect& scissor() const { SkASSERT(fHasScissor); return fScissor; }
+    int left() const { return this->scissor().left(); }
+    int top() const { return this->scissor().top(); }
+    int width() const { return this->scissor().width(); }
+    int height() const { return this->scissor().height(); }
 
     /**
-     * Indicates whether ibounds() are defined. They will always be defined if the elements() are
+     * Indicates whether scissor() is defined. It will always be defined if the maskElements() are
      * nonempty.
      */
-    bool hasIBounds() const { return fHasIBounds; }
+    bool hasScissor() const { return fHasScissor; }
 
     /**
-     * If nonempty, this is a set of "exclusive" windows within which the clip elements are NOT
-     * valid. The caller must not modify any pixels inside these windows.
+     * If nonempty, the clip mask is not valid inside these windows and the caller must clip them
+     * out using the window rectangles GPU extension.
      */
     const GrWindowRectangles& windowRectangles() const { return fWindowRects; }
 
-    typedef SkTLList<SkClipStack::Element, 16> ElementList;
+    /**
+     * An ordered list of clip elements that could not be skipped or implemented by other means. If
+     * nonempty, the caller must create an alpha and/or stencil mask for these elements and apply it
+     * during draw.
+     */
+    const ElementList& maskElements() const { return fMaskElements; }
 
     /**
-     * Populated with a minimal list of elements required to fully implement the clip.
+     * If maskElements() are nonempty, uniquely identifies the region of the clip mask that falls
+     * inside of scissor().
+     * NOTE: since clip elements might fall outside the query bounds, different regions of the same
+     * clip stack might have more or less restrictive IDs.
+     * FIXME: this prevents us from reusing a sub-rect of a perfectly good mask when that rect has
+     * been assigned a less restrictive ID.
      */
-    const ElementList& elements() const { return fElements; }
+    uint32_t maskGenID() const { SkASSERT(!fMaskElements.isEmpty()); return fMaskGenID; }
 
     /**
-     * If elements() are nonempty, uniquely identifies the list of elements within ibounds().
-     * Otherwise undefined.
+     * Indicates whether antialiasing is required to process any of the mask elements.
      */
-    uint32_t elementsGenID() const { SkASSERT(!fElements.isEmpty()); return fElementsGenID; }
-
-    /**
-     * Indicates whether antialiasing is required to process any of the clip elements.
-     */
-    bool requiresAA() const { return fRequiresAA; }
+    bool maskRequiresAA() const { SkASSERT(!fMaskElements.isEmpty()); return fMaskRequiresAA; }
 
     enum class InitialState : bool {
         kAllIn,
@@ -75,16 +82,32 @@ public:
 
 private:
     void walkStack(const SkClipStack&, const SkRect& queryBounds, int maxWindowRectangles);
-    void addInteriorWindowRectangles(int maxWindowRectangles);
-    void addWindowRectangle(const SkRect& elementInteriorRect, bool elementIsAA);
-    bool intersectIBounds(const SkIRect&);
 
-    SkIRect              fIBounds;
-    bool                 fHasIBounds;
+    enum class ClipResult {
+        kNotClipped,
+        kClipped,
+        kMadeEmpty
+    };
+
+    // Clips the the given element's interior out of the final clip.
+    // NOTE: do not call for elements followed by ops that can grow the clip.
+    ClipResult clipInsideElement(const Element* element);
+
+    // Clips the the given element's exterior out of the final clip.
+    // NOTE: do not call for elements followed by ops that can grow the clip.
+    ClipResult clipOutsideElement(const Element* element, int maxWindowRectangles);
+
+    void addWindowRectangle(const SkRect& elementInteriorRect, bool elementIsAA);
+    void makeEmpty();
+
+    SkIRect              fScissor;
+    bool                 fHasScissor;
+    SkRect               fAAClipRect;
+    uint32_t             fAAClipRectGenID; // GenID the mask will have if includes the AA clip rect.
     GrWindowRectangles   fWindowRects;
-    ElementList          fElements;
-    uint32_t             fElementsGenID;
-    bool                 fRequiresAA;
+    ElementList          fMaskElements;
+    uint32_t             fMaskGenID;
+    bool                 fMaskRequiresAA;
     InitialState         fInitialState;
 };
 
