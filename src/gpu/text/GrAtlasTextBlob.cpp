@@ -258,7 +258,7 @@ bool GrAtlasTextBlob::mustRegenerate(const GrTextUtils::Paint& paint,
 }
 
 inline std::unique_ptr<GrDrawOp> GrAtlasTextBlob::makeOp(
-        const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
+        const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
         const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
         const GrDistanceFieldAdjustTable* distanceAdjustTable,
@@ -298,7 +298,12 @@ inline void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrClip& 
                                       const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
                                       const GrDistanceFieldAdjustTable* distanceAdjustTable,
                                       GrAtlasGlyphCache* cache) {
-    int lastRun = fRuns[run].fSubRunInfo.count() - 1;
+    // GrAtlasTextBlob::makeOp only takes uint16_t values for run and subRun indices.
+    // Encountering something larger than this is highly unlikely, so we'll just not draw it.
+    if (run >= (1 << 16)) {
+        return;
+    }
+    int lastRun = SkTMax(fRuns[run].fSubRunInfo.count(), 1 << 16) - 1;
     for (int subRun = 0; subRun <= lastRun; subRun++) {
         const Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
         int glyphCount = info.glyphCount();
@@ -456,8 +461,8 @@ void GrAtlasTextBlob::flushThrowaway(GrContext* context, GrRenderTargetContext* 
 }
 
 std::unique_ptr<GrDrawOp> GrAtlasTextBlob::test_makeOp(
-        int glyphCount, int run, int subRun, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-        const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
+        int glyphCount, uint16_t run, uint16_t subRun, const SkMatrix& viewMatrix,
+        SkScalar x, SkScalar y, const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
         const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
         GrRenderTargetContext* rtc) {
     const GrAtlasTextBlob::Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];

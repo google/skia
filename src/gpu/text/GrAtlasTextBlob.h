@@ -497,8 +497,9 @@ private:
                    Run* run, Run::SubRunInfo* info, SkAutoGlyphCache*, int glyphCount,
                    size_t vertexStride, GrColor color, SkScalar transX, SkScalar transY) const;
 
-    inline std::unique_ptr<GrDrawOp> makeOp(const Run::SubRunInfo& info, int glyphCount, int run,
-                                            int subRun, const SkMatrix& viewMatrix,
+    inline std::unique_ptr<GrDrawOp> makeOp(const Run::SubRunInfo& info, int glyphCount,
+                                            uint16_t run, uint16_t subRun,
+                                            const SkMatrix& viewMatrix,
                                             SkScalar x, SkScalar y, const SkIRect& clipRect,
                                             const GrTextUtils::Paint& paint,
                                             const SkSurfaceProps& props,
