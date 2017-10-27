@@ -183,14 +183,14 @@ public:
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
     // flush a GrAtlasTextBlob associated with a SkTextBlob
-    void flushCached(GrContext* context, GrRenderTargetContext* rtc, const SkTextBlob* blob,
+    void flushCached(GrContext* context, GrTextUtils::Target*, const SkTextBlob* blob,
                      const SkSurfaceProps& props,
                      const GrDistanceFieldAdjustTable* distanceAdjustTable,
                      const GrTextUtils::Paint&, SkDrawFilter* drawFilter, const GrClip& clip,
                      const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x, SkScalar y);
 
     // flush a throwaway GrAtlasTextBlob *not* associated with an SkTextBlob
-    void flushThrowaway(GrContext* context, GrRenderTargetContext* rtc, const SkSurfaceProps& props,
+    void flushThrowaway(GrContext* context, GrTextUtils::Target*, const SkSurfaceProps& props,
                         const GrDistanceFieldAdjustTable* distanceAdjustTable,
                         const GrTextUtils::Paint& paint, const GrClip& clip,
                         const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
@@ -274,7 +274,7 @@ public:
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                           const GrTextUtils::Paint&, const SkSurfaceProps&,
                                           const GrDistanceFieldAdjustTable*, GrAtlasGlyphCache*,
-                                          GrRenderTargetContext*);
+                                          GrTextUtils::Target*);
 
 private:
     GrAtlasTextBlob()
@@ -285,21 +285,21 @@ private:
     void appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
                           SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
 
-    inline void flushRun(GrRenderTargetContext* rtc, const GrClip&, int run,
-                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                         const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
+    inline void flushRun(GrTextUtils::Target*, const GrClip&, int run, const SkMatrix& viewMatrix,
+                         SkScalar x, SkScalar y, const GrTextUtils::Paint& paint,
+                         const SkSurfaceProps& props,
                          const GrDistanceFieldAdjustTable* distanceAdjustTable,
                          GrAtlasGlyphCache* cache);
 
-    void flushBigGlyphs(GrContext* context, GrRenderTargetContext* rtc, const GrClip& clip,
+    void flushBigGlyphs(GrContext* context, GrTextUtils::Target*, const GrClip& clip,
                         const SkPaint& paint, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                         const SkIRect& clipBounds);
 
-    void flushRunAsPaths(GrContext* context, GrRenderTargetContext* rtc,
-                         const SkSurfaceProps& props, const SkTextBlobRunIterator& it,
-                         const GrClip& clip, const GrTextUtils::Paint& paint,
-                         SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
-                         const SkIRect& clipBounds, SkScalar x, SkScalar y);
+    void flushRunAsPaths(GrContext* context, GrTextUtils::Target*, const SkSurfaceProps& props,
+                         const SkTextBlobRunIterator& it, const GrClip& clip,
+                         const GrTextUtils::Paint& paint, SkDrawFilter* drawFilter,
+                         const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
+                         SkScalar y);
 
     // This function will only be called when we are generating a blob from scratch. We record the
     // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
@@ -334,7 +334,7 @@ private:
      * practice, the vast majority of runs have only a single subrun.
      *
      * Finally, for runs where the entire thing is too large for the GrAtlasTextContext to
-     * handle, we have a bit to mark the run as flusahable via rendering as paths.  It is worth
+     * handle, we have a bit to mark the run as flushable via rendering as paths.  It is worth
      * pointing. It would be a bit expensive to figure out ahead of time whether or not a run
      * can flush in this manner, so we always allocate vertices for the run, regardless of
      * whether or not it is too large.  The benefit of this strategy is that we can always reuse
@@ -497,13 +497,12 @@ private:
                    Run* run, Run::SubRunInfo* info, SkAutoGlyphCache*, int glyphCount,
                    size_t vertexStride, GrColor color, SkScalar transX, SkScalar transY) const;
 
-    inline std::unique_ptr<GrDrawOp> makeOp(const Run::SubRunInfo& info, int glyphCount, int run,
-                                            int subRun, const SkMatrix& viewMatrix,
-                                            SkScalar x, SkScalar y, const SkIRect& clipRect,
-                                            const GrTextUtils::Paint& paint,
-                                            const SkSurfaceProps& props,
-                                            const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                            GrAtlasGlyphCache* cache, GrRenderTargetContext*);
+    inline std::unique_ptr<GrAtlasTextOp> makeOp(
+            const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
+            const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
+            const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
+            const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
+            GrTextUtils::Target*);
 
     struct BigGlyph {
         BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy, SkScalar scale, bool treatAsBMP)
