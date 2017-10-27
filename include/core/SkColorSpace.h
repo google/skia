@@ -105,6 +105,16 @@ public:
     static sk_sp<SkColorSpace> MakeICC(const void*, size_t);
 
     /**
+     *  Types of colorspaces.
+     */
+    enum Type {
+        kRGB_Type,
+        kCMYK_Type,
+        kGray_Type,
+    };
+    Type type() const;
+
+    /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.
      *  This includes the canonical sRGB transfer function as well as a 2.2f exponential
      *  transfer function.
