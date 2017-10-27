@@ -45,8 +45,42 @@
 #include "ops/GrShadowRRectOp.h"
 #include "ops/GrStencilPathOp.h"
 #include "ops/GrTextureOp.h"
+#include "text/GrTextUtils.h"
 #include "text/GrAtlasTextContext.h"
+#include "ops/GrAtlasTextOp.h"
 #include "text/GrStencilAndCoverTextContext.h"
+#include "GrBlurUtils.h"
+#include "SkGr.h"
+
+class GrRenderTargetContext::TextTarget : public GrTextUtils::Target {
+public:
+    TextTarget(GrRenderTargetContext* renderTargetContext) : Target(renderTargetContext->width(), renderTargetContext->height(), renderTargetContext->colorSpaceInfo()), fRenderTargetContext(renderTargetContext) {}
+
+    void addDrawOp(const GrClip& clip, std::unique_ptr<GrAtlasTextOp> op)  {
+        fRenderTargetContext->addDrawOp(clip, std::move(op));
+    }
+
+    void drawPath(const GrClip& clip, const SkPath& path, const SkPaint& paint, const SkMatrix& viewMatrix,
+              const SkMatrix* pathMatrix, const SkIRect& clipBounds)  {
+        GrBlurUtils::drawPathWithMaskFilter(fRenderTargetContext->fContext,
+                                            fRenderTargetContext, clip, path, paint, viewMatrix, pathMatrix,
+                                            clipBounds, false);
+    }
+
+    void makeGrPaint(GrMaskFormat maskFormat, const SkPaint& skPaint,
+                        const SkMatrix& viewMatrix, GrPaint* grPaint)  {
+        GrContext* context = fRenderTargetContext->fContext;
+        const GrColorSpaceInfo& colorSpaceInfo = fRenderTargetContext->colorSpaceInfo();
+        if (kARGB_GrMaskFormat == maskFormat) {
+            SkPaintToGrPaintWithPrimitiveColor(context, colorSpaceInfo, skPaint, grPaint);
+        } else {
+            SkPaintToGrPaint(context, colorSpaceInfo, skPaint, viewMatrix, grPaint);
+        }
+    }
+
+private:
+    GrRenderTargetContext* fRenderTargetContext;
+};
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
 #define ASSERT_SINGLE_OWNER \
@@ -126,6 +160,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
     // its rendertarget.
     this->getRTOpList();
 #endif
+    fTextTarget.reset(new TextTarget(this));
     SkDEBUGCODE(this->validate();)
 }
 
@@ -188,7 +223,7 @@ void GrRenderTargetContext::drawText(const GrClip& clip, const SkPaint& skPaint,
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawText", fContext);
 
     GrAtlasTextContext* atlasTextContext = this->drawingManager()->getAtlasTextContext();
-    atlasTextContext->drawText(fContext, this, clip, skPaint, viewMatrix, fSurfaceProps, text,
+    atlasTextContext->drawText(fContext, fTextTarget.get(), clip, skPaint, viewMatrix, fSurfaceProps, text,
                                byteLength, x, y, clipBounds);
 }
 
@@ -203,7 +238,7 @@ void GrRenderTargetContext::drawPosText(const GrClip& clip, const SkPaint& paint
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawPosText", fContext);
 
     GrAtlasTextContext* atlasTextContext = this->drawingManager()->getAtlasTextContext();
-    atlasTextContext->drawPosText(fContext, this, clip, paint, viewMatrix, fSurfaceProps, text,
+    atlasTextContext->drawPosText(fContext, fTextTarget.get(), clip, paint, viewMatrix, fSurfaceProps, text,
                                   byteLength, pos, scalarsPerPosition, offset, clipBounds);
 }
 
@@ -217,7 +252,7 @@ void GrRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& pain
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextBlob", fContext);
 
     GrAtlasTextContext* atlasTextContext = this->drawingManager()->getAtlasTextContext();
-    atlasTextContext->drawTextBlob(fContext, this, clip, paint, viewMatrix, fSurfaceProps, blob, x,
+    atlasTextContext->drawTextBlob(fContext, fTextTarget.get(), clip, paint, viewMatrix, fSurfaceProps, blob, x,
                                    y, filter, clipBounds);
 }
 

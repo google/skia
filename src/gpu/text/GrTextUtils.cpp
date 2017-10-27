@@ -11,8 +11,6 @@
 #include "GrBlurUtils.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrRenderTargetContext.h"
-#include "GrSurfaceContextPriv.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDrawFilter.h"
 #include "SkDrawProcs.h"
@@ -38,19 +36,6 @@ static const int kLargeDFFontLimit = 384;
 static const int kLargeDFFontLimit = 2 * kLargeDFFontSize;
 #endif
 };
-
-bool GrTextUtils::Paint::toGrPaint(GrMaskFormat maskFormat, GrRenderTargetContext* rtc,
-                                   const SkMatrix& viewMatrix, GrPaint* grPaint) const {
-    // TODO: this is the last use of GrSurfaceContextPriv
-    GrContext* context = rtc->surfPriv().getContext();
-    if (kARGB_GrMaskFormat == maskFormat) {
-        return SkPaintToGrPaintWithPrimitiveColor(context, rtc->colorSpaceInfo(), this->skPaint(),
-                                                  grPaint);
-    } else {
-        return SkPaintToGrPaint(context, rtc->colorSpaceInfo(), this->skPaint(), viewMatrix,
-                                grPaint);
-    }
-}
 
 void GrTextUtils::Paint::initFilteredColor() {
     // This mirrors the logic in skpaint_to_grpaint_impl for handling paint colors
@@ -506,7 +491,7 @@ bool GrTextUtils::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex, GrAtlasGlyp
     return true;
 }
 
-void GrTextUtils::DrawTextAsPath(GrContext* context, GrRenderTargetContext* rtc, const GrClip& clip,
+void GrTextUtils::DrawTextAsPath(GrContext* context, GrTextUtils::Target* target, const GrClip& clip,
                                  const SkPaint& paint, const SkMatrix& viewMatrix,
                                  const char text[], size_t byteLength, SkScalar x, SkScalar y,
                                  const SkIRect& clipBounds) {
@@ -526,15 +511,14 @@ void GrTextUtils::DrawTextAsPath(GrContext* context, GrRenderTargetContext* rtc,
         matrix.postTranslate(xpos - prevXPos, 0);
         if (iterPath) {
             const SkPaint& pnt = iter.getPaint();
-            GrBlurUtils::drawPathWithMaskFilter(context, rtc, clip, *iterPath,
-                                                pnt, viewMatrix, &matrix, clipBounds, false);
+            target->drawPath(clip, *iterPath, pnt, viewMatrix, &matrix, clipBounds);
         }
         prevXPos = xpos;
     }
 }
 
 void GrTextUtils::DrawPosTextAsPath(GrContext* context,
-                                    GrRenderTargetContext* rtc,
+                                    GrTextUtils::Target* target,
                                     const SkSurfaceProps& props,
                                     const GrClip& clip,
                                     const SkPaint& origPaint, const SkMatrix& viewMatrix,
@@ -581,8 +565,7 @@ void GrTextUtils::DrawPosTextAsPath(GrContext* context,
 
                 matrix[SkMatrix::kMTransX] = loc.fX;
                 matrix[SkMatrix::kMTransY] = loc.fY;
-                GrBlurUtils::drawPathWithMaskFilter(context, rtc, clip, *path, paint,
-                                                    viewMatrix, &matrix, clipBounds, false);
+                target->drawPath(clip, *path, paint, viewMatrix, &matrix, clipBounds);
             }
         }
         pos += scalarsPerPosition;
