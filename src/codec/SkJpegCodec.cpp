@@ -122,7 +122,7 @@ static bool is_icc_marker(jpeg_marker_struct* marker) {
  *     (1) Discover all ICC profile markers and verify that they are numbered properly.
  *     (2) Copy the data from each marker into a contiguous ICC profile.
  */
-static sk_sp<SkData> get_icc_profile(jpeg_decompress_struct* dinfo) {
+static sk_sp<SkColorSpace> read_color_space(jpeg_decompress_struct* dinfo) {
     // Note that 256 will be enough storage space since each markerIndex is stored in 8-bits.
     jpeg_marker_struct* markerSequence[256];
     memset(markerSequence, 0, sizeof(markerSequence));
@@ -182,7 +182,7 @@ static sk_sp<SkData> get_icc_profile(jpeg_decompress_struct* dinfo) {
         dst = SkTAddOffset<void>(dst, bytes);
     }
 
-    return iccData;
+    return SkColorSpace::MakeICC(iccData->data(), iccData->size());
 }
 
 SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
@@ -228,23 +228,27 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         SkEncodedInfo info = SkEncodedInfo::Make(color, SkEncodedInfo::kOpaque_Alpha, 8);
 
         SkEncodedOrigin orientation = get_exif_orientation(decoderMgr->dinfo());
-        sk_sp<SkData> iccData = get_icc_profile(decoderMgr->dinfo());
-        sk_sp<SkColorSpace> colorSpace = nullptr;
-        if (iccData) {
-            SkColorSpace_Base::ICCTypeFlag iccType = SkColorSpace_Base::kRGB_ICCTypeFlag;
+        sk_sp<SkColorSpace> colorSpace = read_color_space(decoderMgr->dinfo());
+        if (colorSpace) {
             switch (decoderMgr->dinfo()->jpeg_color_space) {
                 case JCS_CMYK:
                 case JCS_YCCK:
-                    iccType = SkColorSpace_Base::kCMYK_ICCTypeFlag;
+                    if (colorSpace->type() != SkColorSpace::kCMYK_Type) {
+                        colorSpace = nullptr;
+                    }
                     break;
                 case JCS_GRAYSCALE:
-                    // Note the "or equals".  We will accept gray or rgb profiles for gray images.
-                    iccType |= SkColorSpace_Base::kGray_ICCTypeFlag;
-                    break;
+                    if (colorSpace->type() != SkColorSpace::kGray_Type &&
+                        colorSpace->type() != SkColorSpace::kRGB_Type)
+                    {
+                        colorSpace = nullptr;
+                    }
                 default:
+                    if (colorSpace->type() != SkColorSpace::kRGB_Type) {
+                        colorSpace = nullptr;
+                    }
                     break;
             }
-            colorSpace = SkColorSpace_Base::MakeICC(iccData->data(), iccData->size(), iccType);
         }
         if (!colorSpace) {
             colorSpace = defaultColorSpace;
