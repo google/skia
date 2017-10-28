@@ -1768,7 +1768,10 @@ public:
         const ParentPair* fPrev;
     };
 
-    IncludeWriter() : IncludeParser() {}
+    IncludeWriter() : IncludeParser() {
+        this->reset();
+    }
+
     ~IncludeWriter() override {}
 
     bool contentFree(int size, const char* data) const {
@@ -1845,12 +1848,21 @@ private:
 
 class FiddleParser : public ParserCommon {
 public:
-    FiddleParser(BmhParser* bmh) : ParserCommon()
-        , fBmhParser(bmh) {
+    enum class Type {
+        kStdOut,
+        kCatalog,
+    };
+
+    FiddleParser(BmhParser* bmh, Type type) : ParserCommon()
+        , fBmhParser(bmh)
+        , fExampleHandler(type == Type::kStdOut ?
+                &FiddleParser::stdOutCheck : &FiddleParser::catalog) {
         this->reset();
     }
 
+    void closeCatalog();
     Definition* findExample(const string& name) const;
+    bool openCatalog(const char* outDir);
 
     bool parseFromFile(const char* path) override {
         if (!INHERITED::parseSetup(path)) {
@@ -1864,9 +1876,17 @@ public:
     }
 
 private:
+    bool catalog(Definition* example, const char* stdOutStart,
+        const char* stdOutEnd);
     bool parseFiddles();
-
+    bool stdOutCheck(Definition* example, const char* stdOutStart,
+        const char* stdOutEnd);
     BmhParser* fBmhParser;  // must be writable; writes example hash
+    bool (FiddleParser::*fExampleHandler)(Definition* example, const char* stdOutStart,
+        const char* stdOutEnd);
+
+    string fFullName;
+    bool fContinuation;
 
     typedef ParserCommon INHERITED;
 };
