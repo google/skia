@@ -498,11 +498,6 @@ bool SkGradientShaderBase::onAsLuminanceColor(SkColor* lum) const {
     return true;
 }
 
-static inline int SkFixedToFFFF(SkFixed x) {
-    SkASSERT((unsigned)x <= SK_Fixed1);
-    return x - (x >> 16);
-}
-
 static constexpr int kGradientTextureSize = 256;
 
 void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap, GradientBitmapType bitmapType) const {
@@ -540,14 +535,13 @@ void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap, GradientBitmapType
     // our own CS for identity/no transform.
     auto* cs = bitmapType != GradientBitmapType::kLegacy ? fColorSpace.get() : nullptr;
 
-    // TODO: refactor to avoid using fRecs.
-    static constexpr unsigned kCacheShift = 8;
-
     int prevIndex = 0;
     for (int i = 1; i < fColorCount; i++) {
-        int nextIndex = (fColorCount == 2) ? (kGradientTextureSize - 1)
-            : SkFixedToFFFF(fRecs[i].fPos) >> kCacheShift;
-        SkASSERT(nextIndex < kGradientTextureSize);
+        // Historically, stops have been mapped to [0, 256], with 256 then nudged to the
+        // next smaller value, then truncate for the texture index. This seems to produce
+        // the best results for some common distributions, so we preserve the behavior.
+        int nextIndex = SkTMin(this->getPos(i) * kGradientTextureSize,
+                               SkIntToScalar(kGradientTextureSize - 1));
 
         if (nextIndex > prevIndex) {
             SkColor4f color0 = this->getXformedColor(i - 1, cs),
@@ -654,13 +648,8 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
                 memcpy(info->fColors, fOrigColors, fColorCount * sizeof(SkColor));
             }
             if (info->fColorOffsets) {
-                if (fColorCount == 2) {
-                    info->fColorOffsets[0] = 0;
-                    info->fColorOffsets[1] = SK_Scalar1;
-                } else if (fColorCount > 2) {
-                    for (int i = 0; i < fColorCount; ++i) {
-                        info->fColorOffsets[i] = SkFixedToScalar(fRecs[i].fPos);
-                    }
+                for (int i = 0; i < fColorCount; ++i) {
+                    info->fColorOffsets[i] = this->getPos(i);
                 }
             }
         }
@@ -685,7 +674,7 @@ void SkGradientShaderBase::toString(SkString* str) const {
     if (fColorCount > 2) {
         str->append(" points: (");
         for (int i = 0; i < fColorCount; ++i) {
-            str->appendScalar(SkFixedToScalar(fRecs[i].fPos));
+            str->appendScalar(this->getPos(i));
             if (i < fColorCount-1) {
                 str->append(", ");
             }
