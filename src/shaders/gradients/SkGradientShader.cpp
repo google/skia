@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpace_XYZ.h"
+#include "SkFloatBits.h"
 #include "SkGradientBitmapCache.h"
 #include "SkGradientShaderPriv.h"
 #include "SkHalf.h"
@@ -147,7 +148,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
     }
 
     if (fColorCount > kColorStorageCount) {
-        size_t size = sizeof(SkColor) + sizeof(SkColor4f) + sizeof(Rec);
+        size_t size = sizeof(SkColor) + sizeof(SkColor4f);
         if (desc.fPos) {
             size += sizeof(SkScalar);
         }
@@ -189,29 +190,15 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
 
     if (desc.fPos && fColorCount) {
         fOrigPos = (SkScalar*)(fOrigColors4f + fColorCount);
-        fRecs = (Rec*)(fOrigPos + fColorCount);
     } else {
         fOrigPos = nullptr;
-        fRecs = (Rec*)(fOrigColors4f + fColorCount);
     }
 
     if (fColorCount > 2) {
-        Rec* recs = fRecs;
-        recs->fPos = 0;
-        //  recs->fScale = 0; // unused;
-        recs += 1;
         if (desc.fPos) {
             SkScalar* origPosPtr = fOrigPos;
             *origPosPtr++ = 0;
 
-            /*  We need to convert the user's array of relative positions into
-                fixed-point positions and scale factors. We need these results
-                to be strictly monotonic (no two values equal or out of order).
-                Hence this complex loop that just jams a zero for the scale
-                value if it sees a segment out of order, and it assures that
-                we start at 0 and end at 1.0
-            */
-            SkScalar prev = 0;
             int startIndex = dummyFirst ? 0 : 1;
             int count = desc.fCount + dummyLast;
             for (int i = startIndex; i < count; i++) {
@@ -223,32 +210,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
                     curr = SkScalarPin(desc.fPos[i], 0, 1);
                 }
                 *origPosPtr++ = curr;
-
-                recs->fPos = SkScalarToFixed(curr);
-                SkFixed diff = SkScalarToFixed(curr - prev);
-                if (diff > 0) {
-                    recs->fScale = (1 << 24) / diff;
-                } else {
-                    recs->fScale = 0; // ignore this segment
-                }
-                // get ready for the next value
-                prev = curr;
-                recs += 1;
             }
-        } else {    // assume even distribution
-            fOrigPos = nullptr;
-
-            SkFixed dp = SK_Fixed1 / (desc.fCount - 1);
-            SkFixed p = dp;
-            SkFixed scale = (desc.fCount - 1) << 8;  // (1 << 24) / dp
-            for (int i = 1; i < desc.fCount - 1; i++) {
-                recs->fPos   = p;
-                recs->fScale = scale;
-                recs += 1;
-                p += dp;
-            }
-            recs->fPos = SK_Fixed1;
-            recs->fScale = scale;
         }
     } else if (desc.fPos) {
         SkASSERT(2 == fColorCount);
@@ -585,7 +547,7 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
     // build our key: [numColors + colors[] + {positions[]} + flags + colorType ]
     int count = 1 + fColorCount + 1 + 1;
     if (fColorCount > 2) {
-        count += fColorCount - 1;    // fRecs[].fPos
+        count += fColorCount - 1;
     }
 
     SkAutoSTMalloc<16, int32_t> storage(count);
@@ -596,7 +558,7 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
     buffer += fColorCount;
     if (fColorCount > 2) {
         for (int i = 1; i < fColorCount; i++) {
-            *buffer++ = fRecs[i].fPos;
+            *buffer++ = SkFloat2Bits(this->getPos(i));
         }
     }
     *buffer++ = fGradFlags;
