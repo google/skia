@@ -12,7 +12,6 @@
 
 #include "SkArenaAlloc.h"
 #include "SkAutoMalloc.h"
-#include "SkFixed.h"
 #include "SkMatrix.h"
 #include "SkShaderBase.h"
 #include "SkTDArray.h"
@@ -80,11 +79,6 @@ public:
     SkColor4f getXformedColor(size_t index, SkColorSpace*) const;
 
 protected:
-    struct Rec {
-        SkFixed     fPos;   // 0...1
-        uint32_t    fScale; // (1 << 24) / range
-    };
-
     class GradientShaderBase4fContext;
 
     SkGradientShaderBase(SkReadBuffer& );
@@ -114,14 +108,12 @@ protected:
     const SkMatrix fPtsToUnit;
     TileMode       fTileMode;
     uint8_t        fGradFlags;
-    Rec*           fRecs;
 
 private:
     enum {
         kColorStorageCount = 4, // more than this many colors, and we'll use sk_malloc for the space
 
-        kStorageSize = kColorStorageCount *
-                       (sizeof(SkColor) + sizeof(SkScalar) + sizeof(Rec) + sizeof(SkColor4f))
+        kStorageSize = kColorStorageCount * (sizeof(SkColor) + sizeof(SkScalar) + sizeof(SkColor4f))
     };
     SkColor             fStorage[(kStorageSize + 3) >> 2];
 public:
@@ -139,7 +131,6 @@ public:
     bool colorsAreOpaque() const { return fColorsAreOpaque; }
 
     TileMode getTileMode() const { return fTileMode; }
-    Rec* getRecs() const { return fRecs; }
 
 private:
     bool                fColorsAreOpaque;
