@@ -5,41 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkAutoPixmapStorage.h"
 #include "SkCodecImageGenerator.h"
 #include "SkMakeUnique.h"
 #include "SkPixmapPriv.h"
-
-#define kMirrorX    SkPixmapPriv::kMirrorX
-#define kMirrorY    SkPixmapPriv::kMirrorY
-#define kSwapXY     SkPixmapPriv::kSwapXY
-
-const uint8_t gOrientationFlags[] = {
-    0,                              // kTopLeft_SkEncodedOrigin
-    kMirrorX,                       // kTopRight_SkEncodedOrigin
-    kMirrorX | kMirrorY,            // kBottomRight_SkEncodedOrigin
-               kMirrorY,            // kBottomLeft_SkEncodedOrigin
-                          kSwapXY,  // kLeftTop_SkEncodedOrigin
-    kMirrorX            | kSwapXY,  // kRightTop_SkEncodedOrigin
-    kMirrorX | kMirrorY | kSwapXY,  // kRightBottom_SkEncodedOrigin
-               kMirrorY | kSwapXY,  // kLeftBottom_SkEncodedOrigin
-};
-
-SkPixmapPriv::OrientFlags SkPixmapPriv::OriginToOrient(SkEncodedOrigin o) {
-    unsigned io = static_cast<int>(o) - 1;
-    SkASSERT(io < SK_ARRAY_COUNT(gOrientationFlags));
-    return static_cast<SkPixmapPriv::OrientFlags>(gOrientationFlags[io]);
-}
-
-static bool should_swap_width_height(SkEncodedOrigin o) {
-    return SkToBool(SkPixmapPriv::OriginToOrient(o) & kSwapXY);
-}
-
-static SkImageInfo swap_width_height(SkImageInfo info) {
-    return info.makeWH(info.height(), info.width());
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk_sp<SkData> data) {
     auto codec = SkCodec::MakeFromData(data);
@@ -55,8 +23,8 @@ static SkImageInfo adjust_info(SkCodec* codec) {
     if (kUnpremul_SkAlphaType == info.alphaType()) {
         info = info.makeAlphaType(kPremul_SkAlphaType);
     }
-    if (should_swap_width_height(codec->getOrigin())) {
-        info = swap_width_height(info);
+    if (SkPixmapPriv::ShouldSwapWidthHeight(codec->getOrigin())) {
+        info = SkPixmapPriv::SwapWidthHeight(info);
     }
     return info;
 }
@@ -73,39 +41,23 @@ SkData* SkCodecImageGenerator::onRefEncodedData() {
 
 bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* requestPixels,
                                         size_t requestRowBytes, const Options& opts) {
-    const auto origin = fCodec->getOrigin();
-    const SkPixmap request(requestInfo, requestPixels, requestRowBytes);
-    const SkPixmap* codecMap = &request;
-    SkAutoPixmapStorage storage;    // used if we have to post-orient the output from the codec
+    SkPixmap dst(requestInfo, requestPixels, requestRowBytes);
 
-    if (origin != kTopLeft_SkEncodedOrigin) {
-        SkImageInfo info = requestInfo;
-        if (should_swap_width_height(origin)) {
-            info = swap_width_height(info);
+    auto decode = [this, &opts](const SkPixmap& pm) {
+        SkCodec::Options codecOpts;
+        codecOpts.fPremulBehavior = opts.fBehavior;
+        SkCodec::Result result = fCodec->getPixels(pm, &codecOpts);
+        switch (result) {
+            case SkCodec::kSuccess:
+            case SkCodec::kIncompleteInput:
+            case SkCodec::kErrorInInput:
+                return true;
+            default:
+                return false;
         }
-        // need a tmp buffer to receive the pixels, so we can post-orient them
-        if (!storage.tryAlloc(info)) {
-            return false;
-        }
-        codecMap = &storage;
-    }
+    };
 
-    SkCodec::Options codecOpts;
-    codecOpts.fPremulBehavior = opts.fBehavior;
-    SkCodec::Result result = fCodec->getPixels(*codecMap, &codecOpts);
-    switch (result) {
-        case SkCodec::kSuccess:
-            if (codecMap != &request) {
-                return SkPixmapPriv::Orient(request, *codecMap,
-                                            SkPixmapPriv::OriginToOrient(origin));
-            }
-            // fall through
-        case SkCodec::kIncompleteInput:
-        case SkCodec::kErrorInInput:
-            return true;
-        default:
-            return false;
-    }
+    return SkPixmapPriv::Orient(dst, fCodec->getOrigin(), decode);
 }
 
 bool SkCodecImageGenerator::onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const
