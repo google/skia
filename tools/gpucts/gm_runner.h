@@ -32,6 +32,7 @@ enum class SkiaBackend {
     kGL,
     kGLES,
     kVulkan,
+    kCPU,
 };
 
 /**

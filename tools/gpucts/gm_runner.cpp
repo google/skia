@@ -9,13 +9,15 @@
 
 #include <algorithm>
 
-#include "SkGraphics.h"
-#include "SkSurface.h"
 #include "gm.h"
 
 #if SK_SUPPORT_GPU
 
+#include "SkGraphics.h"
+#include "SkSurface.h"
 #include "GrContextFactory.h"
+
+#include "png_interface.h"
 
 using sk_gpu_test::GrContextFactory;
 
@@ -26,15 +28,18 @@ static GrContextFactory::ContextType to_context_type(SkiaBackend backend) {
         case SkiaBackend::kGL:     return GrContextFactory::kGL_ContextType;
         case SkiaBackend::kGLES:   return GrContextFactory::kGLES_ContextType;
         case SkiaBackend::kVulkan: return GrContextFactory::kVulkan_ContextType;
+        default:
+            SkDEBUGFAIL(""); return (GrContextFactory::ContextType)0;
     }
-    SkDEBUGFAIL(""); return (GrContextFactory::ContextType)0;
 }
 
 const char* GetBackendName(SkiaBackend backend) {
+    if (backend == SkiaBackend::kCPU) { return "CPU"; }
     return GrContextFactory::ContextTypeName(to_context_type(backend));
 }
 
 bool BackendSupported(SkiaBackend backend, GrContextFactory* contextFactory) {
+    if (backend == SkiaBackend::kCPU) { return true; }
     return contextFactory->get(to_context_type(backend)) != nullptr;
 }
 
@@ -43,22 +48,27 @@ GMK_ImageData Evaluate(SkiaBackend backend,
                        GMFactory gmFact,
                        GrContextFactory* contextFactory,
                        std::vector<uint32_t>* storage) {
+    constexpr SkColorType ct = kRGBA_8888_SkColorType;
     SkASSERT(contextFactory);
     SkASSERT(gmFact);
     SkASSERT(storage);
     std::unique_ptr<skiagm::GM> gm(gmFact(nullptr));
     SkASSERT(gm.get());
-    int w = SkScalarRoundToInt(gm->width());
-    int h = SkScalarRoundToInt(gm->height());
-    GrContext* context = contextFactory->get(to_context_type(backend));
-    if (!context) {
-        return GMK_ImageData{nullptr, w, h};
+    SkISize size = gm->getISize();
+    int w = size.width(),
+        h = size.height();
+    sk_sp<SkSurface> s;
+    if (backend == SkiaBackend::kCPU) {
+        s = SkSurface::MakeRasterN32Premul(w, h);
+    } else {
+        GrContext* context = contextFactory->get(to_context_type(backend));
+        if (!context) {
+            return GMK_ImageData{nullptr, w, h};
+        }
+        SkASSERT(context);
+        s = SkSurface::MakeRenderTarget(
+                context, SkBudgeted::kNo, SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType));
     }
-    SkASSERT(context);
-    constexpr SkColorType ct = kRGBA_8888_SkColorType;
-
-    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(
-            context, SkBudgeted::kNo, SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType));
     if (!s) {
         return GMK_ImageData{nullptr, w, h};
     }
@@ -112,11 +122,25 @@ std::vector<GMFactory> GetGMFactories() {
     std::vector<GMFactory> result;
     for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
         result.push_back(r->factory());
+        SkASSERT(result.back());
     }
     struct {
         bool operator()(GMFactory u, GMFactory v) const { return GetGMName(u) < GetGMName(v); }
     } less;
     std::sort(result.begin(), result.end(), less);
+    #if 0
+        printf("\n");
+        for (GMFactory gmFactory : result) {
+            std::unique_ptr<skiagm::GM> gm(gmFactory(nullptr));
+            SkASSERT(gm);
+            int w = SkScalarRoundToInt(gm->width());
+            int h = SkScalarRoundToInt(gm->height());
+            const char* name = gm->getName();
+            printf("%s %dx%d\n", name, w, h);
+        }
+        printf("\n");
+        exit(0);
+    #endif
     return result;
 }
 
