@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "820cead2_9a78ef88",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-30T18:38:26Z",
+      "side": 1,
+      "message": "This is probably the number 1 area to explore to make the bots faster.  I\u0027d certainly try at least -O1, and after seeing how that goes, you may want to try -O2 or -O3 for Coverage builds.  (Keeping it a Debug build will make sure code that uses SkASSERT is measured.)  Given that this is coverage via instrumentation, I don\u0027t think we should see a big skew in the results from optimization.",
+      "range": {
+        "startLine": 70,
+        "startChar": 4,
+        "endLine": 70,
+        "endChar": 8
+      },
+      "revId": "c795a4c8862dbab914561fadf7a3567c55362ae4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c9724bf_b2dbb5c4",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-30T18:38:26Z",
+      "side": 1,
+      "message": "Why\u0027d we do this?  It seems fine, but we\u0027re probably just as happy to use the system freetype.",
+      "revId": "c795a4c8862dbab914561fadf7a3567c55362ae4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
