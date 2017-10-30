@@ -599,6 +599,8 @@
       "~WritePixels_Gpu",
       "~WritePixelsNonTexture_Gpu",
       "~XfermodeImageFilterCroppedInput_Gpu",
+      "~GrDefaultPathRendererTest",
+      "~GrMSAAPathRendererTest",
       "--verbose"
     ],
     "env": {
