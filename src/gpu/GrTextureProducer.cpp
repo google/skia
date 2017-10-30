@@ -23,10 +23,11 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
     SkASSERT(context);
 
     const SkRect dstRect = SkRect::MakeIWH(copyParams.fWidth, copyParams.fHeight);
+    GrMipMapped mipMapped = dstWillRequireMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
 
     sk_sp<GrRenderTargetContext> copyRTC = context->makeDeferredRenderTargetContextWithFallback(
         SkBackingFit::kExact, dstRect.width(), dstRect.height(), inputProxy->config(), nullptr,
-        0, dstWillRequireMipMaps, inputProxy->origin());
+        0, mipMapped, inputProxy->origin());
     if (!copyRTC) {
         return nullptr;
     }

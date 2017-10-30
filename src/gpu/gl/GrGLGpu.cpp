@@ -3425,6 +3425,11 @@ void GrGLGpu::bindSurfaceFBOForPixelOps(GrSurface* surface, GrGLenum fboTarget, 
     } else {
         fStats.incRenderTargetBinds();
         GR_GL_CALL(this->glInterface(), BindFramebuffer(fboTarget, rt->renderFBOID()));
+        GrGLenum status;
+        GR_GL_CALL_RET(this->glInterface(), status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+        if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
+            SkDebugf("GrGLGpu::bindSurfaceFBOForPixelOp glCheckFramebufferStatus %x\n", status);
+        }
         *viewport = rt->getViewport();
     }
 }
@@ -4415,7 +4420,7 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
     int width = w;
     int height = h;
     for (int i = 0; i < mipLevels; ++i) {
-        GL_CALL(TexImage2D(info->fTarget, 0, internalFormat, width, height, 0, externalFormat,
+        GL_CALL(TexImage2D(info->fTarget, i, internalFormat, width, height, 0, externalFormat,
                            externalType, pixels));
         width = SkTMax(1, width / 2);
         height = SkTMax(1, height / 2);
