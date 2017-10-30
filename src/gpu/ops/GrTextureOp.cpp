@@ -224,10 +224,10 @@ public:
                                           GrSamplerState::Filter filter, GrColor color,
                                           const SkRect srcRect, const SkRect dstRect,
                                           const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf,
-                                          bool allowSRBInputs) {
+                                          bool allowSRBInputs, const SkMatrix& textureMatrix) {
         return std::unique_ptr<GrDrawOp>(new TextureOp(std::move(proxy), filter, color, srcRect,
                                                        dstRect, viewMatrix, std::move(csxf),
-                                                       allowSRBInputs));
+                                                       allowSRBInputs, textureMatrix));
     }
 
     ~TextureOp() override {
@@ -297,14 +297,15 @@ private:
 
     TextureOp(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter, GrColor color,
               const SkRect& srcRect, const SkRect& dstRect, const SkMatrix& viewMatrix,
-              sk_sp<GrColorSpaceXform> csxf, bool allowSRGBInputs)
+              sk_sp<GrColorSpaceXform> csxf, bool allowSRGBInputs, const SkMatrix& textureMatrix)
             : INHERITED(ClassID())
             , fColorSpaceXform(std::move(csxf))
             , fProxy0(proxy.release())
             , fFilter0(filter)
             , fProxyCnt(1)
             , fFinalized(false)
-            , fAllowSRGBInputs(allowSRGBInputs) {
+            , fAllowSRGBInputs(allowSRGBInputs)
+            , fTextureMatrix(textureMatrix) {
         Draw& draw = fDraws.push_back();
         draw.fSrcRect = srcRect;
         draw.fTextureIdx = 0;
@@ -371,8 +372,21 @@ private:
                 vertices[3 + 4 * i].fPosition = fDraws[i].fQuad.points()[3];
                 vertices[3 + 4 * i].fTextureCoords = {tr, tb};
                 vertices[3 + 4 * i].fColor = fDraws[i].fColor;
+                if (!fTextureMatrix.isIdentity()) {
+                        fTextureMatrix.mapPoints( &vertices[0 + 4 * i].fTextureCoords, 1 );
+                        fTextureMatrix.mapPoints( &vertices[1 + 4 * i].fTextureCoords, 1 );
+                        fTextureMatrix.mapPoints( &vertices[2 + 4 * i].fTextureCoords, 1 );
+                        fTextureMatrix.mapPoints( &vertices[3 + 4 * i].fTextureCoords, 1 );
+
+                        SkString str;
+                        fTextureMatrix.toString(&str);
+                        SkDebugf("SKBMP fTextureMatrix %s origin=%d\n", str.c_str(),
+                                 (int)proxies[0]->origin());
+                    }
+
             }
         } else {
+            SkASSERT(0);
             SkASSERT(gp->getVertexStride() == sizeof(TextureGeometryProcessor::MultiTextureVertex));
             GrTexture* textures[kMaxTextures];
             float iw[kMaxTextures];
@@ -430,6 +444,8 @@ private:
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+        return false;
+
         const auto* that = t->cast<TextureOp>();
         if (!GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get())) {
             return false;
@@ -570,6 +586,7 @@ private:
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     uint8_t fFinalized;
     uint8_t fAllowSRGBInputs;
+    SkMatrix fTextureMatrix;
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -584,10 +601,10 @@ namespace GrTextureOp {
 std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter,
                                GrColor color, const SkRect& srcRect, const SkRect& dstRect,
                                const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf,
-                               bool allowSRGBInputs) {
+                               bool allowSRGBInputs, const SkMatrix& textureMatrix) {
     SkASSERT(!viewMatrix.hasPerspective());
     return TextureOp::Make(std::move(proxy), filter, color, srcRect, dstRect, viewMatrix,
-                           std::move(csxf), allowSRGBInputs);
+                           std::move(csxf), allowSRGBInputs, textureMatrix);
 }
 
 }  // namespace GrTextureOp
@@ -616,8 +633,10 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
             static_cast<uint32_t>(GrSamplerState::Filter::kMipMap) + 1);
     auto csxf = GrTest::TestColorXform(random);
     bool allowSRGBInputs = random->nextBool();
+    SkMatrix identity;
+    identity.reset();
     return GrTextureOp::Make(std::move(proxy), filter, color, srcRect, rect, viewMatrix,
-                             std::move(csxf), allowSRGBInputs);
+                             std::move(csxf), allowSRGBInputs, identity);
 }
 
 #endif

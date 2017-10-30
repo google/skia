@@ -46,6 +46,14 @@ public:
         return m;
     }
 
+    static SkMatrix SK_WARN_UNUSED_RESULT MakeAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
+                                                  SkScalar skewY,  SkScalar scaleY, SkScalar transY,
+                                                  SkScalar pers0, SkScalar pers1, SkScalar pers2) {
+        SkMatrix m;
+        m.setAll(scaleX, skewX, transX, skewY, scaleY, transY, pers0, pers1, pers2);
+        return m;
+    }
+
     /** Enum of bit fields for the mask return by getType().
         Use this to identify the complexity of the matrix.
     */

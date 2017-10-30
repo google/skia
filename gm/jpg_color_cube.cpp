@@ -10,6 +10,7 @@
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
+#include "SkMatrix.h"
 
 namespace skiagm {
 
@@ -18,6 +19,9 @@ public:
     ColorCubeGM() {}
 
 protected:
+    SkMatrix fTextureMatrix;
+
+
     SkString onShortName() override {
         return SkString("jpg-color-cube");
     }
@@ -27,6 +31,13 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
+        int textureWidth = 512;
+        int textureHeight = 512;
+        //fTextureMatrix.setAll(0, -1, 1, -1, 0, 1, 0, 0, 1); //m1
+        fTextureMatrix.setAll(0, 1, 0, -1, 0, 1, 0, 0, 1); //m2
+        fTextureMatrix.preScale(1.0f/textureWidth, 1.0f/textureHeight);
+        fTextureMatrix.postScale(textureWidth, textureHeight);
+
         SkBitmap bmp;
         bmp.allocN32Pixels(512, 512, true);
         int bX = 0, bY = 0;
@@ -47,17 +58,100 @@ protected:
         }
         auto jpegData(sk_tool_utils::EncodeImageToData(bmp, SkEncodedImageFormat::kJPEG, 100));
         fImage = SkImage::MakeFromEncoded(jpegData);
+        //fImage->mTextureMatrix=fTextureMatrix;
+        SkDebugf("SKBMP image is ready\n");
     }
 
     void onDraw(SkCanvas* canvas) override {
-        canvas->drawImage(fImage, 0, 0);
+        canvas->concat(fTextureMatrix);
+        if (!fTexImage) {
+          /*GrContext* context = canvas->getGrContext();
+          fTexImage = fImage->makeTextureImage(context,
+                                              canvas->imageInfo().colorSpace());
+          fTexImage->mTextureMatrix = fTextureMatrix;*/
+
+          fTexImage = fImage;
+        }
+        canvas->drawImage(fTexImage, 0, 0);
     }
 
 private:
     sk_sp<SkImage> fImage;
+    sk_sp<SkImage> fTexImage;
 
     typedef GM INHERITED;
 };
 
 DEF_GM( return new ColorCubeGM; )
+
+
+class ColorCubeGM_textureMatrix : public GM {
+public:
+  ColorCubeGM_textureMatrix() {}
+
+protected:
+    SkMatrix fTextureMatrix;
+
+
+    SkString onShortName() override {
+        return SkString("jpg-color-cube-txt");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(512, 512);
+    }
+
+    void onOnceBeforeDraw() override {
+        //int textureWidth = 512;
+        //int textureHeight = 512;
+        //fTextureMatrix.setAll(0, -1, 1, -1, 0, 1, 0, 0, 1); //m1
+        fTextureMatrix.setAll(0, 1, 0, -1, 0, 1, 0, 0, 1); //m2
+        //fTextureMatrix.preScale(1.0f/textureWidth, 1.0f/textureHeight);
+        //fTextureMatrix.postScale(textureWidth, textureHeight);
+
+        SkBitmap bmp;
+        bmp.allocN32Pixels(512, 512, true);
+        int bX = 0, bY = 0;
+        for (int b = 0; b < 64; ++b) {
+            for (int r = 0; r < 64; ++r) {
+                for (int g = 0; g < 64; ++g) {
+                    *bmp.getAddr32(bX + r, bY + g) = SkPackARGB32(255,
+                                                                  SkTPin(r * 4, 0, 255),
+                                                                  SkTPin(g * 4, 0, 255),
+                                                                  SkTPin(b * 4, 0, 255));
+                }
+            }
+            bX += 64;
+            if (bX >= 512) {
+                bX = 0;
+                bY += 64;
+            }
+        }
+        auto jpegData(sk_tool_utils::EncodeImageToData(bmp, SkEncodedImageFormat::kJPEG, 100));
+        fImage = SkImage::MakeFromEncoded(jpegData);
+        fImage->mTextureMatrix=fTextureMatrix;
+        SkDebugf("SKBMP image is ready\n");
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        //canvas->concat(fTextureMatrix);
+        if (!fTexImage) {
+          GrContext* context = canvas->getGrContext();
+          fTexImage = fImage->makeTextureImage(context,
+                                              canvas->imageInfo().colorSpace());
+          fTexImage->mTextureMatrix = fTextureMatrix;
+
+          //fTexImage = fImage;
+        }
+        canvas->drawImage(fTexImage, 0, 0);
+    }
+
+private:
+    sk_sp<SkImage> fImage;
+    sk_sp<SkImage> fTexImage;
+
+    typedef GM INHERITED;
+};
+
+DEF_GM( return new ColorCubeGM_textureMatrix; )
 }

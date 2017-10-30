@@ -215,7 +215,8 @@ private:
                                 const SkRect* dstRect,
                                 SkCanvas::SrcRectConstraint,
                                 const SkMatrix& viewMatrix,
-                                const SkPaint&);
+                                const SkPaint&,
+                                const SkMatrix& textureMatrix);
 
     void drawTextureMaker(GrTextureMaker* maker,
                           int imageW,
