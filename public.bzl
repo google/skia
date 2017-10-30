@@ -225,7 +225,6 @@ BASE_SRCS_ALL = struct(
         "src/ports/**/*",
         "src/utils/android/**/*",
         "src/utils/mac/**/*",
-        "src/utils/SkThreadUtils_win.cpp",  # Windows-only. Move to ports?
         "src/utils/win/**/*",
         "src/views/sdl/*",
         "src/views/win/*",

@@ -11,8 +11,8 @@
 #include "SkSemaphore.h"
 #include "SkSpinlock.h"
 #include "SkTArray.h"
-#include "SkThreadUtils.h"
 #include <deque>
+#include <thread>
 
 #if defined(SK_BUILD_FOR_WIN32)
     #include <windows.h>
@@ -65,8 +65,7 @@ class SkThreadPool final : public SkExecutor {
 public:
     explicit SkThreadPool(int threads) {
         for (int i = 0; i < threads; i++) {
-            fThreads.emplace_back(new SkThread(&Loop, this));
-            fThreads.back()->start();
+            fThreads.emplace_back(&Loop, this);
         }
     }
 
@@ -77,7 +76,7 @@ public:
         }
         // Wait for each thread to shut down.
         for (int i = 0; i < fThreads.count(); i++) {
-            fThreads[i]->join();
+            fThreads[i].join();
         }
     }
 
@@ -126,10 +125,10 @@ private:
     // Both SkMutex and SkSpinlock can work here.
     using Lock = SkMutex;
 
-    SkTArray<std::unique_ptr<SkThread>> fThreads;
-    WorkList                            fWork;
-    Lock                                fWorkLock;
-    SkSemaphore                         fWorkAvailable;
+    SkTArray<std::thread> fThreads;
+    WorkList              fWork;
+    Lock                  fWorkLock;
+    SkSemaphore           fWorkAvailable;
 };
 
 std::unique_ptr<SkExecutor> SkExecutor::MakeFIFOThreadPool(int threads) {

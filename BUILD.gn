@@ -798,8 +798,6 @@ component("skia") {
     } else {
       sources += [ "src/ports/SkFontMgr_win_dw_factory.cpp" ]
     }
-    sources -=
-        [ get_path_info("src/utils/SkThreadUtils_pthread.cpp", "abspath") ]
     libs += [
       "FontSub.lib",
       "Ole32.lib",

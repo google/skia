@@ -38,7 +38,6 @@
 #include "SkSpinlock.h"
 #include "SkTHash.h"
 #include "SkTaskGroup.h"
-#include "SkThreadUtils.h"
 #include "Test.h"
 #include "Timer.h"
 #include "ios_utils.h"
