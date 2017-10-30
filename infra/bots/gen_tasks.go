@@ -230,7 +230,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"Nexus7v2":        {"flo", "M"},
 				"NexusPlayer":     {"fugu", "OPR6.170623.010"},
 				"Pixel":           {"sailfish", "OPR3.170623.008"},
-				"PixelC":          {"dragon", "OPR6.170623.010"},
+				"PixelC":          {"dragon", "OPR1.170623.014"},
 				"PixelXL":         {"marlin", "OPR3.170623.008"},
 			}[parts["model"]]
 			if !ok {
@@ -1052,7 +1052,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 
 	// Calmbench bots.
 	if parts["role"] == "Calmbench" {
-		deps = append(deps, calmbench(b, name, parts));
+		deps = append(deps, calmbench(b, name, parts))
 	}
 
 	// Most remaining bots need a compile task.
