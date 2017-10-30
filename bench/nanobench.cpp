@@ -45,13 +45,13 @@
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
-#include "SkThreadUtils.h"
 #include "SkTraceEvent.h"
 #include "Stats.h"
 #include "ThermalManager.h"
 #include "ios_utils.h"
 
 #include <stdlib.h>
+#include <thread>
 
 extern bool gSkForceRasterPipelineBlitter;
 
@@ -1109,21 +1109,18 @@ private:
 // Some runs (mostly, Valgrind) are so slow that the bot framework thinks we've hung.
 // This prints something every once in a while so that it knows we're still working.
 static void start_keepalive() {
-    struct Loop {
-        static void forever(void*) {
-            for (;;) {
-                static const int kSec = 1200;
-            #if defined(SK_BUILD_FOR_WIN)
-                Sleep(kSec * 1000);
-            #else
-                sleep(kSec);
-            #endif
-                SkDebugf("\nBenchmarks still running...\n");
-            }
+    static std::thread* intentionallyLeaked = new std::thread([]{
+        for (;;) {
+            static const int kSec = 1200;
+        #if defined(SK_BUILD_FOR_WIN)
+            Sleep(kSec * 1000);
+        #else
+            sleep(kSec);
+        #endif
+            SkDebugf("\nBenchmarks still running...\n");
         }
-    };
-    static SkThread* intentionallyLeaked = new SkThread(Loop::forever);
-    intentionallyLeaked->start();
+    });
+    (void)intentionallyLeaked;
 }
 
 int main(int argc, char** argv) {

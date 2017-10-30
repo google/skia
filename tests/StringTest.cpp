@@ -8,8 +8,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "SkString.h"
-#include "SkThreadUtils.h"
 #include "Test.h"
+#include <thread>
 
 // Windows vsnprintf doesn't 0-terminate safely), but is so far
 // encapsulated in SkString that we can't test it directly.
@@ -291,23 +291,16 @@ DEF_TEST(String_SkStrSplit_All, r) {
 
 // https://bugs.chromium.org/p/skia/issues/detail?id=7107
 DEF_TEST(String_Threaded, r) {
-    SkString gString("foo");
-    SkThread::entryPointProc readString = [](void* context) -> void {
-        SkString gStringCopy = *reinterpret_cast<SkString*>(context);
-        bool equals_string = gStringCopy.equals("test");
-        (void)equals_string;
-    };
-    SkThread threads[] = {
-        {readString, &gString},
-        {readString, &gString},
-        {readString, &gString},
-        {readString, &gString},
-        {readString, &gString},
-    };
-    for (SkThread& thread : threads) {
-        thread.start();
+    SkString str("foo");
+
+    std::thread threads[5];
+    for (auto& thread : threads) {
+        thread = std::thread([&] {
+            SkString copy = str;
+            (void)copy.equals("test");
+        });
     }
-    for (SkThread& thread : threads) {
+    for (auto& thread : threads) {
         thread.join();
     }
 }
