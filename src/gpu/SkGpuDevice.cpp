@@ -992,6 +992,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
     // the rest from the SkPaint.
     std::unique_ptr<GrFragmentProcessor> fp;
+    GrPixelConfig config = proxy->config();
 
     if (needsTextureDomain && (SkCanvas::kStrict_SrcRectConstraint == constraint)) {
         // Use a constrained texture domain to avoid color bleeding
@@ -1022,7 +1023,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         fp = GrSimpleTextureEffect::Make(std::move(proxy), texMatrix, samplerState);
     }
 
-    fp = GrColorSpaceXformEffect::Make(std::move(fp), bitmap.colorSpace(),
+    fp = GrColorSpaceXformEffect::Make(std::move(fp), bitmap.colorSpace(), config,
                                        fRenderTargetContext->colorSpaceInfo().colorSpace());
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
@@ -1088,7 +1089,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     tmpUnfiltered.setImageFilter(nullptr);
 
     auto fp = GrSimpleTextureEffect::Make(std::move(proxy), SkMatrix::I());
-    fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(),
+    fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(), config,
                                        fRenderTargetContext->colorSpaceInfo().colorSpace());
     if (GrPixelConfigIsAlphaOnly(config)) {
         fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));

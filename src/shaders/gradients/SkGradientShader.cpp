@@ -184,6 +184,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
         fColorSpace = SkColorSpace::MakeSRGBLinear();
     } else {
         // The color space refers to the float colors, so it must be linear gamma
+        // TODO: GPU code no longer requires this (see GrGradientEffect). Remove this restriction?
         SkASSERT(desc.fColorSpace->gammaIsLinear());
         fColorSpace = desc.fColorSpace;
     }
@@ -1260,8 +1261,11 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
             fPremulType = kAfterInterp_PremulType;
         }
 
-        // Convert input colors to GrColor4f, possibly premul, and apply color space xform
+        // Convert input colors to GrColor4f, possibly premul, and apply color space xform.
+        // The xform is constructed assuming floats as input, but the color space can have a
+        // transfer function on it, which will be applied below.
         auto colorSpaceXform = GrColorSpaceXform::Make(shader.fColorSpace.get(),
+                                                       kRGBA_float_GrPixelConfig,
                                                        args.fDstColorSpace);
         SkASSERT(shader.fOrigColors && shader.fOrigColors4f);
         fColors4f.setCount(shader.fColorCount);

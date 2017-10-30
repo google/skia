@@ -277,8 +277,13 @@ protected:
         // xform is needed. With texture-based gradients, we leave the data in the source color
         // space (to avoid clamping if we can't use F16)... Add an extra FP to do the xform.
         if (kTexture_ColorType == gradientFP->getColorType()) {
+            // Our texture is always either F16 or sRGB, so the data is "linear" in the shader.
+            // Create our xform assuming float inputs, which will suppress any extra sRGB work.
+            // We do support having a transfer function on the color space of the stops, so
+            // this FP may include that transformation.
             fp = GrColorSpaceXformEffect::Make(std::move(gradientFP),
                                                args.fShader->fColorSpace.get(),
+                                               kRGBA_float_GrPixelConfig,
                                                args.fDstColorSpace);
         } else {
             fp = std::move(gradientFP);
