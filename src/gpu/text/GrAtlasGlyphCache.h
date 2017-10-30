@@ -65,7 +65,7 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    bool addGlyphToAtlas(GrDrawOp::Target*, GrGlyph*, SkGlyphCache*,
+    bool addGlyphToAtlas(GrDeferredUploadTarget*, GrGlyph*, SkGlyphCache*,
                          GrMaskFormat expectedMaskFormat);
 
     // testing
@@ -168,9 +168,9 @@ public:
     }
 
     // add to texture atlas that matches this format
-    bool addToAtlas(GrAtlasTextStrike* strike, GrDrawOpAtlas::AtlasID* id, GrDrawOp::Target* target,
-                    GrMaskFormat format, int width, int height, const void* image,
-                    SkIPoint16* loc) {
+    bool addToAtlas(GrAtlasTextStrike* strike, GrDrawOpAtlas::AtlasID* id,
+                    GrDeferredUploadTarget* target, GrMaskFormat format, int width, int height,
+                    const void* image, SkIPoint16* loc) {
         fPreserveStrike = strike;
         return this->getAtlas(format)->addToAtlas(id, target, width, height, image, loc);
     }
