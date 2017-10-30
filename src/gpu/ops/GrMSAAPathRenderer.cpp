@@ -637,8 +637,10 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
     }
 
     SkRect devBounds;
-    GetPathDevBounds(path, renderTargetContext->width(), renderTargetContext->height(), viewMatrix,
-                     &devBounds);
+    GetPathDevBounds(path,
+                     renderTargetContext->asRenderTargetProxy()->worstCaseWidth(),
+                     renderTargetContext->asRenderTargetProxy()->worstCaseHeight(),
+                     viewMatrix, &devBounds);
 
     SkASSERT(passes[0]);
     {  // First pass
