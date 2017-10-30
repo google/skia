@@ -105,7 +105,7 @@ public:
               const SkRect& bounds);
 
     // Performs an upload of vertex data in the middle of a set of a set of draws
-    virtual void inlineUpload(GrOpFlushState*, GrDrawOp::DeferredUploadFn&) = 0;
+    virtual void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) = 0;
 
     /**
      * Clear the owned render target. Ignores the draw state and clip.

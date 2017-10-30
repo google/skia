@@ -83,7 +83,7 @@ private:
     // All draws in all the GrMeshDrawOps have implicit tokens based on the order they are enqueued
     // globally across all ops. This is the offset of the first entry in fQueuedDraws.
     // fQueuedDraws[i]'s token is fBaseDrawToken + i.
-    GrDrawOpUploadToken fBaseDrawToken;
+    GrDeferredUploadToken fBaseDrawToken;
     SkSTArray<4, GrMesh> fMeshes;
     SkSTArray<4, QueuedDraw, true> fQueuedDraws;
 

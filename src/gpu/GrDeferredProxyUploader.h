@@ -53,7 +53,7 @@ public:
             return;
         }
 
-        auto uploadMask = [this, proxy](GrDrawOp::WritePixelsFn& writePixelsFn) {
+        auto uploadMask = [this, proxy](GrDeferredTextureUploadWritePixelsFn& writePixelsFn) {
             this->wait();
             // If the worker thread was unable to allocate pixels, this check will fail, and we'll
             // end up drawing with an uninitialized mask texture, but at least we won't crash.

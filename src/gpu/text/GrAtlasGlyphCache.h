@@ -155,14 +155,14 @@ public:
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
     void addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater* updater, GrGlyph* glyph,
-                                      GrDrawOpUploadToken token) {
+                                      GrDeferredUploadToken token) {
         SkASSERT(glyph);
         updater->add(glyph->fID);
         this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fID, token);
     }
 
     void setUseTokenBulk(const GrDrawOpAtlas::BulkUseTokenUpdater& updater,
-                         GrDrawOpUploadToken token,
+                         GrDeferredUploadToken token,
                          GrMaskFormat format) {
         this->getAtlas(format)->setLastUseTokenBulk(updater, token);
     }
@@ -187,7 +187,7 @@ public:
     void preFlush(GrOnFlushResourceProvider*, const uint32_t*, int,
                   SkTArray<sk_sp<GrRenderTargetContext>>*) override {}
 
-    void postFlush(GrDrawOpUploadToken startTokenForNextFlush) override {
+    void postFlush(GrDeferredUploadToken startTokenForNextFlush) override {
         for (int i = 0; i < kMaskFormatCount; ++i) {
             if (fAtlases[i]) {
                 fAtlases[i]->compact(startTokenForNextFlush);

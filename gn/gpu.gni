@@ -74,6 +74,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrDefaultGeoProcFactory.cpp",
   "$_src/gpu/GrDefaultGeoProcFactory.h",
   "$_src/gpu/GrDeferredProxyUploader.h",
+  "$_src/gpu/GrDeferredUpload.h",
   "$_src/gpu/GrDistanceFieldGenFromVector.cpp",
   "$_src/gpu/GrDistanceFieldGenFromVector.h",
   "$_src/gpu/GrDrawingManager.cpp",

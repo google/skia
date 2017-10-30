@@ -37,8 +37,8 @@ static bool gDumpAtlasData = false;
 
 GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY,
                           int width, int height, GrPixelConfig config)
-        : fLastUpload(GrDrawOpUploadToken::AlreadyFlushedToken())
-        , fLastUse(GrDrawOpUploadToken::AlreadyFlushedToken())
+        : fLastUpload(GrDeferredUploadToken::AlreadyFlushedToken())
+        , fLastUse(GrDeferredUploadToken::AlreadyFlushedToken())
         , fFlushesSinceLastUse(0)
         , fPageIndex(pageIndex)
         , fPlotIndex(plotIndex)
@@ -110,7 +110,7 @@ bool GrDrawOpAtlas::Plot::addSubImage(int width, int height, const void* image, 
     return true;
 }
 
-void GrDrawOpAtlas::Plot::uploadToTexture(GrDrawOp::WritePixelsFn& writePixels,
+void GrDrawOpAtlas::Plot::uploadToTexture(GrDeferredTextureUploadWritePixelsFn& writePixels,
                                           GrTextureProxy* proxy) {
     // We should only be issuing uploads if we are in fact dirty
     SkASSERT(fDirty && fData && proxy && proxy->priv().peekTexture());
@@ -132,8 +132,8 @@ void GrDrawOpAtlas::Plot::resetRects() {
 
     fGenID++;
     fID = CreateId(fPageIndex, fPlotIndex, fGenID);
-    fLastUpload = GrDrawOpUploadToken::AlreadyFlushedToken();
-    fLastUse = GrDrawOpUploadToken::AlreadyFlushedToken();
+    fLastUpload = GrDeferredUploadToken::AlreadyFlushedToken();
+    fLastUse = GrDeferredUploadToken::AlreadyFlushedToken();
 
     // zero out the plot
     if (fData) {
@@ -153,9 +153,8 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width
         , fTextureWidth(width)
         , fTextureHeight(height)
         , fAtlasGeneration(kInvalidAtlasGeneration + 1)
-        , fPrevFlushToken(GrDrawOpUploadToken::AlreadyFlushedToken())
+        , fPrevFlushToken(GrDeferredUploadToken::AlreadyFlushedToken())
         , fNumPages(0) {
-
     fPlotWidth = fTextureWidth / numPlotsX;
     fPlotHeight = fTextureHeight / numPlotsY;
     SkASSERT(numPlotsX * numPlotsY <= BulkUseTokenUpdater::kMaxPlots);
@@ -193,11 +192,10 @@ inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
 
         GrTextureProxy* proxy = fProxies[pageIdx].get();
 
-        GrDrawOpUploadToken lastUploadToken = target->addAsapUpload(
-            [plotsp, proxy] (GrDrawOp::WritePixelsFn& writePixels) {
-                plotsp->uploadToTexture(writePixels, proxy);
-            }
-        );
+        GrDeferredUploadToken lastUploadToken = target->addAsapUpload(
+                [plotsp, proxy](GrDeferredTextureUploadWritePixelsFn& writePixels) {
+                    plotsp->uploadToTexture(writePixels, proxy);
+                });
         plot->setLastUploadToken(lastUploadToken);
     }
     *id = plot->id();
@@ -314,11 +312,10 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     }
     GrTextureProxy* proxy = fProxies[pageIdx].get();
 
-    GrDrawOpUploadToken lastUploadToken = target->addInlineUpload(
-        [plotsp, proxy] (GrDrawOp::WritePixelsFn& writePixels) {
-            plotsp->uploadToTexture(writePixels, proxy);
-        }
-    );
+    GrDeferredUploadToken lastUploadToken = target->addInlineUpload(
+            [plotsp, proxy](GrDeferredTextureUploadWritePixelsFn& writePixels) {
+                plotsp->uploadToTexture(writePixels, proxy);
+            });
     newPlot->setLastUploadToken(lastUploadToken);
 
     *id = newPlot->id();
@@ -326,7 +323,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     return true;
 }
 
-void GrDrawOpAtlas::compact(GrDrawOpUploadToken startTokenForNextFlush) {
+void GrDrawOpAtlas::compact(GrDeferredUploadToken startTokenForNextFlush) {
     if (fNumPages <= 1) {
         fPrevFlushToken = startTokenForNextFlush;
         return;
@@ -425,7 +422,7 @@ void GrDrawOpAtlas::compact(GrDrawOpUploadToken startTokenForNextFlush) {
                     this->processEvictionAndResetRects(plot);
                     --availablePlots;
                 }
-            } else if (plot->lastUseToken() != GrDrawOpUploadToken::AlreadyFlushedToken()) {
+            } else if (plot->lastUseToken() != GrDeferredUploadToken::AlreadyFlushedToken()) {
                 // otherwise if aged out just evict it.
                 this->processEvictionAndResetRects(plot);
             }

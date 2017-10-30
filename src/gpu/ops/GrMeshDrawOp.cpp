@@ -11,7 +11,7 @@
 #include "GrResourceProvider.h"
 
 GrMeshDrawOp::GrMeshDrawOp(uint32_t classID)
-    : INHERITED(classID), fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()) {}
+        : INHERITED(classID), fBaseDrawToken(GrDeferredUploadToken::AlreadyFlushedToken()) {}
 
 void GrMeshDrawOp::onPrepare(GrOpFlushState* state) {
     Target target(state, this);
@@ -67,7 +67,7 @@ void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
     SkASSERT(state->rtCommandBuffer());
 
     for (int currDrawIdx = 0; currDrawIdx < fQueuedDraws.count(); ++currDrawIdx) {
-        GrDrawOpUploadToken drawToken = state->nextTokenToFlush();
+        GrDeferredUploadToken drawToken = state->nextTokenToFlush();
         while (currUploadIdx < fInlineUploads.count() &&
                fInlineUploads[currUploadIdx].fUploadBeforeToken == drawToken) {
             state->rtCommandBuffer()->inlineUpload(state, fInlineUploads[currUploadIdx++].fUpload);
@@ -104,7 +104,7 @@ void GrMeshDrawOp::Target::draw(const GrGeometryProcessor* gp, const GrPipeline*
         }
     }
     GrMeshDrawOp::QueuedDraw& draw = op->fQueuedDraws.push_back();
-    GrDrawOpUploadToken token = this->state()->issueDrawToken();
+    GrDeferredUploadToken token = this->state()->issueDrawToken();
     draw.fGeometryProcessor.reset(gp);
     draw.fPipeline = pipeline;
     draw.fMeshCnt = 1;
