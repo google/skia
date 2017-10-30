@@ -4415,7 +4415,7 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
     int width = w;
     int height = h;
     for (int i = 0; i < mipLevels; ++i) {
-        GL_CALL(TexImage2D(info->fTarget, 0, internalFormat, width, height, 0, externalFormat,
+        GL_CALL(TexImage2D(info->fTarget, i, internalFormat, width, height, 0, externalFormat,
                            externalType, pixels));
         width = SkTMax(1, width / 2);
         height = SkTMax(1, height / 2);

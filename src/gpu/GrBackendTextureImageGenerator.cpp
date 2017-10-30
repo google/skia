@@ -183,9 +183,11 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         // Otherwise, make a copy of the requested subset. Make sure our temporary is renderable,
         // because Vulkan will want to do the copy as a draw. All other copies would require a
         // layout change in Vulkan and we do not change the layout of borrowed images.
+        GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
+
         sk_sp<GrRenderTargetContext> rtContext(context->makeDeferredRenderTargetContext(
                 SkBackingFit::kExact, info.width(), info.height(), proxy->config(), nullptr,
-                0, willNeedMipMaps, proxy->origin(), nullptr, SkBudgeted::kYes));
+                0, mipMapped, proxy->origin(), nullptr, SkBudgeted::kYes));
 
         if (!rtContext) {
             return nullptr;
