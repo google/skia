@@ -2165,14 +2165,14 @@ Error ViaCSXform::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
             pixels.allocPixels(canvas->imageInfo());
             canvas->readPixels(pixels, 0, 0);
             for (int y = 0; y < pixels.height(); y++) {
+                uint32_t* row = pixels.getAddr32(0,y);
                 for (int x = 0; x < pixels.width(); x++) {
-                    uint32_t pixel = *pixels.getAddr32(x, y);
+                    uint32_t pixel = *row;
                     uint8_t r = SkGetPackedR32(pixel);
                     uint8_t g = SkGetPackedG32(pixel);
                     uint8_t b = SkGetPackedB32(pixel);
                     uint8_t a = SkGetPackedA32(pixel);
-                    *pixels.getAddr32(x, y) =
-                            SkSwizzle_RGBA_to_PMColor(b << 0 | r << 8 | g << 16 | a << 24);
+                    *row++ = SkSwizzle_RGBA_to_PMColor(b << 0 | r << 8 | g << 16 | a << 24);
                 }
             }
 
