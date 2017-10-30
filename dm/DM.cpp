@@ -1282,11 +1282,8 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
     } reporter;
 
     if (!FLAGS_dryRun && !is_blacklisted("_", "tests", "_", test.name)) {
-        GrContextOptions options = grCtxOptions;
-        test.modifyGrContextOptions(&options);
-
         start("unit", "test", "", test.name);
-        GrContextFactory factory(options);
+        GrContextFactory factory(grCtxOptions);
         test.run(&reporter, &factory);
     }
     done("unit", "test", "", test.name);
