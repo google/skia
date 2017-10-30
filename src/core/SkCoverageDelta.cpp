@@ -86,6 +86,7 @@ void SkCoverageDeltaMask::convertCoverageToAlpha(bool isEvenOdd, bool isInverse,
             // Blit the mask
             int L = fAntiRect.fX - fBounds.fLeft;
             for(int i = 0; i < fAntiRect.fHeight; ++i) {
+                sk_bzero(maskRow, fBounds.width());
                 SkAlpha* tMask = maskRow + L;
                 if (fAntiRect.fLeftAlpha) {
                     tMask[0] = fAntiRect.fLeftAlpha;
