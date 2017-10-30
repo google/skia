@@ -330,7 +330,7 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 
     // We reallocate at a rate of 1.5x to try to get better total memory usage
     if (newGeoCount > fGeoDataAllocSize) {
-        int newAllocSize = fGeoDataAllocSize + fGeoDataAllocSize/2;
+        int newAllocSize = fGeoDataAllocSize + fGeoDataAllocSize / 2;
         while (newAllocSize < newGeoCount) {
             newAllocSize += newAllocSize / 2;
         }

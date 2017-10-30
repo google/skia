@@ -32,8 +32,8 @@ public:
         Blob*    fBlob;
         SkScalar fX;
         SkScalar fY;
-        int      fRun;
-        int      fSubRun;
+        uint16_t fRun;
+        uint16_t fSubRun;
         GrColor  fColor;
     };
 
