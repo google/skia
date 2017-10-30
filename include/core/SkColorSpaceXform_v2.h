@@ -17,22 +17,25 @@ public:
     // The same formats as SkColorType, plus a couple more,
     // and with some names tweaked to more accurately reflect memory layout.
     enum class ColorType {
-        Alpha_8,     // 8-bit alpha
-        Gray_8,      // 8-bit gray
+        Alpha_8,          // 8-bit alpha
+        Gray_8,           // 8-bit gray
 
-        BGR_565,     // 5-bit blue, 6-bit green, 5-bit red
-        ABGR_4444,   // 4-bit alpha, blue, green, red
+        BGR_565,          // 5-bit blue, 6-bit green, 5-bit red
+        ABGR_4444,        // 4-bit alpha, blue, green, red
 
-        RGBA_8888,   // 8-bit red, green, blue, alpha
-        BGRA_8888,   // 8-bit blue, green, red, alpha
+        RGBA_8888,        // 8-bit red, green, blue, alpha
+        BGRA_8888,        // 8-bit blue, green, red, alpha
 
-        RGBA_F16,    // half-precision float red, green, blue, alpha
-        RGBA_F32,    // single-precision float red, green, blue, alpha
+        RGBA_F16,         // half-precision float red, green, blue, alpha
+        RGBA_F32,         // single-precision float red, green, blue, alpha
 
-        RGB_BE16,    // big-endian 16-bit red, green, blue                     ( source only )
-        RGBA_BE16,   // big-endian 16-bit red, green, blue, alpha              ( source only )
+        Clamped_RGBA_F16, // half-precision float red, green, blue, alpha, always in [0,1]
+        Clamped_RGBA_F32, // single-precision float red, green, blue, alpha, always in [0,1]
 
-        CMYK_8888,   // 8-bit _inverse_ cyan,magenta,yellow,key (black)        ( source only )
+        RGB_BE16,         // big-endian 16-bit red, green, blue                  ( source only )
+        RGBA_BE16,        // big-endian 16-bit red, green, blue, alpha           ( source only )
+
+        CMYK_8888,        // 8-bit _inverse_ cyan,magenta,yellow,key (black)     ( source only )
     };
 
     // The same formats as SkAlphaType, with premul a bit more finely sliced.
@@ -63,9 +66,10 @@ private:
                         fSrcCS;
     ColorType fDstCT,
               fSrcCT;
-    SkColorSpaceTransferFn fDstTF,     // Always shared between R,G,B.
+    SkColorSpaceTransferFn /*fDstTF,*/     // Always shared between R,G,B.
                            fSrcTF[4];  // Usually one each for R,G,B, but CMYK needs 4.
     float fGamutTransform[3*4];  // 3x4 column-major matrix
+
     // SkJumper_MemoryCtx's for destination and source pointers.
     struct { void*       ptr; int stride; } fDstCtx;
     struct { const void* ptr; int stride; } fSrcCtx;
