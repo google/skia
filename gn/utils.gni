@@ -62,11 +62,8 @@ skia_utils_sources = [
   "$_src/utils/SkShadowTessellator.h",
   "$_src/utils/SkShadowUtils.cpp",
   "$_src/utils/SkTextBox.cpp",
-  "$_src/utils/SkThreadUtils.h",
   "$_src/utils/SkThreadUtils_pthread.cpp",
-  "$_src/utils/SkThreadUtils_pthread.h",
   "$_src/utils/SkThreadUtils_win.cpp",
-  "$_src/utils/SkThreadUtils_win.h",
   "$_src/utils/SkWhitelistTypefaces.cpp",
 
   #mac
