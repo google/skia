@@ -76,6 +76,7 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
             TRACE_EVENT0("skia", fRecordedOps[i].fOp->name());
 #endif
             GrOpFlushState::DrawOpArgs opArgs = {
+                fRecordedOps[i].fOp.get(),
                 fTarget.get()->asRenderTargetProxy(),
                 fRecordedOps[i].fAppliedClip,
                 fRecordedOps[i].fDstProxy
@@ -164,6 +165,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
 #endif
 
         GrOpFlushState::DrawOpArgs opArgs {
+            fRecordedOps[i].fOp.get(),
             fTarget.get()->asRenderTargetProxy(),
             fRecordedOps[i].fAppliedClip,
             fRecordedOps[i].fDstProxy

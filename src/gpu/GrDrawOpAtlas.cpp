@@ -173,7 +173,7 @@ inline void GrDrawOpAtlas::processEviction(AtlasID id) {
     ++fAtlasGeneration;
 }
 
-inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plot* plot) {
+inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* id, Plot* plot) {
     int pageIdx = GetPageIndexFromID(plot->id());
     this->makeMRU(plot, pageIdx);
 
@@ -210,7 +210,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
 // are rare; i.e., we are not continually refreshing the frame.
 static constexpr auto kRecentlyUsedCount = 256;
 
-bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width, int height,
+bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int width, int height,
                                const void* image, SkIPoint16* loc) {
     if (width > fPlotWidth || height > fPlotHeight) {
         return false;
