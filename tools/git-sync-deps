@@ -19,6 +19,8 @@ Environment Variables:
 
   GIT_SYNC_DEPS_QUIET: if set to non-empty string, suppress messages.
 
+  GIT_SYNC_DEPS_VERBOSE: if set to non-empty string, be more verbose.
+
 Git Config:
   To disable syncing of a single repository:
       cd path/to/repository
@@ -142,13 +144,10 @@ def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
     sys.stdout.write('%s\n  SYNC IS DISABLED.\n' % directory)
     return
 
-  with open(os.devnull, 'w') as devnull:
-    # If this fails, we will fetch before trying again.  Don't spam user
-    # with error infomation.
-    if 0 == subprocess.call([git, 'checkout', '--quiet', checkoutable],
-                            cwd=directory, stderr=devnull):
-      # if this succeeds, skip slow `git fetch`.
-      if verbose:
+  if not subprocess.check_output([git, 'status', '--short'], cwd=directory):
+    if checkoutable == subprocess.check_output([git, 'rev-parse', 'HEAD'],
+                                               cwd=directory).strip():
+      if verbose > 1:
         status(directory, checkoutable)  # Success.
       return
 
@@ -236,7 +235,9 @@ def multithread(function, list_of_arg_lists):
 
 def main(argv):
   deps_file_path = os.environ.get('GIT_SYNC_DEPS_PATH', DEFAULT_DEPS_PATH)
-  verbose = not bool(os.environ.get('GIT_SYNC_DEPS_QUIET', False))
+  verbose = 0 if os.environ.get('GIT_SYNC_DEPS_QUIET', False) else 1
+  if verbose and os.environ.get('GIT_SYNC_DEPS_VERBOSE', False):
+    verbose = 2
 
   if '--help' in argv or '-h' in argv:
     usage(deps_file_path)
