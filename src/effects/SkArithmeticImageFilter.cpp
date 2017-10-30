@@ -306,12 +306,13 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     if (backgroundProxy) {
         SkMatrix backgroundMatrix = SkMatrix::MakeTrans(-SkIntToScalar(backgroundOffset.fX),
                                                         -SkIntToScalar(backgroundOffset.fY));
+        GrPixelConfig bgConfig = backgroundProxy->config();
         bgFP = GrTextureDomainEffect::Make(
                 std::move(backgroundProxy), backgroundMatrix,
                 GrTextureDomain::MakeTexelDomain(background->subset()),
                 GrTextureDomain::kDecal_Mode, GrSamplerState::Filter::kNearest);
         bgFP = GrColorSpaceXformEffect::Make(std::move(bgFP), background->getColorSpace(),
-                                             outputProperties.colorSpace());
+                                             bgConfig, outputProperties.colorSpace());
     } else {
         bgFP = GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                            GrConstColorProcessor::kIgnore_InputMode);
@@ -320,12 +321,13 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     if (foregroundProxy) {
         SkMatrix foregroundMatrix = SkMatrix::MakeTrans(-SkIntToScalar(foregroundOffset.fX),
                                                         -SkIntToScalar(foregroundOffset.fY));
+        GrPixelConfig fgConfig = foregroundProxy->config();
         auto foregroundFP = GrTextureDomainEffect::Make(
                 std::move(foregroundProxy), foregroundMatrix,
                 GrTextureDomain::MakeTexelDomain(foreground->subset()),
                 GrTextureDomain::kDecal_Mode, GrSamplerState::Filter::kNearest);
         foregroundFP = GrColorSpaceXformEffect::Make(std::move(foregroundFP),
-                                                     foreground->getColorSpace(),
+                                                     foreground->getColorSpace(), fgConfig,
                                                      outputProperties.colorSpace());
         paint.addColorFragmentProcessor(std::move(foregroundFP));
 

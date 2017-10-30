@@ -218,7 +218,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         return nullptr;
     }
 
-    bool isAlphaOnly = GrPixelConfigIsAlphaOnly(proxy->config());
+    GrPixelConfig config = proxy->config();
+    bool isAlphaOnly = GrPixelConfigIsAlphaOnly(config);
 
     lmInverse.postScale(scaleAdjust[0], scaleAdjust[1]);
 
@@ -228,7 +229,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     } else {
         inner = GrSimpleTextureEffect::Make(std::move(proxy), lmInverse, samplerState);
     }
-    inner = GrColorSpaceXformEffect::Make(std::move(inner), texColorSpace.get(),
+    inner = GrColorSpaceXformEffect::Make(std::move(inner), texColorSpace.get(), config,
                                           args.fDstColorSpaceInfo->colorSpace());
     if (isAlphaOnly) {
         return inner;

@@ -118,29 +118,78 @@ void GrGLSLShaderBuilder::appendTextureLookupAndModulate(
 void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
                                                 const char* srcColor,
                                                 GrGLSLColorSpaceXformHelper* colorXformHelper) {
-    // Our color is (r, g, b, a), but we want to multiply (r, g, b, 1) by our matrix, then
-    // re-insert the original alpha. The supplied srcColor is likely to be of the form
-    // "texture(...)", and we don't want to evaluate that twice, so wrap everything in a function.
-    static const GrShaderVar gColorGamutXformArgs[] = {
-        GrShaderVar("color", kHalf4_GrSLType),
-        GrShaderVar("xform", kHalf4x4_GrSLType),
-    };
-    SkString functionBody;
-    // Gamut xform, clamp to destination gamut. We only support/have premultiplied textures, so we
-    // always just clamp to alpha.
-    functionBody.append("\tcolor.rgb = clamp((xform * half4(color.rgb, 1.0)).rgb, 0.0, color.a);\n");
-    functionBody.append("\treturn color;");
-    SkString colorGamutXformFuncName;
-    this->emitFunction(kHalf4_GrSLType,
-                       "colorGamutXform",
-                       SK_ARRAY_COUNT(gColorGamutXformArgs),
-                       gColorGamutXformArgs,
-                       functionBody.c_str(),
-                       &colorGamutXformFuncName);
-
     GrGLSLUniformHandler* uniformHandler = fProgramBuilder->uniformHandler();
-    out->appendf("%s(%s, %s)", colorGamutXformFuncName.c_str(), srcColor,
-                 uniformHandler->getUniformCStr(colorXformHelper->gamutXformUniform()));
+
+    // We define up to three helper functions, to keep things clearer. One does inverse sRGB,
+    // one does an arbitrary transfer function, and the last does gamut xform. Any combination of
+    // these may be present, although some configurations are much more likely.
+
+    SkString inverseSrgbFuncName;
+    if (colorXformHelper->applyInverseSRGB()) {
+        static const GrShaderVar gInverseSRGBArgs[] = { GrShaderVar("x", kHalf_GrSLType) };
+        SkString body;
+        body.append("return (x <= 0.0031308) ? (x * 12.92) : (1.055 * pow(x, 0.4166667) - 0.055);");
+        this->emitFunction(kHalf_GrSLType, "inverse_srgb", SK_ARRAY_COUNT(gInverseSRGBArgs),
+                           gInverseSRGBArgs, body.c_str(), &inverseSrgbFuncName);
+
+    }
+
+    SkString transferFnFuncName;
+    if (colorXformHelper->applyTransferFn()) {
+        static const GrShaderVar gTransferFnArgs[] = { GrShaderVar("x", kHalf_GrSLType) };
+        const char* coeffs = uniformHandler->getUniformCStr(colorXformHelper->transferFnUniform());
+        SkString body;
+        // Temporaries to make evaluation line readable
+        body.appendf("half G = %s[0];", coeffs);
+        body.appendf("half A = %s[1];", coeffs);
+        body.appendf("half B = %s[2];", coeffs);
+        body.appendf("half C = %s[3];", coeffs);
+        body.appendf("half D = %s[4];", coeffs);
+        body.appendf("half E = %s[5];", coeffs);
+        body.appendf("half F = %s[6];", coeffs);
+        body.append("half s = sign(x);");
+        body.append("x = abs(x);");
+        body.appendf("return s * ((x < D) ? (C * x) + F : pow(A * x + B, G) + E);");
+        this->emitFunction(kHalf_GrSLType, "transfer_fn", SK_ARRAY_COUNT(gTransferFnArgs),
+                           gTransferFnArgs, body.c_str(), &transferFnFuncName);
+    }
+
+    SkString gamutXformFuncName;
+    if (colorXformHelper->applyGamutXform()) {
+        // Our color is (r, g, b, a), but we want to multiply (r, g, b, 1) by our matrix, then
+        // re-insert the original alpha.
+        static const GrShaderVar gGamutXformArgs[] = { GrShaderVar("color", kHalf4_GrSLType) };
+        const char* xform = uniformHandler->getUniformCStr(colorXformHelper->gamutXformUniform());
+        SkString body;
+        body.appendf("color.rgb = clamp((%s * half4(color.rgb, 1.0)).rgb, 0.0, color.a);", xform);
+        body.append("return color;");
+        this->emitFunction(kHalf4_GrSLType, "gamut_xform", SK_ARRAY_COUNT(gGamutXformArgs),
+                           gGamutXformArgs, body.c_str(), &gamutXformFuncName);
+    }
+
+    // Now define a wrapper function that applies all the intermediate steps
+    {
+        static const GrShaderVar gColorXformArgs[] = { GrShaderVar("color", kHalf4_GrSLType) };
+        SkString body;
+        if (colorXformHelper->applyInverseSRGB()) {
+            body.appendf("color.r = %s(color.r);", inverseSrgbFuncName.c_str());
+            body.appendf("color.g = %s(color.g);", inverseSrgbFuncName.c_str());
+            body.appendf("color.b = %s(color.b);", inverseSrgbFuncName.c_str());
+        }
+        if (colorXformHelper->applyTransferFn()) {
+            body.appendf("color.r = %s(color.r);", transferFnFuncName.c_str());
+            body.appendf("color.g = %s(color.g);", transferFnFuncName.c_str());
+            body.appendf("color.b = %s(color.b);", transferFnFuncName.c_str());
+        }
+        if (colorXformHelper->applyGamutXform()) {
+            body.appendf("color = %s(color);", gamutXformFuncName.c_str());
+        }
+        body.append("return color;");
+        SkString colorXformFuncName;
+        this->emitFunction(kHalf4_GrSLType, "color_xform", SK_ARRAY_COUNT(gColorXformArgs),
+                           gColorXformArgs, body.c_str(), &colorXformFuncName);
+        out->appendf("%s(%s)", colorXformFuncName.c_str(), srcColor);
+    }
 }
 
 void GrGLSLShaderBuilder::appendColorGamutXform(const char* srcColor,
