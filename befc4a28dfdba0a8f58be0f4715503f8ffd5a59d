@@ -16,6 +16,24 @@
       "revId": "befc4a28dfdba0a8f58be0f4715503f8ffd5a59d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35f177e4_0dc7fb7e",
+        "filename": "src/core/SkCoverageDelta.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-10-30T17:05:21Z",
+      "side": 1,
+      "message": "Changed to sk_bzero.",
+      "parentUuid": "c23a9d3a_aeb0f2c9",
+      "revId": "befc4a28dfdba0a8f58be0f4715503f8ffd5a59d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
