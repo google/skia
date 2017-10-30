@@ -10,6 +10,7 @@
 
 #include "SkPixmap.h"
 #include "SkEncodedOrigin.h"
+#include "SkAutoPixmapStorage.h"
 
 class SkPixmapPriv {
 public:
@@ -27,6 +28,41 @@ public:
      *  by the flags. If the inputs are invalid, this returns false and no copy is made.
      */
     static bool Orient(const SkPixmap& dst, const SkPixmap& src, OrientFlags);
+
+    static bool ShouldSwapWidthHeight(SkEncodedOrigin o);
+    static SkImageInfo SwapWidthHeight(const SkImageInfo& info);
+
+    /**
+     *  Decode an image and then copy into dst, applying origin.
+     *
+     *  @param dst SkPixmap to write the final image, after
+     *      applying the origin.
+     *  @param origin SkEncodedOrigin to apply to the raw pixels.
+     *  @param decode Function for decoding into a pixmap without
+     *      applying the origin.
+     */
+    static bool Orient(const SkPixmap& dst, SkEncodedOrigin origin,
+            std::function<bool(const SkPixmap&)> decode) {
+        SkAutoPixmapStorage storage;
+        const SkPixmap* tmp = &dst;
+        if (origin != kTopLeft_SkEncodedOrigin) {
+            auto info = dst.info();
+            if (ShouldSwapWidthHeight(origin)) {
+                info = SwapWidthHeight(info);
+            }
+            if (!storage.tryAlloc(info)) {
+                return false;
+            }
+            tmp = &storage;
+        }
+        if (!decode(*tmp)) {
+            return false;
+        }
+        if (tmp != &dst) {
+            return Orient(dst, *tmp, OriginToOrient(origin));
+        }
+        return true;
+    }
 };
 
 #endif

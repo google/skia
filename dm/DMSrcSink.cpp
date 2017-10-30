@@ -942,7 +942,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
             break;
         case kPlatform_Mode: {
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-            gen.reset(SkImageGeneratorCG::NewFromEncodedCG(encoded.get()));
+            gen = SkImageGeneratorCG::MakeFromEncodedCG(encoded);
 #elif defined(SK_BUILD_FOR_WIN)
             gen.reset(SkImageGeneratorWIC::NewFromEncodedWIC(encoded.get()));
 #endif

@@ -10,16 +10,21 @@
 
 #include "SkCGUtils.h"
 #include "SkData.h"
+#include "SkEncodedOrigin.h"
 #include "SkImageGenerator.h"
 #include "SkTemplates.h"
 
 class SkImageGeneratorCG : public SkImageGenerator {
 public:
+#ifdef SK_LEGACY_NEW_FROM_ENCODED_CG
     /*
      * Refs the data if an image generator can be returned.  Otherwise does
      * not affect the data.
      */
     static SkImageGenerator* NewFromEncodedCG(SkData* data);
+#endif
+
+    static std::unique_ptr<SkImageGenerator> MakeFromEncodedCG(sk_sp<SkData>);
 
 protected:
     SkData* onRefEncodedData() override;
@@ -30,12 +35,13 @@ protected:
 private:
     /*
      * Takes ownership of the imageSrc
-     * Refs the data
      */
-    SkImageGeneratorCG(const SkImageInfo& info, const void* imageSrc, SkData* data);
+    SkImageGeneratorCG(const SkImageInfo& info, const void* imageSrc, sk_sp<SkData> data,
+                       SkEncodedOrigin origin);
 
     SkAutoTCallVProc<const void, CFRelease> fImageSrc;
     sk_sp<SkData>                           fData;
+    const SkEncodedOrigin                   fOrigin;
 
     typedef SkImageGenerator INHERITED;
 };

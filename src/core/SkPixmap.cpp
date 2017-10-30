@@ -446,3 +446,32 @@ bool SkPixmapPriv::Orient(const SkPixmap& dst, const SkPixmap& src, OrientFlags 
     return draw_orientation(dst, src, flags);
 }
 
+#define kMirrorX    SkPixmapPriv::kMirrorX
+#define kMirrorY    SkPixmapPriv::kMirrorY
+#define kSwapXY     SkPixmapPriv::kSwapXY
+
+static constexpr uint8_t gOrientationFlags[] = {
+    0,                              // kTopLeft_SkEncodedOrigin
+    kMirrorX,                       // kTopRight_SkEncodedOrigin
+    kMirrorX | kMirrorY,            // kBottomRight_SkEncodedOrigin
+               kMirrorY,            // kBottomLeft_SkEncodedOrigin
+                          kSwapXY,  // kLeftTop_SkEncodedOrigin
+    kMirrorX            | kSwapXY,  // kRightTop_SkEncodedOrigin
+    kMirrorX | kMirrorY | kSwapXY,  // kRightBottom_SkEncodedOrigin
+               kMirrorY | kSwapXY,  // kLeftBottom_SkEncodedOrigin
+};
+
+SkPixmapPriv::OrientFlags SkPixmapPriv::OriginToOrient(SkEncodedOrigin o) {
+    unsigned io = static_cast<int>(o) - 1;
+    SkASSERT(io < SK_ARRAY_COUNT(gOrientationFlags));
+    return static_cast<SkPixmapPriv::OrientFlags>(gOrientationFlags[io]);
+}
+
+bool SkPixmapPriv::ShouldSwapWidthHeight(SkEncodedOrigin o) {
+    return SkToBool(OriginToOrient(o) & kSwapXY);
+}
+
+SkImageInfo SkPixmapPriv::SwapWidthHeight(const SkImageInfo& info) {
+    return info.makeWH(info.height(), info.width());
+}
+
