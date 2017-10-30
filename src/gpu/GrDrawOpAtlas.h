@@ -100,7 +100,7 @@ public:
      * 'setUseToken' with the currentToken from the GrDrawOp::Target, otherwise the next call to
      * addToAtlas might cause the previous data to be overwritten before it has been read.
      */
-    bool addToAtlas(AtlasID*, GrDrawOp::Target*, int width, int height, const void* image,
+    bool addToAtlas(AtlasID*, GrDeferredUploadTarget*, int width, int height, const void* image,
                     SkIPoint16* loc);
 
     GrContext* context() const { return fContext; }
@@ -327,7 +327,7 @@ private:
         return (id >> 16) & 0xffffffffffff;
     }
 
-    inline bool updatePlot(GrDrawOp::Target*, AtlasID*, Plot*);
+    inline bool updatePlot(GrDeferredUploadTarget*, AtlasID*, Plot*);
 
     inline void makeMRU(Plot* plot, int pageIdx) {
         if (fPages[pageIdx].fPlotList.head() == plot) {
