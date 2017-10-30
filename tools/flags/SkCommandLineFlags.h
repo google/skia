@@ -155,7 +155,7 @@ public:
             fStrings[i].set(str);
         }
 
-    private:
+    public:
         void reset() { fStrings.reset(); }
 
         void append(const char* string) {

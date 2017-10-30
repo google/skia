@@ -1282,8 +1282,11 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
     } reporter;
 
     if (!FLAGS_dryRun && !is_blacklisted("_", "tests", "_", test.name)) {
+        GrContextOptions options = grCtxOptions;
+        test.modifyGrContextOptions(&options);
+
         start("unit", "test", "", test.name);
-        GrContextFactory factory(grCtxOptions);
+        GrContextFactory factory(options);
         test.run(&reporter, &factory);
     }
     done("unit", "test", "", test.name);
@@ -1307,6 +1310,12 @@ extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle )
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
+
+    FLAGS_src.reset();
+    FLAGS_src.append("tests", 5);
+
+    FLAGS_match.reset();
+    FLAGS_match.append("PathRendererTest", 16);
 
     initializeEventTracingForTools();
 
