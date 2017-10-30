@@ -288,6 +288,7 @@ protected:
         if (kTexture_ColorType == gradientFP->getColorType()) {
             fp = GrColorSpaceXformEffect::Make(std::move(gradientFP),
                                                args.fShader->fColorSpace.get(),
+                                               kUnknown_GrPixelConfig, // TODO: Add MakeGamutXform?
                                                args.fDstColorSpace);
         } else {
             fp = std::move(gradientFP);
