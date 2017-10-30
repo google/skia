@@ -36,7 +36,7 @@ public:
     void preFlush(GrOnFlushResourceProvider*, const uint32_t*, int,
                   SkTArray<sk_sp<GrRenderTargetContext>>*) override {}
 
-    void postFlush(GrDrawOpUploadToken startTokenForNextFlush) override {
+    void postFlush(GrDeferredUploadToken startTokenForNextFlush) override {
         if (fAtlas) {
             fAtlas->compact(startTokenForNextFlush);
         }
