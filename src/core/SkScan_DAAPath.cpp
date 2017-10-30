@@ -329,7 +329,7 @@ void SkScan::DAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
 
         // The overhead of even constructing SkCoverageDeltaList/Mask is too big.
         // So TryBlitFatAntiRect and return if it's successful.
-        if (TryBlitFatAntiRect(blitter, path, clipBounds)) {
+        if (!isInverse && TryBlitFatAntiRect(blitter, path, clipBounds)) {
             return;
         }
 
