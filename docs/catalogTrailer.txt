@@ -1,0 +1,131 @@
+
+function addImage(hash, x, y, w, h) {
+    var image = new Image()
+    if (getFromWeb)
+        image.src = 'https://fiddle.skia.org/i/'
+    image.src += hash + '_raster.png'
+    image.xpos = x
+    image.ypos = y
+    image.w = w
+    image.h = h
+    image.onload = function () {
+        context.save()
+        context.transform(scale, 0, 0, scale, 0, 0)
+        context.rect(image.xpos, image.ypos, image.w, image.h)
+        context.stroke();
+        context.clip();
+        context.drawImage(image, image.xpos, image.ypos)
+        context.restore()
+    }
+}
+
+var canvas
+var context
+var getFromWeb = true
+var mouseDown = false
+var scale = .6
+var outset = 15
+var columnWidth = 256
+var maxHeight = 256
+var lastLink = null
+var lastLinkRecStr = null
+
+function handleMouseOver(event) {
+    var x = (event.clientX - 5) / scale
+    var y = (event.clientY - 7) / scale
+    var row = outset
+    var column = outset
+    document.body.style.cursor = ""
+    lastLink = null
+    for (var recstr in pngs) {
+        var rec = pngs[recstr]
+        var height = rec.height < maxHeight ? rec.height : maxHeight
+        if (x >= column && x <= column + columnWidth && y >= row && y <= row + height) {
+            document.body.style.cursor = "pointer"
+            lastLink = rec
+            lastLinkRecStr = recstr
+            break
+        }
+        row += height + outset
+        if (row >= canvas.height / scale) {
+            row = 0
+            column += columnWidth + outset
+            if (column >= canvas.width / scale) {
+                break
+            }
+        }
+    }
+}
+
+function handleMouseClick() {
+    if (null != lastLink) {
+        if (!lastLinkRecStr.startsWith("Sk")) {
+            var under = lastLinkRecStr.indexOf('_')
+            lastLinkRecStr = lastLinkRecStr.substring(under + 1)
+        }
+        under = lastLinkRecStr.lastIndexOf('_')
+        var len = lastLinkRecStr.length
+        if (under == len - 2) {
+            var letter = lastLinkRecStr[len - 1]
+            if ('a' <= letter && letter <= 'z') {
+                lastLinkRecStr = lastLinkRecStr.substr(0, len - 2)
+            } else if ('0' <= letter && letter <= '9') {
+                lastLinkRecStr = lastLinkRecStr.substr(0, len - 2)
+            }
+        }
+        var link = 'https://skia.org/user/api/' + lastLink.file + '#' + lastLinkRecStr
+        window.location = link
+    }
+}
+
+function start() {
+    canvas = document.getElementById('canvas')
+    context = canvas.getContext('2d')
+    setSize()
+    redraw()
+}
+
+function redraw() {
+    context.save()
+    context.transform(scale, 0, 0, scale, 0, 0)
+    var row = outset
+    var column = outset
+    for (var recstr in pngs) {
+        var rec = pngs[recstr]
+        var height = rec.height < maxHeight ? rec.height : maxHeight;
+        addImage(rec.hash, column, row, columnWidth, height)
+        row += height + outset;
+        if (row >= canvas.height / scale) {
+            row = 0;
+            column += columnWidth + outset;
+            if (column >= canvas.width / scale) {
+                break;
+            }
+        }
+    }
+    context.restore();
+}
+
+function resize() {
+    setSize()
+    redraw()
+}
+
+function setSize() {
+    canvas.width = window.innerWidth - 20
+    canvas.height = window.innerHeight - 20
+}
+
+</script>
+</head>
+
+<body onLoad="start()" onresize="resize()">
+
+<canvas id="canvas" width="750" height="500"
+onmousedown="mouseDown = true"
+onmouseup="mouseDown = false"
+onmousemove="handleMouseOver(event)"
+onclick="handleMouseClick()"
+></canvas >
+</body>
+</html>

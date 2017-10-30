@@ -21,7 +21,7 @@ Declaring SkBitmap const prevents altering Image_Info: the Bitmap height, width,
 and so on cannot change. It does not affect Pixel_Ref: a caller may write its
 pixels. Declaring SkBitmap const affects Bitmap configuration, not its contents.
 
-Bitmap is not thread safe. Each thread must have its own copy if Bitmap fields,
+Bitmap is not thread safe. Each thread must have its own copy of Bitmap fields,
 although threads may share the underlying pixel array.
 
 #Topic Row_Bytes

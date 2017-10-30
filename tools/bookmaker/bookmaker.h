@@ -682,6 +682,12 @@ public:
         kYes
     };
 
+    enum class ExampleOptions {
+        kText,
+        kPng,
+        kAll
+    };
+
     enum class MethodType {
         kNone,
         kConstructor,
@@ -785,7 +791,7 @@ public:
     bool crossCheck2(const Definition& includeToken) const;
     bool crossCheck(const Definition& includeToken) const;
     bool crossCheckInside(const char* start, const char* end, const Definition& includeToken) const;
-    bool exampleToScript(string* result) const;
+    bool exampleToScript(string* result, ExampleOptions ) const;
 
     string extractText(TrimExtract trimExtract) const {
         string result;
@@ -1768,7 +1774,10 @@ public:
         const ParentPair* fPrev;
     };
 
-    IncludeWriter() : IncludeParser() {}
+    IncludeWriter() : IncludeParser() {
+        this->reset();
+    }
+
     ~IncludeWriter() override {}
 
     bool contentFree(int size, const char* data) const {
@@ -1843,14 +1852,41 @@ private:
     typedef IncludeParser INHERITED;
 };
 
-class FiddleParser : public ParserCommon {
-public:
-    FiddleParser(BmhParser* bmh) : ParserCommon()
-        , fBmhParser(bmh) {
+class FiddleBase : public ParserCommon {
+protected:
+    FiddleBase(BmhParser* bmh) : ParserCommon()
+        , fBmhParser(bmh)
+        , fContinuation(false)
+        , fTextOut(false)
+        , fPngOut(false)
+    {
         this->reset();
     }
 
+    void reset() override {
+        INHERITED::resetCommon();
+    }
+
     Definition* findExample(const string& name) const;
+    bool parseFiddles();
+    virtual bool pngOut(Definition* example) = 0;
+    virtual bool textOut(Definition* example, const char* stdOutStart,
+        const char* stdOutEnd) = 0;
+
+    BmhParser* fBmhParser;  // must be writable; writes example hash
+    string fFullName;
+    bool fContinuation;
+    bool fTextOut;
+    bool fPngOut;
+private:
+    typedef ParserCommon INHERITED;
+};
+
+class FiddleParser : public FiddleBase {
+public:
+    FiddleParser(BmhParser* bmh) : FiddleBase(bmh) {
+       fTextOut = true;
+    }
 
     bool parseFromFile(const char* path) override {
         if (!INHERITED::parseSetup(path)) {
@@ -1859,16 +1895,34 @@ public:
         return parseFiddles();
     }
 
-    void reset() override {
-        INHERITED::resetCommon();
+private:
+    bool pngOut(Definition* example) override {
+        return true;
     }
 
+    bool textOut(Definition* example, const char* stdOutStart,
+        const char* stdOutEnd) override;
+
+    typedef FiddleBase INHERITED;
+};
+
+class Catalog : public FiddleBase {
+public:
+    Catalog(BmhParser* bmh) : FiddleBase(bmh) {}
+
+    bool appendFile(const string& path);
+    bool closeCatalog();
+    bool openCatalog(const char* inDir, const char* outDir);
+
+    bool parseFromFile(const char* path) override ;
 private:
-    bool parseFiddles();
+    bool pngOut(Definition* example) override;
+    bool textOut(Definition* example, const char* stdOutStart,
+        const char* stdOutEnd) override;
 
-    BmhParser* fBmhParser;  // must be writable; writes example hash
+    string fDocsDir;
 
-    typedef ParserCommon INHERITED;
+    typedef FiddleBase INHERITED;
 };
 
 class HackParser : public ParserCommon {
