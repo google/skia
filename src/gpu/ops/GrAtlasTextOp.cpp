@@ -317,11 +317,11 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 
     // Keep the batch vertex buffer size below 32K so we don't have to create a special one
     // We use the largest possible vertex size for this
-    static const int kVertexSize = sizeof(SkPoint) + sizeof(SkColor) + 2 * sizeof(uint16_t);
-    static const int kMaxGlyphs = 32768 / (4 * kVertexSize);
-    if (this->fNumGlyphs + that->fNumGlyphs > kMaxGlyphs) {
-        return false;
-    }
+    //static const int kVertexSize = sizeof(SkPoint) + sizeof(SkColor) + 2 * sizeof(uint16_t);
+    //static const int kMaxGlyphs = 32768 / (4 * kVertexSize);
+    //if (this->fNumGlyphs + that->fNumGlyphs > kMaxGlyphs) {
+    //    return false;
+    //}
 
     fNumGlyphs += that->numGlyphs();
 
@@ -330,7 +330,7 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 
     // We reallocate at a rate of 1.5x to try to get better total memory usage
     if (newGeoCount > fGeoDataAllocSize) {
-        int newAllocSize = fGeoDataAllocSize + fGeoDataAllocSize/2;
+        int newAllocSize = fGeoDataAllocSize + fGeoDataAllocSize / 2;
         while (newAllocSize < newGeoCount) {
             newAllocSize += newAllocSize / 2;
         }
