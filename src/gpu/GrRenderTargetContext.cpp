@@ -1890,6 +1890,7 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
 
     sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeDeferredSurfaceContext(
                                                                                 desc,
+                                                                                GrMipMapped::kNo,
                                                                                 fit,
                                                                                 SkBudgeted::kYes);
     if (!sContext) {

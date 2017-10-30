@@ -104,17 +104,44 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
         return nullptr;
     }
 
+    bool makingASubset = true;
     if (0 == origin.fX && 0 == origin.fY &&
             info.width() == getInfo().width() && info.height() == getInfo().height()) {
-        // If the caller wants the entire texture, we're done
-        return proxy;
-    } else {
-        // Otherwise, make a copy of the requested subset.
-        return GrSurfaceProxy::Copy(context, proxy.get(),
-                                    SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(),
-                                                      info.height()),
-                                    SkBudgeted::kYes);
+        makingASubset = false;
+        if (!willNeedMipMaps || GrMipMapped::kYes == proxy->mipMapped()) {
+            // If the caller wants the full texture and we have the correct mip support, we're done
+            return proxy;
+        }
     }
+    // Otherwise, make a copy for the requested subset or for mip maps.
+    SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
+
+    GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
+
+    sk_sp<GrTextureProxy> texProxy = GrSurfaceProxy::Copy(context, proxy.get(), mipMapped,
+                                                          subset, SkBudgeted::kYes);
+    if (!makingASubset && texProxy) {
+        // We are in this case if we wanted the full texture, but we will be mip mapping the
+        // texture. Therefore we want to update the cached texture so that we point to the
+        // mipped version instead of the old one.
+        SkASSERT(willNeedMipMaps);
+        SkASSERT(GrMipMapped::kYes == texProxy->mipMapped());
+
+        // The only way we should get into here is if we just made a new texture in makeProxy or
+        // we found a cached texture in the same context. Thus the current and cached contexts
+        // should match.
+        SkASSERT(context->uniqueID() == fOwningContextID);
+
+        // Clear out the old cached texture.
+        this->clear();
+
+        // We need to get the actual GrTexture so force instantiation of the GrTextureProxy
+        texProxy->instantiate(context->resourceProvider());
+        GrTexture* texture = texProxy->priv().peekTexture();
+        SkASSERT(texture);
+        fOriginalTexture = texture;
+    }
+    return texProxy;
 }
 #endif
 

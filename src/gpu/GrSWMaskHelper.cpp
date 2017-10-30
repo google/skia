@@ -100,6 +100,7 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBacki
 
     sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeDeferredSurfaceContext(
                                                                                 desc,
+                                                                                GrMipMapped::kNo,
                                                                                 fit,
                                                                                 SkBudgeted::kYes);
     if (!sContext || !sContext->asTextureProxy()) {
