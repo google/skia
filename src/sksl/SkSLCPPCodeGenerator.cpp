@@ -475,6 +475,9 @@ void CPPCodeGenerator::writeCodeAppend(const String& code) {
                 if (code[index + 1] != '%') {
                     ++argCount;
                 }
+            } else if ('\\' == code[index] && index == start + maxChunkSize - 1) {
+                // avoid splitting an escape sequence that happens to fall across a chunk boundary
+                break;
             }
             ++index;
         }
