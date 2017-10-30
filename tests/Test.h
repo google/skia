@@ -22,7 +22,7 @@ class ContextInfo;
 class GLTestContext;
 }  // namespace sk_gpu_test
 class GrContext;
-struct GrContextOptions;
+class GrContextOptions;
 #endif
 
 namespace skiatest {
