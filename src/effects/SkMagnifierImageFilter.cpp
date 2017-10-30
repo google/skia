@@ -355,6 +355,7 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
         offset->fY = bounds.top();
         bounds.offset(-inputOffset);
 
+        GrPixelConfig inputConfig = inputProxy->config();
         auto fp = GrMagnifierEffect::Make(std::move(inputProxy),
                                           bounds,
                                           fSrcRect,
@@ -363,7 +364,7 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
                                           bounds.width() * invInset,
                                           bounds.height() * invInset);
         fp = GrColorSpaceXformEffect::Make(std::move(fp), input->getColorSpace(),
-                                           ctx.outputProperties().colorSpace());
+                                           inputConfig, ctx.outputProperties().colorSpace());
         if (!fp) {
             return nullptr;
         }
