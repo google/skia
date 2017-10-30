@@ -35,11 +35,12 @@ Check if the given test image matches the expected results.
 
 @param data     the image
 @param gm_name  the name of the rendering test that produced the image
+@param backend  the name of the backend (optional)
 
 @return 0 if the test passes, otherwise a positive number representing how
          badly it failed.
  */
-float GMK_Check(GMK_ImageData data, const char* gm_name);
+float GMK_Check(GMK_ImageData data, const char* gm_name, const char* backend = nullptr);
 
 /**
 Check to see if the given test has expected results.
