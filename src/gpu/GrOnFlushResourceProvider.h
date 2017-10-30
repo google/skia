@@ -46,7 +46,7 @@ public:
      * Called once flushing is complete and all ops indicated by preFlush have been executed and
      * released. startTokenForNextFlush can be used to track resources used in the current flush.
      */
-    virtual void postFlush(GrDrawOpUploadToken startTokenForNextFlush) {}
+    virtual void postFlush(GrDeferredUploadToken startTokenForNextFlush) {}
 
     /**
      * Tells the callback owner to hold onto this object when freeing GPU resources

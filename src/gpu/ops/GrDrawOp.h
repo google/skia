@@ -9,55 +9,17 @@
 #define GrDrawOp_DEFINED
 
 #include <functional>
+#include "GrDeferredUpload.h"
 #include "GrOp.h"
 #include "GrPipeline.h"
 
 class GrAppliedClip;
 
 /**
- * GrDrawOps are flushed in two phases (preDraw, and draw). In preDraw uploads to GrGpuResources
- * and draws are determined and scheduled. They are issued in the draw phase. GrDrawOpUploadToken is
- * used to sequence the uploads relative to each other and to draws.
- **/
-
-class GrDrawOpUploadToken {
-public:
-    static GrDrawOpUploadToken AlreadyFlushedToken() { return GrDrawOpUploadToken(0); }
-
-    GrDrawOpUploadToken(const GrDrawOpUploadToken& that) : fSequenceNumber(that.fSequenceNumber) {}
-    GrDrawOpUploadToken& operator =(const GrDrawOpUploadToken& that) {
-        fSequenceNumber = that.fSequenceNumber;
-        return *this;
-    }
-    bool operator==(const GrDrawOpUploadToken& that) const {
-        return fSequenceNumber == that.fSequenceNumber;
-    }
-    bool operator!=(const GrDrawOpUploadToken& that) const { return !(*this == that); }
-    bool inInterval(const GrDrawOpUploadToken& start, const GrDrawOpUploadToken& finish) {
-        return fSequenceNumber >= start.fSequenceNumber &&
-               fSequenceNumber <= finish.fSequenceNumber;
-    }
-
-private:
-    GrDrawOpUploadToken();
-    explicit GrDrawOpUploadToken(uint64_t sequenceNumber) : fSequenceNumber(sequenceNumber) {}
-    friend class GrOpFlushState;
-    uint64_t fSequenceNumber;
-};
-
-/**
  * Base class for GrOps that draw. These ops have a GrPipeline installed by GrOpList.
  */
 class GrDrawOp : public GrOp {
 public:
-    /** Method that performs an upload on behalf of a DeferredUploadFn. */
-    using WritePixelsFn = std::function<bool(GrTextureProxy*,
-                                             int left, int top, int width, int height,
-                                             GrPixelConfig config, const void* buffer,
-                                             size_t rowBytes)>;
-    /** See comments before GrDrawOp::Target definition on how deferred uploaders work. */
-    using DeferredUploadFn = std::function<void(WritePixelsFn&)>;
-
     class Target;
 
     GrDrawOp(uint32_t classID) : INHERITED(classID) {}
@@ -89,11 +51,10 @@ public:
 
 protected:
     struct QueuedUpload {
-        QueuedUpload(DeferredUploadFn&& upload, GrDrawOpUploadToken token)
-            : fUpload(std::move(upload))
-            , fUploadBeforeToken(token) {}
-        DeferredUploadFn fUpload;
-        GrDrawOpUploadToken fUploadBeforeToken;
+        QueuedUpload(GrDeferredTextureUploadFn&& upload, GrDeferredUploadToken token)
+                : fUpload(std::move(upload)), fUploadBeforeToken(token) {}
+        GrDeferredTextureUploadFn fUpload;
+        GrDeferredUploadToken fUploadBeforeToken;
     };
 
     SkTArray<QueuedUpload> fInlineUploads;
