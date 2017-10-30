@@ -18,8 +18,8 @@ GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
         , fCommandBuffer(nullptr)
         , fVertexPool(gpu)
         , fIndexPool(gpu)
-        , fLastIssuedToken(GrDrawOpUploadToken::AlreadyFlushedToken())
-        , fLastFlushedToken(GrDrawOpUploadToken::AlreadyFlushedToken())
+        , fLastIssuedToken(GrDeferredUploadToken::AlreadyFlushedToken())
+        , fLastFlushedToken(GrDeferredUploadToken::AlreadyFlushedToken())
         , fOpArgs(nullptr) {}
 
 const GrCaps& GrOpFlushState::caps() const {
@@ -54,11 +54,10 @@ uint16_t* GrOpFlushState::makeIndexSpaceAtLeast(int minIndexCount, int fallbackI
         minIndexCount, fallbackIndexCount, buffer, startIndex, actualIndexCount));
 }
 
-void GrOpFlushState::doUpload(GrDrawOp::DeferredUploadFn& upload) {
-    GrDrawOp::WritePixelsFn wp = [this](GrTextureProxy* proxy,
-                                        int left, int top, int width,
-                                        int height, GrPixelConfig config, const void* buffer,
-                                        size_t rowBytes) {
+void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
+    GrDeferredTextureUploadWritePixelsFn wp = [this](GrTextureProxy* proxy, int left, int top,
+                                                     int width, int height, GrPixelConfig config,
+                                                     const void* buffer, size_t rowBytes) {
         GrSurface* surface = proxy->priv().peekSurface();
         GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
         GrGpu::WritePixelTempDrawInfo tempInfo;

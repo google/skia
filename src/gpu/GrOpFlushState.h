@@ -27,7 +27,7 @@ public:
 
     /** Inserts an upload to be executed after all ops in the flush prepared their draws but before
         the draws are executed to the backend 3D API. */
-    void addASAPUpload(GrDrawOp::DeferredUploadFn&& upload) {
+    void addASAPUpload(GrDeferredTextureUploadFn&& upload) {
         fAsapUploads.emplace_back(std::move(upload));
     }
 
@@ -35,26 +35,26 @@ public:
     GrResourceProvider* resourceProvider() const { return fResourceProvider; }
 
     /** Has the token been flushed to the backend 3D API. */
-    bool hasDrawBeenFlushed(GrDrawOpUploadToken token) const {
+    bool hasDrawBeenFlushed(GrDeferredUploadToken token) const {
         return token.fSequenceNumber <= fLastFlushedToken.fSequenceNumber;
     }
 
     /** Issue a token to an operation that is being enqueued. */
-    GrDrawOpUploadToken issueDrawToken() {
-        return GrDrawOpUploadToken(++fLastIssuedToken.fSequenceNumber);
+    GrDeferredUploadToken issueDrawToken() {
+        return GrDeferredUploadToken(++fLastIssuedToken.fSequenceNumber);
     }
 
     /** Call every time a draw that was issued a token is flushed */
     void flushToken() { ++fLastFlushedToken.fSequenceNumber; }
 
     /** Gets the next draw token that will be issued. */
-    GrDrawOpUploadToken nextDrawToken() const {
-        return GrDrawOpUploadToken(fLastIssuedToken.fSequenceNumber + 1);
+    GrDeferredUploadToken nextDrawToken() const {
+        return GrDeferredUploadToken(fLastIssuedToken.fSequenceNumber + 1);
     }
 
     /** The last token flushed to all the way to the backend API. */
-    GrDrawOpUploadToken nextTokenToFlush() const {
-        return GrDrawOpUploadToken(fLastFlushedToken.fSequenceNumber + 1);
+    GrDeferredUploadToken nextTokenToFlush() const {
+        return GrDeferredUploadToken(fLastFlushedToken.fSequenceNumber + 1);
     }
 
     void* makeVertexSpace(size_t vertexSize, int vertexCount,
@@ -80,7 +80,7 @@ public:
         fAsapUploads.reset();
     }
 
-    void doUpload(GrDrawOp::DeferredUploadFn&);
+    void doUpload(GrDeferredTextureUploadFn&);
 
     void putBackIndices(size_t indices) { fIndexPool.putBack(indices * sizeof(uint16_t)); }
 
@@ -132,9 +132,9 @@ private:
     GrGpuCommandBuffer* fCommandBuffer;
     GrVertexBufferAllocPool fVertexPool;
     GrIndexBufferAllocPool fIndexPool;
-    SkSTArray<4, GrDrawOp::DeferredUploadFn> fAsapUploads;
-    GrDrawOpUploadToken fLastIssuedToken;
-    GrDrawOpUploadToken fLastFlushedToken;
+    SkSTArray<4, GrDeferredTextureUploadFn> fAsapUploads;
+    GrDeferredUploadToken fLastIssuedToken;
+    GrDeferredUploadToken fLastFlushedToken;
     DrawOpArgs* fOpArgs;
     SkArenaAlloc fPipelines{sizeof(GrPipeline) * 100};
 };
@@ -170,7 +170,7 @@ public:
     Target(GrOpFlushState* state, GrDrawOp* op) : fState(state), fOp(op) {}
 
     /** Returns the token of the draw that this upload will occur before. */
-    GrDrawOpUploadToken addInlineUpload(DeferredUploadFn&& upload) {
+    GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&& upload) {
         fOp->fInlineUploads.emplace_back(std::move(upload), fState->nextDrawToken());
         return fOp->fInlineUploads.back().fUploadBeforeToken;
     }
@@ -178,19 +178,19 @@ public:
     /** Returns the token of the draw that this upload will occur before. Since ASAP uploads
         are done first during a flush, this will be the first token since the most recent
         flush. */
-    GrDrawOpUploadToken addAsapUpload(DeferredUploadFn&& upload) {
+    GrDeferredUploadToken addAsapUpload(GrDeferredTextureUploadFn&& upload) {
         fState->addASAPUpload(std::move(upload));
         return fState->nextTokenToFlush();
     }
 
-    bool hasDrawBeenFlushed(GrDrawOpUploadToken token) const {
+    bool hasDrawBeenFlushed(GrDeferredUploadToken token) const {
         return fState->hasDrawBeenFlushed(token);
     }
 
     /** Gets the next draw token that will be issued by this target. This can be used by an op
         to record that the next draw it issues will use a resource (e.g. texture) while preparing
         that draw. */
-    GrDrawOpUploadToken nextDrawToken() const { return fState->nextDrawToken(); }
+    GrDeferredUploadToken nextDrawToken() const { return fState->nextDrawToken(); }
 
     const GrCaps& caps() const { return fState->caps(); }
 

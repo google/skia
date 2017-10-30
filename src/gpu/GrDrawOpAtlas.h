@@ -117,7 +117,7 @@ public:
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
-    inline void setLastUseToken(AtlasID id, GrDrawOpUploadToken token) {
+    inline void setLastUseToken(AtlasID id, GrDeferredUploadToken token) {
         SkASSERT(this->hasID(id));
         uint32_t plotIdx = GetPlotIndexFromID(id);
         SkASSERT(plotIdx < fNumPlots);
@@ -191,7 +191,7 @@ public:
         friend class GrDrawOpAtlas;
     };
 
-    void setLastUseTokenBulk(const BulkUseTokenUpdater& updater, GrDrawOpUploadToken token) {
+    void setLastUseTokenBulk(const BulkUseTokenUpdater& updater, GrDeferredUploadToken token) {
         int count = updater.fPlotsToUpdate.count();
         for (int i = 0; i < count; i++) {
             const BulkUseTokenUpdater::PlotData& pd = updater.fPlotsToUpdate[i];
@@ -205,7 +205,7 @@ public:
         }
     }
 
-    void compact(GrDrawOpUploadToken startTokenForNextFlush);
+    void compact(GrDeferredUploadToken startTokenForNextFlush);
 
     static constexpr auto kGlyphMaxDim = 256;
     static bool GlyphTooLargeForAtlas(int width, int height) {
@@ -253,12 +253,12 @@ private:
          * use lastUse to determine when we can evict a plot from the cache, i.e. if the last use
          * has already flushed through the gpu then we can reuse the plot.
          */
-        GrDrawOpUploadToken lastUploadToken() const { return fLastUpload; }
-        GrDrawOpUploadToken lastUseToken() const { return fLastUse; }
-        void setLastUploadToken(GrDrawOpUploadToken token) { fLastUpload = token; }
-        void setLastUseToken(GrDrawOpUploadToken token) { fLastUse = token; }
+        GrDeferredUploadToken lastUploadToken() const { return fLastUpload; }
+        GrDeferredUploadToken lastUseToken() const { return fLastUse; }
+        void setLastUploadToken(GrDeferredUploadToken token) { fLastUpload = token; }
+        void setLastUseToken(GrDeferredUploadToken token) { fLastUse = token; }
 
-        void uploadToTexture(GrDrawOp::WritePixelsFn&, GrTextureProxy*);
+        void uploadToTexture(GrDeferredTextureUploadWritePixelsFn&, GrTextureProxy*);
         void resetRects();
 
         int flushesSinceLastUsed() { return fFlushesSinceLastUse; }
@@ -288,8 +288,8 @@ private:
             return generation << 16 | plotIdx << 8 | pageIdx;
         }
 
-        GrDrawOpUploadToken   fLastUpload;
-        GrDrawOpUploadToken   fLastUse;
+        GrDeferredUploadToken fLastUpload;
+        GrDeferredUploadToken fLastUse;
         // the number of flushes since this plot has been last used
         int                   fFlushesSinceLastUse;
 
@@ -360,7 +360,7 @@ private:
 
     uint64_t              fAtlasGeneration;
     // nextTokenToFlush() value at the end of the previous flush
-    GrDrawOpUploadToken   fPrevFlushToken;
+    GrDeferredUploadToken fPrevFlushToken;
 
     struct EvictionData {
         EvictionFunc fFunc;
