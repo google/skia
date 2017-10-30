@@ -256,8 +256,13 @@ bool GrAtlasTextBlob::mustRegenerate(const GrTextUtils::Paint& paint,
     return false;
 }
 
+<<<<<<< HEAD
 inline std::unique_ptr<GrAtlasTextOp> GrAtlasTextBlob::makeOp(
+        const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
+=======
+inline std::unique_ptr<GrDrawOp> GrAtlasTextBlob::makeOp(
         const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
+>>>>>>> Reduce geometry size; start with larger allocation
         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
         const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
         const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
@@ -300,7 +305,7 @@ inline void GrAtlasTextBlob::flushRun(GrTextUtils::Target* target, const GrClip&
     if (run >= (1 << 16)) {
         return;
     }
-    int lastRun = SkTMin(fRuns[run].fSubRunInfo.count(), 1 << 16) - 1;
+    int lastRun = SkTMax(fRuns[run].fSubRunInfo.count(), 1 << 16) - 1;
     for (int subRun = 0; subRun <= lastRun; subRun++) {
         const Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
         int glyphCount = info.glyphCount();

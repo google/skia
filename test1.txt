@@ -1,0 +1,13 @@
+
+  68/68  MB	keymobi_techcrunch_com.skp_1_mpd	
+Glyph counts: 0 0 0 0 0 307 3 303 303 0 0
+Max vertex buffer size: 34368
+  73/73  MB	keymobi_techcrunch_com.skp_1	
+Glyph counts: 0 0 0 0 0 7 3 3 3 0 0
+Max vertex buffer size: 34368
+  77/77  MB	top25desk_techcrunch_com.skp_1_mpd	
+Glyph counts: 0 0 4 0 0 4 0 4 0 0 0
+Max vertex buffer size: 31936
+  78/78  MB	top25desk_techcrunch_com.skp_1	
+Glyph counts: 0 0 4 0 0 4 0 4 0 0 0
+Max vertex buffer size: 31936

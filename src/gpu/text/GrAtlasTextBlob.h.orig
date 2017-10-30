@@ -270,7 +270,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Internal test methods
-    std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount, uint16_t run, uint16_t subRun,
+    std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount, int run, int subRun,
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                           const GrTextUtils::Paint&, const SkSurfaceProps&,
                                           const GrDistanceFieldAdjustTable*, GrAtlasGlyphCache*,
@@ -497,12 +497,23 @@ private:
                    Run* run, Run::SubRunInfo* info, SkAutoGlyphCache*, int glyphCount,
                    size_t vertexStride, GrColor color, SkScalar transX, SkScalar transY) const;
 
+<<<<<<< HEAD
     inline std::unique_ptr<GrAtlasTextOp> makeOp(
-            const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
+            const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
             const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
             const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
             GrTextUtils::Target*);
+=======
+    inline std::unique_ptr<GrDrawOp> makeOp(const Run::SubRunInfo& info, int glyphCount,
+                                            uint16_t run, uint16_t subRun,
+                                            const SkMatrix& viewMatrix,
+                                            SkScalar x, SkScalar y, const SkIRect& clipRect,
+                                            const GrTextUtils::Paint& paint,
+                                            const SkSurfaceProps& props,
+                                            const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                                            GrAtlasGlyphCache* cache, GrRenderTargetContext*);
+>>>>>>> Reduce geometry size; start with larger allocation
 
     struct BigGlyph {
         BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy, SkScalar scale, bool treatAsBMP)
