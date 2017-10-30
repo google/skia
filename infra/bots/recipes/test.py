@@ -570,6 +570,8 @@ def dm_flags(api, bot):
                   '~bitmapfilters'])
     match.append('~GrContextFactory_abandon') #skia:6209
     match.append('~FullScreenClearWithLayers') #skia:7191
+    match.append('~GrDefaultPathRendererTest') #skia:7244
+    match.append('~GrMSAAPathRendererTest') #skia:7244
     # skia:7018
     match.extend(['~ClearOp',
                   '~ComposedImageFilterBounds_Gpu',
@@ -660,6 +662,8 @@ def dm_flags(api, bot):
     match.append('~WritePixels_Gpu')
     match.append('~WritePixelsNonTexture_Gpu')
     match.append('~XfermodeImageFilterCroppedInput_Gpu')
+    match.append('~GrDefaultPathRendererTest') #skia:7244
+    match.append('~GrMSAAPathRendererTest') #skia:7244
 
   if 'AlphaR2' in bot and 'ANGLE' in bot:
     # skia:7096
