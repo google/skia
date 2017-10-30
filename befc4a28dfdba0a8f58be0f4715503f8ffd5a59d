@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c23a9d3a_aeb0f2c9",
+        "filename": "src/core/SkCoverageDelta.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-10-30T16:26:22Z",
+      "side": 1,
+      "message": "sk_bzero could be used instead, although memset of zero is in plenty of places",
+      "revId": "befc4a28dfdba0a8f58be0f4715503f8ffd5a59d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
