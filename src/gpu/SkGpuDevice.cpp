@@ -1238,6 +1238,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
         // filter
         proxy = GrSurfaceProxy::Copy(fContext.get(),
                                      this->accessRenderTargetContext()->asSurfaceProxy(),
+                                     GrMipMapped::kNo,
                                      SkBudgeted::kYes);
         if (!proxy) {
             return nullptr;

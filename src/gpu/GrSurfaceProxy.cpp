@@ -411,6 +411,7 @@ void GrSurfaceProxy::validate(GrContext* context) const {
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
                                            GrSurfaceProxy* src,
+                                           GrMipMapped mipMapped,
                                            SkIRect srcRect,
                                            SkBudgeted budgeted) {
     if (!srcRect.intersect(SkIRect::MakeWH(src->width(), src->height()))) {
@@ -425,6 +426,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
 
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
                                                                             dstDesc,
+                                                                            mipMapped,
                                                                             SkBackingFit::kExact,
                                                                             budgeted));
     if (!dstContext) {
@@ -439,8 +441,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context, GrSurfaceProxy* src,
-                                           SkBudgeted budgeted) {
-    return Copy(context, src, SkIRect::MakeWH(src->width(), src->height()), budgeted);
+                                           GrMipMapped mipMapped, SkBudgeted budgeted) {
+    return Copy(context, src, mipMapped, SkIRect::MakeWH(src->width(), src->height()), budgeted);
 }
 
 sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
@@ -448,6 +450,7 @@ sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSur
 
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
                                                                             dstDesc,
+                                                                            GrMipMapped::kNo,
                                                                             SkBackingFit::kExact,
                                                                             SkBudgeted::kYes));
     if (!dstContext) {

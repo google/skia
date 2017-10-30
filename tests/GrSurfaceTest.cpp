@@ -212,7 +212,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                     // Try creating the texture as a deferred proxy.
                     for (int i = 0; i < 2; ++i) {
                         auto surfCtx = context->contextPriv().makeDeferredSurfaceContext(
-                                desc, approx ? SkBackingFit::kApprox : SkBackingFit::kExact,
+                                desc, GrMipMapped::kNo,
+                                approx ? SkBackingFit::kApprox : SkBackingFit::kExact,
                                 SkBudgeted::kYes);
                         if (!surfCtx) {
                             continue;
