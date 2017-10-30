@@ -70,7 +70,7 @@ public:
         fGpu->insertEventMarker(msg);
     }
 
-    void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload) override {
+    void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {
         state->doUpload(upload);
     }
 

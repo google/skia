@@ -438,8 +438,8 @@ void GrVkGpuRTCommandBuffer::addAdditionalRenderPass() {
     cbInfo.currentCmdBuf()->begin(fGpu, vkRT->framebuffer(), cbInfo.fRenderPass);
 }
 
-void GrVkGpuRTCommandBuffer::inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload) {
-
+void GrVkGpuRTCommandBuffer::inlineUpload(GrOpFlushState* state,
+                                          GrDeferredTextureUploadFn& upload) {
     if (!fCommandBufferInfos[fCurrentCmdInfo].fIsEmpty) {
         this->addAdditionalRenderPass();
     }
