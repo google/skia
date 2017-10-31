@@ -91,6 +91,8 @@ protected:
                      const GrVkImageView* colorAttachmentView,
                      GrBackendObjectOwnership);
 
+    static GrRenderTargetFlags ComputeFlags(const GrVkCaps&);
+
     GrVkGpu* getVkGpu() const;
 
     void onAbandon() override;

@@ -345,7 +345,8 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
     if (isFull) {
         this->getRTOpList()->fullClear(*this->caps(), color);
     } else {
-        std::unique_ptr<GrOp> op(GrClearOp::Make(clip, color, this->asSurfaceProxy()));
+        std::unique_ptr<GrOp> op(GrClearOp::Make(clip, color, canIgnoreClip, this->asSurfaceProxy(),
+                                                 *fContext->caps()));
         if (!op) {
             return;
         }
@@ -605,7 +606,8 @@ int GrRenderTargetContextPriv::maxWindowRectangles() const {
                                                     *fRenderTargetContext->fContext->caps());
 }
 
-void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask,
+                                                 bool canIgnoreClip) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkDEBUGCODE(fRenderTargetContext->validate();)
@@ -615,8 +617,9 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
     AutoCheckFlush acf(fRenderTargetContext->drawingManager());
 
     std::unique_ptr<GrOp> op(GrClearStencilClipOp::Make(
-                                                 clip, insideStencilMask,
-                                                 fRenderTargetContext->fRenderTargetProxy.get()));
+                                                 clip, insideStencilMask, canIgnoreClip,
+                                                 fRenderTargetContext->fRenderTargetProxy.get(),
+                                                 *fRenderTargetContext->fContext->caps()));
     if (!op) {
         return;
     }
