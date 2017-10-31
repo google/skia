@@ -32,7 +32,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     : GrSurface(gpu, desc)
     , GrVkImage(info, ownership)
     // for the moment we only support 1:1 color to stencil
-    , GrRenderTarget(gpu, desc)
+    , GrRenderTarget(gpu, desc, ComputeFlags(gpu->vkCaps()))
     , fColorAttachmentView(colorAttachmentView)
     , fMSAAImage(new GrVkImage(msaaInfo, GrBackendObjectOwnership::kOwned))
     , fResolveAttachmentView(resolveAttachmentView)
@@ -55,7 +55,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     : GrSurface(gpu, desc)
     , GrVkImage(info, ownership)
     // for the moment we only support 1:1 color to stencil
-    , GrRenderTarget(gpu, desc)
+    , GrRenderTarget(gpu, desc, ComputeFlags(gpu->vkCaps()))
     , fColorAttachmentView(colorAttachmentView)
     , fMSAAImage(new GrVkImage(msaaInfo, GrBackendObjectOwnership::kOwned))
     , fResolveAttachmentView(resolveAttachmentView)
@@ -75,7 +75,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    GrBackendObjectOwnership ownership)
     : GrSurface(gpu, desc)
     , GrVkImage(info, ownership)
-    , GrRenderTarget(gpu, desc)
+    , GrRenderTarget(gpu, desc, ComputeFlags(gpu->vkCaps()))
     , fColorAttachmentView(colorAttachmentView)
     , fMSAAImage(nullptr)
     , fResolveAttachmentView(nullptr)
@@ -95,7 +95,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    GrBackendObjectOwnership ownership)
     : GrSurface(gpu, desc)
     , GrVkImage(info, ownership)
-    , GrRenderTarget(gpu, desc)
+    , GrRenderTarget(gpu, desc, ComputeFlags(gpu->vkCaps()))
     , fColorAttachmentView(colorAttachmentView)
     , fMSAAImage(nullptr)
     , fResolveAttachmentView(nullptr)
@@ -103,6 +103,14 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(!desc.fSampleCnt);
     this->createFramebuffer(gpu);
+}
+
+inline GrRenderTargetFlags GrVkRenderTarget::ComputeFlags(const GrVkCaps& vkCaps) {
+    GrRenderTargetFlags flags = GrRenderTargetFlags::kNone;
+    if (GrCaps::WindowRectsSupport::kNone != vkCaps.windowRectsSupport()) {
+        flags |= GrRenderTargetFlags::kWindowRectsSupport;
+    }
+    return flags;
 }
 
 GrVkRenderTarget*
