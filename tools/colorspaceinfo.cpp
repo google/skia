@@ -565,13 +565,13 @@ int main(int argc, char** argv) {
         SkColorSpace_A2B* a2b = static_cast<SkColorSpace_A2B*>(colorSpace.get());
         SkDebugf("Conversion type: ");
         switch (a2b->iccType()) {
-            case SkColorSpace_Base::kRGB_ICCTypeFlag:
+            case SkColorSpace::kRGB_Type:
                 SkDebugf("RGB");
                 break;
-            case SkColorSpace_Base::kCMYK_ICCTypeFlag:
+            case SkColorSpace::kCMYK_Type:
                 SkDebugf("CMYK");
                 break;
-            case SkColorSpace_Base::kGray_ICCTypeFlag:
+            case SkColorSpace::kGray_Type:
                 SkDebugf("Gray");
                 break;
             default:

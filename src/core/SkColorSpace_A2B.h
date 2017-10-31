@@ -52,7 +52,7 @@ public:
     bool onGammaIsLinear() const override { return false; }
     bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const override { return false; }
 
-    bool onIsCMYK() const override { return kCMYK_ICCTypeFlag == fICCType; }
+    bool onIsCMYK() const override { return SkColorSpace::kCMYK_Type == fICCType; }
 
     sk_sp<SkColorSpace> makeLinearGamma() const override {
         // TODO: Analyze the extrema of our projection into XYZ and use suitable primaries?
@@ -161,13 +161,13 @@ public:
 
     PCS pcs() const { return fPCS; }
 
-    ICCTypeFlag iccType() const { return fICCType; }
+    SkColorSpace::Type iccType() const { return fICCType; }
 
-    SkColorSpace_A2B(ICCTypeFlag iccType, std::vector<Element> elements, PCS pcs,
+    SkColorSpace_A2B(SkColorSpace::Type iccType, std::vector<Element> elements, PCS pcs,
                      sk_sp<SkData> profileData);
 
 private:
-    ICCTypeFlag          fICCType;
+    SkColorSpace::Type   fICCType;
     std::vector<Element> fElements;
     PCS                  fPCS;
 

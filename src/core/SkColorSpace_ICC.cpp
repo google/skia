@@ -1180,11 +1180,11 @@ bool load_a2b0_lutn_type(std::vector<SkColorSpace_A2B::Element>* elements, const
     return true;
 }
 
-static inline int icf_channels(SkColorSpace_Base::ICCTypeFlag iccType) {
+static inline int icf_channels(SkColorSpace::Type iccType) {
     switch (iccType) {
-        case SkColorSpace_Base::kRGB_ICCTypeFlag:
+        case SkColorSpace::kRGB_Type:
             return 3;
-        case SkColorSpace_Base::kCMYK_ICCTypeFlag:
+        case SkColorSpace::kCMYK_Type:
             return 4;
         default:
             SkASSERT(false);
@@ -1194,7 +1194,7 @@ static inline int icf_channels(SkColorSpace_Base::ICCTypeFlag iccType) {
 
 static bool load_a2b0(std::vector<SkColorSpace_A2B::Element>* elements, const uint8_t* src,
                       size_t len, SkColorSpace_A2B::PCS pcs,
-                      SkColorSpace_Base::ICCTypeFlag iccType) {
+                      SkColorSpace::Type iccType) {
     if (len < 4) {
         return false;
     }
@@ -1472,7 +1472,7 @@ static sk_sp<SkColorSpace> make_gray(const ICCProfileHeader& header, ICCTag* tag
                                                     toXYZD50, std::move(profileData)));
 }
 
-static sk_sp<SkColorSpace> make_a2b(SkColorSpace_Base::ICCTypeFlag iccType,
+static sk_sp<SkColorSpace> make_a2b(SkColorSpace::Type iccType,
                                     const ICCProfileHeader& header, ICCTag* tags, int tagCount,
                                     const uint8_t* base, sk_sp<SkData> profileData) {
     const ICCTag* a2b0 = ICCTag::Find(tags, tagCount, kTAG_A2B0);
@@ -1491,11 +1491,6 @@ static sk_sp<SkColorSpace> make_a2b(SkColorSpace_Base::ICCTypeFlag iccType,
 }
 
 sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
-    return SkColorSpace_Base::MakeICC(input, len, SkColorSpace_Base::kRGB_ICCTypeFlag);
-}
-
-sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
-                                               ICCTypeFlag desiredType) {
     if (!input || len < kICCHeaderSize) {
         return_null("Data is null or not large enough to contain an ICC profile");
     }
@@ -1543,38 +1538,25 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
         }
     }
 
+    Type a2b_type = kRGB_Type;
     switch (header.fInputColorSpace) {
         case kRGB_ColorSpace: {
-            if (!(kRGB_ICCTypeFlag & desiredType)) {
-                return_null("Provided input color format (RGB) does not match profile.");
-            }
-
             sk_sp<SkColorSpace> colorSpace =
                     make_xyz(header, tags.get(), tagCount, base, profileData);
             if (colorSpace) {
                 return colorSpace;
             }
-
-            desiredType = kRGB_ICCTypeFlag;
             break;
         }
         case kGray_ColorSpace: {
-            if (!(kGray_ICCTypeFlag & desiredType)) {
-                return_null("Provided input color format (Gray) does not match profile.");
-            }
-
             return make_gray(header, tags.get(), tagCount, base, profileData);
         }
         case kCMYK_ColorSpace:
-            if (!(kCMYK_ICCTypeFlag & desiredType)) {
-                return_null("Provided input color format (CMYK) does not match profile.");
-            }
-
-            desiredType = kCMYK_ICCTypeFlag;
+            a2b_type = kCMYK_Type;
             break;
         default:
             return_null("ICC profile contains unsupported colorspace");
     }
 
-    return make_a2b(desiredType, header, tags.get(), tagCount, base, profileData);
+    return make_a2b(a2b_type, header, tags.get(), tagCount, base, profileData);
 }
