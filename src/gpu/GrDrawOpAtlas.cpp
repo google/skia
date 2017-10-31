@@ -173,14 +173,14 @@ inline void GrDrawOpAtlas::processEviction(AtlasID id) {
     ++fAtlasGeneration;
 }
 
-inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plot* plot) {
+inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* id, Plot* plot) {
     int pageIdx = GetPageIndexFromID(plot->id());
     this->makeMRU(plot, pageIdx);
 
     // If our most recent upload has already occurred then we have to insert a new
     // upload. Otherwise, we already have a scheduled upload that hasn't yet ocurred.
     // This new update will piggy back on that previously scheduled update.
-    if (target->hasDrawBeenFlushed(plot->lastUploadToken())) {
+    if (plot->lastUploadToken() < target->nextTokenToFlush()) {
         // With c+14 we could move sk_sp into lamba to only ref once.
         sk_sp<Plot> plotsp(SkRef(plot));
 
@@ -210,7 +210,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
 // are rare; i.e., we are not continually refreshing the frame.
 static constexpr auto kRecentlyUsedCount = 256;
 
-bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width, int height,
+bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int width, int height,
                                const void* image, SkIPoint16* loc) {
     if (width > fPlotWidth || height > fPlotHeight) {
         return false;
@@ -242,7 +242,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     for (unsigned int pageIdx = 0; pageIdx < fNumPages; ++pageIdx) {
         Plot* plot = fPages[pageIdx].fPlotList.tail();
         SkASSERT(plot);
-        if ((fNumPages == kMaxPages && target->hasDrawBeenFlushed(plot->lastUseToken())) ||
+        if ((fNumPages == kMaxPages && plot->lastUseToken() < target->nextTokenToFlush()) ||
             plot->flushesSinceLastUsed() >= kRecentlyUsedCount) {
             this->processEvictionAndResetRects(plot);
             SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());

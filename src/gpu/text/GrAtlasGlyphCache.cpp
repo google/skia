@@ -443,7 +443,7 @@ void GrAtlasTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
     }
 }
 
-bool GrAtlasTextStrike::addGlyphToAtlas(GrDrawOp::Target* target,
+bool GrAtlasTextStrike::addGlyphToAtlas(GrDeferredUploadTarget* target,
                                         GrGlyph* glyph,
                                         SkGlyphCache* cache,
                                         GrMaskFormat expectedMaskFormat) {
