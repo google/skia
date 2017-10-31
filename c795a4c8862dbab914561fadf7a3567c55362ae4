@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9fffa3e8_d2448625",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-10-31T14:23:51Z",
+      "side": 1,
+      "message": "Experimenting in https://skia-review.googlesource.com/c/skia/+/65503",
+      "parentUuid": "820cead2_9a78ef88",
+      "range": {
+        "startLine": 70,
+        "startChar": 4,
+        "endLine": 70,
+        "endChar": 8
+      },
+      "revId": "c795a4c8862dbab914561fadf7a3567c55362ae4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5c9724bf_b2dbb5c4",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 19
@@ -36,6 +60,24 @@
       "writtenOn": "2017-10-30T18:38:26Z",
       "side": 1,
       "message": "Why\u0027d we do this?  It seems fine, but we\u0027re probably just as happy to use the system freetype.",
+      "revId": "c795a4c8862dbab914561fadf7a3567c55362ae4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35cc279d_366e9a2b",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-10-31T14:23:51Z",
+      "side": 1,
+      "message": "This is just for consistency.  It may be unnecessary, but I wanted to make sure the runs on different bots are as close to the same thing as possible (e.g. our GPU coverage bots may have a different installed freetype as our CPU coverage bots)",
+      "parentUuid": "5c9724bf_b2dbb5c4",
       "revId": "c795a4c8862dbab914561fadf7a3567c55362ae4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
