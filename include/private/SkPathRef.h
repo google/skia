@@ -110,6 +110,20 @@ public:
 
         void setBounds(const SkRect& rect) { fPathRef->setBounds(rect); }
 
+        void addFracPoint(const SkPoint& p) {
+            fPathRef->insertFracCount(p.fX);
+            fPathRef->insertFracCount(p.fY);
+        }
+
+        void updateFracPoint(const SkPoint& oldPoint, const SkPoint& newPoint) {
+            fPathRef->updateFracCount(oldPoint.fX, newPoint.fX);
+            fPathRef->updateFracCount(oldPoint.fY, newPoint.fY);
+        }
+
+        void resetFracCount() {
+            fPathRef->resetFracCount();
+        }
+
     private:
         SkPathRef* fPathRef;
     };
@@ -147,6 +161,13 @@ public:
      * Gets a path ref with no verbs or points.
      */
     static SkPathRef* CreateEmpty();
+
+    bool isFracCountConcentrated() const {
+        this->checkMaxFracCount();
+        int bucketSize = SkTMin(int(this->getBounds().height() + 1), FRAC_INT_MASK + 1);
+        int averageCount = 1 + this->countPoints() * 2 / bucketSize;
+        return fMaxFracCount > averageCount * CONCENTRATION_MULTIPLIER;
+    }
 
     /**
      *  Returns true if all of the points in this path are finite, meaning there
@@ -327,6 +348,10 @@ private:
     };
 
     SkPathRef() {
+        sk_bzero(fFracCount, sizeof(fFracCount));
+        fMaxFracCount = 0;
+        fIsMaxFracCountTight = true;
+
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fPointCnt = 0;
         fVerbCnt = 0;
@@ -516,6 +541,45 @@ private:
 
     void callGenIDChangeListeners();
 
+    void resetFracCount();
+    void checkMaxFracCount() const {
+#ifdef SK_DEBUG
+        SkPathRef other;
+        other.copy(*this, 0, 0);
+        other.resetFracCount();
+        SkASSERT(fMaxFracCount == other.fMaxFracCount);
+#endif
+    }
+
+    inline void insertFracCount(SkScalar f) {
+        int i = (int)f;
+        if (f == i) {
+            return;
+        }
+        int fracCount = ++fFracCount[i & FRAC_INT_MASK];
+        if (fracCount > fMaxFracCount) {
+            fMaxFracCount = fracCount;
+            fIsMaxFracCountTight = true;
+        }
+    }
+
+    inline void removeFracCount(SkScalar f) {
+        int i = (int)f;
+        if (f == i) {
+            return;
+        }
+        int& fracCount = fFracCount[i & FRAC_INT_MASK];
+        if (fracCount == fMaxFracCount) {
+            fIsMaxFracCountTight = false;
+        }
+        fracCount--;
+    }
+
+    inline void updateFracCount(SkScalar oldF, SkScalar newF) {
+        removeFracCount(oldF);
+        insertFracCount(newF);
+    }
+
     enum {
         kMinSize = 256,
     };
@@ -547,6 +611,21 @@ private:
     SkBool8  fRRectOrOvalIsCCW;
     uint8_t  fRRectOrOvalStartIdx;
     uint8_t  fSegmentMask;
+
+    // Count the number of points (x, y) in the path with fractional values (either x or y) group by
+    // the last MASK_BIT bits of the integral part of that value (i.e., int(x) & FRAC_INT_MASK or
+    // int(y) & FRAC_INT_MASK). If the count is highly concentrated in some groups (i.e., pixel rows
+    // or columns), it's likely that the DAA/CCPR/SKC would generate some artifacts noticeable to
+    // human (skbug.com/6886). Hence we may fall back to supersampling or AAA.
+    static constexpr int    FRAC_INT_MASK_BIT = 6;
+    static constexpr int    FRAC_INT_MASK = (1 << FRAC_INT_MASK_BIT) - 1;
+    static constexpr int    CONCENTRATION_MULTIPLIER = 8;
+    int                     fFracCount[FRAC_INT_MASK + 1];
+    int                     fMaxFracCount;
+
+    // if false, we only guarantee that fFracCount[i] <= fMaxFracCount. There might not be an index
+    // such that fFracCount[index] == fMaxFracCount
+    bool                    fIsMaxFracCountTight;
 
     friend class PathRefTest_Private;
     friend class ForceIsRRect_Private; // unit test isRRect

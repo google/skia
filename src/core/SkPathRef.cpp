@@ -146,6 +146,7 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
     bool canXformBounds = !src.fBoundsIsDirty && matrix.rectStaysRect() && src.countPoints() > 1;
 
     matrix.mapPoints((*dst)->fPoints, src.points(), src.fPointCnt);
+    (*dst)->resetFracCount();
 
     /*
      *  Here we optimize the bounds computation, by noting if the bounds are
@@ -294,6 +295,8 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
 
     ref->fBoundsIsDirty = false;
 
+    ref->resetFracCount();
+
     // resetToSize clears fSegmentMask and fIsOval
     ref->fSegmentMask = segmentMask;
     return ref.release();
@@ -421,6 +424,9 @@ void SkPathRef::copy(const SkPathRef& ref,
     fIsRRect = ref.fIsRRect;
     fRRectOrOvalIsCCW = ref.fRRectOrOvalIsCCW;
     fRRectOrOvalStartIdx = ref.fRRectOrOvalStartIdx;
+    memcpy(fFracCount, ref.fFracCount, sizeof(fFracCount));
+    fMaxFracCount = ref.fMaxFracCount;
+    fIsMaxFracCountTight = ref.fIsMaxFracCountTight;
     SkDEBUGCODE(this->validate();)
 }
 
@@ -842,4 +848,14 @@ bool SkPathRef::isValid() const {
     }
 #endif // SK_DEBUG_PATH
     return true;
+}
+
+void SkPathRef::resetFracCount() {
+    sk_bzero(fFracCount, sizeof(fFracCount));
+    fMaxFracCount = 0;
+    fIsMaxFracCountTight = true;
+    for(int i = 0; i < this->countPoints(); ++i) {
+        this->insertFracCount(fPoints[i].fX);
+        this->insertFracCount(fPoints[i].fY);
+    }
 }

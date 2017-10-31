@@ -698,6 +698,7 @@ void SkPath::setPt(int index, SkScalar x, SkScalar y) {
         return;
     } else {
         SkPathRef::Editor ed(&fPathRef);
+        ed.updateFracPoint(*ed.atPoint(count - 1), {x, y});
         ed.atPoint(index)->set(x, y);
     }
 }
@@ -710,6 +711,7 @@ void SkPath::setLastPt(SkScalar x, SkScalar y) {
         this->moveTo(x, y);
     } else {
         SkPathRef::Editor ed(&fPathRef);
+        ed.updateFracPoint(*ed.atPoint(count - 1), {x, y});
         ed.atPoint(count-1)->set(x, y);
     }
 }
@@ -744,6 +746,7 @@ void SkPath::moveTo(SkScalar x, SkScalar y) {
     fLastMoveToIndex = fPathRef->countPoints();
 
     ed.growForVerb(kMove_Verb)->set(x, y);
+    ed.addFracPoint({x, y});
 
     DIRTY_AFTER_EDIT;
 }
@@ -776,6 +779,8 @@ void SkPath::lineTo(SkScalar x, SkScalar y) {
     SkPathRef::Editor ed(&fPathRef);
     ed.growForVerb(kLine_Verb)->set(x, y);
 
+    ed.addFracPoint({x, y});
+
     DIRTY_AFTER_EDIT;
 }
 
@@ -795,6 +800,9 @@ void SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
     SkPoint* pts = ed.growForVerb(kQuad_Verb);
     pts[0].set(x1, y1);
     pts[1].set(x2, y2);
+
+    ed.addFracPoint(pts[0]);
+    ed.addFracPoint(pts[1]);
 
     DIRTY_AFTER_EDIT;
 }
@@ -826,6 +834,9 @@ void SkPath::conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
         pts[0].set(x1, y1);
         pts[1].set(x2, y2);
 
+        ed.addFracPoint(pts[0]);
+        ed.addFracPoint(pts[1]);
+
         DIRTY_AFTER_EDIT;
     }
 }
@@ -849,6 +860,10 @@ void SkPath::cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     pts[0].set(x1, y1);
     pts[1].set(x2, y2);
     pts[2].set(x3, y3);
+
+    ed.addFracPoint(pts[0]);
+    ed.addFracPoint(pts[1]);
+    ed.addFracPoint(pts[2]);
 
     DIRTY_AFTER_EDIT;
 }
@@ -1027,6 +1042,9 @@ void SkPath::addPoly(const SkPoint pts[], int count, bool close) {
     if (count > 1) {
         SkPoint* p = ed.growForRepeatedVerb(kLine_Verb, count - 1);
         memcpy(p, &pts[1], (count-1) * sizeof(SkPoint));
+    }
+    for(int i = 0; i < count; ++i) {
+        ed.addFracPoint(pts[i]);
     }
 
     if (close) {
@@ -1743,6 +1761,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         SkPathRef::Editor ed(&dst->fPathRef);
         matrix.mapPoints(ed.points(), ed.pathRef()->countPoints());
         dst->fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+        ed.resetFracCount();
     } else {
         SkPathRef::CreateTransformedCopy(&dst->fPathRef, *fPathRef.get(), matrix);
 
