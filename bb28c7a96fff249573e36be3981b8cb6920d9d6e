@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce387322_944b6e35",
+        "filename": "infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-31T19:43:04Z",
+      "side": 1,
+      "message": "This should be implied by cpu_or_gpu_value, ie. \"CPU\" implies all of the CPU configs (with the exception of any blacklists due to bugs) and \"GPU\" implies all of GPU configs.\n\nAs a side note, now that the schema matches that of the other Test and Perf bots, let\u0027s try to avoid changing it unless it\u0027s absolutely necessary, as it causes problems on the infra side whenever it changes.",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 0
+      },
+      "revId": "bb28c7a96fff249573e36be3981b8cb6920d9d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "209ff742_85d2d4ac",
+        "filename": "infra/bots/recipes/calmbench.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-10-31T19:43:04Z",
+      "side": 1,
+      "message": "Let\u0027s use cpu_or_gpu to make this decision.",
+      "range": {
+        "startLine": 35,
+        "startChar": 4,
+        "endLine": 35,
+        "endChar": 52
+      },
+      "revId": "bb28c7a96fff249573e36be3981b8cb6920d9d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
