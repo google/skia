@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "deee4001_871a5f00",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1541,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-31T16:26:31Z",
+      "side": 1,
+      "message": "maybe a2b_type?",
+      "range": {
+        "startLine": 1541,
+        "startChar": 9,
+        "endLine": 1541,
+        "endChar": 13
+      },
+      "revId": "6af8a37ce331865e28b8bd99181dd4ef20f761a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fe50c001_5098e111",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 4
@@ -13,6 +36,30 @@
       "writtenOn": "2017-10-31T16:23:24Z",
       "side": 1,
       "message": "Do we not type \u003d grey here?",
+      "range": {
+        "startLine": 1551,
+        "startChar": 13,
+        "endLine": 1551,
+        "endChar": 29
+      },
+      "revId": "6af8a37ce331865e28b8bd99181dd4ef20f761a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e03a5e3_72a0ce23",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1551,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-10-31T16:26:31Z",
+      "side": 1,
+      "message": "Oh, right, we don\u0027t make grey a2b color spaces... never mind!",
+      "parentUuid": "fe50c001_5098e111",
       "range": {
         "startLine": 1551,
         "startChar": 13,
