@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "acb7ade6_e72b6e86",
+        "filename": "src/gpu/GrDeferredProxyUploader.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-31T18:22:09Z",
+      "side": 1,
+      "message": "We had some places using \"ASAP\" and some using \"Asap\". I\u0027m pretty neutral on this. All upper case looks more like English, but I also find it a bit more visually jarring and doesn\u0027t work well when two acronyms are used in succession in a name. Anyway, changed this to \"ASAP\".",
+      "parentUuid": "b34c3013_eab8d3c3",
+      "revId": "d2ad3fd06e725bede8b3a7478aca939ebff64b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8f91cac6_fa8008a0",
         "filename": "src/gpu/GrDeferredUpload.h",
         "patchSetId": 6
@@ -33,6 +51,24 @@
       "revId": "d2ad3fd06e725bede8b3a7478aca939ebff64b48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dde146a1_5a2f3454",
+        "filename": "src/gpu/GrDeferredUpload.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-31T18:22:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f91cac6_fa8008a0",
+      "revId": "d2ad3fd06e725bede8b3a7478aca939ebff64b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
