@@ -47,6 +47,7 @@ improve performance. Matrix is not thread safe unless getType is called first.
 # Concat                 # Returns the concatenation of Matrix pair. ##
 # I                      # Returns a reference to a const identity Matrix. ##
 # InvalidMatrix          # Returns a reference to a const invalid Matrix. ##
+# MakeAll                # Constructs all nine values. ##
 # MakeRectToRect         # Constructs from source Rect to destination Rect. ##
 # MakeScale              # Constructs from scale in x and y. ##
 # MakeTrans              # Constructs from translate in x and y. ##
@@ -218,6 +219,53 @@ for (int i = 0; i < 4; ++i) {
 #SeeAlso setTranslate postTranslate preTranslate
 
 ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkMatrix SK_WARN_UNUSED_RESULT MakeAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
+                                                      SkScalar skewY,  SkScalar scaleY, SkScalar transY,
+                                                      SkScalar pers0, SkScalar pers1, SkScalar pers2)
+
+
+Sets Matrix to:
+
+#Code
+#Literal
+| scaleX  skewX transX |
+|  skewY scaleY transY |
+|  pers0  pers1  pers2 |
+##
+
+#Param scaleX  horizontal scale factor ##
+#Param skewX   horizontal skew factor ##
+#Param transX  horizontal translation ##
+#Param skewY   vertical skew factor ##
+#Param scaleY  vertical scale factor ##
+#Param transY  vertical translation ##
+#Param pers0   input x perspective factor ##
+#Param pers1   input y perspective factor ##
+#Param pers2   perspective scale factor ##
+
+#Return  Matrix constructed from parameters ##
+
+#Example
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setTextSize(64);
+    for (SkScalar sx : { -1, 1 } ) {
+        for (SkScalar sy : { -1, 1 } ) {
+            SkAutoCanvasRestore autoRestore(canvas, true);
+            SkMatrix m = SkMatrix::MakeAll(sx, 1, 128,    0, sy, 128,   0, 0, 1);
+            canvas->concat(m);
+            canvas->drawString("K", 0, 0, p);
+        }
+    }
+##
+
+#SeeAlso setAll set9 postConcat preConcat
+
+##
+
 
 # ------------------------------------------------------------------------------
 
@@ -551,7 +599,7 @@ paint.setTextSize(48);
 canvas->drawString(string, 0, source.bounds().height() + 48, paint);
 ##
 
-#SeeAlso setAll set9 
+#SeeAlso setAll set9 MakeAll
 
 ##
 
@@ -1267,7 +1315,7 @@ for (SkScalar perspX : { -.003f, 0.f, .003f, .012f } ) {
 }
 ##
 
-#SeeAlso getPerspX set setAll set9
+#SeeAlso getPerspX set setAll set9 MakeAll
 
 #Method ##
 
@@ -1294,7 +1342,7 @@ for (SkScalar perspX : { -.003f, 0.f, .003f, .012f } ) {
 }
 ##
 
-#SeeAlso getPerspY set setAll set9
+#SeeAlso getPerspY set setAll set9 MakeAll
 
 #Method ##
 
@@ -1338,7 +1386,7 @@ Sets all values from parameters. Sets matrix to:
     }
 ##
 
-#SeeAlso set9
+#SeeAlso set9 MakeAll
 
 #Method ##
 
@@ -1402,7 +1450,7 @@ canvas->concat(m);
 canvas->drawBitmap(source, 0, 0);
 ##
 
-#SeeAlso setAll get9
+#SeeAlso setAll get9 MakeAll
 
 #Method ##
 

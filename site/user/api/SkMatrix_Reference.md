@@ -39,6 +39,7 @@ improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a h
 | <a href="#SkMatrix_Concat">Concat</a> | Returns the concatenation of <a href="#Matrix">Matrix</a> pair. |
 | <a href="#SkMatrix_I">I</a> | Returns a reference to a const identity <a href="#Matrix">Matrix</a>. |
 | <a href="#SkMatrix_InvalidMatrix">InvalidMatrix</a> | Returns a reference to a const invalid <a href="#Matrix">Matrix</a>. |
+| <a href="#SkMatrix_MakeAll">MakeAll</a> | Constructs all nine values. |
 | <a href="#SkMatrix_MakeRectToRect">MakeRectToRect</a> | Constructs from source <a href="SkRect_Reference#Rect">Rect</a> to destination <a href="SkRect_Reference#Rect">Rect</a>. |
 | <a href="#SkMatrix_MakeScale">MakeScale</a> | Constructs from scale in x and y. |
 | <a href="#SkMatrix_MakeTrans">MakeTrans</a> | Constructs from translate in x and y. |
@@ -224,6 +225,61 @@ vertical translation</td>
 ### See Also
 
 <a href="#SkMatrix_setTranslate">setTranslate</a> <a href="#SkMatrix_postTranslate">postTranslate</a> <a href="#SkMatrix_preTranslate">preTranslate</a>
+
+---
+
+<a name="SkMatrix_MakeAll"></a>
+## MakeAll
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+static SkMatrix SK_WARN_UNUSED_RESULT MakeAll(SkScalar scaleX, SkScalar skewX,
+                                              SkScalar transX, SkScalar skewY,
+                                              SkScalar scaleY, SkScalar transY,
+                                              SkScalar pers0, SkScalar pers1,
+                                              SkScalar pers2)
+</pre>
+
+Sets <a href="#Matrix">Matrix</a> to:
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+| scaleX  skewX transX |
+|  skewY scaleY transY |
+|  pers0  pers1  pers2 |</pre>
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkMatrix_MakeAll_scaleX"> <code><strong>scaleX </strong></code> </a></td> <td>
+horizontal scale factor</td>
+  </tr>  <tr>    <td><a name="SkMatrix_MakeAll_skewX"> <code><strong>skewX </strong></code> </a></td> <td>
+horizontal skew factor</td>
+  </tr>  <tr>    <td><a name="SkMatrix_MakeAll_transX"> <code><strong>transX </strong></code> </a></td> <td>
+horizontal translation</td>
+  </tr>  <tr>    <td><a name="SkMatrix_MakeAll_skewY"> <code><strong>skewY </strong></code> </a></td> <td>
+vertical skew factor</td>
+  </tr>  <tr>    <td><a name="SkMatrix_MakeAll_scaleY"> <code><strong>scaleY </strong></code> </a></td> <td>
+vertical scale factor</td>
+  </tr>  <tr>    <td><a name="SkMatrix_MakeAll_transY"> <code><strong>transY </strong></code> </a></td> <td>
+vertical translation</td>
+  </tr>  <tr>    <td><a name="SkMatrix_MakeAll_pers0"> <code><strong>pers0 </strong></code> </a></td> <td>
+input x perspective factor</td>
+  </tr>  <tr>    <td><a name="SkMatrix_MakeAll_pers1"> <code><strong>pers1 </strong></code> </a></td> <td>
+input y perspective factor</td>
+  </tr>  <tr>    <td><a name="SkMatrix_MakeAll_pers2"> <code><strong>pers2 </strong></code> </a></td> <td>
+perspective scale factor</td>
+  </tr>
+</table>
+
+### Return Value
+
+<a href="#Matrix">Matrix</a> constructed from parameters
+
+### Example
+
+<div><fiddle-embed name="6bad83b64de9266e323c29d550e04188"></fiddle-embed></div>
+
+### See Also
+
+<a href="#SkMatrix_setAll">setAll</a> <a href="#SkMatrix_set9">set9</a> <a href="#SkMatrix_postConcat">postConcat</a> <a href="#SkMatrix_preConcat">preConcat</a>
 
 ---
 
@@ -568,7 +624,7 @@ true if <a href="#Matrix">Matrix</a> is in most general form
 
 ### See Also
 
-<a href="#SkMatrix_setAll">setAll</a> <a href="#SkMatrix_set9">set9</a>
+<a href="#SkMatrix_setAll">setAll</a> <a href="#SkMatrix_set9">set9</a> <a href="#SkMatrix_MakeAll">MakeAll</a>
 
 ---
 
@@ -1338,7 +1394,7 @@ perspective factor</td>
 
 ### See Also
 
-<a href="#SkMatrix_getPerspX">getPerspX</a> <a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setAll">setAll</a> <a href="#SkMatrix_set9">set9</a>
+<a href="#SkMatrix_getPerspX">getPerspX</a> <a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setAll">setAll</a> <a href="#SkMatrix_set9">set9</a> <a href="#SkMatrix_MakeAll">MakeAll</a>
 
 ---
 
@@ -1365,7 +1421,7 @@ perspective factor</td>
 
 ### See Also
 
-<a href="#SkMatrix_getPerspY">getPerspY</a> <a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setAll">setAll</a> <a href="#SkMatrix_set9">set9</a>
+<a href="#SkMatrix_getPerspY">getPerspY</a> <a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setAll">setAll</a> <a href="#SkMatrix_set9">set9</a> <a href="#SkMatrix_MakeAll">MakeAll</a>
 
 ---
 
@@ -1414,7 +1470,7 @@ perspective scale factor to store</td>
 
 ### See Also
 
-<a href="#SkMatrix_set9">set9</a>
+<a href="#SkMatrix_set9">set9</a> <a href="#SkMatrix_MakeAll">MakeAll</a>
 
 ---
 
@@ -1491,7 +1547,7 @@ nine <a href="#Scalar">Scalar</a> values</td>
 
 ### See Also
 
-<a href="#SkMatrix_setAll">setAll</a> <a href="#SkMatrix_get9">get9</a>
+<a href="#SkMatrix_setAll">setAll</a> <a href="#SkMatrix_get9">get9</a> <a href="#SkMatrix_MakeAll">MakeAll</a>
 
 ---
 
