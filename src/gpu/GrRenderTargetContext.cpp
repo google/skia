@@ -653,7 +653,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
 
     // Coverage AA does not make sense when rendering to the stencil buffer. The caller should never
     // attempt this in a situation that would require coverage AA.
-    SkASSERT(!appliedClip.clipCoverageFragmentProcessor());
+    SkASSERT(!appliedClip.numClipCoverageFragmentProcessors());
 
     fRenderTargetContext->setNeedsStencil();
 

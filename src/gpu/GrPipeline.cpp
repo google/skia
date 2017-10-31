@@ -48,12 +48,9 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
 
     // Copy GrFragmentProcessors from GrProcessorSet to Pipeline
     fNumColorProcessors = processors.numColorFragmentProcessors();
-    int numTotalProcessors =
-            fNumColorProcessors + processors.numCoverageFragmentProcessors();
-    auto clipFP = appliedClip.detachClipCoverageFragmentProcessor();
-    if (clipFP) {
-        ++numTotalProcessors;
-    }
+    int numTotalProcessors = fNumColorProcessors +
+                             processors.numCoverageFragmentProcessors() +
+                             appliedClip.numClipCoverageFragmentProcessors();
     fFragmentProcessors.reset(numTotalProcessors);
     int currFPIdx = 0;
     for (int i = 0; i < processors.numColorFragmentProcessors(); ++i, ++currFPIdx) {
@@ -62,15 +59,14 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
             this->markAsBad();
         }
     }
-
     for (int i = 0; i < processors.numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
         fFragmentProcessors[currFPIdx] = processors.detachCoverageFragmentProcessor(i);
         if (!fFragmentProcessors[currFPIdx]->instantiate(args.fResourceProvider)) {
             this->markAsBad();
         }
     }
-    if (clipFP) {
-        fFragmentProcessors[currFPIdx] = std::move(clipFP);
+    for (int i = 0; i < appliedClip.numClipCoverageFragmentProcessors(); ++i, ++currFPIdx) {
+        fFragmentProcessors[currFPIdx] = appliedClip.detachClipCoverageFragmentProcessor(i);
         if (!fFragmentProcessors[currFPIdx]->instantiate(args.fResourceProvider)) {
             this->markAsBad();
         }

@@ -299,7 +299,7 @@ public:
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                 GrPixelConfigIsClamped dstIsClamped) override {
         GrProcessorAnalysisCoverage coverage;
-        if (AAMode::kNone == fAAMode && !clip->clipCoverageFragmentProcessor()) {
+        if (AAMode::kNone == fAAMode && !clip->numClipCoverageFragmentProcessors()) {
             coverage = GrProcessorAnalysisCoverage::kNone;
         } else {
             coverage = GrProcessorAnalysisCoverage::kSingleChannel;
