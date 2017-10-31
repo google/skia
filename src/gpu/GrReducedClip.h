@@ -8,6 +8,7 @@
 #ifndef GrReducedClip_DEFINED
 #define GrReducedClip_DEFINED
 
+#include "GrFragmentProcessor.h"
 #include "GrWindowRectangles.h"
 #include "SkClipStack.h"
 #include "SkTLList.h"
@@ -24,7 +25,14 @@ public:
     using Element = SkClipStack::Element;
     using ElementList = SkTLList<SkClipStack::Element, 16>;
 
-    GrReducedClip(const SkClipStack&, const SkRect& queryBounds, int maxWindowRectangles = 0);
+    enum class UseClipCoverageFPs {
+        kNever,
+        kForAAElements,
+        kAlways
+    };
+
+    GrReducedClip(const SkClipStack&, const SkRect& queryBounds,
+                  UseClipCoverageFPs = UseClipCoverageFPs::kNever, int maxWindowRectangles = 0);
 
     /**
      * If hasScissor() is true, the clip mask is not valid outside this rect and the caller must
@@ -47,6 +55,10 @@ public:
      * out using the window rectangles GPU extension.
      */
     const GrWindowRectangles& windowRectangles() const { return fWindowRects; }
+
+    std::unique_ptr<GrFragmentProcessor> detachClipCoverageFPs() {
+        return GrFragmentProcessor::RunInSeries(fClipCoverageFPs.begin(), fClipCoverageFPs.count());
+    }
 
     /**
      * An ordered list of clip elements that could not be skipped or implemented by other means. If
@@ -97,18 +109,22 @@ private:
     // NOTE: do not call for elements followed by ops that can grow the clip.
     ClipResult clipOutsideElement(const Element* element, int maxWindowRectangles);
 
+    template<typename T> ClipResult addClipCoverageFP(const T& deviceSpaceShape,
+                                                      bool aa, bool invert);
     void addWindowRectangle(const SkRect& elementInteriorRect, bool elementIsAA);
     void makeEmpty();
 
-    SkIRect              fScissor;
-    bool                 fHasScissor;
-    SkRect               fAAClipRect;
-    uint32_t             fAAClipRectGenID; // GenID the mask will have if includes the AA clip rect.
-    GrWindowRectangles   fWindowRects;
-    ElementList          fMaskElements;
-    uint32_t             fMaskGenID;
-    bool                 fMaskRequiresAA;
-    InitialState         fInitialState;
+    const UseClipCoverageFPs   fUseClipCoverageFPs;
+    SkIRect                    fScissor;
+    bool                       fHasScissor;
+    SkRect                     fAAClipRect;
+    uint32_t                   fAAClipRectGenID;
+    GrWindowRectangles         fWindowRects;
+    SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fClipCoverageFPs;
+    ElementList                fMaskElements;
+    uint32_t                   fMaskGenID;
+    bool                       fMaskRequiresAA;
+    InitialState               fInitialState;
 };
 
 #endif
