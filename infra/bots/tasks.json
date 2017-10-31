@@ -551,6 +551,12 @@
         "Upload-Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release"
       ]
     },
+    "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release"
+      ]
+    },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
       "priority": 0.8,
       "tasks": [
@@ -5543,6 +5549,39 @@
         "calmbench",
         "repository=<(REPO)",
         "buildername=Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "infra_skia.isolate",
+      "priority": 0.8
+    },
+    "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:10"
+        }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-384.59",
+        "os:Ubuntu-17.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "calmbench",
+        "repository=<(REPO)",
+        "buildername=Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22955,6 +22994,33 @@
         "upload_calmbench_results",
         "repository=<(REPO)",
         "buildername=Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-calmbench"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release": {
+      "dependencies": [
+        "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_calmbench_results",
+        "repository=<(REPO)",
+        "buildername=Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
