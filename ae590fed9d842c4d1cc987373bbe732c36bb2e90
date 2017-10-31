@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "368123b2_10fa33e5",
+        "filename": "src/gpu/GrTextureMaker.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-31T20:15:40Z",
+      "side": 1,
+      "message": "Does this not get automatically removed when we assign the key to the copy?",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 90,
+        "endChar": 66
+      },
+      "revId": "ae590fed9d842c4d1cc987373bbe732c36bb2e90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
