@@ -81,6 +81,24 @@
       "revId": "c795a4c8862dbab914561fadf7a3567c55362ae4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4527ebc4_baa8ad9d",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-10-31T15:20:04Z",
+      "side": 1,
+      "message": "Let\u0027s drop it.  They won\u0027t behave very differently, except that it makes the coverage bots inconsistent with normal bots.",
+      "parentUuid": "35cc279d_366e9a2b",
+      "revId": "c795a4c8862dbab914561fadf7a3567c55362ae4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
