@@ -43,37 +43,11 @@ def insert_at(filename, pattern, offset, content):
 
 
 def add_to_android(args):
-  REPO_BRANCH_NAME = "flag"
   sys.path.append(ANDROID_TOOLS_DIR)
   import upload_to_android
 
-  repo_binary = upload_to_android.init_work_dir(args.android_dir);
-
-  # Create repo branch.
-  subprocess.check_call('%s start %s .' % (repo_binary, REPO_BRANCH_NAME),
-                        shell=True)
-
-  try:
-    # Add flag to SkUserConfigManual.h.
-    config_file = os.path.join('include', 'config', 'SkUserConfigManual.h')
-
-    insert_at(config_file,
-              "#endif // SkUserConfigManual_DEFINED\n",
-              0,
-              "  #define %s\n" % args.flag)
-
-    subprocess.check_call('git add %s' % config_file, shell=True)
-
-    message = ('Add %s\n\n'
-               'Test: Presubmit checks will test this change.' % args.flag)
-
-    subprocess.check_call('git commit -m "%s"' % message, shell=True)
-
-    # Upload to Android Gerrit.
-    subprocess.check_call('%s upload --verify' % repo_binary, shell=True)
-  finally:
-    # Remove repo branch
-    subprocess.check_call('%s abandon flag' % repo_binary, shell=True)
+  modifier = upload_to_android.AndroidLegacyFlagModifier(args.flag)
+  upload_to_android.upload_to_android(args.android_dir, modifier)
 
 
 def add_to_chromium(args):
