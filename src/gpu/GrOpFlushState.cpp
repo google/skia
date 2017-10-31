@@ -18,8 +18,6 @@ GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
         , fCommandBuffer(nullptr)
         , fVertexPool(gpu)
         , fIndexPool(gpu)
-        , fLastIssuedToken(GrDeferredUploadToken::AlreadyFlushedToken())
-        , fLastFlushedToken(GrDeferredUploadToken::AlreadyFlushedToken())
         , fOpArgs(nullptr) {}
 
 const GrCaps& GrOpFlushState::caps() const {
