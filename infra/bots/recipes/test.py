@@ -95,7 +95,7 @@ def dm_flags(api, bot):
       configs.extend(['f16'])
       configs.extend(['sp-8888', '2ndpic-8888']) # Test niche uses of SkPicture.
       configs.extend(['lite-8888'])              # Experimental display list.
-      configs.extend(['gbr-8888'])
+      configs.extend(['brg-8888'])
 
     # NP is running out of RAM when we run all these modes.  skia:3255
     if 'NexusPlayer' not in bot:
@@ -272,8 +272,8 @@ def dm_flags(api, bot):
   blacklist('glessrgb image _ _')
 
   # Not any point to running these.
-  blacklist('gbr-8888 image _ _')
-  blacklist('gbr-8888 colorImage _ _')
+  blacklist('brg-8888 image _ _')
+  blacklist('brg-8888 colorImage _ _')
 
   if 'Valgrind' in bot:
     # These take 18+ hours to run.

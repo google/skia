@@ -912,26 +912,22 @@ static sk_sp<SkColorSpace> adobe_rgb() {
                                  SkColorSpace::kAdobeRGB_Gamut);
 }
 
-static sk_sp<SkColorSpace> rgb_to_gbr() {
-    float gbr[9];
-    gbr[0] = gSRGB_toXYZD50[1];
-    gbr[1] = gSRGB_toXYZD50[2];
-    gbr[2] = gSRGB_toXYZD50[0];
-    gbr[3] = gSRGB_toXYZD50[4];
-    gbr[4] = gSRGB_toXYZD50[5];
-    gbr[5] = gSRGB_toXYZD50[3];
-    gbr[6] = gSRGB_toXYZD50[7];
-    gbr[7] = gSRGB_toXYZD50[8];
-    gbr[8] = gSRGB_toXYZD50[6];
+static sk_sp<SkColorSpace> rgb_to_brg() {
+    auto m = gSRGB_toXYZD50;
+    float brg[9] = {
+        m[1], m[2], m[0],
+        m[4], m[5], m[3],
+        m[7], m[8], m[6],
+    };
     SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
-    toXYZD50.set3x3RowMajorf(gbr);
+    toXYZD50.set3x3RowMajorf(brg);
     return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, toXYZD50);
 }
 
 static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (tag.equals(t)) { return new via(__VA_ARGS__); }
     VIA("adobe",     ViaCSXform,           wrapped, adobe_rgb(), false);
-    VIA("gbr",       ViaCSXform,           wrapped, rgb_to_gbr(), true);
+    VIA("brg",       ViaCSXform,           wrapped, rgb_to_brg(), true);
     VIA("lite",      ViaLite,              wrapped);
     VIA("pipe",      ViaPipe,              wrapped);
     VIA("twice",     ViaTwice,             wrapped);
