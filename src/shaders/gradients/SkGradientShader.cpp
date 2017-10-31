@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpace_XYZ.h"
+#include "SkColorSpaceXformer.h"
 #include "SkFloatBits.h"
 #include "SkGradientBitmapCache.h"
 #include "SkGradientShaderPriv.h"
@@ -117,6 +118,7 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
 SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit)
     : INHERITED(desc.fLocalMatrix)
     , fPtsToUnit(ptsToUnit)
+    , fColorsAreOpaque(true)
 {
     fPtsToUnit.getType();  // Precache so reads are threadsafe.
     SkASSERT(desc.fCount > 1);
@@ -148,35 +150,28 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
     }
 
     if (fColorCount > kColorStorageCount) {
-        size_t size = sizeof(SkColor) + sizeof(SkColor4f);
+        size_t size = sizeof(SkColor4f);
         if (desc.fPos) {
             size += sizeof(SkScalar);
         }
-        fOrigColors = reinterpret_cast<SkColor*>(sk_malloc_throw(size * fColorCount));
+        fOrigColors4f = reinterpret_cast<SkColor4f*>(sk_malloc_throw(size * fColorCount));
     }
     else {
-        fOrigColors = fStorage;
+        fOrigColors4f = fStorage;
     }
-
-    fOrigColors4f = (SkColor4f*)(fOrigColors + fColorCount);
 
     // Now copy over the colors, adding the dummies as needed
     SkColor4f* origColors = fOrigColors4f;
     if (dummyFirst) {
         *origColors++ = desc.fColors[0];
     }
-    memcpy(origColors, desc.fColors, desc.fCount * sizeof(SkColor4f));
+    for (int i = 0; i < desc.fCount; ++i) {
+        origColors[i] = desc.fColors[i];
+        fColorsAreOpaque = fColorsAreOpaque && (desc.fColors[i].fA == 1);
+    }
     if (dummyLast) {
         origColors += desc.fCount;
         *origColors = desc.fColors[desc.fCount - 1];
-    }
-
-    // Convert our SkColor4f colors to SkColor as well. Note that this is incorrect if the
-    // source colors are not in sRGB gamut. We would need to do a gamut transformation, but
-    // SkColorSpaceXform can't do that (yet). GrColorSpaceXform can, but we may not have GPU
-    // support compiled in here. For the common case (sRGB colors), this does the right thing.
-    for (int i = 0; i < fColorCount; ++i) {
-        fOrigColors[i] = fOrigColors4f[i].toSkColor();
     }
 
     if (!desc.fColorSpace) {
@@ -221,21 +216,12 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
             fOrigPos = nullptr;
         }
     }
-    this->initCommon();
 }
 
 SkGradientShaderBase::~SkGradientShaderBase() {
-    if (fOrigColors != fStorage) {
-        sk_free(fOrigColors);
+    if (fOrigColors4f != fStorage) {
+        sk_free(fOrigColors4f);
     }
-}
-
-void SkGradientShaderBase::initCommon() {
-    unsigned colorAlpha = 0xFF;
-    for (int i = 0; i < fColorCount; i++) {
-        colorAlpha &= SkColorGetA(fOrigColors[i]);
-    }
-    fColorsAreOpaque = colorAlpha == 0xFF;
 }
 
 void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
@@ -451,14 +437,28 @@ bool SkGradientShaderBase::onAsLuminanceColor(SkColor* lum) const {
     int g = 0;
     int b = 0;
     const int n = fColorCount;
+    // TODO: use linear colors?
     for (int i = 0; i < n; ++i) {
-        SkColor c = fOrigColors[i];
+        SkColor c = this->getLegacyColor(i);
         r += SkColorGetR(c);
         g += SkColorGetG(c);
         b += SkColorGetB(c);
     }
     *lum = SkColorSetRGB(rounded_divide(r, n), rounded_divide(g, n), rounded_divide(b, n));
     return true;
+}
+
+SkGradientShaderBase::AutoXformColors::AutoXformColors(const SkGradientShaderBase& grad,
+                                                       SkColorSpaceXformer* xformer)
+    : fColors(grad.fColorCount) {
+    // TODO: stay in 4f to preserve precision?
+
+    SkAutoSTMalloc<8, SkColor> origColors(grad.fColorCount);
+    for (int i = 0; i < grad.fColorCount; ++i) {
+        origColors[i] = grad.getLegacyColor(i);
+    }
+
+    xformer->apply(fColors.get(), origColors.get(), grad.fColorCount);
 }
 
 static constexpr int kGradientTextureSize = 256;
@@ -532,7 +532,7 @@ void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap, GradientBitmapType
 
 SkColor4f SkGradientShaderBase::getXformedColor(size_t i, SkColorSpace* dstCS) const {
     return dstCS ? to_colorspace(fOrigColors4f[i], fColorSpace.get(), dstCS)
-                 : SkColor4f_from_SkColor(fOrigColors[i], nullptr);
+                 : SkColor4f_from_SkColor(this->getLegacyColor(i), nullptr);
 }
 
 SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
@@ -546,17 +546,19 @@ SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
 void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
                                                   GradientBitmapType bitmapType) const {
     // build our key: [numColors + colors[] + {positions[]} + flags + colorType ]
-    int count = 1 + fColorCount + 1 + 1;
+    static_assert(sizeof(SkColor4f) % sizeof(int32_t) == 0, "");
+    const int colorsAsIntCount = fColorCount * sizeof(SkColor4f) / sizeof(int32_t);
+    int count = 1 + colorsAsIntCount + 1 + 1;
     if (fColorCount > 2) {
         count += fColorCount - 1;
     }
 
-    SkAutoSTMalloc<16, int32_t> storage(count);
+    SkAutoSTMalloc<64, int32_t> storage(count);
     int32_t* buffer = storage.get();
 
     *buffer++ = fColorCount;
-    memcpy(buffer, fOrigColors, fColorCount * sizeof(SkColor));
-    buffer += fColorCount;
+    memcpy(buffer, fOrigColors4f, fColorCount * sizeof(SkColor4f));
+    buffer += colorsAsIntCount;
     if (fColorCount > 2) {
         for (int i = 1; i < fColorCount; i++) {
             *buffer++ = SkFloat2Bits(this->getPos(i));
@@ -608,7 +610,9 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
     if (info) {
         if (info->fColorCount >= fColorCount) {
             if (info->fColors) {
-                memcpy(info->fColors, fOrigColors, fColorCount * sizeof(SkColor));
+                for (int i = 0; i < fColorCount; ++i) {
+                    info->fColors[i] = this->getLegacyColor(i);
+                }
             }
             if (info->fColorOffsets) {
                 for (int i = 0; i < fColorCount; ++i) {
@@ -628,7 +632,7 @@ void SkGradientShaderBase::toString(SkString* str) const {
     str->appendf("%d colors: ", fColorCount);
 
     for (int i = 0; i < fColorCount; ++i) {
-        str->appendHex(fOrigColors[i], 8);
+        str->appendHex(this->getLegacyColor(i), 8);
         if (i < fColorCount-1) {
             str->append(", ");
         }
@@ -1267,13 +1271,13 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         auto colorSpaceXform = GrColorSpaceXform::Make(shader.fColorSpace.get(),
                                                        kRGBA_float_GrPixelConfig,
                                                        args.fDstColorSpace);
-        SkASSERT(shader.fOrigColors && shader.fOrigColors4f);
+        SkASSERT(shader.fOrigColors4f);
         fColors4f.setCount(shader.fColorCount);
         for (int i = 0; i < shader.fColorCount; ++i) {
             if (args.fDstColorSpace) {
                 fColors4f[i] = GrColor4f::FromSkColor4f(shader.fOrigColors4f[i]);
             } else {
-                GrColor grColor = SkColorToUnpremulGrColor(shader.fOrigColors[i]);
+                GrColor grColor = SkColorToUnpremulGrColor(shader.getLegacyColor(i));
                 fColors4f[i] = GrColor4f::FromGrColor(grColor);
             }
 

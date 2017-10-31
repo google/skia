@@ -15,8 +15,10 @@
 #include "SkMatrix.h"
 #include "SkShaderBase.h"
 #include "SkTDArray.h"
+#include "SkTemplates.h"
 
 class SkColorSpace;
+class SkColorSpaceXformer;
 class SkRasterPipeline;
 class SkReadBuffer;
 class SkWriteBuffer;
@@ -105,6 +107,12 @@ protected:
         return ctx;
     }
 
+    struct AutoXformColors {
+        AutoXformColors(const SkGradientShaderBase&, SkColorSpaceXformer*);
+
+        SkAutoSTMalloc<8, SkColor> fColors;
+    };
+
     const SkMatrix fPtsToUnit;
     TileMode       fTileMode;
     uint8_t        fGradFlags;
@@ -113,20 +121,25 @@ private:
     enum {
         kColorStorageCount = 4, // more than this many colors, and we'll use sk_malloc for the space
 
-        kStorageSize = kColorStorageCount * (sizeof(SkColor) + sizeof(SkScalar) + sizeof(SkColor4f))
+        kStorageSize = kColorStorageCount * (sizeof(SkColor4f) + sizeof(SkScalar))
     };
-    SkColor             fStorage[(kStorageSize + 3) >> 2];
+    SkColor4f fStorage[(kStorageSize + sizeof(SkColor4f) - 1) / sizeof(SkColor4f)];
+
 public:
     SkScalar getPos(int i) const {
         SkASSERT(i < fColorCount);
         return fOrigPos ? fOrigPos[i] : SkIntToScalar(i) / (fColorCount - 1);
     }
 
-    SkColor*            fOrigColors;   // original colors, before modulation by paint in context.
+    SkColor getLegacyColor(int i) const {
+        SkASSERT(i < fColorCount);
+        return fOrigColors4f[i].toSkColor();
+    }
+
     SkColor4f*          fOrigColors4f; // original colors, as linear floats
     SkScalar*           fOrigPos;      // original positions
     int                 fColorCount;
-    sk_sp<SkColorSpace> fColorSpace; // color space of gradient stops
+    sk_sp<SkColorSpace> fColorSpace;   // color space of gradient stops
 
     bool colorsAreOpaque() const { return fColorsAreOpaque; }
 
@@ -134,8 +147,6 @@ public:
 
 private:
     bool                fColorsAreOpaque;
-
-    void initCommon();
 
     typedef SkShaderBase INHERITED;
 };
