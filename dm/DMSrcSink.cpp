@@ -2168,11 +2168,11 @@ Error ViaCSXform::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
                 uint32_t* row = pixels.getAddr32(0,y);
                 for (int x = 0; x < pixels.width(); x++) {
                     uint32_t pixel = *row;
-                    uint8_t g = (pixel >>  0) & 0xff,
-                            b = (pixel >>  8) & 0xff,
-                            r = (pixel >> 16) & 0xff,
-                            a = (pixel >> 24) & 0xff;
-                    *row++ = SkSwizzle_RGBA_to_PMColor(r << 0 | g << 8 | b << 16 | a << 24);
+                    uint8_t r = SkGetPackedR32(pixel);
+                    uint8_t g = SkGetPackedG32(pixel);
+                    uint8_t b = SkGetPackedB32(pixel);
+                    uint8_t a = SkGetPackedA32(pixel);
+                    *row++ = SkSwizzle_RGBA_to_PMColor(b << 0 | r << 8 | g << 16 | a << 24);
                 }
             }
 
