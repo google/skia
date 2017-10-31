@@ -136,7 +136,7 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
 }
 
 template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fontCache,
+void GrAtlasTextBlob::regenInOp(GrDeferredUploadTarget* target, GrAtlasGlyphCache* fontCache,
                                 GrBlobRegenHelper* helper, Run* run, Run::SubRunInfo* info,
                                 SkAutoGlyphCache* lazyCache, int glyphCount, size_t vertexStride,
                                 GrColor color, SkScalar transX, SkScalar transY) const {
@@ -236,12 +236,10 @@ enum RegenMask {
 #define REGEN_ARGS target, fontCache, helper, &run, &info, lazyCache, \
                    *glyphCount, vertexStride, color, transX, transY
 
-void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target,
-                                GrAtlasGlyphCache* fontCache,
-                                GrBlobRegenHelper* helper,
-                                int runIndex, int subRunIndex, SkAutoGlyphCache* lazyCache,
-                                size_t vertexStride, const SkMatrix& viewMatrix,
-                                SkScalar x, SkScalar y, GrColor color,
+void GrAtlasTextBlob::regenInOp(GrDeferredUploadTarget* target, GrAtlasGlyphCache* fontCache,
+                                GrBlobRegenHelper* helper, int runIndex, int subRunIndex,
+                                SkAutoGlyphCache* lazyCache, size_t vertexStride,
+                                const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                                 void** vertices, size_t* byteCount, int* glyphCount) {
     Run& run = fRuns[runIndex];
     Run::SubRunInfo& info = run.fSubRunInfo[subRunIndex];

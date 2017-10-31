@@ -383,10 +383,9 @@ private:
                 }
             }
 
-            atlas->setLastUseToken(shapeData->fID, target->nextDrawToken());
+            atlas->setLastUseToken(shapeData->fID, target->deferredUploadTarget()->nextDrawToken());
 
-            this->writePathVertices(target,
-                                    atlas,
+            this->writePathVertices(atlas,
                                     offset,
                                     args.fColor,
                                     vertexStride,
@@ -489,9 +488,11 @@ private:
         // add to atlas
         SkIPoint16 atlasLocation;
         GrDrawOpAtlas::AtlasID id;
-        if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
+        auto uploadTarget = target->deferredUploadTarget();
+        if (!atlas->addToAtlas(&id, uploadTarget, width, height, dfStorage.get(), &atlasLocation)) {
             this->flush(target, flushInfo);
-            if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
+            if (!atlas->addToAtlas(&id, uploadTarget, width, height, dfStorage.get(),
+                                   &atlasLocation)) {
                 return false;
             }
         }
@@ -589,10 +590,11 @@ private:
         // add to atlas
         SkIPoint16 atlasLocation;
         GrDrawOpAtlas::AtlasID id;
-        if (!atlas->addToAtlas(&id, target, dst.width(), dst.height(), dst.addr(),
+        auto uploadTarget = target->deferredUploadTarget();
+        if (!atlas->addToAtlas(&id, uploadTarget, dst.width(), dst.height(), dst.addr(),
                                &atlasLocation)) {
             this->flush(target, flushInfo);
-            if (!atlas->addToAtlas(&id, target, dst.width(), dst.height(), dst.addr(),
+            if (!atlas->addToAtlas(&id, uploadTarget, dst.width(), dst.height(), dst.addr(),
                                    &atlasLocation)) {
                 return false;
             }
@@ -622,8 +624,7 @@ private:
         return true;
     }
 
-    void writePathVertices(GrDrawOp::Target* target,
-                           GrDrawOpAtlas* atlas,
+    void writePathVertices(GrDrawOpAtlas* atlas,
                            intptr_t offset,
                            GrColor color,
                            size_t vertexStride,

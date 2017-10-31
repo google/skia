@@ -75,15 +75,16 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
             TRACE_EVENT0("skia", fRecordedOps[i].fOp->name());
 #endif
-            GrOpFlushState::DrawOpArgs opArgs = {
+            GrOpFlushState::OpArgs opArgs = {
+                fRecordedOps[i].fOp.get(),
                 fTarget.get()->asRenderTargetProxy(),
                 fRecordedOps[i].fAppliedClip,
                 fRecordedOps[i].fDstProxy
             };
 
-            flushState->setDrawOpArgs(&opArgs);
+            flushState->setOpArgs(&opArgs);
             fRecordedOps[i].fOp->prepare(flushState);
-            flushState->setDrawOpArgs(nullptr);
+            flushState->setOpArgs(nullptr);
         }
     }
 
@@ -163,15 +164,16 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
         TRACE_EVENT0("skia", fRecordedOps[i].fOp->name());
 #endif
 
-        GrOpFlushState::DrawOpArgs opArgs {
+        GrOpFlushState::OpArgs opArgs {
+            fRecordedOps[i].fOp.get(),
             fTarget.get()->asRenderTargetProxy(),
             fRecordedOps[i].fAppliedClip,
             fRecordedOps[i].fDstProxy
         };
 
-        flushState->setDrawOpArgs(&opArgs);
+        flushState->setOpArgs(&opArgs);
         fRecordedOps[i].fOp->execute(flushState);
-        flushState->setDrawOpArgs(nullptr);
+        flushState->setOpArgs(nullptr);
     }
 
     finish_command_buffer(commandBuffer.get());
