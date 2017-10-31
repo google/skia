@@ -314,7 +314,9 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         if ((reducedClip.maskRequiresAA() || avoidStencilBuffers) &&
             get_analytic_clip_processor(reducedClip.maskElements(), disallowAnalyticAA, devBounds,
                                         &clipFP)) {
-            out->addCoverageFP(std::move(clipFP));
+            if (clipFP) {
+                out->addCoverageFP(std::move(clipFP));
+            }
             return true;
         }
     }
