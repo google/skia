@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68acd192_a35609b3",
+        "filename": "gm/flippity.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-31T20:18:05Z",
+      "side": 1,
+      "message": "shouldn\u0027t these still be static?",
+      "revId": "2228b6c46049163d1af60d98e5869e0d6c86a2bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
