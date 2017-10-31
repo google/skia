@@ -1109,7 +1109,7 @@ private:
 // Some runs (mostly, Valgrind) are so slow that the bot framework thinks we've hung.
 // This prints something every once in a while so that it knows we're still working.
 static void start_keepalive() {
-    static std::thread* intentionallyLeaked = new std::thread([]{
+    static std::thread keepalive([] {
         for (;;) {
             static const int kSec = 1200;
         #if defined(SK_BUILD_FOR_WIN)
@@ -1120,7 +1120,7 @@ static void start_keepalive() {
             SkDebugf("\nBenchmarks still running...\n");
         }
     });
-    (void)intentionallyLeaked;
+    keepalive.detach();
 }
 
 int main(int argc, char** argv) {
