@@ -26,9 +26,14 @@ public:
 
     const GrScissorState& scissorState() const { return fScissorState; }
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
-    GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP.get(); }
-    std::unique_ptr<GrFragmentProcessor> detachClipCoverageFragmentProcessor() {
-        return std::move(fClipCoverageFP);
+    int numClipCoverageFragmentProcessors() const { return fClipCoverageFPs.count(); }
+    const GrFragmentProcessor* clipCoverageFragmentProcessor(int i) const {
+        SkASSERT(fClipCoverageFPs[i]);
+        return fClipCoverageFPs[i].get();
+    }
+    std::unique_ptr<const GrFragmentProcessor> detachClipCoverageFragmentProcessor(int i) {
+        SkASSERT(fClipCoverageFPs[i]);
+        return std::move(fClipCoverageFPs[i]);
     }
     bool hasStencilClip() const { return SkClipStack::kInvalidGenID != fClipStackID; }
 
@@ -52,8 +57,8 @@ public:
     }
 
     void addCoverageFP(std::unique_ptr<GrFragmentProcessor> fp) {
-        SkASSERT(!fClipCoverageFP);
-        fClipCoverageFP = std::move(fp);
+        SkASSERT(fp);
+        fClipCoverageFPs.push_back(std::move(fp));
     }
 
     void addStencilClip(uint32_t clipStackID) {
@@ -62,36 +67,44 @@ public:
     }
 
     bool doesClip() const {
-        return fScissorState.enabled() || fClipCoverageFP || this->hasStencilClip() ||
+        return fScissorState.enabled() || !fClipCoverageFPs.empty() || this->hasStencilClip() ||
                fWindowRectsState.enabled();
     }
 
     bool operator==(const GrAppliedClip& that) const {
-        if (fScissorState != that.fScissorState || fClipStackID != that.fClipStackID) {
+        if (fScissorState != that.fScissorState ||
+            fWindowRectsState != that.fWindowRectsState ||
+            fClipCoverageFPs.count() != that.fClipCoverageFPs.count() ||
+            fClipStackID != that.fClipStackID) {
             return false;
         }
-        if (SkToBool(fClipCoverageFP)) {
-            if (!SkToBool(that.fClipCoverageFP) ||
-                !that.fClipCoverageFP->isEqual(*fClipCoverageFP)) {
+        for (int i = 0; i < fClipCoverageFPs.count(); ++i) {
+            if (!fClipCoverageFPs[i] || !that.fClipCoverageFPs[i]) {
+                if (fClipCoverageFPs[i] == that.fClipCoverageFPs[i]) {
+                    continue; // Both are null.
+                }
                 return false;
             }
-        } else if (SkToBool(that.fClipCoverageFP)) {
-            return false;
+            if (!fClipCoverageFPs[i]->isEqual(*that.fClipCoverageFPs[i])) {
+                return false;
+            }
         }
-        return fWindowRectsState == that.fWindowRectsState;
+        return true;
     }
     bool operator!=(const GrAppliedClip& that) const { return !(*this == that); }
 
     void visitProxies(const std::function<void(GrSurfaceProxy*)>& func) const {
-        if (fClipCoverageFP) {
-            fClipCoverageFP->visitProxies(func);
+        for (const std::unique_ptr<GrFragmentProcessor>& fp : fClipCoverageFPs) {
+            if (fp) { // This might be called after detach.
+                fp->visitProxies(func);
+            }
         }
     }
 
 private:
     GrScissorState             fScissorState;
     GrWindowRectsState         fWindowRectsState;
-    std::unique_ptr<GrFragmentProcessor> fClipCoverageFP;
+    SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fClipCoverageFPs;
     uint32_t                   fClipStackID = SkClipStack::kInvalidGenID;
 };
 
