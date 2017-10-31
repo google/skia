@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6092410_4f7bb538",
+        "filename": "src/gpu/ops/GrClearStencilClipOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-31T18:20:13Z",
+      "side": 1,
+      "message": "How do you feel about disabling the window rectangles at this level instead of from the calling code? I thought it kind of made sense because the caller already sends in a flag to the clear call saying whether it can ignore the clip, so it seems like we might as well handle ignoring it as well when it\u0027s not supported.",
+      "revId": "78dc142f6eda2c76a8b19925b26dfcb553649152",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
