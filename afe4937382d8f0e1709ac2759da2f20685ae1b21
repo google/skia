@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b5708e0_98b3349a",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-31T13:57:40Z",
+      "side": 1,
+      "message": "I feel like we should be able to keep the removed assert. We should never be passing down window rects into vulkan clears cause the caps says we can\u0027t",
+      "range": {
+        "startLine": 292,
+        "startChar": 4,
+        "endLine": 293,
+        "endChar": 57
+      },
+      "revId": "afe4937382d8f0e1709ac2759da2f20685ae1b21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "466141a0_aa6d8d1c",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-31T13:57:40Z",
+      "side": 1,
+      "message": "why do we need this bool here? With the extra cap added shouldn\u0027t the clipping code be handling this and only sending valid stuff down here?",
+      "range": {
+        "startLine": 318,
+        "startChar": 42,
+        "endLine": 318,
+        "endChar": 57
+      },
+      "revId": "afe4937382d8f0e1709ac2759da2f20685ae1b21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1acfeb90_2d5f8423",
+        "filename": "src/gpu/vk/GrVkPipelineState.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-31T13:57:40Z",
+      "side": 1,
+      "message": "add some assert(s) here that the sizes are small enough to be backed like this",
+      "range": {
+        "startLine": 592,
+        "startChar": 16,
+        "endLine": 592,
+        "endChar": 89
+      },
+      "revId": "afe4937382d8f0e1709ac2759da2f20685ae1b21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
