@@ -21,7 +21,7 @@ Declaring <a href="#SkBitmap">SkBitmap</a> const prevents altering <a href="#Inf
 and so on cannot change. It does not affect <a href="undocumented#Pixel_Ref">Pixel Ref</a>: a caller may write its
 pixels. Declaring <a href="#SkBitmap">SkBitmap</a> const affects <a href="#Bitmap">Bitmap</a> configuration, not its contents.
 
-<a href="#Bitmap">Bitmap</a> is not thread safe. Each thread must have its own copy if <a href="#Bitmap">Bitmap</a> fields,
+<a href="#Bitmap">Bitmap</a> is not thread safe. Each thread must have its own copy of <a href="#Bitmap">Bitmap</a> fields,
 although threads may share the underlying pixel array.
 
 # <a name="Row_Bytes"></a> Row Bytes
