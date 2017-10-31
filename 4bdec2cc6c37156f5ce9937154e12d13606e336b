@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f91d87b1_e84ba81e",
+        "filename": "gm/flippity.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-10-31T14:14:31Z",
+      "side": 1,
+      "message": "\"a\"?",
+      "range": {
+        "startLine": 136,
+        "startChar": 67,
+        "endLine": 136,
+        "endChar": 69
+      },
+      "revId": "4bdec2cc6c37156f5ce9937154e12d13606e336b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
