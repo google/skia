@@ -146,8 +146,8 @@ static void fail(const SkString& err) {
 }
 
 struct Running {
-    SkString   id;
-    SkThreadID thread;
+    SkString        id;
+    std::thread::id thread;
 
     void dump() const {
         info("\t%s\n", id.c_str());
@@ -196,12 +196,12 @@ static void start(const char* config, const char* src, const char* srcOptions, c
     SkString id = SkStringPrintf("%s %s %s %s", config, src, srcOptions, name);
     vlog("start %s\n", id.c_str());
     SkAutoMutexAcquire lock(gMutex);
-    gRunning.push_back({id,SkGetThreadID()});
+    gRunning.push_back({id,std::this_thread::get_id()});
 }
 
 static void find_culprit() {
     // Assumes gMutex is locked.
-    SkThreadID thisThread = SkGetThreadID();
+    std::thread::id thisThread = std::this_thread::get_id();
     for (auto& task : gRunning) {
         if (task.thread == thisThread) {
             info("Likely culprit:\n");

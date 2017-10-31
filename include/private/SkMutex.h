@@ -9,8 +9,8 @@
 #define SkMutex_DEFINED
 
 #include "../private/SkSemaphore.h"
-#include "../private/SkThreadID.h"
 #include "SkTypes.h"
+#include <thread>
 
 #define SK_DECLARE_STATIC_MUTEX(name) static SkBaseMutex name;
 
@@ -20,22 +20,22 @@ public:
 
     void acquire() {
         fSemaphore.wait();
-        SkDEBUGCODE(fOwner = SkGetThreadID();)
+        SkDEBUGCODE(fOwner = std::this_thread::get_id();)
     }
 
     void release() {
         this->assertHeld();
-        SkDEBUGCODE(fOwner = kIllegalThreadID;)
+        SkDEBUGCODE(fOwner = std::thread::id();)
         fSemaphore.signal();
     }
 
     void assertHeld() {
-        SkASSERT(fOwner == SkGetThreadID());
+        SkASSERT(fOwner == std::this_thread::get_id());
     }
 
 protected:
     SkBaseSemaphore fSemaphore{1};
-    SkDEBUGCODE(SkThreadID fOwner{kIllegalThreadID};)
+    SkDEBUGCODE(std::thread::id fOwner;)
 };
 
 class SkMutex : public SkBaseMutex {
