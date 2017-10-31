@@ -11,7 +11,6 @@
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
 #include "SkColorData.h"
-#include "SkColorSpace_Base.h"
 #include "SkEndian.h"
 #include "SkStream.h"
 #include "SkHeifCodec.h"
@@ -140,11 +139,10 @@ std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(
 
     sk_sp<SkColorSpace> colorSpace = nullptr;
     if ((frameInfo.mIccSize > 0) && (frameInfo.mIccData != nullptr)) {
-        SkColorSpace_Base::ICCTypeFlag iccType = SkColorSpace_Base::kRGB_ICCTypeFlag;
-        colorSpace = SkColorSpace_Base::MakeICC(
-                frameInfo.mIccData.get(), frameInfo.mIccSize, iccType);
+        colorSpace = SkColorSpace::MakeICC(frameInfo.mIccData.get(),
+                                           frameInfo.mIccSize);
     }
-    if (!colorSpace) {
+    if (!colorSpace || colorSpace->type() != SkColorSpace::kRGB_Type) {
         colorSpace = SkColorSpace::MakeSRGB();
     }
 

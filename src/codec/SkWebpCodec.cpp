@@ -97,7 +97,7 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
     if (WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator)) {
         colorSpace = SkColorSpace::MakeICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
     }
-    if (!colorSpace) {
+    if (!colorSpace || colorSpace->type() != SkColorSpace::kRGB_Type) {
         colorSpace = SkColorSpace::MakeSRGB();
     }
 
