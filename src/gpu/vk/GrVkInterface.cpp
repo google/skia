@@ -59,6 +59,11 @@ GrVkInterface::GrVkInterface(GetProc getProc,
     ACQUIRE_PROC(EnumerateDeviceExtensionProperties, instance, VK_NULL_HANDLE);
     ACQUIRE_PROC(EnumerateDeviceLayerProperties, instance, VK_NULL_HANDLE);
 
+    if (extensionFlags & kKHR_get_physical_device_properties2_GrVkExtensionFlag) {
+        // Also Instance Proc.
+        ACQUIRE_PROC(GetPhysicalDeviceProperties2KHR, instance, VK_NULL_HANDLE);
+    }
+
     if (extensionFlags & kEXT_debug_report_GrVkExtensionFlag) {
         // Also instance Procs.
         ACQUIRE_PROC(CreateDebugReportCallbackEXT, instance, VK_NULL_HANDLE);
@@ -186,6 +191,11 @@ GrVkInterface::GrVkInterface(GetProc getProc,
     ACQUIRE_PROC(CmdNextSubpass, VK_NULL_HANDLE, device);
     ACQUIRE_PROC(CmdEndRenderPass, VK_NULL_HANDLE, device);
     ACQUIRE_PROC(CmdExecuteCommands, VK_NULL_HANDLE, device);
+
+    if (extensionFlags & kEXT_discard_rectangles_GrVkExtensionFlag) {
+        // Also Device Proc.
+        ACQUIRE_PROC(CmdSetDiscardRectangleEXT, VK_NULL_HANDLE, device);
+    }
 }
 
 #ifdef SK_DEBUG
@@ -338,6 +348,12 @@ bool GrVkInterface::validate(uint32_t extensionFlags) const {
         RETURN_FALSE_INTERFACE
     }
 
+    if (extensionFlags & kKHR_get_physical_device_properties2_GrVkExtensionFlag) {
+        if (nullptr == fFunctions.fGetPhysicalDeviceProperties2KHR) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
     if (extensionFlags & kEXT_debug_report_GrVkExtensionFlag) {
         if (nullptr == fFunctions.fCreateDebugReportCallbackEXT ||
             nullptr == fFunctions.fDebugReportMessageEXT ||
@@ -345,6 +361,13 @@ bool GrVkInterface::validate(uint32_t extensionFlags) const {
             RETURN_FALSE_INTERFACE
         }
     }
+
+    if (extensionFlags & kEXT_discard_rectangles_GrVkExtensionFlag) {
+        if (nullptr == fFunctions.fCmdSetDiscardRectangleEXT) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
     return true;
 }
 

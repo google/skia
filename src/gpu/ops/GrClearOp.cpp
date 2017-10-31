@@ -11,10 +11,11 @@
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 
-GrClearOp::GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* proxy)
-        : INHERITED(ClassID())
+GrClearOp::GrClearOp(const GrFixedClip& clip, GrColor color, bool canIgnoreClip,
+                     GrSurfaceProxy* proxy) : INHERITED(ClassID())
         , fClip(clip)
-        , fColor(color) {
+        , fColor(color)
+        , fCanIgnoreClip(canIgnoreClip) {
     const SkIRect rtRect = SkIRect::MakeWH(proxy->width(), proxy->height());
     if (fClip.scissorEnabled()) {
         // Don't let scissors extend outside the RT. This may improve op combining.
@@ -33,5 +34,5 @@ GrClearOp::GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* pro
 
 void GrClearOp::onExecute(GrOpFlushState* state) {
     SkASSERT(state->rtCommandBuffer());
-    state->rtCommandBuffer()->clear(fClip, fColor);
+    state->rtCommandBuffer()->clear(fClip, fColor, fCanIgnoreClip);
 }
