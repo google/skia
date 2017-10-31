@@ -45,25 +45,35 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerSt
     GrSurfaceOrigin origOrigin;
     GrUniqueKey copyKey;
     this->makeCopyKey(copyParams, &copyKey, dstColorSpace);
+    sk_sp<GrTextureProxy> cachedProxy;
     if (copyKey.isValid()) {
         if (original) {
             origOrigin = original->origin();
         } else {
             origOrigin = kTopLeft_GrSurfaceOrigin;
         }
-        sk_sp<GrTextureProxy> result(fContext->resourceProvider()->findOrCreateProxyByUniqueKey(
-                                                                            copyKey, origOrigin));
-        if (result) {
-            return result;
+        cachedProxy = fContext->resourceProvider()->findOrCreateProxyByUniqueKey(copyKey,
+                                                                                 origOrigin);
+        if (cachedProxy && (!willBeMipped || GrMipMapped::kYes == cachedProxy->mipMapped())) {
+            return cachedProxy;
         }
     }
 
     sk_sp<GrTextureProxy> result;
     if (original) {
-        result = CopyOnGpu(fContext, std::move(original), nullptr, copyParams, willBeMipped);
+        result = std::move(original);
+    } else if (cachedProxy) {
+        result = cachedProxy;
     } else {
-        result = this->generateTextureProxyForParams(copyParams, willBeMipped, dstColorSpace);
+        // Since we will be copying this texture there is no reason to make it mipped
+        result = this->refOriginalTextureProxy(false, dstColorSpace,
+                                               AllowedTexGenType::kAny);
     }
+    if (!result) {
+        return nullptr;
+    }
+
+    result = CopyOnGpu(fContext, std::move(result), nullptr, copyParams, willBeMipped);
 
     if (!result) {
         return nullptr;
@@ -71,6 +81,14 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerSt
 
     if (copyKey.isValid()) {
         SkASSERT(result->origin() == origOrigin);
+        if (cachedProxy) {
+            SkASSERT(GrMipMapped::kYes == result->mipMapped() &&
+                     GrMipMapped::kNo == cachedProxy->mipMapped());
+            // If we had a cachedProxy, that means there already is a proxy in the cache which
+            // matches the key, but it does not have mip levels and we require them. Thus we must
+            // remove the unique key from that proxy.
+            fContext->resourceProvider()->removeUniqueKeyFromProxy(copyKey, cachedProxy.get());
+        }
         fContext->resourceProvider()->assignUniqueKeyToProxy(copyKey, result.get());
         this->didCacheCopy(copyKey);
     }
