@@ -22,6 +22,30 @@
       "revId": "ae590fed9d842c4d1cc987373bbe732c36bb2e90",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7553405_0b7d009c",
+        "filename": "src/gpu/GrTextureMaker.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-10-31T21:02:41Z",
+      "side": 1,
+      "message": "I does not. I guess it was when you were away when I add the removeUKFromProxy, but the tldr is that Rob wanted to keep these calls (remove and assign) explicit to force the caller to know what they are doing. Thus we can keep an assert in assign that no other resource currently has the key.",
+      "parentUuid": "368123b2_10fa33e5",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 90,
+        "endChar": 66
+      },
+      "revId": "ae590fed9d842c4d1cc987373bbe732c36bb2e90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
