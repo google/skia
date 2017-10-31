@@ -92,11 +92,7 @@ public:
     /**
      * Returns the RR's sub type.
      */
-    Type getType() const {
-        SkASSERT(this->isValid());
-        return static_cast<Type>(fType);
-    }
-
+    Type getType() const;
     Type type() const { return this->getType(); }
 
     inline bool isEmpty() const { return kEmpty_Type == this->getType(); }
@@ -114,6 +110,17 @@ public:
     inline bool isNinePatch() const { return kNinePatch_Type == this->getType(); }
     inline bool isComplex() const { return kComplex_Type == this->getType(); }
 
+    /**
+     *  Returns true iff all of the exponent values are 2.0, meaning every corner is elliptical.
+     */
+    inline bool isElliptical() const { return !fIsSuper; }
+    /**
+     *  Return the underlying type, ignoring if the corners are elliptical or not. Call this
+     *  if you will separately check isElliptical() or if you will explicitly check each corner's
+     *  exponent().
+     */
+    inline Type getRawType() const { return static_cast<Type>(fRawType); }
+
     bool allCornersCircular(SkScalar tolerance = SK_ScalarNearlyZero) const;
 
     SkScalar width() const { return fRect.width(); }
@@ -125,7 +132,8 @@ public:
     void setEmpty() {
         fRect.setEmpty();
         memset(fRadii, 0, sizeof(fRadii));
-        fType = kEmpty_Type;
+        this->setExpToDefault();
+        fRawType = kEmpty_Type;
 
         SkASSERT(this->isValid());
     }
@@ -143,7 +151,8 @@ public:
         }
 
         memset(fRadii, 0, sizeof(fRadii));
-        fType = kRect_Type;
+        this->setExpToDefault();
+        fRawType = kRect_Type;
 
         SkASSERT(this->isValid());
     }
@@ -191,7 +200,8 @@ public:
         for (int i = 0; i < 4; ++i) {
             fRadii[i].set(xRad, yRad);
         }
-        fType = kOval_Type;
+        this->setExpToDefault();
+        fRawType = kOval_Type;
 
         SkASSERT(this->isValid());
     }
@@ -209,8 +219,13 @@ public:
 
     /**
      * Initialize the RR with potentially different radii for all four corners.
+     *
+     *  Optionally 4 exponents can also be specified. If not specified (i.e. nullptr is passed)
+     *  then the values default to 2, which gives an elliptical arc at each corner. Values must
+     *  be finite and >= 0.
      */
-    void setRectRadii(const SkRect& rect, const SkVector radii[4]);
+    void setRectRadii(const SkRect& rect, const SkVector radii[4],
+                      const SkScalar exp[4] = nullptr);
 
     // The radii are stored in UL, UR, LR, LL order.
     enum Corner {
@@ -221,8 +236,9 @@ public:
     };
 
     const SkRect& rect() const { return fRect; }
-    const SkVector& radii(Corner corner) const { return fRadii[corner]; }
     const SkRect& getBounds() const { return fRect; }
+    const SkVector& radii(Corner corner) const { return fRadii[corner]; }
+    SkScalar exponent(Corner corner) const { return fExp[corner]; }
 
     /**
      *  When a rrect is simple, all of its radii are equal. This returns one
@@ -282,7 +298,7 @@ public:
     }
 
     SkRRect SK_WARN_UNUSED_RESULT makeOffset(SkScalar dx, SkScalar dy) const {
-        return SkRRect(fRect.makeOffset(dx, dy), fRadii, fType);
+        return SkRRect(fRect.makeOffset(dx, dy), fRadii, fRawType);
     }
 
     /**
@@ -336,20 +352,26 @@ public:
     void dumpHex() const { this->dump(true); }
 
 private:
-    SkRRect(const SkRect& rect, const SkVector radii[4], int32_t type)
+    SkRRect(const SkRect& rect, const SkVector radii[4], int type)
         : fRect(rect)
         , fRadii{radii[0], radii[1], radii[2], radii[3]}
-        , fType(type) {}
+        , fExp{2,2,2,2}
+        , fRawType(SkToU8(type)) {}
 
     SkRect fRect;
     // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]
     SkVector fRadii[4];
+    // In the same order as fRadii
+    SkScalar fExp[4];
     // use an explicitly sized type so we're sure the class is dense (no uninitialized bytes)
-    int32_t fType;
+    uint8_t fRawType;
+    uint8_t fIsSuper;   // true if fExp contains a non-2 value
+    uint16_t fPad    = 0;
     // TODO: add padding so we can use memcpy for flattening and not copy
     // uninitialized data
 
     void computeType();
+    void setExpToDefault();
     bool checkCornerContainment(SkScalar x, SkScalar y) const;
     void scaleRadii();
 
