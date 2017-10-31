@@ -68,12 +68,6 @@ public:
 
     ~GrOpFlushState() final { this->reset(); }
 
-    /** Issue a token to an operation that is being enqueued. */
-    GrDeferredUploadToken issueDrawToken() { return ++fLastIssuedToken; }
-
-    /** Call every time a draw that was issued a token is flushed */
-    void flushToken() { ++fLastFlushedToken; }
-
     /** This is called after each op has a chance to prepare its draws and before the draws are
         issued. */
     void preIssueDraws() {
@@ -121,12 +115,18 @@ public:
         return *fOpArgs;
     }
 
+    /** Expose base class methods for incrementing the last flushed and next draw token. */
+
+    void flushToken() { this->GrDeferredUploadTarget::flushToken(); }
+
+    GrDeferredUploadToken issueDrawToken() {
+        return this->GrDeferredUploadTarget::issueDrawToken();
+    }
+
     /** Overrides of GrDeferredUploadTarget. */
 
     GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&&) final;
     GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
-    GrDeferredUploadToken nextDrawToken() const final { return fLastIssuedToken.next(); }
-    GrDeferredUploadToken nextTokenToFlush() const override { return fLastFlushedToken.next(); }
 
     /** Overrides of GrMeshDrawOp::Target. */
 
@@ -157,8 +157,6 @@ private:
     GrVertexBufferAllocPool fVertexPool;
     GrIndexBufferAllocPool fIndexPool;
     SkSTArray<4, GrDeferredTextureUploadFn> fASAPUploads;
-    GrDeferredUploadToken fLastIssuedToken;
-    GrDeferredUploadToken fLastFlushedToken;
     OpArgs* fOpArgs;
     SkArenaAlloc fPipelines{sizeof(GrPipeline) * 100};
 };
