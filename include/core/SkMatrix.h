@@ -79,6 +79,30 @@ public:
         return m;
     }
 
+    /** Sets matrix to be:
+
+            | scaleX  skewX transX |
+            |  skewY scaleY transY |
+            |  pers0 pers1  pers2  |
+
+        @param scaleX  horizontal scale factor to store
+        @param skewX   horizontal skew factor to store
+        @param transX  horizontal translation to store
+        @param skewY   vertical skew factor to store
+        @param scaleY  vertical scale factor to store
+        @param transY  vertical translation to store
+        @param pers0   input x perspective factor to store
+        @param pers1   input y perspective factor to store
+        @param pers2   perspective scale factor to store
+    */
+    static SkMatrix SK_WARN_UNUSED_RESULT MakeAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
+                                                  SkScalar skewY,  SkScalar scaleY, SkScalar transY,
+                                                  SkScalar pers0, SkScalar pers1, SkScalar pers2) {
+        SkMatrix m;
+        m.setAll(scaleX, skewX, transX, skewY, scaleY, transY, pers0, pers1, pers2);
+        return m;
+    }
+
     /** \enum SkMatrix::TypeMask
         Enum of bit fields for mask returned by getType().
         Used to identify the complexity of SkMatrix, to optimize performance.
