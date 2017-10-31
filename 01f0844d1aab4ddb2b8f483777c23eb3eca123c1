@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8deb231e_a74ed8ff",
+        "filename": "tools/android/upload_to_android.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-31T12:07:23Z",
+      "side": 1,
+      "message": "Should we have a superclass called Modifier that looks like this:\n\nclass Modifier:\n  def modify(self):\n    raise NotImplementedError\n  def get_user_msg(self):\n    raise NotImplementedError\n\n\nthen we can do class FetchModifier(Modifier) and AndroidLegacyFlagModifier(Modifier)",
+      "revId": "01f0844d1aab4ddb2b8f483777c23eb3eca123c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "689005e0_0932425a",
+        "filename": "tools/android/upload_to_android.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-31T12:07:23Z",
+      "side": 1,
+      "message": "It was not obvious to me that modify returns a string. Maybe modify does not need to return anything and we can have another method called something like get_user_msg with a comment saying it returns text explaining where the user can access the change. Same for AndroidLegacyFlagModifier.",
+      "revId": "01f0844d1aab4ddb2b8f483777c23eb3eca123c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71d058b3_5ef4dcb0",
+        "filename": "tools/rebaseline/add_legacy_flag.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-10-31T12:07:23Z",
+      "side": 1,
+      "message": "Should we move this class to upload_to_android.py ? that way if the Modifier is ever \"modified\" then we know this class will also need to be updated otherwise things could go out of sync.",
+      "revId": "01f0844d1aab4ddb2b8f483777c23eb3eca123c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
