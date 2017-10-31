@@ -403,6 +403,7 @@ def dm_flags(api, bot):
   bad_serialize_gms.append('shadow_utils')
 
   # Not expected to round trip encoding/decoding.
+  bad_serialize_gms.append('all_bitmap_configs')
   bad_serialize_gms.append('makecolorspace')
 
   for test in bad_serialize_gms:

@@ -260,10 +260,26 @@ STAGE_PP(set_rgb, const float rgb[3]) {
     b = from_float(rgb[2]);
 }
 
+STAGE_PP(clamp_a, Ctx::None) {
+    r = min(r, a);
+    g = min(g, a);
+    b = min(b, a);
+}
+STAGE_PP(clamp_a_dst, Ctx::None) {
+    dr = min(dr, da);
+    dg = min(dg, da);
+    db = min(db, da);
+}
+
 STAGE_PP(premul, Ctx::None) {
     r = div255(r * a);
     g = div255(g * a);
     b = div255(b * a);
+}
+STAGE_PP(premul_dst, Ctx::None) {
+    dr = div255(dr * da);
+    dg = div255(dg * da);
+    db = div255(db * da);
 }
 
 STAGE_PP(swap_rb, Ctx::None) {
@@ -578,6 +594,50 @@ STAGE_GP(gather_565, const SkJumper_GatherCtx* ctx) {
     U32 ix = ix_and_ptr(&ptr, ctx, x,y);
     from_565(gather<U16>(ptr, ix), &r, &g, &b);
     a = 255;
+}
+
+SI void from_4444(U16 rgba, U16* r, U16* g, U16* b, U16* a) {
+    // Format for 4444 buffers: 15|rrrr gggg bbbb aaaa|0.
+    U16 R = (rgba >> 12) & 15,
+        G = (rgba >>  8) & 15,
+        B = (rgba >>  4) & 15,
+        A = (rgba >>  0) & 15;
+
+    // Scale [0,15] to [0,255].
+    *r = (R << 4) | R;
+    *g = (G << 4) | G;
+    *b = (B << 4) | B;
+    *a = (A << 4) | A;
+}
+SI void load_4444(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
+    from_4444(load<U16>(ptr, tail), r,g,b,a);
+}
+SI void store_4444(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
+    // Select the top 4 bits of each.
+    U16 R = r >> 4,
+        G = g >> 4,
+        B = b >> 4,
+        A = a >> 4;
+    // Pack them back into 15|rrrr gggg bbbb aaaa|0.
+    store(ptr, tail, R << 12
+                   | G <<  8
+                   | B <<  4
+                   | A <<  0);
+}
+
+STAGE_PP(load_4444, const SkJumper_MemoryCtx* ctx) {
+    load_4444(ptr_at_xy<const uint16_t>(ctx, dx,dy), tail, &r,&g,&b,&a);
+}
+STAGE_PP(load_4444_dst, const SkJumper_MemoryCtx* ctx) {
+    load_4444(ptr_at_xy<const uint16_t>(ctx, dx,dy), tail, &dr,&dg,&db,&da);
+}
+STAGE_PP(store_4444, const SkJumper_MemoryCtx* ctx) {
+    store_4444(ptr_at_xy<uint16_t>(ctx, dx,dy), tail, r,g,b,a);
+}
+STAGE_GP(gather_4444, const SkJumper_GatherCtx* ctx) {
+    const uint16_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, x,y);
+    from_4444(gather<U16>(ptr, ix), &r,&g,&b,&a);
 }
 
 // ~~~~~~ 8-bit memory loads and stores ~~~~~~ //
