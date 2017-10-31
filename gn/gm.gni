@@ -131,7 +131,6 @@ gm_sources = [
   "$_gm/filterbug.cpp",
   "$_gm/filterfastbounds.cpp",
   "$_gm/filterindiabox.cpp",
-  "$_gm/flippity.cpp",
   "$_gm/fontcache.cpp",
   "$_gm/fontmgr.cpp",
   "$_gm/fontscaler.cpp",
