@@ -113,12 +113,26 @@ public:
     virtual GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&& upload) = 0;
 
     /** Gets the token one beyond the last token that has been flushed. */
-    virtual GrDeferredUploadToken nextTokenToFlush() const = 0;
+    GrDeferredUploadToken nextTokenToFlush() const { return fLastFlushedToken.next(); }
 
     /** Gets the next draw token that will be issued by this target. This can be used by an op
         to record that the next draw it issues will use a resource (e.g. texture) while preparing
         that draw. */
-    virtual GrDeferredUploadToken nextDrawToken() const = 0;
+    GrDeferredUploadToken nextDrawToken() const { return fLastIssuedToken.next(); }
+
+protected:
+    // Methods that advance the internal tokens are protected so that the subclass can determine
+    // access.
+
+    /** Issues the next token for a draw. */
+    GrDeferredUploadToken issueDrawToken() { return ++fLastIssuedToken; }
+
+    /** Advances the last flushed token by one. */
+    GrDeferredUploadToken flushToken() { return ++fLastFlushedToken; }
+
+private:
+    GrDeferredUploadToken fLastIssuedToken = GrDeferredUploadToken::AlreadyFlushedToken();
+    GrDeferredUploadToken fLastFlushedToken = GrDeferredUploadToken::AlreadyFlushedToken();
 };
 
 #endif
