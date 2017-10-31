@@ -72,13 +72,13 @@
 
 #ifdef SK_DEBUG
 
-    #include "SkThreadID.h"
-    #include "SkTDArray.h"
+    #include "SkTArray.h"
+    #include <thread>
 
     class SkSharedMutex::ThreadIDSet {
     public:
         // Returns true if threadID is in the set.
-        bool find(SkThreadID threadID) const {
+        bool find(std::thread::id threadID) const {
             for (auto& t : fThreadIDs) {
                 if (t == threadID) return true;
             }
@@ -86,15 +86,15 @@
         }
 
         // Returns true if did not already exist.
-        bool tryAdd(SkThreadID threadID) {
+        bool tryAdd(std::thread::id threadID) {
             for (auto& t : fThreadIDs) {
                 if (t == threadID) return false;
             }
-            fThreadIDs.append(1, &threadID);
+            fThreadIDs.push_back(threadID);
             return true;
         }
         // Returns true if already exists in Set.
-        bool tryRemove(SkThreadID threadID) {
+        bool tryRemove(std::thread::id threadID) {
             for (int i = 0; i < fThreadIDs.count(); ++i) {
                 if (fThreadIDs[i] == threadID) {
                     fThreadIDs.remove(i);
@@ -113,7 +113,7 @@
         }
 
     private:
-        SkTDArray<SkThreadID> fThreadIDs;
+        SkTArray<std::thread::id> fThreadIDs;
     };
 
     SkSharedMutex::SkSharedMutex()
@@ -126,7 +126,7 @@
     SkSharedMutex::~SkSharedMutex() {  ANNOTATE_RWLOCK_DESTROY(this); }
 
     void SkSharedMutex::acquire() {
-        SkThreadID threadID(SkGetThreadID());
+        std::thread::id threadID(std::this_thread::get_id());
         int currentSharedCount;
         int waitingExclusiveCount;
         {
@@ -152,7 +152,7 @@
     // exclusive lock separate from the threads added before.
     void SkSharedMutex::release() {
         ANNOTATE_RWLOCK_RELEASED(this, 1);
-        SkThreadID threadID(SkGetThreadID());
+        std::thread::id threadID(std::this_thread::get_id());
         int sharedWaitingCount;
         int exclusiveWaitingCount;
         int sharedQueueSelect;
@@ -179,14 +179,14 @@
     }
 
     void SkSharedMutex::assertHeld() const {
-        SkThreadID threadID(SkGetThreadID());
+        std::thread::id threadID(std::this_thread::get_id());
         SkAutoMutexAcquire l(&fMu);
         SkASSERT(0 == fCurrentShared->count());
         SkASSERT(fWaitingExclusive->find(threadID));
     }
 
     void SkSharedMutex::acquireShared() {
-        SkThreadID threadID(SkGetThreadID());
+        std::thread::id threadID(std::this_thread::get_id());
         int exclusiveWaitingCount;
         int sharedQueueSelect;
         {
@@ -213,7 +213,7 @@
 
     void SkSharedMutex::releaseShared() {
         ANNOTATE_RWLOCK_RELEASED(this, 0);
-        SkThreadID threadID(SkGetThreadID());
+        std::thread::id threadID(std::this_thread::get_id());
 
         int currentSharedCount;
         int waitingExclusiveCount;
@@ -232,7 +232,7 @@
     }
 
     void SkSharedMutex::assertHeldShared() const {
-        SkThreadID threadID(SkGetThreadID());
+        std::thread::id threadID(std::this_thread::get_id());
         SkAutoMutexAcquire l(&fMu);
         SkASSERT(fCurrentShared->find(threadID));
     }

@@ -7,13 +7,13 @@
 
 #include "SkChromeTracingTracer.h"
 #include "SkJSONWriter.h"
-#include "SkThreadID.h"
 #include "SkTraceEvent.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkStream.h"
 
 #include <chrono>
+#include <utility>
 
 namespace {
 
@@ -39,7 +39,7 @@ struct TraceEvent {
     uint64_t fID;
     uint64_t fClockBegin;
     uint64_t fClockEnd;
-    SkThreadID fThreadID;
+    std::thread::id fThreadID;
 
     TraceEvent* next() {
         return reinterpret_cast<TraceEvent*>(reinterpret_cast<char*>(this) + fSize);
@@ -116,7 +116,7 @@ SkEventTracer::Handle SkChromeTracingTracer::addTraceEvent(char phase,
     traceEvent->fID = id;
     traceEvent->fClockBegin = std::chrono::steady_clock::now().time_since_epoch().count();
     traceEvent->fClockEnd = 0;
-    traceEvent->fThreadID = SkGetThreadID();
+    traceEvent->fThreadID = std::this_thread::get_id();
 
     TraceEventArg* traceEventArgs = traceEvent->args();
     char* stringTableBase = traceEvent->stringTable();
@@ -191,7 +191,7 @@ struct TraceEventSerializationState {
     TraceEventSerializationState(uint64_t clockOffset)
             : fClockOffset(clockOffset), fNextThreadID(0) {}
 
-    int getShortThreadID(SkThreadID id) {
+    int getShortThreadID(std::thread::id id) {
         if (int* shortIDPtr = fShortThreadIDMap.find(id)) {
             return *shortIDPtr;
         }
@@ -203,7 +203,7 @@ struct TraceEventSerializationState {
     uint64_t fClockOffset;
     SkTHashMap<uint64_t, const char*> fBaseTypeResolver;
     int fNextThreadID;
-    SkTHashMap<SkThreadID, int> fShortThreadIDMap;
+    SkTHashMap<std::thread::id, int, std::hash<std::thread::id>> fShortThreadIDMap;
 };
 
 }

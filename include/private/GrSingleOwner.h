@@ -12,12 +12,12 @@
 
 #ifdef SK_DEBUG
 #include "SkMutex.h"
-#include "SkThreadID.h"
+#include <thread>
 
 // This is a debug tool to verify an object is only being used from one thread at a time.
 class GrSingleOwner {
 public:
-     GrSingleOwner() : fOwner(kIllegalThreadID), fReentranceCount(0) {}
+     GrSingleOwner() : fOwner(std::thread::id()), fReentranceCount(0) {}
 
      struct AutoEnforce {
          AutoEnforce(GrSingleOwner* so) : fSO(so) { fSO->enter(); }
@@ -29,24 +29,24 @@ public:
 private:
      void enter() {
          SkAutoMutexAcquire lock(fMutex);
-         SkThreadID self = SkGetThreadID();
-         SkASSERT(fOwner == self || fOwner == kIllegalThreadID);
+         std::thread::id self = std::this_thread::get_id();
+         SkASSERT(fOwner == self || fOwner == std::thread::id());
          fReentranceCount++;
          fOwner = self;
      }
 
      void exit() {
          SkAutoMutexAcquire lock(fMutex);
-         SkASSERT(fOwner == SkGetThreadID());
+         SkASSERT(fOwner == std::this_thread::get_id());
          fReentranceCount--;
          if (fReentranceCount == 0) {
-             fOwner = kIllegalThreadID;
+             fOwner = std::thread::id();
          }
      }
 
      SkMutex fMutex;
-     SkThreadID fOwner;    // guarded by fMutex
-     int fReentranceCount; // guarded by fMutex
+     std::thread::id fOwner;  // guarded by fMutex
+     int fReentranceCount;    // guarded by fMutex
 };
 #else
 class GrSingleOwner {}; // Provide a dummy implementation so we can pass pointers to constructors
