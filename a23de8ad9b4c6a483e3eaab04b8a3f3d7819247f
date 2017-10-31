@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4539ee80_6d6371b3",
+        "filename": "experimental/make_gkb/Makefile",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-10-31T19:26:32Z",
+      "side": 1,
+      "message": "given your desire for a simple executable without dependence on Skia wouldn\u0027t Go or Python be better options.",
+      "revId": "a23de8ad9b4c6a483e3eaab04b8a3f3d7819247f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
