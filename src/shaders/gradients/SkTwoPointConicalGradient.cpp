@@ -140,10 +140,9 @@ std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProces
 #endif
 
 sk_sp<SkShader> SkTwoPointConicalGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    SkSTArray<8, SkColor> xformedColors(fColorCount);
-    xformer->apply(xformedColors.begin(), fOrigColors, fColorCount);
+    const AutoXformColors xformedColors(*this, xformer);
     return SkGradientShader::MakeTwoPointConical(fCenter1, fRadius1, fCenter2, fRadius2,
-                                                 xformedColors.begin(), fOrigPos, fColorCount,
+                                                 xformedColors.fColors.get(), fOrigPos, fColorCount,
                                                  fTileMode, fGradFlags, &this->getLocalMatrix());
 }
 

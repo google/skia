@@ -251,14 +251,13 @@ std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
 #endif
 
 sk_sp<SkShader> SkSweepGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    SkSTArray<8, SkColor> xformedColors(fColorCount);
-    xformer->apply(xformedColors.begin(), fOrigColors, fColorCount);
+    const AutoXformColors xformedColors(*this, xformer);
 
     SkScalar startAngle, endAngle;
     std::tie(startAngle, endAngle) = angles_from_t_coeff(fTBias, fTScale);
 
-    return SkGradientShader::MakeSweep(fCenter.fX, fCenter.fY, xformedColors.begin(), fOrigPos,
-                                       fColorCount, fTileMode, startAngle, endAngle,
+    return SkGradientShader::MakeSweep(fCenter.fX, fCenter.fY, xformedColors.fColors.get(),
+                                       fOrigPos, fColorCount, fTileMode, startAngle, endAngle,
                                        fGradFlags, &this->getLocalMatrix());
 }
 
