@@ -64,6 +64,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # more info on using llvm to gather coverage information.
       extra_cflags.append('-fprofile-instr-generate')
       extra_cflags.append('-fcoverage-mapping')
+      extra_cflags.append('-O3')
       extra_ldflags.append('-fprofile-instr-generate')
       extra_ldflags.append('-fcoverage-mapping')
 
