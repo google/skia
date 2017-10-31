@@ -255,10 +255,10 @@ public:
      * SkAutoGlyphCache is passed to multiple calls of regenInOp then it can save the cost of
      * multiple detach/attach operations of SkGlyphCache.
      */
-    void regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fontCache,
-                   GrBlobRegenHelper* helper, int run, int subRun, SkAutoGlyphCache*,
-                   size_t vertexStride, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                   GrColor color, void** vertices, size_t* byteCount, int* glyphCount);
+    void regenInOp(GrDeferredUploadTarget*, GrAtlasGlyphCache* fontCache, GrBlobRegenHelper* helper,
+                   int run, int subRun, SkAutoGlyphCache*, size_t vertexStride,
+                   const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
+                   void** vertices, size_t* byteCount, int* glyphCount);
 
     const Key& key() const { return fKey; }
 
@@ -493,7 +493,7 @@ private:
     };  // Run
 
     template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-    void regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fontCache, GrBlobRegenHelper* helper,
+    void regenInOp(GrDeferredUploadTarget*, GrAtlasGlyphCache* fontCache, GrBlobRegenHelper* helper,
                    Run* run, Run::SubRunInfo* info, SkAutoGlyphCache*, int glyphCount,
                    size_t vertexStride, GrColor color, SkScalar transX, SkScalar transY) const;
 
