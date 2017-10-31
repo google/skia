@@ -52,8 +52,15 @@ void GrTextureOpList::onPrepare(GrOpFlushState* flushState) {
     // Loop over the ops that haven't yet generated their geometry
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (fRecordedOps[i]) {
-            // We do not call flushState->setDrawOpArgs as this op list does not support GrDrawOps.
+            GrOpFlushState::OpArgs opArgs = {
+                fRecordedOps[i].get(),
+                nullptr,
+                nullptr,
+                GrXferProcessor::DstProxy()
+            };
+            flushState->setOpArgs(&opArgs);
             fRecordedOps[i]->prepare(flushState);
+            flushState->setOpArgs(nullptr);
         }
     }
 }
@@ -69,8 +76,15 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
     flushState->setCommandBuffer(commandBuffer.get());
 
     for (int i = 0; i < fRecordedOps.count(); ++i) {
-        // We do not call flushState->setDrawOpArgs as this op list does not support GrDrawOps.
+        GrOpFlushState::OpArgs opArgs = {
+            fRecordedOps[i].get(),
+            nullptr,
+            nullptr,
+            GrXferProcessor::DstProxy()
+        };
+        flushState->setOpArgs(&opArgs);
         fRecordedOps[i]->execute(flushState);
+        flushState->setOpArgs(nullptr);
     }
 
     commandBuffer->submit();

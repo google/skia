@@ -13,10 +13,7 @@
 GrMeshDrawOp::GrMeshDrawOp(uint32_t classID)
         : INHERITED(classID), fBaseDrawToken(GrDeferredUploadToken::AlreadyFlushedToken()) {}
 
-void GrMeshDrawOp::onPrepare(GrOpFlushState* state) {
-    Target target(state, this);
-    this->onPrepareDraws(&target);
-}
+void GrMeshDrawOp::onPrepare(GrOpFlushState* state) { this->onPrepareDraws(state); }
 
 void* GrMeshDrawOp::PatternHelper::init(Target* target, size_t vertexStride,
                                         const GrBuffer* indexBuffer, int verticesPerRepetition,
@@ -84,31 +81,4 @@ void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
     SkASSERT(currMeshIdx == fMeshes.count());
     fQueuedDraws.reset();
     fInlineUploads.reset();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-void GrMeshDrawOp::Target::draw(const GrGeometryProcessor* gp, const GrPipeline* pipeline,
-                                const GrMesh& mesh) {
-    GrMeshDrawOp* op = this->meshDrawOp();
-    op->fMeshes.push_back(mesh);
-    if (!op->fQueuedDraws.empty()) {
-        // If the last draw shares a geometry processor and pipeline and there are no intervening
-        // uploads, add this mesh to it.
-        GrMeshDrawOp::QueuedDraw& lastDraw = op->fQueuedDraws.back();
-        if (lastDraw.fGeometryProcessor == gp && lastDraw.fPipeline == pipeline &&
-            (op->fInlineUploads.empty() ||
-             op->fInlineUploads.back().fUploadBeforeToken != this->nextDrawToken())) {
-            ++lastDraw.fMeshCnt;
-            return;
-        }
-    }
-    GrMeshDrawOp::QueuedDraw& draw = op->fQueuedDraws.push_back();
-    GrDeferredUploadToken token = this->state()->issueDrawToken();
-    draw.fGeometryProcessor.reset(gp);
-    draw.fPipeline = pipeline;
-    draw.fMeshCnt = 1;
-    if (op->fQueuedDraws.count() == 1) {
-        op->fBaseDrawToken = token;
-    }
 }

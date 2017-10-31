@@ -64,7 +64,7 @@ public:
             // Upload has finished, so tell the proxy to release this GrDeferredProxyUploader
             proxy->texPriv().resetDeferredUploader();
         };
-        flushState->addASAPUpload(std::move(uploadMask));
+        flushState->addASAPpUpload(std::move(uploadMask));
         fScheduledUpload = true;
     }
 
