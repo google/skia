@@ -29,7 +29,7 @@ struct GrDrawOpAtlasConfig {
  * This class manages one or more atlas textures on behalf of GrDrawOps. The draw ops that use the
  * atlas perform texture uploads when preparing their draws during flush. The class provides
  * facilities for using GrDrawOpUploadToken to detect data hazards. Op's uploads are performed in
- * "asap" mode until it is impossible to add data without overwriting texels read by draws that
+ * "ASAP" mode until it is impossible to add data without overwriting texels read by draws that
  * have not yet executed on the gpu. At that point, the atlas will attempt to allocate a new
  * atlas texture (or "page") of the same size, up to a maximum number of textures, and upload
  * to that texture. If that's not possible, the uploads are performed "inline" between draws. If a
@@ -100,7 +100,7 @@ public:
      * 'setUseToken' with the currentToken from the GrDrawOp::Target, otherwise the next call to
      * addToAtlas might cause the previous data to be overwritten before it has been read.
      */
-    bool addToAtlas(AtlasID*, GrDrawOp::Target*, int width, int height, const void* image,
+    bool addToAtlas(AtlasID*, GrDeferredUploadTarget*, int width, int height, const void* image,
                     SkIPoint16* loc);
 
     GrContext* context() const { return fContext; }
@@ -327,7 +327,7 @@ private:
         return (id >> 16) & 0xffffffffffff;
     }
 
-    inline bool updatePlot(GrDrawOp::Target*, AtlasID*, Plot*);
+    inline bool updatePlot(GrDeferredUploadTarget*, AtlasID*, Plot*);
 
     inline void makeMRU(Plot* plot, int pageIdx) {
         if (fPages[pageIdx].fPlotList.head() == plot) {

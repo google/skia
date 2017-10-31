@@ -235,9 +235,9 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         size_t byteCount;
         void* blobVertices;
         int subRunGlyphCount;
-        blob->regenInOp(target, fFontCache, &helper, args.fRun, args.fSubRun, &glyphCache,
-                        vertexStride, args.fViewMatrix, args.fX, args.fY, args.fColor,
-                        &blobVertices, &byteCount, &subRunGlyphCount);
+        blob->regenInOp(target->deferredUploadTarget(), fFontCache, &helper, args.fRun,
+                        args.fSubRun, &glyphCache, vertexStride, args.fViewMatrix, args.fX, args.fY,
+                        args.fColor, &blobVertices, &byteCount, &subRunGlyphCount);
 
         // now copy all vertices
         if (args.fClipRect.isEmpty()) {

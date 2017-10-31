@@ -16,11 +16,12 @@
 class GrAppliedClip;
 
 /**
- * Base class for GrOps that draw. These ops have a GrPipeline installed by GrOpList.
+ * Base class for GrOps that draw. These ops can draw into an op list's GrRenderTarget.
  */
 class GrDrawOp : public GrOp {
 public:
-    class Target;
+    /** Provides GrOpFlushState with privileged access to GrDrawOp. */
+    class FlushStateAccess;
 
     GrDrawOp(uint32_t classID) : INHERITED(classID) {}
 
