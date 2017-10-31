@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df7b826f_da73e8b1",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-31T11:42:25Z",
+      "side": 1,
+      "message": "What changed to make this necessary?",
+      "revId": "a123a38ba0d09ecbccdb41e6914266045d26ba5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
