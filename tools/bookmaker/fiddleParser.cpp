@@ -20,7 +20,7 @@ static Definition* find_fiddle(Definition* def, const string& name) {
     return nullptr;
 }
 
-Definition* FiddleParser::findExample(const string& name) const {
+Definition* FiddleBase::findExample(const string& name) const {
     for (const auto& topic : fBmhParser->fTopicMap) {
         if (topic.second->fParent) {
             continue;
@@ -33,7 +33,7 @@ Definition* FiddleParser::findExample(const string& name) const {
     return nullptr;
 }
 
-bool FiddleParser::parseFiddles() {
+bool FiddleBase::parseFiddles() {
     if (!this->skipExact("{\n")) {
         return false;
     }
@@ -110,50 +110,15 @@ bool FiddleParser::parseFiddles() {
                 }
             } while (!this->eof() && this->next());
             const char* stdOutEnd = fChar;
-            if (example) {
-                bool foundStdOut = false;
-                for (auto& textOut : example->fChildren) {
-                    if (MarkType::kStdOut != textOut->fMarkType) {
-                        continue;
-                    }
-                    foundStdOut = true;
-                    bool foundVolatile = false;
-                    for (auto& stdOutChild : textOut->fChildren) {
-                         if (MarkType::kVolatile == stdOutChild->fMarkType) {
-                             foundVolatile = true;
-                             break;
-                         }
-                    }
-                    TextParser bmh(textOut);
-                    EscapeParser fiddle(stdOutStart, stdOutEnd);
-                    do {
-                        bmh.skipWhiteSpace();
-                        fiddle.skipWhiteSpace();
-                        const char* bmhEnd = bmh.trimmedLineEnd();
-                        const char* fiddleEnd = fiddle.trimmedLineEnd();
-                        ptrdiff_t bmhLen = bmhEnd - bmh.fChar;
-                        SkASSERT(bmhLen > 0);
-                        ptrdiff_t fiddleLen = fiddleEnd - fiddle.fChar;
-                        SkASSERT(fiddleLen > 0);
-                        if (bmhLen != fiddleLen) {
-                            if (!foundVolatile) {
-                                bmh.reportError("mismatched stdout len\n");
-                            }
-                        } else  if (strncmp(bmh.fChar, fiddle.fChar, fiddleLen)) {
-                            if (!foundVolatile) {
-                                bmh.reportError("mismatched stdout text\n");
-                            }
-                        }
-                        bmh.skipToLineStart();
-                        fiddle.skipToLineStart();
-                    } while (!bmh.eof() && !fiddle.eof());
-                    if (!foundStdOut) {
-                        bmh.reportError("bmh %s missing stdout\n");
-                    } else if (!bmh.eof() || !fiddle.eof()) {
-                        if (!foundVolatile) {
-                            bmh.reportError("%s mismatched stdout eof\n");
-                        }
-                    }
+            if (example && fTextOut) {
+                if (!this->textOut(example, stdOutStart, stdOutEnd)) {
+                    return false;
+                }
+            }
+        } else {
+            if (example && fPngOut) {
+                if (!this->pngOut(example)) {
+                    return false;
                 }
             }
         }
@@ -170,58 +135,54 @@ bool FiddleParser::parseFiddles() {
             return false;
         }
     }
-#if 0
-            // compare the text output with the expected output in the markup tree
-            this->skipToSpace();
-            SkASSERT(' ' == fChar[0]);
-            this->next();
-            const char* nameLoc = fChar;
-            this->skipToNonAlphaNum();
-            const char* nameEnd = fChar;
-            string name(nameLoc, nameEnd - nameLoc);
-            const Definition* example = this->findExample(name);
-            if (!example) {
-                return this->reportError<bool>("missing stdout name");
+    return true;
+}
+
+bool FiddleParser::textOut(Definition* example, const char* stdOutStart,
+        const char* stdOutEnd) {
+    bool foundStdOut = false;
+    for (auto& textOut : example->fChildren) {
+        if (MarkType::kStdOut != textOut->fMarkType) {
+            continue;
+        }
+        foundStdOut = true;
+        bool foundVolatile = false;
+        for (auto& stdOutChild : textOut->fChildren) {
+                if (MarkType::kVolatile == stdOutChild->fMarkType) {
+                    foundVolatile = true;
+                    break;
+                }
+        }
+        TextParser bmh(textOut);
+        EscapeParser fiddle(stdOutStart, stdOutEnd);
+        do {
+            bmh.skipWhiteSpace();
+            fiddle.skipWhiteSpace();
+            const char* bmhEnd = bmh.trimmedLineEnd();
+            const char* fiddleEnd = fiddle.trimmedLineEnd();
+            ptrdiff_t bmhLen = bmhEnd - bmh.fChar;
+            SkASSERT(bmhLen > 0);
+            ptrdiff_t fiddleLen = fiddleEnd - fiddle.fChar;
+            SkASSERT(fiddleLen > 0);
+            if (bmhLen != fiddleLen) {
+                if (!foundVolatile) {
+                    bmh.reportError("mismatched stdout len\n");
+                }
+            } else  if (strncmp(bmh.fChar, fiddle.fChar, fiddleLen)) {
+                if (!foundVolatile) {
+                    bmh.reportError("mismatched stdout text\n");
+                }
             }
-            SkASSERT(':' == fChar[0]);
-            this->next();
-            this->skipSpace();
-            const char* stdOutLoc = fChar;
-            do {
-                this->skipToLineStart();
-            } while (!this->eof() && !this->startsWith("fiddles.htm:"));
-            const char* stdOutEnd = fChar;
-            for (auto& textOut : example->fChildren) {
-                if (MarkType::kStdOut != textOut->fMarkType) {
-                    continue;
-                }
-                TextParser bmh(textOut);
-                TextParser fiddle(fFileName, stdOutLoc, stdOutEnd, fLineCount);
-                do {
-                    bmh.skipWhiteSpace();
-                    fiddle.skipWhiteSpace();
-                    const char* bmhEnd = bmh.trimmedLineEnd();
-                    const char* fiddleEnd = fiddle.trimmedLineEnd();
-                    ptrdiff_t bmhLen = bmhEnd - bmh.fChar;
-                    SkASSERT(bmhLen > 0);
-                    ptrdiff_t fiddleLen = fiddleEnd - fiddle.fChar;
-                    SkASSERT(fiddleLen > 0);
-                    if (bmhLen != fiddleLen) {
-                        return this->reportError<bool>("mismatched stdout len");
-                    }
-                    if (strncmp(bmh.fChar, fiddle.fChar, fiddleLen)) {
-                        return this->reportError<bool>("mismatched stdout text");
-                    }
-                    bmh.skipToLineStart();
-                    fiddle.skipToLineStart();
-                } while (!bmh.eof() && !fiddle.eof());
-                if (!bmh.eof() || (!fiddle.eof() && !fiddle.startsWith("</pre>"))) {
-                    return this->reportError<bool>("mismatched stdout eof");
-                }
-                break;
+            bmh.skipToLineStart();
+            fiddle.skipToLineStart();
+        } while (!bmh.eof() && !fiddle.eof());
+        if (!foundStdOut) {
+            bmh.reportError("bmh %s missing stdout\n");
+        } else if (!bmh.eof() || !fiddle.eof()) {
+            if (!foundVolatile) {
+                bmh.reportError("%s mismatched stdout eof\n");
             }
         }
     }
-#endif
     return true;
 }

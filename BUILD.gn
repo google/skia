@@ -1289,6 +1289,7 @@ if (skia_enable_tools) {
   test_app("bookmaker") {
     sources = [
       "tools/bookmaker/bookmaker.cpp",
+      "tools/bookmaker/cataloger.cpp",
       "tools/bookmaker/fiddleParser.cpp",
       "tools/bookmaker/includeParser.cpp",
       "tools/bookmaker/includeWriter.cpp",

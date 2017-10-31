@@ -13,7 +13,7 @@ static void debug_out(int len, const char* data) {
 }
 
 bool ParserCommon::parseSetup(const char* path) {
-    this->reset();
+//    this->reset();
     sk_sp<SkData> data = SkData::MakeFromFileName(path);
     if (nullptr == data.get()) {
         SkDebugf("%s missing\n", path);

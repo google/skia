@@ -11,13 +11,14 @@
 #include "SkOSPath.h"
 
 DEFINE_string2(bmh, b, "", "Path to a *.bmh file or a directory.");
+DEFINE_bool2(catalog, c, false, "Write example catalog.htm. (Requires -b -f -r)");
 DEFINE_string2(examples, e, "", "File of fiddlecli input, usually fiddle.json (For now, disables -r -f -s)");
 DEFINE_string2(fiddle, f, "", "File of fiddlecli output, usually fiddleout.json.");
 DEFINE_string2(include, i, "", "Path to a *.h file or a directory.");
 DEFINE_bool2(hack, k, false, "Do a find/replace hack to update all *.bmh files. (Requires -b)");
 DEFINE_bool2(stdout, o, false, "Write file out to standard out.");
 DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
-DEFINE_string2(ref, r, "", "Resolve refs and write bmh_*.md files to path. (Requires -b)");
+DEFINE_string2(ref, r, "", "Resolve refs and write bmh_*.md files to path. (Requires -b -f)");
 DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispelling]. (Requires -b)");
 DEFINE_string2(tokens, t, "", "Directory to write bmh from include. (Requires -i)");
 DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
@@ -214,7 +215,7 @@ void Definition::setCanonicalFiddle() {
     fFiddle = normalized_name(result);
 }
 
-bool Definition::exampleToScript(string* result) const {
+bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) const {
     bool hasFiddle = true;
     const Definition* platform = this->hasChild(MarkType::kPlatform);
     if (platform) {
@@ -307,19 +308,37 @@ bool Definition::exampleToScript(string* result) const {
         code += "}";
     }
     string example = "\"" + normalizedName + "\": {\n";
-    example += "    \"code\": \"" + code + "\",\n";
-    example += "    \"options\": {\n";
-    example += "        \"width\": " + widthStr + ",\n";
-    example += "        \"height\": " + heightStr + ",\n";
-    example += "        \"source\": " + imageStr + ",\n";
-    example += "        \"srgb\": false,\n";
-    example += "        \"f16\": false,\n";
-    example += "        \"textOnly\": " + textOutStr + ",\n";
-    example += "        \"animated\": false,\n";
-    example += "        \"duration\": 0\n";
-    example += "    },\n";
-    example += "    \"fast\": true\n";
-    example += "}";
+    size_t nameStart = fFileName.find("\\", 0);
+    SkASSERT(string::npos != nameStart);
+    string baseFile = fFileName.substr(nameStart + 1, fFileName.length() - nameStart - 5);
+    if (ExampleOptions::kText == exampleOptions) {
+        example += "    \"code\": \"" + code + "\",\n";
+        example += "    \"hash\": \"" + fHash + "\",\n";
+        example += "    \"file\": \"" + baseFile + "\",\n";
+        example += "    \"name\": \"" + fName + "\",";
+    } else {
+        example += "    \"code\": \"" + code + "\",\n";
+        if (ExampleOptions::kPng == exampleOptions) {
+            example += "    \"width\": " + widthStr + ",\n";
+            example += "    \"height\": " + heightStr + ",\n";
+            example += "    \"hash\": \"" + fHash + "\",\n";
+            example += "    \"file\": \"" + baseFile + "\",\n";
+            example += "    \"name\": \"" + fName + "\"\n";
+            example += "}";
+       } else {
+            example += "    \"options\": {\n";
+            example += "        \"width\": " + widthStr + ",\n";
+            example += "        \"height\": " + heightStr + ",\n";
+            example += "        \"source\": " + imageStr + ",\n";
+            example += "        \"srgb\": false,\n";
+            example += "        \"f16\": false,\n";
+            example += "        \"textOnly\": " + textOutStr + ",\n";
+            example += "        \"animated\": false,\n";
+            example += "        \"duration\": 0\n";
+            example += "    },\n";
+            example += "    \"fast\": true";
+        }
+    }
     *result = example;
     return true;
 }
@@ -754,6 +773,7 @@ bool Definition::nextMethodParam(TextParser* methodParser, const char** nextEndP
 }
 
     bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix) {
+//    this->reset();
     if (!sk_isdir(fileOrPath)) {
         if (!this->parseFromFile(fileOrPath)) {
             SkDebugf("failed to parse %s\n", fileOrPath);
@@ -1398,10 +1418,12 @@ bool BmhParser::collectExternals() {
 static bool dump_examples(FILE* fiddleOut, const Definition& def, bool* continuation) {
     if (MarkType::kExample == def.fMarkType) {
         string result;
-        if (!def.exampleToScript(&result)) {
+        if (!def.exampleToScript(&result, Definition::ExampleOptions::kAll)) {
             return false;
         }
         if (result.length() > 0) {
+            result += "\n";
+            result += "}";
             if (*continuation) {
                 fprintf(fiddleOut, ",\n");
             } else {
@@ -2245,6 +2267,11 @@ int main(int argc, char** const argv) {
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
+    if ((FLAGS_bmh.isEmpty() || FLAGS_fiddle.isEmpty() || FLAGS_ref.isEmpty()) && FLAGS_catalog) {
+        SkDebugf("-c requires -b -f -r\n");
+        SkCommandLineFlags::PrintUsage();
+        return 1;
+    }
     if (FLAGS_bmh.isEmpty() && !FLAGS_examples.isEmpty()) {
         SkDebugf("-e requires -b\n");
         SkCommandLineFlags::PrintUsage();
@@ -2289,6 +2316,7 @@ int main(int argc, char** const argv) {
         return 1;
     }
     if (!FLAGS_bmh.isEmpty()) {
+        bmhParser.reset();
         if (!bmhParser.parseFile(FLAGS_bmh[0], ".bmh")) {
             return -1;
         }
@@ -2327,11 +2355,26 @@ int main(int argc, char** const argv) {
             done = true;
         }
     }
-    FiddleParser fparser(&bmhParser);
-    if (!done && !FLAGS_fiddle.isEmpty() && FLAGS_examples.isEmpty()) {
+    if (!done && !FLAGS_catalog && !FLAGS_fiddle.isEmpty() && FLAGS_examples.isEmpty()) {
+        FiddleParser fparser(&bmhParser);
         if (!fparser.parseFile(FLAGS_fiddle[0], ".txt")) {
             return -1;
         }
+    }
+    if (!done && FLAGS_catalog && FLAGS_examples.isEmpty()) {
+        Catalog fparser(&bmhParser);
+        fparser.fDebugOut = FLAGS_stdout;
+        if (!fparser.openCatalog(FLAGS_bmh[0], FLAGS_ref[0])) {
+            return -1;
+        }
+        if (!fparser.parseFile(FLAGS_fiddle[0], ".txt")) {
+            return -1;
+        }
+        if (!fparser.closeCatalog()) {
+            return -1;
+        }
+        bmhParser.fWroteOut = true;
+        done = true;
     }
     if (!done && !FLAGS_ref.isEmpty() && FLAGS_examples.isEmpty()) {
         MdOut mdOut(bmhParser);
