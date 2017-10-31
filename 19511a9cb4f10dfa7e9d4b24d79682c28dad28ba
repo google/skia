@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "179d9cc6_667676f4",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-31T16:11:14Z",
+      "side": 1,
+      "message": "// These two simply publicly expose the protected inherited methods\n\n?",
+      "revId": "19511a9cb4f10dfa7e9d4b24d79682c28dad28ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
