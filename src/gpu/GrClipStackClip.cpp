@@ -30,7 +30,15 @@ typedef SkClipStack::Element Element;
 typedef GrReducedClip::InitialState InitialState;
 typedef GrReducedClip::ElementList ElementList;
 
+// An element count of 4 was chosen because of the common pattern in Blink of:
+//   isect RR
+//   diff  RR
+//   isect convex_poly
+//   isect convex_poly
+// when drawing rounded div borders. This could probably be tuned based on a configuration's
+// relative costs of switching RTs to generate a mask vs longer shaders.
 static const int kMaxAnalyticElements = 4;
+
 const char GrClipStackClip::kMaskTestTag[] = "clip_mask";
 
 bool GrClipStackClip::quickContains(const SkRect& rect) const {
@@ -176,80 +184,6 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
     return false;
 }
 
-static bool get_analytic_clip_processor(const ElementList& elements,
-                                        bool abortIfAA,
-                                        const SkRect& drawDevBounds,
-                                        std::unique_ptr<GrFragmentProcessor>* resultFP) {
-    SkASSERT(elements.count() <= kMaxAnalyticElements);
-    SkSTArray<kMaxAnalyticElements, std::unique_ptr<GrFragmentProcessor>> fps;
-    ElementList::Iter iter(elements);
-    while (iter.get()) {
-        SkClipOp op = iter.get()->getOp();
-        bool invert;
-        bool skip = false;
-        switch (op) {
-            case kReplace_SkClipOp:
-                SkASSERT(iter.get() == elements.head());
-                // Fallthrough, handled same as intersect.
-            case kIntersect_SkClipOp:
-                invert = false;
-                if (iter.get()->contains(drawDevBounds)) {
-                    skip = true;
-                }
-                break;
-            case kDifference_SkClipOp:
-                invert = true;
-                // We don't currently have a cheap test for whether a rect is fully outside an
-                // element's primitive, so don't attempt to set skip.
-                break;
-            default:
-                return false;
-        }
-        if (!skip) {
-            GrPrimitiveEdgeType edgeType;
-            if (iter.get()->isAA()) {
-                if (abortIfAA) {
-                    return false;
-                }
-                edgeType =
-                    invert ? kInverseFillAA_GrProcessorEdgeType : kFillAA_GrProcessorEdgeType;
-            } else {
-                edgeType =
-                    invert ? kInverseFillBW_GrProcessorEdgeType : kFillBW_GrProcessorEdgeType;
-            }
-
-            switch (iter.get()->getDeviceSpaceType()) {
-                case SkClipStack::Element::DeviceSpaceType::kPath:
-                    fps.emplace_back(
-                            GrConvexPolyEffect::Make(edgeType, iter.get()->getDeviceSpacePath()));
-                    break;
-                case SkClipStack::Element::DeviceSpaceType::kRRect: {
-                    fps.emplace_back(
-                            GrRRectEffect::Make(edgeType, iter.get()->getDeviceSpaceRRect()));
-                    break;
-                }
-                case SkClipStack::Element::DeviceSpaceType::kRect: {
-                    fps.emplace_back(
-                            GrConvexPolyEffect::Make(edgeType, iter.get()->getDeviceSpaceRect()));
-                    break;
-                }
-                default:
-                    break;
-            }
-            if (!fps.back()) {
-                return false;
-            }
-        }
-        iter.next();
-    }
-
-    *resultFP = nullptr;
-    if (fps.count()) {
-        *resultFP = GrFragmentProcessor::RunInSeries(fps.begin(), fps.count());
-    }
-    return true;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
@@ -265,8 +199,19 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         return true;
     }
 
-    const GrReducedClip reducedClip(*fStack, devBounds,
-                                    renderTargetContext->priv().maxWindowRectangles());
+    int maxAnalyticFPs = kMaxAnalyticElements;
+    if (GrFSAAType::kNone != renderTargetContext->fsaaType()) {
+        // With mixed samples (non-msaa color buffer), any coverage info is lost from color once it
+        // hits the color buffer anyway, so we may as well use coverage AA if nothing else in the
+        // pipe is multisampled.
+        if (renderTargetContext->numColorSamples() > 0 || useHWAA || hasUserStencilSettings) {
+            maxAnalyticFPs = 0;
+        }
+        SkASSERT(!context->caps()->avoidStencilBuffers()); // We disable MSAA when avoiding stencil.
+    }
+
+    GrReducedClip reducedClip(*fStack, devBounds, renderTargetContext->priv().maxWindowRectangles(),
+                              maxAnalyticFPs);
 
     if (reducedClip.hasScissor() && !GrClip::IsInsideClip(reducedClip.scissor(), devBounds)) {
         out->addScissor(reducedClip.scissor(), bounds);
@@ -275,6 +220,10 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     if (!reducedClip.windowRectangles().empty()) {
         out->addWindowRectangles(reducedClip.windowRectangles(),
                                  GrWindowRectsState::Mode::kExclusive);
+    }
+
+    if (std::unique_ptr<GrFragmentProcessor> clipFPs = reducedClip.detachAnalyticFPs()) {
+        out->addCoverageFP(std::move(clipFPs));
     }
 
     if (reducedClip.maskElements().isEmpty()) {
@@ -289,41 +238,9 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     SkASSERT(rtIBounds.contains(scissor)); // Mask shouldn't be larger than the RT.
 #endif
 
-    bool avoidStencilBuffers = context->caps()->avoidStencilBuffers();
-
-    // An element count of 4 was chosen because of the common pattern in Blink of:
-    //   isect RR
-    //   diff  RR
-    //   isect convex_poly
-    //   isect convex_poly
-    // when drawing rounded div borders. This could probably be tuned based on a
-    // configuration's relative costs of switching RTs to generate a mask vs
-    // longer shaders.
-    if (reducedClip.maskElements().count() <= kMaxAnalyticElements) {
-        // When there are multiple samples we want to do per-sample clipping, not compute a
-        // fractional pixel coverage.
-        bool disallowAnalyticAA =
-                GrFSAAType::kNone != renderTargetContext->fsaaType() && !avoidStencilBuffers;
-        if (disallowAnalyticAA && !renderTargetContext->numColorSamples()) {
-            // With a single color sample, any coverage info is lost from color once it hits the
-            // color buffer anyway, so we may as well use coverage AA if nothing else in the pipe
-            // is multisampled.
-            disallowAnalyticAA = useHWAA || hasUserStencilSettings;
-        }
-        std::unique_ptr<GrFragmentProcessor> clipFP;
-        if ((reducedClip.maskRequiresAA() || avoidStencilBuffers) &&
-            get_analytic_clip_processor(reducedClip.maskElements(), disallowAnalyticAA, devBounds,
-                                        &clipFP)) {
-            if (clipFP) {
-                out->addCoverageFP(std::move(clipFP));
-            }
-            return true;
-        }
-    }
-
     // If the stencil buffer is multisampled we can use it to do everything.
     if ((GrFSAAType::kNone == renderTargetContext->fsaaType() && reducedClip.maskRequiresAA()) ||
-        avoidStencilBuffers) {
+        context->caps()->avoidStencilBuffers()) {
         sk_sp<GrTextureProxy> result;
         if (UseSWOnlyPath(context, hasUserStencilSettings, renderTargetContext, reducedClip)) {
             // The clip geometry is complex enough that it will be more efficient to create it
@@ -343,7 +260,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         // If alpha or software clip mask creation fails, fall through to the stencil code paths,
         // unless stencils are disallowed.
         if (context->caps()->avoidStencilBuffers()) {
-            SkDebugf("WARNING: Clip mask requires stencil, but stencil unavailable. Clip will be ignored.\n");
+            SkDebugf("WARNING: Clip mask requires stencil, but stencil unavailable. "
+                     "Clip will be ignored.\n");
             return false;
         }
     }
@@ -353,11 +271,14 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     // This relies on the property that a reduced sub-rect of the last clip will contain all the
     // relevant window rectangles that were in the last clip. This subtle requirement will go away
     // after clipping is overhauled.
-    if (renderTargetContext->priv().mustRenderClip(reducedClip.maskGenID(),
-                                                   reducedClip.scissor())) {
+    if (renderTargetContext->priv().mustRenderClip(reducedClip.maskGenID(), reducedClip.scissor(),
+                                                   reducedClip.numAnalyticFPs())) {
         reducedClip.drawStencilClipMask(context, renderTargetContext);
-        renderTargetContext->priv().setLastClip(reducedClip.maskGenID(), reducedClip.scissor());
+        renderTargetContext->priv().setLastClip(reducedClip.maskGenID(), reducedClip.scissor(),
+                                                reducedClip.numAnalyticFPs());
     }
+    // GrAppliedClip doesn't need to figure numAnalyticFPs into its key (used by operator==) because
+    // it verifies the FPs are also equal.
     out->addStencilClip(reducedClip.maskGenID());
     return true;
 }
@@ -365,14 +286,16 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 8-bit clip mask in alpha
 
-static void create_clip_mask_key(uint32_t clipGenID, const SkIRect& bounds, GrUniqueKey* key) {
+static void create_clip_mask_key(uint32_t clipGenID, const SkIRect& bounds, int numAnalyticFPs,
+                                 GrUniqueKey* key) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kDomain, 3, GrClipStackClip::kMaskTestTag);
+    GrUniqueKey::Builder builder(key, kDomain, 4, GrClipStackClip::kMaskTestTag);
     builder[0] = clipGenID;
     // SkToS16 because image filters outset layers to a size indicated by the filter, which can
     // sometimes result in negative coordinates from device space.
     builder[1] = SkToS16(bounds.fLeft) | (SkToS16(bounds.fRight) << 16);
     builder[2] = SkToS16(bounds.fTop) | (SkToS16(bounds.fBottom) << 16);
+    builder[3] = numAnalyticFPs;
 }
 
 static void add_invalidate_on_pop_message(const SkClipStack& stack, uint32_t clipGenID,
@@ -393,7 +316,8 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
                                                            const GrReducedClip& reducedClip) const {
     GrResourceProvider* resourceProvider = context->resourceProvider();
     GrUniqueKey key;
-    create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(), &key);
+    create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
+                         reducedClip.numAnalyticFPs(), &key);
 
     sk_sp<GrTextureProxy> proxy(resourceProvider->findOrCreateProxyByUniqueKey(
                                                                 key, kBottomLeft_GrSurfaceOrigin));
@@ -505,7 +429,8 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         GrContext* context, const GrReducedClip& reducedClip,
         GrRenderTargetContext* renderTargetContext) const {
     GrUniqueKey key;
-    create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(), &key);
+    create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
+                         reducedClip.numAnalyticFPs(), &key);
 
     sk_sp<GrTextureProxy> proxy(context->resourceProvider()->findOrCreateProxyByUniqueKey(
                                                                   key, kTopLeft_GrSurfaceOrigin));
