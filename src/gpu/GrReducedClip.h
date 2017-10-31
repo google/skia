@@ -8,6 +8,7 @@
 #ifndef GrReducedClip_DEFINED
 #define GrReducedClip_DEFINED
 
+#include "GrFragmentProcessor.h"
 #include "GrWindowRectangles.h"
 #include "SkClipStack.h"
 #include "SkTLList.h"
@@ -24,7 +25,8 @@ public:
     using Element = SkClipStack::Element;
     using ElementList = SkTLList<SkClipStack::Element, 16>;
 
-    GrReducedClip(const SkClipStack&, const SkRect& queryBounds, int maxWindowRectangles = 0);
+    GrReducedClip(const SkClipStack&, const SkRect& queryBounds,
+                  int maxWindowRectangles = 0, int maxAnalyticFPs = 0);
 
     /**
      * If hasScissor() is true, the clip mask is not valid outside this rect and the caller must
@@ -47,6 +49,13 @@ public:
      * out using the window rectangles GPU extension.
      */
     const GrWindowRectangles& windowRectangles() const { return fWindowRects; }
+
+    int numAnalyticFPs() const { return fAnalyticFPs.count(); }
+
+    std::unique_ptr<GrFragmentProcessor> detachAnalyticFPs() {
+        SkDEBUGCODE(for (const auto& fp : fAnalyticFPs) { SkASSERT(fp); })
+        return GrFragmentProcessor::RunInSeries(fAnalyticFPs.begin(), fAnalyticFPs.count());
+    }
 
     /**
      * An ordered list of clip elements that could not be skipped or implemented by other means. If
@@ -81,7 +90,7 @@ public:
     bool drawStencilClipMask(GrContext*, GrRenderTargetContext*) const;
 
 private:
-    void walkStack(const SkClipStack&, const SkRect& queryBounds, int maxWindowRectangles);
+    void walkStack(const SkClipStack&, const SkRect& queryBounds);
 
     enum class ClipResult {
         kNotClipped,
@@ -95,16 +104,27 @@ private:
 
     // Clips the the given element's exterior out of the final clip.
     // NOTE: do not call for elements followed by ops that can grow the clip.
-    ClipResult clipOutsideElement(const Element* element, int maxWindowRectangles);
+    ClipResult clipOutsideElement(const Element* element);
 
     void addWindowRectangle(const SkRect& elementInteriorRect, bool elementIsAA);
+
+    enum class Invert : bool {
+        kNo,
+        kYes
+    };
+
+    template<typename T> ClipResult addAnalyticFP(const T& deviceSpaceShape, Invert, bool aa);
+
     void makeEmpty();
 
+    const int            fMaxWindowRectangles;
+    const int            fMaxAnalyticFPs;
     SkIRect              fScissor;
     bool                 fHasScissor;
     SkRect               fAAClipRect;
     uint32_t             fAAClipRectGenID; // GenID the mask will have if includes the AA clip rect.
     GrWindowRectangles   fWindowRects;
+    SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fAnalyticFPs;
     ElementList          fMaskElements;
     uint32_t             fMaskGenID;
     bool                 fMaskRequiresAA;
