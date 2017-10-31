@@ -16,6 +16,24 @@
       "revId": "a123a38ba0d09ecbccdb41e6914266045d26ba5a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f87c6cd_8cc0baa5",
+        "filename": "src/gpu/GrReducedClip.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-10-31T19:01:10Z",
+      "side": 1,
+      "message": "It was always broken. If the relaxed bounds became empty, then containment tests would start failing.\n\nThen, further on down the line, the analytic clip code would check the normal bounds (where containments tests pass), causing it to sometimes skip elements and produce a null FP. Not a big deal when a null FP means you just don\u0027t have one, but when you make a list of them it becomes a problem.",
+      "parentUuid": "df7b826f_da73e8b1",
+      "revId": "a123a38ba0d09ecbccdb41e6914266045d26ba5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
