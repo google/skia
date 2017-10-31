@@ -565,16 +565,23 @@ static void normalize_t_s(double t[], double s[], int count) {
     // Keep the exponents at or below zero to avoid overflow down the road.
     for (int i = 0; i < count; ++i) {
         SkASSERT(0 != s[i]);
-        union { double value; int64_t bits; } tt, ss, norm;
-        tt.value = t[i];
-        ss.value = s[i];
-        int64_t expT = ((tt.bits >> 52) & 0x7ff) - 1023,
-                expS = ((ss.bits >> 52) & 0x7ff) - 1023;
+
+        int64_t expT;
+        memcpy(&expT, &t[i], sizeof(double));
+        expT = ((expT >> 52) & 0x7ff) - 1023;
+
+        int64_t expS;
+        memcpy(&expS, &s[i], sizeof(double));
+        expS = ((expS >> 52) & 0x7ff) - 1023;
+
+        double norm;
         int64_t expNorm = -SkTMax(expT, expS) + 1023;
         SkASSERT(expNorm > 0 && expNorm < 2047); // ensure we have a valid non-zero exponent.
-        norm.bits = expNorm << 52;
-        t[i] *= norm.value;
-        s[i] *= norm.value;
+        expNorm = expNorm << 52;
+        memcpy(&norm, &expNorm, sizeof(double));
+
+        t[i] *= norm;
+        s[i] *= norm;
     }
 }
 
