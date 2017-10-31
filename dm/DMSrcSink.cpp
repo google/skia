@@ -2153,10 +2153,13 @@ ViaCSXform::ViaCSXform(Sink* sink, sk_sp<SkColorSpace> cs, bool colorSpin)
 Error ViaCSXform::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     return draw_to_canvas(fSink.get(), bitmap, stream, log, src.size(),
                           [&](SkCanvas* canvas) -> Error {
-        auto proxy = SkCreateColorSpaceXformCanvas(canvas, fCS);
-        Error err = src.draw(proxy.get());
-        if (!err.isEmpty()) {
-            return err;
+        {
+            SkAutoCanvasRestore acr(canvas, true);
+            auto proxy = SkCreateColorSpaceXformCanvas(canvas, fCS);
+            Error err = src.draw(proxy.get());
+            if (!err.isEmpty()) {
+                return err;
+            }
         }
 
         // Undo the color spin, so we can look at the pixels in Gold.
@@ -2164,19 +2167,15 @@ Error ViaCSXform::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
             SkBitmap pixels;
             pixels.allocPixels(canvas->imageInfo());
             canvas->readPixels(pixels, 0, 0);
-            for (int y = 0; y < pixels.height(); y++) {
-                uint32_t* row = pixels.getAddr32(0,y);
-                for (int x = 0; x < pixels.width(); x++) {
-                    uint32_t pixel = *row;
-                    uint8_t r = SkGetPackedR32(pixel);
-                    uint8_t g = SkGetPackedG32(pixel);
-                    uint8_t b = SkGetPackedB32(pixel);
-                    uint8_t a = SkGetPackedA32(pixel);
-                    *row++ = SkSwizzle_RGBA_to_PMColor(b << 0 | r << 8 | g << 16 | a << 24);
-                }
-            }
 
-            canvas->writePixels(pixels, 0, 0);
+            SkPaint rotateColors;
+            SkScalar matrix[20] = { 0, 0, 1, 0, 0,   // B -> R
+                                    1, 0, 0, 0, 0,   // R -> G
+                                    0, 1, 0, 0, 0,   // G -> B
+                                    0, 0, 0, 1, 0 };
+            rotateColors.setBlendMode(SkBlendMode::kSrc);
+            rotateColors.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(matrix));
+            canvas->drawBitmap(pixels, 0, 0, &rotateColors);
         }
 
         return "";
