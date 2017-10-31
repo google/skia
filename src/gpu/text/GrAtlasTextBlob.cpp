@@ -257,7 +257,7 @@ bool GrAtlasTextBlob::mustRegenerate(const GrTextUtils::Paint& paint,
 }
 
 inline std::unique_ptr<GrAtlasTextOp> GrAtlasTextBlob::makeOp(
-        const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
+        const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
         const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
         const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
@@ -295,7 +295,12 @@ inline void GrAtlasTextBlob::flushRun(GrTextUtils::Target* target, const GrClip&
                                       const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
                                       const GrDistanceFieldAdjustTable* distanceAdjustTable,
                                       GrAtlasGlyphCache* cache) {
-    int lastRun = fRuns[run].fSubRunInfo.count() - 1;
+    // GrAtlasTextBlob::makeOp only takes uint16_t values for run and subRun indices.
+    // Encountering something larger than this is highly unlikely, so we'll just not draw it.
+    if (run >= (1 << 16)) {
+        return;
+    }
+    int lastRun = SkTMin(fRuns[run].fSubRunInfo.count(), 1 << 16) - 1;
     for (int subRun = 0; subRun <= lastRun; subRun++) {
         const Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
         int glyphCount = info.glyphCount();
@@ -451,8 +456,8 @@ void GrAtlasTextBlob::flushThrowaway(GrContext* context, GrTextUtils::Target* ta
 }
 
 std::unique_ptr<GrDrawOp> GrAtlasTextBlob::test_makeOp(
-        int glyphCount, int run, int subRun, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-        const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
+        int glyphCount, uint16_t run, uint16_t subRun, const SkMatrix& viewMatrix,
+        SkScalar x, SkScalar y, const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
         const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
         GrTextUtils::Target* target) {
     const GrAtlasTextBlob::Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];

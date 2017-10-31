@@ -32,8 +32,8 @@ public:
         Blob*    fBlob;
         SkScalar fX;
         SkScalar fY;
-        int      fRun;
-        int      fSubRun;
+        uint16_t fRun;
+        uint16_t fSubRun;
         GrColor  fColor;
     };
 
@@ -118,7 +118,7 @@ public:
 
 private:
     // The minimum number of Geometry we will try to allocate.
-    static constexpr auto kMinGeometryAllocated = 4;
+    static constexpr auto kMinGeometryAllocated = 12;
 
     GrAtlasTextOp(GrPaint&& paint)
             : INHERITED(ClassID())
