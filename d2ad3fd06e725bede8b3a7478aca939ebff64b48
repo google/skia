@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b34c3013_eab8d3c3",
+        "filename": "src/gpu/GrDeferredProxyUploader.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-31T16:55:48Z",
+      "side": 1,
+      "message": "I know we do this with GPU also, but it is a bit weird for an acronym.",
+      "revId": "d2ad3fd06e725bede8b3a7478aca939ebff64b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f91cac6_fa8008a0",
+        "filename": "src/gpu/GrDeferredUpload.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-10-31T16:55:48Z",
+      "side": 1,
+      "message": "// inclusive\n\n?",
+      "revId": "d2ad3fd06e725bede8b3a7478aca939ebff64b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
