@@ -270,7 +270,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Internal test methods
-    std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount, int run, int subRun,
+    std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount, uint16_t run, uint16_t subRun,
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                           const GrTextUtils::Paint&, const SkSurfaceProps&,
                                           const GrDistanceFieldAdjustTable*, GrAtlasGlyphCache*,
@@ -498,7 +498,7 @@ private:
                    size_t vertexStride, GrColor color, SkScalar transX, SkScalar transY) const;
 
     inline std::unique_ptr<GrAtlasTextOp> makeOp(
-            const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
+            const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
             const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
             const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
