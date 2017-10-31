@@ -108,10 +108,13 @@ public:
     virtual void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) = 0;
 
     /**
-     * Clear the owned render target. Ignores the draw state and clip.
+     * Clear the owned render target.
      */
-    void clear(const GrFixedClip&, GrColor);
+    void clear(const GrFixedClip&, GrColor, bool canIgnoreClip);
 
+    /**
+     * Clears the stencil clip bitplane. The GrFixedClip is a performance hint and may be ignored.
+     */
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
     /**
@@ -140,7 +143,7 @@ private:
                         const SkRect& bounds) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
-    virtual void onClear(const GrFixedClip&, GrColor) = 0;
+    virtual void onClear(const GrFixedClip&, GrColor, bool canIgnoreClip) = 0;
 
     virtual void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) = 0;
 

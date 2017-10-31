@@ -126,7 +126,7 @@ private:
                                        const GrBuffer* instanceBuffer, int instanceCount,
                                        int baseInstance) final;
 
-    void onClear(const GrFixedClip&, GrColor color) override;
+    void onClear(const GrFixedClip&, GrColor color, bool canIgnoreClip) override;
 
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
 

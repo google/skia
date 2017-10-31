@@ -251,8 +251,6 @@ void GrVkGpuRTCommandBuffer::insertEventMarker(const char* msg) {
 }
 
 void GrVkGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
-    SkASSERT(!clip.hasWindowRectangles());
-
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
 
     GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
@@ -291,6 +289,9 @@ void GrVkGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool in
     clearRect.baseArrayLayer = 0;
     clearRect.layerCount = 1;
 
+    // Ignore window rectangles. They are only a performance hint when clearing the stencil clip,
+    // and they are not supported by Vulkan during clear.
+
     uint32_t stencilIndex;
     SkAssertResult(cbInfo.fRenderPass->stencilAttachmentIndex(&stencilIndex));
 
@@ -310,11 +311,11 @@ void GrVkGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool in
     }
 }
 
-void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
+void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color, bool canIgnoreClip) {
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
-    // parent class should never let us get here with no RT
-    SkASSERT(!clip.hasWindowRectangles());
+    // We ignore window rectangles as they are not supported by Vulkan during clear.
+    SkASSERT(!clip.hasWindowRectangles() || canIgnoreClip);
 
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
 
@@ -527,6 +528,7 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(const GrPipeline& pi
 
     GrRenderTarget* rt = pipeline.renderTarget();
 
+    GrVkPipeline::SetDynamicViewportState(fGpu, cbInfo.currentCmdBuf(), rt);
     if (!pipeline.getScissorState().enabled()) {
         GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(),
                                                  rt, pipeline.proxy()->origin(),
@@ -536,7 +538,13 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(const GrPipeline& pi
                                                  rt, pipeline.proxy()->origin(),
                                                  pipeline.getScissorState().rect());
     }
-    GrVkPipeline::SetDynamicViewportState(fGpu, cbInfo.currentCmdBuf(), rt);
+    if (pipeline.getWindowRectsState().enabled()) {
+        // No need to check hasDynamicState -- window rectangles aren't currently included in
+        // GrPipeline::DynamicState.
+        GrVkPipeline::SetDynamicDiscardRectanglesState(fGpu, cbInfo.currentCmdBuf(),
+                                                       rt, pipeline.proxy()->origin(),
+                                                       pipeline.getWindowRectsState().windows());
+    }
     GrVkPipeline::SetDynamicBlendConstantState(fGpu, cbInfo.currentCmdBuf(), rt->config(),
                                                pipeline.getXferProcessor());
 

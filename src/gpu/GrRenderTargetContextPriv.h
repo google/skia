@@ -44,6 +44,9 @@ public:
 
     void clear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
 
+    /**
+     * Clears the stencil clip bitplane. The GrFixedClip is a performance hint and may be ignored.
+     */
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
     /*

@@ -345,7 +345,8 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
     if (isFull) {
         this->getRTOpList()->fullClear(*this->caps(), color);
     } else {
-        std::unique_ptr<GrOp> op(GrClearOp::Make(clip, color, this->asSurfaceProxy()));
+        std::unique_ptr<GrOp> op(GrClearOp::Make(clip, color, canIgnoreClip,
+                                                 this->asSurfaceProxy()));
         if (!op) {
             return;
         }

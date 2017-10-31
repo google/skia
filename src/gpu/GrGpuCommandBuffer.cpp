@@ -16,7 +16,7 @@
 #include "GrRenderTarget.h"
 #include "SkRect.h"
 
-void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, GrColor color) {
+void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, GrColor color, bool canIgnoreClip) {
 #ifdef SK_DEBUG
     GrRenderTarget* rt = fRenderTarget;
     SkASSERT(rt);
@@ -24,7 +24,7 @@ void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, GrColor color) {
              (SkIRect::MakeWH(rt->width(), rt->height()).contains(clip.scissorRect()) &&
               SkIRect::MakeWH(rt->width(), rt->height()) != clip.scissorRect()));
 #endif
-    this->onClear(clip, color);
+    this->onClear(clip, color, canIgnoreClip);
 }
 
 void GrGpuRTCommandBuffer::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
