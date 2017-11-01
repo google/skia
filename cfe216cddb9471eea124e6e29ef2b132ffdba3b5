@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b9344cf_ce42b119",
+        "filename": "src/core/SkPM4fPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-01T15:40:26Z",
+      "side": 1,
+      "message": "I think we\u0027d better remind the user that the outputs here are out of range...",
+      "range": {
+        "startLine": 55,
+        "startChar": 19,
+        "endLine": 55,
+        "endChar": 31
+      },
+      "revId": "cfe216cddb9471eea124e6e29ef2b132ffdba3b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
