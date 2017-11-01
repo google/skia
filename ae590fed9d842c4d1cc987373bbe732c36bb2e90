@@ -70,6 +70,30 @@
       "revId": "ae590fed9d842c4d1cc987373bbe732c36bb2e90",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cf923d7_71723fa8",
+        "filename": "src/gpu/GrTextureMaker.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-11-01T14:07:46Z",
+      "side": 1,
+      "message": "So Rob also brought up the good point that doing it with separate calls here allows us to skip doing a second search with the key when we already know the proxy that matches the key.\n\nFor regular resources, what are the situations where we\u0027d be removing/changing a key on a resource? For Proxy\u0027s the only time is the special stealing case for mips. If there are more general uses for switching keys for resources then the status quo might be best, but if it is also the same as proxys then maybe we change them?",
+      "parentUuid": "0e4293d3_150b5b4b",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 90,
+        "endChar": 66
+      },
+      "revId": "ae590fed9d842c4d1cc987373bbe732c36bb2e90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
