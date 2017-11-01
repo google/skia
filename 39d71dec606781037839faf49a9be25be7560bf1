@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8fe6d18_2fde9b6d",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-01T15:16:39Z",
+      "side": 0,
+      "message": "note: this branch is redundant because fColorCount \u003d\u003d 2 can only occur when (dummyFirst \u003d\u003d dummyLast \u003d\u003d false), aka. (desc.fColorCount \u003d\u003d 2 \u0026\u0026 desc.fPos[0] \u003d\u003d 0 \u0026\u0026 desc.fPos[1] \u003d\u003d 1) \u003c- and this case is handled correctly above.",
+      "revId": "39d71dec606781037839faf49a9be25be7560bf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
