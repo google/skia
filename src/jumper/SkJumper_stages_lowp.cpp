@@ -25,6 +25,7 @@
     #include <immintrin.h>
     #define ABI
 #else
+    #include <math.h>
     #define ABI
 #endif
 
@@ -214,6 +215,38 @@ SI F rcp(F x) {
     return 1.0f / x;
 #endif
 }
+SI F sqrt_(F x) {
+#if defined(__AVX2__)
+    return map(x, _mm256_sqrt_ps);
+#elif defined(__SSE__)
+    return map(x, _mm_sqrt_ps);
+#elif defined(__aarch64__)
+    return map(x, vsqrtq_f32);
+#elif defined(__ARM_NEON)
+    return map(x, +[](float32x4_t v) {
+        auto est = vrsqrteq_f32(v);  // Estimate and two refinement steps for est = rsqrt(v).
+        est *= vrsqrtsq_f32(v,est*est);
+        est *= vrsqrtsq_f32(v,est*est);
+        return v*est;                // sqrt(v) == v*rsqrt(v).
+    });
+#else
+    return sqrtf(x);
+#endif
+}
+
+SI F floor_(F x) {
+#if defined(__aarch64__)
+    return map(x, vrndmq_f32);
+#elif defined(__AVX2__)
+    return map(x, +[](__m256 v){ return _mm256_floor_ps(v); });  // _mm256_floor_ps is a macro...
+#elif defined(__SSE4_1__)
+    return map(x, +[](__m128 v){ return    _mm_floor_ps(v); });  // _mm_floor_ps() is a macro too.
+#else
+    F roundtrip = cast<F>(cast<I32>(x));
+    return roundtrip - if_then_else(roundtrip > x, 1.0f, 0.0f);
+#endif
+}
+SI F abs_(F x) { return bit_cast<F>( bit_cast<I32>(x) & 0x7fffffff ); }
 
 // ~~~~~~ Basic / misc. stages ~~~~~~ //
 
@@ -742,6 +775,60 @@ STAGE_PP(lerp_565, const SkJumper_MemoryCtx* ctx) {
     g = lerp(dg, g, cg);
     b = lerp(db, b, cb);
     a = lerp(da, a, ca);
+}
+
+// ~~~~~~ Gradient stages ~~~~~~ //
+
+// Clamp x to [0,1], both sides inclusive (think, gradients).
+// Even repeat and mirror funnel through a clamp to handle bad inputs like +Inf, NaN.
+SI F clamp_01(F v) { return min(max(0, v), 1); }
+
+STAGE_GG(clamp_x_1 , Ctx::None) { x = clamp_01(x); }
+STAGE_GG(repeat_x_1, Ctx::None) { x = clamp_01(x - floor_(x)); }
+STAGE_GG(mirror_x_1, Ctx::None) {
+    auto two = [](F x){ return x+x; };
+    x = clamp_01(abs_( (x-1.0f) - two(floor_((x-1.0f)*0.5f)) - 1.0f ));
+}
+
+STAGE_GP(evenly_spaced_2_stop_gradient, const void* ctx) {
+    // TODO: Rename Ctx SkJumper_EvenlySpacedGradientCtx.
+    struct Ctx { float f[4], b[4]; };
+    auto c = (const Ctx*)ctx;
+
+    auto round = [](F x) { return cast<U16>(x * 255.0f + 0.5f); };
+
+    auto t = x;
+    r = round(mad(t, c->f[0], c->b[0]));
+    g = round(mad(t, c->f[1], c->b[1]));
+    b = round(mad(t, c->f[2], c->b[2]));
+    a = round(mad(t, c->f[3], c->b[3]));
+}
+
+STAGE_GG(xy_to_unit_angle, Ctx::None) {
+    F xabs = abs_(x),
+      yabs = abs_(y);
+
+    F slope = min(xabs, yabs)/max(xabs, yabs);
+    F s = slope * slope;
+
+    // Use a 7th degree polynomial to approximate atan.
+    // This was generated using sollya.gforge.inria.fr.
+    // A float optimized polynomial was generated using the following command.
+    // P1 = fpminimax((1/(2*Pi))*atan(x),[|1,3,5,7|],[|24...|],[2^(-40),1],relative);
+    F phi = slope
+             * (0.15912117063999176025390625f     + s
+             * (-5.185396969318389892578125e-2f   + s
+             * (2.476101927459239959716796875e-2f + s
+             * (-7.0547382347285747528076171875e-3f))));
+
+    phi = if_then_else(xabs < yabs, 1.0f/4.0f - phi, phi);
+    phi = if_then_else(x < 0.0f   , 1.0f/2.0f - phi, phi);
+    phi = if_then_else(y < 0.0f   , 1.0f - phi     , phi);
+    phi = if_then_else(phi != phi , 0              , phi);  // Check for NaN.
+    x = phi;
+}
+STAGE_GG(xy_to_radius, Ctx::None) {
+    x = sqrt_(x*x + y*y);
 }
 
 // ~~~~~~ Compound stages ~~~~~~ //
