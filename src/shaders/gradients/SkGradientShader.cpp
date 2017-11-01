@@ -149,16 +149,10 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
         fColorCount += dummyFirst + dummyLast;
     }
 
-    if (fColorCount > kColorStorageCount) {
-        size_t size = sizeof(SkColor4f);
-        if (desc.fPos) {
-            size += sizeof(SkScalar);
-        }
-        fOrigColors4f = reinterpret_cast<SkColor4f*>(sk_malloc_throw(size * fColorCount));
-    }
-    else {
-        fOrigColors4f = fStorage;
-    }
+    size_t storageSize = fColorCount * (sizeof(SkColor4f) + (desc.fPos ? sizeof(SkScalar) : 0));
+    fOrigColors4f      = reinterpret_cast<SkColor4f*>(fStorage.reset(storageSize));
+    fOrigPos           = desc.fPos ? reinterpret_cast<SkScalar*>(fOrigColors4f + fColorCount)
+                                   : nullptr;
 
     // Now copy over the colors, adding the dummies as needed
     SkColor4f* origColors = fOrigColors4f;
@@ -184,45 +178,20 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
         fColorSpace = desc.fColorSpace;
     }
 
-    if (desc.fPos && fColorCount) {
-        fOrigPos = (SkScalar*)(fOrigColors4f + fColorCount);
-    } else {
-        fOrigPos = nullptr;
-    }
+    if (desc.fPos) {
+        SkScalar* origPosPtr = fOrigPos;
+        *origPosPtr++ = 0; // force the first pos to 0
 
-    if (fColorCount > 2) {
-        if (desc.fPos) {
-            SkScalar* origPosPtr = fOrigPos;
-            *origPosPtr++ = 0;
-
-            int startIndex = dummyFirst ? 0 : 1;
-            int count = desc.fCount + dummyLast;
-            for (int i = startIndex; i < count; i++) {
-                // force the last value to be 1.0
-                SkScalar curr;
-                if (i == desc.fCount) {  // we're really at the dummyLast
-                    curr = 1;
-                } else {
-                    curr = SkScalarPin(desc.fPos[i], 0, 1);
-                }
-                *origPosPtr++ = curr;
-            }
-        }
-    } else if (desc.fPos) {
-        SkASSERT(2 == fColorCount);
-        fOrigPos[0] = SkScalarPin(desc.fPos[0], 0, 1);
-        fOrigPos[1] = SkScalarPin(desc.fPos[1], fOrigPos[0], 1);
-        if (0 == fOrigPos[0] && 1 == fOrigPos[1]) {
-            fOrigPos = nullptr;
+        int startIndex = dummyFirst ? 0 : 1;
+        int count = desc.fCount + dummyLast;
+        for (int i = startIndex; i < count; i++) {
+            // force the last value to be 1.0
+            *origPosPtr++ = (i == desc.fCount) ? 1 : SkScalarPin(desc.fPos[i], 0, 1);
         }
     }
 }
 
-SkGradientShaderBase::~SkGradientShaderBase() {
-    if (fOrigColors4f != fStorage) {
-        sk_free(fOrigColors4f);
-    }
-}
+SkGradientShaderBase::~SkGradientShaderBase() {}
 
 void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
     Descriptor desc;
