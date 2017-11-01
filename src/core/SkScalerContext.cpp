@@ -67,7 +67,7 @@ void SkGlyph::zeroMetrics() {
 
 SkScalerContext::SkScalerContext(sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
                                  const SkDescriptor* desc)
-    : fRec(*static_cast<const Rec*>(desc->findEntry(kRec_SkDescriptorTag, nullptr)))
+    : fRec(*static_cast<const SkScalerContextRec*>(desc->findEntry(kRec_SkDescriptorTag, nullptr)))
 
     , fTypeface(std::move(typeface))
     , fPathEffect(sk_ref_sp(effects.fPathEffect))

@@ -339,7 +339,7 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     paint.setTextSize(textSize);
     paint.setLinearText(true);
 
-    SkScalerContext::Rec rec;
+    SkScalerContextRec rec;
     SkScalerContext::MakeRec(paint, nullptr, nullptr, &rec);
 
     SkAutoDescriptor ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
