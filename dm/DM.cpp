@@ -392,7 +392,7 @@ static void push_src(const char* tag, ImplicitString options, Src* s) {
     std::unique_ptr<Src> src(s);
     if (in_shard() &&
         FLAGS_src.contains(tag) &&
-        !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
+        src->name().contains("zorro")) {
         TaggedSrc& s = gSrcs.push_back();
         s.reset(src.release());
         s.tag = tag;
@@ -1247,25 +1247,6 @@ struct Task {
 static SkTDArray<skiatest::Test> gParallelTests, gSerialTests;
 
 static void gather_tests() {
-    if (!FLAGS_src.contains("tests")) {
-        return;
-    }
-    for (const skiatest::TestRegistry* r = skiatest::TestRegistry::Head(); r; r = r->next()) {
-        if (!in_shard()) {
-            continue;
-        }
-        // Despite its name, factory() is returning a reference to
-        // link-time static const POD data.
-        const skiatest::Test& test = r->factory();
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
-            continue;
-        }
-        if (test.needsGpu && gpu_supported()) {
-            (FLAGS_gpu_threading ? gParallelTests : gSerialTests).push(test);
-        } else if (!test.needsGpu && FLAGS_cpu) {
-            gParallelTests.push(test);
-        }
-    }
 }
 
 static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) {

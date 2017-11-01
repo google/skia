@@ -593,6 +593,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fUseDrawToClearColor = true;
     }
 
+    // Hack
+    fUseDrawToClearColor = true;
+
     if (kAdreno4xx_GrGLRenderer == ctxInfo.renderer()) {
         // This is known to be fixed sometime between driver 145.0 and 219.0
         if (ctxInfo.driver() == kQualcomm_GrGLDriver &&
