@@ -414,6 +414,10 @@ public:
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
+    bool programBinarySupport() const {
+        return fProgramBinarySupport;
+    }
+
 private:
     enum ExternalFormatUsage {
         kTexImage_ExternalFormatUsage,
@@ -490,6 +494,7 @@ private:
     bool fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO : 1;
     bool fUseDrawInsteadOfAllRenderTargetWrites : 1;
     bool fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines : 1;
+    bool fProgramBinarySupport : 1;
 
     uint32_t fBlitFramebufferFlags;
     int fMaxInstancesPerDrawArraysWithoutCrashing;
