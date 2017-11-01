@@ -77,7 +77,7 @@ public:
                           const GrPipeline&,
                           const GrStencilSettings&,
                           GrPrimitiveType primitiveType,
-                          const GrShaderCaps&);
+                          const GrCaps&);
     private:
         typedef GrProgramDesc INHERITED;
     };

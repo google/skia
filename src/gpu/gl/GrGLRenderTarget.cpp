@@ -43,7 +43,7 @@ inline GrRenderTargetFlags GrGLRenderTarget::ComputeFlags(const GrGLCaps& glCaps
         SkASSERT(glCaps.usesMixedSamples() && idDesc.fRTFBOID); // FBO 0 can't be mixed sampled.
         flags |= GrRenderTargetFlags::kMixedSampled;
     }
-    if (glCaps.maxWindowRectangles() > 0 && idDesc.fRTFBOID) {
+    if (GrCaps::WindowRectsSupport::kNone != glCaps.windowRectsSupport() && idDesc.fRTFBOID) {
         flags |= GrRenderTargetFlags::kWindowRectsSupport;
     }
     return flags;

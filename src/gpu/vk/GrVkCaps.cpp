@@ -75,9 +75,30 @@ bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
 
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                     VkPhysicalDevice physDev, uint32_t featureFlags, uint32_t extensionFlags) {
+    VkPhysicalDeviceProperties2KHR khrProperties;
+    if (SkToBool(extensionFlags & kKHR_get_physical_device_properties2_GrVkExtensionFlag)) {
+        khrProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2_KHR;
+        khrProperties.pNext = nullptr;
 
-    VkPhysicalDeviceProperties properties;
-    GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
+        VkPhysicalDeviceDiscardRectanglePropertiesEXT discardRectsProperties;
+        if (SkToBool(extensionFlags & kEXT_discard_rectangles_GrVkExtensionFlag)) {
+            discardRectsProperties.sType =
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISCARD_RECTANGLE_PROPERTIES_EXT;
+            discardRectsProperties.pNext = khrProperties.pNext;
+            khrProperties.pNext = &discardRectsProperties;
+        }
+
+        GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties2KHR(physDev, &khrProperties));
+
+        if (SkToBool(extensionFlags & kEXT_discard_rectangles_GrVkExtensionFlag)) {
+            fWindowRectsSupport = WindowRectsSupport::kDrawOnly;
+            fMaxWindowRectangles = discardRectsProperties.maxDiscardRectangles;
+        }
+    } else {
+        GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &khrProperties.properties));
+    }
+
+    const VkPhysicalDeviceProperties& properties = khrProperties.properties;
 
     VkPhysicalDeviceMemoryProperties memoryProperties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceMemoryProperties(physDev, &memoryProperties));

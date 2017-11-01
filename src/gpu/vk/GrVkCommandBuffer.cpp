@@ -34,6 +34,11 @@ void GrVkCommandBuffer::invalidateState() {
     memset(&fCachedScissor, 0, sizeof(VkRect2D));
     fCachedScissor.offset.x = -1; // Scissor offset must be greater that 0 to be valid
 
+    memset(&fCachedDiscardRectangles, 0, sizeof(fCachedDiscardRectangles));
+    for (int i = 0; i < GrWindowRectangles::kMaxWindows; ++i) {
+        fCachedDiscardRectangles[i].offset.x = -1; // Negative offsets are invalid.
+    }
+
     for (int i = 0; i < 4; ++i) {
         fCachedBlendConstant[i] = -1.0;
     }
@@ -320,6 +325,24 @@ void GrVkCommandBuffer::setScissor(const GrVkGpu* gpu,
                                                      scissorCount,
                                                      scissors));
         fCachedScissor = scissors[0];
+    }
+}
+
+void GrVkCommandBuffer::setDiscardRectangles(const GrVkGpu* gpu,
+                                             uint32_t firstDiscardRectangle,
+                                             uint32_t discardRectangleCount,
+                                             const VkRect2D* discardRectangles) {
+    SkASSERT(fIsActive);
+    SkASSERT(firstDiscardRectangle + discardRectangleCount <= gpu->vkCaps().maxWindowRectangles());
+    SkASSERT(gpu->vkCaps().maxWindowRectangles() <= GrWindowRectangles::kMaxWindows);
+    if (memcmp(discardRectangles, &fCachedDiscardRectangles[firstDiscardRectangle],
+               discardRectangleCount * sizeof(VkRect2D))) {
+        GR_VK_CALL(gpu->vkInterface(), CmdSetDiscardRectangleEXT(fCmdBuffer,
+                                                                 firstDiscardRectangle,
+                                                                 discardRectangleCount,
+                                                                 discardRectangles));
+        memcpy(&fCachedDiscardRectangles[firstDiscardRectangle], discardRectangles,
+               discardRectangleCount * sizeof(VkRect2D));
     }
 }
 
