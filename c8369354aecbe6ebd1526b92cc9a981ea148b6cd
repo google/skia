@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb44fdcc_a0387379",
+        "filename": "infra/bots/recipes/test.expected/Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-11-01T17:04:48Z",
+      "side": 1,
+      "message": "-\u003e",
+      "revId": "c8369354aecbe6ebd1526b92cc9a981ea148b6cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
