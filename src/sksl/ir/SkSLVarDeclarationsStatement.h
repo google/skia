@@ -22,12 +22,7 @@ struct VarDeclarationsStatement : public Statement {
     , fDeclaration(std::move(decl)) {}
 
     bool isEmpty() const override {
-        for (const auto& s : fDeclaration->fVars) {
-            if (!s->isEmpty()) {
-                return false;
-            }
-        }
-        return true;
+        return !fDeclaration->fVars.size();
     }
 
     String description() const override {

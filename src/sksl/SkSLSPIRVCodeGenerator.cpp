@@ -2098,7 +2098,9 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                              Modifiers(layout, Modifiers::kUniform_Flag),
                                              name,
                                              intfStruct,
-                                             Variable::kGlobal_Storage);
+                                             Variable::kGlobal_Storage,
+                                             nullptr,
+                                             {});
             fSynthetics.takeOwnership(intfVar);
             InterfaceBlock intf(-1, intfVar, name, String(""),
                                 std::vector<std::unique_ptr<Expression>>(), st);
@@ -2900,12 +2902,7 @@ void SPIRVCodeGenerator::writePrecisionModifier(const Modifiers& modifiers, SpvI
 #define BUILTIN_IGNORE 9999
 void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclarations& decl,
                                          OutputStream& out) {
-    for (size_t i = 0; i < decl.fVars.size(); i++) {
-        if (decl.fVars[i]->fKind == Statement::kNop_Kind) {
-            continue;
-        }
-        const VarDeclaration& varDecl = (VarDeclaration&) *decl.fVars[i];
-        const Variable* var = varDecl.fVar;
+    for (const Variable* var : decl.fVars) {
         // These haven't been implemented in our SPIR-V generator yet and we only currently use them
         // in the OpenGL backend.
         ASSERT(!(var->fModifiers.fFlags & (Modifiers::kReadOnly_Flag |
@@ -2949,10 +2946,11 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
         this->writeInstruction(SpvOpVariable, type, id, storageClass, fConstantBuffer);
         this->writeInstruction(SpvOpName, id, var->fName, fNameBuffer);
         this->writePrecisionModifier(var->fModifiers, id);
-        if (varDecl.fValue) {
+        if (var->fInitialValue) {
             ASSERT(!fCurrentBlock);
             fCurrentBlock = -1;
-            SpvId value = this->writeExpression(*varDecl.fValue, fGlobalInitializersBuffer);
+            SpvId value = this->writeExpression(*var->fInitialValue,
+                                                fGlobalInitializersBuffer);
             this->writeInstruction(SpvOpStore, id, value, fGlobalInitializersBuffer);
             fCurrentBlock = 0;
         }
@@ -2968,10 +2966,7 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
 }
 
 void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, OutputStream& out) {
-    for (const auto& stmt : decl.fVars) {
-        ASSERT(stmt->fKind == Statement::kVarDeclaration_Kind);
-        VarDeclaration& varDecl = (VarDeclaration&) *stmt;
-        const Variable* var = varDecl.fVar;
+    for (const Variable* var : decl.fVars) {
         // These haven't been implemented in our SPIR-V generator yet and we only currently use them
         // in the OpenGL backend.
         ASSERT(!(var->fModifiers.fFlags & (Modifiers::kReadOnly_Flag |
@@ -2984,8 +2979,8 @@ void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, Outpu
         SpvId type = this->getPointerType(var->fType, SpvStorageClassFunction);
         this->writeInstruction(SpvOpVariable, type, id, SpvStorageClassFunction, fVariableBuffer);
         this->writeInstruction(SpvOpName, id, var->fName, fNameBuffer);
-        if (varDecl.fValue) {
-            SpvId value = this->writeExpression(*varDecl.fValue, out);
+        if (var->fInitialValue) {
+            SpvId value = this->writeExpression(*var->fInitialValue, out);
             this->writeInstruction(SpvOpStore, id, value, out);
         }
     }

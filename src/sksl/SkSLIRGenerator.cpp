@@ -219,7 +219,7 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclarationStatement(
 
 std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVarDeclarations& decl,
                                                                      Variable::Storage storage) {
-    std::vector<std::unique_ptr<VarDeclaration>> variables;
+    std::vector<Variable*> variables;
     const Type* baseType = this->convertType(*decl.fType);
     if (!baseType) {
         return nullptr;
@@ -254,8 +254,6 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
                 sizes.push_back(nullptr);
             }
         }
-        auto var = std::unique_ptr<Variable>(new Variable(decl.fOffset, decl.fModifiers,
-                                                          varDecl.fName, *type, storage));
         std::unique_ptr<Expression> value;
         if (varDecl.fValue) {
             value = this->convertExpression(*varDecl.fValue);
@@ -263,6 +261,11 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
                 return nullptr;
             }
             value = this->coerce(std::move(value), *type);
+        }
+        auto var = std::unique_ptr<Variable>(new Variable(decl.fOffset, decl.fModifiers,
+                                                          varDecl.fName, *type, storage,
+                                                          std::move(value), std::move(sizes)));
+        if (varDecl.fValue) {
             var->fWriteCount = 1;
         }
         if (storage == Variable::kGlobal_Storage && varDecl.fName == "sk_FragColor" &&
@@ -275,8 +278,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
             Variable* old = (Variable*) (*fSymbolTable)[varDecl.fName];
             old->fModifiers = var->fModifiers;
         } else {
-            variables.emplace_back(new VarDeclaration(var.get(), std::move(sizes),
-                                                      std::move(value)));
+            variables.push_back(var.get());
             fSymbolTable->add(varDecl.fName, std::move(var));
         }
     }
@@ -531,7 +533,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                                                                           std::move(main))));
     fSymbolTable->add(invokeDecl->fName, std::unique_ptr<FunctionDeclaration>(invokeDecl));
 
-    std::vector<std::unique_ptr<VarDeclaration>> variables;
+    std::vector<Variable*> variables;
     Variable* loopIdx = (Variable*) (*fSymbolTable)["sk_InvocationID"];
     ASSERT(loopIdx);
     std::unique_ptr<Expression> test(new BinaryExpression(-1,
@@ -598,7 +600,7 @@ void IRGenerator::convertFunction(const ASTFunction& f,
         }
         StringFragment name = param->fName;
         Variable* var = new Variable(param->fOffset, param->fModifiers, name, *type,
-                                     Variable::kParameter_Storage);
+                                     Variable::kParameter_Storage, nullptr, {});
         fSymbolTable->takeOwnership(var);
         parameters.push_back(var);
     }
@@ -712,29 +714,27 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
         if (!decl) {
             return nullptr;
         }
-        for (const auto& stmt : decl->fVars) {
-            VarDeclaration& vd = (VarDeclaration&) *stmt;
+        for (const Variable* var : decl->fVars) {
             if (haveRuntimeArray) {
-                fErrors.error(decl->fOffset,
+                fErrors.error(var->fOffset,
                               "only the last entry in an interface block may be a runtime-sized "
                               "array");
             }
-            fields.push_back(Type::Field(vd.fVar->fModifiers, vd.fVar->fName,
-                                         &vd.fVar->fType));
-            if (vd.fValue) {
+            fields.push_back(Type::Field(var->fModifiers, var->fName, &var->fType));
+            if (var->fInitialValue) {
                 fErrors.error(decl->fOffset,
                               "initializers are not permitted on interface block fields");
             }
-            if (vd.fVar->fModifiers.fFlags & (Modifiers::kIn_Flag |
-                                                Modifiers::kOut_Flag |
-                                                Modifiers::kUniform_Flag |
-                                                Modifiers::kBuffer_Flag |
-                                                Modifiers::kConst_Flag)) {
+            if (var->fModifiers.fFlags & (Modifiers::kIn_Flag |
+                                          Modifiers::kOut_Flag |
+                                          Modifiers::kUniform_Flag |
+                                          Modifiers::kBuffer_Flag |
+                                          Modifiers::kConst_Flag)) {
                 fErrors.error(decl->fOffset,
                               "interface block fields may not have storage qualifiers");
             }
-            if (vd.fVar->fType.kind() == Type::kArray_Kind &&
-                vd.fVar->fType.columns() == -1) {
+            if (var->fType.kind() == Type::kArray_Kind &&
+                var->fType.columns() == -1) {
                 haveRuntimeArray = true;
             }
         }
@@ -771,7 +771,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
     }
     Variable* var = new Variable(intf.fOffset, intf.fModifiers,
                                  intf.fInstanceName.fLength ? intf.fInstanceName : intf.fTypeName,
-                                 *type, Variable::kGlobal_Storage);
+                                 *type, Variable::kGlobal_Storage, nullptr, {});
     old->takeOwnership(var);
     if (intf.fInstanceName.fLength) {
         old->addWithoutOwnership(intf.fInstanceName, var);
