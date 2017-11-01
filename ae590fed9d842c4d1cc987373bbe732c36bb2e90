@@ -46,6 +46,30 @@
       "revId": "ae590fed9d842c4d1cc987373bbe732c36bb2e90",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e4293d3_150b5b4b",
+        "filename": "src/gpu/GrTextureMaker.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-01T12:42:17Z",
+      "side": 1,
+      "message": "That is different than the mechanism for the underlying resources. Should we switch that?",
+      "parentUuid": "a7553405_0b7d009c",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 90,
+        "endChar": 66
+      },
+      "revId": "ae590fed9d842c4d1cc987373bbe732c36bb2e90",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
