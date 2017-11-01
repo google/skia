@@ -24,6 +24,7 @@ GrTextureAdjuster::GrTextureAdjuster(GrContext* context, sk_sp<GrTextureProxy> o
     , fAlphaType(alphaType)
     , fColorSpace(cs)
     , fUniqueID(uniqueID) {
+    SkASSERT(contentArea.width() == fOriginal->width() && contentArea.height() == fOriginal->height());
     SkASSERT(SkIRect::MakeWH(fOriginal->width(), fOriginal->height()).contains(contentArea));
     SkASSERT(0 == contentArea.fLeft && 0 == contentArea.fTop);
     if (contentArea.fRight < fOriginal->width() || contentArea.fBottom < fOriginal->height()) {
