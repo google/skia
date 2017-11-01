@@ -44,7 +44,7 @@ struct GMTest : public testing::Test {
             return;
         }
         std::string gmName = gm_runner::GetGMName(fTest.fGMFactory);
-        float result = GMK_Check(imgData, gmName.c_str());
+        float result = GMK_Check(imgData, gmName.c_str(), GetBackendName(fTest.fBackend));
         EXPECT_EQ(result, 0);
     }
 };
@@ -69,7 +69,7 @@ struct UnitTest : public testing::Test {
         struct : skiatest::Reporter {
             void reportFailed(const skiatest::Failure& failure) override {
                 SkString desc = failure.toString();
-                SK_ABORT("");
+                // SK_ABORT("");
                 GTEST_NONFATAL_FAILURE_(desc.c_str());
             }
         } r;
@@ -157,8 +157,8 @@ int main(int argc, char** argv) {
     }
 
     for (const skiatest::Test* test : GetUnitTests()) {
-            reg_test("Skia_Unit_Tests", test->name,
-                new UnitTestFactory(UnitTestData{&context, test->proc}));
+        reg_test("Skia_Unit_Tests", test->name,
+                 new UnitTestFactory(UnitTestData{&context, test->proc}));
     }
     return RUN_ALL_TESTS();
 }
