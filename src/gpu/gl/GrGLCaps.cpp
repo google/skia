@@ -562,12 +562,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         GR_GL_GetIntegerv(gli, GR_GL_MAX_WINDOW_RECTANGLES, &fMaxWindowRectangles);
     }
 
+#ifndef SK_BUILD_FOR_IOS
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer() ||
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
         (kAdreno3xx_GrGLRenderer == ctxInfo.renderer() &&
          ctxInfo.driver() != kChromium_GrGLDriver)) {
         fUseDrawToClearColor = true;
     }
+#endif
 
     // A lot of GPUs have trouble with full screen clears (skbug.com/7195)
     if (kAMDRadeonHD7xxx_GrGLRenderer == ctxInfo.renderer() ||
