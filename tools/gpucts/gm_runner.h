@@ -34,6 +34,14 @@ enum class SkiaBackend {
     kVulkan,
 };
 
+/**
+This class initializes Skia
+*/
+struct SkiaContext {
+    SkiaContext();
+    ~SkiaContext();
+};
+
 bool BackendSupported(SkiaBackend);
 
 /**
