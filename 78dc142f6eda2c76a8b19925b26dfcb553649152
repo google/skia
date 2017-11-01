@@ -16,6 +16,24 @@
       "revId": "78dc142f6eda2c76a8b19925b26dfcb553649152",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0961df36_065a7148",
+        "filename": "src/gpu/ops/GrClearStencilClipOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-11-01T13:58:02Z",
+      "side": 1,
+      "message": "Yeah I\u0027m fine handling this inside the Op since this is still code that is writted to specifically handle clear stencil clips. And mainly the backends don\u0027t need to know about any of this.",
+      "parentUuid": "a6092410_4f7bb538",
+      "revId": "78dc142f6eda2c76a8b19925b26dfcb553649152",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
