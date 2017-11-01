@@ -16,10 +16,8 @@
 
 sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
                                                    sk_sp<GrTextureProxy> inputProxy,
-                                                   const SkIRect* subset,
                                                    const CopyParams& copyParams,
                                                    bool dstWillRequireMipMaps) {
-    SkASSERT(!subset || !subset->isEmpty());
     SkASSERT(context);
 
     const SkRect dstRect = SkRect::MakeIWH(copyParams.fWidth, copyParams.fHeight);
@@ -35,23 +33,13 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
     GrPaint paint;
     paint.setGammaCorrect(true);
 
-    SkRect localRect;
-    if (subset) {
-        localRect = SkRect::Make(*subset);
-    } else {
-        localRect = SkRect::MakeWH(inputProxy->width(), inputProxy->height());
-    }
+    SkRect localRect = SkRect::MakeWH(inputProxy->width(), inputProxy->height());
 
     bool needsDomain = false;
     if (copyParams.fFilter != GrSamplerState::Filter::kNearest) {
         bool resizing = localRect.width()  != dstRect.width() ||
                         localRect.height() != dstRect.height();
-
-        if (GrResourceProvider::IsFunctionallyExact(inputProxy.get())) {
-            needsDomain = subset && resizing;
-        } else {
-            needsDomain = resizing;
-        }
+        needsDomain = resizing && !GrResourceProvider::IsFunctionallyExact(inputProxy.get());
     }
 
     if (needsDomain) {
@@ -90,17 +78,11 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
         FilterConstraint filterConstraint,
         bool coordsLimitedToConstraintRect,
         GrTextureProxy* proxy,
-        const SkIRect* contentRect,
         const GrSamplerState::Filter* filterModeOrNullForBicubic,
         SkRect* domainRect) {
     const SkIRect proxyBounds = SkIRect::MakeWH(proxy->width(), proxy->height());
 
     SkASSERT(proxyBounds.contains(constraintRect));
-    // We only expect a content area rect if there is some non-content area.
-    SkASSERT(!contentRect ||
-             (!contentRect->contains(proxyBounds) &&
-              proxyBounds.contains(*contentRect) &&
-              contentRect->contains(constraintRect)));
 
     const bool proxyIsExact = GrResourceProvider::IsFunctionallyExact(proxy);
 
@@ -109,16 +91,12 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
         return kNoDomain_DomainMode;
     }
 
-    if (!contentRect && !proxyIsExact) {
-        contentRect = &proxyBounds;
-    }
-
     bool restrictFilterToRect = (filterConstraint == GrTextureProducer::kYes_FilterConstraint);
 
     // If we can filter outside the constraint rect, and there is no non-content area of the
     // proxy, and we aren't going to generate sample coords outside the constraint rect then we
     // don't need a domain.
-    if (!restrictFilterToRect && !contentRect && coordsLimitedToConstraintRect) {
+    if (!restrictFilterToRect && proxyIsExact && coordsLimitedToConstraintRect) {
         return kNoDomain_DomainMode;
     }
 
@@ -137,7 +115,7 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
                 filterHalfWidth = .5f;
                 break;
             case GrSamplerState::Filter::kMipMap:
-                if (restrictFilterToRect || contentRect) {
+                if (restrictFilterToRect || !proxyIsExact) {
                     // No domain can save us here.
                     return kTightCopy_DomainMode;
                 }
@@ -157,10 +135,10 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
     // the domain.
     if (restrictFilterToRect) {
         *domainRect = constraintRect.makeInset(kDomainInset, kDomainInset);
-    } else if (contentRect) {
-        // If we got here then: there is a contentRect, the coords are limited to the
+    } else if (!proxyIsExact) {
+        // If we got here then: proxy is not exact, the coords are limited to the
         // constraint rect, and we're allowed to filter across the constraint rect boundary. So
-        // we check whether the filter would reach across the edge of the content area.
+        // we check whether the filter would reach across the edge of the proxy.
         // We will only set the sides that are required.
 
         domainRect->setLargest();
@@ -168,24 +146,12 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
             // We may be able to use the fact that the texture coords are limited to the constraint
             // rect in order to avoid having to add a domain.
             bool needContentAreaConstraint = false;
-            if (contentRect->fLeft > 0 &&
-                contentRect->fLeft + filterHalfWidth > constraintRect.fLeft) {
-                domainRect->fLeft = contentRect->fLeft + kDomainInset;
+            if (proxyBounds.fRight - filterHalfWidth < constraintRect.fRight) {
+                domainRect->fRight = proxyBounds.fRight - kDomainInset;
                 needContentAreaConstraint = true;
             }
-            if (contentRect->fTop > 0 &&
-                contentRect->fTop + filterHalfWidth > constraintRect.fTop) {
-                domainRect->fTop = contentRect->fTop + kDomainInset;
-                needContentAreaConstraint = true;
-            }
-            if ((!proxyIsExact || contentRect->fRight < proxy->width()) &&
-                contentRect->fRight - filterHalfWidth < constraintRect.fRight) {
-                domainRect->fRight = contentRect->fRight - kDomainInset;
-                needContentAreaConstraint = true;
-            }
-            if ((!proxyIsExact || contentRect->fBottom < proxy->height()) &&
-                contentRect->fBottom - filterHalfWidth < constraintRect.fBottom) {
-                domainRect->fBottom = contentRect->fBottom - kDomainInset;
+            if (proxyBounds.fBottom - filterHalfWidth < constraintRect.fBottom) {
+                domainRect->fBottom = proxyBounds.fBottom - kDomainInset;
                 needContentAreaConstraint = true;
             }
             if (!needContentAreaConstraint) {
@@ -194,18 +160,8 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
         } else {
             // Our sample coords for the texture are allowed to be outside the constraintRect so we
             // don't consider it when computing the domain.
-            if (contentRect->fLeft > 0) {
-                domainRect->fLeft = contentRect->fLeft + kDomainInset;
-            }
-            if (contentRect->fTop > 0) {
-                domainRect->fTop = contentRect->fTop + kDomainInset;
-            }
-            if (!proxyIsExact || contentRect->fRight < proxy->width()) {
-                domainRect->fRight = contentRect->fRight - kDomainInset;
-            }
-            if (!proxyIsExact || contentRect->fBottom < proxy->height()) {
-                domainRect->fBottom = contentRect->fBottom - kDomainInset;
-            }
+            domainRect->fRight = proxyBounds.fRight - kDomainInset;
+            domainRect->fBottom = proxyBounds.fBottom - kDomainInset;
         }
     } else {
         return kNoDomain_DomainMode;

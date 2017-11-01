@@ -124,14 +124,13 @@ protected:
     };
 
     static sk_sp<GrTextureProxy> CopyOnGpu(GrContext*, sk_sp<GrTextureProxy> inputProxy,
-                                           const SkIRect* subset, const CopyParams& copyParams,
+                                           const CopyParams& copyParams,
                                            bool dstWillRequireMipMaps);
 
     static DomainMode DetermineDomainMode(const SkRect& constraintRect,
                                           FilterConstraint filterConstraint,
                                           bool coordsLimitedToConstraintRect,
                                           GrTextureProxy*,
-                                          const SkIRect* textureContentArea,
                                           const GrSamplerState::Filter* filterModeOrNullForBicubic,
                                           SkRect* domainRect);
 
