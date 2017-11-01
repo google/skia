@@ -38,6 +38,45 @@
 #error "Vulkan header version is too low"
 #endif
 
-#endif
+#ifndef VK_EXT_discard_rectangles
 
-#endif
+// Installed Vulkan SDK is too old to define discard rectangles: define them here.
+#define VK_EXT_discard_rectangles 1
+#define VK_EXT_DISCARD_RECTANGLES_SPEC_VERSION 1
+#define VK_EXT_DISCARD_RECTANGLES_EXTENSION_NAME "VK_EXT_discard_rectangles"
+
+
+typedef enum VkDiscardRectangleModeEXT {
+    VK_DISCARD_RECTANGLE_MODE_INCLUSIVE_EXT = 0,
+    VK_DISCARD_RECTANGLE_MODE_EXCLUSIVE_EXT = 1,
+    VK_DISCARD_RECTANGLE_MODE_BEGIN_RANGE_EXT = VK_DISCARD_RECTANGLE_MODE_INCLUSIVE_EXT,
+    VK_DISCARD_RECTANGLE_MODE_END_RANGE_EXT = VK_DISCARD_RECTANGLE_MODE_EXCLUSIVE_EXT,
+    VK_DISCARD_RECTANGLE_MODE_RANGE_SIZE_EXT = (VK_DISCARD_RECTANGLE_MODE_EXCLUSIVE_EXT - VK_DISCARD_RECTANGLE_MODE_INCLUSIVE_EXT + 1),
+    VK_DISCARD_RECTANGLE_MODE_MAX_ENUM_EXT = 0x7FFFFFFF
+} VkDiscardRectangleModeEXT;
+
+typedef VkFlags VkPipelineDiscardRectangleStateCreateFlagsEXT;
+
+typedef struct VkPhysicalDeviceDiscardRectanglePropertiesEXT {
+    VkStructureType    sType;
+    const void*        pNext;
+    uint32_t           maxDiscardRectangles;
+} VkPhysicalDeviceDiscardRectanglePropertiesEXT;
+
+typedef struct VkPipelineDiscardRectangleStateCreateInfoEXT {
+    VkStructureType                                  sType;
+    const void*                                      pNext;
+    VkPipelineDiscardRectangleStateCreateFlagsEXT    flags;
+    VkDiscardRectangleModeEXT                        discardRectangleMode;
+    uint32_t                                         discardRectangleCount;
+    const VkRect2D*                                  pDiscardRectangles;
+} VkPipelineDiscardRectangleStateCreateInfoEXT;
+
+
+typedef void (VKAPI_PTR *PFN_vkCmdSetDiscardRectangleEXT)(VkCommandBuffer commandBuffer, uint32_t firstDiscardRectangle, uint32_t discardRectangleCount, const VkRect2D* pDiscardRectangles);
+
+#endif // !VK_EXT_discard_rectangles
+
+#endif // SK_VULKAN
+
+#endif // GrVkDefines_DEFINED
