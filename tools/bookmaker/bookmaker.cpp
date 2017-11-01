@@ -20,7 +20,7 @@ DEFINE_bool2(stdout, o, false, "Write file out to standard out.");
 DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
 DEFINE_string2(ref, r, "", "Resolve refs and write bmh_*.md files to path. (Requires -b -f)");
 DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispelling]. (Requires -b)");
-DEFINE_string2(tokens, t, "", "Directory to write bmh from include. (Requires -i)");
+DEFINE_bool2(tokens, t, "", "Write bmh from include. (Requires -b -i)");
 DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
 DEFINE_bool2(skip, z, false, "Skip degenerate missed in legacy preprocessor.");
 
@@ -142,6 +142,12 @@ void Definition::setCanonicalFiddle() {
                 if (constCheck.length() == constPos + 5) {
                     result += "_const";
                 }
+            } else if ('*' == fName[opPos]) {
+                result += "multiply_operator";
+            } else if ('-' == fName[opPos]) {
+                result += "subtract_operator";
+            } else if ('+' == fName[opPos]) {
+                result += "add_operator";
             } else {
                 SkASSERT(0);  // todo: incomplete
             }
@@ -661,7 +667,7 @@ bool Definition::methodHasReturn(const string& name, TextParser* methodParser) c
         --returnEnd;
     }
     bool expectReturn = 4 != returnEnd - lastStart || strncmp("void", lastStart, 4);
-    if (MethodType::kNone != fMethodType && !expectReturn) {
+    if (MethodType::kNone != fMethodType && MethodType::kOperator != fMethodType && !expectReturn) {
         return methodParser->reportError<bool>("unexpected void");
     }
     switch (fMethodType) {
@@ -2233,7 +2239,7 @@ int main(int argc, char** const argv) {
     bmhParser.validate();
 
     SkCommandLineFlags::SetUsage(
-        "Common Usage: bookmaker -i path/to/include.h -t\n"
+        "Common Usage: bookmaker -b path/to/bmh_files -i path/to/include.h -t\n"
         "              bookmaker -b path/to/bmh_files -e fiddle.json\n"
         "              ~/go/bin/fiddlecli --input fiddle.json --output fiddleout.json\n"
         "              bookmaker -b path/to/bmh_files -f fiddleout.json -r path/to/md_files\n"
@@ -2305,8 +2311,8 @@ int main(int argc, char** const argv) {
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
-    if (FLAGS_include.isEmpty() && !FLAGS_tokens.isEmpty()) {
-        SkDebugf("-t requires -i\n");
+    if ((FLAGS_include.isEmpty() || FLAGS_bmh.isEmpty()) && FLAGS_tokens) {
+        SkDebugf("-t requires -b -i\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
@@ -2323,15 +2329,15 @@ int main(int argc, char** const argv) {
     }
     bool done = false;
     if (!FLAGS_include.isEmpty()) {
-        if (!FLAGS_tokens.isEmpty() || FLAGS_crosscheck) {
+        if (FLAGS_tokens || FLAGS_crosscheck) {
             IncludeParser includeParser;
             includeParser.validate();
             if (!includeParser.parseFile(FLAGS_include[0], ".h")) {
                 return -1;
             }
-            if (!FLAGS_tokens.isEmpty()) {
+            if (FLAGS_tokens) {
                 includeParser.fDebugOut = FLAGS_stdout;
-                if (includeParser.dumpTokens(FLAGS_tokens[0])) {
+                if (includeParser.dumpTokens(FLAGS_bmh[0])) {
                     bmhParser.fWroteOut = true;
                 }
                 done = true;

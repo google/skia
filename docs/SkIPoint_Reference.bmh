@@ -1,0 +1,442 @@
+#Topic IPoint
+#Alias IPoint_Reference
+
+#Struct SkIPoint
+
+SkIPoint holds two 32 bit integer coordinates
+
+#Topic Overview
+
+#Subtopic Subtopics
+#ToDo manually add subtopics ##
+#Table
+#Legend
+# topics # description ##
+#Legend ##
+#Table ##
+##
+
+#Subtopic Operators
+#Table
+#Legend
+# description                                                     # function ##
+#Legend ##
+# SkIPoint operator-() const                                      # ##
+# friend SkIPoint operator+(const SkIPoint& a, const SkIPoint& b) # ##
+# friend SkIPoint operator-(const SkIPoint& a, const SkIPoint& b) # ##
+# friend bool operator!=(const SkIPoint& a, const SkIPoint& b)    # ##
+# friend bool operator==(const SkIPoint& a, const SkIPoint& b)    # ##
+# void operator+=(const SkIPoint& v)                              # ##
+# void operator-=(const SkIPoint& v)                              # ##
+#Table ##
+#Subtopic ##
+
+#Subtopic Member_Functions
+#Table
+#Legend
+# description  # function ##
+#Legend ##
+# CrossProduct # ##
+# DotProduct   # ##
+# Make         # ##
+# equals       # ##
+# isZero       # ##
+# negate       # ##
+# rotateCCW    # ##
+# rotateCW     # ##
+# set          # ##
+# setX         # ##
+# setY         # ##
+# setZero      # ##
+# x            # ##
+# y            # ##
+#Table ##
+#Subtopic ##
+
+#Topic ##
+
+#Member int32_t  fX
+##
+
+#Member int32_t  fY
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkIPoint Make(int32_t x, int32_t y)
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int32_t x() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int32_t y() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setX(int32_t x)
+
+#Param x  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setY(int32_t y)
+
+#Param y  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isZero() const
+
+Returns true iff fX and fY are both zero.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setZero()
+
+Set both fX and fY to zero. Same as set(0, 0)
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void set(int32_t x, int32_t y)
+
+Set the x and y values of the point.
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void rotateCW(SkIPoint* dst) const
+
+Rotate the point clockwise, writing the new point into dst
+It is legal for dst == this
+
+#Param dst  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void rotateCW()
+
+Rotate the point clockwise, writing the new point back into the point
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void rotateCCW(SkIPoint* dst) const
+
+Rotate the point counter-clockwise, writing the new point into dst.
+It is legal for dst == this
+
+#Param dst  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void rotateCCW()
+
+Rotate the point counter-clockwise, writing the new point back into
+the point
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void negate()
+
+Negate the X and Y coordinates of the point.
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkIPoint operator-() const
+
+Return a new point whose X and Y coordinates are the negative of the
+original point's
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void operator+=(const SkIPoint& v)
+
+Add v's coordinates to this point's
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void operator-=(const SkIPoint& v)
+
+Subtract v's coordinates from this point's
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool equals(int32_t x, int32_t y) const
+
+Returns true if the point's coordinates equal (x,y)
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend bool operator==(const SkIPoint& a, const SkIPoint& b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend bool operator!=(const SkIPoint& a, const SkIPoint& b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend SkIPoint operator-(const SkIPoint& a, const SkIPoint& b)
+
+Returns a new point whose coordinates are the difference between
+a and b (i.e. a - b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend SkIPoint operator+(const SkIPoint& a, const SkIPoint& b)
+
+Returns a new point whose coordinates are the sum of a and b (a + b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static int32_t DotProduct(const SkIPoint& a, const SkIPoint& b)
+
+Returns the dot product of a and b, treating them as 2D vectors
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static int32_t CrossProduct(const SkIPoint& a, const SkIPoint& b)
+
+Returns the cross product of a and b, treating them as 2D vectors
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Struct SkIPoint ##
+
+#Topic IPoint ##

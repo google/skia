@@ -1,0 +1,1190 @@
+#Topic Point
+#Alias Point_Reference
+
+#Struct SkPoint
+
+#Topic Overview
+
+#Subtopic Subtopics
+#ToDo manually add subtopics ##
+#Table
+#Legend
+# topics # description ##
+#Legend ##
+#Table ##
+##
+
+#Subtopic Operators
+#Table
+#Legend
+# description                                                  # function ##
+#Legend ##
+# SkPoint operator*(SkScalar scale) const                      # ##
+# SkPoint operator-() const                                    # ##
+# SkPoint& operator*=(SkScalar scale)                          # ##
+# friend SkPoint operator+(const SkPoint& a, const SkPoint& b) # ##
+# friend SkPoint operator-(const SkPoint& a, const SkPoint& b) # ##
+# friend bool operator!=(const SkPoint& a, const SkPoint& b)   # ##
+# friend bool operator==(const SkPoint& a, const SkPoint& b)   # ##
+# void operator+=(const SkPoint& v)                            # ##
+# void operator-=(const SkPoint& v)                            # ##
+#Table ##
+#Subtopic ##
+
+#Subtopic Member_Functions
+#Table
+#Legend
+# description                     # function ##
+#Legend ##
+# CanNormalize                    # ##
+# CrossProduct                    # ##
+# Distance                        # ##
+# DotProduct                      # ##
+# Length                          # ##
+# Make                            # ##
+# Normalize                       # ##
+# Offset                          # ##
+# asScalars                       # ##
+# canNormalize                    # ##
+# cross                           # ##
+# distanceToLineBetween           # ##
+# distanceToLineBetweenSqd        # ##
+# distanceToLineSegmentBetween    # ##
+# distanceToLineSegmentBetweenSqd # ##
+# distanceToOrigin                # ##
+# distanceToSqd                   # ##
+# dot                             # ##
+# equals                          # ##
+# equalsWithinTolerance           # ##
+# isFinite                        # ##
+# isZero                          # ##
+# iset                            # ##
+# length                          # ##
+# lengthSqd                       # ##
+# negate                          # ##
+# normalize                       # ##
+# offset                          # ##
+# rotateCCW                       # ##
+# rotateCW                        # ##
+# scale                           # ##
+# set                             # ##
+# setAbs                          # ##
+# setIRectFan                     # ##
+# setLength                       # ##
+# setLengthFast                   # ##
+# setNormalize                    # ##
+# setOrthog                       # ##
+# setRectFan                      # ##
+# setRectTriStrip                 # ##
+# x                               # ##
+# y                               # ##
+#Table ##
+#Subtopic ##
+
+#Topic ##
+
+#Member SkScalar  fX
+##
+
+#Member SkScalar  fY
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkPoint Make(SkScalar x, SkScalar y)
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar x() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar y() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isZero() const
+
+Returns true iff fX and fY are both zero.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void set(SkScalar x, SkScalar y)
+
+Set the point's X and Y coordinates
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void iset(int32_t x, int32_t y)
+
+Set the point's X and Y coordinates by automatically promoting (x,y) to
+SkScalar values.
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void iset(const SkIPoint& p)
+
+Set the point's X and Y coordinates by automatically promoting p's
+coordinates to SkScalar values.
+
+#Param p  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setAbs(const SkPoint& pt)
+
+#Param pt  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setIRectFan(int l, int t, int r, int b)
+
+counter-clockwise fan
+
+#Param l  incomplete ##
+#Param t  incomplete ##
+#Param r  incomplete ##
+#Param b  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setIRectFan(int l, int t, int r, int b, size_t stride)
+
+#Param l  incomplete ##
+#Param t  incomplete ##
+#Param r  incomplete ##
+#Param b  incomplete ##
+#Param stride  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setRectFan(SkScalar l, SkScalar t, SkScalar r, SkScalar b, size_t stride)
+
+counter-clockwise fan
+
+#Param l  incomplete ##
+#Param t  incomplete ##
+#Param r  incomplete ##
+#Param b  incomplete ##
+#Param stride  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setRectTriStrip(SkScalar l, SkScalar t, SkScalar r, SkScalar b, size_t stride)
+
+tri strip with two counter-clockwise triangles
+
+#Param l  incomplete ##
+#Param t  incomplete ##
+#Param r  incomplete ##
+#Param b  incomplete ##
+#Param stride  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static void Offset(SkPoint points[], int count, const SkPoint& offset)
+
+#Param points  incomplete ##
+#Param count  incomplete ##
+#Param offset  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static void Offset(SkPoint points[], int count, SkScalar dx, SkScalar dy)
+
+#Param points  incomplete ##
+#Param count  incomplete ##
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void offset(SkScalar dx, SkScalar dy)
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar length() const
+
+Return the euclidian distance from (0,0) to the point
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar distanceToOrigin() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static bool CanNormalize(SkScalar dx, SkScalar dy)
+
+Return true if the computed length of the vector is >= the internal
+tolerance (used to avoid dividing by tiny values).
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool canNormalize() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool normalize()
+
+Set the point (vector) to be unit-length in the same direction as it
+already points.  If the point has a degenerate length (i.e. nearly 0)
+then set it to (0,0) and return false; otherwise return true.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setNormalize(SkScalar x, SkScalar y)
+
+Set the point (vector) to be unit-length in the same direction as the
+x,y params. If the vector (x,y) has a degenerate length (i.e. nearly 0)
+then set it to (0,0) and return false, otherwise return true.
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setLength(SkScalar length)
+
+Scale the point (vector) to have the specified length, and return that
+length. If the original length is degenerately small (nearly zero),
+set it to (0,0) and return false, otherwise return true.
+
+#Param length  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setLength(SkScalar x, SkScalar y, SkScalar length)
+
+Set the point (vector) to have the specified length in the same
+direction as (x,y). If the vector (x,y) has a degenerate length
+(i.e. nearly 0) then set it to (0,0) and return false, otherwise return true.
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+#Param length  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setLengthFast(SkScalar length)
+
+Same as setLength, but favoring speed over accuracy.
+
+#Param length  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setLengthFast(SkScalar x, SkScalar y, SkScalar length)
+
+Same as setLength, but favoring speed over accuracy.
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+#Param length  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void scale(SkScalar scale, SkPoint* dst) const
+
+Scale the point's coordinates by scale, writing the answer into dst.
+It is legal for dst == this.
+
+#Param scale  incomplete ##
+#Param dst  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void scale(SkScalar value)
+
+Scale the point's coordinates by scale, writing the answer back into
+the point.
+
+#Param value  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void rotateCW(SkPoint* dst) const
+
+Rotate the point clockwise by 90 degrees, writing the answer into dst.
+It is legal for dst == this.
+
+#Param dst  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void rotateCW()
+
+Rotate the point clockwise by 90 degrees, writing the answer back into
+the point.
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void rotateCCW(SkPoint* dst) const
+
+Rotate the point counter-clockwise by 90 degrees, writing the answer
+into dst. It is legal for dst == this.
+
+#Param dst  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void rotateCCW()
+
+Rotate the point counter-clockwise by 90 degrees, writing the answer
+back into the point.
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void negate()
+
+Negate the point's coordinates
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkPoint operator-() const
+
+Returns a new point whose coordinates are the negative of the point's
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void operator+=(const SkPoint& v)
+
+Add v's coordinates to the point's
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void operator-=(const SkPoint& v)
+
+Subtract v's coordinates from the point's
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkPoint operator*(SkScalar scale) const
+
+#Param scale  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkPoint& operator*=(SkScalar scale)
+
+#Param scale  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isFinite() const
+
+Returns true if both X and Y are finite (not infinity or NaN)
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool equals(SkScalar x, SkScalar y) const
+
+Returns true if the point's coordinates equal (x,y)
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend bool operator==(const SkPoint& a, const SkPoint& b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend bool operator!=(const SkPoint& a, const SkPoint& b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool equalsWithinTolerance(const SkPoint& p) const
+
+Return true if this point and the given point are far enough apart
+such that a vector between them would be non-degenerate.
+WARNING: Unlike the explicit tolerance version,
+this method does not use componentwise comparison.  Instead, it
+uses a comparison designed to match judgments elsewhere regarding
+degeneracy ("points A and B are so close that the vector between them
+is essentially zero").
+
+#Param p  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool equalsWithinTolerance(const SkPoint& p, SkScalar tol) const
+
+WARNING: There is no guarantee that the result will reflect judgments
+elsewhere regarding degeneracy ("points A and B are so close that the
+vector between them is essentially zero").
+
+#Param p  incomplete ##
+#Param tol  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend SkPoint operator-(const SkPoint& a, const SkPoint& b)
+
+Returns a new point whose coordinates are the difference between
+a's and b's (a - b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend SkPoint operator+(const SkPoint& a, const SkPoint& b)
+
+Returns a new point whose coordinates are the sum of a's and b's (a + b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkScalar Length(SkScalar x, SkScalar y)
+
+Returns the euclidian distance from (0,0) to (x,y)
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkScalar Normalize(SkPoint* pt)
+
+Normalize pt, returning its previous length. If the prev length is too
+small (degenerate), set pt to (0,0) and return 0. This uses the same
+tolerance as CanNormalize.
+Note that this method may be significantly more expensive than
+the non-static normalize(), because it has to return the previous length
+of the point.  If you don't need the previous length, call the
+non-static normalize() method instead.
+
+#Param pt  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkScalar Distance(const SkPoint& a, const SkPoint& b)
+
+Returns the euclidian distance between a and b
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkScalar DotProduct(const SkPoint& a, const SkPoint& b)
+
+Returns the dot product of a and b, treating them as 2D vectors
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkScalar CrossProduct(const SkPoint& a, const SkPoint& b)
+
+Returns the cross product of a and b, treating them as 2D vectors
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar cross(const SkPoint& vec) const
+
+#Param vec  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar dot(const SkPoint& vec) const
+
+#Param vec  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar lengthSqd() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar distanceToSqd(const SkPoint& pt) const
+
+#Param pt  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Enum Side
+
+#Code
+    enum Side {
+        kLeft_Side = -1,
+        kOn_Side =  0,
+        kRight_Side =  1,
+    };
+##
+
+The side of a point relative to a line. If the line is from a to b then
+the values are consistent with the sign of (b-a) cross (pt-a)
+
+#Const kLeft_Side = -1
+##
+#Const kOn_Side =  0
+##
+#Const kRight_Side =  1
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Enum ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar distanceToLineBetweenSqd(const SkPoint& a,
+                                      const SkPoint& b,
+                                      Side* side = nullptr) const
+
+Returns the squared distance to the infinite line between two pts. Also
+optionally returns the side of the line that the pt falls on (looking
+along line from a to b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+#Param side  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar distanceToLineBetween(const SkPoint& a,
+                                   const SkPoint& b,
+                                   Side* side = nullptr) const
+
+Returns the distance to the infinite line between two pts. Also
+optionally returns the side of the line that the pt falls on (looking
+along the line from a to b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+#Param side  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar distanceToLineSegmentBetweenSqd(const SkPoint& a,
+                                             const SkPoint& b) const
+
+Returns the squared distance to the line segment between pts a and b
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar distanceToLineSegmentBetween(const SkPoint& a,
+                                          const SkPoint& b) const
+
+Returns the distance to the line segment between pts a and b.
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setOrthog(const SkPoint& vec, Side side = kLeft_Side)
+
+Make this vector be orthogonal to vec. Looking down vec the
+new vector will point in direction indicated by side (which
+must be kLeft_Side or kRight_Side).
+
+#Param vec  incomplete ##
+#Param side  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkScalar* asScalars() const
+
+cast-safe way to treat the point as an array of (2) SkScalars.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Struct SkPoint ##
+
+#Topic Point ##

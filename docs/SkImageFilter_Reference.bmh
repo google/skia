@@ -1,0 +1,567 @@
+#Topic ImageFilter
+#Alias ImageFilter_Reference
+
+#Class SkImageFilter
+
+Base class for image filters. If one is installed in the paint, then
+all drawing occurs as usual, but it is as if the drawing happened into an
+offscreen (before the xfermode is applied). This offscreen bitmap will
+then be handed to the imagefilter, who in turn creates a new bitmap which
+is what will finally be drawn to the device (using the original xfermode).
+
+#Topic Overview
+
+#Subtopic Subtopics
+#ToDo manually add subtopics ##
+#Table
+#Legend
+# topics # description ##
+#Legend ##
+#Table ##
+##
+
+#Subtopic Structs
+#Table
+#Legend
+# description      # struct ##
+#Legend ##
+# CropRect         # ##
+# OutputProperties # ##
+# Context          # ##
+#Table ##
+#Subtopic ##
+
+#Subtopic Member_Functions
+#Table
+#Legend
+# description                            # function ##
+#Legend ##
+# DrawWithFP                             # ##
+# MakeMatrixFilter                       # ##
+# SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP # ##
+# SK_DEFINE_FLATTENABLE_TYPE             # ##
+# SK_TO_STRING_PUREVIRT                  # ##
+# asAColorFilter                         # ##
+# asColorFilter                          # ##
+# canComputeFastBounds                   # ##
+# canHandleComplexCTM                    # ##
+# computeFastBounds                      # ##
+# countInputs                            # ##
+# cropRectIsSet                          # ##
+# filterBounds                           # ##
+# filterImage                            # ##
+# getCropRect                            # ##
+# getInput                               # ##
+# isColorFilterNode                      # ##
+# makeWithLocalMatrix                    # ##
+# removeKey                              # ##
+#Table ##
+#Subtopic ##
+
+#Topic ##
+
+# ------------------------------------------------------------------------------
+
+#Class CropRect
+
+#Code
+#ToDo fill this in manually ##
+##
+
+# ------------------------------------------------------------------------------
+
+#Enum CropEdge
+
+#Code
+    enum CropEdge {
+        kHasLeft_CropEdge = 0x01,
+        kHasTop_CropEdge = 0x02,
+        kHasWidth_CropEdge = 0x04,
+        kHasHeight_CropEdge = 0x08,
+        kHasAll_CropEdge = 0x0F,
+    };
+##
+
+#Const kHasLeft_CropEdge = 0x01
+##
+#Const kHasTop_CropEdge = 0x02
+##
+#Const kHasWidth_CropEdge = 0x04
+##
+#Const kHasHeight_CropEdge = 0x08
+##
+#Const kHasAll_CropEdge = 0x0F
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Enum ##
+
+# ------------------------------------------------------------------------------
+
+#Method CropRect()
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method explicit CropRect(const SkRect& rect, uint32_t flags = kHasAll_CropEdge)
+
+#Param rect  incomplete ##
+#Param flags  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method uint32_t flags() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkRect& rect() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void toString(SkString* str) const
+
+#Param str  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void applyTo(const SkIRect& imageBounds, const SkMatrix& matrix, bool embiggen,
+                     SkIRect* cropped) const
+
+Apply this cropRect to the imageBounds. If a given edge of the cropRect is not
+set, then the corresponding edge from imageBounds will be used. If "embiggen"
+is true, the crop rect is allowed to enlarge the size of the rect, otherwise
+it may only reduce the rect. Filters that can affect transparent black should
+pass "true", while all other filters should pass "false".
+Note: imageBounds is in "device" space, as the output cropped rectangle will be,
+so the matrix is ignored for those. It is only applied the croprect's bounds.
+
+#Param imageBounds  incomplete ##
+#Param matrix  incomplete ##
+#Param embiggen  incomplete ##
+#Param cropped  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class CropRect ##
+
+# ------------------------------------------------------------------------------
+
+#Class OutputProperties
+
+#Code
+#ToDo fill this in manually ##
+##
+
+/ Extra information about the output of a filter DAG. For now, this is just the color space
+/ (of the original requesting device). This is used when constructing intermediate rendering
+/ surfaces, so that we ensure we land in a surface that's similar/compatible to the final
+/ consumer of the DAG's output.
+
+# ------------------------------------------------------------------------------
+
+#Method explicit OutputProperties(SkColorSpace* colorSpace)
+
+#Param colorSpace  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkColorSpace* colorSpace() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class OutputProperties ##
+
+# ------------------------------------------------------------------------------
+
+#Class Context
+
+#Code
+#ToDo fill this in manually ##
+##
+
+# ------------------------------------------------------------------------------
+
+#Method Context(const SkMatrix& ctm, const SkIRect& clipBounds, SkImageFilterCache* cache,
+                const OutputProperties& outputProperties)
+
+#Param ctm  incomplete ##
+#Param clipBounds  incomplete ##
+#Param cache  incomplete ##
+#Param outputProperties  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkMatrix& ctm() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkIRect& clipBounds() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkImageFilterCache* cache() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const OutputProperties& outputProperties() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class Context ##
+
+# ------------------------------------------------------------------------------
+
+#Enum TileUsage
+
+#Code
+    enum TileUsage {
+        kPossible_TileUsage,
+        kNever_TileUsage,
+    };
+##
+
+#Const kPossible_TileUsage
+the created device may be drawn tiled
+##
+#Const kNever_TileUsage
+the created device will never be drawn tiled
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Enum ##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkSpecialImage> filterImage(SkSpecialImage* src, const Context& context,
+                                      SkIPoint* offset) const
+
+Request a new filtered image to be created from the src image.
+The context contains the environment in which the filter is occurring.
+It includes the clip bounds, CTM and cache.
+Offset is the amount to translate the resulting image relative to the
+src when it is drawn. This is an out-param.
+If the result image cannot be created, or the result would be
+transparent black, return null, in which case the offset parameter
+should be ignored by the caller.
+TODO: Right now the imagefilters sometimes return empty result bitmaps
+specialimages. That doesn't seem quite right.
+
+#Param src  incomplete ##
+#Param context  incomplete ##
+#Param offset  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Enum MapDirection
+
+#Code
+    enum MapDirection {
+        kForward_MapDirection,
+        kReverse_MapDirection,
+    };
+##
+
+#Const kForward_MapDirection
+##
+#Const kReverse_MapDirection
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Enum ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkIRect filterBounds(const SkIRect& src, const SkMatrix& ctm,
+                         MapDirection = kReverse_MapDirection) const
+
+Map a device-space rect recursively forward or backward through the
+filter DAG. kForward_MapDirection is used to determine which pixels of
+the destination canvas a source image rect would touch after filtering.
+kReverse_MapDirection is used to determine which rect of the source
+image would be required to fill the given rect (typically, clip bounds).
+Used for clipping and temp-buffer allocations, so the result need not
+be exact, but should never be smaller than the real answer. The default
+implementation recursively unions all input bounds, or returns the
+source rect if no inputs.
+
+#Param src  incomplete ##
+#Param ctm  incomplete ##
+#Param MapDirection  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkSpecialImage> DrawWithFP(GrContext* context,
+                                            std::unique_ptr<GrFragmentProcessor> fp,
+                                            const SkIRect& bounds,
+                                            const OutputProperties& outputProperties)
+
+#Param context  incomplete ##
+#Param fp  incomplete ##
+#Param bounds  incomplete ##
+#Param outputProperties  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isColorFilterNode(SkColorFilter** filterPtr) const
+
+Returns whether this image filter is a color filter and puts the color filter into the
+"filterPtr" parameter if it can. Does nothing otherwise.
+If this returns false, then the filterPtr is unchanged.
+If this returns true, then if filterPtr is not null, it must be set to a ref'd colorfitler
+(i.e. it may not be set to NULL).
+
+#Param filterPtr  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool asColorFilter(SkColorFilter** filterPtr) const
+
+DEPRECATED : use isColorFilterNode() instead
+
+#Param filterPtr  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void removeKey(const SkImageFilterCacheKey& key) const
+
+#Param key  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool asAColorFilter(SkColorFilter** filterPtr) const
+
+Returns true (and optionally returns a ref'd filter) if this imagefilter can be completely
+replaced by the returned colorfilter. i.e. the two effects will affect drawing in the
+same way.
+
+#Param filterPtr  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int countInputs() const
+
+Returns the number of inputs this filter will accept (some inputs can
+be NULL).
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkImageFilter* getInput(int i) const
+
+Returns the input filter at a given index, or NULL if no input is
+connected.  The indices used are filter-specific.
+
+#Param i  incomplete ##
+
+#Return incomp

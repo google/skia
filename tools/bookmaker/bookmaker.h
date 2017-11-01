@@ -1707,6 +1707,7 @@ protected:
     unordered_map<string, IClassDefinition> fIClassMap;
     unordered_map<string, Definition> fIDefineMap;
     unordered_map<string, Definition> fIEnumMap;
+    unordered_map<string, Definition> fIFunctionMap;
     unordered_map<string, Definition> fIStructMap;
     unordered_map<string, Definition> fITemplateMap;
     unordered_map<string, Definition> fITypedefMap;
