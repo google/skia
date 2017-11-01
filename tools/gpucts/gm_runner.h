@@ -32,6 +32,7 @@ enum class SkiaBackend {
     kGL,
     kGLES,
     kVulkan,
+    kCPU,
 };
 
 /**
@@ -40,7 +41,7 @@ This class initializes Skia and a GrContextFactory.
 struct SkiaContext {
     SkiaContext();
     ~SkiaContext();
-    void resetContextFactory();
+    void resetContextFactory(skiagm::GM* gm = nullptr);
     std::unique_ptr<sk_gpu_test::GrContextFactory> fGrContextFactory;
 };
 
@@ -68,7 +69,7 @@ storage (overwriting existing contents of storage).
 */
 GMK_ImageData Evaluate(SkiaBackend,
                        GMFactory,
-                       sk_gpu_test::GrContextFactory*,
+                       SkiaContext*,
                        std::vector<uint32_t>* storage);
 
 }  // namespace gm_runner

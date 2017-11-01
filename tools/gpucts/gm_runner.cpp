@@ -9,13 +9,15 @@
 
 #include <algorithm>
 
-#include "SkGraphics.h"
-#include "SkSurface.h"
 #include "gm.h"
 
 #if SK_SUPPORT_GPU
 
 #include "GrContextFactory.h"
+#include "SkGraphics.h"
+#include "SkSurface.h"
+
+#include "png_interface.h"
 
 using sk_gpu_test::GrContextFactory;
 
@@ -26,39 +28,51 @@ static GrContextFactory::ContextType to_context_type(SkiaBackend backend) {
         case SkiaBackend::kGL:     return GrContextFactory::kGL_ContextType;
         case SkiaBackend::kGLES:   return GrContextFactory::kGLES_ContextType;
         case SkiaBackend::kVulkan: return GrContextFactory::kVulkan_ContextType;
+        default:
+            SkDEBUGFAIL(""); return (GrContextFactory::ContextType)0;
     }
-    SkDEBUGFAIL(""); return (GrContextFactory::ContextType)0;
 }
 
 const char* GetBackendName(SkiaBackend backend) {
+    if (backend == SkiaBackend::kCPU) { return "CPU"; }
     return GrContextFactory::ContextTypeName(to_context_type(backend));
 }
 
 bool BackendSupported(SkiaBackend backend, GrContextFactory* contextFactory) {
+    if (backend == SkiaBackend::kCPU) { return true; }
     return contextFactory->get(to_context_type(backend)) != nullptr;
 }
 
 
 GMK_ImageData Evaluate(SkiaBackend backend,
                        GMFactory gmFact,
-                       GrContextFactory* contextFactory,
+                       gm_runner::SkiaContext* skiaContext,
                        std::vector<uint32_t>* storage) {
-    SkASSERT(contextFactory);
+    constexpr SkColorType ct = kRGBA_8888_SkColorType;
+    SkASSERT(skiaContext);
     SkASSERT(gmFact);
     SkASSERT(storage);
     std::unique_ptr<skiagm::GM> gm(gmFact(nullptr));
     SkASSERT(gm.get());
-    int w = SkScalarRoundToInt(gm->width());
-    int h = SkScalarRoundToInt(gm->height());
-    GrContext* context = contextFactory->get(to_context_type(backend));
-    if (!context) {
-        return GMK_ImageData{nullptr, w, h};
+    SkISize size = gm->getISize();
+    int w = size.width(),
+        h = size.height();
+    sk_sp<SkSurface> s;
+    if (backend == SkiaBackend::kCPU) {
+        s = SkSurface::MakeRasterN32Premul(w, h);
+    } else {
+        skiaContext->resetContextFactory(gm.get());
+        GrContextFactory* contextFactory = skiaContext->fGrContextFactory.get();
+        auto contextOverrides = sk_gpu_test::GrContextFactory::ContextOverrides::kNone;
+        contextOverrides |= sk_gpu_test::GrContextFactory::ContextOverrides::kDisableNVPR;
+        GrContext* context = contextFactory->get(to_context_type(backend), contextOverrides);
+        if (!context) {
+            return GMK_ImageData{nullptr, w, h};
+        }
+        SkImageInfo info = SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType, nullptr);
+        SkSurfaceProps props(0, SkSurfaceProps::kLegacyFontHost_InitType);
+        s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, &props);
     }
-    SkASSERT(context);
-    constexpr SkColorType ct = kRGBA_8888_SkColorType;
-
-    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(
-            context, SkBudgeted::kNo, SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType));
     if (!s) {
         return GMK_ImageData{nullptr, w, h};
     }
@@ -72,8 +86,12 @@ GMK_ImageData Evaluate(SkiaBackend backend,
     return GMK_ImageData{pix, w, h};
 }
 
-std::unique_ptr<GrContextFactory> make_gr_context_factory() {
-    GrContextOptions grContextOptions; // TODO: change options?
+std::unique_ptr<GrContextFactory> make_gr_context_factory(skiagm::GM* gm = nullptr) {
+    GrContextOptions grContextOptions;
+    grContextOptions.fAllowPathMaskCaching = true;
+    if (gm) {
+        gm->modifyGrContextOptions(&grContextOptions);
+    }
     return std::unique_ptr<GrContextFactory>(new GrContextFactory(grContextOptions));
 }
 
@@ -81,8 +99,11 @@ SkiaContext::SkiaContext() : fGrContextFactory(make_gr_context_factory()) {
     SkGraphics::Init();
 }
 
-void SkiaContext::resetContextFactory() {
+void SkiaContext::resetContextFactory(skiagm::GM* gm) {
     fGrContextFactory->destroyContexts();
+    if (gm) {
+        fGrContextFactory = make_gr_context_factory(gm);
+    }
 }
 
 SkiaContext::~SkiaContext() {}
@@ -96,7 +117,7 @@ namespace sk_gpu_test {
 namespace gm_runner {
 SkiaContext::SkiaContext() {}
 SkiaContext::~SkiaContext() {}
-void SkiaContext::resetContextFactory() {}
+void SkiaContext::resetContextFactory(skiagm::GM*) {}
 bool BackendSupported(SkiaBackend, sk_gpu_test::GrContextFactory*) { return false; }
 GMK_ImageData Evaluate(SkiaBackend, GMFactory,
                        sk_gpu_test::GrContextFactory*, std::vector<uint32_t>*) {
@@ -112,6 +133,7 @@ std::vector<GMFactory> GetGMFactories() {
     std::vector<GMFactory> result;
     for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
         result.push_back(r->factory());
+        SkASSERT(result.back());
     }
     struct {
         bool operator()(GMFactory u, GMFactory v) const { return GetGMName(u) < GetGMName(v); }
