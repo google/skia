@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
+#include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
