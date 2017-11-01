@@ -16,6 +16,52 @@
       "revId": "a23de8ad9b4c6a483e3eaab04b8a3f3d7819247f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "329cc84a_631202f0",
+        "filename": "experimental/make_gkb/makegkb.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-11-01T13:49:52Z",
+      "side": 1,
+      "message": "Could you add a short description to each function that describes what it does ? \n\nNot in this CL: It might be useful to factor these functions out into a separate header file, similar to PNGInterface and ReadDirectory with a function/class that allow to iterate over the images in a directory.",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 61
+      },
+      "revId": "a23de8ad9b4c6a483e3eaab04b8a3f3d7819247f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5ab14bf_f1c5a57d",
+        "filename": "tools/gpucts/png_interface.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-11-01T13:49:52Z",
+      "side": 1,
+      "message": "In this the vector essentially becomes the buffer for the returned GMK_ImageData, that\u0027s fragile IMO. Could we instead add a vector to GMK_ImageData and make it self contained class, where data are deallocated when the object goes out of scope.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 86
+      },
+      "revId": "a23de8ad9b4c6a483e3eaab04b8a3f3d7819247f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
