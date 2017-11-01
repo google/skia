@@ -306,6 +306,9 @@ public:
     GrContext* getGrContext() override { return fTarget->getGrContext(); }
     bool onGetProps(SkSurfaceProps* props) const override { return fTarget->getProps(props); }
     void onFlush() override { return fTarget->flush(); }
+    GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext() override {
+        return fTarget->internal_private_accessTopLayerRenderTargetContext();
+    }
 
 private:
     sk_sp<SkImage> prepareImage(const SkImage* image) {

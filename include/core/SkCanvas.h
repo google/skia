@@ -2413,7 +2413,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     // don't call
-    GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext();
+    virtual GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext();
 
     // don't call
     static void Internal_Private_SetIgnoreSaveLayerBounds(bool);
