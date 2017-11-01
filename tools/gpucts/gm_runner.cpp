@@ -9,14 +9,22 @@
 
 #include <algorithm>
 
+#include "GrContextFactory.h"
+#include "SkFontMgr.h"
+#include "SkFontStyle.h"
+#include "SkGraphics.h"
 #include "SkSurface.h"
 #include "gm.h"
 
-#if SK_SUPPORT_GPU
-
-#include "GrContextFactory.h"
+#include "png_interface.h"
 
 using sk_gpu_test::GrContextFactory;
+
+extern sk_sp<SkFontMgr> (*gSkFontMgr_DefaultFactory)();
+
+namespace DM {
+    sk_sp<SkFontMgr> MakeFontMgr();
+}
 
 namespace gm_runner {
 
@@ -25,11 +33,13 @@ static GrContextFactory::ContextType to_context_type(SkiaBackend backend) {
         case SkiaBackend::kGL:     return GrContextFactory::kGL_ContextType;
         case SkiaBackend::kGLES:   return GrContextFactory::kGLES_ContextType;
         case SkiaBackend::kVulkan: return GrContextFactory::kVulkan_ContextType;
+        default:
+            SkDEBUGFAIL(""); return (GrContextFactory::ContextType)0;
     }
-    SkDEBUGFAIL(""); return (GrContextFactory::ContextType)0;
 }
 
 const char* GetBackendName(SkiaBackend backend) {
+    if (backend == SkiaBackend::kCPU) { return "CPU"; }
     return GrContextFactory::ContextTypeName(to_context_type(backend));
 }
 
@@ -42,22 +52,34 @@ bool BackendSupported(SkiaBackend backend) {
 GMK_ImageData Evaluate(SkiaBackend backend,
                        GMFactory gmFact,
                        std::vector<uint32_t>* storage) {
+    constexpr SkColorType ct = kRGBA_8888_SkColorType;
     SkASSERT(gmFact);
     SkASSERT(storage);
     std::unique_ptr<skiagm::GM> gm(gmFact(nullptr));
     SkASSERT(gm.get());
-    int w = SkScalarRoundToInt(gm->width());
-    int h = SkScalarRoundToInt(gm->height());
-    GrContextFactory contextFactory;
-    GrContext* context = contextFactory.get(to_context_type(backend));
-    if (!context) {
-        return GMK_ImageData{nullptr, w, h};
+    
+    GrContextOptions grContextOptions;
+    grContextOptions.fAllowPathMaskCaching = true;
+    gm->modifyGrContextOptions(&grContextOptions);
+    GrContextFactory contextFactory(grContextOptions);
+    
+    SkISize size = gm->getISize();
+    int w = size.width(),
+        h = size.height();
+    sk_sp<SkSurface> s;
+    if (backend == SkiaBackend::kCPU) {
+        s = SkSurface::MakeRasterN32Premul(w, h);
+    } else {
+        auto contextOverrides = sk_gpu_test::GrContextFactory::ContextOverrides::kNone;
+        contextOverrides |= sk_gpu_test::GrContextFactory::ContextOverrides::kDisableNVPR;
+        GrContext* context = contextFactory.get(to_context_type(backend), contextOverrides);
+        if (!context) {
+            return GMK_ImageData{nullptr, w, h};
+        }
+        SkImageInfo info = SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType, nullptr);
+        SkSurfaceProps props(0, SkSurfaceProps::kLegacyFontHost_InitType);
+        s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, &props);
     }
-    SkASSERT(context);
-    constexpr SkColorType ct = kRGBA_8888_SkColorType;
-
-    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(
-            context, SkBudgeted::kNo, SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType));
     if (!s) {
         return GMK_ImageData{nullptr, w, h};
     }
@@ -71,27 +93,18 @@ GMK_ImageData Evaluate(SkiaBackend backend,
     return GMK_ImageData{pix, w, h};
 }
 
-}  // namespace gm_runner
-
-#else
-namespace sk_gpu_test {
-    class GrContextFactory {};
+SkiaContext::SkiaContext() {
+    SkGraphics::Init();
+    gSkFontMgr_DefaultFactory = &DM::MakeFontMgr;
 }
-namespace gm_runner {
-bool BackendSupported(SkiaBackend) { return false; }
-GMK_ImageData Evaluate(SkiaBackend, GMFactory, std::vector<uint32_t>*) {
-    return GMK_ImageData{nullptr, 0, 0};
-}
-const char* GetBackendName(SkiaBackend backend) { return "Unknown"; }
-}  // namespace gm_runner
-#endif
 
-namespace gm_runner {
+SkiaContext::~SkiaContext() {}
 
 std::vector<GMFactory> GetGMFactories() {
     std::vector<GMFactory> result;
     for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
         result.push_back(r->factory());
+        SkASSERT(result.back());
     }
     struct {
         bool operator()(GMFactory u, GMFactory v) const { return GetGMName(u) < GetGMName(v); }
