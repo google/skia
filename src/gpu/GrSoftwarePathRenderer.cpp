@@ -52,6 +52,11 @@ static bool get_unclipped_shape_dev_bounds(const GrShape& shape, const SkMatrix&
     if (!shapeDevBounds.intersect(SkRect::MakeLTRB(INT32_MIN, INT32_MIN, kMaxInt, kMaxInt))) {
         return false;
     }
+    // Make sure that the resulting SkIRect can have representable width and height
+    if (SkScalarRoundToInt(shapeDevBounds.width()) > kMaxInt ||
+        SkScalarRoundToInt(shapeDevBounds.height()) > kMaxInt) {
+        return false;
+    }
     shapeDevBounds.roundOut(devBounds);
     return true;
 }
