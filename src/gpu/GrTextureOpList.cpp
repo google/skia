@@ -124,6 +124,10 @@ bool GrTextureOpList::copySurface(const GrCaps& caps,
 }
 
 void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
+    if (!fRecordedOps.count()) {
+        return;
+    }
+
     unsigned int cur = alloc->numOps();
 
     // Add the interval for all the writes to this opList's target
@@ -133,12 +137,12 @@ void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
         alloc->addInterval(p);
     };
     for (int i = 0; i < fRecordedOps.count(); ++i) {
-        SkASSERT(alloc->curOp() == cur+i);
-
         const GrOp* op = fRecordedOps[i].get(); // only diff from the GrRenderTargetOpList version
-        op->visitProxies(gather);
+        if (op) {
+            op->visitProxies(gather);
 
-        alloc->incOps();
+            alloc->incOps();
+        }
     }
 }
 

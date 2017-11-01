@@ -171,12 +171,12 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     }
 #endif
 
-#ifdef MDB_ALLOC_RESOURCES
     GrResourceAllocator alloc(fContext->resourceProvider());
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->gatherProxyIntervals(&alloc);
     }
 
+#ifdef MDB_ALLOC_RESOURCES
     alloc.assign();
 #endif
 

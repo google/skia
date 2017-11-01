@@ -11,6 +11,8 @@
 #include "GrGpuResourcePriv.h"
 #include "GrSurface.h"
 #include "GrSurfaceProxy.h"
+
+#include "SkArenaAlloc.h"
 #include "SkTDynamicHash.h"
 #include "SkTMultiMap.h"
 
@@ -86,6 +88,16 @@ private:
             SkASSERT(proxy);
         }
 
+        void resetTo(GrSurfaceProxy* proxy, unsigned int start, unsigned int end) {
+            SkASSERT(proxy);
+
+            fProxy = proxy;
+            fProxyID = proxy->uniqueID().asUInt();
+            fStart = start;
+            fEnd = end;
+            fNext = nullptr;
+        }
+
         // for SkTDynamicHash
         static const uint32_t& GetKey(const Interval& intvl) {
             return intvl.fProxyID;
@@ -103,11 +115,8 @@ private:
     public:
         IntervalList() = default;
         ~IntervalList() {
-            while (fHead) {
-                Interval* temp = fHead;
-                fHead = temp->fNext;
-                delete temp;
-            }
+            // The only time we delete an IntervalList is in the GrResourceAllocator dtor.
+            // Since the arena allocator will clean up for us we don't bother here.
         }
 
         bool empty() const { return !SkToBool(fHead); }
@@ -120,6 +129,9 @@ private:
         Interval* fHead = nullptr;
     };
 
+    // Gathered statistics indicate that 99% of flushes will be covered by <= 12 Intervals
+    static const int kInitialArenaSize = 12 * sizeof(Interval);
+
     GrResourceProvider* fResourceProvider;
     FreePoolMultiMap    fFreePool;          // Recently created/used GrSurfaces
     IntvlHash           fIntvlHash;         // All the intervals, hashed by proxyID
@@ -129,6 +141,10 @@ private:
                                             // (sorted by increasing end)
     unsigned int        fNumOps = 0;
     SkDEBUGCODE(bool    fAssigned = false;)
+
+    char                fStorage[kInitialArenaSize];
+    SkArenaAlloc        fIntervalAllocator { fStorage, kInitialArenaSize, 0 };
+    Interval*           fFreeIntervalList = nullptr;
 };
 
 #endif // GrResourceAllocator_DEFINED
