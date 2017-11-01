@@ -1198,6 +1198,15 @@ STAGE(evenly_spaced_gradient, const SkJumper_GradientCtx* c) {
     gradient_lookup(c, idx, t, &r, &g, &b, &a);
 }
 
+STAGE(gradient_cubic, const SkJumper_GradientCtx* ctx) {
+    auto c = (const float*)ctx;
+    auto t = r;
+    r = mad(mad(mad(c[0], t, c[4]), t, c[ 8]), t, c[12]);
+    g = mad(mad(mad(c[1], t, c[5]), t, c[ 9]), t, c[13]);
+    b = mad(mad(mad(c[2], t, c[6]), t, c[10]), t, c[14]);
+    a = mad(mad(mad(c[3], t, c[7]), t, c[11]), t, c[15]);
+}
+
 STAGE(gradient, const SkJumper_GradientCtx* c) {
     auto t = r;
     U32 idx = 0;

@@ -11,6 +11,22 @@
 #include "SkPath.h"
 #include "SkMakeUnique.h"
 
+#include "SkGradientShader.h"
+static void test_grad(SkCanvas* canvas) {
+    SkPoint center = { 50, 155 };
+    const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorYELLOW, SK_ColorBLUE };
+    SkPaint p;
+    SkRect r = { 10, 10, 500, 300 };
+    p.setShader(SkGradientShader::MakeRadial(center, 490, colors, nullptr, 4, SkShader::kClamp_TileMode));
+    canvas->drawRect(r, p);
+
+    r.offset(0, 300);
+    SkScalar pos[] = { 0, SK_Scalar1/3, SK_Scalar1*2/3, 1 };
+    center.fY = r.centerY();
+    p.setShader(SkGradientShader::MakeRadial(center, 490, colors, pos, 4, SkShader::kClamp_TileMode));
+    canvas->drawRect(r, p);
+}
+
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
@@ -141,6 +157,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        test_grad(canvas); return;
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 
