@@ -179,8 +179,6 @@ typedef SkTMaskGamma<3, 3, 3> SkMaskGamma;
 
 class SkScalerContext {
 public:
-    typedef SkScalerContextRec Rec;
-
     enum Flags {
         kFrameAndFill_Flag        = 0x0001,
         kDevKernText_Flag         = 0x0002,
@@ -265,12 +263,12 @@ public:
                                   uint8_t* data);
 
     static void MakeRec(const SkPaint&, const SkSurfaceProps* surfaceProps,
-                        const SkMatrix*, Rec* rec);
-    static inline void PostMakeRec(const SkPaint&, Rec*);
+                        const SkMatrix*, SkScalerContextRec* rec);
+    static inline void PostMakeRec(const SkPaint&, SkScalerContextRec*);
 
-    static SkMaskGamma::PreBlend GetMaskPreBlend(const Rec& rec);
+    static SkMaskGamma::PreBlend GetMaskPreBlend(const SkScalerContextRec& rec);
 
-    const Rec& getRec() const { return fRec; }
+    const SkScalerContextRec& getRec() const { return fRec; }
 
     SkScalerContextEffects getEffects() const {
         return { fPathEffect.get(), fMaskFilter.get(), fRasterizer.get() };
@@ -283,7 +281,7 @@ public:
     SkAxisAlignment computeAxisAlignmentForHText();
 
 protected:
-    Rec         fRec;
+    SkScalerContextRec fRec;
 
     /** Generates the contents of glyph.fAdvanceX and glyph.fAdvanceY.
      *  May call getMetrics if that would be just as fast.

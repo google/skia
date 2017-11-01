@@ -1289,7 +1289,7 @@ SkColor SkPaint::computeLuminanceColor() const {
 
 const SkScalar gMaxSize2ForLCDText = SK_MAX_SIZE_FOR_LCDTEXT * SK_MAX_SIZE_FOR_LCDTEXT;
 
-static bool too_big_for_lcd(const SkScalerContext::Rec& rec, bool checkPost2x2) {
+static bool too_big_for_lcd(const SkScalerContextRec& rec, bool checkPost2x2) {
     if (checkPost2x2) {
         SkScalar area = rec.fPost2x2[0][0] * rec.fPost2x2[1][1] -
                         rec.fPost2x2[1][0] * rec.fPost2x2[0][1];
@@ -1313,7 +1313,7 @@ static SkScalar sk_relax(SkScalar x) {
 void SkScalerContext::MakeRec(const SkPaint& paint,
                               const SkSurfaceProps* surfaceProps,
                               const SkMatrix* deviceMatrix,
-                              Rec* rec) {
+                              SkScalerContextRec* rec) {
     SkASSERT(deviceMatrix == nullptr || !deviceMatrix->hasPerspective());
 
     SkTypeface* typeface = paint.getTypeface();
@@ -1515,7 +1515,7 @@ static const SkMaskGamma& cachedMaskGamma(SkScalar contrast, SkScalar paintGamma
 /**
  *  We ensure that the rec is self-consistent and efficient (where possible)
  */
-void SkScalerContext::PostMakeRec(const SkPaint&, SkScalerContext::Rec* rec) {
+void SkScalerContext::PostMakeRec(const SkPaint&, SkScalerContextRec* rec) {
     /**
      *  If we're asking for A8, we force the colorlum to be gray, since that
      *  limits the number of unique entries, and the scaler will only look at
@@ -1553,7 +1553,7 @@ void SkScalerContext::PostMakeRec(const SkPaint&, SkScalerContext::Rec* rec) {
     #define TEST_DESC
 #endif
 
-static void write_out_descriptor(SkDescriptor* desc, const SkScalerContext::Rec& rec,
+static void write_out_descriptor(SkDescriptor* desc, const SkScalerContextRec& rec,
                                  const SkPathEffect* pe, SkBinaryWriteBuffer* peBuffer,
                                  const SkMaskFilter* mf, SkBinaryWriteBuffer* mfBuffer,
                                  const SkRasterizer* ra, SkBinaryWriteBuffer* raBuffer,
@@ -1574,7 +1574,7 @@ static void write_out_descriptor(SkDescriptor* desc, const SkScalerContext::Rec&
     desc->computeChecksum();
 }
 
-static size_t fill_out_rec(const SkPaint& paint, SkScalerContext::Rec* rec,
+static size_t fill_out_rec(const SkPaint& paint, SkScalerContextRec* rec,
                            const SkSurfaceProps* surfaceProps,
                            bool fakeGamma, bool boostContrast,
                            const SkMatrix* deviceMatrix,
@@ -1626,7 +1626,7 @@ static size_t fill_out_rec(const SkPaint& paint, SkScalerContext::Rec* rec,
 }
 
 #ifdef TEST_DESC
-static void test_desc(const SkScalerContext::Rec& rec,
+static void test_desc(const SkScalerContextRec& rec,
                       const SkPathEffect* pe, SkBinaryWriteBuffer* peBuffer,
                       const SkMaskFilter* mf, SkBinaryWriteBuffer* mfBuffer,
                       const SkRasterizer* ra, SkBinaryWriteBuffer* raBuffer,
@@ -1678,7 +1678,7 @@ void SkPaint::getScalerContextDescriptor(SkScalerContextEffects* effects,
                                          const SkSurfaceProps& surfaceProps,
                                          uint32_t scalerContextFlags,
                                          const SkMatrix* deviceMatrix) const {
-    SkScalerContext::Rec    rec;
+    SkScalerContextRec rec;
 
     SkPathEffect*   pe = this->getPathEffect();
     SkMaskFilter*   mf = this->getMaskFilter();
@@ -1717,7 +1717,7 @@ void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
                              void (*proc)(SkTypeface*, const SkScalerContextEffects&,
                                           const SkDescriptor*, void*),
                              void* context) const {
-    SkScalerContext::Rec    rec;
+    SkScalerContextRec rec;
 
     SkPathEffect*   pe = this->getPathEffect();
     SkMaskFilter*   mf = this->getMaskFilter();
@@ -1755,7 +1755,7 @@ SkGlyphCache* SkPaint::detachCache(const SkSurfaceProps* surfaceProps,
  * Expands fDeviceGamma, fPaintGamma, fContrast, and fLumBits into a mask pre-blend.
  */
 //static
-SkMaskGamma::PreBlend SkScalerContext::GetMaskPreBlend(const SkScalerContext::Rec& rec) {
+SkMaskGamma::PreBlend SkScalerContext::GetMaskPreBlend(const SkScalerContextRec& rec) {
     SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
     const SkMaskGamma& maskGamma = cachedMaskGamma(rec.getContrast(),
                                                    rec.getPaintGamma(),

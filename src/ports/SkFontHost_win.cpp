@@ -59,7 +59,7 @@ typedef uint32_t SkGdiRGB;
 // for rotated text, regardless of GDI's notions.
 //#define SK_ENFORCE_ROTATED_TEXT_AA_ON_WINDOWS
 
-static bool isLCD(const SkScalerContext::Rec& rec) {
+static bool isLCD(const SkScalerContextRec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat;
 }
 
@@ -68,13 +68,13 @@ static bool bothZero(SkScalar a, SkScalar b) {
 }
 
 // returns false if there is any non-90-rotation or skew
-static bool isAxisAligned(const SkScalerContext::Rec& rec) {
+static bool isAxisAligned(const SkScalerContextRec& rec) {
     return 0 == rec.fPreSkewX &&
            (bothZero(rec.fPost2x2[0][1], rec.fPost2x2[1][0]) ||
             bothZero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
 }
 
-static bool needToRenderWithSkia(const SkScalerContext::Rec& rec) {
+static bool needToRenderWithSkia(const SkScalerContextRec& rec) {
 #ifdef SK_ENFORCE_ROTATED_TEXT_AA_ON_WINDOWS
     // What we really want to catch is when GDI will ignore the AA request and give
     // us BW instead. Smallish rotated text is one heuristic, so this code is just
@@ -592,7 +592,7 @@ static inline float FIXED2float(FIXED x) {
     return SkFixedToFloat(SkFIXEDToFixed(x));
 }
 
-static BYTE compute_quality(const SkScalerContext::Rec& rec) {
+static BYTE compute_quality(const SkScalerContextRec& rec) {
     switch (rec.fMaskFormat) {
         case SkMask::kBW_Format:
             return NONANTIALIASED_QUALITY;

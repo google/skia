@@ -251,7 +251,7 @@ SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkScalerContext
     return new SkScalerContext_DW(sk_ref_sp(const_cast<DWriteFontTypeface*>(this)), effects, desc);
 }
 
-void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
+void DWriteFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
     if (rec->fFlags & SkScalerContext::kLCD_Vertical_Flag) {
         rec->fMaskFormat = SkMask::kA8_Format;
         rec->fFlags |= SkScalerContext::kGenA8FromLCD_Flag;

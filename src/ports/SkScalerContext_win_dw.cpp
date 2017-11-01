@@ -42,7 +42,7 @@ static SkSharedMutex DWriteFactoryMutex;
 
 typedef SkAutoSharedMutexShared Shared;
 
-static bool isLCD(const SkScalerContext::Rec& rec) {
+static bool isLCD(const SkScalerContextRec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat;
 }
 
@@ -197,7 +197,7 @@ static bool both_zero(SkScalar a, SkScalar b) {
 }
 
 // returns false if there is any non-90-rotation or skew
-static bool is_axis_aligned(const SkScalerContext::Rec& rec) {
+static bool is_axis_aligned(const SkScalerContextRec& rec) {
     return 0 == rec.fPreSkewX &&
            (both_zero(rec.fPost2x2[0][1], rec.fPost2x2[1][0]) ||
             both_zero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
