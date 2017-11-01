@@ -744,6 +744,26 @@ STAGE_PP(lerp_565, const SkJumper_MemoryCtx* ctx) {
     a = lerp(da, a, ca);
 }
 
+// ~~~~~~ Gradient stages ~~~~~~ //
+
+// Clamp x to [0,1], both sides inclusive (think, gradients).
+// Even repeat and mirror funnel through a clamp to handle bad inputs like +Inf, NaN.
+SI F clamp_01(F v) { return min(max(0, v), 1); }
+
+STAGE_GG(clamp_x_1, Ctx::None) { x = clamp_01(x); }
+
+STAGE_GP(evenly_spaced_2_stop_gradient, const void* ctx) {
+    // TODO: Rename Ctx SkJumper_EvenlySpacedGradientCtx.
+    struct Ctx { float f[4], b[4]; };
+    auto c = (const Ctx*)ctx;
+
+    auto t = x;
+    r = cast<U16>(mad(t, c->f[0], c->b[0]) * 255);
+    g = cast<U16>(mad(t, c->f[1], c->b[1]) * 255);
+    b = cast<U16>(mad(t, c->f[2], c->b[2]) * 255);
+    a = cast<U16>(mad(t, c->f[3], c->b[3]) * 255);
+}
+
 // ~~~~~~ Compound stages ~~~~~~ //
 
 STAGE_PP(srcover_rgba_8888, const SkJumper_MemoryCtx* ctx) {
