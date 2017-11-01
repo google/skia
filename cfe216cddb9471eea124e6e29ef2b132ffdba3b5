@@ -22,6 +22,30 @@
       "revId": "cfe216cddb9471eea124e6e29ef2b132ffdba3b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a04a6f42_f670f115",
+        "filename": "src/core/SkPM4fPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-01T15:44:41Z",
+      "side": 1,
+      "message": "Rename to Sk4f_to_srgb_needs_round, or would a comment suffice?",
+      "parentUuid": "1b9344cf_ce42b119",
+      "range": {
+        "startLine": 55,
+        "startChar": 19,
+        "endLine": 55,
+        "endChar": 31
+      },
+      "revId": "cfe216cddb9471eea124e6e29ef2b132ffdba3b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
