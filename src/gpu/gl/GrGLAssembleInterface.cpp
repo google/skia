@@ -535,6 +535,12 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(GetInternalformativ);
     }
 
+    if (glVer >= GR_GL_VER(4, 1)) {
+        GET_PROC(GetProgramBinary);
+        GET_PROC(ProgramBinary);
+        GET_PROC(ProgramParameteri);
+    }
+
     interface->fStandard = kGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
@@ -975,6 +981,12 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
 
     if (version >= GR_GL_VER(3,0)) {
         GET_PROC(GetInternalformativ);
+    }
+
+    if (version >= GR_GL_VER(3, 0)) {
+        GET_PROC(GetProgramBinary);
+        GET_PROC(ProgramBinary);
+        GET_PROC(ProgramParameteri);
     }
 
     interface->fStandard = kGLES_GrGLStandard;

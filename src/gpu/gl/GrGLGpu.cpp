@@ -3570,18 +3570,21 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     length = SkToInt(vshaderTxt.size());
     SkSL::Program::Settings settings;
     settings.fCaps = shaderCaps;
-    SkSL::Program::Inputs inputs;
+    SkSL::String glsl;
+    std::unique_ptr<SkSL::Program> program = GrSkSLtoGLSL(*fGLContext, GR_GL_VERTEX_SHADER,
+                                                          &str, &length, 1, settings, &glsl);
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[progIdx].fProgram,
-                                                  GR_GL_VERTEX_SHADER, &str, &length, 1,
-                                                  &fStats, settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  GR_GL_VERTEX_SHADER, glsl.c_str(), glsl.size(),
+                                                  &fStats, settings);
+    SkASSERT(program->fInputs.isEmpty());
 
     str = fshaderTxt.c_str();
     length = SkToInt(fshaderTxt.size());
+    program = GrSkSLtoGLSL(*fGLContext, GR_GL_FRAGMENT_SHADER, &str, &length, 1, settings, &glsl);
     GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fCopyPrograms[progIdx].fProgram,
-                                                  GR_GL_FRAGMENT_SHADER, &str, &length, 1,
-                                                  &fStats, settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  GR_GL_FRAGMENT_SHADER, glsl.c_str(), glsl.size(),
+                                                  &fStats, settings);
+    SkASSERT(program->fInputs.isEmpty());
 
     GL_CALL(LinkProgram(fCopyPrograms[progIdx].fProgram));
 
@@ -3726,18 +3729,21 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     length = SkToInt(vshaderTxt.size());
     SkSL::Program::Settings settings;
     settings.fCaps = shaderCaps;
-    SkSL::Program::Inputs inputs;
+    SkSL::String glsl;
+    std::unique_ptr<SkSL::Program> program = GrSkSLtoGLSL(*fGLContext, GR_GL_VERTEX_SHADER,
+                                                          &str, &length, 1, settings, &glsl);
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fMipmapPrograms[progIdx].fProgram,
-                                                  GR_GL_VERTEX_SHADER, &str, &length, 1,
-                                                  &fStats, settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  GR_GL_VERTEX_SHADER, glsl.c_str(), glsl.size(),
+                                                  &fStats, settings);
+    SkASSERT(program->fInputs.isEmpty());
 
     str = fshaderTxt.c_str();
     length = SkToInt(fshaderTxt.size());
+    program = GrSkSLtoGLSL(*fGLContext, GR_GL_FRAGMENT_SHADER, &str, &length, 1, settings, &glsl);
     GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fMipmapPrograms[progIdx].fProgram,
-                                                  GR_GL_FRAGMENT_SHADER, &str, &length, 1,
-                                                  &fStats, settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  GR_GL_FRAGMENT_SHADER, glsl.c_str(), glsl.size(),
+                                                  &fStats, settings);
+    SkASSERT(program->fInputs.isEmpty());
 
     GL_CALL(LinkProgram(fMipmapPrograms[progIdx].fProgram));
 
@@ -3798,18 +3804,21 @@ bool GrGLGpu::createStencilClipClearProgram() {
     length = SkToInt(vshaderTxt.size());
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
-    SkSL::Program::Inputs inputs;
-    GrGLuint vshader =
-            GrGLCompileAndAttachShader(*fGLContext, fStencilClipClearProgram, GR_GL_VERTEX_SHADER,
-                                       &str, &length, 1, &fStats, settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+    SkSL::String glsl;
+    std::unique_ptr<SkSL::Program> program = GrSkSLtoGLSL(*fGLContext, GR_GL_VERTEX_SHADER,
+                                                          &str, &length, 1, settings, &glsl);
+    GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fStencilClipClearProgram,
+                                                  GR_GL_VERTEX_SHADER, glsl.c_str(), glsl.size(),
+                                                  &fStats, settings);
+    SkASSERT(program->fInputs.isEmpty());
 
     str = fshaderTxt.c_str();
     length = SkToInt(fshaderTxt.size());
-    GrGLuint fshader =
-            GrGLCompileAndAttachShader(*fGLContext, fStencilClipClearProgram, GR_GL_FRAGMENT_SHADER,
-                                       &str, &length, 1, &fStats, settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+    program = GrSkSLtoGLSL(*fGLContext, GR_GL_FRAGMENT_SHADER, &str, &length, 1, settings, &glsl);
+    GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fStencilClipClearProgram,
+                                                  GR_GL_FRAGMENT_SHADER, glsl.c_str(), glsl.size(),
+                                                  &fStats, settings);
+    SkASSERT(program->fInputs.isEmpty());
 
     GL_CALL(LinkProgram(fStencilClipClearProgram));
 
@@ -3910,18 +3919,18 @@ bool GrGLGpu::createClearColorProgram() {
     length = SkToInt(vshaderTxt.size());
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
-    SkSL::Program::Inputs inputs;
+    SkSL::String glsl;
+    GrSkSLtoGLSL(*fGLContext, GR_GL_VERTEX_SHADER, &str, &length, 1, settings, &glsl);
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fClearColorProgram.fProgram,
-                                                  GR_GL_VERTEX_SHADER, &str, &length, 1, &fStats,
-                                                  settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  GR_GL_VERTEX_SHADER, glsl.c_str(), glsl.size(),
+                                                  &fStats, settings);
 
     str = fshaderTxt.c_str();
     length = SkToInt(fshaderTxt.size());
+    GrSkSLtoGLSL(*fGLContext, GR_GL_FRAGMENT_SHADER, &str, &length, 1, settings, &glsl);
     GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fClearColorProgram.fProgram,
-                                                  GR_GL_FRAGMENT_SHADER, &str, &length, 1, &fStats,
-                                                  settings, &inputs);
-    SkASSERT(inputs.isEmpty());
+                                                  GR_GL_FRAGMENT_SHADER, glsl.c_str(), glsl.size(),
+                                                  &fStats, settings);
 
     GL_CALL(LinkProgram(fClearColorProgram.fProgram));
 

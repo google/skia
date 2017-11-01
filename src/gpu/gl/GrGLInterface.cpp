@@ -819,5 +819,14 @@ bool GrGLInterface::validate() const {
         }
     }
 
+    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,1)) ||
+        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0))) {
+        if (!fFunctions.fGetProgramBinary ||
+            !fFunctions.fProgramBinary ||
+            !fFunctions.fProgramParameteri) {
+            RETURN_FALSE_INTERFACE;
+        }
+    }
+
     return true;
 }

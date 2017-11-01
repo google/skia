@@ -331,6 +331,9 @@ public:
     virtual GrGLvoid popDebugGroup() {}
     virtual GrGLvoid objectLabel(GrGLenum identifier, GrGLuint name, GrGLsizei length, const GrGLchar *label) {}
     virtual GrGLvoid getInternalformativ(GrGLenum target, GrGLenum internalformat, GrGLenum pname, GrGLsizei bufSize, GrGLint *params) {}
+    virtual GrGLvoid programBinary(GrGLuint program, GrGLenum binaryFormat, void *binary, GrGLsizei length) {}
+    virtual GrGLvoid getProgramBinary(GrGLuint program, GrGLsizei bufsize, GrGLsizei* length, GrGLenum *binaryFormat, void *binary) {}
+    virtual GrGLvoid programParameteri(GrGLuint program, GrGLenum pname, GrGLint value) {}
 
 protected:
     // This must be called by leaf class

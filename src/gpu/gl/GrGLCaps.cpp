@@ -718,6 +718,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fDrawArraysBaseVertexIsBroken = true;
     }
 
+    if (kGL_GrGLStandard == standard) {
+        if (version >= GR_GL_VER(4, 1)) {
+            fProgramBinarySupport = true;
+        }
+    } else if (version >= GR_GL_VER(3, 0)) {
+        fProgramBinarySupport = true;
+    }
+
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
     // already been detected.
     this->initConfigTable(contextOptions, ctxInfo, gli, shaderCaps);
