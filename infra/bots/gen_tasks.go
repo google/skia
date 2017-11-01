@@ -200,10 +200,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
 		}
-		// These machines have a different Windows image.
-		if parts["model"] == "Golo" && os == "Win10" && parts["cpu_or_gpu_value"] == "GT610" {
-			d["os"] = "Windows-10-10586"
-		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
 	}
