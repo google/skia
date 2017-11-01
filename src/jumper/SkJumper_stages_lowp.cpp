@@ -309,6 +309,44 @@ STAGE_PP(invert, Ctx::None) {
     a = inv(a);
 }
 
+STAGE_PP(dither, const float* rate) {
+    // Get [(dx,dy), (dx+1,dy), (dx+2,dy), ...] loaded up in integer vectors.
+    uint8_t iota[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+    U32 X = dx + cast<U32>(unaligned_load<U8>(iota)),
+        Y = dy;
+
+    // We're doing 8x8 ordered dithering, see https://en.wikipedia.org/wiki/Ordered_dithering.
+    // In this case n=8 and we're using the matrix that looks like 1/64 x [ 0 48 12 60 ... ].
+
+    // We only need X and X^Y from here on, so it's easier to just think of that as "Y".
+    Y ^= X;
+
+    // We'll mix the bottom 3 bits of each of X and Y to make 6 bits,
+    // for 2^6 == 64 == 8x8 matrix values.  If X=abc and Y=def, we make fcebda.
+    U32 M = (Y & 1) << 5 | (X & 1) << 4
+          | (Y & 2) << 2 | (X & 2) << 1
+          | (Y & 4) >> 1 | (X & 4) >> 2;
+
+    // Scale that dither to [0,1), then (-0.5,+0.5), here using 63/128 = 0.4921875 as 0.5-epsilon.
+    // We want to make sure our dither is less than 0.5 in either direction to keep exact values
+    // like 0 and 1 unchanged after rounding.
+    F dither = cast<F>(M) * (2/128.0f) - (63/128.0f);
+
+    F scaled_dither = *rate * dither * 255.0f;
+
+    F R = cast<F>(r) + scaled_dither,
+      G = cast<F>(g) + scaled_dither,
+      B = cast<F>(b) + scaled_dither;
+
+    R = max(0, min(R, cast<F>(a)));
+    G = max(0, min(G, cast<F>(a)));
+    B = max(0, min(B, cast<F>(a)));
+
+    r = cast<U16>(trunc_(R));
+    g = cast<U16>(trunc_(G));
+    b = cast<U16>(trunc_(B));
+}
+
 // ~~~~~~ Blend modes ~~~~~~ //
 
 // The same logic applied to all 4 channels.
@@ -742,6 +780,26 @@ STAGE_PP(lerp_565, const SkJumper_MemoryCtx* ctx) {
     g = lerp(dg, g, cg);
     b = lerp(db, b, cb);
     a = lerp(da, a, ca);
+}
+
+// ~~~~~~ Gradient stages ~~~~~~ //
+
+// Clamp x to [0,1], both sides inclusive (think, gradients).
+// Even repeat and mirror funnel through a clamp to handle bad inputs like +Inf, NaN.
+SI F clamp_01(F v) { return min(max(0, v), 1); }
+
+STAGE_GG(clamp_x_1, Ctx::None) { x = clamp_01(x); }
+
+STAGE_GP(evenly_spaced_2_stop_gradient, const void* ctx) {
+    // TODO: Rename Ctx SkJumper_EvenlySpacedGradientCtx.
+    struct Ctx { float f[4], b[4]; };
+    auto c = (const Ctx*)ctx;
+
+    auto t = x;
+    r = cast<U16>(mad(t, c->f[0], c->b[0]) * 255);
+    g = cast<U16>(mad(t, c->f[1], c->b[1]) * 255);
+    b = cast<U16>(mad(t, c->f[2], c->b[2]) * 255);
+    a = cast<U16>(mad(t, c->f[3], c->b[3]) * 255);
 }
 
 // ~~~~~~ Compound stages ~~~~~~ //
