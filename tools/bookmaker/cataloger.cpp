@@ -21,7 +21,7 @@ bool Catalog::appendFile(const string& path) {
     rewind(file);
     char* buffer = new char[sz];
     memset(buffer, ' ', sz);
-    fread(buffer, 1, sz, file);
+    SkAssertResult(sz == (int)fread(buffer, 1, sz, file));
     fclose(file);
     this->writeBlock(sz, buffer);
     return true;
