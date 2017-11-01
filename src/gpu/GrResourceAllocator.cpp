@@ -10,6 +10,7 @@
 #include "GrSurfaceProxy.h"
 #include "GrSurfaceProxyPriv.h"
 
+
 void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
                                       unsigned int start, unsigned int end) {
     SkASSERT(start <= end);
@@ -17,13 +18,12 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
 
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
-        SkASSERT(intvl->fEnd < start);
+        //SkASSERT(intvl->fEnd <= end);
         intvl->fEnd = end;
         return;
     }
 
-    // TODO: given the usage pattern an arena allocation scheme would work well here
-    Interval* newIntvl = new Interval(proxy, start, end);
+    Interval* newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
 
     fIntvlList.insertByIncreasingStart(newIntvl);
     fIntvlHash.add(newIntvl);
@@ -109,7 +109,8 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     while (!fActiveIntvls.empty() && fActiveIntvls.peekHead()->fEnd < curIndex) {
         Interval* temp = fActiveIntvls.popHead();
         this->freeUpSurface(temp->fProxy->priv().peekSurface());
-        delete temp;
+        // temp returns to the arena at this point - could we reuse it?
+        /* delete temp; */
     }
 }
 

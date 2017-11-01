@@ -259,19 +259,21 @@ bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
 void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     unsigned int cur = alloc->numOps();
 
-    // Add the interval for all the writes to this opList's target
-    alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);
+    if (fRecordedOps.count()) {
+        // Add the interval for all the writes to this opList's target
+        alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);
 
-    auto gather = [ alloc ] (GrSurfaceProxy* p) {
-        alloc->addInterval(p);
-    };
-    for (int i = 0; i < fRecordedOps.count(); ++i) {
-        SkASSERT(alloc->curOp() == cur+i);
+        auto gather = [ alloc ] (GrSurfaceProxy* p) {
+            alloc->addInterval(p);
+        };
+        for (int i = 0; i < fRecordedOps.count(); ++i) {
+            const GrOp* op = fRecordedOps[i].fOp.get(); // only diff from the GrTextureOpList version
+            if (op) {
+                op->visitProxies(gather);
 
-        const GrOp* op = fRecordedOps[i].fOp.get(); // only diff from the GrTextureOpList version
-        op->visitProxies(gather);
-
-        alloc->incOps();
+                alloc->incOps();
+            }
+        }
     }
 }
 
