@@ -43,7 +43,7 @@ struct GMTest : public testing::Test {
             return;
         }
         std::string gmName = gm_runner::GetGMName(fTest.fGMFactory);
-        float result = GMK_Check(imgData, gmName.c_str());
+        float result = GMK_Check(imgData, gmName.c_str(), GetBackendName(fTest.fBackend));
         EXPECT_EQ(result, 0);
     }
 };
@@ -56,36 +56,39 @@ struct GMTestFactory : public testing::internal::TestFactoryBase {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#if !SK_SUPPORT_GPU
-struct GrContextOptions {};
-#endif
-
 struct UnitTest : public testing::Test {
-    skiatest::TestProc fProc;
-    UnitTest(skiatest::TestProc proc) : fProc(proc) {}
+    const skiatest::Test* fTest;
+    UnitTest(const skiatest::Test* test) : fTest(test) {}
     void TestBody() override {
-        struct : skiatest::Reporter {
+        struct : public skiatest::Reporter {
             void reportFailed(const skiatest::Failure& failure) override {
                 SkString desc = failure.toString();
-                SK_ABORT("");
                 GTEST_NONFATAL_FAILURE_(desc.c_str());
             }
         } r;
-        fProc(&r, GrContextOptions());
+        GrContextOptions options;
+        if (fTest->fContextOptionsProc) {
+            fTest->fContextOptionsProc(&options);
+        }
+        fTest->proc(&r, options);
     }
 };
 
 struct UnitTestFactory : testing::internal::TestFactoryBase {
-    skiatest::TestProc fProc;
-    UnitTestFactory(skiatest::TestProc proc) : fProc(proc) {}
-    testing::Test* CreateTest() override { return new UnitTest(fProc); }
+    const skiatest::Test* fTest;
+    UnitTestFactory(const skiatest::Test* test) : fTest(test) {}
+    testing::Test* CreateTest() override { return new UnitTest(fTest); }
 };
 
 std::vector<const skiatest::Test*> GetUnitTests() {
     // Unit Tests
     std::vector<const skiatest::Test*> tests;
     for (const skiatest::TestRegistry* r = skiatest::TestRegistry::Head(); r; r = r->next()) {
-        tests.push_back(&r->factory());
+        const skiatest::Test& test = r->factory();
+        // TODO: Any value in running all unit tests?
+        if (test.needsGpu) {
+            tests.push_back(&test);
+        }
     }
     struct {
         bool operator()(const skiatest::Test* u, const skiatest::Test* v) const {
@@ -114,7 +117,7 @@ static void reg_test(const char* test, const char* testCase,
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
-    SkGraphics::Init();
+    gm_runner::SkiaContext context;
 
     // Rendering Tests
     gm_runner::SkiaBackend backends[] = {
@@ -138,21 +141,13 @@ int main(int argc, char** argv) {
             if (!GMK_IsGoodGM(gmName.c_str())) {
                 continue;
             }
-            #ifdef SK_DEBUG
-                // The following test asserts on my phone.
-                // TODO(halcanary):  fix this.
-                if(gmName == std::string("complexclip3_simple") &&
-                   backend == gm_runner::SkiaBackend::kGLES) {
-                    continue;
-                }
-            #endif
-                reg_test(test.c_str(), gmName.c_str(),
-                         new GMTestFactory(GMTestCase{gmFactory, backend}));
+            reg_test(test.c_str(), gmName.c_str(),
+                     new GMTestFactory(GMTestCase{gmFactory, backend}));
       }
     }
 
     for (const skiatest::Test* test : GetUnitTests()) {
-        reg_test("Skia_Unit_Tests", test->name, new UnitTestFactory(test->proc));
+        reg_test("Skia_Unit_Tests", test->name, new UnitTestFactory(test));
     }
     return RUN_ALL_TESTS();
 }
