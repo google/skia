@@ -75,11 +75,11 @@ struct SkJumper_Engine;
     M(lab_to_xyz)                                                  \
                  M(mirror_x)   M(repeat_x)                         \
                  M(mirror_y)   M(repeat_y)                         \
-    M(clamp_x_1) M(mirror_x_1) M(repeat_x_1)                       \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)    \
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)    \
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)    \
     M(save_xy) M(accumulate)                                       \
+    M(clamp_x_1) M(mirror_x_1) M(repeat_x_1)                       \
     M(evenly_spaced_gradient)                                      \
     M(gradient)                                                    \
     M(evenly_spaced_2_stop_gradient)                               \
