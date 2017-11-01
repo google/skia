@@ -117,14 +117,6 @@ protected:
     TileMode       fTileMode;
     uint8_t        fGradFlags;
 
-private:
-    enum {
-        kColorStorageCount = 4, // more than this many colors, and we'll use sk_malloc for the space
-
-        kStorageSize = kColorStorageCount * (sizeof(SkColor4f) + sizeof(SkScalar))
-    };
-    SkColor4f fStorage[(kStorageSize + sizeof(SkColor4f) - 1) / sizeof(SkColor4f)];
-
 public:
     SkScalar getPos(int i) const {
         SkASSERT(i < fColorCount);
@@ -146,7 +138,13 @@ public:
     TileMode getTileMode() const { return fTileMode; }
 
 private:
-    bool                fColorsAreOpaque;
+    // Reserve inline space for up to 4 stops.
+    static constexpr size_t kInlineStopCount   = 4;
+    static constexpr size_t kInlineStorageSize = (sizeof(SkColor4f) + sizeof(SkScalar))
+                                               * kInlineStopCount;
+    SkAutoSTMalloc<kInlineStorageSize, uint8_t> fStorage;
+
+    bool                                        fColorsAreOpaque;
 
     typedef SkShaderBase INHERITED;
 };
