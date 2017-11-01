@@ -10706,7 +10706,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-22.21.13.8205",
-        "os:Windows-10-10586",
+        "os:Windows-10-15063",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -19906,7 +19906,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-22.21.13.8205",
-        "os:Windows-10-10586",
+        "os:Windows-10-15063",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
