@@ -25,7 +25,7 @@
 struct GMTestCase {
     gm_runner::GMFactory fGMFactory;
     gm_runner::SkiaBackend fBackend;
-    sk_gpu_test::GrContextFactory* fGrContextFactory;
+    gm_runner::SkiaContext* fContext;
 };
 
 struct GMTest : public testing::Test {
@@ -33,18 +33,19 @@ struct GMTest : public testing::Test {
     GMTest(GMTestCase t) : fTest(t) {}
     void TestBody() override {
         if (!fTest.fGMFactory) {
-            EXPECT_TRUE(gm_runner::BackendSupported(fTest.fBackend, fTest.fGrContextFactory));
+            EXPECT_TRUE(gm_runner::BackendSupported(
+                fTest.fBackend, fTest.fContext->fGrContextFactory.get()));
             return;
         }
         std::vector<uint32_t> pixels;
         GMK_ImageData imgData = gm_runner::Evaluate(
-                fTest.fBackend, fTest.fGMFactory, fTest.fGrContextFactory, &pixels);
+                fTest.fBackend, fTest.fGMFactory, fTest.fContext, &pixels);
         EXPECT_TRUE(imgData.pix);
         if (!imgData.pix) {
             return;
         }
         std::string gmName = gm_runner::GetGMName(fTest.fGMFactory);
-        float result = GMK_Check(imgData, gmName.c_str());
+        float result = GMK_Check(imgData, gmName.c_str(), GetBackendName(fTest.fBackend));
         EXPECT_EQ(result, 0);
     }
 };
@@ -69,7 +70,6 @@ struct UnitTest : public testing::Test {
         struct : skiatest::Reporter {
             void reportFailed(const skiatest::Failure& failure) override {
                 SkString desc = failure.toString();
-                SK_ABORT("");
                 GTEST_NONFATAL_FAILURE_(desc.c_str());
             }
         } r;
@@ -118,7 +118,6 @@ static void reg_test(const char* test, const char* testCase,
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
     gm_runner::SkiaContext context;
-    sk_gpu_test::GrContextFactory* grContextFactory = context.fGrContextFactory.get();
 
     // Rendering Tests
     gm_runner::SkiaBackend backends[] = {
@@ -133,7 +132,7 @@ int main(int argc, char** argv) {
         const char* backendName = GetBackendName(backend);
         std::string test = std::string("SkiaGM_") + backendName;
         reg_test(test.c_str(), "BackendSupported",
-                 new GMTestFactory(GMTestCase{nullptr, backend, grContextFactory}));
+                 new GMTestFactory(GMTestCase{nullptr, backend, &context}));
 
         if (!gm_runner::BackendSupported(backend, context.fGrContextFactory.get())) {
             continue;
@@ -143,22 +142,17 @@ int main(int argc, char** argv) {
             if (!GMK_IsGoodGM(gmName.c_str())) {
                 continue;
             }
-            #ifdef SK_DEBUG
-                // The following test asserts on my phone.
-                // TODO(halcanary):  fix this.
-                if(gmName == std::string("complexclip3_simple") &&
-                   backend == gm_runner::SkiaBackend::kGLES) {
-                    continue;
-                }
-            #endif
             reg_test(test.c_str(), gmName.c_str(),
-                     new GMTestFactory(GMTestCase{gmFactory, backend, grContextFactory}));
+                     new GMTestFactory(GMTestCase{gmFactory, backend, &context}));
       }
     }
 
     for (const skiatest::Test* test : GetUnitTests()) {
+        // TODO: Any value in running all unit tests?
+        if (test->needsGpu) {
             reg_test("Skia_Unit_Tests", test->name,
-                new UnitTestFactory(UnitTestData{&context, test->proc}));
+                     new UnitTestFactory(UnitTestData{&context, test->proc}));
+        }
     }
     return RUN_ALL_TESTS();
 }
