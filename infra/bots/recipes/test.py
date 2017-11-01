@@ -931,7 +931,6 @@ TEST_BUILDERS = [
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Debug-All-Vulkan',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
-  'Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All',
   'Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All-Vulkan',
   'Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
   'Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA',
