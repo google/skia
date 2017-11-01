@@ -500,8 +500,19 @@ void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap, GradientBitmapType
 }
 
 SkColor4f SkGradientShaderBase::getXformedColor(size_t i, SkColorSpace* dstCS) const {
-    return dstCS ? to_colorspace(fOrigColors4f[i], fColorSpace.get(), dstCS)
-                 : SkColor4f_from_SkColor(this->getLegacyColor(i), nullptr);
+    if (dstCS) {
+        return to_colorspace(fOrigColors4f[i], fColorSpace.get(), dstCS);
+    }
+
+    // Legacy/srgb color.
+#ifdef SK_SUPPORT_LEGACY_GRADIENT_COLOR_CONVERSION
+    return SkColor4f_from_SkColor(this->getLegacyColor(i), nullptr);
+#else
+    // We quantize upfront to ensure stable SkColor round-trips.
+    auto rgb255 = sk_linear_to_srgb(Sk4f::Load(fOrigColors4f[i].vec()));
+    auto rgb    = SkNx_cast<float>(rgb255) * (1/255.0f);
+    return { rgb[0], rgb[1], rgb[2], fOrigColors4f[i].fA };
+#endif
 }
 
 SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
@@ -1243,12 +1254,10 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         SkASSERT(shader.fOrigColors4f);
         fColors4f.setCount(shader.fColorCount);
         for (int i = 0; i < shader.fColorCount; ++i) {
-            if (args.fDstColorSpace) {
-                fColors4f[i] = GrColor4f::FromSkColor4f(shader.fOrigColors4f[i]);
-            } else {
-                GrColor grColor = SkColorToUnpremulGrColor(shader.getLegacyColor(i));
-                fColors4f[i] = GrColor4f::FromGrColor(grColor);
-            }
+            // We apply the dest CS transform separately, so we only use this as a selector
+            // for linear vs. legacy colors.
+            auto* cs = args.fDstColorSpace ? shader.fColorSpace.get() : nullptr;
+            fColors4f[i] = GrColor4f::FromSkColor4f(shader.getXformedColor(i, cs));
 
             if (kBeforeInterp_PremulType == fPremulType) {
                 fColors4f[i] = fColors4f[i].premul();

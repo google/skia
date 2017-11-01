@@ -49,19 +49,4 @@ static inline Sk4i sk_linear_to_srgb(const Sk4f& x) {
     return SkNx_cast<int>(Sk4f::Min(Sk4f::Max(s, 0.0f), 255.0f));
 }
 
-// [0.0f, 1.0f] -> [0.0f, 1.0f].  Correct after rounding.
-static inline Sk4f sk_linear_to_srgb_needs_round(const Sk4f& x) {
-    // Tuned to round trip each sRGB byte after rounding.
-    auto rsqrt = x.rsqrt(),
-         sqrt  = rsqrt.invert(),
-         ftrt  = rsqrt.rsqrt();
-
-    auto lo = 12.46f * x;
-
-    auto hi = Sk4f::Min(1.0f, SkNx_fma(Sk4f{+0.411192f}, ftrt,
-                              SkNx_fma(Sk4f{+0.689206f}, sqrt,
-                                       Sk4f{-0.0988f})));
-    return (x < 0.0043f).thenElse(lo, hi);
-}
-
 #endif//SkSRGB_DEFINED
