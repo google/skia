@@ -1211,7 +1211,7 @@ STAGE(gradient, const SkJumper_GradientCtx* c) {
 }
 
 STAGE(evenly_spaced_2_stop_gradient, const void* ctx) {
-    // TODO: Rename Ctx SkJumper_EvenlySpacedGradientCtx.
+    // TODO: Rename Ctx SkJumper_EvenlySpaced2StopGradientCtx.
     struct Ctx { float f[4], b[4]; };
     auto c = (const Ctx*)ctx;
 
