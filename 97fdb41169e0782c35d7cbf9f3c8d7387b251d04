@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4dabe5c_42777537",
+        "filename": "gm/flippity.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-01T13:41:39Z",
+      "side": 1,
+      "message": "They can be constexpr too... just shouldn\u0027t have external linkage.",
+      "range": {
+        "startLine": 21,
+        "startChar": 7,
+        "endLine": 21,
+        "endChar": 12
+      },
+      "revId": "97fdb41169e0782c35d7cbf9f3c8d7387b251d04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
