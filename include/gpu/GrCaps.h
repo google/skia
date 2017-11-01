@@ -126,6 +126,14 @@ public:
     bool reuseScratchTextures() const { return fReuseScratchTextures; }
     bool reuseScratchBuffers() const { return fReuseScratchBuffers; }
 
+    enum class WindowRectsSupport {
+        kNone,
+        kDrawOnly,
+        kDrawAndClear
+    };
+
+    WindowRectsSupport windowRectsSupport() const { return fWindowRectsSupport; }
+
     /// maximum number of attribute values per vertex
     int maxVertexAttributes() const { return fMaxVertexAttributes; }
 
@@ -233,6 +241,8 @@ protected:
 
     uint32_t fMapBufferFlags;
     int fBufferMapThreshold;
+
+    WindowRectsSupport fWindowRectsSupport;
 
     int fMaxRenderTargetSize;
     int fMaxVertexAttributes;

@@ -38,6 +38,14 @@
 #error "Vulkan header version is too low"
 #endif
 
+#ifndef VK_KHR_get_physical_device_properties2
+#error "VK_KHR_get_physical_device_properties2 not defined. Please update your Vulkan headers."
 #endif
 
+#ifndef VK_EXT_discard_rectangles
+#error "VK_EXT_discard_rectangles not defined. Please update your Vulkan headers."
 #endif
+
+#endif // SK_VULKAN
+
+#endif // GrVkDefines_DEFINED
