@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b21618e_5fb8bbf7",
+        "filename": "experimental/make_gmkb/make_gmkb.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-01T20:45:50Z",
+      "side": 1,
+      "message": "Unused?",
+      "range": {
+        "startLine": 22,
+        "startChar": 1,
+        "endLine": 22,
+        "endChar": 8
+      },
+      "revId": "27d3980d10778ca35653b94682c1793cc027f81e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fd2c0a5_3eadcac5",
+        "filename": "experimental/make_gmkb/make_gmkb.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-01T20:45:50Z",
+      "side": 1,
+      "message": "what is it?  A non- .png?",
+      "range": {
+        "startLine": 71,
+        "startChar": 14,
+        "endLine": 71,
+        "endChar": 27
+      },
+      "revId": "27d3980d10778ca35653b94682c1793cc027f81e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba36a276_ad8720e5",
+        "filename": "experimental/make_gmkb/make_gmkb.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-01T20:45:50Z",
+      "side": 1,
+      "message": "Might be conceptually simpler to just call to_nrgba(img) twice so you can delete copy_nrgba()?",
+      "range": {
+        "startLine": 75,
+        "startChar": 13,
+        "endLine": 75,
+        "endChar": 23
+      },
+      "revId": "27d3980d10778ca35653b94682c1793cc027f81e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f57eec5_b7ea7d9b",
+        "filename": "experimental/make_gmkb/make_gmkb.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-01T20:45:50Z",
+      "side": 1,
+      "message": "This might not be a copy per-se.  Might just wanna call it nrgba?",
+      "range": {
+        "startLine": 83,
+        "startChar": 2,
+        "endLine": 83,
+        "endChar": 10
+      },
+      "revId": "27d3980d10778ca35653b94682c1793cc027f81e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
