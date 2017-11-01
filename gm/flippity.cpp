@@ -18,16 +18,17 @@ static const int kNumMatrices = 6;
 static const int kImageSize = 128;
 static const int kLabelSize = 32;
 static const int kNumLabels = 4;
+static const int kInset = 16;
 
 static const int kCellSize = kImageSize+2*kLabelSize;
 static const int kGMWidth  = kNumMatrices*kCellSize;
-static const int kGMHeight = 2*kCellSize;
+static const int kGMHeight = 4*kCellSize;
 
 static const SkPoint kPoints[kNumLabels] = {
-    {          0, kImageSize },     // kLL
-    { kImageSize, kImageSize },     // kLR
-    {          0,          0 },     // kUL
-    { kImageSize,          0 },     // kUR
+    {          0, kImageSize },     // LL
+    { kImageSize, kImageSize },     // LR
+    {          0,          0 },     // UL
+    { kImageSize,          0 },     // UR
 };
 
 static const SkMatrix kUVMatrices[kNumMatrices] = {
@@ -53,6 +54,7 @@ static const SkMatrix kUVMatrices[kNumMatrices] = {
                       0,  1, 0,
                       0,  0, 1)
 };
+
 
 // Create a fixed size text label like "LL" or "LR".
 static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkColor color) {
@@ -86,8 +88,9 @@ static SkColor swap_red_and_blue(SkColor c) {
 
 // Create an image with each corner marked w/ "LL", "LR", etc., with the origin either bottom-left
 // or top-left.
-static sk_sp<SkImage> make_image(GrContext* context, const SkTArray<sk_sp<SkImage>>& labels,
-                                 bool bottomLeftOrigin) {
+static sk_sp<SkImage> make_reference_image(GrContext* context,
+                                           const SkTArray<sk_sp<SkImage>>& labels,
+                                           bool bottomLeftOrigin) {
     SkASSERT(kNumLabels == labels.count());
 
     SkImageInfo ii = SkImageInfo::Make(kImageSize, kImageSize,
@@ -99,8 +102,8 @@ static sk_sp<SkImage> make_image(GrContext* context, const SkTArray<sk_sp<SkImag
     canvas.clear(SK_ColorWHITE);
     for (int i = 0; i < kNumLabels; ++i) {
         canvas.drawImage(labels[i],
-                         0.0 != kPoints[i].fX ? kPoints[i].fX-kLabelSize : 0,
-                         0.0 != kPoints[i].fY ? kPoints[i].fY-kLabelSize : 0);
+                         0.0 != kPoints[i].fX ? kPoints[i].fX-kLabelSize-kInset : kInset,
+                         0.0 != kPoints[i].fY ? kPoints[i].fY-kLabelSize-kInset : kInset);
     }
 
     GrSurfaceDesc desc;
@@ -141,8 +144,14 @@ static sk_sp<SkImage> make_image(GrContext* context, const SkTArray<sk_sp<SkImag
 // other but we also need a scale to map from the [0..1] uv range to the actual size of
 // image.
 static bool UVMatToGeomMatForImage(SkMatrix* geomMat, const SkMatrix& uvMat) {
+
+    const SkMatrix yFlip = SkMatrix::MakeAll(1, 0, 0, 0, -1, 1, 0, 0, 1);
+
     SkMatrix tmp = uvMat;
+    tmp.preConcat(yFlip);
     tmp.preScale(1.0f/kImageSize, 1.0f/kImageSize);
+
+    tmp.postConcat(yFlip);
     tmp.postScale(kImageSize, kImageSize);
 
     return tmp.invert(geomMat);
@@ -167,21 +176,54 @@ protected:
     }
 
     // Draw the reference image and the four corner labels in the matrix's coordinate space
-    void drawImageWithMatrixAndLabels(SkCanvas* canvas, SkImage* image, int matIndex) {
+    void drawImageWithMatrixAndLabels(SkCanvas* canvas, SkImage* image, int matIndex,
+                                      bool drawSubset, bool drawScaled) {
+        static const SkRect kSubsets[kNumMatrices] = {
+            SkRect::MakeXYWH(kInset, 0, kImageSize-kInset, kImageSize),
+            SkRect::MakeXYWH(0, kInset, kImageSize, kImageSize-kInset),
+            SkRect::MakeXYWH(0, 0, kImageSize-kInset, kImageSize),
+            SkRect::MakeXYWH(0, 0, kImageSize, kImageSize-kInset),
+            SkRect::MakeXYWH(kInset/2, kInset/2, kImageSize-kInset, kImageSize-kInset),
+            SkRect::MakeXYWH(kInset, kInset, kImageSize-2*kInset, kImageSize-2*kInset),
+        };
+
         SkMatrix imageGeomMat;
         SkAssertResult(UVMatToGeomMatForImage(&imageGeomMat, kUVMatrices[matIndex]));
 
         canvas->save();
-            canvas->concat(imageGeomMat);
 
             // draw the reference image
-            canvas->drawImage(image, 0, 0);
+            canvas->concat(imageGeomMat);
+            if (drawSubset) {
+                canvas->drawImageRect(image, kSubsets[matIndex],
+                                      drawScaled ? SkRect::MakeWH(kImageSize, kImageSize)
+                                                 : kSubsets[matIndex],
+                                      nullptr, SkCanvas::kFast_SrcRectConstraint);
+            } else {
+                canvas->drawImage(image, 0, 0);
+            }
 
             // draw the labels
             for (int i = 0; i < kNumLabels; ++i) {
                 canvas->drawImage(fLabels[i],
                                     0.0f == kPoints[i].fX ? -kLabelSize : kPoints[i].fX,
                                     0.0f == kPoints[i].fY ? -kLabelSize : kPoints[i].fY);
+            }
+        canvas->restore();
+    }
+
+    void drawRow(GrContext* context, SkCanvas* canvas,
+                 bool bottomLeftImage, bool drawSubset, bool drawScaled) {
+
+        sk_sp<SkImage> referenceImage = make_reference_image(context, fLabels, bottomLeftImage);
+
+        canvas->save();
+            canvas->translate(kLabelSize, kLabelSize);
+
+            for (int i = 0; i < kNumMatrices; ++i) {
+                this->drawImageWithMatrixAndLabels(canvas, referenceImage.get(), i,
+                                                   drawSubset, drawScaled);
+                canvas->translate(kCellSize, 0);
             }
         canvas->restore();
     }
@@ -213,32 +255,22 @@ protected:
         this->makeLabels(context);
 
         // Top row gets TL image
-        {
-            sk_sp<SkImage> referenceImage = make_image(context, fLabels, false);
+        this->drawRow(context, canvas, false, false, false);
 
-            canvas->save();
-                canvas->translate(kLabelSize, kLabelSize);
-
-                for (int i = 0; i < kNumMatrices; ++i) {
-                    this->drawImageWithMatrixAndLabels(canvas, referenceImage.get(), i);
-                    canvas->translate(kImageSize+2*kLabelSize, 0);
-                }
-            canvas->restore();
-        }
+        canvas->translate(0, kCellSize);
 
         // Bottom row gets BL image
-        {
-            sk_sp<SkImage> referenceImage = make_image(context, fLabels, true);
+        this->drawRow(context, canvas, true, false, false);
 
-            canvas->save();
-                canvas->translate(kLabelSize, kImageSize+3*kLabelSize);
+        canvas->translate(0, kCellSize);
 
-                for (int i = 0; i < kNumMatrices; ++i) {
-                    this->drawImageWithMatrixAndLabels(canvas, referenceImage.get(), i);
-                    canvas->translate(kCellSize, 0);
-                }
-            canvas->restore();
-        }
+        // Third row gets subsets of BL images
+        this->drawRow(context, canvas, true, true, false);
+
+        canvas->translate(0, kCellSize);
+
+        // Fourth row gets scaled subsets of BL images
+        this->drawRow(context, canvas, true, true, true);
 
         // separator grid
         canvas->drawLine(0, kCellSize, kGMWidth, kCellSize, SkPaint());
