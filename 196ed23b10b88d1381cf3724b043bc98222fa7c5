@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de33cb44_bca52419",
+        "filename": "infra/bots/recipes/recreate_skps.expected/failed_upload.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-11-01T12:19:23Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem entirely correct to me (it\u0027s missing anything about the chromium/src repo) but I haven\u0027t looked into the change so it might be fine.  Let\u0027s watch this and the command buffer bots carefully after it lands.",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 46
+      },
+      "revId": "196ed23b10b88d1381cf3724b043bc98222fa7c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
