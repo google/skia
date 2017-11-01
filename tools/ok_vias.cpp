@@ -9,6 +9,7 @@
 #include "ProcStats.h"
 #include "SkColorFilter.h"
 #include "SkEventTracingPriv.h"
+#include "SkFontMgrPriv.h"
 #include "SkImage.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
@@ -70,15 +71,13 @@ struct ViaPic : Dst {
 };
 static Register via_pic{"via_pic", "record then play back an SkPicture", ViaPic::Create};
 
-// When deserializing, we need to hook this to intercept "Toy Liberation ..."
-// typefaces and return our portable test typeface.
-extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char[], SkFontStyle);
-
 struct ViaSkp : Dst {
     std::unique_ptr<Dst> target;
     bool                 rtree = false;
 
     static std::unique_ptr<Dst> Create(Options options, std::unique_ptr<Dst> dst) {
+        // When deserializing, we need to hook this to intercept "Toy Liberation ..."
+        // typefaces and return our portable test typeface.
         gCreateTypefaceDelegate = [](const char name[], SkFontStyle style) -> sk_sp<SkTypeface> {
             if (name == strstr(name, "Toy Liberation")) {
                 return sk_tool_utils::create_portable_typeface(name, style);
