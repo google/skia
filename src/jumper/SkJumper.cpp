@@ -218,7 +218,7 @@ extern "C" {
     LOWP(set_rgb) LOWP(swap_rb) LOWP(invert)
     NOPE(from_srgb) NOPE(from_srgb_dst) NOPE(to_srgb)
     LOWP(black_color) LOWP(white_color) LOWP(uniform_color)
-    LOWP(seed_shader) TODO(dither)
+    LOWP(seed_shader) LOWP(dither)
     LOWP(load_a8)   LOWP(load_a8_dst)   LOWP(store_a8)   LOWP(gather_a8)
     LOWP(load_g8)   LOWP(load_g8_dst)                    LOWP(gather_g8)
     LOWP(load_565)  LOWP(load_565_dst)  LOWP(store_565)  LOWP(gather_565)
