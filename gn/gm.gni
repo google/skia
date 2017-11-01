@@ -102,7 +102,6 @@ gm_sources = [
   "$_gm/discard.cpp",
   "$_gm/displacement.cpp",
   "$_gm/distantclip.cpp",
-  "$_gm/dither.cpp",
   "$_gm/downsamplebitmap.cpp",
   "$_gm/draw_bitmap_rect_skbug4374.cpp",
   "$_gm/drawable.cpp",
