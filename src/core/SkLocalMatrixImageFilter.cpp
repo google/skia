@@ -6,6 +6,7 @@
  */
 
 #include "SkColorSpaceXformer.h"
+#include "SkImageFilterPriv.h"
 #include "SkLocalMatrixImageFilter.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
