@@ -16,6 +16,24 @@
       "revId": "2228b6c46049163d1af60d98e5869e0d6c86a2bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f1d6f42_631f6da4",
+        "filename": "gm/flippity.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-01T13:26:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "68acd192_a35609b3",
+      "revId": "2228b6c46049163d1af60d98e5869e0d6c86a2bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
