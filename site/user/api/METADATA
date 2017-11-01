@@ -1,3 +1,17 @@
 {
-  "fileOrder": ["skcanvas_overview", "skpaint_overview", "skrect_overview", "skregion_overview", "skmatrix_overview", "creating_skcanvas", "SkCanvas_Reference", "SkPaint_Reference", "SkPath_Reference", "usingBookmaker"]
+  "fileOrder": [
+    "SkBitmap_Reference",
+    "SkCanvas_Reference",
+    "SkIRect_Reference",
+    "SkMatrix_Reference",
+    "SkPaint_Reference",
+    "SkPath_Reference",
+    "SkPixmap_Reference",
+    "SkRect_Reference",
+    "skcanvas_overivew",
+    "creating_skcanvas", 
+    "skpaint_overview",
+    "usingBookmaker",
+    "undocumented"
+  ]
 }
