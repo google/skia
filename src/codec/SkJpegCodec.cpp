@@ -243,6 +243,7 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
                     {
                         colorSpace = nullptr;
                     }
+                    break;
                 default:
                     if (colorSpace->type() != SkColorSpace::kRGB_Type) {
                         colorSpace = nullptr;
