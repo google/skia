@@ -17,13 +17,19 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
 
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
-        SkASSERT(intvl->fEnd < start);
+        //SkASSERT(intvl->fEnd <= end);
         intvl->fEnd = end;
         return;
     }
 
-    // TODO: given the usage pattern an arena allocation scheme would work well here
-    Interval* newIntvl = new Interval(proxy, start, end);
+    Interval* newIntvl;
+    if (fFreeIntervalList) {
+        newIntvl = fFreeIntervalList;
+        fFreeIntervalList = newIntvl->fNext;
+        newIntvl->resetTo(proxy, start, end);
+    } else {
+        newIntvl = fIntervalAllocator.make<Interval>(proxy, start, end);
+    }
 
     fIntvlList.insertByIncreasingStart(newIntvl);
     fIntvlHash.add(newIntvl);
@@ -109,7 +115,10 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     while (!fActiveIntvls.empty() && fActiveIntvls.peekHead()->fEnd < curIndex) {
         Interval* temp = fActiveIntvls.popHead();
         this->freeUpSurface(temp->fProxy->priv().peekSurface());
-        delete temp;
+
+        // Add temp to the free interval list so it can be reused
+        temp->fNext = fFreeIntervalList;
+        fFreeIntervalList = temp;
     }
 }
 
