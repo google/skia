@@ -215,6 +215,12 @@ SI F rcp(F x) {
 #endif
 }
 
+SI F floor_(F x) {
+    F roundtrip = cast<F>(cast<I32>(x));
+    return roundtrip - if_then_else(roundtrip > x, 1.0f, 0.0f);
+}
+SI F abs_(F x) { return bit_cast<F>( bit_cast<I32>(x) & 0x7fffffff ); }
+
 // ~~~~~~ Basic / misc. stages ~~~~~~ //
 
 STAGE_GG(seed_shader, const float* iota) {
@@ -742,6 +748,33 @@ STAGE_PP(lerp_565, const SkJumper_MemoryCtx* ctx) {
     g = lerp(dg, g, cg);
     b = lerp(db, b, cb);
     a = lerp(da, a, ca);
+}
+
+// ~~~~~~ Gradient stages ~~~~~~ //
+
+// Clamp x to [0,1], both sides inclusive (think, gradients).
+// Even repeat and mirror funnel through a clamp to handle bad inputs like +Inf, NaN.
+SI F clamp_01(F v) { return min(max(0, v), 1); }
+
+STAGE_GG(clamp_x_1 , Ctx::None) { x = clamp_01(x); }
+STAGE_GG(repeat_x_1, Ctx::None) { x = clamp_01(x - floor_(x)); }
+STAGE_GG(mirror_x_1, Ctx::None) {
+    auto two = [](F x){ return x+x; };
+    x = clamp_01(abs_( (x-1.0f) - two(floor_((x-1.0f)*0.5f)) - 1.0f ));
+}
+
+STAGE_GP(evenly_spaced_2_stop_gradient, const void* ctx) {
+    // TODO: Rename Ctx SkJumper_EvenlySpacedGradientCtx.
+    struct Ctx { float f[4], b[4]; };
+    auto c = (const Ctx*)ctx;
+
+    auto round = [](F x) { return cast<U16>(x * 255.0f + 0.5f); };
+
+    auto t = x;
+    r = round(mad(t, c->f[0], c->b[0]));
+    g = round(mad(t, c->f[1], c->b[1]));
+    b = round(mad(t, c->f[2], c->b[2]));
+    a = round(mad(t, c->f[3], c->b[3]));
 }
 
 // ~~~~~~ Compound stages ~~~~~~ //
