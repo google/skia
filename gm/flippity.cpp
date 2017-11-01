@@ -59,6 +59,7 @@ static const SkMatrix kUVMatrices[kNumMatrices] = {
 // Create a fixed size text label like "LL" or "LR".
 static sk_sp<SkImage> make_text_image(GrContext* context, const char* text, SkColor color) {
     SkPaint paint;
+    sk_tool_utils::set_portable_typeface(&paint);
     paint.setAntiAlias(true);
     paint.setTextSize(32);
     paint.setColor(color);
@@ -254,6 +255,8 @@ protected:
 
         this->makeLabels(context);
 
+        canvas->save();
+
         // Top row gets TL image
         this->drawRow(context, canvas, false, false, false);
 
@@ -272,8 +275,12 @@ protected:
         // Fourth row gets scaled subsets of BL images
         this->drawRow(context, canvas, true, true, true);
 
+        canvas->restore();
+
         // separator grid
-        canvas->drawLine(0, kCellSize, kGMWidth, kCellSize, SkPaint());
+        for (int i = 0; i < 4; ++i) {
+            canvas->drawLine(0, i * kCellSize, kGMWidth, i * kCellSize, SkPaint());
+        }
         for (int i = 0; i < kNumMatrices; ++i) {
             canvas->drawLine(i * kCellSize, 0, i * kCellSize, kGMHeight, SkPaint());
         }
