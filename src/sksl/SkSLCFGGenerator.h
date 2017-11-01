@@ -96,6 +96,14 @@ struct BasicBlock {
     bool tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterator* iter, Expression* e);
 
     /**
+     * Locates and attempts remove an expression occurring after the expression pointed to by iter.
+     * If the expression can be cleanly removed, returns true and resets iter to a valid iterator
+     * pointing to the same expression it did initially. Otherwise returns false (and the CFG will
+     * need to be regenerated).
+     */
+    bool tryRemoveExpressionAfter(std::vector<BasicBlock::Node>::iterator* iter, Expression* e);
+
+    /**
      * As tryRemoveExpressionBefore, but for lvalues. As lvalues are at most partially evaluated
      * (for instance, x[i] = 0 evaluates i but not x) this will only look for the parts of the
      * lvalue that are actually evaluated.

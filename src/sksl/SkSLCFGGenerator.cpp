@@ -123,6 +123,46 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
     return result;
 }
 
+bool BasicBlock::tryRemoveExpressionAfter(std::vector<BasicBlock::Node>::iterator* iter,
+                                          Expression* e) {
+    if (e->fKind == Expression::kTernary_Kind) {
+        return false;
+    }
+    bool result;
+    if ((*iter)->fKind == BasicBlock::Node::kExpression_Kind) {
+        ASSERT((*iter)->expression()->get() != e);
+        Expression* old = (*iter)->expression()->get();
+        do {
+            if ((*iter) == fNodes.end()) {
+                return false;
+            }
+            ++(*iter);
+        } while ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
+                 (*iter)->expression()->get() != e);
+        result = this->tryRemoveExpression(iter);
+        while ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
+               (*iter)->expression()->get() != old) {
+            ASSERT(*iter != fNodes.begin());
+            --(*iter);
+        }
+    } else {
+        Statement* old = (*iter)->statement()->get();
+        do {
+            if ((*iter) == fNodes.end()) {
+                return false;
+            }
+            ++(*iter);
+        } while ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
+                 (*iter)->expression()->get() != e);
+        result = this->tryRemoveExpression(iter);
+        while ((*iter)->fKind != BasicBlock::Node::kStatement_Kind ||
+               (*iter)->statement()->get() != old) {
+            ASSERT(*iter != fNodes.begin());
+            --(*iter);
+        }
+    }
+    return result;
+}
 bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* iter,
                                        Expression* lvalue) {
     switch (lvalue->fKind) {
@@ -466,20 +506,14 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             break;
         }
         case Statement::kVarDeclarations_Kind: {
-            VarDeclarationsStatement& decls = ((VarDeclarationsStatement&) **s);
-            for (auto& stmt : decls.fDeclaration->fVars) {
-                if (stmt->fKind == Statement::kNop_Kind) {
-                    continue;
-                }
-                VarDeclaration& vd = (VarDeclaration&) *stmt;
-                if (vd.fValue) {
-                    this->addExpression(cfg, &vd.fValue, true);
-                }
-                cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind,
-                                                             false, nullptr, &stmt });
-            }
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind, false,
                                                          nullptr, s });
+            VarDeclarationsStatement& decls = ((VarDeclarationsStatement&) **s);
+            for (Variable* var : decls.fDeclaration->fVars) {
+                if (var->fInitialValue) {
+                    this->addExpression(cfg, &var->fInitialValue, true);
+                }
+            }
             break;
         }
         case Statement::kDiscard_Kind:

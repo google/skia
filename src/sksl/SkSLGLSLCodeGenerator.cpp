@@ -789,30 +789,29 @@ void GLSLCodeGenerator::writeTypePrecision(const Type& type) {
 void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {
     ASSERT(decl.fVars.size() > 0);
     bool wroteType = false;
-    for (const auto& stmt : decl.fVars) {
-        VarDeclaration& var = (VarDeclaration&) *stmt;
+    for (const Variable* var : decl.fVars) {
         if (wroteType) {
             this->write(", ");
         } else {
-            this->writeModifiers(var.fVar->fModifiers, global);
+            this->writeModifiers(var->fModifiers, global);
             this->writeTypePrecision(decl.fBaseType);
             this->writeType(decl.fBaseType);
             this->write(" ");
             wroteType = true;
         }
-        this->write(var.fVar->fName);
-        for (const auto& size : var.fSizes) {
+        this->write(var->fName);
+        for (const auto& size : var->fSizes) {
             this->write("[");
             if (size) {
                 this->writeExpression(*size, kTopLevel_Precedence);
             }
             this->write("]");
         }
-        if (var.fValue) {
+        if (var->fInitialValue) {
             this->write(" = ");
-            this->writeVarInitializer(*var.fVar, *var.fValue);
+            this->writeVarInitializer(*var, *var->fInitialValue);
         }
-        if (!fFoundImageDecl && var.fVar->fType == *fContext.fImage2D_Type) {
+        if (!fFoundImageDecl && var->fType == *fContext.fImage2D_Type) {
             if (fProgram.fSettings.fCaps->imageLoadStoreExtensionString()) {
                 fHeader.writeText("#extension ");
                 fHeader.writeText(fProgram.fSettings.fCaps->imageLoadStoreExtensionString());
@@ -984,7 +983,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::kVar_Kind: {
             VarDeclarations& decl = (VarDeclarations&) e;
             if (decl.fVars.size() > 0) {
-                int builtin = ((VarDeclaration&) *decl.fVars[0]).fVar->fModifiers.fLayout.fBuiltin;
+                int builtin = decl.fVars[0]->fModifiers.fLayout.fBuiltin;
                 if (builtin == -1) {
                     // normal var
                     this->writeVarDeclarations(decl, true);

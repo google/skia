@@ -116,8 +116,6 @@ protected:
 
     void writeModifiers(const Modifiers& modifiers, bool globalContext);
 
-    void writeGlobalVars(const VarDeclaration& vs);
-
     virtual void writeVarInitializer(const Variable& var, const Expression& value);
 
     const char* getTypePrecision(const Type& type);
