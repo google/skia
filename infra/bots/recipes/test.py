@@ -204,6 +204,10 @@ def dm_flags(api, bot):
       # The TSAN bot disables GL buffer mapping which is required for inst.
       configs.extend([gl_prefix + 'inst'])
 
+    # Test SkColorSpaceXformCanvas on a few bots
+    if 'GTX1070' in bot:
+      configs.append('gbr-gl')
+
     # CommandBuffer bot *only* runs the command_buffer config.
     if 'CommandBuffer' in bot:
       configs = ['commandbuffer']
