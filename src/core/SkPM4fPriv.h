@@ -52,6 +52,10 @@ static inline uint32_t Sk4f_toS32(const Sk4f& px) {
     return s32;
 }
 
+static inline Sk4f Sk4f_to_srgb_needs_round(const Sk4f& px) {
+    auto rgb = sk_linear_to_srgb_needs_round(px);
+    return { rgb[0], rgb[1], rgb[2], px[3] };
+}
 
 // SkColor handling:
 //   SkColor has an ordering of (b, g, r, a) if cast to an Sk4f, so the code swizzles r and b to
