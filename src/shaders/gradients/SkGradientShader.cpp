@@ -530,9 +530,17 @@ void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap, GradientBitmapType
     SkASSERT(prevIndex == kGradientTextureSize - 1);
 }
 
+static inline SkColor4f to_srgb(const SkColor4f& c) {
+    // return SkColor4f_from_SkColor(c.toSkColor(), nullptr);
+
+    SkColor4f srgb;
+    sk_linear_to_srgb_needs_round(Sk4f::Load(c.vec())).store(srgb.vec());
+    return srgb;
+}
+
 SkColor4f SkGradientShaderBase::getXformedColor(size_t i, SkColorSpace* dstCS) const {
     return dstCS ? to_colorspace(fOrigColors4f[i], fColorSpace.get(), dstCS)
-                 : SkColor4f_from_SkColor(this->getLegacyColor(i), nullptr);
+                 : to_srgb(fOrigColors4f[i]);
 }
 
 SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
