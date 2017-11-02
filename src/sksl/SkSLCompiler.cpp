@@ -1232,7 +1232,48 @@ bool Compiler::toGLSL(const Program& program, String* out) {
     bool result = this->toGLSL(program, buffer);
     if (result) {
         *out = buffer.str();
-    }
+        if (*out ==
+"#version 130\n"
+"\n"
+"#extension GL_ARB_shader_image_load_store : require\n"
+"uniform float u_skRTHeight;\n"
+"out vec4 sk_FragColor;\n"
+"layout (rgba8) uniform image2D uImage_0_Stage1;\n"
+"noperspective in vec4 vcolor_Stage0;\n"
+"void main() {\n"
+"    vec2 _sktmpCoord = gl_FragCoord.xy;\n"
+"    vec4 sk_FragCoord = vec4(_sktmpCoord.x, u_skRTHeight - _sktmpCoord.y, 1.0, 1.0);\n"
+"    vec4 output_Stage1;\n"
+"    {\n"
+"        vec2 coord = sk_FragCoord.xy;\n"
+"        output_Stage1 = imageLoad(uImage_0_Stage1, ivec2(coord));\n"
+"    }\n"
+"    {\n"
+"        sk_FragColor = output_Stage1;\n"
+"    }\n"
+"}\n") {
+            *out =
+"#version 130\n"
+"// FOUND IT\n"
+"#extension GL_ARB_shader_image_load_store : require\n"
+"uniform float u_skRTHeight;\n"
+"out vec4 sk_FragColor;\n"
+"layout (rgba8) uniform image2D uImage_0_Stage1;\n"
+"noperspective in vec4 vcolor_Stage0;\n"
+"void main() {\n"
+"    vec2 _sktmpCoord = gl_FragCoord.xy;\n"
+"    vec4 sk_FragCoord = vec4(_sktmpCoord.x, u_skRTHeight - _sktmpCoord.y, 1.0, 1.0);\n"
+"    vec4 output_Stage1;\n"
+"    {\n"
+"        vec2 coord = sk_FragCoord.xy;\n"
+"        output_Stage1 = imageLoad(uImage_0_Stage1, ivec2(coord));\n"
+"    }\n"
+"    {\n"
+"        sk_FragColor = output_Stage1;\n"
+"    }\n"
+"}\n";
+        }
+      }
     return result;
 }
 
