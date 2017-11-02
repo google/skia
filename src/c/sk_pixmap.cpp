@@ -8,6 +8,7 @@
 #include "SkPixmap.h"
 #include "SkBitmapScaler.h"
 #include "SkImageEncoder.h"
+#include "SkSwizzle.h"
 
 #include "sk_pixmap.h"
 
@@ -115,4 +116,9 @@ bool sk_pixmap_read_pixels(const sk_pixmap_t* cpixmap, const sk_imageinfo_t* dst
     from_c(*dstInfo, &info);
 
     return AsPixmap(cpixmap)->readPixels(info, dstPixels, dstRowBytes, srcX, srcY);
+}
+
+void sk_swizzle_swap_rb(uint32_t* dest, const uint32_t* src, int count)
+{
+    SkSwapRB(dest, src, count);
 }

@@ -37,6 +37,8 @@ SK_C_API bool sk_pixmap_encode_image(sk_wstream_t* dst, const sk_pixmap_t* src, 
 
 SK_C_API bool sk_pixmap_read_pixels(const sk_pixmap_t* cpixmap, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY);
 
+SK_C_API void sk_swizzle_swap_rb(uint32_t* dest, const uint32_t* src, int count);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
