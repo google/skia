@@ -219,7 +219,7 @@ out of scope, addr is unaffected.
 
 #Example
 #Image 4
-#Height 128
+#Height 64
 void draw(SkCanvas* canvas) {
     std::vector<int32_t> pixels;
     pixels.resize(image->height() * image->width() * 4);
@@ -1144,7 +1144,7 @@ pixmap.addr32(1, 2) == &storage[1 + 2 * w]
 ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso addr() addr8 addr16 addr64 addrF16 getColor writable_addr writable_addr64
 
 ##
 
@@ -1437,6 +1437,7 @@ One word corresponds to one pixel.
 #Return  writable unsigned 64-bit pointer to pixel ##
 
 #Example
+#Height 40
     SkImageInfo info = SkImageInfo::Make(3, 3, kRGBA_F16_SkColorType, kPremul_SkAlphaType);
     uint64_t storage[9];
     SkPixmap pixmap(info, storage, 3 * sizeof(uint64_t));
@@ -1894,6 +1895,7 @@ not intersect bounds().
 #Return  true if pixels are changed ##
 
 #Example
+#Height 50
     uint32_t storage[2];
     SkImageInfo info = SkImageInfo::MakeN32Premul(1, 2);
     SkPixmap pixmap(info, storage, info.minRowBytes());
@@ -1922,6 +1924,7 @@ is empty.
 #Return  true if pixels are changed ##
 
 #Example
+#Height 50
     uint32_t storage[2];
     SkImageInfo info = SkImageInfo::MakeN32Premul(1, 2);
     SkPixmap pixmap(info, storage, info.minRowBytes());
@@ -1951,6 +1954,7 @@ not intersect bounds(), or if subset is nullptr and bounds() is empty.
 #Return  true if pixels are changed ##
 
 #Example
+#Height 50
     uint32_t storage[2];
     SkImageInfo info = SkImageInfo::MakeN32Premul(1, 2);
     SkPixmap pixmap(info, storage, info.minRowBytes());

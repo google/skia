@@ -1406,7 +1406,7 @@ integral rectangle from origin to <a href="#SkBitmap_width">width</a> and <a hre
 
 ### Example
 
-<div><fiddle-embed name="977dd8a850f89a610505e3f4f260d540"></fiddle-embed></div>
+<div><fiddle-embed name="bd020c1527964761adf7646e82a36487"></fiddle-embed></div>
 
 ### See Also
 
@@ -2261,6 +2261,10 @@ subset origin: 32, 64
 ~~~~
 
 </fiddle-embed></div>
+
+### See Also
+
+<a href="undocumented#SkPixelRef">SkPixelRef</a> <a href="#SkBitmap_getSubset">getSubset</a> <a href="#SkBitmap_setPixelRef">setPixelRef</a>
 
 ---
 

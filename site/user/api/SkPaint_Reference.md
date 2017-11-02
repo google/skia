@@ -647,6 +647,10 @@ serialized data describing <a href="#Paint">Paint</a> content</td>
   </tr>
 </table>
 
+### See Also
+
+<a href="undocumented#SkReadBuffer">SkReadBuffer</a>
+
 ---
 
 # <a name="Hinting"></a> Hinting
@@ -861,6 +865,10 @@ enum <a href="#SkPaint_ReserveFlags">ReserveFlags</a> {
     <td><a name="SkPaint_kStrikeThruText_ReserveFlag"> <code><strong>SkPaint::kStrikeThruText_ReserveFlag </strong></code> </a></td><td>0x0010</td><td>mask for strike-thru text</td>
   </tr>
 </table>
+
+### See Also
+
+<a href="#Flags">Flags</a> <a href="#SkPaint_getFlags">getFlags</a>
 
 
 
@@ -2436,7 +2444,7 @@ at the contour point.
 
 ### Example
 
-<div><fiddle-embed name="3d92b449b298b4ce4004cfca6b91cee7"></fiddle-embed></div>
+<div><fiddle-embed name="2bffb6384cc20077e632e7d01da045ca"></fiddle-embed></div>
 
 <a name="SkPaint_getStrokeCap"></a>
 ## getStrokeCap
@@ -2516,7 +2524,7 @@ the following curve, the pair of curves meet at <a href="#Stroke_Join">Stroke Jo
 
 ### Example
 
-<div><fiddle-embed name="4a4e41ed89a57d47eab5d1600c33b0e8"></fiddle-embed></div>
+<div><fiddle-embed name="917c44b504d3f9308571fd3835d90a0d"></fiddle-embed></div>
 
 ## <a name="SkPaint_Join"></a> Enum SkPaint::Join
 
@@ -5203,6 +5211,10 @@ text size = 12
 ~~~~
 
 </fiddle-embed></div>
+
+### See Also
+
+<a href="#SkPathEffect_toString">SkPathEffect::toString</a> <a href="#SkMaskFilter_toString">SkMaskFilter::toString</a> <a href="#SkColorFilter_toString">SkColorFilter::toString</a> <a href="#SkImageFilter_toString">SkImageFilter::toString</a>
 
 ---
 

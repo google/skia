@@ -28,6 +28,13 @@
     "name": "Weight_3",
         "stdout": "move {0, 0}, \\nline {0, 0}, {20, 0}, \\nline {20, 0}, {20, 20}, \\ndone \\n"
     },
+        "SkAutoCanvasRestore_restore": {
+    "code": "void draw(SkCanvas* canvas) {\n    for (bool callRestore : { false, true } ) {\n        for (bool saveCanvas : {false, true} ) {\n            SkAutoCanvasRestore autoRestore(canvas, saveCanvas);\n            if (!saveCanvas) {\n                canvas->save();\n            }\n            SkDebugf(\"saveCanvas: %s  before restore: %d\\n\",\n                   saveCanvas ? \"true\" : \"false\", canvas->getSaveCount());\n            if (callRestore) autoRestore.restore();\n            SkDebugf(\"saveCanvas: %s  after restore: %d\\n\",\n                   saveCanvas ? \"true\" : \"false\", canvas->getSaveCount());\n        }\n    }\n    SkDebugf(\"final count: %d\\n\", canvas->getSaveCount());\n}",
+    "hash": "9f459b218ec079c1ada23f4412968f9a",
+    "file": "SkCanvas_Reference",
+    "name": "SkAutoCanvasRestore::restore()",
+        "stdout": "saveCanvas: false  before restore: 2\\nsaveCanvas: false  after restore: 2\\nsaveCanvas: true  before restore: 2\\nsaveCanvas: true  after restore: 2\\nsaveCanvas: false  before restore: 2\\nsaveCanvas: false  after restore: 1\\nsaveCanvas: true  before restore: 2\\nsaveCanvas: true  after restore: 1\\nfinal count: 1\\n"
+    },
         "SkBitmap_ComputeIsOpaque": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    bitmap.setInfo(SkImageInfo::Make(2, 2, kN32_SkColorType, kPremul_SkAlphaType));\n    for (int index = 0; index < 2; ++index) {\n        bitmap.allocPixels();\n        bitmap.eraseColor(0x00000000);\n        SkDebugf(\"computeIsOpaque: %s\\n\", SkBitmap::ComputeIsOpaque(bitmap) ? \"true\" : \"false\");\n        bitmap.eraseColor(0xFFFFFFFF);\n        SkDebugf(\"computeIsOpaque: %s\\n\", SkBitmap::ComputeIsOpaque(bitmap) ? \"true\" : \"false\");\n        bitmap.setInfo(bitmap.info().makeAlphaType(kOpaque_SkAlphaType));\n    }\n}",
     "hash": "9df1baa17658fbd0c419780f26fd854f",
@@ -3127,16 +3134,16 @@
     "Paint_Stroke_Cap": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(20);\n    SkPath path;\n    path.moveTo(30, 30);\n    path.lineTo(30, 30);\n    path.moveTo(70, 30);\n    path.lineTo(90, 40);\n    for (SkPaint::Cap c : { SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap } ) {\n        paint.setStrokeCap(c);\n        canvas->drawPath(path, paint);\n        canvas->translate(0, 70);\n    }\n}",
     "width": 256,
-    "height": 256,
-    "hash": "3d92b449b298b4ce4004cfca6b91cee7",
+    "height": 200,
+    "hash": "2bffb6384cc20077e632e7d01da045ca",
     "file": "SkPaint_Reference",
     "name": "Stroke_Cap"
 },
     "Paint_Stroke_Join": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(20);\n    SkPath path;\n    path.moveTo(30, 30);\n    path.lineTo(40, 50);\n    path.conicTo(70, 30, 100, 30, .707f);\n    for (SkPaint::Join j : { SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join } ) {\n        paint.setStrokeJoin(j);\n        canvas->drawPath(path, paint);\n        canvas->translate(0, 70);\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(20);\n    SkPath path;\n    path.moveTo(30, 20);\n    path.lineTo(40, 40);\n    path.conicTo(70, 20, 100, 20, .707f);\n    for (SkPaint::Join j : { SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join } ) {\n        paint.setStrokeJoin(j);\n        canvas->drawPath(path, paint);\n        canvas->translate(0, 70);\n    }\n}",
     "width": 256,
-    "height": 256,
-    "hash": "4a4e41ed89a57d47eab5d1600c33b0e8",
+    "height": 200,
+    "hash": "917c44b504d3f9308571fd3835d90a0d",
     "file": "SkPaint_Reference",
     "name": "Stroke_Join"
 },
@@ -3293,28 +3300,12 @@
     "name": "Path_2"
 },
     "SkAutoCanvasRestore_SkCanvas_star": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint p;\n    p.setAntiAlias(true);\n    p.setTextSize(64);\n    for (SkScalar sx : { -1, 1 } ) {\n        for (SkScalar sy : { -1, 1 } ) {\n            SkAutoCanvasRestore autoRestore(canvas, true);\n            SkMatrix m = SkMatrix::MakeAll(sx, 1, 96,    0, sy, 64,   0, 0, 1);\n            canvas->concat(m);\n            canvas->drawString(\"R\", 0, 0, p);\n        }\n    }\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 128,
+    "hash": "466ef576b88e29d7252422db7adeed1c",
     "file": "SkCanvas_Reference",
     "name": "SkAutoCanvasRestore::SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)"
-},
-    "SkAutoCanvasRestore_destructor": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkCanvas_Reference",
-    "name": "SkAutoCanvasRestore::~SkAutoCanvasRestore()"
-},
-    "SkAutoCanvasRestore_restore": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkCanvas_Reference",
-    "name": "SkAutoCanvasRestore::restore()"
 },
     "SkBitmap_allocN32Pixels": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRandom random;\n    SkBitmap bitmap;\n    bitmap.allocN32Pixels(64, 64);\n    bitmap.eraseColor(SK_ColorTRANSPARENT);\n    for (int y = 0; y < 256; y += 64) {\n        for (int x = 0; x < 256; x += 64) {\n            SkColor color = random.nextU();\n            uint32_t w = random.nextRangeU(4, 32);\n            uint32_t cx = random.nextRangeU(0, 64 - w);\n            uint32_t h = random.nextRangeU(4, 32);\n            uint32_t cy = random.nextRangeU(0, 64 - h);\n            bitmap.erase(color, SkIRect::MakeXYWH(cx, cy, w, h));\n            canvas->drawBitmap(bitmap, x, y);\n        }\n    }\n}",
@@ -3367,8 +3358,8 @@
     "SkBitmap_bounds": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect bounds = source.bounds();\n    for (int x : { 0, bounds.width() } ) {\n        for (int y : { 0, bounds.height() } ) {\n            canvas->drawBitmap(source, x, y);\n        }\n    }\n}",
     "width": 256,
-    "height": 256,
-    "hash": "977dd8a850f89a610505e3f4f260d540",
+    "height": 128,
+    "hash": "bd020c1527964761adf7646e82a36487",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::bounds()"
 },
@@ -4575,8 +4566,8 @@
     "SkMatrix_mapRectToQuad": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkMatrix matrix;\n    matrix.setRotate(60, 128, 128);\n    SkRect rect = {50, 50, 150, 150};\n    SkPoint pts[4];\n    matrix.mapRectToQuad(pts, rect);\n    for (int i = 0; i < 4; ++i) {\n        canvas->drawCircle(pts[i].fX, pts[i].fY, 3, paint);\n    }\n    canvas->concat(matrix);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRect(rect, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "3bf9404624735d7cf34b47b9c7b27bcc",
+    "height": 192,
+    "hash": "c69cd2a590b5733c3cbc92cb9ceed3f5",
     "file": "SkMatrix_Reference",
     "name": "SkMatrix::mapRectToQuad"
 },
@@ -4789,10 +4780,10 @@
     "name": "SkMatrix::set9"
 },
     "SkMatrix_setAll": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint p;\n    p.setAntiAlias(true);\n    p.setTextSize(64);\n    SkMatrix m;\n    for (SkScalar sx : { -1, 1 } ) {\n        for (SkScalar sy : { -1, 1 } ) {\n            SkAutoCanvasRestore autoRestore(canvas, true);\n            m.setAll(sx, 1, 128,    0, sy, 128,   0, 0, 1);\n            canvas->concat(m);\n            canvas->drawString(\"K\", 0, 0, p);\n        }\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint p;\n    p.setAntiAlias(true);\n    p.setTextSize(64);\n    SkMatrix m;\n    for (SkScalar sx : { -1, 1 } ) {\n        for (SkScalar sy : { -1, 1 } ) {\n            SkAutoCanvasRestore autoRestore(canvas, true);\n            m.setAll(sx, 1, 128,    0, sy, 64,   0, 0, 1);\n            canvas->concat(m);\n            canvas->drawString(\"K\", 0, 0, p);\n        }\n    }\n}",
     "width": 256,
-    "height": 256,
-    "hash": "c51d81b637b58da30fb9ae2d68877167",
+    "height": 128,
+    "hash": "95ccfc2a89ce593e6b7a9f992a844bc0",
     "file": "SkMatrix_Reference",
     "name": "SkMatrix::setAll"
 },
@@ -4853,10 +4844,10 @@
     "name": "SkMatrix::setRotate_2"
 },
     "SkMatrix_setScale": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint p;\n    p.setAntiAlias(true);\n    p.setTextSize(64);\n    SkMatrix m;\n    for (SkScalar sx : { -1, 1 } ) {\n        for (SkScalar sy : { -1, 1 } ) {\n            SkAutoCanvasRestore autoRestore(canvas, true);\n            m.setScale(sx, sy, 128, 128);\n            canvas->concat(m);\n            canvas->drawString(\"K\", 128, 128, p);\n        }\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint p;\n    p.setAntiAlias(true);\n    p.setTextSize(64);\n    SkMatrix m;\n    for (SkScalar sx : { -1, 1 } ) {\n        for (SkScalar sy : { -1, 1 } ) {\n            SkAutoCanvasRestore autoRestore(canvas, true);\n            m.setScale(sx, sy, 128, 64);\n            canvas->concat(m);\n            canvas->drawString(\"%\", 128, 64, p);\n        }\n    }\n}",
     "width": 256,
-    "height": 256,
-    "hash": "397db8da89bc92e7c576ad013d64ed24",
+    "height": 128,
+    "hash": "4565a0792058178c88e0a129a87272d6",
     "file": "SkMatrix_Reference",
     "name": "SkMatrix::setScale"
 },
@@ -4877,10 +4868,10 @@
     "name": "SkMatrix::setScaleY"
 },
     "SkMatrix_setScale_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint p;\n    p.setAntiAlias(true);\n    p.setTextSize(64);\n    SkMatrix m;\n    for (SkScalar sx : { -1, 1 } ) {\n        for (SkScalar sy : { -1, 1 } ) {\n            SkAutoCanvasRestore autoRestore(canvas, true);\n            m.setScale(sx, sy);\n            m.postTranslate(128, 128);\n            canvas->concat(m);\n            canvas->drawString(\"K\", 0, 0, p);\n        }\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint p;\n    p.setAntiAlias(true);\n    p.setTextSize(64);\n    SkMatrix m;\n    for (SkScalar sx : { -1, 1 } ) {\n        for (SkScalar sy : { -1, 1 } ) {\n            SkAutoCanvasRestore autoRestore(canvas, true);\n            m.setScale(sx, sy);\n            m.postTranslate(128, 64);\n            canvas->concat(m);\n            canvas->drawString(\"@\", 0, 0, p);\n        }\n    }\n}",
     "width": 256,
-    "height": 256,
-    "hash": "94a9ec11b994580dca14aa2159a796a9",
+    "height": 128,
+    "hash": "1579d0cc109c26e69f66f73abd35fb0e",
     "file": "SkMatrix_Reference",
     "name": "SkMatrix::setScale_2"
 },
@@ -5695,24 +5686,24 @@
     "SkPixmap_erase": {
     "code": "void draw(SkCanvas* canvas) {\n    uint32_t storage[2];\n    SkImageInfo info = SkImageInfo::MakeN32Premul(1, 2);\n    SkPixmap pixmap(info, storage, info.minRowBytes());\n    pixmap.erase(SK_ColorBLUE, {0, 0, 1, 1});\n    pixmap.erase(SK_ColorRED, {0, 1, 1, 2});\n    SkBitmap bitmap;\n    canvas->scale(20, 20);\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "f0a8f4e07fd8b6c48eb52f2238d8f88b",
+    "height": 50,
+    "hash": "a0cdbafed4786788cc90681e7b294234",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::erase()"
 },
     "SkPixmap_erase_2": {
     "code": "void draw(SkCanvas* canvas) {\n    uint32_t storage[2];\n    SkImageInfo info = SkImageInfo::MakeN32Premul(1, 2);\n    SkPixmap pixmap(info, storage, info.minRowBytes());\n    pixmap.erase(SK_ColorBLUE);\n    SkBitmap bitmap;\n    canvas->scale(20, 20);\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "ee0bb3f3aae12dbc1c2759349527e9da",
+    "height": 50,
+    "hash": "838202e0d49cad2eb3eeb495834f6d63",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::erase_2"
 },
     "SkPixmap_erase_3": {
     "code": "void draw(SkCanvas* canvas) {\n    uint32_t storage[2];\n    SkImageInfo info = SkImageInfo::MakeN32Premul(1, 2);\n    SkPixmap pixmap(info, storage, info.minRowBytes());\n    SkIRect topPixelBounds = {0, 0, 1, 1};\n    pixmap.erase({ 0.65f, 0.45f, 0.25f, 1 }, &topPixelBounds);\n    SkIRect bottomPixelBounds = {0, 1, 1, 2};\n    pixmap.erase({ 0.25f, 0.65f, 0.45f, 1 }, &bottomPixelBounds);\n    SkBitmap bitmap;\n    canvas->scale(20, 20);\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "da215a59c574d26bc5caf7de630d5966",
+    "height": 50,
+    "hash": "f884f3f46a565f052a5e252ae2f36e9b",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::erase_3"
 },
@@ -5767,8 +5758,8 @@
     "SkPixmap_reset_2": {
     "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> pixels;\n    pixels.resize(image->height() * image->width() * 4);\n    SkPixmap pixmap(SkImageInfo::Make(image->width(), image->height(), kN32_SkColorType,\n            image->alphaType()), (const void*) &pixels.front(), image->width() * 4);\n    image->readPixels(pixmap, 0, 0);\n    int x = 0;\n    for (auto colorType : { kRGBA_8888_SkColorType, kBGRA_8888_SkColorType } ) {\n        pixmap.reset(SkImageInfo::Make(image->width(), image->height(), colorType, \n                image->alphaType()), (const void*) &pixels.front(), image->width() * 4);\n        SkBitmap bitmap;\n        bitmap.installPixels(pixmap);\n        canvas->drawBitmap(bitmap, x, 0);\n        x += 128;\n    }\n}\n",
     "width": 256,
-    "height": 128,
-    "hash": "c8e31733704bfebdb038b003aa8a62d7",
+    "height": 64,
+    "hash": "a7c9bfe44f5d888ab5b9996f2b126788",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::reset_2"
 },
@@ -5799,8 +5790,8 @@
     "SkPixmap_writable_addr64": {
     "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info = SkImageInfo::Make(3, 3, kRGBA_F16_SkColorType, kPremul_SkAlphaType);\n    uint64_t storage[9];\n    SkPixmap pixmap(info, storage, 3 * sizeof(uint64_t));\n    SkColor4f c4 { 1, 0.45f, 0.25f, 0.65f };\n    pixmap.erase(c4);\n    SkBitmap bitmap;\n    canvas->scale(10, 10);\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n    *pixmap.writable_addr64(1, 1) |= 0x00ff000000000000LL;\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 10, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "33a04ac51c74a1e8d461b1d6f31ed82a",
+    "height": 40,
+    "hash": "de14d8d30e4a7b6462103d0e0dd96b0b",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::writable_addr64"
 },

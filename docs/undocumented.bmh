@@ -137,6 +137,8 @@ FT_Load_Glyph
 
 #Topic Color_Filter
 #Class SkColorFilter
+#Method void toString(SkString* str) const 
+##
 #Class ##
 #Topic ##
 
@@ -151,6 +153,12 @@ FT_Load_Glyph
 #Const kIgnore 1
 ##
 #EnumClass ##
+##
+
+#Topic Create_Color_Space_Xform_Canvas
+#Method std::unique_ptr<SkCanvas> SK_API SkCreateColorSpaceXformCanvas(SkCanvas* target,
+                                                                       sk_sp<SkColorSpace> targetCS)
+##
 ##
 
 #Topic Core_Graphics
@@ -254,6 +262,10 @@ FT_Load_Glyph
 
 #Topic GPU_Context
 #Substitute GPU context
+#Class GrContext
+#Method void flush()
+##
+##
 ##
 
 #Topic GPU_Surface
@@ -312,6 +324,8 @@ FT_Load_Glyph
         #Struct SkImageInfo
             #Method SkImageInfo()
             ##
+            #Method static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr)
+            ##
             #Method SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const
             ##
             #Method size_t minRowBytes() const
@@ -351,6 +365,8 @@ FT_Load_Glyph
         ##
         #Method bool scalePixels(const SkPixmap& dst, SkFilterQuality, CachingHint = kAllow_CachingHint) const
         ##
+        #Method bool peekPixels(SkPixmap* pixmap) const
+        ##
     ##
 #Topic ##
 
@@ -358,6 +374,8 @@ FT_Load_Glyph
 #Subtopic Scaling
 #Subtopic ##
 #Class SkImageFilter
+#Method void toString(SkString* str) const 
+##
 #Class ##
 #Topic ##
 
@@ -410,6 +428,8 @@ FT_Load_Glyph
 #Method virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin) const
 ##
+#Method void toString(SkString* str) const 
+##
 #Class ##
 #Topic ##
 
@@ -434,6 +454,11 @@ FT_Load_Glyph
     ##
     #Method template <typename D, typename S> inline bool SkTFitsIn(S s)
     ##
+##
+
+#Topic Meta_Data
+#Class SkMetaData
+##
 ##
 
 #Topic Mip_Map
@@ -508,6 +533,8 @@ FT_Load_Glyph
 
 #Topic Path_Effect
     #Class SkPathEffect
+    #Method void toString(SkString* str) const
+    ##
     #Class ##
 #Topic ##
 
@@ -524,6 +551,10 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Picture
+#Class SkPicture
+#Method virtual void playback(SkCanvas*, AbortCallback* = nullptr) const = 0
+##
+##
 #Subtopic Recorder
     #Class SkPictureRecorder
         #Method SkCanvas* beginRecording(const SkRect& bounds,
@@ -676,6 +707,16 @@ FT_Load_Glyph
                                              const SkSurfaceProps* = nullptr)
     ##
     #Method bool readPixels(const SkPixmap& dst, int srcX, int srcY);
+    ##
+    #Method SkCanvas* getCanvas()
+    ##
+    #Method void flush()
+    ##
+    #Method void prepareForExternalIO()
+    ##
+    #Method sk_sp<SkSurface> makeSurface(const SkImageInfo&)
+    ##
+    #Method bool peekPixels(SkPixmap*)
     ##
 ##
 #Subtopic Properties

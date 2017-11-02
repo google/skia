@@ -1466,7 +1466,7 @@ perspective scale factor to store</td>
 
 ### Example
 
-<div><fiddle-embed name="c51d81b637b58da30fb9ae2d68877167"></fiddle-embed></div>
+<div><fiddle-embed name="95ccfc2a89ce593e6b7a9f992a844bc0"></fiddle-embed></div>
 
 ### See Also
 
@@ -1697,7 +1697,7 @@ pivot y</td>
 
 ### Example
 
-<div><fiddle-embed name="397db8da89bc92e7c576ad013d64ed24"></fiddle-embed></div>
+<div><fiddle-embed name="4565a0792058178c88e0a129a87272d6"></fiddle-embed></div>
 
 ### See Also
 
@@ -1722,7 +1722,7 @@ vertical scale factor</td>
 
 ### Example
 
-<div><fiddle-embed name="94a9ec11b994580dca14aa2159a796a9"></fiddle-embed></div>
+<div><fiddle-embed name="1579d0cc109c26e69f66f73abd35fb0e"></fiddle-embed></div>
 
 ### See Also
 
@@ -3771,7 +3771,7 @@ storage for mapped corner <a href="#Point">Points</a></td>
 
 ### Example
 
-<div><fiddle-embed name="3bf9404624735d7cf34b47b9c7b27bcc"></fiddle-embed></div>
+<div><fiddle-embed name="c69cd2a590b5733c3cbc92cb9ceed3f5"></fiddle-embed></div>
 
 ### See Also
 
