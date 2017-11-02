@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2016 Google Inc.
+# Copyright 2017 Google Inc.
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -37,7 +37,7 @@ def create_asset(target_dir, gl_path):
 
   to_copy = glob.glob(os.path.join(gl_path,'libGL*'))
   to_copy.extend(glob.glob(os.path.join(gl_path,'libEGL*')))
-  to_copy.extend(glob.glob(os.path.join(gl_path,'libmali*')))
+  to_copy.extend(glob.glob(os.path.join(gl_path,'libdrm*')))
   for f in to_copy:
     shutil.copy(f, lib_dir)
 
