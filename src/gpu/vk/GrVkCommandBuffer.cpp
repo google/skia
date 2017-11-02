@@ -333,7 +333,8 @@ void GrVkCommandBuffer::setDiscardRectangles(const GrVkGpu* gpu,
                                              uint32_t discardRectangleCount,
                                              const VkRect2D* discardRectangles) {
     SkASSERT(fIsActive);
-    SkASSERT(firstDiscardRectangle + discardRectangleCount <= gpu->vkCaps().maxWindowRectangles());
+    SkASSERT(firstDiscardRectangle + discardRectangleCount <=
+             (uint32_t)gpu->vkCaps().maxWindowRectangles());
     SkASSERT(gpu->vkCaps().maxWindowRectangles() <= GrWindowRectangles::kMaxWindows);
     if (memcmp(discardRectangles, &fCachedDiscardRectangles[firstDiscardRectangle],
                discardRectangleCount * sizeof(VkRect2D))) {
