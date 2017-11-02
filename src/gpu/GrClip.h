@@ -74,8 +74,8 @@ public:
      */
     template <typename TRect>
     constexpr static bool IsInsideClip(const TRect& innerClipBounds, const SkRect& queryBounds) {
-        return innerClipBounds.fRight > innerClipBounds.fLeft + kBoundsTolerance &&
-               innerClipBounds.fBottom > innerClipBounds.fTop + kBoundsTolerance &&
+        return innerClipBounds.fRight - innerClipBounds.fLeft > kBoundsTolerance &&
+               innerClipBounds.fBottom - innerClipBounds.fTop > kBoundsTolerance &&
                innerClipBounds.fLeft < queryBounds.fLeft + kBoundsTolerance &&
                innerClipBounds.fTop < queryBounds.fTop + kBoundsTolerance &&
                innerClipBounds.fRight > queryBounds.fRight - kBoundsTolerance &&
