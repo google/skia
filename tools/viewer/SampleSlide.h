@@ -27,10 +27,13 @@ public:
     }
 
     bool onChar(SkUnichar c) override;
+    bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
+                 uint32_t modifiers) override;
 
 private:
     const SkViewFactory*   fViewFactory;
     sk_sp<SkView>          fView;
+    SkView::Click*         fClick;
 };
 
 #endif
