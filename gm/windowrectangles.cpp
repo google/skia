@@ -256,7 +256,7 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, boo
         0>()
     );
 
-    rtc->priv().clearStencilClip(GrFixedClip::Disabled(), false, true);
+    rtc->priv().clearStencilClip(GrFixedClip::Disabled(), false);
 
     for (int y = 0; y < kDeviceRect.height(); y += kMaskCheckerSize) {
         for (int x = (y & 1) == flip ? 0 : kMaskCheckerSize;

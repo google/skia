@@ -203,13 +203,9 @@ public:
         VkPtr<PFN_vkCmdEndRenderPass> fCmdEndRenderPass;
         VkPtr<PFN_vkCmdExecuteCommands> fCmdExecuteCommands;
 
-        VkPtr<PFN_vkGetPhysicalDeviceProperties2KHR> fGetPhysicalDeviceProperties2KHR;
-
         VkPtr<PFN_vkCreateDebugReportCallbackEXT> fCreateDebugReportCallbackEXT;
         VkPtr<PFN_vkDebugReportMessageEXT> fDebugReportMessageEXT;
         VkPtr<PFN_vkDestroyDebugReportCallbackEXT> fDestroyDebugReportCallbackEXT;
-
-        VkPtr<PFN_vkCmdSetDiscardRectangleEXT> fCmdSetDiscardRectangleEXT;
     } fFunctions;
 
 };

@@ -744,7 +744,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
     }
 
     bool initialState = InitialState::kAllIn == this->initialState();
-    renderTargetContext->priv().clearStencilClip(stencilClip.fixedClip(), initialState, true);
+    renderTargetContext->priv().clearStencilClip(stencilClip.fixedClip(), initialState);
 
     // walk through each clip element and perform its set op with the existing clip.
     for (ElementList::Iter iter(fMaskElements); iter.get(); iter.next()) {

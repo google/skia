@@ -559,7 +559,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 #endif
 
     if (ctxInfo.hasExtension("GL_EXT_window_rectangles")) {
-        fWindowRectsSupport = WindowRectsSupport::kDrawAndClear;
         GR_GL_GetIntegerv(gli, GR_GL_MAX_WINDOW_RECTANGLES, &fMaxWindowRectangles);
     }
 

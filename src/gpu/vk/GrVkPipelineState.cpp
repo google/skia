@@ -571,9 +571,9 @@ bool GrVkPipelineState::Desc::Build(Desc* desc,
                                     const GrPipeline& pipeline,
                                     const GrStencilSettings& stencil,
                                     GrPrimitiveType primitiveType,
-                                    const GrCaps& caps) {
+                                    const GrShaderCaps& caps) {
     if (!INHERITED::Build(desc, primProc, primitiveType == GrPrimitiveType::kPoints, pipeline,
-                          *caps.shaderCaps())) {
+                          caps)) {
         return false;
     }
 
@@ -586,13 +586,6 @@ bool GrVkPipelineState::Desc::Build(Desc* desc,
     b.add32(get_blend_info_key(pipeline));
 
     b.add32((uint32_t)primitiveType);
-
-    if (GrCaps::WindowRectsSupport::kNone != caps.windowRectsSupport()) {
-        const GrWindowRectsState& windowState = pipeline.getWindowRectsState();
-        uint32_t mode = (0u - (uint32_t)windowState.mode());
-        SkASSERT(0u == mode || ~0u == mode);
-        b.add32((uint32_t)windowState.numWindows() ^ mode);
-    }
 
     return true;
 }

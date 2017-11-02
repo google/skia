@@ -18,15 +18,13 @@ public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrClearOp> Make(const GrFixedClip& clip, GrColor color,
-                                           bool canIgnoreClip, GrSurfaceProxy* dstProxy,
-                                           const GrCaps& caps) {
+                                           GrSurfaceProxy* dstProxy) {
         const SkIRect rect = SkIRect::MakeWH(dstProxy->width(), dstProxy->height());
         if (clip.scissorEnabled() && !SkIRect::Intersects(clip.scissorRect(), rect)) {
             return nullptr;
         }
 
-        return std::unique_ptr<GrClearOp>(
-                new GrClearOp(clip, color, canIgnoreClip, dstProxy, caps));
+        return std::unique_ptr<GrClearOp>(new GrClearOp(clip, color, dstProxy));
     }
 
     static std::unique_ptr<GrClearOp> Make(const SkIRect& rect, GrColor color,
@@ -56,8 +54,7 @@ public:
     void setColor(GrColor color) { fColor = color; }
 
 private:
-    GrClearOp(const GrFixedClip& clip, GrColor color, bool canIgnoreClip, GrSurfaceProxy* proxy,
-              const GrCaps&);
+    GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* proxy);
 
     GrClearOp(const SkIRect& rect, GrColor color, bool fullScreen)
         : INHERITED(ClassID())

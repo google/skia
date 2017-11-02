@@ -80,11 +80,6 @@ public:
                     uint32_t scissorCount,
                     const VkRect2D* scissors);
 
-    void setDiscardRectangles(const GrVkGpu* gpu,
-                              uint32_t firstDiscardRectangle,
-                              uint32_t discardRectangleCount,
-                              const VkRect2D* discardRectangles);
-
     void setBlendConstants(const GrVkGpu* gpu, const float blendConstants[4]);
 
     // Commands that only work inside of a render pass
@@ -172,7 +167,6 @@ private:
     // Cached values used for dynamic state updates
     VkViewport fCachedViewport;
     VkRect2D   fCachedScissor;
-    VkRect2D   fCachedDiscardRectangles[GrWindowRectangles::kMaxWindows];
     float      fCachedBlendConstant[4];
 };
 

@@ -22,7 +22,6 @@ class GrStencilSettings;
 class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkRenderPass;
-class GrWindowRectangles;
 struct SkIRect;
 
 class GrVkPipeline : public GrVkResource {
@@ -40,12 +39,9 @@ public:
 
     VkPipeline pipeline() const { return fPipeline; }
 
-    static void SetDynamicViewportState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*);
     static void SetDynamicScissorRectState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*,
                                            GrSurfaceOrigin, SkIRect);
-    static void SetDynamicDiscardRectanglesState(GrVkGpu*, GrVkCommandBuffer*,
-                                                 const GrRenderTarget*, GrSurfaceOrigin,
-                                                 const GrWindowRectangles&);
+    static void SetDynamicViewportState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*);
     static void SetDynamicBlendConstantState(GrVkGpu*, GrVkCommandBuffer*, GrPixelConfig,
                                              const GrXferProcessor&);
 

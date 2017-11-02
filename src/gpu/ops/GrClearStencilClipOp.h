@@ -9,7 +9,6 @@
 #define GrClearStencilClipOp_DEFINED
 
 #include "GrFixedClip.h"
-#include "GrCaps.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrOp.h"
 #include "GrOpFlushState.h"
@@ -20,10 +19,8 @@ public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrOp> Make(const GrFixedClip& clip, bool insideStencilMask,
-                                      bool canIgnoreClip, GrRenderTargetProxy* proxy,
-                                      const GrCaps& caps) {
-        return std::unique_ptr<GrOp>(
-                new GrClearStencilClipOp(clip, insideStencilMask, canIgnoreClip, proxy, caps));
+                                      GrRenderTargetProxy* proxy) {
+        return std::unique_ptr<GrOp>(new GrClearStencilClipOp(clip, insideStencilMask, proxy));
     }
 
     const char* name() const override { return "ClearStencilClip"; }
@@ -42,16 +39,11 @@ public:
     }
 
 private:
-    GrClearStencilClipOp(const GrFixedClip& clip, bool insideStencilMask, bool canIgnoreClip,
-                         GrRenderTargetProxy* proxy, const GrCaps& caps)
+    GrClearStencilClipOp(const GrFixedClip& clip, bool insideStencilMask,
+                         GrRenderTargetProxy* proxy)
             : INHERITED(ClassID())
-            , fInsideStencilMask(insideStencilMask)
-            , fClip(clip) {
-        if (fClip.hasWindowRectangles() &&
-            GrCaps::WindowRectsSupport::kDrawAndClear != caps.windowRectsSupport() &&
-            canIgnoreClip) {
-            fClip.disableWindowRectangles();
-        }
+            , fClip(clip)
+            , fInsideStencilMask(insideStencilMask) {
         const SkRect& bounds = fClip.scissorEnabled()
                                             ? SkRect::Make(fClip.scissorRect())
                                             : SkRect::MakeIWH(proxy->width(), proxy->height());
@@ -67,8 +59,8 @@ private:
         state->rtCommandBuffer()->clearStencilClip(fClip, fInsideStencilMask);
     }
 
-    const bool    fInsideStencilMask;
-    GrFixedClip   fClip;
+    const GrFixedClip fClip;
+    const bool        fInsideStencilMask;
 
     typedef GrOp INHERITED;
 };

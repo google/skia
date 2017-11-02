@@ -15,7 +15,6 @@
 #include "GrVkRenderPass.h"
 #include "GrVkResourceProvider.h"
 
-class GrVkCaps;
 class GrVkCommandBuffer;
 class GrVkFramebuffer;
 class GrVkGpu;
@@ -91,8 +90,6 @@ protected:
                      const GrVkImageInfo& info,
                      const GrVkImageView* colorAttachmentView,
                      GrBackendObjectOwnership);
-
-    static GrRenderTargetFlags ComputeFlags(const GrVkCaps&);
 
     GrVkGpu* getVkGpu() const;
 

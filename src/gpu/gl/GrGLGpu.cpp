@@ -1749,12 +1749,9 @@ void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
 #ifndef USE_NSIGHT
     typedef GrWindowRectsState::Mode Mode;
     SkASSERT(!windowState.enabled() || rt->renderFBOID()); // Window rects can't be used on-screen.
-    SkASSERT(!windowState.enabled() ||
-             GrCaps::WindowRectsSupport::kDrawAndClear == this->caps()->windowRectsSupport());
     SkASSERT(windowState.numWindows() <= this->caps()->maxWindowRectangles());
-    SkASSERT(this->caps()->maxWindowRectangles() <= GrWindowRectangles::kMaxWindows);
 
-    if (GrCaps::WindowRectsSupport::kNone == this->caps()->windowRectsSupport() ||
+    if (!this->caps()->maxWindowRectangles() ||
         fHWWindowRectsState.knownEqualTo(origin, rt->getViewport(), windowState)) {
         return;
     }
@@ -1779,8 +1776,7 @@ void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
 
 void GrGLGpu::disableWindowRectangles() {
 #ifndef USE_NSIGHT
-    if (GrCaps::WindowRectsSupport::kNone == this->caps()->windowRectsSupport() ||
-        fHWWindowRectsState.knownDisabled()) {
+    if (!this->caps()->maxWindowRectangles() || fHWWindowRectsState.knownDisabled()) {
         return;
     }
     GL_CALL(WindowRectangles(GR_GL_EXCLUSIVE, 0, nullptr));

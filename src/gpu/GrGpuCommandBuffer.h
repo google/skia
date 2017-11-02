@@ -108,7 +108,7 @@ public:
     virtual void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) = 0;
 
     /**
-     * Clear the owned render target.
+     * Clear the owned render target. Ignores the draw state and clip.
      */
     void clear(const GrFixedClip&, GrColor);
 

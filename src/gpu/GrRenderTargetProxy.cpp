@@ -29,7 +29,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
     if (caps.usesMixedSamples() && fSampleCnt > 0) {
         fRenderTargetFlags |= GrRenderTargetFlags::kMixedSampled;
     }
-    if (GrCaps::WindowRectsSupport::kNone != caps.windowRectsSupport()) {
+    if (caps.maxWindowRectangles() > 0) {
         fRenderTargetFlags |= GrRenderTargetFlags::kWindowRectsSupport;
     }
 }
