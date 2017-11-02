@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1d611ffc_2b414381",
+        "filename": "infra/bots/assets/chromebook_x86_64_gles/create.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-02T13:34:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b24dedc5_84d56bd1",
+      "revId": "c765844f93960cce62961382c2badcb041438c55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a222ecf0_cdf1b269",
         "filename": "infra/bots/assets/chromebook_x86_64_gles/create.py",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2017-11-02T13:24:51Z",
       "side": 1,
       "message": "Remove comments?",
+      "revId": "c765844f93960cce62961382c2badcb041438c55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc55a3d6_df381f70",
+        "filename": "infra/bots/assets/chromebook_x86_64_gles/create.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-02T13:34:48Z",
+      "side": 1,
+      "message": "Oops. Done",
+      "parentUuid": "a222ecf0_cdf1b269",
       "revId": "c765844f93960cce62961382c2badcb041438c55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true

@@ -22,6 +22,30 @@
       "revId": "af79192aa3cebaeaff039cebd4d17c1524755b91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fc8691e_3ecf6c3d",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-02T13:34:48Z",
+      "side": 0,
+      "message": "Yes, as the architecture is already in the buildername and I didn\u0027t want\nTest-ChromeOS-x86-...Chromebook_ARM_GLES",
+      "parentUuid": "56939817_8ba18961",
+      "range": {
+        "startLine": 140,
+        "startChar": 38,
+        "endLine": 140,
+        "endChar": 43
+      },
+      "revId": "af79192aa3cebaeaff039cebd4d17c1524755b91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
