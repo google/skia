@@ -7,21 +7,15 @@
 
 #include "GrClearOp.h"
 
-#include "GrCaps.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 
-GrClearOp::GrClearOp(const GrFixedClip& clip, GrColor color, bool canIgnoreClip,
-                     GrSurfaceProxy* proxy, const GrCaps& caps) : INHERITED(ClassID())
+GrClearOp::GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* proxy)
+        : INHERITED(ClassID())
         , fClip(clip)
         , fColor(color) {
     const SkIRect rtRect = SkIRect::MakeWH(proxy->width(), proxy->height());
-    if (fClip.hasWindowRectangles() &&
-        GrCaps::WindowRectsSupport::kDrawAndClear != caps.windowRectsSupport() &&
-        canIgnoreClip) {
-        fClip.disableWindowRectangles();
-    }
     if (fClip.scissorEnabled()) {
         // Don't let scissors extend outside the RT. This may improve op combining.
         if (!fClip.intersect(rtRect)) {

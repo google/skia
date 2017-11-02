@@ -28,7 +28,7 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc,
     SkASSERT(desc.fFlags & kRenderTarget_GrSurfaceFlag);
     SkASSERT(!(fFlags & GrRenderTargetFlags::kMixedSampled) || fSampleCnt > 0);
     SkASSERT(!(fFlags & GrRenderTargetFlags::kWindowRectsSupport) ||
-             GrCaps::WindowRectsSupport::kNone != gpu->caps()->windowRectsSupport());
+             gpu->caps()->maxWindowRectangles() > 0);
     fResolveRect.setLargestInverted();
 }
 

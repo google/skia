@@ -61,8 +61,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
     fMapBufferFlags = kNone_MapFlags;
 
-    fWindowRectsSupport = WindowRectsSupport::kNone;
-
     fMaxVertexAttributes = 0;
     fMaxRenderTargetSize = 1;
     fMaxTextureSize = 1;
@@ -195,14 +193,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, false));
     SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, true));
     SkASSERT(!this->isConfigTexturable(kUnknown_GrPixelConfig));
-
-    const char* windowRectsSupportName = "<invalid>";
-    switch (fWindowRectsSupport) {
-        case WindowRectsSupport::kNone: windowRectsSupportName = "None"; break;
-        case WindowRectsSupport::kDrawOnly: windowRectsSupportName = "DrawOnly"; break;
-        case WindowRectsSupport::kDrawAndClear: windowRectsSupportName = "DrawAndClear"; break;
-    }
-    writer->appendString("Window Rectangles Support", windowRectsSupportName);
 
     writer->beginArray("configs");
 

@@ -76,10 +76,6 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
     SkTArray<const char*> instanceLayerNames;
     SkTArray<const char*> instanceExtensionNames;
     uint32_t extensionFlags = 0;
-    if (extensions.hasInstanceExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
-        instanceExtensionNames.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
-        extensionFlags |= kKHR_get_physical_device_properties2_GrVkExtensionFlag;
-    }
 #ifdef SK_ENABLE_VK_LAYERS
     for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
         if (extensions.hasInstanceLayer(kDebugLayerNames[i])) {
@@ -91,6 +87,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         extensionFlags |= kEXT_debug_report_GrVkExtensionFlag;
     }
 #endif
+
     if (extensions.hasInstanceExtension(VK_KHR_SURFACE_EXTENSION_NAME)) {
         instanceExtensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
         extensionFlags |= kKHR_surface_GrVkExtensionFlag;
@@ -226,10 +223,6 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         }
     }
 #endif
-    if (extensions.hasDeviceExtension(VK_EXT_DISCARD_RECTANGLES_EXTENSION_NAME)) {
-        deviceExtensionNames.push_back(VK_EXT_DISCARD_RECTANGLES_EXTENSION_NAME);
-        extensionFlags |= kEXT_discard_rectangles_GrVkExtensionFlag;
-    }
     if (extensions.hasDeviceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
         deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
         extensionFlags |= kKHR_swapchain_GrVkExtensionFlag;
