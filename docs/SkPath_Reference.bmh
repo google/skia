@@ -204,7 +204,6 @@ SkPath::updateBoundsCache to make Path thread safe.
 #Topic Overview
 
 #Subtopic Constants
-#ToDo incomplete ##
 #Table
 #Legend
 # constants                      # description                                 ##
@@ -214,7 +213,7 @@ SkPath::updateBoundsCache to make Path thread safe.
 # Convexity                      # Returns if Path is convex or concave.       ##
 # Direction                      # Sets Contour clockwise or counterclockwise. ##
 # FillType                       # Sets winding rule and inverse fill.         ##
-# SegmentMask                    
+# SegmentMask                    # Returns Verb types in Path.                 ##  
 # Verb                           # Controls how Path Points are interpreted.   ##
 #Table ##
 #Subtopic ##

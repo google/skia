@@ -106,7 +106,8 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_Convexity">Convexity</a> | Returns if <a href="#Path">Path</a> is convex or concave. |
 | <a href="#SkPath_Direction">Direction</a> | Sets <a href="#Contour">Contour</a> clockwise or counterclockwise. |
 | <a href="#SkPath_FillType">FillType</a> | Sets winding rule and inverse fill. |
-| <a href="#SkPath_SegmentMask">SegmentMask</a> | <a href="#SkPath_Verb">Verb</a> | Controls how <a href="#Path">Path</a> <a href="#Point">Points</a> are interpreted. |
+| <a href="#SkPath_SegmentMask">SegmentMask</a> | Returns <a href="#SkPath_Verb">Verb</a> types in <a href="#Path">Path</a>. |
+| <a href="#SkPath_Verb">Verb</a> | Controls how <a href="#Path">Path</a> <a href="#Point">Points</a> are interpreted. |
 
 ## <a name="Classes_and_Structs"></a> Classes and Structs
 

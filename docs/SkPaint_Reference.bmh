@@ -630,7 +630,7 @@ by the client.
 #NoExample 
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkReadBuffer
 
 ##
 
@@ -847,7 +847,7 @@ To be deprecated; only valid for Android framework.
         mask for strike-thru text
     ##
 
-#ToDo incomplete ##
+#SeeAlso Flags getFlags
 
 #Enum ##
 
@@ -2431,6 +2431,7 @@ Stroke_Width at the contour point.
 Stroke_Cap is kButt_Cap by default.
 
 #Example
+#Height 200
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(20);
@@ -2502,13 +2503,14 @@ to the end of a curve within the contour does not match the tangent direction of
 the following curve, the pair of curves meet at Stroke_Join.
 
 #Example
+#Height 200
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(20);
     SkPath path;
-    path.moveTo(30, 30);
-    path.lineTo(40, 50);
-    path.conicTo(70, 30, 100, 30, .707f);
+    path.moveTo(30, 20);
+    path.lineTo(40, 40);
+    path.conicTo(70, 20, 100, 20, .707f);
     for (SkPaint::Join j : { SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join } ) {
         paint.setStrokeJoin(j);
         canvas->drawPath(path, paint);
@@ -5293,7 +5295,7 @@ suppressed by defining SK_IGNORE_TO_STRING.
 
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkPathEffect::toString SkMaskFilter::toString SkColorFilter::toString SkImageFilter::toString
 
 ##
 
