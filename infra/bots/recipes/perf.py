@@ -343,7 +343,7 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
   'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench',
-  'Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release-All',
+  'Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug-All',
   'Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN_float_cast_overflow',
