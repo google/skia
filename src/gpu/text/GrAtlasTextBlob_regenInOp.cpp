@@ -192,6 +192,12 @@ void GrAtlasTextBlob::regenInOp(GrDeferredUploadTarget* target, GrAtlasGlyphCach
                                                                     glyph,
                                                                     lazyCache->get(),
                                                                     info->maskFormat());
+                if (!success) {
+                    strike->addGlyphToAtlas(target,
+                                                                                        glyph,
+                                                                                        lazyCache->get(),
+                                                                                        info->maskFormat());
+                }
                 SkASSERT(success);
             }
             fontCache->addGlyphToBulkAndSetUseToken(info->bulkUseToken(), glyph,
