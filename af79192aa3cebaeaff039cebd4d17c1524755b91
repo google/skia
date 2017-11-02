@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56939817_8ba18961",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-11-02T13:24:51Z",
+      "side": 0,
+      "message": "Intentional?",
+      "range": {
+        "startLine": 140,
+        "startChar": 38,
+        "endLine": 140,
+        "endChar": 43
+      },
+      "revId": "af79192aa3cebaeaff039cebd4d17c1524755b91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b24dedc5_84d56bd1",
+        "filename": "infra/bots/assets/chromebook_x86_64_gles/create.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-11-02T13:24:51Z",
+      "side": 1,
+      "message": "IIRC glog.glob returns a list.\nYou could gather all the lists from all the glob.glob and do shutil.copy in a single loop.",
+      "revId": "c765844f93960cce62961382c2badcb041438c55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a222ecf0_cdf1b269",
+        "filename": "infra/bots/assets/chromebook_x86_64_gles/create.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-11-02T13:24:51Z",
+      "side": 1,
+      "message": "Remove comments?",
+      "revId": "c765844f93960cce62961382c2badcb041438c55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
