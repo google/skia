@@ -239,6 +239,21 @@ static void setup_viewport_scissor_state(VkPipelineViewportStateCreateInfo* view
     SkASSERT(viewportInfo->viewportCount == viewportInfo->scissorCount);
 }
 
+static void setup_discard_rectangles_state(const GrWindowRectsState& windowState,
+                                           const GrCaps* caps,
+                                           VkPipelineDiscardRectangleStateCreateInfoEXT* info) {
+    SkASSERT(windowState.numWindows() <= caps->maxWindowRectangles());
+    memset(info, 0, sizeof(VkPipelineDiscardRectangleStateCreateInfoEXT));
+    info->sType = VK_STRUCTURE_TYPE_PIPELINE_DISCARD_RECTANGLE_STATE_CREATE_INFO_EXT;
+    info->pNext = nullptr;
+    info->flags = 0;
+    info->discardRectangleMode =
+            GrWindowRectsState::Mode::kExclusive == windowState.mode() ?
+            VK_DISCARD_RECTANGLE_MODE_EXCLUSIVE_EXT : VK_DISCARD_RECTANGLE_MODE_INCLUSIVE_EXT;
+    info->discardRectangleCount = windowState.numWindows();
+    info->pDiscardRectangles = nullptr; // This is set dynamically
+}
+
 static void setup_multisample_state(const GrPipeline& pipeline,
                                     const GrPrimitiveProcessor& primProc,
                                     const GrCaps* caps,
@@ -409,17 +424,21 @@ static void setup_raster_state(const GrPipeline& pipeline,
     rasterInfo->lineWidth = 1.0f;
 }
 
-static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
-                                VkDynamicState* dynamicStates) {
+static void setup_dynamic_state(const GrPipeline& pipeline,
+                                VkPipelineDynamicStateCreateInfo* dynamicInfo,
+                                SkSTArray<4, VkDynamicState>* dynamicStates) {
     memset(dynamicInfo, 0, sizeof(VkPipelineDynamicStateCreateInfo));
     dynamicInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     dynamicInfo->pNext = VK_NULL_HANDLE;
     dynamicInfo->flags = 0;
-    dynamicStates[0] = VK_DYNAMIC_STATE_VIEWPORT;
-    dynamicStates[1] = VK_DYNAMIC_STATE_SCISSOR;
-    dynamicStates[2] = VK_DYNAMIC_STATE_BLEND_CONSTANTS;
-    dynamicInfo->dynamicStateCount = 3;
-    dynamicInfo->pDynamicStates = dynamicStates;
+    dynamicStates->push_back(VK_DYNAMIC_STATE_VIEWPORT);
+    dynamicStates->push_back(VK_DYNAMIC_STATE_SCISSOR);
+    if (pipeline.getWindowRectsState().enabled()) {
+        dynamicStates->push_back(VK_DYNAMIC_STATE_DISCARD_RECTANGLE_EXT);
+    }
+    dynamicStates->push_back(VK_DYNAMIC_STATE_BLEND_CONSTANTS);
+    dynamicInfo->dynamicStateCount = dynamicStates->count();
+    dynamicInfo->pDynamicStates = dynamicStates->begin();
 }
 
 GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
@@ -458,9 +477,9 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
     VkPipelineRasterizationStateCreateInfo rasterInfo;
     setup_raster_state(pipeline, gpu->caps(), &rasterInfo);
 
-    VkDynamicState dynamicStates[3];
+    SkSTArray<4, VkDynamicState> dynamicStates;
     VkPipelineDynamicStateCreateInfo dynamicInfo;
-    setup_dynamic_state(&dynamicInfo, dynamicStates);
+    setup_dynamic_state(pipeline, &dynamicInfo, &dynamicStates);
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo;
     memset(&pipelineCreateInfo, 0, sizeof(VkGraphicsPipelineCreateInfo));
@@ -484,6 +503,15 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
     pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineCreateInfo.basePipelineIndex = -1;
 
+    VkPipelineDiscardRectangleStateCreateInfoEXT discardRectanglesInfo;
+    if (pipeline.getWindowRectsState().enabled()) {
+        SkASSERT(GrCaps::WindowRectsSupport::kNone != gpu->caps()->windowRectsSupport());
+        setup_discard_rectangles_state(pipeline.getWindowRectsState(), gpu->caps(),
+                                       &discardRectanglesInfo);
+        discardRectanglesInfo.pNext = pipelineCreateInfo.pNext;
+        pipelineCreateInfo.pNext = &discardRectanglesInfo;
+    }
+
     VkPipeline vkPipeline;
     VkResult err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
                                                                           cache, 1,
@@ -500,31 +528,6 @@ void GrVkPipeline::freeGPUData(const GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroyPipeline(gpu->device(), fPipeline, nullptr));
 }
 
-void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,
-                                              GrVkCommandBuffer* cmdBuffer,
-                                              const GrRenderTarget* renderTarget,
-                                              GrSurfaceOrigin rtOrigin,
-                                              SkIRect scissorRect) {
-    if (!scissorRect.intersect(SkIRect::MakeWH(renderTarget->width(), renderTarget->height()))) {
-        scissorRect.setEmpty();
-    }
-
-    VkRect2D scissor;
-    scissor.offset.x = scissorRect.fLeft;
-    scissor.extent.width = scissorRect.width();
-    if (kTopLeft_GrSurfaceOrigin == rtOrigin) {
-        scissor.offset.y = scissorRect.fTop;
-    } else {
-        SkASSERT(kBottomLeft_GrSurfaceOrigin == rtOrigin);
-        scissor.offset.y = renderTarget->height() - scissorRect.fBottom;
-    }
-    scissor.extent.height = scissorRect.height();
-
-    SkASSERT(scissor.offset.x >= 0);
-    SkASSERT(scissor.offset.y >= 0);
-    cmdBuffer->setScissor(gpu, 0, 1, &scissor);
-}
-
 void GrVkPipeline::SetDynamicViewportState(GrVkGpu* gpu,
                                            GrVkCommandBuffer* cmdBuffer,
                                            const GrRenderTarget* renderTarget) {
@@ -537,6 +540,48 @@ void GrVkPipeline::SetDynamicViewportState(GrVkGpu* gpu,
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     cmdBuffer->setViewport(gpu, 0, 1, &viewport);
+}
+
+inline static void skrect_to_vkrect(SkIRect skrect,
+                                    const GrRenderTarget* renderTarget,
+                                    GrSurfaceOrigin rtOrigin,
+                                    VkRect2D* vkrect) {
+    if (!skrect.intersect(SkIRect::MakeWH(renderTarget->width(), renderTarget->height()))) {
+        skrect.setEmpty();
+    }
+
+    vkrect->offset.x = skrect.fLeft;
+    vkrect->extent.width = skrect.width();
+    if (kTopLeft_GrSurfaceOrigin == rtOrigin) {
+        vkrect->offset.y = skrect.fTop;
+    } else {
+        SkASSERT(kBottomLeft_GrSurfaceOrigin == rtOrigin);
+        vkrect->offset.y = renderTarget->height() - skrect.fBottom;
+    }
+    vkrect->extent.height = skrect.height();
+}
+
+void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,
+                                              GrVkCommandBuffer* cmdBuffer,
+                                              const GrRenderTarget* renderTarget,
+                                              GrSurfaceOrigin rtOrigin,
+                                              SkIRect scissorRect) {
+    VkRect2D scissor;
+    skrect_to_vkrect(scissorRect, renderTarget, rtOrigin, &scissor);
+    cmdBuffer->setScissor(gpu, 0, 1, &scissor);
+}
+
+void GrVkPipeline::SetDynamicDiscardRectanglesState(GrVkGpu* gpu,
+                                                    GrVkCommandBuffer* cmdBuffer,
+                                                    const GrRenderTarget* renderTarget,
+                                                    GrSurfaceOrigin rtOrigin,
+                                                    const GrWindowRectangles& windowRectangles) {
+    const SkIRect* skrects = windowRectangles.data();
+    VkRect2D vkrects[GrWindowRectangles::kMaxWindows];
+    for (int i = 0; i < windowRectangles.count(); ++i) {
+        skrect_to_vkrect(skrects[i], renderTarget, rtOrigin, &vkrects[i]);
+    }
+    cmdBuffer->setDiscardRectangles(gpu, 0, windowRectangles.count(), vkrects);
 }
 
 void GrVkPipeline::SetDynamicBlendConstantState(GrVkGpu* gpu,
