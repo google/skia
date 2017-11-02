@@ -113,17 +113,12 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "glob",
-      "[START_DIR]",
-      "*.json"
+      "copy",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/skp/VERSION",
+      "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "find json results",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/bench_modified_master.json@@@",
-      "@@@STEP_LOG_END@glob@@@"
-    ]
+    "name": "Get downloaded SKP VERSION"
   },
   {
     "cmd": [
@@ -132,41 +127,126 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "glob",
-      "[START_DIR]",
-      "*.csv"
+      "copy",
+      "42",
+      "[START_DIR]/tmp/SKP_VERSION"
     ],
     "infra_step": true,
-    "name": "find csv results",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/bench_modified_master.csv@@@",
-      "@@@STEP_LOG_END@glob@@@"
-    ]
+    "name": "write SKP_VERSION"
   },
   {
     "cmd": [
-      "gsutil",
-      "cp",
-      "-z",
-      "json",
-      "[START_DIR]/bench_modified_master.json",
-      "gs://skia-calmbench/calmbench-v1/2012/05/14/12/Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All/bench_modified_master_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.json"
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/svg/VERSION",
+      "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "upload json"
+    "name": "Get downloaded SVG VERSION"
   },
   {
     "cmd": [
-      "gsutil",
-      "cp",
-      "-z",
-      "csv",
-      "[START_DIR]/bench_modified_master.csv",
-      "gs://skia-calmbench/calmbench-v1/2012/05/14/12/Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All/bench_modified_master_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.csv"
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]/tmp/SVG_VERSION"
     ],
     "infra_step": true,
-    "name": "upload csv"
+    "name": "write SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "[CUSTOM_/_B_WORK]/skia/bin/gn",
+      "gen",
+      "[START_DIR]/out/Release",
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-C",
+      "[START_DIR]/out/Release"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "ninja"
+  },
+  {
+    "cmd": [
+      "python",
+      "tools/calmbench/calmbench.py",
+      "modified",
+      "--config",
+      "8888",
+      "--ninjadir",
+      "[START_DIR]/out/Release",
+      "--extraarg",
+      "--svgs [START_DIR]/svg --skps [START_DIR]/skp --mpd false",
+      "--writedir",
+      "[CUSTOM_[SWARM_OUT_DIR]]",
+      "--concise",
+      "--githash",
+      "9046e2e693bb92a76e972b694580e5d17ad10748",
+      "--key",
+      "arch",
+      "x86_64",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "CPU",
+      "cpu_or_gpu_value",
+      "AVX2",
+      "model",
+      "GCE",
+      "os",
+      "Debian9"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "Run calmbench"
   },
   {
     "name": "$result",
