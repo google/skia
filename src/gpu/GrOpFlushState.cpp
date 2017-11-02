@@ -12,13 +12,29 @@
 #include "GrResourceProvider.h"
 #include "GrTexture.h"
 
+template <typename T>
+template <typename... Args>
+T& GrOpFlushState::List<T>::append(SkArenaAlloc* arena, Args... args) {
+    SkASSERT(!fHead == !fTail);
+    auto* n = arena->make<Node>(std::forward<Args>(args)...);
+    if (!fTail) {
+        fHead = fTail = n;
+    } else {
+        fTail = fTail->fNext = n;
+    }
+    return fTail->fT;
+}
+
+template <typename T>
+typename GrOpFlushState::List<T>::Iter& GrOpFlushState::List<T>::Iter::operator++() {
+    fCurr = fCurr->fNext;
+    return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
-        : fGpu(gpu)
-        , fResourceProvider(resourceProvider)
-        , fCommandBuffer(nullptr)
-        , fVertexPool(gpu)
-        , fIndexPool(gpu)
-        , fOpArgs(nullptr) {}
+        : fVertexPool(gpu), fIndexPool(gpu), fGpu(gpu), fResourceProvider(resourceProvider) {}
 
 const GrCaps& GrOpFlushState::caps() const {
     return *fGpu->caps();
@@ -26,6 +42,51 @@ const GrCaps& GrOpFlushState::caps() const {
 
 GrGpuRTCommandBuffer* GrOpFlushState::rtCommandBuffer() {
     return fCommandBuffer->asRTCommandBuffer();
+}
+
+void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const SkRect& opBounds) {
+    SkASSERT(this->rtCommandBuffer());
+    while (fCurrDraw != fDraws.end() && fCurrDraw->fOpID == opID) {
+        GrDeferredUploadToken drawToken = this->nextTokenToFlush();
+        while (fCurrUpload != fInlineUploads.end() &&
+               fCurrUpload->fUploadBeforeToken == drawToken) {
+            this->rtCommandBuffer()->inlineUpload(this, fCurrUpload->fUpload);
+            ++fCurrUpload;
+        }
+        SkASSERT(fCurrDraw->fPipeline->proxy() == this->drawOpArgs().fProxy);
+        this->rtCommandBuffer()->draw(*fCurrDraw->fPipeline, *fCurrDraw->fGeometryProcessor,
+                                      fMeshes.begin() + fCurrMesh, nullptr, fCurrDraw->fMeshCnt,
+                                      opBounds);
+        fCurrMesh += fCurrDraw->fMeshCnt;
+        this->flushToken();
+        ++fCurrDraw;
+    }
+}
+
+void GrOpFlushState::preExecuteDraws() {
+    fVertexPool.unmap();
+    fIndexPool.unmap();
+    for (auto& upload : fAsapUploads) {
+        this->doUpload(upload);
+    }
+    // Setup execution iterators.
+    fCurrDraw = fDraws.begin();
+    fCurrUpload = fInlineUploads.begin();
+    fCurrMesh = 0;
+}
+
+void GrOpFlushState::reset() {
+    SkASSERT(fCurrDraw == fDraws.end());
+    SkASSERT(fCurrUpload == fInlineUploads.end());
+    fVertexPool.reset();
+    fIndexPool.reset();
+    fArena.reset();
+    fAsapUploads.reset();
+    fInlineUploads.reset();
+    fDraws.reset();
+    fMeshes.reset();
+    fCurrMesh = 0;
+    fBaseDrawToken = GrDeferredUploadToken::AlreadyFlushedToken();
 }
 
 void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
@@ -62,18 +123,12 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
 }
 
 GrDeferredUploadToken GrOpFlushState::addInlineUpload(GrDeferredTextureUploadFn&& upload) {
-    SkASSERT(fOpArgs);
-    SkASSERT(fOpArgs->fOp);
-    // Here we're dangerously relying on only GrDrawOps calling this method. This gets fixed by
-    // storing inline uploads on GrOpFlushState and removing GrDrawOp::FlushStateAccess.
-    auto op = static_cast<GrDrawOp*>(fOpArgs->fOp);
-    auto token = this->nextDrawToken();
-    GrDrawOp::FlushStateAccess(op).addInlineUpload(std::move(upload), token);
-    return token;
+    return fInlineUploads.append(&fArena, std::move(upload), this->nextDrawToken())
+            .fUploadBeforeToken;
 }
 
 GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& upload) {
-    fASAPUploads.emplace_back(std::move(upload));
+    fAsapUploads.append(&fArena, std::move(upload));
     return this->nextTokenToFlush();
 }
 
@@ -81,30 +136,29 @@ void GrOpFlushState::draw(const GrGeometryProcessor* gp, const GrPipeline* pipel
                           const GrMesh& mesh) {
     SkASSERT(fOpArgs);
     SkASSERT(fOpArgs->fOp);
-    // Here we're dangerously relying on only GrMeshDrawOps calling this method. This gets fixed by
-    // storing draw data on GrOpFlushState and removing GrMeshDrawOp::FlushStateAccess.
-    auto op = static_cast<GrMeshDrawOp*>(fOpArgs->fOp);
-    GrMeshDrawOp::FlushStateAccess fsa(op);
-
-    fsa.addMesh(mesh);
-    GrMeshDrawOp::FlushStateAccess::QueuedDraw* lastDraw = fsa.lastDraw();
-    if (lastDraw) {
+    fMeshes.push_back(mesh);
+    bool firstDraw = fDraws.begin() == fDraws.end();
+    if (!firstDraw) {
+        Draw& lastDraw = *fDraws.begin();
         // If the last draw shares a geometry processor and pipeline and there are no intervening
         // uploads, add this mesh to it.
-        if (lastDraw->fGeometryProcessor == gp && lastDraw->fPipeline == pipeline &&
-            (fsa.lastUploadToken() != this->nextDrawToken())) {
-            ++lastDraw->fMeshCnt;
-            return;
+        if (lastDraw.fGeometryProcessor == gp && lastDraw.fPipeline == pipeline) {
+            if (fInlineUploads.begin() == fInlineUploads.end() ||
+                fInlineUploads.tail()->fUploadBeforeToken != this->nextDrawToken()) {
+                ++lastDraw.fMeshCnt;
+                return;
+            }
         }
     }
-    GrMeshDrawOp::FlushStateAccess::QueuedDraw* draw = fsa.addDraw();
+    auto& draw = fDraws.append(&fArena);
     GrDeferredUploadToken token = this->issueDrawToken();
 
-    draw->fGeometryProcessor.reset(gp);
-    draw->fPipeline = pipeline;
-    draw->fMeshCnt = 1;
-    if (!lastDraw) {
-        fsa.setBaseDrawToken(token);
+    draw.fGeometryProcessor.reset(gp);
+    draw.fPipeline = pipeline;
+    draw.fMeshCnt = 1;
+    draw.fOpID = fOpArgs->fOp->uniqueID();
+    if (firstDraw) {
+        fBaseDrawToken = token;
     }
 }
 

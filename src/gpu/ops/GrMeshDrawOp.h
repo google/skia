@@ -25,8 +25,6 @@ class GrMeshDrawOp : public GrDrawOp {
 public:
     /** Abstract interface that represents a destination for a GrMeshDrawOp. */
     class Target;
-    /** Provides GrOpFlushState with privileged access to GrMeshDrawOp. */
-    class FlushStateAccess;
 
 protected:
     GrMeshDrawOp(uint32_t classID);
@@ -69,27 +67,7 @@ protected:
 private:
     void onPrepare(GrOpFlushState* state) final;
     void onExecute(GrOpFlushState* state) final;
-
     virtual void onPrepareDraws(Target*) = 0;
-
-    // A set of contiguous draws that share a draw token and primitive processor. The draws all use
-    // the op's pipeline. The meshes for the draw are stored in the fMeshes array and each
-    // Queued draw uses fMeshCnt meshes from the fMeshes array. The reason for coallescing meshes
-    // that share a primitive processor into a QueuedDraw is that it allows the Gpu object to setup
-    // the shared state once and then issue draws for each mesh.
-    struct QueuedDraw {
-        int fMeshCnt = 0;
-        GrPendingProgramElement<const GrGeometryProcessor> fGeometryProcessor;
-        const GrPipeline* fPipeline;
-    };
-
-    // All draws in all the GrMeshDrawOps have implicit tokens based on the order they are enqueued
-    // globally across all ops. This is the offset of the first entry in fQueuedDraws.
-    // fQueuedDraws[i]'s token is fBaseDrawToken + i.
-    GrDeferredUploadToken fBaseDrawToken;
-    SkSTArray<4, GrMesh> fMeshes;
-    SkSTArray<4, QueuedDraw, true> fQueuedDraws;
-
     typedef GrDrawOp INHERITED;
 };
 
@@ -154,7 +132,7 @@ public:
     /**
      * Helper that makes a pipeline targeting the op's render target that incorporates the op's
      * GrAppliedClip.
-     * */
+     */
     GrPipeline* makePipeline(uint32_t pipelineFlags, GrProcessorSet&& processorSet,
                              GrAppliedClip&& clip) {
         GrPipeline::InitArgs pipelineArgs;

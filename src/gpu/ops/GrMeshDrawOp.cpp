@@ -10,8 +10,7 @@
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 
-GrMeshDrawOp::GrMeshDrawOp(uint32_t classID)
-        : INHERITED(classID), fBaseDrawToken(GrDeferredUploadToken::AlreadyFlushedToken()) {}
+GrMeshDrawOp::GrMeshDrawOp(uint32_t classID) : INHERITED(classID) {}
 
 void GrMeshDrawOp::onPrepare(GrOpFlushState* state) { this->onPrepareDraws(state); }
 
@@ -57,28 +56,5 @@ void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int qu
 }
 
 void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
-    int currUploadIdx = 0;
-    int currMeshIdx = 0;
-
-    SkASSERT(fQueuedDraws.empty() || fBaseDrawToken == state->nextTokenToFlush());
-    SkASSERT(state->rtCommandBuffer());
-
-    for (int currDrawIdx = 0; currDrawIdx < fQueuedDraws.count(); ++currDrawIdx) {
-        GrDeferredUploadToken drawToken = state->nextTokenToFlush();
-        while (currUploadIdx < fInlineUploads.count() &&
-               fInlineUploads[currUploadIdx].fUploadBeforeToken == drawToken) {
-            state->rtCommandBuffer()->inlineUpload(state, fInlineUploads[currUploadIdx++].fUpload);
-        }
-        const QueuedDraw& draw = fQueuedDraws[currDrawIdx];
-        SkASSERT(draw.fPipeline->proxy() == state->drawOpArgs().fProxy);
-        state->rtCommandBuffer()->draw(*draw.fPipeline, *draw.fGeometryProcessor.get(),
-                                       fMeshes.begin() + currMeshIdx, nullptr, draw.fMeshCnt,
-                                       this->bounds());
-        currMeshIdx += draw.fMeshCnt;
-        state->flushToken();
-    }
-    SkASSERT(currUploadIdx == fInlineUploads.count());
-    SkASSERT(currMeshIdx == fMeshes.count());
-    fQueuedDraws.reset();
-    fInlineUploads.reset();
+    state->executeDrawsAndUploadsForMeshDrawOp(this->uniqueID(), this->bounds());
 }

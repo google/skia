@@ -193,7 +193,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     }
 
     // Upload all data to the GPU
-    fFlushState.preIssueDraws();
+    fFlushState.preExecuteDraws();
 
     // Execute the onFlush op lists first, if any.
     for (sk_sp<GrOpList>& onFlushOpList : onFlushOpLists) {

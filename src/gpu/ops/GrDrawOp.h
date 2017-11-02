@@ -20,9 +20,6 @@ class GrAppliedClip;
  */
 class GrDrawOp : public GrOp {
 public:
-    /** Provides GrOpFlushState with privileged access to GrDrawOp. */
-    class FlushStateAccess;
-
     GrDrawOp(uint32_t classID) : INHERITED(classID) {}
 
     /**
@@ -49,16 +46,6 @@ public:
      */
     virtual RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
                                         GrPixelConfigIsClamped) = 0;
-
-protected:
-    struct QueuedUpload {
-        QueuedUpload(GrDeferredTextureUploadFn&& upload, GrDeferredUploadToken token)
-                : fUpload(std::move(upload)), fUploadBeforeToken(token) {}
-        GrDeferredTextureUploadFn fUpload;
-        GrDeferredUploadToken fUploadBeforeToken;
-    };
-
-    SkTArray<QueuedUpload> fInlineUploads;
 
 private:
     typedef GrOp INHERITED;
