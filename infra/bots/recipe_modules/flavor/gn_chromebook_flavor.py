@@ -75,43 +75,59 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     clang_linux = self.m.vars.slave_dir.join('clang_linux')
     # This is a pretty typical arm-linux-gnueabihf sysroot
     sysroot_dir = self.m.vars.slave_dir.join('armhf_sysroot')
-    # This is the extra things needed to link against for the chromebook.
-    #  For example, the Mali GL drivers.
-    gl_dir   = self.m.vars.slave_dir.join('chromebook_arm_gles')
 
-    extra_asmflags = [
-      '--target=armv7a-linux-gnueabihf',
-      '--sysroot=%s' % sysroot_dir,
-      '-march=armv7-a',
-      '-mfpu=neon',
-      '-mthumb',
-    ]
+    if 'arm' == target_arch:
+      # This is the extra things needed to link against for the chromebook.
+      #  For example, the Mali GL drivers.
+      gl_dir = self.m.vars.slave_dir.join('chromebook_arm_gles')
+      env = {'LD_LIBRARY_PATH': sysroot_dir.join('lib')}
+      extra_asmflags = [
+        '--target=armv7a-linux-gnueabihf',
+        '--sysroot=%s' % sysroot_dir,
+        '-march=armv7-a',
+        '-mfpu=neon',
+        '-mthumb',
+      ]
 
-    extra_cflags = [
-      '--target=armv7a-linux-gnueabihf',
-      '--sysroot=%s' % sysroot_dir,
-      '-I%s' % gl_dir.join('include'),
-      '-I%s' % sysroot_dir.join('include'),
-      '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4'),
-      '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4',
-                                'arm-linux-gnueabihf'),
-      '-DMESA_EGL_NO_X11_HEADERS',
-    ]
+      extra_cflags = [
+        '--target=armv7a-linux-gnueabihf',
+        '--sysroot=%s' % sysroot_dir,
+        '-I%s' % gl_dir.join('include'),
+        '-I%s' % sysroot_dir.join('include'),
+        '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4'),
+        '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4',
+                                  'arm-linux-gnueabihf'),
+        '-DMESA_EGL_NO_X11_HEADERS',
+      ]
 
-    extra_ldflags = [
-      '--target=armv7a-linux-gnueabihf',
-      '--sysroot=%s' % sysroot_dir,
-      # use sysroot's ld which can properly link things.
-      '-B%s' % sysroot_dir.join('bin'),
-      # helps locate crt*.o
-      '-B%s' % sysroot_dir.join('gcc-cross'),
-      # helps locate libgcc*.so
-      '-L%s' % sysroot_dir.join('gcc-cross'),
-      '-L%s' % sysroot_dir.join('lib'),
-      '-L%s' % gl_dir.join('lib'),
-      # Explicitly do not use lld for cross compiling like this - I observed
-      # failures like "Unrecognized reloc 41" and couldn't find out why.
-    ]
+      extra_ldflags = [
+        '--target=armv7a-linux-gnueabihf',
+        '--sysroot=%s' % sysroot_dir,
+        # use sysroot's ld which can properly link things.
+        '-B%s' % sysroot_dir.join('bin'),
+        # helps locate crt*.o
+        '-B%s' % sysroot_dir.join('gcc-cross'),
+        # helps locate libgcc*.so
+        '-L%s' % sysroot_dir.join('gcc-cross'),
+        '-L%s' % sysroot_dir.join('lib'),
+        '-L%s' % gl_dir.join('lib'),
+        # Explicitly do not use lld for cross compiling like this - I observed
+        # failures like "Unrecognized reloc 41" and couldn't find out why.
+      ]
+    else:
+      gl_dir = self.m.vars.slave_dir.join('chromebook_x86_64_gles')
+      env = {}
+      extra_asmflags = []
+      extra_cflags = [
+        '-DMESA_EGL_NO_X11_HEADERS',
+        '-DEGL_NO_IMAGE_EXTERNAL',
+        '-I%s' % gl_dir.join('include'),
+      ]
+      extra_ldflags = [
+        '-L%s' % gl_dir.join('lib'),
+        '-static-libstdc++', '-static-libgcc',
+        '-fuse-ld=lld',
+      ]
 
     quote = lambda x: '"%s"' % x
     args = {
@@ -136,7 +152,7 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     gn = self.m.vars.skia_dir.join('bin', gn)
 
     with self.m.context(cwd=self.m.vars.skia_dir,
-                        env={'LD_LIBRARY_PATH': sysroot_dir.join('lib')}):
+                        env=env):
       self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
       self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
       self._run('ninja', [ninja, '-C', self.out_dir, 'nanobench', 'dm'])

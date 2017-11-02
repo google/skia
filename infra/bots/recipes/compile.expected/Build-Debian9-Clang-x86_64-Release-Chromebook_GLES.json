@@ -103,9 +103,8 @@
       "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "/usr/bin/clang++",
-      "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_ARM_GLES"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-Chromebook_GLES"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -114,8 +113,8 @@
     "cmd": [
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_ARM_GLES/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_asmflags=[\"--target=armv7a-linux-gnueabihf\", \"--sysroot=[START_DIR]/armhf_sysroot\", \"-march=armv7-a\", \"-mfpu=neon\", \"-mthumb\"] extra_cflags=[\"--target=armv7a-linux-gnueabihf\", \"--sysroot=[START_DIR]/armhf_sysroot\", \"-I[START_DIR]/chromebook_arm_gles/include\", \"-I[START_DIR]/armhf_sysroot/include\", \"-I[START_DIR]/armhf_sysroot/include/c++/4.8.4\", \"-I[START_DIR]/armhf_sysroot/include/c++/4.8.4/arm-linux-gnueabihf\", \"-DMESA_EGL_NO_X11_HEADERS\"] extra_ldflags=[\"--target=armv7a-linux-gnueabihf\", \"--sysroot=[START_DIR]/armhf_sysroot\", \"-B[START_DIR]/armhf_sysroot/bin\", \"-B[START_DIR]/armhf_sysroot/gcc-cross\", \"-L[START_DIR]/armhf_sysroot/gcc-cross\", \"-L[START_DIR]/armhf_sysroot/lib\", \"-L[START_DIR]/chromebook_arm_gles/lib\"] is_debug=false skia_use_egl=true skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"arm\""
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-Chromebook_GLES/Release",
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_asmflags=[] extra_cflags=[\"-DMESA_EGL_NO_X11_HEADERS\", \"-DEGL_NO_IMAGE_EXTERNAL\", \"-I[START_DIR]/chromebook_x86_64_gles/include\"] extra_ldflags=[\"-L[START_DIR]/chromebook_x86_64_gles/lib\", \"-static-libstdc++\", \"-static-libgcc\", \"-fuse-ld=lld\"] is_debug=false skia_use_egl=true skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"x86_64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
@@ -123,9 +122,8 @@
       "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "/usr/bin/clang++",
-      "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_ARM_GLES"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-Chromebook_GLES"
     },
     "name": "gn gen"
   },
@@ -133,7 +131,7 @@
     "cmd": [
       "ninja",
       "-C",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_ARM_GLES/Release",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-Chromebook_GLES/Release",
       "nanobench",
       "dm"
     ],
@@ -143,9 +141,8 @@
       "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "/usr/bin/clang++",
-      "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_ARM_GLES"
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-Chromebook_GLES"
     },
     "name": "ninja"
   },
@@ -154,7 +151,7 @@
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'lib/*.so', 'iOSShell.app', 'iOSShell.ipa', 'visualbench', 'visualbench.exe', 'vulkan-1.dll']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Chromebook_ARM_GLES/Release",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Release-Chromebook_GLES/Release",
       "[CUSTOM_[SWARM_OUT_DIR]]/out/Release"
     ],
     "infra_step": true,

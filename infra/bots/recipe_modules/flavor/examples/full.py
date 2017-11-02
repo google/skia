@@ -58,6 +58,8 @@ def RunSteps(api):
 
 TEST_BUILDERS = [
   'Build-Debian9-Clang-arm-Release-Android_API26',
+  'Build-Debian9-Clang-arm-Release-Chromebook_GLES',
+  'Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES',
   'Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
   'Build-Debian9-Clang-x86_64-Release-Fast',
   'Build-Debian9-Clang-x86_64-Release-Mini',
@@ -111,7 +113,7 @@ def GenTests(api):
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]')
     )
-    if 'Chromebook' in buildername:
+    if 'Chromebook' in buildername and not 'Build' in buildername:
       test += api.step_data(
           'read chromeos ip',
           stdout=api.raw_io.output('{"user_ip":"foo@127.0.0.1"}'))

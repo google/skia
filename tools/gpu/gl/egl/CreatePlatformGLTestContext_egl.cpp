@@ -246,6 +246,9 @@ GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
         return 0;
     }
     GrGLuint texID;
+    // TODO(kjlubick): Migrate away from using the #define hackery by using the
+    // function pointers directly, e.g.
+    // this->gl()->fFunctions.fGenTextures(1, &texID);
     glGenTextures(1, &texID);
     if (!texID) {
         return 0;

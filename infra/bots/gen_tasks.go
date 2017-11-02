@@ -137,7 +137,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			task_os = "Debian9"
 			ec = append([]string{"Chromecast"}, ec...)
 		} else if strings.Contains(task_os, "ChromeOS") {
-			ec = append([]string{"Chromebook", "ARM", "GLES"}, ec...)
+			ec = append([]string{"Chromebook", "GLES"}, ec...)
 			task_os = "Debian9"
 		} else if task_os == "iOS" {
 			ec = append([]string{task_os}, ec...)
@@ -326,11 +326,12 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				d["gpu"] = gpu
 			} else if strings.Contains(parts["os"], "ChromeOS") {
 				gpu, ok := map[string]string{
-					"MaliT604":      "MaliT604",
-					"MaliT764":      "MaliT764",
-					"MaliT860":      "MaliT860",
-					"PowerVRGX6250": "PowerVRGX6250",
-					"TegraK1":       "TegraK1",
+					"MaliT604":           "MaliT604",
+					"MaliT764":           "MaliT764",
+					"MaliT860":           "MaliT860",
+					"PowerVRGX6250":      "PowerVRGX6250",
+					"TegraK1":            "TegraK1",
+					"IntelHDGraphics615": "IntelHDGraphics615",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
 					glog.Fatalf("Entry %q not found in ChromeOS GPU mapping.", parts["cpu_or_gpu_value"])
@@ -478,8 +479,12 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
 	} else if strings.Contains(name, "Chromebook") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
-		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("armhf_sysroot"))
-		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
+		if parts["target_arch"] == "x86_64" {
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("chromebook_x86_64_gles"))
+		} else if parts["target_arch"] == "arm" {
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("armhf_sysroot"))
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
+		}
 	} else if strings.Contains(name, "Debian") {
 		if strings.Contains(name, "Clang") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
