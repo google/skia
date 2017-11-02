@@ -2109,10 +2109,10 @@
         "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN_float_cast_overflow"
       ]
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_16-Coverage": {
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_12-Coverage": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_16-Coverage"
+        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_12-Coverage"
       ]
     },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
@@ -16156,7 +16156,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_16-Coverage": {
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_12-Coverage": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -16191,7 +16191,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_16-Coverage",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_12-Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -16204,7 +16204,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_01_16-Coverage": {
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_01_12-Coverage": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -16239,7 +16239,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_01_16-Coverage",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_01_12-Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -16252,7 +16252,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_02_16-Coverage": {
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_02_12-Coverage": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -16287,7 +16287,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_02_16-Coverage",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_02_12-Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -16300,7 +16300,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_03_16-Coverage": {
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_03_12-Coverage": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -16335,7 +16335,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_03_16-Coverage",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_03_12-Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -16348,7 +16348,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_04_16-Coverage": {
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_04_12-Coverage": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -16383,7 +16383,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_04_16-Coverage",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_04_12-Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -16396,7 +16396,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_05_16-Coverage": {
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_05_12-Coverage": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -16431,7 +16431,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_05_16-Coverage",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_05_12-Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -16444,7 +16444,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_06_16-Coverage": {
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_06_12-Coverage": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -16479,7 +16479,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_06_16-Coverage",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_06_12-Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -16492,7 +16492,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_07_16-Coverage": {
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_07_12-Coverage": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -16527,7 +16527,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_07_16-Coverage",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_07_12-Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -16540,7 +16540,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_08_16-Coverage": {
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_08_12-Coverage": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -16575,7 +16575,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_08_16-Coverage",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_08_12-Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -16588,7 +16588,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_09_16-Coverage": {
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_09_12-Coverage": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -16623,7 +16623,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_09_16-Coverage",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_09_12-Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -16636,7 +16636,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_10_16-Coverage": {
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_10_12-Coverage": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -16671,7 +16671,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_10_16-Coverage",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_10_12-Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -16684,7 +16684,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_11_16-Coverage": {
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_11_12-Coverage": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -16719,199 +16719,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_11_16-Coverage",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_12_16-Coverage": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:32"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:92"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-Clang-x86_64-Debug-Coverage",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.1",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_12_16-Coverage",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_13_16-Coverage": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:32"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:92"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-Clang-x86_64-Debug-Coverage",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.1",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_13_16-Coverage",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_14_16-Coverage": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:32"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:92"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-Clang-x86_64-Debug-Coverage",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.1",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_14_16-Coverage",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_15_16-Coverage": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:32"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:92"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-Clang-x86_64-Debug-Coverage",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.1",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_15_16-Coverage",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_11_12-Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -27359,7 +27167,7 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_16-Coverage": {
+    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_12-Coverage": {
       "cipd_packages": [
         {
           "name": "skia/bots/clang_linux",
@@ -27368,22 +27176,18 @@
         }
       ],
       "dependencies": [
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_01_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_02_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_03_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_04_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_05_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_06_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_07_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_08_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_09_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_10_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_11_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_12_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_13_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_14_16-Coverage",
-        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_15_16-Coverage",
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_12-Coverage",
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_01_12-Coverage",
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_02_12-Coverage",
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_03_12-Coverage",
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_04_12-Coverage",
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_05_12-Coverage",
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_06_12-Coverage",
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_07_12-Coverage",
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_08_12-Coverage",
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_09_12-Coverage",
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_10_12-Coverage",
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_11_12-Coverage",
         "Build-Debian9-Clang-x86_64-Debug-Coverage"
       ],
       "dimensions": [
@@ -27397,7 +27201,7 @@
         "../../..",
         "upload_coverage_results",
         "repository=<(REPO)",
-        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_16-Coverage",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_12-Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",

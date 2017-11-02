@@ -64,6 +64,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # more info on using llvm to gather coverage information.
       extra_cflags.append('-fprofile-instr-generate')
       extra_cflags.append('-fcoverage-mapping')
+      extra_cflags.append('-O1')
       extra_ldflags.append('-fprofile-instr-generate')
       extra_ldflags.append('-fcoverage-mapping')
 
@@ -134,8 +135,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         'skia_use_icu':        'false',
         'skia_enable_gpu':     'false',
       })
-    if 'Coverage' in extra_config:
-      args['skia_use_system_freetype2'] = 'false'
 
     sanitize = ''
     if extra_config == 'UBSAN_float_cast_overflow':
