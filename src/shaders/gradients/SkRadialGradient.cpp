@@ -107,8 +107,9 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor& processor, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-        b->add32(GenBaseGradientKey(processor));
+    static void GenKey(const GrProcessor& processor, const GrShaderCaps&,
+                       GrProcessorKeyBuilder* b) {
+        GenBaseGradientKey(processor, b);
     }
 
 private:
