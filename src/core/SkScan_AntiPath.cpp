@@ -615,7 +615,6 @@ static bool ShouldUseAAA(const SkPath& path) {
 
 void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
                           SkBlitter* blitter, bool forceRLE) {
-#if !defined(SK_SUPPORT_LEGACY_AA_CHOICE)
     if (ShouldUseDAA(path)) {
         SkScan::DAAFillPath(path, origClip, blitter, forceRLE);
         return;
@@ -625,7 +624,6 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         SkScan::AAAFillPath(path, origClip, blitter, forceRLE);
         return;
     }
-#endif
 
     FillPathFunc fillPathFunc = [](const SkPath& path, SkBlitter* blitter, bool isInverse,
             const SkIRect& ir, const SkIRect& clipBounds, bool containedInClip, bool forceRLE){
@@ -674,16 +672,6 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
 
     using FillPathProc = void(*)(const SkPath&, const SkRegion&, SkBlitter*, bool);
     FillPathProc fillPathProc = &SkScan::AntiFillPath;
-
-#ifdef SK_SUPPORT_LEGACY_AA_CHOICE
-    if (ShouldUseDAA(path)) {
-        fillPathProc = &SkScan::DAAFillPath;
-    } else if (ShouldUseAAA(path)) {
-        // Do not use AAA if path is too complicated:
-        // there won't be any speedup or significant visual improvement.
-        fillPathProc = &SkScan::AAAFillPath;
-    }
-#endif
 
     if (clip.isBW()) {
         fillPathProc(path, clip.bwRgn(), blitter, false);
