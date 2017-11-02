@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9cb302c_fd4ead18",
+        "filename": "site/user/build.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-02T14:51:52Z",
+      "side": 1,
+      "message": "You might just replace this with \"and run it as normal, using gles GPU configurations\".  I\u0027m not seeing anything here particularly Chromebook specific?",
+      "range": {
+        "startLine": 187,
+        "startChar": 48,
+        "endLine": 187,
+        "endChar": 77
+      },
+      "revId": "a3b3aa1c60f6b382e05128280cf1d4d2110ffc60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e69b2a78_2c586050",
+        "filename": "site/user/build.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-02T14:51:52Z",
+      "side": 1,
+      "message": "It\u0027s probably a bad idea to teach people to use --undefok.  There\u0027s no good reason for a person to physically type in a command line argument that doesn\u0027t exist.",
+      "range": {
+        "startLine": 189,
+        "startChar": 7,
+        "endLine": 189,
+        "endChar": 16
+      },
+      "revId": "a3b3aa1c60f6b382e05128280cf1d4d2110ffc60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1251b7d4_4834d1fc",
+        "filename": "site/user/build.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-02T14:51:52Z",
+      "side": 1,
+      "message": "On Android we teach people to push to /data/local/tmp for this reason.  Is there a similar typical mount point that isn\u0027t usually noexec that we could suggest here?",
+      "revId": "a3b3aa1c60f6b382e05128280cf1d4d2110ffc60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
