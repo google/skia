@@ -10,6 +10,25 @@
 #include "SkArenaAlloc.h"
 #include "SkTypes.h"
 
+template <typename T>
+template <typename... Args>
+T& SkArenaAlloc::List<T>::append(SkArenaAlloc* arena, Args... args) {
+    SkASSERT(!fHead == !fTail);
+    auto* n = arena->make<Node>(std::forward<Args>(args)...);
+    if (!fTail) {
+        fHead = fTail = n;
+    } else {
+        fTail = fTail->fNext = n;
+    }
+    return fTail->fT;
+}
+
+template <typename T>
+typename SkArenaAlloc::List<T>::Iter& GrOpFlushState::List<T>::Iter::operator++() {
+    fCurr = fCurr->fNext;
+    return *this;
+}
+
 static char* end_chain(char*) { return nullptr; }
 
 SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t extraSize, Tracking tracking)

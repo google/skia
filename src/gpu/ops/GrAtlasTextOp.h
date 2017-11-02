@@ -12,6 +12,8 @@
 #include "text/GrAtlasTextContext.h"
 #include "text/GrDistanceFieldAdjustTable.h"
 
+class SkInternalAtlasTextContext;
+
 class GrAtlasTextOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
@@ -116,6 +118,8 @@ public:
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                 GrPixelConfigIsClamped dstIsClamped) override;
 
+    void flush(SkInternalAtlasTextContext*, GrTextUtils::Target*);
+
 private:
     // The minimum number of Geometry we will try to allocate.
     static constexpr auto kMinGeometryAllocated = 12;
@@ -217,6 +221,7 @@ private:
  */
 class GrBlobRegenHelper {
 public:
+    /// NEXT STEP: GET TARGET OUT OF HERE!!
     GrBlobRegenHelper(const GrAtlasTextOp* op, GrMeshDrawOp::Target* target,
                       GrAtlasTextOp::FlushInfo* flushInfo)
             : fOp(op), fTarget(target), fFlushInfo(flushInfo) {}
