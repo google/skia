@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f24f952a_035dc4f7",
+        "filename": "site/user/build.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-02T16:10:34Z",
+      "side": 1,
+      "message": "This doesn\u0027t quite read right anymore...",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 190,
+        "endChar": 47
+      },
+      "revId": "027088e172ca29d1066cd0eece4dd2f1a7198d46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
