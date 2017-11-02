@@ -1089,8 +1089,11 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         *mipMapsStatus = GrMipMapsStatus::kValid;
     }
 
+    const bool usesMips = mipLevelCount > 1;
+
     // find the combined size of all the mip levels and the relative offset of
     // each into the collective buffer
+    bool willNeedData = false;
     size_t combinedBufferSize = 0;
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
@@ -1098,7 +1101,19 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
             int twoToTheMipLevel = 1 << currentMipLevel;
             int currentWidth = SkTMax(1, width / twoToTheMipLevel);
             int currentHeight = SkTMax(1, height / twoToTheMipLevel);
-            const size_t trimmedSize = currentWidth * bpp * currentHeight;
+            const size_t trimRowBytes = currentWidth * bpp;
+            const size_t trimmedSize = trimRowBytes * currentHeight;
+
+            const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes
+                    ? texelsShallowCopy[currentMipLevel].fRowBytes
+                    : trimRowBytes;
+
+
+            if (((!caps.unpackRowLengthSupport() || usesMips) && trimRowBytes != rowBytes) ||
+                swFlipY) {
+                willNeedData = true;
+            }
+
             individualMipOffsets.push_back(combinedBufferSize);
             combinedBufferSize += trimmedSize;
         } else {
@@ -1111,7 +1126,10 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     if (mipMapsStatus && mipLevelCount <= 1) {
         *mipMapsStatus = GrMipMapsStatus::kNotAllocated;
     }
-    char* buffer = (char*)tempStorage.reset(combinedBufferSize);
+    char* buffer = nullptr;
+    if (willNeedData) {
+        buffer = (char*)tempStorage.reset(combinedBufferSize);
+    }
 
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         if (!texelsShallowCopy[currentMipLevel].fPixels) {
@@ -1137,7 +1155,6 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         // TODO: This optimization should be enabled with or without mips.
         // For use with mips, we must set GR_GL_UNPACK_ROW_LENGTH once per
         // mip level, before calling glTexImage2D.
-        const bool usesMips = mipLevelCount > 1;
         if (caps.unpackRowLengthSupport() && !swFlipY && !usesMips) {
             // can't use this for flipping, only non-neg values allowed. :(
             if (rowBytes != trimRowBytes) {
