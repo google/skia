@@ -66,8 +66,21 @@ public:
 
     void setDeduper(SkDeduper* deduper) { fDeduper = deduper; }
 
+    /**
+     *  Return a client specified context pointer. This is not interpreted by the writebuffer.
+     *  It defaults to nullptr, but may be set with setClientContext(...).
+     */
+    void* getClientContext() const { return fClientCtx; }
+
+    /**
+     *  Set the client specified context pointer. This is not interpreted by the writebuffer.
+     *  It defaults to nullptr. It can be inspected by calling getClientContext().
+     */
+    void setClientContext(void* ctx) { fClientCtx = ctx; }
+
 protected:
     SkDeduper* fDeduper = nullptr;
+    void*      fClientCtx = nullptr;
 };
 
 /**
