@@ -224,7 +224,7 @@ size of one row of <a href="#SkPixmap_addr">addr</a>; <a href="#SkPixmap_width">
 
 ### Example
 
-<div><fiddle-embed name="c8e31733704bfebdb038b003aa8a62d7"></fiddle-embed></div>
+<div><fiddle-embed name="a7c9bfe44f5d888ab5b9996f2b126788"></fiddle-embed></div>
 
 ### See Also
 
@@ -1253,6 +1253,10 @@ pixmap.addr32(1, 2) == &storage[1 + 2 * w]
 
 </fiddle-embed></div>
 
+### See Also
+
+<a href="#SkPixmap_addr">addr</a> <a href="#SkPixmap_addr8">addr8</a> <a href="#SkPixmap_addr16">addr16</a> <a href="#SkPixmap_addr64">addr64</a> <a href="#SkPixmap_addrF16">addrF16</a> <a href="#SkPixmap_getColor">getColor</a> <a href="#SkPixmap_writable_addr">writable addr</a> <a href="#SkPixmap_writable_addr64">writable addr64</a>
+
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -1561,7 +1565,7 @@ writable unsigned 64-bit pointer to pixel
 
 ### Example
 
-<div><fiddle-embed name="33a04ac51c74a1e8d461b1d6f31ed82a"></fiddle-embed></div>
+<div><fiddle-embed name="de14d8d30e4a7b6462103d0e0dd96b0b"></fiddle-embed></div>
 
 ### See Also
 
@@ -1938,7 +1942,7 @@ true if pixels are changed
 
 ### Example
 
-<div><fiddle-embed name="f0a8f4e07fd8b6c48eb52f2238d8f88b"></fiddle-embed></div>
+<div><fiddle-embed name="a0cdbafed4786788cc90681e7b294234"></fiddle-embed></div>
 
 ### See Also
 
@@ -1967,7 +1971,7 @@ true if pixels are changed
 
 ### Example
 
-<div><fiddle-embed name="ee0bb3f3aae12dbc1c2759349527e9da"></fiddle-embed></div>
+<div><fiddle-embed name="838202e0d49cad2eb3eeb495834f6d63"></fiddle-embed></div>
 
 ### See Also
 
@@ -1999,7 +2003,7 @@ true if pixels are changed
 
 ### Example
 
-<div><fiddle-embed name="da215a59c574d26bc5caf7de630d5966"></fiddle-embed></div>
+<div><fiddle-embed name="f884f3f46a565f052a5e252ae2f36e9b"></fiddle-embed></div>
 
 ### See Also
 

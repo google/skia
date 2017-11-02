@@ -1372,6 +1372,7 @@ Sets all values from parameters. Sets matrix to:
 #Param persp2  perspective scale factor to store ##
 
 #Example
+#Height 128
     SkPaint p;
     p.setAntiAlias(true);
     p.setTextSize(64);
@@ -1379,7 +1380,7 @@ Sets all values from parameters. Sets matrix to:
     for (SkScalar sx : { -1, 1 } ) {
         for (SkScalar sy : { -1, 1 } ) {
             SkAutoCanvasRestore autoRestore(canvas, true);
-            m.setAll(sx, 1, 128,    0, sy, 128,   0, 0, 1);
+            m.setAll(sx, 1, 128,    0, sy, 64,   0, 0, 1);
             canvas->concat(m);
             canvas->drawString("K", 0, 0, p);
         }
@@ -1574,6 +1575,7 @@ The pivot point is unchanged when mapped with Matrix.
 #Param py  pivot y ##
 
 #Example
+#Height 128
     SkPaint p;
     p.setAntiAlias(true);
     p.setTextSize(64);
@@ -1581,9 +1583,9 @@ The pivot point is unchanged when mapped with Matrix.
     for (SkScalar sx : { -1, 1 } ) {
         for (SkScalar sy : { -1, 1 } ) {
             SkAutoCanvasRestore autoRestore(canvas, true);
-            m.setScale(sx, sy, 128, 128);
+            m.setScale(sx, sy, 128, 64);
             canvas->concat(m);
-            canvas->drawString("K", 128, 128, p);
+            canvas->drawString("%", 128, 64, p);
         }
     }
 ##
@@ -1602,6 +1604,7 @@ Sets Matrix to scale by sx and sy about at pivot point at (0, 0).
 #Param sy  vertical scale factor ##
 
 #Example
+#Height 128
     SkPaint p;
     p.setAntiAlias(true);
     p.setTextSize(64);
@@ -1610,9 +1613,9 @@ Sets Matrix to scale by sx and sy about at pivot point at (0, 0).
         for (SkScalar sy : { -1, 1 } ) {
             SkAutoCanvasRestore autoRestore(canvas, true);
             m.setScale(sx, sy);
-            m.postTranslate(128, 128);
+            m.postTranslate(128, 64);
             canvas->concat(m);
-            canvas->drawString("K", 0, 0, p);
+            canvas->drawString("@", 0, 0, p);
         }
     }
 ##
@@ -3827,6 +3830,7 @@ Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
 #Param rect  Rect to map ##
 
 #Example
+#Height 192
     SkPaint paint;
     paint.setAntiAlias(true);
     SkMatrix matrix;

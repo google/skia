@@ -1295,6 +1295,7 @@ Returns IRect { 0, 0, width(), height() }.
 #Return  integral rectangle from origin to width() and height() ##
 
 #Example
+#Height 128
 #Image 4
     SkIRect bounds = source.bounds();
     for (int x : { 0, bounds.width() } ) {
@@ -2246,7 +2247,7 @@ subset origin: 32, 64
 ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkPixelRef getSubset setPixelRef
 
 ##
 
