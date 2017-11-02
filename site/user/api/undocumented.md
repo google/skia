@@ -250,6 +250,19 @@ static sk_sp&lt;SkColorSpace&gt; MakeSRGBLinear()
 
 </table>
 
+# <a name="Create_Color_Space_Xform_Canvas"></a> Create Color Space Xform Canvas
+
+<a name="SkCreateColorSpaceXformCanvas"></a>
+## SkCreateColorSpaceXformCanvas
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+std::unique_ptr&lt;SkCanvas&gt; SK_API 
+                                                               SkCreateColorSpaceXformCanvas(SkCanvas* target,
+                                                               sk_sp&lt;SkColorSpace&gt; targetCS)
+</pre>
+
+---
+
 # <a name="Core_Graphics"></a> Core Graphics
 
 # <a name="Core_Text"></a> Core Text
@@ -341,6 +354,17 @@ static std::unique_ptr&lt;SkCanvas&gt;
 
 # <a name="GPU_Context"></a> GPU Context
 
+# <a name="GrContext"></a> Class GrContext
+
+<a name="GrContext_flush"></a>
+## flush
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+void flush()
+</pre>
+
+---
+
 # <a name="GPU_Surface"></a> GPU Surface
 
 # <a name="Image"></a> Image
@@ -421,6 +445,16 @@ static std::unique_ptr&lt;SkCanvas&gt;
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 SkImageInfo()
+</pre>
+
+---
+
+<a name="SkImageInfo_MakeN32Premul"></a>
+## MakeN32Premul
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+static SkImageInfo MakeN32Premul(int width, int height,
+                                 sk_sp&lt;SkColorSpace&gt; cs = nullptr)
 </pre>
 
 ---
@@ -573,6 +607,15 @@ bool readPixels(const SkPixmap& dst, int srcX, int srcY,
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 bool scalePixels(const SkPixmap& dst, SkFilterQuality,
                  CachingHint = kAllow_CachingHint) const
+</pre>
+
+---
+
+<a name="SkImage_peekPixels"></a>
+## peekPixels
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+bool peekPixels(SkPixmap* pixmap) const
 </pre>
 
 ---
@@ -741,6 +784,14 @@ template &lt;typename D, typename S&gt; inline bool SkTFitsIn(S s)
 </pre>
 
 ---
+
+# <a name="Stream"></a> Stream
+
+# <a name="SkStream"></a> Class SkStream
+
+# <a name="Meta_Data"></a> Meta Data
+
+# <a name="SkMetaData"></a> Class SkMetaData
 
 # <a name="Nine_Patch"></a> Nine Patch
 
@@ -969,10 +1020,6 @@ static sk_sp&lt;SkShader&gt; MakeBitmapShader(const SkBitmap& src, TileMode tmx,
 
 # <a name="Sprite"></a> Sprite
 
-# <a name="Stream"></a> Stream
-
-# <a name="SkStream"></a> Class SkStream
-
 # <a name="String"></a> String
 
 # <a name="SkString"></a> Class SkString
@@ -999,6 +1046,51 @@ static sk_sp&lt;SkSurface&gt; MakeRasterDirect(const SkImageInfo&, void* pixels,
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 bool readPixels(const SkPixmap& dst, int srcX, int srcY) ;
+</pre>
+
+---
+
+<a name="SkSurface_getCanvas"></a>
+## getCanvas
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+SkCanvas* getCanvas()
+</pre>
+
+---
+
+<a name="SkSurface_flush"></a>
+## flush
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+void flush()
+</pre>
+
+---
+
+<a name="SkSurface_prepareForExternalIO"></a>
+## prepareForExternalIO
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+void prepareForExternalIO()
+</pre>
+
+---
+
+<a name="SkSurface_makeSurface"></a>
+## makeSurface
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+sk_sp&lt;SkSurface&gt; makeSurface(const SkImageInfo&)
+</pre>
+
+---
+
+<a name="SkSurface_peekPixels"></a>
+## peekPixels
+
+<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+bool peekPixels(SkPixmap*)
 </pre>
 
 ---
