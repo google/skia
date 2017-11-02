@@ -2262,6 +2262,10 @@ subset origin: 32, 64
 
 </fiddle-embed></div>
 
+### See Also
+
+<a href="undocumented#SkPixelRef">SkPixelRef</a> <a href="#SkBitmap_getSubset">getSubset</a> <a href="#SkBitmap_setPixelRef">setPixelRef</a>
+
 ---
 
 <a name="SkBitmap_setPixelRef"></a>

@@ -73,7 +73,6 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 # SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props) # Uses existing Bitmap and Surface_Properties.    ##
 # MakeRasterDirect                                              # Creates from SkImageInfo and Pixel_Storage.     ##
 # MakeRasterDirectN32                                           # Creates from image data and Pixel_Storage.      ##
-#ToDo incomplete ##
 #Table ##
 #Subtopic ##
 
@@ -232,9 +231,8 @@ void draw(SkCanvas* ) {
     ##
 ##
 
-#ToDo incomplete ##
-
 #SeeAlso MakeRasterDirectN32 SkSurface::MakeRasterDirect
+
 ##
 
 # ------------------------------------------------------------------------------
@@ -306,7 +304,7 @@ void draw(SkCanvas* ) {
     ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeRasterDirect SkSurface::MakeRasterDirect SkImageInfo::MakeN32Premul
 
 ##
 
@@ -358,7 +356,7 @@ void draw(SkCanvas* canvas) {
     ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeRasterDirect SkRasterHandleAllocator::MakeCanvas SkSurface::getCanvas SkCreateColorSpaceXformCanvas
 
 ##
 
@@ -393,7 +391,7 @@ different characteristics, it is best not to rely on this legacy behavior.
     ##
 ##
 
-#SeeAlso SkSurfaceProps SkPixelGeometry
+#SeeAlso MakeRasterDirect SkSurfaceProps SkPixelGeometry SkCreateColorSpaceXformCanvas
 
 ##
 
@@ -416,7 +414,9 @@ Used by child classes of SkCanvas.
     : SkCanvas(dev.get()) {}
 ##
 
-#ToDo either remove doc of figure out a way to fiddle it ##
+#ToDo either remove doc or figure out a way to fiddle it ##
+
+#SeeAlso MakeRasterDirect SkRasterHandleAllocator::MakeCanvas SkSurface::getCanvas SkCreateColorSpaceXformCanvas
 
 ##
 
@@ -479,7 +479,7 @@ The actual output depends on the installed fonts.
     #StdOut ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeRasterDirect SkRasterHandleAllocator::MakeCanvas SkSurface::getCanvas SkCreateColorSpaceXformCanvas
 
 ##
 
@@ -571,7 +571,7 @@ The actual output depends on the installed fonts.
     #StdOut ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso MakeRasterDirect SkRasterHandleAllocator::MakeCanvas SkSurface::getCanvas SkCreateColorSpaceXformCanvas
 
 ##
 
@@ -636,7 +636,7 @@ The storage is freed when Canvas is deleted.
     #StdOut ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkMetaData
 
 ##
 
@@ -660,7 +660,7 @@ GPU_Surface, returned Image_Color_Type is set to kUnknown_SkColorType.
     ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkImageInfo MakeRasterDirect makeSurface
 
 ##
 
@@ -694,7 +694,7 @@ return false and leave props unchanged.
     #StdOut ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkSurfaceProps makeSurface
 
 ##
 
@@ -704,12 +704,31 @@ return false and leave props unchanged.
 
 Triggers the immediate execution of all pending draw operations. 
 If Canvas is associated with GPU_Surface, resolves all pending GPU operations.
+If Canvas is associated with Raster_Surface, has no effect; raster draw
+operations are never deferred.
+
+#ToDo
+In an overview section on managing the GPU, include:
+- flush should never change what is drawn
+- call to kick off gpu work
+- calling too much impacts performance
+- some calls (peekPixels, prepareForExternalIO) call it internally
+- canvas call is local, GrContext::flush is global
+- diffentiate between flush, flushAndSignalSemaphores
+- normally never needs to be called
+- call it when sharing gpu resources, feeling memory pressure, swapping out app, and before
+  abandoning context
+- also call to say "I'm finished drawing here", e.g., when drawing to a GPU-backed offscreen surface
+  (created with SkSurface::MakeRenderTarget)
+
+for posterity: this doesn't show a difference: fiddle.skia.org/c/@flushfail
+##
 
 #Example
 #Error "haven't thought of a useful example to put here"
 ##
 
-#ToDo incomplete ##
+#SeeAlso peekPixels SkSurface::flush() GrContext::flush() SkSurface::prepareForExternalIO GrContext::abandonContext()
 
 ##
 
@@ -744,6 +763,8 @@ smaller (due to clipping or saveLayer).
 
 #ToDo is this the same as the width and height of surface? ##
 
+#SeeAlso getDeviceClipBounds
+
 ##
 
 # ------------------------------------------------------------------------------
@@ -775,7 +796,7 @@ does not have Surface_Properties, creates Surface with default Surface_Propertie
     ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkSurface SkSurface::makeSurface SkImageInfo SkSurfaceProps
 
 ##
 
@@ -798,6 +819,8 @@ void draw(SkCanvas* canvas) {
 ##
 
 #ToDo fiddle should show both CPU and GPU out ##
+
+#SeeAlso GrContext 
 
 ##
 
@@ -878,6 +901,8 @@ void draw(SkCanvas* canvas) {
 
 #ToDo there are no callers of this that I can find. Deprecate? ##
 #ToDo fiddle should show both CPU and GPU out ##
+
+#SeeAlso SkImageInfo SkPixmap
 
 ##
 
@@ -967,6 +992,8 @@ Canvas or Surface call may invalidate the pixmap values.
         width=256 height=256
     ##
 ##
+
+#SeeAlso readPixels SkBitmap::peekPixels SkImage::peekPixels SkSurface::peekPixels
 
 ##
 
@@ -1059,7 +1086,7 @@ Does not copy, and returns false if:
     ##
 ##
 
-#SeeAlso peekPixels writePixels drawBitmap drawImage
+#SeeAlso peekPixels writePixels drawBitmap drawImage SkBitmap::readPixels SkPixmap::readPixels SkImage::readPixels SkSurface::readPixels
 
 ##
 
@@ -1122,7 +1149,7 @@ Does not copy, and returns false if:
     ##
 ##
 
-#SeeAlso peekPixels writePixels drawBitmap drawImage
+#SeeAlso peekPixels writePixels drawBitmap drawImage SkBitmap::readPixels SkPixmap::readPixels SkImage::readPixels SkSurface::readPixels
 
 ##
 
@@ -1185,7 +1212,7 @@ void draw(SkCanvas* canvas) {
     ##
 ##
 
-#SeeAlso peekPixels writePixels drawBitmap drawImage
+#SeeAlso peekPixels writePixels drawBitmap drawImage SkBitmap::readPixels SkPixmap::readPixels SkImage::readPixels SkSurface::readPixels
 
 ##
 
@@ -1242,7 +1269,7 @@ this->imageInfo().alphaType(). ##
     }
 ##
 
-#SeeAlso readPixels drawBitmap drawImage
+#SeeAlso readPixels drawBitmap drawImage SkBitmap::writePixels
 
 ##
 
@@ -1307,7 +1334,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso readPixels drawBitmap drawImage
+#SeeAlso readPixels drawBitmap drawImage SkBitmap::writePixels
 
 ##
 
@@ -1418,7 +1445,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha restore() restoreToCount
 
 ##
 
@@ -1439,6 +1466,8 @@ void draw(SkCanvas* canvas) {
     SkDebugf("depth = %d\n", simple.getSaveCount());
 }
 ##
+
+#SeeAlso save() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha restoreToCount
 
 ##
 
@@ -1467,6 +1496,8 @@ depth = 2
 depth = 1
 ##
 ##
+
+#SeeAlso save() restore() restoreToCount
 
 ##
 
@@ -1497,6 +1528,8 @@ depth = 3
 depth = 1
 ##
 ##
+
+#SeeAlso restore() getSaveCount save() 
 
 ##
 
@@ -1561,7 +1594,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
 
 ##
 
@@ -1609,7 +1642,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso save() restore() saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
 
 ##
 
@@ -1666,7 +1699,7 @@ incorrect blending.
     }
     ##
 
-#ToDo incomplete ##
+#SeeAlso save() restore() saveLayer saveLayerAlpha SaveLayerRec
 
 ##
 
@@ -1707,7 +1740,7 @@ Call restoreToCount with returned value to restore this and subsequent saves.
     canvas->restore();
 ##
 
-#ToDo incomplete ##
+#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests SaveLayerRec
 
 ##
 
@@ -1773,7 +1806,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
 
 #Enum ##
 
@@ -1870,6 +1903,8 @@ Sets fBounds, fPaint, and fBackdrop to nullptr. Clears fSaveLayerFlags.
     ##
 ##
 
+#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
+
 ##
 
 #Method SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)
@@ -1893,6 +1928,8 @@ Sets fBounds, fPaint, and fSaveLayerFlags; sets fBackdrop to nullptr.
         rec1 == rec2
     ##
 ##
+
+#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
 
 ##
 
@@ -1923,6 +1960,8 @@ Sets fBounds, fPaint, fBackdrop, and fSaveLayerFlags.
     ##
 ##
 
+#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
+
 ##
 
 #Method SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
@@ -1937,7 +1976,7 @@ Sets fBounds, fPaint, fBackdrop, fClipMask, fClipMatrix, and fSaveLayerFlags.
 clipMatrix uses Color_Alpha channel of image, transformed by clipMatrix, to clip
 Layer when drawn to Canvas.
 
-Implementation is incomplete; has no effect if Device is GPU-backed.
+Implementation is not complete; has no effect if Device is GPU-backed.
 
 #Param bounds          Layer dimensions; may be nullptr ##
 #Param paint           graphics state applied to Layer when overlaying prior
@@ -1954,7 +1993,7 @@ Implementation is incomplete; has no effect if Device is GPU-backed.
 
 #Return                SaveLayerRec fully specified ##
 
-#ToDo  incomplete ##
+#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
 
 ##
 
@@ -2002,6 +2041,8 @@ Outside of the circle the mandrill is brightened.
 ##
 
 #ToDo above example needs to replace GetResourceAsImage with way to select image in fiddle ##
+
+#SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha
 
 ##
 
@@ -2054,7 +2095,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso concat() scale() skew() rotate() setMatrix
 
 ##
 
@@ -2086,7 +2127,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso concat() translate() skew() rotate() setMatrix
 
 ##
 
@@ -2123,7 +2164,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso concat() translate() skew() scale() setMatrix
 
 ##
 
@@ -2156,7 +2197,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso concat() translate() skew() scale() setMatrix
 
 ##
 
@@ -2201,7 +2242,7 @@ the result with Matrix.
     canvas->drawString("A1", 0, 0, paint);
 ##
 
-#ToDo incomplete ##
+#SeeAlso concat() translate() rotate() scale() setMatrix
 
 ##
 
@@ -2233,7 +2274,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso translate() rotate() scale() skew() setMatrix
 
 ##
 
@@ -2259,7 +2300,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso resetMatrix concat() translate() rotate() scale() skew()
 
 ##
 
@@ -2282,7 +2323,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso setMatrix concat() translate() rotate() scale() skew()
 
 ##
 
@@ -2302,7 +2343,7 @@ This does not account for translation by Device or Surface.
     ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso setMatrix resetMatrix concat()
 
 ##
 
@@ -2394,7 +2435,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso clipRRect clipPath clipRegion
 
 ##
 
@@ -2422,7 +2463,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso clipRRect clipPath clipRegion
 
 ##
 
@@ -2463,7 +2504,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso clipRRect clipPath clipRegion
 
 ##
 
@@ -2510,7 +2551,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso clipRect clipPath clipRegion
 
 ##
 
@@ -2534,7 +2575,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso clipRect clipPath clipRegion
 
 ##
 
@@ -2558,7 +2599,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso clipRect clipPath clipRegion
 
 ##
 
@@ -2599,7 +2640,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso clipRect clipRRect clipRegion
 
 ##
 
@@ -2640,7 +2681,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso clipRect clipRRect clipRegion
 
 ##
 
@@ -2682,7 +2723,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso clipRect clipRRect clipRegion
 
 ##
 
@@ -2731,7 +2772,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso clipRect clipRRect clipPath
 
 ##
 
@@ -2764,7 +2805,7 @@ void draw(SkCanvas* canvas) {
     ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso getLocalClipBounds getTotalMatrix SkBitmap::drawsNothing
 
 ##
 
@@ -2800,7 +2841,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso getLocalClipBounds getTotalMatrix SkBitmap::drawsNothing
 
 ##
 
@@ -2845,6 +2886,7 @@ is Anti-aliased.
 
 # local canvas in example works around bug in fiddle ##
 #Bug 6524  ##
+#SeeAlso getDeviceClipBounds getBaseLayerSize quickReject
 
 ##
 
@@ -2880,6 +2922,7 @@ is Anti-aliased.
 
 # local canvas in example works around bug in fiddle ##
 #Bug 6524  ##
+#SeeAlso getDeviceClipBounds getBaseLayerSize quickReject
 
 ##
 
@@ -2927,6 +2970,7 @@ void draw(SkCanvas* canvas) {
 ##
 
 #ToDo some confusion on why with an identity Matrix local and device are different ##
+#SeeAlso getLocalClipBounds getBaseLayerSize quickReject
 
 # device canvas in example works around bug in fiddle ##
 #Bug 6524  ##
@@ -2960,7 +3004,7 @@ Unlike getLocalClipBounds, bounds is not outset.
     ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso getLocalClipBounds getBaseLayerSize quickReject
 
 ##
 
@@ -2984,7 +3028,7 @@ mode determines how Color_ARGB is combined with destination.
     canvas->drawColor(SkColorSetARGB(0x80, 0x00, 0x00, 0xFF), SkBlendMode::kPlus);
 ##
 
-#ToDo incomplete ##
+#SeeAlso clear SkBitmap::erase drawPaint
 
 ##
 
@@ -3012,7 +3056,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawColor SkBitmap::erase drawPaint
 
 ##
 
@@ -3033,6 +3077,7 @@ It is not necessary to call discard() once done with Canvas;
 any cached data is deleted when owning Surface or Device is deleted.
 
 #ToDo example? not sure how to make this meaningful w/o more implementation detail ##
+#SeeAlso flush() SkSurface::prepareForExternalIO GrContext::abandonContext
 
 #NoExample 
 ##
@@ -3061,7 +3106,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso clear drawColor SkBitmap::erase
 
 ##
 
@@ -3116,7 +3161,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawLine drawPoint drawPath
 
 ##
 
@@ -3196,7 +3241,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawLine drawPoint drawPath
 
 ##
 
@@ -3232,7 +3277,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawPoints drawCircle drawRect drawLine drawPath
 
 ##
 
@@ -3265,7 +3310,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso drawPoints drawCircle drawRect
+#SeeAlso drawPoints drawCircle drawRect drawLine drawPath
 
 ##
 
@@ -3295,7 +3340,7 @@ Paint_Style is ignored, as if were set to SkPaint::kStroke_Style.
   canvas->drawLine(288, 96, 288, 160, paint);
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawPoint drawCircle drawRect drawPath
 
 ##
 
@@ -3321,7 +3366,7 @@ Paint_Style is ignored, as if were set to SkPaint::kStroke_Style.
   canvas->drawLine({288, 96}, {288, 160}, paint);
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawPoint drawCircle drawRect drawPath
 
 ##
 
@@ -3357,7 +3402,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawIRect drawRRect drawRoundRect drawRegion drawPath drawLine 
 
 ##
 
@@ -3387,7 +3432,7 @@ Paint_Stroke_Join draws the corners rounded or square.
     }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawRect drawRRect drawRoundRect drawRegion drawPath drawLine
 
 ##
 
@@ -3417,7 +3462,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawRect drawIRect drawPath
 
 ##
 
@@ -3448,7 +3493,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawCircle drawPoint drawPath drawRRect drawRoundRect
 
 ##
 
@@ -3487,7 +3532,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawRect drawRoundRect drawDRRect drawCircle drawOval drawPath
 
 ##
 
@@ -3541,7 +3586,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawRect drawRoundRect drawRRect drawCircle drawOval drawPath
 
 ##
 
@@ -3571,7 +3616,7 @@ if stroked, Paint_Stroke_Width describes the line thickness.
     }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawOval drawRRect drawRoundRect drawPath drawArc drawPoint drawLine
 
 ##
 
@@ -3598,7 +3643,7 @@ if stroked, Paint_Stroke_Width describes the line thickness.
     }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawOval drawRRect drawRoundRect drawPath drawArc drawPoint drawLine
 
 ##
 
@@ -3662,7 +3707,7 @@ If Rect oval is empty or sweepAngle is zero, nothing is drawn.
     }
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkPath::arcTo drawCircle drawOval drawPath
 
 ##
 
@@ -3709,7 +3754,7 @@ Paint_Stroke_Join.
     }
 ##
 
-#ToDo incomplete ##
+#SeeAlso DrawRRect drawRect drawDRRect drawPath drawCircle drawOval drawPoint
 
 ##
 
@@ -3772,7 +3817,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkPath drawLine drawArc drawRect drawPoints
 
 ##
 
@@ -3815,7 +3860,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawBitmap drawImageLattice drawImageNine drawImageRect SkPaint::setImageFilter
 
 ##
 
@@ -3854,7 +3899,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawBitmap drawImageLattice drawImageNine drawImageRect SkPaint::setImageFilter
 
 ##
 
@@ -3922,7 +3967,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawImageRect drawImage SkPaint::setImageFilter
 
 ##
 
@@ -3987,7 +4032,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso SrcRectConstraint drawImage drawImageLattice drawImageNine
 
 ##
 
@@ -4032,7 +4077,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso SrcRectConstraint drawImage drawImageLattice drawImageNine
 
 ##
 
@@ -4073,7 +4118,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso SrcRectConstraint drawImage drawImageLattice drawImageNine
 
 ##
 
@@ -4129,7 +4174,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso SrcRectConstraint drawImage drawImageLattice drawImageNine
 
 ##
 
@@ -4181,7 +4226,8 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso SrcRectConstraint drawImage drawImageLattice drawImageNine
+
 ##
 
 # ------------------------------------------------------------------------------
@@ -4230,7 +4276,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso SrcRectConstraint drawImage drawImageLattice drawImageNine
 
 ##
 
@@ -4296,7 +4342,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawImage drawBitmapNine drawImageLattice drawImageRect
 
 ##
 
@@ -4363,7 +4409,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawImage drawBitmapNine drawImageLattice drawImageRect
 
 ##
 
@@ -4415,7 +4461,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawImage drawBitmapLattice drawBitmapNine drawBitmapRect SkBitmap::readPixels SkBitmap::writePixels
 
 ##
 
@@ -4472,7 +4518,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawImageRect drawBitmap drawBitmapLattice drawBitmapNine
 
 ##
 
@@ -4530,7 +4576,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawImageRect drawBitmap drawBitmapLattice drawBitmapNine
 
 ##
 
@@ -4581,7 +4627,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawImageRect drawBitmap drawBitmapLattice drawBitmapNine
 
 ##
 
@@ -4649,7 +4695,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawImageNine drawBitmap drawBitmapLattice drawBitmapRect
 
 ##
 
@@ -4807,7 +4853,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawImageLattice drawBitmap drawBitmapNine Lattice
 
 ##
 
@@ -4884,7 +4930,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawBitmapLattice drawImage drawImageNine Lattice
 
 ##
 
@@ -4943,7 +4989,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawString drawPosText drawPosTextH drawTextBlob drawTextOnPath drawTextRSXform
 
 ##
 
@@ -4976,7 +5022,7 @@ filled 12 point black Glyphs.
    canvas->drawString("a small hello", 20, 20, paint);
 ##
 
-#SeeAlso drawText
+#SeeAlso drawText drawPosText drawPosTextH drawTextBlob drawTextOnPath drawTextRSXform
 
 ##
 
@@ -5010,7 +5056,7 @@ filled 12 point black Glyphs.
    canvas->drawString(string, 20, 20, paint);
 ##
 
-#SeeAlso drawText
+#SeeAlso drawText drawPosText drawPosTextH drawTextBlob drawTextOnPath drawTextRSXform
 
 ##
 
@@ -5053,7 +5099,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawText drawPosTextH drawTextBlob drawTextOnPath drawTextRSXform
 
 ##
 
@@ -5095,7 +5141,7 @@ baseline.
     }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawText drawPosText drawTextBlob drawTextOnPath drawTextRSXform
 
 ##
 
@@ -5143,7 +5189,7 @@ filled 12 point black Glyphs.
     }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawTextOnPath drawText drawPosTextH drawTextBlob drawTextRSXform
 
 ##
 
@@ -5197,7 +5243,7 @@ filled 12 point black Glyphs.
     }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawTextOnPathHV drawText drawPosTextH drawTextBlob drawTextRSXform
 
 ##
 
@@ -5247,7 +5293,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawTextOnPath drawTextOnPathHV drawText drawPosText drawTextBlob
 
 ##
 
@@ -5297,7 +5343,7 @@ Image_Filter, and Draw_Looper; apply to blob.
     }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawText drawPosText drawPosTextH
 
 ##
 
@@ -5342,7 +5388,7 @@ Paint attributes related to text, like text size, have no effect on paint passed
     }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawText drawPosText drawPosTextH
 
 ##
 
@@ -5378,7 +5424,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawDrawable SkPicture SkPicture::playback
 
 ##
 
@@ -5413,7 +5459,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawDrawable SkPicture SkPicture::playback
 
 ##
 
@@ -5455,7 +5501,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawDrawable SkPicture SkPicture::playback
 
 ##
 
@@ -5496,7 +5542,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawDrawable SkPicture SkPicture::playback
 
 ##
 
@@ -5523,7 +5569,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawPatch drawPicture
 
 ##
 
@@ -5553,7 +5599,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawPatch drawPicture
 
 ##
 
@@ -5611,7 +5657,8 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete; can patch use image filter? ##
+#ToDo can patch use image filter? ##
+#SeeAlso SeeAlso drawVertices drawPicture
 
 ##
 
@@ -5692,7 +5739,8 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete; can patch use image filter? ##
+#ToDo can patch use image filter? ##
+#SeeAlso SeeAlso drawVertices drawPicture
 
 ##
 
@@ -5733,7 +5781,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawBitmap drawImage
 
 ##
 
@@ -5777,6 +5825,8 @@ void draw(SkCanvas* canvas) {
 
 #ToDo bug in example on cpu side, gpu looks ok ##
 
+#SeeAlso drawBitmap drawImage
+
 ##
 
 # ------------------------------------------------------------------------------
@@ -5811,7 +5861,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawBitmap drawImage
 
 ##
 
@@ -5846,7 +5896,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso drawBitmap drawImage
 
 ##
 
@@ -5892,7 +5942,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkDrawable drawPicture
 
 ##
 
@@ -5936,7 +5986,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkDrawable drawPicture
 
 ##
 
@@ -5966,7 +6016,7 @@ Document_PDF, use annotations.
     canvas->drawAnnotation(bounds, "url_key", urlData.get());
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkPicture SkDocument
 
 ##
 
@@ -5996,7 +6046,7 @@ Document_PDF, use annotations.
     canvas->drawAnnotation(bounds, "url_key", urlData.get());
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkPicture SkDocument
 
 ##
 
@@ -6043,7 +6093,7 @@ work until Clip changes.
     ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso isClipRect getLocalClipBounds getDeviceClipBounds
 
 ##
 
@@ -6068,7 +6118,7 @@ Returns false if the clip is empty, or if it is not Rect.
     ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso isClipEmpty getLocalClipBounds getDeviceClipBounds
 
 ##
 
@@ -6090,7 +6140,18 @@ Preserves Canvas save count. Optionally saves Canvas Clip and Matrix.
 #Return utility to restore Canvas state on destructor ##
 
 #Example
-// incomplete
+#Height 128
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setTextSize(64);
+    for (SkScalar sx : { -1, 1 } ) {
+        for (SkScalar sy : { -1, 1 } ) {
+            SkAutoCanvasRestore autoRestore(canvas, true);
+            SkMatrix m = SkMatrix::MakeAll(sx, 1, 96,    0, sy, 64,   0, 0, 1);
+            canvas->concat(m);
+            canvas->drawString("R", 0, 0, p);
+        }
+    }
 ##
 
 #SeeAlso SkCanvas::save SkCanvas::restore
@@ -6099,10 +6160,10 @@ Preserves Canvas save count. Optionally saves Canvas Clip and Matrix.
 
 #Method ~SkAutoCanvasRestore()
 
-Restores Canvas to saved state.
+Restores Canvas to saved state. Destructor is called when container goes out of
+scope.
 
-#Example
-// incomplete
+#NoExample
 ##
 
 #SeeAlso SkCanvas::save SkCanvas::restore
@@ -6115,7 +6176,31 @@ Restores Canvas to saved state immediately. Subsequent calls and
 ~SkAutoCanvasRestore have no effect.
 
 #Example
-// incomplete
+for (bool callRestore : { false, true } ) {
+    for (bool saveCanvas : {false, true} ) {
+        SkAutoCanvasRestore autoRestore(canvas, saveCanvas);
+        if (!saveCanvas) {
+            canvas->save();
+        }
+        SkDebugf("saveCanvas: %s  before restore: %d\n",
+               saveCanvas ? "true" : "false", canvas->getSaveCount());
+        if (callRestore) autoRestore.restore();
+        SkDebugf("saveCanvas: %s  after restore: %d\n",
+               saveCanvas ? "true" : "false", canvas->getSaveCount());
+    }
+}
+SkDebugf("final count: %d\n", canvas->getSaveCount());
+#StdOut
+saveCanvas: false  before restore: 2
+saveCanvas: false  after restore: 2
+saveCanvas: true  before restore: 2
+saveCanvas: true  after restore: 2
+saveCanvas: false  before restore: 2
+saveCanvas: false  after restore: 1
+saveCanvas: true  before restore: 2
+saveCanvas: true  after restore: 1
+final count: 1
+##
 ##
 
 #SeeAlso SkCanvas::save SkCanvas::restore

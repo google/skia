@@ -1253,6 +1253,10 @@ pixmap.addr32(1, 2) == &storage[1 + 2 * w]
 
 </fiddle-embed></div>
 
+### See Also
+
+<a href="#SkPixmap_addr">addr</a> <a href="#SkPixmap_addr8">addr8</a> <a href="#SkPixmap_addr16">addr16</a> <a href="#SkPixmap_addr64">addr64</a> <a href="#SkPixmap_addrF16">addrF16</a> <a href="#SkPixmap_getColor">getColor</a> <a href="#SkPixmap_writable_addr">writable addr</a> <a href="#SkPixmap_writable_addr64">writable addr64</a>
+
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">

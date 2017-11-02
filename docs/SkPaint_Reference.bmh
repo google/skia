@@ -630,7 +630,7 @@ by the client.
 #NoExample 
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkReadBuffer
 
 ##
 
@@ -847,7 +847,7 @@ To be deprecated; only valid for Android framework.
         mask for strike-thru text
     ##
 
-#ToDo incomplete ##
+#SeeAlso Flags getFlags
 
 #Enum ##
 
@@ -5293,7 +5293,7 @@ suppressed by defining SK_IGNORE_TO_STRING.
 
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkPathEffect::toString SkMaskFilter::toString SkColorFilter::toString SkImageFilter::toString
 
 ##
 

@@ -1144,7 +1144,7 @@ pixmap.addr32(1, 2) == &storage[1 + 2 * w]
 ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso addr() addr8 addr16 addr64 addrF16 getColor writable_addr writable_addr64
 
 ##
 

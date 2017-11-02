@@ -647,6 +647,10 @@ serialized data describing <a href="#Paint">Paint</a> content</td>
   </tr>
 </table>
 
+### See Also
+
+<a href="undocumented#SkReadBuffer">SkReadBuffer</a>
+
 ---
 
 # <a name="Hinting"></a> Hinting
@@ -861,6 +865,10 @@ enum <a href="#SkPaint_ReserveFlags">ReserveFlags</a> {
     <td><a name="SkPaint_kStrikeThruText_ReserveFlag"> <code><strong>SkPaint::kStrikeThruText_ReserveFlag </strong></code> </a></td><td>0x0010</td><td>mask for strike-thru text</td>
   </tr>
 </table>
+
+### See Also
+
+<a href="#Flags">Flags</a> <a href="#SkPaint_getFlags">getFlags</a>
 
 
 
@@ -5203,6 +5211,10 @@ text size = 12
 ~~~~
 
 </fiddle-embed></div>
+
+### See Also
+
+<a href="#SkPathEffect_toString">SkPathEffect::toString</a> <a href="#SkMaskFilter_toString">SkMaskFilter::toString</a> <a href="#SkColorFilter_toString">SkColorFilter::toString</a> <a href="#SkImageFilter_toString">SkImageFilter::toString</a>
 
 ---
 

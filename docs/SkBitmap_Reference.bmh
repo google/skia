@@ -2246,7 +2246,7 @@ subset origin: 32, 64
 ##
 ##
 
-#ToDo incomplete ##
+#SeeAlso SkPixelRef getSubset setPixelRef
 
 ##
 
