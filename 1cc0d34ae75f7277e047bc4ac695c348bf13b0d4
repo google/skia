@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4f28ef2_62e01ef2",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-02T13:04:22Z",
+      "side": 1,
+      "message": "Let\u0027s just change this elif to an if.\n\nThat will make it clear that this block and the Coverage block are independent.\nIf we made Release coverage bots, we would not want them at -O1.",
+      "range": {
+        "startLine": 71,
+        "startChar": 4,
+        "endLine": 71,
+        "endChar": 8
+      },
+      "revId": "1cc0d34ae75f7277e047bc4ac695c348bf13b0d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
