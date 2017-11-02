@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "27e70800_2f7d4c96",
+        "filename": "experimental/make_gmkb/make_gmkb.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-02T13:41:25Z",
+      "side": 1,
+      "message": "Oh, I see.  img_max may be a shallow copy of img, reusing the pixels.\n\nIt\u0027s probably a good idea to note that somewhere, maybe with\n\n   // to_nrgb() may return a shallow copy of img if it\u0027s already NRGBA.\n   func to_nrgb(...\n\nand\n   \n   img_max \u003d to_nrgb(img)  // N.B. img_max.Pix may alias img.Pix (if they\u0027re already NRGBA).",
+      "parentUuid": "ba36a276_ad8720e5",
+      "range": {
+        "startLine": 75,
+        "startChar": 13,
+        "endLine": 75,
+        "endChar": 23
+      },
+      "revId": "27d3980d10778ca35653b94682c1793cc027f81e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8f57eec5_b7ea7d9b",
         "filename": "experimental/make_gmkb/make_gmkb.go",
         "patchSetId": 5
