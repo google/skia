@@ -895,8 +895,9 @@ TEST_BUILDERS = [
   'Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-All-Android',
   'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_CCPR',
   'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_Vulkan',
-  'Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug-All',
-  'Test-ChromeOS-Clang-Chromebook_CB5_312T-GPU-PowerVRGX6250-arm-Debug-All',
+  'Test-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Debug-All',
+  ('Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-'
+   'arm-Debug-All'),
   'Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_10-Coverage',

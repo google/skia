@@ -3,55 +3,6 @@
     "cmd": [
       "python",
       "-u",
-      "[START_DIR]/skia/bin/fetch-gn"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "fetch-gn"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/skia/bin/gn",
-      "gen",
-      "[START_DIR]/out/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_asmflags=[] extra_cflags=[\"-DMESA_EGL_NO_X11_HEADERS\", \"-DEGL_NO_IMAGE_EXTERNAL\", \"-I[START_DIR]/chromebook_x86_64_gles/include\"] extra_ldflags=[\"-L[START_DIR]/chromebook_x86_64_gles/lib\", \"-static-libstdc++\", \"-static-libgcc\", \"-fuse-ld=lld\"] is_debug=false skia_use_egl=true skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"None\""
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "name": "gn gen"
-  },
-  {
-    "cmd": [
-      "ninja",
-      "-C",
-      "[START_DIR]/out/Release",
-      "nanobench",
-      "dm"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "name": "ninja"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "\nimport os\nSSH_MACHINE_FILE = os.path.expanduser('~/ssh_machine.json')\nwith open(SSH_MACHINE_FILE, 'r') as f:\n  print f.read()\n"
     ],
     "env": {
@@ -71,96 +22,6 @@
       "@@@STEP_LOG_LINE@python.inline@  print f.read()@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport subprocess\nimport sys\nhost = sys.argv[1]\ndevice   = sys.argv[2]\nprint subprocess.check_output(['scp', host, device])\n",
-      "file.txt",
-      "foo@127.0.0.1:file.txt"
-    ],
-    "infra_step": true,
-    "name": "scp file.txt foo@127.0.0.1:file.txt",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@host = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@device   = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output(['scp', host, device])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "results_dir"
-    ],
-    "infra_step": true,
-    "name": "rmtree results_dir"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "results_dir"
-    ],
-    "infra_step": true,
-    "name": "makedirs results_dir"
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
-      "rm",
-      "-rf",
-      "device_results_dir"
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "rm device_results_dir"
-  },
-  {
-    "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "foo@127.0.0.1",
-      "mkdir",
-      "-p",
-      "device_results_dir"
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "mkdir device_results_dir"
   },
   {
     "cmd": [
@@ -727,14 +588,90 @@
   },
   {
     "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "rm",
+      "-rf",
+      "/home/chronos/user/perf"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "rm /home/chronos/user/perf"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "mkdir",
+      "-p",
+      "/home/chronos/user/perf"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "mkdir /home/chronos/user/perf"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+    ],
+    "name": "get swarming task id",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release-All/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All/data"
     ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
     "infra_step": true,
     "name": "rmtree data"
   },
@@ -748,8 +685,14 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release-All/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All/data"
     ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
     "infra_step": true,
     "name": "makedirs data"
   },
@@ -761,6 +704,12 @@
       "[START_DIR]/out/Release/nanobench",
       "foo@127.0.0.1:/home/chronos/user/bin/nanobench"
     ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
     "infra_step": true,
     "name": "scp [START_DIR]/out/Release/nanobench foo@127.0.0.1:/home/chronos/user/bin/nanobench",
     "~followup_annotations": [
@@ -803,7 +752,66 @@
       "-t",
       "foo@127.0.0.1",
       "/home/chronos/user/bin/nanobench",
-      "--some-flag"
+      "-i",
+      "/home/chronos/user/resources",
+      "--skps",
+      "/home/chronos/user/skps",
+      "--images",
+      "/home/chronos/user/images/nanobench",
+      "--svgs",
+      "/home/chronos/user/svgs",
+      "--pre_log",
+      "--images",
+      "--gpuStatsDump",
+      "true",
+      "--scales",
+      "1.0",
+      "1.1",
+      "--nocpu",
+      "--config",
+      "gles",
+      "--match",
+      "~inc0.gif",
+      "~inc1.gif",
+      "~incInterlaced.gif",
+      "~inc0.jpg",
+      "~incGray.jpg",
+      "~inc0.wbmp",
+      "~inc1.wbmp",
+      "~inc0.webp",
+      "~inc1.webp",
+      "~inc0.ico",
+      "~inc1.ico",
+      "~inc0.png",
+      "~inc1.png",
+      "~inc2.png",
+      "~inc12.png",
+      "~inc13.png",
+      "~inc14.png",
+      "~inc0.webp",
+      "~inc1.webp",
+      "--outResultsFile",
+      "/home/chronos/user/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "Clang",
+      "cpu_or_gpu",
+      "GPU",
+      "cpu_or_gpu_value",
+      "MaliT764",
+      "model",
+      "ASUSChromebookFlipC100",
+      "os",
+      "ChromeOS"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -818,12 +826,27 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
-      "foo@127.0.0.1:/home/chronos/user/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release-All/data"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All"
     ],
     "infra_step": true,
-    "name": "scp -r foo@127.0.0.1:/home/chronos/user/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release-All/data",
+    "name": "makedirs perf_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
+      "foo@127.0.0.1:/home/chronos/user/perf",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All/data"
+    ],
+    "infra_step": true,
+    "name": "scp -r foo@127.0.0.1:/home/chronos/user/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All/data",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
