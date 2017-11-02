@@ -324,6 +324,13 @@ public:
         return pun.us[k&7];
     }
 
+    AI SkNx mulHi(const SkNx& m) const {
+        uint32x4_t hi = vmull_u16(vget_high_u16(fVec), vget_high_u16(m.fVec));
+        uint32x4_t lo = vmull_u16( vget_low_u16(fVec),  vget_low_u16(m.fVec));
+
+        return { vcombine_u16(vshrn_n_u32(lo,16), vshrn_n_u32(hi,16)) };
+    }
+
     AI SkNx thenElse(const SkNx& t, const SkNx& e) const {
         return vbslq_u16(fVec, t.fVec, e.fVec);
     }
@@ -355,6 +362,30 @@ public:
     }
 
     // TODO as needed
+
+    uint8x8_t fVec;
+};
+
+template <>
+class SkNx<8, uint8_t> {
+public:
+    AI SkNx(const uint8x8_t& vec) : fVec(vec) {}
+
+    AI SkNx() {}
+    AI SkNx(uint8_t val) : fVec(vdup_n_u8(val)) {}
+    AI SkNx(uint8_t a, uint8_t b, uint8_t c, uint8_t d,
+            uint8_t e, uint8_t f, uint8_t g, uint8_t h) {
+        fVec = (uint8x8_t) { a,b,c,d, e,f,g,h };
+    }
+
+    AI static SkNx Load(const void* ptr) { return vld1_u8((const uint8_t*)ptr); }
+    AI void store(void* ptr) const { vst1_u8((uint8_t*)ptr, fVec); }
+
+    AI uint8_t operator[](int k) const {
+        SkASSERT(0 <= k && k < 8);
+        union { uint8x8_t v; uint8_t us[8]; } pun = {fVec};
+        return pun.us[k&7];
+    }
 
     uint8x8_t fVec;
 };
@@ -562,12 +593,29 @@ template<> AI /*static*/ Sk16b SkNx_cast<uint8_t, float>(const Sk16f& src) {
                              (uint8x16_t)vcvtq_u32_f32(d.fVec)).val[0]).val[0];
 }
 
+template<> AI /*static*/ Sk8b SkNx_cast<uint8_t, int32_t>(const Sk8i& src) {
+    Sk4i a, b;
+    SkNx_split(src, &a, &b);
+    uint16x4_t a16 = vqmovun_s32(a.fVec);
+    uint16x4_t b16 = vqmovun_s32(b.fVec);
+
+    return vqmovn_u16(vcombine_u16(a16, b16));
+}
+
 template<> AI /*static*/ Sk4h SkNx_cast<uint16_t, uint8_t>(const Sk4b& src) {
     return vget_low_u16(vmovl_u8(src.fVec));
 }
 
+template<> AI /*static*/ Sk8h SkNx_cast<uint16_t, uint8_t>(const Sk8b& src) {
+    return vmovl_u8(src.fVec);
+}
+
 template<> AI /*static*/ Sk4b SkNx_cast<uint8_t, uint16_t>(const Sk4h& src) {
     return vmovn_u16(vcombine_u16(src.fVec, src.fVec));
+}
+
+template<> AI /*static*/ Sk8b SkNx_cast<uint8_t, uint16_t>(const Sk8h& src) {
+    return vqmovn_u16(src.fVec);
 }
 
 template<> AI /*static*/ Sk4b SkNx_cast<uint8_t, int32_t>(const Sk4i& src) {
