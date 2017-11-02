@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a47897f3_52866e55",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1112,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-02T15:30:44Z",
+      "side": 1,
+      "message": "I don\u0027t get this condition",
+      "range": {
+        "startLine": 1112,
+        "startChar": 16,
+        "endLine": 1112,
+        "endChar": 24
+      },
+      "revId": "06b29f3d97d993c9165e2ba05ba5b18a65693437",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
