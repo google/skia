@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0be8d69b_cf6e78a9",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-02T17:54:15Z",
+      "side": 1,
+      "message": "I think this is gonna read a lot more clearly if you swap the names lo and hi, and tLo and tHi.",
+      "revId": "cc1d22e3ae28bdf8af9ec5e476c03df378cfa69d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
