@@ -1769,6 +1769,8 @@ private:
 
     void setPt(int index, SkScalar x, SkScalar y);
 
+    bool isFracCountConcentrated() const { return fPathRef->isFracCountConcentrated(); }
+
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
     friend class SkAutoDisableDirectionCheck;
@@ -1778,6 +1780,7 @@ private:
     friend class PathTest_Private; // unit test reversePathTo
     friend class ForceIsRRect_Private; // unit test isRRect
     friend class FuzzPath; // for legacy access to validateRef
+    friend class SkScan; // for accessing isFracCountConcentrated
 };
 
 #endif
