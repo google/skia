@@ -9,7 +9,6 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -21,13 +20,12 @@
       "[START_DIR]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_asmflags=[\"--target=armv7a-linux-gnueabihf\", \"--sysroot=[START_DIR]/armhf_sysroot\", \"-march=armv7-a\", \"-mfpu=neon\", \"-mthumb\"] extra_cflags=[\"--target=armv7a-linux-gnueabihf\", \"--sysroot=[START_DIR]/armhf_sysroot\", \"-I[START_DIR]/chromebook_arm_gles/include\", \"-I[START_DIR]/armhf_sysroot/include\", \"-I[START_DIR]/armhf_sysroot/include/c++/4.8.4\", \"-I[START_DIR]/armhf_sysroot/include/c++/4.8.4/arm-linux-gnueabihf\", \"-DMESA_EGL_NO_X11_HEADERS\"] extra_ldflags=[\"--target=armv7a-linux-gnueabihf\", \"--sysroot=[START_DIR]/armhf_sysroot\", \"-B[START_DIR]/armhf_sysroot/bin\", \"-B[START_DIR]/armhf_sysroot/gcc-cross\", \"-L[START_DIR]/armhf_sysroot/gcc-cross\", \"-L[START_DIR]/armhf_sysroot/lib\", \"-L[START_DIR]/chromebook_arm_gles/lib\"] is_debug=false skia_use_egl=true skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"None\""
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_asmflags=[] extra_cflags=[\"-DMESA_EGL_NO_X11_HEADERS\", \"-DEGL_NO_IMAGE_EXTERNAL\", \"-I[START_DIR]/chromebook_x86_64_gles/include\"] extra_ldflags=[\"-L[START_DIR]/chromebook_x86_64_gles/lib\", \"-static-libstdc++\", \"-static-libgcc\", \"-fuse-ld=lld\"] is_debug=false skia_use_egl=true skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"None\""
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
@@ -45,7 +43,6 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
