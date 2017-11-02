@@ -8,6 +8,7 @@
 #ifndef GrOpFlushState_DEFINED
 #define GrOpFlushState_DEFINED
 
+#include <utility>
 #include "GrAppliedClip.h"
 #include "GrBufferAllocPool.h"
 #include "GrDeferredUpload.h"
@@ -19,48 +20,6 @@ class GrGpuCommandBuffer;
 class GrGpuRTCommandBuffer;
 class GrResourceProvider;
 
-// TODO: Store uploads on GrOpFlushState rather than GrDrawOp and remove this.
-class GrDrawOp::FlushStateAccess {
-private:
-    friend class GrOpFlushState;
-
-    explicit FlushStateAccess(GrDrawOp* op) : fOp(op) {}
-
-    void addInlineUpload(GrDeferredTextureUploadFn&& upload, GrDeferredUploadToken token) {
-        fOp->fInlineUploads.emplace_back(std::move(upload), token);
-    }
-
-    GrDrawOp* fOp;
-};
-
-// TODO: Store draw related data on GrOpFlushState rather than GrMeshDrawOp and remove this.
-class GrMeshDrawOp::FlushStateAccess {
-private:
-    friend class GrOpFlushState;
-    using QueuedDraw = GrMeshDrawOp::QueuedDraw;
-
-    explicit FlushStateAccess(GrMeshDrawOp* op) : fOp(op) {}
-
-    void addMesh(const GrMesh& mesh) { fOp->fMeshes.push_back(mesh); }
-
-    QueuedDraw* lastDraw() {
-        return fOp->fQueuedDraws.empty() ? nullptr : &fOp->fQueuedDraws.back();
-    }
-
-    QueuedDraw* addDraw() { return &fOp->fQueuedDraws.push_back(); }
-
-    GrDeferredUploadToken lastUploadToken() const {
-        if (fOp->fInlineUploads.empty()) {
-            return GrDeferredUploadToken::AlreadyFlushedToken();
-        }
-        return fOp->fInlineUploads.back().fUploadBeforeToken;
-    }
-
-    void setBaseDrawToken(GrDeferredUploadToken token) { fOp->fBaseDrawToken = token; }
-
-    GrMeshDrawOp* fOp;
-};
-
 /** Tracks the state across all the GrOps (really just the GrDrawOps) in a GrOpList flush. */
 class GrOpFlushState final : public GrDeferredUploadTarget, public GrMeshDrawOp::Target {
 public:
@@ -69,19 +28,13 @@ public:
     ~GrOpFlushState() final { this->reset(); }
 
     /** This is called after each op has a chance to prepare its draws and before the draws are
-        issued. */
-    void preIssueDraws() {
-        fVertexPool.unmap();
-        fIndexPool.unmap();
-        int uploadCount = fASAPUploads.count();
-
-        for (int i = 0; i < uploadCount; i++) {
-            this->doUpload(fASAPUploads[i]);
-        }
-        fASAPUploads.reset();
-    }
+        executed. */
+    void preExecuteDraws();
 
     void doUpload(GrDeferredTextureUploadFn&);
+
+    /** Called as ops are executed. Must be called in the same order as the ops were prepared. */
+    void executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const SkRect& opBounds);
 
     GrGpuCommandBuffer* commandBuffer() { return fCommandBuffer; }
     // Helper function used by Ops that are only called via RenderTargetOpLists
@@ -90,11 +43,7 @@ public:
 
     GrGpu* gpu() { return fGpu; }
 
-    void reset() {
-        fVertexPool.reset();
-        fIndexPool.reset();
-        fPipelines.reset();
-    }
+    void reset();
 
     /** Additional data required on a per-op basis when executing GrOps. */
     struct OpArgs {
@@ -113,14 +62,6 @@ public:
         SkASSERT(fOpArgs);
         SkASSERT(fOpArgs->fOp);
         return *fOpArgs;
-    }
-
-    /** Expose base class methods for incrementing the last flushed and next draw token. */
-
-    void flushToken() { this->GrDeferredUploadTarget::flushToken(); }
-
-    GrDeferredUploadToken issueDrawToken() {
-        return this->GrDeferredUploadTarget::issueDrawToken();
     }
 
     /** Overrides of GrDeferredUploadTarget. */
@@ -149,16 +90,104 @@ public:
 
 private:
     /** GrMeshDrawOp::Target override. */
-    SkArenaAlloc* pipelineArena() override { return &fPipelines; }
+    SkArenaAlloc* pipelineArena() override { return &fArena; }
+
+    struct InlineUpload {
+        InlineUpload(GrDeferredTextureUploadFn&& upload, GrDeferredUploadToken token)
+                : fUpload(std::move(upload)), fUploadBeforeToken(token) {}
+        GrDeferredTextureUploadFn fUpload;
+        GrDeferredUploadToken fUploadBeforeToken;
+    };
+
+    // A set of contiguous draws that share a draw token, geometry processor, and pipeline. The
+    // meshes for the draw are stored in the fMeshes array. The reason for coalescing meshes
+    // that share a geometry processor into a Draw is that it allows the Gpu object to setup
+    // the shared state once and then issue draws for each mesh.
+    struct Draw {
+        int fMeshCnt = 0;
+        GrPendingProgramElement<const GrGeometryProcessor> fGeometryProcessor;
+        const GrPipeline* fPipeline;
+        uint32_t fOpID;
+    };
+
+    /**
+     * A singly linked list of Ts stored in a SkArenaAlloc. The arena rather than the list owns
+     * the elements. This supports forward iteration and range based for loops.
+     */
+    template <typename T>
+    class List {
+    private:
+        struct Node;
+
+    public:
+        List() = default;
+
+        void reset() { fHead = fTail = nullptr; }
+
+        template <typename... Args>
+        T& append(SkArenaAlloc* arena, Args... args);
+
+        class Iter {
+        public:
+            Iter() = default;
+            Iter& operator++();
+            T& operator*() const { return fCurr->fT; }
+            T* operator->() const { return &fCurr->fT; }
+            bool operator==(const Iter& that) const { return fCurr == that.fCurr; }
+            bool operator!=(const Iter& that) const { return !(*this == that); }
+
+        private:
+            friend class List;
+            explicit Iter(Node* node) : fCurr(node) {}
+            Node* fCurr = nullptr;
+        };
+
+        Iter begin() { return Iter(fHead); }
+        Iter end() { return Iter(); }
+        Iter tail() { return Iter(fTail); }
+
+    private:
+        struct Node {
+            template <typename... Args>
+            Node(Args... args) : fT(std::forward<Args>(args)...) {}
+            T fT;
+            Node* fNext = nullptr;
+        };
+        Node* fHead = nullptr;
+        Node* fTail = nullptr;
+    };
+
+    // Storage for ops' pipelines, draws, and inline uploads.
+    SkArenaAlloc fArena{sizeof(GrPipeline) * 100};
+
+    // Store vertex and index data on behalf of ops that are flushed.
+    GrVertexBufferAllocPool fVertexPool;
+    GrIndexBufferAllocPool fIndexPool;
+
+    // Data stored on behalf of the ops being flushed.
+    List<GrDeferredTextureUploadFn> fAsapUploads;
+    List<InlineUpload> fInlineUploads;
+    List<Draw> fDraws;
+    // TODO: These should go in the arena. However, GrGpuCommandBuffer and other classes currently
+    // accept contiguous arrays of meshes.
+    SkSTArray<16, GrMesh> fMeshes;
+
+    // All draws we store have an implicit draw token. This is the draw token for the first draw
+    // in fDraws.
+    GrDeferredUploadToken fBaseDrawToken = GrDeferredUploadToken::AlreadyFlushedToken();
+
+    // Info about the op that is currently preparing or executing using the flush state or null if
+    // an op is not currently preparing of executing.
+    OpArgs* fOpArgs = nullptr;
 
     GrGpu* fGpu;
     GrResourceProvider* fResourceProvider;
-    GrGpuCommandBuffer* fCommandBuffer;
-    GrVertexBufferAllocPool fVertexPool;
-    GrIndexBufferAllocPool fIndexPool;
-    SkSTArray<4, GrDeferredTextureUploadFn> fASAPUploads;
-    OpArgs* fOpArgs;
-    SkArenaAlloc fPipelines{sizeof(GrPipeline) * 100};
+    GrGpuCommandBuffer* fCommandBuffer = nullptr;
+
+    // Variables that are used to track where we are in lists as ops are executed
+    List<Draw>::Iter fCurrDraw;
+    int fCurrMesh;
+    List<InlineUpload>::Iter fCurrUpload;
 };
 
 #endif
