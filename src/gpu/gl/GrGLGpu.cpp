@@ -1089,8 +1089,11 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         *mipMapsStatus = GrMipMapsStatus::kValid;
     }
 
+    const bool usesMips = mipLevelCount > 1;
+
     // find the combined size of all the mip levels and the relative offset of
     // each into the collective buffer
+    bool willNeedData = false;
     size_t combinedBufferSize = 0;
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
@@ -1098,7 +1101,17 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
             int twoToTheMipLevel = 1 << currentMipLevel;
             int currentWidth = SkTMax(1, width / twoToTheMipLevel);
             int currentHeight = SkTMax(1, height / twoToTheMipLevel);
-            const size_t trimmedSize = currentWidth * bpp * currentHeight;
+            const size_t trimmedRowBytes = currentWidth * bpp;
+            const size_t trimmedSize = trimmedRowBytes * currentHeight;
+
+            const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes
+                    ? texelsShallowCopy[currentMipLevel].fRowBytes
+                    : trimmedRowBytes;
+
+            if ((!caps.unpackRowLengthSupport() && trimmedRowBytes != rowBytes) || usesMips || swFlipY) {
+                willNeedData = true;
+            }
+
             individualMipOffsets.push_back(combinedBufferSize);
             combinedBufferSize += trimmedSize;
         } else {
@@ -1111,7 +1124,10 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     if (mipMapsStatus && mipLevelCount <= 1) {
         *mipMapsStatus = GrMipMapsStatus::kNotAllocated;
     }
-    char* buffer = (char*)tempStorage.reset(combinedBufferSize);
+    char* buffer = nullptr;
+    if (willNeedData) {
+        buffer = (char*)tempStorage.reset(combinedBufferSize);
+    }
 
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         if (!texelsShallowCopy[currentMipLevel].fPixels) {
@@ -1120,7 +1136,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         int twoToTheMipLevel = 1 << currentMipLevel;
         int currentWidth = SkTMax(1, width / twoToTheMipLevel);
         int currentHeight = SkTMax(1, height / twoToTheMipLevel);
-        const size_t trimRowBytes = currentWidth * bpp;
+        const size_t trimmedRowBytes = currentWidth * bpp;
 
         /*
          *  check whether to allocate a temporary buffer for flipping y or
@@ -1132,20 +1148,19 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
 
         const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes
                 ? texelsShallowCopy[currentMipLevel].fRowBytes
-                : trimRowBytes;
+                : trimmedRowBytes;
 
         // TODO: This optimization should be enabled with or without mips.
         // For use with mips, we must set GR_GL_UNPACK_ROW_LENGTH once per
         // mip level, before calling glTexImage2D.
-        const bool usesMips = mipLevelCount > 1;
         if (caps.unpackRowLengthSupport() && !swFlipY && !usesMips) {
             // can't use this for flipping, only non-neg values allowed. :(
-            if (rowBytes != trimRowBytes) {
+            if (rowBytes != trimmedRowBytes) {
                 GrGLint rowLength = static_cast<GrGLint>(rowBytes / bpp);
                 GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
                 restoreGLRowLength = true;
             }
-        } else if (trimRowBytes != rowBytes || swFlipY) {
+        } else if (trimmedRowBytes != rowBytes || swFlipY) {
             // copy data into our new storage, skipping the trailing bytes
             const char* src = (const char*)texelsShallowCopy[currentMipLevel].fPixels;
             if (swFlipY && currentHeight >= 1) {
@@ -1153,18 +1168,18 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
             }
             char* dst = buffer + individualMipOffsets[currentMipLevel];
             for (int y = 0; y < currentHeight; y++) {
-                memcpy(dst, src, trimRowBytes);
+                memcpy(dst, src, trimmedRowBytes);
                 if (swFlipY) {
                     src -= rowBytes;
                 } else {
                     src += rowBytes;
                 }
-                dst += trimRowBytes;
+                dst += trimmedRowBytes;
             }
             // now point data to our copied version
             texelsShallowCopy[currentMipLevel].fPixels = buffer +
                 individualMipOffsets[currentMipLevel];
-            texelsShallowCopy[currentMipLevel].fRowBytes = trimRowBytes;
+            texelsShallowCopy[currentMipLevel].fRowBytes = trimmedRowBytes;
         }
     }
 
