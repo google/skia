@@ -67,7 +67,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_ldflags.append('-fprofile-instr-generate')
       extra_ldflags.append('-fcoverage-mapping')
 
-    elif compiler != 'MSVC' and configuration == 'Debug':
+    if compiler != 'MSVC' and configuration == 'Debug':
       extra_cflags.append('-O1')
 
     if extra_config == 'Exceptions':
@@ -134,8 +134,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         'skia_use_icu':        'false',
         'skia_enable_gpu':     'false',
       })
-    if 'Coverage' in extra_config:
-      args['skia_use_system_freetype2'] = 'false'
 
     sanitize = ''
     if extra_config == 'UBSAN_float_cast_overflow':
