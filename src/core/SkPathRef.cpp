@@ -145,7 +145,15 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
     // Need to check this here in case (&src == dst)
     bool canXformBounds = !src.fBoundsIsDirty && matrix.rectStaysRect() && src.countPoints() > 1;
 
-    matrix.mapPoints((*dst)->fPoints, src.points(), src.fPointCnt);
+    (*dst)->clearFracCount();
+
+    constexpr int BATCH = FRAC_SAMPLE_MASK + 1;
+    for(int i = 0; i < src.fPointCnt; i += BATCH) {
+        int count = SkTMin(BATCH, src.fPointCnt - i);
+        matrix.mapPoints((*dst)->fPoints + i, src.points() + i, count);
+        (*dst)->insertFracCount((*dst)->fPoints[i].fX);
+        (*dst)->insertFracCount((*dst)->fPoints[i].fY);
+    }
 
     /*
      *  Here we optimize the bounds computation, by noting if the bounds are
@@ -294,6 +302,8 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
 
     ref->fBoundsIsDirty = false;
 
+    ref->resetFracCount();
+
     // resetToSize clears fSegmentMask and fIsOval
     ref->fSegmentMask = segmentMask;
     return ref.release();
@@ -312,6 +322,7 @@ void SkPathRef::Rewind(sk_sp<SkPathRef>* pathRef) {
         (*pathRef)->fSegmentMask = 0;
         (*pathRef)->fIsOval = false;
         (*pathRef)->fIsRRect = false;
+        (*pathRef)->clearFracCount();
         SkDEBUGCODE((*pathRef)->validate();)
     } else {
         int oldVCnt = (*pathRef)->countVerbs();
@@ -421,6 +432,9 @@ void SkPathRef::copy(const SkPathRef& ref,
     fIsRRect = ref.fIsRRect;
     fRRectOrOvalIsCCW = ref.fRRectOrOvalIsCCW;
     fRRectOrOvalStartIdx = ref.fRRectOrOvalStartIdx;
+    memcpy(fFracCount, ref.fFracCount, sizeof(fFracCount));
+    fMaxFracCount = ref.fMaxFracCount;
+    fIsMaxFracCountTight = ref.fIsMaxFracCountTight;
     SkDEBUGCODE(this->validate();)
 }
 
@@ -842,4 +856,29 @@ bool SkPathRef::isValid() const {
     }
 #endif // SK_DEBUG_PATH
     return true;
+}
+
+void SkPathRef::resetFracCount() {
+    this->clearFracCount();
+    for(int i = 0; i < this->countPoints(); ++i) {
+        if ((i & FRAC_SAMPLE_MASK) == 0) {
+            this->insertFracCount(fPoints[i].fX);
+            this->insertFracCount(fPoints[i].fY);
+        }
+    }
+}
+
+bool SkPathRef::isFracCountConcentrated() const {
+    constexpr int CONCENTRATION_MULTIPLIER = 8;
+    if (!fIsMaxFracCountTight) {
+        fMaxFracCount = 0;
+        for(int i = 0; i < FRAC_INT_MASK + 1; ++i) {
+            fMaxFracCount = SkTMax(fMaxFracCount, fFracCount[i]);
+        }
+        fIsMaxFracCountTight = true;
+    }
+    this->checkMaxFracCount();
+    int bucketSize = SkTMin(int(this->getBounds().height() + 1), FRAC_INT_MASK + 1);
+    int averageCount = 1 + this->countPoints() * 2 / bucketSize;
+    return fMaxFracCount > averageCount * CONCENTRATION_MULTIPLIER / (FRAC_SAMPLE_MASK + 1);
 }
