@@ -349,7 +349,7 @@
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN_float_cast_overflow",
-  "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_16-Coverage",
+  "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Shard_12-Coverage",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Fast",

@@ -20,7 +20,7 @@
       "[START_DIR]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Debug",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fprofile-instr-generate\", \"-fcoverage-mapping\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-fprofile-instr-generate\", \"-fcoverage-mapping\"] skia_use_system_freetype2=false"
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fprofile-instr-generate\", \"-fcoverage-mapping\", \"-O1\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-fprofile-instr-generate\", \"-fcoverage-mapping\"]"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

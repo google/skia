@@ -114,7 +114,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Debug-Coverage/Debug",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fprofile-instr-generate\", \"-fcoverage-mapping\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-fprofile-instr-generate\", \"-fcoverage-mapping\"] skia_use_system_freetype2=false target_cpu=\"x86_64\""
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fprofile-instr-generate\", \"-fcoverage-mapping\", \"-O1\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-fprofile-instr-generate\", \"-fcoverage-mapping\"] target_cpu=\"x86_64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
