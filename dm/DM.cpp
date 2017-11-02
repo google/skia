@@ -1246,7 +1246,25 @@ struct Task {
 
 static SkTDArray<skiatest::Test> gParallelTests, gSerialTests;
 
+#include "gpu/atlastext/GLTestAtlasTextRenderer.h"
+#include "gpu/atlastext/TestAtlasTextRenderer.h"
+#include "SkAtlasTextRenderer.h"
+#include "SkAtlasTextContext.h"
+#include "SkAtlasTextTarget.h"
+
+std::unique_ptr<SkAtlasTextTarget> make_target(sk_sp<SkAtlasTextContext> ctx, int width, int height) {
+    auto handle = static_cast<sk_gpu_test::TestAtlasTextRenderer*>(
+            ctx->renderer())->makeTarget(width, height);
+    return SkAtlasTextTarget::Make(std::move(ctx), width, height, handle);
+}
+
 static void gather_tests() {
+    auto x = sk_gpu_test::MakeGLTestAtlasTextRenderer();
+    auto ctx = SkAtlasTextContext::Make(std::move(x));
+    auto target = make_target(ctx, 1024, 1024);
+    static const char kText[] = "Hello!";
+    target->drawText(kText, strlen(kText), 10, 10);
+    target->flush();
     if (!FLAGS_src.contains("tests")) {
         return;
     }

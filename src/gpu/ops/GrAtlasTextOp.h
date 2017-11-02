@@ -12,6 +12,8 @@
 #include "text/GrAtlasTextContext.h"
 #include "text/GrDistanceFieldAdjustTable.h"
 
+class SkAtlasTextRenderer;
+
 class GrAtlasTextOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
@@ -115,6 +117,8 @@ public:
 
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                 GrPixelConfigIsClamped dstIsClamped) override;
+
+    void flush(SkAtlasTextRenderer*);
 
 private:
     // The minimum number of Geometry we will try to allocate.
