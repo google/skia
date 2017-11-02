@@ -314,7 +314,7 @@ void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::onSetData(
 
 void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::GenKey(const GrProcessor& processor,
                                     const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-    b->add32(GenBaseGradientKey(processor));
+    GenBaseGradientKey(processor, b);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -581,7 +581,7 @@ void FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor::onSetDat
 void FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor::GenKey(
                                             const GrProcessor& processor,
                                             const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-    b->add32(GenBaseGradientKey(processor));
+    GenBaseGradientKey(processor, b);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -761,7 +761,7 @@ void FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor::onSetData(
 void FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor::GenKey(
                                             const GrProcessor& processor,
                                             const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-    b->add32(GenBaseGradientKey(processor));
+    GenBaseGradientKey(processor, b);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1059,7 +1059,7 @@ void CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor::onSetDat
 void CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor::GenKey(
                                             const GrProcessor& processor,
                                             const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-    b->add32(GenBaseGradientKey(processor));
+    GenBaseGradientKey(processor, b);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1315,7 +1315,7 @@ void CircleOutside2PtConicalEffect::GLSLCircleOutside2PtConicalProcessor::onSetD
 void CircleOutside2PtConicalEffect::GLSLCircleOutside2PtConicalProcessor::GenKey(
                                             const GrProcessor& processor,
                                             const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-    b->add32(GenBaseGradientKey(processor));
+    GenBaseGradientKey(processor, b);
 }
 
 //////////////////////////////////////////////////////////////////////////////

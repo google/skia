@@ -244,6 +244,7 @@ public:
         kSingleHardStop_ColorType,     // 0, t, t, 1
         kHardStopLeftEdged_ColorType,  // 0, 0, 1
         kHardStopRightEdged_ColorType, // 0, 1, 1
+        kGeneral_ColorType,
     };
 
     ColorType getColorType() const { return fColorType; }
@@ -371,7 +372,7 @@ protected:
      * by the base class. The subclasses must stick it in their key and then pass it to the below
      * emit* functions from their emitCode function.
      */
-    static uint32_t GenBaseGradientKey(const GrProcessor&);
+    static void GenBaseGradientKey(const GrProcessor&,  GrProcessorKeyBuilder*);
 
     // Emits the uniform used as the y-coord to texture samples in derived classes. Subclasses
     // should call this method from their emitCode().
@@ -412,6 +413,8 @@ private:
         kHardStopZeroZeroOneKey =  8,
         kHardStopZeroOneOneKey  = 10,
 
+        kGeneralKey             = 12,
+
         // Next two bits for tile mode
         kClampTileMode          = 16,
         kRepeatTileMode         = 32,
@@ -423,6 +426,7 @@ private:
 
     SkScalar fCachedYCoord;
     GrGLSLProgramDataManager::UniformHandle fColorsUni;
+    GrGLSLProgramDataManager::UniformHandle fPosUni;
     GrGLSLProgramDataManager::UniformHandle fExtraStopT;
     GrGLSLProgramDataManager::UniformHandle fFSYUni;
 

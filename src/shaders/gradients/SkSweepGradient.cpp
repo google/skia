@@ -131,7 +131,7 @@ public:
 
     static void GenKey(const GrProcessor& processor, const GrShaderCaps&,
                        GrProcessorKeyBuilder* b) {
-        b->add32(GenBaseGradientKey(processor));
+        GenBaseGradientKey(processor, b);
     }
 
 protected:
