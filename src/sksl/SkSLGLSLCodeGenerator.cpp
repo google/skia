@@ -670,7 +670,7 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
         this->write(layout + " ");
     }
     if (modifiers.fFlags & Modifiers::kReadOnly_Flag) {
-        this->write("readonly ");
+//        this->write("readonly ");
     }
     if (modifiers.fFlags & Modifiers::kWriteOnly_Flag) {
         this->write("writeonly ");

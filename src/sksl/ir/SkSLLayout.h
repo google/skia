@@ -182,8 +182,8 @@ struct Layout {
             separator = ", ";
         }
         if (Format::kUnspecified != fFormat) {
-            result += separator + FormatToStr(fFormat);
-            separator = ", ";
+//            result += separator + FormatToStr(fFormat);
+//            separator = ", ";
         }
         if (fPushConstant) {
             result += separator + "push_constant";
