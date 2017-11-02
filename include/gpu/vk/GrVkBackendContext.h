@@ -14,15 +14,13 @@
 #include "vk/GrVkInterface.h"
 
 enum GrVkExtensionFlags {
-    kKHR_get_physical_device_properties2_GrVkExtensionFlag = 0x0001,
-    kEXT_debug_report_GrVkExtensionFlag                    = 0x0002,
-    kNV_glsl_shader_GrVkExtensionFlag                      = 0x0004,
-    kKHR_surface_GrVkExtensionFlag                         = 0x0008,
-    kEXT_discard_rectangles_GrVkExtensionFlag              = 0x0010,
-    kKHR_swapchain_GrVkExtensionFlag                       = 0x0020,
-    kKHR_win32_surface_GrVkExtensionFlag                   = 0x0040,
-    kKHR_android_surface_GrVkExtensionFlag                 = 0x0080,
-    kKHR_xcb_surface_GrVkExtensionFlag                     = 0x0100,
+    kEXT_debug_report_GrVkExtensionFlag    = 0x0001,
+    kNV_glsl_shader_GrVkExtensionFlag      = 0x0002,
+    kKHR_surface_GrVkExtensionFlag         = 0x0004,
+    kKHR_swapchain_GrVkExtensionFlag       = 0x0008,
+    kKHR_win32_surface_GrVkExtensionFlag   = 0x0010,
+    kKHR_android_surface_GrVkExtensionFlag = 0x0020,
+    kKHR_xcb_surface_GrVkExtensionFlag     = 0x0040,
 };
 
 enum GrVkFeatureFlags {

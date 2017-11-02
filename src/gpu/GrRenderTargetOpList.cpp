@@ -229,8 +229,7 @@ void GrRenderTargetOpList::fullClear(const GrCaps& caps, GrColor color) {
         return;
     }
 
-    std::unique_ptr<GrClearOp> op(GrClearOp::Make(GrFixedClip::Disabled(), color, true,
-                                                  fTarget.get(), caps));
+    std::unique_ptr<GrClearOp> op(GrClearOp::Make(GrFixedClip::Disabled(), color, fTarget.get()));
     if (!op) {
         return;
     }

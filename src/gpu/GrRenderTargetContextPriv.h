@@ -44,7 +44,7 @@ public:
 
     void clear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
 
-    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, bool canIgnoreClip);
+    void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
     /*
      * Some portions of the code, which use approximate-match rendertargets (i.e., ImageFilters),

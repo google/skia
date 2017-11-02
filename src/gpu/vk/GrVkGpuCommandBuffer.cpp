@@ -251,10 +251,9 @@ void GrVkGpuRTCommandBuffer::insertEventMarker(const char* msg) {
 }
 
 void GrVkGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
-    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
-
-    // We ignore window rectangles as they are not supported by Vulkan during clear.
     SkASSERT(!clip.hasWindowRectangles());
+
+    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
 
     GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
     // this should only be called internally when we know we have a
@@ -314,7 +313,7 @@ void GrVkGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool in
 void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
-    // We ignore window rectangles as they are not supported by Vulkan during clear.
+    // parent class should never let us get here with no RT
     SkASSERT(!clip.hasWindowRectangles());
 
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
@@ -528,7 +527,6 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(const GrPipeline& pi
 
     GrRenderTarget* rt = pipeline.renderTarget();
 
-    GrVkPipeline::SetDynamicViewportState(fGpu, cbInfo.currentCmdBuf(), rt);
     if (!pipeline.getScissorState().enabled()) {
         GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(),
                                                  rt, pipeline.proxy()->origin(),
@@ -538,13 +536,7 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(const GrPipeline& pi
                                                  rt, pipeline.proxy()->origin(),
                                                  pipeline.getScissorState().rect());
     }
-    if (pipeline.getWindowRectsState().enabled()) {
-        // No need to check hasDynamicState -- window rectangles aren't currently included in
-        // GrPipeline::DynamicState.
-        GrVkPipeline::SetDynamicDiscardRectanglesState(fGpu, cbInfo.currentCmdBuf(),
-                                                       rt, pipeline.proxy()->origin(),
-                                                       pipeline.getWindowRectsState().windows());
-    }
+    GrVkPipeline::SetDynamicViewportState(fGpu, cbInfo.currentCmdBuf(), rt);
     GrVkPipeline::SetDynamicBlendConstantState(fGpu, cbInfo.currentCmdBuf(), rt->config(),
                                                pipeline.getXferProcessor());
 
