@@ -93,6 +93,9 @@ private:
                             bool forceRLE = false); // SkAAClip uses forceRLE
     static void DAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter* blitter,
                             bool forceRLE = false);
+
+    static bool ShouldUseDAA(const SkPath& path);
+    static bool ShouldUseAAA(const SkPath& path);
 };
 
 /** Assign an SkXRect from a SkIRect, by promoting the src rect's coordinates
