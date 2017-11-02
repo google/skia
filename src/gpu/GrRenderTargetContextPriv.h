@@ -13,6 +13,7 @@
 #include "GrPathRendering.h"
 
 class GrFixedClip;
+class GrHardClip;
 class GrPath;
 class GrRenderTargetPriv;
 struct GrUserStencilSettings;
@@ -59,19 +60,19 @@ public:
      */
     void absClear(const SkIRect* rect, const GrColor color);
 
-    void stencilRect(const GrClip& clip,
+    void stencilRect(const GrHardClip&,
                      const GrUserStencilSettings* ss,
                      GrAAType,
                      const SkMatrix& viewMatrix,
                      const SkRect& rect);
 
-    void stencilPath(const GrClip&, GrAAType, const SkMatrix& viewMatrix, const GrPath*);
+    void stencilPath(const GrHardClip&, GrAAType, const SkMatrix& viewMatrix, const GrPath*);
 
     /**
      * Draws a rect, either AA or not, and touches the stencil buffer with the user stencil settings
      * for each color sample written.
      */
-    bool drawAndStencilRect(const GrClip&,
+    bool drawAndStencilRect(const GrHardClip&,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
@@ -83,7 +84,7 @@ public:
      * Draws a path, either AA or not, and touches the stencil buffer with the user stencil settings
      * for each color sample written.
      */
-    bool drawAndStencilPath(const GrClip&,
+    bool drawAndStencilPath(const GrHardClip&,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
