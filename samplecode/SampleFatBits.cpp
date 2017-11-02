@@ -76,6 +76,8 @@ public:
         }
     }
 
+    float fStrokeWidth = 1;
+
     bool getUseClip() const { return fUseClip; }
     void setUseClip(bool uc) { fUseClip = uc; }
 
@@ -131,7 +133,7 @@ private:
                 paint->setStrokeWidth(0);
                 break;
             case kStroke_Style:
-                paint->setStrokeWidth(SK_Scalar1);
+                paint->setStrokeWidth(fStrokeWidth);
                 break;
         }
         paint->setAntiAlias(aa);
@@ -231,7 +233,7 @@ void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
     if (fStyle == kStroke_Style) {
         SkPaint p;
         p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(SK_Scalar1 * fZoom);
+        p.setStrokeWidth(fStrokeWidth * fZoom);
         p.setStrokeCap(fStrokeCap);
         SkPath dst;
         p.getFillPath(path, &dst);
@@ -433,6 +435,14 @@ protected:
                     return true;
                 case 't':
                     fFB.setTriangle(!fFB.getTriangle());
+                    this->inval(nullptr);
+                    return true;
+                case '-':
+                    fFB.fStrokeWidth -= 0.125f;
+                    this->inval(nullptr);
+                    return true;
+                case '=':
+                    fFB.fStrokeWidth += 0.125f;
                     this->inval(nullptr);
                     return true;
             }
