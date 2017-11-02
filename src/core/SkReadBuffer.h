@@ -223,6 +223,18 @@ public:
     SkInflator* getInflator() const { return fInflator; }
     void setInflator(SkInflator* inf) { fInflator = inf; }
 
+    /**
+     *  Return a client specified context pointer. This is not interpreted by the readbuffer.
+     *  It defaults to nullptr, but may be set with setClientContext(...).
+     */
+    void* getClientContext() const { return fClientCtx; }
+
+    /**
+     *  Set the client specified context pointer. This is not interpreted by the readbuffer.
+     *  It defaults to nullptr. It can be inspected by calling getClientContext().
+     */
+    void setClientContext(void* ctx) { fClientCtx = ctx; }
+
 //    sk_sp<SkImage> inflateImage();
 
 protected:
@@ -273,6 +285,7 @@ private:
 #endif // DEBUG_NON_DETERMINISTIC_ASSERT
 
     SkInflator* fInflator = nullptr;
+    void*      fClientCtx = nullptr;
 };
 
 #endif // SkReadBuffer_DEFINED
