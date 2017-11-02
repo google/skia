@@ -11,6 +11,7 @@
 #include "SkRefCnt.h"
 #include "SkSize.h"
 #include "SkString.h"
+#include "sk_app/Window.h"
 
 class SkCanvas;
 class SkAnimTimer;
@@ -29,8 +30,11 @@ public:
     virtual void unload() {}
 
     virtual bool onChar(SkUnichar c) { return false; }
+    virtual bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
+                         uint32_t modifiers) { return false; }
 
     SkString getName() { return fName; }
+
 
 protected:
     SkString    fName;
