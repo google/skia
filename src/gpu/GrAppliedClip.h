@@ -35,7 +35,8 @@ public:
         SkASSERT(fClipCoverageFPs[i]);
         return std::move(fClipCoverageFPs[i]);
     }
-    bool hasStencilClip() const { return SkClipStack::kInvalidGenID != fClipStackID; }
+    uint32_t stencilStackID() const { return fStencilStackID; }
+    bool hasStencilClip() const { return SkClipStack::kInvalidGenID != fStencilStackID; }
 
     /**
      * Intersects the applied clip with the provided rect. Returns false if the draw became empty.
@@ -62,8 +63,8 @@ public:
     }
 
     void addStencilClip(uint32_t clipStackID) {
-        SkASSERT(SkClipStack::kInvalidGenID == fClipStackID);
-        fClipStackID = clipStackID;
+        SkASSERT(SkClipStack::kInvalidGenID == fStencilStackID);
+        fStencilStackID = clipStackID;
     }
 
     bool doesClip() const {
@@ -75,7 +76,7 @@ public:
         if (fScissorState != that.fScissorState ||
             fWindowRectsState != that.fWindowRectsState ||
             fClipCoverageFPs.count() != that.fClipCoverageFPs.count() ||
-            fClipStackID != that.fClipStackID) {
+            fStencilStackID != that.fStencilStackID) {
             return false;
         }
         for (int i = 0; i < fClipCoverageFPs.count(); ++i) {
@@ -105,7 +106,7 @@ private:
     GrScissorState             fScissorState;
     GrWindowRectsState         fWindowRectsState;
     SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fClipCoverageFPs;
-    uint32_t                   fClipStackID = SkClipStack::kInvalidGenID;
+    uint32_t                   fStencilStackID = SkClipStack::kInvalidGenID;
 };
 
 #endif

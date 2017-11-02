@@ -626,7 +626,7 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
     fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
-void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
+void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
                                             GrAAType aaType,
                                             const SkMatrix& viewMatrix,
                                             const GrPath* path) {
@@ -649,8 +649,8 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
 
     // Setup clip
     GrAppliedClip appliedClip;
-    if (!clip.apply(fRenderTargetContext->fContext, fRenderTargetContext, useHWAA, true,
-                    &appliedClip, &bounds)) {
+    if (!clip.apply(fRenderTargetContext->width(), fRenderTargetContext->height(), &appliedClip,
+                    &bounds)) {
         return;
     }
 
@@ -673,7 +673,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
     fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
-void GrRenderTargetContextPriv::stencilRect(const GrClip& clip,
+void GrRenderTargetContextPriv::stencilRect(const GrHardClip& clip,
                                             const GrUserStencilSettings* ss,
                                             GrAAType aaType,
                                             const SkMatrix& viewMatrix,
@@ -694,7 +694,7 @@ void GrRenderTargetContextPriv::stencilRect(const GrClip& clip,
     fRenderTargetContext->addDrawOp(clip, std::move(op));
 }
 
-bool GrRenderTargetContextPriv::drawAndStencilRect(const GrClip& clip,
+bool GrRenderTargetContextPriv::drawAndStencilRect(const GrHardClip& clip,
                                                    const GrUserStencilSettings* ss,
                                                    SkRegion::Op op,
                                                    bool invert,
@@ -1597,7 +1597,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
     this->internalDrawPath(clip, std::move(paint), aa, viewMatrix, path, style);
 }
 
-bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
+bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
                                                    const GrUserStencilSettings* ss,
                                                    SkRegion::Op op,
                                                    bool invert,

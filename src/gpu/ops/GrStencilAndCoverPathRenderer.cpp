@@ -14,6 +14,7 @@
 #include "GrPath.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
+#include "GrStencilClip.h"
 #include "GrStencilPathOp.h"
 #include "GrStyle.h"
 #include "ops/GrRectOpFactory.h"
@@ -114,7 +115,23 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
 
         // fake inverse with a stencil and cover
-        args.fRenderTargetContext->priv().stencilPath(*args.fClip, args.fAAType, viewMatrix,
+        GrAppliedClip appliedClip;
+        SkRect appliedBounds = bounds;
+        if (!args.fClip->apply(args.fContext, args.fRenderTargetContext,
+                               GrAATypeIsHW(args.fAAType), true, &appliedClip, &appliedBounds)) {
+            return true;
+        }
+        GrStencilClip stencilClip(appliedClip.stencilStackID());
+        if (appliedClip.scissorState().enabled()) {
+            stencilClip.fixedClip().setScissor(appliedClip.scissorState().rect());
+        }
+        if (appliedClip.windowRectsState().enabled()) {
+            stencilClip.fixedClip().setWindowRectangles(appliedClip.windowRectsState().windows(),
+                                                        appliedClip.windowRectsState().mode());
+        }
+        // Just ignore the analytic FPs (if any) during the stencil pass. They will still clip the
+        // final draw and it is meaningless to multiply by coverage when drawing to stencil.
+        args.fRenderTargetContext->priv().stencilPath(stencilClip, args.fAAType, viewMatrix,
                                                       path.get());
 
         {
