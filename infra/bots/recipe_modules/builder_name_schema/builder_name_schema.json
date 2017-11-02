@@ -56,7 +56,8 @@
       "cpu_or_gpu",
       "cpu_or_gpu_value",
       "arch",
-      "configuration"
+      "configuration",
+      "test_filter"
     ]
   },
   "builder_name_sep": "-"

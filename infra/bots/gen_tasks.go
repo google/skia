@@ -203,7 +203,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
 	}
-	if parts["role"] == "Test" || parts["role"] == "Perf" {
+	if parts["role"] == "Test" || parts["role"] == "Perf" || parts["role"] == "Calmbench" {
 		if strings.Contains(parts["os"], "Android") || strings.Contains(parts["os"], "Chromecast") {
 			// For Android, the device type is a better dimension
 			// than CPU or GPU.
@@ -686,7 +686,7 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
 	s := &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("clang_linux")},
-		Dimensions:   linuxGceDimensions(),
+		Dimensions:   swarmDimensions(parts),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "calmbench",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),

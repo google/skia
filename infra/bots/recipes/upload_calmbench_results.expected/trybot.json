@@ -155,7 +155,7 @@
       "-z",
       "json",
       "[START_DIR]/bench_modified_master.json",
-      "gs://skia-calmbench/trybot/calmbench-v1/2012/05/14/12/Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release/456789/12/bench_modified_master_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.json"
+      "gs://skia-calmbench/trybot/calmbench-v1/2012/05/14/12/Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All/456789/12/bench_modified_master_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.json"
     ],
     "infra_step": true,
     "name": "upload json"
@@ -167,7 +167,7 @@
       "-z",
       "csv",
       "[START_DIR]/bench_modified_master.csv",
-      "gs://skia-calmbench/trybot/calmbench-v1/2012/05/14/12/Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release/456789/12/bench_modified_master_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.csv"
+      "gs://skia-calmbench/trybot/calmbench-v1/2012/05/14/12/Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All/456789/12/bench_modified_master_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.csv"
     ],
     "infra_step": true,
     "name": "upload csv"

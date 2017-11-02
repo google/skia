@@ -214,6 +214,8 @@
       "python",
       "tools/calmbench/calmbench.py",
       "modified",
+      "--config",
+      "gl",
       "--ninjadir",
       "[START_DIR]/out/Release",
       "--extraarg",
@@ -229,13 +231,13 @@
       "compiler",
       "Clang",
       "cpu_or_gpu",
-      "CPU",
+      "GPU",
       "cpu_or_gpu_value",
-      "AVX2",
+      "QuadroP400",
       "model",
-      "GCE",
+      "Golo",
       "os",
-      "Debian9"
+      "Ubuntu17"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

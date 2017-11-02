@@ -557,10 +557,16 @@
         "Build-Win-MSVC-x86_64-Release-Vulkan"
       ]
     },
-    "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Upload-Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All"
+      ]
+    },
+    "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
       ]
     },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
@@ -5673,7 +5679,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "cipd_packages": [
         {
           "name": "skia/bots/clang_linux",
@@ -5696,7 +5702,40 @@
         "../../..",
         "calmbench",
         "repository=<(REPO)",
-        "buildername=Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "infra_skia.isolate",
+      "priority": 0.8
+    },
+    "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:10"
+        }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-384.59",
+        "os:Ubuntu-17.04",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "calmbench",
+        "repository=<(REPO)",
+        "buildername=Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -23361,9 +23400,9 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Upload-Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Upload-Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "dependencies": [
-        "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -23376,7 +23415,34 @@
         "../../..",
         "upload_calmbench_results",
         "repository=<(REPO)",
-        "buildername=Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-calmbench"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
+      "dependencies": [
+        "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_calmbench_results",
+        "repository=<(REPO)",
+        "buildername=Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",

@@ -31,8 +31,17 @@ def RunSteps(api):
   with api.context(cwd=api.vars.skia_dir):
     extra_arg = '--svgs %s --skps %s' % (api.flavor.device_dirs.svg_dir,
                                          api.flavor.device_dirs.skp_dir)
-    command = [ # TODO liyuqian: handle GPU config in the future
+
+    # measuring multi-picture-draw in our multi-threaded CPU test is inaccurate
+    if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
+      extra_arg += ' --mpd false'
+      config = "8888"
+    else:
+      config = "gl"
+
+    command = [
         'python', 'tools/calmbench/calmbench.py', 'modified',
+        '--config', config,
         '--ninjadir', api.vars.skia_out.join("Release"),
         '--extraarg', extra_arg,
         '--writedir', api.vars.swarming_out_dir,
@@ -50,21 +59,26 @@ def RunSteps(api):
   api.run.check_failure()
 
 def GenTests(api):
-  builder = "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release"
-  test = (
-    api.test(builder) +
-    api.properties(buildername=builder,
-                   repository='https://skia.googlesource.com/skia.git',
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['start_dir'].join('skia'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                   'svg', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                   'skp', 'VERSION'),
-    )
-  )
+  builders = [
+    "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All",
+    "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
+  ]
 
-  yield test
+  for builder in builders:
+    test = (
+      api.test(builder) +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.path.exists(
+          api.path['start_dir'].join('skia'),
+          api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
+          api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skp', 'VERSION'),
+      )
+    )
+
+    yield test
