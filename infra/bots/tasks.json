@@ -1815,6 +1815,12 @@
         "Upload-Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android"
       ]
     },
+    "Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android_NativeFonts": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android_NativeFonts"
+      ]
+    },
     "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android": {
       "priority": 0.8,
       "tasks": [
@@ -2151,6 +2157,12 @@
         "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Fast"
       ]
     },
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts"
+      ]
+    },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD": {
       "priority": 0.8,
       "tasks": [
@@ -2251,6 +2263,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All"
+      ]
+    },
+    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts"
       ]
     },
     "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-TSAN": {
@@ -2819,6 +2837,12 @@
         "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-All-GDI"
       ]
     },
+    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts"
+      ]
+    },
     "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
       "priority": 0.8,
       "tasks": [
@@ -2879,6 +2903,12 @@
         "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-GDI"
       ]
     },
+    "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts"
+      ]
+    },
     "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All": {
       "priority": 0.8,
       "tasks": [
@@ -2913,6 +2943,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All-GDI"
+      ]
+    },
+    "Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts"
       ]
     },
     "Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug-All": {
@@ -14300,6 +14336,40 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android_NativeFonts": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:LMY49J",
+        "device_type:manta",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android_NativeFonts",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android": {
       "dependencies": [
         "Build-Debian9-Clang-arm-Debug-Android",
@@ -17002,6 +17072,54 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:32"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:92"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD": {
       "cipd_packages": [
         {
@@ -17812,6 +17930,54 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:32"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:92"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.12",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22340,6 +22506,54 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:32"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:92"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2008ServerR2-SP1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
       "cipd_packages": [
         {
@@ -22818,6 +23032,54 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:32"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:92"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2670",
+        "gpu:none",
+        "os:Windows-7-SP1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All": {
       "cipd_packages": [
         {
@@ -23094,6 +23356,54 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All-GDI",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:32"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:92"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2670",
+        "gpu:none",
+        "os:Windows-8.1-SP0",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26154,6 +26464,33 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android_NativeFonts": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android_NativeFonts"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android_NativeFonts",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android": {
       "dependencies": [
         "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android"
@@ -27415,6 +27752,33 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts": {
+      "dependencies": [
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD": {
       "dependencies": [
         "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD"
@@ -27809,6 +28173,33 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "dependencies": [
+        "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -29969,6 +30360,33 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts": {
+      "dependencies": [
+        "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All": {
       "dependencies": [
         "Test-Win2k8-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
@@ -30239,6 +30657,33 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "dependencies": [
+        "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All": {
       "dependencies": [
         "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All"
@@ -30390,6 +30835,33 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All-GDI",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "dependencies": [
+        "Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
