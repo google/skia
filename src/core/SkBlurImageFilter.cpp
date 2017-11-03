@@ -14,6 +14,7 @@
 #include "SkBitmap.h"
 #include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
+#include "SkImageFilterPriv.h"
 #include "SkTFitsIn.h"
 #include "SkGpuBlurUtils.h"
 #include "SkNx.h"

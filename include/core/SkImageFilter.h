@@ -101,7 +101,7 @@ public:
          *  Note: imageBounds is in "device" space, as the output cropped rectangle will be,
          *  so the matrix is ignored for those. It is only applied the croprect's bounds.
          */
-        void applyTo(const SkIRect& imageBounds, const SkMatrix&, bool embiggen,
+        void applyTo(const SkIRect& imageBounds, const SkMatrix& matrix, bool embiggen,
                      SkIRect* cropped) const;
 
     private:
@@ -130,11 +130,12 @@ public:
      *  TODO: Right now the imagefilters sometimes return empty result bitmaps/
      *        specialimages. That doesn't seem quite right.
      */
-    sk_sp<SkSpecialImage> filterImage(SkSpecialImage* src, const Context&, SkIPoint* offset) const;
+    sk_sp<SkSpecialImage> filterImage(SkSpecialImage* src, const Context& context,
+                                      SkIPoint* offset) const;
 
     enum MapDirection {
         kForward_MapDirection,
-        kReverse_MapDirection
+        kReverse_MapDirection,
     };
     /**
      * Map a device-space rect recursively forward or backward through the
@@ -211,7 +212,7 @@ public:
     CropRect getCropRect() const { return fCropRect; }
 
     // Default impl returns union of all input bounds.
-    virtual SkRect computeFastBounds(const SkRect&) const;
+    virtual SkRect computeFastBounds(const SkRect& bounds) const;
 
     // Can this filter DAG compute the resulting bounds of an object-space rectangle?
     bool canComputeFastBounds() const;
@@ -220,7 +221,7 @@ public:
      *  If this filter can be represented by another filter + a localMatrix, return that filter,
      *  else return null.
      */
-    sk_sp<SkImageFilter> makeWithLocalMatrix(const SkMatrix&) const;
+    sk_sp<SkImageFilter> makeWithLocalMatrix(const SkMatrix& matrix) const;
 
     /**
      *  ImageFilters can natively handle scaling and translate components in the CTM. Only some of
@@ -432,16 +433,5 @@ private:
     mutable SkMutex fMutex;
     typedef SkFlattenable INHERITED;
 };
-
-/**
- *  Helper to unflatten the common data, and return nullptr if we fail.
- */
-#define SK_IMAGEFILTER_UNFLATTEN_COMMON(localVar, expectedCount)    \
-    Common localVar;                                                \
-    do {                                                            \
-        if (!localVar.unflatten(buffer, expectedCount)) {           \
-            return nullptr;                                         \
-        }                                                           \
-    } while (0)
 
 #endif

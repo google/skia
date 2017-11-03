@@ -16,6 +16,7 @@
 #include "SkDocument.h"
 #include "SkDeflate.h"
 #include "SkImageEncoder.h"
+#include "SkImageFilterPriv.h"
 #include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPDFCanon.h"

@@ -18,6 +18,7 @@
 #include "SkFlattenableSerialization.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
+#include "SkImageFilterPriv.h"
 #include "SkImageSource.h"
 #include "SkLightingImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"

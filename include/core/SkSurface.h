@@ -44,16 +44,18 @@ public:
      *
      *  Callers are responsible for initialiazing the surface pixels.
      */
-    static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo&, void* pixels, size_t rowBytes,
-                                             const SkSurfaceProps* = nullptr);
+    static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo& imageInfo, void* pixels,
+                                             size_t rowBytes,
+                                             const SkSurfaceProps* surfaceProps = nullptr);
 
     /**
      *  The same as NewRasterDirect, but also accepts a call-back routine, which is invoked
      *  when the surface is deleted, and is passed the pixel memory and the specified context.
      */
-    static sk_sp<SkSurface> MakeRasterDirectReleaseProc(const SkImageInfo&, void* pixels, size_t rowBytes,
-                                                 void (*releaseProc)(void* pixels, void* context),
-                                                 void* context, const SkSurfaceProps* = nullptr);
+    static sk_sp<SkSurface> MakeRasterDirectReleaseProc(const SkImageInfo& imageInfo, void* pixels,
+                                    size_t rowBytes,
+                                    void (*releaseProc)(void* pixels, void* context),
+                                    void* context, const SkSurfaceProps* surfaceProps = nullptr);
 
     /**
      *  Return a new surface, with the memory for the pixels automatically allocated and
@@ -64,14 +66,15 @@ public:
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, NULL will be returned.
      */
-    static sk_sp<SkSurface> MakeRaster(const SkImageInfo&, size_t rowBytes, const SkSurfaceProps*);
+    static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo, size_t rowBytes,
+                                       const SkSurfaceProps* surfaceProps);
 
     /**
      *  Allocate a new surface, automatically computing the rowBytes.
      */
-    static sk_sp<SkSurface> MakeRaster(const SkImageInfo& info,
+    static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo,
                                        const SkSurfaceProps* props = nullptr) {
-        return MakeRaster(info, 0, props);
+        return MakeRaster(imageInfo, 0, props);
     }
 
     /**
@@ -80,8 +83,8 @@ public:
      *  pixels in SkPMColor format.
      */
     static sk_sp<SkSurface> MakeRasterN32Premul(int width, int height,
-                                                const SkSurfaceProps* props = nullptr) {
-        return MakeRaster(SkImageInfo::MakeN32Premul(width, height), props);
+                                                const SkSurfaceProps* surfaceProps = nullptr) {
+        return MakeRaster(SkImageInfo::MakeN32Premul(width, height), surfaceProps);
     }
 
     /**
@@ -90,15 +93,17 @@ public:
      *  of the SkSurface. If sampleCnt > 0, then we will create an intermediate mssa surface which
      *  we will use for rendering. We then resolve into the passed in texture.
      */
-    static sk_sp<SkSurface> MakeFromBackendTexture(GrContext*, const GrBackendTexture&,
+    static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
+                                                   const GrBackendTexture& backendTexture,
                                                    GrSurfaceOrigin origin, int sampleCnt,
-                                                   sk_sp<SkColorSpace>, const SkSurfaceProps*);
+                                                   sk_sp<SkColorSpace> colorSpace,
+                                                   const SkSurfaceProps* surfaceProps);
 
-    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext*,
-                                                        const GrBackendRenderTarget&,
-                                                        GrSurfaceOrigin origin,
-                                                        sk_sp<SkColorSpace>,
-                                                        const SkSurfaceProps*);
+    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
+                                                const GrBackendRenderTarget& backendRenderTarget,
+                                                GrSurfaceOrigin origin,
+                                                sk_sp<SkColorSpace> colorSpace,
+                                                const SkSurfaceProps* surfaceProps);
 
     /**
      *  Used to wrap a pre-existing 3D API texture as a SkSurface. Skia will treat the texture as
@@ -107,12 +112,12 @@ public:
      *  ownership of the texture and the client must ensure the texture is valid for the lifetime
      *  of the SkSurface.
      */
-    static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext*,
-                                                                 const GrBackendTexture&,
-                                                                 GrSurfaceOrigin origin,
-                                                                 int sampleCnt,
-                                                                 sk_sp<SkColorSpace>,
-                                                                 const SkSurfaceProps*);
+    static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext* context,
+                                                            const GrBackendTexture& backendTexture,
+                                                            GrSurfaceOrigin origin,
+                                                            int sampleCnt,
+                                                            sk_sp<SkColorSpace> colorSpace,
+                                                            const SkSurfaceProps* surfaceProps);
 
     /**
      *  Return a new surface whose contents will be drawn to an offscreen
@@ -120,23 +125,26 @@ public:
      *  that this surface may be snapped to an SkImage which will be used with mip maps so we should
      *  create the backend gpu RenderTarget with mips to avoid a copy later on.
      */
-    static sk_sp<SkSurface> MakeRenderTarget(GrContext*, SkBudgeted, const SkImageInfo&,
-                                             int sampleCount, GrSurfaceOrigin,
-                                             const SkSurfaceProps*,
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+                                             const SkImageInfo& imageInfo,
+                                             int sampleCount, GrSurfaceOrigin surfaceOrigin,
+                                             const SkSurfaceProps* surfaceProps,
                                              bool shouldCreateWithMips = false);
 
     static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
-                                             const SkImageInfo& info, int sampleCount,
+                                             const SkImageInfo& imageInfo, int sampleCount,
                                              const SkSurfaceProps* props) {
-        return MakeRenderTarget(context, budgeted, info, sampleCount,
+        return MakeRenderTarget(context, budgeted, imageInfo, sampleCount,
                                 kBottomLeft_GrSurfaceOrigin, props);
     }
 
-    static sk_sp<SkSurface> MakeRenderTarget(GrContext* gr, SkBudgeted b, const SkImageInfo& info) {
-        if (!info.width() || !info.height()) {
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+                                             const SkImageInfo& imageInfo) {
+        if (!imageInfo.width() || !imageInfo.height()) {
             return nullptr;
         }
-        return MakeRenderTarget(gr, b, info, 0, kBottomLeft_GrSurfaceOrigin, nullptr);
+        return MakeRenderTarget(context, budgeted, imageInfo, 0, kBottomLeft_GrSurfaceOrigin,
+                                nullptr);
     }
 
     /**
@@ -207,7 +215,7 @@ public:
      *  The returned texture-handle is only valid until the next draw-call into the surface,
      *  or the surface is deleted.
      */
-    GrBackendObject getTextureHandle(BackendHandleAccess);
+    GrBackendObject getTextureHandle(BackendHandleAccess backendHandleAccess);
 
     /**
      *  Retrieves the backend API handle of the RenderTarget backing this surface.  Callers must
@@ -215,7 +223,8 @@ public:
      *
      *  In OpenGL this will return the FramebufferObject ID.
      */
-    bool getRenderTargetHandle(GrBackendObject*, BackendHandleAccess);
+    bool getRenderTargetHandle(GrBackendObject* backendObject,
+                               BackendHandleAccess backendHandleAccess);
 
     /**
      *  Return a canvas that will draw into this surface. This will always
@@ -238,7 +247,7 @@ public:
      *  ... // draw using canvasB
      *  canvasA->drawSurface(surfaceB); // <--- this will always be optimal!
      */
-    sk_sp<SkSurface> makeSurface(const SkImageInfo&);
+    sk_sp<SkSurface> makeSurface(const SkImageInfo& imageInfo);
 
     /**
      *  Returns an image of the current state of the surface pixels up to this
@@ -255,7 +264,7 @@ public:
      *  we'd know that the "snapshot" need only live until we've handed it off
      *  to the canvas.
      */
-    void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*);
+    void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint);
 
     /**
      *  If the surface has direct access to its pixels (i.e. they are in local
@@ -266,7 +275,7 @@ public:
      *
      *  On failure, returns false and the pixmap parameter is ignored.
      */
-    bool peekPixels(SkPixmap*);
+    bool peekPixels(SkPixmap* pixmap);
 
     /**
      *  Copy the pixels from the surface into the specified pixmap,
@@ -356,8 +365,8 @@ public:
     void draw(SkDeferredDisplayList* deferredDisplayList);
 
 protected:
-    SkSurface(int width, int height, const SkSurfaceProps*);
-    SkSurface(const SkImageInfo&, const SkSurfaceProps*);
+    SkSurface(int width, int height, const SkSurfaceProps* surfaceProps);
+    SkSurface(const SkImageInfo& imageInfo, const SkSurfaceProps* surfaceProps);
 
     // called by subclass if their contents have changed
     void dirtyGenerationID() {
