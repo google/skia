@@ -253,6 +253,8 @@ const char* kRefreshStateName = "Refresh";
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
     : fCurrentMeasurement(0)
+    , fCumulativeMeasurementTime(0)
+    , fCumulativeMeasurementCount(0)
     , fDisplayStats(false)
     , fRefresh(false)
     , fShowImGuiDebugWindow(false)
@@ -335,6 +337,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     });
     fCommands.addCommand('s', "Overlays", "Toggle stats display", [this]() {
         this->fDisplayStats = !this->fDisplayStats;
+        fWindow->inval();
+    });
+    fCommands.addCommand('0', "Overlays", "Reset stats", [this]() {
+        this->resetMeasurements();
+        this->updateTitle();
         fWindow->inval();
     });
     fCommands.addCommand('c', "Modes", "Cycle color mode", [this]() {
@@ -609,6 +616,24 @@ void Viewer::updateTitle() {
         title.appendf(" %s", curPrimaries >= 0 ? gNamedPrimaries[curPrimaries].fName : "Custom");
     }
 
+    if (fDisplayStats) {
+        double ms = 0;
+        int count = 0;
+        int i = (fCurrentMeasurement + kMeasurementCount - 1) & (kMeasurementCount - 1);
+        do {
+            double inc = fAnimateTimes[i] + fPaintTimes[i] + fFlushTimes[i];
+            if (inc <= 0) {
+                break;
+            }
+            ms += inc;
+            ++count;
+            i = (i + kMeasurementCount - 1) & (kMeasurementCount - 1);
+        } while (i != fCurrentMeasurement);
+
+        title.appendf(" %8.4f ms -> %4.4f ms", ms / SkTMax(1, count),
+                      fCumulativeMeasurementTime / SkTMax(1, fCumulativeMeasurementCount));
+    }
+
     title.append(" [");
     title.append(kBackendTypeStrings[fBackendType]);
     if (int msaa = fWindow->sampleCount()) {
@@ -650,6 +675,15 @@ void Viewer::listNames() {
     }
 }
 
+void Viewer::resetMeasurements() {
+    memset(fPaintTimes, 0, sizeof(fPaintTimes));
+    memset(fFlushTimes, 0, sizeof(fFlushTimes));
+    memset(fAnimateTimes, 0, sizeof(fAnimateTimes));
+    fCurrentMeasurement = 0;
+    fCumulativeMeasurementTime = 0;
+    fCumulativeMeasurementCount = 0;
+}
+
 void Viewer::setupCurrentSlide(int previousSlide) {
     if (fCurrentSlide == previousSlide) {
         return; // no change; do nothing
@@ -679,6 +713,9 @@ void Viewer::setupCurrentSlide(int previousSlide) {
     if (previousSlide >= 0) {
         fSlides[previousSlide]->unload();
     }
+
+    this->resetMeasurements();
+
     fWindow->inval();
 }
 
@@ -837,6 +874,7 @@ void Viewer::onBackendCreated() {
     this->updateTitle();
     this->updateUIState();
     this->setupCurrentSlide(-1);
+    this->resetMeasurements();
     fWindow->show();
     fWindow->inval();
 }
@@ -854,22 +892,27 @@ void Viewer::onPaint(SkCanvas* canvas) {
 
     ImGui::NewFrame();
 
-    drawSlide(canvas);
+    this->drawSlide(canvas);
 
     // Advance our timing bookkeeping
+    fCumulativeMeasurementTime += fAnimateTimes[fCurrentMeasurement] +
+                                  fPaintTimes[fCurrentMeasurement] +
+                                  fFlushTimes[fCurrentMeasurement];
+    fCumulativeMeasurementCount++;
     fCurrentMeasurement = (fCurrentMeasurement + 1) & (kMeasurementCount - 1);
     SkASSERT(fCurrentMeasurement < kMeasurementCount);
 
     // Draw any overlays or UI that we don't want timed
     if (fDisplayStats) {
         drawStats(canvas);
+        this->updateTitle();
     }
     fCommands.drawHelp(canvas);
 
-    drawImGui(canvas);
+    this->drawImGui(canvas);
 
     // Update the FPS
-    updateUIState();
+    this->updateUIState();
 }
 
 bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y) {
