@@ -120,9 +120,6 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                       GrProcessorKeyBuilder* b) const override;
-
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrGradientEffect INHERITED;
@@ -136,10 +133,6 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor& processor, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-        b->add32(GenBaseGradientKey(processor));
-    }
-
 private:
     typedef GrGradientEffect::GLSLProcessor INHERITED;
 };
@@ -148,11 +141,6 @@ private:
 
 GrGLSLFragmentProcessor* GrLinearGradient::onCreateGLSLInstance() const {
     return new GrLinearGradient::GLSLLinearProcessor(*this);
-}
-
-void GrLinearGradient::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                             GrProcessorKeyBuilder* b) const {
-    GrLinearGradient::GLSLLinearProcessor::GenKey(*this, caps, b);
 }
 
 /////////////////////////////////////////////////////////////////////

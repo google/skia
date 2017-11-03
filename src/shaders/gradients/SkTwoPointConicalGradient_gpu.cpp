@@ -85,8 +85,6 @@ public:
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
-
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const Edge2PtConicalEffect& s = sBase.cast<Edge2PtConicalEffect>();
         return (INHERITED::onIsEqual(sBase) &&
@@ -157,8 +155,6 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor&, const GrShaderCaps& caps, GrProcessorKeyBuilder* b);
-
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
@@ -179,11 +175,6 @@ private:
     typedef GrGradientEffect::GLSLProcessor INHERITED;
 
 };
-
-void Edge2PtConicalEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                 GrProcessorKeyBuilder* b) const {
-    Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::GenKey(*this, caps, b);
-}
 
 GrGLSLFragmentProcessor* Edge2PtConicalEffect::onCreateGLSLInstance() const {
     return new Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor(*this);
@@ -312,11 +303,6 @@ void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::onSetData(
     }
 }
 
-void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::GenKey(const GrProcessor& processor,
-                                    const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-    b->add32(GenBaseGradientKey(processor));
-}
-
 //////////////////////////////////////////////////////////////////////////////
 // Focal Conical Gradients
 //////////////////////////////////////////////////////////////////////////////
@@ -403,8 +389,6 @@ public:
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
-
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const FocalOutside2PtConicalEffect& s = sBase.cast<FocalOutside2PtConicalEffect>();
         return (INHERITED::onIsEqual(sBase) &&
@@ -437,8 +421,6 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor&, const GrShaderCaps& caps, GrProcessorKeyBuilder* b);
-
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
@@ -459,11 +441,6 @@ private:
     typedef GrGradientEffect::GLSLProcessor INHERITED;
 
 };
-
-void FocalOutside2PtConicalEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                         GrProcessorKeyBuilder* b) const {
-    FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor::GenKey(*this, caps, b);
-}
 
 GrGLSLFragmentProcessor* FocalOutside2PtConicalEffect::onCreateGLSLInstance() const {
     return new FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor(*this);
@@ -578,12 +555,6 @@ void FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor::onSetDat
     }
 }
 
-void FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor::GenKey(
-                                            const GrProcessor& processor,
-                                            const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-    b->add32(GenBaseGradientKey(processor));
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 class FocalInside2PtConicalEffect : public GrGradientEffect {
@@ -610,8 +581,6 @@ public:
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const FocalInside2PtConicalEffect& s = sBase.cast<FocalInside2PtConicalEffect>();
@@ -640,8 +609,6 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor&, const GrShaderCaps& caps, GrProcessorKeyBuilder* b);
-
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
@@ -661,11 +628,6 @@ private:
     typedef GrGradientEffect::GLSLProcessor INHERITED;
 
 };
-
-void FocalInside2PtConicalEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                        GrProcessorKeyBuilder* b) const {
-    FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor::GenKey(*this, caps, b);
-}
 
 GrGLSLFragmentProcessor* FocalInside2PtConicalEffect::onCreateGLSLInstance() const {
     return new FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor(*this);
@@ -756,12 +718,6 @@ void FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor::onSetData(
         pdman.set1f(fFocalUni, SkScalarToFloat(focal));
         fCachedFocal = focal;
     }
-}
-
-void FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor::GenKey(
-                                            const GrProcessor& processor,
-                                            const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-    b->add32(GenBaseGradientKey(processor));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -870,9 +826,6 @@ public:
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                       GrProcessorKeyBuilder* b) const override;
-
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const CircleInside2PtConicalEffect& s = sBase.cast<CircleInside2PtConicalEffect>();
         return INHERITED::onIsEqual(sBase) && fInfo == s.fInfo;
@@ -899,8 +852,6 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor&, const GrShaderCaps& caps, GrProcessorKeyBuilder* b);
-
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
@@ -926,11 +877,6 @@ private:
     typedef GrGradientEffect::GLSLProcessor INHERITED;
 
 };
-
-void CircleInside2PtConicalEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                         GrProcessorKeyBuilder* b) const {
-    CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor::GenKey(*this, caps, b);
-}
 
 GrGLSLFragmentProcessor* CircleInside2PtConicalEffect::onCreateGLSLInstance() const {
     return new CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor(*this);
@@ -1056,12 +1002,6 @@ void CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor::onSetDat
     }
 }
 
-void CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor::GenKey(
-                                            const GrProcessor& processor,
-                                            const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-    b->add32(GenBaseGradientKey(processor));
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 class CircleOutside2PtConicalEffect : public GrGradientEffect {
@@ -1091,8 +1031,6 @@ public:
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const CircleOutside2PtConicalEffect& s = sBase.cast<CircleOutside2PtConicalEffect>();
@@ -1132,8 +1070,6 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor&, const GrShaderCaps& caps, GrProcessorKeyBuilder* b);
-
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
@@ -1161,11 +1097,6 @@ private:
     typedef GrGradientEffect::GLSLProcessor INHERITED;
 
 };
-
-void CircleOutside2PtConicalEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                          GrProcessorKeyBuilder* b) const {
-    CircleOutside2PtConicalEffect::GLSLCircleOutside2PtConicalProcessor::GenKey(*this, caps, b);
-}
 
 GrGLSLFragmentProcessor* CircleOutside2PtConicalEffect::onCreateGLSLInstance() const {
     return new CircleOutside2PtConicalEffect::GLSLCircleOutside2PtConicalProcessor(*this);
@@ -1310,12 +1241,6 @@ void CircleOutside2PtConicalEffect::GLSLCircleOutside2PtConicalProcessor::onSetD
         pdman.set1f(fFlipSignUni, flipSign);
         fCachedFlipSign = flipSign;
     }
-}
-
-void CircleOutside2PtConicalEffect::GLSLCircleOutside2PtConicalProcessor::GenKey(
-                                            const GrProcessor& processor,
-                                            const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-    b->add32(GenBaseGradientKey(processor));
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -274,6 +274,8 @@ protected:
     GrGradientEffect(ClassID classID, const CreateArgs&, bool isOpaque);
     explicit GrGradientEffect(const GrGradientEffect&);  // facilitates clone() implementations
 
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final;
+
     // Helper function used by derived class factories to handle color space transformation and
     // modulation by input alpha.
     static std::unique_ptr<GrFragmentProcessor> AdjustFP(
@@ -362,16 +364,10 @@ public:
         fCachedYCoord = SK_ScalarMax;
     }
 
-protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    static uint32_t GenBaseGradientKey(const GrProcessor&);
 
 protected:
-    /**
-     * Subclasses must call this. It will return a key for the part of the shader code controlled
-     * by the base class. The subclasses must stick it in their key and then pass it to the below
-     * emit* functions from their emitCode function.
-     */
-    static uint32_t GenBaseGradientKey(const GrProcessor&);
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
     // Emits the uniform used as the y-coord to texture samples in derived classes. Subclasses
     // should call this method from their emitCode().
