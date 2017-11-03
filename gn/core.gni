@@ -134,6 +134,8 @@ skia_core_sources = [
   "$_src/core/SkFindAndPlaceGlyph.h",
   "$_src/core/SkArenaAlloc.cpp",
   "$_src/core/SkArenaAlloc.h",
+  "$_src/core/SkGaussFilter.cpp",
+  "$_src/core/SkGaussFilter.h",
   "$_src/core/SkFlattenable.cpp",
   "$_src/core/SkFlattenableSerialization.cpp",
   "$_src/core/SkFont.cpp",
