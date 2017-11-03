@@ -8,6 +8,7 @@
 #include "SkOffsetImageFilter.h"
 #include "SkColorSpaceXformer.h"
 #include "SkCanvas.h"
+#include "SkImageFilterPriv.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkReadBuffer.h"

@@ -16,7 +16,8 @@
     SkIPoint holds two 16 bit integer coordinates
 */
 struct SkIPoint16 {
-    int16_t fX, fY;
+    int16_t fX;
+    int16_t fY;
 
     static SkIPoint16 Make(int x, int y) {
         SkIPoint16 pt;
@@ -38,7 +39,8 @@ struct SkIPoint16 {
     SkIPoint holds two 32 bit integer coordinates
 */
 struct SkIPoint {
-    int32_t fX, fY;
+    int32_t fX;
+    int32_t fY;
 
     static SkIPoint Make(int32_t x, int32_t y) {
         SkIPoint pt;
@@ -154,7 +156,8 @@ struct SkIPoint {
 };
 
 struct SK_API SkPoint {
-    SkScalar    fX, fY;
+    SkScalar    fX;
+    SkScalar    fY;
 
     static SkPoint Make(SkScalar x, SkScalar y) {
         SkPoint pt;
@@ -487,7 +490,7 @@ struct SK_API SkPoint {
     enum Side {
         kLeft_Side  = -1,
         kOn_Side    =  0,
-        kRight_Side =  1
+        kRight_Side =  1,
     };
 
     /**
