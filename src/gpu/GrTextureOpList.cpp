@@ -130,20 +130,34 @@ void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
 
     unsigned int cur = alloc->numOps();
 
+    SkDebugf("********************************************\n");
+    SkDebugf("gather for texture opList #%d { tpID: %d tID: %d }\n",
+             this->uniqueID(),
+             fTarget.get()->uniqueID().asUInt(),
+             this->isInstantiated() ? fTarget.get()->underlyingUniqueID().asUInt() : -1);
+
+    if (this->isInstantiated()) {
+        SkASSERT(fTarget.get()->fIsOkayToBeInstantiated);
+        // TODO: I want an assert that the instantiated GrSurface cannot accessed from the cache
+    }
+
     // Add the interval for all the writes to this opList's target
-    alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);
+    SkDebugf("adding destination interval to opList #%d for %d ops\n", this->uniqueID(), fRecordedOps.count());
+    alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1, 1);
 
     auto gather = [ alloc ] (GrSurfaceProxy* p) {
-        alloc->addInterval(p);
+        alloc->addInterval(p, 1);
     };
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         const GrOp* op = fRecordedOps[i].get(); // only diff from the GrRenderTargetOpList version
         if (op) {
+            SkDebugf("gathering intervals for: opList #%d (%s), op# %d\n", this->uniqueID(), op->name(), cur+i);
             op->visitProxies(gather);
 
             alloc->incOps();
         }
     }
+    SkDebugf("********************************************\n");
 }
 
 void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op) {

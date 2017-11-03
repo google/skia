@@ -22,7 +22,10 @@ public:
     const char* name() const override { return "CopySurface"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        func(fDst.get());
+        // Note: visiting 'fDst' is a bit unusual. Most ops don't store the dest since it is
+        // carried by the opList.
+        // Q: Do we need to store 'fDst'?
+        //func(fDst.get());
         func(fSrc.get());
     }
 

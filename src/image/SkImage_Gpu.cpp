@@ -158,6 +158,7 @@ GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
     if (!fProxy->instantiate(fContext->resourceProvider())) {
         return 0;
     }
+    fProxy->fIsOkayToBeInstantiated = true;
 
     GrTexture* texture = fProxy->priv().peekTexture();
 
@@ -182,6 +183,7 @@ GrTexture* SkImage_Gpu::onGetTexture() const {
     if (!proxy->instantiate(fContext->resourceProvider())) {
         return nullptr;
     }
+    proxy->fIsOkayToBeInstantiated = true;
 
     return proxy->priv().peekTexture();
 }
