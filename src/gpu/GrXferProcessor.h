@@ -193,6 +193,8 @@ protected:
     GrXferProcessor(ClassID classID, bool willReadDstColor, bool hasMixedSamples,
                     GrProcessorAnalysisCoverage);
 
+    virtual ~GrXferProcessor() {}
+
 private:
     /**
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this xfer
