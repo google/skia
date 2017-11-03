@@ -370,22 +370,6 @@ optional("fontmgr_android") {
   ]
 }
 
-optional("fontmgr_custom") {
-  enabled = is_linux && skia_use_freetype && !skia_use_fontconfig
-
-  deps = [
-    ":typeface_freetype",
-  ]
-  sources = [
-    "src/ports/SkFontMgr_custom.cpp",
-    "src/ports/SkFontMgr_custom.h",
-    "src/ports/SkFontMgr_custom_directory.cpp",
-    "src/ports/SkFontMgr_custom_directory_factory.cpp",
-    "src/ports/SkFontMgr_custom_embedded.cpp",
-    "src/ports/SkFontMgr_custom_empty.cpp",
-  ]
-}
-
 optional("fontmgr_fontconfig") {
   enabled = skia_use_freetype && skia_use_fontconfig
 
@@ -662,18 +646,6 @@ optional("raw") {
   ]
 }
 
-optional("typeface_freetype") {
-  enabled = skia_use_freetype
-
-  deps = [
-    "//third_party/freetype2",
-  ]
-  sources = [
-    "src/ports/SkFontHost_FreeType.cpp",
-    "src/ports/SkFontHost_FreeType_common.cpp",
-  ]
-}
-
 optional("webp") {
   enabled = skia_use_libwebp
   public_defines = [ "SK_HAS_WEBP_LIBRARY" ]
@@ -704,6 +676,32 @@ optional("xml") {
   ]
 }
 
+source_set("fontmgr_custom") {
+  deps = [
+    ":typeface_freetype",
+  ]
+  sources = [
+    "src/ports/SkFontMgr_custom.cpp",
+    "src/ports/SkFontMgr_custom.h",
+    "src/ports/SkFontMgr_custom_directory.cpp",
+    "src/ports/SkFontMgr_custom_embedded.cpp",
+    "src/ports/SkFontMgr_custom_empty.cpp",
+  ]
+  configs += skia_library_configs
+}
+
+source_set("typeface_freetype") {
+  configs += skia_library_configs
+
+  deps = [
+    "//third_party/freetype2",
+  ]
+  sources = [
+    "src/ports/SkFontHost_FreeType.cpp",
+    "src/ports/SkFontHost_FreeType_common.cpp",
+  ]
+}
+
 component("skia") {
   public_configs = [ ":skia_public" ]
   configs += skia_library_configs
@@ -715,7 +713,6 @@ component("skia") {
     ":crc32",
     ":effects",
     ":fontmgr_android",
-    ":fontmgr_custom",
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",
     ":gpu",
@@ -1349,6 +1346,7 @@ if (skia_enable_tools) {
         ":common_flags",
         ":experimental_svg_model",
         ":flags",
+        ":fontmgr_custom",
         ":gm",
         ":gpu_tool_utils",
         ":skia",

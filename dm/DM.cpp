@@ -25,6 +25,8 @@
 #include "SkDebugfTracer.h"
 #include "SkEventTracingPriv.h"
 #include "SkFontMgr.h"
+#include "SkFontMgr_custom.h"
+#include "SkFontMgr_directory.h"
 #include "SkGraphics.h"
 #include "SkHalf.h"
 #include "SkLeanWindows.h"
@@ -100,6 +102,9 @@ DEFINE_pathrenderer_flag;
 DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
 
 DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.");  // See skia:6821
+
+DEFINE_bool(nativeFonts, true, "If true use native font manager and rendering.  "
+                               "If false, as portable as possible.");
 
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
@@ -1307,8 +1312,36 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle s
 
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
 
+extern sk_sp<SkFontMgr> (*gSkFontMgr_DefaultFactory)();
+
+#if 0
+struct PortableFontLoader : public SkFontMgr_Custom::SystemFontLoader {
+    PortableFontLoader() {}
+
+    void loadSystemFonts(const SkTypeface_FreeType::Scanner& scanner,
+                         SkFontMgr_Custom::Families* families) const override {
+        auto family = new SkFontStyleSet_Custom(SkString());
+        family->appendTypeface(sk_tool_utils::create_portable_typeface("Toy Liberation Sans",
+                                                                       SkFontStyle()));
+        families->emplace_back(family);
+    }
+};
+#endif
+
+
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
+
+    if (!FLAGS_nativeFonts) {
+        gSkFontMgr_DefaultFactory = []() -> sk_sp<SkFontMgr> {
+        #if 0
+            return sk_make_sp<SkFontMgr_Custom>(PortableFontLoader());
+        #else
+            auto path = SkStringPrintf("%s/fonts", FLAGS_resourcePath[0]);
+            return SkFontMgr_New_Custom_Directory(path.c_str());
+        #endif
+        };
+    }
 
     initializeEventTracingForTools();
 
