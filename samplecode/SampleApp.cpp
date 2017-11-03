@@ -1843,8 +1843,6 @@ bool SampleWindow::onQuery(SkEvent* query) {
     return this->INHERITED::onQuery(query);
 }
 
-DECLARE_bool(portableFonts);
-
 bool SampleWindow::onHandleChar(SkUnichar uni) {
     {
         SkView* view = curr_view(this);
@@ -1949,10 +1947,6 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         case 'f':
             // only
             toggleFPS();
-            break;
-        case 'F':
-            FLAGS_portableFonts ^= true;
-            this->inval(nullptr);
             break;
         case 'g':
             fRequestGrabImage = true;

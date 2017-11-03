@@ -6,7 +6,6 @@
  */
 
 #include "sk_tool_utils.h"
-#include "sk_tool_utils_flags.h"
 
 #include "Resources.h"
 #include "SkBitmap.h"
@@ -20,8 +19,6 @@
 #include "SkShader.h"
 #include "SkTestScalerContext.h"
 #include "SkTextBlob.h"
-
-DEFINE_bool(portableFonts, false, "Use portable fonts");
 
 namespace sk_tool_utils {
 
