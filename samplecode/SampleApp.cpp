@@ -1673,7 +1673,8 @@ static sk_sp<SkColorSpace> getMonitorColorSpace() {
     CFRelease(dataRef);
     return colorSpace;
 #elif defined(SK_BUILD_FOR_WIN)
-    DISPLAY_DEVICE dd = { sizeof(DISPLAY_DEVICE) };
+    DISPLAY_DEVICE dd{};
+    dd.cb = sizeof(dd);
 
     // Chrome's code for this currently just gets the primary monitor's profile. This code iterates
     // over all attached monitors, so it's "better" in that sense. Making intelligent use of this
