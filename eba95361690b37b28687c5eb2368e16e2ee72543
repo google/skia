@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71f04e16_e291e2ad",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-03T15:37:40Z",
+      "side": 1,
+      "message": ", and make sure pos is monotonic.",
+      "range": {
+        "startLine": 189,
+        "startChar": 42,
+        "endLine": 189,
+        "endChar": 49
+      },
+      "revId": "eba95361690b37b28687c5eb2368e16e2ee72543",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
