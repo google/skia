@@ -111,6 +111,9 @@ def dm_flags(api, bot):
       # configurations.
       configs = ['8888', 'tiles_rt-8888']
 
+    if 'NativeFonts' in bot:
+      configs = ['8888']
+
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
 
@@ -265,6 +268,10 @@ def dm_flags(api, bot):
   # Eventually I'd like these to pass, but for now just skip 'em.
   if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
     args.remove('tests')
+
+  if 'NativeFonts' in bot:  # images won't exercise native font integration :)
+    args.remove('image')
+    args.remove('colorImage')
 
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
@@ -938,6 +945,7 @@ TEST_BUILDERS = [
   'Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
   'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug-All',
   'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All',
+  'Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts',
 ]
 
 
