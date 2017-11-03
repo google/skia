@@ -1725,6 +1725,12 @@
         "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android"
       ]
     },
+    "Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Release-All-Android_NativeFonts": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Release-All-Android_NativeFonts"
+      ]
+    },
     "Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android": {
       "priority": 0.8,
       "tasks": [
@@ -2151,6 +2157,12 @@
         "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Fast"
       ]
     },
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts"
+      ]
+    },
     "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD": {
       "priority": 0.8,
       "tasks": [
@@ -2251,6 +2263,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All"
+      ]
+    },
+    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts"
       ]
     },
     "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-TSAN": {
@@ -2559,6 +2577,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
+      ]
+    },
+    "Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Release-All-NativeFonts": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Release-All-NativeFonts"
       ]
     },
     "Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-All-ANGLE": {
@@ -2877,6 +2901,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-GDI"
+      ]
+    },
+    "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts"
       ]
     },
     "Test-Win7-MSVC-Golo-CPU-AVX-x86-Debug-All": {
@@ -5681,7 +5711,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -7987,7 +8016,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8035,7 +8063,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8088,7 +8115,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8141,7 +8167,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8189,7 +8214,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8237,7 +8261,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8290,7 +8313,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8338,7 +8360,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8391,7 +8412,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8439,7 +8459,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8487,7 +8506,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8540,7 +8558,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8588,7 +8605,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Skylake_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8636,7 +8652,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Skylake_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8872,7 +8887,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8920,7 +8934,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8968,7 +8981,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -9016,7 +9028,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
         "os:Mac-10.12.2",
         "pool:Skia"
       ],
@@ -9064,7 +9075,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
         "os:Mac-10.12.2",
         "pool:Skia"
       ],
@@ -12770,7 +12780,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -12818,7 +12827,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -12866,7 +12874,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -13008,7 +13015,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -13056,7 +13062,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -13104,7 +13109,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -13152,7 +13156,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -13200,7 +13203,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -13248,7 +13250,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -13296,7 +13297,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -13344,7 +13344,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -13392,7 +13391,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -13440,7 +13438,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -13488,7 +13485,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -13766,6 +13762,40 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Release-All-Android_NativeFonts": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:MMB29K",
+        "device_type:zerofltetmo",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Release-All-Android_NativeFonts",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -15620,7 +15650,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -15668,7 +15697,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -15721,7 +15749,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -15774,7 +15801,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -15827,7 +15853,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -15880,7 +15905,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -15933,7 +15957,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -15986,7 +16009,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16039,7 +16061,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16092,7 +16113,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16140,7 +16160,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16188,7 +16207,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16241,7 +16259,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16289,7 +16306,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16337,7 +16353,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16385,7 +16400,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16433,7 +16447,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16481,7 +16494,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16529,7 +16541,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16577,7 +16588,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16625,7 +16635,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16673,7 +16682,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16721,7 +16729,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16769,7 +16776,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16817,7 +16823,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16865,7 +16870,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16918,7 +16922,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16966,7 +16969,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -16978,6 +16980,53 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Fast",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:32"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:93"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -17014,7 +17063,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -17062,7 +17110,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -17110,7 +17157,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -17158,7 +17204,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -17211,7 +17256,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -17264,7 +17308,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -17312,7 +17355,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Skylake_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -17360,7 +17402,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Skylake_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -17596,7 +17637,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -17644,7 +17684,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -17692,7 +17731,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -17740,7 +17778,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
         "os:Mac-10.12.2",
         "pool:Skia"
       ],
@@ -17788,7 +17825,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
         "os:Mac-10.12.2",
         "pool:Skia"
       ],
@@ -17800,6 +17836,53 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:32"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:93"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "os:Mac-10.12.2",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -17836,7 +17919,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
         "os:Mac-10.12.2",
         "pool:Skia"
       ],
@@ -20293,6 +20375,53 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Release-All-NativeFonts": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:32"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:93"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-i7-5557U",
+        "os:Windows-10-15063",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Release-All-NativeFonts",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-All-ANGLE": {
       "cipd_packages": [
         {
@@ -21872,7 +22001,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -21920,7 +22048,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -21968,7 +22095,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -22016,7 +22142,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -22064,7 +22189,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -22112,7 +22236,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -22160,7 +22283,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -22208,7 +22330,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -22256,7 +22377,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -22304,7 +22424,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -22446,7 +22565,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -22494,7 +22612,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -22542,7 +22659,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -22590,7 +22706,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
@@ -22638,7 +22753,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -22686,7 +22800,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -22734,7 +22847,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -22782,7 +22894,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -22794,6 +22905,53 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-GDI",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:32"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:93"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2670",
+        "os:Windows-7-SP1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22830,7 +22988,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -22878,7 +23035,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
@@ -22926,7 +23082,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -22974,7 +23129,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -23022,7 +23176,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -23070,7 +23223,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -23118,7 +23270,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -23166,7 +23317,6 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2670",
-        "gpu:none",
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
@@ -25737,6 +25887,33 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Release-All-Android_NativeFonts": {
+      "dependencies": [
+        "Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Release-All-Android_NativeFonts"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS6-CPU-Exynos7420-arm64-Release-All-Android_NativeFonts",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android": {
       "dependencies": [
         "Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android"
@@ -27403,6 +27580,33 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts": {
+      "dependencies": [
+        "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-NativeFonts",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD": {
       "dependencies": [
         "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD"
@@ -27797,6 +28001,33 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "dependencies": [
+        "Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All-NativeFonts",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -28785,6 +29016,33 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Release-All-NativeFonts": {
+      "dependencies": [
+        "Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Release-All-NativeFonts"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Release-All-NativeFonts",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -30216,6 +30474,33 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-GDI",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts": {
+      "dependencies": [
+        "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win7-Clang-Golo-CPU-AVX-x86_64-Release-All-NativeFonts",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
