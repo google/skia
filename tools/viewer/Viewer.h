@@ -47,6 +47,7 @@ private:
     void setStartupSlide();
     void setupCurrentSlide(int previousSlide);
     void listNames();
+    void resetMeasurements();
 
     void updateUIState();
 
@@ -59,11 +60,13 @@ private:
 
     sk_app::Window*        fWindow;
 
-    static const int kMeasurementCount = 64;  // should be power of 2 for fast mod
+    static const int kMeasurementCount = 1 << 6;  // should be power of 2 for fast mod
     double fPaintTimes[kMeasurementCount];
     double fFlushTimes[kMeasurementCount];
     double fAnimateTimes[kMeasurementCount];
     int fCurrentMeasurement;
+    double fCumulativeMeasurementTime;
+    int fCumulativeMeasurementCount;
 
     SkAnimTimer            fAnimTimer;
     SkTArray<sk_sp<Slide>> fSlides;
