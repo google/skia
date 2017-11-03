@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e35e217_e83aae81",
+        "filename": "src/gpu/GrFixedClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-03T14:44:34Z",
+      "side": 1,
+      "message": "Thoughs on renaming to GrStencilClip?",
+      "range": {
+        "startLine": 18,
+        "startChar": 6,
+        "endLine": 18,
+        "endChar": 17
+      },
+      "revId": "911404f7e50f916612fb2567826acd559330540e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
