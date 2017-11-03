@@ -452,7 +452,6 @@ DM_SRCS_ALL = struct(
         "tools/random_parse_path.h",
         "tools/sk_tool_utils.cpp",
         "tools/sk_tool_utils.h",
-        "tools/sk_tool_utils_flags.h",
         "tools/sk_tool_utils_font.cpp",
         "tools/test_font_monospace.inc",
         "tools/test_font_sans_serif.inc",
