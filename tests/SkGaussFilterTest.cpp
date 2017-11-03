@@ -67,9 +67,28 @@ DEF_TEST(SkGaussFilterCommon, r) {
 
 DEF_TEST(SkGaussFilterSweep, r) {
     // The double just before 2.0.
-    const double maxSigma = nextafter(2.0, 0.0);
-    for (auto type : {SkGaussFilter::Type::Gaussian, SkGaussFilter::Type::Bessel}) {
+    const double maxSigma = 2.0 - 0.0000001;
 
+    {
+        auto type = SkGaussFilter::Type::Gaussian;
+        auto check = [&](double sigma) {
+            SkGaussFilter filter{sigma, type};
+            double result[5];
+            int n = filter.filterDouble(result);
+            REPORTER_ASSERT(r, n <= 5);
+            double sum = careful_add(n, result);
+            REPORTER_ASSERT(r, sum == 1.0);
+        };
+
+        for (double sigma = 0.0; sigma < 2.0; sigma += 0.1) {
+            check(sigma);
+        }
+
+        check(maxSigma);
+    }
+
+    {
+        auto type = SkGaussFilter::Type::Bessel;
         auto check = [&](double sigma) {
             SkGaussFilter filter{sigma, type};
             double result[5];
