@@ -45,12 +45,12 @@ public:
 
     // Add a usage interval from start to end inclusive. This is usually used for renderTargets.
     // If an existing interval already exists it will be expanded to include the new range.
-    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end);
+    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, int tabs);
 
     // Add an interval that spans just the current op. Usually this is for texture uses.
     // If an existing interval already exists it will be expanded to include the new operation.
-    void addInterval(GrSurfaceProxy* proxy) {
-        this->addInterval(proxy, fNumOps, fNumOps);
+    void addInterval(GrSurfaceProxy* proxy, int tabs) {
+        this->addInterval(proxy, fNumOps, fNumOps, tabs);
     }
 
     void assign();
@@ -86,6 +86,8 @@ private:
             , fEnd(end)
             , fNext(nullptr) {
             SkASSERT(proxy);
+            SkDEBUGCODE(fUniqueID = CreateUniqueID();)
+            SkDebugf("New intvl %d: proxyID: %d [ %d, %d ]\n", fUniqueID, proxy->uniqueID().asUInt(), start, end);
         }
 
         void resetTo(GrSurfaceProxy* proxy, unsigned int start, unsigned int end) {
@@ -96,6 +98,22 @@ private:
             fStart = start;
             fEnd = end;
             fNext = nullptr;
+            SkDEBUGCODE(fUniqueID = CreateUniqueID();)
+            SkDebugf("New intvl %d: proxyID: %d [ %d, %d ]\n", fUniqueID, proxy->uniqueID().asUInt(), start, end);
+        }
+
+        const GrSurfaceProxy* proxy() const { return fProxy; }
+        GrSurfaceProxy* proxy() { return fProxy; }
+        unsigned int start() const { return fStart; }
+        unsigned int end() const { return fEnd; }
+        const Interval* next() const { return fNext; }
+        Interval* next() { return fNext; }
+
+        void setNext(Interval* next) { fNext = next; }
+
+        void extendEnd(unsigned int newEnd) {
+            SkDebugf("intvl %d: extending from %d to %d\n", fUniqueID, fEnd, newEnd);
+            fEnd = newEnd;
         }
 
         // for SkTDynamicHash
@@ -104,11 +122,18 @@ private:
         }
         static uint32_t Hash(const uint32_t& key) { return key; }
 
+    private:
         GrSurfaceProxy* fProxy;
         uint32_t        fProxyID; // This is here b.c. DynamicHash requires a ref to the key
         unsigned int    fStart;
         unsigned int    fEnd;
         Interval*       fNext;
+
+#ifdef SK_DEBUG
+        uint32_t        fUniqueID;
+
+        uint32_t CreateUniqueID();
+#endif
     };
 
     class IntervalList {

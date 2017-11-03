@@ -54,7 +54,9 @@ public:
     }
 
     // Assign this proxy the provided GrSurface as its backing surface
-    void assign(sk_sp<GrSurface> surface) { fProxy->assign(std::move(surface)); }
+    void assign1(sk_sp<GrSurface> surface) {
+        fProxy->assign1(std::move(surface));
+    }
 
     // Don't abuse this call!!!!!!!
     bool isExact() const { return SkBackingFit::kExact == fProxy->fFit; }
