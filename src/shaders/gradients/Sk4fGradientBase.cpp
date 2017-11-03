@@ -38,7 +38,6 @@ public:
         }
 
         const int end = fBegin + fAdvance * (fShader.fColorCount - 1);
-        const SkScalar lastPos = 1 - fFirstPos;
         int prev = fBegin;
         SkScalar prevPos = fFirstPos;
 
@@ -46,11 +45,7 @@ public:
             const int curr = prev + fAdvance;
             SkASSERT(curr >= 0 && curr < fShader.fColorCount);
 
-            // TODO: this sanitization should be done in SkGradientShaderBase
-            const SkScalar currPos = (fAdvance > 0)
-                ? SkTPin(fShader.fOrigPos[curr], prevPos, lastPos)
-                : SkTPin(fShader.fOrigPos[curr], lastPos, prevPos);
-
+            const SkScalar currPos = fShader.fOrigPos[curr];
             if (currPos != prevPos) {
                 SkASSERT((currPos - prevPos > 0) == (fAdvance > 0));
                 func(fShader.getXformedColor(prev, fDstCS), fShader.getXformedColor(curr, fDstCS),

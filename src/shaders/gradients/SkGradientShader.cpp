@@ -179,14 +179,16 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
     }
 
     if (desc.fPos) {
+        SkScalar pos = 0;
         SkScalar* origPosPtr = fOrigPos;
-        *origPosPtr++ = 0; // force the first pos to 0
+        *origPosPtr++ = pos; // force the first pos to 0
 
         int startIndex = dummyFirst ? 0 : 1;
         int count = desc.fCount + dummyLast;
         for (int i = startIndex; i < count; i++) {
-            // force the last value to be 1.0
-            *origPosPtr++ = (i == desc.fCount) ? 1 : SkScalarPin(desc.fPos[i], 0, 1);
+            // Pin the last value to 1.0, and make sure pos is monotonic.
+            pos = (i == desc.fCount) ? 1 : SkScalarPin(desc.fPos[i], pos, 1);
+            *origPosPtr++ = pos;
         }
     }
 }
@@ -364,6 +366,7 @@ bool SkGradientShaderBase::onAppendStages(const StageRec& rec) const {
             for (int i = firstStop; i < lastStop; i++) {
                 float  t_r = fOrigPos[i + 1];
                 SkPM4f c_r = prepareColor(i + 1);
+                SkASSERT(t_l <= t_r);
                 if (t_l < t_r) {
                     init_stop_pos(ctx, stopCount, t_l, t_r, c_l, c_r);
                     stopCount += 1;
