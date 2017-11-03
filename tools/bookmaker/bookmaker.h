@@ -695,6 +695,26 @@ public:
         kOperator,
     };
 
+    enum class Operator {
+        kUnknown,
+        kAdd,
+        kAddTo,
+        kArray,
+        kCast,
+        kCopy,
+        kDelete,
+        kDereference,
+        kEqual,
+        kMinus,
+        kMove,
+        kMultiply,
+        kMultiplyBy,
+        kNew,
+        kNotEqual,
+        kSubtract,
+        kSubtractFrom,
+    };
+
     Definition() {}
 
     Definition(const char* start, const char* end, int line, Definition* parent)
@@ -881,7 +901,9 @@ public:
     string methodName() const;
     bool nextMethodParam(TextParser* methodParser, const char** nextEndPtr,
                          string* paramName) const;
+    static string NormalizedName(string name);
     bool paramsMatch(const string& fullRef, const string& name) const;
+    bool parseOperator(size_t doubleColons, string& result);
 
     string printableName() const {
         string result(fName);
@@ -920,6 +942,7 @@ public:
     Bracket fBracket = Bracket::kNone;
     Punctuation fPunctuation = Punctuation::kNone;
     MethodType fMethodType = MethodType::kNone;
+    Operator fOperator = Operator::kUnknown;
     Type fType = Type::kNone;
     bool fClone = false;
     bool fCloned = false;
@@ -957,7 +980,7 @@ public:
     RootDefinition* asRoot() override { return this; }
     const RootDefinition* asRoot() const override { return this; }
     void clearVisited();
-    bool dumpUnVisited();
+    bool dumpUnVisited(bool skip);
     const Definition* find(const string& ref, AllowParens ) const;
     bool isRoot() const override { return true; }
     RootDefinition* rootParent() override { return fRootParent; }
@@ -1190,7 +1213,7 @@ public:
 #define E_N Exemplary::kNo
 #define E_O Exemplary::kOptional
 
-    BmhParser() : ParserCommon()
+    BmhParser(bool skip) : ParserCommon()
         , fMaps {
 // names without formal definitions (e.g. Column) aren't included
 // fill in other names once they're actually used
@@ -1251,6 +1274,7 @@ public:
 , { "",            nullptr,      MarkType::kUnion,        R_Y, E_N, 0 }
 , { "Volatile",    nullptr,      MarkType::kVolatile,     R_N, E_N, M(StdOut) }
 , { "Width",       nullptr,      MarkType::kWidth,        R_N, E_N, M(Example) } }
+, fSkip(skip)
         {
             this->reset();
         }
@@ -1366,6 +1390,7 @@ public:
     bool fInComment;
     bool fInString;
     bool fCheckMethods;
+    bool fSkip = false;
     bool fWroteOut = false;
 private:
     typedef ParserCommon INHERITED;
@@ -1707,6 +1732,7 @@ protected:
     unordered_map<string, IClassDefinition> fIClassMap;
     unordered_map<string, Definition> fIDefineMap;
     unordered_map<string, Definition> fIEnumMap;
+    unordered_map<string, Definition> fIFunctionMap;
     unordered_map<string, Definition> fIStructMap;
     unordered_map<string, Definition> fITemplateMap;
     unordered_map<string, Definition> fITypedefMap;
