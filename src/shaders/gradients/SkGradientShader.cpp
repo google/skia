@@ -179,17 +179,29 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
     }
 
     if (desc.fPos) {
-        SkScalar pos = 0;
+        SkScalar prev = 0;
         SkScalar* origPosPtr = fOrigPos;
-        *origPosPtr++ = pos; // force the first pos to 0
+        *origPosPtr++ = prev; // force the first pos to 0
 
         int startIndex = dummyFirst ? 0 : 1;
         int count = desc.fCount + dummyLast;
+
+        bool uniformStops = true;
+        const SkScalar uniformStep = desc.fPos[startIndex] - prev;
         for (int i = startIndex; i < count; i++) {
             // Pin the last value to 1.0, and make sure pos is monotonic.
-            pos = (i == desc.fCount) ? 1 : SkScalarPin(desc.fPos[i], pos, 1);
-            *origPosPtr++ = pos;
+            auto curr = (i == desc.fCount) ? 1 : SkScalarPin(desc.fPos[i], prev, 1);
+            uniformStops &= SkScalarNearlyEqual(uniformStep, curr - prev);
+
+            *origPosPtr++ = prev = curr;
         }
+
+#ifndef SK_SUPPORT_LEGACY_UNIFORM_GRADIENTS
+        // If the stops are uniform, treat them as implicit.
+        if (uniformStops) {
+            fOrigPos = nullptr;
+        }
+#endif
     }
 }
 
