@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f4b4227_5fe96d0f",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-03T16:27:06Z",
+      "side": 1,
+      "message": "I see that fCumulativeMeasurementXXX will be cleared when a new slide is setup. However, we may want to clear them even within the same slide. For example, zoom changes, backend changes, etc. Can you please also bind a key that allows users to manually clear that?",
+      "revId": "1da7fec8edeebc1e8dabae74f9d1ce2b35be14f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
