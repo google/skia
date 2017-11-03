@@ -508,14 +508,10 @@ SkColor4f SkGradientShaderBase::getXformedColor(size_t i, SkColorSpace* dstCS) c
     }
 
     // Legacy/srgb color.
-#ifdef SK_SUPPORT_LEGACY_GRADIENT_COLOR_CONVERSION
-    return SkColor4f_from_SkColor(this->getLegacyColor(i), nullptr);
-#else
     // We quantize upfront to ensure stable SkColor round-trips.
     auto rgb255 = sk_linear_to_srgb(Sk4f::Load(fOrigColors4f[i].vec()));
     auto rgb    = SkNx_cast<float>(rgb255) * (1/255.0f);
     return { rgb[0], rgb[1], rgb[2], fOrigColors4f[i].fA };
-#endif
 }
 
 SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
