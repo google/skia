@@ -1040,6 +1040,10 @@ void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& 
     }
 }
 
+void GrGradientEffect::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
+    b->add32(GLSLProcessor::GenBaseGradientKey(*this));
+}
+
 uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& processor) {
     const GrGradientEffect& e = processor.cast<GrGradientEffect>();
 

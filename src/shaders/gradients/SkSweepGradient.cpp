@@ -101,15 +101,12 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                       GrProcessorKeyBuilder* b) const override;
-
-     bool onIsEqual(const GrFragmentProcessor& base) const override {
-         const GrSweepGradient& fp = base.cast<GrSweepGradient>();
-         return INHERITED::onIsEqual(base)
-             && fTBias == fp.fTBias
-             && fTScale == fp.fTScale;
-     }
+    bool onIsEqual(const GrFragmentProcessor& base) const override {
+        const GrSweepGradient& fp = base.cast<GrSweepGradient>();
+        return INHERITED::onIsEqual(base)
+            && fTBias == fp.fTBias
+            && fTScale == fp.fTScale;
+    }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
@@ -128,11 +125,6 @@ public:
         , fCachedTScale(SK_FloatNaN) {}
 
     void emitCode(EmitArgs&) override;
-
-    static void GenKey(const GrProcessor& processor, const GrShaderCaps&,
-                       GrProcessorKeyBuilder* b) {
-        b->add32(GenBaseGradientKey(processor));
-    }
 
 protected:
     void onSetData(const GrGLSLProgramDataManager& pdman,
@@ -162,12 +154,6 @@ private:
 GrGLSLFragmentProcessor* GrSweepGradient::onCreateGLSLInstance() const {
     return new GrSweepGradient::GLSLSweepProcessor(*this);
 }
-
-void GrSweepGradient::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                            GrProcessorKeyBuilder* b) const {
-    GrSweepGradient::GLSLSweepProcessor::GenKey(*this, caps, b);
-}
-
 
 /////////////////////////////////////////////////////////////////////
 
