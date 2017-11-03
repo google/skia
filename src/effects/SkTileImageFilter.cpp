@@ -9,6 +9,7 @@
 #include "SkColorSpaceXformer.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
+#include "SkImageFilterPriv.h"
 #include "SkMatrix.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPaint.h"
