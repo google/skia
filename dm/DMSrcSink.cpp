@@ -1528,6 +1528,8 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                       const GrContextOptions& baseOptions) const {
     GrContextOptions grOptions = baseOptions;
 
+    const char* name = _strdup(src.name().c_str());
+
     src.modifyGrContextOptions(&grOptions);
 
     GrContextFactory factory(grOptions);
@@ -1567,6 +1569,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                                  kPremul_SkAlphaType, fColorSpace);
     }
     dst->allocPixels(info);
+    canvas->flush();
     canvas->readPixels(*dst, 0, 0);
     if (FLAGS_abandonGpuContext) {
         factory.abandonContexts();

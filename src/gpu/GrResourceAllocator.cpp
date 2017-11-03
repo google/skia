@@ -7,21 +7,43 @@
 
 #include "GrResourceAllocator.h"
 
+#include "GrGpuResourcePriv.h"
+#include "GrResourceProvider.h"
 #include "GrSurfaceProxy.h"
 #include "GrSurfaceProxyPriv.h"
+#include "GrTextureProxy.h"
+
+static void emit_tabs(int num) {
+    for (int i = 0; i < num; ++i) {
+        SkDebugf("    ");
+    }
+}
 
 void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
-                                      unsigned int start, unsigned int end) {
+                                      unsigned int start, unsigned int end, int tabs) {
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
 
+    unsigned int proxyID = proxy->uniqueID().asUInt();
+    int underlyingID = proxy->priv().isInstantiated() ? proxy->underlyingUniqueID().asUInt() : -1;
+
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
-        SkASSERT(intvl->fEnd < start);
-        intvl->fEnd = end;
+        SkASSERT(intvl->fEnd <= start);
+        if (intvl->fEnd < end) {
+            emit_tabs(tabs);
+            SkDebugf("revising interval { rtpID %d, rtID %d } from [op# %d, op# %d] to [op# %d, op# %d]\n",
+                     proxyID, underlyingID,
+                     intvl->fStart, intvl->fEnd,
+                     intvl->fStart, end);
+            intvl->fEnd = end;
+        }
         return;
     }
 
+    emit_tabs(tabs);
+    SkDebugf("adding new interval for { rtpID %d, rtID %d }: [ op# %d, op# %d ]\n",
+             proxyID, underlyingID, start, end);
     // TODO: given the usage pattern an arena allocation scheme would work well here
     Interval* newIntvl = new Interval(proxy, start, end);
 
@@ -81,6 +103,14 @@ void GrResourceAllocator::freeUpSurface(GrSurface* surface) {
         return; // can't do it w/o a valid scratch key
     }
 
+    if (surface->getUniqueKey().isValid()) {
+        // If the surface has a unique key we throw it back into the resource cache.
+        // If things get really tight 'findSurfaceFor' may pull it back out but there is
+        // no need to have it in tight rotation.
+        return;
+    }
+
+    SkDebugf("putting surface %d back into pool\n", surface->uniqueID().asUInt());
     // TODO: fix this insertion so we get a more LRU-ish behavior
     fFreePool.insert(key, surface);
 }
@@ -96,6 +126,13 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
 
     GrSurface* surface = fFreePool.find(key);
     if (surface) {
+        if (SkBudgeted::kYes == proxy->isBudgeted() &&
+            SkBudgeted::kNo == surface->resourcePriv().isBudgeted()) {
+            // This gets the job done but isn't quite correct. It would be better to try to
+            // match budgeted proxies w/ budgeted surface and unbudgeted w/ unbudgeted.
+            surface->resourcePriv().makeBudgeted();
+        }
+
         return sk_ref_sp(surface);
     }
 
@@ -117,6 +154,7 @@ void GrResourceAllocator::assign() {
     fIntvlHash.reset(); // we don't need this anymore
     SkDEBUGCODE(fAssigned = true;)
 
+    this->dump();
     while (Interval* cur = fIntvlList.popHead()) {
         this->expire(cur->fStart);
 
@@ -128,7 +166,17 @@ void GrResourceAllocator::assign() {
         // TODO: add over budget handling here?
         sk_sp<GrSurface> surface = this->findSurfaceFor(cur->fProxy);
         if (surface) {
-            cur->fProxy->priv().assign(std::move(surface));
+            // TODO: make getUniqueKey virtual on GrSurfaceProxy
+            GrTextureProxy* tex = cur->fProxy->asTextureProxy();
+            if (tex && tex->getUniqueKey().isValid()) {
+                SkDebugf("pushing proxy %d's unique key onto surface %d\n",
+                         tex->uniqueID().asUInt(), surface->uniqueID().asUInt());
+                fResourceProvider->assignUniqueKeyToResource(tex->getUniqueKey(), surface.get());
+                SkASSERT(surface->getUniqueKey() == tex->getUniqueKey());
+            }
+
+            cur->fProxy->priv().assign1(std::move(surface));
+            cur->fProxy->fIsOkayToBeInstantiated = true;  // This dude assigned it so it should be okay
         }
         // TODO: handle resouce allocation failure upstack
         fActiveIntvls.insertByIncreasingEnd(cur);
@@ -140,9 +188,14 @@ void GrResourceAllocator::dump() {
     unsigned int min = fNumOps+1;
     unsigned int max = 0;
     for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->fNext) {
-        SkDebugf("{ %d,%d }: [%d, %d]\n",
-                 cur->fProxy->uniqueID().asUInt(), cur->fProxy->underlyingUniqueID().asUInt(),
-                 cur->fStart, cur->fEnd);
+        SkDebugf("{ %3d,%3d }: [%2d, %2d] - pRef:%d rRef:%d R:%d W:%d\n",
+                 cur->fProxy->uniqueID().asUInt(),
+                 cur->fProxy->priv().isInstantiated() ? cur->fProxy->underlyingUniqueID().asUInt() : -1,
+                 cur->fStart, cur->fEnd,
+                 cur->fProxy->getProxyRefCnt_TestOnly(),
+                 cur->fProxy->getBackingRefCnt_TestOnly(),
+                 cur->fProxy->getPendingReadCnt_TestOnly(),
+                 cur->fProxy->getPendingWriteCnt_TestOnly());
         if (min > cur->fStart) {
             min = cur->fStart;
         }
@@ -153,7 +206,8 @@ void GrResourceAllocator::dump() {
 
     for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->fNext) {
         SkDebugf("{ %3d,%3d }: ",
-                 cur->fProxy->uniqueID().asUInt(), cur->fProxy->underlyingUniqueID().asUInt());
+                 cur->fProxy->uniqueID().asUInt(),
+                 cur->fProxy->priv().isInstantiated() ? cur->fProxy->underlyingUniqueID().asUInt() : -1);
         for (unsigned int i = min; i <= max; ++i) {
             if (i >= cur->fStart && i <= cur->fEnd) {
                 SkDebugf("x");

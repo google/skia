@@ -155,6 +155,8 @@ private:
             fVTransform = GrCoordTransform(yuvMatrix[2], vProxy.get());
             this->addCoordTransform(&fVTransform);
             this->addTextureSampler(&fVSampler);
+        } else {
+            fVSampler.fHandled = true;
         }
     }
 

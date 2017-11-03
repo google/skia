@@ -15,7 +15,7 @@
 
 
 // Turn on/off the explicit distribution of GPU resources at flush time
-//#define MDB_ALLOC_RESOURCES 1
+#define MDB_ALLOC_RESOURCES 1
 
 // Turn on/off the sorting of opLists at flush time
 //#define ENABLE_MDB_SORT 1

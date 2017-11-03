@@ -430,6 +430,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             timesToInvokeFactory *= FPFactory::Count() / 2;
         }
         for (int j = 0; j < timesToInvokeFactory; ++j) {
+            if (fp) {
+                fp->markAsHandled();
+            }
             fp = FPFactory::MakeIdx(i, &testData);
             if (!fp->instantiate(context->resourceProvider())) {
                 continue;
@@ -521,6 +524,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                     }
                 }
             }
+
+            clone->markAsHandled();
+        }
+
+        if (fp) {
+            fp->markAsHandled();
         }
     }
 }

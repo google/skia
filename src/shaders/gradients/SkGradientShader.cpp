@@ -1740,6 +1740,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
             }
 
             fCoordTransform.reset(*args.fMatrix);
+            fTextureSampler.fHandled = true;          // no texture to sample
 
             break;
         case kTexture_ColorType:

@@ -257,6 +257,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(
             fTextureSamplers[i].reset(std::move(proxies[i]), params);
             this->addTextureSampler(&fTextureSamplers[i]);
         }
+        fTextureSamplers[i].fHandled = true; // the atlastextop handled the ref
     }
 }
 
@@ -517,6 +518,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
             fTextureSamplers[i].reset(std::move(proxies[i]), params);
             this->addTextureSampler(&fTextureSamplers[i]);
         }
+        fTextureSamplers[i].fHandled = true; // SmallPathOp handles the proxy
     }
 }
 
@@ -838,6 +840,7 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
             fTextureSamplers[i].reset(std::move(proxies[i]), params);
             this->addTextureSampler(&fTextureSamplers[i]);
         }
+        fTextureSamplers[i].fHandled = true;  // proxy is handled in AtlasTextOp
     }
 }
 
