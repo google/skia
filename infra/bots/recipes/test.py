@@ -111,6 +111,9 @@ def dm_flags(api, bot):
       # configurations.
       configs = ['8888', 'tiles_rt-8888']
 
+    if 'NativeFonts' in bot:
+      configs = ['8888']
+
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
 
@@ -938,6 +941,7 @@ TEST_BUILDERS = [
   'Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
   'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug-All',
   'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All',
+  'Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts',
 ]
 
 
