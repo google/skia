@@ -18,6 +18,7 @@
 #include "text/GrAtlasTextContext.h"
 
 class GrContext;
+class GrCoverageCountingPathRenderer;
 class GrOnFlushCallbackObject;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
@@ -61,6 +62,10 @@ public:
                                     bool allowSW,
                                     GrPathRendererChain::DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport = nullptr);
+
+    // Returns a direct pointer to the coverage counting path renderer, or null if it is not
+    // supported and turned on.
+    GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer();
 
     void flushIfNecessary() {
         if (fContext->getResourceCache()->requestsFlush()) {
