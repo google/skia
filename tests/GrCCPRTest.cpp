@@ -154,6 +154,28 @@ class GrCCPRTest_cleanup : public CCPRTest {
 };
 DEF_CCPR_TEST(GrCCPRTest_cleanup)
 
+class GrCCPRTest_unregisterCulledOps : public CCPRTest {
+    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
+        REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
+
+        // Ensure Ops get unregistered from CCPR when culled early.
+        ccpr.drawPath(fPath);
+        REPORTER_ASSERT(reporter, !SkPathPriv::TestingOnly_unique(fPath));
+        ccpr.clear(); // Clear should delete the CCPR Op.
+        REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
+        ccpr.flush(); // Should not crash (DrawPathsOp should have unregistered itself).
+
+        // Ensure Op unregisters work when we delete the context without flushing.
+        ccpr.drawPath(fPath);
+        REPORTER_ASSERT(reporter, !SkPathPriv::TestingOnly_unique(fPath));
+        ccpr.clear(); // Clear should delete the CCPR DrawPathsOp.
+        REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
+        ccpr.abandonGrContext();
+        fMockContext.reset(); // Should not crash (DrawPathsOp should have unregistered itself).
+    }
+};
+DEF_CCPR_TEST(GrCCPRTest_unregisterCulledOps)
+
 class CCPRRenderingTest {
 public:
     void run(skiatest::Reporter* reporter, GrContext* ctx) const {
