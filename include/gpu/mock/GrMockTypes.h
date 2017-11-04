@@ -26,6 +26,10 @@ struct GrMockOptions {
         fConfigOptions[kRGBA_8888_GrPixelConfig].fTexturable = true;
         fConfigOptions[kAlpha_8_GrPixelConfig].fTexturable = true;
         fConfigOptions[kRGB_565_GrPixelConfig].fTexturable = true;
+
+        // For CCPR.
+        fConfigOptions[kAlpha_half_GrPixelConfig].fRenderable[0] = true;
+        fConfigOptions[kAlpha_half_GrPixelConfig].fTexturable = true;
     }
 
     struct ConfigOptions {
