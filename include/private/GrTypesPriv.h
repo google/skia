@@ -804,7 +804,9 @@ enum class GpuPathRenderers {
     kTessellating      = 1 << 7,
 
     kAll               = (kTessellating | (kTessellating - 1)),
-    kDefault           = kAll
+
+    // Temporarily disabling CCPR while we sort out issues with clipping.
+    kDefault           = kAll & ~kCoverageCounting,
 };
 
 /**

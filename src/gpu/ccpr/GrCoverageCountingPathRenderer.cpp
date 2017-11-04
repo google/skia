@@ -23,9 +23,6 @@ using DrawPathsOp = GrCoverageCountingPathRenderer::DrawPathsOp;
 using ScissorMode = GrCCPRCoverageOpsBuilder::ScissorMode;
 
 bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    return false;
-#else
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
     return shaderCaps.geometryShaderSupport() &&
            shaderCaps.texelBufferSupport() &&
@@ -37,7 +34,6 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
            caps.isConfigRenderable(kAlpha_half_GrPixelConfig, /*withMSAA=*/false) &&
            GrCaps::kNone_MapFlags != caps.mapBufferFlags() &&
            !caps.blacklistCoverageCounting();
-#endif // SK_BUILD_FOR_ANDROID_FRAMEWORK
 }
 
 sk_sp<GrCoverageCountingPathRenderer>
