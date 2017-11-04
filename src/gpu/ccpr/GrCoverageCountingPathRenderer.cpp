@@ -17,6 +17,7 @@
 #include "GrOpFlushState.h"
 #include "GrRenderTargetOpList.h"
 #include "GrStyle.h"
+#include "SkExchange.h"
 #include "ccpr/GrCCPRPathProcessor.h"
 
 using DrawPathsOp = GrCoverageCountingPathRenderer::DrawPathsOp;
@@ -103,6 +104,7 @@ GrCoverageCountingPathRenderer::DrawPathsOp::DrawPathsOp(GrCoverageCountingPathR
         , fProcessors(std::move(args.fPaint))
         , fTailDraw(&fHeadDraw)
         , fOwningRTPendingOps(nullptr) {
+    SkDEBUGCODE(++fCCPR->fPendingDrawOpsCount);
     SkDEBUGCODE(fBaseInstance = -1);
     SkDEBUGCODE(fDebugInstanceCount = 1;)
     SkDEBUGCODE(fDebugSkippedInstances = 0;)
@@ -138,12 +140,21 @@ GrCoverageCountingPathRenderer::DrawPathsOp::DrawPathsOp(GrCoverageCountingPathR
     this->setBounds(devBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
 }
 
+GrCoverageCountingPathRenderer::DrawPathsOp::~DrawPathsOp() {
+    if (fOwningRTPendingOps) {
+        // Remove CCPR's dangling pointer to this Op before deleting it.
+        fOwningRTPendingOps->fOpList.remove(this);
+    }
+    SkDEBUGCODE(--fCCPR->fPendingDrawOpsCount);
+}
+
 GrDrawOp::RequiresDstTexture DrawPathsOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                                    GrPixelConfigIsClamped dstIsClamped) {
-    SingleDraw& onlyDraw = this->getOnlyPathDraw();
+    SkASSERT(1 == fDebugInstanceCount);
+    SkASSERT(&fHeadDraw == fTailDraw);
     GrProcessorSet::Analysis analysis = fProcessors.finalize(
-            onlyDraw.fColor, GrProcessorAnalysisCoverage::kSingleChannel, clip, false, caps,
-            dstIsClamped, &onlyDraw.fColor);
+            fHeadDraw.fColor, GrProcessorAnalysisCoverage::kSingleChannel, clip, false, caps,
+            dstIsClamped, &fHeadDraw.fColor);
     return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
 }
 
@@ -160,22 +171,15 @@ bool DrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps& caps) {
         return false;
     }
 
-    if (RTPendingOps* owningRTPendingOps = that->fOwningRTPendingOps) {
-        SkASSERT(owningRTPendingOps == fOwningRTPendingOps);
-        owningRTPendingOps->fOpList.remove(that);
-    } else {
-        // The Op is being combined immediately after creation, before a call to wasRecorded. In
-        // this case wasRecorded will not be called. So we count its path here instead.
-        const SingleDraw& onlyDraw = that->getOnlyPathDraw();
-        ++fOwningRTPendingOps->fNumTotalPaths;
-        fOwningRTPendingOps->fNumSkPoints += onlyDraw.fPath.countPoints();
-        fOwningRTPendingOps->fNumSkVerbs += onlyDraw.fPath.countVerbs();
-    }
-
     fTailDraw->fNext = &fOwningRTPendingOps->fDrawsAllocator.push_back(that->fHeadDraw);
-    fTailDraw = that->fTailDraw == &that->fHeadDraw ? fTailDraw->fNext : that->fTailDraw;
+    fTailDraw = (that->fTailDraw == &that->fHeadDraw) ? fTailDraw->fNext : that->fTailDraw;
 
     this->joinBounds(*that);
+
+    if (RTPendingOps* owningRTPendingOps = skstd::exchange(that->fOwningRTPendingOps, nullptr)) {
+        SkASSERT(owningRTPendingOps == fOwningRTPendingOps);
+        owningRTPendingOps->fOpList.remove(that);
+    }
 
     SkDEBUGCODE(fDebugInstanceCount += that->fDebugInstanceCount;)
     SkDEBUGCODE(that->fDebugInstanceCount = 0);
@@ -184,11 +188,7 @@ bool DrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps& caps) {
 
 void DrawPathsOp::wasRecorded(GrRenderTargetOpList* opList) {
     SkASSERT(!fOwningRTPendingOps);
-    const SingleDraw& onlyDraw = this->getOnlyPathDraw();
     fOwningRTPendingOps = &fCCPR->fRTPendingOpsMap[opList->uniqueID()];
-    ++fOwningRTPendingOps->fNumTotalPaths;
-    fOwningRTPendingOps->fNumSkPoints += onlyDraw.fPath.countPoints();
-    fOwningRTPendingOps->fNumSkVerbs += onlyDraw.fPath.countVerbs();
     fOwningRTPendingOps->fOpList.addToTail(this);
 }
 
@@ -223,24 +223,30 @@ void GrCoverageCountingPathRenderer::setupPerFlushResources(GrOnFlushResourcePro
 
     fPerFlushResourcesAreValid = false;
 
+    // Gather the Ops that are being flushed.
     SkTInternalLList<DrawPathsOp> flushingOps;
-    int maxTotalPaths = 0, numSkPoints = 0, numSkVerbs = 0;
-
     for (int i = 0; i < numOpListIDs; ++i) {
         auto it = fRTPendingOpsMap.find(opListIDs[i]);
         if (fRTPendingOpsMap.end() != it) {
-            RTPendingOps& rtPendingOps = it->second;
-            SkASSERT(!rtPendingOps.fOpList.isEmpty());
-            flushingOps.concat(std::move(rtPendingOps.fOpList));
-            maxTotalPaths += rtPendingOps.fNumTotalPaths;
-            numSkPoints += rtPendingOps.fNumSkPoints;
-            numSkVerbs += rtPendingOps.fNumSkVerbs;
+            flushingOps.concat(std::move(it->second.fOpList));
         }
     }
 
-    SkASSERT(flushingOps.isEmpty() == !maxTotalPaths);
     if (flushingOps.isEmpty()) {
         return; // Nothing to draw.
+    }
+
+    // Count up the paths, points, and verbs.
+    SkTInternalLList<DrawPathsOp>::Iter iter;
+    iter.init(flushingOps, SkTInternalLList<DrawPathsOp>::Iter::kHead_IterStart);
+    int maxTotalPaths = 0, numSkPoints = 0, numSkVerbs = 0;
+    while (DrawPathsOp* drawPathOp = iter.get()) {
+        for (const auto* draw = &drawPathOp->fHeadDraw; draw; draw = draw->fNext) {
+            ++maxTotalPaths;
+            numSkPoints += draw->fPath.countPoints();
+            numSkVerbs += draw->fPath.countVerbs();
+        }
+        iter.next();
     }
 
     fPerFlushIndexBuffer = GrCCPRPathProcessor::FindOrMakeIndexBuffer(onFlushRP);
@@ -270,7 +276,6 @@ void GrCoverageCountingPathRenderer::setupPerFlushResources(GrOnFlushResourcePro
     GrCCPRAtlas* atlas = nullptr;
     SkDEBUGCODE(int skippedTotalPaths = 0;)
 
-    SkTInternalLList<DrawPathsOp>::Iter iter;
     iter.init(flushingOps, SkTInternalLList<DrawPathsOp>::Iter::kHead_IterStart);
     while (DrawPathsOp* drawPathOp = iter.get()) {
         SkASSERT(drawPathOp->fDebugInstanceCount > 0);
@@ -333,6 +338,8 @@ void GrCoverageCountingPathRenderer::setupPerFlushResources(GrOnFlushResourcePro
             drawPathOp->addAtlasBatch(atlas, pathInstanceIdx);
         }
 
+        drawPathOp->fOwningRTPendingOps = nullptr;
+
         iter.next();
         SkDEBUGCODE(skippedTotalPaths += drawPathOp->fDebugSkippedInstances;)
     }
@@ -374,6 +381,8 @@ void DrawPathsOp::onExecute(GrOpFlushState* flushState) {
     if (!fCCPR->fPerFlushResourcesAreValid) {
         return; // Setup failed.
     }
+
+    SkASSERT(fBaseInstance >= 0); // Make sure setupPerFlushResources has set us up.
 
     GrPipeline::InitArgs initArgs;
     initArgs.fFlags = fSRGBFlags;

@@ -19,7 +19,14 @@ public:
         fMaxTextureSize = options.fMaxTextureSize;
         fMaxRenderTargetSize = SkTMin(options.fMaxRenderTargetSize, fMaxTextureSize);
         fMaxVertexAttributes = options.fMaxVertexAttributes;
+        fInstanceAttribSupport = true;
+        fMapBufferFlags = GrCaps::kCanMap_MapFlag;
         fShaderCaps.reset(new GrShaderCaps(contextOptions));
+        fShaderCaps->fGeometryShaderSupport = true;
+        fShaderCaps->fTexelBufferSupport = true;
+        fShaderCaps->fIntegerSupport = true;
+        fShaderCaps->fFlatInterpolationSupport = true;
+        fShaderCaps->fMaxVertexSamplers = true;
         this->applyOptionsOverrides(contextOptions);
     }
     int getSampleCount(int /*requestCount*/, GrPixelConfig /*config*/) const override {
