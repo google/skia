@@ -20,8 +20,8 @@ public:
     }
 
 private:
-    void onMap() override {}
-    void onUnmap() override {}
+    void onMap() override { SkASSERT(!fMapPtr); fMapPtr = sk_malloc_throw(this->sizeInBytes()); }
+    void onUnmap() override { SkASSERT(fMapPtr); sk_free(fMapPtr); }
     bool onUpdateData(const void* src, size_t srcSizeInBytes) override { return true; }
 
     typedef GrBuffer INHERITED;
