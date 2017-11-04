@@ -15,6 +15,7 @@
 #include "SkTArray.h"
 
 class GrContext;
+class GrCoverageCountingPathRenderer;
 
 /**
  * Keeps track of an ordered list of path renderers. When a path needs to be
@@ -46,11 +47,18 @@ public:
                                     DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport);
 
+    /** Returns a direct pointer to the coverage counting path renderer, or null if it is not in the
+        chain. */
+    GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer() {
+        return fCoverageCountingPathRenderer;
+    }
+
 private:
     enum {
         kPreAllocCount = 8,
     };
     SkSTArray<kPreAllocCount, sk_sp<GrPathRenderer>>    fChain;
+    GrCoverageCountingPathRenderer*                     fCoverageCountingPathRenderer = nullptr;
 };
 
 #endif

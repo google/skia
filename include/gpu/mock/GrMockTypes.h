@@ -34,10 +34,20 @@ struct GrMockOptions {
         bool fTexturable = false;
     };
 
+    // GPU options.
+    bool fInstanceAttribSupport = false;
+    uint32_t fMapBufferFlags = 0;
     int fMaxTextureSize = 2048;
     int fMaxRenderTargetSize = 2048;
     int fMaxVertexAttributes = 16;
     ConfigOptions fConfigOptions[kGrPixelConfigCnt];
+
+    // Shader options.
+    bool fGeometryShaderSupport = false;
+    bool fTexelBufferSupport = false;
+    bool fIntegerSupport = false;
+    bool fFlatInterpolationSupport = false;
+    int fMaxVertexSamplers = 0;
 };
 
 #endif

@@ -361,6 +361,13 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
     return pr;
 }
 
+GrCoverageCountingPathRenderer* GrDrawingManager::getCoverageCountingPathRenderer() {
+    if (!fPathRendererChain) {
+        fPathRendererChain = new GrPathRendererChain(fContext, fOptionsForPathRendererChain);
+    }
+    return fPathRendererChain->getCoverageCountingPathRenderer();
+}
+
 sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
                                                             sk_sp<GrSurfaceProxy> sProxy,
                                                             sk_sp<SkColorSpace> colorSpace,
