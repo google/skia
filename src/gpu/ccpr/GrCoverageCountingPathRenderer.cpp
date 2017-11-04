@@ -30,6 +30,7 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
            shaderCaps.flatInterpolationSupport() &&
            shaderCaps.maxVertexSamplers() >= 1 &&
            caps.instanceAttribSupport() &&
+           GrCaps::kNone_MapFlags != caps.mapBufferFlags() &&
            caps.isConfigTexturable(kAlpha_half_GrPixelConfig) &&
            caps.isConfigRenderable(kAlpha_half_GrPixelConfig, /*withMSAA=*/false) &&
            GrCaps::kNone_MapFlags != caps.mapBufferFlags() &&
