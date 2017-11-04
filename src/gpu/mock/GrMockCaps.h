@@ -15,11 +15,20 @@ class GrMockCaps : public GrCaps {
 public:
     GrMockCaps(const GrContextOptions& contextOptions, const GrMockOptions& options)
             : INHERITED(contextOptions), fOptions(options) {
-        fBufferMapThreshold = SK_MaxS32;
+        fInstanceAttribSupport = options.fInstanceAttribSupport;
+        fMapBufferFlags = options.fMapBufferFlags;
+        fBufferMapThreshold = SK_MaxS32; // Overridable in GrContextOptions.
         fMaxTextureSize = options.fMaxTextureSize;
         fMaxRenderTargetSize = SkTMin(options.fMaxRenderTargetSize, fMaxTextureSize);
         fMaxVertexAttributes = options.fMaxVertexAttributes;
+
         fShaderCaps.reset(new GrShaderCaps(contextOptions));
+        fShaderCaps->fGeometryShaderSupport = options.fGeometryShaderSupport;
+        fShaderCaps->fTexelBufferSupport = options.fTexelBufferSupport;
+        fShaderCaps->fIntegerSupport = options.fIntegerSupport;
+        fShaderCaps->fFlatInterpolationSupport = options.fFlatInterpolationSupport;
+        fShaderCaps->fMaxVertexSamplers = options.fMaxVertexSamplers;
+
         this->applyOptionsOverrides(contextOptions);
     }
     int getSampleCount(int /*requestCount*/, GrPixelConfig /*config*/) const override {

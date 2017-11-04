@@ -151,6 +151,12 @@ public:
     static const SkScalar* ConicWeightData(const SkPath& path) {
         return path.fPathRef->conicWeights();
     }
+
+    /** Returns true if the underlying SkPathRef has one single owner. */
+    static bool TestingOnly_unique(const SkPath& path) {
+        return path.fPathRef->unique();
+    }
+
 };
 
 #endif
