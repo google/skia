@@ -68,7 +68,7 @@ def nanobench_flags(api, bot):
       # The NP produces a long error stream when we run with MSAA.
       # iOS crashes (skia:6399)
       # Nexus7 (Tegra3) does not support MSAA.
-      if ('NexusPlayer' in bot or
+      if (#'NexusPlayer' in bot or
           'iOS'         in bot or
           'Nexus7'      in bot):
         sample_count = ''
@@ -150,8 +150,8 @@ def nanobench_flags(api, bot):
     match.append('~blurroundrect')
     match.append('~patch_grid')  # skia:2847
     match.append('~desk_carsvg')
-  if 'NexusPlayer' in bot:
-    match.append('~desk_unicodetable')
+  #if 'NexusPlayer' in bot:
+  #  match.append('~desk_unicodetable')
   if 'Nexus5' in bot:
     match.append('~keymobi_shop_mobileweb_ebay_com.skp')  # skia:5178
   if 'iOS' in bot:
@@ -188,8 +188,8 @@ def nanobench_flags(api, bot):
   if ('Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot):
     # TODO(dogben): Track down what's causing bots to die.
     verbose = True
-  if 'Vulkan' in bot and 'NexusPlayer' in bot:
-    match.append('~blendmode_') # skia:6691
+  #if 'Vulkan' in bot and 'NexusPlayer' in bot:
+  #  match.append('~blendmode_') # skia:6691
   if 'float_cast_overflow' in bot and 'CPU' in bot:
     # skia:4632
     match.append('~^floor2int_undef$')
@@ -257,9 +257,9 @@ def perf_steps(api):
 
   # Do not run svgs on Valgrind.
   if 'Valgrind' not in api.vars.builder_name:
-    if ('Vulkan' not in api.vars.builder_name or
-        'NexusPlayer' not in api.vars.builder_name):
-      args.extend(['--svgs',  api.flavor.device_dirs.svg_dir])
+    #if ('Vulkan' not in api.vars.builder_name):
+    #'NexusPlayer' not in api.vars.builder_name
+    args.extend(['--svgs',  api.flavor.device_dirs.svg_dir])
 
   args.extend(nanobench_flags(api, api.vars.builder_name))
 
