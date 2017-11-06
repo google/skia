@@ -222,7 +222,15 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     // setup new clip
     GrFixedClip clip(localDstBounds);
 
-    const GrPixelConfig config = srcProxy->config();
+    GrPixelConfig config = srcProxy->config();
+
+    if (GrPixelConfigIsSRGB(config) && !colorSpace) {
+        // If the context doesn't have sRGB write control, and we make an sRGB RTC, we won't be
+        // able to suppress the linear -> sRGB conversion out of the shader. Not all GL drivers
+        // have that feature, and Vulkan is missing it entirely. To keep things simple, switch to
+        // a non-sRGB destination, to ensure correct blurring behavior.
+        config = kRGBA_8888_GrPixelConfig;
+    }
 
     SkASSERT(kBGRA_8888_GrPixelConfig == config || kRGBA_8888_GrPixelConfig == config ||
              kRGBA_4444_GrPixelConfig == config || kRGB_565_GrPixelConfig == config ||
