@@ -16,14 +16,15 @@
 #include "vk/GrVkMemory.h"
 #include "vk/GrVkUtil.h"
 #include "vk/GrVkTypes.h"
+#include "../ports/SkOSLibrary.h"
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 // windows wants to define this as CreateSemaphoreA or CreateSemaphoreW
 #undef CreateSemaphore
 #endif
 
-#define GET_PROC(F) f ## F = (PFN_vk ## F) vkGetInstanceProcAddr(instance, "vk" #F)
-#define GET_DEV_PROC(F) f ## F = (PFN_vk ## F) vkGetDeviceProcAddr(device, "vk" #F)
+#define GET_PROC(F) f ## F = (PFN_vk ## F) instProc(instance, "vk" #F)
+#define GET_DEV_PROC(F) f ## F = (PFN_vk ## F) devProc(device, "vk" #F)
 
 namespace sk_app {
 
@@ -44,8 +45,12 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
 }
 
 void VulkanWindowContext::initializeContext() {
-    // any config code here (particularly for msaa)?
-    fBackendContext.reset(GrVkBackendContext::Create(vkGetInstanceProcAddr, vkGetDeviceProcAddr,
+	    void* vkLib = DynamicLoadLibrary("vulkan-1.dll");
+	PFN_vkGetInstanceProcAddr instProc =
+		(PFN_vkGetInstanceProcAddr)  GetProcedureAddress(vkLib, "vkGetInstanceProcAddr");
+	PFN_vkGetDeviceProcAddr devProc =
+		(PFN_vkGetDeviceProcAddr)  GetProcedureAddress(vkLib, "vkGetDeviceProcAddr");
+    fBackendContext.reset(GrVkBackendContext::Create(instProc, devProc,
                                                      &fPresentQueueIndex, fCanPresentFn));
 
     if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
@@ -66,6 +71,7 @@ void VulkanWindowContext::initializeContext() {
     GET_DEV_PROC(GetSwapchainImagesKHR);
     GET_DEV_PROC(AcquireNextImageKHR);
     GET_DEV_PROC(QueuePresentKHR);
+    GET_DEV_PROC(GetDeviceQueue);
 
     fContext = GrContext::MakeVulkan(fBackendContext.get(), fDisplayParams.fGrContextOptions);
 
@@ -90,7 +96,7 @@ void VulkanWindowContext::initializeContext() {
     }
 
     // create presentQueue
-    vkGetDeviceQueue(fBackendContext->fDevice, fPresentQueueIndex, 0, &fPresentQueue);
+    fGetDeviceQueue(fBackendContext->fDevice, fPresentQueueIndex, 0, &fPresentQueue);
 }
 
 bool VulkanWindowContext::createSwapchain(int width, int height,
