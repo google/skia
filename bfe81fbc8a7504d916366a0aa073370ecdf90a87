@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "ab53a037_0ff3efec",
+        "filename": "site/dev/testing/swarmingbots.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-06T20:43:16Z",
+      "side": 1,
+      "message": "nit: for long or repeated URLs, my personal preference is to use the footnote-style markup, like this:\n\nI\u0027m linking to a [page with a long url][important info] for additional info.\n\n...\n\n[important info]: https://www.youtube.com/watch?v\u003ddQw4w9WgXcQ",
+      "range": {
+        "startLine": 28,
+        "startChar": 117,
+        "endLine": 28,
+        "endChar": 197
+      },
+      "revId": "bfe81fbc8a7504d916366a0aa073370ecdf90a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e05300ac_5512de3b",
         "filename": "site/dev/testing/swarmingbots.md",
         "patchSetId": 10
@@ -18,6 +41,98 @@
         "startChar": 417,
         "endLine": 29,
         "endChar": 451
+      },
+      "revId": "bfe81fbc8a7504d916366a0aa073370ecdf90a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8b05cbc_e6b94188",
+        "filename": "site/dev/testing/swarmingbots.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-06T20:43:16Z",
+      "side": 1,
+      "message": "This no longer exists.",
+      "range": {
+        "startLine": 29,
+        "startChar": 301,
+        "endLine": 29,
+        "endChar": 328
+      },
+      "revId": "bfe81fbc8a7504d916366a0aa073370ecdf90a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06c2609f_6ea870f1",
+        "filename": "site/dev/testing/swarmingbots.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-06T20:43:16Z",
+      "side": 1,
+      "message": "nit: link",
+      "range": {
+        "startLine": 48,
+        "startChar": 110,
+        "endLine": 48,
+        "endChar": 126
+      },
+      "revId": "bfe81fbc8a7504d916366a0aa073370ecdf90a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f8ffa03_5a0184ef",
+        "filename": "site/dev/testing/swarmingbots.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-06T20:43:16Z",
+      "side": 1,
+      "message": "nit: incomplete sentence",
+      "range": {
+        "startLine": 48,
+        "startChar": 14,
+        "endLine": 48,
+        "endChar": 96
+      },
+      "revId": "bfe81fbc8a7504d916366a0aa073370ecdf90a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "261c3d32_eeda981c",
+        "filename": "site/dev/testing/swarmingbots.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-06T20:43:16Z",
+      "side": 1,
+      "message": "nit: No longer any references to this.",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 111
       },
       "revId": "bfe81fbc8a7504d916366a0aa073370ecdf90a87",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
