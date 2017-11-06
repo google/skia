@@ -130,6 +130,8 @@
   {
     "cmd": [
       "ninja",
+      "-k",
+      "0",
       "-C",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-Android/Debug"
     ],

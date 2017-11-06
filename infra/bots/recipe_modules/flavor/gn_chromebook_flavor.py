@@ -155,7 +155,9 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
                         env=env):
       self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
       self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
-      self._run('ninja', [ninja, '-C', self.out_dir, 'nanobench', 'dm'])
+      self._run('ninja', [ninja, '-k', '0'
+                               , '-C', self.out_dir
+                               , 'nanobench', 'dm'])
 
   def create_clean_device_dir(self, path):
     # use -f to silently return if path doesn't exist
