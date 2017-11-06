@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "DMFontMgr.h"
 #include "DMJsonWriter.h"
 #include "DMSrcSink.h"
 #include "ProcStats.h"
@@ -100,6 +101,9 @@ DEFINE_pathrenderer_flag;
 DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
 
 DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.");  // See skia:6821
+
+DEFINE_bool(nativeFonts, true, "If true, use native font manager and rendering. "
+                               "If false, fonts will draw as portably as possible.");
 
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
@@ -1307,8 +1311,17 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle s
 
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
 
+extern sk_sp<SkFontMgr> (*gSkFontMgr_DefaultFactory)();
+
+
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
+
+    if (!FLAGS_nativeFonts) {
+        gSkFontMgr_DefaultFactory = []() -> sk_sp<SkFontMgr> {
+            return sk_make_sp<DM::FontMgr>();
+        };
+    }
 
     initializeEventTracingForTools();
 
