@@ -186,7 +186,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Chromecast": "Android",
 			"ChromeOS":   "ChromeOS",
 			"Debian9":    DEFAULT_OS_DEBIAN,
-			"Mac":        "Mac-10.12",
+			"Mac":        "Mac-10.13.1",
 			"Ubuntu14":   DEFAULT_OS_UBUNTU,
 			"Ubuntu16":   "Ubuntu-16.10",
 			"Ubuntu17":   "Ubuntu-17.04",
@@ -253,7 +253,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"Golo":       "x86-64-E5-2670",
 				},
 				"AVX2": {
-					"GCE": "x86-64-Haswell_GCE",
+					"GCE":       "x86-64-Haswell_GCE",
 					"NUC5i7RYH": "x86-64-i7-5557U",
 				},
 				"AVX512": {
