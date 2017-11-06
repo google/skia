@@ -22,6 +22,30 @@
       "revId": "026902b0477ca4774a7a5614f2ecb526914e9dd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e336c522_fdd65fd8",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-06T14:59:27Z",
+      "side": 1,
+      "message": "Oh, sure, I just dup\u0027d some existing bots.  Do you want 8 and 10, or just 10?",
+      "parentUuid": "97105613_be352cc0",
+      "range": {
+        "startLine": 491,
+        "startChar": 8,
+        "endLine": 491,
+        "endChar": 12
+      },
+      "revId": "026902b0477ca4774a7a5614f2ecb526914e9dd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
