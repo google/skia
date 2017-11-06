@@ -35,6 +35,12 @@ public:
     static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(const GrCaps&,
                                                                    bool drawCachablePaths);
 
+    ~GrCoverageCountingPathRenderer() override {
+        // Ensure nothing exists that could have a dangling pointer back into this class.
+        SkASSERT(fRTPendingOpsMap.empty());
+        SkASSERT(0 == fPendingDrawOpsCount);
+    }
+
     // GrPathRenderer overrides.
     StencilSupport onGetStencilSupport(const GrShape&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
@@ -55,6 +61,7 @@ public:
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(DrawPathsOp);
 
         DrawPathsOp(GrCoverageCountingPathRenderer*, const DrawPathArgs&, GrColor);
+        ~DrawPathsOp() override;
 
         const char* name() const override { return "GrCoverageCountingPathRenderer::DrawPathsOp"; }
 
@@ -86,12 +93,6 @@ public:
             GrColor       fColor;
             SingleDraw*   fNext = nullptr;
         };
-
-        SingleDraw& getOnlyPathDraw() {
-            SkASSERT(&fHeadDraw == fTailDraw);
-            SkASSERT(1 == fDebugInstanceCount);
-            return fHeadDraw;
-        }
 
         struct AtlasBatch {
             const GrCCPRAtlas*   fAtlas;
@@ -130,14 +131,12 @@ private:
 
     struct RTPendingOps {
         SkTInternalLList<DrawPathsOp>                 fOpList;
-        int                                           fNumTotalPaths = 0;
-        int                                           fNumSkPoints = 0;
-        int                                           fNumSkVerbs = 0;
         GrSTAllocator<256, DrawPathsOp::SingleDraw>   fDrawsAllocator;
     };
 
     // Map from render target ID to the individual render target's pending path ops.
     std::map<uint32_t, RTPendingOps>   fRTPendingOpsMap;
+    SkDEBUGCODE(int                    fPendingDrawOpsCount = 0;)
 
     sk_sp<GrBuffer>                    fPerFlushIndexBuffer;
     sk_sp<GrBuffer>                    fPerFlushVertexBuffer;
