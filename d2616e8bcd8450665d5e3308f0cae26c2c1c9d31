@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4a787126_ca1e1fee",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-06T21:27:02Z",
+      "side": 1,
+      "message": "Now that the matrix is by reference I don\u0027t think it should be a problem. Everything is just pointers and 32 or 64 bit values.",
+      "parentUuid": "af79eedc_47a2271d",
+      "range": {
+        "startLine": 234,
+        "startChar": 43,
+        "endLine": 234,
+        "endChar": 54
+      },
+      "revId": "d2616e8bcd8450665d5e3308f0cae26c2c1c9d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "536ecc18_2bc6d5b3",
         "filename": "src/gpu/text/GrAtlasTextBlob.h",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-06T21:07:33Z",
       "side": 1,
       "message": "It\u0027s not clear to me why this forward decl is needed.",
+      "range": {
+        "startLine": 52,
+        "startChar": 10,
+        "endLine": 52,
+        "endChar": 27
+      },
+      "revId": "d2616e8bcd8450665d5e3308f0cae26c2c1c9d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0e4ef75_4d4a7339",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-06T21:27:02Z",
+      "side": 1,
+      "message": "It\u0027s a nested class of GrAtlasTextBlob so it must be declared in GrAtlasTextBlob\u0027s definition. I could just place the definition in GrAtlasTextBlob. I didn\u0027t just because it\u0027s already long, but it doesn\u0027t really matter to me either way.",
+      "parentUuid": "536ecc18_2bc6d5b3",
       "range": {
         "startLine": 52,
         "startChar": 10,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "e6d6b116_23ecc65e",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-06T21:27:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "171bf348_4c4999d4",
+      "range": {
+        "startLine": 544,
+        "startChar": 34,
+        "endLine": 544,
+        "endChar": 41
+      },
+      "revId": "d2616e8bcd8450665d5e3308f0cae26c2c1c9d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f1b4637_82b4199c",
         "filename": "src/gpu/text/GrAtlasTextBlob.h",
         "patchSetId": 6
@@ -82,6 +154,30 @@
       "writtenOn": "2017-11-06T21:07:33Z",
       "side": 1,
       "message": "regenerate (sp)",
+      "range": {
+        "startLine": 581,
+        "startChar": 11,
+        "endLine": 581,
+        "endChar": 22
+      },
+      "revId": "d2616e8bcd8450665d5e3308f0cae26c2c1c9d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1250998_6034d20f",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-06T21:27:02Z",
+      "side": 1,
+      "message": "ha! Done",
+      "parentUuid": "9f1b4637_82b4199c",
       "range": {
         "startLine": 581,
         "startChar": 11,
@@ -114,6 +210,30 @@
       "revId": "d2616e8bcd8450665d5e3308f0cae26c2c1c9d31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47c678f4_c92d7f6f",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-06T21:27:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10beb1db_a330da06",
+      "range": {
+        "startLine": 587,
+        "startChar": 4,
+        "endLine": 587,
+        "endChar": 13
+      },
+      "revId": "d2616e8bcd8450665d5e3308f0cae26c2c1c9d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
