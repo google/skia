@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af79eedc_47a2271d",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-06T21:07:33Z",
+      "side": 1,
+      "message": "My only concern is that it\u0027ll end up copying all the parameters instead of using them directly from the class -- but I suppose it had the same issue with the class method. I\u0027m guessing it gets optimized away in both cases.",
+      "range": {
+        "startLine": 234,
+        "startChar": 43,
+        "endLine": 234,
+        "endChar": 54
+      },
+      "revId": "d2616e8bcd8450665d5e3308f0cae26c2c1c9d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "536ecc18_2bc6d5b3",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-06T21:07:33Z",
+      "side": 1,
+      "message": "It\u0027s not clear to me why this forward decl is needed.",
+      "range": {
+        "startLine": 52,
+        "startChar": 10,
+        "endLine": 52,
+        "endChar": 27
+      },
+      "revId": "d2616e8bcd8450665d5e3308f0cae26c2c1c9d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "171bf348_4c4999d4",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-06T21:07:33Z",
+      "side": 1,
+      "message": "Not a biggie, but we\u0027ve used either subrun or SubRun elsewhere in comments (I think depending on whether we\u0027re talking about the concept or the class).",
+      "range": {
+        "startLine": 544,
+        "startChar": 34,
+        "endLine": 544,
+        "endChar": 41
+      },
+      "revId": "d2616e8bcd8450665d5e3308f0cae26c2c1c9d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f1b4637_82b4199c",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-06T21:07:33Z",
+      "side": 1,
+      "message": "regenerate (sp)",
+      "range": {
+        "startLine": 581,
+        "startChar": 11,
+        "endLine": 581,
+        "endChar": 22
+      },
+      "revId": "d2616e8bcd8450665d5e3308f0cae26c2c1c9d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10beb1db_a330da06",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-06T21:07:33Z",
+      "side": 1,
+      "message": "const SkMatrix\u0026 ?",
+      "range": {
+        "startLine": 587,
+        "startChar": 4,
+        "endLine": 587,
+        "endChar": 13
+      },
+      "revId": "d2616e8bcd8450665d5e3308f0cae26c2c1c9d31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
