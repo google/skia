@@ -20,8 +20,40 @@ Skia's Swarming bots are hosted in three places:
 [go/skbl](https://goto.google.com/skbl) lists all Skia Swarming bots.
 
 
+Connecting to Swarming Bots
+---------------------------
+
+Where the machines are located:
+* Machine name like “skia-gce-NNN”, “skia-i-gce-NNN”, “ct-gce-NNN”, “skia-ct-gce-NNN”, “ct-xxx-builder-NNN” -> GCE
+* Machine name ends with “a9”, “m3” -> Chrome Golo/Labs
+* Machine name ends with “m5” -> CT bare-metal bots in Chrome Golo
+* Machine name starts with “skia-e-”, “skia-i-” (other than “skia-i-gce-NNN”), “skia-rpi-” -> Chapel Hill lab (aka Skolo)
+
+- To log in to a Linux bot in GCE, use `gcloud compute ssh default@<machine     
+  name>`. Choose the zone listed for the                                        
+  [GCE VM](https://console.cloud.google.com/project/31977622648/compute/instances)
+  (or specify it using the `--zone` command-line flag).
+
+- - To log in to a Windows bot in GCE, use                                        
+  [Chrome RDP Extension](https://chrome.google.com/webstore/detail/chrome-rdp/cbkkbcmdlboombapidmoeolnmdacpkch?hl=en-US)
+  with the                                                                      
+  [IP address of the GCE VM](https://console.cloud.google.com/project/31977622648/compute/instances)
+  shown on the [host info page](https://status.skia.org/hosts) for that bot. The
+  username is chrome-bot and the password can be found on                       
+  [Valentine](https://valentine.corp.google.com/) as "chrome-bot (Win GCE)".
+
+- To log in to Golo bots, see [go/swarming-ssh](https://go/swarming-ssh).
+
+- To log in to Skolo bots, see the [Skolo maintenance doc](https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.2nq3yd1axg0n) remote access section. See the following for OS specific instructions:
+  * [VNC to Skolo Windows bots](https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.7cqd856ft0s)
+  * [Remotely debug an Android device in Skolo](https://docs.google.com/document/d/1nxn7TobfaLNNfhSTiwstOnjV0jCxYUI1uwW0T_V7BYg/)
+  * [ChromeOS Debugging](https://docs.google.com/document/d/1yJ2LLfLzV6pXKjiameid1LHEz1mj71Ob4wySIYxlBdw/edit#heading=h.9arg79l59xrf)
+
+
 Debugging
 ---------
+
+UPDATE THIS SECTION AS WELL!
 
 If you need to run code on a specific machine/device to debug an issue, the simplest option is to
 run tryjobs (after adding debugging output to the relevant code). In some cases you may also need to
