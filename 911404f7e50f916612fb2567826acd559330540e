@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fa8ae4d8_83be1bfc",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-06T18:15:11Z",
+      "side": 1,
+      "message": "I see... that makes sense.  Would it make sense to make GrAppliedClip have a base class that doesn\u0027t have FPs (which are added by GrAppliedClip) and make those functions take that new class instead of a Gr(Hard)Clip which they call apply() on?",
+      "parentUuid": "61c6e149_1f8dc002",
+      "revId": "911404f7e50f916612fb2567826acd559330540e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8e35e217_e83aae81",
         "filename": "src/gpu/GrFixedClip.h",
         "patchSetId": 3
