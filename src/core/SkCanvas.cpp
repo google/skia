@@ -2797,7 +2797,8 @@ void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, con
     if (matrix && matrix->isIdentity()) {
         matrix = nullptr;
     }
-    if (picture->approximateOpCount() <= kMaxPictureOpsToUnrollInsteadOfRef) {
+    if (picture->approximateOpCount() <= kMaxPictureOpsToUnrollInsteadOfRef &&
+        !picture->isExternal()) {
         SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
         picture->playback(this);
     } else {

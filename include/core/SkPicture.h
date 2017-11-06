@@ -12,6 +12,8 @@
 #include "SkRect.h"
 #include "SkTypes.h"
 
+#include <vector>
+
 class GrContext;
 class SkBigPicture;
 class SkBitmap;
@@ -20,6 +22,7 @@ class SkData;
 class SkImage;
 class SkImageDeserializer;
 class SkPath;
+class SkPicture;
 class SkPictureData;
 class SkPixelSerializer;
 class SkReadBuffer;
@@ -29,6 +32,9 @@ class SkTypefacePlayback;
 class SkWStream;
 class SkWriteBuffer;
 struct SkPictInfo;
+
+typedef std::vector<sk_sp<SkPicture>> SkExtPictures;
+typedef std::vector<uint32_t> SkExtPictureUIDs;
 
 /** \class SkPicture
 
@@ -158,19 +164,25 @@ public:
     // Returns NULL if this is not an SkBigPicture.
     virtual const SkBigPicture* asSkBigPicture() const { return nullptr; }
 
+    // Return whether this is an external picture.
+    virtual bool isExternal() const { return false; }
+
     // Global setting to enable or disable security precautions for serialization.
     static void SetPictureIOSecurityPrecautionsEnabled_Dangerous(bool set);
     static bool PictureIOSecurityPrecautionsEnabled();
+
+protected:
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, SkImageDeserializer*, SkTypefacePlayback*, size_t*, SkExtPictures* pics);
+    void serialize(SkWStream*, SkPixelSerializer*, SkRefCntSet* typefaces, SkExtPictureUIDs* picIds) const;
 
 private:
     // Subclass whitelist.
     SkPicture();
     friend class SkBigPicture;
+    friend class SkExternalPicture;
     friend class SkEmptyPicture;
     template <typename> friend class SkMiniPicture;
 
-    void serialize(SkWStream*, SkPixelSerializer*, SkRefCntSet* typefaces) const;
-    static sk_sp<SkPicture> MakeFromStream(SkStream*, SkImageDeserializer*, SkTypefacePlayback*);
     friend class SkPictureData;
 
     virtual int numSlowPaths() const = 0;
