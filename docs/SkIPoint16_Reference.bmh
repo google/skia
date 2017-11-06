@@ -1,0 +1,101 @@
+#Topic IPoint16
+#Alias IPoint16_Reference
+
+#Struct SkIPoint16
+
+SkIPoint holds two 16 bit integer coordinates
+
+#Topic Overview
+
+#Subtopic Subtopics
+#ToDo manually add subtopics ##
+#Table
+#Legend
+# topics # description ##
+#Legend ##
+#Table ##
+##
+
+#Subtopic Member_Functions
+#Table
+#Legend
+# description # function ##
+#Legend ##
+# Make # ##
+# set  # ##
+# x    # ##
+# y    # ##
+#Table ##
+#Subtopic ##
+
+#Topic ##
+
+#Member int16_t  fX
+##
+
+#Member int16_t  fY
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkIPoint16 Make(int x, int y)
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int16_t x() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int16_t y() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void set(int x, int y)
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Struct SkIPoint16 ##
+
+#Topic IPoint16 ##
