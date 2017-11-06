@@ -295,6 +295,7 @@
       "--deltaAA",
       "false",
       "--forceAnalyticAA",
+      "--nonativeFonts",
       "--verbose"
     ],
     "env": {

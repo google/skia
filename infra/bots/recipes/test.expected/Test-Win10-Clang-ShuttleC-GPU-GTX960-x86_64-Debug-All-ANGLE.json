@@ -381,6 +381,7 @@
       "image",
       "_",
       ".SRW",
+      "--nonativeFonts",
       "--verbose"
     ],
     "env": {

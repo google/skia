@@ -719,6 +719,9 @@ def dm_flags(api, bot):
   if 'FDAA' in bot:
     args.extend(['--deltaAA', '--forceDeltaAA'])
 
+  if 'NativeFonts' not in bot:
+    args.append('--nonativeFonts')
+
   # Let's make all bots produce verbose output by default.
   args.append('--verbose')
 
