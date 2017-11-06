@@ -458,3 +458,323 @@ private:
     typedef SampleView INHERITED;
 };
 DEF_SAMPLE( return new FatStroke; )
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static SkPoint eval(float t, float n, SkVector* v) {
+    SkScalar cn, sn = SkScalarSinCos(t, &cn);
+    SkScalar e = 2 / n;
+    SkScalar cv = SkScalarPow(cn, e);
+    SkScalar sv = SkScalarPow(sn, e);
+    if (v) {
+        SkScalar tx = - e * SkScalarPow(cn, e - 1) * sn;
+        SkScalar ty =   e * SkScalarPow(sn, e - 1) * cn;
+        if (sv == 0) {
+            tx = 0;
+            ty = 1;
+        }
+        if (cv == 0) {
+            tx = -1;
+            ty = 0;
+        }
+        SkASSERT(SkScalarIsFinite(tx));
+        SkASSERT(SkScalarIsFinite(ty));
+        *v = { tx, ty };
+    }
+    return { cv, sv };
+}
+
+static SkPath make_super(SkScalar n, SkScalar sx, SkScalar sy, SkPoint* middle = nullptr) {
+    const int max_i = 300;
+    SkPath path;
+    path.moveTo(0, 0);
+    for (int i = 0; i <= max_i; ++i) {
+        SkScalar theta = SK_ScalarPI * i / (2 * max_i);
+        SkScalar cn, sn = SkScalarSinCos(theta, &cn);
+        SkScalar x = SkScalarPow(cn, 2 / n) * sx;
+        SkScalar y = SkScalarPow(sn, 2 / n) * sy;
+        path.lineTo(x, y);
+    }
+    if (middle) {
+        SkScalar v = SkScalarPow(SK_ScalarRoot2Over2, 2/n);
+        middle->set(v * sx, v * sy);
+    }
+    return path;
+}
+
+static void make_super_paths(float n, float sx, float sy, SkPath* super, SkPath* conic) {
+    *super = make_super(n, 1, 1);
+    super->transform(SkMatrix::MakeScale(sx, sy));
+
+    float m = SkScalarPow(SK_ScalarRoot2Over2, 2/n);
+    float w = (1 - 2 * m) / (2*(m - 1));
+
+    conic->moveTo(0, 0); conic->lineTo(1, 0); conic->conicTo(1, 1, 0, 1, w);
+    conic->transform(SkMatrix::MakeScale(sx, sy));
+}
+
+static void quad_path(SkCanvas* canvas, const SkRect& r, const SkPath& p, const SkPaint paint) {
+    canvas->save();
+    canvas->translate(r.left(), r.top());
+    canvas->translate(r.width()/2, r.height()/2);
+
+    canvas->save();
+    canvas->drawPath(p, paint);
+    canvas->restore();
+
+    canvas->save();
+    canvas->scale(-1, 1);
+    canvas->drawPath(p, paint);
+    canvas->restore();
+
+    canvas->save();
+    canvas->scale(1, -1);
+    canvas->drawPath(p, paint);
+    canvas->restore();
+
+    canvas->save();
+    canvas->scale(-1, -1);
+    canvas->drawPath(p, paint);
+    canvas->restore();
+
+    canvas->restore();
+}
+
+static void draw_supers(SkCanvas* canvas, const SkRect& r, float n) {
+    SkPaint p;
+    p.setAntiAlias(true);
+
+    SkPath super, conic;
+    make_super_paths(n, r.width()/2, r.height()/2, &super, &conic);
+
+    SkAutoCanvasRestore acr(canvas, true);
+
+    quad_path(canvas, r, super, p);
+    canvas->translate(r.width() + 20, 0);
+    quad_path(canvas, r, conic, p);
+
+    const SkScalar rx = r.width()/2;
+    const SkScalar ry = r.height()/2;
+    const SkVector radii[] = { {rx, ry}, {rx, ry}, {rx, ry}, {rx, ry} };
+    const SkScalar exp[] = { n, n, n, n };
+    SkRRect rr;
+    rr.setRectRadii(r, radii, exp);
+    canvas->translate(r.width() + 20, 0);
+    canvas->drawRRect(rr, p);
+}
+
+static SkPoint compute_sect(SkPoint a, SkVector u, SkPoint b, SkVector v) {
+    SkVector ab = b - a;
+    return a + u * (ab.cross(v) / u.cross(v));
+}
+
+class SuperEllipse : public SampleView {
+public:
+    SkPoint fPts[3] = { { 300, 0 }, { 300, 300 }, { 0, 300 } };
+    SkScalar fN = 2;
+    SkPaint fSuperPaint, fConicPaint, fTextPaint;
+
+    SuperEllipse() {
+        fSuperPaint.setStyle(SkPaint::kStroke_Style);
+        fSuperPaint.setAntiAlias(true);
+        fSuperPaint.setStrokeWidth(5);
+        fSuperPaint.setColor(0x80FF0000);
+
+        fConicPaint.setColor(0x800000FF);
+        fConicPaint.setAntiAlias(true);
+
+        fTextPaint.setAntiAlias(true);
+        fTextPaint.setTextSize(20);
+    }
+
+protected:
+    bool onQuery(SkEvent* evt) override {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "SuperEllipse");
+            return true;
+        }
+        SkUnichar uni;
+        if (SampleCode::CharQ(*evt, &uni)) {
+            switch (uni) {
+                case '.': fN += 0.125; this->inval(nullptr); return true;
+                case ',': fN -= 0.125; this->inval(nullptr); return true;
+                default: break;
+            }
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    SkScalar compute_w_from_n(SkPoint p) {
+        return (fPts[0].fX + fPts[2].fX - 2 * p.fX) / (2*(p.fX - fPts[1].fX));
+    }
+
+    static void append_pos_tan(SkPath* path, SkPoint p, SkVector v) {
+        v.normalize();
+        path->moveTo(p);
+        path->lineTo(p + v * 0.1f);
+    }
+
+    SkPath approx(SkPath* frame) const {
+        SkVector pts[5], tan[5];
+        for (int i = 0; i < 5; ++i) {
+            pts[i] = eval(i*SK_ScalarPI/8, fN, &tan[i]);
+            append_pos_tan(frame, pts[i], tan[i]);
+        }
+        SkPath path;
+        path.moveTo({0,0});
+        path.lineTo(pts[0]);
+        for (int i = 0; i < 4; ++i) {
+            path.quadTo(compute_sect(pts[i], tan[i], pts[i+1], tan[i+1]), pts[i+1]);
+        }
+        return path;
+    }
+
+    void drawLabels(SkCanvas* canvas, SkScalar w) {
+        SkString s;
+        s.printf("N = %g, W = %g", fN, w);
+        canvas->drawText(s.c_str(), s.size(), 20, 25, fTextPaint);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkPoint middle;
+        SkPath super = make_super(fN, 300, 300, &middle);
+        SkScalar w = compute_w_from_n(middle);
+
+        this->drawLabels(canvas, w);
+
+        canvas->translate(20, 50);
+
+        SkPath frame;
+        SkPath path;
+        path.moveTo(0, 0);
+        path.lineTo(fPts[0]);
+        path.conicTo(fPts[1], fPts[2], w);
+        if (true) {
+            path = this->approx(&frame);
+            path.transform(SkMatrix::MakeScale(300, 300));
+        }
+        canvas->drawPath(path, fConicPaint);
+
+        canvas->drawPath(super, fSuperPaint);
+
+        {
+            SkPaint p;
+            p.setStyle(SkPaint::kStroke_Style);
+            p.setAntiAlias(true);
+            frame.transform(SkMatrix::MakeScale(300, 300));
+            canvas->drawPath(frame, p);
+        }
+
+        draw_supers(canvas, SkRect::MakeXYWH(400, 40, 100, 60), fN);
+        draw_supers(canvas, SkRect::MakeXYWH(380, 120, 140, 80), fN);
+        draw_supers(canvas, SkRect::MakeXYWH(360, 220, 180, 100), fN);
+    }
+#if 0
+    bool onClick(Click* click) override {
+        int32_t index;
+        if (click->fMeta.findS32("index", &index)) {
+            SkASSERT((unsigned)index < N);
+            fPts[index] = click->fCurr;
+            this->inval(nullptr);
+            return true;
+        }
+        return false;
+    }
+
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+        const SkScalar tol = 4;
+        const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
+        for (int i = 0; i < N; ++i) {
+            if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
+                Click* click = new Click(this);
+                click->fMeta.setS32("index", i);
+                return click;
+            }
+        }
+        return this->INHERITED::onFindClickHandler(x, y, modi);
+    }
+#endif
+private:
+    typedef SampleView INHERITED;
+};
+DEF_SAMPLE( return new SuperEllipse; )
+
+///////////////
+
+class CurveFit : public SampleView {
+public:
+    SkPoint fPts[3] = { { 300, 0 }, { 300, 300 }, { 0, 300 } };
+    SkPoint fTan[3] = { { 1, 1 }, { -1, 1 }, { -1, -1 } };
+    SkScalar fN = 3;
+    SkPaint fSuperPaint, fConicPaint, fTextPaint;
+
+    CurveFit() {
+        fSuperPaint.setStyle(SkPaint::kStroke_Style);
+        fSuperPaint.setAntiAlias(true);
+        fSuperPaint.setStrokeWidth(5);
+        fSuperPaint.setColor(0x80FF0000);
+
+        fConicPaint.setColor(0x800000FF);
+        fConicPaint.setAntiAlias(true);
+
+        fTextPaint.setAntiAlias(true);
+        fTextPaint.setTextSize(20);
+    }
+
+protected:
+    bool onQuery(SkEvent* evt) override {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "CurveFit");
+            return true;
+        }
+        SkUnichar uni;
+        if (SampleCode::CharQ(*evt, &uni)) {
+            switch (uni) {
+                case '.': fN += 0.125; this->inval(nullptr); return true;
+                case ',': fN -= 0.125; this->inval(nullptr); return true;
+                default: break;
+            }
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkPath path;
+
+        path.moveTo(fPts[0]);
+        for (int i = 0; i < fN - 1; ++i) {
+            path.quadTo(compute_sect(fPts[i], fTan[i], fPts[i+1], fTan[i+1]), fPts[i+1]);
+        }
+        canvas->drawPath(path, fSuperPaint);
+
+        SkPaint p;
+        p.setStrokeWidth(8);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, fN, fPts, p);
+    }
+
+    bool onClick(Click* click) override {
+        int32_t index;
+        if (click->fMeta.findS32("index", &index)) {
+            SkASSERT((unsigned)index < fN);
+            fPts[index] = click->fCurr;
+            this->inval(nullptr);
+            return true;
+        }
+        return false;
+    }
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+        const SkScalar tol = 4;
+        const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
+        for (int i = 0; i < fN; ++i) {
+            if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
+                Click* click = new Click(this);
+                click->fMeta.setS32("index", i);
+                return click;
+            }
+        }
+        return this->INHERITED::onFindClickHandler(x, y, modi);
+    }
+private:
+    typedef SampleView INHERITED;
+};
+DEF_SAMPLE( return new CurveFit; )

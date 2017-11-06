@@ -26,6 +26,9 @@ static inline void sk_memset32(uint32_t buffer[], uint32_t value, int count) {
 static inline void sk_memset64(uint64_t buffer[], uint64_t value, int count) {
     SkOpts::memset64(buffer, value, count);
 }
+static inline void sk_memset_floats(float buffer[], float value, int count) {
+    SkOpts::memset32(reinterpret_cast<uint32_t*>(buffer), SkFloat2Bits(value), count);
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 #define kMaxBytesInUTF8Sequence     4
