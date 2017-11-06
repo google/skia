@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "789fb106_00fdf21b",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-06T17:02:30Z",
+      "side": 1,
+      "message": "You\u0027re adding the first CPU job that we\u0027re running on a bot with a GPU, so using the \"gpu:none\" dimension is preventing the task from running.\n\nNow that we are using a specific CPU dimension, it\u0027s probably fine to remove this line, but +borenet in case he has another opinion.",
+      "revId": "f743d2b23162461e462782e2f97b4c98204e388a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3622cb8d_b087cc80",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 4
