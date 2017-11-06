@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90e629e1_5d6f8e0a",
+        "filename": "src/gpu/text/GrAtlasTextBlobVertexRegenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-06T20:28:38Z",
+      "side": 0,
+      "message": "Unfortunately git considered this a full rewrite rather than a modification of GrAtlasTextBlob_regenInOp.cpp.",
+      "revId": "9a01a215bbc69e2c1675d2bc945e0806c0be2b21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
