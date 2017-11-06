@@ -34,8 +34,7 @@ sk_sp<GrAtlasTextBlob> GrAtlasTextBlob::Make(GrMemoryPool* pool, int glyphCount,
     cacheBlob->fSize = size;
 
     // setup offsets for vertices / glyphs
-    cacheBlob->fVertices = sizeof(GrAtlasTextBlob) +
-                           reinterpret_cast<unsigned char*>(cacheBlob.get());
+    cacheBlob->fVertices = sizeof(GrAtlasTextBlob) + reinterpret_cast<char*>(cacheBlob.get());
     cacheBlob->fGlyphs = reinterpret_cast<GrGlyph**>(cacheBlob->fVertices + verticesCount);
     cacheBlob->fRuns = reinterpret_cast<GrAtlasTextBlob::Run*>(cacheBlob->fGlyphs + glyphCount);
 

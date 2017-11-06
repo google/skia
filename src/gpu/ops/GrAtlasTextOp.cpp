@@ -76,12 +76,12 @@ GrDrawOp::RequiresDstTexture GrAtlasTextOp::finalize(const GrCaps& caps,
     return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
 }
 
-static void clip_quads(const SkIRect& clipRect,
-                       unsigned char* currVertex, unsigned char* blobVertices,
+static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* blobVertices,
                        size_t vertexStride, int glyphCount) {
     for (int i = 0; i < glyphCount; ++i) {
-        SkPoint* blobPositionLT = reinterpret_cast<SkPoint*>(blobVertices);
-        SkPoint* blobPositionRB = reinterpret_cast<SkPoint*>(blobVertices + 3*vertexStride);
+        const SkPoint* blobPositionLT = reinterpret_cast<const SkPoint*>(blobVertices);
+        const SkPoint* blobPositionRB =
+                reinterpret_cast<const SkPoint*>(blobVertices + 3 * vertexStride);
 
         // positions for bitmap glyphs are pixel boundary aligned
         SkIRect positionRect = SkIRect::MakeLTRB(SkScalarFloorToInt(blobPositionLT->fX),
@@ -95,11 +95,11 @@ static void clip_quads(const SkIRect& clipRect,
             // Pull out some more data that we'll need.
             // In the LCD case the color will be garbage, but we'll overwrite it with the texcoords
             // and it avoids a lot of conditionals.
-            SkColor color = *reinterpret_cast<SkColor*>(blobVertices + sizeof(SkPoint));
+            auto color = *reinterpret_cast<const SkColor*>(blobVertices + sizeof(SkPoint));
             size_t coordOffset = vertexStride - 2*sizeof(uint16_t);
-            uint16_t* blobCoordsLT = reinterpret_cast<uint16_t*>(blobVertices + coordOffset);
-            uint16_t* blobCoordsRB = reinterpret_cast<uint16_t*>(blobVertices + 3*vertexStride +
-                                                                 coordOffset);
+            auto* blobCoordsLT = reinterpret_cast<const uint16_t*>(blobVertices + coordOffset);
+            auto* blobCoordsRB = reinterpret_cast<const uint16_t*>(blobVertices + 3 * vertexStride +
+                                                                   coordOffset);
             // Pull out the texel coordinates and texture index bits
             uint16_t coordsRectL = blobCoordsLT[0] >> 1;
             uint16_t coordsRectT = blobCoordsLT[1] >> 1;
@@ -224,32 +224,34 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         return;
     }
 
-    unsigned char* currVertex = reinterpret_cast<unsigned char*>(vertices);
+    char* currVertex = reinterpret_cast<char*>(vertices);
 
-    GrBlobRegenHelper helper(this, target, &flushInfo);
     SkAutoGlyphCache glyphCache;
     // each of these is a SubRun
     for (int i = 0; i < fGeoCount; i++) {
         const Geometry& args = fGeoData[i];
         Blob* blob = args.fBlob;
-        size_t byteCount;
-        void* blobVertices;
-        int subRunGlyphCount;
-        blob->regenInOp(target->deferredUploadTarget(), fFontCache, &helper, args.fRun,
-                        args.fSubRun, &glyphCache, vertexStride, args.fViewMatrix, args.fX, args.fY,
-                        args.fColor, &blobVertices, &byteCount, &subRunGlyphCount);
-
-        // now copy all vertices
-        if (args.fClipRect.isEmpty()) {
-            memcpy(currVertex, blobVertices, byteCount);
-        } else {
-            clip_quads(args.fClipRect, currVertex, reinterpret_cast<unsigned char*>(blobVertices),
-                       vertexStride, subRunGlyphCount);
-        }
-
-        currVertex += byteCount;
+        GrAtlasTextBlob::VertexRegenerator regenerator(
+                blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY, args.fColor,
+                target->deferredUploadTarget(), fFontCache, &glyphCache, vertexStride);
+        GrAtlasTextBlob::VertexRegenerator::Result result;
+        do {
+            result = regenerator.regenerate();
+            // Copy regenerated vertices from the blob to our vertex buffer.
+            size_t vertexBytes = result.fGlyphsRegenerated * kVerticesPerGlyph * vertexStride;
+            if (args.fClipRect.isEmpty()) {
+                memcpy(currVertex, result.fFirstVertex, vertexBytes);
+            } else {
+                clip_quads(args.fClipRect, currVertex, result.fFirstVertex, vertexStride,
+                           result.fGlyphsRegenerated);
+            }
+            flushInfo.fGlyphsToFlush += result.fGlyphsRegenerated;
+            if (!result.fFinished) {
+                this->flush(target, &flushInfo);
+            }
+            currVertex += vertexBytes;
+        } while (!result.fFinished);
     }
-
     this->flush(target, &flushInfo);
 }
 
@@ -406,4 +408,3 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
     }
 }
 
-void GrBlobRegenHelper::flush() { fOp->flush(fTarget, fFlushInfo); }
