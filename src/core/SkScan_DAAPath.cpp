@@ -315,48 +315,43 @@ void gen_alpha_deltas(const SkPath& path, const SkIRect& clipBounds, Deltas& res
     }
 }
 
-void SkScan::DAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter* blitter,
-                         bool forceRLE) {
+// For threaded backend with out-of-order init-once, we probably have to take care of the
+// blitRegion, sk_blit_above, sk_blit_below in SkScan::AntiFillPath to maintain the draw order. If
+// we do that, be caureful that blitRect may throw exception if the rect is empty.
+void SkScan::DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& ir,
+                         const SkIRect& clipBounds, bool forceRLE) {
+    bool isEvenOdd  = path.getFillType() & 1;
+    bool isConvex   = path.isConvex();
+    bool isInverse  = path.isInverseFillType();
+    bool skipRect   = isConvex && !isInverse;
+    bool containedInClip = clipBounds.contains(ir);
 
-    FillPathFunc fillPathFunc = [](const SkPath& path, SkBlitter* blitter, bool isInverse,
-            const SkIRect& ir, const SkIRect& clipBounds, bool containedInClip, bool forceRLE){
-        bool isEvenOdd  = path.getFillType() & 1;
-        bool isConvex   = path.isConvex();
-        bool skipRect   = isConvex && !isInverse;
+    SkIRect clippedIR = ir;
+    clippedIR.intersect(clipBounds);
 
-        SkIRect clippedIR = ir;
-        clippedIR.intersect(clipBounds);
-
-        // The overhead of even constructing SkCoverageDeltaList/Mask is too big.
-        // So TryBlitFatAntiRect and return if it's successful.
-        if (!isInverse && TryBlitFatAntiRect(blitter, path, clipBounds)) {
-            return;
-        }
+    // The overhead of even constructing SkCoverageDeltaList/Mask is too big.
+    // So TryBlitFatAntiRect and return if it's successful.
+    if (!isInverse && TryBlitFatAntiRect(blitter, path, clipBounds)) {
+        return;
+    }
 
 #ifdef GOOGLE3
-        constexpr int STACK_SIZE = 12 << 10; // 12K stack size alloc; Google3 has 16K limit.
+    constexpr int STACK_SIZE = 12 << 10; // 12K stack size alloc; Google3 has 16K limit.
 #else
-        constexpr int STACK_SIZE = 64 << 10; // 64k stack size to avoid heap allocation
+    constexpr int STACK_SIZE = 64 << 10; // 64k stack size to avoid heap allocation
 #endif
-        SkSTArenaAlloc<STACK_SIZE> alloc; // avoid heap allocation with SkSTArenaAlloc
+    SkSTArenaAlloc<STACK_SIZE> alloc; // avoid heap allocation with SkSTArenaAlloc
 
-        // Only blitter->blitXXX need to be done in order in the threaded backend.
-        // Everything before can be done out of order in the threaded backend.
-        if (!forceRLE && !isInverse && SkCoverageDeltaMask::Suitable(clippedIR)) {
-            SkCoverageDeltaMask deltaMask(&alloc, clippedIR);
-            gen_alpha_deltas(path, clipBounds, deltaMask, blitter, skipRect, containedInClip);
-            deltaMask.convertCoverageToAlpha(isEvenOdd, isInverse, isConvex);
-            blitter->blitMask(deltaMask.prepareSkMask(), clippedIR);
-        } else {
-            SkCoverageDeltaList deltaList(&alloc, clippedIR.fTop, clippedIR.fBottom, forceRLE);
-            gen_alpha_deltas(path, clipBounds, deltaList, blitter, skipRect, containedInClip);
-            blitter->blitCoverageDeltas(&deltaList, clipBounds, isEvenOdd, isInverse, isConvex);
-        }
-    };
-
-    // For threaded backend with out-of-order init-once (and therefore out-of-order do_fill_path),
-    // we probably have to take care of the blitRegion, sk_blit_above, sk_blit_below in do_fill_path
-    // to maintain the draw order. If we do that, be caureful that blitRect may throw exception is
-    // the rect is empty.
-    do_fill_path(path, origClip, blitter, forceRLE, 2, std::move(fillPathFunc));
+    // Only blitter->blitXXX needs to be done in order in the threaded backend.
+    // Everything before can be done out of order in the threaded backend.
+    if (!forceRLE && !isInverse && SkCoverageDeltaMask::Suitable(clippedIR)) {
+        SkCoverageDeltaMask deltaMask(&alloc, clippedIR);
+        gen_alpha_deltas(path, clipBounds, deltaMask, blitter, skipRect, containedInClip);
+        deltaMask.convertCoverageToAlpha(isEvenOdd, isInverse, isConvex);
+        blitter->blitMask(deltaMask.prepareSkMask(), clippedIR);
+    } else {
+        SkCoverageDeltaList deltaList(&alloc, clippedIR.fTop, clippedIR.fBottom, forceRLE);
+        gen_alpha_deltas(path, clipBounds, deltaList, blitter, skipRect, containedInClip);
+        blitter->blitCoverageDeltas(&deltaList, clipBounds, isEvenOdd, isInverse, isConvex);
+    }
 }
