@@ -15,6 +15,7 @@
 #include "../jumper/SkJumper.h"
 
 #if SK_SUPPORT_GPU
+#include "GrColorSpaceInfo.h"
 #include "GrContext.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -167,20 +168,26 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #if SK_SUPPORT_GPU
 class HighContrastFilterEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(const SkHighContrastConfig& config) {
-        return std::unique_ptr<GrFragmentProcessor>(new HighContrastFilterEffect(config));
+    static std::unique_ptr<GrFragmentProcessor> Make(const SkHighContrastConfig& config,
+                                                     bool linearize) {
+        return std::unique_ptr<GrFragmentProcessor>(new HighContrastFilterEffect(config,
+                                                                                 linearize));
     }
 
     const char* name() const override { return "HighContrastFilter"; }
 
     const SkHighContrastConfig& config() const { return fConfig; }
+    bool linearize() const { return fLinearize; }
 
-    std::unique_ptr<GrFragmentProcessor> clone() const override { return Make(fConfig); }
+    std::unique_ptr<GrFragmentProcessor> clone() const override {
+        return Make(fConfig, fLinearize);
+    }
 
 private:
-    HighContrastFilterEffect(const SkHighContrastConfig& config)
+    HighContrastFilterEffect(const SkHighContrastConfig& config, bool linearize)
         : INHERITED(kHighContrastFilterEffect_ClassID, kNone_OptimizationFlags)
-        , fConfig(config) {
+        , fConfig(config)
+        , fLinearize(linearize) {
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -192,10 +199,12 @@ private:
         const HighContrastFilterEffect& that = other.cast<HighContrastFilterEffect>();
         return fConfig.fGrayscale == that.fConfig.fGrayscale &&
             fConfig.fInvertStyle == that.fConfig.fInvertStyle &&
-            fConfig.fContrast == that.fConfig.fContrast;
+            fConfig.fContrast == that.fConfig.fContrast &&
+            fLinearize == that.fLinearize;
     }
 
     SkHighContrastConfig fConfig;
+    bool fLinearize;
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -204,21 +213,18 @@ class GLHighContrastFilterEffect : public GrGLSLFragmentProcessor {
 public:
     static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
-    GLHighContrastFilterEffect(const SkHighContrastConfig& config);
-
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
     void emitCode(EmitArgs& args) override;
 
 private:
     UniformHandle fContrastUni;
-    SkHighContrastConfig fConfig;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
 GrGLSLFragmentProcessor* HighContrastFilterEffect::onCreateGLSLInstance() const {
-    return new GLHighContrastFilterEffect(fConfig);
+    return new GLHighContrastFilterEffect();
 }
 
 void HighContrastFilterEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
@@ -232,19 +238,18 @@ void GLHighContrastFilterEffect::onSetData(const GrGLSLProgramDataManager& pdm,
     pdm.set1f(fContrastUni, hcfe.config().fContrast);
 }
 
-GLHighContrastFilterEffect::GLHighContrastFilterEffect(const SkHighContrastConfig& config)
-    : INHERITED()
-    , fConfig(config) {
-}
-
 void GLHighContrastFilterEffect::GenKey(
     const GrProcessor& proc, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
   const HighContrastFilterEffect& hcfe = proc.cast<HighContrastFilterEffect>();
   b->add32(static_cast<uint32_t>(hcfe.config().fGrayscale));
   b->add32(static_cast<uint32_t>(hcfe.config().fInvertStyle));
+  b->add32(hcfe.linearize() ? 1 : 0);
 }
 
 void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
+    const HighContrastFilterEffect& hcfe = args.fFp.cast<HighContrastFilterEffect>();
+    const SkHighContrastConfig& config = hcfe.config();
+
     const char* contrast;
     fContrastUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
                                                     "contrast", &contrast);
@@ -261,18 +266,22 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("half nonZeroAlpha = max(color.a, 0.00001);");
     fragBuilder->codeAppendf("color = half4(color.rgb / nonZeroAlpha, nonZeroAlpha);");
 
+    if (hcfe.linearize()) {
+        fragBuilder->codeAppend("color.rgb = color.rgb * color.rgb;");
+    }
+
     // Grayscale.
-    if (fConfig.fGrayscale) {
+    if (config.fGrayscale) {
         fragBuilder->codeAppendf("half luma = dot(color, half4(%f, %f, %f, 0));",
                                  SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B);
         fragBuilder->codeAppendf("color = half4(luma, luma, luma, 0);");
     }
 
-    if (fConfig.fInvertStyle == InvertStyle::kInvertBrightness) {
+    if (config.fInvertStyle == InvertStyle::kInvertBrightness) {
         fragBuilder->codeAppendf("color = half4(1, 1, 1, 1) - color;");
     }
 
-    if (fConfig.fInvertStyle == InvertStyle::kInvertLightness) {
+    if (config.fInvertStyle == InvertStyle::kInvertLightness) {
         // Convert from RGB to HSL.
         fragBuilder->codeAppendf("half fmax = max(color.r, max(color.g, color.b));");
         fragBuilder->codeAppendf("half fmin = min(color.r, min(color.g, color.b));");
@@ -344,6 +353,10 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
     // Clamp.
     fragBuilder->codeAppendf("color = clamp(color, 0, 1);");
 
+    if (hcfe.linearize()) {
+        fragBuilder->codeAppend("color.rgb = sqrt(color.rgb);");
+    }
+
     // Restore the original alpha and premultiply.
     fragBuilder->codeAppendf("color.a = %s.a;", args.fInputColor);
     fragBuilder->codeAppendf("color.rgb *= color.a;");
@@ -353,7 +366,8 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
 }
 
 std::unique_ptr<GrFragmentProcessor> SkHighContrast_Filter::asFragmentProcessor(
-        GrContext*, const GrColorSpaceInfo&) const {
-    return HighContrastFilterEffect::Make(fConfig);
+        GrContext*, const GrColorSpaceInfo& csi) const {
+    bool linearize = !csi.isGammaCorrect();
+    return HighContrastFilterEffect::Make(fConfig, linearize);
 }
 #endif
