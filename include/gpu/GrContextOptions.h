@@ -114,6 +114,12 @@ struct GrContextOptions {
     float fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
 
     /**
+     * Can the glyph atlas use multiple textures. If allowed, the each texture's size is bound by
+     * fGlypheCacheTextureMaximumBytes.
+     */
+    Enable fAllowMultipleGlyphCacheTextures = Enable::kDefault;
+
+    /**
      * Bugs on certain drivers cause stencil buffers to leak. This flag causes Skia to avoid
      * allocating stencil buffers and use alternate rasterization paths, avoiding the leak.
      */
