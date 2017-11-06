@@ -25,9 +25,9 @@ bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
         int numPlotsX = fAtlasConfigs[index].numPlotsX();
         int numPlotsY = fAtlasConfigs[index].numPlotsY();
 
-        fAtlases[index] = GrDrawOpAtlas::Make(
-                fContext, config, width, height, numPlotsX, numPlotsY,
-                &GrAtlasGlyphCache::HandleEviction, (void*)this);
+        fAtlases[index] = GrDrawOpAtlas::Make(fContext, config, width, height, numPlotsX, numPlotsY,
+                                              fAllowMultitexturing,
+                                              &GrAtlasGlyphCache::HandleEviction, (void*)this);
         if (!fAtlases[index]) {
             return false;
         }
@@ -35,11 +35,12 @@ bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
     return true;
 }
 
-GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes)
-        : fContext(context), fPreserveStrike(nullptr) {
-    // Calculate RGBA size. Must be between 1024 x 512 and MaxTextureSize x MaxTextureSize / 2
+GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes,
+                                     GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
+        : fContext(context), fAllowMultitexturing(allowMultitexturing), fPreserveStrike(nullptr) {
+    // Calculate RGBA size. Must be between 512 x 256 and MaxTextureSize x MaxTextureSize / 2
     int log2MaxTextureSize = SkPrevLog2(context->caps()->maxTextureSize());
-    int log2MaxDim = 10;
+    int log2MaxDim = 9;
     for (; log2MaxDim <= log2MaxTextureSize; ++log2MaxDim) {
         int maxDim = 1 << log2MaxDim;
         int minDim = 1 << (log2MaxDim - 1);
@@ -177,17 +178,16 @@ void GrAtlasGlyphCache::dump() const {
     for (int i = 0; i < kMaskFormatCount; ++i) {
         if (fAtlases[i]) {
             const sk_sp<GrTextureProxy>* proxies = fAtlases[i]->getProxies();
-            for (int pageIdx = 0; pageIdx < GrDrawOpAtlas::kMaxPages; ++pageIdx) {
-                if (proxies[pageIdx]) {
-                    SkString filename;
+            for (uint32_t pageIdx = 0; pageIdx < fAtlases[i]->pageCount(); ++pageIdx) {
+                SkASSERT(proxies[pageIdx]);
+                SkString filename;
 #ifdef SK_BUILD_FOR_ANDROID
-                    filename.printf("/sdcard/fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
+                filename.printf("/sdcard/fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
 #else
-                    filename.printf("fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
+                filename.printf("fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
 #endif
 
-                    save_pixels(fContext, proxies[pageIdx].get(), filename.c_str());
-                }
+                save_pixels(fContext, proxies[pageIdx].get(), filename.c_str());
             }
         }
     }

@@ -111,7 +111,7 @@ private:
  */
 class GrAtlasGlyphCache : public GrOnFlushCallbackObject {
 public:
-    GrAtlasGlyphCache(GrContext*, float maxTextureBytes);
+    GrAtlasGlyphCache(GrContext*, float maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
     ~GrAtlasGlyphCache() override;
     // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
     // another client of the cache may cause the strike to be purged while it is still reffed.
@@ -256,6 +256,7 @@ private:
     using StrikeHash = SkTDynamicHash<GrAtlasTextStrike, SkDescriptor>;
     GrContext* fContext;
     StrikeHash fCache;
+    GrDrawOpAtlas::AllowMultitexturing fAllowMultitexturing;
     std::unique_ptr<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
     GrAtlasTextStrike* fPreserveStrike;
     GrDrawOpAtlasConfig fAtlasConfigs[kMaskFormatCount];

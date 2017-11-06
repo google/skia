@@ -51,7 +51,13 @@ struct GrDrawOpAtlasConfig {
  * and passes in the given GrDrawUploadToken.
  */
 class GrDrawOpAtlas {
+private:
+    static constexpr auto kMaxMultitexturePages = 4;
+
 public:
+    /** Is the atlas allowed to use more than one texture? */
+    enum class AllowMultitexturing : bool { kNo, kYes };
+
     /**
      * An AtlasID is an opaque handle which callers can use to determine if the atlas contains
      * a specific piece of data.
@@ -77,15 +83,16 @@ public:
      *                          direction
      *  @param numPlotsY        The number of plots the atlas should be broken up into in the Y
      *                          direction
+     *  @param allowMultitexturing Can the atlas use more than one texture.
      *  @param func             An eviction function which will be called whenever the atlas has to
      *                          evict data
-     *  @param data             User supplied data which will be passed into func whenver an
+     *  @param data             User supplied data which will be passed into func whenever an
      *                          eviction occurs
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
-    static std::unique_ptr<GrDrawOpAtlas> Make(GrContext*, GrPixelConfig,
-                                               int width, int height,
+    static std::unique_ptr<GrDrawOpAtlas> Make(GrContext*, GrPixelConfig, int width, int height,
                                                int numPlotsX, int numPlotsY,
+                                               AllowMultitexturing allowMultitexturing,
                                                GrDrawOpAtlas::EvictionFunc func, void* data);
 
     /**
@@ -134,7 +141,6 @@ public:
         data->fData = userData;
     }
 
-    static constexpr auto kMaxPages = 4;
     uint32_t pageCount() { return fNumPages; }
 
     /**
@@ -186,7 +192,7 @@ public:
         static constexpr int kMinItems = 4;
         static constexpr int kMaxPlots = 32;
         SkSTArray<kMinItems, PlotData, true> fPlotsToUpdate;
-        uint32_t fPlotAlreadyUpdated[kMaxPages];
+        uint32_t fPlotAlreadyUpdated[kMaxMultitexturePages];
 
         friend class GrDrawOpAtlas;
     };
@@ -217,8 +223,12 @@ public:
     }
 
 private:
-    GrDrawOpAtlas(GrContext*, GrPixelConfig config, int width, int height,
-                  int numPlotsX, int numPlotsY);
+    uint32_t maxPages() const {
+        return AllowMultitexturing::kYes == fAllowMultitexturing ? kMaxMultitexturePages : 1;
+    }
+
+    GrDrawOpAtlas(GrContext*, GrPixelConfig config, int width, int height, int numPlotsX,
+                  int numPlotsY, AllowMultitexturing allowMultitexturing);
 
     /**
      * The backing GrTexture for a GrDrawOpAtlas is broken into a spatial grid of Plots. The Plots
@@ -282,7 +292,7 @@ private:
         static GrDrawOpAtlas::AtlasID CreateId(uint32_t pageIdx, uint32_t plotIdx,
                                                uint64_t generation) {
             SkASSERT(pageIdx < (1 << 8));
-            SkASSERT(pageIdx < kMaxPages);
+            SkASSERT(pageIdx < kMaxMultitexturePages);
             SkASSERT(plotIdx < (1 << 8));
             SkASSERT(generation < ((uint64_t)1 << 48));
             return generation << 16 | plotIdx << 8 | pageIdx;
@@ -376,8 +386,9 @@ private:
         PlotList fPlotList;
     };
     // proxies kept separate to make it easier to pass them up to client
-    sk_sp<GrTextureProxy> fProxies[kMaxPages];
-    Page fPages[kMaxPages];
+    sk_sp<GrTextureProxy> fProxies[kMaxMultitexturePages];
+    Page fPages[kMaxMultitexturePages];
+    AllowMultitexturing fAllowMultitexturing;
     uint32_t fNumPages;
 };
 
