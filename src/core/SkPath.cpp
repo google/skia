@@ -1092,6 +1092,11 @@ static void angles_to_unit_vectors(SkScalar startAngle, SkScalar sweepAngle,
     *dir = sweepAngle > 0 ? kCW_SkRotationDirection : kCCW_SkRotationDirection;
 }
 
+static float super_exp_to_w(float exp) {
+    float m = SkScalarPow(SK_ScalarRoot2Over2, 2/exp);
+    return (1 - 2 * m) / (2*(m - 1));
+}
+
 /**
  *  If this returns 0, then the caller should just line-to the singlePt, else it should
  *  ignore singlePt and append the specified number of conics.
@@ -1124,67 +1129,81 @@ void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
 }
 
 void SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startIndex) {
-        assert_known_direction(dir);
+    assert_known_direction(dir);
 
-        if (rrect.isEmpty()) {
-            return;
-        }
+    if (rrect.isEmpty()) {
+        return;
+    }
 
-        bool isRRect = hasOnlyMoveTos();
-        const SkRect& bounds = rrect.getBounds();
+    bool isRRect = hasOnlyMoveTos();
+    const SkRect& bounds = rrect.getBounds();
 
-        if (rrect.isRect()) {
-            // degenerate(rect) => radii points are collapsing
-            this->addRect(bounds, dir, (startIndex + 1) / 2);
-        } else if (rrect.isOval()) {
-            // degenerate(oval) => line points are collapsing
-            this->addOval(bounds, dir, startIndex / 2);
-        } else {
-            fFirstDirection = this->hasOnlyMoveTos() ?
-                                (SkPathPriv::FirstDirection)dir : SkPathPriv::kUnknown_FirstDirection;
+    if (rrect.isRect()) {
+        // degenerate(rect) => radii points are collapsing
+        this->addRect(bounds, dir, (startIndex + 1) / 2);
+    } else if (rrect.isOval()) {
+        // degenerate(oval) => line points are collapsing
+        this->addOval(bounds, dir, startIndex / 2);
+    } else {
+        fFirstDirection = this->hasOnlyMoveTos() ?
+                            (SkPathPriv::FirstDirection)dir : SkPathPriv::kUnknown_FirstDirection;
 
-            SkAutoPathBoundsUpdate apbu(this, bounds);
-            SkAutoDisableDirectionCheck addc(this);
+        SkAutoPathBoundsUpdate apbu(this, bounds);
+        SkAutoDisableDirectionCheck addc(this);
 
-            // we start with a conic on odd indices when moving CW vs. even indices when moving CCW
-            const bool startsWithConic = ((startIndex & 1) == (dir == kCW_Direction));
-            const SkScalar weight = SK_ScalarRoot2Over2;
+        // we start with a conic on odd indices when moving CW vs. even indices when moving CCW
+        const bool startsWithConic = ((startIndex & 1) == (dir == kCW_Direction));
+        const SkScalar w_r2over2 = SK_ScalarRoot2Over2;
 
-            SkDEBUGCODE(int initialVerbCount = this->countVerbs());
-            const int kVerbs = startsWithConic
-                ? 9   // moveTo + 4x conicTo + 3x lineTo + close
-                : 10; // moveTo + 4x lineTo + 4x conicTo + close
-            this->incReserve(kVerbs);
+        SkDEBUGCODE(int initialVerbCount = this->countVerbs());
+        const int kVerbs = startsWithConic
+            ? 9   // moveTo + 4x conicTo + 3x lineTo + close
+            : 10; // moveTo + 4x lineTo + 4x conicTo + close
+        this->incReserve(kVerbs);
 
-            RRectPointIterator rrectIter(rrect, dir, startIndex);
-            // Corner iterator indices follow the collapsed radii model,
-            // adjusted such that the start pt is "behind" the radii start pt.
-            const unsigned rectStartIndex = startIndex / 2 + (dir == kCW_Direction ? 0 : 1);
-            RectPointIterator rectIter(bounds, dir, rectStartIndex);
+        RRectPointIterator rrectIter(rrect, dir, startIndex);
+        // Corner iterator indices follow the collapsed radii model,
+        // adjusted such that the start pt is "behind" the radii start pt.
+        const unsigned rectStartIndex = startIndex / 2 + (dir == kCW_Direction ? 0 : 1);
+        RectPointIterator rectIter(bounds, dir, rectStartIndex);
 
-            this->moveTo(rrectIter.current());
-            if (startsWithConic) {
-                for (unsigned i = 0; i < 3; ++i) {
-                    this->conicTo(rectIter.next(), rrectIter.next(), weight);
-                    this->lineTo(rrectIter.next());
+        this->moveTo(rrectIter.current());
+        if (startsWithConic) {
+            for (unsigned i = 0; i < 3; ++i) {
+                SkPoint p0 = rectIter.next();
+                SkPoint p1 = rrectIter.next();
+                SkScalar e = rrect.fExp[i];
+                if (e == 2) {
+                    this->conicTo(p0, p1, w_r2over2);
+                } else {
+                    this->conicTo(p0, p1, super_exp_to_w(e));
                 }
-                this->conicTo(rectIter.next(), rrectIter.next(), weight);
-                // final lineTo handled by close().
-            } else {
-                for (unsigned i = 0; i < 4; ++i) {
-                    this->lineTo(rrectIter.next());
-                    this->conicTo(rectIter.next(), rrectIter.next(), weight);
+                this->lineTo(rrectIter.next());
+            }
+            this->conicTo(rectIter.next(), rrectIter.next(), w_r2over2);
+            // final lineTo handled by close().
+        } else {
+            for (unsigned i = 0; i < 4; ++i) {
+                this->lineTo(rrectIter.next());
+                SkPoint p0 = rectIter.next();
+                SkPoint p1 = rrectIter.next();
+                SkScalar e = rrect.fExp[i];
+                if (e == 2) {
+                    this->conicTo(p0, p1, w_r2over2);
+                } else {
+                    this->conicTo(p0, p1, super_exp_to_w(e));
                 }
             }
-            this->close();
-
-            SkPathRef::Editor ed(&fPathRef);
-            ed.setIsRRect(isRRect, dir, startIndex % 8);
-
-            SkASSERT(this->countVerbs() == initialVerbCount + kVerbs);
         }
+        this->close();
 
-        SkDEBUGCODE(fPathRef->validate();)
+        SkPathRef::Editor ed(&fPathRef);
+        ed.setIsRRect(isRRect, dir, startIndex % 8);
+
+        SkASSERT(this->countVerbs() == initialVerbCount + kVerbs);
+    }
+
+    SkDEBUGCODE(fPathRef->validate();)
 }
 
 bool SkPath::hasOnlyMoveTos() const {
@@ -1261,11 +1280,11 @@ void SkPath::addOval(const SkRect &oval, Direction dir, unsigned startPointIndex
     OvalPointIterator ovalIter(oval, dir, startPointIndex);
     // The corner iterator pts are tracking "behind" the oval/radii pts.
     RectPointIterator rectIter(oval, dir, startPointIndex + (dir == kCW_Direction ? 0 : 1));
-    const SkScalar weight = SK_ScalarRoot2Over2;
+    const SkScalar w_r2over2 = SK_ScalarRoot2Over2;
 
     this->moveTo(ovalIter.current());
     for (unsigned i = 0; i < 4; ++i) {
-        this->conicTo(rectIter.next(), ovalIter.next(), weight);
+        this->conicTo(rectIter.next(), ovalIter.next(), w_r2over2);
     }
     this->close();
 
