@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "83964999_c4dc7157",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-06T15:37:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ea5de94_228817ff",
+      "range": {
+        "startLine": 41,
+        "startChar": 28,
+        "endLine": 41,
+        "endChar": 54
+      },
+      "revId": "b7319a49ed164c01b1a02b56ce4eeb710a50b826",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c8d2daf_cfc1f3e9",
         "filename": "src/gpu/text/GrAtlasGlyphCache.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-06T15:26:41Z",
       "side": 1,
       "message": "I\u0027m concerned that this might shrink the atlas in cases where we don\u0027t want it to.",
+      "range": {
+        "startLine": 43,
+        "startChar": 21,
+        "endLine": 43,
+        "endChar": 22
+      },
+      "revId": "b7319a49ed164c01b1a02b56ce4eeb710a50b826",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7adc286_e0e92dac",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-06T15:37:31Z",
+      "side": 1,
+      "message": "The default for the texture byte size in GrContextOptions is still 2048 * 1024 * 4 so (unless that is modified by the client) the following loop has two iterations, log2MaxDim winds up being 11 and log2MinDim is 10. Does that seem ok?",
+      "parentUuid": "5c8d2daf_cfc1f3e9",
       "range": {
         "startLine": 43,
         "startChar": 21,
