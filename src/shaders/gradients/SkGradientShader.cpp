@@ -196,12 +196,10 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
             *origPosPtr++ = prev = curr;
         }
 
-#ifndef SK_SUPPORT_LEGACY_UNIFORM_GRADIENTS
         // If the stops are uniform, treat them as implicit.
         if (uniformStops) {
             fOrigPos = nullptr;
         }
-#endif
     }
 }
 
