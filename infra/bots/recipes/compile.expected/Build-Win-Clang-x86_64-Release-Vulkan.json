@@ -130,6 +130,8 @@
   {
     "cmd": [
       "ninja.exe",
+      "-k",
+      "0",
       "-C",
       "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-Clang-x86_64-Release-Vulkan\\Release_x64"
     ],

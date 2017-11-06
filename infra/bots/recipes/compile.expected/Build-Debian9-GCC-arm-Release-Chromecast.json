@@ -126,6 +126,8 @@
   {
     "cmd": [
       "ninja",
+      "-k",
+      "0",
       "-C",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-arm-Release-Chromecast/Release",
       "nanobench",

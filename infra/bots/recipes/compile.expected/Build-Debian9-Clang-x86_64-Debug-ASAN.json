@@ -130,6 +130,8 @@
   {
     "cmd": [
       "ninja",
+      "-k",
+      "0",
       "-C",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Debug-ASAN/Debug"
     ],

@@ -34,6 +34,8 @@
   {
     "cmd": [
       "ninja",
+      "-k",
+      "0",
       "-C",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-EMCC-wasm-Release/Release"
     ],
