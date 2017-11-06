@@ -11,6 +11,7 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "sk_tool_utils.h"
 
 static constexpr int kScreenWidth = 1500;
 static constexpr int kScreenHeight = 1500;
@@ -27,12 +28,19 @@ static_assert(52 == kNumGlyphs, "expected 52 glyphs");
  */
 class PathTextBench : public Benchmark {
 public:
-    PathTextBench(bool cached) : fCached(cached) {}
+    PathTextBench(bool clipped, bool uncached) : fClipped(clipped), fUncached(uncached) {}
     bool isVisual() override { return true; }
 
 private:
     const char* onGetName() override {
-        return fCached ? "path_text" : "path_text_uncached";
+        fName = "path_text";
+        if (fClipped) {
+            fName.append("_clipped");
+        }
+        if (fUncached) {
+            fName.append("_uncached");
+        }
+        return fName.c_str();
     }
     SkIPoint onGetSize() override { return SkIPoint::Make(kScreenWidth, kScreenHeight); }
 
@@ -43,7 +51,7 @@ private:
         for (int i = 0; i < kNumGlyphs; ++i) {
             SkGlyphID id = cache->unicharToGlyph(kGlyphs[i]);
             cache->getScalerContext()->getPath(SkPackedGlyphID(id), &fGlyphs[i]);
-            fGlyphs[i].setIsVolatile(!fCached);
+            fGlyphs[i].setIsVolatile(fUncached);
         }
 
         SkRandom rand;
@@ -67,10 +75,18 @@ private:
             fPaints[i].setAntiAlias(true);
             fPaints[i].setColor(rand.nextU() | 0x80808080);
         }
+
+        if (fClipped) {
+            fClipPath = sk_tool_utils::make_star(SkRect::MakeIWH(kScreenWidth,kScreenHeight), 11,3);
+            fClipPath.setIsVolatile(fUncached);
+        }
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkAutoCanvasRestore acr(canvas, true);
+        if (fClipped) {
+            canvas->clipPath(fClipPath, SkClipOp::kIntersect, true);
+        }
         for (int i = 0; i < kNumDraws; ++i) {
             const SkPath& glyph = fGlyphs[i % kNumGlyphs];
             canvas->setMatrix(fXforms[i]);
@@ -78,13 +94,17 @@ private:
         }
     }
 
-    const bool fCached;
+    const bool fClipped;
+    const bool fUncached;
+    SkString fName;
     SkPath fGlyphs[kNumGlyphs];
     SkPaint fPaints[kNumDraws];
     SkMatrix fXforms[kNumDraws];
+    SkPath fClipPath;
 
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH(return new PathTextBench(false);)
-DEF_BENCH(return new PathTextBench(true);)
+DEF_BENCH(return new PathTextBench(false, false);)
+DEF_BENCH(return new PathTextBench(false, true);)
+DEF_BENCH(return new PathTextBench(true, true);)
