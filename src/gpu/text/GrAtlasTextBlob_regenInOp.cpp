@@ -185,6 +185,7 @@ void GrAtlasTextBlob::regenInOp(GrDeferredUploadTarget* target, GrAtlasGlyphCach
 
             if (!fontCache->hasGlyph(glyph) &&
                 !strike->addGlyphToAtlas(target, glyph, lazyCache->get(), info->maskFormat())) {
+                SkDebugf("Flushing! glyphIdx=%d\n", glyphIdx);
                 helper->flush();
                 brokenRun = glyphIdx > 0;
 
