@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94024418_a7c0c3ae",
+        "filename": "src/core/SkFontMgr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-11-06T20:52:42Z",
+      "side": 1,
+      "message": "Can we instead make this point at SkFontMgr::Factory and then just always call it and just crash if someone sets it to nullptr?",
+      "range": {
+        "startLine": 176,
+        "startChar": 50,
+        "endLine": 176,
+        "endChar": 57
+      },
+      "revId": "07bf07823452d42096aa3cef2a576d8ffea99a6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
