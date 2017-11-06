@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c458c7ed_dd30e9c6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-06T16:35:47Z",
+      "side": 1,
+      "message": "SK_SUPPORT_LEGACY_UNIFORM_GRADIENTS ?",
+      "revId": "1f8454650c4abe18eb809127291346724887edce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
