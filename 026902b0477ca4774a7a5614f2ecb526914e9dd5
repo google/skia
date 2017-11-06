@@ -94,6 +94,30 @@
       "revId": "026902b0477ca4774a7a5614f2ecb526914e9dd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c963e24e_5442243c",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-06T16:55:59Z",
+      "side": 1,
+      "message": "We definitely care less about Win8 than Win7, but there\u0027s still a significant portion of Chrome users on Win8:\nhttps://uma.googleplex.com/p/chrome/timeline_v2/?sid\u003dcda9a01c1f9b8d908383d660ad55ae19",
+      "parentUuid": "0368908e_006dd90e",
+      "range": {
+        "startLine": 491,
+        "startChar": 8,
+        "endLine": 491,
+        "endChar": 12
+      },
+      "revId": "026902b0477ca4774a7a5614f2ecb526914e9dd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
