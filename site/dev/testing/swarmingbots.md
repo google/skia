@@ -20,6 +20,26 @@ Skia's Swarming bots are hosted in three places:
 [go/skbl](https://goto.google.com/skbl) lists all Skia Swarming bots.
 
 
+<a name="connecting-to-swarming-bots"></a>
+Connecting to Swarming Bots
+---------------------------
+
+Where the machines are located:
+
+- Machine name like “skia-gce-NNN”, “skia-i-gce-NNN”, “ct-gce-NNN”, “skia-ct-gce-NNN”, “ct-xxx-builder-NNN” -> GCE
+  * To log in to a Linux bot in GCE, use `gcloud compute ssh default@<machine name>`. Choose the zone listed for the [GCE VM](https://console.cloud.google.com/project/31977622648/compute/instances) (or specify it using the `--zone` command-line flag).
+  * To log in to a Windows bot in GCE, use [Chrome RDP Extension](https://chrome.google.com/webstore/detail/chrome-rdp/cbkkbcmdlboombapidmoeolnmdacpkch?hl=en-US) with the [IP address of the GCE VM](https://console.cloud.google.com/project/31977622648/compute/instances) shown on the [host info page](https://status.skia.org/hosts) for that bot. The username is chrome-bot and the password can be found on [Valentine](https://valentine.corp.google.com/) as "chrome-bot (Win GCE)".
+
+- Machine name ends with “a9”, “m3”, "m5" -> Chrome Golo/Labs
+  * To log in to Golo bots, see [go/swarming-ssh](https://goto.google.com/swarming-ssh).
+
+- Machine name starts with “skia-e-”, “skia-i-” (other than “skia-i-gce-NNN”), “skia-rpi-” -> Chapel Hill lab (aka Skolo)<br/>
+  To log in to Skolo bots, see the [Skolo maintenance doc](https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.2nq3yd1axg0n) remote access section. See the following for OS specific instructions:<br/>
+  * [Remotely debug an Android device in Skolo](https://docs.google.com/document/d/1nxn7TobfaLNNfhSTiwstOnjV0jCxYUI1uwW0T_V7BYg/)
+  * [VNC to Skolo Windows bots](https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.7cqd856ft0s)
+  * [ChromeOS Debugging](https://docs.google.com/document/d/1yJ2LLfLzV6pXKjiameid1LHEz1mj71Ob4wySIYxlBdw/edit#heading=h.9arg79l59xrf)
+
+
 Debugging
 ---------
 
@@ -27,11 +47,9 @@ If you need to run code on a specific machine/device to debug an issue, the simp
 run tryjobs (after adding debugging output to the relevant code). In some cases you may also need to
 [create or modify tryjobs](automated_testing#adding-new-jobs).
 
-For Googlers: If you need more control (e.g. to run GDB), the [current Trooper][current trooper] can
-loan a machine/device from the Skolo. All bots are accessible via either SSH or VNC -- see the
-[Skolo maintenance doc remote access section][remote access] and/or get help from the Trooper. You
-can also bring the device back to your desk and connect it to GoogleGuest WiFi or the [Google Test
-Network](http://go/gtn-criteria).
+For Googlers: If you need more control (e.g. to run GDB) and need run directly on a swarming bot. You can use leasing.skia.org.<br/>
+If that does not work then the [current trooper][current trooper] can help you bring the device back to your desk and connect
+it to GoogleGuest Wifi or the [Google Test Network](http://go/gtn-criteria).
 
 If you need to make changes on a Skolo device, please check with an Infra team member. Most can be
 flashed/imaged back to a clean state, but others can not.
