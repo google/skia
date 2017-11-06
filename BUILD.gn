@@ -1340,6 +1340,7 @@ if (skia_enable_tools) {
     test_app("dm") {
       sources = [
         "dm/DM.cpp",
+        "dm/DMFontMgr.cpp",
         "dm/DMGpuTestProcs.cpp",
         "dm/DMJsonWriter.cpp",
         "dm/DMSrcSink.cpp",

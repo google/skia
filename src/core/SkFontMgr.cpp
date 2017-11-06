@@ -172,12 +172,16 @@ sk_sp<SkTypeface> SkFontMgr::onMakeFromFontData(std::unique_ptr<SkFontData> data
     return this->makeFromStream(data->detachStream(), data->getIndex());
 }
 
+// A global function pointer that's not declared, but can be overriden at startup by test tools.
+sk_sp<SkFontMgr> (*gSkFontMgr_DefaultFactory)() = nullptr;
+
 sk_sp<SkFontMgr> SkFontMgr::RefDefault() {
     static SkOnce once;
     static sk_sp<SkFontMgr> singleton;
 
     once([]{
-        sk_sp<SkFontMgr> fm = SkFontMgr::Factory();
+        sk_sp<SkFontMgr> fm = gSkFontMgr_DefaultFactory ? gSkFontMgr_DefaultFactory()
+                                                        : SkFontMgr::Factory();
         singleton = fm ? std::move(fm) : sk_make_sp<SkEmptyFontMgr>();
     });
     return singleton;
