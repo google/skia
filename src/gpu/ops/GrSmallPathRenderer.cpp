@@ -181,10 +181,9 @@ public:
         fHelper.visitProxies(func);
 
         const sk_sp<GrTextureProxy>* proxies = fAtlas->getProxies();
-        for (int i = 0; i < GrDrawOpAtlas::kMaxPages; ++i) {
-            if (proxies[i].get()) {
-                func(proxies[i].get());
-            }
+        for (uint32_t i = 0; i < fAtlas->pageCount(); ++i) {
+            SkASSERT(proxies[i]);
+            func(proxies[i].get());
         }
     }
 
@@ -793,6 +792,7 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                      kAlpha_8_GrPixelConfig,
                                      ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                      NUM_PLOTS_X, NUM_PLOTS_Y,
+                                     GrDrawOpAtlas::AllowMultitexturing::kYes,
                                      &GrSmallPathRenderer::HandleEviction,
                                      (void*)this);
         if (!fAtlas) {
@@ -861,6 +861,7 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
         gTestStruct.fAtlas = GrDrawOpAtlas::Make(context, kAlpha_8_GrPixelConfig,
                                                  ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                  NUM_PLOTS_X, NUM_PLOTS_Y,
+                                                 GrDrawOpAtlas::AllowMultitexturing::kYes,
                                                  &PathTestStruct::HandleEviction,
                                                  (void*)&gTestStruct);
     }

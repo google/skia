@@ -204,7 +204,14 @@ bool GrContext::init(const GrContextOptions& options) {
     }
     fDrawingManager.reset(new GrDrawingManager(this, prcOptions, &fSingleOwner));
 
-    fAtlasGlyphCache = new GrAtlasGlyphCache(this, options.fGlyphCacheTextureMaximumBytes);
+    GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
+    if (options.fAllowMultipleGlyphCacheTextures == GrContextOptions::Enable::kNo) {
+        allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kNo;
+    } else {
+        allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
+    }
+    fAtlasGlyphCache = new GrAtlasGlyphCache(this, options.fGlyphCacheTextureMaximumBytes,
+                                             allowMultitexturing);
     this->contextPriv().addOnFlushCallbackObject(fAtlasGlyphCache);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB, this));

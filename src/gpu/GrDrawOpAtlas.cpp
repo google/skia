@@ -14,13 +14,12 @@
 #include "GrTexture.h"
 #include "GrTracing.h"
 
-std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig config,
-                                                   int width, int height,
-                                                   int numPlotsX, int numPlotsY,
-                                                   GrDrawOpAtlas::EvictionFunc func,
-                                                   void* data) {
-    std::unique_ptr<GrDrawOpAtlas> atlas(
-            new GrDrawOpAtlas(ctx, config, width, height, numPlotsX, numPlotsY));
+std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig config, int width,
+                                                   int height, int numPlotsX, int numPlotsY,
+                                                   AllowMultitexturing allowMultitexturing,
+                                                   GrDrawOpAtlas::EvictionFunc func, void* data) {
+    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(ctx, config, width, height, numPlotsX,
+                                                           numPlotsY, allowMultitexturing));
     if (!atlas->getProxies()[0]) {
         return nullptr;
     }
@@ -147,13 +146,14 @@ void GrDrawOpAtlas::Plot::resetRects() {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width, int height,
-                             int numPlotsX, int numPlotsY)
+                             int numPlotsX, int numPlotsY, AllowMultitexturing allowMultitexturing)
         : fContext(context)
         , fPixelConfig(config)
         , fTextureWidth(width)
         , fTextureHeight(height)
         , fAtlasGeneration(kInvalidAtlasGeneration + 1)
         , fPrevFlushToken(GrDeferredUploadToken::AlreadyFlushedToken())
+        , fAllowMultitexturing(allowMultitexturing)
         , fNumPages(0) {
     fPlotWidth = fTextureWidth / numPlotsX;
     fPlotHeight = fTextureHeight / numPlotsY;
@@ -242,7 +242,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
     for (unsigned int pageIdx = 0; pageIdx < fNumPages; ++pageIdx) {
         Plot* plot = fPages[pageIdx].fPlotList.tail();
         SkASSERT(plot);
-        if ((fNumPages == kMaxPages && plot->lastUseToken() < target->nextTokenToFlush()) ||
+        if ((fNumPages == this->maxPages() && plot->lastUseToken() < target->nextTokenToFlush()) ||
             plot->flushesSinceLastUsed() >= kRecentlyUsedCount) {
             this->processEvictionAndResetRects(plot);
             SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
@@ -448,7 +448,7 @@ void GrDrawOpAtlas::compact(GrDeferredUploadToken startTokenForNextFlush) {
 }
 
 bool GrDrawOpAtlas::createNewPage() {
-    if (fNumPages == kMaxPages) {
+    if (fNumPages == this->maxPages()) {
         return false;
     }
 
