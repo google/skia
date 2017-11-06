@@ -787,7 +787,9 @@ void GLSLCodeGenerator::writeTypePrecision(const Type& type) {
 }
 
 void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {
-    ASSERT(decl.fVars.size() > 0);
+    if (!decl.fVars.size()) {
+        return;
+    }
     bool wroteType = false;
     for (const auto& stmt : decl.fVars) {
         VarDeclaration& var = (VarDeclaration&) *stmt;
