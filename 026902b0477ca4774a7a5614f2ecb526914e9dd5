@@ -118,6 +118,30 @@
       "revId": "026902b0477ca4774a7a5614f2ecb526914e9dd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d63611e_7ac7a85c",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-06T17:14:00Z",
+      "side": 1,
+      "message": "I\u0027m just going with bungeman\u0027s call for now.  We can always tweak or add more later.",
+      "parentUuid": "c963e24e_5442243c",
+      "range": {
+        "startLine": 491,
+        "startChar": 8,
+        "endLine": 491,
+        "endChar": 12
+      },
+      "revId": "026902b0477ca4774a7a5614f2ecb526914e9dd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

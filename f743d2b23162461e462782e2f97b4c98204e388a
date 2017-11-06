@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7dddb35b_737f54a4",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-06T17:14:00Z",
+      "side": 1,
+      "message": "Ah, that explains it.  Removed the constraint.\n\nThe key here is the OS, not any particular GPU or CPU.  I\u0027d be happy to move this if there were a better Win10 bot.",
+      "parentUuid": "789fb106_00fdf21b",
+      "revId": "f743d2b23162461e462782e2f97b4c98204e388a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3622cb8d_b087cc80",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-11-06T16:55:59Z",
       "side": 1,
       "message": "Did you have a reason for picking the Nexus10? It\u0027s over capacity, and we\u0027re unlikely to get more since it\u0027s so old: https://status.skia.org/capacity?backfill\u003d100\u0026commits\u003d30\u0026cq\u003d1.5\u0026optimistic\u003d90\u0026pessimistic\u003d60\u0026sort\u003dopt_est%3Adesc\n\nIf you\u0027re fine with any Android device, the Galaxy S6 and Galaxy S7 both have extra capacity.",
+      "revId": "f743d2b23162461e462782e2f97b4c98204e388a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a24c37a1_f70d4a94",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-06T17:14:00Z",
+      "side": 1,
+      "message": "It\u0027s just where all the other CPU work was running.  I\u0027ve switched to an S6.",
+      "parentUuid": "3622cb8d_b087cc80",
       "revId": "f743d2b23162461e462782e2f97b4c98204e388a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "4b64c7aa_a4c048c3",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-06T17:14:00Z",
+      "side": 1,
+      "message": "We do not care at all about Win2k8, or Win2016.  We\u0027d like to be testing Win10 explicitly.",
+      "parentUuid": "ac6d109b_d0882e31",
+      "revId": "f743d2b23162461e462782e2f97b4c98204e388a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4605a889_f84bb26e",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2017-11-06T16:55:59Z",
       "side": 1,
       "message": "Will GDI be interestingly different? Or will that use NativeFonts implicitly?",
+      "revId": "f743d2b23162461e462782e2f97b4c98204e388a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dff6dac9_4de74783",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-06T17:14:00Z",
+      "side": 1,
+      "message": "We\u0027re thinking we\u0027ll just drop GDI.",
+      "parentUuid": "4605a889_f84bb26e",
       "revId": "f743d2b23162461e462782e2f97b4c98204e388a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
