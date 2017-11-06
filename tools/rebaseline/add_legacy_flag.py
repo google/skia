@@ -66,6 +66,10 @@ def add_to_chromium(args):
       subprocess.check_call(['git', 'stash', 'pop'])
     exit(1)
 
+  # Update the repository to avoid conflicts
+  subprocess.check_call(['git', 'pull'])
+  subprocess.check_call(['gclient', 'sync']);
+
   # Use random number to avoid branch name collision.
   # We'll delete the branch in the end.
   random = randint(1, 10000)
