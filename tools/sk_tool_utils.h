@@ -135,6 +135,18 @@ namespace sk_tool_utils {
     void add_to_text_blob(SkTextBlobBuilder* builder, const char* text,
                           const SkPaint& origPaint, SkScalar x, SkScalar y);
 
+    // Constructs a star by walking a 'numPts'-sided regular polygon with even/odd fill:
+    //
+    //   moveTo(pts[0]);
+    //   lineTo(pts[step % numPts]);
+    //   ...
+    //   lineTo(pts[(step * (N - 1)) % numPts]);
+    //
+    // numPts=5, step=2 will produce a classic five-point star.
+    //
+    // numPts and step must be co-prime.
+    SkPath make_star(const SkRect& bounds, int numPts = 5, int step = 2);
+
     void make_big_path(SkPath& path);
 
     // Return a blurred version of 'src'. This doesn't use a separable filter
