@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "0b66d760_9042ba72",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-06T20:16:52Z",
+      "side": 1,
+      "message": "That\u0027s a really good idea. Done.",
+      "parentUuid": "fa8ae4d8_83be1bfc",
+      "revId": "911404f7e50f916612fb2567826acd559330540e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e35e217_e83aae81",
         "filename": "src/gpu/GrFixedClip.h",
         "patchSetId": 3
