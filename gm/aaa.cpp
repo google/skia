@@ -75,6 +75,14 @@ protected:
         // Manually setting convexity is required. Otherwise, this path will be considered concave.
         path.setConvexity(SkPath::kConvex_Convexity);
         canvas->drawPath(path, p);
+
+        y += 200;
+        canvas->translate(0, y);
+        path.reset();
+        path.addRect({20, 20, 100.4999, 100});
+        path.addRect({100.5001, 20, 200, 100});
+
+        canvas->drawPath(path, p);
     }
 
 private:
