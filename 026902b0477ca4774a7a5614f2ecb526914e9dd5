@@ -70,6 +70,30 @@
       "revId": "026902b0477ca4774a7a5614f2ecb526914e9dd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0368908e_006dd90e",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-06T15:52:00Z",
+      "side": 1,
+      "message": "How\u0027s this list look?  I\u0027ve got Debian, Mac, Android, Win10, and Win7.  I guess we need iOS too, or is that covered by Mac?",
+      "parentUuid": "26f47cd6_29d3888e",
+      "range": {
+        "startLine": 491,
+        "startChar": 8,
+        "endLine": 491,
+        "endChar": 12
+      },
+      "revId": "026902b0477ca4774a7a5614f2ecb526914e9dd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
