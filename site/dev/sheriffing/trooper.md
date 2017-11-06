@@ -59,6 +59,8 @@ Tips for troopers
   questions regarding bots managed by the Chrome Infra team and to get
   visibility into upstream failures that cause problems for us.
 
+- See [this page] for details on how to connect to the different Skia bots.
+
 - To log in to a Linux bot in GCE, use `gcloud compute ssh default@<machine
   name>`. Choose the zone listed for the
   [GCE VM](https://console.cloud.google.com/project/31977622648/compute/instances)
