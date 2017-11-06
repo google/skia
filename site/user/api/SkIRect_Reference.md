@@ -21,8 +21,8 @@ its <a href="#SkIRect_top">top</a>, it is considered empty.
 
 | description | function |
 | --- | ---  |
-| bool <a href="#SkIRect_not_equal_operator">operator!=(const SkIRect& a, const SkIRect& b)</a> | Returns true if members are unequal. |
-| bool <a href="#SkIRect_equal_operator">operator==(const SkIRect& a, const SkIRect& b)</a> | Returns true if members are equal. |
+| bool <a href="#SkIRect_notequal2_operator">operator!=(const SkIRect& a, const SkIRect& b)</a> | Returns true if members are unequal. |
+| bool <a href="#SkIRect_equal2_operator">operator==(const SkIRect& a, const SkIRect& b)</a> | Returns true if members are equal. |
 
 ## <a name="Member_Functions"></a> Member Functions
 
@@ -780,21 +780,21 @@ large is empty: false
 
 ---
 
-<a name="SkIRect_equal_operator"></a>
+<a name="SkIRect_equal2_operator"></a>
 ## operator==
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 bool operator==(const SkIRect& a, const SkIRect& b)
 </pre>
 
-Returns true if all members in <a href="#SkIRect_equal_operator_a">a</a>: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; are 
-identical to corresponding members in <a href="#SkIRect_equal_operator_b">b</a>.
+Returns true if all members in <a href="#SkIRect_equal2_operator_a">a</a>: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; are 
+identical to corresponding members in <a href="#SkIRect_equal2_operator_b">b</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_equal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkIRect_equal2_operator_a"> <code><strong>a </strong></code> </a></td> <td>
 <a href="#IRect">IRect</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkIRect_equal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkIRect_equal2_operator_b"> <code><strong>b </strong></code> </a></td> <td>
 <a href="#IRect">IRect</a> to compare</td>
   </tr>
 </table>
@@ -817,25 +817,25 @@ test == sorted
 
 ### See Also
 
-<a href="#SkIRect_not_equal_operator">operator!=(const SkIRect& a, const SkIRect& b)</a>
+<a href="#SkIRect_notequal2_operator">operator!=(const SkIRect& a, const SkIRect& b)</a>
 
 ---
 
-<a name="SkIRect_not_equal_operator"></a>
+<a name="SkIRect_notequal2_operator"></a>
 ## operator!=
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 bool operator!=(const SkIRect& a, const SkIRect& b)
 </pre>
 
-Returns true if any member in <a href="#SkIRect_not_equal_operator_a">a</a>: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; is not 
-identical to the corresponding member in <a href="#SkIRect_not_equal_operator_b">b</a>.
+Returns true if any member in <a href="#SkIRect_notequal2_operator_a">a</a>: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; is not 
+identical to the corresponding member in <a href="#SkIRect_notequal2_operator_b">b</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_not_equal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkIRect_notequal2_operator_a"> <code><strong>a </strong></code> </a></td> <td>
 <a href="#IRect">IRect</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkIRect_not_equal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkIRect_notequal2_operator_b"> <code><strong>b </strong></code> </a></td> <td>
 <a href="#IRect">IRect</a> to compare</td>
   </tr>
 </table>
@@ -858,7 +858,7 @@ test != sorted
 
 ### See Also
 
-<a href="#SkIRect_equal_operator">operator==(const SkIRect& a, const SkIRect& b)</a>
+<a href="#SkIRect_equal2_operator">operator==(const SkIRect& a, const SkIRect& b)</a>
 
 ---
 
@@ -1509,9 +1509,9 @@ returns true if constructed area is completely enclosed by <a href="#IRect">IRec
 ### Parameters
 
 <table>  <tr>    <td><a name="SkIRect_contains_x"> <code><strong>x </strong></code> </a></td> <td>
-test <a href="undocumented#Point">Point</a> x-coordinate</td>
+test <a href="SkPoint_Reference#Point">Point</a> x-coordinate</td>
   </tr>  <tr>    <td><a name="SkIRect_contains_y"> <code><strong>y </strong></code> </a></td> <td>
-test <a href="undocumented#Point">Point</a> y-coordinate</td>
+test <a href="SkPoint_Reference#Point">Point</a> y-coordinate</td>
   </tr>
 </table>
 

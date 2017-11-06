@@ -1753,8 +1753,6 @@ Call restoreToCount with returned value to restore this and subsequent saves.
         kInitWithPrevious_SaveLayerFlag = 1 << 2,
         kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
     };
-
-    typedef uint32_t SaveLayerFlags;
 ##
 
 SaveLayerFlags provides options that may be used in any combination in SaveLayerRec,
@@ -1809,6 +1807,10 @@ void draw(SkCanvas* canvas) {
 #SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
 
 #Enum ##
+
+#Typedef uint32_t SaveLayerFlags
+
+##
 
 #Struct SaveLayerRec
 
