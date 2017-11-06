@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "4121f995_03f7f806",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-06T18:08:42Z",
+      "side": 1,
+      "message": "For Android, Chromecast, and iOS, we use the device or device_type dimension rather than the gpu dimension. I believe the gpu dimension is the host machine\u0027s GPU.\n\nThe Mac CPU bots are VMs and do not have a GPU.",
+      "parentUuid": "42a80cb1_ef7cfe44",
+      "revId": "f743d2b23162461e462782e2f97b4c98204e388a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3622cb8d_b087cc80",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 4
