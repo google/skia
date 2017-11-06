@@ -58,11 +58,7 @@ public:
         ++fCount;
     }
 
-    void remove(const Key& key, const T* value) {
-        ValueList* list = fHash.find(key);
-        // Since we expect the caller to be fully aware of what is stored, just
-        // assert that the caller removes an existing value.
-        SkASSERT(list);
+    void foo(ValueList* list, const Key& key, const T* value) {
         ValueList* prev = nullptr;
         while (list->fValue != value) {
             prev = list;
@@ -85,10 +81,43 @@ public:
         --fCount;
     }
 
+    void remove(const Key& key, const T* value) {
+        ValueList* list = fHash.find(key);
+        // Since we expect the caller to be fully aware of what is stored, just
+        // assert that the caller removes an existing value.
+        SkASSERT(list);
+
+        this->foo(list, key, value);
+    }
+
     T* find(const Key& key) const {
         ValueList* list = fHash.find(key);
         if (list) {
             return list->fValue;
+        }
+        return nullptr;
+    }
+
+    T* findAndRemove(const Key& key) {
+        ValueList* list = fHash.find(key);
+        if (list) {
+            T* value = list->fValue;
+            this->foo(list, key, value);
+            return value;
+        }
+        return nullptr;
+    }
+
+    template<class FindPredicate>
+    T* findAndRemove(const Key& key, const FindPredicate f) {
+        ValueList* list = fHash.find(key);
+        while (list) {
+            if (f(list->fValue)){
+                T* value = list->fValue;
+                this->foo(list, key, value);
+                return value;
+            }
+            list = list->fNext;
         }
         return nullptr;
     }

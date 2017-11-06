@@ -86,6 +86,7 @@ protected:
 
     bool isPurgeable() const { return !this->internalHasRef() && !this->internalHasPendingIO(); }
 
+public:
     bool internalHasPendingRead() const { return SkToBool(fPendingReads); }
     bool internalHasPendingWrite() const { return SkToBool(fPendingWrites); }
     bool internalHasPendingIO() const { return SkToBool(fPendingWrites | fPendingReads); }

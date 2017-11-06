@@ -426,6 +426,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     }
 
     GrSurfaceProxy* dstProxy = dst->asSurfaceProxy();
+    dstProxy->fIsOkayToBeInstantiated = true;
+
     GrSurface* dstSurface = dstProxy->priv().peekSurface();
 
     // The src is unpremul but the dst is premul -> premul the src before or as part of the write
@@ -541,6 +543,9 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     return true;
 }
 
+
+#include "GrRenderTargetContextPriv.h"
+
 bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
                                       int left, int top, int width, int height,
                                       GrPixelConfig dstConfig, SkColorSpace* dstColorSpace,
@@ -559,6 +564,8 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     }
 
     GrSurfaceProxy* srcProxy = src->asSurfaceProxy();
+    srcProxy->fIsOkayToBeInstantiated = true;
+
     GrSurface* srcSurface = srcProxy->priv().peekSurface();
 
     // The src is premul but the dst is unpremul -> unpremul the src after or as part of the read
@@ -621,10 +628,13 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
                                                            tempDrawInfo.fTempSurfaceDesc.fSampleCnt,
                                                            GrMipMapped::kNo,
                                                            tempDrawInfo.fTempSurfaceDesc.fOrigin);
+        SkASSERT(!tempRTC->priv().isInstantiated());
         if (tempRTC) {
             SkMatrix textureMatrix = SkMatrix::MakeTrans(SkIntToScalar(left), SkIntToScalar(top));
             sk_sp<GrTextureProxy> proxy = src->asTextureProxyRef();
-            auto fp = GrSimpleTextureEffect::Make(std::move(proxy), textureMatrix);
+            bool beforeState = proxy->fIsOkayToBeInstantiated;
+            proxy->fIsOkayToBeInstantiated = true; // we already manually instantiated this above
+            auto fp = GrSimpleTextureEffect::Make(proxy, textureMatrix);
             if (unpremulOnGpu) {
                 fp = fContext->createPMToUPMEffect(std::move(fp), useConfigConversionEffect);
                 // We no longer need to do this on CPU after the read back.
@@ -643,6 +653,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
             tempRTC->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect,
                                 nullptr);
             proxyToRead = tempRTC->asTextureProxyRef();
+            proxy->fIsOkayToBeInstantiated = beforeState;
             left = 0;
             top = 0;
             didTempDraw = true;
@@ -932,6 +943,8 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
         return nullptr;
     }
 
+    SkASSERT(!rtp->priv().isInstantiated());
+
     sk_sp<GrRenderTargetContext> renderTargetContext(
         fDrawingManager->makeRenderTargetContext(std::move(rtp),
                                                  std::move(colorSpace),
@@ -940,8 +953,10 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
         return nullptr;
     }
 
+    SkASSERT(!renderTargetContext->priv().isInstantiated());
     renderTargetContext->discard();
 
+    SkASSERT(!renderTargetContext->priv().isInstantiated());
     return renderTargetContext;
 }
 

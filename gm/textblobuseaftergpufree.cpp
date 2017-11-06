@@ -71,6 +71,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new TextBlobUseAfterGpuFree;)
+// The flush forces the backed canvas to be instantiated
+//DEF_GM(return new TextBlobUseAfterGpuFree;)
 }
 #endif

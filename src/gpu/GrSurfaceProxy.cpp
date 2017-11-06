@@ -32,8 +32,9 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fFlags(0)
         , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
         , fNeedsClear(false)
-        , fGpuMemorySize(kInvalidGpuMemorySize)
+        , fGpuMemorySize1(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
+    fIsOkayToBeInstantiated = true; // it's wrapped after all
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
@@ -95,7 +96,9 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
     return surface;
 }
 
-void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
+void GrSurfaceProxy::assign1(sk_sp<GrSurface> surface) {
+    SkDebugf("Assigning surface %d to proxy %d\n", surface->uniqueID().asUInt(), fUniqueID.asUInt());
+
     SkASSERT(!fTarget && surface);
     fTarget = surface.release();
     this->INHERITED::transferRefs();
@@ -130,7 +133,16 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
         resourceProvider->assignUniqueKeyToResource(*uniqueKey, surface.get());
     }
 
-    this->assign(std::move(surface));
+#if 0
+    SkDebugf("assign: %d -> %d -- pRef:%d rRef:%d R:%d W:%d\n",
+             this->uniqueID().asUInt(), this->underlyingUniqueID().asUInt(),
+             this->getProxyRefCnt_TestOnly(),
+             this->getBackingRefCnt_TestOnly(),
+             this->getPendingReadCnt_TestOnly(),
+             this->getPendingWriteCnt_TestOnly());
+#endif
+
+    this->assign1(std::move(surface));
     return true;
 }
 

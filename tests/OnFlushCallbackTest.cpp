@@ -328,6 +328,8 @@ public:
                                                                            nullptr, nullptr);
 #endif
 
+        rtc->accessRenderTarget();
+
         rtc->clear(nullptr, 0xFFFFFFFF, true); // clear the atlas
 
         int blocksInAtlas = 0;

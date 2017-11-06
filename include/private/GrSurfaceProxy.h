@@ -130,7 +130,7 @@ protected:
     void transferRefs() {
         SkASSERT(fTarget);
 
-        fTarget->fRefCnt += (fRefCnt-1); // don't xfer the proxy's creation ref
+        fTarget->fRefCnt += SkTMax(fRefCnt-1, 0); // don't xfer the proxy's creation ref
         fTarget->fPendingReads += fPendingReads;
         fTarget->fPendingWrites += fPendingWrites;
     }
@@ -173,6 +173,8 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    bool fIsOkayToBeInstantiated = false;
+
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>, GrSurfaceOrigin);
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
 
@@ -316,11 +318,11 @@ public:
         if (fTarget) {
             return fTarget->gpuMemorySize();
         }
-        if (kInvalidGpuMemorySize == fGpuMemorySize) {
-            fGpuMemorySize = this->onUninstantiatedGpuMemorySize();
-            SkASSERT(kInvalidGpuMemorySize != fGpuMemorySize);
+        if (kInvalidGpuMemorySize == fGpuMemorySize1) {
+            fGpuMemorySize1 = this->onUninstantiatedGpuMemorySize();
+            SkASSERT(kInvalidGpuMemorySize != fGpuMemorySize1);
         }
-        return fGpuMemorySize;
+        return fGpuMemorySize1;
     }
 
     // Helper function that creates a temporary SurfaceContext to perform the copy
@@ -357,7 +359,7 @@ protected:
             , fBudgeted(budgeted)
             , fFlags(flags)
             , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
-            , fGpuMemorySize(kInvalidGpuMemorySize)
+            , fGpuMemorySize1(kInvalidGpuMemorySize)
             , fLastOpList(nullptr) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
@@ -381,7 +383,7 @@ protected:
     void computeScratchKey(GrScratchKey*) const;
 
     virtual sk_sp<GrSurface> createSurface(GrResourceProvider*) const = 0;
-    void assign(sk_sp<GrSurface> surface);
+    void assign1(sk_sp<GrSurface> surface);
 
     sk_sp<GrSurface> createSurfaceImpl(GrResourceProvider*, int sampleCnt, bool needsStencil,
                                        GrSurfaceFlags flags, GrMipMapped mipMapped,
@@ -405,7 +407,7 @@ protected:
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
-    SkDEBUGCODE(size_t getRawGpuMemorySize_debugOnly() const { return fGpuMemorySize; })
+    SkDEBUGCODE(size_t getRawGpuMemorySize_debugOnly() const { return fGpuMemorySize1; })
 
 private:
     virtual size_t onUninstantiatedGpuMemorySize() const = 0;
@@ -416,7 +418,7 @@ private:
     // will be called but, when the proxy is deferred, it will compute the answer itself.
     // If the proxy computes its own answer that answer is checked (in debug mode) in
     // the instantiation method.
-    mutable size_t      fGpuMemorySize;
+    mutable size_t      fGpuMemorySize1;
 
     // The last opList that wrote to or is currently going to write to this surface
     // The opList can be closed (e.g., no surface context is currently bound
