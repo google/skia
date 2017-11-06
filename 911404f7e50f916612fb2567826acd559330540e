@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "61c6e149_1f8dc002",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-06T18:06:32Z",
+      "side": 1,
+      "message": "The main intended purpose is so that stencilPath, stencilRect, StencilPathArgs, et. al. can accept a GrHardClip instead of GrClip. This guarantees at compile time that we won\u0027t accidentally try to clip a draw to stencil using coverage FPs.\n\nThe assert is just so we can cast it up to a regular GrClip.",
+      "parentUuid": "c36c4a89_915acbbd",
+      "revId": "911404f7e50f916612fb2567826acd559330540e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8e35e217_e83aae81",
         "filename": "src/gpu/GrFixedClip.h",
         "patchSetId": 3
