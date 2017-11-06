@@ -13,6 +13,7 @@
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkTaskGroup.h"
+#include "sk_tool_utils.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Static text from paths.
@@ -21,7 +22,7 @@ public:
     constexpr static int kNumPaths = 1500;
     virtual const char* getName() const { return "PathText"; }
 
-    PathText() : fRand(25) {
+    PathText() {
         SkPaint defaultPaint;
         SkAutoGlyphCache agc(defaultPaint, nullptr, &SkMatrix::I());
         SkGlyphCache* cache = agc.getCache();
@@ -53,10 +54,32 @@ public:
             SampleCode::TitleR(evt, this->getName());
             return true;
         }
+        SkUnichar unichar;
+        if (SampleCode::CharQ(*evt, &unichar)) {
+            if (unichar == 'X') {
+                fDoClip = !fDoClip;
+                this->inval(nullptr);
+                return true;
+            }
+        }
         return this->INHERITED::onQuery(evt);
     }
 
     void onDrawContent(SkCanvas* canvas) override {
+        if (fDoClip) {
+            SkMatrix oldMatrix = canvas->getTotalMatrix();
+            canvas->setMatrix(SkMatrix::MakeScale(this->width(), this->height()));
+            canvas->save();
+            canvas->clipPath(fClipPath, SkClipOp::kDifference, true);
+            canvas->clear(SK_ColorBLACK);
+            canvas->restore();
+            canvas->clipPath(fClipPath, SkClipOp::kIntersect, true);
+            canvas->setMatrix(oldMatrix);
+        }
+        this->drawGlyphs(canvas);
+    }
+
+    virtual void drawGlyphs(SkCanvas* canvas) {
         for (Glyph& glyph : fGlyphs) {
             SkAutoCanvasRestore acr(canvas, true);
             canvas->translate(glyph.fPosition.x(), glyph.fPosition.y());
@@ -81,7 +104,9 @@ protected:
     };
 
     Glyph      fGlyphs[kNumPaths];
-    SkRandom   fRand;
+    SkRandom   fRand{25};
+    SkPath     fClipPath = sk_tool_utils::make_star(SkRect{0,0,1,1}, 11, 3);
+    bool       fDoClip = false;
 
     typedef SampleView INHERITED;
 };
@@ -193,7 +218,7 @@ public:
         std::swap(fFrontMatrices, fBackMatrices);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void drawGlyphs(SkCanvas* canvas) override {
         for (int i = 0; i < kNumPaths; ++i) {
             SkAutoCanvasRestore acr(canvas, true);
             canvas->concat(fFrontMatrices[i]);
@@ -299,7 +324,7 @@ public:
         fFrontPaths.swap(fBackPaths);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void drawGlyphs(SkCanvas* canvas) override {
         for (int i = 0; i < kNumPaths; ++i) {
             canvas->drawPath(fFrontPaths[i], fGlyphs[i].fPaint);
         }
