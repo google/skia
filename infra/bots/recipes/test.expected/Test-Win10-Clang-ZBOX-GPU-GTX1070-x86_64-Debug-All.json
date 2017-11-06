@@ -226,6 +226,7 @@
       "gldft",
       "glsrgb",
       "glmsaa8",
+      "gbr-gl",
       "--src",
       "tests",
       "gm",
