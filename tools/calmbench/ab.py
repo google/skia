@@ -80,7 +80,7 @@ def parse_args():
 
   # Additional args for bots
   BHELP = "bot specific options"
-  parser.add_argument('--githash', type=str, default=[], nargs='+', help=BHELP)
+  parser.add_argument('--githash', type=str, default="", help=BHELP)
   parser.add_argument('--keys', type=str, default=[], nargs='+', help=BHELP)
 
   args = parser.parse_args()
