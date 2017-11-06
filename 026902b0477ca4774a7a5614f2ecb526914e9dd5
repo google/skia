@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97105613_be352cc0",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-11-06T14:56:16Z",
+      "side": 1,
+      "message": "Ewww. I know all the Win10 bots are GPU at the moment, but I would much rather have a Win10 bot than a Win8 bot here. The big reason for this is that if we end up using \u0027portable\u0027 stuff on most bots we need to make sure we have a latest Windows bot for testing new DirectWrite code paths (variable font APIs for native fonts just got added and we need to add support for it and test it asap). DirectWrite APIs are never backported, so Win8 is stuck on old stuff as well as being used by ~0 users.",
+      "range": {
+        "startLine": 491,
+        "startChar": 8,
+        "endLine": 491,
+        "endChar": 12
+      },
+      "revId": "026902b0477ca4774a7a5614f2ecb526914e9dd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
