@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "c36c4a89_915acbbd",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-06T17:56:38Z",
+      "side": 1,
+      "message": "Is this assert the only reason for this class?",
+      "revId": "911404f7e50f916612fb2567826acd559330540e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8e35e217_e83aae81",
         "filename": "src/gpu/GrFixedClip.h",
         "patchSetId": 3
