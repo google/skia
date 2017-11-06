@@ -206,29 +206,7 @@ private:
     SkColor fLuminanceColor;
     bool fUseGammaCorrectDistanceTable;
 
-    friend class GrBlobRegenHelper;  // Needs to trigger flushes
-
     typedef GrMeshDrawOp INHERITED;
-};
-
-/*
- * A simple helper class to abstract the interface GrAtlasTextBlob needs to regenerate itself.
- * It'd be nicer if this was nested, but we need to forward declare it in GrAtlasTextBlob.h
- */
-class GrBlobRegenHelper {
-public:
-    GrBlobRegenHelper(const GrAtlasTextOp* op, GrMeshDrawOp::Target* target,
-                      GrAtlasTextOp::FlushInfo* flushInfo)
-            : fOp(op), fTarget(target), fFlushInfo(flushInfo) {}
-
-    void flush();
-
-    void incGlyphCount(int glyphCount = 1) { fFlushInfo->fGlyphsToFlush += glyphCount; }
-
-private:
-    const GrAtlasTextOp* fOp;
-    GrMeshDrawOp::Target* fTarget;
-    GrAtlasTextOp::FlushInfo* fFlushInfo;
 };
 
 #endif
