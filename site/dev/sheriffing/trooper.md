@@ -49,30 +49,11 @@ Tips for troopers
 
 - Install the Skia trooper Chrome extension (available [here](https://chrome.google.com/webstore/a/google.com/detail/alerts-for-skia-troopers/fpljhfiomnfioecagooiekldeolcpief)) to be able to see alerts quickly in the browser.
 
-- Where machines are located:
-  - Machine name like "skia-gce-NNN", "skia-i-gce-NNN", "ct-gce-NNN", "skia-ct-gce-NNN", "ct-xxx-builder-NNN" -> GCE
-  - Machine name ends with "a9", "m3" -> Chrome Golo/Labs
-  - Machine name ends with "m5" -> CT bare-metal bots in Chrome Golo
-  - Machine name starts with "skia-e-", "skia-i-" (other than "skia-i-gce-NNN"), "skia-rpi-" -> Chapel Hill lab
+- See [this section](../testing/swarmingbots#connecting-to-swarming-bots) for details on how to connect to the different Skia bots.
 
 - The [chrome-infra hangout](https://goto.google.com/cit-hangout) is useful for
   questions regarding bots managed by the Chrome Infra team and to get
   visibility into upstream failures that cause problems for us.
-
-- To log in to a Linux bot in GCE, use `gcloud compute ssh default@<machine
-  name>`. Choose the zone listed for the
-  [GCE VM](https://console.cloud.google.com/project/31977622648/compute/instances)
-  (or specify it using the `--zone` command-line flag).
-
-- To log in to a Windows bot in GCE, use
-  [Chrome RDP Extension](https://chrome.google.com/webstore/detail/chrome-rdp/cbkkbcmdlboombapidmoeolnmdacpkch?hl=en-US)
-  with the
-  [IP address of the GCE VM](https://console.cloud.google.com/project/31977622648/compute/instances)
-  shown on the [host info page](https://status.skia.org/hosts) for that bot. The
-  username is chrome-bot and the password can be found on
-  [Valentine](https://valentine.corp.google.com/) as "chrome-bot (Win GCE)".
-
-- To log in to other bots, see the [Skolo maintenance doc](https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.2nq3yd1axg0n) remote access section.
 
 - If there is a problem with a bot in the Chrome Golo or Chrome infra GCE, the
   best course of action is to
