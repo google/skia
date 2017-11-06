@@ -1403,6 +1403,8 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
                                     const GrStyle& style) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
+
+    SkDebugf("drawArc\n");
     SkDEBUGCODE(this->validate();)
             GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawArc", fContext);
 
@@ -1424,9 +1426,13 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
             return;
         }
     }
+
+    SkDebugf("making path\n");
+    
     SkPath path;
     SkPathPriv::CreateDrawArcPath(&path, oval, startAngle, sweepAngle, useCenter,
                                   style.isSimpleFill());
+    SkDebugf("path refCnt %d\n", path.fPathRef->getRefCnt());
     this->internalDrawPath(clip, std::move(paint), aa, viewMatrix, path, style);
 }
 

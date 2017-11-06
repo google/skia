@@ -1671,7 +1671,7 @@ public:
     bool pathRefIsValid() const { return fPathRef->isValid(); }
 #endif
 
-private:
+public:
     enum SerializationOffsets {
         kType_SerializationShift = 28,       // requires 4 bits
         kDirection_SerializationShift = 26,  // requires 2 bits

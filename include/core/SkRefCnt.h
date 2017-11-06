@@ -227,7 +227,7 @@ public:
     }
     void  deref() const { this->unref(); }
 
-private:
+public:
     mutable std::atomic<int32_t> fRefCnt;
     int32_t getRefCnt() const {
         return fRefCnt.load(std::memory_order_relaxed);
