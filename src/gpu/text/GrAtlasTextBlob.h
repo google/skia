@@ -21,7 +21,6 @@
 #include "SkSurfaceProps.h"
 #include "SkTInternalLList.h"
 
-class GrBlobRegenHelper;
 struct GrDistanceFieldAdjustTable;
 class GrMemoryPool;
 class SkDrawFilter;
@@ -49,6 +48,8 @@ class SkTextBlobRunIterator;
 class GrAtlasTextBlob : public SkNVRefCnt<GrAtlasTextBlob> {
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrAtlasTextBlob);
+
+    class VertexRegenerator;
 
     static sk_sp<GrAtlasTextBlob> Make(GrMemoryPool* pool, int glyphCount, int runCount);
 
@@ -249,16 +250,6 @@ public:
     void initThrowawayBlob(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
         this->setupViewMatrix(viewMatrix, x, y);
     }
-
-    /**
-     * Consecutive calls to regenInOp often use the same SkGlyphCache. If the same instance of
-     * SkAutoGlyphCache is passed to multiple calls of regenInOp then it can save the cost of
-     * multiple detach/attach operations of SkGlyphCache.
-     */
-    void regenInOp(GrDeferredUploadTarget*, GrAtlasGlyphCache* fontCache, GrBlobRegenHelper* helper,
-                   int run, int subRun, SkAutoGlyphCache*, size_t vertexStride,
-                   const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
-                   void** vertices, size_t* byteCount, int* glyphCount);
 
     const Key& key() const { return fKey; }
 
@@ -492,11 +483,6 @@ private:
         bool fDrawAsPaths;
     };  // Run
 
-    template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-    void regenInOp(GrDeferredUploadTarget*, GrAtlasGlyphCache* fontCache, GrBlobRegenHelper* helper,
-                   Run* run, Run::SubRunInfo* info, SkAutoGlyphCache*, int glyphCount,
-                   size_t vertexStride, GrColor color, SkScalar transX, SkScalar transY) const;
-
     inline std::unique_ptr<GrAtlasTextOp> makeOp(
             const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
@@ -530,7 +516,7 @@ private:
     };
 
     // all glyph / vertex offsets are into these pools.
-    unsigned char* fVertices;
+    char* fVertices;
     GrGlyph** fGlyphs;
     Run* fRuns;
     GrMemoryPool* fPool;
@@ -552,6 +538,67 @@ private:
     SkScalar fMinMaxScale;
     int fRunCount;
     uint8_t fTextType;
+};
+
+/**
+ * Used to produce vertices for a subrun of a blob. The vertices are cached in the blob itself.
+ * This is invoked each time a sub run is drawn. It regenerates the vertex data as required either
+ * because of changes to the atlas or because of different draw parameters (e.g. color change). In
+ * rare cases the draw may have to interrupted and flushed in the middle of the sub run in order to
+ * free up atlas space. Thus, this generator is stateful and should be invoked in a loop until the
+ * entire sub run has been completed.
+ */
+class GrAtlasTextBlob::VertexRegenerator {
+public:
+    /**
+     * Consecutive VertexRegenerators often use the same SkGlyphCache. If the same instance of
+     * SkAutoGlyphCache is reused then it can save the cost of multiple detach/attach operations of
+     * SkGlyphCache.
+     */
+    VertexRegenerator(GrAtlasTextBlob* blob, int runIdx, int subRunIdx, const SkMatrix& viewMatrix,
+                      SkScalar x, SkScalar y, GrColor color, GrDeferredUploadTarget*,
+                      GrAtlasGlyphCache*, SkAutoGlyphCache*, size_t vertexStride);
+
+    struct Result {
+        /**
+         * Was regenerate() able to draw all the glyphs from the sub run? If not flush all glyph
+         * draws and call regenerate() again.
+         */
+        bool fFinished = true;
+
+        /**
+         * How many glyphs were regenerated. Will be equal to the sub run's glyph count if
+         * fType is kFinished.
+         */
+        int fGlyphsRegenerated = 0;
+
+        /**
+         * Pointer where the caller finds the first regenerated vertex.
+         */
+        const char* fFirstVertex;
+    };
+
+    Result regenerate();
+
+private:
+    template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
+    Result doRegen();
+
+    const SkMatrix& fViewMatrix;
+    GrAtlasTextBlob* fBlob;
+    GrDeferredUploadTarget* fUploadTarget;
+    GrAtlasGlyphCache* fGlyphCache;
+    SkAutoGlyphCache* fLazyCache;
+    Run* fRun;
+    Run::SubRunInfo* fSubRun;
+    size_t fVertexStride;
+    GrColor fColor;
+    SkScalar fTransX;
+    SkScalar fTransY;
+
+    uint32_t fRegenFlags = 0;
+    int fCurrGlyph = 0;
+    bool fBrokenRun = false;
 };
 
 #endif
