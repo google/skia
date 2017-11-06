@@ -19,6 +19,7 @@
 
 class SkPath;
 class GrFixedClip;
+class GrHardClip;
 struct GrPoint;
 
 /**
@@ -168,7 +169,7 @@ public:
 
         GrContext*             fContext;
         GrRenderTargetContext* fRenderTargetContext;
-        const GrClip*          fClip;
+        const GrHardClip*      fClip;
         const SkIRect*         fClipConservativeBounds;
         const SkMatrix*        fViewMatrix;
         GrAAType               fAAType;
