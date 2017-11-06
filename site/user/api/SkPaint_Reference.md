@@ -109,10 +109,10 @@ Multiple colors are drawn either by using multiple paints or with objects like
 
 | operator | description |
 | --- | ---  |
-| <a href="#SkPaint_copy_assignment_operator">operator=(const SkPaint& paint)</a> | Makes a shallow copy. |
-| <a href="#SkPaint_move_assignment_operator">operator=(SkPaint&& paint)</a> | Moves paint without copying it. |
-| <a href="#SkPaint_equal_operator">operator==(const SkPaint& a, const SkPaint& b)</a> | Compares paints for equality. |
-| <a href="#SkPaint_not_equal_operator">operator!=(const SkPaint& a, const SkPaint& b)</a> | Compares paints for inequality. |
+| <a href="#SkPaint_copy_operator">operator=(const SkPaint& paint)</a> | Makes a shallow copy. |
+| <a href="#SkPaint_move_operator">operator=(SkPaint&& paint)</a> | Moves paint without copying it. |
+| <a href="#SkPaint_equal2_operator">operator==(const SkPaint& a, const SkPaint& b)</a> | Compares paints for equality. |
+| <a href="#SkPaint_notequal2_operator">operator!=(const SkPaint& a, const SkPaint& b)</a> | Compares paints for inequality. |
 
 ## <a name="Member_Functions"></a> Member Functions
 
@@ -403,7 +403,7 @@ objects containing <a href="undocumented#Reference_Count">Reference Count</a> go
 
 # <a name="Management"></a> Management
 
-<a name="SkPaint_copy_assignment_operator"></a>
+<a name="SkPaint_copy_operator"></a>
 ## operator=
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
@@ -412,21 +412,21 @@ SkPaint& operator=(const SkPaint& paint)
 
 Makes a shallow copy of <a href="#Paint">Paint</a>. <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Draw_Looper">Draw Looper</a>, and <a href="undocumented#Image_Filter">Image Filter</a> are shared
-between the original <a href="#SkPaint_copy_assignment_operator_paint">paint</a> and the copy. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> in the
+between the original <a href="#SkPaint_copy_operator_paint">paint</a> and the copy. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> in the
 prior destination are decreased by one, and the referenced objects are deleted if the
-resulting count is zero. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> in the parameter <a href="#SkPaint_copy_assignment_operator_paint">paint</a>
-are increased by one. <a href="#SkPaint_copy_assignment_operator_paint">paint</a> is unmodified.
+resulting count is zero. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> in the parameter <a href="#SkPaint_copy_operator_paint">paint</a>
+are increased by one. <a href="#SkPaint_copy_operator_paint">paint</a> is unmodified.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_copy_assignment_operator_paint"> <code><strong>paint </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkPaint_copy_operator_paint"> <code><strong>paint </strong></code> </a></td> <td>
 original to copy</td>
   </tr>
 </table>
 
 ### Return Value
 
-content of <a href="#SkPaint_copy_assignment_operator_paint">paint</a>
+content of <a href="#SkPaint_copy_operator_paint">paint</a>
 
 ### Example
 
@@ -443,30 +443,30 @@ SK_ColorRED == paint2.getColor()
 
 ---
 
-<a name="SkPaint_move_assignment_operator"></a>
+<a name="SkPaint_move_operator"></a>
 ## operator=
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 SkPaint& operator=(SkPaint&& paint)
 </pre>
 
-Moves the <a href="#SkPaint_move_assignment_operator_paint">paint</a> to avoid increasing the reference counts
-of objects referenced by the <a href="#SkPaint_move_assignment_operator_paint">paint</a> parameter. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> in the
+Moves the <a href="#SkPaint_move_operator_paint">paint</a> to avoid increasing the reference counts
+of objects referenced by the <a href="#SkPaint_move_operator_paint">paint</a> parameter. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> in the
 prior destination are decreased by one; those objects are deleted if the resulting count
 is zero.
 
-After the call, <a href="#SkPaint_move_assignment_operator_paint">paint</a> is undefined, and can be safely destructed.
+After the call, <a href="#SkPaint_move_operator_paint">paint</a> is undefined, and can be safely destructed.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_move_assignment_operator_paint"> <code><strong>paint </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkPaint_move_operator_paint"> <code><strong>paint </strong></code> </a></td> <td>
 original to move</td>
   </tr>
 </table>
 
 ### Return Value
 
-content of <a href="#SkPaint_move_assignment_operator_paint">paint</a>
+content of <a href="#SkPaint_move_operator_paint">paint</a>
 
 ### Example
 
@@ -482,22 +482,22 @@ SK_ColorRED == paint2.getColor()
 
 ---
 
-<a name="SkPaint_equal_operator"></a>
+<a name="SkPaint_equal2_operator"></a>
 ## operator==
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 bool operator==(const SkPaint& a, const SkPaint& b)
 </pre>
 
-Compares <a href="#SkPaint_equal_operator_a">a</a> and <a href="#SkPaint_equal_operator_b">b</a>, and returns true if <a href="#SkPaint_equal_operator_a">a</a> and <a href="#SkPaint_equal_operator_b">b</a> are equivalent. May return false
+Compares <a href="#SkPaint_equal2_operator_a">a</a> and <a href="#SkPaint_equal2_operator_b">b</a>, and returns true if <a href="#SkPaint_equal2_operator_a">a</a> and <a href="#SkPaint_equal2_operator_b">b</a> are equivalent. May return false
 if <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Rasterizer">Rasterizer</a>,
 <a href="undocumented#Draw_Looper">Draw Looper</a>, or <a href="undocumented#Image_Filter">Image Filter</a> have identical contents but different pointers.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_equal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkPaint_equal2_operator_a"> <code><strong>a </strong></code> </a></td> <td>
 <a href="#Paint">Paint</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkPaint_equal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkPaint_equal2_operator_b"> <code><strong>b </strong></code> </a></td> <td>
 <a href="#Paint">Paint</a> to compare</td>
   </tr>
 </table>
@@ -521,22 +521,22 @@ paint1 != paint2
 
 ---
 
-<a name="SkPaint_not_equal_operator"></a>
+<a name="SkPaint_notequal2_operator"></a>
 ## operator!=
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 bool operator!=(const SkPaint& a, const SkPaint& b)
 </pre>
 
-Compares <a href="#SkPaint_not_equal_operator_a">a</a> and <a href="#SkPaint_not_equal_operator_b">b</a>, and returns true if <a href="#SkPaint_not_equal_operator_a">a</a> and <a href="#SkPaint_not_equal_operator_b">b</a> are not equivalent. May return true
+Compares <a href="#SkPaint_notequal2_operator_a">a</a> and <a href="#SkPaint_notequal2_operator_b">b</a>, and returns true if <a href="#SkPaint_notequal2_operator_a">a</a> and <a href="#SkPaint_notequal2_operator_b">b</a> are not equivalent. May return true
 if <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Rasterizer">Rasterizer</a>,
 <a href="undocumented#Draw_Looper">Draw Looper</a>, or <a href="undocumented#Image_Filter">Image Filter</a> have identical contents but different pointers.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkPaint_not_equal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkPaint_notequal2_operator_a"> <code><strong>a </strong></code> </a></td> <td>
 <a href="#Paint">Paint</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkPaint_not_equal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkPaint_notequal2_operator_b"> <code><strong>b </strong></code> </a></td> <td>
 <a href="#Paint">Paint</a> to compare</td>
   </tr>
 </table>
@@ -572,7 +572,7 @@ Identical hashes guarantee that the paints are
 equivalent, but differing hashes do not guarantee that the paints have differing
 contents.
 
-If <a href="#SkPaint_equal_operator">operator==(const SkPaint& a, const SkPaint& b)</a> returns true for two paints,
+If <a href="#SkPaint_equal2_operator">operator==(const SkPaint& a, const SkPaint& b)</a> returns true for two paints,
 their hashes are also equal.
 
 The hash returned is platform and implementation specific.
@@ -1029,12 +1029,12 @@ paint1 == paint2
 This can help to smooth color transitions and reducing banding in gradients.
 Dithering lessens visible banding from <a href="undocumented#SkColorType">kRGB 565 SkColorType</a>
 and <a href="undocumented#SkColorType">kRGBA 8888 SkColorType</a> gradients, 
-and improves rendering into a <a href="undocumented#SkColorType">kRGB 565 SkColorType</a> <a href="undocumented#Surface">Surface</a>.
+and improves rendering into a <a href="undocumented#SkColorType">kRGB 565 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a>.
 
 Dithering is always enabled for linear gradients drawing into
-<a href="undocumented#SkColorType">kRGB 565 SkColorType</a> <a href="undocumented#Surface">Surface</a> and <a href="undocumented#SkColorType">kRGBA 8888 SkColorType</a> <a href="undocumented#Surface">Surface</a>.
-<a href="#Dither">Dither</a> cannot be enabled for <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a> <a href="undocumented#Surface">Surface</a> and
-<a href="undocumented#SkColorType">kRGBA F16 SkColorType</a> <a href="undocumented#Surface">Surface</a>.
+<a href="undocumented#SkColorType">kRGB 565 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a> and <a href="undocumented#SkColorType">kRGBA 8888 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a>.
+<a href="#Dither">Dither</a> cannot be enabled for <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a> and
+<a href="undocumented#SkColorType">kRGBA F16 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a>.
 
 <a href="#Dither">Dither</a> is disabled by default.
 <a href="#Dither">Dither</a> can be enabled by default by setting <a href="undocumented#SkPaintDefaults_Flags">SkPaintDefaults Flags</a> to <a href="#SkPaint_kDither_Flag">kDither Flag</a>
@@ -1767,7 +1767,7 @@ in a noticeable difference.
     <td><a href="#SkCanvas_drawImageRect">SkCanvas::drawImageRect</a></td>  </tr>
 </table>
 
-and when <a href="#Paint">Paint</a> has a <a href="undocumented#Shader">Shader</a> specialization that uses <a href="undocumented#Image">Image</a> or <a href="SkBitmap_Reference#Bitmap">Bitmap</a>.
+and when <a href="#Paint">Paint</a> has a <a href="undocumented#Shader">Shader</a> specialization that uses <a href="SkImage_Reference#Image">Image</a> or <a href="SkBitmap_Reference#Bitmap">Bitmap</a>.
 
 <a href="undocumented#Filter_Quality">Filter Quality</a> is <a href="undocumented#SkFilterQuality">kNone SkFilterQuality</a> by default.
 
@@ -2094,7 +2094,7 @@ a fill draw.
   <tr>
     <td><a name="SkPaint_kFill_Style"> <code><strong>SkPaint::kFill_Style </strong></code> </a></td><td>0</td><td>Set to fill geometry.
 Applies to <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Region">Region</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="#Circle">Circles</a>, <a href="#Oval">Ovals</a>, <a href="SkPath_Reference#Path">Path</a>, and <a href="undocumented#Text">Text</a>. 
-<a href="SkBitmap_Reference#Bitmap">Bitmap</a>, <a href="undocumented#Image">Image</a>, <a href="#Patch">Patches</a>, <a href="undocumented#Region">Region</a>, <a href="#Sprite">Sprites</a>, and <a href="undocumented#Vertices">Vertices</a> are painted as if
+<a href="SkBitmap_Reference#Bitmap">Bitmap</a>, <a href="SkImage_Reference#Image">Image</a>, <a href="#Patch">Patches</a>, <a href="undocumented#Region">Region</a>, <a href="#Sprite">Sprites</a>, and <a href="undocumented#Vertices">Vertices</a> are painted as if
 <a href="#SkPaint_kFill_Style">kFill Style</a> is set, and ignore the set <a href="#SkPaint_Style">Style</a>.
 The <a href="#Fill_Type">Path Fill Type</a> specifies additional rules to fill the area outside the path edge,
 and to create an unfilled hole inside the shape.
@@ -3523,7 +3523,7 @@ Increments <a href="#SkPaint_setImageFilter_imageFilter">imageFilter</a> <a href
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPaint_setImageFilter_imageFilter"> <code><strong>imageFilter </strong></code> </a></td> <td>
-how <a href="undocumented#Image">Image</a> is sampled when transformed</td>
+how <a href="SkImage_Reference#Image">Image</a> is sampled when transformed</td>
   </tr>
 </table>
 
