@@ -46,6 +46,30 @@
       "revId": "026902b0477ca4774a7a5614f2ecb526914e9dd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26f47cd6_29d3888e",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-11-06T15:13:46Z",
+      "side": 1,
+      "message": "I think we probably want 7 and 10. We don\u0027t really care that much about 8, but we should make sure we keep working on 7 which Chrome supports it.",
+      "parentUuid": "e336c522_fdd65fd8",
+      "range": {
+        "startLine": 491,
+        "startChar": 8,
+        "endLine": 491,
+        "endChar": 12
+      },
+      "revId": "026902b0477ca4774a7a5614f2ecb526914e9dd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
