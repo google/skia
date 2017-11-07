@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "../dm/DMFontMgr.h"
 #include "ProcStats.h"
 #include "SkColorFilter.h"
 #include "SkEventTracingPriv.h"
@@ -266,7 +267,6 @@ struct Memory : Dst {
 };
 static Register memory{"memory", "print process maximum memory usage", Memory::Create};
 
-static SkOnce init_tracing_once;
 struct Trace : Dst {
     std::unique_ptr<Dst> target;
     std::string trace_mode;
@@ -279,7 +279,8 @@ struct Trace : Dst {
     }
 
     Status draw(Src* src) override {
-        init_tracing_once([&] { initializeEventTracingForTools(trace_mode.c_str()); });
+        static SkOnce once;
+        once([&] { initializeEventTracingForTools(trace_mode.c_str()); });
         return target->draw(src);
     }
 
@@ -287,6 +288,35 @@ struct Trace : Dst {
         return target->image();
     }
 };
-static Register trace {"trace",
-                       "enable tracing in mode=atrace, mode=debugf, or mode=trace.json",
-                       Trace::Create};
+static Register trace{"trace",
+                      "enable tracing in mode=atrace, mode=debugf, or mode=trace.json",
+                      Trace::Create};
+
+extern sk_sp<SkFontMgr> (*gSkFontMgr_DefaultFactory)();
+
+struct PortableFonts : Dst {
+    std::unique_ptr<Dst> target;
+
+    static std::unique_ptr<Dst> Create(Options options, std::unique_ptr<Dst> dst) {
+        PortableFonts via;
+        via.target = std::move(dst);
+        return move_unique(via);
+    }
+
+    Status draw(Src* src) override {
+        static SkOnce once;
+        once([]{
+            gSkFontMgr_DefaultFactory = []() -> sk_sp<SkFontMgr> {
+                return sk_make_sp<DM::FontMgr>();
+            };
+        });
+        return target->draw(src);
+    }
+
+    sk_sp<SkImage> image() override {
+        return target->image();
+    }
+};
+static Register portable_fonts{"portable_fonts",
+                               "use DM::FontMgr to make fonts more portable",
+                               PortableFonts::Create};
