@@ -193,6 +193,10 @@ def nanobench_flags(api, bot):
   if 'float_cast_overflow' in bot and 'CPU' in bot:
     # skia:4632
     match.append('~^floor2int_undef$')
+  if 'Chromecast' in bot and 'GPU' in bot:
+    # This test takes so long on Chromecast that the bot times out.
+    # skia:7190
+    match.append('~^path_text_clipped')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -282,6 +286,7 @@ def perf_steps(api):
       '~blur_0.01',
       '~GM_animated-image-blurs',
       '~blendmode_mask_',
+      '~^path_text_clipped', # Bot times out; skia:7190
     ])
 
   if api.vars.upload_perf_results:
