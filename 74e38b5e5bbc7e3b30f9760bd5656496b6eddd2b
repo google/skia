@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "b1df56f5_0f774742",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1593,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-07T17:04:41Z",
+      "side": 1,
+      "message": "Ok, sounds too complicated to pursue.",
+      "parentUuid": "58a2341e_8000be89",
+      "range": {
+        "startLine": 1593,
+        "startChar": 51,
+        "endLine": 1593,
+        "endChar": 73
+      },
+      "revId": "74e38b5e5bbc7e3b30f9760bd5656496b6eddd2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "caea480f_a9c74d56",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 5
