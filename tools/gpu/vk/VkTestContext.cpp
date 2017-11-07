@@ -13,6 +13,7 @@
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
 #include <vulkan/vulkan.h>
+#include "../ports/SkOSLibrary.h"
 
 namespace {
 /**
@@ -114,8 +115,13 @@ public:
         if (sharedContext) {
             backendContext = sharedContext->getVkBackendContext();
         } else {
-            backendContext.reset(GrVkBackendContext::Create(vkGetInstanceProcAddr,
-                                                            vkGetDeviceProcAddr));
+	    void* vkLib = DynamicLoadLibrary("vulkan-1.dll");
+	   PFN_vkGetInstanceProcAddr instProc =
+	    	 (PFN_vkGetInstanceProcAddr)  GetProcedureAddress(vkLib, "vkGetInstanceProcAddr");
+	   PFN_vkGetDeviceProcAddr devProc =
+	    	 (PFN_vkGetDeviceProcAddr)  GetProcedureAddress(vkLib, "vkGetDeviceProcAddr");
+            backendContext.reset(GrVkBackendContext::Create(instProc,
+                                                            devProc));
         }
         if (!backendContext) {
             return nullptr;
