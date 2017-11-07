@@ -28,7 +28,6 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST = [
   'iOSShell.ipa',
   'visualbench',
   'visualbench.exe',
-  'vulkan-1.dll',
 ]
 
 
@@ -112,6 +111,7 @@ for pattern in build_products_whitelist:
       os.makedirs(os.path.dirname(dst_path))
     print 'Copying build product %%s to %%s' %% (f, dst_path)
     shutil.move(f, dst_path)
+os.remove(os.path.join(dst_path, 'vulkan-1.dll'))
 ''' % str(BUILD_PRODUCTS_ISOLATE_WHITELIST),
         args=[src, dst],
         infra_step=True)
