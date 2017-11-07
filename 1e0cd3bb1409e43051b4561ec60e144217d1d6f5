@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ede7d449_2a4ac611",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-07T21:30:24Z",
+      "side": 1,
+      "message": "Any idea why this doesn\u0027t generate json diffs when I retrain?",
+      "range": {
+        "startLine": 196,
+        "startChar": 6,
+        "endLine": 196,
+        "endChar": 16
+      },
+      "revId": "1e0cd3bb1409e43051b4561ec60e144217d1d6f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "414a3ead_043a1792",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-07T21:30:24Z",
+      "side": 1,
+      "message": "I would have expected this to have a different json file.",
+      "range": {
+        "startLine": 352,
+        "startChar": 8,
+        "endLine": 352,
+        "endChar": 34
+      },
+      "revId": "1e0cd3bb1409e43051b4561ec60e144217d1d6f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
