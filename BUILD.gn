@@ -1363,6 +1363,7 @@ if (skia_enable_tools) {
 
   test_app("ok") {
     sources = [
+      "dm/DMFontMgr.cpp",
       "tools/ok.cpp",
       "tools/ok_dsts.cpp",
       "tools/ok_engines.cpp",
