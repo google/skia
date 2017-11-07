@@ -8,12 +8,13 @@
 #ifndef GrClip_DEFINED
 #define GrClip_DEFINED
 
-#include "GrAppliedClip.h"
-#include "GrRenderTargetContext.h"
+#include "GrTypes.h"
 #include "SkRRect.h"
 #include "SkRect.h"
 
+class GrAppliedClip;
 class GrContext;
+class GrRenderTargetContext;
 
 /**
  * GrClip is an abstract base class for applying a clip. It constructs a clip mask if necessary, and
@@ -36,7 +37,8 @@ public:
      * skipped as it is fully clipped out.
      */
     virtual bool apply(GrContext*, GrRenderTargetContext*, bool useHWAA,
-                       bool hasUserStencilSettings, GrAppliedClip*, SkRect* bounds) const = 0;
+                       bool hasUserStencilSettings, GrAppliedClip* result,
+                       SkRect* bounds) const = 0;
 
     virtual ~GrClip() {}
 
@@ -131,32 +133,10 @@ public:
     }
 };
 
-
-/**
- * GrHardClip never uses coverage FPs. It can only enforce the clip using the already-existing
- * stencil buffer contents and/or fixed-function state like scissor. Always aliased if MSAA is off.
- */
-class GrHardClip : public GrClip {
-public:
-    /**
-     * Sets the appropriate hardware state modifications on GrAppliedHardClip that will implement
-     * the clip. On input 'bounds' is a conservative bounds of the draw that is to be clipped. After
-     * return 'bounds' has been intersected with a conservative bounds of the clip. A return value
-     * of false indicates that the draw can be skipped as it is fully clipped out.
-     */
-    virtual bool apply(int rtWidth, int rtHeight, GrAppliedHardClip* out, SkRect* bounds) const = 0;
-
-private:
-    bool apply(GrContext*, GrRenderTargetContext* rtc, bool useHWAA, bool hasUserStencilSettings,
-               GrAppliedClip* out, SkRect* bounds) const final {
-        return this->apply(rtc->width(), rtc->height(), &out->hardClip(), bounds);
-    }
-};
-
 /**
  * Specialized implementation for no clip.
  */
-class GrNoClip final : public GrHardClip {
+class GrNoClip final : public GrClip {
 private:
     bool quickContains(const SkRect&) const final { return true; }
     bool quickContains(const SkRRect&) const final { return true; }
@@ -167,7 +147,10 @@ private:
             *isIntersectionOfRects = true;
         }
     }
-    bool apply(int rtWidth, int rtHeight, GrAppliedHardClip*, SkRect*) const final { return true; }
+    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip*,
+               SkRect*) const final {
+        return true;
+    }
     bool isRRect(const SkRect&, SkRRect*, GrAA*) const override { return false; }
 };
 

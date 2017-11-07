@@ -17,7 +17,6 @@
 #include "GrFixedClip.h"
 #include "GrPathRenderer.h"
 #include "GrStencilSettings.h"
-#include "GrStencilClip.h"
 #include "GrStyle.h"
 #include "GrUserStencilSettings.h"
 #include "SkClipOpPriv.h"
@@ -696,14 +695,52 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 1-bit clip mask in the stencil buffer.
 
+class StencilClip final : public GrClip {
+public:
+    StencilClip(const SkIRect& scissorRect, uint32_t clipStackID)
+        : fFixedClip(scissorRect)
+        , fClipStackID(clipStackID) {
+    }
+
+    const GrFixedClip& fixedClip() const { return fFixedClip; }
+
+    void setWindowRectangles(const GrWindowRectangles& windows, GrWindowRectsState::Mode mode) {
+        fFixedClip.setWindowRectangles(windows, mode);
+    }
+
+private:
+    bool quickContains(const SkRect&) const override {
+        return false;
+    }
+    void getConservativeBounds(int width, int height, SkIRect* bounds, bool* iior) const override {
+        fFixedClip.getConservativeBounds(width, height, bounds, iior);
+    }
+    bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const override {
+        return false;
+    }
+    bool apply(GrContext* context, GrRenderTargetContext* renderTargetContext, bool useHWAA,
+               bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const override {
+        if (!fFixedClip.apply(context, renderTargetContext, useHWAA, hasUserStencilSettings, out,
+                              bounds)) {
+            return false;
+        }
+        out->addStencilClip(fClipStackID);
+        return true;
+    }
+
+    GrFixedClip fFixedClip;
+    uint32_t    fClipStackID;
+
+    typedef GrClip INHERITED;
+};
+
 bool GrReducedClip::drawStencilClipMask(GrContext* context,
                                         GrRenderTargetContext* renderTargetContext) const {
     // We set the current clip to the bounds so that our recursive draws are scissored to them.
-    GrStencilClip stencilClip(fScissor, this->maskGenID());
+    StencilClip stencilClip(fScissor, this->maskGenID());
 
     if (!fWindowRects.empty()) {
-        stencilClip.fixedClip().setWindowRectangles(fWindowRects,
-                                                    GrWindowRectsState::Mode::kExclusive);
+        stencilClip.setWindowRectangles(fWindowRects, GrWindowRectsState::Mode::kExclusive);
     }
 
     bool initialState = InitialState::kAllIn == this->initialState();
