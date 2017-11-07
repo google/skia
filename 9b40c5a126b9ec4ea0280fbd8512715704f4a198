@@ -16,6 +16,24 @@
       "revId": "9b40c5a126b9ec4ea0280fbd8512715704f4a198",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "133eb3dd_480e8068",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-07T22:39:09Z",
+      "side": 1,
+      "message": "Done. Oops, I meant to remove those lines.",
+      "parentUuid": "2fe82a0d_7dcd98bd",
+      "revId": "9b40c5a126b9ec4ea0280fbd8512715704f4a198",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
