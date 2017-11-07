@@ -14,6 +14,7 @@
 #include "GrPath.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
+#include "GrStencilClip.h"
 #include "GrStencilPathOp.h"
 #include "GrStyle.h"
 #include "ops/GrRectOpFactory.h"
@@ -93,28 +94,31 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
     sk_sp<GrPath> path(get_gr_path(fResourceProvider, *args.fShape));
 
     if (args.fShape->inverseFilled()) {
-        SkMatrix invert = SkMatrix::I();
-        SkRect bounds =
-            SkRect::MakeLTRB(0, 0,
-                             SkIntToScalar(args.fRenderTargetContext->width()),
-                             SkIntToScalar(args.fRenderTargetContext->height()));
         SkMatrix vmi;
-        // mapRect through persp matrix may not be correct
-        if (!viewMatrix.hasPerspective() && viewMatrix.invert(&vmi)) {
-            vmi.mapRect(&bounds);
-            // theoretically could set bloat = 0, instead leave it because of matrix inversion
-            // precision.
-            SkScalar bloat = viewMatrix.getMaxScale() * SK_ScalarHalf;
-            bounds.outset(bloat, bloat);
-        } else {
-            if (!viewMatrix.invert(&invert)) {
-                return false;
-            }
+        if (!viewMatrix.invert(&vmi)) {
+            return true;
         }
-        const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
+
+        SkRect devBounds = SkRect::MakeIWH(args.fRenderTargetContext->width(),
+                                           args.fRenderTargetContext->height()); // Inverse fill.
 
         // fake inverse with a stencil and cover
-        args.fRenderTargetContext->priv().stencilPath(*args.fClip, args.fAAType, viewMatrix,
+        GrAppliedClip appliedClip;
+        if (!args.fClip->apply(args.fContext, args.fRenderTargetContext,
+                               GrAATypeIsHW(args.fAAType), true, &appliedClip, &devBounds)) {
+            return true;
+        }
+        GrStencilClip stencilClip(appliedClip.stencilStackID());
+        if (appliedClip.scissorState().enabled()) {
+            stencilClip.fixedClip().setScissor(appliedClip.scissorState().rect());
+        }
+        if (appliedClip.windowRectsState().enabled()) {
+            stencilClip.fixedClip().setWindowRectangles(appliedClip.windowRectsState().windows(),
+                                                        appliedClip.windowRectsState().mode());
+        }
+        // Just ignore the analytic FPs (if any) during the stencil pass. They will still clip the
+        // final draw and it is meaningless to multiply by coverage when drawing to stencil.
+        args.fRenderTargetContext->priv().stencilPath(stencilClip, args.fAAType, viewMatrix,
                                                       path.get());
 
         {
@@ -130,6 +134,21 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                     GrUserStencilOp::kZero,
                     0xffff>()
             );
+
+            SkRect coverBounds;
+            // mapRect through persp matrix may not be correct
+            if (!viewMatrix.hasPerspective()) {
+                vmi.mapRect(&coverBounds, devBounds);
+                // theoretically could set bloat = 0, instead leave it because of matrix inversion
+                // precision.
+                SkScalar bloat = viewMatrix.getMaxScale() * SK_ScalarHalf;
+                coverBounds.outset(bloat, bloat);
+            } else {
+                coverBounds = devBounds;
+            }
+            const SkMatrix& coverMatrix = !viewMatrix.hasPerspective() ? viewMatrix : SkMatrix::I();
+            const SkMatrix& localMatrix = !viewMatrix.hasPerspective() ? SkMatrix::I() : vmi;
+
             // We have to suppress enabling MSAA for mixed samples or we will get seams due to
             // coverage modulation along the edge where two triangles making up the rect meet.
             GrAAType coverAAType = args.fAAType;
@@ -138,8 +157,9 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             }
             args.fRenderTargetContext->addDrawOp(*args.fClip,
                                                  GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                                                         std::move(args.fPaint), viewM, invert,
-                                                         bounds, coverAAType, &kInvertedCoverPass));
+                                                         std::move(args.fPaint), coverMatrix,
+                                                         localMatrix, coverBounds, coverAAType,
+                                                         &kInvertedCoverPass));
         }
     } else {
         std::unique_ptr<GrDrawOp> op =
