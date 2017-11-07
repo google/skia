@@ -623,7 +623,7 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
     fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
-void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
+void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
                                             GrAAType aaType,
                                             const SkMatrix& viewMatrix,
                                             const GrPath* path) {
@@ -645,11 +645,15 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
     SkRect bounds = SkRect::MakeIWH(fRenderTargetContext->width(), fRenderTargetContext->height());
 
     // Setup clip
-    GrAppliedHardClip appliedClip;
-    if (!clip.apply(fRenderTargetContext->width(), fRenderTargetContext->height(), &appliedClip,
-                    &bounds)) {
+    GrAppliedClip appliedClip;
+    if (!clip.apply(fRenderTargetContext->fContext, fRenderTargetContext, useHWAA, true,
+                    &appliedClip, &bounds)) {
         return;
     }
+
+    // Coverage AA does not make sense when rendering to the stencil buffer. The caller should never
+    // attempt this in a situation that would require coverage AA.
+    SkASSERT(!appliedClip.numClipCoverageFragmentProcessors());
 
     fRenderTargetContext->setNeedsStencil();
 
@@ -666,7 +670,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
     fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
-void GrRenderTargetContextPriv::stencilRect(const GrHardClip& clip,
+void GrRenderTargetContextPriv::stencilRect(const GrClip& clip,
                                             const GrUserStencilSettings* ss,
                                             GrAAType aaType,
                                             const SkMatrix& viewMatrix,
@@ -687,7 +691,7 @@ void GrRenderTargetContextPriv::stencilRect(const GrHardClip& clip,
     fRenderTargetContext->addDrawOp(clip, std::move(op));
 }
 
-bool GrRenderTargetContextPriv::drawAndStencilRect(const GrHardClip& clip,
+bool GrRenderTargetContextPriv::drawAndStencilRect(const GrClip& clip,
                                                    const GrUserStencilSettings* ss,
                                                    SkRegion::Op op,
                                                    bool invert,
@@ -1590,7 +1594,7 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
     this->internalDrawPath(clip, std::move(paint), aa, viewMatrix, path, style);
 }
 
-bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
+bool GrRenderTargetContextPriv::drawAndStencilPath(const GrClip& clip,
                                                    const GrUserStencilSettings* ss,
                                                    SkRegion::Op op,
                                                    bool invert,
