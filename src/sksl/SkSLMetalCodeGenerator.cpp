@@ -538,33 +538,34 @@ void MetalCodeGenerator::writeVarInitializer(const Variable& var, const Expressi
 void MetalCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {
     ASSERT(decl.fVars.size() > 0);
     bool wroteType = false;
-    for (const Variable* var : decl.fVars) {
-        if (var->fModifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag |
-                                      Modifiers::kUniform_Flag)) {
+    for (const auto& stmt : decl.fVars) {
+        VarDeclaration& var = (VarDeclaration&) *stmt;
+        if (var.fVar->fModifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag |
+                                           Modifiers::kUniform_Flag)) {
             ASSERT(global);
             continue;
         }
         if (wroteType) {
             this->write(", ");
         } else {
-            this->writeModifiers(var->fModifiers, global);
+            this->writeModifiers(var.fVar->fModifiers, global);
             this->writeType(decl.fBaseType);
             this->write(" ");
             wroteType = true;
         }
-        this->write(var->fName);
-        for (const auto& size : var->fSizes) {
+        this->write(var.fVar->fName);
+        for (const auto& size : var.fSizes) {
             this->write("[");
             if (size) {
                 this->writeExpression(*size, kTopLevel_Precedence);
             }
             this->write("]");
         }
-        if (var->fInitialValue) {
+        if (var.fValue) {
             this->write(" = ");
-            this->writeVarInitializer(*var, *var->fInitialValue);
+            this->writeVarInitializer(*var.fVar, *var.fValue);
         }
-        if (!fFoundImageDecl && var->fType == *fContext.fImage2D_Type) {
+        if (!fFoundImageDecl && var.fVar->fType == *fContext.fImage2D_Type) {
             if (fProgram.fSettings.fCaps->imageLoadStoreExtensionString()) {
                 fHeader.writeText("#extension ");
                 fHeader.writeText(fProgram.fSettings.fCaps->imageLoadStoreExtensionString());
@@ -732,7 +733,7 @@ void MetalCodeGenerator::writeUniformStruct() {
             if (!decls.fVars.size()) {
                 continue;
             }
-            const Variable& first = *decls.fVars[0];
+            const Variable& first = *((VarDeclaration&) *decls.fVars[0]).fVar;
             if (first.fModifiers.fFlags & Modifiers::kUniform_Flag) {
                 if (-1 == fUniformBuffer) {
                     this->write("struct Uniforms {\n");
@@ -749,8 +750,9 @@ void MetalCodeGenerator::writeUniformStruct() {
                 this->write("    ");
                 this->writeType(first.fType);
                 this->write(" ");
-                for (const auto& var : decls.fVars) {
-                    this->write(var->fName);
+                for (const auto& stmt : decls.fVars) {
+                    VarDeclaration& var = (VarDeclaration&) *stmt;
+                    this->write(var.fVar->fName);
                 }
                 this->write(";\n");
             }
@@ -772,17 +774,18 @@ void MetalCodeGenerator::writeInputStruct() {
             if (!decls.fVars.size()) {
                 continue;
             }
-            const Variable& first = *decls.fVars[0];
+            const Variable& first = *((VarDeclaration&) *decls.fVars[0]).fVar;
             if (first.fModifiers.fFlags & Modifiers::kIn_Flag &&
                 -1 == first.fModifiers.fLayout.fBuiltin) {
                 this->write("    ");
                 this->writeType(first.fType);
                 this->write(" ");
-                for (const Variable* var : decls.fVars) {
-                    this->write(var->fName);
-                    if (-1 != var->fModifiers.fLayout.fLocation) {
+                for (const auto& stmt : decls.fVars) {
+                    VarDeclaration& var = (VarDeclaration&) *stmt;
+                    this->write(var.fVar->fName);
+                    if (-1 != var.fVar->fModifiers.fLayout.fLocation) {
                         this->write("  [[attribute(" +
-                                    to_string(var->fModifiers.fLayout.fLocation) + ")]]");
+                                    to_string(var.fVar->fModifiers.fLayout.fLocation) + ")]]");
                     }
                 }
                 this->write(";\n");
@@ -801,14 +804,15 @@ void MetalCodeGenerator::writeOutputStruct() {
             if (!decls.fVars.size()) {
                 continue;
             }
-            const Variable& first = *decls.fVars[0];
+            const Variable& first = *((VarDeclaration&) *decls.fVars[0]).fVar;
             if (first.fModifiers.fFlags & Modifiers::kOut_Flag &&
                 -1 == first.fModifiers.fLayout.fBuiltin) {
                 this->write("    ");
                 this->writeType(first.fType);
                 this->write(" ");
-                for (const Variable* var : decls.fVars) {
-                    this->write(var->fName);
+                for (const auto& stmt : decls.fVars) {
+                    VarDeclaration& var = (VarDeclaration&) *stmt;
+                    this->write(var.fVar->fName);
                 }
                 this->write(";\n");
             }
@@ -823,7 +827,7 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::kVar_Kind: {
             VarDeclarations& decl = (VarDeclarations&) e;
             if (decl.fVars.size() > 0) {
-                int builtin = decl.fVars[0]->fModifiers.fLayout.fBuiltin;
+                int builtin = ((VarDeclaration&) *decl.fVars[0]).fVar->fModifiers.fLayout.fBuiltin;
                 if (-1 == builtin) {
                     // normal var
                     this->writeVarDeclarations(decl, true);

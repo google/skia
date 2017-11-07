@@ -42,10 +42,11 @@ public:
         for (const auto& p : program.fElements) {
             switch (p->fKind) {
                 case ProgramElement::kVar_Kind: {
-                    VarDeclarations* decls = (VarDeclarations*) p.get();
-                    for (const auto& var : decls->fVars) {
-                        if (IsParameter(*var)) {
-                            fParameters.push_back(var);
+                    const VarDeclarations* decls = (const VarDeclarations*) p.get();
+                    for (const auto& raw : decls->fVars) {
+                        const VarDeclaration& decl = (VarDeclaration&) *raw;
+                        if (IsParameter(*decl.fVar)) {
+                            fParameters.push_back(decl.fVar);
                         }
                     }
                     break;

@@ -326,7 +326,7 @@ DEF_TEST(SkSLUseWithoutInitialize, r) {
                  "int main() { int r; return r; }",
                  "error: 1: 'r' has not been assigned\n1 error\n");
     test_failure(r,
-                 "void main() { int x; int y = x; sk_FragColor = float4(y); }",
+                 "void main() { int x; int y = x; }",
                  "error: 1: 'x' has not been assigned\n1 error\n");
     test_failure(r,
                  "void main() { bool x; if (true && (false || x)) return; }",
