@@ -13,6 +13,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "effects/GrLumaColorFilterEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #endif
@@ -43,68 +44,8 @@ void SkLumaColorFilter::toString(SkString* str) const {
 #endif
 
 #if SK_SUPPORT_GPU
-class LumaColorFilterEffect : public GrFragmentProcessor {
-public:
-    static std::unique_ptr<GrFragmentProcessor> Make() {
-        return std::unique_ptr<GrFragmentProcessor>(new LumaColorFilterEffect);
-    }
-
-    const char* name() const override { return "Luminance-to-Alpha"; }
-
-    std::unique_ptr<GrFragmentProcessor> clone() const override { return Make(); }
-
-private:
-    class GLSLProcessor : public GrGLSLFragmentProcessor {
-    public:
-        static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
-
-        void emitCode(EmitArgs& args) override {
-            if (nullptr == args.fInputColor) {
-                args.fInputColor = "half4(1)";
-            }
-
-            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-            fragBuilder->codeAppendf("\thalf luma = dot(half3(%f, %f, %f), %s.rgb);\n",
-                                     SK_ITU_BT709_LUM_COEFF_R,
-                                     SK_ITU_BT709_LUM_COEFF_G,
-                                     SK_ITU_BT709_LUM_COEFF_B,
-                                     args.fInputColor);
-            fragBuilder->codeAppendf("\t%s = half4(0, 0, 0, luma);\n",
-                                     args.fOutputColor);
-
-        }
-
-    private:
-        typedef GrGLSLFragmentProcessor INHERITED;
-    };
-
-    LumaColorFilterEffect()
-    : INHERITED(kLumaColorFilterEffect_ClassID, kConstantOutputForConstantInput_OptimizationFlag) {
-    }
-
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
-        return new GLSLProcessor;
-    }
-
-    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                       GrProcessorKeyBuilder* b) const override {
-        GLSLProcessor::GenKey(*this, caps, b);
-    }
-
-    bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
-
-    GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
-        float luma = SK_ITU_BT709_LUM_COEFF_R * input.fRGBA[0] +
-                     SK_ITU_BT709_LUM_COEFF_G * input.fRGBA[1] +
-                     SK_ITU_BT709_LUM_COEFF_B * input.fRGBA[2];
-        return GrColor4f(0, 0, 0, luma);
-    }
-
-    typedef GrFragmentProcessor INHERITED;
-};
-
 std::unique_ptr<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(
         GrContext*, const GrColorSpaceInfo&) const {
-    return LumaColorFilterEffect::Make();
+    return GrLumaColorFilterEffect::Make();
 }
 #endif

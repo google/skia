@@ -116,6 +116,7 @@ public:
         kGrImprovedPerlinNoiseEffect_ClassID,
         kGrLightingEffect_ClassID,
         kGrLinearGradient_ClassID,
+        kGrLumaColorFilterEffect_ClassID,
         kGrMagnifierEffect_ClassID,
         kGrMatrixConvolutionEffect_ClassID,
         kGrMeshTestProcessor_ClassID,
