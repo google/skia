@@ -54,7 +54,7 @@ public:
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Value);
     };
 
-    sk_sp<SkSpecialImage> get(const Key& key, SkIPoint* offset) const override {
+    sk_sp<SkSpecialImage> get1(const Key& key, SkIPoint* offset) const override {
         SkAutoMutexAcquire mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
             *offset = v->fOffset;
@@ -67,7 +67,7 @@ public:
         return nullptr;
     }
 
-    void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset, const SkImageFilter* filter) override {
+    void set1(const Key& key, SkSpecialImage* image, const SkIPoint& offset, const SkImageFilter* filter) override {
         SkAutoMutexAcquire mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
             this->removeInternal(v);

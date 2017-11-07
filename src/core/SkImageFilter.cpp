@@ -204,7 +204,7 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
     const SkIRect srcSubset = fUsesSrcInput ? src->subset() : SkIRect::MakeWH(0, 0);
     SkImageFilterCacheKey key(fUniqueID, context.ctm(), context.clipBounds(), srcGenID, srcSubset);
     if (context.cache()) {
-        sk_sp<SkSpecialImage> result = context.cache()->get(key, offset);
+        sk_sp<SkSpecialImage> result = context.cache()->get1(key, offset);
         if (result) {
             return result;
         }
@@ -222,7 +222,7 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
 #endif
 
     if (result && context.cache()) {
-        context.cache()->set(key, result.get(), *offset, this);
+        context.cache()->set1(key, result.get(), *offset, this);
         SkAutoMutexAcquire mutex(fMutex);
         fCacheKeys.push_back(key);
     }

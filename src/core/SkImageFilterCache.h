@@ -54,8 +54,8 @@ public:
     virtual ~SkImageFilterCache() {}
     static SkImageFilterCache* Create(size_t maxBytes);
     static SkImageFilterCache* Get();
-    virtual sk_sp<SkSpecialImage> get(const SkImageFilterCacheKey& key, SkIPoint* offset) const = 0;
-    virtual void set(const SkImageFilterCacheKey& key, SkSpecialImage* image,
+    virtual sk_sp<SkSpecialImage> get1(const SkImageFilterCacheKey& key, SkIPoint* offset) const = 0;
+    virtual void set1(const SkImageFilterCacheKey& key, SkSpecialImage* image,
                      const SkIPoint& offset, const SkImageFilter* filter) = 0;
     virtual void purge() = 0;
     virtual void purgeByKeys(const SkImageFilterCacheKey[], int) = 0;
