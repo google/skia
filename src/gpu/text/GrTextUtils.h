@@ -124,64 +124,22 @@ public:
         const SkSurfaceProps& fProps;
     };
 
-    // Functions for appending BMP text to GrAtlasTextBlob
-    static void DrawBmpText(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
-                            const SkSurfaceProps&, const Paint& paint, uint32_t scalerContextFlags,
-                            const SkMatrix& viewMatrix, const char text[], size_t byteLength,
-                            SkScalar x, SkScalar y);
-
-    static void DrawBmpPosText(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
-                               const SkSurfaceProps&, const Paint& paint,
-                               uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
-                               const char text[], size_t byteLength, const SkScalar pos[],
-                               int scalarsPerPosition, const SkPoint& offset);
-
-    // functions for appending distance field text
-    static bool CanDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
-                                        const SkSurfaceProps& props, const GrShaderCaps& caps);
-
-    static void DrawDFText(GrAtlasTextBlob* blob, int runIndex, GrAtlasGlyphCache*,
-                           const SkSurfaceProps&, const Paint& paint, uint32_t scalerContextFlags,
-                           const SkMatrix& viewMatrix, const char text[], size_t byteLength,
-                           SkScalar x, SkScalar y);
-
-    static void DrawDFPosText(GrAtlasTextBlob* blob, int runIndex, GrAtlasGlyphCache*,
-                              const SkSurfaceProps&, const Paint& paint,
-                              uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
-                              const char text[], size_t byteLength, const SkScalar pos[],
-                              int scalarsPerPosition, const SkPoint& offset);
-
-    // Functions for drawing text as paths
-    static void DrawTextAsPath(GrContext*, Target*, const GrClip& clip, const SkPaint& paint,
-                               const SkMatrix& viewMatrix, const char text[], size_t byteLength,
-                               SkScalar x, SkScalar y, const SkIRect& clipBounds);
-
-    static void DrawPosTextAsPath(GrContext* context, Target*, const SkSurfaceProps& props,
-                                  const GrClip& clip, const SkPaint& paint,
-                                  const SkMatrix& viewMatrix, const char text[], size_t byteLength,
-                                  const SkScalar pos[], int scalarsPerPosition,
-                                  const SkPoint& offset, const SkIRect& clipBounds);
+    static uint32_t FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint);
 
     static bool ShouldDisableLCD(const SkPaint& paint);
 
+    // Functions for drawing text as paths
+    static void DrawTextAsPath(GrContext*, GrTextUtils::Target*, const GrClip& clip,
+                               const SkPaint& paint, const SkMatrix& viewMatrix, const char text[],
+                               size_t byteLength, SkScalar x, SkScalar y,
+                               const SkIRect& clipBounds);
 
-private:
-    static uint32_t FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint);
-
-    static void InitDistanceFieldPaint(GrAtlasTextBlob* blob,
-                                       SkPaint* skPaint,
-                                       SkScalar* textRatio,
-                                       const SkMatrix& viewMatrix);
-
-    static void BmpAppendGlyph(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
-                               GrAtlasTextStrike**, const SkGlyph&, int left, int top,
-                               GrColor color, SkGlyphCache*);
-
-    static bool DfAppendGlyph(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
-                              GrAtlasTextStrike**, const SkGlyph&,
-                              SkScalar sx, SkScalar sy, GrColor color,
-                              SkGlyphCache* cache,
-                              SkScalar textRatio, const SkMatrix& viewMatrix);
+    static void DrawPosTextAsPath(GrContext* context, GrTextUtils::Target*,
+                                  const SkSurfaceProps& props, const GrClip& clip,
+                                  const SkPaint& paint, const SkMatrix& viewMatrix,
+                                  const char text[], size_t byteLength, const SkScalar pos[],
+                                  int scalarsPerPosition, const SkPoint& offset,
+                                  const SkIRect& clipBounds);
 };
 
 #endif

@@ -79,6 +79,48 @@ private:
                                                              const SkScalar pos[],
                                                              int scalarsPerPosition,
                                                              const SkPoint& offset);
+
+    // Functions for appending BMP text to GrAtlasTextBlob
+    static void DrawBmpText(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
+                            const SkSurfaceProps&, const GrTextUtils::Paint& paint,
+                            uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
+                            const char text[], size_t byteLength, SkScalar x, SkScalar y);
+
+    static void DrawBmpPosText(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
+                               const SkSurfaceProps&, const GrTextUtils::Paint& paint,
+                               uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
+                               const char text[], size_t byteLength, const SkScalar pos[],
+                               int scalarsPerPosition, const SkPoint& offset);
+
+    // functions for appending distance field text
+    static bool CanDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
+                                        const SkSurfaceProps& props, const GrShaderCaps& caps);
+
+    static void DrawDFText(GrAtlasTextBlob* blob, int runIndex, GrAtlasGlyphCache*,
+                           const SkSurfaceProps&, const GrTextUtils::Paint& paint,
+                           uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
+                           const char text[], size_t byteLength, SkScalar x, SkScalar y);
+
+    static void DrawDFPosText(GrAtlasTextBlob* blob, int runIndex, GrAtlasGlyphCache*,
+                              const SkSurfaceProps&, const GrTextUtils::Paint& paint,
+                              uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
+                              const char text[], size_t byteLength, const SkScalar pos[],
+                              int scalarsPerPosition, const SkPoint& offset);
+
+    static void InitDistanceFieldPaint(GrAtlasTextBlob* blob,
+                                       SkPaint* skPaint,
+                                       SkScalar* textRatio,
+                                       const SkMatrix& viewMatrix);
+
+    static void BmpAppendGlyph(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
+                               GrAtlasTextStrike**, const SkGlyph&, int left, int top,
+                               GrColor color, SkGlyphCache*);
+
+    static bool DfAppendGlyph(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
+                              GrAtlasTextStrike**, const SkGlyph&, SkScalar sx, SkScalar sy,
+                              GrColor color, SkGlyphCache* cache, SkScalar textRatio,
+                              const SkMatrix& viewMatrix);
+
     const GrDistanceFieldAdjustTable* dfAdjustTable() const { return fDistanceAdjustTable.get(); }
 
     sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
