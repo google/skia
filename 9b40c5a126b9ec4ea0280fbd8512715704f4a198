@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2fe82a0d_7dcd98bd",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-07T21:56:40Z",
+      "side": 1,
+      "message": "I think this is unneeded because of the change on line 289",
+      "revId": "9b40c5a126b9ec4ea0280fbd8512715704f4a198",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
