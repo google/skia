@@ -298,10 +298,10 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("  s = l > 0.5 ?");
         fragBuilder->codeAppendf("      d / (2 - fmax - fmin) :");
         fragBuilder->codeAppendf("      d / (fmax + fmin);");
-        fragBuilder->codeAppendf("  if (fmax == color.r) {");
+        fragBuilder->codeAppendf("  if (color.r >= color.g && color.r >= color.b) {");
         fragBuilder->codeAppendf("    h = (color.g - color.b) / d + ");
         fragBuilder->codeAppendf("        (color.g < color.b ? 6 : 0);");
-        fragBuilder->codeAppendf("  } else if (fmax == color.g) {");
+        fragBuilder->codeAppendf("  } else if (color.g >= color.b) {");
         fragBuilder->codeAppendf("    h = (color.b - color.r) / d + 2;");
         fragBuilder->codeAppendf("  } else {");
         fragBuilder->codeAppendf("    h = (color.r - color.g) / d + 4;");
