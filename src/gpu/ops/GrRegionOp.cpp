@@ -13,6 +13,7 @@
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkMatrixPriv.h"
+#include "SkPointPriv.h"
 #include "SkRegion.h"
 
 static const int kVertsPerInstance = 4;
@@ -34,7 +35,8 @@ static void tesselate_region(intptr_t vertices,
     while (!iter.done()) {
         SkRect rect = SkRect::Make(iter.rect());
         SkPoint* position = (SkPoint*)verts;
-        position->setRectTriStrip(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
+        SkPointPriv::SetRectTriStrip(position, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
+                vertexStride);
 
         static const int kColorOffset = sizeof(SkPoint);
         GrColor* vertColor = reinterpret_cast<GrColor*>(verts + kColorOffset);

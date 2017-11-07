@@ -10,6 +10,7 @@
 
 #include "SkMatrix.h"
 #include "SkNx.h"
+#include "SkPointPriv.h"
 
 class SkMatrixPriv {
 public:
@@ -113,9 +114,9 @@ public:
                 r = sx * r + tx;
                 b = sy * b + ty;
             }
-            quad[0].setRectTriStrip(l, t, r, b, sizeof(SkPoint));
+           SkPointPriv::SetRectTriStrip(quad, l, t, r, b, sizeof(SkPoint));
         } else {
-            quad[0].setRectTriStrip(l, t, r, b, sizeof(SkPoint));
+            SkPointPriv::SetRectTriStrip(quad, l, t, r, b, sizeof(SkPoint));
             mx.mapPoints(quad, quad, 4);
         }
     }

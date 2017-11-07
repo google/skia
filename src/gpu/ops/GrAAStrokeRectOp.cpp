@@ -11,13 +11,14 @@
 #include "GrResourceKey.h"
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
+#include "SkPointPriv.h"
 #include "SkStrokeRec.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gMiterIndexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gBevelIndexBufferKey);
 
 static void set_inset_fan(SkPoint* pts, size_t stride, const SkRect& r, SkScalar dx, SkScalar dy) {
-    pts->setRectFan(r.fLeft + dx, r.fTop + dy, r.fRight - dx, r.fBottom - dy, stride);
+    SkPointPriv::SetRectFan(pts, r.fLeft + dx, r.fTop + dy, r.fRight - dx, r.fBottom - dy, stride);
 }
 
 // We support all hairlines, bevels, and miters, but not round joins. Also, check whether the miter
@@ -494,9 +495,9 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(void* vertices,
         } else {
             // When the interior rect has become degenerate we smoosh to a single point
             SkASSERT(devInside.fLeft == devInside.fRight && devInside.fTop == devInside.fBottom);
-            fan2Pos->setRectFan(devInside.fLeft, devInside.fTop, devInside.fRight,
+            SkPointPriv::SetRectFan(fan2Pos, devInside.fLeft, devInside.fTop, devInside.fRight,
                                 devInside.fBottom, vertexStride);
-            fan3Pos->setRectFan(devInside.fLeft, devInside.fTop, devInside.fRight,
+            SkPointPriv::SetRectFan(fan3Pos, devInside.fLeft, devInside.fTop, devInside.fRight,
                                 devInside.fBottom, vertexStride);
         }
     } else {
@@ -518,9 +519,9 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(void* vertices,
         } else {
             // When the interior rect has become degenerate we smoosh to a single point
             SkASSERT(devInside.fLeft == devInside.fRight && devInside.fTop == devInside.fBottom);
-            fan2Pos->setRectFan(devInside.fLeft, devInside.fTop, devInside.fRight,
+            SkPointPriv::SetRectFan(fan2Pos, devInside.fLeft, devInside.fTop, devInside.fRight,
                                 devInside.fBottom, vertexStride);
-            fan3Pos->setRectFan(devInside.fLeft, devInside.fTop, devInside.fRight,
+            SkPointPriv::SetRectFan(fan3Pos, devInside.fLeft, devInside.fTop, devInside.fRight,
                                 devInside.fBottom, vertexStride);
         }
     }
