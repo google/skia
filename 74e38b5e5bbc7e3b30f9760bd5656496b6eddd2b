@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "9fb8bc9f_9651efe9",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-07T16:01:19Z",
+      "side": 1,
+      "message": "Here the GrHardClip gets passed to addDrawOp as a GrClip.",
+      "range": {
+        "startLine": 687,
+        "startChar": 36,
+        "endLine": 687,
+        "endChar": 40
+      },
+      "revId": "74e38b5e5bbc7e3b30f9760bd5656496b6eddd2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1aa39c6c_3d77a2b0",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 5
@@ -18,6 +41,53 @@
         "startChar": 51,
         "endLine": 1593,
         "endChar": 73
+      },
+      "revId": "74e38b5e5bbc7e3b30f9760bd5656496b6eddd2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58a2341e_8000be89",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1593,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-07T16:01:19Z",
+      "side": 1,
+      "message": "The stencil methods end up adding regular ops, so we do need something to pass to \u0027addDrawOp(GrClip, GrDrawOp)\u0027 that is guaranteed to not make analytic FPs.\n\nWe could probably put in a second \u0027addDrawOp\u0027 method that takes a GrAppliedHardClip, but then how do the path renderers know which one to call?",
+      "parentUuid": "1aa39c6c_3d77a2b0",
+      "range": {
+        "startLine": 1593,
+        "startChar": 51,
+        "endLine": 1593,
+        "endChar": 73
+      },
+      "revId": "74e38b5e5bbc7e3b30f9760bd5656496b6eddd2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "caea480f_a9c74d56",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1649,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-07T16:01:19Z",
+      "side": 1,
+      "message": "Here the GrHardClip gets placed in DrawPathArgs as a GrClip.",
+      "range": {
+        "startLine": 1649,
+        "startChar": 39,
+        "endLine": 1649,
+        "endChar": 43
       },
       "revId": "74e38b5e5bbc7e3b30f9760bd5656496b6eddd2b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
