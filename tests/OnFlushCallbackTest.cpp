@@ -17,6 +17,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrQuad.h"
+#include "SkPointPriv.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "ops/GrSimpleMeshDrawOpHelper.h"
 
@@ -134,7 +135,7 @@ private:
 
         // Setup positions
         SkPoint* position = (SkPoint*) vertices;
-        position->setRectTriStrip(fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
+        SkPointPriv::SetRectTriStrip(position, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
                                   vertexStride);
 
         // Setup vertex colors
