@@ -24,8 +24,8 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 
 | description | function |
 | --- | ---  |
-| bool <a href="#SkRect_not_equal_operator">operator!=(const SkRect& a, const SkRect& b)</a> | Returns true if member bits are unequal. |
-| bool <a href="#SkRect_equal_operator">operator==(const SkRect& a, const SkRect& b)</a> | Returns true if member bits are equal. |
+| bool <a href="#SkRect_notequal2_operator">operator!=(const SkRect& a, const SkRect& b)</a> | Returns true if member bits are unequal. |
+| bool <a href="#SkRect_equal2_operator">operator==(const SkRect& a, const SkRect& b)</a> | Returns true if member bits are equal. |
 
 ## <a name="Member_Functions"></a> Member Functions
 
@@ -76,8 +76,8 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#SkRect_roundIn">roundIn</a> | Sets members to nearest integer value towards opposite. |
 | <a href="#SkRect_roundOut">roundOut</a> | Sets members to nearest integer value away from opposite. |
 | <a href="#SkRect_set">set</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input (<a href="#SkRect_left">left</a>, <a href="#SkRect_top">top</a>, <a href="#SkRect_right">right</a>, <a href="#SkRect_bottom">bottom</a>) and others. |
-| <a href="#SkRect_setBounds">setBounds</a> | Sets to upper and lower limits of <a href="undocumented#Point">Point</a> array. |
-| <a href="#SkRect_setBoundsCheck">setBoundsCheck</a> | Sets to upper and lower limits of <a href="undocumented#Point">Point</a> array. |
+| <a href="#SkRect_setBounds">setBounds</a> | Sets to upper and lower limits of <a href="SkPoint_Reference#Point">Point</a> array. |
+| <a href="#SkRect_setBoundsCheck">setBoundsCheck</a> | Sets to upper and lower limits of <a href="SkPoint_Reference#Point">Point</a> array. |
 | <a href="#SkRect_setEmpty">setEmpty</a> | Sets to (0, 0, 0, 0). |
 | <a href="#SkRect_setLTRB">setLTRB</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input (<a href="#SkRect_left">left</a>, <a href="#SkRect_top">top</a>, <a href="#SkRect_right">right</a>, <a href="#SkRect_bottom">bottom</a>). |
 | <a href="#SkRect_setLargest">setLargest</a> | Sets to (<a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>). |
@@ -85,7 +85,7 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#SkRect_setWH">setWH</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_setXYWH">setXYWH</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input (<a href="#SkRect_x">x</a>, <a href="#SkRect_y">y</a>, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_sort">sort</a> | Orders sides from smaller to larger. |
-| <a href="#SkRect_toQuad">toQuad</a> | Returns four corners as <a href="undocumented#Point">Point</a>. |
+| <a href="#SkRect_toQuad">toQuad</a> | Returns four corners as <a href="SkPoint_Reference#Point">Point</a>. |
 | <a href="#SkRect_top">top</a> | Returns smaller bounds in <a href="#SkRect_y">y</a>, if sorted. |
 | <a href="#SkRect_width">width</a> | Returns span in <a href="#SkRect_x">x</a>. |
 | <a href="#SkRect_x">x</a> | Returns bounds <a href="#SkRect_left">left</a>. |
@@ -1012,24 +1012,24 @@ left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38
 
 ---
 
-<a name="SkRect_equal_operator"></a>
+<a name="SkRect_equal2_operator"></a>
 ## operator==
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 bool operator==(const SkRect& a, const SkRect& b)
 </pre>
 
-Returns true if all members in <a href="#SkRect_equal_operator_a">a</a>: <a href="#SkRect_fLeft">fLeft</a>, <a href="#SkRect_fTop">fTop</a>, <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fBottom">fBottom</a>; are  
-equal to the corresponding members in <a href="#SkRect_equal_operator_b">b</a>.
+Returns true if all members in <a href="#SkRect_equal2_operator_a">a</a>: <a href="#SkRect_fLeft">fLeft</a>, <a href="#SkRect_fTop">fTop</a>, <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fBottom">fBottom</a>; are  
+equal to the corresponding members in <a href="#SkRect_equal2_operator_b">b</a>.
 
-<a href="#SkRect_equal_operator_a">a</a> and <a href="#SkRect_equal_operator_b">b</a> are not equal if either contain <a href="undocumented#NaN">NaN</a>. <a href="#SkRect_equal_operator_a">a</a> and <a href="#SkRect_equal_operator_b">b</a> are equal if members
+<a href="#SkRect_equal2_operator_a">a</a> and <a href="#SkRect_equal2_operator_b">b</a> are not equal if either contain <a href="undocumented#NaN">NaN</a>. <a href="#SkRect_equal2_operator_a">a</a> and <a href="#SkRect_equal2_operator_b">b</a> are equal if members
 contain zeroes <a href="#SkRect_width">width</a> different signs.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_equal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkRect_equal2_operator_a"> <code><strong>a </strong></code> </a></td> <td>
 <a href="#Rect">Rect</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkRect_equal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkRect_equal2_operator_b"> <code><strong>b </strong></code> </a></td> <td>
 <a href="#Rect">Rect</a> to compare</td>
   </tr>
 </table>
@@ -1055,28 +1055,28 @@ tests are equal
 
 ### See Also
 
-<a href="#SkRect_not_equal_operator">operator!=(const SkRect& a, const SkRect& b)</a>
+<a href="#SkRect_notequal2_operator">operator!=(const SkRect& a, const SkRect& b)</a>
 
 ---
 
-<a name="SkRect_not_equal_operator"></a>
+<a name="SkRect_notequal2_operator"></a>
 ## operator!=
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 bool operator!=(const SkRect& a, const SkRect& b)
 </pre>
 
-Returns true if any in <a href="#SkRect_not_equal_operator_a">a</a>: <a href="#SkRect_fLeft">fLeft</a>, <a href="#SkRect_fTop">fTop</a>, <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fBottom">fBottom</a>; does not   
-equal the corresponding members in <a href="#SkRect_not_equal_operator_b">b</a>.
+Returns true if any in <a href="#SkRect_notequal2_operator_a">a</a>: <a href="#SkRect_fLeft">fLeft</a>, <a href="#SkRect_fTop">fTop</a>, <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fBottom">fBottom</a>; does not   
+equal the corresponding members in <a href="#SkRect_notequal2_operator_b">b</a>.
 
-<a href="#SkRect_not_equal_operator_a">a</a> and <a href="#SkRect_not_equal_operator_b">b</a> are not equal if either contain <a href="undocumented#NaN">NaN</a>. <a href="#SkRect_not_equal_operator_a">a</a> and <a href="#SkRect_not_equal_operator_b">b</a> are equal if members
+<a href="#SkRect_notequal2_operator_a">a</a> and <a href="#SkRect_notequal2_operator_b">b</a> are not equal if either contain <a href="undocumented#NaN">NaN</a>. <a href="#SkRect_notequal2_operator_a">a</a> and <a href="#SkRect_notequal2_operator_b">b</a> are equal if members
 contain zeroes <a href="#SkRect_width">width</a> different signs.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_not_equal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkRect_notequal2_operator_a"> <code><strong>a </strong></code> </a></td> <td>
 <a href="#Rect">Rect</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkRect_not_equal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkRect_notequal2_operator_b"> <code><strong>b </strong></code> </a></td> <td>
 <a href="#Rect">Rect</a> to compare</td>
   </tr>
 </table>
@@ -1099,7 +1099,7 @@ test with NaN is not equal to itself
 
 ### See Also
 
-<a href="#SkRect_equal_operator">operator==(const SkRect& a, const SkRect& b)</a>
+<a href="#SkRect_equal2_operator">operator==(const SkRect& a, const SkRect& b)</a>
 
 ---
 
@@ -1377,8 +1377,8 @@ rect2: {0, 0, 1, 2}
 void set(const SkPoint pts[], int count)
 </pre>
 
-Sets to bounds of <a href="undocumented#Point">Point</a> array with <a href="#SkRect_set_3_count">count</a> entries. If <a href="#SkRect_set_3_count">count</a> is zero or smaller,
-or if <a href="undocumented#Point">Point</a> array <a href="#SkRect_contains">contains</a> an infinity or <a href="undocumented#NaN">NaN</a>, sets <a href="#Rect">Rect</a> to (0, 0, 0, 0).
+Sets to bounds of <a href="SkPoint_Reference#Point">Point</a> array with <a href="#SkRect_set_3_count">count</a> entries. If <a href="#SkRect_set_3_count">count</a> is zero or smaller,
+or if <a href="SkPoint_Reference#Point">Point</a> array <a href="#SkRect_contains">contains</a> an infinity or <a href="undocumented#NaN">NaN</a>, sets <a href="#Rect">Rect</a> to (0, 0, 0, 0).
 
 Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than or equal to <a href="#SkRect_fRight">fRight</a>, and
 <a href="#SkRect_fTop">fTop</a> is less than or equal to <a href="#SkRect_fBottom">fBottom</a>.
@@ -1386,7 +1386,7 @@ Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than
 ### Parameters
 
 <table>  <tr>    <td><a name="SkRect_set_3_pts"> <code><strong>pts </strong></code> </a></td> <td>
-<a href="undocumented#Point">Point</a> array</td>
+<a href="SkPoint_Reference#Point">Point</a> array</td>
   </tr>  <tr>    <td><a name="SkRect_set_3_count"> <code><strong>count </strong></code> </a></td> <td>
 entries in array</td>
   </tr>
@@ -1421,8 +1421,8 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0
 void setBounds(const SkPoint pts[], int count)
 </pre>
 
-Sets to bounds of <a href="undocumented#Point">Point</a> array with <a href="#SkRect_setBounds_count">count</a> entries. If <a href="#SkRect_setBounds_count">count</a> is zero or smaller,
-or if <a href="undocumented#Point">Point</a> array <a href="#SkRect_contains">contains</a> an infinity or <a href="undocumented#NaN">NaN</a>, sets to (0, 0, 0, 0).
+Sets to bounds of <a href="SkPoint_Reference#Point">Point</a> array with <a href="#SkRect_setBounds_count">count</a> entries. If <a href="#SkRect_setBounds_count">count</a> is zero or smaller,
+or if <a href="SkPoint_Reference#Point">Point</a> array <a href="#SkRect_contains">contains</a> an infinity or <a href="undocumented#NaN">NaN</a>, sets to (0, 0, 0, 0).
 
 Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than or equal to <a href="#SkRect_fRight">fRight</a>, and
 <a href="#SkRect_fTop">fTop</a> is less than or equal to <a href="#SkRect_fBottom">fBottom</a>.
@@ -1430,7 +1430,7 @@ Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than
 ### Parameters
 
 <table>  <tr>    <td><a name="SkRect_setBounds_pts"> <code><strong>pts </strong></code> </a></td> <td>
-<a href="undocumented#Point">Point</a> array</td>
+<a href="SkPoint_Reference#Point">Point</a> array</td>
   </tr>  <tr>    <td><a name="SkRect_setBounds_count"> <code><strong>count </strong></code> </a></td> <td>
 entries in array</td>
   </tr>
@@ -1465,8 +1465,8 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0
 bool setBoundsCheck(const SkPoint pts[], int count)
 </pre>
 
-Sets to bounds of <a href="undocumented#Point">Point</a> array with <a href="#SkRect_setBoundsCheck_count">count</a> entries. Returns false if <a href="#SkRect_setBoundsCheck_count">count</a> is
-zero or smaller, or if <a href="undocumented#Point">Point</a> array <a href="#SkRect_contains">contains</a> an infinity or <a href="undocumented#NaN">NaN</a>; in these cases
+Sets to bounds of <a href="SkPoint_Reference#Point">Point</a> array with <a href="#SkRect_setBoundsCheck_count">count</a> entries. Returns false if <a href="#SkRect_setBoundsCheck_count">count</a> is
+zero or smaller, or if <a href="SkPoint_Reference#Point">Point</a> array <a href="#SkRect_contains">contains</a> an infinity or <a href="undocumented#NaN">NaN</a>; in these cases
 sets <a href="#Rect">Rect</a> to (0, 0, 0, 0).
 
 Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than or equal to <a href="#SkRect_fRight">fRight</a>, and
@@ -1475,7 +1475,7 @@ Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than
 ### Parameters
 
 <table>  <tr>    <td><a name="SkRect_setBoundsCheck_pts"> <code><strong>pts </strong></code> </a></td> <td>
-<a href="undocumented#Point">Point</a> array</td>
+<a href="SkPoint_Reference#Point">Point</a> array</td>
   </tr>  <tr>    <td><a name="SkRect_setBoundsCheck_count"> <code><strong>count </strong></code> </a></td> <td>
 entries in array</td>
   </tr>
@@ -1483,7 +1483,7 @@ entries in array</td>
 
 ### Return Value
 
-true if all <a href="undocumented#Point">Point</a> values are finite
+true if all <a href="SkPoint_Reference#Point">Point</a> values are finite
 
 ### Example
 
@@ -2455,7 +2455,7 @@ If <a href="#Rect">Rect</a> is initialized with <a href="#SkRect_setLargestInver
 ### Parameters
 
 <table>  <tr>    <td><a name="SkRect_growToInclude_pt"> <code><strong>pt </strong></code> </a></td> <td>
-<a href="undocumented#Point">Point</a> to include</td>
+<a href="SkPoint_Reference#Point">Point</a> to include</td>
   </tr>
 </table>
 
@@ -2481,7 +2481,7 @@ rect: 42, 24, 42, 24  isEmpty: true
 void growToInclude(const SkPoint pts[], int count)
 </pre>
 
-For each of <a href="#SkRect_growToInclude_2_count">count</a> <a href="undocumented#Point">Point</a> in <a href="#SkRect_growToInclude_2_pts">pts</a>, grows <a href="#Rect">Rect</a> to include (pt.fX, pt.fY), modifying
+For each of <a href="#SkRect_growToInclude_2_count">count</a> <a href="SkPoint_Reference#Point">Point</a> in <a href="#SkRect_growToInclude_2_pts">pts</a>, grows <a href="#Rect">Rect</a> to include (pt.fX, pt.fY), modifying
 it so that:
 <a href="#SkRect_fLeft">fLeft</a> <= pt.fX <= <a href="#SkRect_fRight">fRight</a> && <a href="#SkRect_fTop">fTop</a> <= pt.fY <= <a href="#SkRect_fBottom">fBottom</a>.
 
@@ -2491,7 +2491,7 @@ If <a href="#Rect">Rect</a> is initialized with <a href="#SkRect_setLargestInver
 ### Parameters
 
 <table>  <tr>    <td><a name="SkRect_growToInclude_2_pts"> <code><strong>pts </strong></code> </a></td> <td>
-<a href="undocumented#Point">Point</a> array</td>
+<a href="SkPoint_Reference#Point">Point</a> array</td>
   </tr>  <tr>    <td><a name="SkRect_growToInclude_2_count"> <code><strong>count </strong></code> </a></td> <td>
 number of points in array</td>
   </tr>
@@ -2519,12 +2519,12 @@ rect: 30, 50, 40, 60
 void growToInclude(const SkPoint pts[], size_t stride, int count)
 </pre>
 
-For each of <a href="#SkRect_growToInclude_3_count">count</a> <a href="undocumented#Point">Point</a> in <a href="#SkRect_growToInclude_3_pts">pts</a>, grows <a href="#Rect">Rect</a> to include (pt.fX, pt.fY), modifying
+For each of <a href="#SkRect_growToInclude_3_count">count</a> <a href="SkPoint_Reference#Point">Point</a> in <a href="#SkRect_growToInclude_3_pts">pts</a>, grows <a href="#Rect">Rect</a> to include (pt.fX, pt.fY), modifying
 it so that:
 <a href="#SkRect_fLeft">fLeft</a> <= pt.fX <= <a href="#SkRect_fRight">fRight</a> && <a href="#SkRect_fTop">fTop</a> <= pt.fY <= <a href="#SkRect_fBottom">fBottom</a>. 
 
-<a href="undocumented#Point">Point</a> may be followed with other data in each array element. <a href="#SkRect_growToInclude_3_stride">stride</a> is number
-of bytes in element; the interval to skip to advance from one <a href="undocumented#Point">Point</a> to
+<a href="SkPoint_Reference#Point">Point</a> may be followed with other data in each array element. <a href="#SkRect_growToInclude_3_stride">stride</a> is number
+of bytes in element; the interval to skip to advance from one <a href="SkPoint_Reference#Point">Point</a> to
 the next.
 
 If <a href="#Rect">Rect</a> is initialized with <a href="#SkRect_setLargestInverted">setLargestInverted</a>, then <a href="#Rect">Rect</a> will contain bounds of
@@ -2533,7 +2533,7 @@ If <a href="#Rect">Rect</a> is initialized with <a href="#SkRect_setLargestInver
 ### Parameters
 
 <table>  <tr>    <td><a name="SkRect_growToInclude_3_pts"> <code><strong>pts </strong></code> </a></td> <td>
-array of elements beginning with <a href="undocumented#Point">Point</a></td>
+array of elements beginning with <a href="SkPoint_Reference#Point">Point</a></td>
   </tr>  <tr>    <td><a name="SkRect_growToInclude_3_stride"> <code><strong>stride </strong></code> </a></td> <td>
 size of <a href="#SkRect_growToInclude_3_pts">pts</a> elements in 32-bit words; zero or greater</td>
   </tr>  <tr>    <td><a name="SkRect_growToInclude_3_count"> <code><strong>count </strong></code> </a></td> <td>
