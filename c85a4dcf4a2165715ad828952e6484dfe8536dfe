@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77ac46f7_91de7f6f",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 1774,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-11-07T18:37:10Z",
+      "side": 1,
+      "message": "instead of modifying SkPath.h, consider adding a new interface in SkPathPriv.h",
+      "revId": "c85a4dcf4a2165715ad828952e6484dfe8536dfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
