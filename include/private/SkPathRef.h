@@ -11,6 +11,7 @@
 
 #include "../private/SkAtomics.h"
 #include "../private/SkTDArray.h"
+#include "SkFracCounter.h"
 #include "SkMatrix.h"
 #include "SkPoint.h"
 #include "SkRRect.h"
@@ -147,6 +148,15 @@ public:
      * Gets a path ref with no verbs or points.
      */
     static SkPathRef* CreateEmpty();
+
+    /**
+     * See comments for SkPath::isFracCountConcentrated.
+     */
+    bool isFracCountConcentrated() const;
+
+    SK_ALWAYS_INLINE void setFracCountDirty() const {
+        fFracCounter.setDirty();
+    }
 
     /**
      *  Returns true if all of the points in this path are finite, meaning there
@@ -547,6 +557,8 @@ private:
     SkBool8  fRRectOrOvalIsCCW;
     uint8_t  fRRectOrOvalStartIdx;
     uint8_t  fSegmentMask;
+
+    mutable SkFracCounter fFracCounter;
 
     friend class PathRefTest_Private;
     friend class ForceIsRRect_Private; // unit test isRRect
