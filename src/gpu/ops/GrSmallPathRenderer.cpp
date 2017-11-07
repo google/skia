@@ -656,7 +656,7 @@ private:
             position = (SkPoint*)positionOffset;
             *position = quad.point(3);
         } else {
-            positions->setRectTriStrip(translatedBounds.left(),
+            SkPointPriv::SetRectTriStrip(positions, translatedBounds.left(),
                                        translatedBounds.top(),
                                        translatedBounds.right(),
                                        translatedBounds.bottom(),

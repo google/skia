@@ -29,19 +29,6 @@ void SkIPoint::rotateCCW(SkIPoint* dst) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPoint::setIRectFan(int l, int t, int r, int b, size_t stride) {
-    SkASSERT(stride >= sizeof(SkPoint));
-
-    ((SkPoint*)((intptr_t)this + 0 * stride))->set(SkIntToScalar(l),
-                                                   SkIntToScalar(t));
-    ((SkPoint*)((intptr_t)this + 1 * stride))->set(SkIntToScalar(l),
-                                                   SkIntToScalar(b));
-    ((SkPoint*)((intptr_t)this + 2 * stride))->set(SkIntToScalar(r),
-                                                   SkIntToScalar(b));
-    ((SkPoint*)((intptr_t)this + 3 * stride))->set(SkIntToScalar(r),
-                                                   SkIntToScalar(t));
-}
-
 void SkPoint::rotateCW(SkPoint* dst) const {
     SkASSERT(dst);
 

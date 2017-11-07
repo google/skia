@@ -19,6 +19,7 @@
 #include "GrTest.h"
 #include "SkColorPriv.h"
 #include "SkGeometry.h"
+#include "SkPointPriv.h"
 #include "SkTLList.h"
 #include "effects/GrConvexPolyEffect.h"
 #include "ops/GrMeshDrawOp.h"
@@ -85,7 +86,7 @@ private:
             return;
         }
 
-        verts->setRectTriStrip(fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
+        SkPointPriv::SetRectTriStrip(verts, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
                                sizeof(SkPoint));
 
         helper.recordDraw(

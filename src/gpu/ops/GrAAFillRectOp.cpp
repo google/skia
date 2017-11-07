@@ -15,6 +15,7 @@
 #include "GrTypes.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
+#include "SkPointPriv.h"
 #include "ops/GrSimpleMeshDrawOpHelper.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gAAFillRectIndexBufferKey);
@@ -25,7 +26,7 @@ static inline bool view_matrix_ok_for_aa_fill_rect(const SkMatrix& viewMatrix) {
 
 static inline void set_inset_fan(SkPoint* pts, size_t stride, const SkRect& r, SkScalar dx,
                                  SkScalar dy) {
-    pts->setRectFan(r.fLeft + dx, r.fTop + dy, r.fRight - dx, r.fBottom - dy, stride);
+    SkPointPriv::SetRectFan(pts, r.fLeft + dx, r.fTop + dy, r.fRight - dx, r.fBottom - dy, stride);
 }
 
 static const int kNumAAFillRectsInIndexBuffer = 256;
@@ -84,7 +85,8 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
         inset = SK_ScalarHalf * SkMinScalar(inset, len2 * rect.height());
 
         // create the rotated rect
-        fan0Pos->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vertexStride);
+        SkPointPriv::SetRectFan(fan0Pos, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
+                vertexStride);
         viewMatrix.mapPointsWithStride(fan0Pos, vertexStride, 4);
 
         // Now create the inset points and then outset the original

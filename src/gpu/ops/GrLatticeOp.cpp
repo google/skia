@@ -14,6 +14,7 @@
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkBitmap.h"
 #include "SkLatticeIter.h"
+#include "SkPointPriv.h"
 #include "SkRect.h"
 
 static sk_sp<GrGeometryProcessor> create_gp() {
@@ -130,14 +131,14 @@ private:
             intptr_t patchVerts = verts;
             while (patch.fIter->next(&srcR, &dstR)) {
                 SkPoint* positions = reinterpret_cast<SkPoint*>(verts);
-                positions->setRectTriStrip(dstR.fLeft, dstR.fTop, dstR.fRight, dstR.fBottom,
-                                           vertexStride);
+                SkPointPriv::SetRectTriStrip(positions, dstR.fLeft, dstR.fTop, dstR.fRight,
+                                             dstR.fBottom, vertexStride);
 
                 // Setup local coords
                 static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
                 SkPoint* coords = reinterpret_cast<SkPoint*>(verts + kLocalOffset);
-                coords->setRectTriStrip(srcR.fLeft, srcR.fTop, srcR.fRight, srcR.fBottom,
-                                        vertexStride);
+                SkPointPriv::SetRectTriStrip(coords, srcR.fLeft, srcR.fTop, srcR.fRight,
+                                             srcR.fBottom, vertexStride);
 
                 static const int kColorOffset = sizeof(SkPoint);
                 GrColor* vertColor = reinterpret_cast<GrColor*>(verts + kColorOffset);

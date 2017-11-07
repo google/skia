@@ -29,7 +29,8 @@ public:
     }
 
     void set(const SkRect& rect) {
-        fPoints->setRectTriStrip(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, sizeof(SkPoint));
+        SkPointPriv::SetRectTriStrip(fPoints, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
+                sizeof(SkPoint));
     }
 
     void map(const SkMatrix& matrix) {
