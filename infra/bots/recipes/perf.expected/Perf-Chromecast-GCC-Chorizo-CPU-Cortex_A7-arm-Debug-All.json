@@ -356,7 +356,8 @@
       "~blur_image_filter",
       "~blur_0.01",
       "~GM_animated-image-blurs",
-      "~blendmode_mask_"
+      "~blendmode_mask_",
+      "~^path_text_clipped"
     ],
     "env": {
       "BUILDTYPE": "Debug",
