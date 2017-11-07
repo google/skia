@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa39c6c_3d77a2b0",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1593,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-07T12:22:13Z",
+      "side": 1,
+      "message": "Is there any reason for this and other stencilFoo() methods to not just take a GrAppliedHardClip? Wondering whether we really need the non-applied version.",
+      "range": {
+        "startLine": 1593,
+        "startChar": 51,
+        "endLine": 1593,
+        "endChar": 73
+      },
+      "revId": "74e38b5e5bbc7e3b30f9760bd5656496b6eddd2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
