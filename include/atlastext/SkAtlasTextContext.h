@@ -1,0 +1,38 @@
+/*
+ * Copyright 2017 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkAtlasTextContext_DEFINED
+#define SkAtlasTextContext_DEFINED
+
+#include "SkRefCnt.h"
+
+class SkAtlasTextRenderer;
+class SkInternalAtlasTextContext;
+
+SkAtlasTextRenderer* SkGetAtlasTextRendererFromInternalContext(class SkInternalAtlasTextContext&);
+
+class SkAtlasTextContext : public SkRefCnt {
+public:
+    static sk_sp<SkAtlasTextContext> Make(std::unique_ptr<SkAtlasTextRenderer>);
+
+    SkAtlasTextRenderer* renderer() const {
+        return SkGetAtlasTextRendererFromInternalContext(*fInternalContext);
+    }
+
+    SkInternalAtlasTextContext& internal() { return *fInternalContext; }
+
+private:
+    SkAtlasTextContext() = delete;
+    SkAtlasTextContext(const SkAtlasTextContext&) = delete;
+    SkAtlasTextContext& operator=(const SkAtlasTextContext&) = delete;
+
+    SkAtlasTextContext(std::unique_ptr<SkAtlasTextRenderer>);
+
+    std::unique_ptr<SkInternalAtlasTextContext> fInternalContext;
+};
+
+#endif
