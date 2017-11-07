@@ -202,7 +202,13 @@ bool GrContext::init(const GrContextOptions& options) {
     if (options.fDisableDistanceFieldPaths) {
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
     }
-    fDrawingManager.reset(new GrDrawingManager(this, prcOptions, &fSingleOwner));
+
+    GrAtlasTextContext::Options atlasTextContextOptions;
+    atlasTextContextOptions.fMaxDistanceFieldFontSize = options.fGlyphsAsPathsFontSize;
+    atlasTextContextOptions.fMinDistanceFieldFontSize = options.fMinDistanceFieldFontSize;
+
+    fDrawingManager.reset(
+            new GrDrawingManager(this, prcOptions, atlasTextContextOptions, &fSingleOwner));
 
     GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
     if (options.fAllowMultipleGlyphCacheTextures == GrContextOptions::Enable::kNo) {

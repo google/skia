@@ -114,6 +114,19 @@ struct GrContextOptions {
     float fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
 
     /**
+     * Below this threshold size in device space distance field fonts won't be used. Distance field
+     * fonts don't support hinting which is more important at smaller sizes. A negative value means
+     * use the default threshold.
+     */
+    float fMinDistanceFieldFontSize = -1.f;
+
+    /**
+     * Above this threshold size in device space glyphs are drawn as individual paths. A negative
+     * value means use the default threshold.
+     */
+    float fGlyphsAsPathsFontSize = -1.f;
+
+    /**
      * Can the glyph atlas use multiple textures. If allowed, the each texture's size is bound by
      * fGlypheCacheTextureMaximumBytes.
      */
