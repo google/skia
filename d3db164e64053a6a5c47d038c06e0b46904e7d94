@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a61a33d_b13e92d6",
+        "filename": "gm/rrect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-07T19:01:57Z",
+      "side": 1,
+      "message": "We probably need to test the non-symmetric super rrects, in particular those w/ rect corners.",
+      "revId": "d3db164e64053a6a5c47d038c06e0b46904e7d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8046d8c9_8fe80b8c",
+        "filename": "gm/rrect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-07T19:01:57Z",
+      "side": 1,
+      "message": "exponents ?",
+      "revId": "d3db164e64053a6a5c47d038c06e0b46904e7d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d2c067d_46b12417",
+        "filename": "gm/rrect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-07T19:01:57Z",
+      "side": 1,
+      "message": "exponents ?",
+      "revId": "d3db164e64053a6a5c47d038c06e0b46904e7d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f11ff8f_f9f79805",
+        "filename": "include/core/SkRRect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-07T19:01:57Z",
+      "side": 1,
+      "message": "Don\u0027t we need some exponents here ?",
+      "revId": "d3db164e64053a6a5c47d038c06e0b46904e7d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4459aeb5_b713efcb",
+        "filename": "include/core/SkRRect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-07T19:01:57Z",
+      "side": 1,
+      "message": "Maybe a primer here on super-ellipses and how they are represented in this class ?",
+      "revId": "d3db164e64053a6a5c47d038c06e0b46904e7d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9530d8e8_541b4fb7",
+        "filename": "include/core/SkRRect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-07T19:01:57Z",
+      "side": 1,
+      "message": "fIsSuper(false) ?",
+      "revId": "d3db164e64053a6a5c47d038c06e0b46904e7d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3c5732a_4deb92aa",
+        "filename": "samplecode/SamplePath.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-07T19:01:57Z",
+      "side": 1,
+      "message": "You don\u0027t think these deserve there own file(s) ?",
+      "revId": "d3db164e64053a6a5c47d038c06e0b46904e7d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb25f214_1df08c04",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1287,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-07T19:01:57Z",
+      "side": 1,
+      "message": "Why not just use SK_ScalarRoot2Over2 here ?",
+      "revId": "d3db164e64053a6a5c47d038c06e0b46904e7d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
