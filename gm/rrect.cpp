@@ -169,3 +169,25 @@ private:
 };
 
 DEF_GM( return new RRectGM; )
+
+/////////////////////////////////////////////////
+
+DEF_SIMPLE_GM(super_rrect, canvas, 300, 800) {
+    const SkRect r = SkRect::MakeWH(200, 100);
+    // Loop through several expoents, for different "types" : oval, simple, ninepatch, complex
+    const SkVector rad = { 30, 30 };
+    const SkScalar ees[] = { 1, 1.5, 2, 5, 10, 1000 };
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas->translate(10, 10);
+
+    for (SkScalar e : ees) {
+        const SkScalar exp[] = { e, e, e, e };
+        const SkVector radii[] = { rad, rad, rad, rad };
+        SkRRect rr;
+        rr.setRectRadii(r, radii, exp);
+        canvas->drawRRect(rr, paint);
+        canvas->translate(0, r.height() + 20);
+    }
+}

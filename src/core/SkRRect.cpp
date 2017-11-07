@@ -10,10 +10,79 @@
 #include "SkBuffer.h"
 #include "SkMatrix.h"
 #include "SkScaleToSides.h"
+#include "SkUtils.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SkRRect::Type SkRRect::getType() const {
+    Type t = this->getRawType();
+    switch (t) {
+        case kEmpty_Type:
+        case kRect_Type:
+            // these types can safely ignore isElliptical
+            break;
+        default:
+            if (!this->isElliptical()) {
+                t = kComplex_Type;
+            }
+            break;
+    }
+    return t;
+}
+
+void SkRRect::setEmpty() {
+    fRect.setEmpty();
+    memset(fRadii, 0, sizeof(fRadii));
+    this->setExpToDefault();
+    fRawType = kEmpty_Type;
+
+    SkASSERT(this->isValid());
+}
+
+void SkRRect::setRect(const SkRect& rect) {
+    fRect = rect;
+    fRect.sort();
+
+    if (fRect.isEmpty() || !fRect.isFinite()) {
+        this->setEmpty();
+        return;
+    }
+
+    memset(fRadii, 0, sizeof(fRadii));
+    this->setExpToDefault();
+    fRawType = kRect_Type;
+
+    SkASSERT(this->isValid());
+}
+
+void SkRRect::setOval(const SkRect& oval) {
+    fRect = oval;
+    fRect.sort();
+
+    if (fRect.isEmpty() || !fRect.isFinite()) {
+        this->setEmpty();
+        return;
+    }
+
+    SkScalar xRad = SkScalarHalf(fRect.width());
+    SkScalar yRad = SkScalarHalf(fRect.height());
+
+    for (int i = 0; i < 4; ++i) {
+        fRadii[i].set(xRad, yRad);
+    }
+    this->setExpToDefault();
+    fRawType = kOval_Type;
+
+    SkASSERT(this->isValid());
+}
+
+void SkRRect::setExpToDefault() {
+    sk_memset_floats(fExp, 2.0f, 4);
+    fIsSuper = false;
+}
+
 void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
+    this->setExpToDefault();
     fRect = rect;
     fRect.sort();
 
@@ -41,9 +110,9 @@ void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
     for (int i = 0; i < 4; ++i) {
         fRadii[i].set(xRad, yRad);
     }
-    fType = kSimple_Type;
+    fRawType = kSimple_Type;
     if (xRad >= SkScalarHalf(fRect.width()) && yRad >= SkScalarHalf(fRect.height())) {
-        fType = kOval_Type;
+        fRawType = kOval_Type;
         // TODO: assert that all the x&y radii are already W/2 & H/2
     }
 
@@ -52,6 +121,7 @@ void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
 
 void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad,
                            SkScalar rightRad, SkScalar bottomRad) {
+    this->setExpToDefault();
     fRect = rect;
     fRect.sort();
 
@@ -88,20 +158,20 @@ void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad
 
     if (leftRad == rightRad && topRad == bottomRad) {
         if (leftRad >= SkScalarHalf(fRect.width()) && topRad >= SkScalarHalf(fRect.height())) {
-            fType = kOval_Type;
+            fRawType = kOval_Type;
         } else if (0 == leftRad || 0 == topRad) {
             // If the left and (by equality check above) right radii are zero then it is a rect.
             // Same goes for top/bottom.
-            fType = kRect_Type;
+            fRawType = kRect_Type;
             leftRad = 0;
             topRad = 0;
             rightRad = 0;
             bottomRad = 0;
         } else {
-            fType = kSimple_Type;
+            fRawType = kSimple_Type;
         }
     } else {
-        fType = kNinePatch_Type;
+        fRawType = kNinePatch_Type;
     }
 
     fRadii[kUpperLeft_Corner].set(leftRad, topRad);
@@ -122,7 +192,7 @@ static double compute_min_scale(double rad1, double rad2, double limit, double c
     return curMin;
 }
 
-void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
+void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4], const SkScalar exp[4]) {
     fRect = rect;
     fRect.sort();
 
@@ -159,7 +229,28 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
         return;
     }
 
+    if (exp) {
+        auto sanitize_exp = [](SkScalar e) -> SkScalar {
+            return SkScalarIsFinite(e) ? SkTMax(e, 1.0f) : 2;
+        };
+        fIsSuper = false;
+        for (int i = 0; i < 4; ++i) {
+            float e = sanitize_exp(exp[i]);
+            fExp[i] = e;
+            if (e != 2) {
+                fIsSuper = true;
+            }
+        }
+    } else {
+        this->setExpToDefault();
+    }
     this->scaleRadii();
+}
+
+SkRRect SkRRect::makeOffset(SkScalar dx, SkScalar dy) const {
+    SkRRect rr;
+    rr.setRectRadii(fRect.makeOffset(dx, dy), fRadii, fExp);
+    return rr;
 }
 
 void SkRRect::scaleRadii() {
@@ -296,7 +387,7 @@ void SkRRect::computeType() {
     } autoValidate(this);
 
     if (fRect.isEmpty()) {
-        fType = kEmpty_Type;
+        fRawType = kEmpty_Type;
         return;
     }
 
@@ -315,24 +406,24 @@ void SkRRect::computeType() {
     }
 
     if (allCornersSquare) {
-        fType = kRect_Type;
+        fRawType = kRect_Type;
         return;
     }
 
     if (allRadiiEqual) {
         if (fRadii[0].fX >= SkScalarHalf(fRect.width()) &&
             fRadii[0].fY >= SkScalarHalf(fRect.height())) {
-            fType = kOval_Type;
+            fRawType = kOval_Type;
         } else {
-            fType = kSimple_Type;
+            fRawType = kSimple_Type;
         }
         return;
     }
 
     if (radii_are_nine_patch(fRadii)) {
-        fType = kNinePatch_Type;
+        fRawType = kNinePatch_Type;
     } else {
-        fType = kComplex_Type;
+        fRawType = kComplex_Type;
     }
 }
 
@@ -380,9 +471,11 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
 
     // Since the only transforms that were allowed are scale and translate, the type
     // remains unchanged.
-    dst->fType = fType;
+    dst->fRawType = fRawType;
+    dst->fIsSuper = fIsSuper;
+    memcpy(dst->fExp, fExp, sizeof(fExp));
 
-    if (kOval_Type == fType) {
+    if (kOval_Type == fRawType) {
         for (int i = 0; i < 4; ++i) {
             dst->fRadii[i].fX = SkScalarHalf(newRect.width());
             dst->fRadii[i].fY = SkScalarHalf(newRect.height());
@@ -460,32 +553,50 @@ void SkRRect::inset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-size_t SkRRect::writeToMemory(void* buffer) const {
-    // Serialize only the rect and corners, but not the derived type tag.
-    memcpy(buffer, this, kSizeInMemory);
+size_t SkRRect::writeToMemory(void* memory) const {
+    if (memory) {
+        SkWBuffer buffer(memory, kSizeInMemory);
+        this->writeToBuffer(&buffer);
+    }
     return kSizeInMemory;
 }
 
 void SkRRect::writeToBuffer(SkWBuffer* buffer) const {
-    // Serialize only the rect and corners, but not the derived type tag.
-    buffer->write(this, kSizeInMemory);
+    SkDEBUGCODE(size_t prev = buffer->pos();)
+    buffer->write(&fRect, sizeof(fRect));
+    buffer->write(fRadii, sizeof(fRadii));
+    buffer->write(fExp, sizeof(fExp));
+    SkASSERT(buffer->pos() - prev == kSizeInMemory);
 }
 
 size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
-    if (length < kSizeInMemory) {
-        return 0;
-    }
-    // Note that the buffer may be smaller than SkRRect. It is important not to access
-    // bufferAsRRect->fType.
-    const SkRRect* bufferAsRRect = reinterpret_cast<const SkRRect*>(buffer);
-    if (!AreRectAndRadiiValid(bufferAsRRect->fRect, bufferAsRRect->fRadii)) {
-        return 0;
-    }
-    // Deserialize rect and corners, then rederive the type tag.
-    memcpy(this, buffer, kSizeInMemory);
-    this->computeType();
+    // backward compatibility (started 11/2017) -- check if the length is 12 scalars instead
+    // of 16. If so, it is likely an older version before we had fExp[]. In this case
+    // just set fExp[] to 2.0
+    const size_t legacy_size = 12 * sizeof(SkScalar);
 
-    return kSizeInMemory;
+    if (length < kSizeInMemory && length != legacy_size) {
+        return 0;
+    }
+    // so we can return the number of bytes we actually read
+    if (length > kSizeInMemory) {
+        length = kSizeInMemory;
+    }
+
+    // make a copy to ensure that we have correct memory alignment
+    SkRect rect;
+    SkVector radii[4];
+    SkScalar exp[4];
+    SkScalar* expPtr = (length == kSizeInMemory) ? exp : nullptr;
+
+    const char* ptr = reinterpret_cast<const char*>(buffer);
+    memcpy(&rect, ptr, sizeof(SkRect));
+    memcpy(radii, ptr + sizeof(rect), sizeof(radii));
+    if (expPtr) {
+        memcpy(expPtr, ptr + sizeof(rect) + sizeof(radii), sizeof(exp));
+    }
+    this->setRectRadii(rect, radii, expPtr);
+    return length;
 }
 
 bool SkRRect::readFromBuffer(SkRBuffer* buffer) {
@@ -541,6 +652,7 @@ bool SkRRect::isValid() const {
     bool allRadiiZero = (0 == fRadii[0].fX && 0 == fRadii[0].fY);
     bool allCornersSquare = (0 == fRadii[0].fX || 0 == fRadii[0].fY);
     bool allRadiiSame = true;
+    bool isElliptical = true;
 
     for (int i = 1; i < 4; ++i) {
         if (0 != fRadii[i].fX || 0 != fRadii[i].fY) {
@@ -554,14 +666,18 @@ bool SkRRect::isValid() const {
         if (0 != fRadii[i].fX && 0 != fRadii[i].fY) {
             allCornersSquare = false;
         }
-    }
-    bool patchesOfNine = radii_are_nine_patch(fRadii);
 
-    if (fType < 0 || fType > kLastType) {
+        if (fExp[i] != 2) {
+            isElliptical = false;
+        }
+    }
+    if (this->isElliptical() != isElliptical) {
         return false;
     }
 
-    switch (fType) {
+    bool patchesOfNine = radii_are_nine_patch(fRadii);
+
+    switch (fRawType) {
         case kEmpty_Type:
             if (!fRect.isEmpty() || !allRadiiZero || !allRadiiSame || !allCornersSquare) {
                 return false;
