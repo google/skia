@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c1e35cc_28fd74b4",
+        "filename": "src/gpu/ops/GrStencilAndCoverPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-07T20:51:35Z",
+      "side": 1,
+      "message": "Seems fine to return true if the view matrix is noninvertible: drawing nothing is 100% equivalent. (Previously it returned false.)",
+      "range": {
+        "startLine": 99,
+        "startChar": 19,
+        "endLine": 99,
+        "endChar": 23
+      },
+      "revId": "8e5a3ce3d1aa3c3f5abedb77590beee5bd36ed57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd1527d8_d551b6e2",
+        "filename": "src/gpu/ops/GrStencilAndCoverPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-07T20:51:35Z",
+      "side": 1,
+      "message": "Here I was previously sending in the pre-transform bounds, rather than the device-space bounds that the clip expects. (devBounds are [0,0,w,h] for an inverse draw).",
+      "range": {
+        "startLine": 108,
+        "startChar": 80,
+        "endLine": 108,
+        "endChar": 89
+      },
+      "revId": "8e5a3ce3d1aa3c3f5abedb77590beee5bd36ed57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
