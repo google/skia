@@ -146,6 +146,7 @@ void SkPath::resetFields() {
     fFillType = kWinding_FillType;
     fConvexity = kUnknown_Convexity;
     fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+    fPathRef->setFracCountDirty();
 
     // We don't touch Android's fSourcePath.  It's used to track texture garbage collection, so we
     // don't want to muck with it if it's been set to something non-nullptr.
@@ -727,6 +728,7 @@ void SkPath::setConvexity(Convexity c) {
     do {                                                        \
         fConvexity = kUnknown_Convexity;                        \
         fFirstDirection = SkPathPriv::kUnknown_FirstDirection;  \
+        fPathRef->setFracCountDirty();                          \
     } while (0)
 
 void SkPath::incReserve(U16CPU inc) {

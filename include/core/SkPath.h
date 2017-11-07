@@ -1769,6 +1769,12 @@ private:
 
     void setPt(int index, SkScalar x, SkScalar y);
 
+    // Check if there are many fractional x (or y) values concentrated in the same pixel column
+    // (or row). If true, blindly cumulating coverage without considering overlap/intersection
+    // may result in artifacts obvious enough for human eyes (skbug.com/6886). Hence we'll fall back
+    // to AAA from DAA in those cases. (Similar fallback may also be needed for CCPR or SKC.)
+    bool isFracCountConcentrated() const { return fPathRef->isFracCountConcentrated(); }
+
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
     friend class SkAutoDisableDirectionCheck;
@@ -1778,6 +1784,7 @@ private:
     friend class PathTest_Private; // unit test reversePathTo
     friend class ForceIsRRect_Private; // unit test isRRect
     friend class FuzzPath; // for legacy access to validateRef
+    friend class SkScan; // for accessing isFracCountConcentrated
 };
 
 #endif

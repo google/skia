@@ -583,18 +583,21 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool ShouldUseDAA(const SkPath& path) {
+bool SkScan::ShouldUseDAA(const SkPath& path) {
     if (gSkForceDeltaAA) {
         return true;
     }
     if (!gSkUseDeltaAA) {
         return false;
     }
+    if (path.isFracCountConcentrated()) {
+        return false;
+    }
     const SkRect& bounds = path.getBounds();
     return !path.isConvex() && path.countPoints() >= SkTMax(bounds.width(), bounds.height()) / 8;
 }
 
-static bool ShouldUseAAA(const SkPath& path) {
+bool SkScan::ShouldUseAAA(const SkPath& path) {
     if (gSkForceAnalyticAA) {
         return true;
     }
