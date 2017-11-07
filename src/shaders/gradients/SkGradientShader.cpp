@@ -1298,6 +1298,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         case kSingleHardStop_ColorType:
             fRow = -1;
             fCoordTransform.reset(*args.fMatrix);
+            fTextureSampler.fHandled = true;          // no texture to sample
             break;
 
         case kTexture_ColorType:
