@@ -14,16 +14,20 @@
 
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
+#include "../ports/SkOSLibrary.h"
 
 namespace sk_app {
 namespace window_context_factory {
 
 WindowContext* NewVulkanForWin(HWND hwnd, const DisplayParams& params) {
     auto createVkSurface = [hwnd] (VkInstance instance) -> VkSurfaceKHR {
+	    void* vkLib = DynamicLoadLibrary("vulkan-1.dll");
+	PFN_vkGetInstanceProcAddr instProc =
+		(PFN_vkGetInstanceProcAddr)  GetProcedureAddress(vkLib, "vkGetInstanceProcAddr");
         static PFN_vkCreateWin32SurfaceKHR createWin32SurfaceKHR = nullptr;
         if (!createWin32SurfaceKHR) {
             createWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR)
-                vkGetInstanceProcAddr(instance, "vkCreateWin32SurfaceKHR");
+                instProc(instance, "vkCreateWin32SurfaceKHR");
         }
         HINSTANCE hinstance = GetModuleHandle(0);
         VkSurfaceKHR surface;
@@ -48,10 +52,13 @@ WindowContext* NewVulkanForWin(HWND hwnd, const DisplayParams& params) {
                           uint32_t queueFamilyIndex) {
         static PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR
                                             getPhysicalDeviceWin32PresentationSupportKHR = nullptr;
+	    void* vkLib = DynamicLoadLibrary("vulkan-1.dll");
+	PFN_vkGetInstanceProcAddr instProc =
+		(PFN_vkGetInstanceProcAddr)  GetProcedureAddress(vkLib, "vkGetInstanceProcAddr");
         if (!getPhysicalDeviceWin32PresentationSupportKHR) {
             getPhysicalDeviceWin32PresentationSupportKHR =
                 (PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)
-                    vkGetInstanceProcAddr(instance,
+                    instProc(instance,
                                           "vkGetPhysicalDeviceWin32PresentationSupportKHR");
         }
 

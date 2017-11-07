@@ -28,7 +28,6 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST = [
   'iOSShell.ipa',
   'visualbench',
   'visualbench.exe',
-  'vulkan-1.dll',
 ]
 
 
@@ -106,12 +105,18 @@ except OSError as e:
 
 for pattern in build_products_whitelist:
   path = os.path.join(src, pattern)
+  print path
+  print "HELLO"
   for f in glob.glob(path):
+    print f
     dst_path = os.path.join(dst, os.path.relpath(f, src))
     if not os.path.isdir(os.path.dirname(dst_path)):
       os.makedirs(os.path.dirname(dst_path))
     print 'Copying build product %%s to %%s' %% (f, dst_path)
     shutil.move(f, dst_path)
+    print "Done inner"
+print "FINSIHED"
+# os.remove(os.path.join(dst, 'vulkan-1.dll'))
 ''' % str(BUILD_PRODUCTS_ISOLATE_WHITELIST),
         args=[src, dst],
         infra_step=True)

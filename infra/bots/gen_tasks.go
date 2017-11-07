@@ -273,7 +273,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				gpu, ok := map[string]string{
 					"AMDHD7770":     "1002:683d-22.19.165.512",
 					"GT610":         "10de:104a-22.21.13.8205",
-					"GTX1070":       "10de:1ba1-22.21.13.8205",
+					"GTX1070":       "10de:1ba1-23.21.13.8813",
 					"GTX660":        "10de:11c0-22.21.13.8205",
 					"GTX960":        "10de:1401-22.21.13.8205",
 					"IntelHD530":    "8086:1912-21.20.16.4590",
