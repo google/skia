@@ -28,6 +28,7 @@ public:
         fShaderCaps->fIntegerSupport = options.fIntegerSupport;
         fShaderCaps->fFlatInterpolationSupport = options.fFlatInterpolationSupport;
         fShaderCaps->fMaxVertexSamplers = options.fMaxVertexSamplers;
+        fShaderCaps->fShaderDerivativeSupport = options.fShaderDerivativeSupport;
 
         this->applyOptionsOverrides(contextOptions);
     }

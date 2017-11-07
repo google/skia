@@ -16,8 +16,8 @@ struct GrMockTextureInfo {
 
 /**
  * A pointer to this type is used as the GrBackendContext when creating a Mock GrContext. It can be
- * used to specificy capability options for the mock context. If nullptr is used a default
- * constructed GrMockOptions is used.
+ * used to specify capability options for the mock context. If nullptr is used a default constructed
+ * GrMockOptions is used.
  */
 struct GrMockOptions {
     GrMockOptions() {
@@ -48,6 +48,7 @@ struct GrMockOptions {
     bool fIntegerSupport = false;
     bool fFlatInterpolationSupport = false;
     int fMaxVertexSamplers = 0;
+    bool fShaderDerivativeSupport = true;
 };
 
 #endif
