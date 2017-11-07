@@ -8,6 +8,7 @@
 
 #include "SkScanPriv.h"
 #include "SkPath.h"
+#include "SkPathPriv.h"
 #include "SkMatrix.h"
 #include "SkBlitter.h"
 #include "SkRegion.h"
@@ -583,18 +584,21 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool ShouldUseDAA(const SkPath& path) {
+bool SkScan::ShouldUseDAA(const SkPath& path) {
     if (gSkForceDeltaAA) {
         return true;
     }
     if (!gSkUseDeltaAA) {
         return false;
     }
+    if (SkPathPriv::IsFracCountConcentrated(path)) {
+        return false;
+    }
     const SkRect& bounds = path.getBounds();
     return !path.isConvex() && path.countPoints() >= SkTMax(bounds.width(), bounds.height()) / 8;
 }
 
-static bool ShouldUseAAA(const SkPath& path) {
+bool SkScan::ShouldUseAAA(const SkPath& path) {
     if (gSkForceAnalyticAA) {
         return true;
     }

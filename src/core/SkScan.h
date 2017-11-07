@@ -95,6 +95,9 @@ private:
                             const SkIRect& clipBounds, bool containedInClip, bool forceRLE);
     static void SAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& pathIR,
                             const SkIRect& clipBounds, bool containedInClip, bool forceRLE);
+
+    static bool ShouldUseDAA(const SkPath& path);
+    static bool ShouldUseAAA(const SkPath& path);
 };
 
 /** Assign an SkXRect from a SkIRect, by promoting the src rect's coordinates
