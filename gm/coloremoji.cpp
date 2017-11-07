@@ -84,12 +84,15 @@ protected:
         constexpr SkScalar textSizes[] = { 10, 30, 50, };
         SkPaint::FontMetrics metrics;
         SkScalar y = 0;
-        for (const SkScalar& textSize : textSizes) {
-            paint.setTextSize(textSize);
-            paint.getFontMetrics(&metrics);
-            y += -metrics.fAscent;
-            canvas->drawString(text, 10, y, paint);
-            y += metrics.fDescent + metrics.fLeading;
+        for (const bool& fakeBold : { false, true }) {
+            paint.setFakeBoldText(fakeBold);
+            for (const SkScalar& textSize : textSizes) {
+                paint.setTextSize(textSize);
+                paint.getFontMetrics(&metrics);
+                y += -metrics.fAscent;
+                canvas->drawString(text, 10, y, paint);
+                y += metrics.fDescent + metrics.fLeading;
+            }
         }
 
         y += 20;

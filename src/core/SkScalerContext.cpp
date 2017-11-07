@@ -129,13 +129,15 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         return;
     }
 
+    bool generatingImageFromPath = fGenerateImageFromPath;
     if (fGenerateImageFromPath) {
         SkPath      devPath, fillPath;
         SkMatrix    fillToDevMatrix;
 
         this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath, &fillToDevMatrix);
-
-        if (fRasterizer) {
+        if (fillPath.isEmpty()) {
+            generatingImageFromPath = false;
+        } else if (fRasterizer) {
             SkMask  mask;
 
             if (fRasterizer->rasterize(fillPath, fillToDevMatrix, nullptr,
@@ -178,8 +180,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
     }
 
     // If we are going to create the mask, then we cannot keep the color
-    if ((fGenerateImageFromPath || fMaskFilter) &&
-            SkMask::kARGB32_Format == glyph->fMaskFormat) {
+    if ((generatingImageFromPath || fMaskFilter) && SkMask::kARGB32_Format == glyph->fMaskFormat) {
         glyph->fMaskFormat = SkMask::kA8_Format;
     }
 
@@ -457,12 +458,6 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     // (i.e. larger) than what our caller allocated by looking at origGlyph.
     SkAutoMalloc tmpGlyphImageStorage;
 
-    // If we are going to draw-from-path, then we cannot generate color, since
-    // the path only makes a mask. This case should have been caught up in
-    // generateMetrics().
-    SkASSERT(!fGenerateImageFromPath ||
-             SkMask::kARGB32_Format != origGlyph.fMaskFormat);
-
     if (fMaskFilter) {   // restore the prefilter bounds
         tmpGlyph.initWithGlyphID(origGlyph.getPackedID());
 
@@ -492,7 +487,12 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath, &fillToDevMatrix);
         glyph->toMask(&mask);
 
-        if (fRasterizer) {
+        if (fillPath.isEmpty()) {
+            generateImage(*glyph);
+        } else if (fRasterizer) {
+            // Paths do not have color information, so we should not have a color mask here.
+            // This case should have been caught up in generateMetrics().
+            SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
             mask.fFormat = SkMask::kA8_Format;
             sk_bzero(glyph->fImage, mask.computeImageSize());
 
@@ -505,6 +505,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
                 applyLUTToA8Mask(mask, fPreBlend.fG);
             }
         } else {
+            SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
             SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
             generateMask(mask, devPath, fPreBlend);
         }
