@@ -740,6 +740,7 @@ component("skia") {
 
   sources = []
   sources += skia_core_sources
+  sources += skia_pathops_sources
   sources += skia_utils_sources
   sources += skia_xps_sources
   sources += [
@@ -866,6 +867,70 @@ component("skia") {
 
   if (is_fuchsia) {
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
+  }
+}
+
+config("pathops_public") {
+  include_dirs = [
+    "include/config",
+    "include/core",
+    "include/pathops",
+    "include/ports",
+  ]
+}
+
+config("pathops_private") {
+  visibility = [ ":*" ]
+
+  include_dirs = [
+    "include/private",
+    "src/core",
+    "src/shaders",
+  ]
+}
+
+component("pathops") {
+  public_configs = [ ":pathops_public" ]
+  configs += [ ":pathops_private" ]
+
+  sources = []
+  sources += skia_pathops_sources
+  sources += [
+    "src/core/SkArenaAlloc.cpp",
+    "src/core/SkBuffer.cpp",
+    "src/core/SkCubicClipper.cpp",
+    "src/core/SkData.cpp",
+    "src/core/SkGeometry.cpp",
+    "src/core/SkMath.cpp",
+    "src/core/SkMatrix.cpp",
+    "src/core/SkPath.cpp",
+    "src/core/SkPathRef.cpp",
+    "src/core/SkPoint.cpp",
+    "src/core/SkRRect.cpp",
+    "src/core/SkRect.cpp",
+    "src/core/SkSemaphore.cpp",
+    "src/core/SkString.cpp",
+    "src/core/SkStringUtils.cpp",
+    "src/core/SkThreadID.cpp",
+    "src/core/SkUtils.cpp",
+    "src/ports/SkMemory_malloc.cpp",
+    "src/ports/SkOSFile_stdio.cpp",
+  ]
+
+  if (is_win) {
+    sources += [
+      "src/ports/SkDebug_win.cpp",
+      "src/ports/SkOSFile_win.cpp",
+    ]
+  } else {
+    sources += [
+      "src/ports/SkDebug_stdio.cpp",
+      "src/ports/SkOSFile_posix.cpp",
+    ]
+  }
+  if (is_android) {
+    sources += [ "src/ports/SkDebug_android.cpp" ]
+    libs += [ "log" ]
   }
 }
 
@@ -1301,6 +1366,15 @@ if (skia_enable_tools) {
       ":flags",
       ":skia",
       ":tool_utils",
+    ]
+  }
+
+  test_app("teenypathops") {
+    sources = [
+      "tools/teenypathops/main.cpp",
+    ]
+    deps = [
+      ":pathops",
     ]
   }
 
