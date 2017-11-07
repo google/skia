@@ -12,7 +12,7 @@
 
 #if SK_SUPPORT_GPU
 #  include "GrAppliedClip.h"
-#  include "GrFixedClip.h"
+#  include "GrStencilClip.h"
 #  include "GrReducedClip.h"
 #  include "GrRenderTargetContext.h"
 #  include "GrRenderTargetContextPriv.h"
@@ -166,15 +166,10 @@ private:
 };
 
 /**
- * This class clips a cover by the stencil clip bit. We use it to visualize the stencil mask.
+ * Makes a clip object that enforces the stencil clip bit. Used to visualize the stencil mask.
  */
-class StencilOnlyClip final : public MaskOnlyClipBase {
-private:
-    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
-               SkRect* bounds) const override {
-        out->addStencilClip(SkClipStack::kEmptyGenID);
-        return true;
-    }
+static GrStencilClip make_stencil_only_clip() {
+    return GrStencilClip(SkClipStack::kEmptyGenID);
 };
 
 void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas* canvas) {
@@ -215,7 +210,7 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
     // the clip mask generation.
     this->stencilCheckerboard(maskRTC.get(), true);
     maskRTC->clear(nullptr, GrColorPackA4(0xff), true);
-    maskRTC->priv().drawAndStencilRect(StencilOnlyClip(), &GrUserStencilSettings::kUnused,
+    maskRTC->priv().drawAndStencilRect(make_stencil_only_clip(), &GrUserStencilSettings::kUnused,
                                        SkRegion::kDifference_Op, false, GrAA::kNo, SkMatrix::I(),
                                        SkRect::MakeIWH(maskRTC->width(), maskRTC->height()));
     reducedClip.drawAlphaClipMask(maskRTC.get());
@@ -242,7 +237,7 @@ void WindowRectanglesMaskGM::visualizeStencilMask(GrContext* ctx, GrRenderTarget
     // Now visualize the stencil mask by covering the entire render target. The regions inside
     // window rectangles or outside the scissor should still have the initial checkerboard intact.
     // (This verifies we didn't spend any time modifying those pixels in the mask.)
-    rtc->drawPaint(StencilOnlyClip(), std::move(paint), SkMatrix::I());
+    rtc->drawPaint(make_stencil_only_clip(), std::move(paint), SkMatrix::I());
 }
 
 void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, bool flip) {

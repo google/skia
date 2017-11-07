@@ -269,12 +269,12 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
                                     renderTargetContext->priv().maxWindowRectangles());
 
     if (reducedClip.hasScissor() && !GrClip::IsInsideClip(reducedClip.scissor(), devBounds)) {
-        out->addScissor(reducedClip.scissor(), bounds);
+        out->hardClip().addScissor(reducedClip.scissor(), bounds);
     }
 
     if (!reducedClip.windowRectangles().empty()) {
-        out->addWindowRectangles(reducedClip.windowRectangles(),
-                                 GrWindowRectsState::Mode::kExclusive);
+        out->hardClip().addWindowRectangles(reducedClip.windowRectangles(),
+                                            GrWindowRectsState::Mode::kExclusive);
     }
 
     if (reducedClip.maskElements().isEmpty()) {
@@ -358,7 +358,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         reducedClip.drawStencilClipMask(context, renderTargetContext);
         renderTargetContext->priv().setLastClip(reducedClip.maskGenID(), reducedClip.scissor());
     }
-    out->addStencilClip(reducedClip.maskGenID());
+    out->hardClip().addStencilClip(reducedClip.maskGenID());
     return true;
 }
 
