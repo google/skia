@@ -189,14 +189,12 @@ Compiler::Compiler(Flags flags)
 
     StringFragment skCapsName("sk_Caps");
     Variable* skCaps = new Variable(-1, Modifiers(), skCapsName,
-                                    *fContext.fSkCaps_Type, Variable::kGlobal_Storage, nullptr,
-                                    {});
+                                    *fContext.fSkCaps_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skCapsName, std::unique_ptr<Symbol>(skCaps));
 
     StringFragment skArgsName("sk_Args");
     Variable* skArgs = new Variable(-1, Modifiers(), skArgsName,
-                                    *fContext.fSkArgs_Type, Variable::kGlobal_Storage, nullptr,
-                                    {});
+                                    *fContext.fSkArgs_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
 
     std::vector<std::unique_ptr<ProgramElement>> ignored;
@@ -309,11 +307,10 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
         }
         case BasicBlock::Node::kStatement_Kind: {
             const Statement* stmt = (Statement*) node.statement()->get();
-            if (stmt->fKind == Statement::kVarDeclarations_Kind) {
-                for (Variable* var : ((VarDeclarationsStatement*) stmt)->fDeclaration->fVars) {
-                    if (var->fInitialValue) {
-                        (*definitions)[var] = &var->fInitialValue;
-                    }
+            if (stmt->fKind == Statement::kVarDeclaration_Kind) {
+                VarDeclaration& vd = (VarDeclaration&) *stmt;
+                if (vd.fValue) {
+                    (*definitions)[vd.fVar] = &vd.fValue;
                 }
             }
             break;
@@ -369,8 +366,10 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
                 const Statement* s = node.statement()->get();
                 if (s->fKind == Statement::kVarDeclarations_Kind) {
                     const VarDeclarationsStatement* vd = (const VarDeclarationsStatement*) s;
-                    for (const Variable* var : vd->fDeclaration->fVars) {
-                        result[var] = nullptr;
+                    for (const auto& decl : vd->fDeclaration->fVars) {
+                        if (decl->fKind == Statement::kVarDeclaration_Kind) {
+                            result[((VarDeclaration&) *decl).fVar] = nullptr;
+                        }
                     }
                 }
             }
@@ -645,7 +644,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             if (var.fStorage == Variable::kLocal_Storage && !definitions[&var] &&
                 (*undefinedVariables).find(&var) == (*undefinedVariables).end()) {
                 (*undefinedVariables).insert(&var);
-                this->error(expr->fOffset, "'" + var.fName + "' has not been assigned");
+                this->error(expr->fOffset,
+                            "'" + var.fName + "' has not been assigned");
             }
             break;
         }
@@ -890,25 +890,19 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                                  bool* outNeedsRescan) {
     Statement* stmt = (*iter)->statement()->get();
     switch (stmt->fKind) {
-        case Statement::kVarDeclarations_Kind: {
-            std::vector<Variable*>& vars = ((VarDeclarationsStatement*) stmt)->fDeclaration->fVars;
-            for (auto varIter = vars.begin(); varIter != vars.end();) {
-                Variable* var = *varIter;
-                if (var->dead() && (!var->fInitialValue || !var->fInitialValue->hasSideEffects())) {
-                    if (var->fInitialValue) {
-                        ASSERT((*iter)->statement()->get() == stmt);
-                        if (!b.tryRemoveExpressionAfter(iter, var->fInitialValue.get())) {
-                            *outNeedsRescan = true;
-                        }
+        case Statement::kVarDeclaration_Kind: {
+            const auto& varDecl = (VarDeclaration&) *stmt;
+            if (varDecl.fVar->dead() &&
+                (!varDecl.fValue ||
+                 !varDecl.fValue->hasSideEffects())) {
+                if (varDecl.fValue) {
+                    ASSERT((*iter)->statement()->get() == stmt);
+                    if (!b.tryRemoveExpressionBefore(iter, varDecl.fValue.get())) {
+                        *outNeedsRescan = true;
                     }
-                    varIter = vars.erase(varIter);
-                    *outUpdated = true;
-                } else {
-                    ++varIter;
                 }
-            }
-            if (!vars.size()) {
                 (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+                *outUpdated = true;
             }
             break;
         }
@@ -1100,6 +1094,22 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                         }
                         ++iter;
                         break;
+                    case Statement::kVarDeclarations_Kind: {
+                        VarDeclarations& decls = *((VarDeclarationsStatement&) s).fDeclaration;
+                        for (auto varIter = decls.fVars.begin(); varIter != decls.fVars.end();) {
+                            if ((*varIter)->fKind == Statement::kNop_Kind) {
+                                varIter = decls.fVars.erase(varIter);
+                            } else {
+                                ++varIter;
+                            }
+                        }
+                        if (!decls.fVars.size()) {
+                            iter = b.fNodes.erase(iter);
+                        } else {
+                            ++iter;
+                        }
+                        break;
+                    }
                     default:
                         ++iter;
                         break;

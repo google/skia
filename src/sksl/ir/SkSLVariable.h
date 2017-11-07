@@ -15,8 +15,6 @@
 
 namespace SkSL {
 
-struct Expression;
-
 /**
  * Represents a variable, whether local, global, or a function parameter. This represents the
  * variable itself (the storage location), which is shared between all VariableReferences which
@@ -30,16 +28,13 @@ struct Variable : public Symbol {
     };
 
     Variable(int offset, Modifiers modifiers, StringFragment name, const Type& type,
-             Storage storage, std::unique_ptr<Expression> initialValue,
-             std::vector<std::unique_ptr<Expression>> sizes)
+             Storage storage)
     : INHERITED(offset, kVariable_Kind, name)
     , fModifiers(modifiers)
     , fType(type)
     , fStorage(storage)
     , fReadCount(0)
-    , fWriteCount(0)
-    , fInitialValue(std::move(initialValue))
-    , fSizes(std::move(sizes)) {}
+    , fWriteCount(0) {}
 
     virtual String description() const override {
         return fModifiers.description() + fType.fName + " " + fName;
@@ -59,9 +54,6 @@ struct Variable : public Symbol {
     // Tracks how many sites write to the variable. If this is zero, the variable is dead and may be
     // eliminated.
     mutable int fWriteCount;
-
-    std::unique_ptr<Expression> fInitialValue;
-    std::vector<std::unique_ptr<Expression>> fSizes;
 
     typedef Symbol INHERITED;
 };

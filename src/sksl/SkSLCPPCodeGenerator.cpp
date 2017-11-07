@@ -273,10 +273,11 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         for (const auto& p : fProgram.fElements) {
             if (ProgramElement::kVar_Kind == p->fKind) {
                 const VarDeclarations* decls = (const VarDeclarations*) p.get();
-                for (const auto& var : decls->fVars) {
-                    if (var == &((VariableReference&) *c.fArguments[0]).fVariable) {
+                for (const auto& raw : decls->fVars) {
+                    VarDeclaration& decl = (VarDeclaration&) *raw;
+                    if (decl.fVar == &((VariableReference&) *c.fArguments[0]).fVariable) {
                         found = true;
-                    } else if (var->fType == *fContext.fFragmentProcessor_Type) {
+                    } else if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
                         ++index;
                     }
                 }
@@ -352,7 +353,7 @@ void CPPCodeGenerator::writeProgramElement(const ProgramElement& p) {
         if (!decls.fVars.size()) {
             return;
         }
-        const Variable& var = *decls.fVars[0];
+        const Variable& var = *((VarDeclaration&) *decls.fVars[0]).fVar;
         if (var.fModifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kUniform_Flag) ||
             -1 != var.fModifiers.fLayout.fBuiltin) {
             return;
@@ -412,17 +413,18 @@ void CPPCodeGenerator::writePrivateVars() {
     for (const auto& p : fProgram.fElements) {
         if (ProgramElement::kVar_Kind == p->fKind) {
             const VarDeclarations* decls = (const VarDeclarations*) p.get();
-            for (const auto& var : decls->fVars) {
-                if (is_private(*var)) {
-                    if (var->fType == *fContext.fFragmentProcessor_Type) {
-                        fErrors.error(var->fOffset,
+            for (const auto& raw : decls->fVars) {
+                VarDeclaration& decl = (VarDeclaration&) *raw;
+                if (is_private(*decl.fVar)) {
+                    if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
+                        fErrors.error(decl.fOffset,
                                       "fragmentProcessor variables must be declared 'in'");
                         return;
                     }
                     this->writef("%s %s;\n",
-                                 HCodeGenerator::FieldType(fContext, var->fType,
-                                                           var->fModifiers.fLayout).c_str(),
-                                 String(var->fName).c_str());
+                                 HCodeGenerator::FieldType(fContext, decl.fVar->fType,
+                                                           decl.fVar->fModifiers.fLayout).c_str(),
+                                 String(decl.fVar->fName).c_str());
                 }
             }
         }
@@ -433,11 +435,12 @@ void CPPCodeGenerator::writePrivateVarValues() {
     for (const auto& p : fProgram.fElements) {
         if (ProgramElement::kVar_Kind == p->fKind) {
             const VarDeclarations* decls = (const VarDeclarations*) p.get();
-            for (const auto& var : decls->fVars) {
-                if (is_private(*var) && var->fInitialValue) {
-                    this->writef("%s = ", String(var->fName).c_str());
+            for (const auto& raw : decls->fVars) {
+                VarDeclaration& decl = (VarDeclaration&) *raw;
+                if (is_private(*decl.fVar) && decl.fValue) {
+                    this->writef("%s = ", String(decl.fVar->fName).c_str());
                     fCPPMode = true;
-                    this->writeExpression(*var->fInitialValue, kAssignment_Precedence);
+                    this->writeExpression(*decl.fValue, kAssignment_Precedence);
                     fCPPMode = false;
                     this->write(";\n");
                 }
@@ -498,11 +501,12 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
     for (const auto& p : fProgram.fElements) {
         if (ProgramElement::kVar_Kind == p->fKind) {
             const VarDeclarations* decls = (const VarDeclarations*) p.get();
-            for (const auto& var : decls->fVars) {
-                String nameString(var->fName);
+            for (const auto& raw : decls->fVars) {
+                VarDeclaration& decl = (VarDeclaration&) *raw;
+                String nameString(decl.fVar->fName);
                 const char* name = nameString.c_str();
-                if (SectionAndParameterHelper::IsParameter(*var) &&
-                    is_accessible(*var)) {
+                if (SectionAndParameterHelper::IsParameter(*decl.fVar) &&
+                    is_accessible(*decl.fVar)) {
                     this->writef("        auto %s = _outer.%s();\n"
                                  "        (void) %s;\n",
                                  name, name, name);
@@ -569,15 +573,16 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
         for (const auto& p : fProgram.fElements) {
             if (ProgramElement::kVar_Kind == p->fKind) {
                 const VarDeclarations* decls = (const VarDeclarations*) p.get();
-                for (const Variable* var : decls->fVars) {
-                    String nameString(var->fName);
+                for (const auto& raw : decls->fVars) {
+                    VarDeclaration& decl = (VarDeclaration&) *raw;
+                    String nameString(decl.fVar->fName);
                     const char* name = nameString.c_str();
-                    if (needs_uniform_var(*var)) {
+                    if (needs_uniform_var(*decl.fVar)) {
                         this->writef("        UniformHandle& %s = %sVar;\n"
                                      "        (void) %s;\n",
                                      name, HCodeGenerator::FieldName(name).c_str(), name);
-                    } else if (SectionAndParameterHelper::IsParameter(*var) &&
-                               var->fType != *fContext.fFragmentProcessor_Type) {
+                    } else if (SectionAndParameterHelper::IsParameter(*decl.fVar) &&
+                               decl.fVar->fType != *fContext.fFragmentProcessor_Type) {
                         if (!wroteProcessor) {
                             this->writef("        const %s& _outer = _proc.cast<%s>();\n", fullName,
                                          fullName);
@@ -713,10 +718,11 @@ bool CPPCodeGenerator::generateCode() {
     for (const auto& p : fProgram.fElements) {
         if (ProgramElement::kVar_Kind == p->fKind) {
             const VarDeclarations* decls = (const VarDeclarations*) p.get();
-            for (const Variable* var : decls->fVars) {
-                if ((var->fModifiers.fFlags & Modifiers::kUniform_Flag) &&
-                           var->fType.kind() != Type::kSampler_Kind) {
-                    uniforms.push_back(var);
+            for (const auto& raw : decls->fVars) {
+                VarDeclaration& decl = (VarDeclaration&) *raw;
+                if ((decl.fVar->fModifiers.fFlags & Modifiers::kUniform_Flag) &&
+                           decl.fVar->fType.kind() != Type::kSampler_Kind) {
+                    uniforms.push_back(decl.fVar);
                 }
             }
         }
