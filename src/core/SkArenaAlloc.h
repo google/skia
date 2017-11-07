@@ -67,6 +67,8 @@
 // there are 71 allocations.
 class SkArenaAlloc {
 public:
+    template <typename T> class List;
+
     enum Tracking {kDontTrack, kTrack};
     SkArenaAlloc(char* block, size_t size, size_t, Tracking tracking = kDontTrack);
 
@@ -238,6 +240,53 @@ private:
     char fInlineStorage[InlineStorageSize];
 
     using INHERITED = SkArenaAlloc;
+};
+
+/**
+ * A singly linked list of Ts stored in a SkArenaAlloc. The arena rather than the list owns
+ * the elements. This supports forward iteration and range based for loops.
+ */
+template <typename T>
+class SkArenaAlloc::List {
+private:
+    struct Node;
+
+public:
+    List() = default;
+
+    void reset() { fHead = fTail = nullptr; }
+
+    template <typename... Args>
+    T& append(SkArenaAlloc* arena, Args... args);
+
+    class Iter {
+    public:
+        Iter() = default;
+        Iter& operator++();
+        T& operator*() const { return fCurr->fT; }
+        T* operator->() const { return &fCurr->fT; }
+        bool operator==(const Iter& that) const { return fCurr == that.fCurr; }
+        bool operator!=(const Iter& that) const { return !(*this == that); }
+
+    private:
+        friend class List;
+        explicit Iter(Node* node) : fCurr(node) {}
+        Node* fCurr = nullptr;
+    };
+
+    Iter begin() { return Iter(fHead); }
+    Iter end() { return Iter(); }
+    Iter tail() { return Iter(fTail); }
+
+private:
+    struct Node {
+        template <typename... Args>
+        Node(Args... args) : fT(std::forward<Args>(args)...) {}
+        T fT;
+        Node* fNext = nullptr;
+    };
+    Node* fHead = nullptr;
+    Node* fTail = nullptr;
 };
 
 #endif//SkFixedAlloc_DEFINED

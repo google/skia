@@ -60,8 +60,8 @@ private:
                                    const SkTextBlob* blob, SkScalar x, SkScalar y,
                                    SkDrawFilter* drawFilter);
     inline static bool HasLCD(const SkTextBlob*);
-
-    static inline sk_sp<GrAtlasTextBlob> MakeDrawTextBlob(GrTextBlobCache*, GrAtlasGlyphCache*,
+public:
+    static sk_sp<GrAtlasTextBlob> MakeDrawTextBlob(GrTextBlobCache*, GrAtlasGlyphCache*,
                                                           const GrShaderCaps&,
                                                           const GrTextUtils::Paint&,
                                                           uint32_t scalerContextFlags,
@@ -69,7 +69,7 @@ private:
                                                           const SkSurfaceProps&,
                                                           const char text[], size_t byteLength,
                                                           SkScalar x, SkScalar y);
-    static inline sk_sp<GrAtlasTextBlob> MakeDrawPosTextBlob(GrTextBlobCache*, GrAtlasGlyphCache*,
+    static sk_sp<GrAtlasTextBlob> MakeDrawPosTextBlob(GrTextBlobCache*, GrAtlasGlyphCache*,
                                                              const GrShaderCaps&,
                                                              const GrTextUtils::Paint&,
                                                              uint32_t scalerContextFlags,
