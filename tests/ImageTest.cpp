@@ -810,11 +810,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     ctxInfo.grContext()->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
 }
 
-DEF_GPUTEST(SkImage_MakeCrossContextRelease, reporter, /*factory*/) {
+static void test_cross_context_image(skiatest::Reporter* reporter,
+                                     std::function<sk_sp<SkImage>(GrContext*)> imageMaker) {
     GrContextFactory testFactory;
-
-    sk_sp<SkData> data = GetResourceAsData("mandrill_128.png");
-    SkASSERT(data.get());
 
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
@@ -841,7 +839,7 @@ DEF_GPUTEST(SkImage_MakeCrossContextRelease, reporter, /*factory*/) {
 
         // Case #1: Create image, free image
         {
-            sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+            sk_sp<SkImage> refImg(imageMaker(ctx));
             refImg.reset(nullptr); // force a release of the image
         }
 
@@ -851,7 +849,7 @@ DEF_GPUTEST(SkImage_MakeCrossContextRelease, reporter, /*factory*/) {
 
         // Case #2: Create image, draw, flush, free image
         {
-            sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+            sk_sp<SkImage> refImg(imageMaker(ctx));
 
             canvas->drawImage(refImg, 0, 0);
             canvas->flush();
@@ -861,7 +859,7 @@ DEF_GPUTEST(SkImage_MakeCrossContextRelease, reporter, /*factory*/) {
 
         // Case #3: Create image, draw, free image, flush
         {
-            sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+            sk_sp<SkImage> refImg(imageMaker(ctx));
 
             canvas->drawImage(refImg, 0, 0);
             refImg.reset(nullptr); // force a release of the image
@@ -887,7 +885,7 @@ DEF_GPUTEST(SkImage_MakeCrossContextRelease, reporter, /*factory*/) {
         // Case #4: Create image, draw*, flush*, free image
         {
             testContext->makeCurrent();
-            sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+            sk_sp<SkImage> refImg(imageMaker(ctx));
 
             otherTestContext->makeCurrent();
             canvas->drawImage(refImg, 0, 0);
@@ -900,7 +898,7 @@ DEF_GPUTEST(SkImage_MakeCrossContextRelease, reporter, /*factory*/) {
         // Case #5: Create image, draw*, free image, flush*
         {
             testContext->makeCurrent();
-            sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+            sk_sp<SkImage> refImg(imageMaker(ctx));
 
             otherTestContext->makeCurrent();
             canvas->drawImage(refImg, 0, 0);
@@ -923,7 +921,7 @@ DEF_GPUTEST(SkImage_MakeCrossContextRelease, reporter, /*factory*/) {
         // Case #6: Verify that only one context can be using the image at a time
         {
             testContext->makeCurrent();
-            sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+            sk_sp<SkImage> refImg(imageMaker(ctx));
 
             // Any context should be able to borrow the texture at this point
             sk_sp<SkColorSpace> texColorSpace;
@@ -958,6 +956,25 @@ DEF_GPUTEST(SkImage_MakeCrossContextRelease, reporter, /*factory*/) {
             refImg.reset(nullptr);
         }
     }
+}
+
+DEF_GPUTEST(SkImage_MakeCrossContextFromEncodedRelease, reporter, /*factory*/) {
+    sk_sp<SkData> data = GetResourceAsData("mandrill_128.png");
+    SkASSERT(data.get());
+
+    test_cross_context_image(reporter, [&data](GrContext* ctx) {
+        return SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr);
+    });
+}
+
+DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, /*factory*/) {
+    SkBitmap bitmap;
+    SkPixmap pixmap;
+    SkAssertResult(GetResourceAsBitmap("mandrill_128.png", &bitmap) && bitmap.peekPixels(&pixmap));
+
+    test_cross_context_image(reporter, [&pixmap](GrContext* ctx) {
+        return SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false, nullptr);
+    });
 }
 
 static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, const SkImage* b) {

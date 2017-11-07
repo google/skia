@@ -508,6 +508,41 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
     return SkImage::MakeFromGenerator(std::move(gen));
 }
 
+sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
+                                                   bool buildMips, SkColorSpace* dstColorSpace) {
+    // Some backends or drivers don't support (safely) moving resources between contexts
+    if (!context || !context->caps()->crossContextTextureSupport()) {
+        return SkImage::MakeRasterCopy(pixmap);
+    }
+
+    // Turn the pixmap into a GrTextureProxy
+    sk_sp<GrTextureProxy> proxy;
+    if (buildMips) {
+        SkBitmap bmp;
+        bmp.installPixels(pixmap);
+        proxy = GrGenerateMipMapsAndUploadToTextureProxy(context, bmp, dstColorSpace);
+    } else {
+        proxy = GrUploadPixmapToTextureProxy(context->resourceProvider(), pixmap, SkBudgeted::kYes,
+                                             dstColorSpace);
+    }
+
+    if (!proxy) {
+        return SkImage::MakeRasterCopy(pixmap);
+    }
+
+    sk_sp<GrTexture> texture = sk_ref_sp(proxy->priv().peekTexture());
+
+    // Flush any writes or uploads
+    context->contextPriv().prepareSurfaceForExternalIO(proxy.get());
+
+    sk_sp<GrSemaphore> sema = context->getGpu()->prepareTextureForCrossContextUsage(texture.get());
+
+    auto gen = GrBackendTextureImageGenerator::Make(std::move(texture), proxy->origin(),
+                                                    std::move(sema), pixmap.alphaType(),
+                                                    pixmap.info().refColorSpace());
+    return SkImage::MakeFromGenerator(std::move(gen));
+}
+
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, SkAlphaType at,
                                                sk_sp<SkColorSpace> cs) {
