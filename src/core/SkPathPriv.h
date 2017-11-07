@@ -157,6 +157,15 @@ public:
         return path.fPathRef->unique();
     }
 
+    /**
+     * Check if there are many fractional x (or y) values concentrated in the same pixel column
+     * (or row). If true, blindly cumulating coverage without considering overlap/intersection
+     * may result in artifacts obvious enough for human eyes (skbug.com/6886). Hence we'll fall back
+     * to AAA from DAA in those cases. (Similar fallback may also be needed for CCPR or SKC.)
+     */
+    static bool IsFracCountConcentrated(const SkPath& path) {
+        return path.fPathRef->isFracCountConcentrated();
+    }
 };
 
 #endif
