@@ -325,7 +325,7 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
 
 GrAtlasTextContext* GrDrawingManager::getAtlasTextContext() {
     if (!fAtlasTextContext) {
-        fAtlasTextContext.reset(GrAtlasTextContext::Create());
+        fAtlasTextContext = GrAtlasTextContext::Make(fOptionsForAtlasTextContext);
     }
 
     return fAtlasTextContext.get();

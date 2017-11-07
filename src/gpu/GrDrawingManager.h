@@ -85,17 +85,18 @@ public:
 private:
     GrDrawingManager(GrContext* context,
                      const GrPathRendererChain::Options& optionsForPathRendererChain,
+                     const GrAtlasTextContext::Options& optionsForAtlasTextContext,
                      GrSingleOwner* singleOwner)
-        : fContext(context)
-        , fOptionsForPathRendererChain(optionsForPathRendererChain)
-        , fSingleOwner(singleOwner)
-        , fAbandoned(false)
-        , fAtlasTextContext(nullptr)
-        , fPathRendererChain(nullptr)
-        , fSoftwarePathRenderer(nullptr)
-        , fFlushState(context->getGpu(), context->resourceProvider())
-        , fFlushing(false) {
-    }
+            : fContext(context)
+            , fOptionsForPathRendererChain(optionsForPathRendererChain)
+            , fOptionsForAtlasTextContext(optionsForAtlasTextContext)
+            , fSingleOwner(singleOwner)
+            , fAbandoned(false)
+            , fAtlasTextContext(nullptr)
+            , fPathRendererChain(nullptr)
+            , fSoftwarePathRenderer(nullptr)
+            , fFlushState(context->getGpu(), context->resourceProvider())
+            , fFlushing(false) {}
 
     void abandon();
     void cleanup();
@@ -119,6 +120,7 @@ private:
 
     GrContext*                        fContext;
     GrPathRendererChain::Options      fOptionsForPathRendererChain;
+    GrAtlasTextContext::Options       fOptionsForAtlasTextContext;
 
     // In debug builds we guard against improper thread handling
     GrSingleOwner*                    fSingleOwner;
