@@ -253,7 +253,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"Golo":       "x86-64-E5-2670",
 				},
 				"AVX2": {
-					"GCE": "x86-64-Haswell_GCE",
+					"GCE":       "x86-64-Haswell_GCE",
 					"NUC5i7RYH": "x86-64-i7-5557U",
 				},
 				"AVX512": {
@@ -273,9 +273,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				gpu, ok := map[string]string{
 					"AMDHD7770":     "1002:683d-22.19.165.512",
 					"GT610":         "10de:104a-22.21.13.8205",
-					"GTX1070":       "10de:1ba1-22.21.13.8205",
-					"GTX660":        "10de:11c0-22.21.13.8205",
-					"GTX960":        "10de:1401-22.21.13.8205",
+					"GTX1070":       "10de:1ba1-23.21.13.8813",
+					"GTX660":        "10de:11c0-23.21.13.8813",
+					"GTX960":        "10de:1401-23.21.13.8813",
 					"IntelHD530":    "8086:1912-21.20.16.4590",
 					"IntelHD4400":   "8086:0a16-20.19.15.4703",
 					"IntelHD4600":   "8086:0412-20.19.15.4703",
