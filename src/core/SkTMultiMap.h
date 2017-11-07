@@ -63,26 +63,7 @@ public:
         // Since we expect the caller to be fully aware of what is stored, just
         // assert that the caller removes an existing value.
         SkASSERT(list);
-        ValueList* prev = nullptr;
-        while (list->fValue != value) {
-            prev = list;
-            list = list->fNext;
-        }
-
-        if (list->fNext) {
-            ValueList* next = list->fNext;
-            list->fValue = next->fValue;
-            list->fNext = next->fNext;
-            delete next;
-        } else if (prev) {
-            prev->fNext = nullptr;
-            delete list;
-        } else {
-            fHash.remove(key);
-            delete list;
-        }
-
-        --fCount;
+        this->internalRemove(list, key, value);
     }
 
     T* find(const Key& key) const {
@@ -99,6 +80,30 @@ public:
         while (list) {
             if (f(list->fValue)){
                 return list->fValue;
+            }
+            list = list->fNext;
+        }
+        return nullptr;
+    }
+
+    T* findAndRemove(const Key& key) {
+        ValueList* list = fHash.find(key);
+        if (list) {
+            T* value = list->fValue;
+            this->internalRemove(list, key, value);
+            return value;
+        }
+        return nullptr;
+    }
+
+    template<class FindPredicate>
+    T* findAndRemove(const Key& key, const FindPredicate f) {
+        ValueList* list = fHash.find(key);
+        while (list) {
+            if (f(list->fValue)){
+                T* value = list->fValue;
+                this->internalRemove(list, key, value);
+                return value;
             }
             list = list->fNext;
         }
@@ -168,6 +173,31 @@ public:
 private:
     SkTDynamicHash<ValueList, Key> fHash;
     int fCount;
+
+    void internalRemove(ValueList* list, const Key& key, const T* value) {
+        ValueList* prev = nullptr;
+        while (list->fValue != value) {
+            prev = list;
+            list = list->fNext;
+        }
+
+        if (list->fNext) {
+            ValueList* next = list->fNext;
+            list->fValue = next->fValue;
+            list->fNext = next->fNext;
+            delete next;
+        } else if (prev) {
+            prev->fNext = nullptr;
+            delete list;
+        } else {
+            fHash.remove(key);
+            delete list;
+        }
+
+        --fCount;
+    }
+
+
 };
 
 #endif
