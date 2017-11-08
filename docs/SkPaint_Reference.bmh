@@ -3247,7 +3247,7 @@ implementation.
 #Height 100
     void draw(SkCanvas* canvas) {
         SkPaint paint;
-        paint.setTypeface(SkTypeface::MakeDefault(SkTypeface::kBold));
+        paint.setTypeface(SkTypeface::MakeFromName(nullptr, SkFontStyle()));
         paint.setAntiAlias(true);
         paint.setTextSize(36);
         canvas->drawString("A Big Hello!", 10, 40, paint);

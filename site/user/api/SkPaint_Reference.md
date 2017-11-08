@@ -3250,7 +3250,7 @@ implementation.
 
 ### Example
 
-<div><fiddle-embed name="c18b1696b8c1649bebf7eb1f8b89e0b0"></fiddle-embed></div>
+<div><fiddle-embed name="1a7a5062725139760962582f599f1b97"></fiddle-embed></div>
 
 <a name="SkPaint_getTypeface"></a>
 ## getTypeface

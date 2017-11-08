@@ -308,9 +308,12 @@ bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) 
         code += "}";
     }
     string example = "\"" + normalizedName + "\": {\n";
-    size_t nameStart = fFileName.find("\\", 0);
-    SkASSERT(string::npos != nameStart);
-    string baseFile = fFileName.substr(nameStart + 1, fFileName.length() - nameStart - 5);
+
+    string baseFile = [this]() {
+        string baseNameExt = fFileName.substr(fFileName.find_last_of("/\\") + 1);
+        size_t p = baseNameExt.find_last_of('.');
+        return (p > 0 && p != string::npos) ? baseNameExt.substr(0, p) : baseNameExt;
+    }();
     if (ExampleOptions::kText == exampleOptions) {
         example += "    \"code\": \"" + code + "\",\n";
         example += "    \"hash\": \"" + fHash + "\",\n";
