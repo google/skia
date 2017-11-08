@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "797dff27_434beda1",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 953,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-08T20:50:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7fa3bda6_5aa3b92d",
+      "range": {
+        "startLine": 953,
+        "startChar": 4,
+        "endLine": 953,
+        "endChar": 8
+      },
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "46668313_a0ab47ad",
         "filename": "src/shaders/gradients/SkGradientShader.cpp",
         "patchSetId": 7
@@ -39,6 +63,24 @@
       "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69041a1e_e1acd7d2",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1186,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-08T20:50:21Z",
+      "side": 1,
+      "message": "Good point, done.",
+      "parentUuid": "46668313_a0ab47ad",
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -77,6 +119,24 @@
     },
     {
       "key": {
+        "uuid": "bf63212f_49ec7846",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1245,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-08T20:50:21Z",
+      "side": 1,
+      "message": "Moved fPremulType and fCoordTransform initialization to the ctor body.\n\nAlso, I think it\u0027s cleaner to leave fPremulType reflect the actual shader setting and implement the texture caching optimization in the keygen logic.  Done.",
+      "parentUuid": "4d5a099d_88752db1",
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "adb06e69_d2d01e6d",
         "filename": "src/shaders/gradients/SkGradientShader.cpp",
         "patchSetId": 7
@@ -97,6 +157,30 @@
       "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ec15f7d_91a33d7f",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1246,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-08T20:50:21Z",
+      "side": 1,
+      "message": "I think this is explained in the header:\n\n// This is already baked into the table for texture\n// gradients, and only changes behavior for gradients\n// that don\u0027t use a texture.\n\nI relocated this adjustment to GenBaseGradientKey.",
+      "parentUuid": "adb06e69_d2d01e6d",
+      "range": {
+        "startLine": 1246,
+        "startChar": 7,
+        "endLine": 1246,
+        "endChar": 46
+      },
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -123,6 +207,30 @@
     },
     {
       "key": {
+        "uuid": "23ef45ce_4175e624",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1304,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-08T20:50:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "bea180dd_9f2b797f",
+      "range": {
+        "startLine": 1287,
+        "startChar": 12,
+        "endLine": 1304,
+        "endChar": 36
+      },
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6270b94f_bac0b9dc",
         "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
         "patchSetId": 7
@@ -146,6 +254,30 @@
     },
     {
       "key": {
+        "uuid": "8a4f6bde_ffd61653",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-08T20:50:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6270b94f_bac0b9dc",
+      "range": {
+        "startLine": 342,
+        "startChar": 39,
+        "endLine": 344,
+        "endChar": 67
+      },
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "43f2f224_98a8b5f1",
         "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
         "patchSetId": 7
@@ -160,6 +292,24 @@
       "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98a3baad_0a8f27a1",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-08T20:50:21Z",
+      "side": 1,
+      "message": "Updated to use direct casting, got rid of most of these.",
+      "parentUuid": "43f2f224_98a8b5f1",
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
