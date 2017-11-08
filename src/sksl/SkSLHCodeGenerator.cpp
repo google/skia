@@ -150,7 +150,7 @@ void HCodeGenerator::writeMake() {
         separator = "";
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             if (param->fType == *fContext.fFragmentProcessor_Type) {
-                this->writef("%s%s->clone()", separator, String(param->fName).c_str());
+                this->writef("%sstd::move(%s)", separator, String(param->fName).c_str());
             } else {
                 this->writef("%s%s", separator, String(param->fName).c_str());
             }
