@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "4ad428f8_81044a47",
+        "filename": "src/core/SkTMultiMap.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-08T15:24:30Z",
+      "side": 1,
+      "message": "Yeah, definitely. After I wrote that I comment I thought it shouldn\u0027t be necessary to use std::function to be able to use a lambda here and then I remembered what a lambda actually is...",
+      "parentUuid": "b54d5b21_0f3f6a83",
+      "range": {
+        "startLine": 97,
+        "startChar": 37,
+        "endLine": 97,
+        "endChar": 58
+      },
+      "revId": "0028f68f495f92c050b1f8e21ca8f48608ca778c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "47141f63_bc2fa7c9",
         "filename": "src/gpu/GrResourceAllocator.h",
         "patchSetId": 5
