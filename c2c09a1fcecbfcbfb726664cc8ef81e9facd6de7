@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46668313_a0ab47ad",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1186,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-11-08T13:59:57Z",
+      "side": 1,
+      "message": "fPremulType is fully initialized at this point (for the analytic cases). You could skip passing that to addInterval, and just use the member in that function?",
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "370ce3c2_4bb445d3",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1245,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-11-08T13:59:57Z",
+      "side": 1,
+      "message": "1) \"Historical\"\n2) It could cost us (up to) three extra shaders, so the complexity tradeoff seems worth it?\n\n... generally, I like trying to move field initialization into the init-list for the constructor, but I\u0027m not sure about the case for fields that then get (conditionally) changed in the body. I think that fPremulType and fCoordTransform are both a little awkward now?",
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
