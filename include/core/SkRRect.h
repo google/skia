@@ -233,17 +233,9 @@ public:
         return fRadii[0];
     }
 
-    friend bool operator==(const SkRRect& a, const SkRRect& b) {
-        return a.fRect == b.fRect &&
-               SkScalarsEqual(a.fRadii[0].asScalars(),
-                              b.fRadii[0].asScalars(), 8);
-    }
+    friend bool operator==(const SkRRect& a, const SkRRect& b);
 
-    friend bool operator!=(const SkRRect& a, const SkRRect& b) {
-        return a.fRect != b.fRect ||
-               !SkScalarsEqual(a.fRadii[0].asScalars(),
-                               b.fRadii[0].asScalars(), 8);
-    }
+    friend bool operator!=(const SkRRect& a, const SkRRect& b);
 
     /**
      *  Call inset on the bounds, and adjust the radii to reflect what happens

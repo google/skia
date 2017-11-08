@@ -19,6 +19,7 @@
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkGeometry.h"
 #include "SkPoint3.h"
+#include "SkPointPriv.h"
 #include "SkStroke.h"
 #include "SkTemplates.h"
 #include "effects/GrBezierEffect.h"
@@ -176,17 +177,17 @@ static int is_degen_quad_or_conic(const SkPoint p[3], SkScalar* dsqd) {
     static const SkScalar gDegenerateToLineTolSqd =
         gDegenerateToLineTol * gDegenerateToLineTol;
 
-    if (p[0].distanceToSqd(p[1]) < gDegenerateToLineTolSqd ||
-        p[1].distanceToSqd(p[2]) < gDegenerateToLineTolSqd) {
+    if (SkPointPriv::DistanceToSqd(p[0], p[1]) < gDegenerateToLineTolSqd ||
+        SkPointPriv::DistanceToSqd(p[1], p[2]) < gDegenerateToLineTolSqd) {
         return 1;
     }
 
-    *dsqd = p[1].distanceToLineBetweenSqd(p[0], p[2]);
+    *dsqd = SkPointPriv::DistanceToLineBetweenSqd(p[1], p[0], p[2]);
     if (*dsqd < gDegenerateToLineTolSqd) {
         return 1;
     }
 
-    if (p[2].distanceToLineBetweenSqd(p[1], p[0]) < gDegenerateToLineTolSqd) {
+    if (SkPointPriv::DistanceToLineBetweenSqd(p[2], p[1], p[0]) < gDegenerateToLineTolSqd) {
         return 1;
     }
     return 0;
@@ -555,14 +556,14 @@ static void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
 
     ab.normalize();
     SkVector abN;
-    abN.setOrthog(ab, SkVector::kLeft_Side);
+    SkPointPriv::SetOrthog(&abN, ab, SkPointPriv::kLeft_Side);
     if (abN.dot(ac) > 0) {
         abN.negate();
     }
 
     cb.normalize();
     SkVector cbN;
-    cbN.setOrthog(cb, SkVector::kLeft_Side);
+    SkPointPriv::SetOrthog(&cbN, cb, SkPointPriv::kLeft_Side);
     if (cbN.dot(ac) < 0) {
         cbN.negate();
     }
@@ -641,7 +642,7 @@ static void add_line(const SkPoint p[2],
     SkVector ortho, vec = b;
     vec -= a;
 
-    SkScalar lengthSqd = vec.lengthSqd();
+    SkScalar lengthSqd = SkPointPriv::LengthSqd(vec);
 
     if (vec.setLength(SK_ScalarHalf)) {
         // Create a vector orthogonal to 'vec' and of unit length

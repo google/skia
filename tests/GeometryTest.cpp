@@ -6,8 +6,9 @@
  */
 
 #include "SkGeometry.h"
-#include "Test.h"
+#include "SkPointPriv.h"
 #include "SkRandom.h"
+#include "Test.h"
 #include <array>
 
 static bool nearly_equal(const SkPoint& a, const SkPoint& b) {
@@ -152,7 +153,7 @@ static void test_this_conic_to_quad(skiatest::Reporter* r, const SkPoint pts[3],
     const int qcount = quadder.countQuads();
     const int pcount = qcount * 2 + 1;
 
-    REPORTER_ASSERT(r, SkPointsAreFinite(qpts, pcount));
+    REPORTER_ASSERT(r, SkPointPriv::AreFinite(qpts, pcount));
 }
 
 /**

@@ -9,7 +9,20 @@
 #include "SkRRect.h"
 #include "SkBuffer.h"
 #include "SkMatrix.h"
+#include "SkPointPriv.h"
 #include "SkScaleToSides.h"
+
+    bool operator==(const SkRRect& a, const SkRRect& b) {
+        return a.fRect == b.fRect &&
+               SkScalarsEqual(SkPointPriv::AsScalars(a.fRadii[0]),
+                              SkPointPriv::AsScalars(b.fRadii[0]), 8);
+    }
+
+    bool operator!=(const SkRRect& a, const SkRRect& b) {
+        return a.fRect != b.fRect ||
+               !SkScalarsEqual(SkPointPriv::AsScalars(a.fRadii[0]),
+                               SkPointPriv::AsScalars(b.fRadii[0]), 8);
+    }
 
 ///////////////////////////////////////////////////////////////////////////////
 

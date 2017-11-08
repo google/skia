@@ -27,6 +27,7 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPathMeasure.h"
+#include "SkPointPriv.h"
 
 const SkScalar OVERSTROKE_WIDTH = 500.0f;
 const SkScalar NORMALSTROKE_WIDTH = 3.0f;
@@ -96,7 +97,7 @@ SkPath ribs_path(SkPath path, SkScalar radius) {
     while (accum < length) {
         if (meas.getPosTan(accum, &pos, &tan)) {
             tan.scale(radius);
-            tan.rotateCCW();
+            SkPointPriv::RotateCCW(&tan);
 
             ribs.moveTo(pos.x() + tan.x(), pos.y() + tan.y());
             ribs.lineTo(pos.x() - tan.x(), pos.y() - tan.y());

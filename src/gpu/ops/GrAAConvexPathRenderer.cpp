@@ -19,6 +19,7 @@
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkGeometry.h"
 #include "SkPathPriv.h"
+#include "SkPointPriv.h"
 #include "SkString.h"
 #include "SkTraceEvent.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -122,11 +123,11 @@ static void compute_vectors(SegmentArray* segments,
     int count = segments->count();
 
     // Make the normals point towards the outside
-    SkPoint::Side normSide;
+    SkPointPriv::Side normSide;
     if (dir == SkPathPriv::kCCW_FirstDirection) {
-        normSide = SkPoint::kRight_Side;
+        normSide = SkPointPriv::kRight_Side;
     } else {
-        normSide = SkPoint::kLeft_Side;
+        normSide = SkPointPriv::kLeft_Side;
     }
 
     *vCount = 0;
@@ -142,7 +143,7 @@ static void compute_vectors(SegmentArray* segments,
         for (int p = 0; p < n; ++p) {
             segb.fNorms[p] = segb.fPts[p] - *prevPt;
             segb.fNorms[p].normalize();
-            segb.fNorms[p].setOrthog(segb.fNorms[p], normSide);
+            SkPointPriv::SetOrthog(&segb.fNorms[p], segb.fNorms[p], normSide);
             prevPt = &segb.fPts[p];
         }
         if (Segment::kLine == segb.fType) {
@@ -192,10 +193,10 @@ static void update_degenerate_test(DegenerateTestData* data, const SkPoint& pt) 
             data->fStage = DegenerateTestData::kPoint;
             break;
         case DegenerateTestData::kPoint:
-            if (pt.distanceToSqd(data->fFirstPoint) > kCloseSqd) {
+            if (SkPointPriv::DistanceToSqd(pt, data->fFirstPoint) > kCloseSqd) {
                 data->fLineNormal = pt - data->fFirstPoint;
                 data->fLineNormal.normalize();
-                data->fLineNormal.setOrthog(data->fLineNormal);
+                SkPointPriv::SetOrthog(&data->fLineNormal, data->fLineNormal);
                 data->fLineC = -data->fLineNormal.dot(data->fFirstPoint);
                 data->fStage = DegenerateTestData::kLine;
             }
@@ -235,7 +236,8 @@ static inline void add_line_to_segment(const SkPoint& pt,
 
 static inline void add_quad_segment(const SkPoint pts[3],
                                     SegmentArray* segments) {
-    if (pts[0].distanceToSqd(pts[1]) < kCloseSqd || pts[1].distanceToSqd(pts[2]) < kCloseSqd) {
+    if (SkPointPriv::DistanceToSqd(pts[0], pts[1]) < kCloseSqd ||
+        SkPointPriv::DistanceToSqd(pts[1], pts[2]) < kCloseSqd) {
         if (pts[0] != pts[2]) {
             add_line_to_segment(pts[2], segments);
         }
@@ -425,8 +427,8 @@ static void create_vertices(const SegmentArray& segments,
 
             // we draw the line edge as a degenerate quad (u is 0, v is the
             // signed distance to the edge)
-            SkScalar dist = fanPt.distanceToLineBetween(verts[*v + 1].fPos,
-                                                        verts[*v + 2].fPos);
+            SkScalar dist = SkPointPriv::DistanceToLineBetween(fanPt, verts[*v + 1].fPos,
+                                                               verts[*v + 2].fPos);
             verts[*v + 0].fUV.set(0, dist);
             verts[*v + 1].fUV.set(0, 0);
             verts[*v + 2].fUV.set(0, 0);

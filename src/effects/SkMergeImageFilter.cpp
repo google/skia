@@ -43,7 +43,7 @@ sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(SkSpecialImage* source, 
 
     // Filter all of the inputs.
     for (int i = 0; i < inputCount; ++i) {
-        offsets[i].setZero();
+        offsets[i] = { 0, 0 };
         inputs[i] = this->filterInput(i, source, ctx, &offsets[i]);
         if (!inputs[i]) {
             continue;
