@@ -236,6 +236,12 @@ static bool primaries_equal(const SkColorSpacePrimaries& a, const SkColorSpacePr
     return memcmp(&a, &b, sizeof(SkColorSpacePrimaries)) == 0;
 }
 
+static Window::BackendType backend_type_for_window(Window::BackendType backendType) {
+    // In raster mode, we still use GL for the window.
+    // This lets us render the GUI faster (and correct).
+    return Window::kRaster_BackendType == backendType ? Window::kNativeGL_BackendType : backendType;
+}
+
 const char* kName = "name";
 const char* kValue = "value";
 const char* kOptions = "options";
@@ -477,7 +483,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fImGuiGamutPaint.setColor(SK_ColorWHITE);
     fImGuiGamutPaint.setFilterQuality(kLow_SkFilterQuality);
 
-    fWindow->attach(fBackendType);
+    fWindow->attach(backend_type_for_window(fBackendType));
 }
 
 void Viewer::initSlides() {
@@ -745,40 +751,33 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
 
     fWindow->detach();
 
-#if defined(SK_BUILD_FOR_WIN) && defined(SK_VULKAN)
+#if defined(SK_BUILD_FOR_WIN)
     // Switching between OpenGL, Vulkan, and ANGLE in the same window is problematic at this point
     // on Windows, so we just delete the window and recreate it.
-    if (sk_app::Window::kVulkan_BackendType == fBackendType ||
-        sk_app::Window::kNativeGL_BackendType == fBackendType
-#if SK_ANGLE
-        || sk_app::Window::kANGLE_BackendType == fBackendType
-#endif
-        ) {
-        DisplayParams params = fWindow->getRequestedDisplayParams();
-        delete fWindow;
-        fWindow = Window::CreateNativeWindow(nullptr);
+    DisplayParams params = fWindow->getRequestedDisplayParams();
+    delete fWindow;
+    fWindow = Window::CreateNativeWindow(nullptr);
 
-        // re-register callbacks
-        fCommands.attach(fWindow);
-        fWindow->registerBackendCreatedFunc(on_backend_created_func, this);
-        fWindow->registerPaintFunc(on_paint_handler, this);
-        fWindow->registerTouchFunc(on_touch_handler, this);
-        fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
-        fWindow->registerMouseFunc(on_mouse_handler, this);
-        fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
-        fWindow->registerKeyFunc(on_key_handler, this);
-        fWindow->registerCharFunc(on_char_handler, this);
-        // Don't allow the window to re-attach. If we're in MSAA mode, the params we grabbed above
-        // will still include our correct sample count. But the re-created fWindow will lose that
-        // information. On Windows, we need to re-create the window when changing sample count,
-        // so we'll incorrectly detect that situation, then re-initialize the window in GL mode,
-        // rendering this tear-down step pointless (and causing the Vulkan window context to fail
-        // as if we had never changed windows at all).
-        fWindow->setRequestedDisplayParams(params, false);
-    }
+    // re-register callbacks
+    fCommands.attach(fWindow);
+    fWindow->registerBackendCreatedFunc(on_backend_created_func, this);
+    fWindow->registerPaintFunc(on_paint_handler, this);
+    fWindow->registerTouchFunc(on_touch_handler, this);
+    fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
+    fWindow->registerMouseFunc(on_mouse_handler, this);
+    fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
+    fWindow->registerKeyFunc(on_key_handler, this);
+    fWindow->registerCharFunc(on_char_handler, this);
+    // Don't allow the window to re-attach. If we're in MSAA mode, the params we grabbed above
+    // will still include our correct sample count. But the re-created fWindow will lose that
+    // information. On Windows, we need to re-create the window when changing sample count,
+    // so we'll incorrectly detect that situation, then re-initialize the window in GL mode,
+    // rendering this tear-down step pointless (and causing the Vulkan window context to fail
+    // as if we had never changed windows at all).
+    fWindow->setRequestedDisplayParams(params, false);
 #endif
 
-    fWindow->attach(fBackendType);
+    fWindow->attach(backend_type_for_window(fBackendType));
 }
 
 void Viewer::setColorMode(ColorMode colorMode) {
@@ -817,9 +816,11 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     }
 
     // If we're in F16, or we're zooming, or we're in color correct 8888 and the gamut isn't sRGB,
-    // we need to render offscreen
+    // we need to render offscreen. We also need to render offscreen if we're in any raster mode,
+    // because the window surface is actually GL.
     sk_sp<SkSurface> offscreenSurface = nullptr;
-    if (ColorMode::kColorManagedLinearF16 == fColorMode ||
+    if (Window::kRaster_BackendType == fBackendType ||
+        ColorMode::kColorManagedLinearF16 == fColorMode ||
         fShowZoomWindow ||
         (ColorMode::kColorManagedSRGB8888 == fColorMode &&
          !primaries_equal(fColorSpacePrimaries, gSrgbPrimaries))) {
@@ -832,7 +833,8 @@ void Viewer::drawSlide(SkCanvas* canvas) {
             (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) ? nullptr : cs;
         SkImageInfo info = SkImageInfo::Make(fWindow->width(), fWindow->height(), colorType,
                                              kPremul_SkAlphaType, std::move(offscreenColorSpace));
-        offscreenSurface = canvas->makeSurface(info);
+        offscreenSurface = Window::kRaster_BackendType == fBackendType ? SkSurface::MakeRaster(info)
+                                                                       : canvas->makeSurface(info);
         slideCanvas = offscreenSurface->getCanvas();
     }
 
@@ -1484,7 +1486,7 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
                 if (fBackendType != i) {
                     fBackendType = (sk_app::Window::BackendType)i;
                     fWindow->detach();
-                    fWindow->attach(fBackendType);
+                    fWindow->attach(backend_type_for_window(fBackendType));
                 }
                 break;
             }
