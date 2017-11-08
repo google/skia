@@ -86,6 +86,7 @@ protected:
 
     bool isPurgeable() const { return !this->internalHasRef() && !this->internalHasPendingIO(); }
 
+public:
     bool internalHasPendingRead() const { return SkToBool(fPendingReads); }
     bool internalHasPendingWrite() const { return SkToBool(fPendingWrites); }
     bool internalHasPendingIO() const { return SkToBool(fPendingWrites | fPendingReads); }
@@ -121,7 +122,7 @@ private:
         this->didRemoveRefOrPendingIO(kPendingWrite_CntType);
     }
 
-private:
+public:
     void didRemoveRefOrPendingIO(CntType cntTypeRemoved) const {
         if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
             static_cast<const DERIVED*>(this)->notifyAllCntsAreZero(cntTypeRemoved);

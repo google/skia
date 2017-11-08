@@ -81,6 +81,7 @@ GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTexture
                        GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag);
     fAtlasAccess.instantiate(rp);
     this->addTextureSampler(&fAtlasAccess);
+    fAtlasAccess.fHandled = true;
 }
 
 void GrCCPRPathProcessor::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {

@@ -148,7 +148,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
 }
 
 void SkSurface_Gpu::onDiscard() {
-    fDevice->accessRenderTargetContext()->discard();
+    //fDevice->accessRenderTargetContext()->discard();
 }
 
 GrSemaphoresSubmitted SkSurface_Gpu::onFlush(int numSemaphores,

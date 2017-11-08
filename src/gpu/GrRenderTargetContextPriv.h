@@ -93,6 +93,7 @@ public:
                             const SkPath&);
 
     SkBudgeted isBudgeted() const;
+    bool isInstantiated() const;
 
     int maxWindowRectangles() const;
 

@@ -171,6 +171,8 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     }
 #endif
 
+    //-------------------------------------------------------------------------
+    SkDebugf("Begin Resource Assignment ------------------------------------\n");
     {
         GrResourceAllocator alloc(fContext->resourceProvider());
         for (int i = 0; i < fOpLists.count(); ++i) {
@@ -181,6 +183,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         alloc.assign();
 #endif
     }
+    //-------------------------------------------------------------------------
 
     for (int i = 0; i < fOpLists.count(); ++i) {
         if (!fOpLists[i]->instantiate(fContext->resourceProvider())) {
@@ -249,6 +252,9 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         onFlushCBObject->postFlush(fFlushState.nextTokenToFlush());
     }
     fFlushing = false;
+
+    // We may have strayed over budget during the flush.
+    fContext->getResourceCache()->purgeAsNeeded();
 
     return result;
 }

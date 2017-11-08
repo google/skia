@@ -259,23 +259,41 @@ bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
 void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     unsigned int cur = alloc->numOps();
 
+    SkDebugf("----------------------------------------\n");
+    SkDebugf("gather for RTOpList #%d { rtpID: %d, rtID: %d }\n",
+             this->uniqueID(),
+             fTarget.get()->uniqueID().asUInt(),
+             this->isInstantiated() ? fTarget.get()->underlyingUniqueID().asUInt() : -1);
+
+    if (this->isInstantiated()) {
+        SkASSERT(fTarget.get()->fIsOkayToBeInstantiated);
+        // TODO: I want an assert that the instantiated GrSurface cannot accessed from the cache
+    }
+
     // Add the interval for all the writes to this opList's target
     if (fRecordedOps.count()) {
-        alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);
+        SkDebugf("adding destination interval to opList #%d for %d ops\n", this->uniqueID(), fRecordedOps.count());
+        alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1, 1);
     } else {
         // This can happen if there is a loadOp (e.g., a clear) but no other draws. In this case we
         // still need to add an interval for the destination so we create a fake op# for
         // the missing clear op.
-        alloc->addInterval(fTarget.get());
+        SkDebugf("adding dummy dest interval for %s %x: opList #%d, op# %d\n",
+            GrLoadOp::kLoad == fColorLoadOp ? "load" :
+                 GrLoadOp::kClear == fColorLoadOp ? "clear" : "discard", fLoadClearColor,
+            this->uniqueID(), cur);
+        // TODO: should we add a similar fake op# in the case where the opList does has other ops?
+        alloc->addInterval(fTarget.get(), 1);
         alloc->incOps();
     }
 
     auto gather = [ alloc ] (GrSurfaceProxy* p) {
-        alloc->addInterval(p);
+        alloc->addInterval(p, 1);
     };
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         const GrOp* op = fRecordedOps[i].fOp.get(); // only diff from the GrTextureOpList version
         if (op) {
+            SkDebugf("gathering intervals for: opList #%d (%s), op# %d\n", this->uniqueID(), op->name(), cur+i);
             op->visitProxies(gather);
         }
 
@@ -283,6 +301,7 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
         // keep all the math consistent.
         alloc->incOps();
     }
+    SkDebugf("----------------------------------------\n");
 }
 
 static inline bool can_reorder(const SkRect& a, const SkRect& b) { return !GrRectsOverlap(a, b); }
@@ -347,6 +366,8 @@ void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
                 GrOP_INFO("\t\t\tBackward: Combined op info:\n");
                 GrOP_INFO(SkTabString(candidate.fOp->dumpInfo(), 4).c_str());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, candidate.fOp.get(), op.get());
+
+                op->markAsHandled();
                 return;
             }
             // Stop going backwards if we would cause a painter's order violation.
