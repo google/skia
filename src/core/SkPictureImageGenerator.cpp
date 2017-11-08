@@ -63,8 +63,10 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
     bool useXformCanvas =
             SkTransferFunctionBehavior::kIgnore == opts.fBehavior && info.colorSpace();
 
+    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     SkImageInfo canvasInfo = useXformCanvas ? info.makeColorSpace(nullptr) : info;
-    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(canvasInfo, pixels, rowBytes);
+    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(canvasInfo, pixels, rowBytes,
+                                                                  &props);
     if (!canvas) {
         return false;
     }
@@ -109,9 +111,10 @@ sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(
     //
     // TODO: respect the usage, by possibly creating a different (pow2) surface
     //
+    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     SkImageInfo surfaceInfo = useXformCanvas ? info.makeColorSpace(nullptr) : info;
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, surfaceInfo,
-                                                         0, kTopLeft_GrSurfaceOrigin, nullptr,
+                                                         0, kTopLeft_GrSurfaceOrigin, &props,
                                                          willNeedMipMaps));
     if (!surface) {
         return nullptr;
