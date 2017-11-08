@@ -8,6 +8,7 @@
 #include "SkStrokerPriv.h"
 #include "SkGeometry.h"
 #include "SkPath.h"
+#include "SkPointPriv.h"
 
 static void ButtCapper(SkPath* path, const SkPoint& pivot, const SkVector& normal,
                        const SkPoint& stop, SkPath*) {
@@ -17,7 +18,7 @@ static void ButtCapper(SkPath* path, const SkPoint& pivot, const SkVector& norma
 static void RoundCapper(SkPath* path, const SkPoint& pivot, const SkVector& normal,
                         const SkPoint& stop, SkPath*) {
     SkVector parallel;
-    normal.rotateCW(&parallel);
+    SkPointPriv::RotateCW(normal, &parallel);
 
     SkPoint projectedCenter = pivot + parallel;
 
@@ -28,7 +29,7 @@ static void RoundCapper(SkPath* path, const SkPoint& pivot, const SkVector& norm
 static void SquareCapper(SkPath* path, const SkPoint& pivot, const SkVector& normal,
                          const SkPoint& stop, SkPath* otherPath) {
     SkVector parallel;
-    normal.rotateCW(&parallel);
+    SkPointPriv::RotateCW(normal, &parallel);
 
     if (otherPath) {
         path->setLastPt(pivot.fX + normal.fX + parallel.fX, pivot.fY + normal.fY + parallel.fY);

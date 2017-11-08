@@ -9,6 +9,7 @@
 #include "SkDiscretePathEffect.h"
 #include "SkFixed.h"
 #include "SkPathMeasure.h"
+#include "SkPointPriv.h"
 #include "SkReadBuffer.h"
 #include "SkStrokeRec.h"
 #include "SkWriteBuffer.h"
@@ -26,7 +27,7 @@ sk_sp<SkPathEffect> SkDiscretePathEffect::Make(SkScalar segLength, SkScalar devi
 
 static void Perterb(SkPoint* p, const SkVector& tangent, SkScalar scale) {
     SkVector normal = tangent;
-    normal.rotateCCW();
+    SkPointPriv::RotateCCW(&normal);
     normal.setLength(scale);
     *p += normal;
 }

@@ -202,7 +202,7 @@ void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
         this->updatePixelsFromRef();
     } else {
         // ignore dx,dy if there is no pixelref
-        fPixelRefOrigin.setZero();
+        fPixelRefOrigin = {0, 0};
         fPixels = nullptr;
     }
 
@@ -337,7 +337,7 @@ bool SkBitmap::installMaskPixels(const SkMask& mask) {
 
 void SkBitmap::freePixels() {
     fPixelRef = nullptr;
-    fPixelRefOrigin.setZero();
+    fPixelRefOrigin = {0, 0};
     fPixels = nullptr;
 }
 

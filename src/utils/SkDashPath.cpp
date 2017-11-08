@@ -7,6 +7,7 @@
 
 #include "SkDashPathPriv.h"
 #include "SkPathMeasure.h"
+#include "SkPointPriv.h"
 #include "SkStrokeRec.h"
 
 static inline int is_even(int x) {
@@ -166,7 +167,7 @@ public:
 
         fPathLength = pathLength;
         fTangent.scale(SkScalarInvert(pathLength));
-        fTangent.rotateCCW(&fNormal);
+        SkPointPriv::RotateCCW(fTangent, &fNormal);
         fNormal.scale(SkScalarHalf(rec->getWidth()));
 
         // now estimate how many quads will be added to the path
