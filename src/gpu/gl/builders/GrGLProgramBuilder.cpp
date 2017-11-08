@@ -135,7 +135,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         return nullptr;
     }
 
-    if (this->gpu()->getContext()->getPersistentCache()) {
+    if (this->gpu()->glCaps().programBinarySupport() &&
+        this->gpu()->getContext()->getPersistentCache()) {
         GL_CALL(ProgramParameteri(programID, GR_GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GR_GL_TRUE));
     }
 
