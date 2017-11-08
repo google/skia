@@ -202,7 +202,7 @@ def RunSteps(api):
   dimensions={'os': 'Ubuntu-14.04'}
   if 'GPU' in buildername:
     dimensions['cpu'] = 'x86-64-E3-1230_v5'
-    dimensions['gpu'] = '10de:104a'
+    dimensions['gpu'] = '10de:1cb3-384.90'
     # See crbug.com/700053
     dimensions['pool'] = 'Chrome-GPU'
   else:
@@ -308,7 +308,7 @@ def GenTests(api):
   yield(
     api.test('CT_GPU_BENCH_1k_SKPs') +
     api.properties(
-        buildername=('Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-All-'
+        buildername=('Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
                      'CT_BENCH_1k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',
@@ -344,7 +344,7 @@ def GenTests(api):
   yield(
     api.test('CT_GPU_BENCH_10k_SKPs') +
     api.properties(
-        buildername=('Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-All-'
+        buildername=('Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
                      'CT_BENCH_10k_SKPs'),
         path_config=path_config,
         swarm_out_dir='[SWARM_OUT_DIR]',

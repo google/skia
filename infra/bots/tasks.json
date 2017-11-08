@@ -1161,10 +1161,10 @@
         "Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs"
       ]
     },
-    "Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-All-CT_BENCH_1k_SKPs": {
+    "Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-All-CT_BENCH_1k_SKPs"
+        "Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs"
       ]
     },
     "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All": {
@@ -9364,7 +9364,7 @@
       "isolate": "ct_skps_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-All-CT_BENCH_1k_SKPs": {
+    "Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
         "os:Debian-9.1"
@@ -9375,7 +9375,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-All-CT_BENCH_1k_SKPs",
+        "buildername=Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
