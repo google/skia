@@ -1180,21 +1180,29 @@ void Viewer::drawImGui(SkCanvas* canvas) {
 
             if (ImGui::CollapsingHeader("Slide")) {
                 static ImGuiTextFilter filter;
+                static ImVector<const char*> filteredSlideNames;
+                static ImVector<int> filteredSlideIndices;
+
                 filter.Draw();
-                int previousSlide = fCurrentSlide;
-                fCurrentSlide = 0;
-                for (auto slide : fSlides) {
-                    if (filter.PassFilter(slide->getName().c_str())) {
-                        ImGui::BulletText("%s", slide->getName().c_str());
-                        if (ImGui::IsItemClicked()) {
-                            setupCurrentSlide(previousSlide);
-                            break;
+                filteredSlideNames.clear();
+                filteredSlideIndices.clear();
+                int filteredIndex = 0;
+                for (int i = 0; i < fSlides.count(); ++i) {
+                    const char* slideName = fSlides[i]->getName().c_str();
+                    if (filter.PassFilter(slideName) || i == fCurrentSlide) {
+                        if (i == fCurrentSlide) {
+                            filteredIndex = filteredSlideIndices.size();
                         }
+                        filteredSlideNames.push_back(slideName);
+                        filteredSlideIndices.push_back(i);
                     }
-                    ++fCurrentSlide;
                 }
-                if (fCurrentSlide >= fSlides.count()) {
-                    fCurrentSlide = previousSlide;
+
+                int previousSlide = fCurrentSlide;
+                if (ImGui::ListBox("", &filteredIndex, filteredSlideNames.begin(),
+                                   filteredSlideNames.size(), 20)) {
+                    fCurrentSlide = filteredSlideIndices[filteredIndex];
+                    setupCurrentSlide(previousSlide);
                 }
             }
 
