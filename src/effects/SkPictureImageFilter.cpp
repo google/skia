@@ -29,16 +29,6 @@ sk_sp<SkImageFilter> SkPictureImageFilter::Make(sk_sp<SkPicture> picture,
                                                          nullptr));
 }
 
-sk_sp<SkImageFilter> SkPictureImageFilter::MakeForLocalSpace(sk_sp<SkPicture> picture,
-                                                             const SkRect& cropRect,
-                                                             SkFilterQuality filterQuality) {
-    return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(picture),
-                                                         cropRect,
-                                                         kLocalSpace_PictureResolution,
-                                                         filterQuality,
-                                                         nullptr));
-}
-
 SkPictureImageFilter::SkPictureImageFilter(sk_sp<SkPicture> picture)
     : INHERITED(nullptr, 0, nullptr)
     , fPicture(std::move(picture))
@@ -71,14 +61,18 @@ sk_sp<SkFlattenable> SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
         }
     }
     buffer.readRect(&cropRect);
+    SkFilterQuality filterQuality = kNone_SkFilterQuality;
     PictureResolution pictureResolution = (PictureResolution)buffer.readInt();
 
     if (kLocalSpace_PictureResolution == pictureResolution) {
         //filterLevel is only serialized if pictureResolution is LocalSpace
-        SkFilterQuality filterQuality = (SkFilterQuality)buffer.readInt();
-        return MakeForLocalSpace(picture, cropRect, filterQuality);
+        filterQuality = (SkFilterQuality)buffer.readInt();
     }
-    return Make(picture, cropRect);
+    return sk_sp<SkImageFilter>(new SkPictureImageFilter(picture,
+                                                         cropRect,
+                                                         kLocalSpace_PictureResolution,
+                                                         filterQuality,
+                                                         nullptr));
 }
 
 void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
