@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "7fa3bda6_5aa3b92d",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 953,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-08T14:09:55Z",
+      "side": 1,
+      "message": "style nit, indent cases here and elsewhere.",
+      "range": {
+        "startLine": 953,
+        "startChar": 4,
+        "endLine": 953,
+        "endChar": 8
+      },
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "46668313_a0ab47ad",
         "filename": "src/shaders/gradients/SkGradientShader.cpp",
         "patchSetId": 7
@@ -30,6 +53,92 @@
       "writtenOn": "2017-11-08T13:59:57Z",
       "side": 1,
       "message": "1) \"Historical\"\n2) It could cost us (up to) three extra shaders, so the complexity tradeoff seems worth it?\n\n... generally, I like trying to move field initialization into the init-list for the constructor, but I\u0027m not sure about the case for fields that then get (conditionally) changed in the body. I think that fPremulType and fCoordTransform are both a little awkward now?",
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adb06e69_d2d01e6d",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1246,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-08T14:09:55Z",
+      "side": 1,
+      "message": "We always have premul colors in the texture?",
+      "range": {
+        "startLine": 1246,
+        "startChar": 7,
+        "endLine": 1246,
+        "endChar": 46
+      },
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bea180dd_9f2b797f",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1304,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-08T14:09:55Z",
+      "side": 1,
+      "message": "We don\u0027t necessarily need to address this now, but I think this is impossible to reach. Or at least unreachable enough that just not crashing is sufficient.",
+      "range": {
+        "startLine": 1287,
+        "startChar": 12,
+        "endLine": 1304,
+        "endChar": 36
+      },
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6270b94f_bac0b9dc",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-08T14:09:55Z",
+      "side": 1,
+      "message": "Oh, I guess this is why we force it to \"before\" in the texture case.",
+      "range": {
+        "startLine": 342,
+        "startChar": 39,
+        "endLine": 344,
+        "endChar": 67
+      },
+      "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43f2f224_98a8b5f1",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-08T14:09:55Z",
+      "side": 1,
+      "message": "I realize you didn\u0027t change this, but I\u0027d feel happier about this if we rewrote these literals as hex or binary.",
       "revId": "c2c09a1fcecbfcbfb726664cc8ef81e9facd6de7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
