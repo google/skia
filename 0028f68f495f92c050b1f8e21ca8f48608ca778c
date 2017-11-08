@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "b54d5b21_0f3f6a83",
+        "filename": "src/core/SkTMultiMap.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-08T14:57:47Z",
+      "side": 1,
+      "message": "In general, std::function can\u0027t inline away as well as this sort of implementation can.  It hinges on the size of the function\u0027s closure and the whims of the std::function implementation. \n This style as written is a lot more predictable in terms of inlining and calls to malloc (yes, it will inline, with no calls to malloc).\n\nIt\u0027s usually best to stick to std::function only where you need its type erasure.",
+      "parentUuid": "a0bae8c9_07d75257",
+      "range": {
+        "startLine": 97,
+        "startChar": 37,
+        "endLine": 97,
+        "endChar": 58
+      },
+      "revId": "0028f68f495f92c050b1f8e21ca8f48608ca778c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "47141f63_bc2fa7c9",
         "filename": "src/gpu/GrResourceAllocator.h",
         "patchSetId": 5
