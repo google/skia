@@ -1161,8 +1161,8 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
                                                          rrect.rect().fRight - dr,
                                                          spotShadowRRect.rect().fBottom -
                                                          rrect.rect().fBottom - dr);
-                maxOffset = SkScalarSqrt(SkTMax(upperLeftOffset.lengthSqd(),
-                                                lowerRightOffset.lengthSqd())) + dr;
+                maxOffset = SkScalarSqrt(SkTMax(SkPointPriv::LengthSqd(upperLeftOffset),
+                                                SkPointPriv::LengthSqd(lowerRightOffset))) + dr;
             }
             insetWidth += maxOffset;
         }

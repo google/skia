@@ -10,6 +10,7 @@
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
+#include "SkPointPriv.h"
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
@@ -483,7 +484,7 @@ protected:
         SkScalar tol = 12;
 
         for (int i = 0; i < count; ++i) {
-            if (fPts[i].equalsWithinTolerance(pt, tol)) {
+            if (SkPointPriv::EqualsWithinTolerance(fPts[i], pt, tol)) {
                 index = i;
                 break;
             }

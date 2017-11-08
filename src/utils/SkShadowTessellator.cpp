@@ -12,6 +12,7 @@
 #include "SkInsetConvexPolygon.h"
 #include "SkPath.h"
 #include "SkPoint3.h"
+#include "SkPointPriv.h"
 #include "SkVertices.h"
 
 #if SK_SUPPORT_GPU
@@ -458,7 +459,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
 
         // make sure we don't end up with a sharp alpha edge along the quad diagonal
         if (fColors[fPrevUmbraIndex] != fColors[fFirstVertexIndex] &&
-            fFirstPoint.distanceToSqd(fPositions[fPrevUmbraIndex]) > kMaxEdgeLenSqr) {
+            SkPointPriv::DistanceToSqd(fFirstPoint, fPositions[fPrevUmbraIndex]) > kMaxEdgeLenSqr) {
             SkPoint centerPoint = fPositions[fPrevUmbraIndex] + fPositions[fFirstVertexIndex];
             centerPoint *= 0.5f;
             *fPositions.push() = centerPoint;
@@ -642,7 +643,7 @@ void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVecto
 
     // Split the edge to make sure we don't end up with a sharp alpha edge along the quad diagonal
     if (fColors[fPrevUmbraIndex] != fUmbraColor &&
-        nextPoint.distanceToSqd(fPositions[fPrevUmbraIndex]) > kMaxEdgeLenSqr) {
+        SkPointPriv::DistanceToSqd(nextPoint, fPositions[fPrevUmbraIndex]) > kMaxEdgeLenSqr) {
 
         // This is lacking 1/4 of the next inset -- we'll add it the next time we call addEdge()
         SkPoint centerPoint = fPositions[fPrevUmbraIndex] + umbraPoint;
@@ -847,8 +848,8 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     }
 
     // check to see if umbra collapses
-    SkScalar minDistSq = fCentroid.distanceToLineSegmentBetweenSqd(fPathPolygon[0],
-                                                                   fPathPolygon[1]);
+    SkScalar minDistSq = SkPointPriv::DistanceToLineSegmentBetweenSqd(fCentroid, fPathPolygon[0],
+                                                                      fPathPolygon[1]);
     SkRect bounds;
     bounds.setBounds(&fPathPolygon[0], fPathPolygon.count());
     for (int i = 1; i < fPathPolygon.count(); ++i) {
@@ -858,7 +859,8 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
         }
         SkPoint currPoint = fPathPolygon[i];
         SkPoint nextPoint = fPathPolygon[j];
-        SkScalar distSq = fCentroid.distanceToLineSegmentBetweenSqd(currPoint, nextPoint);
+        SkScalar distSq = SkPointPriv::DistanceToLineSegmentBetweenSqd(fCentroid, currPoint,
+                                                                       nextPoint);
         if (distSq < minDistSq) {
             minDistSq = distSq;
         }
@@ -1153,13 +1155,13 @@ bool SkSpotShadowTessellator::clipUmbraPoint(const SkPoint& umbraPoint, const Sk
 }
 
 int SkSpotShadowTessellator::getClosestUmbraPoint(const SkPoint& p) {
-    SkScalar minDistance = p.distanceToSqd(fUmbraPolygon[fCurrUmbraPoint]);
+    SkScalar minDistance = SkPointPriv::DistanceToSqd(p, fUmbraPolygon[fCurrUmbraPoint]);
     int index = fCurrUmbraPoint;
     int dir = 1;
     int next = (index + dir) % fUmbraPolygon.count();
 
     // init travel direction
-    SkScalar distance = p.distanceToSqd(fUmbraPolygon[next]);
+    SkScalar distance = SkPointPriv::DistanceToSqd(p, fUmbraPolygon[next]);
     if (distance < minDistance) {
         index = next;
         minDistance = distance;
@@ -1169,12 +1171,12 @@ int SkSpotShadowTessellator::getClosestUmbraPoint(const SkPoint& p) {
 
     // iterate until we find a point that increases the distance
     next = (index + dir) % fUmbraPolygon.count();
-    distance = p.distanceToSqd(fUmbraPolygon[next]);
+    distance = SkPointPriv::DistanceToSqd(p, fUmbraPolygon[next]);
     while (distance < minDistance) {
         index = next;
         minDistance = distance;
         next = (index + dir) % fUmbraPolygon.count();
-        distance = p.distanceToSqd(fUmbraPolygon[next]);
+        distance = SkPointPriv::DistanceToSqd(p, fUmbraPolygon[next]);
     }
 
     fCurrUmbraPoint = index;
@@ -1194,7 +1196,7 @@ static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {
     static constexpr SkScalar kClose = (SK_Scalar1 / 16);
     static constexpr SkScalar kCloseSqd = kClose*kClose;
 
-    SkScalar distSq = p0.distanceToSqd(p1);
+    SkScalar distSq = SkPointPriv::DistanceToSqd(p0, p1);
     return distSq < kCloseSqd;
 }
 

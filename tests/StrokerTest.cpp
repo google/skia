@@ -11,6 +11,7 @@
 #include "SkPathOpsCubic.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPointPriv.h"
 #include "SkRandom.h"
 #include "SkStrokerPriv.h"
 #include "SkTime.h"
@@ -239,12 +240,12 @@ DEF_TEST(QuadStrokerConstrained, reporter) {
         do {
             quad[1].fX = r.nextRangeF(0, 500);
             quad[1].fY = r.nextRangeF(0, 500);
-        } while (quad[0].distanceToSqd(quad[1]) < halfSquared);
+        } while (SkPointPriv::DistanceToSqd(quad[0], quad[1]) < halfSquared);
         do {
             quad[2].fX = r.nextRangeF(0, 500);
             quad[2].fY = r.nextRangeF(0, 500);
-        } while (quad[0].distanceToSqd(quad[2]) < halfSquared
-                || quad[1].distanceToSqd(quad[2]) < halfSquared);
+        } while (SkPointPriv::DistanceToSqd(quad[0], quad[2]) < halfSquared
+                || SkPointPriv::DistanceToSqd(quad[1], quad[2]) < halfSquared);
         path.moveTo(quad[0].fX, quad[0].fY);
         path.quadTo(quad[1].fX, quad[1].fY, quad[2].fX, quad[2].fY);
         p.setStrokeWidth(r.nextRangeF(0, 500));
@@ -291,18 +292,18 @@ DEF_TEST(CubicStrokerConstrained, reporter) {
         do {
             cubic[1].fX = r.nextRangeF(0, 500);
             cubic[1].fY = r.nextRangeF(0, 500);
-        } while (cubic[0].distanceToSqd(cubic[1]) < halfSquared);
+        } while (SkPointPriv::DistanceToSqd(cubic[0], cubic[1]) < halfSquared);
         do {
             cubic[2].fX = r.nextRangeF(0, 500);
             cubic[2].fY = r.nextRangeF(0, 500);
-        } while (  cubic[0].distanceToSqd(cubic[2]) < halfSquared
-                || cubic[1].distanceToSqd(cubic[2]) < halfSquared);
+        } while (  SkPointPriv::DistanceToSqd(cubic[0], cubic[2]) < halfSquared
+                || SkPointPriv::DistanceToSqd(cubic[1], cubic[2]) < halfSquared);
         do {
             cubic[3].fX = r.nextRangeF(0, 500);
             cubic[3].fY = r.nextRangeF(0, 500);
-        } while (  cubic[0].distanceToSqd(cubic[3]) < halfSquared
-                || cubic[1].distanceToSqd(cubic[3]) < halfSquared
-                || cubic[2].distanceToSqd(cubic[3]) < halfSquared);
+        } while (  SkPointPriv::DistanceToSqd(cubic[0], cubic[3]) < halfSquared
+                || SkPointPriv::DistanceToSqd(cubic[1], cubic[3]) < halfSquared
+                || SkPointPriv::DistanceToSqd(cubic[2], cubic[3]) < halfSquared);
         path.moveTo(cubic[0].fX, cubic[0].fY);
         path.cubicTo(cubic[1].fX, cubic[1].fY, cubic[2].fX, cubic[2].fY, cubic[3].fX, cubic[3].fY);
         p.setStrokeWidth(r.nextRangeF(0, 500));

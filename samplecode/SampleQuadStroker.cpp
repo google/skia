@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkGeometry.h"
 #include "SkPathMeasure.h"
+#include "SkPointPriv.h"
 #include "SkRandom.h"
 #include "SkRRect.h"
 #include "SkColorPriv.h"
@@ -313,7 +314,7 @@ protected:
         for (SkScalar dist = 0; dist <= total; dist += delta) {
             if (meas.getPosTan(dist, &pos, &tan)) {
                 tan.scale(radius);
-                tan.rotateCCW();
+                SkPointPriv::RotateCCW(&tan);
                 canvas->drawLine(pos.x() + tan.x(), pos.y() + tan.y(),
                                  pos.x() - tan.x(), pos.y() - tan.y(), paint);
                 if (0 == index % 10) {
@@ -375,7 +376,7 @@ protected:
                     return;
             }
             tan.setLength(radius);
-            tan.rotateCCW();
+            SkPointPriv::RotateCCW(&tan);
             canvas->drawLine(pos.x() + tan.x(), pos.y() + tan.y(),
                                 pos.x() - tan.x(), pos.y() - tan.y(), paint);
             if (0 == index % 10) {
@@ -556,8 +557,8 @@ protected:
         before.setLength(fRadius);
         after.setLength(fRadius);
         SkVector beforeCCW, afterCCW;
-        before.rotateCCW(&beforeCCW);
-        after.rotateCCW(&afterCCW);
+        SkPointPriv::RotateCCW(before, &beforeCCW);
+        SkPointPriv::RotateCCW(after, &afterCCW);
         beforeCCW += pts[0];
         afterCCW += pts[2];
         *center = beforeCCW;
@@ -566,8 +567,8 @@ protected:
             return true;
         }
         SkVector beforeCW, afterCW;
-        before.rotateCW(&beforeCW);
-        after.rotateCW(&afterCW);
+        SkPointPriv::RotateCW(before, &beforeCW);
+        SkPointPriv::RotateCW(after, &afterCW);
         beforeCW += pts[0];
         afterCW += pts[2];
         *center = beforeCW;

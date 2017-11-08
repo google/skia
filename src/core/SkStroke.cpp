@@ -8,6 +8,7 @@
 #include "SkStrokerPriv.h"
 #include "SkGeometry.h"
 #include "SkPathPriv.h"
+#include "SkPointPriv.h"
 
 enum {
     kTangent_RecursiveLimit,
@@ -48,7 +49,7 @@ static_assert(SK_ARRAY_COUNT(kRecursiveLimits) == kQuad_RecursiveLimit + 1,
 #endif
 
 static inline bool degenerate_vector(const SkVector& v) {
-    return !SkPoint::CanNormalize(v.fX, v.fY);
+    return !SkPointPriv::CanNormalize(v.fX, v.fY);
 }
 
 static bool set_normal_unitnormal(const SkPoint& before, const SkPoint& after, SkScalar scale,
@@ -58,7 +59,7 @@ static bool set_normal_unitnormal(const SkPoint& before, const SkPoint& after, S
                                   (after.fY - before.fY) * scale)) {
         return false;
     }
-    unitNormal->rotateCCW();
+    SkPointPriv::RotateCCW(unitNormal);
     unitNormal->scale(radius, normal);
     return true;
 }
@@ -69,7 +70,7 @@ static bool set_normal_unitnormal(const SkVector& vec,
     if (!unitNormal->setNormalize(vec.fX, vec.fY)) {
         return false;
     }
-    unitNormal->rotateCCW();
+    SkPointPriv::RotateCCW(unitNormal);
     unitNormal->scale(radius, normal);
     return true;
 }
@@ -420,7 +421,7 @@ static bool has_valid_tangent(const SkPath::Iter* iter) {
 }
 
 void SkPathStroker::lineTo(const SkPoint& currPt, const SkPath::Iter* iter) {
-    bool teenyLine = fPrevPt.equalsWithinTolerance(currPt, SK_ScalarNearlyZero * fInvResScale);
+    bool teenyLine = SkPointPriv::EqualsWithinTolerance(fPrevPt, currPt, SK_ScalarNearlyZero * fInvResScale);
     if (SkStrokerPriv::CapFactory(SkPaint::kButt_Cap) == fCapper && teenyLine) {
         return;
     }
@@ -489,7 +490,7 @@ void SkPathStroker::init(StrokeType strokeType, SkQuadConstruct* quadPts, SkScal
 static SkScalar pt_to_line(const SkPoint& pt, const SkPoint& lineStart, const SkPoint& lineEnd) {
     SkVector dxy = lineEnd - lineStart;
     if (degenerate_vector(dxy)) {
-        return pt.distanceToSqd(lineStart);
+        return SkPointPriv::DistanceToSqd(pt, lineStart);
     }
     SkVector ab0 = pt - lineStart;
     SkScalar numer = dxy.dot(ab0);
@@ -498,7 +499,7 @@ static SkScalar pt_to_line(const SkPoint& pt, const SkPoint& lineStart, const Sk
     SkPoint hit;
     hit.fX = lineStart.fX * (1 - t) + lineEnd.fX * t;
     hit.fY = lineStart.fY * (1 - t) + lineEnd.fY * t;
-    return hit.distanceToSqd(pt);
+    return SkPointPriv::DistanceToSqd(hit, pt);
 }
 
 /*  Given a cubic, determine if all four points are in a line.
@@ -969,14 +970,14 @@ bool SkPathStroker::ptInQuadBounds(const SkPoint quad[3], const SkPoint& pt) con
 }
 
 static bool points_within_dist(const SkPoint& nearPt, const SkPoint& farPt, SkScalar limit) {
-    return nearPt.distanceToSqd(farPt) <= limit * limit;
+    return SkPointPriv::DistanceToSqd(nearPt, farPt) <= limit * limit;
 }
 
 static bool sharp_angle(const SkPoint quad[3]) {
     SkVector smaller = quad[1] - quad[0];
     SkVector larger = quad[1] - quad[2];
-    SkScalar smallerLen = smaller.lengthSqd();
-    SkScalar largerLen = larger.lengthSqd();
+    SkScalar smallerLen = SkPointPriv::LengthSqd(smaller);
+    SkScalar largerLen = SkPointPriv::LengthSqd(larger);
     if (smallerLen > largerLen) {
         SkTSwap(smaller, larger);
         largerLen = smallerLen;

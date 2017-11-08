@@ -13,6 +13,7 @@
 #include "SkOpEdgeBuilder.h"
 // #include "SkPathOpsSimplifyAA.h"
 // #include "SkPathStroker.h"
+#include "SkPointPriv.h"
 #include "SkView.h"
 
 #if 0
@@ -1299,7 +1300,7 @@ public:
     SkScalar pt_to_line(SkPoint s, SkPoint e, int x, int y) {
         SkScalar radius = fWidthControl.fValLo;
         SkVector adjOpp = e - s;
-        SkScalar lenSq = adjOpp.lengthSqd();
+        SkScalar lenSq = SkPointPriv::LengthSqd(adjOpp);
         SkPoint rotated = {
                 (y - s.fY) * adjOpp.fY + (x - s.fX) * adjOpp.fX,
                 (y - s.fY) * adjOpp.fX - (x - s.fX) * adjOpp.fY,

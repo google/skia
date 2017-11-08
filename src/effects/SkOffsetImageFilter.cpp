@@ -11,6 +11,7 @@
 #include "SkImageFilterPriv.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
+#include "SkPointPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
@@ -99,7 +100,7 @@ SkIRect SkOffsetImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatr
                                                 MapDirection direction) const {
     SkIPoint vec = map_offset_vector(ctm, fOffset);
     if (kReverse_MapDirection == direction) {
-        vec.negate();
+        SkPointPriv::Negate(vec);
     }
 
     return src.makeOffset(vec.fX, vec.fY);

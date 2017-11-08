@@ -7,7 +7,7 @@
 
 #include "SkAutoMalloc.h"
 #include "SkDistanceFieldGen.h"
-#include "SkPoint.h"
+#include "SkPointPriv.h"
 #include "SkTemplates.h"
 
 struct DFData {
@@ -171,7 +171,7 @@ static void init_distances(DFData* data, unsigned char* edges, int width, int he
                              + SK_ScalarSqrt2*nextData->fAlpha
                              - SK_ScalarSqrt2*prevData->fAlpha
                              + (nextData+1)->fAlpha - (prevData+1)->fAlpha;
-                currGrad.setLengthFast(1.0f);
+                SkPointPriv::SetLengthFast(&currGrad, 1.0f);
 
                 // init squared distance to edge and distance vector
                 float dist = edge_distance(currGrad, currData->fAlpha);

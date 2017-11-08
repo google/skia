@@ -8,6 +8,7 @@
 #include "SkOpContour.h"
 #include "SkOpSegment.h"
 #include "SkPathWriter.h"
+#include "SkPointPriv.h"
 
 /*
 After computing raw intersections, post process all segments to:
@@ -1351,7 +1352,7 @@ bool SkOpSegment::spansNearby(const SkOpSpanBase* refSpan, const SkOpSpanBase* c
                     goto nextRef;
                 }
             }
-            SkScalar distSq = ref->fPt.distanceToSqd(check->fPt);
+            SkScalar distSq = SkPointPriv::DistanceToSqd(ref->fPt, check->fPt);
             if (distSqBest > distSq && (refSeg != check->segment()
                     || !refSeg->ptsDisjoint(*ref, *check))) {
                 distSqBest = distSq;
@@ -1448,8 +1449,9 @@ bool SkOpSegment::ptsDisjoint(double t1, const SkPoint& pt1, double t2, const Sk
     // on the other hand, the below check is relatively inexpensive
     double midT = (t1 + t2) / 2;
     SkPoint midPt = this->ptAtT(midT);
-    double seDistSq = SkTMax(pt1.distanceToSqd(pt2) * 2, FLT_EPSILON * 2);
-    return midPt.distanceToSqd(pt1) > seDistSq || midPt.distanceToSqd(pt2) > seDistSq;
+    double seDistSq = SkTMax(SkPointPriv::DistanceToSqd(pt1, pt2) * 2, FLT_EPSILON * 2);
+    return SkPointPriv::DistanceToSqd(midPt, pt1) > seDistSq ||
+           SkPointPriv::DistanceToSqd(midPt, pt2) > seDistSq;
 }
 
 void SkOpSegment::setUpWindings(SkOpSpanBase* start, SkOpSpanBase* end, int* sumMiWinding,

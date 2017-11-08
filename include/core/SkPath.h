@@ -421,9 +421,7 @@ public:
         @param exact  if false, allow nearly equals
         @return       true if line is degenerate; its length is effectively zero
     */
-    static bool IsLineDegenerate(const SkPoint& p1, const SkPoint& p2, bool exact) {
-        return exact ? p1 == p2 : p1.equalsWithinTolerance(p2);
-    }
+    static bool IsLineDegenerate(const SkPoint& p1, const SkPoint& p2, bool exact);
 
     /** Test if quad is degenerate.
         Quad with no length or that moves a very short distance is degenerate; it is
@@ -437,10 +435,7 @@ public:
         @return       true if quad is degenerate; its length is effectively zero
     */
     static bool IsQuadDegenerate(const SkPoint& p1, const SkPoint& p2,
-                                 const SkPoint& p3, bool exact) {
-        return exact ? p1 == p2 && p2 == p3 : p1.equalsWithinTolerance(p2) &&
-               p2.equalsWithinTolerance(p3);
-    }
+                                 const SkPoint& p3, bool exact);
 
     /** Test if cubic is degenerate.
         Cubic with no length or that moves a very short distance is degenerate; it is
@@ -455,11 +450,7 @@ public:
         @return       true if cubic is degenerate; its length is effectively zero
     */
     static bool IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
-                                  const SkPoint& p3, const SkPoint& p4, bool exact) {
-        return exact ? p1 == p2 && p2 == p3 && p3 == p4 : p1.equalsWithinTolerance(p2) &&
-               p2.equalsWithinTolerance(p3) &&
-               p3.equalsWithinTolerance(p4);
-    }
+                                  const SkPoint& p3, const SkPoint& p4, bool exact);
 
     /** Returns true if SkPath contains only one line;
         SkPath::Verb array has two entries: kMove_Verb, kLine_Verb.

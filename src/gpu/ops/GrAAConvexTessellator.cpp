@@ -55,7 +55,7 @@ static SkScalar perp_intersect(const SkPoint& p0, const SkPoint& n0,
 }
 
 static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {
-    SkScalar distSq = p0.distanceToSqd(p1);
+    SkScalar distSq = SkPointPriv::DistanceToSqd(p0, p1);
     return distSq < kCloseSqd;
 }
 
@@ -149,10 +149,10 @@ void GrAAConvexTessellator::computeBisectors() {
     for (int cur = 0; cur < fBisectors.count(); prev = cur, ++cur) {
         fBisectors[cur] = fNorms[cur] + fNorms[prev];
         if (!fBisectors[cur].normalize()) {
-            SkASSERT(SkPoint::kLeft_Side == fSide || SkPoint::kRight_Side == fSide);
-            fBisectors[cur].setOrthog(fNorms[cur], (SkPoint::Side)-fSide);
+            SkASSERT(SkPointPriv::kLeft_Side == fSide || SkPointPriv::kRight_Side == fSide);
+            SkPointPriv::SetOrthog(&fBisectors[cur], fNorms[cur], (SkPointPriv::Side)-fSide);
             SkVector other;
-            other.setOrthog(fNorms[prev], fSide);
+            SkPointPriv::SetOrthog(&other, fNorms[prev], fSide);
             fBisectors[cur] += other;
             SkAssertResult(fBisectors[cur].normalize());
         } else {
@@ -424,14 +424,14 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
         // Check the cross product of the final trio
         SkScalar cross = SkPoint::CrossProduct(fNorms[0], fNorms.top());
         if (cross > 0.0f) {
-            fSide = SkPoint::kRight_Side;
+            fSide = SkPointPriv::kRight_Side;
         } else {
-            fSide = SkPoint::kLeft_Side;
+            fSide = SkPointPriv::kLeft_Side;
         }
 
         // Make all the normals face outwards rather than along the edge
         for (int cur = 0; cur < fNorms.count(); ++cur) {
-            fNorms[cur].setOrthog(fNorms[cur], fSide);
+            SkPointPriv::SetOrthog(&fNorms[cur], fNorms[cur], fSide);
             SkASSERT(SkScalarNearlyEqual(1.0f, fNorms[cur].length()));
         }
 
@@ -443,11 +443,11 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
             return false;
         }
         // For stroking, we still need to process the degenerate path, so fix it up
-        fSide = SkPoint::kLeft_Side;
+        fSide = SkPointPriv::kLeft_Side;
 
         // Make all the normals face outwards rather than along the edge
         for (int cur = 0; cur < fNorms.count(); ++cur) {
-            fNorms[cur].setOrthog(fNorms[cur], fSide);
+            SkPointPriv::SetOrthog(&fNorms[cur], fNorms[cur], fSide);
             SkASSERT(SkScalarNearlyEqual(1.0f, fNorms[cur].length()));
         }
 
@@ -839,7 +839,7 @@ void GrAAConvexTessellator::Ring::computeNormals(const GrAAConvexTessellator& te
 
         fPts[cur].fNorm = tess.point(fPts[next].fIndex) - tess.point(fPts[cur].fIndex);
         SkPoint::Normalize(&fPts[cur].fNorm);
-        fPts[cur].fNorm.setOrthog(fPts[cur].fNorm, tess.side());
+        SkPointPriv::SetOrthog(&fPts[cur].fNorm, fPts[cur].fNorm, tess.side());
     }
 }
 
@@ -848,10 +848,12 @@ void GrAAConvexTessellator::Ring::computeBisectors(const GrAAConvexTessellator& 
     for (int cur = 0; cur < fPts.count(); prev = cur, ++cur) {
         fPts[cur].fBisector = fPts[cur].fNorm + fPts[prev].fNorm;
         if (!fPts[cur].fBisector.normalize()) {
-            SkASSERT(SkPoint::kLeft_Side == tess.side() || SkPoint::kRight_Side == tess.side());
-            fPts[cur].fBisector.setOrthog(fPts[cur].fNorm, (SkPoint::Side)-tess.side());
+            SkASSERT(SkPointPriv::kLeft_Side == tess.side() ||
+                     SkPointPriv::kRight_Side == tess.side());
+            SkPointPriv::SetOrthog(&fPts[cur].fBisector, fPts[cur].fNorm,
+                                   (SkPointPriv::Side)-tess.side());
             SkVector other;
-            other.setOrthog(fPts[prev].fNorm, tess.side());
+            SkPointPriv::SetOrthog(&other, fPts[prev].fNorm, tess.side());
             fPts[cur].fBisector += other;
             SkAssertResult(fPts[cur].fBisector.normalize());
         } else {

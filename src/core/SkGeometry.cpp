@@ -9,6 +9,7 @@
 #include "SkMatrix.h"
 #include "SkNx.h"
 #include "SkPoint3.h"
+#include "SkPointPriv.h"
 
 static SkVector to_vector(const Sk2s& x) {
     SkVector vector;
@@ -1151,7 +1152,7 @@ bool SkConic::asQuadTol(SkScalar tol) const {
 #define kMaxConicToQuadPOW2     5
 
 int SkConic::computeQuadPOW2(SkScalar tol) const {
-    if (tol < 0 || !SkScalarIsFinite(tol) || !SkPointsAreFinite(fPts, 3)) {
+    if (tol < 0 || !SkScalarIsFinite(tol) || !SkPointPriv::AreFinite(fPts, 3)) {
         return 0;
     }
 
@@ -1240,8 +1241,8 @@ int SkConic::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
         SkConic dst[2];
         this->chop(dst);
         // check to see if the first chop generates a pair of lines
-        if (dst[0].fPts[1].equalsWithinTolerance(dst[0].fPts[2])
-                && dst[1].fPts[0].equalsWithinTolerance(dst[1].fPts[1])) {
+        if (SkPointPriv::EqualsWithinTolerance(dst[0].fPts[1], dst[0].fPts[2]) &&
+                SkPointPriv::EqualsWithinTolerance(dst[1].fPts[0], dst[1].fPts[1])) {
             pts[1] = pts[2] = pts[3] = dst[0].fPts[1];  // set ctrl == end to make lines
             pts[4] = dst[1].fPts[2];
             pow2 = 1;
@@ -1254,7 +1255,7 @@ commonFinitePtCheck:
     const int quadCount = 1 << pow2;
     const int ptCount = 2 * quadCount + 1;
     SkASSERT(endPts - pts == ptCount);
-    if (!SkPointsAreFinite(pts, ptCount)) {
+    if (!SkPointPriv::AreFinite(pts, ptCount)) {
         // if we generated a non-finite, pin ourselves to the middle of the hull,
         // as our first and last are already on the first/last pts of the hull.
         for (int i = 1; i < ptCount - 1; ++i) {
@@ -1422,7 +1423,7 @@ int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotat
         //
         const SkScalar cosThetaOver2 = SkScalarSqrt((1 + dot) / 2);
         offCurve.setLength(SkScalarInvert(cosThetaOver2));
-        if (!lastQ.equalsWithinTolerance(offCurve)) {
+        if (!SkPointPriv::EqualsWithinTolerance(lastQ, offCurve)) {
             dst[conicCount].set(lastQ, offCurve, finalP, cosThetaOver2);
             conicCount += 1;
         }

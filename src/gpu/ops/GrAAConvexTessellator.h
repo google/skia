@@ -10,7 +10,7 @@
 
 #include "SkColor.h"
 #include "SkPaint.h"
-#include "SkPoint.h"
+#include "SkPointPriv.h"
 #include "SkScalar.h"
 #include "SkStrokeRec.h"
 #include "SkTDArray.h"
@@ -36,14 +36,14 @@ public:
                           SkScalar strokeWidth = -1.0f,
                           SkPaint::Join join = SkPaint::Join::kBevel_Join,
                           SkScalar miterLimit = 0.0f)
-        : fSide(SkPoint::kOn_Side)
+        : fSide(SkPointPriv::kOn_Side)
         , fStrokeWidth(strokeWidth)
         , fStyle(style)
         , fJoin(join)
         , fMiterLimit(miterLimit) {
     }
 
-    SkPoint::Side side() const { return fSide; }
+    SkPointPriv::Side side() const { return fSide; }
 
     bool tessellate(const SkMatrix& m, const SkPath& path);
 
@@ -262,7 +262,7 @@ private:
     // needed for exterior ring creation and then handed off to the initial ring.
     SkTDArray<SkVector>   fBisectors;
 
-    SkPoint::Side         fSide;    // winding of the original polygon
+    SkPointPriv::Side     fSide;    // winding of the original polygon
 
     // The triangulation of the points
     SkTDArray<int>        fIndices;

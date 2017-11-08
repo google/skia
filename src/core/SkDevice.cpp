@@ -32,7 +32,7 @@ SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfac
     : fInfo(info)
     , fSurfaceProps(surfaceProps)
 {
-    fOrigin.setZero();
+    fOrigin = {0, 0};
     fCTM.reset();
 }
 

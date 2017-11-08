@@ -6,6 +6,7 @@
  */
 
 #include "SkMatrix.h"
+#include "SkPointPriv.h"
 #include "SkRRect.h"
 #include "Test.h"
 
@@ -197,7 +198,8 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
 
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter,
-                        rr2.radii((SkRRect::Corner) i).equalsWithinTolerance(halfPoint));
+                        SkPointPriv::EqualsWithinTolerance(rr2.radii((SkRRect::Corner) i),
+                        halfPoint));
     }
     SkRRect rr2_2;  // construct the same RR using the most general set function
     SkVector rr2_2_radii[4] = { { halfPoint.fX, halfPoint.fY }, { halfPoint.fX, halfPoint.fY },

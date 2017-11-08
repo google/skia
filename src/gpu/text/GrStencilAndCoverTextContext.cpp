@@ -20,6 +20,7 @@
 #include "SkGlyphCache.h"
 #include "SkGr.h"
 #include "SkPath.h"
+#include "SkPointPriv.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTextFormatParams.h"
 #include "SkTextMapStateProc.h"
@@ -671,7 +672,7 @@ void GrStencilAndCoverTextContext::FallbackBlobBuilder::flush() {
     // This will automatically merge with previous runs since we use the same font.
     const SkTextBlobBuilder::RunBuffer& buff = fBuilder->allocRunPos(fFont, fBuffIdx);
     memcpy(buff.glyphs, fGlyphIds, fBuffIdx * sizeof(uint16_t));
-    memcpy(buff.pos, fPositions[0].asScalars(), fBuffIdx * 2 * sizeof(SkScalar));
+    memcpy(buff.pos, SkPointPriv::AsScalars(fPositions[0]), fBuffIdx * 2 * sizeof(SkScalar));
     fBuffIdx = 0;
 }
 

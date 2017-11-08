@@ -234,15 +234,11 @@ public:
     }
 
     friend bool operator==(const SkRRect& a, const SkRRect& b) {
-        return a.fRect == b.fRect &&
-               SkScalarsEqual(a.fRadii[0].asScalars(),
-                              b.fRadii[0].asScalars(), 8);
+        return a.fRect == b.fRect && SkScalarsEqual(&a.fRadii[0].fX, &b.fRadii[0].fX, 8);
     }
 
     friend bool operator!=(const SkRRect& a, const SkRRect& b) {
-        return a.fRect != b.fRect ||
-               !SkScalarsEqual(a.fRadii[0].asScalars(),
-                               b.fRadii[0].asScalars(), 8);
+        return a.fRect != b.fRect || !SkScalarsEqual(&a.fRadii[0].fX, &b.fRadii[0].fX, 8);
     }
 
     /**
