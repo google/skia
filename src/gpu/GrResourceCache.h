@@ -368,7 +368,6 @@ private:
         }
 
         static uint32_t Hash(const GrScratchKey& key) { return key.hash(); }
-        static void OnFree(GrGpuResource*) { }
     };
     typedef SkTMultiMap<GrGpuResource, GrScratchKey, ScratchMapTraits> ScratchMap;
 
