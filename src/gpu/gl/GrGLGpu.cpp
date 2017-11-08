@@ -26,6 +26,7 @@
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
 #include "SkAutoMalloc.h"
+#include "SkHalf.h"
 #include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
 #include "SkMipMap.h"
@@ -2281,6 +2282,10 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
                 SkASSERT(tempDrawInfo->fTempSurfaceDesc.fConfig == srcConfig);
                 SkASSERT(tempDrawInfo->fReadConfig == kAlpha_8_GrPixelConfig);
             }
+        } else if (readConfig == kRGBA_half_GrPixelConfig &&
+                   this->readPixelsSupported(srcSurface, kRGBA_float_GrPixelConfig)) {
+            // If reading in half float format is not supported, then read in float format.
+            return true;
         } else if (this->glCaps().canConfigBeFBOColorAttachment(readConfig) &&
                    this->readPixelsSupported(readConfig, readConfig)) {
             // Do a draw to convert from the src config to the read config.
@@ -2337,6 +2342,29 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
                     for (int i = 0; i < width; ++i) {
                         dst[j*rowBytes + i] = (0xFF000000U & temp[j*width+i]) >> 24;
                     }
+                }
+                return true;
+            }
+        }
+
+        // If reading in half float format is not supported, then read in a temporary float buffer
+        // and convert to half float.
+        if (kRGBA_half_GrPixelConfig == config &&
+            this->readPixelsSupported(surface, kRGBA_float_GrPixelConfig)) {
+            std::unique_ptr<float[]> temp(new float[width * height * 4]);
+            if (this->onReadPixels(surface, origin, left, top, width, height,
+                                   kRGBA_float_GrPixelConfig, temp.get(),
+                                   width*sizeof(float)*4)) {
+                uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
+                float* src = temp.get();
+                for (int j = 0; j < height; ++j) {
+                    SkHalf* dstRow = reinterpret_cast<SkHalf*>(dst);
+                    for (int i = 0; i < width; ++i) {
+                        for (int color = 0; color < 4; color++) {
+                            *dstRow++ = SkFloatToHalf(*src++);
+                        }
+                    }
+                    dst += rowBytes;
                 }
                 return true;
             }
