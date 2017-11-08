@@ -63,8 +63,10 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
     bool useXformCanvas =
             SkTransferFunctionBehavior::kIgnore == opts.fBehavior && info.colorSpace();
 
+    SkSurfaceProps props(0, kUnknown_SkPixelGeometry); // might allow the client to give us this
     SkImageInfo canvasInfo = useXformCanvas ? info.makeColorSpace(nullptr) : info;
-    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(canvasInfo, pixels, rowBytes);
+    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(canvasInfo, pixels, rowBytes,
+                                                                  &props);
     if (!canvas) {
         return false;
     }
