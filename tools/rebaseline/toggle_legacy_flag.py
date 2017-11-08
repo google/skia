@@ -30,19 +30,7 @@ ANDROID_TOOLS_DIR = os.path.join(
     'android')
 
 
-def insert_at(filename, pattern, offset, content):
-  with open(filename) as f:
-    lines = f.readlines()
-
-  line_index = lines.index(pattern)
-  lines.insert(line_index + offset, content)
-
-  with open(filename, 'w') as f:
-    for line in lines:
-      f.write(line)
-
-
-def add_to_android(args):
+def toggle_android(args):
   sys.path.append(ANDROID_TOOLS_DIR)
   import upload_to_android
 
@@ -50,7 +38,7 @@ def add_to_android(args):
   upload_to_android.upload_to_android(args.android_dir, modifier)
 
 
-def add_to_chromium(args):
+def toggle_chromium(args):
   os.chdir(args.chromium_dir)
 
   branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'])
@@ -77,22 +65,39 @@ def add_to_chromium(args):
 
   try:
     config_file = os.path.join('skia', 'config', 'SkUserConfig.h')
-    separator = (
-      "///////////////////////// Imported from BUILD.gn and skia_common.gypi\n")
-    content = ("#ifndef {0}\n"
-               "#define {0}\n"
-               "#endif\n\n").format(args.flag)
-    insert_at(config_file, separator, 0, content)
+    with open(config_file) as f:
+      lines = f.readlines()
 
-    subprocess.check_call('git commit -a -m "Add %s"' % args.flag, shell=True)
-    subprocess.check_call('git cl upload -m "Add %s" -f' % args.flag,
+    flag_line = "#define %s\n" % args.flag
+    if flag_line in lines:
+      index = lines.index(flag_line)
+      del lines[index-1 : index +2]
+      verb = "Remove"
+    else:
+      separator = (
+        "/////////////////////////"
+        " Imported from BUILD.gn and skia_common.gypi\n")
+      content = ("#ifndef {0}\n"
+                 "#define {0}\n"
+                 "#endif\n\n").format(args.flag)
+      lines.insert(lines.index(separator), content)
+      verb = "Add"
+
+    with open(config_file, 'w') as f:
+      for line in lines:
+        f.write(line)
+
+    message = "%s %s" % (verb, args.flag)
+
+    subprocess.check_call('git commit -a -m "%s"' % message, shell=True)
+    subprocess.check_call('git cl upload -m "%s" -f' % message,
                           shell=True)
   finally:
     subprocess.check_call(['git', 'checkout', 'master'])
     subprocess.check_call(['git', 'branch', '-D', 'legacyflag_%d' % random])
 
 
-def add_to_google3(args):
+def toggle_google3(args):
   G3_SCRIPT_DIR = os.path.expanduser("~/skia-g3/scripts")
   if not os.path.isdir(G3_SCRIPT_DIR):
     print ("Google3 directory unavailable.\n"
@@ -103,7 +108,7 @@ def add_to_google3(args):
   sys.path.append(G3_SCRIPT_DIR)
   import citc_flag
 
-  citc_flag.add_to_google3(args.google3, args.flag)
+  citc_flag.toggle_google3(args.google3, args.flag)
 
 
 def main():
@@ -137,14 +142,14 @@ Nothing to do. Please give me at least one of these three arguments:
   end_message = "CLs generated. Now go review and land them:\n"
   if args.chromium_dir:
     args.chromium_dir = os.path.expanduser(args.chromium_dir)
-    add_to_chromium(args)
+    toggle_chromium(args)
     end_message += " * https://chromium-review.googlesource.com\n"
   if args.google3:
-    add_to_google3(args)
+    toggle_google3(args)
     end_message += " * http://goto.google.com/cl\n"
   if args.android_dir:
     args.android_dir = os.path.expanduser(args.android_dir)
-    add_to_android(args)
+    toggle_android(args)
     end_message += " * http://goto.google.com/androidcl\n"
 
   print end_message
