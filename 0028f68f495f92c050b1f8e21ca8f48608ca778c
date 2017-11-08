@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a0bae8c9_07d75257",
+        "filename": "src/core/SkTMultiMap.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-08T14:48:05Z",
+      "side": 1,
+      "message": "Actually this would work with the template as written.",
+      "parentUuid": "d251632e_b51cd6dd",
+      "range": {
+        "startLine": 97,
+        "startChar": 37,
+        "endLine": 97,
+        "endChar": 58
+      },
+      "revId": "0028f68f495f92c050b1f8e21ca8f48608ca778c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "47141f63_bc2fa7c9",
         "filename": "src/gpu/GrResourceAllocator.h",
         "patchSetId": 5
