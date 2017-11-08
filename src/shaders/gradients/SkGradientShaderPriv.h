@@ -14,7 +14,7 @@
 #include "SkAutoMalloc.h"
 #include "SkMatrix.h"
 #include "SkShaderBase.h"
-#include "SkTDArray.h"
+#include "SkTArray.h"
 #include "SkTemplates.h"
 
 class SkColorSpace;
@@ -194,7 +194,7 @@ public:
                    const SkGradientShaderBase* shader,
                    const SkMatrix* matrix,
                    SkShader::TileMode tileMode,
-                   const SkColorSpace* dstColorSpace)
+                   SkColorSpace* dstColorSpace)
                 : fContext(context)
                 , fShader(shader)
                 , fMatrix(matrix)
@@ -216,7 +216,7 @@ public:
                    const SkGradientShaderBase* shader,
                    const SkMatrix* matrix,
                    GrSamplerState::WrapMode wrapMode,
-                   const SkColorSpace* dstColorSpace)
+                   SkColorSpace* dstColorSpace)
                 : fContext(context)
                 , fShader(shader)
                 , fMatrix(matrix)
@@ -227,7 +227,7 @@ public:
         const SkGradientShaderBase* fShader;
         const SkMatrix*             fMatrix;
         GrSamplerState::WrapMode    fWrapMode;
-        const SkColorSpace*         fDstColorSpace;
+        SkColorSpace*               fDstColorSpace;
     };
 
     class GLSLProcessor;
@@ -235,40 +235,21 @@ public:
     ~GrGradientEffect() override;
 
     bool useAtlas() const { return SkToBool(-1 != fRow); }
-    SkScalar getYCoord() const { return fYCoord; }
 
-    enum ColorType {
-        kTwo_ColorType,
-        kThree_ColorType,              // 0, t, 1
-        kTexture_ColorType,
-        kSingleHardStop_ColorType,     // 0, t, t, 1
-        kHardStopLeftEdged_ColorType,  // 0, 0, 1
-        kHardStopRightEdged_ColorType, // 0, 1, 1
+    // Controls the implementation strategy for this effect.
+    // NB: all entries need to be reflected in the key.
+    enum class InterpolationStrategy : uint8_t {
+        kSingle,          // interpolation in a single domain [0,1]
+        kThreshold,       // interpolation in two domains [0,T) [T,1], with normal clamping
+        kThresholdClamp0, // same as kThreshold, but clamped only on the left edge
+        kThresholdClamp1, // same as kThreshold, but clamped only on the right edge
+        kTexture,         // texture-based fallback
     };
-
-    ColorType getColorType() const { return fColorType; }
-
-    // Determines the type of gradient, one of:
-    //    - Two-color
-    //    - Symmetric three-color
-    //    - Texture
-    //    - Centered hard stop
-    //    - Left-edged hard stop
-    //    - Right-edged hard stop
-    ColorType determineColorType(const SkGradientShaderBase& shader);
 
     enum PremulType {
         kBeforeInterp_PremulType,
         kAfterInterp_PremulType,
     };
-
-    PremulType getPremulType() const { return fPremulType; }
-
-    const GrColor4f* getColors4f(int pos) const {
-        SkASSERT(fColorType != kTexture_ColorType);
-        SkASSERT(pos < fColors4f.count());
-        return &fColors4f[pos];
-    }
 
 protected:
     GrGradientEffect(ClassID classID, const CreateArgs&, bool isOpaque);
@@ -287,7 +268,7 @@ protected:
         // With analytic gradients, we pre-convert the stops to the destination color space, so no
         // xform is needed. With texture-based gradients, we leave the data in the source color
         // space (to avoid clamping if we can't use F16)... Add an extra FP to do the xform.
-        if (kTexture_ColorType == gradientFP->getColorType()) {
+        if (gradientFP->fStrategy == InterpolationStrategy::kTexture) {
             // Our texture is always either F16 or sRGB, so the data is "linear" in the shader.
             // Create our xform assuming float inputs, which will suppress any extra sRGB work.
             // We do support having a transfer function on the color space of the stops, so
@@ -331,15 +312,18 @@ protected:
 
     /** Checks whether the constructor failed to fully initialize the processor. */
     bool isValid() const {
-        return fColorType != kTexture_ColorType || fTextureSampler.isInitialized();
+        return fStrategy != InterpolationStrategy::kTexture || fTextureSampler.isInitialized();
     }
 
 private:
+    void addInterval(const SkGradientShaderBase&, size_t idx0, size_t idx1, SkColorSpace*);
+
     static OptimizationFlags OptFlags(bool isOpaque);
 
-    SkTDArray<GrColor4f> fColors4f;
+    // Interpolation intervals, encoded as 4f tuples of (scale, bias)
+    // such that color(t) = t * scale + bias.
+    SkSTArray<4, GrColor4f, true> fIntervals;
 
-    SkTDArray<SkScalar> fPositions;
     GrSamplerState::WrapMode fWrapMode;
 
     GrCoordTransform fCoordTransform;
@@ -348,9 +332,12 @@ private:
     GrTextureStripAtlas* fAtlas;
     int fRow;
     bool fIsOpaque;
-    ColorType fColorType;
-    PremulType fPremulType; // This is already baked into the table for texture gradients, and
-                            // only changes behavior for gradients that don't use a texture.
+
+    InterpolationStrategy fStrategy;
+    SkScalar              fThreshold;  // used for InterpolationStrategy::kThreshold
+    PremulType            fPremulType; // This is already baked into the table for texture
+                                       // gradients, and only changes behavior for gradients
+                                       // that don't use a texture.
     typedef GrFragmentProcessor INHERITED;
 
 };
@@ -395,31 +382,9 @@ private:
                              const char* outputColor,
                              const char* inputColor);
 
-    enum {
-        // First bit for premul before/after interpolation
-        kPremulBeforeInterpKey  =  1,
-
-        // Next three bits for 2/3 color type or different special
-        // hard stop cases ('none' means using texture atlas)
-        kTwoColorKey            =  2,
-        kThreeColorKey          =  4,
-
-        kHardStopCenteredKey    =  6,
-        kHardStopZeroZeroOneKey =  8,
-        kHardStopZeroOneOneKey  = 10,
-
-        // Next two bits for tile mode
-        kClampTileMode          = 16,
-        kRepeatTileMode         = 32,
-        kMirrorTileMode         = 48,
-
-        // Lower six bits for premul, 2/3 color type, and tile mode
-        kReservedBits           = 6,
-    };
-
     SkScalar fCachedYCoord;
-    GrGLSLProgramDataManager::UniformHandle fColorsUni;
-    GrGLSLProgramDataManager::UniformHandle fExtraStopT;
+    GrGLSLProgramDataManager::UniformHandle fIntervalsUni;
+    GrGLSLProgramDataManager::UniformHandle fThresholdUni;
     GrGLSLProgramDataManager::UniformHandle fFSYUni;
 
     typedef GrGLSLFragmentProcessor INHERITED;
