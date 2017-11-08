@@ -17,19 +17,23 @@
 #include "vk/GrVkUtil.h"
 #include "vk/GrVkTypes.h"
 
+#include "../ports/SkOSLibrary.h"
+
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 // windows wants to define this as CreateSemaphoreA or CreateSemaphoreW
 #undef CreateSemaphore
 #endif
 
-#define GET_PROC(F) f ## F = (PFN_vk ## F) vkGetInstanceProcAddr(instance, "vk" #F)
-#define GET_DEV_PROC(F) f ## F = (PFN_vk ## F) vkGetDeviceProcAddr(device, "vk" #F)
+#define GET_PROC(F) f ## F = (PFN_vk ## F) fGetInstanceProcAddr(instance, "vk" #F)
+#define GET_DEV_PROC(F) f ## F = (PFN_vk ## F) fGetDeviceProcAddr(device, "vk" #F)
 
 namespace sk_app {
 
 VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
                                          CreateVkSurfaceFn createVkSurface,
-                                         CanPresentFn canPresent)
+                                         CanPresentFn canPresent,
+                                         PFN_vkGetInstanceProcAddr instProc,
+                                         PFN_vkGetDeviceProcAddr devProc)
     : WindowContext(params)
     , fCreateVkSurfaceFn(createVkSurface)
     , fCanPresentFn(canPresent)
@@ -40,12 +44,14 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
     , fSurfaces(nullptr)
     , fCommandPool(VK_NULL_HANDLE)
     , fBackbuffers(nullptr) {
+    fGetInstanceProcAddr = instProc;
+    fGetDeviceProcAddr = devProc;
     this->initializeContext();
 }
 
 void VulkanWindowContext::initializeContext() {
     // any config code here (particularly for msaa)?
-    fBackendContext.reset(GrVkBackendContext::Create(vkGetInstanceProcAddr, vkGetDeviceProcAddr,
+    fBackendContext.reset(GrVkBackendContext::Create(fGetInstanceProcAddr, fGetDeviceProcAddr,
                                                      &fPresentQueueIndex, fCanPresentFn));
 
     if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
@@ -66,6 +72,7 @@ void VulkanWindowContext::initializeContext() {
     GET_DEV_PROC(GetSwapchainImagesKHR);
     GET_DEV_PROC(AcquireNextImageKHR);
     GET_DEV_PROC(QueuePresentKHR);
+    GET_DEV_PROC(GetDeviceQueue);
 
     fContext = GrContext::MakeVulkan(fBackendContext.get(), fDisplayParams.fGrContextOptions);
 
@@ -90,7 +97,7 @@ void VulkanWindowContext::initializeContext() {
     }
 
     // create presentQueue
-    vkGetDeviceQueue(fBackendContext->fDevice, fPresentQueueIndex, 0, &fPresentQueue);
+    fGetDeviceQueue(fBackendContext->fDevice, fPresentQueueIndex, 0, &fPresentQueue);
 }
 
 bool VulkanWindowContext::createSwapchain(int width, int height,
@@ -611,6 +618,33 @@ void VulkanWindowContext::swapBuffers() {
     };
 
     fQueuePresentKHR(fPresentQueue, &presentInfo);
+}
+
+bool VulkanWindowContext::LoadLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc,
+                                                         PFN_vkGetDeviceProcAddr* devProc) {
+    static void* vkLib = nullptr;
+    static PFN_vkGetInstanceProcAddr localInstProc = nullptr;
+    static PFN_vkGetDeviceProcAddr localDevProc = nullptr;
+    if (!vkLib) {
+#if defined _WIN32
+        vkLib = DynamicLoadLibrary("vulkan-1.dll");
+#else
+        vkLib = DynamicLoadLibrary("libvulkan.so");
+#endif
+        if (!vkLib) {
+            return false;
+        }
+        localInstProc = (PFN_vkGetInstanceProcAddr) GetProcedureAddress(vkLib,
+                                                                        "vkGetInstanceProcAddr");
+        localDevProc = (PFN_vkGetDeviceProcAddr) GetProcedureAddress(vkLib,
+                                                                     "vkGetDeviceProcAddr");
+    }
+    if (!localInstProc || !localDevProc) {
+        return false;
+    }
+    *instProc = localInstProc;
+    *devProc = localDevProc;
+    return true;
 }
 
 }   //namespace sk_app

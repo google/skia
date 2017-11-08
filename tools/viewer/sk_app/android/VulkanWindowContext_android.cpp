@@ -14,10 +14,15 @@ namespace sk_app {
 namespace window_context_factory {
 
 WindowContext* NewVulkanForAndroid(ANativeWindow* window, const DisplayParams& params) {
-    auto createVkSurface = [window] (VkInstance instance) -> VkSurfaceKHR {
+    PFN_vkGetInstanceProcAddr instProc;
+    PFN_vkGetDeviceProcAddr devProc; // TODO: use InstanceProcAddr to get this
+    if (!VulkanWindowContext::LoadLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
+        return nullptr;
+    }
+
+    auto createVkSurface = [window, instProc] (VkInstance instance) -> VkSurfaceKHR {
         PFN_vkCreateAndroidSurfaceKHR createAndroidSurfaceKHR =
-                (PFN_vkCreateAndroidSurfaceKHR)vkGetInstanceProcAddr(instance,
-                                                                     "vkCreateAndroidSurfaceKHR");
+                (PFN_vkCreateAndroidSurfaceKHR) instProc(instance, "vkCreateAndroidSurfaceKHR");
 
         if (!window) {
             return VK_NULL_HANDLE;
@@ -38,7 +43,8 @@ WindowContext* NewVulkanForAndroid(ANativeWindow* window, const DisplayParams& p
 
     auto canPresent = [](VkInstance, VkPhysicalDevice, uint32_t) { return true; };
 
-    WindowContext* ctx = new VulkanWindowContext(params, createVkSurface, canPresent);
+    WindowContext* ctx = new VulkanWindowContext(params, createVkSurface, canPresent,
+                                                 instProc, devProc);
     if (!ctx->isValid()) {
         delete ctx;
         return nullptr;
