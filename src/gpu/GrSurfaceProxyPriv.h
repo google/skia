@@ -10,6 +10,8 @@
 
 #include "GrSurfaceProxy.h"
 
+#include "GrResourceProvider.h"
+
 /** Class that adds methods to GrSurfaceProxy that are only intended for use internal to Skia.
     This class is purely a privileged window into GrSurfaceProxy. It should never have additional
     data members or virtual methods. */
@@ -55,6 +57,10 @@ public:
 
     // Assign this proxy the provided GrSurface as its backing surface
     void assign(sk_sp<GrSurface> surface) { fProxy->assign(std::move(surface)); }
+
+    bool requiresNoPendingIO() const {
+        return fProxy->fFlags & GrResourceProvider::kNoPendingIO_Flag;
+    }
 
     // Don't abuse this call!!!!!!!
     bool isExact() const { return SkBackingFit::kExact == fProxy->fFit; }
