@@ -233,7 +233,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         Blob* blob = args.fBlob;
         GrAtlasTextBlob::VertexRegenerator regenerator(
                 blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY, args.fColor,
-                target->deferredUploadTarget(), fFontCache, &glyphCache, vertexStride);
+                target->deferredUploadTarget(), fFontCache, &glyphCache);
         GrAtlasTextBlob::VertexRegenerator::Result result;
         do {
             result = regenerator.regenerate();

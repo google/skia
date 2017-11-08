@@ -557,7 +557,7 @@ public:
      */
     VertexRegenerator(GrAtlasTextBlob* blob, int runIdx, int subRunIdx, const SkMatrix& viewMatrix,
                       SkScalar x, SkScalar y, GrColor color, GrDeferredUploadTarget*,
-                      GrAtlasGlyphCache*, SkAutoGlyphCache*, size_t vertexStride);
+                      GrAtlasGlyphCache*, SkAutoGlyphCache*);
 
     struct Result {
         /**
@@ -591,7 +591,6 @@ private:
     SkAutoGlyphCache* fLazyCache;
     Run* fRun;
     Run::SubRunInfo* fSubRun;
-    size_t fVertexStride;
     GrColor fColor;
     SkScalar fTransX;
     SkScalar fTransY;
