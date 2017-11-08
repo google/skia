@@ -2892,7 +2892,7 @@ static bool supported_for_raster_canvas(const SkImageInfo& info) {
 }
 
 std::unique_ptr<SkCanvas> SkCanvas::MakeRasterDirect(const SkImageInfo& info, void* pixels,
-                                                     size_t rowBytes) {
+                                                     size_t rowBytes, const SkSurfaceProps* props) {
     if (!supported_for_raster_canvas(info)) {
         return nullptr;
     }
@@ -2901,7 +2901,10 @@ std::unique_ptr<SkCanvas> SkCanvas::MakeRasterDirect(const SkImageInfo& info, vo
     if (!bitmap.installPixels(info, pixels, rowBytes)) {
         return nullptr;
     }
-    return skstd::make_unique<SkCanvas>(bitmap);
+
+    return props ?
+        skstd::make_unique<SkCanvas>(bitmap, *props) :
+        skstd::make_unique<SkCanvas>(bitmap);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

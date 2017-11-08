@@ -90,10 +90,12 @@ public:
                          width, or height, or both, may be zero
         @param pixels    pointer to destination pixels buffer
         @param rowBytes  interval from one SkSurface row to the next, or zero
+        @param props     optional surfaceprops
         @return          SkCanvas if all parameters are valid; otherwise, nullptr
     */
     static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo& info, void* pixels,
-                                                      size_t rowBytes);
+                                                      size_t rowBytes,
+                                                      const SkSurfaceProps* props = nullptr);
 
     /** Allocates raster SkCanvas specified by inline image specification. Subsequent SkCanvas
         calls draw into pixels.
