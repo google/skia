@@ -236,6 +236,12 @@ static bool primaries_equal(const SkColorSpacePrimaries& a, const SkColorSpacePr
     return memcmp(&a, &b, sizeof(SkColorSpacePrimaries)) == 0;
 }
 
+static Window::BackendType backend_type_for_window(Window::BackendType backendType) {
+    // In raster mode, we still use GL for the window.
+    // This lets us render the GUI faster (and correct).
+    return Window::kRaster_BackendType == backendType ? Window::kNativeGL_BackendType : backendType;
+}
+
 const char* kName = "name";
 const char* kValue = "value";
 const char* kOptions = "options";
@@ -477,7 +483,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fImGuiGamutPaint.setColor(SK_ColorWHITE);
     fImGuiGamutPaint.setFilterQuality(kLow_SkFilterQuality);
 
-    fWindow->attach(fBackendType);
+    fWindow->attach(backend_type_for_window(fBackendType));
 }
 
 void Viewer::initSlides() {
@@ -748,7 +754,7 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
 #if defined(SK_BUILD_FOR_WIN) && defined(SK_VULKAN)
     // Switching between OpenGL, Vulkan, and ANGLE in the same window is problematic at this point
     // on Windows, so we just delete the window and recreate it.
-    if (sk_app::Window::kVulkan_BackendType == fBackendType ||
+    if (true || sk_app::Window::kVulkan_BackendType == fBackendType ||
         sk_app::Window::kNativeGL_BackendType == fBackendType
 #if SK_ANGLE
         || sk_app::Window::kANGLE_BackendType == fBackendType
@@ -778,7 +784,7 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
     }
 #endif
 
-    fWindow->attach(fBackendType);
+    fWindow->attach(backend_type_for_window(fBackendType));
 }
 
 void Viewer::setColorMode(ColorMode colorMode) {
@@ -817,9 +823,11 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     }
 
     // If we're in F16, or we're zooming, or we're in color correct 8888 and the gamut isn't sRGB,
-    // we need to render offscreen
+    // we need to render offscreen. We also need to render offscreen if we're in any raster mode,
+    // because the window surface is actually GL.
     sk_sp<SkSurface> offscreenSurface = nullptr;
-    if (ColorMode::kColorManagedLinearF16 == fColorMode ||
+    if (Window::kRaster_BackendType == fBackendType ||
+        ColorMode::kColorManagedLinearF16 == fColorMode ||
         fShowZoomWindow ||
         (ColorMode::kColorManagedSRGB8888 == fColorMode &&
          !primaries_equal(fColorSpacePrimaries, gSrgbPrimaries))) {
@@ -832,7 +840,8 @@ void Viewer::drawSlide(SkCanvas* canvas) {
             (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) ? nullptr : cs;
         SkImageInfo info = SkImageInfo::Make(fWindow->width(), fWindow->height(), colorType,
                                              kPremul_SkAlphaType, std::move(offscreenColorSpace));
-        offscreenSurface = canvas->makeSurface(info);
+        offscreenSurface = Window::kRaster_BackendType == fBackendType ? SkSurface::MakeRaster(info)
+                                                                       : canvas->makeSurface(info);
         slideCanvas = offscreenSurface->getCanvas();
     }
 
@@ -1484,7 +1493,7 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
                 if (fBackendType != i) {
                     fBackendType = (sk_app::Window::BackendType)i;
                     fWindow->detach();
-                    fWindow->attach(fBackendType);
+                    fWindow->attach(backend_type_for_window(fBackendType));
                 }
                 break;
             }
