@@ -67,7 +67,7 @@ def main():
     if 'GPU' in args.builder:
       config = 'gl'
       cpu_or_gpu = 'GPU'
-      cpu_or_gpu_value = 'GT610'
+      cpu_or_gpu_value = 'QuadroP400'
 
     out_results_file = os.path.join(
         args.isolated_outdir, 'nanobench_%s_%s_slave%d.json' % (
