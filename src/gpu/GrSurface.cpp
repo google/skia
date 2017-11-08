@@ -9,6 +9,7 @@
 #include "GrContext.h"
 #include "GrOpList.h"
 #include "GrRenderTarget.h"
+#include "GrResourceProvider.h"
 #include "GrSurfacePriv.h"
 #include "GrTexture.h"
 
@@ -18,8 +19,12 @@
 size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
     size_t size;
 
-    int width = useNextPow2 ? GrNextPow2(desc.fWidth) : desc.fWidth;
-    int height = useNextPow2 ? GrNextPow2(desc.fHeight) : desc.fHeight;
+    int width = useNextPow2
+                ? SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(desc.fWidth))
+                : desc.fWidth;
+    int height = useNextPow2
+                ? SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(desc.fHeight))
+                : desc.fHeight;
 
     bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
     if (isRenderTarget) {
@@ -53,8 +58,12 @@ size_t GrSurface::ComputeSize(GrPixelConfig config,
                               int colorSamplesPerPixel,
                               GrMipMapped mipMapped,
                               bool useNextPow2) {
-    width = useNextPow2 ? GrNextPow2(width) : width;
-    height = useNextPow2 ? GrNextPow2(height) : height;
+    width = useNextPow2
+            ? SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(width))
+            : width;
+    height = useNextPow2
+            ? SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(height))
+            : height;
 
     SkASSERT(kUnknown_GrPixelConfig != config);
     size_t colorSize = (size_t)width * height * GrBytesPerPixel(config);
