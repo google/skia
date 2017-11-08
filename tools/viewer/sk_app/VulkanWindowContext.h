@@ -42,12 +42,16 @@ public:
         return (GrBackendContext) fBackendContext.get();
     }
 
+    static bool LoadLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr*,
+                                               PFN_vkGetDeviceProcAddr*);
+
     /** Platform specific function that creates a VkSurfaceKHR for a window */
     using CreateVkSurfaceFn = std::function<VkSurfaceKHR(VkInstance)>;
     /** Platform specific function that determines whether presentation will succeed. */
     using CanPresentFn = GrVkBackendContext::CanPresentFn;
 
-    VulkanWindowContext(const DisplayParams&, CreateVkSurfaceFn, CanPresentFn);
+    VulkanWindowContext(const DisplayParams&, CreateVkSurfaceFn, CanPresentFn,
+                        PFN_vkGetInstanceProcAddr, PFN_vkGetDeviceProcAddr);
 
 private:
     void initializeContext();
@@ -82,6 +86,10 @@ private:
     CreateVkSurfaceFn fCreateVkSurfaceFn;
     CanPresentFn      fCanPresentFn;
 
+    // Vulkan GetProcAddr functions
+    VkPtr<PFN_vkGetInstanceProcAddr> fGetInstanceProcAddr;
+    VkPtr<PFN_vkGetDeviceProcAddr> fGetDeviceProcAddr;
+
     // WSI interface functions
     VkPtr<PFN_vkDestroySurfaceKHR> fDestroySurfaceKHR;
     VkPtr<PFN_vkGetPhysicalDeviceSurfaceSupportKHR> fGetPhysicalDeviceSurfaceSupportKHR;
@@ -94,7 +102,7 @@ private:
     VkPtr<PFN_vkGetSwapchainImagesKHR> fGetSwapchainImagesKHR;
     VkPtr<PFN_vkAcquireNextImageKHR> fAcquireNextImageKHR;
     VkPtr<PFN_vkQueuePresentKHR> fQueuePresentKHR;
-    VkPtr<PFN_vkCreateSharedSwapchainsKHR> fCreateSharedSwapchainsKHR;
+    VkPtr<PFN_vkGetDeviceQueue> fGetDeviceQueue;
 
     VkSurfaceKHR      fSurface;
     VkSwapchainKHR    fSwapchain;

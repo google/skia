@@ -20,12 +20,17 @@ namespace sk_app {
 namespace window_context_factory {
 
 WindowContext* NewVulkanForXlib(const XlibWindowInfo& info, const DisplayParams& displayParams) {
-    auto createVkSurface = [&info](VkInstance instance) -> VkSurfaceKHR {
+    PFN_vkGetInstanceProcAddr instProc;
+    PFN_vkGetDeviceProcAddr devProc;
+    if (!VulkanWindowContext::LoadLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
+        return nullptr;
+    }
+
+    auto createVkSurface = [&info, instProc](VkInstance instance) -> VkSurfaceKHR {
         static PFN_vkCreateXcbSurfaceKHR createXcbSurfaceKHR = nullptr;
         if (!createXcbSurfaceKHR) {
             createXcbSurfaceKHR =
-                    (PFN_vkCreateXcbSurfaceKHR) vkGetInstanceProcAddr(instance,
-                                                                      "vkCreateXcbSurfaceKHR");
+                    (PFN_vkCreateXcbSurfaceKHR) instProc(instance, "vkCreateXcbSurfaceKHR");
         }
 
         VkSurfaceKHR surface;
@@ -46,15 +51,14 @@ WindowContext* NewVulkanForXlib(const XlibWindowInfo& info, const DisplayParams&
         return surface;
     };
 
-    auto canPresent = [&info](VkInstance instance, VkPhysicalDevice physDev,
+    auto canPresent = [&info, instProc](VkInstance instance, VkPhysicalDevice physDev,
                               uint32_t queueFamilyIndex) {
         static PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR
                                                 getPhysicalDeviceXcbPresentationSupportKHR = nullptr;
         if (!getPhysicalDeviceXcbPresentationSupportKHR) {
             getPhysicalDeviceXcbPresentationSupportKHR =
                 (PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)
-                        vkGetInstanceProcAddr(instance,
-                                              "vkGetPhysicalDeviceXcbPresentationSupportKHR");
+                    instProc(instance, "vkGetPhysicalDeviceXcbPresentationSupportKHR");
         }
 
 
@@ -66,7 +70,8 @@ WindowContext* NewVulkanForXlib(const XlibWindowInfo& info, const DisplayParams&
                                                                     visualID);
         return (VK_FALSE != check);
     };
-    WindowContext* context = new VulkanWindowContext(displayParams, createVkSurface, canPresent);
+    WindowContext* context = new VulkanWindowContext(displayParams, createVkSurface, canPresent,
+                                                     instProc, devProc);
     if (!context->isValid()) {
         delete context;
         return nullptr;

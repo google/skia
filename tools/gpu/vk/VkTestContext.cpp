@@ -14,6 +14,8 @@
 #include "vk/GrVkUtil.h"
 #include <vulkan/vulkan.h>
 
+#include "../ports/SkOSLibrary.h"
+
 namespace {
 /**
  * Implements sk_gpu_test::FenceSync for Vulkan. It creates a single command
@@ -114,8 +116,24 @@ public:
         if (sharedContext) {
             backendContext = sharedContext->getVkBackendContext();
         } else {
-            backendContext.reset(GrVkBackendContext::Create(vkGetInstanceProcAddr,
-                                                            vkGetDeviceProcAddr));
+            static void* vkLib = nullptr;
+            static PFN_vkGetInstanceProcAddr instProc;
+            static PFN_vkGetDeviceProcAddr devProc; // TODO: use InstanceProcAddr to get this
+            if (!vkLib) {
+#if defined _WIN32
+                vkLib = DynamicLoadLibrary("vulkan-1.dll");
+#else
+                vkLib = DynamicLoadLibrary("libvulkan.so");
+#endif
+                if (!vkLib) {
+                    return nullptr;
+                }
+                instProc = (PFN_vkGetInstanceProcAddr) GetProcedureAddress(vkLib,
+                                                                           "vkGetInstanceProcAddr");
+                devProc = (PFN_vkGetDeviceProcAddr) GetProcedureAddress(vkLib,
+                                                                        "vkGetDeviceProcAddr");
+            }
+            backendContext.reset(GrVkBackendContext::Create(instProc, devProc));
         }
         if (!backendContext) {
             return nullptr;
