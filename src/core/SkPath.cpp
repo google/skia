@@ -14,6 +14,7 @@
 #include "SkMatrixPriv.h"
 #include "SkPathPriv.h"
 #include "SkPathRef.h"
+#include "SkPointPriv.h"
 #include "SkRRect.h"
 
 static float poly_eval(float A, float B, float C, float t) {
@@ -2408,7 +2409,7 @@ struct Convexicator {
             ++fPtCount;
         } else {
             SkVector vec = pt - fCurrPt;
-            SkScalar lengthSqd = vec.lengthSqd();
+            SkScalar lengthSqd = SkPointPriv::LengthSqd(vec);
             if (!SkScalarIsFinite(lengthSqd)) {
                 fIsFinite = false;
             } else if (lengthSqd) {
@@ -2470,8 +2471,10 @@ struct Convexicator {
             }
         }
 
-        if (!SkScalarNearlyZero(fLastVec.lengthSqd(), SK_ScalarNearlyZero*SK_ScalarNearlyZero) &&
-            !SkScalarNearlyZero(curVec.lengthSqd(), SK_ScalarNearlyZero*SK_ScalarNearlyZero) &&
+        if (!SkScalarNearlyZero(SkPointPriv::LengthSqd(fLastVec),
+                                SK_ScalarNearlyZero*SK_ScalarNearlyZero) &&
+            !SkScalarNearlyZero(SkPointPriv::LengthSqd(curVec),
+                                SK_ScalarNearlyZero*SK_ScalarNearlyZero) &&
             fLastVec.dot(curVec) < 0.0f) {
             return kBackwards_DirChange;
         }
@@ -3352,7 +3355,7 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
        if (tangents.count() > oldCount) {
             int last = tangents.count() - 1;
             const SkVector& tangent = tangents[last];
-            if (SkScalarNearlyZero(tangent.lengthSqd())) {
+            if (SkScalarNearlyZero(SkPointPriv::LengthSqd(tangent))) {
                 tangents.remove(last);
             } else {
                 for (int index = 0; index < last; ++index) {
@@ -3600,4 +3603,22 @@ DONE:
     min.store((SkPoint*)&bounds.fLeft);
     max.store((SkPoint*)&bounds.fRight);
     return bounds;
+}
+
+bool SkPath::IsLineDegenerate(const SkPoint& p1, const SkPoint& p2, bool exact) {
+    return exact ? p1 == p2 : SkPointPriv::EqualsWithinTolerance(p1, p2);
+}
+
+bool SkPath::IsQuadDegenerate(const SkPoint& p1, const SkPoint& p2,
+                                const SkPoint& p3, bool exact) {
+    return exact ? p1 == p2 && p2 == p3 : SkPointPriv::EqualsWithinTolerance(p1, p2) &&
+            SkPointPriv::EqualsWithinTolerance(p2, p3);
+}
+
+bool SkPath::IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
+                                const SkPoint& p3, const SkPoint& p4, bool exact) {
+    return exact ? p1 == p2 && p2 == p3 && p3 == p4 :
+            SkPointPriv::EqualsWithinTolerance(p1, p2) &&
+            SkPointPriv::EqualsWithinTolerance(p2, p3) &&
+            SkPointPriv::EqualsWithinTolerance(p3, p4);
 }

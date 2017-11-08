@@ -9,6 +9,7 @@
 
 #include "GrTypes.h"
 #include "SkMathPriv.h"
+#include "SkPointPriv.h"
 
 static const SkScalar gMinCurveTol = 0.0001f;
 
@@ -41,7 +42,7 @@ uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[], SkScalar tol) 
     // You should have called scaleToleranceToSrc, which guarantees this
     SkASSERT(tol >= gMinCurveTol);
 
-    SkScalar d = points[1].distanceToLineSegmentBetween(points[0], points[2]);
+    SkScalar d = SkPointPriv::DistanceToLineSegmentBetween(points[1], points[0], points[2]);
     if (!SkScalarIsFinite(d)) {
         return kMaxPointsPerCurve;
     } else if (d <= tol) {
@@ -75,7 +76,7 @@ uint32_t GrPathUtils::generateQuadraticPoints(const SkPoint& p0,
                                               SkPoint** points,
                                               uint32_t pointsLeft) {
     if (pointsLeft < 2 ||
-        (p1.distanceToLineSegmentBetweenSqd(p0, p2)) < tolSqd) {
+        (SkPointPriv::DistanceToLineSegmentBetweenSqd(p1, p0, p2)) < tolSqd) {
         (*points)[0] = p2;
         *points += 1;
         return 1;
@@ -99,8 +100,8 @@ uint32_t GrPathUtils::cubicPointCount(const SkPoint points[],
     SkASSERT(tol >= gMinCurveTol);
 
     SkScalar d = SkTMax(
-        points[1].distanceToLineSegmentBetweenSqd(points[0], points[3]),
-        points[2].distanceToLineSegmentBetweenSqd(points[0], points[3]));
+        SkPointPriv::DistanceToLineSegmentBetweenSqd(points[1], points[0], points[3]),
+        SkPointPriv::DistanceToLineSegmentBetweenSqd(points[2], points[0], points[3]));
     d = SkScalarSqrt(d);
     if (!SkScalarIsFinite(d)) {
         return kMaxPointsPerCurve;
@@ -132,8 +133,8 @@ uint32_t GrPathUtils::generateCubicPoints(const SkPoint& p0,
                                           SkPoint** points,
                                           uint32_t pointsLeft) {
     if (pointsLeft < 2 ||
-        (p1.distanceToLineSegmentBetweenSqd(p0, p3) < tolSqd &&
-         p2.distanceToLineSegmentBetweenSqd(p0, p3) < tolSqd)) {
+        (SkPointPriv::DistanceToLineSegmentBetweenSqd(p1, p0, p3) < tolSqd &&
+         SkPointPriv::DistanceToLineSegmentBetweenSqd(p2, p0, p3) < tolSqd)) {
         (*points)[0] = p3;
         *points += 1;
         return 1;
@@ -226,14 +227,14 @@ void GrPathUtils::QuadUVMatrix::set(const SkPoint qPts[3]) {
         || SkScalarNearlyZero((float)det, SK_ScalarNearlyZero * SK_ScalarNearlyZero)) {
         // The quad is degenerate. Hopefully this is rare. Find the pts that are
         // farthest apart to compute a line (unless it is really a pt).
-        SkScalar maxD = qPts[0].distanceToSqd(qPts[1]);
+        SkScalar maxD = SkPointPriv::DistanceToSqd(qPts[0], qPts[1]);
         int maxEdge = 0;
-        SkScalar d = qPts[1].distanceToSqd(qPts[2]);
+        SkScalar d = SkPointPriv::DistanceToSqd(qPts[1], qPts[2]);
         if (d > maxD) {
             maxD = d;
             maxEdge = 1;
         }
-        d = qPts[2].distanceToSqd(qPts[0]);
+        d = SkPointPriv::DistanceToSqd(qPts[2], qPts[0]);
         if (d > maxD) {
             maxD = d;
             maxEdge = 2;
@@ -245,7 +246,7 @@ void GrPathUtils::QuadUVMatrix::set(const SkPoint qPts[3]) {
             // when looking from the point 0 down the line we want positive
             // distances to be to the left. This matches the non-degenerate
             // case.
-            lineVec.setOrthog(lineVec, SkPoint::kLeft_Side);
+            SkPointPriv::SetOrthog(&lineVec, lineVec, SkPointPriv::kLeft_Side);
             // first row
             fM[0] = 0;
             fM[1] = 0;
@@ -400,8 +401,8 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
     SkVector ab = p[1] - p[0];
     SkVector dc = p[2] - p[3];
 
-    if (ab.lengthSqd() < SK_ScalarNearlyZero) {
-        if (dc.lengthSqd() < SK_ScalarNearlyZero) {
+    if (SkPointPriv::LengthSqd(ab) < SK_ScalarNearlyZero) {
+        if (SkPointPriv::LengthSqd(dc) < SK_ScalarNearlyZero) {
             SkPoint* degQuad = quads->push_back_n(3);
             degQuad[0] = p[0];
             degQuad[1] = p[0];
@@ -410,7 +411,7 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
         }
         ab = p[2] - p[0];
     }
-    if (dc.lengthSqd() < SK_ScalarNearlyZero) {
+    if (SkPointPriv::LengthSqd(dc) < SK_ScalarNearlyZero) {
         dc = p[1] - p[3];
     }
 
@@ -423,10 +424,10 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
 
     if (constrainWithinTangents) {
         SkVector da = p[0] - p[3];
-        bool doQuads = dc.lengthSqd() < SK_ScalarNearlyZero ||
-                       ab.lengthSqd() < SK_ScalarNearlyZero;
+        bool doQuads = SkPointPriv::LengthSqd(dc) < SK_ScalarNearlyZero ||
+                       SkPointPriv::LengthSqd(ab) < SK_ScalarNearlyZero;
         if (!doQuads) {
-            SkScalar invDALengthSqd = da.lengthSqd();
+            SkScalar invDALengthSqd = SkPointPriv::LengthSqd(da);
             if (invDALengthSqd > SK_ScalarNearlyZero) {
                 invDALengthSqd = SkScalarInvert(invDALengthSqd);
                 // cross(ab, da)^2/length(da)^2 == sqd distance from b to line from d to a.
@@ -479,7 +480,7 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
     SkVector c1 = p[3];
     c1 += dc;
 
-    SkScalar dSqd = sublevel > kMaxSubdivs ? 0 : c0.distanceToSqd(c1);
+    SkScalar dSqd = sublevel > kMaxSubdivs ? 0 : SkPointPriv::DistanceToSqd(c0, c1);
     if (dSqd < toleranceSqd) {
         SkPoint cAvg = c0;
         cAvg += c1;
@@ -490,9 +491,9 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
         if (constrainWithinTangents &&
             !is_point_within_cubic_tangents(p[0], ab, dc, p[3], dir, cAvg)) {
             // choose a new cAvg that is the intersection of the two tangent lines.
-            ab.setOrthog(ab);
+            SkPointPriv::SetOrthog(&ab, ab);
             SkScalar z0 = -ab.dot(p[0]);
-            dc.setOrthog(dc);
+            SkPointPriv::SetOrthog(&dc, dc);
             SkScalar z1 = -dc.dot(p[3]);
             cAvg.fX = ab.fY * z1 - z0 * dc.fY;
             cAvg.fY = z0 * dc.fX - ab.fX * z1;
@@ -501,8 +502,8 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
             cAvg.fX *= z;
             cAvg.fY *= z;
             if (sublevel <= kMaxSubdivs) {
-                SkScalar d0Sqd = c0.distanceToSqd(cAvg);
-                SkScalar d1Sqd = c1.distanceToSqd(cAvg);
+                SkScalar d0Sqd = SkPointPriv::DistanceToSqd(c0, cAvg);
+                SkScalar d1Sqd = SkPointPriv::DistanceToSqd(c1, cAvg);
                 // We need to subdivide if d0 + d1 > tolerance but we have the sqd values. We know
                 // the distances and tolerance can't be negative.
                 // (d0 + d1)^2 > toleranceSqd

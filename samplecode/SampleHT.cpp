@@ -12,6 +12,7 @@
 #include "SkDrawable.h"
 #include "SkInterpolator.h"
 #include "SkPictureRecorder.h"
+#include "SkPointPriv.h"
 #include "SkRandom.h"
 
 const SkRect gUnitSquare = { -1, -1, 1, 1 };
@@ -35,7 +36,7 @@ static bool oval_contains(const SkRect& r, SkScalar x, SkScalar y) {
     m.setRectToRect(r, gUnitSquare, SkMatrix::kFill_ScaleToFit);
     SkPoint pt;
     m.mapXY(x, y, &pt);
-    return pt.lengthSqd() <= 1;
+    return SkPointPriv::LengthSqd(pt) <= 1;
 }
 
 static SkColor rand_opaque_color(uint32_t seed) {

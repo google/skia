@@ -13,6 +13,7 @@
 #include "SkArenaAlloc.h"
 #include "SkGeometry.h"
 #include "SkPath.h"
+#include "SkPointPriv.h"
 
 #include <stdio.h>
 
@@ -635,7 +636,7 @@ SkScalar quad_error_at(const SkPoint pts[3], SkScalar t, SkScalar u) {
     if (!p0.isFinite() || !mid.isFinite() || !p1.isFinite()) {
         return 0;
     }
-    return mid.distanceToLineSegmentBetweenSqd(p0, p1);
+    return SkPointPriv::DistanceToLineSegmentBetweenSqd(mid, p0, p1);
 }
 
 void append_quadratic_to_contour(const SkPoint pts[3], SkScalar toleranceSqd, VertexList* contour,
@@ -669,8 +670,8 @@ void generate_cubic_points(const SkPoint& p0,
                            VertexList* contour,
                            int pointsLeft,
                            SkArenaAlloc& alloc) {
-    SkScalar d1 = p1.distanceToLineSegmentBetweenSqd(p0, p3);
-    SkScalar d2 = p2.distanceToLineSegmentBetweenSqd(p0, p3);
+    SkScalar d1 = SkPointPriv::DistanceToLineSegmentBetweenSqd(p1, p0, p3);
+    SkScalar d2 = SkPointPriv::DistanceToLineSegmentBetweenSqd(p2, p0, p3);
     if (pointsLeft < 2 || (d1 < tolSqd && d2 < tolSqd) ||
         !SkScalarIsFinite(d1) || !SkScalarIsFinite(d2)) {
         append_point_to_contour(p3, contour, alloc);
