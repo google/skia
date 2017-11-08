@@ -34,7 +34,6 @@ public:
         for ( ; !iter.done(); ++iter) {
             ValueList* next;
             for (ValueList* cur = &(*iter); cur; cur = next) {
-                HashTraits::OnFree(cur->fValue);
                 next = cur->fNext;
                 delete cur;
             }
@@ -70,7 +69,20 @@ public:
             list = list->fNext;
         }
 
-        this->internalRemove(prev, list, key);
+        if (list->fNext) {
+            ValueList* next = list->fNext;
+            list->fValue = next->fValue;
+            list->fNext = next->fNext;
+            delete next;
+        } else if (prev) {
+            prev->fNext = nullptr;
+            delete list;
+        } else {
+            fHash.remove(key);
+            delete list;
+        }
+
+        --fCount;
     }
 
     T* find(const Key& key) const {
@@ -88,23 +100,6 @@ public:
             if (f(list->fValue)){
                 return list->fValue;
             }
-            list = list->fNext;
-        }
-        return nullptr;
-    }
-
-    template<class FindPredicate>
-    T* findAndRemove(const Key& key, const FindPredicate f) {
-        ValueList* list = fHash.find(key);
-
-        ValueList* prev = nullptr;
-        while (list) {
-            if (f(list->fValue)){
-                T* value = list->fValue;
-                this->internalRemove(prev, list, key);
-                return value;
-            }
-            prev = list;
             list = list->fNext;
         }
         return nullptr;
@@ -173,24 +168,6 @@ public:
 private:
     SkTDynamicHash<ValueList, Key> fHash;
     int fCount;
-
-    void internalRemove(ValueList* prev, ValueList* elem, const Key& key) {
-        if (elem->fNext) {
-            ValueList* next = elem->fNext;
-            elem->fValue = next->fValue;
-            elem->fNext = next->fNext;
-            delete next;
-        } else if (prev) {
-            prev->fNext = nullptr;
-            delete elem;
-        } else {
-            fHash.remove(key);
-            delete elem;
-        }
-
-        --fCount;
-    }
-
 };
 
 #endif

@@ -578,7 +578,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         result = this->gpuFilter(source, sigma, input, inputBounds, dstBounds,
                                  ctx.outputProperties());
     } else
-#endif
+    #endif
     {
         // If both sigmas will result in a zero width window, there is nothing to do.
         if (sigma.x() < kZeroWindow && sigma.y() < kZeroWindow) {

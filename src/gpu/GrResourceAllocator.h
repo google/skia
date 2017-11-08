@@ -54,6 +54,7 @@ public:
     }
 
     void assign();
+    SkDEBUGCODE(void dump();)
 
 private:
     class Interval;
@@ -71,7 +72,6 @@ private:
         }
 
         static uint32_t Hash(const GrScratchKey& key) { return key.hash(); }
-        static void OnFree(GrSurface* s) { s->unref(); }
     };
     typedef SkTMultiMap<GrSurface, GrScratchKey, FreePoolTraits> FreePoolMultiMap;
 
@@ -98,27 +98,12 @@ private:
             fNext = nullptr;
         }
 
-        const GrSurfaceProxy* proxy() const { return fProxy; }
-        GrSurfaceProxy* proxy() { return fProxy; }
-        unsigned int start() const { return fStart; }
-        unsigned int end() const { return fEnd; }
-        const Interval* next() const { return fNext; }
-        Interval* next() { return fNext; }
-
-        void setNext(Interval* next) { fNext = next; }
-
-        void extendEnd(unsigned int newEnd) {
-            SkASSERT(newEnd >= fEnd);
-            fEnd = newEnd;
-        }
-
         // for SkTDynamicHash
         static const uint32_t& GetKey(const Interval& intvl) {
             return intvl.fProxyID;
         }
         static uint32_t Hash(const uint32_t& key) { return key; }
 
-    private:
         GrSurfaceProxy* fProxy;
         uint32_t        fProxyID; // This is here b.c. DynamicHash requires a ref to the key
         unsigned int    fStart;
