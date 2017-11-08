@@ -124,14 +124,18 @@ bool GrTextureOpList::copySurface(const GrCaps& caps,
 }
 
 void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
-    if (!fRecordedOps.count()) {
-        return;
-    }
-
     unsigned int cur = alloc->numOps();
 
     // Add the interval for all the writes to this opList's target
-    alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);
+    if (fRecordedOps.count()) {
+        alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);
+    } else {
+        // This can happen if there is a loadOp (e.g., a clear) but no other draws. In this case we
+        // still need to add an interval for the destination so we create a fake op# for
+        // the missing clear op.
+        alloc->addInterval(fTarget.get());
+        alloc->incOps();
+    }
 
     auto gather = [ alloc ] (GrSurfaceProxy* p) {
         alloc->addInterval(p);
@@ -140,9 +144,11 @@ void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
         const GrOp* op = fRecordedOps[i].get(); // only diff from the GrRenderTargetOpList version
         if (op) {
             op->visitProxies(gather);
-
-            alloc->incOps();
         }
+
+        // Even though the op may have been moved we still need to increment the op count to
+        // keep all the math consistent.
+        alloc->incOps();
     }
 }
 
