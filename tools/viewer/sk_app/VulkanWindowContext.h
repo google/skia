@@ -95,6 +95,7 @@ private:
     VkPtr<PFN_vkAcquireNextImageKHR> fAcquireNextImageKHR;
     VkPtr<PFN_vkQueuePresentKHR> fQueuePresentKHR;
     VkPtr<PFN_vkCreateSharedSwapchainsKHR> fCreateSharedSwapchainsKHR;
+    VkPtr<PFN_vkGetDeviceQueue> fGetDeviceQueue;
 
     VkSurfaceKHR      fSurface;
     VkSwapchainKHR    fSwapchain;
