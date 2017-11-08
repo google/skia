@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "9a7c0a35_5d9e4e4c",
+        "filename": "src/core/SkTMultiMap.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-08T18:36:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ad428f8_81044a47",
+      "range": {
+        "startLine": 97,
+        "startChar": 37,
+        "endLine": 97,
+        "endChar": 58
+      },
+      "revId": "0028f68f495f92c050b1f8e21ca8f48608ca778c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "47141f63_bc2fa7c9",
         "filename": "src/gpu/GrResourceAllocator.h",
         "patchSetId": 5
@@ -120,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "a7031f42_d5a750b8",
+        "filename": "src/gpu/GrResourceAllocator.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-08T18:36:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47141f63_bc2fa7c9",
+      "range": {
+        "startLine": 110,
+        "startChar": 8,
+        "endLine": 111,
+        "endChar": 0
+      },
+      "revId": "0028f68f495f92c050b1f8e21ca8f48608ca778c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de982906_28112f6f",
         "filename": "src/gpu/GrSurface.cpp",
         "patchSetId": 5
@@ -131,6 +179,30 @@
       "writtenOn": "2017-11-08T14:36:35Z",
       "side": 1,
       "message": "Maybe not worth the complexity, but we could consider max tex/rt size here and below as well.",
+      "range": {
+        "startLine": 22,
+        "startChar": 4,
+        "endLine": 27,
+        "endChar": 31
+      },
+      "revId": "0028f68f495f92c050b1f8e21ca8f48608ca778c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9450cdb3_cc28486d",
+        "filename": "src/gpu/GrSurface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-08T18:36:07Z",
+      "side": 1,
+      "message": "Let me think about that a bit.",
+      "parentUuid": "de982906_28112f6f",
       "range": {
         "startLine": 22,
         "startChar": 4,
