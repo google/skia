@@ -5,12 +5,6 @@
 }
 
 @class {
-    enum PMConversion {
-        kToPremul_PMConversion   = 0,
-        kToUnpremul_PMConversion = 1,
-        kPMConversionCnt         = 2
-    };
-
     static bool TestForPreservingPMConversions(GrContext* context) {
         static constexpr int kSize = 256;
         static constexpr GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
@@ -137,11 +131,11 @@ void main() {
     sk_OutColor = floor(sk_InColor * 255 + 0.5) / 255;
 
     @switch (pmConversion) {
-        case 0 /* kToPremul_PMConversion */:
+        case kToPremul_PMConversion:
             sk_OutColor.rgb = floor(sk_OutColor.rgb * sk_OutColor.a * 255 + 0.5) / 255;
             break;
 
-        case 1 /* kToUnpremul_PMConversion */:
+        case kToUnpremul_PMConversion:
             sk_OutColor.rgb = sk_OutColor.a <= 0.0 ?
                                           half3(0) :
                                           floor(sk_OutColor.rgb / sk_OutColor.a * 255 + 0.5) / 255;

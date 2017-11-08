@@ -20,12 +20,6 @@
 #include "GrCoordTransform.h"
 class GrConfigConversionEffect : public GrFragmentProcessor {
 public:
-    enum PMConversion {
-        kToPremul_PMConversion = 0,
-        kToUnpremul_PMConversion = 1,
-        kPMConversionCnt = 2
-    };
-
     static bool TestForPreservingPMConversions(GrContext* context) {
         static constexpr int kSize = 256;
         static constexpr GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;

@@ -39,6 +39,8 @@ public:
 
     Symbol* takeOwnership(Symbol* s);
 
+    IRNode* takeOwnership(IRNode* n);
+
     void markAllFunctionsBuiltin();
 
     const std::shared_ptr<SymbolTable> fParent;
@@ -46,7 +48,9 @@ public:
 private:
     static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
 
-    std::vector<std::unique_ptr<Symbol>> fOwnedPointers;
+    std::vector<std::unique_ptr<Symbol>> fOwnedSymbols;
+
+    std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
 
     std::unordered_map<StringFragment, const Symbol*> fSymbols;
 

@@ -16,6 +16,7 @@
 #include "ast/SkSLASTContinueStatement.h"
 #include "ast/SkSLASTDiscardStatement.h"
 #include "ast/SkSLASTDoStatement.h"
+#include "ast/SkSLASTEnum.h"
 #include "ast/SkSLASTExpression.h"
 #include "ast/SkSLASTExpressionStatement.h"
 #include "ast/SkSLASTExtension.h"
@@ -152,6 +153,7 @@ private:
     std::unique_ptr<Expression> convertTernaryExpression(const ASTTernaryExpression& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTVarDeclarationStatement& s);
     std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);
+    void convertEnum(const ASTEnum& e);
     std::unique_ptr<Block> applyInvocationIDWorkaround(
                                                  std::unique_ptr<Block> main,
                                                  std::vector<std::unique_ptr<ProgramElement>>* out);
@@ -159,6 +161,7 @@ private:
     void fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments);
     void checkValid(const Expression& expr);
     void markWrittenTo(const Expression& expr, bool readWrite);
+    void getConstantInt(const Expression& value, int64_t* out);
 
     const FunctionDeclaration* fCurrentFunction;
     std::unordered_map<String, Program::Settings::Value> fCapsMap;

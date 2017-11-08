@@ -1,4 +1,4 @@
-STRINGIFY(
+R"(
 
 // defines built-in interfaces supported by SkiaSL vertex shaders
 
@@ -11,5 +11,4 @@ out sk_PerVertex {
 layout(builtin=5) in int sk_VertexID;
 layout(builtin=6) in int sk_InstanceID;
 
-)
-
+)"

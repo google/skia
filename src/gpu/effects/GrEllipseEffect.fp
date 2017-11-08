@@ -72,16 +72,16 @@ void main() {
 
     half alpha;
     @switch (edgeType) {
-        case 0 /* kFillBW_GrProcessorEdgeType */:
+        case kFillBW_GrProcessorEdgeType:
             alpha = approx_dist > 0.0 ? 0.0 : 1.0;
             break;
-        case 1 /* kFillAA_GrProcessorEdgeType */:
+        case kFillAA_GrProcessorEdgeType:
             alpha = clamp(0.5 - approx_dist, 0.0, 1.0);
             break;
-        case 2 /* kInverseFillBW_GrProcessorEdgeType */:
+        case kInverseFillBW_GrProcessorEdgeType:
             alpha = approx_dist > 0.0 ? 1.0 : 0.0;
             break;
-        case 3 /* kInverseFillAA_GrProcessorEdgeType */:
+        case kInverseFillAA_GrProcessorEdgeType:
             alpha = clamp(0.5 + approx_dist, 0.0, 1.0);
             break;
         default:

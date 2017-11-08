@@ -124,6 +124,8 @@ private:
 
     std::unique_ptr<ASTDeclaration> section();
 
+    std::unique_ptr<ASTDeclaration> enumDeclaration();
+
     std::unique_ptr<ASTDeclaration> declaration();
 
     std::unique_ptr<ASTVarDeclarations> varDeclarations();

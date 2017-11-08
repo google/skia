@@ -28,8 +28,6 @@
 #include "spirv-tools/libspirv.hpp"
 #endif
 
-#define STRINGIFY(x) #x
-
 // include the built-in shader symbols as static strings
 
 static const char* SKSL_INCLUDE =
@@ -49,6 +47,7 @@ static const char* SKSL_GEOM_INCLUDE =
 ;
 
 static const char* SKSL_FP_INCLUDE =
+#include "sksl_enums.include"
 #include "sksl_fp.include"
 ;
 

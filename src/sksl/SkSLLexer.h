@@ -93,6 +93,8 @@ struct Token {
         LAYOUT,
 #undef PRECISION
         PRECISION,
+#undef ENUM
+        ENUM,
 #undef IDENTIFIER
         IDENTIFIER,
 #undef DIRECTIVE

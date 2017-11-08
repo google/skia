@@ -36,6 +36,7 @@ HASSIDEEFFECTS = "sk_has_side_effects"
 STRUCT         = "struct"
 LAYOUT         = "layout"
 PRECISION      = "precision"
+ENUM           = "enum"
 IDENTIFIER     = [a-zA-Z_$]([0-9]|[a-zA-Z_$])*
 DIRECTIVE      = #[a-zA-Z_$]([0-9]|[a-zA-Z_$])*
 SECTION        = @[a-zA-Z_$]([0-9]|[a-zA-Z_$])*

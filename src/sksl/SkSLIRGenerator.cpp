@@ -437,8 +437,8 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTSwitchStatement& 
                 fErrors.error(caseValue->fOffset, "case value must be a constant");
                 return nullptr;
             }
-            ASSERT(caseValue->fKind == Expression::kIntLiteral_Kind);
-            int64_t v = ((IntLiteral&) *caseValue).fValue;
+            int64_t v;
+            this->getConstantInt(*caseValue, &v);
             if (caseValues.find(v) != caseValues.end()) {
                 fErrors.error(caseValue->fOffset, "duplicate case value");
             }
@@ -787,6 +787,47 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
                                                               intf.fInstanceName,
                                                               std::move(sizes),
                                                               fSymbolTable));
+}
+
+void IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
+    switch (value.fKind) {
+        case Expression::kIntLiteral_Kind:
+            *out = ((const IntLiteral&) value).fValue;
+            break;
+        case Expression::kVariableReference_Kind: {
+            const Variable& var = ((VariableReference&) value).fVariable;
+            if ((var.fModifiers.fFlags & Modifiers::kConst_Flag) &&
+                var.fInitialValue) {
+                this->getConstantInt(*var.fInitialValue, out);
+            }
+            break;
+        }
+        default:
+            fErrors.error(value.fOffset, "expected a constant int");
+    }
+}
+
+void IRGenerator::convertEnum(const ASTEnum& e) {
+    std::vector<Variable*> variables;
+    int64_t currentValue = 0;
+    Layout layout;
+    Modifiers modifiers(layout, Modifiers::kConst_Flag);
+    for (size_t i = 0; i < e.fNames.size(); i++) {
+        std::unique_ptr<Expression> value;
+        if (e.fValues[i]) {
+            value = this->convertExpression(*e.fValues[i]);
+            this->getConstantInt(*value, &currentValue);
+        }
+        value = std::unique_ptr<Expression>(new IntLiteral(fContext, e.fOffset, currentValue));
+        ++currentValue;
+        auto var = std::unique_ptr<Variable>(new Variable(e.fOffset, modifiers, e.fNames[i],
+                                                          *fContext.fInt_Type,
+                                                          Variable::kGlobal_Storage,
+                                                          value.get()));
+        variables.push_back(var.get());
+        fSymbolTable->add(e.fNames[i], std::move(var));
+        fSymbolTable->takeOwnership(value.release());
+    }
 }
 
 const Type* IRGenerator::convertType(const ASTType& type) {
@@ -1967,6 +2008,10 @@ void IRGenerator::convertProgram(const char* text,
                 if (s) {
                     out->push_back(std::move(s));
                 }
+                break;
+            }
+            case ASTDeclaration::kEnum_Kind: {
+                this->convertEnum((ASTEnum&) decl);
                 break;
             }
             case ASTDeclaration::kFunction_Kind: {

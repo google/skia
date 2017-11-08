@@ -1,4 +1,4 @@
-STRINGIFY(
+R"(
 
 // defines built-in interfaces supported by SkiaSL fragment shaders
 
@@ -18,4 +18,4 @@ layout(builtin=9999) out half4 gl_SecondaryFragColorEXT;
 
 layout(location=0,index=0,builtin=10001) out half4 sk_FragColor;
 
-)
+)"
