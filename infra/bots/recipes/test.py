@@ -702,6 +702,9 @@ def dm_flags(api, bot):
   if 'PowerVRGX6250' in bot:
     match.append('~gradients_view_perspective_nodither') #skia:6972
 
+  if 'Chromecast' in bot:
+    blacklist(['_', 'gm', '_', 'verylarge_picture_image'])
+
   if blacklisted:
     args.append('--blacklist')
     args.extend(blacklisted)
