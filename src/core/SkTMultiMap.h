@@ -64,6 +64,7 @@ public:
         // Since we expect the caller to be fully aware of what is stored, just
         // assert that the caller removes an existing value.
         SkASSERT(list);
+
         ValueList* prev = nullptr;
         while (list->fValue != value) {
             prev = list;

@@ -367,6 +367,7 @@ void GrCoverageCountingPathRenderer::setupPerFlushResources(GrOnFlushResourcePro
         SkASSERT(atlasOp->bounds() == SkRect::MakeIWH(atlas->drawBounds().width(),
                                                       atlas->drawBounds().height()));
         if (auto rtc = atlas->finalize(onFlushRP, std::move(atlasOp))) {
+            rtc->accessRenderTarget();
             results->push_back(std::move(rtc));
         }
     }

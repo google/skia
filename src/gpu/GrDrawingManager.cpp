@@ -171,6 +171,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     }
 #endif
 
+    SkDebugf("Begin Resource Assignment ------------------------------------\n");
     {
         GrResourceAllocator alloc(fContext->resourceProvider());
         for (int i = 0; i < fOpLists.count(); ++i) {
