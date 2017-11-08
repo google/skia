@@ -22,17 +22,15 @@ public:
     const char* name() const override { return "CopySurface"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        func(fDst.get());
         func(fSrc.get());
     }
 
     SkString dumpInfo() const override {
         SkString string;
         string.append(INHERITED::dumpInfo());
-        string.printf("srcProxyID: %d, dstProxyID: %d,\n"
+        string.printf("srcProxyID: %d,\n"
                       "srcRect: [ L: %d, T: %d, R: %d, B: %d ], dstPt: [ X: %d, Y: %d ]\n",
                       fSrc.get()->uniqueID().asUInt(),
-                      fDst.get()->uniqueID().asUInt(),
                       fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight, fSrcRect.fBottom,
                       fDstPoint.fX, fDstPoint.fY);
         return string;
@@ -42,7 +40,6 @@ private:
     GrCopySurfaceOp(GrSurfaceProxy* dst, GrSurfaceProxy* src,
                     const SkIRect& srcRect, const SkIPoint& dstPoint)
             : INHERITED(ClassID())
-            , fDst(dst)
             , fSrc(src)
             , fSrcRect(srcRect)
             , fDstPoint(dstPoint) {
@@ -58,9 +55,6 @@ private:
 
     void onExecute(GrOpFlushState* state) override;
 
-    // For RenderTargetContexts 'fDst' is redundant with the RenderTarget that will be passed
-    // into onExecute in the drawOpArgs.
-    GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fDst;
     GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType>  fSrc;
     SkIRect                                              fSrcRect;
     SkIPoint                                             fDstPoint;

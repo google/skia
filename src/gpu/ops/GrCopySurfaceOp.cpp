@@ -80,8 +80,7 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrSurfaceProxy* dstProxy, GrSurfaceP
 }
 
 void GrCopySurfaceOp::onExecute(GrOpFlushState* state) {
-    if (!fDst.get()->instantiate(state->resourceProvider()) ||
-        !fSrc.get()->instantiate(state->resourceProvider())) {
+    if (!fSrc.get()->instantiate(state->resourceProvider())) {
         return;
     }
 
