@@ -16,6 +16,24 @@
       "revId": "85c6d9ac154103c80bc437169bbdba9265274b5d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26e56971_2b5f9f39",
+        "filename": "include/private/GrSharedEnums.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-11-08T16:31:55Z",
+      "side": 1,
+      "message": "Well, it depends upon your definition of \"a lot\" :-). It\u0027s definitely easier to do things the old-fashioned C way, which is why I opted for that approach.\n\nLemme do some experimenting and try to figure out how much more work it\u0027ll be.",
+      "parentUuid": "c19a5722_b2d8dc7a",
+      "revId": "85c6d9ac154103c80bc437169bbdba9265274b5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
