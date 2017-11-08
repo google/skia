@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c19a5722_b2d8dc7a",
+        "filename": "include/private/GrSharedEnums.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-08T16:27:27Z",
+      "side": 1,
+      "message": "Most of our newer enums are actually enum classes and we\u0027ve slowly been migrating old ones over as code gets refactored. Would it add a lot of complexity to make sksl\u0027s enums use that syntax (or a subset)?",
+      "revId": "85c6d9ac154103c80bc437169bbdba9265274b5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
