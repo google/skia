@@ -1,0 +1,348 @@
+#Topic IPoint
+#Alias IPoints
+#Alias IPoint_Reference
+
+#Struct SkIPoint
+
+SkIPoint holds two 32 bit integer coordinates
+
+#Topic Overview
+
+#Subtopic Subtopics
+#ToDo manually add subtopics ##
+#Table
+#Legend
+# topics # description ##
+#Legend ##
+#Table ##
+##
+
+#Subtopic Operators
+#Table
+#Legend
+# description                                              # function ##
+#Legend ##
+# SkIPoint operator-() const                               # Reverses the sign of both members. ##
+# SkIPoint operator+(const SkIPoint& a, const SkIPoint& b) # Returns IPoint offset by vector. ##
+# SkIPoint operator-(const SkIPoint& a, const SkIPoint& b) # Returns vector between IPoints. ##
+# bool operator!=(const SkIPoint& a, const SkIPoint& b)    # Returns true if members are unequal. ##
+# bool operator==(const SkIPoint& a, const SkIPoint& b)    # Returns true if members are equal. ##
+# void operator+=(const SkIPoint& v)                       # Offsets members by vector. ##
+# void operator-=(const SkIPoint& v)                       # Offsets Point opposite of vector. ##
+#Table ##
+#Subtopic ##
+
+#Subtopic Member_Functions
+#Table
+#Legend
+# description  # function ##
+#Legend ##
+# Make         # Constructs from integer inputs. ##
+# equals()     # Returns true if members are equal. ##
+# isZero       # Returns true if both members equal zero. ##
+# set()        # Sets to SkScalar input. ##
+# x()          # Returns fX. ##
+# y()          # Returns fY. ##
+#Table ##
+#Subtopic ##
+
+#Topic ##
+
+#Member int32_t  fX
+x-axis value used by IPoint. May contain any value, including
+infinities and NaN.
+##
+
+#Member int32_t  fY
+y-axis value used by IPoint. May contain any value, including
+infinities and NaN.
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkIPoint Make(int32_t x, int32_t y)
+
+Sets fX to x, fY to y.
+
+#Param x  integer x-axis value of constructed IPoint ##
+#Param y  integer y-axis value of constructed IPoint ##
+
+#Return IPoint (x, y) ##
+
+#Example
+SkIPoint pt1 = {45, 66};
+SkIPoint pt2 = SkPoint::Make(45, 66);
+SkDebugf("pt1 %c= pt2\n", pt1 == pt2 ? '=' : '!');
+#StdOut
+pt1 == pt2
+##
+##
+
+#SeeAlso set() setX setY SkPoint::iset SkPoint::Make
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int32_t x() const
+
+Returns x-axis value of IPoint.
+
+#Return fX ##
+
+#Example
+SkIPoint pt1 = {45, 66};
+SkDebugf("pt1.fX %c= pt1.x()\n", pt1.fX == pt1.x() ? '=' : '!');
+#StdOut
+pt1.fX == pt1.x()
+##
+##
+
+#SeeAlso y() setX() SkPoint::x()
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int32_t y() const
+
+Returns y-axis value of IPoint.
+
+#Return fY ##
+
+#Example
+SkIPoint pt1 = {45, 66};
+SkDebugf("pt1.fY %c= pt1.y()\n", pt1.fY == pt1.y() ? '=' : '!');
+#StdOut
+pt1.fY == pt1.y()
+##
+##
+
+#SeeAlso x() setY() SkPoint::y()
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isZero() const
+
+Returns true if fX and fY are both zero.
+
+#Return true if fX is zero and fY is zero ##
+
+#Example
+SkIPoint pt = { 0, -0};
+SkDebugf("pt.isZero() == %s\n", pt.isZero() ? "true" : "false");
+#StdOut
+pt.isZero() == true
+##
+##
+
+#SeeAlso setZero SkPoint::isZero
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void set(int32_t x, int32_t y)
+
+Sets fX to x and fY to y.
+
+#Param x  new value for fX ##
+#Param y  new value for fY ##
+
+#Example
+SkIPoint pt1, pt2 = { SK_MinS32, SK_MaxS32 };
+pt1.set(SK_MinS32, SK_MaxS32);
+SkDebugf("pt1 %c= pt2\n", pt1 == pt2 ? '=' : '!');
+#StdOut
+pt1 == pt2
+##
+##
+
+#SeeAlso Make setX setY
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkIPoint operator-() const
+
+Return a new point whose x and y coordinates are the negative of the
+original point's
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void operator+=(const SkIPoint& v)
+
+Add v's coordinates to this point's
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void operator-=(const SkIPoint& v)
+
+Subtract v's coordinates from this point's
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool equals(int32_t x, int32_t y) const
+
+Returns true if the point's coordinates equal (x,y)
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend bool operator==(const SkIPoint& a, const SkIPoint& b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend bool operator!=(const SkIPoint& a, const SkIPoint& b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend SkIPoint operator-(const SkIPoint& a, const SkIPoint& b)
+
+Returns a new point whose coordinates are the difference between
+a and b (i.e. a - b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend SkIPoint operator+(const SkIPoint& a, const SkIPoint& b)
+
+Returns a new point whose coordinates are the sum of a and b (a + b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static int32_t DotProduct(const SkIPoint& a, const SkIPoint& b)
+
+Returns the dot product of a and b, treating them as two dimensional vectors
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static int32_t CrossProduct(const SkIPoint& a, const SkIPoint& b)
+
+Returns the cross product of a and b, treating them as two dimensional vectors
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Struct SkIPoint ##
+
+#Topic IPoint ##

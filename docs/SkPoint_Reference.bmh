@@ -1,0 +1,1208 @@
+#Topic Point
+#Alias Points
+#Alias Point_Reference
+
+#Struct SkPoint
+
+#Topic Overview
+
+#Subtopic Subtopics
+#ToDo manually add subtopics ##
+#Table
+#Legend
+# topics # description ##
+#Legend ##
+#Table ##
+##
+
+#Subtopic Operators
+#Table
+#Legend
+# description                                                  # function ##
+#Legend ##
+# SkPoint operator*(SkScalar scale) const               # Returns members by scaled. ##
+# SkPoint operator-() const                             # Reverses the sign of both members. ##
+# SkPoint& operator*=(SkScalar scale)                   # Multiplies members by scale factor. ##
+# SkPoint operator+(const SkPoint& a, const SkPoint& b) # Returns Point offset by Vector. ##
+# SkPoint operator-(const SkPoint& a, const SkPoint& b) # Returns Vector between Points. ##
+# bool operator!=(const SkPoint& a, const SkPoint& b)   # Returns true if members are unequal. ##
+# bool operator==(const SkPoint& a, const SkPoint& b)   # Returns true if members are equal. ##
+# void operator+=(const SkPoint& v)                     # Offsets Point by Vector. ##
+# void operator-=(const SkPoint& v)                     # Offsets Point opposite of Vector. ##
+#Table ##
+#Subtopic ##
+
+#Subtopic Member_Functions
+#Table
+#Legend
+# description      # function ##
+#Legend ##
+# CrossProduct     # Returns cross product. ##
+# Distance         # Returns straight-line distance between points. ##
+# DotProduct       # Returns dot product. ##
+# Length           # Returns straight-line distance to origin. ##
+# Make             # Constructs from SkScalar inputs. ##
+# Normalize        # Sets length to one, and returns prior length. ##
+# Offset           # Translates Point array. ##
+# cross()          # Returns cross product. ##
+# distanceToOrigin # Returns straight-line distance to origin. ##
+# dot()            # Returns dot product. ##
+# equals()         # Returns true if members are equal. ##
+# isFinite         # Returns true if no member is infinite or NaN. ##
+# isZero           # Returns true if both members equal zero. ##
+# iset()           # Sets to integer input. ##
+# length()         # Returns straight-line distance to origin. ##
+# negate()         # Reverses the sign of both members. ##
+# normalize()      # Sets length to one, preserving direction. ##
+# offset()         # Translates members. ##
+# scale()          # Multiplies members by scale factor. ##
+# set()            # Sets to SkScalar input. ##
+# setAbs           # Sets sign of both members to positive. ##
+# setLength        # Sets straight-line distance to origin. ##
+# setNormalize     # Sets length to one, in direction of (x, y). ##
+# x()              # Returns fX. ##
+# y()              # Returns fY. ##
+#Table ##
+#Subtopic ##
+
+#Topic ##
+
+#Member SkScalar  fX
+x-axis value used by both Point and Vector. May contain any value, including
+infinities and NaN.
+##
+
+#Member SkScalar  fY
+y-axis value used by both Point and Vector. May contain any value, including
+infinities and NaN.
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkPoint Make(SkScalar x, SkScalar y)
+
+Sets fX to x, fY to y. Used both to set Point and Vector.
+
+#Param x  SkScalar x-axis value of constructed Point or Vector ##
+#Param y  SkScalar y-axis value of constructed Point or Vector ##
+
+#Return Point (x, y) ##
+
+#Example
+SkPoint pt1 = {45, 66};
+SkPoint pt2 = SkPoint::Make(45, 66);
+SkVector v1 = {45, 66};
+SkVector v2 = SkPoint::Make(45, 66);
+SkDebugf("all %s" "equal\n", pt1 == pt2 && pt2 == v1 && v1 == v2 ? "" : "not ");
+#StdOut
+all equal
+##
+##
+
+#SeeAlso set() iset() SkIPoint::Make
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar x() const
+
+Returns x-axis value of Point or Vector.
+
+#Return fX ##
+
+#Example
+SkPoint pt1 = {45, 66};
+SkDebugf("pt1.fX %c= pt1.x()\n", pt1.fX == pt1.x() ? '=' : '!');
+#StdOut
+pt1.fX == pt1.x()
+##
+##
+
+#SeeAlso y() SkIPoint::x()
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar y() const
+
+Returns y-axis value of Point or Vector.
+
+#Return fY ##
+
+#Example
+SkPoint pt1 = {45, 66};
+SkDebugf("pt1.fY %c= pt1.y()\n", pt1.fY == pt1.y() ? '=' : '!');
+#StdOut
+pt1.fY == pt1.y()
+##
+##
+
+#SeeAlso x() SkIPoint::y()
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isZero() const
+
+Returns true if fX and fY are both zero.
+
+#Return true if fX is zero and fY is zero ##
+
+#Example
+SkPoint pt = { 0.f, -0.f};
+SkDebugf("pt.fX=%c%g pt.fY=%c%g\n", std::signbit(pt.fX) ? '-' : '+', fabsf(pt.fX),
+                                    std::signbit(pt.fY) ? '-' : '+', fabsf(pt.fY));
+SkDebugf("pt.isZero() == %s\n", pt.isZero() ? "true" : "false");
+#StdOut
+pt.fX=+0 pt.fY=-0
+pt.isZero() == true
+##
+##
+
+#SeeAlso isFinite canNormalize SkIPoint::isZero
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void set(SkScalar x, SkScalar y)
+
+Sets fX to x and fY to y.
+
+#Param x  new value for fX ##
+#Param y  new value for fY ##
+
+#Example
+SkPoint pt1, pt2 = { SK_ScalarPI, SK_ScalarSqrt2 };
+pt1.set(SK_ScalarPI, SK_ScalarSqrt2);
+SkDebugf("pt1 %c= pt2\n", pt1 == pt2 ? '=' : '!');
+#StdOut
+pt1 == pt2
+##
+##
+
+#SeeAlso iset Make
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void iset(int32_t x, int32_t y)
+
+Sets fX to x and fY to y, promoting integers to SkScalar values.
+
+Assigning a large integer value directly to fX or fY may cause a compiler 
+error, triggered by narrowing conversion of int to SkScalar. This safely
+casts x and y to avoid the error. 
+
+#Param x  new value for fX ##
+#Param y  new value for fY ##
+
+#Example
+SkPoint pt1, pt2 = { SK_MinS16, SK_MaxS16 };
+pt1.iset(SK_MinS16, SK_MaxS16);
+SkDebugf("pt1 %c= pt2\n", pt1 == pt2 ? '=' : '!');
+##
+
+#SeeAlso set Make SkIPoint::set
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void iset(const SkIPoint& p)
+
+Sets fX to p.fX and fY to p.fY, promoting integers to SkScalar values.
+
+Assigning an IPoint containing a large integer value directly to fX or fY may
+cause a compiler error, triggered by narrowing conversion of int to SkScalar.
+This safely casts p.fX and p.fY to avoid the error. 
+
+#Param p  IPoint members promoted to SkScalar. ##
+
+#Example
+SkIPoint iPt = { SK_MinS32, SK_MaxS32 };
+SkPoint fPt;
+fPt.iset(iPt);
+SkDebugf("iPt: %d, %d\n", iPt.fX, iPt.fY);
+SkDebugf("fPt: %g, %g\n", fPt.fX, fPt.fY);
+#StdOut
+iPt: -2147483647, 2147483647
+fPt: -2.14748e+09, 2.14748e+09
+##
+##
+
+#SeeAlso set Make SkIPoint::set
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setAbs(const SkPoint& pt)
+
+Sets fX to absolute value of pt.fX; and fY to absolute value of pt.fY.
+
+#Param pt  members providing magnitude for fX and fY ##
+
+#Example
+SkPoint test[] = { {0.f, -0.f}, {-1, -2},
+                   { SK_ScalarInfinity, SK_ScalarNegativeInfinity },
+                   { SK_ScalarNaN, -SK_ScalarNaN } };
+for (const SkPoint& pt : test) {
+    SkPoint absPt;
+    absPt.setAbs(pt);
+    SkDebugf("pt: %g, %g  abs: %g, %g\n", pt.fX, pt.fY, absPt.fX, absPt.fY);
+}
+#StdOut
+pt: 0, -0  abs: 0, 0
+pt: -1, -2  abs: 1, 2
+pt: inf, -inf  abs: inf, inf
+pt: nan, -nan  abs: nan, nan
+##
+##
+
+#SeeAlso set Make negate 
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static void Offset(SkPoint points[], int count, const SkPoint& offset)
+
+Adds offset to each Point in points array with count entries.
+
+#Param points  Point array ##
+#Param count  entries in array ##
+#Param offset  Vector added to points ##
+
+#Example
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 },
+                         { 6, 4 }, { 7, 5 }, { 5, 7 },
+                         { 4, 6 }, { 3, 7 }, { 1, 5 },
+                         { 2, 4 }, { 1, 3 }, { 3, 1 } };
+    canvas->scale(30, 15);
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);
+    SkPoint::Offset(points, SK_ARRAY_COUNT(points), { 1, 9 } );
+    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);
+##
+
+#SeeAlso offset operator+=(const SkPoint& v)
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static void Offset(SkPoint points[], int count, SkScalar dx, SkScalar dy)
+
+Adds offset (dx, dy) to each Point in points array of length count.
+
+#Param points  Point array ##
+#Param count  entries in array ##
+#Param dx  added to fX in points ##
+#Param dy  added to fY in points ##
+
+#Example
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 },
+                         { 6, 4 }, { 7, 5 }, { 5, 7 },
+                         { 4, 6 }, { 3, 7 }, { 1, 5 },
+                         { 2, 4 }, { 1, 3 }, { 3, 1 } };
+    canvas->scale(30, 15);
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);
+    SkPoint::Offset(points, SK_ARRAY_COUNT(points), 1, 9);
+    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);
+##
+
+#SeeAlso offset operator+=(const SkPoint& v)
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void offset(SkScalar dx, SkScalar dy)
+
+Adds offset (dx, dy) to Point.
+
+#Param dx  added to fX ##
+#Param dy  added to fY ##
+
+#Example
+#Height 128
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 },
+                         { 6, 4 }, { 7, 5 }, { 5, 7 },
+                         { 4, 6 }, { 3, 7 }, { 1, 5 },
+                         { 2, 4 }, { 1, 3 }, { 3, 1 } };
+    canvas->scale(30, 15);
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);
+    points[1].offset(1, 1);
+    paint.setColor(SK_ColorRED);
+    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);
+##
+
+#SeeAlso Offset operator+=(const SkPoint& v)
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar length() const
+
+Returns the Euclidian_Distance from origin, computed as:
+#Code
+sqrt(fX * fX + fY * fY)
+##
+.
+
+#Return straight-line distance to origin ##
+
+#Example
+#Height 192
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    const SkPoint points[] = { { 90, 30 }, { 120, 150 }, { 150, 30 }, { 210, 90 } };
+    const SkPoint origin = {30, 140};
+    for (auto point : points) {
+        canvas->drawLine(origin, point, paint);
+        SkAutoCanvasRestore acr(canvas, true);
+        SkScalar angle = SkScalarATan2((point.fY - origin.fY), point.fX - origin.fX);
+        canvas->rotate(angle * 180 / SK_ScalarPI, origin.fX, origin.fY);
+        SkString length("length = ");
+        length.appendScalar(point.length());
+        canvas->drawString(length, origin.fX + 25, origin.fY - 4, paint);
+    }
+##
+
+#SeeAlso distanceToOrigin Length setLength Distance
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar distanceToOrigin() const
+
+Returns the Euclidian_Distance from origin, computed as:
+#Code
+sqrt(fX * fX + fY * fY)
+##
+.
+
+#Return straight-line distance to origin ##
+
+#Example
+#Height 192
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    const SkPoint points[] = { { 60, -110 }, { 90, 10 }, { 120, -110 }, { 180, -50 } };
+    const SkPoint origin = {0, 0};
+    canvas->translate(30, 140);
+    for (auto point : points) {
+        canvas->drawLine(origin, point, paint);
+        SkAutoCanvasRestore acr(canvas, true);
+        SkScalar angle = SkScalarATan2((point.fY - origin.fY), point.fX - origin.fX);
+        canvas->rotate(angle * 180 / SK_ScalarPI, origin.fX, origin.fY);
+        SkString distance("distance = ");
+        distance.appendScalar(point.distanceToOrigin());
+        canvas->drawString(distance, origin.fX + 25, origin.fY - 4, paint);
+    }
+##
+
+#SeeAlso length Length setLength Distance
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool normalize()
+
+Scales (fX, fY) so that length() returns one, while preserving ratio of fX to fY,
+if possible. If prior length is nearly zero, sets Point to (0, 0) and returns
+false; otherwise returns true.
+
+#Return true if former length is not zero or nearly zero ##
+
+#Example
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    const SkPoint lines[][2] = { {{  30, 110 }, { 190,  30 }},
+                                 {{ 120, 140 }, {  30, 220 }}};
+    for (auto line : lines) {
+        canvas->drawLine(line[0], line[1], paint);
+        SkVector vector = line[1] - line[0];
+        if (vector.normalize()) {
+            SkVector rotate90 = { -vector.fY, vector.fX };
+            rotate90 *= 10.f;
+            canvas->drawLine(line[0] - rotate90, line[0] + rotate90, paint);
+            canvas->drawLine(line[1] - rotate90, line[1] + rotate90, paint);
+        }
+    }
+##
+
+#SeeAlso Normalize setLength length Length
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setNormalize(SkScalar x, SkScalar y)
+
+Sets Point to (x, y) scaled so length() returns one, and so that
+(fX, fY) is proportional to (x, y).  If Vector (x, y) length is nearly zero,
+sets Point to (0, 0) and returns false; otherwise returns true.
+
+#Param x  proportional value for fX ##
+#Param y  proportional value for fY ##
+
+#Return true if (x, y) length is not zero or nearly zero ##
+
+#Example
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    const SkPoint points[] = { { 60, -110 }, { 90, 10 }, { 120, -110 }, { 180, -50 } };
+    const SkPoint origin = {0, 0};
+    canvas->translate(30, 140);
+    for (auto point : points) {
+        paint.setStrokeWidth(1);
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawLine(origin, point, paint);
+        SkPoint normal;
+        normal.setNormalize(point.fX, point.fY);
+        normal *= 100;
+        paint.setStrokeWidth(10);
+        paint.setColor(0x3f4512bf);
+        canvas->drawLine(origin, normal, paint);
+    }
+##
+
+#SeeAlso normalize setLength
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setLength(SkScalar length)
+
+Scales Point so that distanceToOrigin returns length, if possible. If former
+length is nearly zero, sets Point to (0, 0) and return false; otherwise returns
+true.
+
+#Param length  straight-line distance to origin ##
+
+#Return true if former length is not zero or nearly zero  ##
+
+#Example
+#Height 160
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    const SkPoint points[] = { { 60, -110 }, { 90, 10 }, { 120, -110 }, { 180, -50 } };
+    const SkPoint origin = {0, 0};
+    canvas->translate(30, 140);
+    for (auto point : points) {
+        paint.setStrokeWidth(1);
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawLine(origin, point, paint);
+        SkPoint normal = point;
+        normal.setLength(100);
+        paint.setStrokeWidth(10);
+        paint.setColor(0x3f45bf12);
+        canvas->drawLine(origin, normal, paint);
+    }
+##
+
+#SeeAlso length Length setNormalize setAbs
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setLength(SkScalar x, SkScalar y, SkScalar length)
+
+Sets Point to (x, y) scaled to length, if possible. If former
+length is nearly zero, sets Point to (0, 0) and return false; otherwise returns
+true.
+
+#Param x  proportional value for fX ##
+#Param y  proportional value for fY ##
+#Param length  straight-line distance to origin ##
+
+#Return true if (x, y) length is not zero or nearly zero ##
+
+#Example
+#Height 160
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    const SkPoint points[] = { { 60, -110 }, { 90, 10 }, { 120, -110 }, { 180, -50 } };
+    const SkPoint origin = {0, 0};
+    canvas->translate(30, 140);
+    for (auto point : points) {
+        paint.setStrokeWidth(1);
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawLine(origin, point, paint);
+        SkPoint normal;
+        normal.setLength(point.fX, point.fY, 100);
+        paint.setStrokeWidth(10);
+        paint.setColor(0x3fbf4512);
+        canvas->drawLine(origin, normal, paint);
+    }
+##
+
+#SeeAlso length Length setNormalize setAbs
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void scale(SkScalar scale, SkPoint* dst) const
+
+Sets dst to Point times scale. dst may be Point to modify Point in place.
+
+#Param scale  factor to multiply Point by ##
+#Param dst  storage for scaled Point ##
+
+#Example
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPoint point = {40, -15}, scaled;
+    SkPoint origin = {30, 110};
+    for (auto scale : {1, 2, 3, 5}) {
+        paint.setStrokeWidth(scale * 5);
+        paint.setARGB(0x7f, 0x9f, 0xbf, 0x33 * scale);
+        point.scale(scale, &scaled);
+        canvas->drawLine(origin, origin + scaled, paint);
+    }
+##
+
+#SeeAlso operator*(SkScalar scale) operator*=(SkScalar scale) setLength
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void scale(SkScalar value)
+
+Scales Point in place by scale.
+
+#Param value  factor to multiply Point by ##
+
+#Example
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPoint point = {40, -15};
+    SkPoint origin = {30, 110};
+    for (auto scale : {1, 2, 3, 5}) {
+        paint.setStrokeWidth(scale * 5);
+        paint.setARGB(0x7f, 0x9f, 0xbf, 0x33 * scale);
+        point.scale(scale);
+        canvas->drawLine(origin, origin + point, paint);
+    }
+##
+
+#SeeAlso operator*(SkScalar scale) operator*=(SkScalar scale) setLength
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void negate()
+
+Negate the point's coordinates
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkPoint operator-() const
+
+Returns a new point whose coordinates are the negative of the point's
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void operator+=(const SkPoint& v)
+
+Add v's coordinates to the point's
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void operator-=(const SkPoint& v)
+
+Subtract v's coordinates from the point's
+
+#Param v  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkPoint operator*(SkScalar scale) const
+
+#Param scale  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkPoint& operator*=(SkScalar scale)
+
+#Param scale  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isFinite() const
+
+Returns true if both fX and fY are finite (not infinity or NaN)
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool equals(SkScalar x, SkScalar y) const
+
+Returns true if the point's coordinates equal (x, y)
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend bool operator==(const SkPoint& a, const SkPoint& b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend bool operator!=(const SkPoint& a, const SkPoint& b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool equalsWithinTolerance(const SkPoint& p) const
+
+Return true if this point and the given point are far enough apart
+such that a vector between them would be non-degenerate.
+
+Unlike the explicit tolerance version,
+this method does not use componentwise comparison.  Instead, it
+uses a comparison designed to match judgments elsewhere regarding
+degeneracy ("this and p are so close that the vector between them
+is essentially zero").
+
+#Param p  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool equalsWithinTolerance(const SkPoint& p, SkScalar tol) const
+
+There is no guarantee that the result will reflect judgments
+elsewhere regarding degeneracy ("this and p are so close that the
+vector between them is essentially zero").
+
+#Param p  incomplete ##
+#Param tol  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend SkPoint operator-(const SkPoint& a, const SkPoint& b)
+
+Returns a new point 
+#Formula
+(a.fX - b.fX, a.fY - b.fY)
+##
+.
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method friend SkPoint operator+(const SkPoint& a, const SkPoint& b)
+
+Returns a new point whose coordinates are the sum of a's and b's (a + b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkScalar Length(SkScalar x, SkScalar y)
+
+Returns the euclidian distance from (0,0) to (x,y)
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkScalar Normalize(SkPoint* pt)
+
+Normalize pt, returning its previous length. If the prev length is too
+small (degenerate), set pt to (0,0) and return 0. This uses the same
+tolerance as CanNormalize.
+Note that this method may be significantly more expensive than
+the non-static normalize(), because it has to return the previous length
+of the point.  If you don't need the previous length, call the
+non-static normalize() method instead.
+
+#Param pt  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkScalar Distance(const SkPoint& a, const SkPoint& b)
+
+Returns the euclidian distance between a and b
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkScalar DotProduct(const SkPoint& a, const SkPoint& b)
+
+Returns the dot product of a and b, treating them as two dimensional vectors
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static SkScalar CrossProduct(const SkPoint& a, const SkPoint& b)
+
+Returns the cross product of a and b, treating them as two dimensional vectors
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar cross(const SkPoint& vec) const
+
+#Param vec  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar dot(const SkPoint& vec) const
+
+#Param vec  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar lengthSqd() const
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar distanceToSqd(const SkPoint& pt) const
+
+#Param pt  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Enum Side
+
+#Code
+    enum Side {
+        kLeft_Side = -1,
+        kOn_Side =  0,
+        kRight_Side =  1,
+    };
+##
+
+The side of a point relative to a line. If the line is from a to b then
+the values are consistent with the sign of (b-a) cross (pt-a)
+
+#Const kLeft_Side = -1
+##
+#Const kOn_Side =  0
+##
+#Const kRight_Side =  1
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Enum ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar distanceToLineBetweenSqd(const SkPoint& a,
+                                      const SkPoint& b,
+                                      Side* side = nullptr) const
+
+Returns the squared distance to the infinite line between two pts. Also
+optionally returns the side of the line that the pt falls on (looking
+along line from a to b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+#Param side  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar distanceToLineBetween(const SkPoint& a,
+                                   const SkPoint& b,
+                                   Side* side = nullptr) const
+
+Returns the distance to the infinite line between two pts. Also
+optionally returns the side of the line that the pt falls on (looking
+along the line from a to b)
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+#Param side  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar distanceToLineSegmentBetweenSqd(const SkPoint& a,
+                                             const SkPoint& b) const
+
+Returns the squared distance to the line segment between pts a and b
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkScalar distanceToLineSegmentBetween(const SkPoint& a,
+                                          const SkPoint& b) const
+
+Returns the distance to the line segment between pts a and b.
+
+#Param a  incomplete ##
+#Param b  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void setOrthog(const SkPoint& vec, Side side = kLeft_Side)
+
+Make this vector be orthogonal to vec. Looking down vec the
+new vector will point in direction indicated by side (which
+must be kLeft_Side or kRight_Side).
+
+#Param vec  incomplete ##
+#Param side  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkScalar* asScalars() const
+
+Returns Point as an SkScalar array with two entries.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Struct SkPoint ##
+
+#Method static inline bool SkPointsAreFinite(const SkPoint array[], int count)
+
+#Param array incomplete ##
+#Param count incomplete ##
+
+#Return   incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+##
+
+#Topic Point ##
+
+# ------------------------------------------------------------------------------
+
+#Topic Vector
+#Alias Vectors
+
+#Typedef SkPoint SkVector
+
+##
+
+##
