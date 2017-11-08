@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db1a9f8a_83a356b9",
+        "filename": "include/private/SkFixed.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-08T20:38:19Z",
+      "side": 1,
+      "message": "From what I can tell, __ARM_VFPV3__ is not defined for aarch64, and SK_ARM_ARCH is only defined if SK_CPU_ARM32, so this is still not enabled for arm64.",
+      "revId": "c55a7d648b6e318b71a1b2b88b67e16ca9215a36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
