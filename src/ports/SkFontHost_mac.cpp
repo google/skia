@@ -1484,6 +1484,20 @@ static void CFStringToSkString(CFStringRef src, SkString* dst) {
     dst->resize(strlen(dst->c_str()));
 }
 
+static void set_advanced_typeface_flags(SkOTTableOS2_V4::Type fsType,
+                                        SkAdvancedTypefaceMetrics* info) {
+    SkASSERT(info);
+    if (fsType.raw.value != 0) {
+        if (SkToBool(fsType.field.Restricted) ||
+            SkToBool(fsType.field.Bitmap) ||
+            SkToBool(fsType.field.PreviewPrint)) {
+            info->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
+        } else if (SkToBool(fsType.field.NoSubsetting)) {
+            info->fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
+        }
+    }
+}
+
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics() const {
 
     AUTO_CG_LOCK();
@@ -1515,6 +1529,14 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
     CFIndex glyphCount = CTFontGetGlyphCount(ctFont.get());
 
     populate_glyph_to_unicode(ctFont.get(), glyphCount, &info->fGlyphToUnicode);
+
+    SkOTTableOS2_V4::Type fsType;
+    if (sizeof(fsType) == this->getTableData(SkTEndian_SwapBE32(SkOTTableOS2::TAG),
+                                             offsetof(SkOTTableOS2_V4, fsType),
+                                             sizeof(fsType),
+                                             &fsType)) {
+        set_advanced_typeface_flags(fsType, ingo.get());
+    }
 
     // If it's not a truetype font, mark it as 'other'. Assume that TrueType
     // fonts always have both glyf and loca tables. At the least, this is what

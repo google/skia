@@ -319,6 +319,20 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
     SkTDArray<SkUnichar>(glyphToUni, maxGlyph + 1).swap(*glyphToUnicode);
 }
 
+static void set_advanced_typeface_flags(SkOTTableOS2_V4::Type fsType,
+                                        SkAdvancedTypefaceMetrics* info) {
+    SkASSERT(info);
+    if (fsType.raw.value != 0) {
+        if (SkToBool(fsType.field.Restricted) ||
+            SkToBool(fsType.field.Bitmap) ||
+            SkToBool(fsType.field.PreviewPrint)) {
+            info->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
+        } else if (SkToBool(fsType.field.NoSubsetting)) {
+            info->fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
+        }
+    }
+}
+
 std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetrics() const {
 
     std::unique_ptr<SkAdvancedTypefaceMetrics> info(nullptr);
@@ -371,6 +385,8 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
     if (!headTable.fExists || !postTable.fExists || !hheaTable.fExists || !os2Table.fExists) {
         return info;
     }
+
+    set_advanced_typeface_flags(os2Table->version.v4.fsType, info.get());
 
     // There are versions of DirectWrite which support named instances for system variation fonts,
     // but no means to indicate that such a typeface is a variation.
