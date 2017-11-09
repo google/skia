@@ -16,10 +16,7 @@ class GrPrimitiveProcessor;
 
 class GrProcessorAnalysisColor {
 public:
-    enum class Opaque {
-        kNo,
-        kYes,
-    };
+    using Opaque = GrYesNo;
 
     constexpr GrProcessorAnalysisColor(Opaque opaque = Opaque::kNo)
             : fFlags(opaque == Opaque::kYes ? kIsOpaque_Flag : 0), fColor(0) {}

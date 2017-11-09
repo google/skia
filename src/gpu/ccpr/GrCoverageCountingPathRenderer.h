@@ -32,8 +32,11 @@ class GrCoverageCountingPathRenderer
 
 public:
     static bool IsSupported(const GrCaps&);
+
+    using DrawCachablePaths = GrYesNo;
+
     static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(const GrCaps&,
-                                                                   bool drawCachablePaths);
+                                                                   DrawCachablePaths);
 
     ~GrCoverageCountingPathRenderer() override {
         // Ensure nothing exists that could have a dangling pointer back into this class.
@@ -123,8 +126,8 @@ public:
     };
 
 private:
-    GrCoverageCountingPathRenderer(bool drawCachablePaths)
-            : fDrawCachablePaths(drawCachablePaths) {}
+    GrCoverageCountingPathRenderer(DrawCachablePaths drawCachablePaths)
+            : fDrawCachablePaths(DrawCachablePaths::kYes == drawCachablePaths) {}
 
     void setupPerFlushResources(GrOnFlushResourceProvider*, const uint32_t* opListIDs,
                                 int numOpListIDs, SkTArray<sk_sp<GrRenderTargetContext>>* results);

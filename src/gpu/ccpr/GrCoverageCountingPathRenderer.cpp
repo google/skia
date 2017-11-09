@@ -38,7 +38,8 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
 }
 
 sk_sp<GrCoverageCountingPathRenderer>
-GrCoverageCountingPathRenderer::CreateIfSupported(const GrCaps& caps, bool drawCachablePaths) {
+GrCoverageCountingPathRenderer::CreateIfSupported(const GrCaps& caps,
+                                                  DrawCachablePaths drawCachablePaths) {
     auto ccpr = IsSupported(caps) ? new GrCoverageCountingPathRenderer(drawCachablePaths) : nullptr;
     return sk_sp<GrCoverageCountingPathRenderer>(ccpr);
 }
