@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "768a6aed_8bdb9898",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-09T22:08:52Z",
+      "side": 1,
+      "message": "Mostly personal preference for template code over macros. Maybe a guess that it *might* compile quicker?\n\nThis also gives us the ability to write template functions that take SkNamedBool\u003cT\u003e, if we ever come up with a need for that.",
+      "parentUuid": "8d84b4f7_cfee5db0",
+      "range": {
+        "startLine": 443,
+        "startChar": 9,
+        "endLine": 443,
+        "endChar": 24
+      },
+      "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb4ecb7c_1422b5a7",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 7
@@ -59,6 +83,24 @@
       "writtenOn": "2017-11-09T21:57:30Z",
       "side": 1,
       "message": "If you do keep the tag, you can do this in one line, I think, given that your code never needs to see the definition of the struct you\u0027re using as a tag.  You can just shove the declaration into the template arguments...\n\n#define SK_MAKE_NAMED_BOOL(NAME) \\\n    using NAME \u003d SkTNamedBool\u003cstruct SkTNamedBool_NAME_##NAME\u003e\n\n(Pretty sure)",
+      "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec0c177f_d4629c8d",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-09T22:08:52Z",
+      "side": 1,
+      "message": "That would compile, however I think the struct is given global scope, meaning:\n\nclass Class1 {\n    SK_MAKE_NAMED_BOOL(SomeBool);\n};\n\nclass Class2 {\n    SK_MAKE_NAMED_BOOL(SomeBool);\n};\n\nClass1::SomeBool and Class2::SomeBool are the same type now and interchangeable.\n\nI can\u0027t think of a reason why not to just declare the struct at the correct scope though instead of putting in a definition.\n\n struct SkTNamedBool_NAME_##NAME;\n using NAME \u003d SkTNamedBool\u003cSkTNamedBool_NAME_##NAME\u003e;",
+      "parentUuid": "fb4ecb7c_1422b5a7",
       "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
