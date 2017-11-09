@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c470371_d4ebaf3a",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-09T20:00:42Z",
+      "side": 1,
+      "message": "I suppose this could also work as:\n\nstruct blahblahblah##NAME {}; using NAME \u003d SkNamedBool\u003cblahblahblah##NAME\u003e;",
+      "range": {
+        "startLine": 478,
+        "startChar": 8,
+        "endLine": 478,
+        "endChar": 26
+      },
+      "revId": "d0d638adf80209ab56b4c0497ed8aadd7f470b01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
