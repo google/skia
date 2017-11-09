@@ -615,6 +615,10 @@ static bool ShouldUseAAA(const SkPath& path) {
 
 void SkScan::SAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& ir,
                   const SkIRect& clipBounds, bool containedInClip, bool forceRLE) {
+#if !defined(SK_SUPPORT_LEGACY_AA_BEHAVIOR)
+    containedInClip = clipBounds.contains(ir);
+#endif
+
     bool isInverse = path.isInverseFillType();
 
     // MaskSuperBlitter can't handle drawing outside of ir, so we can't use it
