@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
  # For each installed *-dev package DEV
- for DEV in $(dpkg --list | grep '^ii  [^ ]' | cut -d ' ' -f 3 | grep '\-dev$')
+ for DEV in $(dpkg --list | grep '^ii  [^ ]' | cut -d ' ' -f 3 | grep -P '\-dev($|\:amd64$)')
  do
      # For each multi-arch *.so SO installed by DEV
      for DEV_64_SO in $(dpkg -L $DEV | grep '/lib/x86_64-linux-gnu/.*\.so$')
