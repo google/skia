@@ -372,6 +372,8 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
         return info;
     }
 
+    SkOTUtils::SetAdvanvedTypefaceFlags(os2Table->version.v4.fsType, info.get());
+
     // There are versions of DirectWrite which support named instances for system variation fonts,
     // but no means to indicate that such a typeface is a variation.
     AutoTDWriteTable<SkOTTableFontVariations> fvarTable(fDWriteFontFace.get());
