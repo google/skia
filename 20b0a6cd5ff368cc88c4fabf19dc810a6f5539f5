@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08dff539_29c7fb68",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-09T21:47:17Z",
+      "side": 1,
+      "message": "Should this be defined in SkTypes.h?\n\nIf this is starting to look like something we can agree on I can work on a comment and start polishing it up.",
+      "range": {
+        "startLine": 443,
+        "startChar": 32,
+        "endLine": 443,
+        "endChar": 44
+      },
+      "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
