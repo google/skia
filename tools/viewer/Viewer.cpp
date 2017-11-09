@@ -17,6 +17,7 @@
 #include "SkATrace.h"
 #include "SkCanvas.h"
 #include "SkColorSpace_Base.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformCanvas.h"
 #include "SkCommandLineFlags.h"
 #include "SkCommonFlagsGpuThreads.h"
@@ -270,6 +271,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fBackendType(sk_app::Window::kNativeGL_BackendType)
     , fColorMode(ColorMode::kLegacy)
     , fColorSpacePrimaries(gSrgbPrimaries)
+    // Our UI can only tweak gamma (currently), so start out gamma-only
+    , fColorSpaceTransferFn(g2Dot2_TransferFn)
     , fZoomLevel(0.0f)
     , fGestureDevice(GestureDevice::kNone)
 {
@@ -620,6 +623,10 @@ void Viewer::updateTitle() {
             }
         }
         title.appendf(" %s", curPrimaries >= 0 ? gNamedPrimaries[curPrimaries].fName : "Custom");
+
+        if (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) {
+            title.appendf(" Gamma %f", fColorSpaceTransferFn.fG);
+        }
     }
 
     if (fDisplayStats) {
@@ -812,7 +819,11 @@ void Viewer::drawSlide(SkCanvas* canvas) {
             ? SkColorSpace::kLinear_RenderTargetGamma : SkColorSpace::kSRGB_RenderTargetGamma;
         SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
         SkAssertResult(fColorSpacePrimaries.toXYZD50(&toXYZ));
-        cs = SkColorSpace::MakeRGB(transferFn, toXYZ);
+        if (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) {
+            cs = SkColorSpace::MakeRGB(fColorSpaceTransferFn, toXYZ);
+        } else {
+            cs = SkColorSpace::MakeRGB(transferFn, toXYZ);
+        }
     }
 
     // If we're in F16, or we're zooming, or we're in color correct 8888 and the gamut isn't sRGB,
@@ -1235,6 +1246,11 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                         primariesIdx = i;
                         break;
                     }
+                }
+
+                // When we're in xform canvas mode, we can alter the transfer function, too
+                if (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) {
+                    ImGui::SliderFloat("Gamma", &fColorSpaceTransferFn.fG, 0.5f, 3.5f);
                 }
 
                 if (ImGui::Combo("Primaries", &primariesIdx,
