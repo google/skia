@@ -4080,7 +4080,7 @@ Y-axis values above the baseline are negative, and below the baseline are positi
 
 ### Example
 
-<div><fiddle-embed name="b5b76e0a15da0c3530071186a9006498"></fiddle-embed></div>
+<div><fiddle-embed name="2bfa3783719fcd769af177a1b244e171"></fiddle-embed></div>
 
 # <a name="SkPaint_FontMetrics"></a> Struct SkPaint::FontMetrics
 
@@ -4120,8 +4120,13 @@ bool <a href="#SkPaint_FontMetrics_hasStrikeoutPosition">hasStrikeoutPosition(Sk
 computed by <a href="undocumented#Font_Manager">Font Manager</a> using <a href="undocumented#Typeface">Typeface</a>. Values are set to zero if they are
 not available.
 
+All vertical values relative to the baseline are given y-down. As such, zero is on the
+baseline, negative values are above the baseline, and positive values are below the
+baseline.
+
 <a href="#SkPaint_FontMetrics_fUnderlineThickness">fUnderlineThickness</a> and <a href="#SkPaint_FontMetrics_fUnderlinePosition">fUnderlinePosition</a> have a bit set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a> if their values
 are valid, since their value may be zero.
+
 <a href="#SkPaint_FontMetrics_fStrikeoutThickness">fStrikeoutThickness</a> and <a href="#SkPaint_FontMetrics_fStrikeoutPosition">fStrikeoutPosition</a> have a bit set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a> if their values
 are valid, since their value may be zero.
 
@@ -4163,28 +4168,28 @@ Fonts with embedded bitmaps may not have valid underline or strikeout metrics.
 
 <a name="SkPaint_FontMetrics_fTop"> <code><strong>SkScalar    fTop</strong></code> </a>
 
-Largest height for any glyph.
-A measure from the baseline, and is less than or equal to zero.
+Greatest extent above the baseline for any glyph.
+Typically less than zero.
 
 <a name="SkPaint_FontMetrics_fAscent"> <code><strong>SkScalar    fAscent</strong></code> </a>
 
 Recommended distance above the baseline to reserve for a line of text.
-A measure from the baseline, and is less than or equal to zero.
+Typically less than zero.
 
 <a name="SkPaint_FontMetrics_fDescent"> <code><strong>SkScalar    fDescent</strong></code> </a>
 
 Recommended distance below the baseline to reserve for a line of text.
-A measure from the baseline, and is greater than or equal to zero.
+Typically greater than zero.
 
 <a name="SkPaint_FontMetrics_fBottom"> <code><strong>SkScalar    fBottom</strong></code> </a>
 
-Greatest extent below the baseline for any glyph. 
-A measure from the baseline, and is greater than or equal to zero.
+Greatest extent below the baseline for any glyph.
+Typically greater than zero.
 
 <a name="SkPaint_FontMetrics_fLeading"> <code><strong>SkScalar    fLeading</strong></code> </a>
 
 Recommended distance to add between lines of text.
-Greater than or equal to zero.
+Typically greater than or equal to zero.
 
 <a name="SkPaint_FontMetrics_fAvgCharWidth"> <code><strong>SkScalar    fAvgCharWidth</strong></code> </a>
 
@@ -4197,7 +4202,7 @@ Maximum character width.
 
 <a name="SkPaint_FontMetrics_fXMin"> <code><strong>SkScalar    fXMin</strong></code> </a>
 
-Minimum bounding box x value for all <a href="#Glyph">Glyphs</a>. 
+Minimum bounding box x value for all <a href="#Glyph">Glyphs</a>.
 Typically less than zero.
 
 <a name="SkPaint_FontMetrics_fXMax"> <code><strong>SkScalar    fXMax</strong></code> </a>
@@ -4217,32 +4222,30 @@ May be zero if no upper-case height is stored in the font.
 
 <a name="SkPaint_FontMetrics_fUnderlineThickness"> <code><strong>SkScalar    fUnderlineThickness</strong></code> </a>
 
-Underline thickness. If the metric
-is valid, the <a href="#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag">kUnderlineThicknessIsValid Flag</a> is set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a>.
+Underline thickness.
+
+If the metric is valid, the <a href="#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag">kUnderlineThicknessIsValid Flag</a> is set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a>.
 If <a href="#SkPaint_FontMetrics_kUnderlineThicknessIsValid_Flag">kUnderlineThicknessIsValid Flag</a> is clear, <a href="#SkPaint_FontMetrics_fUnderlineThickness">fUnderlineThickness</a> is zero.
 
 <a name="SkPaint_FontMetrics_fUnderlinePosition"> <code><strong>SkScalar    fUnderlinePosition</strong></code> </a>
 
-Underline position relative to the baseline.
-It may be negative, to draw the underline above the baseline, zero
-to draw the underline on the baseline, or positive to draw the underline
-below the baseline. 
+Position of the top of the underline stroke relative to the baseline.
+Typically positive when valid.
 
 If the metric is valid, the <a href="#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag">kUnderlinePositionIsValid Flag</a> is set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a>.
 If <a href="#SkPaint_FontMetrics_kUnderlinePositionIsValid_Flag">kUnderlinePositionIsValid Flag</a> is clear, <a href="#SkPaint_FontMetrics_fUnderlinePosition">fUnderlinePosition</a> is zero.
 
 <a name="SkPaint_FontMetrics_fStrikeoutThickness"> <code><strong>SkScalar    fStrikeoutThickness</strong></code> </a>
 
-Strikeout thickness. If the metric
-is valid, the <a href="#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag">kStrikeoutThicknessIsValid Flag</a> is set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a>.
+Strikeout thickness.
+
+If the metric is valid, the <a href="#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag">kStrikeoutThicknessIsValid Flag</a> is set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a>.
 If <a href="#SkPaint_FontMetrics_kStrikeoutThicknessIsValid_Flag">kStrikeoutThicknessIsValid Flag</a> is clear, <a href="#SkPaint_FontMetrics_fStrikeoutThickness">fStrikeoutThickness</a> is zero.
 
 <a name="SkPaint_FontMetrics_fStrikeoutPosition"> <code><strong>SkScalar    fStrikeoutPosition</strong></code> </a>
 
-Strikeout position relative to the baseline.
-It may be negative, to draw the strikeout above the baseline, zero
-to draw the strikeout on the baseline, or positive to draw the strikeout
-below the baseline. 
+Position of the bottom of the strikeout stroke relative to the baseline.
+Typically negative when valid.
 
 If the metric is valid, the <a href="#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag">kStrikeoutPositionIsValid Flag</a> is set in <a href="#SkPaint_FontMetrics_fFlags">fFlags</a>.
 If <a href="#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag">kStrikeoutPositionIsValid Flag</a> is clear, <a href="#SkPaint_FontMetrics_fStrikeoutPosition">fStrikeoutPosition</a> is zero.
@@ -4254,7 +4257,7 @@ If <a href="#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag">kStrikeoutPosit
 bool hasUnderlineThickness(SkScalar* thickness) const
 </pre>
 
-If <a href="#Font_Metrics">Font Metrics</a> has a valid underline <a href="#SkPaint_FontMetrics_hasUnderlineThickness_thickness">thickness</a>, return true, and set 
+If <a href="#Font_Metrics">Font Metrics</a> has a valid underline <a href="#SkPaint_FontMetrics_hasUnderlineThickness_thickness">thickness</a>, return true, and set
 <a href="#SkPaint_FontMetrics_hasUnderlineThickness_thickness">thickness</a> to that value. If the underline <a href="#SkPaint_FontMetrics_hasUnderlineThickness_thickness">thickness</a> is not valid,
 return false, and ignore <a href="#SkPaint_FontMetrics_hasUnderlineThickness_thickness">thickness</a>.
 
@@ -4278,7 +4281,7 @@ true if font specifies underline width
 bool hasUnderlinePosition(SkScalar* position) const
 </pre>
 
-If <a href="#Font_Metrics">Font Metrics</a> has a valid underline <a href="#SkPaint_FontMetrics_hasUnderlinePosition_position">position</a>, return true, and set 
+If <a href="#Font_Metrics">Font Metrics</a> has a valid underline <a href="#SkPaint_FontMetrics_hasUnderlinePosition_position">position</a>, return true, and set
 <a href="#SkPaint_FontMetrics_hasUnderlinePosition_position">position</a> to that value. If the underline <a href="#SkPaint_FontMetrics_hasUnderlinePosition_position">position</a> is not valid,
 return false, and ignore <a href="#SkPaint_FontMetrics_hasUnderlinePosition_position">position</a>.
 
@@ -4302,7 +4305,7 @@ true if font specifies underline <a href="#SkPaint_FontMetrics_hasUnderlinePosit
 bool hasStrikeoutThickness(SkScalar* thickness) const
 </pre>
 
-If <a href="#Font_Metrics">Font Metrics</a> has a valid strikeout <a href="#SkPaint_FontMetrics_hasStrikeoutThickness_thickness">thickness</a>, return true, and set 
+If <a href="#Font_Metrics">Font Metrics</a> has a valid strikeout <a href="#SkPaint_FontMetrics_hasStrikeoutThickness_thickness">thickness</a>, return true, and set
 <a href="#SkPaint_FontMetrics_hasStrikeoutThickness_thickness">thickness</a> to that value. If the underline <a href="#SkPaint_FontMetrics_hasStrikeoutThickness_thickness">thickness</a> is not valid,
 return false, and ignore <a href="#SkPaint_FontMetrics_hasStrikeoutThickness_thickness">thickness</a>.
 
@@ -4326,7 +4329,7 @@ true if font specifies strikeout width
 bool hasStrikeoutPosition(SkScalar* position) const
 </pre>
 
-If <a href="#Font_Metrics">Font Metrics</a> has a valid strikeout <a href="#SkPaint_FontMetrics_hasStrikeoutPosition_position">position</a>, return true, and set 
+If <a href="#Font_Metrics">Font Metrics</a> has a valid strikeout <a href="#SkPaint_FontMetrics_hasStrikeoutPosition_position">position</a>, return true, and set
 <a href="#SkPaint_FontMetrics_hasStrikeoutPosition_position">position</a> to that value. If the underline <a href="#SkPaint_FontMetrics_hasStrikeoutPosition_position">position</a> is not valid,
 return false, and ignore <a href="#SkPaint_FontMetrics_hasStrikeoutPosition_position">position</a>.
 
