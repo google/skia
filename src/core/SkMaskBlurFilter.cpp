@@ -16,11 +16,7 @@
 
 static const double kPi = 3.14159265358979323846264338327950288;
 
-#if defined(SK_SUPPORT_LEGACY_USE_GAUSS_FOR_SMALL_RADII)
-    static constexpr double kSmallSigma = 0.0;
-#else
-    static constexpr double kSmallSigma = 2.0;
-#endif
+static constexpr double kSmallSigma = 2.0;
 
 class BlurScanInterface {
 public:
@@ -350,11 +346,7 @@ public:
         auto window3 = window2 * window;
         auto divisor = (window & 1) == 1 ? window3 : window3 + window2;
 
-        #if defined(SK_LEGACY_SUPPORT_INTEGER_SMALL_RADII)
-            fWeight = (static_cast<uint64_t>(1) << 32) / divisor;
-        #else
-            fWeight = static_cast<uint64_t>(round(1.0 / divisor * (1ull << 32)));
-        #endif
+        fWeight = static_cast<uint64_t>(round(1.0 / divisor * (1ull << 32)));
     }
 
     size_t bufferSize() const override { return fPass0Size + fPass1Size + fPass2Size; }
