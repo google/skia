@@ -920,12 +920,20 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             return SkPictureImageFilter::Make(std::move(picture), cropRect);
         }
         case 22: {
+            SkRect cropRect;
+            SkFilterQuality filterQuality;
+            fuzz->next(&cropRect, &filterQuality);
+            sk_sp<SkPicture> picture = make_fuzz_picture(fuzz, depth - 1);
+            return SkPictureImageFilter::MakeForLocalSpace(std::move(picture), cropRect,
+                                                           filterQuality);
+        }
+        case 23: {
             SkRect src, dst;
             fuzz->next(&src, &dst);
             sk_sp<SkImageFilter> input = make_fuzz_imageFilter(fuzz, depth - 1);
             return SkTileImageFilter::Make(src, dst, std::move(input));
         }
-        case 23: {
+        case 24: {
             SkBlendMode blendMode;
             bool useCropRect;
             fuzz->next(&useCropRect, &blendMode);
