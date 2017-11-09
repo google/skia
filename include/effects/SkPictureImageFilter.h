@@ -24,17 +24,6 @@ public:
      */
     static sk_sp<SkImageFilter> Make(sk_sp<SkPicture> picture, const SkRect& cropRect);
 
-    /**
-     *  Refs the passed-in picture. The picture is rasterized at a resolution that matches the
-     *  local coordinate space. If the picture needs to be resampled for drawing it into the
-     *  destination canvas, bilinear filtering will be used. cropRect can be used to crop or
-     *  expand the destination rect when the picture is drawn. (No scaling is implied by the
-     *  dest rect; only the CTM is applied.)
-     */
-    static sk_sp<SkImageFilter> MakeForLocalSpace(sk_sp<SkPicture> picture,
-                                                  const SkRect& cropRect,
-                                                  SkFilterQuality filterQuality);
-
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureImageFilter)
 

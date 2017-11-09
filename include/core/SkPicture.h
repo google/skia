@@ -201,10 +201,11 @@ private:
     // V56: Add TileMode in SkBlurImageFilter.
     // V57: Sweep tiling info.
     // V58: No more 2pt conical flipping.
+    // V59: No more LocalSpace option on PictureImageFilter
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t     MIN_PICTURE_VERSION = 51;     // Produced by Chrome ~M56.
-    static const uint32_t CURRENT_PICTURE_VERSION = 58;
+    static const uint32_t CURRENT_PICTURE_VERSION = 59;
 
     static bool IsValidPictInfo(const SkPictInfo& info);
     static sk_sp<SkPicture> Forwardport(const SkPictInfo&,
