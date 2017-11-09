@@ -89,7 +89,7 @@ struct SkOTUtils {
         bool fHasNext;
     };
 
-    static void SetAdvanvedTypefaceFlags(SkOTTableOS2_V4::Type fsType,
+    static void SetAdvancedTypefaceFlags(SkOTTableOS2_V4::Type fsType,
                                          SkAdvancedTypefaceMetrics* info);
 };
 
