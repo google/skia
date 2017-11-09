@@ -1521,7 +1521,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
                                              offsetof(SkOTTableOS2_V4, fsType),
                                              sizeof(fsType),
                                              &fsType)) {
-        SkOTUtils::SetAdvanvedTypefaceFlags(fsType, info.get());
+        SkOTUtils::SetAdvancedTypefaceFlags(fsType, info.get());
     }
 
     // If it's not a truetype font, mark it as 'other'. Assume that TrueType

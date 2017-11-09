@@ -204,7 +204,7 @@ SkOTUtils::LocalizedStrings_NameTable::familyNameTypes[3] = {
     SkOTTableName::Record::NameID::Predefined::WWSFamilyName,
 };
 
-void SkOTUtils::SetAdvanvedTypefaceFlags(SkOTTableOS2_V4::Type fsType,
+void SkOTUtils::SetAdvancedTypefaceFlags(SkOTTableOS2_V4::Type fsType,
                                          SkAdvancedTypefaceMetrics* info) {
     SkASSERT(info);
     // The logic should be identical to SkTypeface_FreeType::onGetAdvancedMetrics().
