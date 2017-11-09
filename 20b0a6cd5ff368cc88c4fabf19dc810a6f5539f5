@@ -72,6 +72,29 @@
     },
     {
       "key": {
+        "uuid": "f9fd0a3c_e0eb817a",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-09T22:13:53Z",
+      "side": 1,
+      "message": "Do we like this as a constructor? Or would a static Make method be better?",
+      "range": {
+        "startLine": 452,
+        "startChar": 35,
+        "endLine": 452,
+        "endChar": 56
+      },
+      "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb4ecb7c_1422b5a7",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 7
