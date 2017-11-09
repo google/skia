@@ -308,7 +308,7 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
         path.moveTo(pts[0]);
         path.lineTo(pts[1]);
         fRenderTargetContext->drawPath(this->clip(), std::move(grPaint),
-                                       GrBoolToAA(paint.isAntiAlias()), this->ctm(), path, style);
+                                       GrBoolToYesNo(paint.isAntiAlias()), this->ctm(), path, style);
         return;
     }
 
@@ -381,7 +381,7 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
 
     GrStyle style(paint);
     fRenderTargetContext->drawRect(this->clip(), std::move(grPaint),
-                                   GrBoolToAA(paint.isAntiAlias()), this->ctm(), rect, &style);
+                                   GrBoolToYesNo(paint.isAntiAlias()), this->ctm(), rect, &style);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -435,7 +435,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     SkASSERT(!style.pathEffect());
 
     fRenderTargetContext->drawRRect(this->clip(), std::move(grPaint),
-                                    GrBoolToAA(paint.isAntiAlias()), this->ctm(), rrect, style);
+                                    GrBoolToYesNo(paint.isAntiAlias()), this->ctm(), rrect, style);
 }
 
 
@@ -461,7 +461,7 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer,
         }
 
         fRenderTargetContext->drawDRRect(this->clip(), std::move(grPaint),
-                                         GrBoolToAA(paint.isAntiAlias()), this->ctm(), outer,
+                                         GrBoolToYesNo(paint.isAntiAlias()), this->ctm(), outer,
                                          inner);
         return;
     }
@@ -494,7 +494,7 @@ void SkGpuDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
     }
 
     fRenderTargetContext->drawRegion(this->clip(), std::move(grPaint),
-                                     GrBoolToAA(paint.isAntiAlias()), this->ctm(), region,
+                                     GrBoolToYesNo(paint.isAntiAlias()), this->ctm(), region,
                                      GrStyle(paint));
 }
 
@@ -523,7 +523,7 @@ void SkGpuDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
     }
 
     fRenderTargetContext->drawOval(this->clip(), std::move(grPaint),
-                                   GrBoolToAA(paint.isAntiAlias()), this->ctm(), oval,
+                                   GrBoolToYesNo(paint.isAntiAlias()), this->ctm(), oval,
                                    GrStyle(paint));
 }
 
@@ -541,7 +541,7 @@ void SkGpuDevice::drawArc(const SkRect& oval, SkScalar startAngle,
         return;
     }
 
-    fRenderTargetContext->drawArc(this->clip(), std::move(grPaint), GrBoolToAA(paint.isAntiAlias()),
+    fRenderTargetContext->drawArc(this->clip(), std::move(grPaint), GrBoolToYesNo(paint.isAntiAlias()),
                                   this->ctm(), oval, startAngle, sweepAngle, useCenter,
                                   GrStyle(paint));
 }
@@ -598,7 +598,7 @@ void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
     }
 
     fRenderTargetContext->fillRectWithLocalMatrix(
-            this->clip(), std::move(grPaint), GrBoolToAA(newPaint.isAntiAlias()), m, rect, local);
+            this->clip(), std::move(grPaint), GrBoolToYesNo(newPaint.isAntiAlias()), m, rect, local);
 }
 
 void SkGpuDevice::drawPath(const SkPath& origSrcPath,
@@ -1033,7 +1033,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     }
 
     // Coverage-based AA would cause seams between tiles.
-    GrAA aa = GrBoolToAA(paint.isAntiAlias() &&
+    GrAA aa = GrBoolToYesNo(paint.isAntiAlias() &&
                          GrFSAAType::kNone != fRenderTargetContext->fsaaType());
     fRenderTargetContext->drawRect(this->clip(), std::move(grPaint), aa, viewMatrix, dstRect);
 }
@@ -1108,7 +1108,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     fRenderTargetContext->fillRectToRect(
             this->clip(),
             std::move(grPaint),
-            GrBoolToAA(paint.isAntiAlias()),
+            GrBoolToYesNo(paint.isAntiAlias()),
             SkMatrix::I(),
             SkRect::Make(SkIRect::MakeXYWH(left + offset.fX, top + offset.fY, subset.width(),
                                            subset.height())),

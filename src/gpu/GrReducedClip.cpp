@@ -573,7 +573,7 @@ static bool stencil_element(GrRenderTargetContext* rtc,
                             const GrUserStencilSettings* ss,
                             const SkMatrix& viewMatrix,
                             const SkClipStack::Element* element) {
-    GrAA aa = GrBoolToAA(element->isAA());
+    GrAA aa = GrBoolToYesNo(element->isAA());
     switch (element->getDeviceSpaceType()) {
         case SkClipStack::Element::DeviceSpaceType::kEmpty:
             SkDEBUGFAIL("Should never get here with an empty element.");
@@ -649,7 +649,7 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
     for (ElementList::Iter iter(fMaskElements); iter.get(); iter.next()) {
         const Element* element = iter.get();
         SkRegion::Op op = (SkRegion::Op)element->getOp();
-        GrAA aa = GrBoolToAA(element->isAA());
+        GrAA aa = GrBoolToYesNo(element->isAA());
         bool invert = element->isInverseFilled();
         if (invert || SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
             // draw directly into the result with the stencil set to make the pixels affected
