@@ -174,6 +174,8 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    bool fIsOkayToBeInstantiated = false;
+
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>, GrSurfaceOrigin);
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
 

@@ -472,6 +472,7 @@ bool GrDrawOpAtlas::createNewPage() {
         // the atlas and assert that the width & height are powers of 2.
         fProxies[fNumPages] = GrSurfaceProxy::MakeWrapped(std::move(texture),
                                                           kTopLeft_GrSurfaceOrigin);
+        fProxies[fNumPages]->fIsOkayToBeInstantiated = true;
     }
     if (!fProxies[fNumPages]) {
         return false;
