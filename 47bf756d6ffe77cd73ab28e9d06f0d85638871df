@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b6f91dd_1ee43f4a",
+        "filename": "tools/gpu/vk/VkTestContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-09T15:43:49Z",
+      "side": 1,
+      "message": "Should this use VulkanWindowContext::LoadLibraryAndGetProcAddrFuncs?",
+      "range": {
+        "startLine": 119,
+        "startChar": 12,
+        "endLine": 135,
+        "endChar": 13
+      },
+      "revId": "47bf756d6ffe77cd73ab28e9d06f0d85638871df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0014f876_98700861",
+        "filename": "tools/viewer/sk_app/VulkanWindowContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-09T15:43:49Z",
+      "side": 1,
+      "message": "Were you saying something about how this should be loaded through vkGetInstanceProcAddr?",
+      "range": {
+        "startLine": 640,
+        "startChar": 70,
+        "endLine": 640,
+        "endChar": 89
+      },
+      "revId": "47bf756d6ffe77cd73ab28e9d06f0d85638871df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
