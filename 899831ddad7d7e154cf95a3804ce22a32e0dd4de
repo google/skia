@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2311f72e_4b821524",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-09T21:23:19Z",
+      "side": 1,
+      "message": "Can\u0027t these just be SkTNamedBool?",
+      "range": {
+        "startLine": 450,
+        "startChar": 3,
+        "endLine": 450,
+        "endChar": 24
+      },
+      "revId": "899831ddad7d7e154cf95a3804ce22a32e0dd4de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2440ecd5_ffbbed1a",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-09T21:23:19Z",
+      "side": 1,
+      "message": "why this? Can\u0027t the operators just cast?",
+      "revId": "899831ddad7d7e154cf95a3804ce22a32e0dd4de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
