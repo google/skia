@@ -978,7 +978,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
     if (quadCount || conicCount) {
         sk_sp<GrGeometryProcessor> quadGP(GrQuadEffect::Make(this->color(),
                                                              *geometryProcessorViewM,
-                                                             kHairlineAA_GrProcessorEdgeType,
+                                                             kHairlineAA_GrClipEdgeType,
                                                              target->caps(),
                                                              *geometryProcessorLocalM,
                                                              fHelper.usesLocalCoords(),
@@ -986,7 +986,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
 
         sk_sp<GrGeometryProcessor> conicGP(GrConicEffect::Make(this->color(),
                                                                *geometryProcessorViewM,
-                                                               kHairlineAA_GrProcessorEdgeType,
+                                                               kHairlineAA_GrClipEdgeType,
                                                                target->caps(),
                                                                *geometryProcessorLocalM,
                                                                fHelper.usesLocalCoords(),

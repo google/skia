@@ -159,9 +159,9 @@ protected:
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)},
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)}
             };
-            for(GrPrimitiveEdgeType edgeType : {kFillBW_GrProcessorEdgeType,
-                                                kFillAA_GrProcessorEdgeType,
-                                                kHairlineAA_GrProcessorEdgeType}) {
+            for(GrClipEdgeType edgeType : {kFillBW_GrClipEdgeType,
+                                           kFillAA_GrClipEdgeType,
+                                           kHairlineAA_GrClipEdgeType}) {
                 SkScalar x = col * w;
                 SkScalar y = row * h;
                 SkPoint controlPts[] = {
@@ -345,7 +345,7 @@ protected:
             SkScalar weight = rand.nextRangeF(0.f, 2.f);
             for(int edgeType = 0; edgeType < kGrProcessorEdgeTypeCnt; ++edgeType) {
                 sk_sp<GrGeometryProcessor> gp;
-                GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
+                GrClipEdgeType et = (GrClipEdgeType)edgeType;
                 gp = GrConicEffect::Make(color, SkMatrix::I(), et,
                                          *context->caps(), SkMatrix::I(), false);
                 if (!gp) {
@@ -553,7 +553,7 @@ protected:
             };
             for(int edgeType = 0; edgeType < kGrProcessorEdgeTypeCnt; ++edgeType) {
                 sk_sp<GrGeometryProcessor> gp;
-                GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
+                GrClipEdgeType et = (GrClipEdgeType)edgeType;
                 gp = GrQuadEffect::Make(color, SkMatrix::I(), et,
                                         *context->caps(), SkMatrix::I(), false);
                 if (!gp) {

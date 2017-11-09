@@ -64,7 +64,7 @@ private:
 
         if (radius != prevRadius || center != prevCenter) {
             SkScalar effectiveRadius = radius;
-            if (GrProcessorEdgeTypeIsInverseFill((GrPrimitiveEdgeType)edgeType)) {
+            if (GrProcessorEdgeTypeIsInverseFill((GrClipEdgeType)edgeType)) {
                 effectiveRadius -= 0.5f;
             } else {
                 effectiveRadius += 0.5f;
@@ -109,10 +109,10 @@ std::unique_ptr<GrFragmentProcessor> GrCircleEffect::TestCreate(GrProcessorTestD
     center.fX = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     SkScalar radius = testData->fRandom->nextRangeF(0.f, 1000.f);
-    GrPrimitiveEdgeType et;
+    GrClipEdgeType et;
     do {
-        et = (GrPrimitiveEdgeType)testData->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
-    } while (kHairlineAA_GrProcessorEdgeType == et);
+        et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
+    } while (kHairlineAA_GrClipEdgeType == et);
     return GrCircleEffect::Make(et, center, radius);
 }
 #endif

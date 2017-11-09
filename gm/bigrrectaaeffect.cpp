@@ -60,13 +60,13 @@ protected:
 
         int y = kPad;
         int x = kPad;
-        constexpr GrPrimitiveEdgeType kEdgeTypes[] = {
-            kFillAA_GrProcessorEdgeType,
-            kInverseFillAA_GrProcessorEdgeType,
+        constexpr GrClipEdgeType kEdgeTypes[] = {
+            kFillAA_GrClipEdgeType,
+            kInverseFillAA_GrClipEdgeType,
         };
         SkRect testBounds = SkRect::MakeIWH(fTestWidth, fTestHeight);
         for (size_t et = 0; et < SK_ARRAY_COUNT(kEdgeTypes); ++et) {
-            GrPrimitiveEdgeType edgeType = kEdgeTypes[et];
+            GrClipEdgeType edgeType = kEdgeTypes[et];
             canvas->save();
                 canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
 

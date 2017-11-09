@@ -11,9 +11,9 @@
 #include "GrEllipseEffect.h"
 #include "SkRect.h"
 
-std::unique_ptr<GrFragmentProcessor> GrOvalEffect::Make(GrPrimitiveEdgeType edgeType,
+std::unique_ptr<GrFragmentProcessor> GrOvalEffect::Make(GrClipEdgeType edgeType,
                                                         const SkRect& oval) {
-    if (kHairlineAA_GrProcessorEdgeType == edgeType) {
+    if (kHairlineAA_GrClipEdgeType == edgeType) {
         return nullptr;
     }
     SkScalar w = oval.width();

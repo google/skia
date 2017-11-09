@@ -197,7 +197,7 @@ protected:
                 SkPath p;
                 path->transform(m, &p);
 
-                GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
+                GrClipEdgeType edgeType = (GrClipEdgeType) et;
                 std::unique_ptr<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(edgeType, p));
                 if (!fp) {
                     continue;
@@ -237,7 +237,7 @@ protected:
             for (int et = 0; et < kGrProcessorEdgeTypeCnt; ++et) {
                 SkRect rect = *iter.get();
                 rect.offset(x, y);
-                GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
+                GrClipEdgeType edgeType = (GrClipEdgeType) et;
                 std::unique_ptr<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(edgeType, rect));
                 if (!fp) {
                     continue;

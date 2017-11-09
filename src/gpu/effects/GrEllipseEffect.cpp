@@ -136,10 +136,10 @@ std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::TestCreate(GrProcessorTest
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     SkScalar rx = testData->fRandom->nextRangeF(0.f, 1000.f);
     SkScalar ry = testData->fRandom->nextRangeF(0.f, 1000.f);
-    GrPrimitiveEdgeType et;
+    GrClipEdgeType et;
     do {
-        et = (GrPrimitiveEdgeType)testData->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
-    } while (kHairlineAA_GrProcessorEdgeType == et);
+        et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
+    } while (kHairlineAA_GrClipEdgeType == et);
     return GrEllipseEffect::Make(et, center, SkPoint::Make(rx, ry));
 }
 #endif

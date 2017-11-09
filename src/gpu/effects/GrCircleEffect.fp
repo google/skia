@@ -20,7 +20,7 @@ uniform half4 circle;
 @setData(pdman) {
     if (radius != prevRadius || center != prevCenter) {
         SkScalar effectiveRadius = radius;
-        if (GrProcessorEdgeTypeIsInverseFill((GrPrimitiveEdgeType) edgeType)) {
+        if (GrProcessorEdgeTypeIsInverseFill((GrClipEdgeType) edgeType)) {
             effectiveRadius -= 0.5f;
         } else {
             effectiveRadius += 0.5f;
@@ -37,15 +37,15 @@ void main() {
     // radius and then denormalized. This is to prevent overflow on devices that have a "real"
     // mediump. It'd be nice to only do this on mediump devices.
     half d;
-    @if (edgeType == 2 /* kInverseFillBW_GrProcessorEdgeType */ ||
-         edgeType == 3 /* kInverseFillAA_GrProcessorEdgeType */) {
+    @if (edgeType == 2 /* kInverseFillBW_GrClipEdgeType */ ||
+         edgeType == 3 /* kInverseFillAA_GrClipEdgeType */) {
         d = (length((circle.xy - sk_FragCoord.xy) * circle.w) - 1.0) * circle.z;
     } else {
         d = (1.0 - length((circle.xy - sk_FragCoord.xy) *  circle.w)) * circle.z;
     }
-    @if (edgeType == 1 /* kFillAA_GrProcessorEdgeType */ ||
-         edgeType == 3 /* kInverseFillAA_GrProcessorEdgeType */ ||
-         edgeType == 4 /* kHairlineAA_GrProcessorEdgeType */) {
+    @if (edgeType == 1 /* kFillAA_GrClipEdgeType */ ||
+         edgeType == 3 /* kInverseFillAA_GrClipEdgeType */ ||
+         edgeType == 4 /* kHairlineAA_GrClipEdgeType */) {
         d = clamp(d, 0.0, 1.0);
     } else {
         d = d > 0.5 ? 1.0 : 0.0;
@@ -59,9 +59,9 @@ void main() {
     center.fX = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     SkScalar radius = testData->fRandom->nextRangeF(0.f, 1000.f);
-    GrPrimitiveEdgeType et;
+    GrClipEdgeType et;
     do {
-        et = (GrPrimitiveEdgeType) testData->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
-    } while (kHairlineAA_GrProcessorEdgeType == et);
+        et = (GrClipEdgeType) testData->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
+    } while (kHairlineAA_GrClipEdgeType == et);
     return GrCircleEffect::Make(et, center, radius);
 }
