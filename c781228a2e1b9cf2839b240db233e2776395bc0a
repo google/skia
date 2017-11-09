@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0ac2ec5_e5d7bc7d",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-09T12:31:19Z",
+      "side": 0,
+      "message": "Probably want to keep these comments somewhere",
+      "revId": "c781228a2e1b9cf2839b240db233e2776395bc0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
