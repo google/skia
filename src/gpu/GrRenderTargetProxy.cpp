@@ -34,12 +34,20 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
     }
 }
 
+// Lazy version
+GrRenderTargetProxy::GrRenderTargetProxy()
+        : INHERITED()
+        , fSampleCnt(-1)
+        , fNeedsStencil(false)
+        , fRenderTargetFlags(GrRenderTargetFlags::kNone) {
+}
+
 // Wrapped version
 GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
-    : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
-    , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
-    , fNeedsStencil(false)
-    , fRenderTargetFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
+        : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
+        , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
+        , fNeedsStencil(false)
+        , fRenderTargetFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
 }
 
 int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {

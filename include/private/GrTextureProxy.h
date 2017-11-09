@@ -27,6 +27,9 @@ public:
     // Actually instantiate the backing texture, if necessary
     bool instantiate(GrResourceProvider*) override;
 
+    // Assign the lazy backing texture, if necessary
+    virtual bool createLazy(GrResourceProvider*);
+
     GrSamplerState::Filter highestFilterMode() const;
 
     GrSLType imageStorageType() const {
@@ -75,6 +78,8 @@ protected:
     // Deferred version
     GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit, SkBudgeted,
                    const void* srcData, size_t srcRowBytes, uint32_t flags);
+    // Lazy version
+    GrTextureProxy(CreateLazyCallback&&);
     // Wrapped version
     GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 
@@ -83,6 +88,8 @@ protected:
     SkDestinationSurfaceColorMode mipColorMode() const { return fMipColorMode;  }
 
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
+
+    bool internalCreateLazy(GrResourceProvider*);
 
 private:
     GrMipMapped fMipMapped;
@@ -95,6 +102,9 @@ private:
     // stores the texture data, allowing the proxy to remain uninstantiated until flush. At that
     // point, the proxy is instantiated, and this data is used to perform an ASAP upload.
     std::unique_ptr<GrDeferredProxyUploader> fDeferredUploader;
+
+    /// Blah blah blah blah blah blah.
+    CreateLazyCallback fCreateLazyCallback;
 
     size_t onUninstantiatedGpuMemorySize() const override;
 

@@ -29,10 +29,15 @@ private:
     GrTextureRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&,
                                SkBackingFit, SkBudgeted, uint32_t flags);
 
+    // Lazy version
+    GrTextureRenderTargetProxy(CreateLazyCallback&&);
+
     // Wrapped version
     GrTextureRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 
     bool instantiate(GrResourceProvider*) override;
+    bool createLazy(GrResourceProvider*) override;
+
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
     size_t onUninstantiatedGpuMemorySize() const override;

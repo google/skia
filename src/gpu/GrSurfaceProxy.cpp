@@ -377,6 +377,17 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
     return GrSurfaceProxy::MakeWrapped(std::move(tex), origin);
 }
 
+<<<<<<< HEAD
+=======
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeLazy(CreateLazyCallback&& callback,
+                                               Renderable renderable) {
+    // Will the lazily-allocated surface be a GrTextureRenderTarget or GrTexture?
+    return sk_sp<GrTextureProxy>((Renderable::kYes == renderable) ?
+            new GrTextureRenderTargetProxy(std::move(callback)) :
+            new GrTextureProxy(std::move(callback)));
+}
+
+>>>>>>> f9dfa91f97... ugggggggggggggggggg
 int GrSurfaceProxy::worstCaseWidth() const {
     if (fTarget) {
         return fTarget->width();

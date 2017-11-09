@@ -318,7 +318,7 @@ public:
                GrShaderFlags visibility = kFragment_GrShaderFlag);
 
     bool operator==(const TextureSampler& that) const {
-        return this->proxy()->underlyingUniqueID() == that.proxy()->underlyingUniqueID() &&
+        return //this->proxy()->underlyingUniqueID() == that.proxy()->underlyingUniqueID() &&
                fSamplerState == that.fSamplerState && fVisibility == that.fVisibility;
     }
 

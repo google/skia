@@ -13,16 +13,6 @@
 #include "GrResourceCache.h"
 #include "GrTexturePriv.h"
 
-GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
-                               const void* srcData, size_t /*rowBytes*/, uint32_t flags)
-        : INHERITED(srcDesc, fit, budgeted, flags)
-        , fMipMapped(GrMipMapped::kNo)
-        , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
-        , fCache(nullptr)
-        , fDeferredUploader(nullptr) {
-    SkASSERT(!srcData);  // currently handled in Make()
-}
-
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
         , fMipMapped(fTarget->asTexture()->texturePriv().mipMapped())
@@ -33,6 +23,26 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         fCache = fTarget->asTexture()->getContext()->getResourceCache();
         fCache->adoptUniqueKeyFromSurface(this, fTarget);
     }
+}
+
+// Lazy version
+GrTextureProxy::GrTextureProxy(CreateLazyCallback&& callback)
+        : INHERITED()
+        , fMipMapped(static_cast<GrMipMapped>(-1))
+        , fMipColorMode(static_cast<SkDestinationSurfaceColorMode>(-1))
+        , fCache(nullptr)
+        , fDeferredUploader(nullptr)
+        , fCreateLazyCallback(std::move(callback)) {
+}
+
+GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
+                               const void* srcData, size_t /*rowBytes*/, uint32_t flags)
+        : INHERITED(srcDesc, fit, budgeted, flags)
+        , fMipMapped(GrMipMapped::kNo)
+        , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
+        , fCache(nullptr)
+        , fDeferredUploader(nullptr) {
+    SkASSERT(!srcData);  // currently handled in Make()
 }
 
 GrTextureProxy::~GrTextureProxy() {
@@ -52,6 +62,30 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
                                fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
         return false;
     }
+
+    SkASSERT(!fTarget->asRenderTarget());
+    SkASSERT(fTarget->asTexture());
+    return true;
+}
+
+bool GrTextureProxy::createLazy(GrResourceProvider* resourceProvider) {
+    if (!this->internalCreateLazy(resourceProvider)) {
+        return false;
+    }
+
+    SkASSERT(!fTarget->asRenderTarget());
+    SkASSERT(fTarget->asTexture());
+    return true;
+}
+
+bool GrTextureProxy::internalCreateLazy(GrResourceProvider* resourceProvider) {
+    SkASSERT(SkToBool(fCreateLazyCallback));
+    sk_sp<GrTexture> texture = fCreateLazyCallback(resourceProvider);
+    if (!texture) {
+        return false;
+    }
+
+    this->assign(std::move(texture));
 
     SkASSERT(!fTarget->asRenderTarget());
     SkASSERT(fTarget->asTexture());

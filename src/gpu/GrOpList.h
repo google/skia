@@ -38,10 +38,11 @@ public:
     GrOpList(GrResourceProvider*, GrSurfaceProxy*, GrAuditTrail*);
     ~GrOpList() override;
 
-    // These four methods are invoked at flush time
+    // These five methods are invoked at flush time
     bool instantiate(GrResourceProvider* resourceProvider);
     // Instantiates any "threaded" texture proxies that are being prepared elsewhere
     void instantiateDeferredProxies(GrResourceProvider* resourceProvider);
+    void createLazyTextures(GrResourceProvider* resourceProvider);
     void prepare(GrOpFlushState* flushState);
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
 
@@ -123,6 +124,7 @@ protected:
 
     // List of texture proxies whose contents are being prepared on a worker thread
     SkTArray<GrTextureProxy*, true> fDeferredProxies;
+    SkTArray<sk_sp<GrTextureProxy>> fLazyProxies;
 
 private:
     friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals

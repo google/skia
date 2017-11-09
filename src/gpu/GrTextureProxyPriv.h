@@ -21,6 +21,7 @@ public:
     // Attach a deferred uploader to the proxy. Holds data being prepared by a worker thread.
     void setDeferredUploader(std::unique_ptr<GrDeferredProxyUploader>);
     bool isDeferred() const { return SkToBool(fTextureProxy->fDeferredUploader.get()); }
+    bool isLazy() const { return SkToBool(fTextureProxy->fCreateLazyCallback); }
     // For a deferred proxy (one that has a deferred uploader attached), this schedules an ASAP
     // upload of that data to the instantiated texture.
     void scheduleUpload(GrOpFlushState*);

@@ -71,6 +71,15 @@ void GrOpList::instantiateDeferredProxies(GrResourceProvider* resourceProvider) 
     }
 }
 
+void GrOpList::createLazyTextures(GrResourceProvider* resourceProvider) {
+    for (const auto& lazyProxy : fLazyProxies) {
+        if (lazyProxy->fRefCnt <= 1) {
+            continue;
+        }
+        lazyProxy->createLazy(resourceProvider);
+    }
+}
+
 void GrOpList::prepare(GrOpFlushState* flushState) {
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
         fDeferredProxies[i]->texPriv().scheduleUpload(flushState);
@@ -110,6 +119,8 @@ void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
     if (GrTextureProxy* textureProxy = dependedOn->asTextureProxy()) {
         if (textureProxy->texPriv().isDeferred()) {
             fDeferredProxies.push_back(textureProxy);
+        } else if (textureProxy->texPriv().isLazy()) {
+            fLazyProxies.push_back(sk_ref_sp(textureProxy));
         }
     }
 }

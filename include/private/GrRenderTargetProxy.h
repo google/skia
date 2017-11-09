@@ -67,6 +67,9 @@ protected:
     GrRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&,
                         SkBackingFit, SkBudgeted, uint32_t flags);
 
+    // Lazy version
+    explicit GrRenderTargetProxy();
+
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 

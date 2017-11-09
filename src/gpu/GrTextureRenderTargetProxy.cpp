@@ -7,6 +7,8 @@
 
 #include "GrTextureRenderTargetProxy.h"
 
+#include "GrTexture.h"
+
 // Deferred version
 // This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and
 // GrRenderTargetProxy) so its constructor must be explicitly called.
@@ -15,10 +17,17 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
                                                        uint32_t flags)
-    : GrSurfaceProxy(desc, fit, budgeted, flags)
-    // for now textures w/ data are always wrapped
-    , GrTextureProxy(desc, fit, budgeted, nullptr, 0, flags)
-    , GrRenderTargetProxy(caps, desc, fit, budgeted, flags) {
+        : GrSurfaceProxy(desc, fit, budgeted, flags)
+        // for now textures w/ data are always wrapped
+        , GrTextureProxy(desc, fit, budgeted, nullptr, 0, flags)
+        , GrRenderTargetProxy(caps, desc, fit, budgeted, flags) {
+}
+
+// Lazy version
+GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(CreateLazyCallback&& callback)
+        : GrSurfaceProxy()
+        , GrTextureProxy(std::move(callback))
+        , GrRenderTargetProxy() {
 }
 
 // Wrapped version
@@ -26,9 +35,9 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
 // GrRenderTargetProxy) so its constructor must be explicitly called.
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf,
                                                        GrSurfaceOrigin origin)
-    : GrSurfaceProxy(surf, origin, SkBackingFit::kExact)
-    , GrTextureProxy(surf, origin)
-    , GrRenderTargetProxy(surf, origin) {
+        : GrSurfaceProxy(surf, origin, SkBackingFit::kExact)
+        , GrTextureProxy(surf, origin)
+        , GrRenderTargetProxy(surf, origin) {
     SkASSERT(surf->asTexture());
     SkASSERT(surf->asRenderTarget());
 }
@@ -58,6 +67,16 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
     SkASSERT(fTarget->asRenderTarget());
     SkASSERT(fTarget->asTexture());
 
+    return true;
+}
+
+bool GrTextureRenderTargetProxy::createLazy(GrResourceProvider* resourceProvider) {
+    if (!this->internalCreateLazy(resourceProvider)) {
+        return false;
+    }
+
+    SkASSERT(fTarget->asRenderTarget());
+    SkASSERT(fTarget->asTexture());
     return true;
 }
 

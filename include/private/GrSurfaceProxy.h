@@ -156,7 +156,8 @@ protected:
     // wrapped resource.
     GrSurface* fTarget;
 
-private:
+// private:
+public:
     // This class is used to manage conversion of refs to pending reads/writes.
     friend class GrSurfaceProxyRef;
     template <typename, GrIOType> friend class GrPendingIOResource;
@@ -211,6 +212,18 @@ public:
                                               const void* srcData, size_t rowBytes);
 
     static sk_sp<GrTextureProxy> MakeWrappedBackend(GrContext*, GrBackendTexture&, GrSurfaceOrigin);
+
+    using CreateLazyCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*)>;
+
+    enum class Renderable : bool {
+        kNo = false,
+        kYes = true
+    };
+
+    /**
+     * Creates a proxy that will be instantiated by a callback during flush.
+     */
+    static sk_sp<GrTextureProxy> MakeLazy(CreateLazyCallback&&, Renderable);
 
     GrSurfaceOrigin origin() const {
         SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
@@ -363,6 +376,21 @@ protected:
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
+    // Lazy version
+    explicit GrSurfaceProxy()
+            : fConfig(kUnknown_GrPixelConfig)
+            , fWidth(-1)
+            , fHeight(-1)
+            , fOrigin(static_cast<GrSurfaceOrigin>(-1))
+            , fFit(static_cast<SkBackingFit>(-1))
+            , fBudgeted(static_cast<SkBudgeted>(-1))
+            , fFlags(0)
+            , fNeedsClear(0)
+            , fGpuMemorySize(kInvalidGpuMemorySize)
+            , fLastOpList(nullptr) {
+        // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
+    }
+
     // Wrapped version
     GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit);
 
@@ -426,7 +454,7 @@ private:
     // the opList used to create the current contents of this surface
     // and the opList of a destination surface to which this one is being drawn or copied.
     // This pointer is unreffed. OpLists own a ref on their surface proxies.
-    GrOpList* fLastOpList;
+    GrOpList*           fLastOpList;
 
     typedef GrIORefProxy INHERITED;
 };
