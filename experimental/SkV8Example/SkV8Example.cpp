@@ -121,6 +121,7 @@ void SkV8ExampleWindow::onSizeChange() {
 }
 
 Global* global = NULL;
+std::unique_ptr<v8::Platform> platform;
 
 void SkV8ExampleWindow::onDraw(SkCanvas* canvas) {
 
@@ -161,8 +162,8 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
     v8::V8::InitializeICU();
-    v8::Platform* platform = v8::platform::CreateDefaultPlatform();
-    v8::V8::InitializePlatform(platform);
+    platform = std::unique_ptr<v8::Platform>(v8::platform::CreateDefaultPlatform());
+    v8::V8::InitializePlatform(platform.get());
     v8::V8::Initialize();
 
     v8::Isolate* isolate = v8::Isolate::New();
