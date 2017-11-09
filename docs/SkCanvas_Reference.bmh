@@ -109,7 +109,7 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 # drawLine                         # Draws line segment between two points.##
 # drawOval                         # Draws Oval using Clip, Matrix, and Paint. ##
 # drawPaint                        # Fills Clip with Paint. ##
-# drawPatch                        # Draws Coons patch. ##
+# drawPatch                        # Draws Coons_Patch. ##
 # drawPath                         # Draws Path using Clip, Matrix, and Paint. ##
 # drawPicture                      # Draws Picture using Clip and Matrix. ##
 # drawPoint                        # Draws point at (x, y) position. ##
@@ -1753,8 +1753,6 @@ Call restoreToCount with returned value to restore this and subsequent saves.
         kInitWithPrevious_SaveLayerFlag = 1 << 2,
         kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
     };
-
-    typedef uint32_t SaveLayerFlags;
 ##
 
 SaveLayerFlags provides options that may be used in any combination in SaveLayerRec,
@@ -1809,6 +1807,10 @@ void draw(SkCanvas* canvas) {
 #SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
 
 #Enum ##
+
+#Typedef uint32_t SaveLayerFlags
+
+##
 
 #Struct SaveLayerRec
 
@@ -5608,12 +5610,12 @@ void draw(SkCanvas* canvas) {
 #Method void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                    const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint)
 
-Draws a Coons patch: the interpolation of four cubics with shared corners, 
+Draws a Coons_Patch: the interpolation of four cubics with shared corners, 
 associating a color, and optionally a texture coordinate, with each corner.
 
-The Coons patch uses Clip and Matrix, paint Shader, Color_Filter,
+Coons_Patch uses Clip and Matrix, paint Shader, Color_Filter,
 Color_Alpha, Image_Filter, and Blend_Mode. If Shader is provided it is treated
-as the Coons patch texture; Blend_Mode mode combines Color colors and Shader if
+as Coons_Patch texture; Blend_Mode mode combines Color colors and Shader if
 both are provided.
 
 Point array cubics specifies four Cubics starting at the top-left corner, 
@@ -5667,12 +5669,12 @@ void draw(SkCanvas* canvas) {
 #Method void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                    const SkPoint texCoords[4], const SkPaint& paint) 
 
-Draws Cubic Coons patch: the interpolation of four cubics with shared corners, 
+Draws Cubic Coons_Patch: the interpolation of four cubics with shared corners, 
 associating a color, and optionally a texture coordinate, with each corner.
 
-The Coons patch uses Clip and Matrix, paint Shader, Color_Filter,
+Coons_Patch uses Clip and Matrix, paint Shader, Color_Filter,
 Color_Alpha, Image_Filter, and Blend_Mode. If Shader is provided it is treated
-as the Coons patch texture; Blend_Mode mode combines Color colors and Shader if
+as Coons_Patch texture; Blend_Mode mode combines Color colors and Shader if
 both are provided.
 
 Point array cubics specifies four Cubics starting at the top-left corner, 
