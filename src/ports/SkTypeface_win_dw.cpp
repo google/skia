@@ -372,6 +372,17 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
         return info;
     }
 
+    auto fsType = os2Table->version.v4.fsType;
+    if (fsType.value != 0) {
+        if (SkToBool(fsType.field.Restricted) ||
+            SkToBool(fsType.field.Bitmap) ||
+            SkToBool(fsType.field.PreviewPrint)) {
+            info->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
+        } else if (SkToBool(fsType.field.NoSubsetting)) {
+            info->fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
+        }
+    }
+
     // There are versions of DirectWrite which support named instances for system variation fonts,
     // but no means to indicate that such a typeface is a variation.
     AutoTDWriteTable<SkOTTableFontVariations> fvarTable(fDWriteFontFace.get());
