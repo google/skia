@@ -9,11 +9,13 @@
 #define SkOTUtils_DEFINED
 
 #include "SkOTTableTypes.h"
+#include "SkOTTable_OS_2_V4.h"
 #include "SkOTTable_name.h"
 #include "SkTypeface.h"
 
 class SkData;
 class SkStream;
+struct SkAdvancedTypefaceMetrics;
 
 struct SkOTUtils {
     /**
@@ -86,6 +88,9 @@ struct SkOTUtils {
         SkString fLanguage;
         bool fHasNext;
     };
+
+    static void SetAdvanvedTypefaceFlags(SkOTTableOS2_V4::Type fsType,
+                                         SkAdvancedTypefaceMetrics* info);
 };
 
 #endif
