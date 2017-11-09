@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cfd98a63_5d2f21a5",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1021,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-09T13:33:16Z",
+      "side": 1,
+      "message": "I like this much better! 😊",
+      "range": {
+        "startLine": 1004,
+        "startChar": 0,
+        "endLine": 1021,
+        "endChar": 73
+      },
+      "revId": "dea6def65e5237d6a8906b879f20c4abafa7a651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
