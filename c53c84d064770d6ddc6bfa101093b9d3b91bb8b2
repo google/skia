@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f48af805_d64daef4",
+        "filename": "src/core/SkGaussFilter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-09T18:00:44Z",
+      "side": 1,
+      "message": "Wrong comment ?",
+      "revId": "c53c84d064770d6ddc6bfa101093b9d3b91bb8b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

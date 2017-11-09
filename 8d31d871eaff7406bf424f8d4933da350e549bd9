@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "901807c0_fb1ab2df",
+        "filename": "src/core/SkGaussFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-09T18:00:44Z",
+      "side": 1,
+      "message": "functions ?",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc10f238_c142219a",
+        "filename": "src/core/SkGaussFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-09T18:00:44Z",
+      "side": 1,
+      "message": "Can we skip this since we\u0027re normalizing the entire thing at the end?",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d10fd75_52786a03",
+        "filename": "src/core/SkGaussFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-09T18:00:44Z",
+      "side": 1,
+      "message": "memcpy ?",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e623118_bb3242e9",
+        "filename": "src/core/SkGaussFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-09T18:00:44Z",
+      "side": 1,
+      "message": "Do we even need this entry point? It doesn\u0027t seem to be tests...",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "119df1ce_9c01632f",
+        "filename": "src/core/SkGaussFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-09T18:00:44Z",
+      "side": 1,
+      "message": "Do we have any normalization concerns here ?",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed5a1d84_4a34910c",
+        "filename": "src/core/SkGaussFilter.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-09T18:00:44Z",
+      "side": 1,
+      "message": "this-\u003eradius() ?",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3d18ee6_5ce47cf3",
+        "filename": "tests/SkGaussFilterTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-09T18:00:44Z",
+      "side": 1,
+      "message": "Can this not be done with a sub routine that is called twice w/ different data ?",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cf04287_40140580",
+        "filename": "tests/SkGaussFilterTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-09T18:00:44Z",
+      "side": 1,
+      "message": "Can this block and the one below be a shared subroutine ?",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
