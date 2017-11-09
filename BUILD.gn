@@ -170,18 +170,6 @@ config("skia_private") {
   }
   libs = []
   lib_dirs = []
-  if (skia_use_vulkan) {
-    if (skia_vulkan_sdk != "" && !is_android && !is_fuchsia) {
-      if (is_win) {
-        lib_dirs += [
-          "$skia_vulkan_sdk/Bin",
-          "$skia_vulkan_sdk/Lib",
-        ]
-      } else {
-        lib_dirs += [ "$skia_vulkan_sdk/lib/" ]
-      }
-    }
-  }
   if (skia_enable_gpu) {
     include_dirs += [ "src/gpu" ]
   }
@@ -1046,11 +1034,7 @@ if (skia_enable_tools) {
       }
       if (skia_use_vulkan) {
         sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
-        if (is_win) {
-          libs += [ "vulkan-1.lib" ]
-        } else {
-          libs += [ "vulkan" ]
-        }
+        sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]
       }
       if (skia_use_metal) {
         sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
