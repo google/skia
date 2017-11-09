@@ -23,6 +23,7 @@
 #include "SkRegion.h"
 #include "SkStream.h"
 #include "SkSurface.h"
+#include "SkValidatingReadBuffer.h"
 
 #if SK_SUPPORT_GPU
 #include "SkSLCompiler.h"
@@ -92,8 +93,6 @@ static int fuzz_file(const char* path) {
         return 1;
     }
 
-    uint8_t option = calculate_option(bytes.get());
-
     if (!FLAGS_type.isEmpty()) {
         if (0 == strcmp("api", FLAGS_type[0])) {
             fuzz_api(bytes);
@@ -108,10 +107,12 @@ static int fuzz_file(const char* path) {
             return 0;
         }
         if (0 == strcmp("image_scale", FLAGS_type[0])) {
+            uint8_t option = calculate_option(bytes.get());
             fuzz_img(bytes, option, 0);
             return 0;
         }
         if (0 == strcmp("image_mode", FLAGS_type[0])) {
+            uint8_t option = calculate_option(bytes.get());
             fuzz_img(bytes, 0, option);
             return 0;
         }
@@ -472,10 +473,13 @@ static void fuzz_color_deserialize(sk_sp<SkData> bytes) {
 
 static void fuzz_path_deserialize(sk_sp<SkData> bytes) {
     SkPath path;
-    if (!path.readFromMemory(bytes->data(), bytes->size())) {
-        SkDebugf("[terminated] Couldn't initialize SkPath.\n");
+    SkValidatingReadBuffer buf(bytes->data(), bytes->size());
+    buf.readPath(&path);
+    if (!buf.isValid()) {
+        SkDebugf("[terminated] Couldn't deserialize SkPath.\n");
         return;
     }
+
     auto s = SkSurface::MakeRasterN32Premul(1024, 1024);
     s->getCanvas()->drawPath(path, SkPaint());
     SkDebugf("[terminated] Success! Initialized SkPath.\n");
