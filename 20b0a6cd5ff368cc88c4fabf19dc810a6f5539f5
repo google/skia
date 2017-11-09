@@ -22,6 +22,46 @@
       "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d84b4f7_cfee5db0",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-09T21:57:30Z",
+      "side": 1,
+      "message": "What purpose does the type tag here serve?\n\nIf we want SkTNamedBools to have unique types, can\u0027t we just define them as completely unrelated types?",
+      "range": {
+        "startLine": 443,
+        "startChar": 9,
+        "endLine": 443,
+        "endChar": 24
+      },
+      "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb4ecb7c_1422b5a7",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-09T21:57:30Z",
+      "side": 1,
+      "message": "If you do keep the tag, you can do this in one line, I think, given that your code never needs to see the definition of the struct you\u0027re using as a tag.  You can just shove the declaration into the template arguments...\n\n#define SK_MAKE_NAMED_BOOL(NAME) \\\n    using NAME \u003d SkTNamedBool\u003cstruct SkTNamedBool_NAME_##NAME\u003e\n\n(Pretty sure)",
+      "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
