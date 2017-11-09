@@ -10,6 +10,7 @@
 #include "SkRandom.h"
 #include "Test.h"
 #include <array>
+#include <numeric>
 
 static bool nearly_equal(const SkPoint& a, const SkPoint& b) {
     return SkScalarNearlyEqual(a.fX, b.fX) && SkScalarNearlyEqual(a.fY, b.fY);
@@ -208,9 +209,81 @@ static void test_cubic_tangents(skiatest::Reporter* reporter) {
 }
 
 static void check_cubic_type(skiatest::Reporter* reporter,
-                             const std::array<SkPoint, 4>& bezierPoints, SkCubicType expectedType) {
+                             const std::array<SkPoint, 4>& bezierPoints, SkCubicType expectedType,
+                             bool undefined = false) {
+    // Classify the cubic even if the results will be undefined: check for crashes and asserts.
     SkCubicType actualType = SkClassifyCubic(bezierPoints.data());
-    REPORTER_ASSERT(reporter, actualType == expectedType);
+    if (!undefined) {
+        REPORTER_ASSERT(reporter, actualType == expectedType);
+    }
+}
+
+static void check_cubic_around_rect(skiatest::Reporter* reporter,
+                                    float x1, float y1, float x2, float y2,
+                                    bool undefined = false) {
+    static constexpr SkCubicType expectations[24] = {
+        SkCubicType::kLoop,
+        SkCubicType::kCuspAtInfinity,
+        SkCubicType::kLocalCusp,
+        SkCubicType::kLocalCusp,
+        SkCubicType::kCuspAtInfinity,
+        SkCubicType::kLoop,
+        SkCubicType::kCuspAtInfinity,
+        SkCubicType::kLoop,
+        SkCubicType::kCuspAtInfinity,
+        SkCubicType::kLoop,
+        SkCubicType::kLocalCusp,
+        SkCubicType::kLocalCusp,
+        SkCubicType::kLocalCusp,
+        SkCubicType::kLocalCusp,
+        SkCubicType::kLoop,
+        SkCubicType::kCuspAtInfinity,
+        SkCubicType::kLoop,
+        SkCubicType::kCuspAtInfinity,
+        SkCubicType::kLoop,
+        SkCubicType::kCuspAtInfinity,
+        SkCubicType::kLocalCusp,
+        SkCubicType::kLocalCusp,
+        SkCubicType::kCuspAtInfinity,
+        SkCubicType::kLoop,
+    };
+    SkPoint points[] = {{x1, y1}, {x2, y1}, {x2, y2}, {x1, y2}};
+    std::array<SkPoint, 4> bezier;
+    for (int i=0; i < 4; ++i) {
+        bezier[0] = points[i];
+        for (int j=0; j < 3; ++j) {
+            int jidx = (j < i) ? j : j+1;
+            bezier[1] = points[jidx];
+            for (int k=0, kidx=0; k < 2; ++k, ++kidx) {
+                for (int n = 0; n < 2; ++n) {
+                    kidx = (kidx == i || kidx == jidx) ? kidx+1 : kidx;
+                }
+                bezier[2] = points[kidx];
+                for (int l = 0; l < 4; ++l) {
+                    if (l != i && l != jidx && l != kidx) {
+                        bezier[3] = points[l];
+                        break;
+                    }
+                }
+                check_cubic_type(reporter, bezier, expectations[i*6 + j*2 + k], undefined);
+            }
+        }
+    }
+    for (int i=0; i < 4; ++i) {
+        bezier[0] = points[i];
+        for (int j=0; j < 3; ++j) {
+            int jidx = (j < i) ? j : j+1;
+            bezier[1] = points[jidx];
+            bezier[2] = points[jidx];
+            for (int k=0, kidx=0; k < 2; ++k, ++kidx) {
+                for (int n = 0; n < 2; ++n) {
+                    kidx = (kidx == i || kidx == jidx) ? kidx+1 : kidx;
+                }
+                bezier[3] = points[kidx];
+                check_cubic_type(reporter, bezier, SkCubicType::kSerpentine, undefined);
+            }
+        }
+    }
 }
 
 static void test_classify_cubic(skiatest::Reporter* reporter) {
@@ -223,6 +296,35 @@ static void test_classify_cubic(skiatest::Reporter* reporter) {
     check_cubic_type(reporter, {{{4.873f, 5.581f}, {5.083f, 5.2783f},
                                  {5.182f, 4.8593f}, {5.177f, 4.3242f}}},
                      SkCubicType::kSerpentine);
+    check_cubic_around_rect(reporter, 0, 0, 1, 1);
+    check_cubic_around_rect(reporter,
+                            -std::numeric_limits<float>::max(),
+                            -std::numeric_limits<float>::max(),
+                            +std::numeric_limits<float>::max(),
+                            +std::numeric_limits<float>::max());
+    check_cubic_around_rect(reporter, 1, 1,
+                            +std::numeric_limits<float>::min(),
+                            +std::numeric_limits<float>::max());
+    check_cubic_around_rect(reporter,
+                            -std::numeric_limits<float>::min(),
+                            -std::numeric_limits<float>::min(),
+                            +std::numeric_limits<float>::min(),
+                            +std::numeric_limits<float>::min());
+    check_cubic_around_rect(reporter, +1, -std::numeric_limits<float>::min(), -1, -1);
+    check_cubic_around_rect(reporter,
+                            -std::numeric_limits<float>::infinity(),
+                            -std::numeric_limits<float>::infinity(),
+                            +std::numeric_limits<float>::infinity(),
+                            +std::numeric_limits<float>::infinity(),
+                            true);
+    check_cubic_around_rect(reporter, 0, 0, 1, +std::numeric_limits<float>::infinity(), true);
+    check_cubic_around_rect(reporter,
+                            -std::numeric_limits<float>::quiet_NaN(),
+                            -std::numeric_limits<float>::quiet_NaN(),
+                            +std::numeric_limits<float>::quiet_NaN(),
+                            +std::numeric_limits<float>::quiet_NaN(),
+                            true);
+    check_cubic_around_rect(reporter, 0, 0, 1, +std::numeric_limits<float>::quiet_NaN(), true);
 }
 
 DEF_TEST(Geometry, reporter) {

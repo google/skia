@@ -536,8 +536,8 @@ int SkChopCubicAtInflections(const SkPoint src[], SkPoint dst[10]) {
 // Assumes the third component of points is 1.
 // Calcs p0 . (p1 x p2)
 static double calc_dot_cross_cubic(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
-    const double xComp = (double) p0.fX * (double) (p1.fY - p2.fY);
-    const double yComp = (double) p0.fY * (double) (p2.fX - p1.fX);
+    const double xComp = (double) p0.fX * ((double) p1.fY - (double) p2.fY);
+    const double yComp = (double) p0.fY * ((double) p2.fX - (double) p1.fX);
     const double wComp = (double) p1.fX * (double) p2.fY - (double) p1.fY * (double) p2.fX;
     return (xComp + yComp + wComp);
 }
@@ -565,24 +565,32 @@ static void calc_cubic_inflection_func(const SkPoint p[4], double d[4]) {
 static void normalize_t_s(double t[], double s[], int count) {
     // Keep the exponents at or below zero to avoid overflow down the road.
     for (int i = 0; i < count; ++i) {
-        SkASSERT(0 != s[i]);
+        SkASSERT(0 != s[i]); // classify_cubic should not call this method when s[i] is 0 or NaN.
 
-        int64_t expT;
-        memcpy(&expT, &t[i], sizeof(double));
-        expT = ((expT >> 52) & 0x7ff) - 1023;
+        uint64_t bitsT, bitsS;
+        memcpy(&bitsT, &t[i], sizeof(double));
+        memcpy(&bitsS, &s[i], sizeof(double));
 
-        int64_t expS;
-        memcpy(&expS, &s[i], sizeof(double));
-        expS = ((expS >> 52) & 0x7ff) - 1023;
+        uint64_t maxExponent = SkTMax(bitsT & 0x7ff0000000000000, bitsS & 0x7ff0000000000000);
 
-        double norm;
-        int64_t expNorm = -SkTMax(expT, expS) + 1023;
-        SkASSERT(expNorm > 0 && expNorm < 2047); // ensure we have a valid non-zero exponent.
-        expNorm = expNorm << 52;
-        memcpy(&norm, &expNorm, sizeof(double));
+#ifdef SK_DEBUG
+        uint64_t maxExponentValue = maxExponent >> 52;
+        // Ensure max(absT,absS) is NOT in denormalized form. SkClassifyCubic is given fp32 points,
+        // and does not call this method when s==0, so this should never happen.
+        SkASSERT(0 != maxExponentValue);
+        // Ensure 1/max(absT,absS) will NOT be in denormalized form. SkClassifyCubic is given fp32
+        // points, so this should never happen.
+        SkASSERT(2046 != maxExponentValue);
+#endif
 
-        t[i] *= norm;
-        s[i] *= norm;
+        // Pick a normalizer that scales the larger exponent to 1 (aka 1023 in biased form), but
+        // does NOT change the mantissa (thus preserving accuracy).
+        double normalizer;
+        uint64_t normalizerExponent = (uint64_t(1023 * 2) << 52) - maxExponent;
+        memcpy(&normalizer, &normalizerExponent, sizeof(double));
+
+        t[i] *= normalizer;
+        s[i] *= normalizer;
     }
 }
 
@@ -652,7 +660,6 @@ static SkCubicType classify_cubic(const double d[4], double t[2], double s[2]) {
         }
         return SkCubicType::kLoop;
     } else {
-        SkASSERT(0 == discr); // Detect NaN.
         if (t && s) {
             t[0] = d[2];
             s[0] = 2 * d[1];
