@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "a7745c03_5ce89967",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-09T17:15:01Z",
+      "side": 1,
+      "message": "Yeah, for real though, let\u0027s look at what that struct version would be.  I think it\u0027s something like this:\n\n#include \u003cstdio.h\u003e\n\n#define NAMED_BOOL(name)                                    \\\n    class name {                                            \\\n    public:                                                 \\\n                                                            \\\n        name() \u003d default;  /* Uninitialized. */             \\\n                                                            \\\n        template \u003ctypename T\u003e                               \\\n        explicit name(T val) : fVal((bool)val) {}           \\\n                                                            \\\n        /*implicit*/ operator bool() const { return fVal; } \\\n                                                            \\\n    private:                                                \\\n        bool fVal;                                          \\\n    }\n\nNAMED_BOOL(Foo);\nNAMED_BOOL(Bar);\n\nstatic void foo(Foo option) {\n    if (option) {\n        printf(\"foo!\\n\");\n    } else {\n        printf(\"no foo :(\\n\");\n    }\n}\n\nstatic void bar(Bar option) {\n    if (option) {\n        printf(\"bar!\\n\");\n    } else {\n        printf(\"no bar :(\\n\");\n    }\n}\n\nint main(int, char**) {\n\n    //foo(true);\n    foo(Foo(true));\n    foo((Foo)false);\n\n    Bar b \u003d Bar(true);\n    bar(b);\n    foo(Foo(b));\n    //foo(b);\n\n    return 0;\n}",
+      "parentUuid": "7b78bcba_491055d5",
+      "revId": "7b28d56accbe51d7c1ca4bf88c8ff3da048a9709",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9ef98865_b97556bc",
         "filename": "include/gpu/GrTypes.h",
         "patchSetId": 2
