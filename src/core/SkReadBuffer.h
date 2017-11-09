@@ -76,6 +76,7 @@ public:
         kTileModeInBlurImageFilter_Version = 56,
         kTileInfoInSweepGradient_Version   = 57,
         k2PtConicalNoFlip_Version          = 58,
+        kRemovePictureImageFilterLocalSpace = 59,
     };
 
     /**

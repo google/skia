@@ -29,16 +29,6 @@ sk_sp<SkImageFilter> SkPictureImageFilter::Make(sk_sp<SkPicture> picture,
                                                          nullptr));
 }
 
-sk_sp<SkImageFilter> SkPictureImageFilter::MakeForLocalSpace(sk_sp<SkPicture> picture,
-                                                             const SkRect& cropRect,
-                                                             SkFilterQuality filterQuality) {
-    return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(picture),
-                                                         cropRect,
-                                                         kLocalSpace_PictureResolution,
-                                                         filterQuality,
-                                                         nullptr));
-}
-
 SkPictureImageFilter::SkPictureImageFilter(sk_sp<SkPicture> picture)
     : INHERITED(nullptr, 0, nullptr)
     , fPicture(std::move(picture))
@@ -71,14 +61,25 @@ sk_sp<SkFlattenable> SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
         }
     }
     buffer.readRect(&cropRect);
-    PictureResolution pictureResolution = (PictureResolution)buffer.readInt();
 
-    if (kLocalSpace_PictureResolution == pictureResolution) {
-        //filterLevel is only serialized if pictureResolution is LocalSpace
-        SkFilterQuality filterQuality = (SkFilterQuality)buffer.readInt();
-        return MakeForLocalSpace(picture, cropRect, filterQuality);
+    // NOTE: these two fields can be removed from the class once we have out-lived the need
+    // to load pictures older than SkReadBuffer::kRemovePictureImageFilterLocalSpace
+    //
+    PictureResolution pictureResolution = kDeviceSpace_PictureResolution;
+    SkFilterQuality filterQuality = kNone_SkFilterQuality;
+
+    if (buffer.isVersionLT(SkReadBuffer::kRemovePictureImageFilterLocalSpace)) {
+        pictureResolution = (PictureResolution)buffer.readInt();
+        if (kLocalSpace_PictureResolution == pictureResolution) {
+            //filterLevel is only serialized if pictureResolution is LocalSpace
+            filterQuality = (SkFilterQuality)buffer.readInt();
+        }
     }
-    return Make(picture, cropRect);
+    return sk_sp<SkImageFilter>(new SkPictureImageFilter(picture,
+                                                         cropRect,
+                                                         pictureResolution,
+                                                         filterQuality,
+                                                         nullptr));
 }
 
 void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
@@ -92,10 +93,6 @@ void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
         }
     }
     buffer.writeRect(fCropRect);
-    buffer.writeInt(fPictureResolution);
-    if (kLocalSpace_PictureResolution == fPictureResolution) {
-        buffer.writeInt(fFilterQuality);
-    }
 }
 
 sk_sp<SkSpecialImage> SkPictureImageFilter::onFilterImage(SkSpecialImage* source,
