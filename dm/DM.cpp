@@ -1250,7 +1250,40 @@ struct Task {
 
 static SkTDArray<skiatest::Test> gParallelTests, gSerialTests;
 
+#include "gpu/atlastext/GLTestAtlasTextRenderer.h"
+#include "gpu/atlastext/TestAtlasTextRenderer.h"
+#include "SkAtlasTextRenderer.h"
+#include "SkAtlasTextContext.h"
+#include "SkAtlasTextTarget.h"
+
+std::unique_ptr<SkAtlasTextTarget> make_target(sk_sp<SkAtlasTextContext> ctx, int width, int height) {
+    auto handle = static_cast<sk_gpu_test::TestAtlasTextRenderer*>(
+            ctx->renderer())->makeTarget(width, height);
+    return SkAtlasTextTarget::Make(std::move(ctx), width, height, handle);
+}
+
+SkBitmap run_test() {
+    auto x = sk_gpu_test::MakeGLTestAtlasTextRenderer();
+    do {
+        auto ctx = SkAtlasTextContext::Make(x);
+        auto target = make_target(ctx, 1024, 1024);
+        static const char kText[] = "Hello!";
+        target->drawText(kText, strlen(kText), 10, 100);
+        target->flush();
+#if 1
+    return
+#endif
+            x->readTarget(target->handle());
+    } while(true);
+    return SkBitmap();
+}
+
 static void gather_tests() {
+    auto result = run_test();
+    SkPixmap pmp;
+    result.peekPixels(&pmp);
+    SkFILEWStream file("lalala.png");
+    SkPngEncoder::Encode(&file, pmp, SkPngEncoder::Options());
     if (!FLAGS_src.contains("tests")) {
         return;
     }
