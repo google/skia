@@ -629,24 +629,6 @@ void Viewer::updateTitle() {
         }
     }
 
-    if (fDisplayStats) {
-        double ms = 0;
-        int count = 0;
-        int i = (fCurrentMeasurement + kMeasurementCount - 1) & (kMeasurementCount - 1);
-        do {
-            double inc = fAnimateTimes[i] + fPaintTimes[i] + fFlushTimes[i];
-            if (inc <= 0) {
-                break;
-            }
-            ms += inc;
-            ++count;
-            i = (i + kMeasurementCount - 1) & (kMeasurementCount - 1);
-        } while (i != fCurrentMeasurement);
-
-        title.appendf(" %8.4f ms -> %4.4f ms", ms / SkTMax(1, count),
-                      fCumulativeMeasurementTime / SkTMax(1, fCumulativeMeasurementCount));
-    }
-
     title.append(" [");
     title.append(kBackendTypeStrings[fBackendType]);
     if (int msaa = fWindow->sampleCount()) {
@@ -918,7 +900,6 @@ void Viewer::onPaint(SkCanvas* canvas) {
     // Draw any overlays or UI that we don't want timed
     if (fDisplayStats) {
         drawStats(canvas);
-        this->updateTitle();
     }
     fCommands.drawHelp(canvas);
 
@@ -979,8 +960,10 @@ bool Viewer::onMouse(float x, float y, Window::InputState state, uint32_t modifi
 
 void Viewer::drawStats(SkCanvas* canvas) {
     static const float kPixelPerMS = 2.0f;
-    static const int kDisplayWidth = 130;
-    static const int kDisplayHeight = 100;
+    static const int kDisplayWidth = 192;
+    static const int kGraphHeight = 100;
+    static const int kTextHeight = 60;
+    static const int kDisplayHeight = kGraphHeight + kTextHeight;
     static const int kDisplayPadding = 10;
     static const int kGraphPadding = 3;
     static const SkScalar kBaseMS = 1000.f / 60.f;  // ms/frame to hit 60 fps
@@ -992,7 +975,6 @@ void Viewer::drawStats(SkCanvas* canvas) {
     SkPaint paint;
     canvas->save();
 
-    canvas->clipRect(rect);
     paint.setColor(SK_ColorBLACK);
     canvas->drawRect(rect, paint);
     // draw the 16ms line
@@ -1002,34 +984,72 @@ void Viewer::drawStats(SkCanvas* canvas) {
     paint.setColor(SK_ColorRED);
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->drawRect(rect, paint);
+    paint.setStyle(SkPaint::kFill_Style);
 
     int x = SkScalarTruncToInt(rect.fLeft) + kGraphPadding;
-    const int xStep = 2;
+    const int xStep = 3;
     int i = fCurrentMeasurement;
+    double ms = 0;
+    double animateMS = 0;
+    double paintMS = 0;
+    double flushMS = 0;
+    int count = 0;
     do {
         // Round to nearest values
         int animateHeight = (int)(fAnimateTimes[i] * kPixelPerMS + 0.5);
         int paintHeight = (int)(fPaintTimes[i] * kPixelPerMS + 0.5);
         int flushHeight = (int)(fFlushTimes[i] * kPixelPerMS + 0.5);
         int startY = SkScalarTruncToInt(rect.fBottom);
-        int endY = startY - flushHeight;
+        int endY = SkTMax(startY - flushHeight, kDisplayPadding + kTextHeight);
         paint.setColor(SK_ColorRED);
         canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
                          SkIntToScalar(x), SkIntToScalar(endY), paint);
         startY = endY;
-        endY = startY - paintHeight;
+        endY = SkTMax(startY - paintHeight, kDisplayPadding + kTextHeight);
         paint.setColor(SK_ColorGREEN);
         canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
                          SkIntToScalar(x), SkIntToScalar(endY), paint);
         startY = endY;
-        endY = startY - animateHeight;
+        endY = SkTMax(startY - animateHeight, kDisplayPadding + kTextHeight);
         paint.setColor(SK_ColorMAGENTA);
         canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
                          SkIntToScalar(x), SkIntToScalar(endY), paint);
+
+        double inc = fAnimateTimes[i] + fPaintTimes[i] + fFlushTimes[i];
+        if (inc > 0) {
+            ms += inc;
+            animateMS += fAnimateTimes[i];
+            paintMS += fPaintTimes[i];
+            flushMS += fFlushTimes[i];
+            ++count;
+        }
+
         i++;
         i &= (kMeasurementCount - 1);  // fast mod
         x += xStep;
     } while (i != fCurrentMeasurement);
+
+    paint.setTextSize(16);
+    SkString mainString;
+    mainString.appendf("%4.3f ms -> %4.3f ms", ms / SkTMax(1, count),
+                  fCumulativeMeasurementTime / SkTMax(1, fCumulativeMeasurementCount));
+    paint.setColor(SK_ColorWHITE);
+    canvas->drawString(mainString.c_str(), rect.fLeft+3, rect.fTop + 14, paint);
+
+    SkString animateString;
+    animateString.appendf("Animate: %4.3f ms", animateMS / SkTMax(1, count));
+    paint.setColor(0xffff66ff);    // pure magenta is hard to read
+    canvas->drawString(animateString.c_str(), rect.fLeft+3, rect.fTop + 28, paint);
+
+    SkString paintString;
+    paintString.appendf("Paint: %4.3f ms", paintMS / SkTMax(1, count));
+    paint.setColor(SK_ColorGREEN);
+    canvas->drawString(paintString.c_str(), rect.fLeft+3, rect.fTop + 42, paint);
+
+    SkString flushString;
+    flushString.appendf("Flush: %4.3f ms", flushMS / SkTMax(1, count));
+    paint.setColor(0xffff6666);    // pure red is hard to read
+    canvas->drawString(flushString.c_str(), rect.fLeft+3, rect.fTop + 56, paint);
 
     canvas->restore();
 }
