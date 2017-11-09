@@ -16,10 +16,7 @@ class GrPrimitiveProcessor;
 
 class GrProcessorAnalysisColor {
 public:
-    enum class Opaque {
-        kNo,
-        kYes,
-    };
+    SK_MAKE_NAMED_BOOL(Opaque);
 
     constexpr GrProcessorAnalysisColor(Opaque opaque = Opaque::kNo)
             : fFlags(opaque == Opaque::kYes ? kIsOpaque_Flag : 0), fColor(0) {}

@@ -438,6 +438,30 @@ public:
     SkNoncopyable& operator=(const SkNoncopyable&) = delete;
 };
 
+//////////////////////////////////////////////////////////////////////////////
+
+template<typename T_NAME> class SkTNamedBool {
+public:
+    enum NamedValue {
+        kYes = true,
+        kNo = false
+    };
+
+    SkTNamedBool<T_NAME>() = default; // Uninitialized.
+    constexpr /* implicit */ SkTNamedBool<T_NAME>(NamedValue value) : fValue(value) {}
+    template<typename B> constexpr explicit SkTNamedBool<T_NAME>(const B& b) : fValue((bool)b) {}
+
+    /* implicit */ constexpr operator bool() const { return fValue; }
+    constexpr SkTNamedBool<T_NAME> operator!() const { return SkTNamedBool<T_NAME>(!fValue); }
+
+private:
+    bool fValue;
+};
+
+#define SK_MAKE_NAMED_BOOL(NAME)                        \
+    struct SkTNamedBool_NAME_##NAME {};                 \
+    using NAME = SkTNamedBool<SkTNamedBool_NAME_##NAME> \
+
 #endif /* C++ */
 
 #endif
