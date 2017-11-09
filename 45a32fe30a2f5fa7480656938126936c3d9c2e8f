@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c7a5531_d17d9b7f",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-09T15:26:04Z",
+      "side": 1,
+      "message": "// Our UI can only tweak gamma, so we\u0027d better start gamma-only.\n\n?",
+      "revId": "45a32fe30a2f5fa7480656938126936c3d9c2e8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
