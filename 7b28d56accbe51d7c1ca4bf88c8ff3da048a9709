@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "e50a4040_05d1e8eb",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-09T16:28:58Z",
+      "side": 1,
+      "message": "I suspect you want your various named boolean types to be convertible to each other, but only explicitly?\n\nIf so, maybe try this?\n\n  #define DECLARE_NAMED_BOOL(name)                             \\\n      enum class name : bool { No \u003d false, Yes \u003d true };       \\\n      static bool operator+(name v) { return v \u003d\u003d name::Yes; }\n\nThe last operator+ bit there is optional, but makes it easier to use your named boolean in code:\n\n  void foo(SomeNamedBool option) {\n    if (+option) {\n      ...\n    } else {\n      ...\n    }\n  }\n\nSadly I don\u0027t know a way to define operator bool() for enum classes.  I guess you could write out a longer struct-based version of DECLARE_NAMED_BOOL that could make that work.",
+      "revId": "7b28d56accbe51d7c1ca4bf88c8ff3da048a9709",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ef98865_b97556bc",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-09T16:28:58Z",
+      "side": 1,
+      "message": "Isn\u0027t GrBoolToYesNo(value) the same as GrYesNo(value) or (GrYesNo)value?\n\nWhat do you need the function for?  Can\u0027t we just write GrAA(paint.isAntiAlias()) where we need to bool-\u003eGrAA?",
+      "revId": "7b28d56accbe51d7c1ca4bf88c8ff3da048a9709",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ce7da8b6_acdccf0f",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 2
