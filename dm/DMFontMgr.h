@@ -14,7 +14,6 @@
 
 namespace DM {
 
-    // Returned by DM::FontMgr below.
     class FontStyleSet final : public SkFontStyleSet {
     public:
         explicit FontStyleSet(int familyIndex);
@@ -25,10 +24,12 @@ namespace DM {
         SkTypeface* matchStyle(const SkFontStyle& pattern) override;
 
     private:
-        const char* fFamilyName;
+        sk_sp<SkTypeface> fTypefaces[4];
     };
 
-    struct FontMgr final : public SkFontMgr {
+    class FontMgr final : public SkFontMgr {
+    public:
+        FontMgr();
 
         int onCountFamilies() const override;
         void onGetFamilyName(int index, SkString* familyName) const override;
@@ -54,6 +55,9 @@ namespace DM {
         sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override;
 
         sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle) const override;
+
+    private:
+        sk_sp<FontStyleSet> fFamilies[3];
     };
 
 }  // namespace DM

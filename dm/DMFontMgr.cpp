@@ -17,10 +17,18 @@ namespace DM {
         "Toy Liberation Mono",
     };
 
-    FontStyleSet::FontStyleSet(int familyIndex) : fFamilyName(kFamilyNames[familyIndex]) {}
+    FontStyleSet::FontStyleSet(int familyIndex) {
+        using sk_tool_utils::create_portable_typeface;
+        const char* familyName = kFamilyNames[familyIndex];
 
-    // Each font family has 4 styles: Normal, Bold, Italic, BoldItalic.
+        fTypefaces[0] = create_portable_typeface(familyName, SkFontStyle::Normal());
+        fTypefaces[1] = create_portable_typeface(familyName, SkFontStyle::Bold());
+        fTypefaces[2] = create_portable_typeface(familyName, SkFontStyle::Italic());
+        fTypefaces[3] = create_portable_typeface(familyName, SkFontStyle::BoldItalic());
+    }
+
     int FontStyleSet::count() { return 4; }
+
     void FontStyleSet::getStyle(int index, SkFontStyle* style, SkString* name) {
         switch (index) {
             default:
@@ -39,27 +47,30 @@ namespace DM {
         }
     }
 
-    SkTypeface* FontStyleSet::matchStyle(const SkFontStyle& style) {
-        return this->matchStyleCSS3(style);
+    SkTypeface* FontStyleSet::createTypeface(int index) {
+        return SkRef(fTypefaces[index].get());
     }
 
-    SkTypeface* FontStyleSet::createTypeface(int index) {
-        SkFontStyle style;
-        this->getStyle(index, &style, nullptr);
-
-        return sk_tool_utils::create_portable_typeface(fFamilyName, style).release();
+    SkTypeface* FontStyleSet::matchStyle(const SkFontStyle& pattern) {
+        return this->matchStyleCSS3(pattern);
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-    int FontMgr::onCountFamilies() const { return SK_ARRAY_COUNT(kFamilyNames); }
+    FontMgr::FontMgr() {
+        fFamilies[0] = sk_make_sp<FontStyleSet>(0);
+        fFamilies[1] = sk_make_sp<FontStyleSet>(1);
+        fFamilies[2] = sk_make_sp<FontStyleSet>(2);
+    }
+
+    int FontMgr::onCountFamilies() const { return SK_ARRAY_COUNT(fFamilies); }
 
     void FontMgr::onGetFamilyName(int index, SkString* familyName) const {
         *familyName = kFamilyNames[index];
     }
 
     SkFontStyleSet* FontMgr::onCreateStyleSet(int index) const {
-        return new FontStyleSet(index);
+        return SkRef(fFamilies[index].get());
     }
 
     SkFontStyleSet* FontMgr::onMatchFamily(const char familyName[]) const {
@@ -96,25 +107,25 @@ namespace DM {
     }
 
     sk_sp<SkTypeface> FontMgr::onMakeFromData(sk_sp<SkData>, int ttcIndex) const {
-        return sk_sp<SkTypeface>(this->matchFamilyStyle("Sans", SkFontStyle::Normal()));
+        return nullptr;
     }
 
     sk_sp<SkTypeface> FontMgr::onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>,
                                                      int ttcIndex) const {
-        return sk_sp<SkTypeface>(this->matchFamilyStyle("Sans", SkFontStyle::Normal()));
+        return nullptr;
     }
 
     sk_sp<SkTypeface> FontMgr::onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>,
                                                     const SkFontArguments&) const {
-        return sk_sp<SkTypeface>(this->matchFamilyStyle("Sans", SkFontStyle::Normal()));
+        return nullptr;
     }
 
     sk_sp<SkTypeface> FontMgr::onMakeFromFontData(std::unique_ptr<SkFontData>) const {
-        return sk_sp<SkTypeface>(this->matchFamilyStyle("Sans", SkFontStyle::Normal()));
+        return nullptr;
     }
 
     sk_sp<SkTypeface> FontMgr::onMakeFromFile(const char path[], int ttcIndex) const {
-        return sk_sp<SkTypeface>(this->matchFamilyStyle("Sans", SkFontStyle::Normal()));
+        return nullptr;
     }
 
     sk_sp<SkTypeface> FontMgr::onLegacyMakeTypeface(const char familyName[],

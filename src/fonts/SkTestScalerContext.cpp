@@ -13,6 +13,7 @@
 #include "SkGlyph.h"
 #include "SkMakeUnique.h"
 #include "SkMask.h"
+#include "SkOTUtils.h"
 #include "SkPaintPriv.h"
 #include "SkScalerContext.h"
 #include "SkTestScalerContext.h"
@@ -133,13 +134,17 @@ void SkTestTypeface::getFontMetrics(SkPaint::FontMetrics* metrics) {
 }
 
 void SkTestTypeface::getMetrics(SkGlyph* glyph) {
+    SkGlyphID glyphID = glyph->getGlyphID();
+    glyphID = glyphID < fTestFont->fCharCodesCount ? glyphID : 0;
+
     // TODO(benjaminwagner): Update users to use floats.
-    glyph->fAdvanceX = SkFixedToFloat(fTestFont->fWidths[glyph->getGlyphID()]);
+    glyph->fAdvanceX = SkFixedToFloat(fTestFont->fWidths[glyphID]);
     glyph->fAdvanceY = 0;
 }
 
-void SkTestTypeface::getPath(SkGlyphID glyph, SkPath* path) {
-    *path = *fTestFont->fPaths[glyph];
+void SkTestTypeface::getPath(SkGlyphID glyphID, SkPath* path) {
+    glyphID = glyphID < fTestFont->fCharCodesCount ? glyphID : 0;
+    *path = *fTestFont->fPaths[glyphID];
 }
 
 void SkTestTypeface::onFilterRec(SkScalerContextRec* rec) const {
@@ -183,9 +188,7 @@ void SkTestTypeface::onGetFamilyName(SkString* familyName) const {
 SkTypeface::LocalizedStrings* SkTestTypeface::onCreateFamilyNameIterator() const {
     SkString familyName(fTestFont->fName);
     SkString language("und"); //undetermined
-//SkASSERT(0);  // incomplete
-    return nullptr;
-//     return new SkOTUtils::LocalizedStrings_SingleName(familyName, language);
+    return new SkOTUtils::LocalizedStrings_SingleName(familyName, language);
 }
 
 class SkTestScalerContext : public SkScalerContext {
