@@ -34,6 +34,41 @@
       "revId": "c55a7d648b6e318b71a1b2b88b67e16ca9215a36",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd502fe9_178f8699",
+        "filename": "include/private/SkFixed.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-09T16:00:40Z",
+      "side": 1,
+      "message": "I\u0027m fine with that solution, but that will disable this optimization for armv7 in Google3.\n\nAny reason to prefer SK_CPU_ARM64 vs. __aarch64__?",
+      "parentUuid": "77254af4_933beed0",
+      "revId": "c55a7d648b6e318b71a1b2b88b67e16ca9215a36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4222e607_01fdad1e",
+        "filename": "include/private/SkFixed.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-09T16:00:40Z",
+      "side": 1,
+      "message": "Should this also be extended to arm64?",
+      "revId": "c55a7d648b6e318b71a1b2b88b67e16ca9215a36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
