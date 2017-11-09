@@ -129,7 +129,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     }
 #endif
 
-#ifdef ENABLE_MDB_SORT
+#ifndef SK_DISABLE_RENDER_TARGET_SORTING
     SkDEBUGCODE(bool result =)
                         SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
     SkASSERT(result);
@@ -177,7 +177,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
             fOpLists[i]->gatherProxyIntervals(&alloc);
         }
 
-#ifdef MDB_ALLOC_RESOURCES
+#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
         alloc.assign();
 #endif
     }
