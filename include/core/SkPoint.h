@@ -32,6 +32,9 @@ struct SkIPoint16 {
     }
 };
 
+struct SkIPoint;
+typedef SkIPoint SkIVector;
+
 /** \struct SkIPoint
 
     SkIPoint holds two 32 bit integer coordinates
@@ -66,13 +69,13 @@ struct SkIPoint {
     }
 
     /** Add v's coordinates to this point's */
-    void operator+=(const SkIPoint& v) {
+    void operator+=(const SkIVector& v) {
         fX += v.fX;
         fY += v.fY;
     }
 
     /** Subtract v's coordinates from this point's */
-    void operator-=(const SkIPoint& v) {
+    void operator-=(const SkIVector& v) {
         fX -= v.fX;
         fY -= v.fY;
     }
@@ -93,16 +96,19 @@ struct SkIPoint {
     /** Returns a new point whose coordinates are the difference between
         a and b (i.e. a - b)
     */
-    friend SkIPoint operator-(const SkIPoint& a, const SkIPoint& b) {
+    friend SkIVector operator-(const SkIPoint& a, const SkIPoint& b) {
         return {a.fX - b.fX, a.fY - b.fY};
     }
 
     /** Returns a new point whose coordinates are the sum of a and b (a + b)
     */
-    friend SkIPoint operator+(const SkIPoint& a, const SkIPoint& b) {
+    friend SkIPoint operator+(const SkIPoint& a, const SkIVector& b) {
         return {a.fX + b.fX, a.fY + b.fY};
     }
 };
+
+struct SkPoint;
+typedef SkPoint SkVector;
 
 struct SK_API SkPoint {
     SkScalar    fX;
@@ -147,7 +153,7 @@ struct SK_API SkPoint {
         fY = SkScalarAbs(pt.fY);
     }
 
-    static void Offset(SkPoint points[], int count, const SkPoint& offset) {
+    static void Offset(SkPoint points[], int count, const SkVector& offset) {
         Offset(points, count, offset.fX, offset.fY);
     }
 
@@ -216,14 +222,14 @@ struct SK_API SkPoint {
 
     /** Add v's coordinates to the point's
     */
-    void operator+=(const SkPoint& v) {
+    void operator+=(const SkVector& v) {
         fX += v.fX;
         fY += v.fY;
     }
 
     /** Subtract v's coordinates from the point's
     */
-    void operator-=(const SkPoint& v) {
+    void operator-=(const SkVector& v) {
         fX -= v.fX;
         fY -= v.fY;
     }
@@ -272,13 +278,13 @@ struct SK_API SkPoint {
     /** Returns a new point whose coordinates are the difference between
         a's and b's (a - b)
     */
-    friend SkPoint operator-(const SkPoint& a, const SkPoint& b) {
+    friend SkVector operator-(const SkPoint& a, const SkPoint& b) {
         return {a.fX - b.fX, a.fY - b.fY};
     }
 
     /** Returns a new point whose coordinates are the sum of a's and b's (a + b)
     */
-    friend SkPoint operator+(const SkPoint& a, const SkPoint& b) {
+    friend SkPoint operator+(const SkPoint& a, const SkVector& b) {
         return {a.fX + b.fX, a.fY + b.fY};
     }
 
@@ -295,7 +301,7 @@ struct SK_API SkPoint {
         of the point.  If you don't need the previous length, call the
         non-static normalize() method instead.
      */
-    static SkScalar Normalize(SkPoint* pt);
+    static SkScalar Normalize(SkVector* vec);
 
     /** Returns the euclidian distance between a and b
     */
@@ -305,26 +311,24 @@ struct SK_API SkPoint {
 
     /** Returns the dot product of a and b, treating them as 2D vectors
     */
-    static SkScalar DotProduct(const SkPoint& a, const SkPoint& b) {
+    static SkScalar DotProduct(const SkVector& a, const SkVector& b) {
         return a.fX * b.fX + a.fY * b.fY;
     }
 
     /** Returns the cross product of a and b, treating them as 2D vectors
     */
-    static SkScalar CrossProduct(const SkPoint& a, const SkPoint& b) {
+    static SkScalar CrossProduct(const SkVector& a, const SkVector& b) {
         return a.fX * b.fY - a.fY * b.fX;
     }
 
-    SkScalar cross(const SkPoint& vec) const {
+    SkScalar cross(const SkVector& vec) const {
         return CrossProduct(*this, vec);
     }
 
-    SkScalar dot(const SkPoint& vec) const {
+    SkScalar dot(const SkVector& vec) const {
         return DotProduct(*this, vec);
     }
 
 };
-
-typedef SkPoint SkVector;
 
 #endif
