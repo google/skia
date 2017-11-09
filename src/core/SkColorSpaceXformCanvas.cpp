@@ -46,7 +46,7 @@ public:
     }
 
     SkImageInfo onImageInfo() const override {
-        return fTarget->imageInfo();
+        return fTarget->imageInfo().makeColorSpace(fTargetCS);
     }
 
     void onDrawPaint(const SkPaint& paint) override {
