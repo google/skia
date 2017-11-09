@@ -15,10 +15,10 @@
 
 
 // Turn on/off the explicit distribution of GPU resources at flush time
-//#define MDB_ALLOC_RESOURCES 1
+#define SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
 
 // Turn on/off the sorting of opLists at flush time
-//#define ENABLE_MDB_SORT 1
+#define SK_DISABLE_RENDER_TARGET_SORTING
 
 class GrAuditTrail;
 class GrCaps;

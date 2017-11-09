@@ -32,7 +32,7 @@ GrOpList::GrOpList(GrResourceProvider* resourceProvider,
     fTarget.setProxy(sk_ref_sp(surfaceProxy), kWrite_GrIOType);
     fTarget.get()->setLastOpList(this);
 
-#ifndef MDB_ALLOC_RESOURCES
+#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
     // MDB TODO: remove this! We are currently moving to having all the ops that target
     // the RT as a dest (e.g., clear, etc.) rely on the opList's 'fTarget' pointer
     // for the IO Ref. This works well but until they are all swapped over (and none
