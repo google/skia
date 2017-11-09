@@ -1733,11 +1733,20 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> LogFontTypeface::onGetAdvancedMetrics
 
     info.reset(new SkAdvancedTypefaceMetrics);
     tchar_to_skstring(lf.lfFaceName, &info->fFontName);
-    // If bit 1 is set, the font may not be embedded in a document.
-    // If bit 1 is clear, the font can be embedded.
-    // If bit 2 is set, the embedding is read-only.
-    if (otm.otmfsType & 0x1) {
-        info->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
+
+    SkOTTableOS2_V4::Type fsType;
+    if (sizeof(fsType) == this->getTableData(SkTEndian_SwapBE32(SkOTTableOS2::TAG),
+                                             offsetof(SkOTTableOS2_V4, fsType),
+                                             sizeof(fsType),
+                                             &fsType)) {
+        SkOTUtils::SetAdvanvedTypefaceFlags(fsType, info.get());
+    } else {
+        // If bit 1 is set, the font may not be embedded in a document.
+        // If bit 1 is clear, the font can be embedded.
+        // If bit 2 is set, the embedding is read-only.
+        if (otm.otmfsType & 0x1) {
+            info->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
+        }
     }
 
     populate_glyph_to_unicode(hdc, glyphCount, &(info->fGlyphToUnicode));
