@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "7d7f7da8_8a318966",
+        "filename": "include/private/SkFixed.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-09T16:09:57Z",
+      "side": 1,
+      "message": "I\u0027m happy to sign off on that.  We really don\u0027t want to have to care about performance on GCC or MSVC anymore.\n\nNo, no big difference between SK_CPU_ARM64 and __aarch64__.  __aarch64__ is the real deal, and SK_CPU_ARM64 is just there to work around some old bug in someone\u0027s toolchain.  I don\u0027t think we need SK_BUILD_NO_OPTS anymore.",
+      "parentUuid": "fd502fe9_178f8699",
+      "revId": "c55a7d648b6e318b71a1b2b88b67e16ca9215a36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4222e607_01fdad1e",
         "filename": "include/private/SkFixed.h",
         "patchSetId": 3
@@ -66,6 +84,24 @@
       "writtenOn": "2017-11-09T16:00:40Z",
       "side": 1,
       "message": "Should this also be extended to arm64?",
+      "revId": "c55a7d648b6e318b71a1b2b88b67e16ca9215a36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db977449_ad0fc288",
+        "filename": "include/private/SkFixed.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-09T16:09:57Z",
+      "side": 1,
+      "message": "Nah, there they have native int64_t, so SkFixedMul_longlong() is already ideal.",
+      "parentUuid": "4222e607_01fdad1e",
       "revId": "c55a7d648b6e318b71a1b2b88b67e16ca9215a36",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
