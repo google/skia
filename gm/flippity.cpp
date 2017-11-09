@@ -14,6 +14,14 @@
 
 #include "SkImage_Gpu.h"
 
+#define MAKE_BOOL(bool_name)                                                        \
+enum class bool_name : bool { kYes, kNo };                                          \
+static constexpr bool_name BoolTo ## bool_name(bool value) { return value ? bool_name::kYes : bool_name::kNo; }
+
+MAKE_BOOL(BottomLeft)
+MAKE_BOOL(DrawSubset)
+MAKE_BOOL(DrawScaled)
+
 static const int kNumMatrices = 6;
 static const int kImageSize = 128;
 static const int kLabelSize = 32;
@@ -91,7 +99,7 @@ static SkColor swap_red_and_blue(SkColor c) {
 // or top-left.
 static sk_sp<SkImage> make_reference_image(GrContext* context,
                                            const SkTArray<sk_sp<SkImage>>& labels,
-                                           bool bottomLeftOrigin) {
+                                           BottomLeft bottomLeftOrigin) {
     SkASSERT(kNumLabels == labels.count());
 
     SkImageInfo ii = SkImageInfo::Make(kImageSize, kImageSize,
@@ -113,7 +121,7 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
     desc.fHeight = kImageSize;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    if (bottomLeftOrigin) {
+    if (BottomLeft::kYes == bottomLeftOrigin) {
         // Note that Ganesh will flip the data when it is uploaded
         desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     }
@@ -178,7 +186,7 @@ protected:
 
     // Draw the reference image and the four corner labels in the matrix's coordinate space
     void drawImageWithMatrixAndLabels(SkCanvas* canvas, SkImage* image, int matIndex,
-                                      bool drawSubset, bool drawScaled) {
+                                      DrawSubset drawSubset, DrawScaled drawScaled) {
         static const SkRect kSubsets[kNumMatrices] = {
             SkRect::MakeXYWH(kInset, 0, kImageSize-kInset, kImageSize),
             SkRect::MakeXYWH(0, kInset, kImageSize, kImageSize-kInset),
@@ -195,9 +203,10 @@ protected:
 
             // draw the reference image
             canvas->concat(imageGeomMat);
-            if (drawSubset) {
+            if (DrawSubset::kYes == drawSubset) {
                 canvas->drawImageRect(image, kSubsets[matIndex],
-                                      drawScaled ? SkRect::MakeWH(kImageSize, kImageSize)
+                                      DrawScaled::kYes == drawScaled
+                                                 ? SkRect::MakeWH(kImageSize, kImageSize)
                                                  : kSubsets[matIndex],
                                       nullptr, SkCanvas::kFast_SrcRectConstraint);
             } else {
@@ -214,7 +223,7 @@ protected:
     }
 
     void drawRow(GrContext* context, SkCanvas* canvas,
-                 bool bottomLeftImage, bool drawSubset, bool drawScaled) {
+                 BottomLeft bottomLeftImage, DrawSubset drawSubset, DrawScaled drawScaled) {
 
         sk_sp<SkImage> referenceImage = make_reference_image(context, fLabels, bottomLeftImage);
 
@@ -258,22 +267,22 @@ protected:
         canvas->save();
 
         // Top row gets TL image
-        this->drawRow(context, canvas, false, false, false);
+        this->drawRow(context, canvas, BottomLeft::kNo, DrawSubset::kNo, DrawScaled::kNo);
 
         canvas->translate(0, kCellSize);
 
         // Bottom row gets BL image
-        this->drawRow(context, canvas, true, false, false);
+        this->drawRow(context, canvas, BottomLeft::kYes, DrawSubset::kNo, DrawScaled::kNo);
 
         canvas->translate(0, kCellSize);
 
         // Third row gets subsets of BL images
-        this->drawRow(context, canvas, true, true, false);
+        this->drawRow(context, canvas, BottomLeft::kYes, DrawSubset::kYes, DrawScaled::kNo);
 
         canvas->translate(0, kCellSize);
 
         // Fourth row gets scaled subsets of BL images
-        this->drawRow(context, canvas, true, true, true);
+        this->drawRow(context, canvas, BottomLeft::kYes, DrawSubset::kYes, DrawScaled::kYes);
 
         canvas->restore();
 
