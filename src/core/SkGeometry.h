@@ -196,6 +196,8 @@ static inline bool SkCubicIsDegenerate(SkCubicType type) {
     d[] is filled with the cubic inflection function coefficients. See "Resolution Independent
     Curve Rendering using Programmable Graphics Hardware", 4.2 Curve Categorization:
 
+    If the input points contain infinities or NaN, the return values are undefined.
+
     https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
 */
 SkCubicType SkClassifyCubic(const SkPoint p[4], double t[2] = nullptr, double s[2] = nullptr,
