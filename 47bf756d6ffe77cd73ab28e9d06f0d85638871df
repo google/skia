@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "7373d36d_27a50d56",
+        "filename": "tools/gpu/vk/VkTestContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-09T16:23:11Z",
+      "side": 1,
+      "message": "Oh, right. And this is only for tools since when somebody else uses us they fill out the interface themselves?\n\nSeems to me like tools/gpu/vk would be the right place for it.\n\nCan viewer call something like sk_gpu_test::LoadVulkanLibrary()?",
+      "parentUuid": "8810d241_48012652",
+      "range": {
+        "startLine": 119,
+        "startChar": 12,
+        "endLine": 135,
+        "endChar": 13
+      },
+      "revId": "47bf756d6ffe77cd73ab28e9d06f0d85638871df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0014f876_98700861",
         "filename": "tools/viewer/sk_app/VulkanWindowContext.cpp",
         "patchSetId": 2
@@ -93,6 +117,30 @@
       "revId": "47bf756d6ffe77cd73ab28e9d06f0d85638871df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34344589_4339516c",
+        "filename": "tools/viewer/sk_app/VulkanWindowContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-09T16:23:11Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f7e0ea60_5e77f54d",
+      "range": {
+        "startLine": 640,
+        "startChar": 70,
+        "endLine": 640,
+        "endChar": 89
+      },
+      "revId": "47bf756d6ffe77cd73ab28e9d06f0d85638871df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
