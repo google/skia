@@ -438,6 +438,50 @@ public:
     SkNoncopyable& operator=(const SkNoncopyable&) = delete;
 };
 
+//////////////////////////////////////////////////////////////////////////////
+
+template<typename TSubclass> class SkTNamedBool {
+public:
+    enum NamedValue {
+        kYes = true,
+        kNo = false
+    };
+
+    constexpr bool value() const { return fValue; }
+    /* implicit */ constexpr operator bool() { return fValue; }
+
+    constexpr TSubclass operator!() { return TSubclass(!fValue); }
+
+protected:
+    SkTNamedBool<TSubclass>() = default; // Uninitialized.
+    constexpr explicit SkTNamedBool<TSubclass>(bool value) : fValue(value) {}
+
+private:
+    bool fValue;
+};
+
+template<typename T>
+static constexpr bool operator==(const SkTNamedBool<T>& a, const SkTNamedBool<T>& b) {
+    return a.value() == b.value();
+}
+
+template<typename T>
+static constexpr bool operator==(typename SkTNamedBool<T>::NamedValue a, const SkTNamedBool<T>& b) {
+    return a == b.value();
+}
+
+template<typename T>
+static constexpr bool operator==(const SkTNamedBool<T>& a, typename SkTNamedBool<T>::NamedValue b) {
+    return a.value() == b;
+}
+
+#define SK_MAKE_NAMED_BOOL(NAME)                                                                  \
+    struct NAME : public SkTNamedBool<NAME> {                                                     \
+        NAME() = default; /* Uninitialized. */                                                    \
+        /* implicit */ constexpr NAME(NamedValue val) : SkTNamedBool<NAME>(val) {}                \
+        template<typename B> constexpr explicit NAME(const B& b) : SkTNamedBool<NAME>((bool)b) {} \
+    } /* Leave out final semicolon. */
+
 #endif /* C++ */
 
 #endif
