@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9228d771_8787e958",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-09T22:46:50Z",
+      "side": 1,
+      "message": "Nah, if anything the templates will make the build slower.\n\nIf the templating doesn\u0027t serve any purpose now, I\u0027d we rather land it without and leave any use of templates to later when we know how we\u0027d like to use them.",
+      "parentUuid": "768a6aed_8bdb9898",
+      "range": {
+        "startLine": 443,
+        "startChar": 9,
+        "endLine": 443,
+        "endChar": 24
+      },
+      "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f9fd0a3c_e0eb817a",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 7
@@ -83,6 +107,30 @@
       "writtenOn": "2017-11-09T22:13:53Z",
       "side": 1,
       "message": "Do we like this as a constructor? Or would a static Make method be better?",
+      "range": {
+        "startLine": 452,
+        "startChar": 35,
+        "endLine": 452,
+        "endChar": 56
+      },
+      "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55d66bd1_67e355f9",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-09T22:46:50Z",
+      "side": 1,
+      "message": "How would the static Make() differ from the constructor?",
+      "parentUuid": "f9fd0a3c_e0eb817a",
       "range": {
         "startLine": 452,
         "startChar": 35,
@@ -124,6 +172,24 @@
       "side": 1,
       "message": "That would compile, however I think the struct is given global scope, meaning:\n\nclass Class1 {\n    SK_MAKE_NAMED_BOOL(SomeBool);\n};\n\nclass Class2 {\n    SK_MAKE_NAMED_BOOL(SomeBool);\n};\n\nClass1::SomeBool and Class2::SomeBool are the same type now and interchangeable.\n\nI can\u0027t think of a reason why not to just declare the struct at the correct scope though instead of putting in a definition.\n\n struct SkTNamedBool_NAME_##NAME;\n using NAME \u003d SkTNamedBool\u003cSkTNamedBool_NAME_##NAME\u003e;",
       "parentUuid": "fb4ecb7c_1422b5a7",
+      "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "132c8b48_ffaf8ab8",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-09T22:46:50Z",
+      "side": 1,
+      "message": "Yeah, this is silly.  Forget I mentioned it.",
+      "parentUuid": "ec0c177f_d4629c8d",
       "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
