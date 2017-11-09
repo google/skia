@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8810d241_48012652",
+        "filename": "tools/gpu/vk/VkTestContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-11-09T15:58:56Z",
+      "side": 1,
+      "message": "Yeah I was trying to find a nice common place in our tools to put that helper function so it could be shared (also needs to be a vulkan specific file since we including vulkan.h), but nothing really stood out as a good spot. I definitely don\u0027t want to include a header for the viewer app inside here.\n\nAny thoughts on where to put it?",
+      "parentUuid": "2b6f91dd_1ee43f4a",
+      "range": {
+        "startLine": 119,
+        "startChar": 12,
+        "endLine": 135,
+        "endChar": 13
+      },
+      "revId": "47bf756d6ffe77cd73ab28e9d06f0d85638871df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0014f876_98700861",
         "filename": "tools/viewer/sk_app/VulkanWindowContext.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-09T15:43:49Z",
       "side": 1,
       "message": "Were you saying something about how this should be loaded through vkGetInstanceProcAddr?",
+      "range": {
+        "startLine": 640,
+        "startChar": 70,
+        "endLine": 640,
+        "endChar": 89
+      },
+      "revId": "47bf756d6ffe77cd73ab28e9d06f0d85638871df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7e0ea60_5e77f54d",
+        "filename": "tools/viewer/sk_app/VulkanWindowContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-11-09T15:58:56Z",
+      "side": 1,
+      "message": "Yeah that\u0027s the plan, but will happen in a different change. I want this change to just be about loading the library. The other change will be about changing how we set up the GrVkInterface/BackendContext to just expect the instance function.",
+      "parentUuid": "0014f876_98700861",
       "range": {
         "startLine": 640,
         "startChar": 70,
