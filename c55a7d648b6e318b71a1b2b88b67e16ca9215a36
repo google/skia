@@ -16,6 +16,24 @@
       "revId": "c55a7d648b6e318b71a1b2b88b67e16ca9215a36",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "77254af4_933beed0",
+        "filename": "include/private/SkFixed.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-09T15:09:55Z",
+      "side": 1,
+      "message": "Yeah, I think this code just predates ARMv8.  There they\u0027ve dropped #defines for things that are guaranteed, like __ARM_NEON__, __ARM_VFPV3__, __ARM_VFPV4__.\n\nI think we\u0027ll be good with just\n\n  #if defined(__ARM_VFPV3__)\n\nhere, or\n\n  #if defined(__ARM_VFPV3__) || defined(__aarch64__)\n\nif you want to try folding in ARMv8 at the same time.  Let\u0027s not care about GCC.",
+      "parentUuid": "db1a9f8a_83a356b9",
+      "revId": "c55a7d648b6e318b71a1b2b88b67e16ca9215a36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
