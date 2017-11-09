@@ -39,15 +39,15 @@ namespace DM {
         }
     }
 
-    SkTypeface* FontStyleSet::matchStyle(const SkFontStyle& style) {
-        return this->matchStyleCSS3(style);
-    }
-
     SkTypeface* FontStyleSet::createTypeface(int index) {
         SkFontStyle style;
         this->getStyle(index, &style, nullptr);
 
         return sk_tool_utils::create_portable_typeface(fFamilyName, style).release();
+    }
+
+    SkTypeface* FontStyleSet::matchStyle(const SkFontStyle& style) {
+        return this->matchStyleCSS3(style);
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -96,25 +96,25 @@ namespace DM {
     }
 
     sk_sp<SkTypeface> FontMgr::onMakeFromData(sk_sp<SkData>, int ttcIndex) const {
-        return sk_sp<SkTypeface>(this->matchFamilyStyle("Sans", SkFontStyle::Normal()));
+        return nullptr;
     }
 
     sk_sp<SkTypeface> FontMgr::onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>,
                                                      int ttcIndex) const {
-        return sk_sp<SkTypeface>(this->matchFamilyStyle("Sans", SkFontStyle::Normal()));
+        return nullptr;
     }
 
     sk_sp<SkTypeface> FontMgr::onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>,
                                                     const SkFontArguments&) const {
-        return sk_sp<SkTypeface>(this->matchFamilyStyle("Sans", SkFontStyle::Normal()));
+        return nullptr;
     }
 
     sk_sp<SkTypeface> FontMgr::onMakeFromFontData(std::unique_ptr<SkFontData>) const {
-        return sk_sp<SkTypeface>(this->matchFamilyStyle("Sans", SkFontStyle::Normal()));
+        return nullptr;
     }
 
     sk_sp<SkTypeface> FontMgr::onMakeFromFile(const char path[], int ttcIndex) const {
-        return sk_sp<SkTypeface>(this->matchFamilyStyle("Sans", SkFontStyle::Normal()));
+        return nullptr;
     }
 
     sk_sp<SkTypeface> FontMgr::onLegacyMakeTypeface(const char familyName[],
