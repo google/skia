@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7fe00863_0c0f5b07",
+        "filename": "src/core/SkGaussFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-09T19:52:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "901807c0_fb1ab2df",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bc10f238_c142219a",
         "filename": "src/core/SkGaussFilter.cpp",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2017-11-09T18:00:44Z",
       "side": 1,
       "message": "Can we skip this since we\u0027re normalizing the entire thing at the end?",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db8c71fe_d99292c1",
+        "filename": "src/core/SkGaussFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-09T19:52:05Z",
+      "side": 1,
+      "message": "This is needed to make the good enough calculation. But, it is only used once because of the recursive relationship.",
+      "parentUuid": "bc10f238_c142219a",
       "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "4fc01165_0d322609",
+        "filename": "src/core/SkGaussFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-09T19:52:05Z",
+      "side": 1,
+      "message": "If fN is not know, this makes a jump into standard library.",
+      "parentUuid": "8d10fd75_52786a03",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2e623118_bb3242e9",
         "filename": "src/core/SkGaussFilter.cpp",
         "patchSetId": 10
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "264d94ea_2563d27d",
+        "filename": "src/core/SkGaussFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-09T19:52:05Z",
+      "side": 1,
+      "message": "This the entry point I use in my code.",
+      "parentUuid": "2e623118_bb3242e9",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "119df1ce_9c01632f",
         "filename": "src/core/SkGaussFilter.cpp",
         "patchSetId": 10
@@ -81,6 +153,24 @@
       "writtenOn": "2017-11-09T18:00:44Z",
       "side": 1,
       "message": "Do we have any normalization concerns here ?",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "311eafb6_8e444fb2",
+        "filename": "src/core/SkGaussFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-09T19:52:05Z",
+      "side": 1,
+      "message": "The normalize code will slide in when I hook it up to my code.",
+      "parentUuid": "119df1ce_9c01632f",
       "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -121,6 +211,24 @@
     },
     {
       "key": {
+        "uuid": "50eeede3_e9bfae4a",
+        "filename": "tests/SkGaussFilterTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-09T19:52:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3d18ee6_5ce47cf3",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0cf04287_40140580",
         "filename": "tests/SkGaussFilterTest.cpp",
         "patchSetId": 10
@@ -135,6 +243,24 @@
       "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e018e55d_bdd376c8",
+        "filename": "tests/SkGaussFilterTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-09T19:52:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0cf04287_40140580",
+      "revId": "8d31d871eaff7406bf424f8d4933da350e549bd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
