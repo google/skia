@@ -86,13 +86,12 @@ static inline SkFixed SkFixedFloorToFixed(SkFixed x) {
 #define SkFixedDiv(numer, denom) \
     SkToS32(SkTPin<int64_t>((SkLeftShift((int64_t)(numer), 16) / (denom)), SK_MinS32, SK_MaxS32))
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-// Now look for ASM overrides for our portable versions (should consider putting this in its own file)
-
-inline SkFixed SkFixedMul_longlong(SkFixed a, SkFixed b) {
+static inline SkFixed SkFixedMul(SkFixed a, SkFixed b) {
     return (SkFixed)((int64_t)a * b >> 16);
 }
-#define SkFixedMul(a,b)     SkFixedMul_longlong(a,b)
+
+///////////////////////////////////////////////////////////////////////////////
+// Platform-specific alternatives to our portable versions.
 
 // The VCVT float-to-fixed instruction is part of the VFPv3 instruction set.
 #if defined(__ARM_VFPV3__)
@@ -109,23 +108,6 @@ inline SkFixed SkFixedMul_longlong(SkFixed a, SkFixed b) {
     }
     #undef SkFloatToFixed
     #define SkFloatToFixed(x)  SkFloatToFixed_arm(x)
-#endif
-
-#if defined(SK_CPU_ARM32)
-    inline SkFixed SkFixedMul_arm(SkFixed x, SkFixed y)
-    {
-        int32_t t;
-        asm("smull  %0, %2, %1, %3          \n"
-            "mov    %0, %0, lsr #16         \n"
-            "orr    %0, %0, %2, lsl #16     \n"
-            : "=r"(x), "=&r"(y), "=r"(t)
-            : "r"(x), "1"(y)
-            :
-            );
-        return x;
-    }
-    #undef SkFixedMul
-    #define SkFixedMul(x, y)        SkFixedMul_arm(x, y)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
