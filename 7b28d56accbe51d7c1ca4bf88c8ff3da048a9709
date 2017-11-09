@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "b3e7403f_07790eac",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-09T16:52:42Z",
+      "side": 1,
+      "message": "It seems to me that a better solution here is to make the two inverts be the same type by lifting the enum out of both classes or having Class2 make its type with using Invert \u003d Class1::Invert. If neither of those options is desirable I\u0027d be in favor of embracing the explicit conversions in what I assume are a few places over making *all* of yes/no enums be the same enum type or bool.\n\n\nUsing a struct with operator bool and explicit cons from bool could be nice.",
+      "parentUuid": "18f5360d_761183bf",
+      "revId": "7b28d56accbe51d7c1ca4bf88c8ff3da048a9709",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9ef98865_b97556bc",
         "filename": "include/gpu/GrTypes.h",
         "patchSetId": 2
