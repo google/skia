@@ -381,3 +381,40 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 280, 60) {
         canvas->translate(kSize + kPad, 0);
     }
 }
+
+static void draw_pixmap(SkCanvas* canvas, const SkPixmap& pm, SkScalar x, SkScalar y) {
+    canvas->drawImage(SkImage::MakeRasterCopy(pm), x, y, nullptr);
+}
+
+static void slam_ff(const SkPixmap& pm) {
+    for (int y = 0; y < pm.height(); ++y) {
+        for (int x = 0; x < pm.width(); ++x) {
+            *pm.writable_addr32(x, y) = *pm.addr32(x, y) | SkPackARGB32(0xFF, 0, 0, 0);
+        }
+    }
+}
+
+DEF_SIMPLE_GM(scalepixels_unpremul, canvas, 500, 500) {
+    SkImageInfo info = SkImageInfo::MakeN32(16, 16, kUnpremul_SkAlphaType);
+    SkAutoPixmapStorage pm;
+    pm.alloc(info);
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            *pm.writable_addr32(x, y) = SkPackARGB32NoCheck(0, (y << 4) | y, (x << 4) | x, 0xFF);
+        }
+    }
+    draw_pixmap(canvas, pm, 10, 10);
+
+    canvas->save();
+    canvas->scale(16, 16);
+    draw_pixmap(canvas, pm, 0, 4);
+    canvas->restore();
+
+    SkAutoPixmapStorage pm2;
+    pm2.alloc(SkImageInfo::MakeN32(256, 256, kUnpremul_SkAlphaType));
+    pm.scalePixels(pm2, kNone_SkFilterQuality);
+
+    slam_ff(pm2);
+    draw_pixmap(canvas, pm2, 300, 10);
+}
+

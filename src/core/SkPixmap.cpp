@@ -239,13 +239,25 @@ bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
         return this->readPixels(dst);
     }
 
+    const SkPixmap* srcPtr = this;
+    const SkPixmap* dstPtr = &dst;
+
+    SkPixmap s = *this;
+    SkPixmap d = dst;
+    if (s.alphaType() == kUnpremul_SkAlphaType && d.alphaType() == kUnpremul_SkAlphaType) {
+        *((SkImageInfo*)&s.info()) = s.info().makeAlphaType(kPremul_SkAlphaType);
+        *((SkImageInfo*)&d.info()) = d.info().makeAlphaType(kPremul_SkAlphaType);
+        srcPtr = &s;
+        dstPtr = &d;
+    }
+
     SkBitmap bitmap;
-    if (!bitmap.installPixels(*this)) {
+    if (!bitmap.installPixels(*srcPtr)) {
         return false;
     }
     bitmap.setIsVolatile(true); // so we don't try to cache it
 
-    auto surface(SkSurface::MakeRasterDirect(dst.info(), dst.writable_addr(), dst.rowBytes()));
+    auto surface(SkSurface::MakeRasterDirect(dstPtr->info(), dstPtr->writable_addr(), dstPtr->rowBytes()));
     if (!surface) {
         return false;
     }
