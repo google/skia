@@ -164,18 +164,14 @@ protected:
      * purpose of ensuring that the fragment shader runs on partially covered pixels for
      * non-MSAA antialiasing.
      */
-    enum class HasAABloat {
-        kYes,
-        kNo
-    };
+    SK_MAKE_NAMED_BOOL(HasAABloat);
+
     /**
      * Indicates that the geometry represented by the op has zero area (e.g. it is hairline or
      * points).
      */
-    enum class IsZeroArea {
-        kYes,
-        kNo
-    };
+    SK_MAKE_NAMED_BOOL(IsZeroArea);
+
 
     void setBounds(const SkRect& newBounds, HasAABloat aabloat, IsZeroArea zeroArea) {
         fBounds = newBounds;
@@ -227,8 +223,8 @@ private:
 
     void setBoundsFlags(HasAABloat aabloat, IsZeroArea zeroArea) {
         fBoundsFlags = 0;
-        fBoundsFlags |= (HasAABloat::kYes == aabloat) ? kAABloat_BoundsFlag : 0;
-        fBoundsFlags |= (IsZeroArea ::kYes == zeroArea) ? kZeroArea_BoundsFlag : 0;
+        fBoundsFlags |= aabloat ? kAABloat_BoundsFlag : 0;
+        fBoundsFlags |= zeroArea ? kZeroArea_BoundsFlag : 0;
     }
 
     enum {
