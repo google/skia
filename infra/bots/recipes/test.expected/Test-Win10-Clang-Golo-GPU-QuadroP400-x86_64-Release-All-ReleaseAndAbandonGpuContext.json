@@ -384,6 +384,7 @@
       "image",
       "_",
       ".SRW",
+      "--nonativeFonts",
       "--verbose",
       "--releaseAndAbandonGpuContext"
     ],

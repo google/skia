@@ -282,6 +282,7 @@
       "--match",
       "~Threaded",
       "~multipicturedraw_",
+      "--nonativeFonts",
       "--verbose",
       "--preAbandonGpuContext"
     ],

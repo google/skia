@@ -383,6 +383,7 @@
       "gm",
       "_",
       "lighting",
+      "--nonativeFonts",
       "--verbose"
     ],
     "env": {

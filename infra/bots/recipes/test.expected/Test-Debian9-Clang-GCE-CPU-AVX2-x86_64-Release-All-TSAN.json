@@ -462,6 +462,7 @@
       "~ReadWriteAlpha",
       "~RGBA4444TextureTest",
       "~RGB565TextureTest",
+      "--nonativeFonts",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",

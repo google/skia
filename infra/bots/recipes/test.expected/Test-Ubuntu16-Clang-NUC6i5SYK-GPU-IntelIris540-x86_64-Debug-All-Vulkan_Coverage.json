@@ -303,6 +303,7 @@
       ".SRW",
       "--match",
       "~VkHeapTests",
+      "--nonativeFonts",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",

@@ -460,6 +460,7 @@
       "--match",
       "~Once",
       "~Shared",
+      "--nonativeFonts",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",

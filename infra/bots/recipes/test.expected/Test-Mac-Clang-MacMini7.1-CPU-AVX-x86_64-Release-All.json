@@ -534,6 +534,7 @@
       "gm",
       "_",
       "complexclip4_aa",
+      "--nonativeFonts",
       "--verbose"
     ],
     "env": {
