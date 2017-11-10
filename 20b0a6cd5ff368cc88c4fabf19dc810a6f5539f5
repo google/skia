@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "932341e0_b9a9be11",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-10T06:09:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9228d771_8787e958",
+      "range": {
+        "startLine": 443,
+        "startChar": 9,
+        "endLine": 443,
+        "endChar": 24
+      },
+      "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9fd0a3c_e0eb817a",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 7
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "How would the static Make() differ from the constructor?",
       "parentUuid": "f9fd0a3c_e0eb817a",
+      "range": {
+        "startLine": 452,
+        "startChar": 35,
+        "endLine": 452,
+        "endChar": 56
+      },
+      "revId": "20b0a6cd5ff368cc88c4fabf19dc810a6f5539f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71960124_cb50ae6f",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-10T06:09:11Z",
+      "side": 1,
+      "message": "biggest difference I can think of is you would have to initialize with:\n\n  fMipMapped(GrMipMapped::Make(bool))\n\nrather than:\n\n  fMipMapped(bool)\n\nI mostly like it better, except right now you could technically do this:\n\n  fMipMapped(GrAA(true))",
+      "parentUuid": "55d66bd1_67e355f9",
       "range": {
         "startLine": 452,
         "startChar": 35,
