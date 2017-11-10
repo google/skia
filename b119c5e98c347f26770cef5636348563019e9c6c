@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "14f1be21_decc2f53",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-10T21:51:52Z",
+      "side": 1,
+      "message": "I love it, but now things like these don\u0027t work:\n\n  x ? kYes : kNo\n\n  for (auto value : {kYes, kNo})\n\nAlso I\u0027m running into issues where the definition of Yes and No technically aren\u0027t complete until after their enclosing class\u0027s definition is finished:\n\nhttps://stackoverflow.com/questions/29551223/static-constexpr-function-called-in-a-constant-expression-is-an-error\n\n\"The central problem is that class members are generally not considered to be declared until after the class in which they\u0027re declared is complete. Thus, regardless of the fact that foo is static constexpr and its declaration precedes that of bar, it cannot be considered \"available\" for use in a constant expression until MyClass is complete.\"",
+      "parentUuid": "4525fc5c_3ad76deb",
+      "revId": "b119c5e98c347f26770cef5636348563019e9c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a12666e6_8547b0da",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 14
