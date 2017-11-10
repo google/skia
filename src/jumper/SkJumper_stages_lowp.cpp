@@ -40,22 +40,23 @@
 #endif
 
 #if defined(__AVX2__)
-    using U8  = uint8_t  __attribute__((ext_vector_type(16)));
-    using U16 = uint16_t __attribute__((ext_vector_type(16)));
-    using I16 =  int16_t __attribute__((ext_vector_type(16)));
-    using I32 =  int32_t __attribute__((ext_vector_type(16)));
-    using U32 = uint32_t __attribute__((ext_vector_type(16)));
-    using F   = float    __attribute__((ext_vector_type(16)));
+    static constexpr size_t N = 16;
 #else
-    using U8  = uint8_t  __attribute__((ext_vector_type(8)));
-    using U16 = uint16_t __attribute__((ext_vector_type(8)));
-    using I16 =  int16_t __attribute__((ext_vector_type(8)));
-    using I32 =  int32_t __attribute__((ext_vector_type(8)));
-    using U32 = uint32_t __attribute__((ext_vector_type(8)));
-    using F   = float    __attribute__((ext_vector_type(8)));
+    static constexpr size_t N =  8;
 #endif
 
-static const size_t N = sizeof(U16) / sizeof(uint16_t);
+template <typename T>
+using Vec = T __attribute__((ext_vector_type(N)));
+
+template <typename T>
+using HVec = T __attribute__((ext_vector_type(N/2)));
+
+using U8  = Vec< uint8_t>;
+using U16 = Vec<uint16_t>;
+using I16 = Vec< int16_t>;
+using I32 = Vec< int32_t>;
+using U32 = Vec<uint32_t>;
+using F   = Vec<   float>;
 
 // We pass program as the second argument so that load_and_inc() will find it in %rsi on x86-64.
 using Stage = void (ABI*)(size_t tail, void** program, size_t dx, size_t dy,
@@ -183,13 +184,14 @@ SI D join(S lo, S hi) {
     memcpy((char*)&v + 1*sizeof(S), &hi, sizeof(S));
     return v;
 }
-template <typename V, typename H>
-SI V map(V v, H (*fn)(H)) {
-    H lo,hi;
+
+template <typename T, typename RT = T, typename Fn>
+SI Vec<RT> map(Vec<T> v, Fn&& fn) {
+    HVec<T> lo,hi;
     split(v, &lo,&hi);
-    lo = fn(lo);
-    hi = fn(hi);
-    return join<V>(lo,hi);
+    HVec<RT> rlo = fn(lo),
+             rhi = fn(hi);
+    return join<Vec<RT>>(rlo,rhi);
 }
 
 // TODO: do we need platform-specific intrinsics for any of these?
@@ -208,7 +210,7 @@ SI F rcp(F x) {
 #elif defined(__SSE__)
     return map(x, _mm_rcp_ps);
 #elif defined(__ARM_NEON)
-    return map(x, +[](float32x4_t v) {
+    return map(x, [](float32x4_t v) {
         auto est = vrecpeq_f32(v);
         return vrecpsq_f32(v,est)*est;
     });
@@ -224,7 +226,7 @@ SI F sqrt_(F x) {
 #elif defined(__aarch64__)
     return map(x, vsqrtq_f32);
 #elif defined(__ARM_NEON)
-    return map(x, +[](float32x4_t v) {
+    return map(x, [](float32x4_t v) {
         auto est = vrsqrteq_f32(v);  // Estimate and two refinement steps for est = rsqrt(v).
         est *= vrsqrtsq_f32(v,est*est);
         est *= vrsqrtsq_f32(v,est*est);
@@ -242,9 +244,9 @@ SI F floor_(F x) {
 #if defined(__aarch64__)
     return map(x, vrndmq_f32);
 #elif defined(__AVX2__)
-    return map(x, +[](__m256 v){ return _mm256_floor_ps(v); });  // _mm256_floor_ps is a macro...
+    return map(x, [](__m256 v){ return _mm256_floor_ps(v); });  // _mm256_floor_ps is a macro...
 #elif defined(__SSE4_1__)
-    return map(x, +[](__m128 v){ return    _mm_floor_ps(v); });  // _mm_floor_ps() is a macro too.
+    return map(x, [](__m128 v){ return    _mm_floor_ps(v); });  // _mm_floor_ps() is a macro too.
 #else
     F roundtrip = cast<F>(cast<I32>(x));
     return roundtrip - if_then_else(roundtrip > x, F(1), F(0));
@@ -481,20 +483,14 @@ SI void store(T* ptr, size_t tail, V v) {
 
     template<>
     F gather(const float* p, U32 ix) {
-        __m256i lo, hi;
-        split(ix, &lo, &hi);
-
-        return join<F>(_mm256_i32gather_ps(p, lo, 4),
-                       _mm256_i32gather_ps(p, hi, 4));
+        return map<uint32_t, float>(ix, [&](HVec<uint32_t> hix) {
+            return _mm256_i32gather_ps(p, hix, 4);
+        });
     }
 
     template<>
     U32 gather(const uint32_t* p, U32 ix) {
-        __m256i lo, hi;
-        split(ix, &lo, &hi);
-
-        return join<U32>(_mm256_i32gather_epi32(p, lo, 4),
-                         _mm256_i32gather_epi32(p, hi, 4));
+        return map(ix, [&](HVec<uint32_t> hix) { return _mm256_i32gather_epi32(p, hix, 4); });
     }
 #else
     template <typename V, typename T>
