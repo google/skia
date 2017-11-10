@@ -158,6 +158,9 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
             fFormatArgs.push_back(cppCode + ".right()");
             fFormatArgs.push_back(cppCode + ".bottom()");
         }
+    } else if (type.kind() == Type::kEnum_Kind) {
+        this->write("%d");
+        fFormatArgs.push_back("(int) " + cppCode);
     } else {
         printf("unsupported runtime value type '%s'\n", String(type.fName).c_str());
         ASSERT(false);
@@ -694,7 +697,7 @@ void CPPCodeGenerator::writeGetKey() {
                     this->writef("    b->add32(%s.height());\n",
                                  HCodeGenerator::FieldName(name).c_str());
                 } else {
-                    this->writef("    b->add32(%s);\n",
+                    this->writef("    b->add32((int32_t) %s);\n",
                                  HCodeGenerator::FieldName(name).c_str());
                 }
                 break;

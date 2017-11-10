@@ -5,12 +5,6 @@
 }
 
 @class {
-    enum PMConversion {
-        kToPremul_PMConversion   = 0,
-        kToUnpremul_PMConversion = 1,
-        kPMConversionCnt         = 2
-    };
-
     static bool TestForPreservingPMConversions(GrContext* context) {
         static constexpr int kSize = 256;
         static constexpr GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
@@ -69,9 +63,9 @@
         GrPaint paint2;
         GrPaint paint3;
         std::unique_ptr<GrFragmentProcessor> pmToUPM(
-                new GrConfigConversionEffect(kToUnpremul_PMConversion));
+                new GrConfigConversionEffect(PMConversion::kToUnpremul));
         std::unique_ptr<GrFragmentProcessor> upmToPM(
-                new GrConfigConversionEffect(kToPremul_PMConversion));
+                new GrConfigConversionEffect(PMConversion::kToPremul));
 
         paint1.addColorTextureProcessor(dataProxy, SkMatrix::I());
         paint1.addColorFragmentProcessor(pmToUPM->clone());
@@ -125,7 +119,7 @@
     }
 }
 
-layout(key) in int pmConversion;
+layout(key) in PMConversion pmConversion;
 
 @emitCode {
     fragBuilder->forceHighPrecision();
@@ -137,11 +131,11 @@ void main() {
     sk_OutColor = floor(sk_InColor * 255 + 0.5) / 255;
 
     @switch (pmConversion) {
-        case 0 /* kToPremul_PMConversion */:
+        case PMConversion::kToPremul:
             sk_OutColor.rgb = floor(sk_OutColor.rgb * sk_OutColor.a * 255 + 0.5) / 255;
             break;
 
-        case 1 /* kToUnpremul_PMConversion */:
+        case PMConversion::kToUnpremul:
             sk_OutColor.rgb = sk_OutColor.a <= 0.0 ?
                                           half3(0) :
                                           floor(sk_OutColor.rgb / sk_OutColor.a * 255 + 0.5) / 255;
@@ -150,6 +144,7 @@ void main() {
 }
 
 @test(data) {
-    PMConversion pmConv = static_cast<PMConversion>(data->fRandom->nextULessThan(kPMConversionCnt));
+    PMConversion pmConv = static_cast<PMConversion>(data->fRandom->nextULessThan(
+                                                             (int) PMConversion::kPMConversionCnt));
     return std::unique_ptr<GrFragmentProcessor>(new GrConfigConversionEffect(pmConv));
 }

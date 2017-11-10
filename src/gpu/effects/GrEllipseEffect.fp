@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-layout(key) in int edgeType;
+layout(key) in GrClipEdgeType edgeType;
 in half2 center;
 in half2 radii;
 
@@ -72,16 +72,16 @@ void main() {
 
     half alpha;
     @switch (edgeType) {
-        case 0 /* GrClipEdgeType::kFillBW */:
+        case GrClipEdgeType::kFillBW:
             alpha = approx_dist > 0.0 ? 0.0 : 1.0;
             break;
-        case 1 /* GrClipEdgeType::kFillAA */:
+        case GrClipEdgeType::kFillAA:
             alpha = clamp(0.5 - approx_dist, 0.0, 1.0);
             break;
-        case 2 /* GrClipEdgeType::kInverseFillBW */:
+        case GrClipEdgeType::kInverseFillBW:
             alpha = approx_dist > 0.0 ? 1.0 : 0.0;
             break;
-        case 3 /* GrClipEdgeType::kInverseFillAA */:
+        case GrClipEdgeType::kInverseFillAA:
             alpha = clamp(0.5 + approx_dist, 0.0, 1.0);
             break;
         default:
@@ -101,5 +101,5 @@ void main() {
     do {
         et = (GrClipEdgeType) testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
     } while (GrClipEdgeType::kHairlineAA == et);
-    return GrEllipseEffect::Make((int) et, center, SkPoint::Make(rx, ry));
+    return GrEllipseEffect::Make(et, center, SkPoint::Make(rx, ry));
 }

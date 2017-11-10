@@ -24,6 +24,7 @@
 #include "ir/SkSLContinueStatement.h"
 #include "ir/SkSLDiscardStatement.h"
 #include "ir/SkSLDoStatement.h"
+#include "ir/SkSLEnum.h"
 #include "ir/SkSLExpressionStatement.h"
 #include "ir/SkSLField.h"
 #include "ir/SkSLFieldAccess.h"
@@ -411,7 +412,7 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTSwitchStatement& 
     if (!value) {
         return nullptr;
     }
-    if (value->fType != *fContext.fUInt_Type) {
+    if (value->fType != *fContext.fUInt_Type && value->fType.kind() != Type::kEnum_Kind) {
         value = this->coerce(std::move(value), *fContext.fInt_Type);
         if (!value) {
             return nullptr;
@@ -427,18 +428,16 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTSwitchStatement& 
             if (!caseValue) {
                 return nullptr;
             }
-            if (caseValue->fType != *fContext.fUInt_Type) {
-                caseValue = this->coerce(std::move(caseValue), *fContext.fInt_Type);
-                if (!caseValue) {
-                    return nullptr;
-                }
+            caseValue = this->coerce(std::move(caseValue), value->fType);
+            if (!caseValue) {
+                return nullptr;
             }
             if (!caseValue->isConstant()) {
                 fErrors.error(caseValue->fOffset, "case value must be a constant");
                 return nullptr;
             }
-            ASSERT(caseValue->fKind == Expression::kIntLiteral_Kind);
-            int64_t v = ((IntLiteral&) *caseValue).fValue;
+            int64_t v;
+            this->getConstantInt(*caseValue, &v);
             if (caseValues.find(v) != caseValues.end()) {
                 fErrors.error(caseValue->fOffset, "duplicate case value");
             }
@@ -517,8 +516,7 @@ std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTDiscardStatement
     return std::unique_ptr<Statement>(new DiscardStatement(d.fOffset));
 }
 
-std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<Block> main,
-        std::vector<std::unique_ptr<ProgramElement>>* out) {
+std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<Block> main) {
     Layout invokeLayout;
     Modifiers invokeModifiers(invokeLayout, Modifiers::kHasSideEffects_Flag);
     FunctionDeclaration* invokeDecl = new FunctionDeclaration(-1,
@@ -526,9 +524,8 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                                                               "_invoke",
                                                               std::vector<const Variable*>(),
                                                               *fContext.fVoid_Type);
-    out->push_back(std::unique_ptr<ProgramElement>(new FunctionDefinition(-1,
-                                                                          *invokeDecl,
-                                                                          std::move(main))));
+    fProgramElements->push_back(std::unique_ptr<ProgramElement>(
+                                         new FunctionDefinition(-1, *invokeDecl, std::move(main))));
     fSymbolTable->add(invokeDecl->fName, std::unique_ptr<FunctionDeclaration>(invokeDecl));
 
     std::vector<std::unique_ptr<VarDeclaration>> variables;
@@ -577,8 +574,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
     return std::unique_ptr<Block>(new Block(-1, std::move(children)));
 }
 
-void IRGenerator::convertFunction(const ASTFunction& f,
-                                  std::vector<std::unique_ptr<ProgramElement>>* out) {
+void IRGenerator::convertFunction(const ASTFunction& f) {
     const Type* returnType = this->convertType(*f.fReturnType);
     if (!returnType) {
         return;
@@ -690,13 +686,13 @@ void IRGenerator::convertFunction(const ASTFunction& f,
             return;
         }
         if (needInvocationIDWorkaround) {
-            body = this->applyInvocationIDWorkaround(std::move(body), out);
+            body = this->applyInvocationIDWorkaround(std::move(body));
         }
         // conservatively assume all user-defined functions have side effects
         ((Modifiers&) decl->fModifiers).fFlags |= Modifiers::kHasSideEffects_Flag;
 
-        out->push_back(std::unique_ptr<FunctionDefinition>(
-                                      new FunctionDefinition(f.fOffset, *decl, std::move(body))));
+        fProgramElements->push_back(std::unique_ptr<FunctionDefinition>(
+                                        new FunctionDefinition(f.fOffset, *decl, std::move(body))));
     }
 }
 
@@ -787,6 +783,57 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
                                                               intf.fInstanceName,
                                                               std::move(sizes),
                                                               fSymbolTable));
+}
+
+void IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
+    switch (value.fKind) {
+        case Expression::kIntLiteral_Kind:
+            *out = ((const IntLiteral&) value).fValue;
+            break;
+        case Expression::kVariableReference_Kind: {
+            const Variable& var = ((VariableReference&) value).fVariable;
+            if ((var.fModifiers.fFlags & Modifiers::kConst_Flag) &&
+                var.fInitialValue) {
+                this->getConstantInt(*var.fInitialValue, out);
+            }
+            break;
+        }
+        default:
+            fErrors.error(value.fOffset, "expected a constant int");
+    }
+}
+
+void IRGenerator::convertEnum(const ASTEnum& e) {
+    std::vector<Variable*> variables;
+    int64_t currentValue = 0;
+    Layout layout;
+    ASTType enumType(e.fOffset, e.fTypeName, ASTType::kIdentifier_Kind, {});
+    const Type* type = this->convertType(enumType);
+    Modifiers modifiers(layout, Modifiers::kConst_Flag);
+    std::shared_ptr<SymbolTable> symbols(new SymbolTable(fSymbolTable, &fErrors));
+    fSymbolTable = symbols;
+    for (size_t i = 0; i < e.fNames.size(); i++) {
+        std::unique_ptr<Expression> value;
+        if (e.fValues[i]) {
+            value = this->convertExpression(*e.fValues[i]);
+            if (!value) {
+                fSymbolTable = symbols->fParent;
+                return;
+            }
+            this->getConstantInt(*value, &currentValue);
+        }
+        value = std::unique_ptr<Expression>(new IntLiteral(fContext, e.fOffset, currentValue));
+        ++currentValue;
+        auto var = std::unique_ptr<Variable>(new Variable(e.fOffset, modifiers, e.fNames[i],
+                                                          *type, Variable::kGlobal_Storage,
+                                                          value.get()));
+        variables.push_back(var.get());
+        symbols->add(e.fNames[i], std::move(var));
+        symbols->takeOwnership(value.release());
+    }
+    fProgramElements->push_back(std::unique_ptr<ProgramElement>(new Enum(e.fOffset, e.fTypeName,
+                                                                         symbols)));
+    fSymbolTable = symbols->fParent;
 }
 
 const Type* IRGenerator::convertType(const ASTType& type) {
@@ -956,6 +1003,12 @@ static bool determine_binary_type(const Context& context,
             return right.canCoerceTo(left);
         case Token::EQEQ: // fall through
         case Token::NEQ:
+            if (left == right) {
+                *outLeftType = &left;
+                *outRightType = &right;
+                *outResultType = context.fBool_Type.get();
+                return true;
+            }
             isLogical = true;
             validMatrixOrVectorOp = true;
             break;
@@ -1808,6 +1861,24 @@ std::unique_ptr<Expression> IRGenerator::getArg(int offset, String name) {
                                                    found->second.literal(fContext, offset)));
 }
 
+std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type& type,
+                                                          StringFragment field) {
+    std::unique_ptr<Expression> result;
+    for (const auto& e : *fProgramElements) {
+        if (e->fKind == ProgramElement::kEnum_Kind && type.name() == ((Enum&) *e).fTypeName) {
+            std::shared_ptr<SymbolTable> old = fSymbolTable;
+            fSymbolTable = ((Enum&) *e).fSymbols;
+            result = convertIdentifier(ASTIdentifier(offset, field));
+            fSymbolTable = old;
+        }
+    }
+    if (!result) {
+        fErrors.error(offset, "type '" + type.fName + "' does not have a field named '" + field +
+                              "'");
+    }
+    return result;
+}
+
 std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
                                                             const ASTSuffixExpression& expression) {
     std::unique_ptr<Expression> base = this->convertExpression(*expression.fBase);
@@ -1845,21 +1916,22 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
             return this->call(expression.fOffset, std::move(base), std::move(arguments));
         }
         case ASTSuffix::kField_Kind: {
+            StringFragment field = ((ASTFieldSuffix&) *expression.fSuffix).fField;
             if (base->fType == *fContext.fSkCaps_Type) {
-                return this->getCap(expression.fOffset,
-                                    ((ASTFieldSuffix&) *expression.fSuffix).fField);
+                return this->getCap(expression.fOffset, field);
             }
             if (base->fType == *fContext.fSkArgs_Type) {
-                return this->getArg(expression.fOffset,
-                                    ((ASTFieldSuffix&) *expression.fSuffix).fField);
+                return this->getArg(expression.fOffset, field);
+            }
+            if (base->fKind == Expression::kTypeReference_Kind) {
+                return this->convertTypeField(base->fOffset, ((TypeReference&) *base).fValue,
+                                              field);
             }
             switch (base->fType.kind()) {
                 case Type::kVector_Kind:
-                    return this->convertSwizzle(std::move(base),
-                                                ((ASTFieldSuffix&) *expression.fSuffix).fField);
+                    return this->convertSwizzle(std::move(base), field);
                 case Type::kStruct_Kind:
-                    return this->convertField(std::move(base),
-                                              ((ASTFieldSuffix&) *expression.fSuffix).fField);
+                    return this->convertField(std::move(base), field);
                 default:
                     fErrors.error(base->fOffset, "cannot swizzle value of type '" +
                                                  base->fType.description() + "'");
@@ -1952,6 +2024,7 @@ void IRGenerator::convertProgram(const char* text,
                                  size_t length,
                                  SymbolTable& types,
                                  std::vector<std::unique_ptr<ProgramElement>>* out) {
+    fProgramElements = out;
     Parser parser(text, length, types, fErrors);
     std::vector<std::unique_ptr<ASTDeclaration>> parsed = parser.file();
     if (fErrors.errorCount()) {
@@ -1965,19 +2038,23 @@ void IRGenerator::convertProgram(const char* text,
                                                                          (ASTVarDeclarations&) decl,
                                                                          Variable::kGlobal_Storage);
                 if (s) {
-                    out->push_back(std::move(s));
+                    fProgramElements->push_back(std::move(s));
                 }
                 break;
             }
+            case ASTDeclaration::kEnum_Kind: {
+                this->convertEnum((ASTEnum&) decl);
+                break;
+            }
             case ASTDeclaration::kFunction_Kind: {
-                this->convertFunction((ASTFunction&) decl, out);
+                this->convertFunction((ASTFunction&) decl);
                 break;
             }
             case ASTDeclaration::kModifiers_Kind: {
                 std::unique_ptr<ModifiersDeclaration> f = this->convertModifiersDeclaration(
                                                                    (ASTModifiersDeclaration&) decl);
                 if (f) {
-                    out->push_back(std::move(f));
+                    fProgramElements->push_back(std::move(f));
                 }
                 break;
             }
@@ -1985,21 +2062,21 @@ void IRGenerator::convertProgram(const char* text,
                 std::unique_ptr<InterfaceBlock> i = this->convertInterfaceBlock(
                                                                          (ASTInterfaceBlock&) decl);
                 if (i) {
-                    out->push_back(std::move(i));
+                    fProgramElements->push_back(std::move(i));
                 }
                 break;
             }
             case ASTDeclaration::kExtension_Kind: {
                 std::unique_ptr<Extension> e = this->convertExtension((ASTExtension&) decl);
                 if (e) {
-                    out->push_back(std::move(e));
+                    fProgramElements->push_back(std::move(e));
                 }
                 break;
             }
             case ASTDeclaration::kSection_Kind: {
                 std::unique_ptr<Section> s = this->convertSection((ASTSection&) decl);
                 if (s) {
-                    out->push_back(std::move(s));
+                    fProgramElements->push_back(std::move(s));
                 }
                 break;
             }
