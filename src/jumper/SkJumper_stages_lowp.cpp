@@ -818,15 +818,41 @@ SI U16 round_F_to_U16(F x) { return cast<U16>(x * 255.0f + 0.5f); }
 
 SI void gradient_lookup(const SkJumper_GradientCtx* c, U32 idx, F t,
                         U16* r, U16* g, U16* b, U16* a) {
-    F fr = gather<F>(c->fs[0], idx),
-      fg = gather<F>(c->fs[1], idx),
-      fb = gather<F>(c->fs[2], idx),
-      fa = gather<F>(c->fs[3], idx),
-      br = gather<F>(c->bs[0], idx),
-      bg = gather<F>(c->bs[1], idx),
-      bb = gather<F>(c->bs[2], idx),
-      ba = gather<F>(c->bs[3], idx);
 
+    F fr, fg, fb, fa, br, bg, bb, ba;
+#if defined(__AVX2__)
+    if (c->stopCount <=8) {
+        __m256i lo, hi;
+        split(idx, &lo, &hi);
+
+        fr = join<F>(_mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[0]), lo),
+                     _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[0]), hi));
+        br = join<F>(_mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[0]), lo),
+                     _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[0]), hi));
+        fg = join<F>(_mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[1]), lo),
+                     _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[1]), hi));
+        bg = join<F>(_mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[1]), lo),
+                     _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[1]), hi));
+        fb = join<F>(_mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[2]), lo),
+                     _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[2]), hi));
+        bb = join<F>(_mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[2]), lo),
+                     _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[2]), hi));
+        fa = join<F>(_mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[3]), lo),
+                     _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[3]), hi));
+        ba = join<F>(_mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[3]), lo),
+                     _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[3]), hi));
+    } else
+#endif
+    {
+        fr = gather<F>(c->fs[0], idx);
+        fg = gather<F>(c->fs[1], idx);
+        fb = gather<F>(c->fs[2], idx);
+        fa = gather<F>(c->fs[3], idx);
+        br = gather<F>(c->bs[0], idx);
+        bg = gather<F>(c->bs[1], idx);
+        bb = gather<F>(c->bs[2], idx);
+        ba = gather<F>(c->bs[3], idx);
+    }
     *r = round_F_to_U16(mad(t, fr, br));
     *g = round_F_to_U16(mad(t, fg, bg));
     *b = round_F_to_U16(mad(t, fb, bb));
