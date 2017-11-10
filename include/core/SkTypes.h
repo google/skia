@@ -314,6 +314,41 @@ typedef uint32_t SkMSec;
 */
 #ifdef __cplusplus
 
+/** Defines a class that behaves semantically as a bool, but is strongly typed with a meaningful
+    name. Functions should use named bools in their arguments to convey meaning at the callsites. */
+template<typename TAG> class SkTNamedBool {
+public:
+    enum class NamedValue : bool {
+        kYes = true,
+        kNo = false
+    };
+    static constexpr NamedValue kYes = NamedValue::kYes;
+    static constexpr NamedValue kNo = NamedValue::kNo;
+
+    SkTNamedBool() = default; /* Uninitialized. */
+    constexpr /* implicit */ SkTNamedBool(NamedValue value) : fValue((bool)value) {}
+    template<typename U> constexpr explicit SkTNamedBool(const U& value) : fValue((bool)value) {}
+
+    /* implicit */ constexpr operator bool() const { return fValue; }
+    constexpr SkTNamedBool<TAG> operator!() const { return SkTNamedBool<TAG>(!fValue); }
+
+private:
+    bool fValue;
+};
+
+template<typename TAG> static constexpr bool operator==(typename SkTNamedBool<TAG>::NamedValue val,
+                                                        const SkTNamedBool<TAG>& namedBool) {
+    return (bool)val == namedBool;
+}
+
+template<typename TAG> static constexpr bool operator==(const SkTNamedBool<TAG>& namedBool,
+                                                       typename SkTNamedBool<TAG>::NamedValue val) {
+    return namedBool == (bool)val;
+}
+
+#define SK_MAKE_NAMED_BOOL(NAME) \
+    struct SkTNamedBool_TAG_##NAME; using NAME = SkTNamedBool<SkTNamedBool_TAG_##NAME>;
+
 /** Faster than SkToBool for integral conditions. Returns 0 or 1
 */
 static inline constexpr int Sk32ToBool(uint32_t n) {

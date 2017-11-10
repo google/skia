@@ -56,14 +56,9 @@ void GrShaderVar::setMemoryModel(GrSLMemoryModel model) {
 }
 
 void GrShaderVar::setRestrict(GrSLRestrict restrict) {
-    switch (restrict) {
-        case GrSLRestrict::kNo:
-            return;
-        case GrSLRestrict::kYes:
-            this->addModifier("restrict");
-            return;
+    if (restrict) {
+        this->addModifier("restrict");
     }
-    SK_ABORT("Unknown restrict.");
 }
 
 void GrShaderVar::setIOType(GrIOType ioType) {
