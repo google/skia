@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d984fda_3a3d7572",
+        "filename": "src/jumper/SkJumper_stages_lowp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-10T15:40:35Z",
+      "side": 1,
+      "message": "Might be nice to indent the insides of the #if and #else blocks?",
+      "revId": "13e3d26e1632bbce471ea4bdb392168ddbe58b08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19500114_2b28e838",
+        "filename": "src/jumper/SkJumper_stages_lowp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-10T15:40:35Z",
+      "side": 1,
+      "message": "I think this part is optional, given that you\u0027ve already constrained V and T by writing \"F\" and \"const float* p\"",
+      "range": {
+        "startLine": 483,
+        "startChar": 8,
+        "endLine": 483,
+        "endChar": 18
+      },
+      "revId": "13e3d26e1632bbce471ea4bdb392168ddbe58b08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7cc0fa3_4d8a178d",
+        "filename": "src/jumper/SkJumper_stages_lowp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-10T15:40:35Z",
+      "side": 1,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 492,
+        "startChar": 10,
+        "endLine": 492,
+        "endChar": 25
+      },
+      "revId": "13e3d26e1632bbce471ea4bdb392168ddbe58b08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6035c257_23c0f0b3",
+        "filename": "src/jumper/SkJumper_stages_lowp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-10T15:40:35Z",
+      "side": 1,
+      "message": "I think we can just delete this.  :(",
+      "range": {
+        "startLine": 500,
+        "startChar": 1,
+        "endLine": 500,
+        "endChar": 52
+      },
+      "revId": "13e3d26e1632bbce471ea4bdb392168ddbe58b08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
