@@ -97,10 +97,7 @@ def dm_flags(api, bot):
       configs.extend(['lite-8888'])              # Experimental display list.
       configs.extend(['gbr-8888'])
 
-    # NP is running out of RAM when we run all these modes.  skia:3255
-    if 'NexusPlayer' not in bot:
-      configs.extend(mode + '-8888' for mode in
-                     ['serialize', 'tiles_rt', 'pic'])
+    configs.extend(mode + '-8888' for mode in ['serialize', 'tiles_rt', 'pic'])
 
     # This bot only differs from vanilla CPU bots in 8888 config.
     if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
@@ -256,10 +253,7 @@ def dm_flags(api, bot):
 
   # Run tests, gms, and image decoding tests everywhere.
   args.extend('--src tests gm image colorImage svg'.split(' '))
-  if 'Vulkan' in bot and 'NexusPlayer' in bot:
-    args.remove('svg')
-    args.remove('image')
-  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+  if api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     # Don't run the 'svgparse_*' svgs on GPU.
     blacklist('_ svg _ svgparse_')
   elif bot == 'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN':
@@ -534,9 +528,6 @@ def dm_flags(api, bot):
     match.append('~blur_0.01')
     match.append('~GM_animated-image-blurs')
 
-  if 'NexusPlayer' in bot:
-    match.append('~ResourceCache')
-
   if 'Nexus10' in bot:
     match.append('~CopySurface') # skia:5509
     match.append('~SRGBReadWritePixels') # skia:6097
@@ -576,28 +567,25 @@ def dm_flags(api, bot):
 
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     # skia:6132
-    match.extend(['~gradients_no_texture$',
-                  '~tilemodes',
-                  '~shadertext$',
-                  '~bitmapfilters'])
-    match.append('~GrContextFactory_abandon') #skia:6209
-    match.append('~FullScreenClearWithLayers') #skia:7191
-    match.append('~GrDefaultPathRendererTest') #skia:7244
-    match.append('~GrMSAAPathRendererTest') #skia:7244
+    match.append('~^tilemodes$')
+    match.append('~^bitmapfilters$')
+    match.append('~^shadertext$')
+    match.append('~^FullScreenClearWithLayers$') #skia:7191
+    match.append('~^GrDefaultPathRendererTest$') #skia:7244
+    match.append('~^GrMSAAPathRendererTest$') #skia:7244
     # skia:7018
-    match.extend(['~ClearOp',
-                  '~ComposedImageFilterBounds_Gpu',
-                  '~ImageEncode_Gpu',
-                  '~ImageFilterFailAffectsTransparentBlack_Gpu',
-                  '~ImageFilterZeroBlurSigma_Gpu',
-                  '~ImageNewShader_GPU',
-                  '~ImageReadPixels_Gpu',
-                  '~ImageScalePixels_Gpu',
-                  '~OverdrawSurface_Gpu',
-                  '~ReadWriteAlpha',
-                  '~SpecialImage_DeferredGpu',
-                  '~SpecialImage_Gpu',
-                  '~SurfaceSemaphores'])
+    match.extend(['~^ClearOp$',
+                  '~^ComposedImageFilterBounds_Gpu$',
+                  '~^ImageEncode_Gpu$',
+                  '~^ImageFilterFailAffectsTransparentBlack_Gpu$',
+                  '~^ImageFilterZeroBlurSigma_Gpu$',
+                  '~^ImageNewShader_GPU$',
+                  '~^ImageReadPixels_Gpu$',
+                  '~^ImageScalePixels_Gpu$',
+                  '~^ReadWriteAlpha$',
+                  '~^SpecialImage_DeferredGpu$',
+                  '~^SpecialImage_Gpu$',
+                  '~^SurfaceSemaphores$'])
 
   if ('Vulkan' in bot and api.vars.is_linux and
       ('IntelIris540' in bot or 'IntelIris640' in bot)):

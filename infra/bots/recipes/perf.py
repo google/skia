@@ -150,8 +150,6 @@ def nanobench_flags(api, bot):
     match.append('~blurroundrect')
     match.append('~patch_grid')  # skia:2847
     match.append('~desk_carsvg')
-  if 'NexusPlayer' in bot:
-    match.append('~desk_unicodetable')
   if 'Nexus5' in bot:
     match.append('~keymobi_shop_mobileweb_ebay_com.skp')  # skia:5178
   if 'iOS' in bot:
@@ -257,9 +255,7 @@ def perf_steps(api):
 
   # Do not run svgs on Valgrind.
   if 'Valgrind' not in api.vars.builder_name:
-    if ('Vulkan' not in api.vars.builder_name or
-        'NexusPlayer' not in api.vars.builder_name):
-      args.extend(['--svgs',  api.flavor.device_dirs.svg_dir])
+    args.extend(['--svgs',  api.flavor.device_dirs.svg_dir])
 
   args.extend(nanobench_flags(api, api.vars.builder_name))
 
