@@ -11,6 +11,7 @@
 #include <chrono>
 #include "GrTypes.h"
 #include "SkRefCnt.h"
+#include "GrSharedEnums.h"
 
 class GrCaps;
 
@@ -642,22 +643,6 @@ enum class GrSLRestrict {
 };
 
 //////////////////////////////////////////////////////////////////////////////
-
-/**
- * We have coverage effects that clip rendering to the edge of some geometric primitive.
- * This enum specifies how that clipping is performed. Not all factories that take a
- * GrProcessorEdgeType will succeed with all values and it is up to the caller to check for
- * a NULL return.
- */
-enum class GrClipEdgeType {
-    kFillBW,
-    kFillAA,
-    kInverseFillBW,
-    kInverseFillAA,
-    kHairlineAA,
-
-    kLast = kHairlineAA
-};
 
 static const int kGrClipEdgeTypeCnt = (int) GrClipEdgeType::kLast + 1;
 

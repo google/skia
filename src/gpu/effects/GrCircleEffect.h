@@ -16,10 +16,11 @@
 #include "GrCoordTransform.h"
 class GrCircleEffect : public GrFragmentProcessor {
 public:
-    int edgeType() const { return fEdgeType; }
+    GrClipEdgeType edgeType() const { return fEdgeType; }
     SkPoint center() const { return fCenter; }
     float radius() const { return fRadius; }
-    static std::unique_ptr<GrFragmentProcessor> Make(int edgeType, SkPoint center, float radius) {
+    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
+                                                     float radius) {
         return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(edgeType, center, radius));
     }
     GrCircleEffect(const GrCircleEffect& src);
@@ -27,7 +28,7 @@ public:
     const char* name() const override { return "CircleEffect"; }
 
 private:
-    GrCircleEffect(int edgeType, SkPoint center, float radius)
+    GrCircleEffect(GrClipEdgeType edgeType, SkPoint center, float radius)
             : INHERITED(kGrCircleEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , fEdgeType(edgeType)
@@ -37,7 +38,7 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    int fEdgeType;
+    GrClipEdgeType fEdgeType;
     SkPoint fCenter;
     float fRadius;
     typedef GrFragmentProcessor INHERITED;
