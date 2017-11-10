@@ -529,6 +529,7 @@
       "gm",
       "_",
       "complexclip4_aa",
+      "--nonativeFonts",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",

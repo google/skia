@@ -235,6 +235,7 @@
       "gm",
       "image",
       "colorImage",
+      "--nonativeFonts",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",

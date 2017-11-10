@@ -376,6 +376,7 @@
       "image",
       "_",
       ".SRW",
+      "--nonativeFonts",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",
