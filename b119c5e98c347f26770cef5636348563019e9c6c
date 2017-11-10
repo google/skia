@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "20ab9c91_b17c6add",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-10T21:04:53Z",
+      "side": 1,
+      "message": "Try this?\n\n#define NAMED_BOOL(name)                                                           \\\n    class name {                                                                   \\\n    public:                                                                        \\\n        name() \u003d default;  /* Uninitialized. */                                    \\\n                                                                                   \\\n        struct Yes {                                                               \\\n            template \u003ctypename T\u003e                                                  \\\n            constexpr bool operator\u003d\u003d(T other) const { return (bool)other; };      \\\n        };                                                                         \\\n        struct No {                                                                \\\n            template \u003ctypename T\u003e                                                  \\\n            constexpr bool operator\u003d\u003d(T other) const { return !(bool)other; };     \\\n        };                                                                         \\\n                                                                                   \\\n        static constexpr Yes kYes;                                                 \\\n        static constexpr No  kNo;                                                  \\\n                                                                                   \\\n        constexpr name(Yes) : fVal(true ) {}                                       \\\n        constexpr name(No)  : fVal(false) {}                                       \\\n                                                                                   \\\n        template \u003ctypename T\u003e                                                      \\\n        constexpr explicit name(T val) : fVal((bool)val) {}                        \\\n                                                                                   \\\n        constexpr explicit operator bool() const { return fVal; }                  \\\n                                                                                   \\\n        constexpr bool operator\u003d\u003d(name other) const { return fVal \u003d\u003d other.fVal; } \\\n                                                                                   \\\n                                                                                   \\\n    private:                                                                       \\\n        bool fVal;                                                                 \\\n    }",
+      "revId": "b119c5e98c347f26770cef5636348563019e9c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a12666e6_8547b0da",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 14
