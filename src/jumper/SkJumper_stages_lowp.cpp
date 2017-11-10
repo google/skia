@@ -183,28 +183,14 @@ SI D join(S lo, S hi) {
     memcpy((char*)&v + 1*sizeof(S), &hi, sizeof(S));
     return v;
 }
-
-#if defined(__AVX2__)
-    template <typename V, typename Fn>
-    SI auto map(V v, Fn&& fn) -> decltype(
-            __builtin_shufflevector(fn(__builtin_shufflevector(v,v, 0,1, 2, 3, 4, 5, 6, 7)),
-                                    fn(__builtin_shufflevector(v,v, 8,9,10,11,12,13,14,15)),
-                                    0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)) {
-        return __builtin_shufflevector(fn(__builtin_shufflevector(v,v, 0,1, 2, 3, 4, 5, 6, 7)),
-                                       fn(__builtin_shufflevector(v,v, 8,9,10,11,12,13,14,15)),
-                                       0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
-    }
-#else
-    template <typename V, typename Fn>
-    SI auto map(V v, Fn&& fn) -> decltype(
-            __builtin_shufflevector(fn(__builtin_shufflevector(v,v, 0,1,2,3)),
-                                    fn(__builtin_shufflevector(v,v, 4,5,6,7)),
-                                    0,1,2,3,4,5,6,7)) {
-        return __builtin_shufflevector(fn(__builtin_shufflevector(v,v, 0,1,2,3)),
-                                       fn(__builtin_shufflevector(v,v, 4,5,6,7)),
-                                       0,1,2,3,4,5,6,7);
-    }
-#endif
+template <typename V, typename H>
+SI V map(V v, H (*fn)(H)) {
+    H lo,hi;
+    split(v, &lo,&hi);
+    lo = fn(lo);
+    hi = fn(hi);
+    return join<V>(lo,hi);
+}
 
 // TODO: do we need platform-specific intrinsics for any of these?
 SI F if_then_else(I32 c, F t, F e) {
@@ -222,7 +208,7 @@ SI F rcp(F x) {
 #elif defined(__SSE__)
     return map(x, _mm_rcp_ps);
 #elif defined(__ARM_NEON)
-    return map(x, [](float32x4_t v) {
+    return map(x, +[](float32x4_t v) {
         auto est = vrecpeq_f32(v);
         return vrecpsq_f32(v,est)*est;
     });
@@ -238,7 +224,7 @@ SI F sqrt_(F x) {
 #elif defined(__aarch64__)
     return map(x, vsqrtq_f32);
 #elif defined(__ARM_NEON)
-    return map(x, [](float32x4_t v) {
+    return map(x, +[](float32x4_t v) {
         auto est = vrsqrteq_f32(v);  // Estimate and two refinement steps for est = rsqrt(v).
         est *= vrsqrtsq_f32(v,est*est);
         est *= vrsqrtsq_f32(v,est*est);
@@ -256,9 +242,9 @@ SI F floor_(F x) {
 #if defined(__aarch64__)
     return map(x, vrndmq_f32);
 #elif defined(__AVX2__)
-    return map(x, [](__m256 v){ return _mm256_floor_ps(v); });  // _mm256_floor_ps is a macro...
+    return map(x, +[](__m256 v){ return _mm256_floor_ps(v); });  // _mm256_floor_ps is a macro...
 #elif defined(__SSE4_1__)
-    return map(x, [](__m128 v){ return    _mm_floor_ps(v); });  // _mm_floor_ps() is a macro too.
+    return map(x, +[](__m128 v){ return    _mm_floor_ps(v); });  // _mm_floor_ps() is a macro too.
 #else
     F roundtrip = cast<F>(cast<I32>(x));
     return roundtrip - if_then_else(roundtrip > x, F(1), F(0));
@@ -494,13 +480,21 @@ SI void store(T* ptr, size_t tail, V v) {
     }
 
     template<>
-    F gather(const float* ptr, U32 ix) {
-        return map(ix, [&](__m256i ix) { return _mm256_i32gather_ps(ptr, ix, 4); });
+    F gather(const float* p, U32 ix) {
+        __m256i lo, hi;
+        split(ix, &lo, &hi);
+
+        return join<F>(_mm256_i32gather_ps(p, lo, 4),
+                       _mm256_i32gather_ps(p, hi, 4));
     }
 
     template<>
-    U32 gather(const uint32_t* ptr, U32 ix) {
-        return map(ix, [&](__m256i ix) { return _mm256_i32gather_epi32(ptr, ix, 4); });
+    U32 gather(const uint32_t* p, U32 ix) {
+        __m256i lo, hi;
+        split(ix, &lo, &hi);
+
+        return join<U32>(_mm256_i32gather_epi32(p, lo, 4),
+                         _mm256_i32gather_epi32(p, hi, 4));
     }
 #else
     template <typename V, typename T>
