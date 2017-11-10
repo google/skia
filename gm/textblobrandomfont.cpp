@@ -11,11 +11,11 @@
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
+#include "SkRandomScalerContext.h"
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
-#include "../src/fonts/SkRandomScalerContext.h"
 
 #if SK_SUPPORT_GPU
 

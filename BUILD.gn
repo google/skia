@@ -1073,6 +1073,8 @@ if (skia_enable_tools) {
       "tools/LsanSuppressions.cpp",
       "tools/ProcStats.cpp",
       "tools/Resources.cpp",
+      "tools/SkRandomScalerContext.cpp",
+      "tools/SkTestScalerContext.cpp",
       "tools/ThermalManager.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/SkDebugCanvas.cpp",
