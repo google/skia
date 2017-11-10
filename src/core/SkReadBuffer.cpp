@@ -399,3 +399,19 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
     }
     return obj.release();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+int32_t SkReadBuffer::checkInt(int32_t min, int32_t max) {
+    SkASSERT(min <= max);
+    int32_t value = this->read32();
+    if (value < min || value > max) {
+        this->validate(false);
+        value = min;
+    }
+    return value;
+}
+
+SkFilterQuality SkReadBuffer::checkFilterQuality() {
+    return this->checkRange<SkFilterQuality>(kNone_SkFilterQuality, kLast_SkFilterQuality);
+}
