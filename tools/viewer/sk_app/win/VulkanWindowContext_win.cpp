@@ -15,23 +15,15 @@
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
 
-#include "vk/VkTestUtils.h"
-
 namespace sk_app {
 namespace window_context_factory {
 
 WindowContext* NewVulkanForWin(HWND hwnd, const DisplayParams& params) {
-    PFN_vkGetInstanceProcAddr instProc;
-    PFN_vkGetDeviceProcAddr devProc;
-    if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
-        return nullptr;
-    }
-
-    auto createVkSurface = [hwnd, instProc] (VkInstance instance) -> VkSurfaceKHR {
+    auto createVkSurface = [hwnd] (VkInstance instance) -> VkSurfaceKHR {
         static PFN_vkCreateWin32SurfaceKHR createWin32SurfaceKHR = nullptr;
         if (!createWin32SurfaceKHR) {
             createWin32SurfaceKHR = (PFN_vkCreateWin32SurfaceKHR)
-                instProc(instance, "vkCreateWin32SurfaceKHR");
+                vkGetInstanceProcAddr(instance, "vkCreateWin32SurfaceKHR");
         }
         HINSTANCE hinstance = GetModuleHandle(0);
         VkSurfaceKHR surface;
@@ -52,22 +44,22 @@ WindowContext* NewVulkanForWin(HWND hwnd, const DisplayParams& params) {
         return surface;
     };
 
-    auto canPresent = [instProc] (VkInstance instance, VkPhysicalDevice physDev,
-                                  uint32_t queueFamilyIndex) {
+    auto canPresent = [] (VkInstance instance, VkPhysicalDevice physDev,
+                          uint32_t queueFamilyIndex) {
         static PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR
                                             getPhysicalDeviceWin32PresentationSupportKHR = nullptr;
         if (!getPhysicalDeviceWin32PresentationSupportKHR) {
             getPhysicalDeviceWin32PresentationSupportKHR =
                 (PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)
-                    instProc(instance, "vkGetPhysicalDeviceWin32PresentationSupportKHR");
+                    vkGetInstanceProcAddr(instance,
+                                          "vkGetPhysicalDeviceWin32PresentationSupportKHR");
         }
 
         VkBool32 check = getPhysicalDeviceWin32PresentationSupportKHR(physDev, queueFamilyIndex);
         return (VK_FALSE != check);
     };
 
-    WindowContext* ctx = new VulkanWindowContext(params, createVkSurface, canPresent,
-                                                 instProc, devProc);
+    WindowContext* ctx = new VulkanWindowContext(params, createVkSurface, canPresent);
     if (!ctx->isValid()) {
         delete ctx;
         return nullptr;

@@ -10,8 +10,6 @@
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
 
-#include "vk/VkTestUtils.h"
-
 #include <X11/Xlib-xcb.h>
 
 #include "WindowContextFactory_unix.h"
@@ -22,17 +20,12 @@ namespace sk_app {
 namespace window_context_factory {
 
 WindowContext* NewVulkanForXlib(const XlibWindowInfo& info, const DisplayParams& displayParams) {
-    PFN_vkGetInstanceProcAddr instProc;
-    PFN_vkGetDeviceProcAddr devProc;
-    if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
-        return nullptr;
-    }
-
-    auto createVkSurface = [&info, instProc](VkInstance instance) -> VkSurfaceKHR {
+    auto createVkSurface = [&info](VkInstance instance) -> VkSurfaceKHR {
         static PFN_vkCreateXcbSurfaceKHR createXcbSurfaceKHR = nullptr;
         if (!createXcbSurfaceKHR) {
             createXcbSurfaceKHR =
-                    (PFN_vkCreateXcbSurfaceKHR) instProc(instance, "vkCreateXcbSurfaceKHR");
+                    (PFN_vkCreateXcbSurfaceKHR) vkGetInstanceProcAddr(instance,
+                                                                      "vkCreateXcbSurfaceKHR");
         }
 
         VkSurfaceKHR surface;
@@ -53,14 +46,15 @@ WindowContext* NewVulkanForXlib(const XlibWindowInfo& info, const DisplayParams&
         return surface;
     };
 
-    auto canPresent = [&info, instProc](VkInstance instance, VkPhysicalDevice physDev,
+    auto canPresent = [&info](VkInstance instance, VkPhysicalDevice physDev,
                               uint32_t queueFamilyIndex) {
         static PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR
                                                 getPhysicalDeviceXcbPresentationSupportKHR = nullptr;
         if (!getPhysicalDeviceXcbPresentationSupportKHR) {
             getPhysicalDeviceXcbPresentationSupportKHR =
                 (PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)
-                    instProc(instance, "vkGetPhysicalDeviceXcbPresentationSupportKHR");
+                        vkGetInstanceProcAddr(instance,
+                                              "vkGetPhysicalDeviceXcbPresentationSupportKHR");
         }
 
 
@@ -72,8 +66,7 @@ WindowContext* NewVulkanForXlib(const XlibWindowInfo& info, const DisplayParams&
                                                                     visualID);
         return (VK_FALSE != check);
     };
-    WindowContext* context = new VulkanWindowContext(displayParams, createVkSurface, canPresent,
-                                                     instProc, devProc);
+    WindowContext* context = new VulkanWindowContext(displayParams, createVkSurface, canPresent);
     if (!context->isValid()) {
         delete context;
         return nullptr;

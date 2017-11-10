@@ -10,9 +10,9 @@
 #ifdef SK_VULKAN
 
 #include "GrContext.h"
-#include "VkTestUtils.h"
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
+#include <vulkan/vulkan.h>
 
 namespace {
 /**
@@ -114,12 +114,8 @@ public:
         if (sharedContext) {
             backendContext = sharedContext->getVkBackendContext();
         } else {
-            PFN_vkGetInstanceProcAddr instProc;
-            PFN_vkGetDeviceProcAddr devProc;
-            if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
-                return nullptr;
-            }
-            backendContext.reset(GrVkBackendContext::Create(instProc, devProc));
+            backendContext.reset(GrVkBackendContext::Create(vkGetInstanceProcAddr,
+                                                            vkGetDeviceProcAddr));
         }
         if (!backendContext) {
             return nullptr;
