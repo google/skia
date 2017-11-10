@@ -20,12 +20,12 @@ std::unique_ptr<GrFragmentProcessor> GrOvalEffect::Make(GrClipEdgeType edgeType,
     SkScalar h = oval.height();
     if (SkScalarNearlyEqual(w, h)) {
         w /= 2;
-        return GrCircleEffect::Make((int) edgeType, SkPoint::Make(oval.fLeft + w, oval.fTop + w),
+        return GrCircleEffect::Make(edgeType, SkPoint::Make(oval.fLeft + w, oval.fTop + w),
                                     w);
     } else {
         w /= 2;
         h /= 2;
-        return GrEllipseEffect::Make((int) edgeType, SkPoint::Make(oval.fLeft + w, oval.fTop + h),
+        return GrEllipseEffect::Make(edgeType, SkPoint::Make(oval.fLeft + w, oval.fTop + h),
                                      SkPoint::Make(w, h));
     }
 

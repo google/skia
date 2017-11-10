@@ -74,6 +74,10 @@ struct VariableReference : public Expression {
         return false;
     }
 
+    bool isConstant() const override {
+        return 0 != (fVariable.fModifiers.fFlags & Modifiers::kConst_Flag);
+    }
+
     String description() const override {
         return fVariable.fName;
     }
@@ -119,6 +123,10 @@ struct VariableReference : public Expression {
                                                   const DefinitionMap& definitions) override {
         if (fRefKind != kRead_RefKind) {
             return nullptr;
+        }
+        if ((fVariable.fModifiers.fFlags & Modifiers::kConst_Flag) && fVariable.fInitialValue &&
+            fVariable.fInitialValue->isConstant()) {
+            return copy_constant(irGenerator, fVariable.fInitialValue);
         }
         auto exprIter = definitions.find(&fVariable);
         if (exprIter != definitions.end() && exprIter->second &&

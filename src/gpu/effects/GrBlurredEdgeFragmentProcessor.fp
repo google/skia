@@ -5,22 +5,20 @@
  * found in the LICENSE file.
  */
 
-@class {
-    enum Mode {
-        kGaussian_Mode = 0,
-        kSmoothStep_Mode = 1
-    };
-}
+enum class Mode {
+    kGaussian   = 0,
+    kSmoothStep = 1
+};
 
-layout(key) in int mode;
+layout(key) in Mode mode;
 
 void main() {
     half factor = 1.0 - sk_InColor.a;
     @switch (mode) {
-        case 0: // kGaussian_Mode
+        case Mode::kGaussian:
             factor = exp(-factor * factor * 4.0) - 0.018;
             break;
-        case 1: // kSmoothstep_Mode
+        case Mode::kSmoothStep:
             factor = smoothstep(1.0, 0.0, factor);
             break;
     }

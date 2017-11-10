@@ -76,7 +76,7 @@ GrGLSLFragmentProcessor* GrArithmeticFP::onCreateGLSLInstance() const {
 }
 void GrArithmeticFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                            GrProcessorKeyBuilder* b) const {
-    b->add32(fEnforcePMColor);
+    b->add32((int32_t)fEnforcePMColor);
 }
 bool GrArithmeticFP::onIsEqual(const GrFragmentProcessor& other) const {
     const GrArithmeticFP& that = other.cast<GrArithmeticFP>();

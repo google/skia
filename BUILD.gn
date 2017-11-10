@@ -461,6 +461,7 @@ if (skia_compile_processors) {
       "src/sksl",
     ]
     deps = [
+      ":run_sksllex",
       "//third_party/spirv-tools",
     ]
   }
@@ -479,9 +480,25 @@ if (skia_compile_processors) {
     ]
   }
 
+  action("create_sksl_enums") {
+    script = "gn/create_sksl_enums.py"
+    sources = [
+      "include/private/GrSharedEnums.h",
+    ]
+    outputs = [
+      "$target_out_dir/" +
+          rebase_path("src/sksl/sksl_enums.include", target_out_dir),
+    ]
+    args = [
+      rebase_path(sources[0]),
+      rebase_path(outputs[0]),
+    ]
+  }
+
   action("compile_processors") {
     script = "gn/compile_processors.py"
     deps = [
+      ":create_sksl_enums",
       ":skslc(//gn/toolchain:$host_toolchain)",
     ]
     sources = skia_gpu_processor_sources

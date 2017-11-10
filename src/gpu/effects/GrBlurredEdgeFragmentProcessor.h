@@ -16,9 +16,9 @@
 #include "GrCoordTransform.h"
 class GrBlurredEdgeFragmentProcessor : public GrFragmentProcessor {
 public:
-    enum Mode { kGaussian_Mode = 0, kSmoothStep_Mode = 1 };
-    int mode() const { return fMode; }
-    static std::unique_ptr<GrFragmentProcessor> Make(int mode) {
+    enum class Mode { kSmoothStep = 1, kGaussian = 0 };
+    Mode mode() const { return fMode; }
+    static std::unique_ptr<GrFragmentProcessor> Make(Mode mode) {
         return std::unique_ptr<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(mode));
     }
     GrBlurredEdgeFragmentProcessor(const GrBlurredEdgeFragmentProcessor& src);
@@ -26,14 +26,14 @@ public:
     const char* name() const override { return "BlurredEdgeFragmentProcessor"; }
 
 private:
-    GrBlurredEdgeFragmentProcessor(int mode)
+    GrBlurredEdgeFragmentProcessor(Mode mode)
             : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, kNone_OptimizationFlags)
             , fMode(mode) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    int fMode;
+    Mode fMode;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

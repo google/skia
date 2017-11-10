@@ -60,13 +60,18 @@ const Symbol* SymbolTable::operator[](StringFragment name) {
 }
 
 Symbol* SymbolTable::takeOwnership(Symbol* s) {
-    fOwnedPointers.push_back(std::unique_ptr<Symbol>(s));
+    fOwnedSymbols.emplace_back(s);
     return s;
+}
+
+IRNode* SymbolTable::takeOwnership(IRNode* n) {
+    fOwnedNodes.emplace_back(n);
+    return n;
 }
 
 void SymbolTable::add(StringFragment name, std::unique_ptr<Symbol> symbol) {
     this->addWithoutOwnership(name, symbol.get());
-    fOwnedPointers.push_back(std::move(symbol));
+    this->takeOwnership(symbol.release());
 }
 
 void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol) {
@@ -114,5 +119,14 @@ void SymbolTable::markAllFunctionsBuiltin() {
         }
     }
 }
+
+std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::begin() {
+    return fSymbols.begin();
+}
+
+std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::end() {
+    return fSymbols.end();
+}
+
 
 } // namespace

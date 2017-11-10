@@ -36,6 +36,8 @@ HASSIDEEFFECTS = "sk_has_side_effects"
 STRUCT         = "struct"
 LAYOUT         = "layout"
 PRECISION      = "precision"
+ENUM           = "enum"
+CLASS          = "class"
 IDENTIFIER     = [a-zA-Z_$]([0-9]|[a-zA-Z_$])*
 DIRECTIVE      = #[a-zA-Z_$]([0-9]|[a-zA-Z_$])*
 SECTION        = @[a-zA-Z_$]([0-9]|[a-zA-Z_$])*
@@ -65,6 +67,7 @@ LOGICALXOR     = "^^"
 LOGICALAND     = "&&"
 LOGICALNOT     = "!"
 QUESTION       = "?"
+COLONCOLON     = "::"
 COLON          = ":"
 EQ             = "="
 EQEQ           = "=="
@@ -88,7 +91,6 @@ LOGICALXOREQ   = "^^="
 LOGICALANDEQ   = "&&="
 SEMICOLON      = ";"
 ARROW          = "->"
-COLONCOLON     = "::"
 WHITESPACE     = \s+
 LINE_COMMENT   = //.*
 BLOCK_COMMENT  = /\*([^*]|\*[^/])*\*/

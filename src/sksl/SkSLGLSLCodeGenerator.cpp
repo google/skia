@@ -1022,6 +1022,8 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeLine(";");
             break;
         }
+        case ProgramElement::kEnum_Kind:
+            break;
         default:
             printf("%s\n", e.description().c_str());
             ABORT("unsupported program element");

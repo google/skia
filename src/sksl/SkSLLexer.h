@@ -93,6 +93,10 @@ struct Token {
         LAYOUT,
 #undef PRECISION
         PRECISION,
+#undef ENUM
+        ENUM,
+#undef CLASS
+        CLASS,
 #undef IDENTIFIER
         IDENTIFIER,
 #undef DIRECTIVE
@@ -151,6 +155,8 @@ struct Token {
         LOGICALNOT,
 #undef QUESTION
         QUESTION,
+#undef COLONCOLON
+        COLONCOLON,
 #undef COLON
         COLON,
 #undef EQ
@@ -197,8 +203,6 @@ struct Token {
         SEMICOLON,
 #undef ARROW
         ARROW,
-#undef COLONCOLON
-        COLONCOLON,
 #undef WHITESPACE
         WHITESPACE,
 #undef LINE_COMMENT

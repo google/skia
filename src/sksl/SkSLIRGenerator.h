@@ -16,6 +16,7 @@
 #include "ast/SkSLASTContinueStatement.h"
 #include "ast/SkSLASTDiscardStatement.h"
 #include "ast/SkSLASTDoStatement.h"
+#include "ast/SkSLASTEnum.h"
 #include "ast/SkSLASTExpression.h"
 #include "ast/SkSLASTExpressionStatement.h"
 #include "ast/SkSLASTExtension.h"
@@ -95,8 +96,7 @@ private:
 
     std::unique_ptr<VarDeclarations> convertVarDeclarations(const ASTVarDeclarations& decl,
                                                             Variable::Storage storage);
-    void convertFunction(const ASTFunction& f,
-                         std::vector<std::unique_ptr<ProgramElement>>* out);
+    void convertFunction(const ASTFunction& f);
     std::unique_ptr<Statement> convertStatement(const ASTStatement& statement);
     std::unique_ptr<Expression> convertExpression(const ASTExpression& expression);
     std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(
@@ -145,6 +145,8 @@ private:
     std::unique_ptr<Expression> getCap(int offset, String name);
     std::unique_ptr<Expression> getArg(int offset, String name);
     std::unique_ptr<Expression> convertSuffixExpression(const ASTSuffixExpression& expression);
+    std::unique_ptr<Expression> convertTypeField(int offset, const Type& type,
+                                                 StringFragment field);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
                                              StringFragment field);
     std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base,
@@ -152,13 +154,13 @@ private:
     std::unique_ptr<Expression> convertTernaryExpression(const ASTTernaryExpression& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTVarDeclarationStatement& s);
     std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);
-    std::unique_ptr<Block> applyInvocationIDWorkaround(
-                                                 std::unique_ptr<Block> main,
-                                                 std::vector<std::unique_ptr<ProgramElement>>* out);
+    void convertEnum(const ASTEnum& e);
+    std::unique_ptr<Block> applyInvocationIDWorkaround(std::unique_ptr<Block> main);
 
     void fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments);
     void checkValid(const Expression& expr);
     void markWrittenTo(const Expression& expr, bool readWrite);
+    void getConstantInt(const Expression& value, int64_t* out);
 
     const FunctionDeclaration* fCurrentFunction;
     std::unordered_map<String, Program::Settings::Value> fCapsMap;
@@ -172,6 +174,7 @@ private:
     int fTmpCount;
     ErrorReporter& fErrors;
     int fInvocations;
+    std::vector<std::unique_ptr<ProgramElement>>* fProgramElements;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;

@@ -15,6 +15,7 @@
 #include "ast/SkSLASTContinueStatement.h"
 #include "ast/SkSLASTDiscardStatement.h"
 #include "ast/SkSLASTDoStatement.h"
+#include "ast/SkSLASTEnum.h"
 #include "ast/SkSLASTExpression.h"
 #include "ast/SkSLASTExpressionStatement.h"
 #include "ast/SkSLASTExtension.h"
@@ -279,11 +280,75 @@ std::unique_ptr<ASTDeclaration> Parser::section() {
                                                           text));
 }
 
-/* modifiers (structVarDeclaration | type IDENTIFIER ((LPAREN parameter
+/* ENUM CLASS IDENTIFIER LBRACE (IDENTIFIER (EQ expression)? (COMMA IDENTIFIER (EQ expression))*)?
+   RBRACE */
+std::unique_ptr<ASTDeclaration> Parser::enumDeclaration() {
+    Token start;
+    if (!this->expect(Token::ENUM, "'enum'", &start)) {
+        return nullptr;
+    }
+    if (!this->expect(Token::CLASS, "'class'")) {
+        return nullptr;
+    }
+    Token name;
+    if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
+        return nullptr;
+    }
+    if (!this->expect(Token::LBRACE, "'{'")) {
+        return nullptr;
+    }
+    fTypes.add(this->text(name), std::unique_ptr<Symbol>(new Type(this->text(name),
+                                                                  Type::kEnum_Kind)));
+    std::vector<StringFragment> names;
+    std::vector<std::unique_ptr<ASTExpression>> values;
+    if (!this->checkNext(Token::RBRACE)) {
+        Token id;
+        if (!this->expect(Token::IDENTIFIER, "an identifier", &id)) {
+            return nullptr;
+        }
+        names.push_back(this->text(id));
+        if (this->checkNext(Token::EQ)) {
+            std::unique_ptr<ASTExpression> value = this->assignmentExpression();
+            if (!value) {
+                return nullptr;
+            }
+            values.push_back(std::move(value));
+        } else {
+            values.push_back(nullptr);
+        }
+        while (!this->checkNext(Token::RBRACE)) {
+            if (!this->expect(Token::COMMA, "','")) {
+                return nullptr;
+            }
+            if (!this->expect(Token::IDENTIFIER, "an identifier", &id)) {
+                return nullptr;
+            }
+            names.push_back(this->text(id));
+            if (this->checkNext(Token::EQ)) {
+                std::unique_ptr<ASTExpression> value = this->assignmentExpression();
+                if (!value) {
+                    return nullptr;
+                }
+                values.push_back(std::move(value));
+            } else {
+                values.push_back(nullptr);
+            }
+        }
+    }
+    this->expect(Token::SEMICOLON, "';'");
+    return std::unique_ptr<ASTDeclaration>(new ASTEnum(name.fOffset, this->text(name), names,
+                                                       std::move(values)));
+}
+
+/* enumDeclaration | modifiers (structVarDeclaration | type IDENTIFIER ((LPAREN parameter
    (COMMA parameter)* RPAREN (block | SEMICOLON)) | SEMICOLON) | interfaceBlock) */
 std::unique_ptr<ASTDeclaration> Parser::declaration() {
-    Modifiers modifiers = this->modifiers();
     Token lookahead = this->peek();
+    if (lookahead.fKind == Token::ENUM) {
+        return this->enumDeclaration();
+    }
+    Modifiers modifiers = this->modifiers();
+    lookahead = this->peek();
     if (lookahead.fKind == Token::IDENTIFIER && !this->isType(this->text(lookahead))) {
         // we have an identifier that's not a type, could be the start of an interface block
         return this->interfaceBlock(modifiers);
@@ -1286,7 +1351,7 @@ std::unique_ptr<ASTExpressionStatement> Parser::expressionStatement() {
     return nullptr;
 }
 
-/* assignmentExpression */
+/* commaExpression */
 std::unique_ptr<ASTExpression> Parser::expression() {
     AutoDepth depth(this);
     if (!depth.checkValid()) {
@@ -1633,11 +1698,12 @@ std::unique_ptr<ASTExpression> Parser::postfixExpression() {
     }
     for (;;) {
         switch (this->peek().fKind) {
-            case Token::LBRACKET: // fall through
-            case Token::DOT:      // fall through
-            case Token::LPAREN:   // fall through
-            case Token::PLUSPLUS: // fall through
-            case Token::MINUSMINUS: {
+            case Token::LBRACKET:   // fall through
+            case Token::DOT:        // fall through
+            case Token::LPAREN:     // fall through
+            case Token::PLUSPLUS:   // fall through
+            case Token::MINUSMINUS: // fall through
+            case Token::COLONCOLON: {
                 std::unique_ptr<ASTSuffix> s = this->suffix();
                 if (!s) {
                     return nullptr;
@@ -1652,7 +1718,7 @@ std::unique_ptr<ASTExpression> Parser::postfixExpression() {
 }
 
 /* LBRACKET expression? RBRACKET | DOT IDENTIFIER | LPAREN parameters RPAREN |
-   PLUSPLUS | MINUSMINUS */
+   PLUSPLUS | MINUSMINUS | COLONCOLON IDENTIFIER */
 std::unique_ptr<ASTSuffix> Parser::suffix() {
     Token next = this->nextToken();
     switch (next.fKind) {
@@ -1667,7 +1733,8 @@ std::unique_ptr<ASTSuffix> Parser::suffix() {
             this->expect(Token::RBRACKET, "']' to complete array access expression");
             return std::unique_ptr<ASTSuffix>(new ASTIndexSuffix(std::move(e)));
         }
-        case Token::DOT: {
+        case Token::DOT: // fall through
+        case Token::COLONCOLON: {
             int offset = this->peek().fOffset;
             StringFragment text;
             if (this->identifier(&text)) {

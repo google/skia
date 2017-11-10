@@ -23,7 +23,8 @@ struct ASTDeclaration : public ASTPositionNode {
         kExtension_Kind,
         kPrecision_Kind,
         kModifiers_Kind,
-        kSection_Kind
+        kSection_Kind,
+        kEnum_Kind
     };
 
     ASTDeclaration(int offset, Kind kind)

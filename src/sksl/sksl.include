@@ -1,4 +1,4 @@
-STRINGIFY(
+R"(
 
 // defines built-in functions supported by SkiaSL
 
@@ -330,11 +330,11 @@ float4 subpassLoad(subpassInputMS subpass, int sample);
 $gfloat4subpassLoad(gsubpassInput subpass);
 $gfloat4subpassLoad(gsubpassInputMS subpass, int sample);
 */
-)
+)"
 
 // split into multiple chunks, as MSVC++ complains if a single string is too long
 
-STRINGIFY(
+R"(
 
 half4 texture($gsampler1D sampler, float2 P);
 half4 texture($gsampler1D sampler, float2 P, float bias);
@@ -560,5 +560,4 @@ void memoryBarrierImage();
 void groupMemoryBarrier();
 */
 
-)
-
+)"

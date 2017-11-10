@@ -38,14 +38,14 @@ public:
                 "%s.w))) * float(%s.z));\n}\n@if ((%d == 1 || %d == 3) || %d == 4) {\n    d = "
                 "half(clamp(float(d), 0.0, 1.0));\n} else {\n    d = half(float(d) > 0.5 ? 1.0 : "
                 "0.0);\n}\n%s = %s * d;\n",
-                prevRadius, _outer.edgeType(), _outer.edgeType(),
+                prevRadius, (int)_outer.edgeType(), (int)_outer.edgeType(),
                 args.fUniformHandler->getUniformCStr(fCircleVar),
                 args.fUniformHandler->getUniformCStr(fCircleVar),
                 args.fUniformHandler->getUniformCStr(fCircleVar),
                 args.fUniformHandler->getUniformCStr(fCircleVar),
                 args.fUniformHandler->getUniformCStr(fCircleVar),
-                args.fUniformHandler->getUniformCStr(fCircleVar), _outer.edgeType(),
-                _outer.edgeType(), _outer.edgeType(), args.fOutputColor,
+                args.fUniformHandler->getUniformCStr(fCircleVar), (int)_outer.edgeType(),
+                (int)_outer.edgeType(), (int)_outer.edgeType(), args.fOutputColor,
                 args.fInputColor ? args.fInputColor : "half4(1)");
     }
 
@@ -84,7 +84,7 @@ GrGLSLFragmentProcessor* GrCircleEffect::onCreateGLSLInstance() const {
 }
 void GrCircleEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                            GrProcessorKeyBuilder* b) const {
-    b->add32(fEdgeType);
+    b->add32((int32_t)fEdgeType);
 }
 bool GrCircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrCircleEffect& that = other.cast<GrCircleEffect>();
@@ -113,7 +113,7 @@ std::unique_ptr<GrFragmentProcessor> GrCircleEffect::TestCreate(GrProcessorTestD
     do {
         et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
     } while (GrClipEdgeType::kHairlineAA == et);
-    return GrCircleEffect::Make((int)et, center, radius);
+    return GrCircleEffect::Make(et, center, radius);
 }
 #endif
 #endif
