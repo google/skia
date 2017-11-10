@@ -22,16 +22,14 @@
 #undef CreateSemaphore
 #endif
 
-#define GET_PROC(F) f ## F = (PFN_vk ## F) fGetInstanceProcAddr(instance, "vk" #F)
-#define GET_DEV_PROC(F) f ## F = (PFN_vk ## F) fGetDeviceProcAddr(device, "vk" #F)
+#define GET_PROC(F) f ## F = (PFN_vk ## F) vkGetInstanceProcAddr(instance, "vk" #F)
+#define GET_DEV_PROC(F) f ## F = (PFN_vk ## F) vkGetDeviceProcAddr(device, "vk" #F)
 
 namespace sk_app {
 
 VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
                                          CreateVkSurfaceFn createVkSurface,
-                                         CanPresentFn canPresent,
-                                         PFN_vkGetInstanceProcAddr instProc,
-                                         PFN_vkGetDeviceProcAddr devProc)
+                                         CanPresentFn canPresent)
     : WindowContext(params)
     , fCreateVkSurfaceFn(createVkSurface)
     , fCanPresentFn(canPresent)
@@ -42,14 +40,12 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
     , fSurfaces(nullptr)
     , fCommandPool(VK_NULL_HANDLE)
     , fBackbuffers(nullptr) {
-    fGetInstanceProcAddr = instProc;
-    fGetDeviceProcAddr = devProc;
     this->initializeContext();
 }
 
 void VulkanWindowContext::initializeContext() {
     // any config code here (particularly for msaa)?
-    fBackendContext.reset(GrVkBackendContext::Create(fGetInstanceProcAddr, fGetDeviceProcAddr,
+    fBackendContext.reset(GrVkBackendContext::Create(vkGetInstanceProcAddr, vkGetDeviceProcAddr,
                                                      &fPresentQueueIndex, fCanPresentFn));
 
     if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
@@ -70,7 +66,6 @@ void VulkanWindowContext::initializeContext() {
     GET_DEV_PROC(GetSwapchainImagesKHR);
     GET_DEV_PROC(AcquireNextImageKHR);
     GET_DEV_PROC(QueuePresentKHR);
-    GET_DEV_PROC(GetDeviceQueue);
 
     fContext = GrContext::MakeVulkan(fBackendContext.get(), fDisplayParams.fGrContextOptions);
 
@@ -95,7 +90,7 @@ void VulkanWindowContext::initializeContext() {
     }
 
     // create presentQueue
-    fGetDeviceQueue(fBackendContext->fDevice, fPresentQueueIndex, 0, &fPresentQueue);
+    vkGetDeviceQueue(fBackendContext->fDevice, fPresentQueueIndex, 0, &fPresentQueue);
 }
 
 bool VulkanWindowContext::createSwapchain(int width, int height,

@@ -9,22 +9,15 @@
 #include "WindowContextFactory_android.h"
 #include "../VulkanWindowContext.h"
 
-#include "vk/VkTestUtils.h"
-
 namespace sk_app {
 
 namespace window_context_factory {
 
 WindowContext* NewVulkanForAndroid(ANativeWindow* window, const DisplayParams& params) {
-    PFN_vkGetInstanceProcAddr instProc;
-    PFN_vkGetDeviceProcAddr devProc;
-    if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
-        return nullptr;
-    }
-
-    auto createVkSurface = [window, instProc] (VkInstance instance) -> VkSurfaceKHR {
+    auto createVkSurface = [window] (VkInstance instance) -> VkSurfaceKHR {
         PFN_vkCreateAndroidSurfaceKHR createAndroidSurfaceKHR =
-                (PFN_vkCreateAndroidSurfaceKHR) instProc(instance, "vkCreateAndroidSurfaceKHR");
+                (PFN_vkCreateAndroidSurfaceKHR)vkGetInstanceProcAddr(instance,
+                                                                     "vkCreateAndroidSurfaceKHR");
 
         if (!window) {
             return VK_NULL_HANDLE;
@@ -45,8 +38,7 @@ WindowContext* NewVulkanForAndroid(ANativeWindow* window, const DisplayParams& p
 
     auto canPresent = [](VkInstance, VkPhysicalDevice, uint32_t) { return true; };
 
-    WindowContext* ctx = new VulkanWindowContext(params, createVkSurface, canPresent,
-                                                 instProc, devProc);
+    WindowContext* ctx = new VulkanWindowContext(params, createVkSurface, canPresent);
     if (!ctx->isValid()) {
         delete ctx;
         return nullptr;
