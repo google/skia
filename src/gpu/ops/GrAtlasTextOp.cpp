@@ -84,10 +84,10 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
                 reinterpret_cast<const SkPoint*>(blobVertices + 3 * vertexStride);
 
         // positions for bitmap glyphs are pixel boundary aligned
-        SkIRect positionRect = SkIRect::MakeLTRB(SkScalarFloorToInt(blobPositionLT->fX),
-                                                 SkScalarFloorToInt(blobPositionLT->fY),
-                                                 SkScalarFloorToInt(blobPositionRB->fX),
-                                                 SkScalarFloorToInt(blobPositionRB->fY));
+        SkIRect positionRect = SkIRect::MakeLTRB(SkScalarRoundToInt(blobPositionLT->fX),
+                                                 SkScalarRoundToInt(blobPositionLT->fY),
+                                                 SkScalarRoundToInt(blobPositionRB->fX),
+                                                 SkScalarRoundToInt(blobPositionRB->fY));
         if (clipRect.contains(positionRect)) {
             memcpy(currVertex, blobVertices, 4 * vertexStride);
             currVertex += 4 * vertexStride;
