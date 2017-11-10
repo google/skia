@@ -208,13 +208,10 @@ static void apply_shader(SkPaint* paint, int index) {
         paint->setRasterizer(rastBuilder.detach());
     }
 
-#ifdef SK_SUPPORT_LEGACY_EMBOSSMASKFILTER
-    SkScalar dir[] = { SK_Scalar1, SK_Scalar1, SK_Scalar1 };
-    paint->setMaskFilter(SkBlurMaskFilter::MakeEmboss(
-                SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3)), dir,
-                SK_Scalar1/4, SkIntToScalar(4)));
+    paint->setMaskFilter(SkEmbossMaskFilter::Make(
+                SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3)),
+                { { SK_Scalar1, SK_Scalar1, SK_Scalar1 }, 0, 128, 16*2 }));
     paint->setColor(SK_ColorBLUE);
-#endif
 }
 
 class DemoView : public SampleView {
