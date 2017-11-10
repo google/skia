@@ -131,7 +131,7 @@ protected:
         SkASSERT(fTarget);
 
         SkASSERT(fTarget->fRefCnt > 0);
-        fTarget->fRefCnt += (fRefCnt-1); // don't xfer the proxy's creation ref
+        fTarget->fRefCnt += SkTMax(0, fRefCnt-1); // don't xfer the proxy's creation ref
         fTarget->fPendingReads += fPendingReads;
         fTarget->fPendingWrites += fPendingWrites;
     }
