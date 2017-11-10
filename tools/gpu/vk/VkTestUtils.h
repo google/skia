@@ -8,6 +8,8 @@
 #ifndef VkTestUtils_DEFINED
 #define VkTestUtils_DEFINED
 
+#include "SkTypes.h"
+
 #ifdef SK_VULKAN
 
 #include "vk/GrVkDefines.h"
