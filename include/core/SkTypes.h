@@ -314,6 +314,37 @@ typedef uint32_t SkMSec;
 */
 #ifdef __cplusplus
 
+/** Defines a class that behaves semantically as a bool, but is strongly typed with a meaningful
+    name. Functions should use named bools in their arguments to convey meaning at the callsites. */
+#define SK_MAKE_NAMED_BOOL(NAME)                                                          \
+class NAME {                                                                              \
+public:                                                                                   \
+    enum class NamedValue : bool {                                                        \
+        kYes = true,                                                                      \
+        kNo = false                                                                       \
+    };                                                                                    \
+    static constexpr NamedValue kYes = NamedValue::kYes;                                  \
+    static constexpr NamedValue kNo = NamedValue::kNo;                                    \
+                                                                                          \
+    NAME() = default; /* Uninitialized. */                                                \
+    constexpr /* implicit */ NAME(NamedValue value) : fValue((bool)value) {}              \
+    template<typename U> constexpr explicit NAME(const U& value) : fValue((bool)value) {} \
+                                                                                          \
+    /* implicit */ constexpr operator bool() const { return fValue; }                     \
+    constexpr NAME operator!() const { return NAME(!fValue); }                            \
+                                                                                          \
+private:                                                                                  \
+    bool fValue;                                                                          \
+}
+
+template<typename T> static constexpr bool operator==(typename T::NamedValue val, T namedBool) {
+    return (T::NamedValue::kYes == val) == namedBool;
+}
+
+template<typename T> static constexpr bool operator==(T namedBool, typename T::NamedValue val) {
+    return namedBool == (val == T::NamedValue::kYes);
+}
+
 /** Faster than SkToBool for integral conditions. Returns 0 or 1
 */
 static inline constexpr int Sk32ToBool(uint32_t n) {
