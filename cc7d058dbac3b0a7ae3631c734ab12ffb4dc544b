@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b2bbaa7_2ff3b5ba",
+        "filename": "src/effects/SkPictureImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-10T18:53:34Z",
+      "side": 1,
+      "message": "should we clamp to kLast_SkFilterQuality to sleep better at night?",
+      "range": {
+        "startLine": 72,
+        "startChar": 68,
+        "endLine": 72,
+        "endChar": 75
+      },
+      "revId": "cc7d058dbac3b0a7ae3631c734ab12ffb4dc544b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
