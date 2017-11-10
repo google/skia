@@ -470,19 +470,39 @@ SI void store(T* ptr, size_t tail, V v) {
     }
 }
 
-template <typename V, typename T>
-SI V gather(const T* ptr, U32 ix) {
 #if defined(__AVX2__)
-    return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],
-              ptr[ix[ 4]], ptr[ix[ 5]], ptr[ix[ 6]], ptr[ix[ 7]],
-              ptr[ix[ 8]], ptr[ix[ 9]], ptr[ix[10]], ptr[ix[11]],
-              ptr[ix[12]], ptr[ix[13]], ptr[ix[14]], ptr[ix[15]], };
+    template <typename V, typename T>
+    SI V gather(const T* ptr, U32 ix) {
+        return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],
+                  ptr[ix[ 4]], ptr[ix[ 5]], ptr[ix[ 6]], ptr[ix[ 7]],
+                  ptr[ix[ 8]], ptr[ix[ 9]], ptr[ix[10]], ptr[ix[11]],
+                  ptr[ix[12]], ptr[ix[13]], ptr[ix[14]], ptr[ix[15]], };
+    }
+
+    template<>
+    F gather(const float* p, U32 ix) {
+        __m256i lo, hi;
+        split(ix, &lo, &hi);
+
+        return join<F>(_mm256_i32gather_ps(p, lo, 4),
+                       _mm256_i32gather_ps(p, hi, 4));
+    }
+
+    template<>
+    U32 gather(const uint32_t* p, U32 ix) {
+        __m256i lo, hi;
+        split(ix, &lo, &hi);
+
+        return join<U32>(_mm256_i32gather_epi32(p, lo, 4),
+                         _mm256_i32gather_epi32(p, hi, 4));
+    }
 #else
-    return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],
-              ptr[ix[ 4]], ptr[ix[ 5]], ptr[ix[ 6]], ptr[ix[ 7]], };
+    template <typename V, typename T>
+    SI V gather(const T* ptr, U32 ix) {
+        return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],
+                  ptr[ix[ 4]], ptr[ix[ 5]], ptr[ix[ 6]], ptr[ix[ 7]], };
+    }
 #endif
-}
-// TODO: AVX2 gather instructions where possible
 
 
 // ~~~~~~ 32-bit memory loads and stores ~~~~~~ //
