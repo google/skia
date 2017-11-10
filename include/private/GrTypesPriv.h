@@ -649,46 +649,46 @@ enum class GrSLRestrict {
  * GrProcessorEdgeType will succeed with all values and it is up to the caller to check for
  * a NULL return.
  */
-enum GrClipEdgeType {
-    kFillBW_GrClipEdgeType,
-    kFillAA_GrClipEdgeType,
-    kInverseFillBW_GrClipEdgeType,
-    kInverseFillAA_GrClipEdgeType,
-    kHairlineAA_GrClipEdgeType,
+enum class GrClipEdgeType {
+    kFillBW,
+    kFillAA,
+    kInverseFillBW,
+    kInverseFillAA,
+    kHairlineAA,
 
-    kLast_GrClipEdgeType = kHairlineAA_GrClipEdgeType
+    kLast = kHairlineAA
 };
 
-static const int kGrProcessorEdgeTypeCnt = kLast_GrClipEdgeType + 1;
+static const int kGrClipEdgeTypeCnt = (int) GrClipEdgeType::kLast + 1;
 
 static inline bool GrProcessorEdgeTypeIsFill(const GrClipEdgeType edgeType) {
-    return (kFillAA_GrClipEdgeType == edgeType || kFillBW_GrClipEdgeType == edgeType);
+    return (GrClipEdgeType::kFillAA == edgeType || GrClipEdgeType::kFillBW == edgeType);
 }
 
 static inline bool GrProcessorEdgeTypeIsInverseFill(const GrClipEdgeType edgeType) {
-    return (kInverseFillAA_GrClipEdgeType == edgeType ||
-            kInverseFillBW_GrClipEdgeType == edgeType);
+    return (GrClipEdgeType::kInverseFillAA == edgeType ||
+            GrClipEdgeType::kInverseFillBW == edgeType);
 }
 
 static inline bool GrProcessorEdgeTypeIsAA(const GrClipEdgeType edgeType) {
-    return (kFillBW_GrClipEdgeType != edgeType &&
-            kInverseFillBW_GrClipEdgeType != edgeType);
+    return (GrClipEdgeType::kFillBW != edgeType &&
+            GrClipEdgeType::kInverseFillBW != edgeType);
 }
 
 static inline GrClipEdgeType GrInvertProcessorEdgeType(const GrClipEdgeType edgeType) {
     switch (edgeType) {
-        case kFillBW_GrClipEdgeType:
-            return kInverseFillBW_GrClipEdgeType;
-        case kFillAA_GrClipEdgeType:
-            return kInverseFillAA_GrClipEdgeType;
-        case kInverseFillBW_GrClipEdgeType:
-            return kFillBW_GrClipEdgeType;
-        case kInverseFillAA_GrClipEdgeType:
-            return kFillAA_GrClipEdgeType;
-        case kHairlineAA_GrClipEdgeType:
+        case GrClipEdgeType::kFillBW:
+            return GrClipEdgeType::kInverseFillBW;
+        case GrClipEdgeType::kFillAA:
+            return GrClipEdgeType::kInverseFillAA;
+        case GrClipEdgeType::kInverseFillBW:
+            return GrClipEdgeType::kFillBW;
+        case GrClipEdgeType::kInverseFillAA:
+            return GrClipEdgeType::kFillAA;
+        case GrClipEdgeType::kHairlineAA:
             SK_ABORT("Hairline fill isn't invertible.");
     }
-    return kFillAA_GrClipEdgeType;  // suppress warning.
+    return GrClipEdgeType::kFillAA;  // suppress warning.
 }
 
 /**

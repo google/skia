@@ -40,7 +40,7 @@ public:
      */
     static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, int n,
                                                      const SkScalar edges[]) {
-        if (n <= 0 || n > kMaxEdges || kHairlineAA_GrClipEdgeType == edgeType) {
+        if (n <= 0 || n > kMaxEdges || GrClipEdgeType::kHairlineAA == edgeType) {
             return nullptr;
         }
         return std::unique_ptr<GrFragmentProcessor>(new GrConvexPolyEffect(edgeType, n, edges));

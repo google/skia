@@ -83,7 +83,7 @@ protected:
 #endif
 
 #if SK_SUPPORT_GPU
-        int lastEdgeType = (kEffect_Type == fType) ? kLast_GrClipEdgeType: 0;
+        int lastEdgeType = (kEffect_Type == fType) ? (int) GrClipEdgeType::kLast: 0;
 #else
         int lastEdgeType = 0;
 #endif

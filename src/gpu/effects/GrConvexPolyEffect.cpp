@@ -66,7 +66,7 @@ std::unique_ptr<GrFragmentProcessor> AARectEffect::TestCreate(GrProcessorTestDat
     std::unique_ptr<GrFragmentProcessor> fp;
     do {
         GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
-                d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
+                d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
 
         fp = AARectEffect::Make(edgeType, rect);
     } while (nullptr == fp);
@@ -144,7 +144,7 @@ void GLAARectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 void GLAARectEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                             GrProcessorKeyBuilder* b) {
     const AARectEffect& aare = processor.cast<AARectEffect>();
-    b->add32(aare.getEdgeType());
+    b->add32((int) aare.getEdgeType());
 }
 
 void AARectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
@@ -221,8 +221,8 @@ void GrGLConvexPolyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 void GrGLConvexPolyEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
     const GrConvexPolyEffect& cpe = processor.cast<GrConvexPolyEffect>();
-    GR_STATIC_ASSERT(kGrProcessorEdgeTypeCnt <= 8);
-    uint32_t key = (cpe.getEdgeCount() << 3) | cpe.getEdgeType();
+    GR_STATIC_ASSERT(kGrClipEdgeTypeCnt <= 8);
+    uint32_t key = (cpe.getEdgeCount() << 3) | (int) cpe.getEdgeType();
     b->add32(key);
 }
 
@@ -230,7 +230,7 @@ void GrGLConvexPolyEffect::GenKey(const GrProcessor& processor, const GrShaderCa
 
 std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(GrClipEdgeType type,
                                                               const SkPath& path) {
-    if (kHairlineAA_GrClipEdgeType == type) {
+    if (GrClipEdgeType::kHairlineAA == type) {
         return nullptr;
     }
     if (path.getSegmentMasks() != SkPath::kLine_SegmentMask ||
@@ -301,7 +301,7 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(GrClipEdgeType typ
 
 std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(GrClipEdgeType edgeType,
                                                               const SkRect& rect) {
-    if (kHairlineAA_GrClipEdgeType == edgeType){
+    if (GrClipEdgeType::kHairlineAA == edgeType){
         return nullptr;
     }
     return AARectEffect::Make(edgeType, rect);
@@ -365,7 +365,7 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::TestCreate(GrProcessorT
     std::unique_ptr<GrFragmentProcessor> fp;
     do {
         GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
-                d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
+                d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
         fp = GrConvexPolyEffect::Make(edgeType, count, edges);
     } while (nullptr == fp);
     return fp;

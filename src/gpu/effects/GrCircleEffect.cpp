@@ -111,9 +111,9 @@ std::unique_ptr<GrFragmentProcessor> GrCircleEffect::TestCreate(GrProcessorTestD
     SkScalar radius = testData->fRandom->nextRangeF(0.f, 1000.f);
     GrClipEdgeType et;
     do {
-        et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
-    } while (kHairlineAA_GrClipEdgeType == et);
-    return GrCircleEffect::Make(et, center, radius);
+        et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
+    } while (GrClipEdgeType::kHairlineAA == et);
+    return GrCircleEffect::Make((int)et, center, radius);
 }
 #endif
 #endif

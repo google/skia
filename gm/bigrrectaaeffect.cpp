@@ -61,8 +61,8 @@ protected:
         int y = kPad;
         int x = kPad;
         constexpr GrClipEdgeType kEdgeTypes[] = {
-            kFillAA_GrClipEdgeType,
-            kInverseFillAA_GrClipEdgeType,
+            GrClipEdgeType::kFillAA,
+            GrClipEdgeType::kInverseFillAA,
         };
         SkRect testBounds = SkRect::MakeIWH(fTestWidth, fTestHeight);
         for (size_t et = 0; et < SK_ARRAY_COUNT(kEdgeTypes); ++et) {

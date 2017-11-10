@@ -192,7 +192,7 @@ protected:
             const SkPath* path = iter.get();
             SkScalar x = 0;
 
-            for (int et = 0; et < kGrProcessorEdgeTypeCnt; ++et) {
+            for (int et = 0; et < kGrClipEdgeTypeCnt; ++et) {
                 const SkMatrix m = SkMatrix::MakeTrans(x, y);
                 SkPath p;
                 path->transform(m, &p);
@@ -234,7 +234,7 @@ protected:
 
             SkScalar x = 0;
 
-            for (int et = 0; et < kGrProcessorEdgeTypeCnt; ++et) {
+            for (int et = 0; et < kGrClipEdgeTypeCnt; ++et) {
                 SkRect rect = *iter.get();
                 rect.offset(x, y);
                 GrClipEdgeType edgeType = (GrClipEdgeType) et;

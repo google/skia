@@ -81,7 +81,7 @@ private:
 std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::Make(GrClipEdgeType edgeType,
                                                                uint32_t circularCornerFlags,
                                                                const SkRRect& rrect) {
-    if (kFillAA_GrClipEdgeType != edgeType && kInverseFillAA_GrClipEdgeType != edgeType) {
+    if (GrClipEdgeType::kFillAA != edgeType && GrClipEdgeType::kInverseFillAA != edgeType) {
         return nullptr;
     }
     return std::unique_ptr<GrFragmentProcessor>(
@@ -121,7 +121,7 @@ std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::TestCreate(GrProcessor
     std::unique_ptr<GrFragmentProcessor> fp;
     do {
         GrClipEdgeType et =
-                (GrClipEdgeType)d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
+                (GrClipEdgeType)d->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
         fp = GrRRectEffect::Make(et, rrect);
     } while (nullptr == fp);
     return fp;
@@ -277,7 +277,7 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
             break;
     }
 
-    if (kInverseFillAA_GrClipEdgeType == crre.getEdgeType()) {
+    if (GrClipEdgeType::kInverseFillAA == crre.getEdgeType()) {
         fragBuilder->codeAppend("alpha = 1.0 - alpha;");
     }
 
@@ -287,8 +287,8 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
 void GLCircularRRectEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                                    GrProcessorKeyBuilder* b) {
     const CircularRRectEffect& crre = processor.cast<CircularRRectEffect>();
-    GR_STATIC_ASSERT(kGrProcessorEdgeTypeCnt <= 8);
-    b->add32((crre.getCircularCornerFlags() << 3) | crre.getEdgeType());
+    GR_STATIC_ASSERT(kGrClipEdgeTypeCnt <= 8);
+    b->add32((crre.getCircularCornerFlags() << 3) | (int) crre.getEdgeType());
 }
 
 void GLCircularRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
@@ -417,7 +417,7 @@ private:
 
 std::unique_ptr<GrFragmentProcessor> EllipticalRRectEffect::Make(GrClipEdgeType edgeType,
                                                                  const SkRRect& rrect) {
-    if (kFillAA_GrClipEdgeType != edgeType && kInverseFillAA_GrClipEdgeType != edgeType) {
+    if (GrClipEdgeType::kFillAA != edgeType && GrClipEdgeType::kInverseFillAA != edgeType) {
         return nullptr;
     }
     return std::unique_ptr<GrFragmentProcessor>(new EllipticalRRectEffect(edgeType, rrect));
@@ -472,7 +472,7 @@ std::unique_ptr<GrFragmentProcessor> EllipticalRRectEffect::TestCreate(GrProcess
     }
     std::unique_ptr<GrFragmentProcessor> fp;
     do {
-        GrClipEdgeType et = (GrClipEdgeType)d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
+        GrClipEdgeType et = (GrClipEdgeType)d->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
         fp = GrRRectEffect::Make(et, rrect);
     } while (nullptr == fp);
     return fp;
@@ -584,7 +584,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("approx_dist *= %s.x;", scaleName);
     }
 
-    if (kFillAA_GrClipEdgeType == erre.getEdgeType()) {
+    if (GrClipEdgeType::kFillAA == erre.getEdgeType()) {
         fragBuilder->codeAppend("half alpha = clamp(0.5 - approx_dist, 0.0, 1.0);");
     } else {
         fragBuilder->codeAppend("half alpha = clamp(0.5 + approx_dist, 0.0, 1.0);");
@@ -596,8 +596,8 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
 void GLEllipticalRRectEffect::GenKey(const GrProcessor& effect, const GrShaderCaps&,
                                      GrProcessorKeyBuilder* b) {
     const EllipticalRRectEffect& erre = effect.cast<EllipticalRRectEffect>();
-    GR_STATIC_ASSERT(kLast_GrClipEdgeType < (1 << 3));
-    b->add32(erre.getRRect().getType() | erre.getEdgeType() << 3);
+    GR_STATIC_ASSERT((int) GrClipEdgeType::kLast < (1 << 3));
+    b->add32(erre.getRRect().getType() | (int) erre.getEdgeType() << 3);
 }
 
 void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,

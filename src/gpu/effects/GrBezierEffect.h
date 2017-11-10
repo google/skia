@@ -65,24 +65,24 @@ public:
                                            bool usesLocalCoords,
                                            uint8_t coverage = 0xff) {
         switch (edgeType) {
-            case kFillAA_GrClipEdgeType:
+            case GrClipEdgeType::kFillAA:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return nullptr;
                 }
                 return sk_sp<GrGeometryProcessor>(
-                    new GrConicEffect(color, viewMatrix, coverage, kFillAA_GrClipEdgeType,
+                    new GrConicEffect(color, viewMatrix, coverage, GrClipEdgeType::kFillAA,
                                       localMatrix, usesLocalCoords));
-            case kHairlineAA_GrClipEdgeType:
+            case GrClipEdgeType::kHairlineAA:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return nullptr;
                 }
                 return sk_sp<GrGeometryProcessor>(
                     new GrConicEffect(color, viewMatrix, coverage,
-                                      kHairlineAA_GrClipEdgeType, localMatrix,
+                                      GrClipEdgeType::kHairlineAA, localMatrix,
                                       usesLocalCoords));
-            case kFillBW_GrClipEdgeType:
+            case GrClipEdgeType::kFillBW:
                 return sk_sp<GrGeometryProcessor>(
-                    new GrConicEffect(color, viewMatrix, coverage, kFillBW_GrClipEdgeType,
+                    new GrConicEffect(color, viewMatrix, coverage, GrClipEdgeType::kFillBW,
                                       localMatrix, usesLocalCoords));
             default:
                 return nullptr;
@@ -147,24 +147,24 @@ public:
                                            bool usesLocalCoords,
                                            uint8_t coverage = 0xff) {
         switch (edgeType) {
-            case kFillAA_GrClipEdgeType:
+            case GrClipEdgeType::kFillAA:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return nullptr;
                 }
                 return sk_sp<GrGeometryProcessor>(
-                    new GrQuadEffect(color, viewMatrix, coverage, kFillAA_GrClipEdgeType,
+                    new GrQuadEffect(color, viewMatrix, coverage, GrClipEdgeType::kFillAA,
                                      localMatrix, usesLocalCoords));
-            case kHairlineAA_GrClipEdgeType:
+            case GrClipEdgeType::kHairlineAA:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return nullptr;
                 }
                 return sk_sp<GrGeometryProcessor>(
                     new GrQuadEffect(color, viewMatrix, coverage,
-                                     kHairlineAA_GrClipEdgeType, localMatrix,
+                                     GrClipEdgeType::kHairlineAA, localMatrix,
                                      usesLocalCoords));
-            case kFillBW_GrClipEdgeType:
+            case GrClipEdgeType::kFillBW:
                 return sk_sp<GrGeometryProcessor>(
-                    new GrQuadEffect(color, viewMatrix, coverage, kFillBW_GrClipEdgeType,
+                    new GrQuadEffect(color, viewMatrix, coverage, GrClipEdgeType::kFillBW,
                                      localMatrix, usesLocalCoords));
             default:
                 return nullptr;
@@ -240,15 +240,15 @@ public:
         }
 
         switch (edgeType) {
-            case kFillAA_GrClipEdgeType:
+            case GrClipEdgeType::kFillAA:
                 return sk_sp<GrGeometryProcessor>(
-                    new GrCubicEffect(color, viewMatrix, devKLM, kFillAA_GrClipEdgeType));
-            case kHairlineAA_GrClipEdgeType:
+                    new GrCubicEffect(color, viewMatrix, devKLM, GrClipEdgeType::kFillAA));
+            case GrClipEdgeType::kHairlineAA:
                 return sk_sp<GrGeometryProcessor>(
-                    new GrCubicEffect(color, viewMatrix, devKLM, kHairlineAA_GrClipEdgeType));
-            case kFillBW_GrClipEdgeType:
+                    new GrCubicEffect(color, viewMatrix, devKLM, GrClipEdgeType::kHairlineAA));
+            case GrClipEdgeType::kFillBW:
                 return sk_sp<GrGeometryProcessor>(
-                    new GrCubicEffect(color, viewMatrix, devKLM, kFillBW_GrClipEdgeType));
+                    new GrCubicEffect(color, viewMatrix, devKLM, GrClipEdgeType::kFillBW));
             default:
                 return nullptr;
         }
