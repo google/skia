@@ -86,9 +86,6 @@ static const struct {
     { "angle_gl_es3",          "gpu", "api=angle_gl_es3" },
     { "commandbuffer",         "gpu", "api=commandbuffer" },
     { "mock",                  "gpu", "api=mock" }
-#if SK_MESA
-    ,{ "mesa",                 "gpu", "api=mesa" }
-#endif
 #ifdef SK_VULKAN
     ,{ "vk",                   "gpu", "api=vulkan" }
     ,{ "vksrgb",               "gpu", "api=vulkan,color=srgb" }
@@ -141,9 +138,6 @@ static const char configExtendedHelp[] =
     "\t\tangle_gl_es3\t\t\tUse OpenGL ES3 on the ANGLE OpenGL backend.\n"
     "\t\tcommandbuffer\t\tUse command buffer.\n"
     "\t\tmock\t\tUse mock context.\n"
-#if SK_MESA
-    "\t\tmesa\t\t\tUse MESA.\n"
-#endif
 #ifdef SK_VULKAN
     "\t\tvulkan\t\t\tUse Vulkan.\n"
 #endif
@@ -307,12 +301,6 @@ static bool parse_option_gpu_api(const SkString& value,
         *outContextType = GrContextFactory::kMock_ContextType;
         return true;
     }
-#if SK_MESA
-    if (value.equals("mesa")) {
-        *outContextType = GrContextFactory::kMESA_ContextType;
-        return true;
-    }
-#endif
 #ifdef SK_VULKAN
     if (value.equals("vulkan")) {
         *outContextType = GrContextFactory::kVulkan_ContextType;

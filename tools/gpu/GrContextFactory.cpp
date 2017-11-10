@@ -14,9 +14,6 @@
 #endif
 #include "gl/command_buffer/GLTestContext_command_buffer.h"
 #include "gl/debug/DebugGLTestContext.h"
-#if SK_MESA
-    #include "gl/mesa/GLTestContext_mesa.h"
-#endif
 #ifdef SK_VULKAN
 #include "vk/VkTestContext.h"
 #endif
@@ -172,11 +169,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
 #ifndef SK_NO_COMMAND_BUFFER
                 case kCommandBuffer_ContextType:
                     glCtx = CommandBufferGLTestContext::Create(glShareContext);
-                    break;
-#endif
-#if SK_MESA
-                case kMESA_ContextType:
-                    glCtx = CreateMesaGLTestContext(glShareContext);
                     break;
 #endif
                 case kNullGL_ContextType:

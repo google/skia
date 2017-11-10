@@ -31,7 +31,6 @@ if command -v lsb_release > /dev/null ; then
 		libfreetype6-dev
 		libgif-dev
 		libglu1-mesa-dev
-		libosmesa6-dev
 		libpng12-dev
 		libqt4-dev
 		EOF
