@@ -61,8 +61,6 @@ sk_sp<SkTypeface> create_font(const char* name, SkFontStyle style) {
             font = fontData->fCachedFont;
         } else {
             font = sk_make_sp<SkTestFont>(*fontData);
-            SkDEBUGCODE(font->fDebugName = sub->fName);
-            SkDEBUGCODE(font->fDebugStyle = sub->fStyle);
             fontData->fCachedFont = font;
         }
     }
