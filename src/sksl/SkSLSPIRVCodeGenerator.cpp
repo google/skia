@@ -2608,11 +2608,11 @@ SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, Out
 }
 
 std::unique_ptr<Expression> create_literal_1(const Context& context, const Type& type) {
-    if (type == *context.fInt_Type) {
-        return std::unique_ptr<Expression>(new IntLiteral(context, -1, 1));
+    if (type.isInteger()) {
+        return std::unique_ptr<Expression>(new IntLiteral(context, -1, 1, &type));
     }
-    else if (type == *context.fFloat_Type) {
-        return std::unique_ptr<Expression>(new FloatLiteral(context, -1, 1.0));
+    else if (type.isFloat()) {
+        return std::unique_ptr<Expression>(new FloatLiteral(context, -1, 1.0, &type));
     } else {
         ABORT("math is unsupported on type '%s'", type.name().c_str());
     }
