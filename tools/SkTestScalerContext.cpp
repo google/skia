@@ -30,10 +30,6 @@ SkTestFont::SkTestFont(const SkTestFontData& fontData)
     , fPaths(nullptr)
 {
     init(fontData.fPoints, fontData.fVerbs);
-#ifdef SK_DEBUG
-    sk_bzero(fDebugBits, sizeof(fDebugBits));
-    sk_bzero(fDebugOverage, sizeof(fDebugOverage));
-#endif
 }
 
 SkTestFont::~SkTestFont() {
@@ -43,42 +39,12 @@ SkTestFont::~SkTestFont() {
     delete[] fPaths;
 }
 
-#ifdef SK_DEBUG
-
-#include "SkMutex.h"
-SK_DECLARE_STATIC_MUTEX(gUsedCharsMutex);
-
-#endif
-
 int SkTestFont::codeToIndex(SkUnichar charCode) const {
-#ifdef SK_DEBUG  // detect missing test font data
-    {
-        SkAutoMutexAcquire ac(gUsedCharsMutex);
-        if (charCode >= ' ' && charCode <= '~') {
-            int bitOffset = charCode - ' ';
-            fDebugBits[bitOffset >> 3] |= 1 << (bitOffset & 7);
-        } else {
-            int index = 0;
-            while (fDebugOverage[index] != 0 && fDebugOverage[index] != charCode
-                    && index < (int) sizeof(fDebugOverage)) {
-                ++index;
-            }
-            SkASSERT(index < (int) sizeof(fDebugOverage));
-            if (fDebugOverage[index] == 0) {
-                fDebugOverage[index] = charCode;
-            }
-        }
-    }
-#endif
     for (unsigned index = 0; index < fCharCodesCount; ++index) {
         if (fCharCodes[index] == (unsigned) charCode) {
             return (int) index;
         }
     }
-
-    SkDEBUGF(("missing '%c' (%d) from %s (weight %d, width %d, slant %d)\n",
-              (char) charCode, charCode, fDebugName,
-              fDebugStyle.weight(), fDebugStyle.width(), fDebugStyle.slant()));
     return 0;
 }
 
