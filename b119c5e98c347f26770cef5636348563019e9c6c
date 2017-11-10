@@ -51,6 +51,24 @@
       "revId": "b119c5e98c347f26770cef5636348563019e9c6c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d101cdc5_c2c1279d",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-10T20:41:18Z",
+      "side": 1,
+      "message": "Yeah. I suppose a third option would be to define operator\u003d\u003d inside the class? Then just make one template that takes NamedValue on the left side and returns \u0027namedBool \u003d\u003d namedValue\u0027...",
+      "parentUuid": "a7315e39_9d1294bb",
+      "revId": "b119c5e98c347f26770cef5636348563019e9c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
