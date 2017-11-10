@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7315e39_9d1294bb",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-10T19:53:39Z",
+      "side": 1,
+      "message": "It seems slightly weird to me that this op\u003d\u003d signature could match any T that has a nested type NamedValue when compared to the version as opposed to the template class version with the struct tag.",
+      "revId": "b119c5e98c347f26770cef5636348563019e9c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
