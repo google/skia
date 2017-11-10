@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "5a21c571_1f433a7a",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-10T21:59:04Z",
+      "side": 1,
+      "message": "There\u0027s always SkTYesNo\u003cNAME\u003e ¯\\_(ツ)_/¯",
+      "parentUuid": "14f1be21_decc2f53",
+      "revId": "b119c5e98c347f26770cef5636348563019e9c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a12666e6_8547b0da",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 14
