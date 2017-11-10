@@ -20,12 +20,6 @@
 #include "GrCoordTransform.h"
 class GrConfigConversionEffect : public GrFragmentProcessor {
 public:
-    enum PMConversion {
-        kToPremul_PMConversion = 0,
-        kToUnpremul_PMConversion = 1,
-        kPMConversionCnt = 2
-    };
-
     static bool TestForPreservingPMConversions(GrContext* context) {
         static constexpr int kSize = 256;
         static constexpr GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
@@ -79,9 +73,9 @@ public:
         GrPaint paint2;
         GrPaint paint3;
         std::unique_ptr<GrFragmentProcessor> pmToUPM(
-                new GrConfigConversionEffect(kToUnpremul_PMConversion));
+                new GrConfigConversionEffect(PMConversion::kToUnpremul));
         std::unique_ptr<GrFragmentProcessor> upmToPM(
-                new GrConfigConversionEffect(kToPremul_PMConversion));
+                new GrConfigConversionEffect(PMConversion::kToPremul));
 
         paint1.addColorTextureProcessor(dataProxy, SkMatrix::I());
         paint1.addColorFragmentProcessor(pmToUPM->clone());
@@ -121,7 +115,7 @@ public:
 
         return true;
     }
-    int pmConversion() const { return fPmConversion; }
+    PMConversion pmConversion() const { return fPmConversion; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
                                                      PMConversion pmConversion) {
@@ -137,14 +131,14 @@ public:
     const char* name() const override { return "ConfigConversionEffect"; }
 
 private:
-    GrConfigConversionEffect(int pmConversion)
+    GrConfigConversionEffect(PMConversion pmConversion)
             : INHERITED(kGrConfigConversionEffect_ClassID, kNone_OptimizationFlags)
             , fPmConversion(pmConversion) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-    int fPmConversion;
+    PMConversion fPmConversion;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif

@@ -973,8 +973,7 @@ std::unique_ptr<GrFragmentProcessor> GrContext::createPMToUPMEffect(
         // ...and it should have succeeded
         SkASSERT(this->validPMUPMConversionExists());
 
-        return GrConfigConversionEffect::Make(std::move(fp),
-                                              GrConfigConversionEffect::kToUnpremul_PMConversion);
+        return GrConfigConversionEffect::Make(std::move(fp), PMConversion::kToUnpremul);
     } else {
         // For everything else (sRGB, half-float, etc...), it doesn't make sense to try and
         // explicitly round the results. Just do the obvious, naive thing in the shader.
@@ -992,8 +991,7 @@ std::unique_ptr<GrFragmentProcessor> GrContext::createUPMToPMEffect(
         // ...and it should have succeeded
         SkASSERT(this->validPMUPMConversionExists());
 
-        return GrConfigConversionEffect::Make(std::move(fp),
-                                              GrConfigConversionEffect::kToPremul_PMConversion);
+        return GrConfigConversionEffect::Make(std::move(fp), PMConversion::kToPremul);
     } else {
         // For everything else (sRGB, half-float, etc...), it doesn't make sense to try and
         // explicitly round the results. Just do the obvious, naive thing in the shader.

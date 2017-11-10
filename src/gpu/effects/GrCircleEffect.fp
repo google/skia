@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-layout(key) in int edgeType;
+layout(key) in GrClipEdgeType edgeType;
 in half2 center;
 in half radius;
 
@@ -37,15 +37,15 @@ void main() {
     // radius and then denormalized. This is to prevent overflow on devices that have a "real"
     // mediump. It'd be nice to only do this on mediump devices.
     half d;
-    @if (edgeType == 2 /* GrClipEdgeType::kInverseFillBW */ ||
-         edgeType == 3 /* GrClipEdgeType::kInverseFillAA */) {
+    @if (edgeType == GrClipEdgeType::kInverseFillBW ||
+         edgeType == GrClipEdgeType::kInverseFillAA) {
         d = (length((circle.xy - sk_FragCoord.xy) * circle.w) - 1.0) * circle.z;
     } else {
         d = (1.0 - length((circle.xy - sk_FragCoord.xy) *  circle.w)) * circle.z;
     }
-    @if (edgeType == 1 /* GrClipEdgeType::kFillAA */ ||
-         edgeType == 3 /* GrClipEdgeType::kInverseFillAA */ ||
-         edgeType == 4 /* GrClipEdgeType::kHairlineAA */) {
+    @if (edgeType == GrClipEdgeType::kFillAA ||
+         edgeType == GrClipEdgeType::kInverseFillAA ||
+         edgeType == GrClipEdgeType::kHairlineAA) {
         d = clamp(d, 0.0, 1.0);
     } else {
         d = d > 0.5 ? 1.0 : 0.0;
@@ -63,5 +63,5 @@ void main() {
     do {
         et = (GrClipEdgeType) testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
     } while (GrClipEdgeType::kHairlineAA == et);
-    return GrCircleEffect::Make((int) et, center, radius);
+    return GrCircleEffect::Make(et, center, radius);
 }

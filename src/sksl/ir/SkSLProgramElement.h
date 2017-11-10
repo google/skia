@@ -17,12 +17,13 @@ namespace SkSL {
  */
 struct ProgramElement : public IRNode {
     enum Kind {
-        kVar_Kind,
+        kEnum_Kind,
+        kExtension_Kind,
         kFunction_Kind,
         kInterfaceBlock_Kind,
-        kExtension_Kind,
         kModifiers_Kind,
-        kSection_Kind
+        kSection_Kind,
+        kVar_Kind
     };
 
     ProgramElement(int offset, Kind kind)
