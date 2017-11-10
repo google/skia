@@ -208,7 +208,7 @@ static inline void do_fill_path(const SkPath& path, const SkRegion& origClip, Sk
             *clipper.getClipRect() == clipRgn->getBounds());
 
     // now use the (possibly wrapped) blitter
-    blitter = clipper.getBlitter();
+    // blitter = clipper.getBlitter(); // TODO TEST
 
     if (isInverse) {
         sk_blit_above(blitter, ir, *clipRgn);
