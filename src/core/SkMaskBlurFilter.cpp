@@ -542,33 +542,6 @@ bool SkMaskBlurFilter::hasNoBlur() const {
     return (3 * fSigmaW <= 1) && (3 * fSigmaH <= 1);
 }
 
-static SkMask prepare_destination(int radiusX, int radiusY, const SkMask& src) {
-    SkSafeMath safe;
-
-    SkMask dst;
-    // dstW = srcW + 2 * radiusX;
-    int dstW = safe.add(src.fBounds.width(), safe.add(radiusX, radiusX));
-    // dstH = srcH + 2 * radiusY;
-    int dstH = safe.add(src.fBounds.height(), safe.add(radiusY, radiusY));
-
-    dst.fBounds.set(0, 0, dstW, dstH);
-    dst.fBounds.offset(src.fBounds.x(), src.fBounds.y());
-    dst.fBounds.offset(-SkTo<int32_t>(radiusX), -SkTo<int32_t>(radiusY));
-
-    dst.fImage = nullptr;
-    dst.fRowBytes = SkTo<uint32_t>(dstW);
-    dst.fFormat = SkMask::kA8_Format;
-
-    size_t toAlloc = safe.mul(dstW, dstH);
-
-    if (safe) {
-        dst.fImage = SkMask::AllocImage(toAlloc);
-    } else{
-        dst.fBounds = SkIRect::MakeEmpty();
-    }
-    return dst;
-}
-
 SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
 
     // 1024 is a place holder guess until more analysis can be done.
@@ -577,23 +550,38 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
     PlanningInterface* planW = make_plan(&alloc, fSigmaW);
     PlanningInterface* planH = make_plan(&alloc, fSigmaH);
 
-    size_t borderW = planW->border(),
-           borderH = planH->border();
+    size_t borderW = planW->border();
+    size_t borderH = planH->border();
+
+    auto srcW = SkTo<size_t>(src.fBounds.width());
+    auto srcH = SkTo<size_t>(src.fBounds.height());
+
+    SkSafeMath safe;
+
+    // size_t dstW = srcW + 2 * borderW;
+    size_t dstW = safe.add(srcW, safe.add(borderW, borderW));
+    //size_t dstH = srcH + 2 * borderH;
+    size_t dstH = safe.add(srcH, safe.add(borderH, borderH));
+
+    dst->fBounds.set(0, 0, dstW, dstH);
+    dst->fBounds.offset(src.fBounds.x(), src.fBounds.y());
+    dst->fBounds.offset(-SkTo<int32_t>(borderW), -SkTo<int32_t>(borderH));
+
+    dst->fImage = nullptr;
+    dst->fRowBytes = SkTo<uint32_t>(dstW);
+    dst->fFormat = SkMask::kA8_Format;
 
     if (src.fImage == nullptr) {
         return {SkTo<int32_t>(borderW), SkTo<int32_t>(borderH)};
     }
 
-    *dst = prepare_destination(borderW, borderH, src);
-    if (dst->fImage == nullptr) {
+    size_t toAlloc = safe.mul(dstW, dstH);
+    if (!safe) {
+        dst->fBounds = SkIRect::MakeEmpty();
+        // There is no border offset because we are not drawing.
         return {0, 0};
     }
-
-    auto srcW = SkTo<size_t>(src.fBounds.width());
-    auto srcH = SkTo<size_t>(src.fBounds.height());
-
-    size_t dstW = dst->fBounds.width(),
-           dstH = dst->fBounds.height();
+    dst->fImage = SkMask::AllocImage(toAlloc);
 
     auto bufferSize = std::max(planW->bufferSize(), planH->bufferSize());
     auto buffer = alloc.makeArrayDefault<uint32_t>(bufferSize);
