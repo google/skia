@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "8d0f2d11_2b183980",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-10T22:28:26Z",
+      "side": 1,
+      "message": "New idea!\n\n#define NAMED_BOOL(name)                                                           \\\n    class name {                                                                   \\\n        struct Tag{};                                                              \\\n    public:                                                                        \\\n        name() \u003d default;  /* Uninitialized. */                                    \\\n        using Fn \u003d Tag(*)();                                                       \\\n                                                                                   \\\n        static Tag kYes() { return Tag{}; }                                        \\\n        static Tag kNo()  { return Tag{}; }                                        \\\n                                                                                   \\\n        constexpr name(Fn fn ) : fVal(fn \u003d\u003d kYes) {}                               \\\n        constexpr operator Fn() const { return fVal ? kYes : kNo; }                \\\n                                                                                   \\\n        template \u003ctypename T\u003e                                                      \\\n        constexpr explicit name(T val) : fVal((bool)val) {}                        \\\n                                                                                   \\\n        constexpr explicit operator bool() const { return fVal; }                  \\\n                                                                                   \\\n    private:                                                                       \\\n        bool fVal;                                                                 \\\n    }",
+      "parentUuid": "5a21c571_1f433a7a",
+      "revId": "b119c5e98c347f26770cef5636348563019e9c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a12666e6_8547b0da",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 14
