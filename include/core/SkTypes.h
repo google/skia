@@ -314,6 +314,27 @@ typedef uint32_t SkMSec;
 */
 #ifdef __cplusplus
 
+/** Defines a class that behaves semantically as a bool, but is strongly typed with a meaningful
+    name. Functions should use named bools in their arguments to convey meaning at the callsites. */
+#define SK_MAKE_NAMED_BOOL(NAME)                                                              \
+    class NAME {                                                                              \
+    public:                                                                                   \
+        enum NamedValue {                                                                     \
+            kYes = true,                                                                      \
+            kNo = false                                                                       \
+        };                                                                                    \
+                                                                                              \
+        NAME() = default; /* Uninitialized. */                                                \
+        constexpr /* implicit */ NAME(NamedValue value) : fValue(value) {}                    \
+        template<typename U> constexpr explicit NAME(const U& value) : fValue((bool)value) {} \
+                                                                                              \
+        /* implicit */ constexpr operator bool() const { return fValue; }                     \
+        constexpr NAME operator!() const { return NAME(!fValue); }                            \
+                                                                                              \
+    private:                                                                                  \
+        bool fValue;                                                                          \
+    }
+
 /** Faster than SkToBool for integral conditions. Returns 0 or 1
 */
 static inline constexpr int Sk32ToBool(uint32_t n) {
