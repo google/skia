@@ -79,9 +79,11 @@ void SkBlitter::blitFatAntiRect(const SkRect& rect) {
 }
 
 void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
-                                   bool isEvenOdd, bool isInverse, bool isConvex) {
+                                   bool isEvenOdd, bool isInverse, bool isConvex,
+                                   SkArenaAlloc* alloc) {
     int         runSize = clip.width() + 1; // +1 so we can set runs[clip.width()] = 0
-    void*       storage = this->allocBlitMemory(runSize * (sizeof(int16_t) + sizeof(SkAlpha)));
+    int         storageSize = runSize * (sizeof(int16_t) + sizeof(SkAlpha));
+    void*       storage = alloc->makeArrayDefault<char>(storageSize);
     int16_t*    runs    = reinterpret_cast<int16_t*>(storage);
     SkAlpha*    alphas  = reinterpret_cast<SkAlpha*>(runs + runSize);
     runs[clip.width()]  = 0; // we must set the last run to 0 so blitAntiH can stop there

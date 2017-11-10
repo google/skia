@@ -36,7 +36,8 @@ public:
     // For example, one may avoid some virtual blitAntiH calls by directly calling
     // SkBlitRow::Color32.
     virtual void blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
-                                    bool isEvenOdd, bool isInverse, bool isConvex);
+                                    bool isEvenOdd, bool isInverse, bool isConvex,
+                                    SkArenaAlloc* alloc);
 
     /// Blit a horizontal run of one or more pixels.
     virtual void blitH(int x, int y, int width) = 0;
