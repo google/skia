@@ -986,6 +986,7 @@
       ".SRW",
       "--match",
       "~gradients_view_perspective_nodither",
+      "--nonativeFonts",
       "--verbose"
     ],
     "env": {

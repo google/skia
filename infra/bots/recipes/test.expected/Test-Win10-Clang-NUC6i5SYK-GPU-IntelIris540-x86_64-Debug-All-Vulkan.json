@@ -601,6 +601,7 @@
       "~XfermodeImageFilterCroppedInput_Gpu",
       "~GrDefaultPathRendererTest",
       "~GrMSAAPathRendererTest",
+      "--nonativeFonts",
       "--verbose"
     ],
     "env": {

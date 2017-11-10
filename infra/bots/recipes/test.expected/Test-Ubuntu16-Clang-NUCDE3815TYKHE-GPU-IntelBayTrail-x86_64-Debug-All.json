@@ -378,6 +378,7 @@
       ".SRW",
       "--match",
       "~ImageStorageLoad",
+      "--nonativeFonts",
       "--verbose"
     ],
     "cwd": "[START_DIR]/skia",
