@@ -212,10 +212,10 @@ static bool get_analytic_clip_processor(const ElementList& elements,
                     return false;
                 }
                 edgeType =
-                    invert ? kInverseFillAA_GrClipEdgeType : kFillAA_GrClipEdgeType;
+                    invert ? GrClipEdgeType::kInverseFillAA : GrClipEdgeType::kFillAA;
             } else {
                 edgeType =
-                    invert ? kInverseFillBW_GrClipEdgeType : kFillBW_GrClipEdgeType;
+                    invert ? GrClipEdgeType::kInverseFillBW : GrClipEdgeType::kFillBW;
             }
 
             switch (iter.get()->getDeviceSpaceType()) {

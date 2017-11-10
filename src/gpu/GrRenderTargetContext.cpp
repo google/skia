@@ -1228,11 +1228,11 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
 
     GrClipEdgeType innerEdgeType, outerEdgeType;
     if (GrAAType::kCoverage == aaType) {
-        innerEdgeType = kInverseFillAA_GrClipEdgeType;
-        outerEdgeType = kFillAA_GrClipEdgeType;
+        innerEdgeType = GrClipEdgeType::kInverseFillAA;
+        outerEdgeType = GrClipEdgeType::kFillAA;
     } else {
-        innerEdgeType = kInverseFillBW_GrClipEdgeType;
-        outerEdgeType = kFillBW_GrClipEdgeType;
+        innerEdgeType = GrClipEdgeType::kInverseFillBW;
+        outerEdgeType = GrClipEdgeType::kFillBW;
     }
 
     SkTCopyOnFirstWrite<SkRRect> inner(origInner), outer(origOuter);

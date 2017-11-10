@@ -72,16 +72,16 @@ void main() {
 
     half alpha;
     @switch (edgeType) {
-        case 0 /* kFillBW_GrClipEdgeType */:
+        case 0 /* GrClipEdgeType::kFillBW */:
             alpha = approx_dist > 0.0 ? 0.0 : 1.0;
             break;
-        case 1 /* kFillAA_GrClipEdgeType */:
+        case 1 /* GrClipEdgeType::kFillAA */:
             alpha = clamp(0.5 - approx_dist, 0.0, 1.0);
             break;
-        case 2 /* kInverseFillBW_GrClipEdgeType */:
+        case 2 /* GrClipEdgeType::kInverseFillBW */:
             alpha = approx_dist > 0.0 ? 1.0 : 0.0;
             break;
-        case 3 /* kInverseFillAA_GrClipEdgeType */:
+        case 3 /* GrClipEdgeType::kInverseFillAA */:
             alpha = clamp(0.5 + approx_dist, 0.0, 1.0);
             break;
         default:
@@ -99,7 +99,7 @@ void main() {
     SkScalar ry = testData->fRandom->nextRangeF(0.f, 1000.f);
     GrClipEdgeType et;
     do {
-        et = (GrClipEdgeType) testData->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
-    } while (kHairlineAA_GrClipEdgeType == et);
-    return GrEllipseEffect::Make(et, center, SkPoint::Make(rx, ry));
+        et = (GrClipEdgeType) testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
+    } while (GrClipEdgeType::kHairlineAA == et);
+    return GrEllipseEffect::Make((int) et, center, SkPoint::Make(rx, ry));
 }

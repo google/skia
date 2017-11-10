@@ -125,7 +125,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     fragBuilder->declAppend(func);
 
     switch (fEdgeType) {
-        case kHairlineAA_GrClipEdgeType: {
+        case GrClipEdgeType::kHairlineAA: {
             fragBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), v.fsIn());
             fragBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), v.fsIn());
             fragBuilder->codeAppendf("%s = 2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
@@ -153,7 +153,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             // fragBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
             break;
         }
-        case kFillAA_GrClipEdgeType: {
+        case GrClipEdgeType::kFillAA: {
             fragBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), v.fsIn());
             fragBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), v.fsIn());
             fragBuilder->codeAppendf("%s ="
@@ -182,7 +182,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             // fragBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
             break;
         }
-        case kFillBW_GrClipEdgeType: {
+        case GrClipEdgeType::kFillBW: {
             fragBuilder->codeAppendf("%s = %s.x * %s.x - %s.y * %s.z;",
                                      edgeAlpha.c_str(), v.fsIn(), v.fsIn(), v.fsIn(), v.fsIn());
             fragBuilder->codeAppendf("%s = float(%s < 0.0);",
@@ -255,7 +255,7 @@ sk_sp<GrGeometryProcessor> GrConicEffect::TestCreate(GrProcessorTestData* d) {
     do {
         GrClipEdgeType edgeType =
                 static_cast<GrClipEdgeType>(
-                        d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
+                        d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
         gp = GrConicEffect::Make(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom),
                                  edgeType, *d->caps(), GrTest::TestMatrix(d->fRandom),
                                  d->fRandom->nextBool());
@@ -358,7 +358,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     fragBuilder->codeAppendf("half edgeAlpha;");
 
     switch (fEdgeType) {
-        case kHairlineAA_GrClipEdgeType: {
+        case GrClipEdgeType::kHairlineAA: {
             fragBuilder->codeAppendf("half2 duvdx = dFdx(%s.xy);", v.fsIn());
             fragBuilder->codeAppendf("half2 duvdy = dFdy(%s.xy);", v.fsIn());
             fragBuilder->codeAppendf("half2 gF = half2(2.0 * %s.x * duvdx.x - duvdx.y,"
@@ -372,7 +372,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             // fragBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
             break;
         }
-        case kFillAA_GrClipEdgeType: {
+        case GrClipEdgeType::kFillAA: {
             fragBuilder->codeAppendf("half2 duvdx = dFdx(%s.xy);", v.fsIn());
             fragBuilder->codeAppendf("half2 duvdy = dFdy(%s.xy);", v.fsIn());
             fragBuilder->codeAppendf("half2 gF = half2(2.0 * %s.x * duvdx.x - duvdx.y,"
@@ -386,7 +386,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             // fragBuilder->codeAppend("edgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);");
             break;
         }
-        case kFillBW_GrClipEdgeType: {
+        case GrClipEdgeType::kFillBW: {
             fragBuilder->codeAppendf("edgeAlpha = (%s.x * %s.x - %s.y);",
                                      v.fsIn(), v.fsIn(), v.fsIn());
             fragBuilder->codeAppend("edgeAlpha = half(edgeAlpha < 0.0);");
@@ -456,7 +456,7 @@ sk_sp<GrGeometryProcessor> GrQuadEffect::TestCreate(GrProcessorTestData* d) {
     sk_sp<GrGeometryProcessor> gp;
     do {
         GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
-                d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
+                d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
         gp = GrQuadEffect::Make(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom), edgeType,
                                 *d->caps(), GrTest::TestMatrix(d->fRandom),
                                 d->fRandom->nextBool());
@@ -561,7 +561,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
 
     GrGLSLVertToFrag gradCoeffs(kFloat4_GrSLType);
-    if (kFillAA_GrClipEdgeType == fEdgeType || kHairlineAA_GrClipEdgeType == fEdgeType) {
+    if (GrClipEdgeType::kFillAA == fEdgeType || GrClipEdgeType::kHairlineAA == fEdgeType) {
         varyingHandler->addVarying("GradCoeffs", &gradCoeffs);
         vertBuilder->codeAppendf("float k = %s[0], l = %s[1], m = %s[2];",
                                  v.vsOut(), v.vsOut(), v.vsOut());
@@ -592,7 +592,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     fragBuilder->declAppend(func);
 
     switch (fEdgeType) {
-        case kHairlineAA_GrClipEdgeType: {
+        case GrClipEdgeType::kHairlineAA: {
             fragBuilder->codeAppendf("%s = %s.x * %s.xy + %s.zw;",
                                      gF.c_str(), v.fsIn(), gradCoeffs.fsIn(), gradCoeffs.fsIn());
             fragBuilder->codeAppendf("%s = %s.x * %s.x * %s.x - %s.y * %s.z;",
@@ -609,7 +609,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             //                        edgeAlpha.c_str());
             break;
         }
-        case kFillAA_GrClipEdgeType: {
+        case GrClipEdgeType::kFillAA: {
             fragBuilder->codeAppendf("%s = %s.x * %s.xy + %s.zw;",
                                      gF.c_str(), v.fsIn(), gradCoeffs.fsIn(), gradCoeffs.fsIn());
             fragBuilder->codeAppendf("%s = %s.x * %s.x * %s.x - %s.y * %s.z;",
@@ -625,7 +625,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             //                        edgeAlpha.c_str());
             break;
         }
-        case kFillBW_GrClipEdgeType: {
+        case GrClipEdgeType::kFillBW: {
             fragBuilder->codeAppendf("%s = %s.x * %s.x * %s.x - %s.y * %s.z;",
                                      edgeAlpha.c_str(), v.fsIn(), v.fsIn(),
                                      v.fsIn(), v.fsIn(), v.fsIn());
@@ -681,7 +681,7 @@ sk_sp<GrGeometryProcessor> GrCubicEffect::TestCreate(GrProcessorTestData* d) {
     do {
         GrClipEdgeType edgeType =
                 static_cast<GrClipEdgeType>(
-                        d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
+                        d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
         gp = GrCubicEffect::Make(GrRandomColor(d->fRandom), GrTest::TestMatrix(d->fRandom),
                                  GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool(), edgeType,
                                  *d->caps());
