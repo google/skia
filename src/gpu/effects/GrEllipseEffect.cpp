@@ -49,7 +49,7 @@ public:
                 fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar) : "half2(0)",
                 args.fUniformHandler->getUniformCStr(fEllipseVar),
                 fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar) : "half2(0)",
-                _outer.edgeType());
+                (int)_outer.edgeType());
         fragBuilder->codeAppendf(
                 "0);\n        break;\n    case 1:\n        alpha = half(clamp(0.5 - "
                 "float(approx_dist), 0.0, 1.0));\n        break;\n    case 2:\n        alpha = "
@@ -110,7 +110,7 @@ GrGLSLFragmentProcessor* GrEllipseEffect::onCreateGLSLInstance() const {
 }
 void GrEllipseEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
-    b->add32(fEdgeType);
+    b->add32((int32_t)fEdgeType);
 }
 bool GrEllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrEllipseEffect& that = other.cast<GrEllipseEffect>();
@@ -140,7 +140,7 @@ std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::TestCreate(GrProcessorTest
     do {
         et = (GrClipEdgeType)testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
     } while (GrClipEdgeType::kHairlineAA == et);
-    return GrEllipseEffect::Make((int)et, center, SkPoint::Make(rx, ry));
+    return GrEllipseEffect::Make(et, center, SkPoint::Make(rx, ry));
 }
 #endif
 #endif

@@ -14,6 +14,7 @@
 #include "SkSLIRGenerator.h"
 #include "SkSLMetalCodeGenerator.h"
 #include "SkSLSPIRVCodeGenerator.h"
+#include "ir/SkSLEnum.h"
 #include "ir/SkSLExpression.h"
 #include "ir/SkSLExpressionStatement.h"
 #include "ir/SkSLIntLiteral.h"
@@ -27,8 +28,6 @@
 #ifdef SK_ENABLE_SPIRV_VALIDATION
 #include "spirv-tools/libspirv.hpp"
 #endif
-
-#define STRINGIFY(x) #x
 
 // include the built-in shader symbols as static strings
 
@@ -49,6 +48,7 @@ static const char* SKSL_GEOM_INCLUDE =
 ;
 
 static const char* SKSL_FP_INCLUDE =
+#include "sksl_enums.include"
 #include "sksl_fp.include"
 ;
 
@@ -1153,6 +1153,11 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             break;
     }
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
+    for (auto& element : elements) {
+        if (element->fKind == ProgramElement::kEnum_Kind) {
+            ((Enum&) *element).fBuiltin = true;
+        }
+    }
     std::unique_ptr<String> textPtr(new String(std::move(text)));
     fSource = textPtr.get();
     fIRGenerator->convertProgram(textPtr->c_str(), textPtr->size(), *fTypes, &elements);

@@ -42,14 +42,15 @@ public:
     };
 
     enum Kind {
-        kScalar_Kind,
-        kVector_Kind,
-        kMatrix_Kind,
         kArray_Kind,
-        kStruct_Kind,
+        kEnum_Kind,
         kGeneric_Kind,
+        kMatrix_Kind,
+        kOther_Kind,
         kSampler_Kind,
-        kOther_Kind
+        kScalar_Kind,
+        kStruct_Kind,
+        kVector_Kind
     };
 
     enum NumberKind {
@@ -65,6 +66,16 @@ public:
     : INHERITED(-1, kType_Kind, StringFragment())
     , fNameString(std::move(name))
     , fTypeKind(kOther_Kind)
+    , fNumberKind(kNonnumeric_NumberKind) {
+        fName.fChars = fNameString.c_str();
+        fName.fLength = fNameString.size();
+    }
+
+    // Create a simple type.
+    Type(String name, Kind kind)
+    : INHERITED(-1, kType_Kind, StringFragment())
+    , fNameString(std::move(name))
+    , fTypeKind(kind)
     , fNumberKind(kNonnumeric_NumberKind) {
         fName.fChars = fNameString.c_str();
         fName.fLength = fNameString.size();

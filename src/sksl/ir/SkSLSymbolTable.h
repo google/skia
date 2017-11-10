@@ -39,14 +39,22 @@ public:
 
     Symbol* takeOwnership(Symbol* s);
 
+    IRNode* takeOwnership(IRNode* n);
+
     void markAllFunctionsBuiltin();
+
+    std::unordered_map<StringFragment, const Symbol*>::iterator begin();
+
+    std::unordered_map<StringFragment, const Symbol*>::iterator end();
 
     const std::shared_ptr<SymbolTable> fParent;
 
 private:
     static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
 
-    std::vector<std::unique_ptr<Symbol>> fOwnedPointers;
+    std::vector<std::unique_ptr<Symbol>> fOwnedSymbols;
+
+    std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
 
     std::unordered_map<StringFragment, const Symbol*> fSymbols;
 
