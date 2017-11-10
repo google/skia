@@ -18,6 +18,7 @@
 #include "SkScalerContext.h"
 #include "SkTestScalerContext.h"
 #include "SkTypefaceCache.h"
+#include "SkUtils.h"
 
 SkTestFont::SkTestFont(const SkTestFontData& fontData)
     : INHERITED()
@@ -173,10 +174,18 @@ void SkTestTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) 
 
 int SkTestTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                                     uint16_t glyphs[], int glyphCount) const {
-    SkASSERT(encoding == kUTF32_Encoding);
-    for (int index = 0; index < glyphCount; ++index) {
-        SkUnichar ch = ((SkUnichar*) chars)[index];
-        glyphs[index] = fTestFont->codeToIndex(ch);
+    auto utf8  = (const      char*)chars;
+    auto utf16 = (const  uint16_t*)chars;
+    auto utf32 = (const SkUnichar*)chars;
+
+    for (int i = 0; i < glyphCount; i++) {
+        SkUnichar ch;
+        switch (encoding) {
+            case kUTF8_Encoding:  ch =  SkUTF8_NextUnichar(&utf8 ); break;
+            case kUTF16_Encoding: ch = SkUTF16_NextUnichar(&utf16); break;
+            case kUTF32_Encoding: ch =                    *utf32++; break;
+        }
+        glyphs[i] = fTestFont->codeToIndex(ch);
     }
     return glyphCount;
 }
