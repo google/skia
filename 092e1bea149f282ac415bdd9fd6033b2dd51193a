@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0faa57a7_682964cf",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-10T15:48:20Z",
+      "side": 1,
+      "message": "I like it!",
+      "range": {
+        "startLine": 319,
+        "startChar": 0,
+        "endLine": 336,
+        "endChar": 5
+      },
+      "revId": "092e1bea149f282ac415bdd9fd6033b2dd51193a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
