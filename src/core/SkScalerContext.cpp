@@ -26,8 +26,6 @@
 #include "SkStrokeRec.h"
 #include "SkWriteBuffer.h"
 
-#define ComputeBWRowBytes(width)        (((unsigned)(width) + 7) >> 3)
-
 void SkGlyph::toMask(SkMask* mask) const {
     SkASSERT(mask);
 
