@@ -4,17 +4,17 @@
 # found in the LICENSE file.
 
 README = """
-Automatically add a specific legacy flag to multiple Skia client repos.
+Automatically add or remove a specific legacy flag to multiple Skia client repos.
 
 This would only work on Google desktop.
 
 Example usage:
-  $ python add_legacy_flag.py SK_SUPPORT_LEGACY_SOMETHING \\
+  $ python toggle_legacy_flag.py SK_SUPPORT_LEGACY_SOMETHING \\
       -a /data/android -c ~/chromium/src -g legacyflag
 
 If you only need to add the flag to one repo, for example, Android, please give
 only -a (--android-dir) argument:
-  $ python add_legacy_flag.py SK_SUPPORT_LEGACY_SOMETHING -a /data/android
+  $ python toggle_legacy_flag.py SK_SUPPORT_LEGACY_SOMETHING -a /data/android
 
 """
 
