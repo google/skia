@@ -294,6 +294,7 @@
       "complexclip4_aa",
       "--deltaAA",
       "--forceDeltaAA",
+      "--nonativeFonts",
       "--verbose"
     ],
     "env": {

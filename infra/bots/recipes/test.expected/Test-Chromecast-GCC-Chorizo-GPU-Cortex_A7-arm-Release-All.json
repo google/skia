@@ -586,6 +586,7 @@
       "~blur_image_filter",
       "~blur_0.01",
       "~GM_animated-image-blurs",
+      "--nonativeFonts",
       "--verbose"
     ],
     "env": {

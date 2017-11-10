@@ -383,6 +383,7 @@
       ".SRW",
       "--match",
       "~PinnedImageTest",
+      "--nonativeFonts",
       "--verbose"
     ],
     "env": {
