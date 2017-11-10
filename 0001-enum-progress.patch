@@ -1,0 +1,2032 @@
+From 984a1b049fc71539fbb97ef0f6a542d7a20d5305 Mon Sep 17 00:00:00 2001
+From: Ethan Nicholas <ethannicholas@google.com>
+Date: Tue, 7 Nov 2017 17:05:56 -0500
+Subject: [PATCH] enum progress
+
+---
+ BUILD.gn                                    |   8 +
+ gn/create_sksl_enums.py                     |  20 +
+ include/private/GrSharedEnums.h             |  37 ++
+ include/private/GrTypesPriv.h               |  17 +-
+ src/gpu/GrContext.cpp                       |   6 +-
+ src/gpu/effects/GrCircleEffect.fp           |  10 +-
+ src/gpu/effects/GrConfigConversionEffect.fp |  10 +-
+ src/gpu/effects/GrConfigConversionEffect.h  |   6 -
+ src/gpu/effects/GrEllipseEffect.fp          |   8 +-
+ src/sksl/SkSLCompiler.cpp                   |   3 +-
+ src/sksl/SkSLIRGenerator.cpp                |  49 +-
+ src/sksl/SkSLIRGenerator.h                  |   3 +
+ src/sksl/SkSLLexer.cpp                      | 900 ++++++++++++++--------------
+ src/sksl/SkSLLexer.h                        |   2 +
+ src/sksl/SkSLParser.cpp                     |  66 +-
+ src/sksl/SkSLParser.h                       |   2 +
+ src/sksl/ast/SkSLASTDeclaration.h           |   3 +-
+ src/sksl/ast/SkSLASTEnum.h                  |  44 ++
+ src/sksl/ir/SkSLSymbolTable.cpp             |   9 +-
+ src/sksl/ir/SkSLSymbolTable.h               |   6 +-
+ src/sksl/ir/SkSLVariable.h                  |   7 +-
+ src/sksl/ir/SkSLVariableReference.h         |   8 +
+ src/sksl/lex/sksl.lex                       |   1 +
+ src/sksl/sksl.include                       |   9 +-
+ src/sksl/sksl_enums.include                 |  35 ++
+ src/sksl/sksl_fp.include                    |   5 +-
+ src/sksl/sksl_frag.include                  |   4 +-
+ src/sksl/sksl_geom.include                  |   4 +-
+ src/sksl/sksl_vert.include                  |   5 +-
+ 29 files changed, 769 insertions(+), 518 deletions(-)
+ create mode 100644 gn/create_sksl_enums.py
+ create mode 100644 include/private/GrSharedEnums.h
+ create mode 100644 src/sksl/ast/SkSLASTEnum.h
+ create mode 100644 src/sksl/sksl_enums.include
+
+diff --git a/BUILD.gn b/BUILD.gn
+index e0c45feedf..fa74786701 100644
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -491,10 +491,18 @@ if (skia_compile_processors) {
+     ]
+   }
+ 
++  action("create_sksl_enums") {
++    script = "gn/create_sksl_enums.py"
++    sources = ["include/private/GrSharedEnums.h"]
++    outputs = ["$target_out_dir/" + rebase_path("src/sksl/sksl_enums.include", target_out_dir)]
++    args = [rebase_path(sources[0]), rebase_path(outputs[0])]
++  }
++
+   action("compile_processors") {
+     script = "gn/compile_processors.py"
+     deps = [
+       ":skslc(//gn/toolchain:$host_toolchain)",
++      ":create_sksl_enums"
+     ]
+     sources = skia_gpu_processor_sources
+     outputs = skia_gpu_processor_outputs
+diff --git a/gn/create_sksl_enums.py b/gn/create_sksl_enums.py
+new file mode 100644
+index 0000000000..9a7f9398b8
+--- /dev/null
++++ b/gn/create_sksl_enums.py
+@@ -0,0 +1,20 @@
++#!/usr/bin/env python
++#
++# Copyright 2017 Google Inc.
++#
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++import os
++import subprocess
++import sys
++
++src = open(sys.argv[1], 'r')
++dst = open(sys.argv[2], 'w')
++dst.write('R"(')
++for line in src.readlines():
++    if not line.startswith("#"):
++        dst.write(line)
++dst.write(')"\n')
++src.close()
++dst.close()
+diff --git a/include/private/GrSharedEnums.h b/include/private/GrSharedEnums.h
+new file mode 100644
+index 0000000000..c9c51efcdb
+--- /dev/null
++++ b/include/private/GrSharedEnums.h
+@@ -0,0 +1,37 @@
++/*
++ * Copyright 2017 Google Inc.
++ *
++ * Use of this source code is governed by a BSD-style license that can be
++ * found in the LICENSE file.
++ */
++
++#ifndef GrSharedEnums_DEFINED
++#define GrSharedEnums_DEFINED
++
++/*************************************************************************************************/
++/* This file is used from both C++ and SkSL, so we need to stick to syntax compatible with both. */
++/*************************************************************************************************/
++
++/**
++ * We have coverage effects that clip rendering to the edge of some geometric primitive.
++ * This enum specifies how that clipping is performed. Not all factories that take a
++ * GrProcessorEdgeType will succeed with all values and it is up to the caller to check for
++ * a NULL return.
++ */
++enum GrPrimitiveEdgeType {
++    kFillBW_GrProcessorEdgeType,
++    kFillAA_GrProcessorEdgeType,
++    kInverseFillBW_GrProcessorEdgeType,
++    kInverseFillAA_GrProcessorEdgeType,
++    kHairlineAA_GrProcessorEdgeType,
++
++    kLast_GrProcessorEdgeType = kHairlineAA_GrProcessorEdgeType
++};
++
++enum PMConversion {
++    kToPremul_PMConversion   = 0,
++    kToUnpremul_PMConversion = 1,
++    kPMConversionCnt         = 2
++};
++
++#endif
+diff --git a/include/private/GrTypesPriv.h b/include/private/GrTypesPriv.h
+index 3aa6aa5be6..01065b4089 100644
+--- a/include/private/GrTypesPriv.h
++++ b/include/private/GrTypesPriv.h
+@@ -11,6 +11,7 @@
+ #include <chrono>
+ #include "GrTypes.h"
+ #include "SkRefCnt.h"
++#include "GrSharedEnums.h"
+ 
+ class GrCaps;
+ 
+@@ -643,22 +644,6 @@ enum class GrSLRestrict {
+ 
+ //////////////////////////////////////////////////////////////////////////////
+ 
+-/**
+- * We have coverage effects that clip rendering to the edge of some geometric primitive.
+- * This enum specifies how that clipping is performed. Not all factories that take a
+- * GrProcessorEdgeType will succeed with all values and it is up to the caller to check for
+- * a NULL return.
+- */
+-enum GrPrimitiveEdgeType {
+-    kFillBW_GrProcessorEdgeType,
+-    kFillAA_GrProcessorEdgeType,
+-    kInverseFillBW_GrProcessorEdgeType,
+-    kInverseFillAA_GrProcessorEdgeType,
+-    kHairlineAA_GrProcessorEdgeType,
+-
+-    kLast_GrProcessorEdgeType = kHairlineAA_GrProcessorEdgeType
+-};
+-
+ static const int kGrClipEdgeTypeCnt = kLast_GrProcessorEdgeType + 1;
+ 
+ static inline bool GrProcessorEdgeTypeIsFill(const GrPrimitiveEdgeType edgeType) {
+diff --git a/src/gpu/GrContext.cpp b/src/gpu/GrContext.cpp
+index d3194be8f2..a3ffdb00e9 100644
+--- a/src/gpu/GrContext.cpp
++++ b/src/gpu/GrContext.cpp
+@@ -967,8 +967,7 @@ std::unique_ptr<GrFragmentProcessor> GrContext::createPMToUPMEffect(
+         // ...and it should have succeeded
+         SkASSERT(this->validPMUPMConversionExists());
+ 
+-        return GrConfigConversionEffect::Make(std::move(fp),
+-                                              GrConfigConversionEffect::kToUnpremul_PMConversion);
++        return GrConfigConversionEffect::Make(std::move(fp), kToUnpremul_PMConversion);
+     } else {
+         // For everything else (sRGB, half-float, etc...), it doesn't make sense to try and
+         // explicitly round the results. Just do the obvious, naive thing in the shader.
+@@ -986,8 +985,7 @@ std::unique_ptr<GrFragmentProcessor> GrContext::createUPMToPMEffect(
+         // ...and it should have succeeded
+         SkASSERT(this->validPMUPMConversionExists());
+ 
+-        return GrConfigConversionEffect::Make(std::move(fp),
+-                                              GrConfigConversionEffect::kToPremul_PMConversion);
++        return GrConfigConversionEffect::Make(std::move(fp), kToPremul_PMConversion);
+     } else {
+         // For everything else (sRGB, half-float, etc...), it doesn't make sense to try and
+         // explicitly round the results. Just do the obvious, naive thing in the shader.
+diff --git a/src/gpu/effects/GrCircleEffect.fp b/src/gpu/effects/GrCircleEffect.fp
+index 031b2ee0a6..659d8aeee0 100644
+--- a/src/gpu/effects/GrCircleEffect.fp
++++ b/src/gpu/effects/GrCircleEffect.fp
+@@ -37,15 +37,15 @@ void main() {
+     // radius and then denormalized. This is to prevent overflow on devices that have a "real"
+     // mediump. It'd be nice to only do this on mediump devices.
+     half d;
+-    @if (edgeType == 2 /* kInverseFillBW_GrProcessorEdgeType */ ||
+-         edgeType == 3 /* kInverseFillAA_GrProcessorEdgeType */) {
++    @if (edgeType == kInverseFillBW_GrProcessorEdgeType ||
++         edgeType == kInverseFillAA_GrProcessorEdgeType) {
+         d = (length((circle.xy - sk_FragCoord.xy) * circle.w) - 1.0) * circle.z;
+     } else {
+         d = (1.0 - length((circle.xy - sk_FragCoord.xy) *  circle.w)) * circle.z;
+     }
+-    @if (edgeType == 1 /* kFillAA_GrProcessorEdgeType */ ||
+-         edgeType == 3 /* kInverseFillAA_GrProcessorEdgeType */ ||
+-         edgeType == 4 /* kHairlineAA_GrProcessorEdgeType */) {
++    @if (edgeType == kFillAA_GrProcessorEdgeType ||
++         edgeType == kInverseFillAA_GrProcessorEdgeType ||
++         edgeType == kHairlineAA_GrProcessorEdgeType) {
+         d = clamp(d, 0.0, 1.0);
+     } else {
+         d = d > 0.5 ? 1.0 : 0.0;
+diff --git a/src/gpu/effects/GrConfigConversionEffect.fp b/src/gpu/effects/GrConfigConversionEffect.fp
+index 4c09bf468d..7330cc97c4 100644
+--- a/src/gpu/effects/GrConfigConversionEffect.fp
++++ b/src/gpu/effects/GrConfigConversionEffect.fp
+@@ -5,12 +5,6 @@
+ }
+ 
+ @class {
+-    enum PMConversion {
+-        kToPremul_PMConversion   = 0,
+-        kToUnpremul_PMConversion = 1,
+-        kPMConversionCnt         = 2
+-    };
+-
+     static bool TestForPreservingPMConversions(GrContext* context) {
+         static constexpr int kSize = 256;
+         static constexpr GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
+@@ -137,11 +131,11 @@ void main() {
+     sk_OutColor = floor(sk_InColor * 255 + 0.5) / 255;
+ 
+     @switch (pmConversion) {
+-        case 0 /* kToPremul_PMConversion */:
++        case kToPremul_PMConversion:
+             sk_OutColor.rgb = floor(sk_OutColor.rgb * sk_OutColor.a * 255 + 0.5) / 255;
+             break;
+ 
+-        case 1 /* kToUnpremul_PMConversion */:
++        case kToUnpremul_PMConversion:
+             sk_OutColor.rgb = sk_OutColor.a <= 0.0 ?
+                                           half3(0) :
+                                           floor(sk_OutColor.rgb / sk_OutColor.a * 255 + 0.5) / 255;
+diff --git a/src/gpu/effects/GrConfigConversionEffect.h b/src/gpu/effects/GrConfigConversionEffect.h
+index cffd5a6194..b30d5043ca 100644
+--- a/src/gpu/effects/GrConfigConversionEffect.h
++++ b/src/gpu/effects/GrConfigConversionEffect.h
+@@ -20,12 +20,6 @@
+ #include "GrCoordTransform.h"
+ class GrConfigConversionEffect : public GrFragmentProcessor {
+ public:
+-    enum PMConversion {
+-        kToPremul_PMConversion = 0,
+-        kToUnpremul_PMConversion = 1,
+-        kPMConversionCnt = 2
+-    };
+-
+     static bool TestForPreservingPMConversions(GrContext* context) {
+         static constexpr int kSize = 256;
+         static constexpr GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
+diff --git a/src/gpu/effects/GrEllipseEffect.fp b/src/gpu/effects/GrEllipseEffect.fp
+index 71e5d4d600..0a60e252a9 100644
+--- a/src/gpu/effects/GrEllipseEffect.fp
++++ b/src/gpu/effects/GrEllipseEffect.fp
+@@ -72,16 +72,16 @@ void main() {
+ 
+     half alpha;
+     @switch (edgeType) {
+-        case 0 /* kFillBW_GrProcessorEdgeType */:
++        case kFillBW_GrProcessorEdgeType:
+             alpha = approx_dist > 0.0 ? 0.0 : 1.0;
+             break;
+-        case 1 /* kFillAA_GrProcessorEdgeType */:
++        case kFillAA_GrProcessorEdgeType:
+             alpha = clamp(0.5 - approx_dist, 0.0, 1.0);
+             break;
+-        case 2 /* kInverseFillBW_GrProcessorEdgeType */:
++        case kInverseFillBW_GrProcessorEdgeType:
+             alpha = approx_dist > 0.0 ? 1.0 : 0.0;
+             break;
+-        case 3 /* kInverseFillAA_GrProcessorEdgeType */:
++        case kInverseFillAA_GrProcessorEdgeType:
+             alpha = clamp(0.5 + approx_dist, 0.0, 1.0);
+             break;
+         default:
+diff --git a/src/sksl/SkSLCompiler.cpp b/src/sksl/SkSLCompiler.cpp
+index 0b51824f0d..32db188c3d 100644
+--- a/src/sksl/SkSLCompiler.cpp
++++ b/src/sksl/SkSLCompiler.cpp
+@@ -28,8 +28,6 @@
+ #include "spirv-tools/libspirv.hpp"
+ #endif
+ 
+-#define STRINGIFY(x) #x
+-
+ // include the built-in shader symbols as static strings
+ 
+ static const char* SKSL_INCLUDE =
+@@ -49,6 +47,7 @@ static const char* SKSL_GEOM_INCLUDE =
+ ;
+ 
+ static const char* SKSL_FP_INCLUDE =
++#include "sksl_enums.include"
+ #include "sksl_fp.include"
+ ;
+ 
+diff --git a/src/sksl/SkSLIRGenerator.cpp b/src/sksl/SkSLIRGenerator.cpp
+index 2fb27fcec4..d6f16aaa7f 100644
+--- a/src/sksl/SkSLIRGenerator.cpp
++++ b/src/sksl/SkSLIRGenerator.cpp
+@@ -437,8 +437,8 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTSwitchStatement&
+                 fErrors.error(caseValue->fOffset, "case value must be a constant");
+                 return nullptr;
+             }
+-            ASSERT(caseValue->fKind == Expression::kIntLiteral_Kind);
+-            int64_t v = ((IntLiteral&) *caseValue).fValue;
++            int64_t v;
++            this->getConstantInt(*caseValue, &v);
+             if (caseValues.find(v) != caseValues.end()) {
+                 fErrors.error(caseValue->fOffset, "duplicate case value");
+             }
+@@ -789,6 +789,47 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
+                                                               fSymbolTable));
+ }
+ 
++void IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
++    switch (value.fKind) {
++        case Expression::kIntLiteral_Kind:
++            *out = ((const IntLiteral&) value).fValue;
++            break;
++        case Expression::kVariableReference_Kind: {
++            const Variable& var = ((VariableReference&) value).fVariable;
++            if ((var.fModifiers.fFlags & Modifiers::kConst_Flag) &&
++                var.fInitialValue) {
++                this->getConstantInt(*var.fInitialValue, out);
++            }
++            break;
++        }
++        default:
++            fErrors.error(value.fOffset, "expected a constant int");
++    }
++}
++
++void IRGenerator::convertEnum(const ASTEnum& e) {
++    std::vector<Variable*> variables;
++    int64_t currentValue = 0;
++    Layout layout;
++    Modifiers modifiers(layout, Modifiers::kConst_Flag);
++    for (size_t i = 0; i < e.fNames.size(); i++) {
++        std::unique_ptr<Expression> value;
++        if (e.fValues[i]) {
++            value = this->convertExpression(*e.fValues[i]);
++            this->getConstantInt(*value, &currentValue);
++        }
++        value = std::unique_ptr<Expression>(new IntLiteral(fContext, e.fOffset, currentValue));
++        ++currentValue;
++        auto var = std::unique_ptr<Variable>(new Variable(e.fOffset, modifiers, e.fNames[i],
++                                                          *fContext.fInt_Type,
++                                                          Variable::kGlobal_Storage,
++                                                          value.get()));
++        variables.push_back(var.get());
++        fSymbolTable->add(e.fNames[i], std::move(var));
++        fSymbolTable->takeOwnership(value.release());
++    }
++}
++
+ const Type* IRGenerator::convertType(const ASTType& type) {
+     const Symbol* result = (*fSymbolTable)[type.fName];
+     if (result && result->fKind == Symbol::kType_Kind) {
+@@ -1969,6 +2010,10 @@ void IRGenerator::convertProgram(const char* text,
+                 }
+                 break;
+             }
++            case ASTDeclaration::kEnum_Kind: {
++                this->convertEnum((ASTEnum&) decl);
++                break;
++            }
+             case ASTDeclaration::kFunction_Kind: {
+                 this->convertFunction((ASTFunction&) decl, out);
+                 break;
+diff --git a/src/sksl/SkSLIRGenerator.h b/src/sksl/SkSLIRGenerator.h
+index a1d23eec4c..9a2446d740 100644
+--- a/src/sksl/SkSLIRGenerator.h
++++ b/src/sksl/SkSLIRGenerator.h
+@@ -16,6 +16,7 @@
+ #include "ast/SkSLASTContinueStatement.h"
+ #include "ast/SkSLASTDiscardStatement.h"
+ #include "ast/SkSLASTDoStatement.h"
++#include "ast/SkSLASTEnum.h"
+ #include "ast/SkSLASTExpression.h"
+ #include "ast/SkSLASTExpressionStatement.h"
+ #include "ast/SkSLASTExtension.h"
+@@ -152,6 +153,7 @@ private:
+     std::unique_ptr<Expression> convertTernaryExpression(const ASTTernaryExpression& expression);
+     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTVarDeclarationStatement& s);
+     std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);
++    void convertEnum(const ASTEnum& e);
+     std::unique_ptr<Block> applyInvocationIDWorkaround(
+                                                  std::unique_ptr<Block> main,
+                                                  std::vector<std::unique_ptr<ProgramElement>>* out);
+@@ -159,6 +161,7 @@ private:
+     void fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments);
+     void checkValid(const Expression& expr);
+     void markWrittenTo(const Expression& expr, bool readWrite);
++    void getConstantInt(const Expression& value, int64_t* out);
+ 
+     const FunctionDeclaration* fCurrentFunction;
+     std::unordered_map<String, Program::Settings::Value> fCapsMap;
+diff --git a/src/sksl/SkSLLexer.cpp b/src/sksl/SkSLLexer.cpp
+index ac9cb2b5f0..80834a9589 100644
+--- a/src/sksl/SkSLLexer.cpp
++++ b/src/sksl/SkSLLexer.cpp
+@@ -18,7 +18,7 @@ static int16_t mappings[127] = {
+         26, 26, 26, 27, 26, 6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
+         6,  6,  6,  28, 3,  29, 30, 31, 3,  32, 33, 34, 35, 36, 37, 38, 39, 40, 6,  41, 42, 43,
+         44, 45, 46, 6,  47, 48, 49, 50, 51, 52, 53, 54, 6,  55, 56, 57, 58};
+-static int16_t transitions[59][281] = {
++static int16_t transitions[59][284] = {
+         {
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -30,7 +30,7 @@ static int16_t transitions[59][281] = {
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 2, 3, 3, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -43,7 +43,7 @@ static int16_t transitions[59][281] = {
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 3, 3, 3, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -56,7 +56,7 @@ static int16_t transitions[59][281] = {
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 4, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -69,7 +69,7 @@ static int16_t transitions[59][281] = {
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 5, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -82,7 +82,7 @@ static int16_t transitions[59][281] = {
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 7, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -95,7 +95,7 @@ static int16_t transitions[59][281] = {
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0,  9,  0,  0,  0,  0,  0,  8,  8,  10, 10, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+@@ -111,7 +111,7 @@ static int16_t transitions[59][281] = {
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 0,  0,  0,  0,  0,  0,  0,
++                10, 10, 10, 10, 0,  0,  0,  0,  0,  0,  0,
+         },
+         {
+                 0, 11, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -124,7 +124,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 13, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -137,7 +137,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0,  0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 17, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -150,7 +150,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 18, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -163,7 +163,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 19, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -176,7 +176,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 21, 0,  0, 0, 0, 0, 0,  0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0,  0, 22, 0,  0,
+@@ -190,7 +190,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0,  0, 0, 0, 0, 0,  0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0,  0, 0,  0,  0,
+                 0, 0,  0,  0, 0, 0, 0, 0,  0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0,  0, 0,  0,  0,
+                 0, 0,  0,  0, 0, 0, 0, 0,  0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0,  0, 0,  0,  0,
+-                0, 0,  0,  0, 0, 0, 0, 0,  0, 0, 0, 0,  0,  0, 0,  0, 0,
++                0, 0,  0,  0, 0, 0, 0, 0,  0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0,
+         },
+         {
+                 0, 24, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -203,7 +203,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 25, 0,  0, 0, 0, 0, 0,  0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0,  0, 0, 0,  0,
+@@ -217,7 +217,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0,  0, 0, 0, 0, 0,  0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0,  0, 0, 0,  0,
+                 0, 0,  0,  0, 0, 0, 0, 0,  0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0,  0, 0, 0,  0,
+                 0, 0,  0,  0, 0, 0, 0, 0,  0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0,  0, 0, 0,  0,
+-                0, 0,  0,  0, 0, 0, 0, 0,  0, 0, 0, 0,  0,  0, 0,  0, 0,
++                0, 0,  0,  0, 0, 0, 0, 0,  0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0,
+         },
+         {
+                 0, 29, 0, 0,  0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0,
+@@ -230,7 +230,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0,  0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0,
+                 0, 0,  0, 0,  0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0,
+                 0, 0,  0, 0,  0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0,
+-                0, 0,  0, 0,  0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0,  0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0,  0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 34, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -243,7 +243,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0,  40, 0,  0,  0,  0,  0,  0,  8,  10, 10, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+@@ -259,7 +259,7 @@ static int16_t transitions[59][281] = {
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 0,  0,  0,  0,  0,  0,  0,
++                10, 10, 10, 10, 0,  0,  0,  0,  0,  0,  0,
+         },
+         {
+                 0,  55, 0,  0,  0,  0,  0,  0,  8,  10, 10, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+@@ -275,7 +275,7 @@ static int16_t transitions[59][281] = {
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 0,  0,  0,  0,  0,  0,  0,
++                10, 10, 10, 10, 0,  0,  0,  0,  0,  0,  0,
+         },
+         {
+                 0, 56, 0, 0, 0,  0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -288,7 +288,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0,  0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0,  0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0,  0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0,  0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0,  0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 58, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -301,7 +301,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 59, 0, 0, 0, 0, 0, 0,  0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -314,21 +314,21 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0,  0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0,  0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0,  0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0,  0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0,  0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+-                0, 63, 0, 0, 0, 6, 0, 0, 0, 0, 0,  12,  0,  16,  15, 0,  0, 0,  0, 20, 0, 23, 0, 0,
+-                0, 27, 0, 0, 0, 0, 0, 0, 0, 0, 39, 35,  35, 0,   38, 0,  0, 0,  0, 0,  0, 0,  0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  62,  61, 0,   0,  64, 0, 66, 0, 68, 0, 0,  0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 83, 0,   85, 0,   0,  0,  0, 0,  0, 0,  0, 0,  0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,   0,  0,   0,  0,  0, 0,  0, 0,  0, 0,  0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,   0,  0,   0,  0,  0, 0,  0, 0,  0, 0,  0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,   0,  0,   0,  0,  0, 0,  0, 0,  0, 0,  0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,   0,  0,   0,  0,  0, 0,  0, 0,  0, 0,  0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,   0,  0,   0,  0,  0, 0,  0, 0,  0, 0,  0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,   0,  0,   0,  0,  0, 0,  0, 0,  0, 0,  0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,   0,  0,   0,  0,  0, 0,  0, 0,  0, 0,  0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  276, 0,  278, 0,  0,  0,
++                0, 63, 0, 0, 0, 6, 0, 0, 0, 0, 0,  12, 0,  16, 15,  0,  0,   0,  0, 20, 0, 23, 0, 0,
++                0, 27, 0, 0, 0, 0, 0, 0, 0, 0, 39, 35, 35, 0,  38,  0,  0,   0,  0, 0,  0, 0,  0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  62, 61, 0,  0,   64, 0,   66, 0, 68, 0, 0,  0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 83, 0,  85, 0,  0,   0,  0,   0,  0, 0,  0, 0,  0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,   0,  0,   0,  0, 0,  0, 0,  0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,   0,  0,   0,  0, 0,  0, 0,  0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,   0,  0,   0,  0, 0,  0, 0,  0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,   0,  0,   0,  0, 0,  0, 0,  0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,   0,  0,   0,  0, 0,  0, 0,  0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,   0,  0,   0,  0, 0,  0, 0,  0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,   0,  0,   0,  0, 0,  0, 0,  0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  279, 0,  281, 0,  0, 0,
+         },
+         {
+                 0, 65, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28,
+@@ -341,7 +341,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0,  0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 69, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -354,7 +354,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 70, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -367,7 +367,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0,  9,  0,  0,  0,  0,  0,  8,  8,  10, 10, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+@@ -383,7 +383,7 @@ static int16_t transitions[59][281] = {
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 0,  0,  0,  0,  0,  0,  0,
++                10, 10, 10, 10, 0,  0,  0,  0,  0,  0,  0,
+         },
+         {
+                 0,  9,  0,  0,  0,  0,  0,  8,  8,  10, 10, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+@@ -399,7 +399,7 @@ static int16_t transitions[59][281] = {
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 0,  0,  0,  0,  0,  0,  0,
++                10, 10, 10, 10, 0,  0,  0,  0,  0,  0,  0,
+         },
+         {
+                 0, 80, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -412,7 +412,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 81, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -425,7 +425,7 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,  0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+                 0, 82, 0, 0, 0,  0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -438,41 +438,41 @@ static int16_t transitions[59][281] = {
+                 0, 0,  0, 0, 0,  0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0,  0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,  0, 0, 0,  0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,  0, 0, 0,  0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
+-        },
+-        {
+-                0,  9,  0,  0,  0,  0,   0,  8,  8,  10,  10, 0,  0,  0,  0,   0,  0,  0,  0,
+-                0,  0,  0,  0,  0,  0,   0,  0,  0,  0,   0,  0,  0,  0,  0,   0,  35, 35, 0,
+-                38, 0,  0,  0,  0,  0,   0,  0,  0,  0,   0,  0,  0,  0,  0,   0,  0,  0,  0,
+-                0,  0,  0,  0,  0,  0,   0,  0,  0,  0,   0,  0,  0,  71, 71,  71, 71, 71, 71,
+-                71, 71, 71, 71, 0,  0,   0,  0,  0,  0,   10, 10, 10, 10, 10,  10, 10, 10, 10,
+-                10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
+-                10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
+-                10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
+-                10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
+-                10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
+-                10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
+-                10, 10, 10, 10, 10, 215, 10, 10, 10, 219, 10, 10, 10, 10, 224, 10, 10, 10, 10,
+-                10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
+-                10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
+-                10, 10, 10, 10, 10, 10,  10, 10, 0,  0,   0,  0,  0,  0,  0,
+-        },
+-        {
+-                0,   9,  0,   0,   0,  0,   0,   8,   8,   10, 10,  0,  0,  0,  0,  0,  0,  0,  0,
+-                0,   0,  0,   0,   0,  0,   0,   0,   0,   0,  0,   0,  0,  0,  0,  0,  35, 35, 0,
+-                38,  0,  0,   0,   0,  0,   0,   0,   0,   0,  0,   0,  0,  0,  0,  54, 54, 0,  0,
+-                0,   0,  0,   0,   0,  0,   0,   0,   0,   0,  0,   0,  0,  71, 71, 71, 71, 71, 71,
+-                71,  71, 71,  71,  0,  0,   0,   0,   0,   0,  10,  10, 89, 10, 10, 10, 10, 10, 10,
+-                10,  97, 10,  10,  10, 10,  10,  10,  10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10,
+-                10,  10, 10,  118, 10, 10,  10,  10,  10,  10, 125, 10, 10, 10, 10, 10, 10, 10, 10,
+-                134, 10, 10,  10,  10, 139, 10,  10,  10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10,
+-                10,  10, 155, 10,  10, 10,  10,  10,  10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10,
+-                10,  10, 10,  10,  10, 10,  10,  10,  10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10,
+-                10,  10, 10,  10,  10, 10,  197, 10,  10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10,
+-                10,  10, 10,  10,  10, 10,  10,  217, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10,
+-                10,  10, 10,  10,  10, 10,  10,  10,  10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10,
+-                10,  10, 10,  10,  10, 10,  10,  10,  256, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10,
+-                10,  10, 10,  10,  10, 10,  10,  10,  0,   0,  0,   0,  0,  0,  0,
++                0, 0,  0, 0, 0,  0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++        },
++        {
++                0,  9,  0,  0,  0,  0,  0,  8,  8,   10, 10, 0,  0,   0,  0,  0,  0,  0,   0,
++                0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,   0,  0,  0,  35, 35,  0,
++                38, 0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,   0,  0,  0,  0,  0,   0,
++                0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,   71, 71, 71, 71, 71,  71,
++                71, 71, 71, 71, 0,  0,  0,  0,  0,   0,  10, 10, 10,  10, 10, 10, 10, 10,  10,
++                10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10,
++                10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10,
++                10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10,
++                10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10,
++                10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10,
++                10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10,
++                10, 10, 10, 10, 10, 10, 10, 10, 218, 10, 10, 10, 222, 10, 10, 10, 10, 227, 10,
++                10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10,
++                10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10,
++                10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 0,  0,   0,  0,  0,  0,  0,
++        },
++        {
++                0,  9,  0,  0,   0,  0,   0,  8,  8,   10,  10,  0,   0,  0,  0,  0,  0,  0,  0,
++                0,  0,  0,  0,   0,  0,   0,  0,  0,   0,   0,   0,   0,  0,  0,  0,  35, 35, 0,
++                38, 0,  0,  0,   0,  0,   0,  0,  0,   0,   0,   0,   0,  0,  0,  54, 54, 0,  0,
++                0,  0,  0,  0,   0,  0,   0,  0,  0,   0,   0,   0,   0,  71, 71, 71, 71, 71, 71,
++                71, 71, 71, 71,  0,  0,   0,  0,  0,   0,   10,  10,  89, 10, 10, 10, 10, 10, 10,
++                10, 97, 10, 10,  10, 10,  10, 10, 10,  10,  10,  10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 118, 10, 10,  10, 10, 10,  10,  125, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 137, 10, 10,  10, 10, 142, 10,  10,  10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10,  10, 158, 10, 10, 10,  10,  10,  10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10,  10, 10,  10, 10, 10,  10,  10,  10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10,  10, 10,  10, 10, 10,  200, 10,  10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10,  10, 10,  10, 10, 10,  10,  220, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10,  10, 10,  10, 10, 10,  10,  10,  10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10,  10, 10,  10, 10, 10,  10,  10,  259, 10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10,  10, 10,  10, 10, 10,  10,  10,  0,   0,  0,  0,  0,  0,  0,
+         },
+         {
+                 0,  86, 0,  0,  0,  0,  0,  8,  8,  10, 10, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+@@ -488,330 +488,334 @@ static int16_t transitions[59][281] = {
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 0,  0,  0,  0,  0,  0,  0,
+-        },
+-        {
+-                0,   96, 0,  0,  0,  0,  0,   8,  8,  10,  10, 0,   0,  0,  0,  0,  0,   0,   0,
+-                0,   0,  0,  0,  0,  0,  0,   0,  0,  0,   0,  0,   0,  0,  0,  0,  35,  35,  0,
+-                38,  0,  0,  0,  0,  0,  0,   0,  0,  0,   0,  0,   0,  0,  0,  54, 54,  0,   0,
+-                0,   0,  0,  0,  0,  0,  0,   0,  0,  0,   0,  0,   0,  71, 71, 71, 71,  71,  71,
+-                71,  78, 71, 71, 0,  0,  0,   0,  0,  0,   10, 10,  10, 10, 10, 10, 10,  10,  10,
+-                10,  10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10,  10, 10, 10, 10, 10,  10,  10,
+-                10,  10, 10, 10, 10, 10, 10,  10, 10, 124, 10, 10,  10, 10, 10, 10, 10,  10,  10,
+-                10,  10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10,  10, 10, 10, 10, 10,  10,  10,
+-                10,  10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10,  10, 10, 10, 10, 10,  10,  10,
+-                10,  10, 10, 10, 10, 10, 178, 10, 10, 10,  10, 10,  10, 10, 10, 10, 10,  189, 10,
+-                10,  10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10,  10, 10, 10, 10, 207, 10,  10,
+-                10,  10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10,  10, 10, 10, 10, 10,  10,  10,
+-                229, 10, 10, 10, 10, 10, 235, 10, 10, 10,  10, 240, 10, 10, 10, 10, 10,  10,  10,
+-                10,  10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10,  10, 10, 10, 10, 10,  10,  10,
+-                10,  10, 10, 10, 10, 10, 10,  10, 0,  0,   0,  0,   0,  0,  0,
+-        },
+-        {
+-                0,  115, 0,  0,  0,  0,  0,  8,   8,  10, 10, 0,  0,   0,  0,  0,  0,  0,  0,
+-                0,  0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,   0,  0,  0,  35, 35, 0,
+-                38, 0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,   0,  0,  54, 54, 0,  0,
+-                0,  0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,   71, 71, 71, 71, 71, 71,
+-                71, 71,  71, 71, 0,  0,  0,  0,   0,  0,  10, 10, 10,  10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 127, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 165, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 198, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 222, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10,  0,  0,  0,  0,  0,   0,  0,
+-        },
+-        {
+-                0,  129, 0,  0,  0,  0,   0,   8,   8,   10, 10,  0,   0,   0,   0,   0,   0,   0,
+-                0,  0,   0,  0,  0,  0,   0,   0,   0,   0,  0,   0,   31,  0,   0,   0,   0,   35,
+-                35, 0,   38, 0,  50, 46,  43,  0,   0,   0,  0,   0,   0,   50,  0,   0,   0,   54,
+-                54, 50,  0,  0,  0,  0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   71,  71,
+-                71, 71,  71, 71, 71, 71,  71,  71,  0,   0,  0,   0,   0,   0,   10,  88,  10,  10,
+-                10, 10,  10, 94, 10, 10,  10,  10,  99,  10, 10,  102, 10,  104, 10,  10,  10,  10,
+-                10, 10,  10, 10, 10, 114, 10,  116, 10,  10, 10,  10,  10,  10,  10,  10,  10,  10,
+-                10, 10,  10, 10, 10, 132, 10,  10,  10,  10, 137, 10,  10,  10,  10,  10,  10,  10,
+-                10, 10,  10, 10, 10, 10,  10,  10,  10,  10, 10,  10,  10,  10,  10,  10,  10,  10,
+-                10, 164, 10, 10, 10, 10,  10,  10,  10,  10, 173, 10,  10,  10,  177, 10,  10,  10,
+-                10, 182, 10, 10, 10, 10,  10,  188, 10,  10, 10,  10,  10,  10,  10,  196, 10,  10,
+-                10, 10,  10, 10, 10, 10,  10,  10,  10,  10, 10,  10,  10,  10,  10,  10,  10,  10,
+-                10, 10,  10, 10, 10, 10,  223, 10,  225, 10, 10,  228, 10,  10,  10,  10,  10,  10,
+-                10, 10,  10, 10, 10, 10,  10,  10,  10,  10, 245, 10,  10,  10,  10,  10,  10,  10,
+-                10, 10,  10, 10, 10, 10,  10,  260, 10,  10, 10,  10,  265, 10,  10,  10,  269, 10,
+-                10, 10,  10, 10, 0,  0,   0,   0,   0,   0,  0,
+-        },
+-        {
+-                0,  133, 0,   0,  0,  0,  0,  8,  8,  10, 10, 0,  0,  0,  0,  0,   0,   0,   0,
+-                0,  0,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   35,  35,  0,
+-                38, 0,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  54,  54,  0,   0,
+-                0,  0,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  71, 71, 73,  71,  71,  71,
+-                71, 71,  71,  71, 0,  0,  0,  0,  0,  0,  10, 10, 10, 10, 10, 92,  93,  10,  10,
+-                10, 10,  10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10,  10,  10,
+-                10, 10,  117, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10,  10,  10,
+-                10, 10,  10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 149, 10,  10,  10,
+-                10, 10,  10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10,  10,  10,
+-                10, 10,  10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10,  10,  10,
+-                10, 10,  10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10,  10,  10,
+-                10, 10,  10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  226, 227, 10,
+-                10, 10,  10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10,  10,  10,
+-                10, 249, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10,  10,  10,
+-                10, 10,  10,  10, 10, 10, 10, 10, 0,  0,  0,  0,  0,  0,  0,
+-        },
+-        {
+-                0,  9,  0,  0,  0,  0,  0,  8,  8,  10, 10, 0,  0,  0,  0,  0,  0,  0,  0,   0,  0,
+-                0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  35, 35, 0,  38, 0,   0,  0,
+-                0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,
+-                0,  0,  0,  0,  0,  0,  0,  71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 0,  0,   0,  0,
+-                0,  0,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,
+-                10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,
+-                10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 145, 10, 10,
+-                10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,
+-                10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,
+-                10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,
+-                10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,
+-                10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,
+-                10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,
+-                10, 0,  0,  0,  0,  0,  0,  0,
+-        },
+-        {
+-                0,  143, 0,  0,  0,  0,   0,   8,  8,  10, 10, 0,  0,   0,  0,   0,  0,  0,  0,
+-                0,  0,   0,  0,  0,  0,   0,   0,  0,  0,  0,  0,  0,   0,  0,   0,  35, 35, 0,
+-                38, 0,   0,  0,  0,  0,   0,   0,  0,  0,  0,  0,  0,   0,  0,   0,  0,  0,  0,
+-                0,  0,   0,  0,  0,  0,   0,   0,  0,  0,  0,  0,  0,   71, 71,  71, 71, 71, 71,
+-                71, 71,  79, 71, 0,  0,   0,   0,  0,  0,  10, 10, 10,  10, 10,  10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 101, 10,  10, 10, 10, 10, 10, 10,  10, 10,  10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10,  10,  10, 10, 10, 10, 10, 10,  10, 10,  10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10,  10,  10, 10, 10, 10, 10, 146, 10, 10,  10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10,  10,  10, 10, 10, 10, 10, 10,  10, 10,  10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10,  10,  10, 10, 10, 10, 10, 10,  10, 10,  10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10,  10,  10, 10, 10, 10, 10, 10,  10, 10,  10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10,  216, 10, 10, 10, 10, 10, 10,  10, 10,  10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10,  10,  10, 10, 10, 10, 10, 241, 10, 10,  10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10,  10,  10, 10, 10, 10, 10, 10,  10, 262, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10,  10,  10, 0,  0,  0,  0,  0,   0,  0,
+-        },
+-        {
+-                0,   148, 0,  0,  0,  0,  0,  8,  8,   10,  10,  0,   0,  0,   0,  0,   0,  0,  0,
+-                0,   0,   0,  0,  0,  0,  0,  0,  0,   0,   0,   0,   0,  0,   0,  0,   35, 35, 0,
+-                38,  0,   0,  0,  0,  0,  0,  0,  0,   0,   0,   0,   0,  0,   0,  0,   0,  0,  0,
+-                0,   0,   0,  0,  0,  0,  0,  0,  0,   0,   0,   0,   0,  72,  71, 71,  71, 71, 76,
+-                71,  71,  71, 71, 0,  0,  0,  0,  0,   0,   10,  10,  10, 10,  10, 10,  10, 10, 10,
+-                10,  10,  10, 10, 10, 10, 10, 10, 10,  10,  10,  10,  10, 10,  10, 111, 10, 10, 10,
+-                10,  122, 10, 10, 10, 10, 10, 10, 10,  10,  10,  10,  10, 10,  10, 10,  10, 10, 10,
+-                10,  10,  10, 10, 10, 10, 10, 10, 10,  10,  144, 10,  10, 10,  10, 10,  10, 10, 10,
+-                10,  10,  10, 10, 10, 10, 10, 10, 10,  10,  10,  10,  10, 166, 10, 10,  10, 10, 10,
+-                10,  10,  10, 10, 10, 10, 10, 10, 180, 10,  10,  10,  10, 10,  10, 10,  10, 10, 190,
+-                10,  192, 10, 10, 10, 10, 10, 10, 10,  10,  10,  10,  10, 10,  10, 206, 10, 10, 10,
+-                10,  10,  10, 10, 10, 10, 10, 10, 10,  10,  10,  221, 10, 10,  10, 10,  10, 10, 10,
+-                10,  10,  10, 10, 10, 10, 10, 10, 10,  238, 10,  10,  10, 10,  10, 10,  10, 10, 10,
+-                248, 10,  10, 10, 10, 10, 10, 10, 10,  10,  258, 10,  10, 10,  10, 263, 10, 10, 10,
+-                267, 10,  10, 10, 10, 10, 10, 10, 0,   0,   0,   0,   0,  0,   0,
+-        },
+-        {
+-                0,  9,  0,  0,   0,  0,  0,  8,  8,  10, 10, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+-                0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  35, 35, 0,  38, 0,  0,  0,
+-                0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+-                0,  0,  0,  0,   0,  0,  0,  71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 0,  0,  0,  0,
+-                0,  0,  10, 10,  10, 90, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 214, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 0,  0,  0,   0,  0,  0,  0,
+-        },
+-        {
+-                0,   154, 0,  0,  0,  0,   0,  8,   8,  10, 10,  0,   0,  0,  0,  0,   0,   0,  0,
+-                0,   0,   0,  0,  0,  0,   0,  0,   0,  0,  0,   0,   0,  0,  0,  0,   35,  35, 0,
+-                38,  0,   0,  0,  0,  0,   0,  0,   0,  0,  0,   0,   0,  0,  0,  0,   0,   0,  0,
+-                0,   0,   0,  0,  0,  0,   0,  0,   0,  0,  0,   0,   0,  71, 71, 71,  71,  71, 71,
+-                71,  71,  71, 71, 0,  0,   0,  0,   0,  0,  10,  10,  10, 10, 10, 10,  10,  10, 10,
+-                10,  10,  10, 10, 10, 10,  10, 10,  10, 10, 10,  10,  10, 10, 10, 10,  10,  10, 10,
+-                10,  10,  10, 10, 10, 120, 10, 10,  10, 10, 10,  10,  10, 10, 10, 130, 10,  10, 10,
+-                138, 135, 10, 10, 10, 10,  10, 10,  10, 10, 10,  10,  10, 10, 10, 10,  10,  10, 10,
+-                10,  10,  10, 10, 10, 10,  10, 10,  10, 10, 10,  10,  10, 10, 10, 10,  10,  10, 10,
+-                10,  10,  10, 10, 10, 10,  10, 10,  10, 10, 10,  10,  10, 10, 10, 10,  10,  10, 10,
+-                10,  10,  10, 10, 10, 10,  10, 10,  10, 10, 201, 10,  10, 10, 10, 10,  10,  10, 10,
+-                10,  10,  10, 10, 10, 10,  10, 10,  10, 10, 10,  10,  10, 10, 10, 10,  10,  10, 10,
+-                10,  10,  10, 10, 10, 10,  10, 10,  10, 10, 10,  10,  10, 10, 10, 10,  10,  10, 10,
+-                10,  10,  10, 10, 10, 10,  10, 255, 10, 10, 10,  259, 10, 10, 10, 10,  264, 10, 10,
+-                10,  10,  10, 10, 10, 272, 10, 10,  0,  0,  0,   0,   0,  0,  0,
+-        },
+-        {
+-                0,  163, 0,  0,  0,   0,  0,  8,  8,  10, 10, 0,  0,  0,  0,  0,   0,  0,  0,
+-                0,  0,   0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   35, 35, 0,
+-                38, 0,   0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,
+-                0,  0,   0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  71, 71, 71,  71, 71, 71,
+-                71, 71,  71, 71, 0,   0,  0,  0,  0,  0,  10, 10, 10, 10, 10, 10,  10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 168, 10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10,
+-                10, 10,  10, 10, 252, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 0,  0,  0,  0,  0,  0,  0,
+-        },
+-        {
+-                0,  170, 0,   0,   0,   0,   0,  8,  8,  10,  10, 0,  0,  0,  0,  0,   0,   0,  0,
+-                0,  0,   0,   0,   0,   0,   0,  0,  0,  0,   0,  0,  0,  0,  0,  0,   35,  35, 0,
+-                38, 0,   0,   0,   0,   0,   0,  0,  0,  0,   0,  0,  0,  0,  0,  0,   0,   0,  0,
+-                0,  0,   0,   0,   0,   0,   0,  0,  0,  0,   0,  0,  0,  71, 71, 71,  71,  71, 71,
+-                71, 71,  71,  71,  0,   0,   0,  0,  0,  0,   10, 10, 10, 10, 10, 10,  10,  10, 10,
+-                10, 10,  10,  10,  10,  107, 10, 10, 10, 105, 10, 10, 10, 10, 10, 10,  112, 10, 10,
+-                10, 10,  10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10,  10, 10,
+-                10, 10,  10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 150, 10,  10, 10,
+-                10, 10,  10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10,  10, 10,
+-                10, 10,  10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10,  10, 10,
+-                10, 10,  10,  194, 10,  10,  10, 10, 10, 200, 10, 10, 10, 10, 10, 10,  10,  10, 10,
+-                10, 10,  212, 10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10,  10, 10,
+-                10, 10,  10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10,  10, 247,
+-                10, 10,  10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10,  10, 10,
+-                10, 10,  10,  10,  271, 10,  10, 10, 0,  0,   0,  0,  0,  0,  0,
+-        },
+-        {
+-                0,   183, 0,   0,   0,   0,  0,   8,  8,   10, 10, 0,  0,  0,  0,  0,  0,  0,   0,
+-                0,   0,   0,   0,   0,   0,  0,   0,  0,   0,  0,  0,  0,  0,  0,  0,  35, 35,  0,
+-                38,  0,   0,   0,   0,   0,  0,   0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,   0,
+-                0,   0,   0,   0,   0,   0,  0,   0,  0,   0,  0,  0,  0,  71, 71, 71, 71, 71,  71,
+-                71,  71,  71,  71,  0,   0,  0,   0,  0,   0,  10, 10, 10, 10, 10, 10, 10, 10,  10,
+-                10,  100, 10,  10,  10,  10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10,
+-                10,  128, 10,  10,  10,  10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10,
+-                141, 10,  10,  10,  10,  10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 151, 10,
+-                10,  10,  160, 10,  157, 10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  171,
+-                10,  10,  10,  10,  10,  10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10,
+-                10,  10,  193, 10,  10,  10, 10,  10, 199, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10,
+-                10,  10,  10,  10,  10,  10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10,
+-                10,  10,  10,  10,  10,  10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10,
+-                10,  10,  250, 10,  10,  10, 254, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10,
+-                10,  10,  10,  270, 10,  10, 10,  10, 0,   0,  0,  0,  0,  0,  0,
+-        },
+-        {
+-                0,   186, 0,  0,  0,   0,  0,  8,  8,  10,  10, 0,  0,  0,   0,  0,  0,   0,  0,
+-                0,   0,   0,  0,  0,   0,  0,  0,  0,  0,   0,  0,  0,  0,   0,  0,  35,  35, 0,
+-                38,  0,   0,  0,  0,   0,  0,  0,  0,  0,   0,  0,  0,  0,   0,  0,  0,   0,  0,
+-                0,   0,   0,  0,  0,   0,  0,  0,  0,  0,   0,  0,  0,  71,  71, 71, 71,  71, 71,
+-                71,  71,  71, 71, 0,   0,  0,  0,  0,  0,   10, 10, 10, 10,  10, 10, 10,  10, 10,
+-                10,  10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10,  10, 10,
+-                10,  10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10,  10, 10,
+-                10,  10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 147, 10, 10, 10,  10, 10,
+-                10,  10,  10, 10, 10,  10, 10, 10, 10, 162, 10, 10, 10, 10,  10, 10, 169, 10, 10,
+-                172, 10,  10, 10, 176, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10,  10, 10,
+-                10,  10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10,  10, 10,
+-                10,  10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10,  10, 10,
+-                10,  10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10,  10, 10,
+-                10,  10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10,  10, 10,
+-                10,  10,  10, 10, 10,  10, 10, 10, 0,  0,   0,  0,  0,  0,   0,
+-        },
+-        {
+-                0,  195, 0,   0,   0,   0,  0,  8,   8,   10, 10, 0,   0,  0,  0,   0,   0,  0,  0,
+-                0,  0,   0,   0,   0,   0,  0,  0,   0,   0,  0,  0,   0,  0,  0,   0,   35, 35, 0,
+-                38, 0,   0,   0,   0,   0,  0,  0,   0,   0,  0,  0,   0,  0,  0,   0,   0,  0,  0,
+-                0,  0,   0,   0,   0,   0,  0,  0,   0,   0,  0,  0,   0,  71, 71,  71,  71, 71, 71,
+-                71, 71,  71,  71,  0,   0,  0,  0,   0,   0,  87, 10,  10, 10, 10,  10,  10, 10, 95,
+-                10, 10,  10,  10,  10,  10, 10, 103, 10,  10, 10, 10,  10, 10, 10,  10,  10, 10, 10,
+-                10, 10,  10,  10,  10,  10, 10, 10,  10,  10, 10, 126, 10, 10, 10,  10,  10, 10, 10,
+-                10, 10,  10,  10,  10,  10, 10, 10,  142, 10, 10, 10,  10, 10, 10,  10,  10, 10, 10,
+-                10, 10,  10,  10,  10,  10, 10, 10,  10,  10, 10, 10,  10, 10, 10,  10,  10, 10, 10,
+-                10, 10,  174, 10,  10,  10, 10, 10,  10,  10, 10, 10,  10, 10, 10,  187, 10, 10, 10,
+-                10, 10,  10,  10,  10,  10, 10, 10,  10,  10, 10, 10,  10, 10, 205, 10,  10, 10, 10,
+-                10, 211, 10,  10,  10,  10, 10, 10,  10,  10, 10, 10,  10, 10, 10,  10,  10, 10, 10,
+-                10, 10,  10,  10,  233, 10, 10, 10,  10,  10, 10, 10,  10, 10, 243, 10,  10, 10, 10,
+-                10, 10,  10,  251, 10,  10, 10, 10,  10,  10, 10, 10,  10, 10, 266, 10,  10, 10, 10,
+-                10, 10,  10,  10,  10,  10, 10, 10,  0,   0,  0,  0,   0,  0,  0,
+-        },
+-        {
+-                0,   213, 0,   0,   0,  0,  0,   8,  8,   10, 10,  0,  0,   0,  0,  0,  0,   0,  0,
+-                0,   0,   0,   0,   0,  0,  0,   0,  0,   0,  0,   0,  0,   0,  0,  0,  35,  35, 0,
+-                38,  0,   0,   0,   0,  0,  0,   0,  0,   0,  0,   0,  0,   0,  0,  0,  0,   0,  0,
+-                0,   0,   0,   0,   0,  0,  0,   0,  0,   0,  0,   0,  0,   74, 71, 71, 71,  71, 71,
+-                71,  71,  71,  71,  0,  0,  0,   0,  0,   0,  10,  10, 10,  10, 10, 10, 10,  10, 10,
+-                10,  10,  98,  10,  10, 10, 10,  10, 10,  10, 10,  10, 108, 10, 10, 10, 10,  10, 10,
+-                10,  10,  10,  10,  10, 10, 10,  10, 123, 10, 10,  10, 10,  10, 10, 10, 131, 10, 10,
+-                10,  10,  136, 10,  10, 10, 10,  10, 10,  10, 10,  10, 10,  10, 10, 10, 10,  10, 10,
+-                10,  10,  10,  10,  10, 10, 10,  10, 10,  10, 10,  10, 10,  10, 10, 10, 10,  10, 10,
+-                10,  10,  10,  175, 10, 10, 10,  10, 10,  10, 10,  10, 10,  10, 10, 10, 10,  10, 10,
+-                191, 10,  10,  10,  10, 10, 203, 10, 10,  10, 10,  10, 10,  10, 10, 10, 10,  10, 10,
+-                10,  10,  10,  10,  10, 10, 10,  10, 218, 10, 220, 10, 10,  10, 10, 10, 10,  10, 10,
+-                10,  10,  231, 10,  10, 10, 10,  10, 10,  10, 10,  10, 10,  10, 10, 10, 10,  10, 10,
+-                10,  10,  10,  10,  10, 10, 10,  10, 10,  10, 10,  10, 10,  10, 10, 10, 10,  10, 10,
+-                10,  10,  10,  10,  10, 10, 10,  10, 0,   0,  0,   0,  0,   0,  0,
+-        },
+-        {
+-                0,   242, 0,  0,  0,   0,   0,  8,  8,   10,  10, 0,  0,   0,   0,   0,   0,   0,
+-                0,   0,   0,  0,  0,   0,   0,  0,  0,   0,   0,  0,  0,   0,   0,   0,   0,   35,
+-                35,  0,   38, 0,  0,   0,   0,  0,  0,   0,   0,  0,  0,   0,   0,   0,   0,   0,
+-                0,   0,   0,  0,  0,   0,   0,  0,  0,   0,   0,  0,  0,   0,   0,   0,   71,  71,
+-                71,  71,  71, 71, 77,  71,  71, 71, 0,   0,   0,  0,  0,   0,   10,  10,  10,  10,
+-                10,  10,  10, 10, 10,  10,  10, 10, 10,  10,  10, 10, 10,  10,  10,  106, 10,  110,
+-                109, 10,  10, 10, 10,  10,  10, 10, 10,  10,  10, 10, 121, 10,  10,  10,  10,  10,
+-                10,  10,  10, 10, 10,  10,  10, 10, 10,  10,  10, 10, 10,  140, 10,  10,  10,  10,
+-                10,  10,  10, 10, 10,  10,  10, 10, 153, 10,  10, 10, 10,  10,  159, 10,  10,  10,
+-                10,  10,  10, 10, 10,  10,  10, 10, 10,  10,  10, 10, 10,  10,  10,  10,  179, 10,
+-                10,  10,  10, 10, 185, 10,  10, 10, 10,  10,  10, 10, 10,  10,  10,  10,  209, 10,
+-                10,  10,  10, 10, 10,  204, 10, 10, 10,  208, 10, 10, 10,  10,  10,  232, 10,  10,
+-                10,  10,  10, 10, 10,  10,  10, 10, 10,  10,  10, 10, 10,  230, 10,  10,  10,  10,
+-                10,  236, 10, 10, 239, 10,  10, 10, 10,  10,  10, 10, 10,  10,  10,  10,  10,  10,
+-                10,  10,  10, 10, 257, 10,  10, 10, 10,  10,  10, 10, 10,  10,  10,  268, 10,  10,
+-                10,  10,  10, 10, 0,   0,   0,  0,  0,   0,   0,
+-        },
+-        {
+-                0,   246, 0,  0,  0,   0,   0,  8,  8,  10, 10, 0,  0,   0,  0,   0,   0,  0,   0,
+-                0,   0,   0,  0,  0,   0,   0,  0,  0,  0,  0,  0,  0,   0,  0,   0,   35, 35,  0,
+-                38,  0,   0,  0,  0,   0,   0,  0,  0,  0,  0,  0,  0,   0,  0,   0,   0,  0,   0,
+-                0,   0,   0,  0,  0,   0,   0,  0,  0,  0,  0,  0,  0,   71, 71,  71,  71, 71,  71,
+-                71,  71,  71, 71, 0,   0,   0,  0,  0,  0,  91, 10, 10,  10, 10,  10,  10, 10,  10,
+-                10,  10,  10, 10, 10,  10,  10, 10, 10, 10, 10, 10, 10,  10, 10,  10,  10, 113, 10,
+-                10,  10,  10, 10, 119, 10,  10, 10, 10, 10, 10, 10, 10,  10, 10,  10,  10, 10,  10,
+-                10,  10,  10, 10, 10,  10,  10, 10, 10, 10, 10, 10, 10,  10, 10,  10,  10, 10,  152,
+-                10,  10,  10, 10, 10,  158, 10, 10, 10, 10, 10, 10, 10,  10, 167, 10,  10, 10,  10,
+-                10,  10,  10, 10, 10,  10,  10, 10, 10, 10, 10, 10, 184, 10, 10,  10,  10, 10,  10,
+-                10,  10,  10, 10, 10,  10,  10, 10, 10, 10, 10, 10, 10,  10, 10,  10,  10, 10,  10,
+-                210, 10,  10, 10, 10,  10,  10, 10, 10, 10, 10, 10, 10,  10, 10,  10,  10, 10,  10,
+-                10,  10,  10, 10, 10,  234, 10, 10, 10, 10, 10, 10, 10,  10, 10,  244, 10, 10,  10,
+-                10,  10,  10, 10, 10,  10,  10, 10, 10, 10, 10, 10, 10,  10, 10,  10,  10, 10,  10,
+-                10,  10,  10, 10, 10,  10,  10, 10, 0,  0,  0,  0,  0,   0,  0,
+-        },
+-        {
+-                0,  253, 0,  0,  0,  0,  0,  8,  8,  10,  10, 0,  0,  0,  0,  0,  0,  0,  0,
+-                0,  0,   0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  35, 35, 0,
+-                38, 0,   0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,
+-                0,  0,   0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  71, 71, 71, 71, 71, 71,
+-                71, 71,  71, 71, 0,  0,  0,  0,  0,  0,   10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10, 10, 181, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10, 10, 10, 10, 0,  0,   0,  0,  0,  0,  0,
+-        },
+-        {
+-                0,  261, 0,  0,  0,   0,  0,  8,  8,   10, 10, 0,  0,  0,  0,  0,  0,  0,  0,
+-                0,  0,   0,  0,  0,   0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  35, 35, 0,
+-                38, 0,   0,  0,  0,   0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+-                0,  0,   0,  0,  0,   0,  0,  0,  0,   0,  0,  0,  0,  71, 71, 71, 71, 75, 71,
+-                71, 71,  71, 71, 0,   0,  0,  0,  0,   0,  10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 161, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 237, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10,  10, 10, 10,  10, 10, 10, 0,   0,  0,  0,  0,  0,  0,
++                10, 10, 10, 10, 0,  0,  0,  0,  0,  0,  0,
++        },
++        {
++                0,   96,  0,  0,   0,  0,  0,  8,  8,  10,  10, 0,  0,  0,  0,   0,  0,  0,  0,
++                0,   0,   0,  0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,   0,  35, 35, 0,
++                38,  0,   0,  0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,   54, 54, 0,  0,
++                0,   0,   0,  0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  71, 71,  71, 71, 71, 71,
++                71,  78,  71, 71,  0,  0,  0,  0,  0,  0,   10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10, 10, 124, 10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10, 10, 181, 10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10,  192, 10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                210, 10,  10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10,  10,  10, 232, 10, 10, 10, 10, 10, 238, 10, 10, 10, 10, 243, 10, 10, 10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10, 10, 10,  10, 0,  0,  0,  0,   0,  0,  0,
++        },
++        {
++                0,  115, 0,  0,  0,  0,  0,  8,  8,  10, 10,  0,  0,   0,  0,  0,   0,  0,  0,
++                0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,   0,  0,  0,   35, 35, 0,
++                38, 0,   0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,   0,  0,  54,  54, 0,  0,
++                0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,   71, 71, 71,  71, 71, 71,
++                71, 71,  71, 71, 0,  0,  0,  0,  0,  0,  10,  10, 10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 127, 10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,  10, 10, 168, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 201, 10, 10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,  10, 10, 225, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10,  0,  0,   0,  0,  0,   0,  0,
++        },
++        {
++                0,   129, 0,  0,  0,   0,   0,  8,   8,  10,  10,  0,   0,  0,   0,   0,   0,  0,
++                0,   0,   0,  0,  0,   0,   0,  0,   0,  0,   0,   0,   31, 0,   0,   0,   0,  35,
++                35,  0,   38, 0,  50,  46,  43, 0,   0,  0,   0,   0,   0,  50,  0,   0,   0,  54,
++                54,  50,  0,  0,  0,   0,   0,  0,   0,  0,   0,   0,   0,  0,   0,   0,   71, 71,
++                71,  71,  71, 71, 71,  71,  71, 71,  0,  0,   0,   0,   0,  0,   10,  88,  10, 10,
++                10,  10,  10, 94, 10,  10,  10, 10,  99, 10,  10,  102, 10, 104, 10,  10,  10, 10,
++                10,  10,  10, 10, 10,  114, 10, 116, 10, 10,  10,  10,  10, 10,  10,  10,  10, 10,
++                10,  10,  10, 10, 10,  132, 10, 10,  10, 10,  10,  10,  10, 140, 10,  10,  10, 10,
++                10,  10,  10, 10, 10,  10,  10, 10,  10, 10,  10,  10,  10, 10,  10,  10,  10, 10,
++                10,  10,  10, 10, 167, 10,  10, 10,  10, 10,  10,  10,  10, 176, 10,  10,  10, 180,
++                10,  10,  10, 10, 185, 10,  10, 10,  10, 10,  191, 10,  10, 10,  10,  10,  10, 10,
++                199, 10,  10, 10, 10,  10,  10, 10,  10, 10,  10,  10,  10, 10,  10,  10,  10, 10,
++                10,  10,  10, 10, 10,  10,  10, 10,  10, 226, 10,  228, 10, 10,  231, 10,  10, 10,
++                10,  10,  10, 10, 10,  10,  10, 10,  10, 10,  10,  10,  10, 248, 10,  10,  10, 10,
++                10,  10,  10, 10, 10,  10,  10, 10,  10, 10,  263, 10,  10, 10,  10,  268, 10, 10,
++                10,  272, 10, 10, 10,  10,  10, 0,   0,  0,   0,   0,   0,  0,
++        },
++        {
++                0,   136, 0,   0,  0,   0,  0,  8,  8,  10, 10, 0,  0,  0,  0,  0,  0,  0,  0,
++                0,   0,   0,   0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  35, 35, 0,
++                38,  0,   0,   0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  54, 54, 0,  0,
++                0,   0,   0,   0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  71, 71, 73, 71, 71, 71,
++                71,  71,  71,  71, 0,   0,  0,  0,  0,  0,  10, 10, 10, 10, 10, 92, 93, 10, 10,
++                10,  10,  10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10,  117, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10,  10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 152,
++                10,  10,  10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10,  10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10,  10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10,  10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                229, 230, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10,  10,  10, 252, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10,  10,  10, 10,  10, 10, 10, 10, 10, 10, 0,  0,  0,  0,  0,  0,  0,
++        },
++        {
++                0,   9,  0,  0,  0,  0,  0,  8,  8,  10, 10, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
++                0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  35, 35, 0,  38, 0,  0,  0,
++                0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
++                0,   0,  0,  0,  0,  0,  0,  71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 0,  0,  0,  0,
++                0,   0,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                148, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10,  10, 10, 10, 0,  0,  0,  0,  0,  0,  0,
++        },
++        {
++                0,  146, 0,  0,  0,  0,   0,  8,  8,  10,  10, 0,  0,  0,  0,  0,   0,  0,   0,
++                0,  0,   0,  0,  0,  0,   0,  0,  0,  0,   0,  0,  0,  0,  0,  0,   35, 35,  0,
++                38, 0,   0,  0,  0,  0,   0,  0,  0,  0,   0,  0,  0,  0,  0,  0,   0,  0,   0,
++                0,  0,   0,  0,  0,  0,   0,  0,  0,  0,   0,  0,  0,  71, 71, 71,  71, 71,  71,
++                71, 71,  79, 71, 0,  0,   0,  0,  0,  0,   10, 10, 10, 10, 10, 10,  10, 10,  10,
++                10, 10,  10, 10, 10, 101, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10, 10,  10,
++                10, 10,  10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10, 10,  10,
++                10, 10,  10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 149, 10, 10,  10,
++                10, 10,  10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10, 10,  10,
++                10, 10,  10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10, 10,  10,
++                10, 10,  10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10, 10,  10,
++                10, 10,  10, 10, 10, 10,  10, 10, 10, 219, 10, 10, 10, 10, 10, 10,  10, 10,  10,
++                10, 10,  10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 244, 10, 10,  10,
++                10, 10,  10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10, 265, 10,
++                10, 10,  10, 10, 10, 10,  10, 10, 10, 10,  10, 0,  0,  0,  0,  0,   0,  0,
++        },
++        {
++                0,  151, 0,   0,  0,  0,  0,   8,   8,   10, 10,  0,  0,   0,   0,   0,  0,   0,
++                0,  0,   0,   0,  0,  0,  0,   0,   0,   0,  0,   0,  0,   0,   0,   0,  0,   35,
++                35, 0,   38,  0,  0,  0,  0,   0,   0,   0,  0,   0,  0,   0,   0,   0,  0,   0,
++                0,  0,   0,   0,  0,  0,  0,   0,   0,   0,  0,   0,  0,   0,   0,   0,  72,  71,
++                71, 71,  71,  76, 71, 71, 71,  71,  0,   0,  0,   0,  0,   0,   10,  10, 10,  10,
++                10, 10,  10,  10, 10, 10, 10,  10,  10,  10, 10,  10, 10,  10,  10,  10, 10,  10,
++                10, 10,  111, 10, 10, 10, 10,  122, 10,  10, 10,  10, 10,  10,  10,  10, 10,  10,
++                10, 10,  10,  10, 10, 10, 10,  10,  10,  10, 10,  10, 10,  10,  10,  10, 10,  10,
++                10, 10,  147, 10, 10, 10, 10,  10,  10,  10, 10,  10, 10,  10,  10,  10, 10,  10,
++                10, 10,  10,  10, 10, 10, 169, 10,  10,  10, 10,  10, 10,  10,  10,  10, 10,  10,
++                10, 10,  183, 10, 10, 10, 10,  10,  10,  10, 10,  10, 193, 10,  195, 10, 10,  10,
++                10, 10,  10,  10, 10, 10, 10,  10,  10,  10, 209, 10, 10,  10,  10,  10, 10,  10,
++                10, 10,  10,  10, 10, 10, 10,  224, 10,  10, 10,  10, 10,  10,  10,  10, 10,  10,
++                10, 10,  10,  10, 10, 10, 241, 10,  10,  10, 10,  10, 10,  10,  10,  10, 251, 10,
++                10, 10,  10,  10, 10, 10, 10,  10,  261, 10, 10,  10, 10,  266, 10,  10, 10,  270,
++                10, 10,  10,  10, 10, 10, 10,  0,   0,   0,  0,   0,  0,   0,
++        },
++        {
++                0,  9,  0,  0,  0,  0,  0,   8,  8,  10, 10, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
++                0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  35, 35, 0,  38, 0,  0,  0,
++                0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
++                0,  0,  0,  0,  0,  0,  0,   71, 71, 71, 71, 71, 71, 71, 71, 71, 71, 0,  0,  0,  0,
++                0,  0,  10, 10, 10, 90, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 217, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10, 10, 10, 0,  0,  0,   0,  0,  0,  0,
++        },
++        {
++                0,  157, 0,  0,   0,   0,   0,  8,  8,  10,  10,  0,   0,  0,  0,   0,  0,  0,
++                0,  0,   0,  0,   0,   0,   0,  0,  0,  0,   0,   0,   0,  0,  0,   0,  0,  35,
++                35, 0,   38, 0,   0,   0,   0,  0,  0,  0,   0,   0,   0,  0,  0,   0,  0,  0,
++                0,  0,   0,  0,   0,   0,   0,  0,  0,  0,   0,   0,   0,  0,  0,   0,  71, 71,
++                71, 71,  71, 71,  71,  71,  71, 71, 0,  0,   0,   0,   0,  0,  10,  10, 10, 10,
++                10, 10,  10, 10,  10,  10,  10, 10, 10, 10,  10,  10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10,  10,  10,  10, 10, 10, 10,  10,  120, 10, 10, 10,  10, 10, 10,
++                10, 10,  10, 130, 10,  10,  10, 10, 10, 10,  141, 138, 10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10,  10,  10,  10, 10, 10, 10,  10,  10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10,  10,  10,  10, 10, 10, 10,  10,  10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10,  10,  10,  10, 10, 10, 10,  10,  10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10,  10,  204, 10, 10, 10, 10,  10,  10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10,  10,  10,  10, 10, 10, 10,  10,  10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10,  10,  10,  10, 10, 10, 10,  10,  10,  10, 10, 10,  10, 10, 10,
++                10, 10,  10, 10,  10,  258, 10, 10, 10, 262, 10,  10,  10, 10, 267, 10, 10, 10,
++                10, 10,  10, 10,  275, 10,  10, 0,  0,  0,   0,   0,   0,  0,
++        },
++        {
++                0,  166, 0,  0,  0,  0,  0,  8,   8,  10, 10, 0,  0,  0,  0,  0,  0,  0,  0,
++                0,  0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  35, 35, 0,
++                38, 0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
++                0,  0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  71, 71, 71, 71, 71, 71,
++                71, 71,  71, 71, 0,  0,  0,  0,   0,  0,  10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 135, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 171,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 255, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 0,  0,  0,  0,  0,  0,  0,
++        },
++        {
++                0,  173, 0,  0,   0,   0,  0,  8,   8,  10, 10,  0,  0,  0,  0,   0,   0,   0,
++                0,  0,   0,  0,   0,   0,  0,  0,   0,  0,  0,   0,  0,  0,  0,   0,   0,   35,
++                35, 0,   38, 0,   0,   0,  0,  0,   0,  0,  0,   0,  0,  0,  0,   0,   0,   0,
++                0,  0,   0,  0,   0,   0,  0,  0,   0,  0,  0,   0,  0,  0,  0,   0,   71,  71,
++                71, 71,  71, 71,  71,  71, 71, 71,  0,  0,  0,   0,  0,  0,  10,  10,  10,  10,
++                10, 10,  10, 10,  10,  10, 10, 10,  10, 10, 107, 10, 10, 10, 105, 10,  10,  10,
++                10, 10,  10, 112, 10,  10, 10, 10,  10, 10, 10,  10, 10, 10, 10,  10,  10,  10,
++                10, 10,  10, 133, 10,  10, 10, 10,  10, 10, 10,  10, 10, 10, 10,  10,  10,  10,
++                10, 10,  10, 10,  10,  10, 10, 153, 10, 10, 10,  10, 10, 10, 10,  10,  10,  10,
++                10, 10,  10, 10,  10,  10, 10, 10,  10, 10, 10,  10, 10, 10, 10,  10,  10,  10,
++                10, 10,  10, 10,  10,  10, 10, 10,  10, 10, 10,  10, 10, 10, 10,  10,  197, 10,
++                10, 10,  10, 10,  203, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10,  10,  215, 10,
++                10, 10,  10, 10,  10,  10, 10, 10,  10, 10, 10,  10, 10, 10, 10,  10,  10,  10,
++                10, 10,  10, 10,  10,  10, 10, 10,  10, 10, 10,  10, 10, 10, 10,  250, 10,  10,
++                10, 10,  10, 10,  10,  10, 10, 10,  10, 10, 10,  10, 10, 10, 10,  10,  10,  10,
++                10, 10,  10, 274, 10,  10, 10, 0,   0,  0,  0,   0,  0,  0,
++        },
++        {
++                0,  186, 0,   0,   0,  0,   0,   8,   8,  10,  10, 0,   0,  0,  0,  0,  0,  0,  0,
++                0,  0,   0,   0,   0,  0,   0,   0,   0,  0,   0,  0,   0,  0,  0,  0,  35, 35, 0,
++                38, 0,   0,   0,   0,  0,   0,   0,   0,  0,   0,  0,   0,  0,  0,  0,  0,  0,  0,
++                0,  0,   0,   0,   0,  0,   0,   0,   0,  0,   0,  0,   0,  71, 71, 71, 71, 71, 71,
++                71, 71,  71,  71,  0,  0,   0,   0,   0,  0,   10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 100, 10,  10,  10, 10,  10,  10,  10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 128, 10,  10,  10, 10,  10,  10,  10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10,  144, 10, 10,  10,  10,  10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 154, 10,  10,  10, 163, 10,  160, 10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  174, 10,  10, 10,  10,  10,  10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10,  10,  10, 196, 10,  10,  10, 10,  10, 202, 10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10,  10,  10, 10,  10,  10,  10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10,  10,  10, 10,  10,  10,  10, 10,  10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10,  10,  10, 253, 10,  10,  10, 257, 10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10,  10,  10, 10,  273, 10,  10, 10,  10, 0,   0,  0,  0,  0,  0,  0,
++        },
++        {
++                0,   189, 0,  0,   0,  0,  0,  8,   8,  10, 10, 0,  0,   0,  0,  0,  0,   0,  0,
++                0,   0,   0,  0,   0,  0,  0,  0,   0,  0,  0,  0,  0,   0,  0,  0,  35,  35, 0,
++                38,  0,   0,  0,   0,  0,  0,  0,   0,  0,  0,  0,  0,   0,  0,  0,  0,   0,  0,
++                0,   0,   0,  0,   0,  0,  0,  0,   0,  0,  0,  0,  0,   71, 71, 71, 71,  71, 71,
++                71,  71,  71, 71,  0,  0,  0,  0,   0,  0,  10, 10, 10,  10, 10, 10, 10,  10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 150, 10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 165, 10, 10, 10, 10,  10, 10,
++                172, 10,  10, 175, 10, 10, 10, 179, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10,
++                10,  10,  10, 10,  10, 10, 10, 10,  10, 10, 10, 0,  0,   0,  0,  0,  0,   0,
++        },
++        {
++                0,  198, 0,  0,  0,   0,   0,   8,   8,  10, 10, 0,   0,  0,  0,  0,  0,  0,   0,
++                0,  0,   0,  0,  0,   0,   0,   0,   0,  0,  0,  0,   0,  0,  0,  0,  35, 35,  0,
++                38, 0,   0,  0,  0,   0,   0,   0,   0,  0,  0,  0,   0,  0,  0,  0,  0,  0,   0,
++                0,  0,   0,  0,  0,   0,   0,   0,   0,  0,  0,  0,   0,  71, 71, 71, 71, 71,  71,
++                71, 71,  71, 71, 0,   0,   0,   0,   0,  0,  87, 10,  10, 10, 10, 10, 10, 10,  95,
++                10, 10,  10, 10, 10,  10,  10,  103, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10,
++                10, 10,  10, 10, 10,  10,  10,  10,  10, 10, 10, 126, 10, 10, 10, 10, 10, 10,  10,
++                10, 10,  10, 10, 10,  10,  10,  10,  10, 10, 10, 145, 10, 10, 10, 10, 10, 10,  10,
++                10, 10,  10, 10, 10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10,
++                10, 10,  10, 10, 10,  177, 10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  190,
++                10, 10,  10, 10, 10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 208, 10,
++                10, 10,  10, 10, 214, 10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10,  10,
++                10, 10,  10, 10, 10,  10,  10,  236, 10, 10, 10, 10,  10, 10, 10, 10, 10, 246, 10,
++                10, 10,  10, 10, 10,  10,  254, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 269, 10,
++                10, 10,  10, 10, 10,  10,  10,  10,  10, 10, 10, 0,   0,  0,  0,  0,  0,  0,
++        },
++        {
++                0,  216, 0,  0,  0,   0,  0,   8,  8,  10, 10, 0,  0,   0,   0,   0,   0,  0,
++                0,  0,   0,  0,  0,   0,  0,   0,  0,  0,  0,  0,  0,   0,   0,   0,   0,  35,
++                35, 0,   38, 0,  0,   0,  0,   0,  0,  0,  0,  0,  0,   0,   0,   0,   0,  0,
++                0,  0,   0,  0,  0,   0,  0,   0,  0,  0,  0,  0,  0,   0,   0,   0,   74, 71,
++                71, 71,  71, 71, 71,  71, 71,  71, 0,  0,  0,  0,  0,   0,   10,  10,  10, 10,
++                10, 10,  10, 10, 10,  10, 10,  98, 10, 10, 10, 10, 10,  10,  10,  10,  10, 108,
++                10, 10,  10, 10, 10,  10, 10,  10, 10, 10, 10, 10, 10,  10,  123, 10,  10, 10,
++                10, 10,  10, 10, 131, 10, 10,  10, 10, 10, 10, 10, 139, 10,  10,  10,  10, 10,
++                10, 10,  10, 10, 10,  10, 10,  10, 10, 10, 10, 10, 10,  10,  10,  10,  10, 10,
++                10, 10,  10, 10, 10,  10, 10,  10, 10, 10, 10, 10, 10,  10,  10,  178, 10, 10,
++                10, 10,  10, 10, 10,  10, 10,  10, 10, 10, 10, 10, 10,  194, 10,  10,  10, 10,
++                10, 206, 10, 10, 10,  10, 10,  10, 10, 10, 10, 10, 10,  10,  10,  10,  10, 10,
++                10, 10,  10, 10, 221, 10, 223, 10, 10, 10, 10, 10, 10,  10,  10,  10,  10, 234,
++                10, 10,  10, 10, 10,  10, 10,  10, 10, 10, 10, 10, 10,  10,  10,  10,  10, 10,
++                10, 10,  10, 10, 10,  10, 10,  10, 10, 10, 10, 10, 10,  10,  10,  10,  10, 10,
++                10, 10,  10, 10, 10,  10, 10,  0,  0,  0,  0,  0,  0,   0,
++        },
++        {
++                0,   245, 0,  0,  0,   0,  0,  8,   8,   10, 10, 0,   0,   0,  0,  0,   0,   0,
++                0,   0,   0,  0,  0,   0,  0,  0,   0,   0,  0,  0,   0,   0,  0,  0,   0,   35,
++                35,  0,   38, 0,  0,   0,  0,  0,   0,   0,  0,  0,   0,   0,  0,  0,   0,   0,
++                0,   0,   0,  0,  0,   0,  0,  0,   0,   0,  0,  0,   0,   0,  0,  0,   71,  71,
++                71,  71,  71, 71, 77,  71, 71, 71,  0,   0,  0,  0,   0,   0,  10, 10,  10,  10,
++                10,  10,  10, 10, 10,  10, 10, 10,  10,  10, 10, 10,  10,  10, 10, 106, 10,  110,
++                109, 10,  10, 10, 10,  10, 10, 10,  10,  10, 10, 10,  121, 10, 10, 10,  10,  10,
++                10,  10,  10, 10, 10,  10, 10, 10,  10,  10, 10, 10,  10,  10, 10, 10,  143, 10,
++                10,  10,  10, 10, 10,  10, 10, 10,  10,  10, 10, 156, 10,  10, 10, 10,  10,  162,
++                10,  10,  10, 10, 10,  10, 10, 10,  10,  10, 10, 10,  10,  10, 10, 10,  10,  10,
++                10,  182, 10, 10, 10,  10, 10, 188, 10,  10, 10, 10,  10,  10, 10, 10,  10,  10,
++                10,  212, 10, 10, 10,  10, 10, 10,  207, 10, 10, 10,  211, 10, 10, 10,  10,  10,
++                235, 10,  10, 10, 10,  10, 10, 10,  10,  10, 10, 10,  10,  10, 10, 10,  233, 10,
++                10,  10,  10, 10, 239, 10, 10, 242, 10,  10, 10, 10,  10,  10, 10, 10,  10,  10,
++                10,  10,  10, 10, 10,  10, 10, 260, 10,  10, 10, 10,  10,  10, 10, 10,  10,  10,
++                271, 10,  10, 10, 10,  10, 10, 0,   0,   0,  0,  0,   0,   0,
++        },
++        {
++                0,   249, 0,   0,   0,   0,  0,  8,  8,   10, 10, 0,  0,  0,  0,  0,   0,  0,   0,
++                0,   0,   0,   0,   0,   0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,   35, 35,  0,
++                38,  0,   0,   0,   0,   0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,   0,  0,   0,
++                0,   0,   0,   0,   0,   0,  0,  0,  0,   0,  0,  0,  0,  71, 71, 71,  71, 71,  71,
++                71,  71,  71,  71,  0,   0,  0,  0,  0,   0,  91, 10, 10, 10, 10, 10,  10, 10,  10,
++                10,  10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,  10, 113, 10,
++                10,  10,  10,  10,  119, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,  10, 10,  10,
++                134, 10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,  10, 10,  10,
++                10,  10,  155, 10,  10,  10, 10, 10, 161, 10, 10, 10, 10, 10, 10, 10,  10, 170, 10,
++                10,  10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 187, 10, 10,  10,
++                10,  10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,  10, 10,  10,
++                10,  10,  10,  213, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,  10, 10,  10,
++                10,  10,  10,  10,  10,  10, 10, 10, 237, 10, 10, 10, 10, 10, 10, 10,  10, 10,  247,
++                10,  10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,  10, 10,  10,
++                10,  10,  10,  10,  10,  10, 10, 10, 10,  10, 10, 0,  0,  0,  0,  0,   0,  0,
++        },
++        {
++                0,  256, 0,  0,  0,  0,  0,  8,  8,  10, 10, 0,  0,   0,  0,  0,  0,  0,  0,
++                0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  35, 35, 0,
++                38, 0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,
++                0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   71, 71, 71, 71, 71, 71,
++                71, 71,  71, 71, 0,  0,  0,  0,  0,  0,  10, 10, 10,  10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 184, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10, 10, 10, 10, 0,  0,   0,  0,  0,  0,  0,
++        },
++        {
++                0,  264, 0,  0,  0,  0,  0,  8,   8,  10, 10, 0,   0,  0,  0,  0,  0,  0,  0,
++                0,  0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  0,   0,  0,  0,  0,  35, 35, 0,
++                38, 0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,
++                0,  0,   0,  0,  0,  0,  0,  0,   0,  0,  0,  0,   0,  71, 71, 71, 71, 75, 71,
++                71, 71,  71, 71, 0,  0,  0,  0,   0,  0,  10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 164, 10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 240, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
++                10, 10,  10, 10, 10, 10, 10, 10,  10, 10, 10, 0,   0,  0,  0,  0,  0,  0,
+         },
+         {
+                 0,  9,  0,  0,  0,  0,  0,  8,  8,  10, 10, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+@@ -827,27 +831,27 @@ static int16_t transitions[59][281] = {
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+-                10, 0,  0,  0,  0,  0,  0,  0,
++                10, 10, 10, 10, 0,  0,  0,  0,  0,  0,  0,
+         },
+         {
+-                0,  9,  0,  0,   0,  0,  0,   8,  8,  10, 10, 0,   0,  0,  0,  0,  0,  0,  0,
+-                0,  0,  0,  0,   0,  0,  0,   0,  0,  0,  0,  0,   0,  0,  0,  0,  35, 35, 0,
+-                38, 0,  0,  0,   0,  0,  0,   0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,
+-                0,  0,  0,  0,   0,  0,  0,   0,  0,  0,  0,  0,   0,  71, 71, 71, 71, 71, 71,
+-                71, 71, 71, 71,  0,  0,  0,   0,  0,  0,  10, 10,  10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 156, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 202, 10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10, 10, 10, 10,
+-                10, 10, 10, 10,  10, 10, 273, 10, 0,  0,  0,  0,   0,  0,  0,
++                0,  9,  0,  0,  0,  0,  0,   8,  8,  10,  10, 0,  0,  0,  0,   0,  0,  0,  0,
++                0,  0,  0,  0,  0,  0,  0,   0,  0,  0,   0,  0,  0,  0,  0,   0,  35, 35, 0,
++                38, 0,  0,  0,  0,  0,  0,   0,  0,  0,   0,  0,  0,  0,  0,   0,  0,  0,  0,
++                0,  0,  0,  0,  0,  0,  0,   0,  0,  0,   0,  0,  0,  71, 71,  71, 71, 71, 71,
++                71, 71, 71, 71, 0,  0,  0,   0,  0,  0,   10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 159, 10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 205, 10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 10,  10, 10, 10, 10, 10,  10, 10, 10, 10,
++                10, 10, 10, 10, 10, 10, 10,  10, 10, 276, 10, 0,  0,  0,  0,   0,  0,  0,
+         },
+         {
+-                0, 274, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++                0, 277, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 35, 35, 0, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -857,23 +861,23 @@ static int16_t transitions[59][281] = {
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+-                0, 275, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,   0, 0, 0, 0, 0, 0, 0, 35, 35, 0, 38, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 277, 0, 0, 0, 0, 0,
++                0, 278, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0,
++                0, 0,   0, 0, 0, 0, 0, 0, 0, 35, 35, 0, 38, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0,
++                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0,
++                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0,
++                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0,
++                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0,
++                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0,
++                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0,
++                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0,
++                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0,
++                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 280, 0, 0, 0, 0, 0,
+         },
+         {
+-                0, 279, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++                0, 282, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 35, 35, 0, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -883,10 +887,10 @@ static int16_t transitions[59][281] = {
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+         {
+-                0, 280, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++                0, 283, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 35, 35, 0, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+@@ -896,24 +900,24 @@ static int16_t transitions[59][281] = {
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+-                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0,
++                0, 0,   0, 0, 0, 0, 0, 0, 0, 0,  0,  0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         },
+ };
+ 
+-static int8_t accepts[281] = {
+-        -1, -1, 92, 92, 95, 66, 71, 95, 40, 39, 39, 56, 80, 61, 65, 88, 85, 42, 43, 54, 78, 52,
+-        50, 76, 49, 53, 51, 77, 90, 48, 1,  -1, -1, 1,  55, -1, -1, 94, 93, 79, 2,  1,  1,  -1,
+-        -1, 1,  -1, -1, 1,  2,  -1, -1, 1,  -1, 2,  2,  68, 91, 89, 73, 57, 81, 75, 69, 70, 72,
+-        74, 58, 82, 67, 95, 41, 41, 6,  41, 41, 41, 41, 41, 12, 46, 47, 60, 84, 64, 87, 39, 39,
+-        39, 39, 15, 39, 39, 39, 39, 34, 39, 39, 39, 13, 39, 39, 39, 39, 39, 39, 31, 39, 39, 23,
+-        39, 39, 39, 39, 16, 39, 39, 39, 39, 39, 39, 14, 39, 39, 39, 39, 39, 17, 10, 39, 39, 39,
+-        7,  39, 39, 39, 39, 4,  39, 39, 27, 39, 8,  39, 39, 39, 39, 26, 39, 5,  19, 39, 39, 21,
+-        39, 39, 39, 39, 39, 37, 39, 39, 24, 39, 39, 39, 39, 39, 39, 25, 39, 39, 39, 39, 39, 39,
+-        39, 39, 39, 39, 39, 39, 28, 39, 39, 20, 39, 39, 39, 39, 39, 39, 39, 39, 38, 39, 39, 39,
+-        39, 39, 39, 39, 29, 39, 39, 39, 39, 39, 33, 39, 39, 39, 18, 39, 39, 39, 39, 39, 39, 39,
+-        39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 35, 39, 39, 39, 39, 36, 39, 39, 39, 39, 11,
+-        39, 39, 39, 3,  39, 39, 39, 39, 39, 39, 22, 39, 39, 39, 39, 39, 39, 39, 32, 39, 39, 39,
+-        39, 9,  39, 39, 39, 39, 39, 39, 39, 30, 44, 59, 83, 63, 86, 45, 62,
++static int8_t accepts[284] = {
++        -1, -1, 93, 93, 96, 67, 72, 96, 41, 40, 40, 57, 81, 62, 66, 89, 86, 43, 44, 55, 79, 53,
++        51, 77, 50, 54, 52, 78, 91, 49, 1,  -1, -1, 1,  56, -1, -1, 95, 94, 80, 2,  1,  1,  -1,
++        -1, 1,  -1, -1, 1,  2,  -1, -1, 1,  -1, 2,  2,  69, 92, 90, 74, 58, 82, 76, 70, 71, 73,
++        75, 59, 83, 68, 96, 42, 42, 6,  42, 42, 42, 42, 42, 12, 47, 48, 61, 85, 65, 88, 40, 40,
++        40, 40, 15, 40, 40, 40, 40, 34, 40, 40, 40, 13, 40, 40, 40, 40, 40, 40, 31, 40, 40, 23,
++        40, 40, 40, 40, 16, 40, 40, 40, 40, 40, 40, 14, 40, 40, 40, 40, 40, 17, 10, 40, 40, 40,
++        7,  40, 40, 39, 40, 40, 40, 40, 4,  40, 40, 27, 40, 8,  40, 40, 40, 40, 26, 40, 5,  19,
++        40, 40, 21, 40, 40, 40, 40, 40, 37, 40, 40, 24, 40, 40, 40, 40, 40, 40, 25, 40, 40, 40,
++        40, 40, 40, 40, 40, 40, 40, 40, 40, 28, 40, 40, 20, 40, 40, 40, 40, 40, 40, 40, 40, 38,
++        40, 40, 40, 40, 40, 40, 40, 29, 40, 40, 40, 40, 40, 33, 40, 40, 40, 18, 40, 40, 40, 40,
++        40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 35, 40, 40, 40, 40, 36, 40, 40,
++        40, 40, 11, 40, 40, 40, 3,  40, 40, 40, 40, 40, 40, 22, 40, 40, 40, 40, 40, 40, 40, 32,
++        40, 40, 40, 40, 9,  40, 40, 40, 40, 40, 40, 40, 30, 45, 60, 84, 64, 87, 46, 63,
+ };
+ 
+ Token Lexer::next() {
+diff --git a/src/sksl/SkSLLexer.h b/src/sksl/SkSLLexer.h
+index 246be22b9e..9b8a24eabf 100644
+--- a/src/sksl/SkSLLexer.h
++++ b/src/sksl/SkSLLexer.h
+@@ -93,6 +93,8 @@ struct Token {
+         LAYOUT,
+ #undef PRECISION
+         PRECISION,
++#undef ENUM
++        ENUM,
+ #undef IDENTIFIER
+         IDENTIFIER,
+ #undef DIRECTIVE
+diff --git a/src/sksl/SkSLParser.cpp b/src/sksl/SkSLParser.cpp
+index 267d802e60..a324b175c8 100644
+--- a/src/sksl/SkSLParser.cpp
++++ b/src/sksl/SkSLParser.cpp
+@@ -15,6 +15,7 @@
+ #include "ast/SkSLASTContinueStatement.h"
+ #include "ast/SkSLASTDiscardStatement.h"
+ #include "ast/SkSLASTDoStatement.h"
++#include "ast/SkSLASTEnum.h"
+ #include "ast/SkSLASTExpression.h"
+ #include "ast/SkSLASTExpressionStatement.h"
+ #include "ast/SkSLASTExtension.h"
+@@ -279,11 +280,70 @@ std::unique_ptr<ASTDeclaration> Parser::section() {
+                                                           text));
+ }
+ 
+-/* modifiers (structVarDeclaration | type IDENTIFIER ((LPAREN parameter
++/* ENUM IDENTIFIER LBRACE (IDENTIFIER (EQ expression)? (COMMA IDENTIFIER (EQ expression))*)?
++   RBRACE */
++std::unique_ptr<ASTDeclaration> Parser::enumDeclaration() {
++    Token start;
++    if (!this->expect(Token::ENUM, "'enum'", &start)) {
++        return nullptr;
++    }
++    Token name;
++    if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
++        return nullptr;
++    }
++    if (!this->expect(Token::LBRACE, "'{'")) {
++        return nullptr;
++    }
++    std::vector<StringFragment> names;
++    std::vector<std::unique_ptr<ASTExpression>> values;
++    if (!this->checkNext(Token::RBRACE)) {
++        Token id;
++        if (!this->expect(Token::IDENTIFIER, "an identifier", &id)) {
++            return nullptr;
++        }
++        names.push_back(this->text(id));
++        if (this->checkNext(Token::EQ)) {
++            std::unique_ptr<ASTExpression> value = this->assignmentExpression();
++            if (!value) {
++                return nullptr;
++            }
++            values.push_back(std::move(value));
++        } else {
++            values.push_back(nullptr);
++        }
++        while (!this->checkNext(Token::RBRACE)) {
++            if (!this->expect(Token::COMMA, "','")) {
++                return nullptr;
++            }
++            if (!this->expect(Token::IDENTIFIER, "an identifier", &id)) {
++                return nullptr;
++            }
++            names.push_back(this->text(id));
++            if (this->checkNext(Token::EQ)) {
++                std::unique_ptr<ASTExpression> value = this->assignmentExpression();
++                if (!value) {
++                    return nullptr;
++                }
++                values.push_back(std::move(value));
++            } else {
++                values.push_back(nullptr);
++            }
++        }
++    }
++    this->expect(Token::SEMICOLON, "';'");
++    return std::unique_ptr<ASTDeclaration>(new ASTEnum(name.fOffset, this->text(name), names,
++                                                       std::move(values)));
++}
++
++/* enumDeclaration | modifiers (structVarDeclaration | type IDENTIFIER ((LPAREN parameter
+    (COMMA parameter)* RPAREN (block | SEMICOLON)) | SEMICOLON) | interfaceBlock) */
+ std::unique_ptr<ASTDeclaration> Parser::declaration() {
+-    Modifiers modifiers = this->modifiers();
+     Token lookahead = this->peek();
++    if (lookahead.fKind == Token::ENUM) {
++        return this->enumDeclaration();
++    }
++    Modifiers modifiers = this->modifiers();
++    lookahead = this->peek();
+     if (lookahead.fKind == Token::IDENTIFIER && !this->isType(this->text(lookahead))) {
+         // we have an identifier that's not a type, could be the start of an interface block
+         return this->interfaceBlock(modifiers);
+@@ -1286,7 +1346,7 @@ std::unique_ptr<ASTExpressionStatement> Parser::expressionStatement() {
+     return nullptr;
+ }
+ 
+-/* assignmentExpression */
++/* commaExpression */
+ std::unique_ptr<ASTExpression> Parser::expression() {
+     AutoDepth depth(this);
+     if (!depth.checkValid()) {
+diff --git a/src/sksl/SkSLParser.h b/src/sksl/SkSLParser.h
+index 848550017f..51e689ecff 100644
+--- a/src/sksl/SkSLParser.h
++++ b/src/sksl/SkSLParser.h
+@@ -124,6 +124,8 @@ private:
+ 
+     std::unique_ptr<ASTDeclaration> section();
+ 
++    std::unique_ptr<ASTDeclaration> enumDeclaration();
++
+     std::unique_ptr<ASTDeclaration> declaration();
+ 
+     std::unique_ptr<ASTVarDeclarations> varDeclarations();
+diff --git a/src/sksl/ast/SkSLASTDeclaration.h b/src/sksl/ast/SkSLASTDeclaration.h
+index 53aa65f6f2..23d3d7469c 100644
+--- a/src/sksl/ast/SkSLASTDeclaration.h
++++ b/src/sksl/ast/SkSLASTDeclaration.h
+@@ -23,7 +23,8 @@ struct ASTDeclaration : public ASTPositionNode {
+         kExtension_Kind,
+         kPrecision_Kind,
+         kModifiers_Kind,
+-        kSection_Kind
++        kSection_Kind,
++        kEnum_Kind
+     };
+ 
+     ASTDeclaration(int offset, Kind kind)
+diff --git a/src/sksl/ast/SkSLASTEnum.h b/src/sksl/ast/SkSLASTEnum.h
+new file mode 100644
+index 0000000000..231b1413ea
+--- /dev/null
++++ b/src/sksl/ast/SkSLASTEnum.h
+@@ -0,0 +1,44 @@
++/*
++ * Copyright 2017 Google Inc.
++ *
++ * Use of this source code is governed by a BSD-style license that can be
++ * found in the LICENSE file.
++ */
++
++#ifndef SKSL_ASTENUM
++#define SKSL_ASTENUM
++
++#include "SkSLASTDeclaration.h"
++namespace SkSL {
++
++struct ASTEnum : public ASTDeclaration {
++    ASTEnum(int offset, StringFragment typeName, std::vector<StringFragment> names,
++            std::vector<std::unique_ptr<ASTExpression>> values)
++    : INHERITED(offset, kEnum_Kind)
++    , fTypeName(typeName)
++    , fNames(std::move(names))
++    , fValues(std::move(values)) {
++        ASSERT(fNames.size() == fValues.size());
++    }
++
++    String description() const override {
++        String result = "enum " + fTypeName + " {\n";
++        String separator;
++        for (StringFragment name : fNames) {
++            result += separator + "    " + name;
++            separator = ",\n";
++        }
++        result += "};";
++        return result;
++    }
++
++    const StringFragment fTypeName;
++    const std::vector<StringFragment> fNames;
++    const std::vector<std::unique_ptr<ASTExpression>> fValues;
++
++    typedef ASTDeclaration INHERITED;
++};
++
++} // namespace
++
++#endif
+diff --git a/src/sksl/ir/SkSLSymbolTable.cpp b/src/sksl/ir/SkSLSymbolTable.cpp
+index 40e8e66c9f..74655ef06e 100644
+--- a/src/sksl/ir/SkSLSymbolTable.cpp
++++ b/src/sksl/ir/SkSLSymbolTable.cpp
+@@ -60,13 +60,18 @@ const Symbol* SymbolTable::operator[](StringFragment name) {
+ }
+ 
+ Symbol* SymbolTable::takeOwnership(Symbol* s) {
+-    fOwnedPointers.push_back(std::unique_ptr<Symbol>(s));
++    fOwnedSymbols.emplace_back(s);
+     return s;
+ }
+ 
++IRNode* SymbolTable::takeOwnership(IRNode* n) {
++    fOwnedNodes.emplace_back(n);
++    return n;
++}
++
+ void SymbolTable::add(StringFragment name, std::unique_ptr<Symbol> symbol) {
+     this->addWithoutOwnership(name, symbol.get());
+-    fOwnedPointers.push_back(std::move(symbol));
++    this->takeOwnership(symbol.release());
+ }
+ 
+ void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol) {
+diff --git a/src/sksl/ir/SkSLSymbolTable.h b/src/sksl/ir/SkSLSymbolTable.h
+index 241631db80..238f2d441e 100644
+--- a/src/sksl/ir/SkSLSymbolTable.h
++++ b/src/sksl/ir/SkSLSymbolTable.h
+@@ -39,6 +39,8 @@ public:
+ 
+     Symbol* takeOwnership(Symbol* s);
+ 
++    IRNode* takeOwnership(IRNode* n);
++
+     void markAllFunctionsBuiltin();
+ 
+     const std::shared_ptr<SymbolTable> fParent;
+@@ -46,7 +48,9 @@ public:
+ private:
+     static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
+ 
+-    std::vector<std::unique_ptr<Symbol>> fOwnedPointers;
++    std::vector<std::unique_ptr<Symbol>> fOwnedSymbols;
++
++    std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
+ 
+     std::unordered_map<StringFragment, const Symbol*> fSymbols;
+ 
+diff --git a/src/sksl/ir/SkSLVariable.h b/src/sksl/ir/SkSLVariable.h
+index 536d1e6b6d..3a4ec9b500 100644
+--- a/src/sksl/ir/SkSLVariable.h
++++ b/src/sksl/ir/SkSLVariable.h
+@@ -15,6 +15,8 @@
+ 
+ namespace SkSL {
+ 
++struct Expression;
++
+ /**
+  * Represents a variable, whether local, global, or a function parameter. This represents the
+  * variable itself (the storage location), which is shared between all VariableReferences which
+@@ -28,11 +30,12 @@ struct Variable : public Symbol {
+     };
+ 
+     Variable(int offset, Modifiers modifiers, StringFragment name, const Type& type,
+-             Storage storage)
++             Storage storage, Expression* initialValue = nullptr)
+     : INHERITED(offset, kVariable_Kind, name)
+     , fModifiers(modifiers)
+     , fType(type)
+     , fStorage(storage)
++    , fInitialValue(initialValue)    
+     , fReadCount(0)
+     , fWriteCount(0) {}
+ 
+@@ -48,6 +51,8 @@ struct Variable : public Symbol {
+     const Type& fType;
+     const Storage fStorage;
+ 
++    Expression* fInitialValue = nullptr;
++
+     // Tracks how many sites read from the variable. If this is zero for a non-out variable (or
+     // becomes zero during optimization), the variable is dead and may be eliminated.
+     mutable int fReadCount;
+diff --git a/src/sksl/ir/SkSLVariableReference.h b/src/sksl/ir/SkSLVariableReference.h
+index 54917b0431..ad54d43515 100644
+--- a/src/sksl/ir/SkSLVariableReference.h
++++ b/src/sksl/ir/SkSLVariableReference.h
+@@ -74,6 +74,10 @@ struct VariableReference : public Expression {
+         return false;
+     }
+ 
++    bool isConstant() const override {
++        return 0 != (fVariable.fModifiers.fFlags & Modifiers::kConst_Flag);
++    }
++
+     String description() const override {
+         return fVariable.fName;
+     }
+@@ -120,6 +124,10 @@ struct VariableReference : public Expression {
+         if (fRefKind != kRead_RefKind) {
+             return nullptr;
+         }
++        if ((fVariable.fModifiers.fFlags & Modifiers::kConst_Flag) && fVariable.fInitialValue &&
++            fVariable.fInitialValue->isConstant()) {
++            return copy_constant(irGenerator, fVariable.fInitialValue);
++        }
+         auto exprIter = definitions.find(&fVariable);
+         if (exprIter != definitions.end() && exprIter->second &&
+             (*exprIter->second)->isConstant()) {
+diff --git a/src/sksl/lex/sksl.lex b/src/sksl/lex/sksl.lex
+index ada5e248de..2a3b0d3dc2 100644
+--- a/src/sksl/lex/sksl.lex
++++ b/src/sksl/lex/sksl.lex
+@@ -36,6 +36,7 @@ HASSIDEEFFECTS = "sk_has_side_effects"
+ STRUCT         = "struct"
+ LAYOUT         = "layout"
+ PRECISION      = "precision"
++ENUM           = "enum"
+ IDENTIFIER     = [a-zA-Z_$]([0-9]|[a-zA-Z_$])*
+ DIRECTIVE      = #[a-zA-Z_$]([0-9]|[a-zA-Z_$])*
+ SECTION        = @[a-zA-Z_$]([0-9]|[a-zA-Z_$])*
+diff --git a/src/sksl/sksl.include b/src/sksl/sksl.include
+index c8a7b6bd4b..9621f889fe 100644
+--- a/src/sksl/sksl.include
++++ b/src/sksl/sksl.include
+@@ -1,4 +1,4 @@
+-STRINGIFY(
++R"(
+ 
+ // defines built-in functions supported by SkiaSL
+ 
+@@ -330,11 +330,11 @@ float4 subpassLoad(subpassInputMS subpass, int sample);
+ $gfloat4subpassLoad(gsubpassInput subpass);
+ $gfloat4subpassLoad(gsubpassInputMS subpass, int sample);
+ */
+-)
++)"
+ 
+ // split into multiple chunks, as MSVC++ complains if a single string is too long
+ 
+-STRINGIFY(
++R"(
+ 
+ half4 texture($gsampler1D sampler, float2 P);
+ half4 texture($gsampler1D sampler, float2 P, float bias);
+@@ -560,5 +560,4 @@ void memoryBarrierImage();
+ void groupMemoryBarrier();
+ */
+ 
+-)
+-
++)"
+diff --git a/src/sksl/sksl_enums.include b/src/sksl/sksl_enums.include
+new file mode 100644
+index 0000000000..73ce6d6a2b
+--- /dev/null
++++ b/src/sksl/sksl_enums.include
+@@ -0,0 +1,35 @@
++R"(/*
++ * Copyright 2017 Google Inc.
++ *
++ * Use of this source code is governed by a BSD-style license that can be
++ * found in the LICENSE file.
++ */
++
++
++/*************************************************************************************************/
++/* This file is used from both C++ and SkSL, so we need to stick to syntax compatible with both. */
++/*************************************************************************************************/
++
++/**
++ * We have coverage effects that clip rendering to the edge of some geometric primitive.
++ * This enum specifies how that clipping is performed. Not all factories that take a
++ * GrProcessorEdgeType will succeed with all values and it is up to the caller to check for
++ * a NULL return.
++ */
++enum GrPrimitiveEdgeType {
++    kFillBW_GrProcessorEdgeType,
++    kFillAA_GrProcessorEdgeType,
++    kInverseFillBW_GrProcessorEdgeType,
++    kInverseFillAA_GrProcessorEdgeType,
++    kHairlineAA_GrProcessorEdgeType,
++
++    kLast_GrProcessorEdgeType = kHairlineAA_GrProcessorEdgeType
++};
++
++enum PMConversion {
++    kToPremul_PMConversion   = 0,
++    kToUnpremul_PMConversion = 1,
++    kPMConversionCnt         = 2
++};
++
++)"
+diff --git a/src/sksl/sksl_fp.include b/src/sksl/sksl_fp.include
+index 5f8c7ea9a7..9b1eb2a540 100644
+--- a/src/sksl/sksl_fp.include
++++ b/src/sksl/sksl_fp.include
+@@ -1,4 +1,4 @@
+-STRINGIFY(
++R"(
+ 
+ // defines built-in interfaces supported by SkiaSL fragment shaders
+ 
+@@ -22,5 +22,4 @@ layout(builtin=10005) float2[] sk_TransformedCoords2D;
+ layout(builtin=10006) sampler2D[] sk_TextureSamplers;
+ 
+ half4 process(fragmentProcessor fp);
+-
+-)
++)"
+diff --git a/src/sksl/sksl_frag.include b/src/sksl/sksl_frag.include
+index e96165be1f..c041dbfb94 100644
+--- a/src/sksl/sksl_frag.include
++++ b/src/sksl/sksl_frag.include
+@@ -1,4 +1,4 @@
+-STRINGIFY(
++R"(
+ 
+ // defines built-in interfaces supported by SkiaSL fragment shaders
+ 
+@@ -18,4 +18,4 @@ layout(builtin=9999) out half4 gl_SecondaryFragColorEXT;
+ 
+ layout(location=0,index=0,builtin=10001) out half4 sk_FragColor;
+ 
+-)
++)"
+diff --git a/src/sksl/sksl_geom.include b/src/sksl/sksl_geom.include
+index 3e5ffaed37..fcac8dade7 100644
+--- a/src/sksl/sksl_geom.include
++++ b/src/sksl/sksl_geom.include
+@@ -1,4 +1,4 @@
+-STRINGIFY(
++R"(
+ 
+ // defines built-in interfaces supported by SkiaSL geometry shaders
+ 
+@@ -21,4 +21,4 @@ sk_has_side_effects void EndStreamPrimitive(int stream);
+ sk_has_side_effects void EmitVertex();
+ sk_has_side_effects void EndPrimitive();
+ 
+-)
++)"
+diff --git a/src/sksl/sksl_vert.include b/src/sksl/sksl_vert.include
+index 9e797b326d..4cc06469ba 100644
+--- a/src/sksl/sksl_vert.include
++++ b/src/sksl/sksl_vert.include
+@@ -1,4 +1,4 @@
+-STRINGIFY(
++R"(
+ 
+ // defines built-in interfaces supported by SkiaSL vertex shaders
+ 
+@@ -11,5 +11,4 @@ out sk_PerVertex {
+ layout(builtin=5) in int sk_VertexID;
+ layout(builtin=6) in int sk_InstanceID;
+ 
+-)
+-
++)"
+-- 
+2.14.0.rc1.383.gd1ce394fe2-goog
+
