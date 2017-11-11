@@ -109,6 +109,24 @@
     },
     {
       "key": {
+        "uuid": "4097c482_13784e03",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-11T18:17:30Z",
+      "side": 1,
+      "message": "But at the same time, the function pointers are a bit awkward for code complete, especially when we could accomplish the same thing with an external\n\n  SkTYesOrNo\u003cNAME\u003e\n\nInstead of function pointers.",
+      "parentUuid": "29398ae4_c0bfeaf4",
+      "revId": "b119c5e98c347f26770cef5636348563019e9c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a12666e6_8547b0da",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 14
