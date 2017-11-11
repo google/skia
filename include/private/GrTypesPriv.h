@@ -84,7 +84,7 @@ enum class GrFSAAType {
  * Not all drawing code paths support using mixed samples when available and instead use
  * coverage-based aa.
  */
-enum class GrAllowMixedSamples { kNo, kYes };
+SK_MAKE_NAMED_BOOL(GrAllowMixedSamples);
 
 GrAAType GrChooseAAType(GrAA, GrFSAAType, GrAllowMixedSamples, const GrCaps&);
 
@@ -92,10 +92,7 @@ GrAAType GrChooseAAType(GrAA, GrFSAAType, GrAllowMixedSamples, const GrCaps&);
  * Some pixel configs are inherently clamped to [0,1], while others can hold values outside of that
  * range. This is important for blending - the latter category may require manual clamping.
  */
-enum class GrPixelConfigIsClamped : bool {
-    kNo,   // F16 or F32
-    kYes,  // Any UNORM type
-};
+SK_MAKE_NAMED_BOOL(GrPixelConfigIsClamped);
 
 static inline GrPixelConfigIsClamped GrGetPixelConfigIsClamped(GrPixelConfig config) {
     return GrPixelConfigIsFloatingPoint(config) ? GrPixelConfigIsClamped::kNo
@@ -636,10 +633,7 @@ enum class GrSLMemoryModel {
  * If kYes then the memory backing the varialble is only accessed via the variable. This is
  * currently only used with image storages.
  */
-enum class GrSLRestrict {
-    kYes,
-    kNo,
-};
+SK_MAKE_NAMED_BOOL(GrSLRestrict);
 
 //////////////////////////////////////////////////////////////////////////////
 

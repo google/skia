@@ -16,13 +16,10 @@ class GrPrimitiveProcessor;
 
 class GrProcessorAnalysisColor {
 public:
-    enum class Opaque {
-        kNo,
-        kYes,
-    };
+    SK_MAKE_NAMED_BOOL(Opaque);
 
     constexpr GrProcessorAnalysisColor(Opaque opaque = Opaque::kNo)
-            : fFlags(opaque == Opaque::kYes ? kIsOpaque_Flag : 0), fColor(0) {}
+            : fFlags(opaque ? kIsOpaque_Flag : 0), fColor(0) {}
 
     GrProcessorAnalysisColor(GrColor color) { this->setToConstant(color); }
 
@@ -142,8 +139,7 @@ public:
         if (fKnowOutputColor) {
             return fLastKnownOutputColor.toGrColor();
         }
-        return fIsOpaque ? GrProcessorAnalysisColor::Opaque::kYes
-                         : GrProcessorAnalysisColor::Opaque::kNo;
+        return GrProcessorAnalysisColor::Opaque(fIsOpaque);
     }
 
 private:

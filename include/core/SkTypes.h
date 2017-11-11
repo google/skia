@@ -314,6 +314,32 @@ typedef uint32_t SkMSec;
 */
 #ifdef __cplusplus
 
+/** Defines a class that behaves semantically as a bool, but is strongly typed with a meaningful
+    name. Functions should use named bools in their arguments to convey meaning at the callsites. */
+#define SK_MAKE_NAMED_BOOL(NAME)                                                          \
+class NAME {                                                                              \
+    struct YesOrNoEnumerant;                                                              \
+    using YesOrNo = void(*)(YesOrNoEnumerant*);                                           \
+                                                                                          \
+public:                                                                                   \
+    static void kYes(YesOrNoEnumerant*) {}                                                \
+    static void kNo(YesOrNoEnumerant*) {}                                                 \
+                                                                                          \
+    NAME() = default; /* Uninitialized. */                                                \
+    constexpr /* implicit */ NAME(YesOrNo yesOrNo) : fValue(kYes == yesOrNo) {}           \
+    template<typename U> constexpr explicit NAME(const U& value) : fValue((bool)value) {} \
+                                                                                          \
+    /* implicit */ constexpr operator YesOrNo() const { return fValue ? kYes : kNo; }     \
+    /* implicit */ constexpr operator bool() const { return fValue; }                     \
+    constexpr NAME operator!() const { return NAME(!fValue); }                            \
+                                                                                          \
+    constexpr bool operator==(const NAME& that) const { return fValue == that.fValue; }   \
+    constexpr bool operator!=(const NAME& that) const { return fValue != that.fValue; }   \
+                                                                                          \
+private:                                                                                  \
+    bool fValue;                                                                          \
+}
+
 /** Faster than SkToBool for integral conditions. Returns 0 or 1
 */
 static inline constexpr int Sk32ToBool(uint32_t n) {
