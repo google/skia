@@ -133,6 +133,7 @@ void GrGLSLVaryingHandler::appendDecls(const VarArray& vars, SkString* out) cons
 void GrGLSLVaryingHandler::getVertexDecls(SkString* inputDecls, SkString* outputDecls) const {
     this->appendDecls(fVertexInputs, inputDecls);
     this->appendDecls(fVertexOutputs, outputDecls);
+    outputDecls->append("out float2 pseudofragcoord;");
 }
 
 void GrGLSLVaryingHandler::getGeomDecls(SkString* inputDecls, SkString* outputDecls) const {
@@ -146,4 +147,5 @@ void GrGLSLVaryingHandler::getFragDecls(SkString* inputDecls, SkString* outputDe
              fFragOutputs.empty());
     this->appendDecls(fFragInputs, inputDecls);
     this->appendDecls(fFragOutputs, outputDecls);
+    outputDecls->append("in float2 pseudofragcoord;");
 }

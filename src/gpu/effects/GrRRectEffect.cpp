@@ -192,85 +192,85 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
     // alphas together.
     switch (crre.getCircularCornerFlags()) {
         case CircularRRectEffect::kAll_CornerFlags:
-            fragBuilder->codeAppendf("half2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
-            fragBuilder->codeAppendf("half2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
+            fragBuilder->codeAppendf("half2 dxy0 = %s.xy - pseudofragcoord;", rectName);
+            fragBuilder->codeAppendf("half2 dxy1 = pseudofragcoord - %s.zw;", rectName);
             fragBuilder->codeAppend("half2 dxy = max(max(dxy0, dxy1), 0.0);");
             fragBuilder->codeAppendf("half alpha = %s;", clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kTopLeft_CornerFlag:
-            fragBuilder->codeAppendf("half2 dxy = max(%s.xy - sk_FragCoord.xy, 0.0);",
+            fragBuilder->codeAppendf("half2 dxy = max(%s.xy - pseudofragcoord, 0.0);",
                                      rectName);
-            fragBuilder->codeAppendf("half rightAlpha = clamp(%s.z - sk_FragCoord.x, 0.0, 1.0);",
+            fragBuilder->codeAppendf("half rightAlpha = clamp(%s.z - pseudofragcoord.x, 0.0, 1.0);",
                                      rectName);
-            fragBuilder->codeAppendf("half bottomAlpha = clamp(%s.w - sk_FragCoord.y, 0.0, 1.0);",
+            fragBuilder->codeAppendf("half bottomAlpha = clamp(%s.w - pseudofragcoord.y, 0.0, 1.0);",
                                      rectName);
             fragBuilder->codeAppendf("half alpha = bottomAlpha * rightAlpha * %s;",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kTopRight_CornerFlag:
-            fragBuilder->codeAppendf("half2 dxy = max(half2(sk_FragCoord.x - %s.z, "
-                                                           "%s.y - sk_FragCoord.y), 0.0);",
+            fragBuilder->codeAppendf("half2 dxy = max(half2(pseudofragcoord.x - %s.z, "
+                                                           "%s.y - pseudofragcoord.y), 0.0);",
                                      rectName, rectName);
-            fragBuilder->codeAppendf("half leftAlpha = clamp(sk_FragCoord.x - %s.x, 0.0, 1.0);",
+            fragBuilder->codeAppendf("half leftAlpha = clamp(pseudofragcoord.x - %s.x, 0.0, 1.0);",
                                      rectName);
-            fragBuilder->codeAppendf("half bottomAlpha = clamp(%s.w - sk_FragCoord.y, 0.0, 1.0);",
+            fragBuilder->codeAppendf("half bottomAlpha = clamp(%s.w - pseudofragcoord.y, 0.0, 1.0);",
                                      rectName);
             fragBuilder->codeAppendf("half alpha = bottomAlpha * leftAlpha * %s;",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kBottomRight_CornerFlag:
-            fragBuilder->codeAppendf("half2 dxy = max(sk_FragCoord.xy - %s.zw, 0.0);",
+            fragBuilder->codeAppendf("half2 dxy = max(pseudofragcoord - %s.zw, 0.0);",
                                      rectName);
-            fragBuilder->codeAppendf("half leftAlpha = clamp(sk_FragCoord.x - %s.x, 0.0, 1.0);",
+            fragBuilder->codeAppendf("half leftAlpha = clamp(pseudofragcoord.x - %s.x, 0.0, 1.0);",
                                      rectName);
-            fragBuilder->codeAppendf("half topAlpha = clamp(sk_FragCoord.y - %s.y, 0.0, 1.0);",
+            fragBuilder->codeAppendf("half topAlpha = clamp(pseudofragcoord.y - %s.y, 0.0, 1.0);",
                                      rectName);
             fragBuilder->codeAppendf("half alpha = topAlpha * leftAlpha * %s;",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kBottomLeft_CornerFlag:
-            fragBuilder->codeAppendf("half2 dxy = max(half2(%s.x - sk_FragCoord.x, sk_FragCoord.y - "
+            fragBuilder->codeAppendf("half2 dxy = max(half2(%s.x - pseudofragcoord.x, pseudofragcoord.y - "
                                      "%s.w), 0.0);",
                                      rectName, rectName);
-            fragBuilder->codeAppendf("half rightAlpha = clamp(%s.z - sk_FragCoord.x, 0.0, 1.0);",
+            fragBuilder->codeAppendf("half rightAlpha = clamp(%s.z - pseudofragcoord.x, 0.0, 1.0);",
                                      rectName);
-            fragBuilder->codeAppendf("half topAlpha = clamp(sk_FragCoord.y - %s.y, 0.0, 1.0);",
+            fragBuilder->codeAppendf("half topAlpha = clamp(pseudofragcoord.y - %s.y, 0.0, 1.0);",
                                      rectName);
             fragBuilder->codeAppendf("half alpha = topAlpha * rightAlpha * %s;",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kLeft_CornerFlags:
-            fragBuilder->codeAppendf("half2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
-            fragBuilder->codeAppendf("half dy1 = sk_FragCoord.y - %s.w;", rectName);
+            fragBuilder->codeAppendf("half2 dxy0 = %s.xy - pseudofragcoord;", rectName);
+            fragBuilder->codeAppendf("half dy1 = pseudofragcoord.y - %s.w;", rectName);
             fragBuilder->codeAppend("half2 dxy = max(half2(dxy0.x, max(dxy0.y, dy1)), 0.0);");
-            fragBuilder->codeAppendf("half rightAlpha = clamp(%s.z - sk_FragCoord.x, 0.0, 1.0);",
+            fragBuilder->codeAppendf("half rightAlpha = clamp(%s.z - pseudofragcoord.x, 0.0, 1.0);",
                                      rectName);
             fragBuilder->codeAppendf("half alpha = rightAlpha * %s;",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kTop_CornerFlags:
-            fragBuilder->codeAppendf("half2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
-            fragBuilder->codeAppendf("half dx1 = sk_FragCoord.x - %s.z;", rectName);
+            fragBuilder->codeAppendf("half2 dxy0 = %s.xy - pseudofragcoord;", rectName);
+            fragBuilder->codeAppendf("half dx1 = pseudofragcoord.x - %s.z;", rectName);
             fragBuilder->codeAppend("half2 dxy = max(half2(max(dxy0.x, dx1), dxy0.y), 0.0);");
-            fragBuilder->codeAppendf("half bottomAlpha = clamp(%s.w - sk_FragCoord.y, 0.0, 1.0);",
+            fragBuilder->codeAppendf("half bottomAlpha = clamp(%s.w - pseudofragcoord.y, 0.0, 1.0);",
                                      rectName);
             fragBuilder->codeAppendf("half alpha = bottomAlpha * %s;",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kRight_CornerFlags:
-            fragBuilder->codeAppendf("half dy0 = %s.y - sk_FragCoord.y;", rectName);
-            fragBuilder->codeAppendf("half2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
+            fragBuilder->codeAppendf("half dy0 = %s.y - pseudofragcoord.y;", rectName);
+            fragBuilder->codeAppendf("half2 dxy1 = pseudofragcoord - %s.zw;", rectName);
             fragBuilder->codeAppend("half2 dxy = max(half2(dxy1.x, max(dy0, dxy1.y)), 0.0);");
-            fragBuilder->codeAppendf("half leftAlpha = clamp(sk_FragCoord.x - %s.x, 0.0, 1.0);",
+            fragBuilder->codeAppendf("half leftAlpha = clamp(pseudofragcoord.x - %s.x, 0.0, 1.0);",
                                      rectName);
             fragBuilder->codeAppendf("half alpha = leftAlpha * %s;",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kBottom_CornerFlags:
-            fragBuilder->codeAppendf("half dx0 = %s.x - sk_FragCoord.x;", rectName);
-            fragBuilder->codeAppendf("half2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
+            fragBuilder->codeAppendf("half dx0 = %s.x - pseudofragcoord.x;", rectName);
+            fragBuilder->codeAppendf("half2 dxy1 = pseudofragcoord - %s.zw;", rectName);
             fragBuilder->codeAppend("half2 dxy = max(half2(max(dx0, dxy1.x), dxy1.y), 0.0);");
-            fragBuilder->codeAppendf("half topAlpha = clamp(sk_FragCoord.y - %s.y, 0.0, 1.0);",
+            fragBuilder->codeAppendf("half topAlpha = clamp(pseudofragcoord.y - %s.y, 0.0, 1.0);",
                                      rectName);
             fragBuilder->codeAppendf("half alpha = topAlpha * %s;",
                                      clampedCircleDistance.c_str());
@@ -523,8 +523,8 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     // The code below is a simplified version of the above that performs maxs on the vector
     // components before computing distances and alpha values so that only one distance computation
     // need be computed to determine the min alpha.
-    fragBuilder->codeAppendf("half2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
-    fragBuilder->codeAppendf("half2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
+    fragBuilder->codeAppendf("half2 dxy0 = %s.xy - pseudofragcoord;", rectName);
+    fragBuilder->codeAppendf("half2 dxy1 = pseudofragcoord - %s.zw;", rectName);
 
     // If we're on a device with a "real" mediump then we'll do the distance computation in a space
     // that is normalized by the largest radius. The scale uniform will be scale, 1/scale. The

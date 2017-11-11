@@ -31,6 +31,7 @@ void GrGLSLVertexGeoBuilder::emitNormalizedSkPosition(SkString* out, const char*
                      devPos, rtAdjustName, devPos, rtAdjustName, devPos);
     } else {
         SkASSERT(kFloat2_GrSLType == devPosType);
+        out->appendf("pseudofragcoord = %s.xy;", devPos);
         out->appendf("sk_Position = float4(%s.x * %s.x + %s.y, %s.y * %s.z + %s.w, 0, 1);",
                      devPos, rtAdjustName, rtAdjustName, devPos, rtAdjustName, rtAdjustName);
     }

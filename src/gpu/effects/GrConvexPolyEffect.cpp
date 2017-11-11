@@ -111,16 +111,16 @@ void GLAARectEffect::emitCode(EmitArgs& args) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
         // numbers, xSub and ySub.
         f->codeAppend("half xSub, ySub;\n");
-        f->codeAppendf("xSub = min(sk_FragCoord.x - %s.x, 0.0);\n", rectName);
-        f->codeAppendf("xSub += min(%s.z - sk_FragCoord.x, 0.0);\n", rectName);
-        f->codeAppendf("ySub = min(sk_FragCoord.y - %s.y, 0.0);\n", rectName);
-        f->codeAppendf("ySub += min(%s.w - sk_FragCoord.y, 0.0);\n", rectName);
+        f->codeAppendf("xSub = min(pseudofragcoord.x - %s.x, 0.0);\n", rectName);
+        f->codeAppendf("xSub += min(%s.z - pseudofragcoord.x, 0.0);\n", rectName);
+        f->codeAppendf("ySub = min(pseudofragcoord.y - %s.y, 0.0);\n", rectName);
+        f->codeAppendf("ySub += min(%s.w - pseudofragcoord.y, 0.0);\n", rectName);
         // Now compute coverage in x and y and multiply them to get the fraction of the pixel
         // covered.
         f->codeAppendf("half alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));\n");
     } else {
-        f->codeAppendf("half alpha = all(greaterThan(float4(sk_FragCoord.xy, %s.zw), "
-                                                    "float4(%s.xy, sk_FragCoord.xy))) ? 1 : 0;",
+        f->codeAppendf("half alpha = all(greaterThan(float4(pseudofragcoord, %s.zw), "
+                                                    "float4(%s.xy, pseudofragcoord))) ? 1 : 0;",
                                                     rectName, rectName);
     }
 
@@ -191,7 +191,7 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppend("\t\thalf alpha = 1.0;\n");
     fragBuilder->codeAppend("\t\thalf edge;\n");
     for (int i = 0; i < cpe.getEdgeCount(); ++i) {
-        fragBuilder->codeAppendf("\t\tedge = dot(%s[%d], half3(sk_FragCoord.x, sk_FragCoord.y, "
+        fragBuilder->codeAppendf("\t\tedge = dot(%s[%d], half3(pseudofragcoord.x, pseudofragcoord.y, "
                                                              "1));\n",
                                  edgeArrayName, i);
         if (GrProcessorEdgeTypeIsAA(cpe.getEdgeType())) {
