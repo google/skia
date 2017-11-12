@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a21e7ebd_016796a5",
+        "filename": "third_party/angle2/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-12T21:09:43Z",
+      "side": 1,
+      "message": "I\u0027m a little puzzled how the warning itself was an issue.  Or do we still have MSVC\u0027s -Werror equivalent on, and this is a default warning?",
+      "revId": "514094c364af8095bf94e4b99fb009a05415e1db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
