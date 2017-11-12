@@ -60,6 +60,9 @@ config("common") {
       "GL_APICALL=",
       "EGLAPI=",
     ]
+
+    # Allow noexcept, even though we build without exceptions
+    cflags_cc += [ "/wd4577" ]
   }
 }
 
