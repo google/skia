@@ -715,6 +715,9 @@ def dm_flags(api, bot):
   if 'NativeFonts' not in bot:
     args.append('--nonativeFonts')
 
+  if 'GDI' in bot:
+    args.append('--gdi')
+
   # Let's make all bots produce verbose output by default.
   args.append('--verbose')
 
@@ -943,6 +946,7 @@ TEST_BUILDERS = [
   'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug-All',
   'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All',
   'Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts',
+  'Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI',
 ]
 
 

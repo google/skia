@@ -39,6 +39,7 @@
 #include "SkSpinlock.h"
 #include "SkTHash.h"
 #include "SkTaskGroup.h"
+#include "SkTypeface_win.h"
 #include "Test.h"
 #include "Timer.h"
 #include "ios_utils.h"
@@ -104,6 +105,7 @@ DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.")
 
 DEFINE_bool(nativeFonts, true, "If true, use native font manager and rendering. "
                                "If false, fonts will draw as portably as possible.");
+DEFINE_bool(gdi, false, "On Windows, use GDI instead of DirectWrite for font rendering.");
 
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
@@ -1322,6 +1324,14 @@ int main(int argc, char** argv) {
             return sk_make_sp<DM::FontMgr>();
         };
     }
+
+#if defined(SK_BUILD_FOR_WIN)
+    if (FLAGS_gdi) {
+        gSkFontMgr_DefaultFactory = []() -> sk_sp<SkFontMgr> {
+            return SkFontMgr_New_GDI();
+        };
+    }
+#endif
 
     initializeEventTracingForTools();
 
