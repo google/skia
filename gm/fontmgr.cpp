@@ -12,10 +12,6 @@
 #include "SkGraphics.h"
 #include "SkTypeface.h"
 
-#ifdef SK_BUILD_FOR_WIN
-    #include "SkTypeface_win.h"
-#endif
-
 // limit this just so we don't take too long to draw
 #define MAX_FAMILIES    30
 
@@ -55,16 +51,11 @@ static const char* ja = "ja";
 
 class FontMgrGM : public skiagm::GM {
 public:
-    FontMgrGM(sk_sp<SkFontMgr> fontMgr = nullptr) {
+    FontMgrGM() {
         SkGraphics::SetFontCacheLimit(16 * 1024 * 1024);
 
         fName.set("fontmgr_iter");
-        if (fontMgr) {
-            fName.append("_factory");
-            fFM = std::move(fontMgr);
-        } else {
-            fFM = SkFontMgr::RefDefault();
-        }
+        fFM = SkFontMgr::RefDefault();
         fName.append(sk_tool_utils::platform_font_manager());
     }
 
@@ -343,7 +334,3 @@ DEF_GM(return new FontMgrMatchGM;)
 DEF_GM(return new FontMgrBoundsGM(1.0, 0);)
 DEF_GM(return new FontMgrBoundsGM(0.75, 0);)
 DEF_GM(return new FontMgrBoundsGM(1.0, -0.25);)
-
-#ifdef SK_BUILD_FOR_WIN
-DEF_GM(return new FontMgrGM(SkFontMgr_New_DirectWrite());)
-#endif
