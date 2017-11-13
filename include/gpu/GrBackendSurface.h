@@ -51,7 +51,6 @@ public:
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
-    GrPixelConfig config() const { return fConfig; }
     bool hasMipMaps() const { return GrMipMapped::kYes == fMipMapped; }
     GrBackend backend() const {return fBackend; }
 
@@ -73,6 +72,13 @@ public:
     bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
 
 private:
+    // Friending for access to the GrPixelConfig
+    friend class SkSurface;
+    friend class GrGpu;
+    friend class GrGLGpu;
+    friend class GrVkGpu;
+    GrPixelConfig config() const { return fConfig; }
+
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
     GrPixelConfig fConfig;
@@ -109,7 +115,6 @@ public:
     int height() const { return fHeight; }
     int sampleCnt() const { return fSampleCnt; }
     int stencilBits() const { return fStencilBits; }
-    GrPixelConfig config() const { return fConfig; }
     GrBackend backend() const {return fBackend; }
 
     // If the backend API is GL, this returns a pointer to the GrGLFramebufferInfo struct. Otherwise
@@ -123,6 +128,13 @@ public:
 #endif
 
 private:
+    // Friending for access to the GrPixelConfig
+    friend class SkSurface;
+    friend class GrGpu;
+    friend class GrGLGpu;
+    friend class GrVkGpu;
+    GrPixelConfig config() const { return fConfig; }
+
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
 
