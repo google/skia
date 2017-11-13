@@ -282,6 +282,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     context.fShareContext = shareContext;
     context.fShareIndex = shareIndex;
     context.fOptions = grOptions;
+    context.fTestContext->makeCurrent();
     return ContextInfo(context.fType, context.fTestContext, context.fGrContext, context.fOptions);
 }
 
