@@ -568,6 +568,7 @@ def dm_flags(api, bot):
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     # skia:6132
     match.append('~^tilemodes$')
+    match.append('~tilemodes_npot$')
     match.append('~^bitmapfilters$')
     match.append('~^shadertext$')
     match.append('~^FullScreenClearWithLayers$') #skia:7191
