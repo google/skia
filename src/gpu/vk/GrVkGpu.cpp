@@ -888,7 +888,8 @@ bool GrVkGpu::updateBuffer(GrVkBuffer* buffer, const void* src,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static bool check_backend_texture(const GrBackendTexture& backendTex) {
+static bool check_backend_texture(const GrBackendTexture& backendTex,
+                                  GrPixelConfig config) {
     const GrVkImageInfo* info = backendTex.getVkImageInfo();
     if (!info) {
         return false;
@@ -898,13 +899,13 @@ static bool check_backend_texture(const GrBackendTexture& backendTex) {
         return false;
     }
 
-    SkASSERT(backendTex.config() == GrVkFormatToPixelConfig(info->fFormat));
+    SkASSERT(config == GrVkFormatToPixelConfig(info->fFormat));
     return true;
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
                                                GrWrapOwnership ownership) {
-    if (!check_backend_texture(backendTex)) {
+    if (!check_backend_texture(backendTex, backendTex.config())) {
         return nullptr;
     }
 
@@ -922,7 +923,7 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
 sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
                                                          int sampleCnt,
                                                          GrWrapOwnership ownership) {
-    if (!check_backend_texture(backendTex)) {
+    if (!check_backend_texture(backendTex, backendTex.config())) {
         return nullptr;
     }
 
