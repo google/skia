@@ -23,6 +23,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    std::function<void()> onPlatformGetContextAutoRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
@@ -96,6 +97,11 @@ void MacGLTestContext::destroyGLContext() {
 
 void MacGLTestContext::onPlatformMakeCurrent() const {
     CGLSetCurrentContext(fContext);
+}
+
+std::function<void()> MacGLTestContext::onPlatformGetContextAutoRestore() const {
+    auto context = CGLGetCurrentContext();
+    return [context] { CGLSetCurrentContext(context); };
 }
 
 void MacGLTestContext::onPlatformSwapBuffers() const {

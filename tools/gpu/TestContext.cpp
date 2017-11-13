@@ -37,6 +37,10 @@ sk_sp<GrContext> TestContext::makeGrContext(const GrContextOptions&) {
 
 void TestContext::makeCurrent() const { this->onPlatformMakeCurrent(); }
 
+SkScopeExit<std::function<void()>> TestContext::getAutoContextRestore() const {
+    return SkScopeExit<std::function<void()>>(this->onPlatformGetAutoContextRestore());
+}
+
 void TestContext::swapBuffers() { this->onPlatformSwapBuffers(); }
 
 void TestContext::waitOnSyncOrSwap() {

@@ -62,6 +62,7 @@ private:
                                         GLXContext glxSharedContext);
 
     void onPlatformMakeCurrent() const override;
+    std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
@@ -332,6 +333,13 @@ void GLXGLTestContext::onPlatformMakeCurrent() const {
     if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
         SkDebugf("Could not set the context.\n");
     }
+}
+
+std::function<void()> GLXGLTestContext::onPlatformGetAutoContextRestore() const {
+    auto display = glXGetCurrentDisplay();
+    auto drawable = glXGetCurrentDrawable();
+    auto context = glXGetCurrentContext();
+    return [display, drawable, context] { glXMakeCurrent(display, drawable, context); };
 }
 
 void GLXGLTestContext::onPlatformSwapBuffers() const {

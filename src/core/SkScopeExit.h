@@ -27,15 +27,20 @@ template <typename Fn>
 class SkScopeExit {
 public:
     SkScopeExit(Fn f) : fFn(std::move(f)) {}
+    SkScopeExit(SkScopeExit&& that) : fFn(std::move(that.fFn)) {}
+
     ~SkScopeExit() { fFn(); }
+
+    SkScopeExit& operator=(SkScopeExit&& that) {
+        fFn = std::move(that.fFn);
+        return *this;
+    }
 
 private:
     Fn fFn;
 
     SkScopeExit(           const SkScopeExit& ) = delete;
     SkScopeExit& operator=(const SkScopeExit& ) = delete;
-    SkScopeExit(                 SkScopeExit&&) = delete;
-    SkScopeExit& operator=(      SkScopeExit&&) = delete;
 };
 
 template <typename Fn>

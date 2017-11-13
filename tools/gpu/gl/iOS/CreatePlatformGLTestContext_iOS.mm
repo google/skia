@@ -23,6 +23,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    std::function<void()> onPlatformGetContextAutoRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
@@ -84,6 +85,11 @@ void IOSGLTestContext::onPlatformMakeCurrent() const {
     if (![EAGLContext setCurrentContext:fEAGLContext]) {
         SkDebugf("Could not set the context.\n");
     }
+}
+
+std::function<void()> IOSGLTestContext::onPlatformGetContextAutoRestore() const {
+    EAGLContext* context = [EAGLContext current];
+    return [context] { [EAGLContext setCurrentContext:context] };
 }
 
 void IOSGLTestContext::onPlatformSwapBuffers() const { }

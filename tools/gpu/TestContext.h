@@ -9,10 +9,11 @@
 #ifndef TestContext_DEFINED
 #define TestContext_DEFINED
 
+#include "../private/SkTemplates.h"
 #include "FenceSync.h"
 #include "GrTypes.h"
 #include "SkRefCnt.h"
-#include "../private/SkTemplates.h"
+#include "SkScopeExit.h"
 
 class GrContext;
 struct GrContextOptions;
@@ -44,6 +45,16 @@ public:
     }
 
     void makeCurrent() const;
+
+    /**
+     * Useful to undo the effect of calling makeCurrent() before returning to a caller that doesn't
+     * expect the current context to be changed underneath it.
+     *
+     * This returns an object that restores the current context of the same type (e.g. egl, glx,
+     * ...) in its destructor. It is undefined behavior if that context is destroyed before the
+     * destructor executes.
+     */
+    SkScopeExit<std::function<void()>> getAutoContextRestore() const;
 
     virtual GrBackend backend() = 0;
     virtual GrBackendContext backendContext() = 0;
@@ -94,6 +105,7 @@ protected:
     virtual void teardown();
 
     virtual void onPlatformMakeCurrent() const = 0;
+    virtual std::function<void()> onPlatformGetAutoContextRestore() const = 0;
     virtual void onPlatformSwapBuffers() const = 0;
 
 private:
