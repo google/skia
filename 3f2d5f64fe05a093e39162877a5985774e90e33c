@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d580dcb6_149df06a",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-13T16:30:34Z",
+      "side": 1,
+      "message": "Right. Removed. I still blame my bad experimental implementation. Thanks for the great suggestion!",
+      "parentUuid": "99e5d3d7_f6532b5e",
+      "range": {
+        "startLine": 63,
+        "startChar": 28,
+        "endLine": 63,
+        "endChar": 33
+      },
+      "revId": "3f2d5f64fe05a093e39162877a5985774e90e33c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ff002ca2_2d06e990",
         "filename": "src/core/SkThreadedBMPDevice.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "c7766538_6ed811fb",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-13T16:30:34Z",
+      "side": 1,
+      "message": "Done as before.",
+      "parentUuid": "ff002ca2_2d06e990",
+      "range": {
+        "startLine": 99,
+        "startChar": 18,
+        "endLine": 99,
+        "endChar": 23
+      },
+      "revId": "3f2d5f64fe05a093e39162877a5985774e90e33c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "830fb7c5_1ed98ef4",
         "filename": "src/core/SkThreadedBMPDevice.h",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2017-11-13T15:56:32Z",
       "side": 1,
       "message": "Why do you need to break abstraction?",
+      "range": {
+        "startLine": 66,
+        "startChar": 17,
+        "endLine": 66,
+        "endChar": 42
+      },
+      "revId": "3f2d5f64fe05a093e39162877a5985774e90e33c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03347326_3b94ca5b",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-13T16:30:34Z",
+      "side": 1,
+      "message": "Good question. I\u0027ve now moved tryDraw inside SkThreadedBMPDevice and the \"friend class ...\" is removed. I also removed threadId parameter because I\u0027ll only need it (and add it) later. (To answer the question: I broke the abstraction and had that unnecessary parameter because I copied from my experimental implementation which is quite unpolished...)",
+      "parentUuid": "830fb7c5_1ed98ef4",
       "range": {
         "startLine": 66,
         "startChar": 17,
