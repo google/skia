@@ -52,19 +52,9 @@ namespace sk_tool_utils {
     const char* platform_os_emoji();
 
     /**
-     * Return the platform name with the version number ("Mac10.9", "Win8", etc.) if available.
+     * Returns a string describing the platform font manager, if we're using one, otherwise "".
      */
-    const char* platform_os_name();
-
-    /**
-     * Return the platform name without the version number ("Mac", "Win", etc.) if available.
-     */
-    SkString major_platform_os_name();
-
-    /**
-     * Return the platform extra config (e.g. "GDI") if available.
-     */
-    const char* platform_extra_config(const char* config);
+    const char* platform_font_manager();
 
     /**
      * Map serif, san-serif, and monospace to the platform-specific font name.

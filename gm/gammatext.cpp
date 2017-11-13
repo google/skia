@@ -37,7 +37,7 @@ class GammaTextGM : public skiagm::GM {
 protected:
     SkString onShortName() override {
         SkString name("gammatext");
-        name.append(sk_tool_utils::major_platform_os_name());
+        name.append(sk_tool_utils::platform_font_manager());
         return name;
     }
 

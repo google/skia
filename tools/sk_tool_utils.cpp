@@ -32,8 +32,20 @@ static const char* gStandardFontNames[][3] = {
     { "Tinos", "Arimo", "Cousine" } // ChromeOS
 };
 
+static bool starts_with(const char* str, const char* prefix) {
+    return 0 == strncmp(str, prefix, strlen(prefix));
+}
+
+static const char* platform_os_name() {
+    for (int index = 0; index < FLAGS_key.count(); index += 2) {
+        if (!strcmp("os", FLAGS_key[index])) {
+            return FLAGS_key[index + 1];
+        }
+    }
+    return "";
+}
+
 const char* platform_font_name(const char* name) {
-    SkString platform = major_platform_os_name();
     int index;
     if (!strcmp(name, "serif")) {
         index = 0;
@@ -44,22 +56,25 @@ const char* platform_font_name(const char* name) {
     } else {
         return name;
     }
-    if (platform.equals("Mac")) {
+
+    const char* platform = platform_os_name();
+
+    if (starts_with(platform, "Mac")) {
         return gStandardFontNames[0][index];
     }
-    if (platform.equals("iOS")) {
+    if (starts_with(platform, "iOS")) {
         return gStandardFontNames[1][index];
     }
-    if (platform.equals("Win")) {
+    if (starts_with(platform, "Win")) {
         return gStandardFontNames[2][index];
     }
-    if (platform.equals("Ubuntu") || platform.equals("Debian")) {
+    if (starts_with(platform, "Ubuntu") || starts_with(platform, "Debian")) {
         return gStandardFontNames[3][index];
     }
-    if (platform.equals("Android")) {
+    if (starts_with(platform, "Android")) {
         return gStandardFontNames[4][index];
     }
-    if (platform.equals("ChromeOS")) {
+    if (starts_with(platform, "ChromeOS")) {
         return gStandardFontNames[5][index];
     }
     return name;
@@ -67,13 +82,15 @@ const char* platform_font_name(const char* name) {
 
 const char* platform_os_emoji() {
     const char* osName = platform_os_name();
-    if (!strcmp(osName, "Android") || !strcmp(osName, "Ubuntu") || !strcmp(osName, "Debian")) {
+    if (starts_with(osName, "Android") ||
+        starts_with(osName, "Ubuntu")  ||
+        starts_with(osName, "Debian")) {
         return "CBDT";
     }
-    if (!strncmp(osName, "Mac", 3) || !strncmp(osName, "iOS", 3)) {
+    if (starts_with(osName, "Mac") || starts_with(osName, "iOS")) {
         return "SBIX";
     }
-    if (!strncmp(osName, "Win", 3)) {
+    if (starts_with(osName, "Win")) {
         return "COLR";
     }
     return "";
@@ -122,41 +139,26 @@ const char* emoji_sample_text() {
     return "";
 }
 
-const char* platform_os_name() {
+static bool extra_config_contains(const char* substring) {
     for (int index = 0; index < FLAGS_key.count(); index += 2) {
-        if (!strcmp("os", FLAGS_key[index])) {
-            return FLAGS_key[index + 1];
+        if (0 == strcmp("extra_config", FLAGS_key[index])
+                && strstr(FLAGS_key[index + 1], substring)) {
+            return true;
         }
     }
-    // when running SampleApp or dm without a --key pair, omit the platform name
+    return false;
+}
+
+const char* platform_font_manager() {
+    if (extra_config_contains("GDI")) {
+        return "GDI";
+    }
+    if (extra_config_contains("NativeFonts")){
+        return platform_os_name();
+    }
     return "";
 }
 
-// omit version number in returned value
-SkString major_platform_os_name() {
-    SkString name;
-    for (int index = 0; index < FLAGS_key.count(); index += 2) {
-        if (!strcmp("os", FLAGS_key[index])) {
-            const char* platform = FLAGS_key[index + 1];
-            const char* end = platform;
-            while (*end && (*end < '0' || *end > '9')) {
-                ++end;
-            }
-            name.append(platform, end - platform);
-            break;
-        }
-    }
-    return name;
-}
-
-const char* platform_extra_config(const char* config) {
-    for (int index = 0; index < FLAGS_key.count(); index += 2) {
-        if (!strcmp("extra_config", FLAGS_key[index]) && !strcmp(config, FLAGS_key[index + 1])) {
-            return config;
-        }
-    }
-    return "";
-}
 
 const char* colortype_name(SkColorType ct) {
     switch (ct) {
