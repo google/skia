@@ -53,7 +53,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                                                                        mipMapped,
                                                                        backendHandle);
 
-            sk_sp<GrTextureProxy> proxy;
+            GrTextureProxy* proxy;
             sk_sp<SkImage> image;
             if (isRT) {
                 sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(
@@ -65,12 +65,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                                                                            nullptr);
 
                 SkGpuDevice* device = ((SkSurface_Gpu*)surface.get())->getDevice();
-                proxy = device->accessRenderTargetContext()->asTextureProxyRef();
+                proxy = device->accessRenderTargetContext()->asTextureProxy();
             } else {
                 image = SkImage::MakeFromTexture(context, backendTex,
                                                  kTopLeft_GrSurfaceOrigin,
                                                  kPremul_SkAlphaType, nullptr);
-                proxy = as_IB(image)->asTextureProxyRef();
+                proxy = as_IB(image)->peekProxy();
             }
             REPORTER_ASSERT(reporter, proxy);
             if (!proxy) {
