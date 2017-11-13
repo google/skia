@@ -39,6 +39,8 @@ public:
             : fResourceProvider(resourceProvider) {
     }
 
+    ~GrResourceAllocator();
+
     unsigned int curOp() const { return fNumOps; }
     void incOps() { fNumOps++; }
     unsigned int numOps() const { return fNumOps; }
@@ -62,7 +64,7 @@ private:
     void expire(unsigned int curIndex);
 
     // These two methods wrap the interactions with the free pool
-    void freeUpSurface(GrSurface* surface);
+    void freeUpSurface(sk_sp<GrSurface> surface);
     sk_sp<GrSurface> findSurfaceFor(const GrSurfaceProxy* proxy);
 
     struct FreePoolTraits {
@@ -98,6 +100,10 @@ private:
             fNext = nullptr;
         }
 
+        ~Interval() {
+            SkASSERT(!fAssignedSurface);
+        }
+
         const GrSurfaceProxy* proxy() const { return fProxy; }
         GrSurfaceProxy* proxy() { return fProxy; }
         unsigned int start() const { return fStart; }
@@ -112,18 +118,25 @@ private:
             fEnd = newEnd;
         }
 
+        void assign(sk_sp<GrSurface>);
+        bool wasAssignedSurface() const { return fAssignedSurface; }
+        sk_sp<GrSurface> detachSurface() { return std::move(fAssignedSurface); }
+
         // for SkTDynamicHash
         static const uint32_t& GetKey(const Interval& intvl) {
             return intvl.fProxyID;
         }
         static uint32_t Hash(const uint32_t& key) { return key; }
 
+
+
     private:
-        GrSurfaceProxy* fProxy;
-        uint32_t        fProxyID; // This is here b.c. DynamicHash requires a ref to the key
-        unsigned int    fStart;
-        unsigned int    fEnd;
-        Interval*       fNext;
+        sk_sp<GrSurface> fAssignedSurface;
+        GrSurfaceProxy*  fProxy;
+        uint32_t         fProxyID; // This is here b.c. DynamicHash requires a ref to the key
+        unsigned int     fStart;
+        unsigned int     fEnd;
+        Interval*        fNext;
     };
 
     class IntervalList {

@@ -8,11 +8,26 @@
 #include "GrResourceAllocator.h"
 
 #include "GrGpuResourcePriv.h"
+#include "GrOpList.h"
 #include "GrResourceProvider.h"
 #include "GrSurfacePriv.h"
 #include "GrSurfaceProxy.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureProxy.h"
+
+void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
+    SkASSERT(!fAssignedSurface);
+    fAssignedSurface = s;
+    fProxy->priv().assign(std::move(s));
+}
+
+GrResourceAllocator::~GrResourceAllocator() {
+#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+    SkASSERT(fIntvlList.empty());
+    SkASSERT(fActiveIntvls.empty());
+    SkASSERT(!fIntvlHash.count());
+#endif
+}
 
 void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
                                       unsigned int start, unsigned int end) {
@@ -22,7 +37,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
         // TODO: this assert is failing on the copy_on_write_retain GM!
-        //SkASSERT(intvl->end() <= start);
+        SkASSERT(intvl->end() <= start);
         if (intvl->end() < end) {
             intvl->extendEnd(end);
         }
@@ -87,7 +102,7 @@ void GrResourceAllocator::IntervalList::insertByIncreasingEnd(Interval* intvl) {
 }
 
 // 'surface' can be reused. Add it back to the free pool.
-void GrResourceAllocator::freeUpSurface(GrSurface* surface) {
+void GrResourceAllocator::freeUpSurface(sk_sp<GrSurface> surface) {
     const GrScratchKey &key = surface->resourcePriv().getScratchKey();
 
     if (!key.isValid()) {
@@ -102,7 +117,7 @@ void GrResourceAllocator::freeUpSurface(GrSurface* surface) {
     }
 
     // TODO: fix this insertion so we get a more LRU-ish behavior
-    fFreePool.insert(key, SkRef(surface));
+    fFreePool.insert(key, surface.release());
 }
 
 // First try to reuse one of the recently allocated/used GrSurfaces in the free pool.
@@ -138,7 +153,10 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
 void GrResourceAllocator::expire(unsigned int curIndex) {
     while (!fActiveIntvls.empty() && fActiveIntvls.peekHead()->end() < curIndex) {
         Interval* temp = fActiveIntvls.popHead();
-        this->freeUpSurface(temp->proxy()->priv().peekSurface());
+
+        if (temp->wasAssignedSurface()) {
+            this->freeUpSurface(temp->detachSurface());
+        }
 
         // Add temp to the free interval list so it can be reused
         temp->setNext(fFreeIntervalList);
@@ -168,9 +186,13 @@ void GrResourceAllocator::assign() {
                 SkASSERT(surface->getUniqueKey() == tex->getUniqueKey());
             }
 
-            cur->proxy()->priv().assign(std::move(surface));
+            cur->assign(std::move(surface));
         }
         // TODO: handle resouce allocation failure upstack
         fActiveIntvls.insertByIncreasingEnd(cur);
     }
+
+    // expire all the remaining intervals to drain the active interval list
+    this->expire(std::numeric_limits<unsigned int>::max());
 }
+
