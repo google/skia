@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0cd4da46_d4416c29",
+        "filename": "bench/BlurBench.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a215a213_3c58d45b",
+      "range": {
+        "startLine": 18,
+        "startChar": 18,
+        "endLine": 18,
+        "endChar": 19
+      },
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8193fb2f_78e86796",
         "filename": "src/core/SkGaussFilter.cpp",
         "patchSetId": 24
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-13T16:48:25Z",
       "side": 1,
       "message": "It\u0027s not possible for fBasis[i] to be 1.0, right?",
+      "range": {
+        "startLine": 155,
+        "startChar": 60,
+        "endLine": 155,
+        "endChar": 69
+      },
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a1c080c_9c9f7cce",
+        "filename": "src/core/SkGaussFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "That\u0027s right. Added an assert.",
+      "parentUuid": "8193fb2f_78e86796",
       "range": {
         "startLine": 155,
         "startChar": 60,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "0d403a19_b606357b",
+        "filename": "src/core/SkGaussFilter.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dfda2ab1_b815890a",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "29b73706_711c6bac",
         "filename": "src/core/SkMaskBlurFilter.cpp",
         "patchSetId": 24
@@ -76,6 +142,24 @@
       "writtenOn": "2017-11-13T16:48:25Z",
       "side": 1,
       "message": "Does this not need guarding by the legacy flag too?",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12b55774_dc17e38a",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "Forgot to revert. This was only used for testing.",
+      "parentUuid": "29b73706_711c6bac",
       "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "76cdc462_d044eb70",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7fa97074_d5e2e6dc",
+      "range": {
+        "startLine": 547,
+        "startChar": 0,
+        "endLine": 548,
+        "endChar": 24
+      },
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d957d296_8a82fb0d",
         "filename": "src/core/SkMaskBlurFilter.cpp",
         "patchSetId": 24
@@ -119,6 +227,24 @@
       "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dc29f8a_e61b98fe",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d957d296_8a82fb0d",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -139,6 +265,24 @@
     },
     {
       "key": {
+        "uuid": "ecf17814_81976d19",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e806fc5e_a58f33bc",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "899e7260_4c6bb484",
         "filename": "src/core/SkMaskBlurFilter.cpp",
         "patchSetId": 24
@@ -153,6 +297,24 @@
       "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "081fe824_e8583504",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "899e7260_4c6bb484",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -179,6 +341,30 @@
     },
     {
       "key": {
+        "uuid": "f98eec26_36607d60",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf90ba68_87304369",
+      "range": {
+        "startLine": 707,
+        "startChar": 27,
+        "endLine": 707,
+        "endChar": 37
+      },
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "92087d05_151b8ae1",
         "filename": "src/core/SkMaskBlurFilter.cpp",
         "patchSetId": 24
@@ -202,6 +388,30 @@
     },
     {
       "key": {
+        "uuid": "e7fd74f2_e81d9261",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "Done\nOrder used to matter when I was dispatching per row, but switch to processing a rect instead of a row made this not matter.",
+      "parentUuid": "92087d05_151b8ae1",
+      "range": {
+        "startLine": 765,
+        "startChar": 38,
+        "endLine": 765,
+        "endChar": 44
+      },
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fbe157e4_449517b5",
         "filename": "src/core/SkMaskBlurFilter.cpp",
         "patchSetId": 24
@@ -216,6 +426,24 @@
       "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56b84332_b6aa344b",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbe157e4_449517b5",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -236,6 +464,24 @@
     },
     {
       "key": {
+        "uuid": "25f21022_45ebdb8f",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "830c97de_37a20d89",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "389f70ef_afbef56d",
         "filename": "src/core/SkMaskBlurFilter.cpp",
         "patchSetId": 24
@@ -253,6 +499,24 @@
     },
     {
       "key": {
+        "uuid": "ca7959b2_08837d48",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 1043,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "389f70ef_afbef56d",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9909408a_3a7ede42",
         "filename": "src/core/SkMaskBlurFilter.cpp",
         "patchSetId": 24
@@ -264,6 +528,24 @@
       "writtenOn": "2017-11-13T16:48:25Z",
       "side": 1,
       "message": "?",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bba2060_cb68e10f",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 1164,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-13T22:09:36Z",
+      "side": 1,
+      "message": "Forgot to revert. This was only for testing.",
+      "parentUuid": "9909408a_3a7ede42",
       "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
