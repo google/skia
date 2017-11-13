@@ -513,7 +513,7 @@ private:
                 }
             }
         }
-        int actualMaxTextures = SkTMin(caps.maxFragmentImageStorages(), kMaxTextures);
+        int actualMaxTextures = SkTMin(caps.maxFragmentSamplers(), kMaxTextures);
         int newProxyCnt = that->fProxyCnt - sharedProxyCnt;
         if (newProxyCnt + fProxyCnt > actualMaxTextures) {
             return -1;
