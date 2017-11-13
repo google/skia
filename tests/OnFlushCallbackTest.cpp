@@ -415,8 +415,6 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
     for (int i = 0; i < 3; ++i) {
         SkRect r = SkRect::MakeXYWH(i*kDrawnTileSize, 0, kDrawnTileSize, kDrawnTileSize);
 
-        // TODO: here is the blocker for deferring creation of the atlas. The TextureSamplers
-        // created here currently require a hard GrTexture.
         auto fp = GrSimpleTextureEffect::Make(fakeAtlas, SkMatrix::I());
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
@@ -481,12 +479,10 @@ sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
     desc.fWidth = 32;
     desc.fHeight = 16;
     desc.fConfig = kSkia8888_GrPixelConfig;
-    sk_sp<GrSurfaceProxy> atlasDest = GrSurfaceProxy::MakeDeferred(
-                                                            context->resourceProvider(),
-                                                            desc, SkBackingFit::kExact,
-                                                            SkBudgeted::kYes,
-                                                            GrResourceProvider::kNoPendingIO_Flag);
-    return sk_ref_sp(atlasDest->asTextureProxy());
+    return GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                        desc, SkBackingFit::kExact,
+                                        SkBudgeted::kYes,
+                                        GrResourceProvider::kNoPendingIO_Flag);
 }
 #endif
 
