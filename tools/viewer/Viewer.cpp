@@ -1114,6 +1114,15 @@ static void ImGui_Primaries(SkColorSpacePrimaries* primaries, SkPaint* gamutPain
     ImGui::SetCursorPos(endPos);
 }
 
+typedef std::function<void(SkCanvas*)> CustomGuiPainter;
+static SkTArray<CustomGuiPainter> gCustomGuiPainters;
+
+static void ImGui_Skia_Callback(const ImVec2& size, CustomGuiPainter painter) {
+    intptr_t painterIndex = gCustomGuiPainters.count();
+    gCustomGuiPainters.push_back(painter);
+    ImGui::Image((ImTextureID)painterIndex, size);
+}
+
 void Viewer::drawImGui(SkCanvas* canvas) {
     // Support drawing the ImGui demo window. Superfluous, but gives a good idea of what's possible
     if (fShowImGuiTestWindow) {
@@ -1294,24 +1303,40 @@ void Viewer::drawImGui(SkCanvas* canvas) {
         ImGui::End();
     }
 
-    SkPaint zoomImagePaint;
     if (fShowZoomWindow && fLastImage) {
         if (ImGui::Begin("Zoom", &fShowZoomWindow, ImVec2(200, 200))) {
-            static int zoomFactor = 4;
-            ImGui::SliderInt("Scale", &zoomFactor, 1, 16);
+            static int zoomFactor = 8;
+            if (ImGui::Button("<<")) {
+                zoomFactor = SkTMax(zoomFactor / 2, 4);
+            }
+            ImGui::SameLine(); ImGui::Text("%2d", zoomFactor); ImGui::SameLine();
+            if (ImGui::Button(">>")) {
+                zoomFactor = SkTMin(zoomFactor * 2, 32);
+            }
 
-            zoomImagePaint.setShader(fLastImage->makeShader());
-            zoomImagePaint.setColor(SK_ColorWHITE);
-
-            // Zoom by shrinking the corner UVs towards the mouse cursor
             ImVec2 mousePos = ImGui::GetMousePos();
             ImVec2 avail = ImGui::GetContentRegionAvail();
 
-            ImVec2 zoomHalfExtents = ImVec2((avail.x * 0.5f) / zoomFactor,
-                                            (avail.y * 0.5f) / zoomFactor);
-            ImGui::Image(&zoomImagePaint, avail,
-                         ImVec2(mousePos.x - zoomHalfExtents.x, mousePos.y - zoomHalfExtents.y),
-                         ImVec2(mousePos.x + zoomHalfExtents.x, mousePos.y + zoomHalfExtents.y));
+            uint32_t pixel = 0;
+            SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
+            if (fLastImage->readPixels(info, &pixel, info.minRowBytes(), mousePos.x, mousePos.y)) {
+                ImGui::SameLine();
+                ImGui::Text("RGBA: %x %x %x %x", SkGetPackedR32(pixel), SkGetPackedG32(pixel),
+                            SkGetPackedB32(pixel), SkGetPackedA32(pixel));
+            }
+
+            ImGui_Skia_Callback(avail, [=](SkCanvas* c) {
+                // Translate so the region of the image that's under the mouse cursor is centered
+                // in the zoom canvas:
+                c->scale(zoomFactor, zoomFactor);
+                c->translate(avail.x * 0.5f / zoomFactor - mousePos.x - 0.5f,
+                             avail.y * 0.5f / zoomFactor - mousePos.y - 0.5f);
+                c->drawImage(this->fLastImage, 0, 0);
+
+                SkPaint outline;
+                outline.setStyle(SkPaint::kStroke_Style);
+                c->drawRect(SkRect::MakeXYWH(mousePos.x, mousePos.y, 1, 1), outline);
+            });
         }
 
         ImGui::End();
@@ -1347,27 +1372,42 @@ void Viewer::drawImGui(SkCanvas* canvas) {
         for (int j = 0; j < drawList->CmdBuffer.size(); ++j) {
             const ImDrawCmd* drawCmd = &drawList->CmdBuffer[j];
 
+            SkAutoCanvasRestore acr(canvas, true);
+
             // TODO: Find min/max index for each draw, so we know how many vertices (sigh)
             if (drawCmd->UserCallback) {
                 drawCmd->UserCallback(drawList, drawCmd);
             } else {
-                SkPaint* paint = static_cast<SkPaint*>(drawCmd->TextureId);
-                SkASSERT(paint);
+                intptr_t idIndex = (intptr_t)drawCmd->TextureId;
+                if (idIndex < gCustomGuiPainters.count()) {
+                    // Small image IDs are actually indices into a list of callbacks. We directly
+                    // examing the vertex data to deduce the image rectangle, then reconfigure the
+                    // canvas to be clipped and translated so that the callback code gets to use
+                    // Skia to render a widget in the middle of an ImGui panel.
+                    ImDrawIdx rectIndex = drawList->IdxBuffer[indexOffset];
+                    SkPoint tl = pos[rectIndex], br = pos[rectIndex + 2];
+                    canvas->clipRect(SkRect::MakeLTRB(tl.fX, tl.fY, br.fX, br.fY));
+                    canvas->translate(tl.fX, tl.fY);
+                    gCustomGuiPainters[idIndex](canvas);
+                } else {
+                    SkPaint* paint = static_cast<SkPaint*>(drawCmd->TextureId);
+                    SkASSERT(paint);
 
-                canvas->save();
-                canvas->clipRect(SkRect::MakeLTRB(drawCmd->ClipRect.x, drawCmd->ClipRect.y,
-                                                  drawCmd->ClipRect.z, drawCmd->ClipRect.w));
-                canvas->drawVertices(SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode,
-                                                          drawList->VtxBuffer.size(), pos.begin(),
-                                                          uv.begin(), color.begin(),
-                                                          drawCmd->ElemCount,
-                                                          drawList->IdxBuffer.begin() + indexOffset),
-                                     SkBlendMode::kModulate, *paint);
-                indexOffset += drawCmd->ElemCount;
-                canvas->restore();
+                    canvas->clipRect(SkRect::MakeLTRB(drawCmd->ClipRect.x, drawCmd->ClipRect.y,
+                                                      drawCmd->ClipRect.z, drawCmd->ClipRect.w));
+                    auto vertices = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode,
+                                                         drawList->VtxBuffer.size(),
+                                                         pos.begin(), uv.begin(), color.begin(),
+                                                         drawCmd->ElemCount,
+                                                         drawList->IdxBuffer.begin() + indexOffset);
+                    canvas->drawVertices(vertices, SkBlendMode::kModulate, *paint);
+                    indexOffset += drawCmd->ElemCount;
+                }
             }
         }
     }
+
+    gCustomGuiPainters.reset();
 }
 
 void Viewer::onIdle() {
