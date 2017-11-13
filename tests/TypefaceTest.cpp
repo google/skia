@@ -184,12 +184,6 @@ DEF_TEST(Typeface, reporter) {
     REPORTER_ASSERT(reporter, SkTypeface::Equal(nullptr, t2.get()));
     REPORTER_ASSERT(reporter, SkTypeface::Equal(t1.get(), nullptr));
     REPORTER_ASSERT(reporter, SkTypeface::Equal(t2.get(), nullptr));
-
-    // Disabled temporarily.  TODO(mtklein): test Android SkFontMgr directly?
-#if 0 && defined(SK_BUILD_FOR_ANDROID)
-    sk_sp<SkTypeface> t3(SkTypeface::MakeFromName("non-existent-font", SkFontStyle()));
-    REPORTER_ASSERT(reporter, nullptr == t3);
-#endif
 }
 
 namespace {
