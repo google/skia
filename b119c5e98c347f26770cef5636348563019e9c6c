@@ -127,6 +127,24 @@
     },
     {
       "key": {
+        "uuid": "aa384862_36d65e74",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-13T13:52:52Z",
+      "side": 1,
+      "message": "How does SkTYesOrNo\u003cNAME\u003e work?",
+      "parentUuid": "4097c482_13784e03",
+      "revId": "b119c5e98c347f26770cef5636348563019e9c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a12666e6_8547b0da",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 14
