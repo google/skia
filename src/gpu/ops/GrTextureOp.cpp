@@ -513,9 +513,8 @@ private:
                 }
             }
         }
-        int actualMaxTextures = SkTMin(caps.maxFragmentImageStorages(), kMaxTextures);
         int newProxyCnt = that->fProxyCnt - sharedProxyCnt;
-        if (newProxyCnt + fProxyCnt > actualMaxTextures) {
+        if (newProxyCnt + fProxyCnt > kMaxTextures) {
             return -1;
         }
         GrPixelConfig config = thisProxies[0]->config();

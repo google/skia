@@ -46,7 +46,6 @@ public:
                            const VaryingInfoArray&);
 
     void setSamplerUniforms(const UniformInfoArray& samplers, int startUnit) const;
-    void setImageStorages(const UniformInfoArray& images) const;
 
     /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
     *  array of uniforms. arrayCount must be <= the array count of the uniform.

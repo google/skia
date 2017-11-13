@@ -37,12 +37,6 @@ static inline uint16_t image_storage_or_sampler_uniform_type_key(GrSLType type )
         case kBufferSampler_GrSLType:
             value = 4;
             break;
-        case kImageStorage2D_GrSLType:
-            value = 5;
-            break;
-        case kIImageStorage2D_GrSLType:
-            value = 6;
-            break;
 
         default:
             break;
@@ -61,18 +55,11 @@ static uint16_t sampler_key(GrSLType samplerType, GrPixelConfig config, GrShader
                    (caps.samplerPrecision(config, visibility) << (8 + kSamplerOrImageTypeKeyBits)));
 }
 
-static uint16_t storage_image_key(const GrResourceIOProcessor::ImageStorageAccess& imageAccess) {
-    GrSLType type = imageAccess.proxy()->imageStorageType();
-    return image_storage_or_sampler_uniform_type_key(type) |
-           (int)imageAccess.format() << kSamplerOrImageTypeKeyBits;
-}
-
 static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrResourceIOProcessor& proc,
                                        const GrShaderCaps& caps) {
     int numTextureSamplers = proc.numTextureSamplers();
     int numBuffers = proc.numBuffers();
-    int numImageStorages = proc.numImageStorages();
-    int numUniforms = numTextureSamplers + numBuffers + numImageStorages;
+    int numUniforms = numTextureSamplers + numBuffers;
     // Need two bytes per key.
     int word32Count = (numUniforms + 1) / 2;
     if (0 == word32Count) {
@@ -91,9 +78,6 @@ static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrResourc
         const GrResourceIOProcessor::BufferAccess& access = proc.bufferAccess(i);
         k16[j] = sampler_key(kBufferSampler_GrSLType, access.texelConfig(), access.visibility(),
                              caps);
-    }
-    for (int i = 0; i < numImageStorages; ++i, ++j) {
-        k16[j] = storage_image_key(proc.imageStorageAccess(i));
     }
     // zero the last 16 bits if the number of uniforms for samplers and image storages is odd.
     if (numUniforms & 0x1) {

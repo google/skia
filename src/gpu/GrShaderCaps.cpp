@@ -91,10 +91,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fMaxGeometrySamplers = 0;
     fMaxFragmentSamplers = 0;
     fMaxCombinedSamplers = 0;
-    fMaxVertexImageStorages = 0;
-    fMaxGeometryImageStorages = 0;
-    fMaxFragmentImageStorages = 0;
-    fMaxCombinedImageStorages   = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 
 #if GR_TEST_UTILS
@@ -175,10 +171,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max GS Samplers", fMaxGeometrySamplers);
     writer->appendS32("Max FS Samplers", fMaxFragmentSamplers);
     writer->appendS32("Max Combined Samplers", fMaxFragmentSamplers);
-    writer->appendS32("Max VS Image Storages", fMaxVertexImageStorages);
-    writer->appendS32("Max GS Image Storages", fMaxGeometryImageStorages);
-    writer->appendS32("Max FS Image Storages", fMaxFragmentImageStorages);
-    writer->appendS32("Max Combined Image Storages", fMaxFragmentImageStorages);
     writer->appendString("Advanced blend equation interaction",
                          kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
     writer->appendBool("Disable image multitexturing", fDisableImageMultitexturing);
