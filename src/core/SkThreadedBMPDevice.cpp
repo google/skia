@@ -17,10 +17,10 @@
 constexpr int MAX_CACHE_LINE = 64;
 
 // Some basic logics and data structures that are shared across the current experimental schedulers.
-class TiledDrawSchedulerBase : public TiledDrawScheduler {
+class ThreadedDrawSchedulerBase : public ThreadedDrawScheduler {
 public:
-    TiledDrawSchedulerBase(int tiles, WorkFunc work)
-            : fTileCnt(tiles), fIsFinishing(false), fDrawCnt(0), fWork(std::move(work)) {}
+    ThreadedDrawSchedulerBase(int tiles, SkThreadedBMPDevice* device)
+            : fTileCnt(tiles), fIsFinishing(false), fDrawCnt(0), fDevice(device) {}
 
     void signal() override {
         fDrawCnt++;
@@ -33,26 +33,26 @@ protected:
     const int                   fTileCnt;
     std::atomic<bool>           fIsFinishing;
     std::atomic<int>            fDrawCnt;
-    WorkFunc                    fWork;
+    SkThreadedBMPDevice*        fDevice;
 };
 
-class TiledDrawSchedulerBySpinning : public TiledDrawSchedulerBase {
+class SpinningScheduler final : public ThreadedDrawSchedulerBase {
 public:
-    TiledDrawSchedulerBySpinning(int tiles, WorkFunc work)
-            : TiledDrawSchedulerBase(tiles, std::move(work)), fScheduleData(tiles) {}
+    // the number of tiles and the number of threads are equal for this scheduler
+    SpinningScheduler(int tiles, SkThreadedBMPDevice* device)
+            : ThreadedDrawSchedulerBase(tiles, device), fScheduleData(tiles) {}
 
-    void signal() final { this->TiledDrawSchedulerBase::signal(); }
-    void finish() final { this->TiledDrawSchedulerBase::finish(); }
+    bool next(int threadId) {
+        int& drawIndex = fScheduleData[threadId].fDrawIndex;
 
-    bool next(int& tileIndex) final {
-        int& drawIndex = fScheduleData[tileIndex].fDrawIndex;
-        SkASSERT(drawIndex <= fDrawCnt);
         while (true) {
+            SkASSERT(drawIndex <= fDrawCnt);
             bool isFinishing = fIsFinishing.load(std::memory_order_relaxed);
             if (isFinishing && drawIndex >= fDrawCnt) {
                 return false;
-            } else if (drawIndex < fDrawCnt) {
-                fWork(tileIndex, drawIndex++);
+            }
+
+            if (drawIndex < fDrawCnt && fDevice->tryDraw(drawIndex, threadId)) {
                 return true;
             }
         }
@@ -60,38 +60,39 @@ public:
 
 private:
     // alignas(MAX_CACHE_LINE) to avoid false sharing by cache lines
-    struct alignas(MAX_CACHE_LINE) TileScheduleData {
-        TileScheduleData() : fDrawIndex(0) {}
+    struct alignas(MAX_CACHE_LINE) ScheduleData {
+        ScheduleData() : fDrawIndex(0) {}
 
         int fDrawIndex; // next draw index for this tile
     };
 
-    std::vector<TileScheduleData>  fScheduleData;
+    std::vector<ScheduleData>  fScheduleData;
 };
 
-class TiledDrawSchedulerFlexible : public TiledDrawSchedulerBase {
+class FlexibleScheduler final : public ThreadedDrawSchedulerBase {
 public:
-    TiledDrawSchedulerFlexible(int tiles, WorkFunc work)
-            : TiledDrawSchedulerBase(tiles, std::move(work)), fScheduleData(tiles) {}
+    FlexibleScheduler(int tiles, int threads, SkThreadedBMPDevice* device)
+            : ThreadedDrawSchedulerBase(tiles, device), fTileData(tiles), fThreadData(threads) {
+        for (int i = 0; i < threads; ++i) {
+            fThreadData[i].fTileIndex = i;
+        }
+    }
 
-    void signal() final { this->TiledDrawSchedulerBase::signal(); }
-    void finish() final { this->TiledDrawSchedulerBase::finish(); }
-
-    bool next(int& tileIndex) final {
+    bool next(int threadId) {
         int failCnt = 0;
+        int& tileIndex = fThreadData[threadId].fTileIndex;
         while (true) {
-            TileScheduleData& scheduleData = fScheduleData[tileIndex];
-            bool locked = scheduleData.fMutex.try_lock();
+            TileData& tileData = fTileData[tileIndex];
+            bool locked = tileData.fMutex.try_lock();
             bool processed = false;
 
             if (locked) {
-                if (scheduleData.fDrawIndex < fDrawCnt) {
-                    fWork(tileIndex, scheduleData.fDrawIndex++);
-                    processed = true;
+                if (tileData.fDrawIndex < fDrawCnt) {
+                    processed = fDevice->tryDraw(tileData.fDrawIndex, tileIndex);
                 } else {
                     failCnt += fIsFinishing.load(std::memory_order_relaxed);
                 }
-                scheduleData.fMutex.unlock();
+                tileData.fMutex.unlock();
             }
 
             if (processed) {
@@ -107,98 +108,31 @@ public:
 
 private:
     // alignas(MAX_CACHE_LINE) to avoid false sharing by cache lines
-    struct alignas(MAX_CACHE_LINE) TileScheduleData {
-        TileScheduleData() : fDrawIndex(0) {}
+    struct alignas(MAX_CACHE_LINE) TileData {
+        TileData() : fDrawIndex(0) {}
 
         int         fDrawIndex; // next draw index for this tile
         std::mutex  fMutex;     // the mutex for the thread to acquire
     };
 
-    std::vector<TileScheduleData>  fScheduleData;
-};
+    struct alignas(MAX_CACHE_LINE) ThreadData {
+        ThreadData() : fTileIndex(0) {}
 
-class TiledDrawSchedulerBySemaphores : public TiledDrawSchedulerBase {
-public:
-    TiledDrawSchedulerBySemaphores(int tiles, WorkFunc work)
-            : TiledDrawSchedulerBase(tiles, std::move(work)), fScheduleData(tiles) {}
-
-
-    void signal() final {
-        this->TiledDrawSchedulerBase::signal();
-        signalRoot();
-    }
-
-    void finish() final {
-        this->TiledDrawSchedulerBase::finish();
-        signalRoot();
-    }
-
-    bool next(int& tileIndex) final {
-        SkASSERT(tileIndex >= 0 && tileIndex < fTileCnt);
-        TileScheduleData& scheduleData = fScheduleData[tileIndex];
-        while (true) {
-            scheduleData.fSemaphore.wait();
-            int leftChild = (tileIndex + 1) * 2 - 1;
-            int rightChild = leftChild + 1;
-            if (leftChild < fTileCnt) {
-                fScheduleData[leftChild].fSemaphore.signal();
-            }
-            if (rightChild < fTileCnt) {
-                fScheduleData[rightChild].fSemaphore.signal();
-            }
-
-            bool isFinishing = fIsFinishing.load(std::memory_order_relaxed);
-            if (isFinishing && scheduleData.fDrawIndex >= fDrawCnt) {
-                return false;
-            } else {
-                SkASSERT(scheduleData.fDrawIndex < fDrawCnt);
-                fWork(tileIndex, scheduleData.fDrawIndex++);
-                return true;
-            }
-        }
-    }
-
-private:
-    // alignas(MAX_CACHE_LINE) to avoid false sharing by cache lines
-    struct alignas(MAX_CACHE_LINE) TileScheduleData {
-        TileScheduleData() : fDrawIndex(0) {}
-
-        int         fDrawIndex;
-        SkSemaphore fSemaphore;
+        int         fTileIndex; // the tile that the current thread is working on
     };
 
-    void signalRoot() {
-        SkASSERT(fTileCnt > 0);
-        fScheduleData[0].fSemaphore.signal();
-    }
-
-    std::vector<TileScheduleData> fScheduleData;
+    std::vector<TileData>   fTileData;
+    std::vector<ThreadData> fThreadData;
 };
 
 void SkThreadedBMPDevice::startThreads() {
     SkASSERT(fQueueSize == 0);
 
-    TiledDrawScheduler::WorkFunc work = [this](int tileIndex, int drawIndex){
-        auto& element = fQueue[drawIndex];
-        if (SkIRect::Intersects(fTileBounds[tileIndex], element.fDrawBounds)) {
-            element.fDrawFn(fTileBounds[tileIndex]);
-        }
-    };
+    // fScheduler.reset(new SpinningScheduler(fTileCnt, this));
+    fScheduler.reset(new FlexibleScheduler(fTileCnt, fThreadCnt, this));
 
-    // using Scheduler = TiledDrawSchedulerBySemaphores;
-    // using Scheduler = TiledDrawSchedulerBySpinning;
-    using Scheduler = TiledDrawSchedulerFlexible;
-    fScheduler.reset(new Scheduler(fTileCnt, work));
-
-    // We intentionally call the int parameter tileIndex although it ranges from 0 to fThreadCnt-1.
-    // For some schedulers (e.g., TiledDrawSchedulerBySemaphores and TiledDrawSchedulerBySpinning),
-    // fThreadCnt should be equal to fTileCnt so it doesn't make a difference.
-    //
-    // For TiledDrawSchedulerFlexible, the input tileIndex provides only a hint about which tile
-    // the current thread should draw; the scheduler may later modify that tileIndex to draw on
-    // another tile.
-    fTaskGroup->batch(fThreadCnt, [this](int tileIndex){
-        while (fScheduler->next(tileIndex)) {}
+    fTaskGroup->batch(fThreadCnt, [this](int threadId){
+        while (fScheduler->next(threadId)) {}
     });
 }
 

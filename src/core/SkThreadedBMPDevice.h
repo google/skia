@@ -12,27 +12,23 @@
 #include "SkDraw.h"
 #include "SkBitmapDevice.h"
 
-class TiledDrawScheduler {
+class ThreadedDrawScheduler {
 public:
     using WorkFunc = std::function<void(int, int)>;
 
-    virtual ~TiledDrawScheduler() {}
+    virtual ~ThreadedDrawScheduler() {}
 
-    virtual void signal() = 0; // signal that one more draw is available for all tiles
+    virtual void signal() = 0; // signal that one more draw is available
 
     // Tell scheduler that no more draw calls will be added (no signal will be called).
     virtual void finish() = 0;
 
-    // Handle the next draw available. This method will block until
+    // Handle the next draw available on a thread. This method will block until
     //   (1) the next draw is finished, or
     //   (2) the finish is called
     // The method will return true for case (1) and false for case (2).
     // When there's no draw available and we haven't called finish, we will just wait.
-    // In many cases, the parameter tileIndex specifies the tile that the next draw should happen.
-    // However, for some schedulers, that tileIndex may only be a hint and the scheduler is free
-    // to find another tile to draw. In that case, tileIndex will be changed to the actual tileIndex
-    // where the draw happens.
-    virtual bool next(int& tileIndex) = 0;
+    virtual bool next(int threadId) = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,6 +40,21 @@ public:
                         SkExecutor* executor = nullptr);
 
     ~SkThreadedBMPDevice() override { finishThreads(); }
+
+    // The drawIndex should be thread-local, or exclusively owned by this thread.
+    // The drawIndex is incremented if drawn (including empty draw).
+    // Return true if drawn and false otherwise.
+    bool tryDraw(int& drawIndex, int tileIndex) {
+        SkASSERT(drawIndex < fDrawCnt);
+        SkThreadedBMPDevice::DrawElement& drawElement = fQueue[drawIndex];
+        if (!SkIRect::Intersects(fTileBounds[tileIndex], drawElement.fDrawBounds)) {
+            drawIndex++;
+            return true;
+        }
+        drawElement.fDrawFn(fTileBounds[tileIndex]);
+        drawIndex++;
+        return true;
+    }
 
 protected:
     void drawPaint(const SkPaint& paint) override;
@@ -83,7 +94,7 @@ private:
 
     const int fTileCnt;
     const int fThreadCnt;
-    std::unique_ptr<TiledDrawScheduler> fScheduler;
+    std::unique_ptr<ThreadedDrawScheduler> fScheduler;
     SkTArray<SkIRect> fTileBounds;
 
     /**
