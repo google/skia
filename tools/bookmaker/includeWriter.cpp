@@ -1103,7 +1103,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
         }
         if (Definition::Type::kKeyWord == child.fType) {
             if (fIndentNext) {
-                SkDebugf("");
     // too soon
 #if 0  // makes struct Lattice indent when it oughtn't
                 if (KeyWord::kEnum == child.fKeyWord) {
