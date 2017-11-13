@@ -21,7 +21,7 @@ its <a href="#SkIRect_top">top</a>, it is considered empty.
 
 | description | function |
 | --- | ---  |
-| bool <a href="#SkIRect_not_equal_operator">operator!=(const SkIRect& a, const SkIRect& b)</a> | Returns true if members are unequal. |
+| bool <a href="#SkIRect_notequal_operator">operator!=(const SkIRect& a, const SkIRect& b)</a> | Returns true if members are unequal. |
 | bool <a href="#SkIRect_equal_operator">operator==(const SkIRect& a, const SkIRect& b)</a> | Returns true if members are equal. |
 
 ## <a name="Member_Functions"></a> Member Functions
@@ -547,7 +547,7 @@ sorted.fTop: 5 sorted.y(): 5
 int width() const
 </pre>
 
-Returns span on the x-axis. This does not check if <a href="#IRect">IRect</a> is sorted, or if
+Returns span on the <a href="#SkIRect_x">x</a>-axis. This does not check if <a href="#IRect">IRect</a> is sorted, or if
 result fits in 32-bit signed integer; result may be negative.
 
 ### Return Value
@@ -580,7 +580,7 @@ large width: -5
 int height() const
 </pre>
 
-Returns span on the y-axis. This does not check if <a href="#IRect">IRect</a> is sorted, or if
+Returns span on the <a href="#SkIRect_y">y</a>-axis. This does not check if <a href="#IRect">IRect</a> is sorted, or if
 result fits in 32-bit signed integer; result may be negative.
 
 ### Return Value
@@ -613,7 +613,7 @@ large height: -5
 SkISize size() const
 </pre>
 
-Returns spans on the x-axis and y-axis. This does not check if <a href="#IRect">IRect</a> is sorted,
+Returns spans on the <a href="#SkIRect_x">x</a>-axis and <a href="#SkIRect_y">y</a>-axis. This does not check if <a href="#IRect">IRect</a> is sorted,
 or if result fits in 32-bit signed integer; result may be negative.
 
 ### Return Value
@@ -817,25 +817,25 @@ test == sorted
 
 ### See Also
 
-<a href="#SkIRect_not_equal_operator">operator!=(const SkIRect& a, const SkIRect& b)</a>
+<a href="#SkIRect_notequal_operator">operator!=(const SkIRect& a, const SkIRect& b)</a>
 
 ---
 
-<a name="SkIRect_not_equal_operator"></a>
+<a name="SkIRect_notequal_operator"></a>
 ## operator!=
 
 <pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
 bool operator!=(const SkIRect& a, const SkIRect& b)
 </pre>
 
-Returns true if any member in <a href="#SkIRect_not_equal_operator_a">a</a>: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; is not 
-identical to the corresponding member in <a href="#SkIRect_not_equal_operator_b">b</a>.
+Returns true if any member in <a href="#SkIRect_notequal_operator_a">a</a>: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; is not 
+identical to the corresponding member in <a href="#SkIRect_notequal_operator_b">b</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkIRect_not_equal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkIRect_notequal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
 <a href="#IRect">IRect</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkIRect_not_equal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkIRect_notequal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
 <a href="#IRect">IRect</a> to compare</td>
   </tr>
 </table>
@@ -1509,9 +1509,9 @@ returns true if constructed area is completely enclosed by <a href="#IRect">IRec
 ### Parameters
 
 <table>  <tr>    <td><a name="SkIRect_contains_x"> <code><strong>x </strong></code> </a></td> <td>
-test <a href="undocumented#Point">Point</a> x-coordinate</td>
+test <a href="SkPoint_Reference#Point">Point</a> <a href="#SkIRect_x">x</a>-coordinate</td>
   </tr>  <tr>    <td><a name="SkIRect_contains_y"> <code><strong>y </strong></code> </a></td> <td>
-test <a href="undocumented#Point">Point</a> y-coordinate</td>
+test <a href="SkPoint_Reference#Point">Point</a> <a href="#SkIRect_y">y</a>-coordinate</td>
   </tr>
 </table>
 
