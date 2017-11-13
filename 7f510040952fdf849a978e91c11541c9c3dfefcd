@@ -1,0 +1,272 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a215a213_3c58d45b",
+        "filename": "bench/BlurBench.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "might be nice to keep the f?",
+      "range": {
+        "startLine": 18,
+        "startChar": 18,
+        "endLine": 18,
+        "endChar": 19
+      },
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8193fb2f_78e86796",
+        "filename": "src/core/SkGaussFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "It\u0027s not possible for fBasis[i] to be 1.0, right?",
+      "range": {
+        "startLine": 155,
+        "startChar": 60,
+        "endLine": 155,
+        "endChar": 69
+      },
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfda2ab1_b815890a",
+        "filename": "src/core/SkGaussFilter.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "Might be nice to describe these values.  They\u0027re 0.16 fractions, right?  With 1.0 unrepresentable?",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29b73706_711c6bac",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "Does this not need guarding by the legacy flag too?",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fa97074_d5e2e6dc",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "While maybe a little more verbose, I think that the code would read more clearly without these aliases.  It\u0027s particularly confusing for Acc because of the non-const reference... it\u0027s a little hard to see how these functions do anything.",
+      "range": {
+        "startLine": 547,
+        "startChar": 0,
+        "endLine": 548,
+        "endChar": 24
+      },
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d957d296_8a82fb0d",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "This would be a good place to explain the blur_x_radius_? functions to come.\n\nSome points that\u0027d be nice to touch on would be how we can keep our work in 128-bit Sk8h registers when the filter is narrow enough, what fixed point format the inputs, parameters, and accumulators are in (they\u0027re all 16-bit but different, right?), what the rotations are doing and why they rotate the amounts they do, and where order of operations matters (if anywhere).",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e806fc5e_a58f33bc",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "It\u0027d be nice to remind the reader somewhere around here what this really is, one of the four functions above?\n\nCan we spec out the function pointer type here instead of templating?  Or does that prevent inlining?",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "899e7260_4c6bb484",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "Good spot for a comment about the formats we\u0027re reading (unorm8) and holding the data in (unorm16)?",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf90ba68_87304369",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "Here at these call sites it\u0027d be nice to read this as \u0026acc0, \u0026acc1 to see they\u0027re the parts that are mutating.  Think it\u0027d hurt readability in the other functions to pass by a pointer and write *acc0 +\u003d ... ?",
+      "range": {
+        "startLine": 707,
+        "startChar": 27,
+        "endLine": 707,
+        "endChar": 37
+      },
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92087d05_151b8ae1",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "ed?\n\n\nDoes this really have any effect?  I\u0027d kind of have expected a switch\n\nswitch (radius) {\n  default:\n  case  1: ... blur_x_radius_1 ...; break;\n  case  2: ... blur_x_radius_2 ...; break;\n  etc.\n}",
+      "range": {
+        "startLine": 765,
+        "startChar": 38,
+        "endLine": 765,
+        "endChar": 44
+      },
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbe157e4_449517b5",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "// Now we do everything again for blurs in the y direction.\n// This will all look similar to the x direction, but when blurring in y, ...\n\n?",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "830c97de_37a20d89",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "Ditto.\n\nMaybe just // Just like in x, ordered by (the same) frequency.",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "389f70ef_afbef56d",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 1043,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "Might put a blank line between these two comments.  They look related as-is.",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9909408a_3a7ede42",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 1164,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-13T16:48:25Z",
+      "side": 1,
+      "message": "?",
+      "revId": "7f510040952fdf849a978e91c11541c9c3dfefcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
