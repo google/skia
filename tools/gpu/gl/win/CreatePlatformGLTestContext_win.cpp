@@ -25,6 +25,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    std::function<void()> onPlatformGetContextAutoRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char* name) const override;
 
@@ -170,6 +171,12 @@ void WinGLTestContext::onPlatformMakeCurrent() const {
     if (!wglMakeCurrent(dc, glrc)) {
         SkDebugf("Could not create rendering context.\n");
     }
+}
+
+std::function<void()> WinGLTestContext::onPlatformGetContextAutoRestore() const {
+    auto glrc = wglGetCurrentContext();
+    auto dc = wglGetCurrentDC();
+    return [hglrc, hdc] { wglMakeCurrent(hdc, glrc); };
 }
 
 void WinGLTestContext::onPlatformSwapBuffers() const {

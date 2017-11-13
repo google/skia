@@ -87,6 +87,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char* name) const override;
 
@@ -353,6 +354,16 @@ void ANGLEGLContext::onPlatformMakeCurrent() const {
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Could not set the context 0x%x.\n", eglGetError());
     }
+}
+
+std::function<void()> ANGLEGLContext::onPlatformGetAutoContextRestore() const {
+    auto display = eglGetCurrentDisplay();
+    auto dsurface = eglGetCurrentSurface(EGL_DRAW);
+    auto rsurface = eglGetCurrentSurface(EGL_READ);
+    auto context = eglGetCurrentContext();
+    return [display, dsurface, rsurface, context] {
+        eglMakeCurrent(display, dsurface, rsurface, context);
+    };
 }
 
 void ANGLEGLContext::onPlatformSwapBuffers() const {

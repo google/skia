@@ -144,6 +144,7 @@ private:
     }
 
     void onPlatformMakeCurrent() const override {}
+    std::function<void()> onPlatformGetAutoContextRestore() override { return [] {}; }
     void onPlatformSwapBuffers() const override {}
 
     id<MTLDevice> fDevice;

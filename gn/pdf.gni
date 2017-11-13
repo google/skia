@@ -46,5 +46,4 @@ skia_pdf_sources = [
   "$_src/pdf/SkPDFTypes.h",
   "$_src/pdf/SkPDFUtils.cpp",
   "$_src/pdf/SkPDFUtils.h",
-  "$_src/pdf/SkScopeExit.h",
 ]
