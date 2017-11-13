@@ -468,7 +468,7 @@ def dm_flags(api, bot):
       blacklist('_ image _ .%s' % raw_ext)
 
   # Blacklist memory intensive tests on 32-bit bots.
-  if ('Win2k8' in bot or 'Win8' in bot) and 'x86-' in bot:
+  if ('Win2k8' in bot or 'Win8' in bot or 'Win2016' in bot) and 'x86-' in bot:
     blacklist('_ image f16 _')
     blacklist('_ image _ abnormal.wbmp')
     blacklist('_ image _ interlaced1.png')
