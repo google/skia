@@ -32,7 +32,6 @@ protected:
 
     SkString onShortName() override {
         SkString name("verttext2");
-        name.append(sk_tool_utils::major_platform_os_name());
         return name;
     }
 

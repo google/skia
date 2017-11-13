@@ -29,7 +29,6 @@ protected:
 
     SkString onShortName() {
         SkString name("lcdtext");
-        name.append(sk_tool_utils::major_platform_os_name());
         return name;
     }
 
