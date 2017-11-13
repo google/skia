@@ -670,7 +670,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fDrawRangeElementsSupport = version >= GR_GL_VER(3,0);
     }
 
-    this->initShaderPrecisionTable(ctxInfo, gli, shaderCaps);
+    this->initFloatPrecision(ctxInfo, gli);
 
     if (kGL_GrGLStandard == standard) {
         if ((version >= GR_GL_VER(4, 0) || ctxInfo.hasExtension("GL_ARB_sample_shading")) &&
@@ -1444,20 +1444,6 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->endObject();
 }
 
-static GrGLenum precision_to_gl_float_type(GrSLPrecision p) {
-    switch (p) {
-    case kLow_GrSLPrecision:
-        return GR_GL_LOW_FLOAT;
-    case kMedium_GrSLPrecision:
-        return GR_GL_MEDIUM_FLOAT;
-    case kHigh_GrSLPrecision:
-        return GR_GL_HIGH_FLOAT;
-    default:
-        SK_ABORT("Unexpected precision type.");
-        return -1;
-    }
-}
-
 static GrGLenum shader_type_to_gl_shader(GrShaderType type) {
     switch (type) {
     case kVertex_GrShaderType:
@@ -1471,63 +1457,29 @@ static GrGLenum shader_type_to_gl_shader(GrShaderType type) {
     return -1;
 }
 
-void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
-                                        const GrGLInterface* intf,
-                                        GrShaderCaps* shaderCaps) {
-    if (kGLES_GrGLStandard == ctxInfo.standard() || ctxInfo.version() >= GR_GL_VER(4, 1) ||
-        ctxInfo.hasExtension("GL_ARB_ES2_compatibility")) {
-        for (int s = 0; s < kGrShaderTypeCount; ++s) {
-            if (kGeometry_GrShaderType != s) {
-                GrShaderType shaderType = static_cast<GrShaderType>(s);
-                GrGLenum glShader = shader_type_to_gl_shader(shaderType);
-                GrShaderCaps::PrecisionInfo* first = nullptr;
-                shaderCaps->fShaderPrecisionVaries = false;
-                for (int p = 0; p < kGrSLPrecisionCount; ++p) {
-                    GrSLPrecision precision = static_cast<GrSLPrecision>(p);
-                    GrGLenum glPrecision = precision_to_gl_float_type(precision);
-                    GrGLint range[2];
-                    GrGLint bits;
-                    GR_GL_GetShaderPrecisionFormat(intf, glShader, glPrecision, range, &bits);
-                    if (bits) {
-                        shaderCaps->fFloatPrecisions[s][p].fLogRangeLow = range[0];
-                        shaderCaps->fFloatPrecisions[s][p].fLogRangeHigh = range[1];
-                        shaderCaps->fFloatPrecisions[s][p].fBits = bits;
-                        if (!first) {
-                            first = &shaderCaps->fFloatPrecisions[s][p];
-                        }
-                        else if (!shaderCaps->fShaderPrecisionVaries) {
-                            shaderCaps->fShaderPrecisionVaries =
-                                                     (*first != shaderCaps->fFloatPrecisions[s][p]);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    else {
+void GrGLCaps::initFloatPrecision(const GrGLContextInfo& ctxInfo, const GrGLInterface* interface) {
+    if (kGLES_GrGLStandard != ctxInfo.standard() &&
+        ctxInfo.version() < GR_GL_VER(4, 1) &&
+        !ctxInfo.hasExtension("GL_ARB_ES2_compatibility")) {
         // We're on a desktop GL that doesn't have precision info. Assume they're all 32bit float.
-        shaderCaps->fShaderPrecisionVaries = false;
-        for (int s = 0; s < kGrShaderTypeCount; ++s) {
-            if (kGeometry_GrShaderType != s) {
-                for (int p = 0; p < kGrSLPrecisionCount; ++p) {
-                    shaderCaps->fFloatPrecisions[s][p].fLogRangeLow = 127;
-                    shaderCaps->fFloatPrecisions[s][p].fLogRangeHigh = 127;
-                    shaderCaps->fFloatPrecisions[s][p].fBits = 23;
-                }
-            }
+        return;
+    }
+    for (int s = 0; s < kGrShaderTypeCount; ++s) {
+        GrShaderType shaderType = static_cast<GrShaderType>(s);
+        if (kGeometry_GrShaderType == shaderType) {
+            // glGetShaderPrecisionFormat doesn't accept GL_GEOMETRY_SHADER as a shader type. Assume
+            // geometry shaders will be no worse than the vertex and fragment shaders.
+            continue;
+        }
+        GrGLint range[2];
+        GrGLint bits;
+        GR_GL_GetShaderPrecisionFormat(interface, shader_type_to_gl_shader(shaderType),
+                                       GR_GL_HIGH_FLOAT, range, &bits);
+        if (range[0] < 127 || range[1] < 127 || bits < 23) {
+            fShaderCaps->fFloatIsNot32Bits = true;
+            return;
         }
     }
-    // GetShaderPrecisionFormat doesn't accept GL_GEOMETRY_SHADER as a shader type. Assume they're
-    // the same as the vertex shader. Only fragment shaders were ever allowed to omit support for
-    // highp. GS was added after GetShaderPrecisionFormat was added to the list of features that
-    // are recommended against.
-    if (shaderCaps->fGeometryShaderSupport) {
-        for (int p = 0; p < kGrSLPrecisionCount; ++p) {
-            shaderCaps->fFloatPrecisions[kGeometry_GrShaderType][p] =
-                                               shaderCaps->fFloatPrecisions[kVertex_GrShaderType][p];
-        }
-    }
-    shaderCaps->initSamplerPrecisionTable();
 }
 
 bool GrGLCaps::bgraIsInternalFormat() const {

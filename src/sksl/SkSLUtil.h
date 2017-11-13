@@ -135,7 +135,7 @@ public:
         return false;
     }
 
-    bool floatPrecisionVaries() const {
+    bool floatIsNot32Bits() const {
         return false;
     }
 
