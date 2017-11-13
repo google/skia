@@ -444,7 +444,7 @@ private:
     void initConfigTable(const GrContextOptions&, const GrGLContextInfo&, const GrGLInterface*,
                          GrShaderCaps*);
 
-    void initShaderPrecisionTable(const GrGLContextInfo&, const GrGLInterface*, GrShaderCaps*);
+    void initFloatPrecision(const GrGLContextInfo&, const GrGLInterface*);
 
     GrGLStandard fStandard;
 
