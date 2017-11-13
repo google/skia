@@ -313,12 +313,6 @@
       ],
       "trigger": "master"
     },
-    "Build-Debian9-GCC-x86_64-Release-Mesa": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Debian9-GCC-x86_64-Release-Mesa"
-      ]
-    },
     "Build-Debian9-GCC-x86_64-Release-NoGPU": {
       "priority": 0.8,
       "tasks": [
@@ -4582,29 +4576,6 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Debian9-GCC-x86_64-Release-Flutter_Android",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
-    "Build-Debian9-GCC-x86_64-Release-Mesa": {
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.1",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "compile",
-        "repository=<(REPO)",
-        "buildername=Build-Debian9-GCC-x86_64-Release-Mesa",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",

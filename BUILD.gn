@@ -27,7 +27,6 @@ declare_args() {
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
   skia_use_lua = false
-  skia_use_mesa = false
   skia_use_piex = !is_win
   skia_use_zlib = true
   skia_use_metal = false
@@ -897,8 +896,6 @@ if (skia_enable_tools) {
   }
 
   if (skia_enable_gpu && target_cpu == "x64") {
-    # Our bots only have 64-bit libOSMesa installed.
-    # TODO: worth fixing?
     executable("fiddle") {
       libs = []
       sources = [
@@ -908,11 +905,6 @@ if (skia_enable_tools) {
 
       if (skia_use_egl) {
         sources += [ "tools/fiddle/egl_context.cpp" ]
-      } else if (skia_use_mesa) {
-        sources += [ "tools/fiddle/mesa_context.cpp" ]
-        if (is_linux) {
-          libs += [ "OSMesa" ]
-        }
       } else {
         sources += [ "tools/fiddle/null_context.cpp" ]
       }
@@ -1043,11 +1035,6 @@ if (skia_enable_tools) {
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
         sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
-      }
-      if (skia_use_mesa) {
-        public_defines += [ "SK_MESA" ]
-        sources += [ "tools/gpu/gl/mesa/GLTestContext_mesa.cpp" ]
-        libs += [ "OSMesa" ]
       }
       if (skia_use_vulkan) {
         sources += [ "tools/gpu/vk/VkTestContext.cpp" ]

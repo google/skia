@@ -72,7 +72,6 @@ public:
                              kANGLE_GL_ContextType      = 0,
                              kCommandBuffer_ContextType = 0,
                              kDebugGL_ContextType       = 0,
-                             kMESA_ContextType          = 0,
                              kNVPR_ContextType          = 0,
                              kNativeGL_ContextType      = 0,
                              kGL_ContextType            = 0,

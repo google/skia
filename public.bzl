@@ -238,7 +238,6 @@ BASE_SRCS_ALL = struct(
         "src/gpu/gl/GrGLDefaultInterface_none.cpp",
 
         # Exclude files that don't compile with the current DEFINES.
-        "src/gpu/gl/mesa/*",  # Requires SK_MESA define.
         "src/svg/**/*",  # Depends on XML.
         "src/xml/**/*",
 
@@ -476,7 +475,6 @@ DM_SRCS_ALL = struct(
         "tools/gpu/gl/glx/*",
         "tools/gpu/gl/iOS/*",
         "tools/gpu/gl/mac/*",
-        "tools/gpu/gl/mesa/*",
         "tools/gpu/gl/win/*",
         "tools/timer/SysTimer_mach.cpp",
         "tools/timer/SysTimer_windows.cpp",

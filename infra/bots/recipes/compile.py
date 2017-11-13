@@ -96,7 +96,6 @@ TEST_BUILDERS = [
   'Build-Debian9-GCC-x86_64-Debug-NoGPU',
   'Build-Debian9-GCC-x86_64-Release-ANGLE',
   'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
-  'Build-Debian9-GCC-x86_64-Release-Mesa',
   'Build-Debian9-GCC-x86_64-Release-PDFium',
   'Build-Debian9-GCC-x86_64-Release-PDFium_SkiaPaths',
   'Build-Debian9-GCC-x86_64-Release-Shared',

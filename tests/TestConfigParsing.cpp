@@ -237,11 +237,7 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
                               GrContextFactory::kGL_ContextType);
     REPORTER_ASSERT(reporter, configs[46]->asConfigGpu()->getColorType() == kRGB_565_SkColorType);
     REPORTER_ASSERT(reporter, configs[46]->asConfigGpu()->getAlphaType() == kOpaque_SkAlphaType);
-#if SK_MESA
-    REPORTER_ASSERT(reporter, configs[23]->asConfigGpu());
-#else
     REPORTER_ASSERT(reporter, !configs[22]->asConfigGpu());
-#endif
     REPORTER_ASSERT(reporter, configs[26]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[27]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[27]->asConfigGpu()->getSamples() == 4);
@@ -295,12 +291,7 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
     REPORTER_ASSERT(reporter, configs[2]->asConfigGpu()->getContextType() ==
                     GrContextFactory::kANGLE_GL_ES3_ContextType);
     REPORTER_ASSERT(reporter, configs[2]->asConfigGpu());
-#if SK_MESA
-    REPORTER_ASSERT(reporter, configs[3]->asConfigGpu()->getContextType() ==
-                    GrContextFactory::kMESA_ContextType);
-#else
     REPORTER_ASSERT(reporter, !configs[3]->asConfigGpu());
-#endif
     REPORTER_ASSERT(reporter, configs[4]->asConfigGpu()->getContextType() ==
                     GrContextFactory::kCommandBuffer_ContextType);
     REPORTER_ASSERT(reporter, configs[5]->asConfigGpu()->getContextType() ==
