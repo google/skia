@@ -66,14 +66,11 @@ protected:
         sk_tool_utils::add_to_text_blob(&builder, bigtext2, paint, 0, offset);
 
         // color emoji
-        sk_sp<SkTypeface> origEmoji = sk_tool_utils::emoji_typeface();
-        const char* osName = sk_tool_utils::platform_os_name();
-        // The mac emoji string will break us
-        if (origEmoji && (!strcmp(osName, "Android") || !strcmp(osName, "Ubuntu") || !strcmp(osName, "Debian"))) {
+        if (sk_sp<SkTypeface> origEmoji = sk_tool_utils::emoji_typeface()) {
             const char* emojiText = sk_tool_utils::emoji_sample_text();
             paint.measureText(emojiText, strlen(emojiText), &bounds);
             offset += bounds.height();
-            paint.setTypeface(sk_make_sp<SkRandomTypeface>(orig, paint, false));
+            paint.setTypeface(sk_make_sp<SkRandomTypeface>(origEmoji, paint, false));
             sk_tool_utils::add_to_text_blob(&builder, emojiText, paint, 0, offset);
         }
 
