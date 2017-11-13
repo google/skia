@@ -95,8 +95,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_use_fontconfig'] = 'false'
     if 'ASAN' in extra_config or 'UBSAN' in extra_config:
       args['skia_enable_spirv_validation'] = 'false'
-    if extra_config == 'Mesa':
-      args['skia_use_mesa'] = 'true'
     if extra_config == 'Mini':
       args.update({
         'is_component_build':     'true',   # Proves we can link a coherent .so.

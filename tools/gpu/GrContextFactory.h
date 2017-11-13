@@ -39,7 +39,6 @@ public:
         kANGLE_GL_ES2_ContextType,   //! ANGLE on OpenGL OpenGL ES 2 context.
         kANGLE_GL_ES3_ContextType,   //! ANGLE on OpenGL OpenGL ES 3 context.
         kCommandBuffer_ContextType,  //! Chromium command buffer OpenGL ES context.
-        kMESA_ContextType,           //! MESA OpenGL context
         kNullGL_ContextType,         //! Non-rendering OpenGL mock context.
         kDebugGL_ContextType,        //! Non-rendering, state verifying OpenGL context.
         kVulkan_ContextType,         //! Vulkan
@@ -107,8 +106,6 @@ public:
                 return "ANGLE GL ES3";
             case kCommandBuffer_ContextType:
                 return "Command Buffer";
-            case kMESA_ContextType:
-                return "Mesa";
             case kNullGL_ContextType:
                 return "Null GL";
             case kDebugGL_ContextType:

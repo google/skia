@@ -79,10 +79,6 @@ SkCanvas* Request::getCanvas() {
         gl = factory->getContextInfo(GrContextFactory::kGLES_ContextType,
                                      GrContextFactory::ContextOverrides::kNone).glContext();
     }
-    if (!gl) {
-        gl = factory->getContextInfo(GrContextFactory::kMESA_ContextType,
-                                     GrContextFactory::ContextOverrides::kNone).glContext();
-    }
     if (gl) {
         gl->makeCurrent();
     }
@@ -134,10 +130,6 @@ GrContext* Request::getContext() {
                                              GrContextFactory::ContextOverrides::kNone);
     if (!result) {
         result = fContextFactory->get(GrContextFactory::kGLES_ContextType,
-                                      GrContextFactory::ContextOverrides::kNone);
-    }
-    if (!result) {
-        result = fContextFactory->get(GrContextFactory::kMESA_ContextType,
                                       GrContextFactory::ContextOverrides::kNone);
     }
     return result;
