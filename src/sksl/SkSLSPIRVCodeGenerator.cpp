@@ -3019,6 +3019,9 @@ void SPIRVCodeGenerator::writeStatement(const Statement& s, OutputStream& out) {
         case Statement::kDo_Kind:
             this->writeDoStatement((DoStatement&) s, out);
             break;
+        case Statement::kSwitch_Kind:
+            this->writeSwitchStatement((SwitchStatement&) s, out);
+            break;
         case Statement::kBreak_Kind:
             this->writeInstruction(SpvOpBranch, fBreakTarget.top(), out);
             break;
@@ -3167,6 +3170,48 @@ void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, OutputStream& ou
     this->writeLabel(end, out);
     fBreakTarget.pop();
     fContinueTarget.pop();
+}
+
+void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputStream& out) {
+    SpvId value = this->writeExpression(*s.fValue, out);
+    std::vector<SpvId> labels;
+    SpvId end = this->nextId();
+    SpvId defaultLabel = end;
+    fBreakTarget.push(end);
+    int size = 3;
+    for (const auto& c : s.fCases) {
+        SpvId label = this->nextId();
+        labels.push_back(label);
+        if (c->fValue) {
+            size += 2;
+        } else {
+            defaultLabel = label;
+        }
+    }
+    labels.push_back(end);
+    this->writeInstruction(SpvOpSelectionMerge, end, SpvSelectionControlMaskNone, out);
+    this->writeOpCode(SpvOpSwitch, size, out);
+    this->writeWord(value, out);
+    this->writeWord(defaultLabel, out);
+    for (size_t i = 0; i < s.fCases.size(); ++i) {
+        if (!s.fCases[i]->fValue) {
+            continue;
+        }
+        ASSERT(s.fCases[i]->fValue->fKind == Expression::kIntLiteral_Kind);
+        this->writeWord(((IntLiteral&) *s.fCases[i]->fValue).fValue, out);
+        this->writeWord(labels[i], out);
+    }
+    for (size_t i = 0; i < s.fCases.size(); ++i) {
+        this->writeLabel(labels[i], out);
+        for (const auto& stmt : s.fCases[i]->fStatements) {
+            this->writeStatement(*stmt, out);
+        }
+        if (fCurrentBlock) {
+            this->writeInstruction(SpvOpBranch, labels[i + 1], out);
+        }
+    }
+    this->writeLabel(end, out);
+    fBreakTarget.pop();
 }
 
 void SPIRVCodeGenerator::writeReturnStatement(const ReturnStatement& r, OutputStream& out) {
