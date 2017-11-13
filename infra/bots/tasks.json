@@ -5083,9 +5083,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5118,9 +5117,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5153,9 +5151,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5188,9 +5185,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5228,9 +5224,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5263,9 +5258,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5298,9 +5292,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5333,9 +5326,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5373,9 +5365,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5403,9 +5394,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5433,9 +5423,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5463,9 +5452,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5493,9 +5481,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5523,9 +5510,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5553,9 +5539,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5583,9 +5568,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5613,9 +5597,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5643,9 +5626,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5678,9 +5660,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5708,9 +5689,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5738,9 +5718,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5773,9 +5752,8 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-10.0-14393",
         "pool:Skia"
       ],
       "extra_args": [

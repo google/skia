@@ -190,7 +190,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Ubuntu14":   DEFAULT_OS_UBUNTU,
 			"Ubuntu16":   "Ubuntu-16.10",
 			"Ubuntu17":   "Ubuntu-17.04",
-			"Win":        "Windows-2008ServerR2-SP1",
+			"Win":        "Windows-10.0-14393",
 			"Win10":      "Windows-10-15063",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
 			"Win2016":    "Windows-10.0-14393",
