@@ -88,8 +88,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_use_angle'] = 'true'
     if extra_config == 'CommandBuffer':
       self.m.run.run_once(self.build_command_buffer)
-    if extra_config == 'GDI':
-      args['skia_use_gdi'] = 'true'
     if extra_config == 'MSAN':
       args['skia_enable_gpu']     = 'false'
       args['skia_use_fontconfig'] = 'false'
