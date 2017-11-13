@@ -20,40 +20,6 @@ class SkJSONWriter;
 
 class GrShaderCaps : public SkRefCnt {
 public:
-    /** Info about shader variable precision within a given shader stage. That is, this info
-        is relevant to a float (or vecNf) variable declared with a GrSLPrecision
-        in a given GrShaderType. The info here is hoisted from the OpenGL spec. */
-    struct PrecisionInfo {
-        PrecisionInfo() {
-            fLogRangeLow = 0;
-            fLogRangeHigh = 0;
-            fBits = 0;
-        }
-
-        /** Is this precision level allowed in the shader stage? */
-        bool supported() const { return 0 != fBits; }
-
-        bool operator==(const PrecisionInfo& that) const {
-            return fLogRangeLow == that.fLogRangeLow && fLogRangeHigh == that.fLogRangeHigh &&
-                   fBits == that.fBits;
-        }
-        bool operator!=(const PrecisionInfo& that) const { return !(*this == that); }
-
-        /** floor(log2(|min_value|)) */
-        int fLogRangeLow;
-        /** floor(log2(|max_value|)) */
-        int fLogRangeHigh;
-        /** Number of bits of precision. As defined in OpenGL (with names modified to reflect this
-            struct) :
-            """
-            If the smallest representable value greater than 1 is 1 + e, then fBits will
-            contain floor(log2(e)), and every value in the range [2^fLogRangeLow,
-            2^fLogRangeHigh] can be represented to at least one part in 2^fBits.
-            """
-          */
-        int fBits;
-    };
-
     /**
     * Indicates how GLSL must interact with advanced blend equations. The KHR extension requires
     * special layout qualifiers in the fragment shader.
@@ -80,24 +46,6 @@ public:
     bool integerSupport() const { return fIntegerSupport; }
     bool texelBufferSupport() const { return fTexelBufferSupport; }
     int imageLoadStoreSupport() const { return fImageLoadStoreSupport; }
-
-    /**
-    * Get the precision info for a variable of type kFloat_GrSLType, kFloat2_GrSLType, etc in a
-    * given shader type. If the shader type is not supported or the precision level is not
-    * supported in that shader type then the returned struct will report false when supported() is
-    * called.
-    */
-    const PrecisionInfo& getFloatShaderPrecisionInfo(GrShaderType shaderType,
-                                                     GrSLPrecision precision) const {
-        return fFloatPrecisions[shaderType][precision];
-    }
-
-    /**
-    * Is there any difference between the float shader variable precision types? If this is true
-    * then unless the shader type is not supported, any call to getFloatShaderPrecisionInfo() would
-    * report the same info for all precisions in all shader types.
-    */
-    bool floatPrecisionVaries() const { return fShaderPrecisionVaries; }
 
     /**
      * Some helper functions for encapsulating various extensions to read FB Buffer on openglES
@@ -154,6 +102,8 @@ public:
 
     // Returns whether we can use the glsl function any() in our shader code.
     bool canUseAnyFunctionInShader() const { return fCanUseAnyFunctionInShader; }
+
+    bool floatIsNot32Bits() const { return fFloatIsNot32Bits; }
 
     bool canUseMinAndAbsTogether() const { return fCanUseMinAndAbsTogether; }
 
@@ -268,17 +218,9 @@ public:
         return fConfigOutputSwizzle[config];
     }
 
-    /** Precision qualifier that should be used with a sampler, given its config and visibility. */
-    GrSLPrecision samplerPrecision(GrPixelConfig config, GrShaderFlags visibility) const {
-        return static_cast<GrSLPrecision>(fSamplerPrecisions[visibility][config]);
-    }
-
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
 private:
-    /** GrCaps subclasses must call this after filling in the shader precision table. */
-    void initSamplerPrecisionTable();
-
     void applyOptionsOverrides(const GrContextOptions& options);
 
     GrGLSLGeneration fGLSLGeneration;
@@ -292,7 +234,6 @@ private:
     bool fIntegerSupport            : 1;
     bool fTexelBufferSupport        : 1;
     bool fImageLoadStoreSupport     : 1;
-    bool fShaderPrecisionVaries     : 1;
     bool fDropsTileOnZeroDivide : 1;
     bool fFBFetchSupport : 1;
     bool fFBFetchNeedsCustomOutput : 1;
@@ -311,6 +252,7 @@ private:
     bool fDisableImageMultitexturing : 1;
 
     // Used for specific driver bug work arounds
+    bool fFloatIsNot32Bits : 1;
     bool fCanUseMinAndAbsTogether : 1;
     bool fCanUseFractForNegativeValues : 1;
     bool fMustForceNegatedAtanParamToFloat : 1;
@@ -318,8 +260,6 @@ private:
     bool fRequiresLocalOutputColorForFBFetch : 1;
     bool fMustObfuscateUniformColor : 1;
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
-
-    PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
 
     const char* fVersionDeclString;
 
@@ -351,8 +291,6 @@ private:
 
     GrSwizzle fConfigTextureSwizzle[kGrPixelConfigCnt];
     GrSwizzle fConfigOutputSwizzle[kGrPixelConfigCnt];
-
-    uint8_t fSamplerPrecisions[(1 << kGrShaderTypeCount)][kGrPixelConfigCnt];
 
     friend class GrGLCaps;  // For initialization.
     friend class GrMockCaps;
