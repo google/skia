@@ -4995,7 +4995,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5030,7 +5030,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5065,7 +5065,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5105,7 +5105,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5140,7 +5140,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5175,7 +5175,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5215,7 +5215,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5245,7 +5245,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5275,7 +5275,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5305,7 +5305,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5335,7 +5335,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5365,7 +5365,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5395,7 +5395,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5425,7 +5425,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5460,7 +5460,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5490,7 +5490,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5520,7 +5520,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5555,7 +5555,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
