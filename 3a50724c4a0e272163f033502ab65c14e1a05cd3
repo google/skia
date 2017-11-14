@@ -16,6 +16,24 @@
       "revId": "3a50724c4a0e272163f033502ab65c14e1a05cd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96a8e91a_fa773ba2",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-14T20:12:45Z",
+      "side": 1,
+      "message": "I changed my mind. It\u0027s too big of a problem. Looks like this causes GM failures.",
+      "parentUuid": "fcc4ae9f_b8f5fb43",
+      "revId": "3a50724c4a0e272163f033502ab65c14e1a05cd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
