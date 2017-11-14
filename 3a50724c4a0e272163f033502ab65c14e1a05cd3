@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fcc4ae9f_b8f5fb43",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-14T20:11:25Z",
+      "side": 1,
+      "message": "Honestly maybe this is good enough. The only time it will cause problems is when there are multiple overloads to the same function, where one takes an integer type and another takes a named bool type...\n\nThat\u0027s obviously a big problem, though.",
+      "revId": "3a50724c4a0e272163f033502ab65c14e1a05cd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
