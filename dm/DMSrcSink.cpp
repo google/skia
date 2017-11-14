@@ -43,6 +43,7 @@
 #include "SkRecordDraw.h"
 #include "SkRecorder.h"
 #include "SkSurfaceCharacterization.h"
+#include "SkSurfacePriv.h"
 #include "SkSVGCanvas.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
@@ -1215,7 +1216,7 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
         TileData(sk_sp<SkSurface> surf, const SkIRect& clip)
                 : fSurface(std::move(surf))
                 , fClip(clip) {
-            SkAssertResult(fSurface->characterize(&fCharacterization));
+            SkAssertResult(SkSurfacePriv::Characterize(fSurface.get(), &fCharacterization));
         }
 
         // This method operates in parallel
@@ -1236,7 +1237,7 @@ Error DDLSKPSrc::draw(SkCanvas* canvas) const {
 
         // This method operates serially
         void draw() {
-            fSurface->draw(fDisplayList.get());
+            SkSurfacePriv::Draw(fSurface.get(), fDisplayList.get());
         }
 
         // This method also operates serially

@@ -8,7 +8,7 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkGradientShader.h"
-#include "SkSurface.h"
+#include "SkSurfacePriv.h"
 #include "SkSurfaceProps.h"
 
 #define W 200
@@ -137,7 +137,7 @@ protected:
         drawInto(surf2->getCanvas());
 
         // Assert that the props were communicated transitively through the first image
-        SkASSERT(equal(surf->props(), surf2->props()));
+        SkASSERT(equal(SkSurfacePriv::Props(surf.get()), SkSurfacePriv::Props(surf2.get())));
 
         sk_sp<SkImage> image2(surf2->makeImageSnapshot());
         canvas->drawImage(image2.get(), 10 + SkIntToScalar(image->width()) + 10, 10, nullptr);

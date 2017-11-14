@@ -7,6 +7,7 @@
 
 #include "SkAtomics.h"
 #include "SkSurface_Base.h"
+#include "SkSurfacePriv.h"
 #include "SkImagePriv.h"
 #include "SkCanvas.h"
 
@@ -192,29 +193,31 @@ bool SkSurface::getRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess 
     return asSB(this)->onGetRenderTargetHandle(obj, access);
 }
 
-void SkSurface::prepareForExternalIO() {
-    this->flush();
+void SkSurfacePriv::PrepareForExternalIO(SkSurface* surface) {
+    surface->flush();
 }
 
 void SkSurface::flush() {
     asSB(this)->onFlush(0, nullptr);
 }
 
-GrSemaphoresSubmitted SkSurface::flushAndSignalSemaphores(int numSemaphores,
+GrSemaphoresSubmitted SkSurfacePriv::FlushAndSignalSemaphores(SkSurface* surface, int numSemaphores,
                                                           GrBackendSemaphore signalSemaphores[]) {
-    return asSB(this)->onFlush(numSemaphores, signalSemaphores);
+    return asSB(surface)->onFlush(numSemaphores, signalSemaphores);
 }
 
-bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
-    return asSB(this)->onWait(numSemaphores, waitSemaphores);
+bool SkSurfacePriv::Wait(SkSurface* surface, int numSemaphores,
+                         const GrBackendSemaphore* waitSemaphores) {
+    return asSB(surface)->onWait(numSemaphores, waitSemaphores);
 }
 
-bool SkSurface::characterize(SkSurfaceCharacterization* characterization) const {
-    return asSB(const_cast<SkSurface*>(this))->onCharacterize(characterization);
+bool SkSurfacePriv::Characterize(const SkSurface* surface,
+                                 SkSurfaceCharacterization* characterization) {
+    return asSB(const_cast<SkSurface*>(surface))->onCharacterize(characterization);
 }
 
-void SkSurface::draw(SkDeferredDisplayList* ddl) {
-    return asSB(this)->onDraw(ddl);
+void SkSurfacePriv::Draw(SkSurface* surface, SkDeferredDisplayList* ddl) {
+    return asSB(surface)->onDraw(ddl);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -229,14 +232,14 @@ protected:
         return new SkNoDrawCanvas(this->width(), this->height());
     }
     sk_sp<SkSurface> onNewSurface(const SkImageInfo& info) override {
-        return MakeNull(info.width(), info.height());
+        return SkSurfacePriv::MakeNull(info.width(), info.height());
     }
     sk_sp<SkImage> onNewImageSnapshot() override { return nullptr; }
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override {}
     void onCopyOnWrite(ContentChangeMode) override {}
 };
 
-sk_sp<SkSurface> SkSurface::MakeNull(int width, int height) {
+sk_sp<SkSurface> SkSurfacePriv::MakeNull(int width, int height) {
     if (width < 1 || height < 1) {
         return nullptr;
     }
