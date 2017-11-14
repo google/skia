@@ -96,6 +96,13 @@ sk_sp<SkColorSpace> SkColorSpace_XYZ::makeSRGBGamma() const {
     return SkColorSpace_Base::MakeRGB(kSRGB_SkGammaNamed, fToXYZD50);
 }
 
+sk_sp<SkColorSpace> SkColorSpace_XYZ::makeColorSpin() const {
+    SkMatrix44 spin(SkMatrix44::kUninitialized_Constructor);
+    spin.set3x3(0, 1, 0, 0, 0, 1, 1, 0, 0);
+    spin.postConcat(fToXYZD50);
+    return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(fGammaNamed, fGammas, spin, fProfileData));
+}
+
 void SkColorSpace_XYZ::toDstGammaTables(const uint8_t* tables[3], sk_sp<SkData>* storage,
                                          int numTables) const {
     fToDstGammaOnce([this, numTables] {
