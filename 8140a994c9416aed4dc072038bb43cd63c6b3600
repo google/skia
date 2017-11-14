@@ -69,6 +69,30 @@
       "revId": "8140a994c9416aed4dc072038bb43cd63c6b3600",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9630b678_6bafd054",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-14T19:48:20Z",
+      "side": 1,
+      "message": "Looks like no.\n\nhttps://cs.chromium.org/chromium/src/third_party/skia/src/gpu/GrTexture.cpp?q\u003dmipMapped\u0026sq\u003dpackage:chromium\u0026dr\u0026l\u003d108",
+      "parentUuid": "8bb17d5c_ef55d261",
+      "range": {
+        "startLine": 333,
+        "startChar": 4,
+        "endLine": 333,
+        "endChar": 18
+      },
+      "revId": "8140a994c9416aed4dc072038bb43cd63c6b3600",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
