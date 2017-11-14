@@ -171,27 +171,17 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     }
 #endif
 
+    int startIndex = 0, stopIndex = fOpLists.count();
+
     {
-        GrResourceAllocator alloc(fContext->resourceProvider());
+        GrResourceAllocator alloc(fContext->resourceProvider(), fContext->getResourceCache());
         for (int i = 0; i < fOpLists.count(); ++i) {
             fOpLists[i]->gatherProxyIntervals(&alloc);
         }
 
-#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-        alloc.assign();
-#endif
-    }
-
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        if (!fOpLists[i]->instantiate(fContext->resourceProvider())) {
-            SkDebugf("OpList failed to instantiate.\n");
-            fOpLists[i] = nullptr;
-            continue;
+        while (alloc.assign(&startIndex, &stopIndex)) {
+            this->executeOpLists(startIndex, stopIndex);
         }
-
-        // Instantiate all deferred proxies (being built on worker threads) so we can upload them
-        fOpLists[i]->instantiateDeferredProxies(fContext->resourceProvider());
-        fOpLists[i]->prepare(&fFlushState);
     }
 
     // Upload all data to the GPU
@@ -251,6 +241,26 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     fFlushing = false;
 
     return result;
+}
+
+void GrDrawingManager::executeOpLists(int startIndex, int stopIndex) {
+    SkASSERT(startIndex <= stopIndex && stopIndex <= fOpLists.count());
+
+    for (int i = startIndex; i < stopIndex; ++i) {
+#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+        if (!fOpLists[i]->instantiate(fContext->resourceProvider())) {
+            SkDebugf("OpList failed to instantiate.\n");
+            fOpLists[i] = nullptr;
+            continue;
+        }
+#endif
+
+        // TODO: handle this instantiation via lazy surface proxies?
+        // Instantiate all deferred proxies (being built on worker threads) so we can upload them
+        fOpLists[i]->instantiateDeferredProxies(fContext->resourceProvider());
+        fOpLists[i]->prepare(&fFlushState);
+    }
+
 }
 
 GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(

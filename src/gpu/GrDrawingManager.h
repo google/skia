@@ -100,6 +100,9 @@ private:
 
     void abandon();
     void cleanup();
+
+    void executeOpLists(int startIndex, int stopIndex);
+
     GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
                                 int numSemaphores = 0,
                                 GrBackendSemaphore backendSemaphores[] = nullptr) {
