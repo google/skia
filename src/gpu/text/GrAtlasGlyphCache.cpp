@@ -213,8 +213,6 @@ static inline GrMaskFormat get_packed_glyph_mask_format(const SkGlyph& glyph) {
             // fall through to kA8 -- we store BW glyphs in our 8-bit cache
         case SkMask::kA8_Format:
             return kA8_GrMaskFormat;
-        case SkMask::k3D_Format:
-            return kA8_GrMaskFormat; // ignore the mul and add planes, just use the mask
         case SkMask::kLCD16_Format:
             return kA565_GrMaskFormat;
         case SkMask::kARGB32_Format:
