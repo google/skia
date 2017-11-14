@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4be2801_e0138e49",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-14T20:08:08Z",
+      "side": 1,
+      "message": "I have been hitting \u0027/\u0027 hoping this would happen, FWIW.",
+      "revId": "94b35154cc2a58e22fdd411a087d229a3e9eb780",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
