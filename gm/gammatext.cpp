@@ -69,7 +69,6 @@ protected:
         size_t len = strlen(text);
 
         SkPaint paint;
-        setFont(&paint, sk_tool_utils::platform_font_name("serif"));
         paint.setTextSize(SkIntToScalar(16));
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
