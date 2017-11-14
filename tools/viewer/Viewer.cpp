@@ -265,6 +265,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fDisplayStats(false)
     , fRefresh(false)
     , fShowImGuiDebugWindow(false)
+    , fShowSlidePicker(false)
     , fShowImGuiTestWindow(false)
     , fShowZoomWindow(false)
     , fLastImage(nullptr)
@@ -334,6 +335,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     // add key-bindings
     fCommands.addCommand(' ', "GUI", "Toggle Debug GUI", [this]() {
         this->fShowImGuiDebugWindow = !this->fShowImGuiDebugWindow;
+        fWindow->inval();
+    });
+    fCommands.addCommand(Window::Key::kBack, "Backspace", "GUI", "Jump to slide picker", [this]() {
+        this->fShowImGuiDebugWindow = true;
+        this->fShowSlidePicker = true;
         fWindow->inval();
     });
     fCommands.addCommand('g', "GUI", "Toggle GUI Demo", [this]() {
@@ -1218,10 +1224,19 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 }
             }
 
+            if (fShowSlidePicker) {
+                ImGui::SetNextTreeNodeOpen(true);
+            }
+
             if (ImGui::CollapsingHeader("Slide")) {
                 static ImGuiTextFilter filter;
                 static ImVector<const char*> filteredSlideNames;
                 static ImVector<int> filteredSlideIndices;
+
+                if (fShowSlidePicker) {
+                    ImGui::SetKeyboardFocusHere();
+                    fShowSlidePicker = false;
+                }
 
                 filter.Draw();
                 filteredSlideNames.clear();
