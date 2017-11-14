@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a3b5531_28512897",
+        "filename": "src/core/SkColorSpace_XYZ.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-14T15:56:27Z",
+      "side": 1,
+      "message": "I really love this implementation.",
+      "range": {
+        "startLine": 101,
+        "startChar": 4,
+        "endLine": 102,
+        "endChar": 31
+      },
+      "revId": "4d8d40a3598a930bf6d5a5617b09336eeedcf510",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
