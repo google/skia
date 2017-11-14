@@ -71,6 +71,11 @@ bool SK_API TightBounds(const SkPath& path, SkRect* result);
   */
 class SK_API SkOpBuilder {
 public:
+    enum class WindOut {
+        kFast,     //!< return path in any form that describes the correct area
+        kPreserve, //!< preserve contour direction, start point, fill type if possible
+    };
+
     /** Add one or more paths and their operand. The builder is empty before the first
         path is added, so the result of a single add is (emptyPath OP path).
 
@@ -83,15 +88,16 @@ public:
         initial state.
 
         @param result The product of the operands.
+        @param windOut add additional pass to preserve point order and winding
         @return True if the operation succeeded.
       */
-    bool resolve(SkPath* result);
-
+    bool resolve(SkPath* result, WindOut windOut = WindOut::kFast);
 private:
     SkTArray<SkPath> fPathRefs;
     SkTDArray<SkPathOp> fOps;
 
     static bool FixWinding(SkPath* path);
+    void preserveWinding(SkPath* , WindOut );
     static void ReversePath(SkPath* path);
     void reset();
 };

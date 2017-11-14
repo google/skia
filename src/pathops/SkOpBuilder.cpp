@@ -123,7 +123,7 @@ void SkOpBuilder::reset() {
 /* OPTIMIZATION: Union doesn't need to be all-or-nothing. A run of three or more convex
    paths with union ops could be locally resolved and still improve over doing the
    ops one at a time. */
-bool SkOpBuilder::resolve(SkPath* result) {
+bool SkOpBuilder::resolve(SkPath* result, SkOpBuilder::WindOut windOut) {
     SkPath original = *result;
     int count = fOps.count();
     bool allUnion = true;
@@ -167,7 +167,7 @@ bool SkOpBuilder::resolve(SkPath* result) {
                 return false;
             }
         }
-        reset();
+        this->preserveWinding(result, windOut);
         return true;
     }
     SkPath sum;
@@ -186,10 +186,23 @@ bool SkOpBuilder::resolve(SkPath* result) {
             sum.addPath(fPathRefs[index]);
         }
     }
-    reset();
     bool success = Simplify(sum, result);
     if (!success) {
         *result = original;
+    } else {
+        this->preserveWinding(result, windOut);
     }
     return success;
+}
+
+void SkOpBuilder::preserveWinding(SkPath* result, WindOut windOut) {
+     if (WindOut::kPreserve == windOut) {
+         // for each contour in result
+             // see if it matches a contour in fPathRefs
+             // given the best match, find the earliest point in result contour 
+             // reorder the contour so that earliest point is first, and direction is preserved
+             // if contour is different, write order in new path
+         // if new path isn't empty, swap with result
+     }
+     this->reset();
 }
