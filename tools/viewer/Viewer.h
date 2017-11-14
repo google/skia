@@ -78,6 +78,7 @@ private:
     SkPaint                fImGuiFontPaint;
     SkPaint                fImGuiGamutPaint;
     bool                   fShowImGuiDebugWindow;
+    bool                   fShowSlidePicker;
     bool                   fShowImGuiTestWindow;
 
     bool                   fShowZoomWindow;
