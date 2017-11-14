@@ -151,11 +151,15 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     SkTDArray<GrGLuint> shadersToDelete;
     bool cached = nullptr != fCached.get();
     if (cached) {
+        this->bindProgramResourceLocations(programID);
         // cache hit, just hand the binary to GL
         const uint8_t* bytes = fCached->bytes();
         size_t offset = 0;
         memcpy(&inputs, bytes + offset, sizeof(inputs));
         offset += sizeof(inputs);
+        if (inputs.fRTHeight) {
+            this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
+        }
         int binaryFormat;
         memcpy(&binaryFormat, bytes + offset, sizeof(binaryFormat));
         offset += sizeof(binaryFormat);
