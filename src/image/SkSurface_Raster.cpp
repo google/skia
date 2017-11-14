@@ -6,6 +6,7 @@
  */
 
 #include "SkSurface_Base.h"
+#include "SkSurfacePriv.h"
 #include "SkImagePriv.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
@@ -114,10 +115,12 @@ SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, sk_sp<SkPixelRef> pr
     fWeOwnThePixels = true;
 }
 
-SkCanvas* SkSurface_Raster::onNewCanvas() { return new SkCanvas(fBitmap, this->props()); }
+SkCanvas* SkSurface_Raster::onNewCanvas() {
+    return new SkCanvas(fBitmap, SkSurfacePriv::Props(this));
+}
 
 sk_sp<SkSurface> SkSurface_Raster::onNewSurface(const SkImageInfo& info) {
-    return SkSurface::MakeRaster(info, &this->props());
+    return SkSurface::MakeRaster(info, &SkSurfacePriv::Props(this));
 }
 
 void SkSurface_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,

@@ -74,6 +74,7 @@ public:
 private:
     // Friending for access to the GrPixelConfig
     friend class SkSurface;
+    friend class SkSurfacePriv;
     friend class GrGpu;
     friend class GrGLGpu;
     friend class GrVkGpu;
