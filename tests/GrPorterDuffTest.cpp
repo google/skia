@@ -114,8 +114,8 @@ public:
 };
 
 static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrProcessorAnalysisColor inputColor = GrProcessorAnalysisColor::Opaque::kYes;
-    GrProcessorAnalysisCoverage inputCoverage = GrProcessorAnalysisCoverage::kLCD;
+    GrProcessorAnalysisColor inputColor(GrProcessorAnalysisColor::Opaque::kYes);
+    GrProcessorAnalysisCoverage inputCoverage(GrProcessorAnalysisCoverage::kLCD);
 
     for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
         SkBlendMode xfermode = static_cast<SkBlendMode>(m);
@@ -293,8 +293,8 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
     }
 }
 static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrProcessorAnalysisColor inputColor = GrProcessorAnalysisColor::Opaque::kNo;
-    GrProcessorAnalysisCoverage inputCoverage = GrProcessorAnalysisCoverage::kSingleChannel;
+    GrProcessorAnalysisColor inputColor(GrProcessorAnalysisColor::Opaque::kNo);
+    GrProcessorAnalysisCoverage inputCoverage(GrProcessorAnalysisCoverage::kSingleChannel);
 
     for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
         SkBlendMode xfermode = static_cast<SkBlendMode>(m);
@@ -474,7 +474,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
 
 static void test_color_not_opaque_no_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
     GrProcessorAnalysisColor inputColor(GrColorPackRGBA(229, 0, 154, 240));
-    GrProcessorAnalysisCoverage inputCoverage = GrProcessorAnalysisCoverage::kNone;
+    GrProcessorAnalysisCoverage inputCoverage(GrProcessorAnalysisCoverage::kNone);
 
     for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
         SkBlendMode xfermode = static_cast<SkBlendMode>(m);
@@ -653,8 +653,8 @@ static void test_color_not_opaque_no_coverage(skiatest::Reporter* reporter, cons
 }
 
 static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrProcessorAnalysisColor inputColor = GrProcessorAnalysisColor::Opaque::kYes;
-    GrProcessorAnalysisCoverage inputCoverage = GrProcessorAnalysisCoverage::kSingleChannel;
+    GrProcessorAnalysisColor inputColor(GrProcessorAnalysisColor::Opaque::kYes);
+    GrProcessorAnalysisCoverage inputCoverage(GrProcessorAnalysisCoverage::kSingleChannel);
 
     for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
         SkBlendMode xfermode = static_cast<SkBlendMode>(m);
@@ -832,8 +832,8 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
 }
 
 static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const GrCaps& caps) {
-    GrProcessorAnalysisColor inputColor = GrProcessorAnalysisColor::Opaque::kYes;
-    GrProcessorAnalysisCoverage inputCoverage = GrProcessorAnalysisCoverage::kNone;
+    GrProcessorAnalysisColor inputColor(GrProcessorAnalysisColor::Opaque::kYes);
+    GrProcessorAnalysisCoverage inputCoverage(GrProcessorAnalysisCoverage::kNone);
 
     for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
         SkBlendMode xfermode = static_cast<SkBlendMode>(m);
@@ -1083,7 +1083,8 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
     }
 
     static const GrProcessorAnalysisColor colorInputs[] = {
-            GrProcessorAnalysisColor::Opaque::kNo, GrProcessorAnalysisColor::Opaque::kYes,
+            GrProcessorAnalysisColor(GrProcessorAnalysisColor::Opaque::kNo),
+            GrProcessorAnalysisColor(GrProcessorAnalysisColor::Opaque::kYes),
             GrProcessorAnalysisColor(GrColorPackRGBA(0, 82, 17, 100)),
             GrProcessorAnalysisColor(GrColorPackRGBA(0, 82, 17, 255))};
 

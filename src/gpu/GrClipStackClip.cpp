@@ -54,7 +54,7 @@ bool GrClipStackClip::isRRect(const SkRect& origRTBounds, SkRRect* rr, GrAA* aa)
     const SkRect* rtBounds = &origRTBounds;
     bool isAA;
     if (fStack->isRRect(*rtBounds, rr, &isAA)) {
-        *aa = GrBoolToAA(isAA);
+        *aa = GrAA(isAA);
         return true;
     }
     return false;
@@ -122,7 +122,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
         canDrawArgs.fClipConservativeBounds = &scissorRect;
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;
-        canDrawArgs.fAAType = GrChooseAAType(GrBoolToAA(element->isAA()),
+        canDrawArgs.fAAType = GrChooseAAType(GrAA(element->isAA()),
                                              renderTargetContext->fsaaType(),
                                              GrAllowMixedSamples::kYes,
                                              *context->caps());
@@ -468,7 +468,7 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
     for (ElementList::Iter iter(elements); iter.get(); iter.next()) {
         const Element* element = iter.get();
         SkClipOp op = element->getOp();
-        GrAA aa = GrBoolToAA(element->isAA());
+        GrAA aa = GrAA(element->isAA());
 
         if (kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op) {
             // Intersect and reverse difference require modifying pixels outside of the geometry

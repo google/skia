@@ -439,7 +439,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     TestResource* wrapped = TestResource::CreateWrapped(context->getGpu());
     wrapped->setSize(12);
     TestResource* unbudgeted =
-            new TestResource(context->getGpu(), SkBudgeted::kNo);
+            new TestResource(context->getGpu(), SkBudgeted(SkBudgeted::kNo));
     unbudgeted->setSize(13);
 
     // Make sure we can add a unique key to the wrapped resource
