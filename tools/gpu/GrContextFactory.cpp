@@ -52,8 +52,9 @@ GrContextFactory::~GrContextFactory() {
 
 void GrContextFactory::destroyContexts() {
     for (Context& context : fContexts) {
+        SkScopeExit<std::function<void()>> restore(nullptr);
         if (context.fTestContext) {
-            context.fTestContext->makeCurrent();
+            restore = context.fTestContext->makeCurrentAndAutoRestore();
         }
         if (!context.fGrContext->unique()) {
             context.fGrContext->releaseResourcesAndAbandonContext();
@@ -69,7 +70,7 @@ void GrContextFactory::abandonContexts() {
     for (Context& context : fContexts) {
         if (!context.fAbandoned) {
             if (context.fTestContext) {
-                context.fTestContext->makeCurrent();
+                auto restore = context.fTestContext->makeCurrentAndAutoRestore();
                 context.fTestContext->testAbandon();
                 delete(context.fTestContext);
                 context.fTestContext = nullptr;
@@ -82,9 +83,10 @@ void GrContextFactory::abandonContexts() {
 
 void GrContextFactory::releaseResourcesAndAbandonContexts() {
     for (Context& context : fContexts) {
+        SkScopeExit<std::function<void()>> restore(nullptr);
         if (!context.fAbandoned) {
             if (context.fTestContext) {
-                context.fTestContext->makeCurrent();
+                restore = context.fTestContext->makeCurrentAndAutoRestore();
             }
             context.fGrContext->releaseResourcesAndAbandonContext();
             context.fAbandoned = true;
@@ -282,6 +284,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     context.fShareContext = shareContext;
     context.fShareIndex = shareIndex;
     context.fOptions = grOptions;
+    context.fTestContext->makeCurrent();
     return ContextInfo(context.fType, context.fTestContext, context.fGrContext, context.fOptions);
 }
 

@@ -23,23 +23,38 @@
  *        SkASSERT(x == 4);
  *    }
  */
+
 template <typename Fn>
 class SkScopeExit {
 public:
     SkScopeExit(Fn f) : fFn(std::move(f)) {}
-    ~SkScopeExit() { fFn(); }
+    SkScopeExit(SkScopeExit&& that) : fFn(std::move(that.fFn)) {}
+
+    ~SkScopeExit() { Caller::Call(fFn); }
+
+    SkScopeExit& operator=(SkScopeExit&& that) {
+        fFn = std::move(that.fFn);
+        return *this;
+    }
 
 private:
+    template<bool Test> struct C;
+    template<> struct C<true> {
+        static void Call(Fn& fn) { return (fn == nullptr) ? void() : fn(); }
+    };
+    template<> struct C<false> {
+        static void Call(Fn& fn) { fn(); }
+    };
+    using Caller = C<std::is_constructible<Fn, nullptr_t>::value>;
+
     Fn fFn;
 
     SkScopeExit(           const SkScopeExit& ) = delete;
     SkScopeExit& operator=(const SkScopeExit& ) = delete;
-    SkScopeExit(                 SkScopeExit&&) = delete;
-    SkScopeExit& operator=(      SkScopeExit&&) = delete;
 };
 
 template <typename Fn>
-inline SkScopeExit<Fn> SkMakeScopeExit(Fn&& fn) {
+inline SkScopeExit<Fn> SK_WARN_UNUSED_RESULT SkMakeScopeExit(Fn&& fn) {
     return {std::move(fn)};
 }
 
