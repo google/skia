@@ -98,11 +98,6 @@ enum class GrPixelConfigIsClamped : bool {
     kYes,  // Any UNORM type
 };
 
-static inline GrPixelConfigIsClamped GrGetPixelConfigIsClamped(GrPixelConfig config) {
-    return GrPixelConfigIsFloatingPoint(config) ? GrPixelConfigIsClamped::kNo
-                                                : GrPixelConfigIsClamped::kYes;
-}
-
 /**
  * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
  * but should be applicable to other shader languages.)
@@ -804,5 +799,215 @@ enum class  GrMipMapsStatus {
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
+
+/**
+ * Utility functions for GrPixelConfig
+ */
+// Returns true if the pixel config is 32 bits per pixel
+static inline bool GrPixelConfigIs8888Unorm(GrPixelConfig config) {
+    switch (config) {
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+            return true;
+        case kUnknown_GrPixelConfig:
+        case kAlpha_8_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kRGBA_8888_sint_GrPixelConfig:
+        case kRGBA_float_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+            return false;
+    }
+    SK_ABORT("Invalid pixel config");
+    return false;
+}
+
+// Returns true if the color (non-alpha) components represent sRGB values. It does NOT indicate that
+// all three color components are present in the config or anything about their order.
+static inline bool GrPixelConfigIsSRGB(GrPixelConfig config) {
+    switch (config) {
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+            return true;
+        case kUnknown_GrPixelConfig:
+        case kAlpha_8_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kRGBA_8888_sint_GrPixelConfig:
+        case kRGBA_float_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+            return false;
+    }
+    SK_ABORT("Invalid pixel config");
+    return false;
+}
+
+// Takes a config and returns the equivalent config with the R and B order
+// swapped if such a config exists. Otherwise, kUnknown_GrPixelConfig
+static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {
+    switch (config) {
+        case kBGRA_8888_GrPixelConfig:
+            return kRGBA_8888_GrPixelConfig;
+        case kRGBA_8888_GrPixelConfig:
+            return kBGRA_8888_GrPixelConfig;
+        case kSBGRA_8888_GrPixelConfig:
+            return kSRGBA_8888_GrPixelConfig;
+        case kSRGBA_8888_GrPixelConfig:
+            return kSBGRA_8888_GrPixelConfig;
+        case kUnknown_GrPixelConfig:
+        case kAlpha_8_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kRGBA_8888_sint_GrPixelConfig:
+        case kRGBA_float_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+            return kUnknown_GrPixelConfig;
+    }
+    SK_ABORT("Invalid pixel config");
+    return kUnknown_GrPixelConfig;
+}
+
+static inline size_t GrBytesPerPixel(GrPixelConfig config) {
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
+            return 1;
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+            return 2;
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+        case kRGBA_8888_sint_GrPixelConfig:
+            return 4;
+        case kRGBA_half_GrPixelConfig:
+            return 8;
+        case kRGBA_float_GrPixelConfig:
+            return 16;
+        case kRG_float_GrPixelConfig:
+            return 8;
+        case kUnknown_GrPixelConfig:
+            return 0;
+    }
+    SK_ABORT("Invalid pixel config");
+    return 0;
+}
+
+static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
+    switch (config) {
+        case kRGB_565_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
+            return true;
+        case kAlpha_8_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+        case kRGBA_8888_sint_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+        case kRGBA_float_GrPixelConfig:
+        case kUnknown_GrPixelConfig:
+            return false;
+    }
+    SK_ABORT("Invalid pixel config");
+    return false;
+}
+
+static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+            return true;
+        case kUnknown_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+        case kRGBA_8888_sint_GrPixelConfig:
+        case kRGBA_float_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+            return false;
+    }
+    SK_ABORT("Invalid pixel config.");
+    return false;
+}
+
+static inline bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
+    switch (config) {
+        case kRGBA_float_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+            return true;
+        case kUnknown_GrPixelConfig:
+        case kAlpha_8_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+        case kRGBA_8888_sint_GrPixelConfig:
+            return false;
+    }
+    SK_ABORT("Invalid pixel config");
+    return false;
+}
+
+static inline bool GrPixelConfigIsSint(GrPixelConfig config) {
+    return config == kRGBA_8888_sint_GrPixelConfig;
+}
+
+static inline bool GrPixelConfigIsUnorm(GrPixelConfig config) {
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+            return true;
+        case kUnknown_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+        case kRGBA_8888_sint_GrPixelConfig:
+        case kRGBA_float_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+            return false;
+    }
+    SK_ABORT("Invalid pixel config.");
+    return false;
+}
+
+static inline GrPixelConfigIsClamped GrGetPixelConfigIsClamped(GrPixelConfig config) {
+    return GrPixelConfigIsFloatingPoint(config) ? GrPixelConfigIsClamped::kNo
+                                                : GrPixelConfigIsClamped::kYes;
+}
+
 
 #endif
