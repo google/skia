@@ -305,11 +305,7 @@ struct PortableFonts : Dst {
 
     Status draw(Src* src) override {
         static SkOnce once;
-        once([]{
-            gSkFontMgr_DefaultFactory = []() -> sk_sp<SkFontMgr> {
-                return sk_make_sp<DM::FontMgr>();
-            };
-        });
+        once([]{ gSkFontMgr_DefaultFactory = &DM::MakeFontMgr; });
         return target->draw(src);
     }
 
