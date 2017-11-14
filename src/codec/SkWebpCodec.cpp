@@ -571,7 +571,6 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     // We're only transforming the new part of the frame, so no need to worry about the
     // final composited alpha.
     const auto srcAlpha = 0 == index ? srcInfo.alphaType() : alpha_type(frame.has_alpha);
-    const auto xformAlphaType = select_xform_alpha(dstInfo.alphaType(), srcAlpha);
     const bool needsSrgbToLinear = dstInfo.gammaCloseToSRGB() &&
             options.fPremulBehavior == SkTransferFunctionBehavior::kRespect;
 
@@ -593,9 +592,9 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             xformDst = dst;
         }
         for (int y = 0; y < rowsDecoded; y++) {
-            this->applyColorXform(xformDst, xformSrc, scaledWidth, xformAlphaType);
+            this->applyColorXform(xformDst, xformSrc, scaledWidth, srcAlpha);
             if (blendWithPrevFrame) {
-                blend_line(dstCT, dst, dstCT, xformDst, needsSrgbToLinear, xformAlphaType,
+                blend_line(dstCT, dst, dstCT, xformDst, needsSrgbToLinear, srcAlpha,
                         scaledWidth);
                 dst = SkTAddOffset<void>(dst, rowBytes);
             } else {
@@ -608,7 +607,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 
         for (int y = 0; y < rowsDecoded; y++) {
             blend_line(dstCT, dst, webpDst.colorType(), src, needsSrgbToLinear,
-                    xformAlphaType, scaledWidth);
+                    srcAlpha, scaledWidth);
             src = SkTAddOffset<const uint8_t>(src, srcRowBytes);
             dst = SkTAddOffset<void>(dst, rowBytes);
         }
