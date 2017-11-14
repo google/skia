@@ -45,6 +45,8 @@ typedef void (*__eglMustCastToProperFunctionPointerType)(void);
 #define EGL_NONE 0x3038
 #define EGL_WIDTH 0x3057
 #define EGL_HEIGHT 0x3056
+#define EGL_DRAW 0x3059
+#define EGL_READ 0x305A
 
 typedef EGLDisplay (*GetDisplayProc)(EGLNativeDisplayType display_id);
 typedef EGLBoolean (*InitializeProc)(EGLDisplay dpy, EGLint *major, EGLint *minor);
@@ -58,6 +60,10 @@ typedef EGLContext (*CreateContextProc)(EGLDisplay dpy, EGLConfig config, EGLCon
 typedef EGLBoolean (*DestroyContextProc)(EGLDisplay dpy, EGLContext ctx);
 typedef EGLBoolean (*MakeCurrentProc)(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx);
 typedef EGLBoolean (*SwapBuffersProc)(EGLDisplay dpy, EGLSurface surface);
+typedef EGLContext (*GetCurrentContextProc)();
+typedef EGLDisplay (*GetCurrentDisplayProc)();
+typedef EGLSurface (*GetCurrentSurfaceProc)(EGLint readdraw);
+
 typedef __eglMustCastToProperFunctionPointerType (*GetProcAddressProc)(const char* procname);
 
 static GetDisplayProc gfGetDisplay = nullptr;
@@ -73,6 +79,9 @@ static DestroyContextProc gfDestroyContext = nullptr;
 static MakeCurrentProc gfMakeCurrent = nullptr;
 static SwapBuffersProc gfSwapBuffers = nullptr;
 static GetProcAddressProc gfGetProcAddress = nullptr;
+static GetCurrentContextProc gfGetCurrentContext = nullptr;
+static GetCurrentDisplayProc gfGetCurrentDisplay = nullptr;
+static GetCurrentSurfaceProc gfGetCurrentSurface = nullptr;
 
 static void* gLibrary = nullptr;
 static bool gfFunctionsLoadedSuccessfully = false;
@@ -103,13 +112,16 @@ static void load_command_buffer_functions() {
             gfMakeCurrent = (MakeCurrentProc)GetProcedureAddress(gLibrary, "eglMakeCurrent");
             gfSwapBuffers = (SwapBuffersProc)GetProcedureAddress(gLibrary, "eglSwapBuffers");
             gfGetProcAddress = (GetProcAddressProc)GetProcedureAddress(gLibrary, "eglGetProcAddress");
+            gfGetCurrentContext = (GetCurrentContextProc)GetProcedureAddress(gLibrary, "eglGetCurrentContext");
+            gfGetCurrentDisplay = (GetCurrentDisplayProc)GetProcedureAddress(gLibrary, "eglGetCurrentDisplay");
+            gfGetCurrentSurface = (GetCurrentSurfaceProc)GetProcedureAddress(gLibrary, "eglGetCurrentSurface");
 
-            gfFunctionsLoadedSuccessfully = gfGetDisplay && gfInitialize && gfTerminate &&
-                                            gfChooseConfig && gfCreateWindowSurface &&
-                                            gfCreatePbufferSurface && gfDestroySurface &&
-                                            gfCreateContext && gfDestroyContext && gfMakeCurrent &&
-                                            gfSwapBuffers && gfGetProcAddress;
-
+            gfFunctionsLoadedSuccessfully =
+                    gfGetDisplay && gfInitialize && gfTerminate && gfChooseConfig &&
+                    gfCreateWindowSurface && gfCreatePbufferSurface && gfDestroySurface &&
+                    gfCreateContext && gfDestroyContext && gfMakeCurrent && gfSwapBuffers &&
+                    gfGetProcAddress && gfGetCurrentContext && gfGetCurrentDisplay &&
+                    gfGetCurrentSurface;
         }
     }
 }
@@ -132,6 +144,19 @@ static const GrGLInterface* create_command_buffer_interface() {
         return nullptr;
     }
     return GrGLAssembleGLESInterface(gLibrary, command_buffer_get_gl_proc);
+}
+
+std::function<void()> context_restorer() {
+    if (!gfFunctionsLoadedSuccessfully) {
+        return nullptr;
+    }
+    auto display = gfGetCurrentDisplay();
+    auto dsurface = gfGetCurrentSurface(EGL_DRAW);
+    auto rsurface = gfGetCurrentSurface(EGL_READ);
+    auto context = gfGetCurrentContext();
+    return [display, dsurface, rsurface, context] {
+        gfMakeCurrent(display, dsurface, rsurface, context);
+    };
 }
 
 }  // anonymous namespace
@@ -204,6 +229,7 @@ CommandBufferGLTestContext::CommandBufferGLTestContext(CommandBufferGLTestContex
         return;
     }
 
+    SkScopeExit restorer(context_restorer());
     if (!gfMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Command Buffer: Could not make EGL context current.\n");
         this->destroyGLContext();
@@ -237,15 +263,17 @@ void CommandBufferGLTestContext::destroyGLContext() {
     if (EGL_NO_DISPLAY == fDisplay) {
         return;
     }
+    if (gfGetCurrentContext() == fContext) {
+        // Call MakeCurrent before destroying the context, so that the EGL implementation knows that
+        // the context is not used anymore after it is released from being current.  This way
+        // command buffer does not need to abandon the context before destruction, and no
+        // client-side errors are printed.
+        gfMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    }
     if (EGL_NO_CONTEXT != fContext) {
         gfDestroyContext(fDisplay, fContext);
         fContext = EGL_NO_CONTEXT;
     }
-    // Call MakeCurrent after destroying the context, so that the EGL implementation knows that
-    // the context is not used anymore after it is released from being current.  This way
-    // command buffer does not need to abandon the context before destruction, and no
-    // client-side errors are printed.
-    gfMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
     if (EGL_NO_SURFACE != fSurface) {
         gfDestroySurface(fDisplay, fSurface);
@@ -261,6 +289,13 @@ void CommandBufferGLTestContext::onPlatformMakeCurrent() const {
     if (!gfMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Command Buffer: Could not make EGL context current.\n");
     }
+}
+
+std::function<void()> CommandBufferGLTestContext::onPlatformGetAutoContextRestore() const {
+    if (!gfFunctionsLoadedSuccessfully || gfGetCurrentContext() == fContext) {
+        return nullptr;
+    }
+    return context_restorer();
 }
 
 void CommandBufferGLTestContext::onPlatformSwapBuffers() const {
