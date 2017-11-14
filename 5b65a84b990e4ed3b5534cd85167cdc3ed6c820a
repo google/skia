@@ -22,6 +22,29 @@
       "revId": "5b65a84b990e4ed3b5534cd85167cdc3ed6c820a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "474584ae_a6ede279",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-14T17:19:29Z",
+      "side": 0,
+      "message": "These are being developed to be used by Chrome.",
+      "range": {
+        "startLine": 352,
+        "startChar": 0,
+        "endLine": 365,
+        "endChar": 58
+      },
+      "revId": "5b65a84b990e4ed3b5534cd85167cdc3ed6c820a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
