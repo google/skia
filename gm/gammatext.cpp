@@ -19,11 +19,6 @@ static sk_sp<SkShader> make_heatGradient(const SkPoint pts[2]) {
                                         SkShader::kClamp_TileMode);
 }
 
-static bool setFont(SkPaint* paint, const char name[]) {
-    paint->setTypeface(SkTypeface::MakeFromName(name, SkFontStyle()));
-    return SkToBool(paint->getTypeface());
-}
-
 /**
    Test a set of clipping problems discovered while writing blitAntiRect,
    and test all the code paths through the clipping blitters.
@@ -69,7 +64,6 @@ protected:
         size_t len = strlen(text);
 
         SkPaint paint;
-        setFont(&paint, sk_tool_utils::platform_font_name("serif"));
         paint.setTextSize(SkIntToScalar(16));
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
