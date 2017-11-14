@@ -464,8 +464,6 @@
   "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE",
   "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan",
   "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
-  "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts",
-  "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI",
   "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All",
   "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All",
   "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All",
