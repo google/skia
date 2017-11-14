@@ -15,7 +15,7 @@
 #include "GrBackendSemaphore.h"
 #include "GrBackendSurface.h"
 #include "SkCanvas.h"
-#include "SkSurface.h"
+#include "SkSurfacePriv.h"
 
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
@@ -89,7 +89,7 @@ void draw_child(skiatest::Reporter* reporter,
     SkCanvas* childCanvas = childSurface->getCanvas();
     childCanvas->clear(SK_ColorRED);
 
-    childSurface->wait(1, &semaphore);
+    SkSurfacePriv::Wait(childSurface.get(), 1, &semaphore);
 
     childCanvas->drawImage(childImage, CHILD_W/2, 0);
 
@@ -148,7 +148,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     if (flushContext) {
         mainCtx->flushAndSignalSemaphores(2, semaphores.get());
     } else {
-        mainSurface->flushAndSignalSemaphores(2, semaphores.get());
+        SkSurfacePriv::FlushAndSignalSemaphores(mainSurface.get(), 2, semaphores.get());
     }
 
     sk_sp<SkImage> mainImage = mainSurface->makeImageSnapshot();
@@ -227,7 +227,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
     mainSurface->flush();
 
     GrBackendSemaphore semaphore;
-    GrSemaphoresSubmitted submitted = mainSurface->flushAndSignalSemaphores(1, &semaphore);
+    GrSemaphoresSubmitted submitted = SkSurfacePriv::FlushAndSignalSemaphores(mainSurface.get(),
+                                                                              1, &semaphore);
     REPORTER_ASSERT(reporter, GrSemaphoresSubmitted::kYes == submitted);
 
     if (kOpenGL_GrBackend == ctxInfo.backend()) {

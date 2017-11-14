@@ -15,7 +15,7 @@
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkRRect.h"
-#include "SkSurface.h"
+#include "SkSurfacePriv.h"
 #include "SkUtils.h"
 #include "Test.h"
 
@@ -600,7 +600,8 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
                                                                backendHandle);
 
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(context, backendTex,
-                                                                 kTopLeft_GrSurfaceOrigin, sampleCnt,
+                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 sampleCnt,
                                                                  nullptr, nullptr);
     if (!surface) {
         context->getGpu()->deleteTestingOnlyBackendTexture(backendHandle);
@@ -953,11 +954,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(OverdrawSurface_Gpu, r, ctxInfo) {
 #endif
 
 DEF_TEST(Surface_null, r) {
-    REPORTER_ASSERT(r, SkSurface::MakeNull(0, 0) == nullptr);
+    REPORTER_ASSERT(r, SkSurfacePriv::MakeNull(0, 0) == nullptr);
 
     const int w = 37;
     const int h = 1000;
-    auto surf = SkSurface::MakeNull(w, h);
+    auto surf = SkSurfacePriv::MakeNull(w, h);
     auto canvas = surf->getCanvas();
 
     canvas->drawPaint(SkPaint());   // should not crash, but don't expect anything to draw

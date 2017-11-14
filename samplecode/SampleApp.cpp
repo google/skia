@@ -27,7 +27,7 @@
 #include "SkPictureRecorder.h"
 #include "SkPM4fPriv.h"
 #include "SkStream.h"
-#include "SkSurface.h"
+#include "SkSurfacePriv.h"
 #include "SkTemplates.h"
 #include "SkTSort.h"
 #include "SkTime.h"
@@ -379,7 +379,7 @@ public:
             gpuCanvas->drawImage(offscreenImage, 0, 0, &gammaPaint);
         }
 
-        fGpuSurface->prepareForExternalIO();
+        SkSurfacePriv::PrepareForExternalIO(fGpuSurface.get());
 #endif
 
         win->present();

@@ -22,6 +22,7 @@
 #include "SkImagePriv.h"
 #include "SkSurface_Base.h"
 #include "SkSurfaceCharacterization.h"
+#include "SkSurfacePriv.h"
 
 #if SK_SUPPORT_GPU
 
@@ -86,7 +87,7 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
     return SkSurface::MakeRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
-                                       origin, &this->props());
+                                       origin, &SkSurfacePriv::Props(this));
 }
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
@@ -245,7 +246,8 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
-sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrBackendTexture& tex,
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
+                                                   const GrBackendTexture& tex,
                                                    GrSurfaceOrigin origin, int sampleCnt,
                                                    sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* props) {
