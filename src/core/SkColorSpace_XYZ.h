@@ -29,6 +29,7 @@ public:
 
     sk_sp<SkColorSpace> makeLinearGamma() const override;
     sk_sp<SkColorSpace> makeSRGBGamma() const override;
+    sk_sp<SkColorSpace> makeColorSpin() const override;
 
     SkGammaNamed gammaNamed() const { return fGammaNamed; }
 

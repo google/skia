@@ -96,11 +96,7 @@ DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
     canvas->translate(10, 10);
 
     auto srgb = SkColorSpace::MakeSRGB();
-
-    SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
-    // red -> blue, green -> red, blue -> green (sRGB)
-    mat.set3x3(0, 0, 1, 1, 0, 0, 0, 1, 0);
-    mat.postConcat(*as_CSB(srgb)->toXYZD50());
+    auto spin = as_CSB(srgb)->makeColorSpin(); // RGB -> GBR
 
     const SkColor4f colors[] {
         { 1, 0, 0, 1 },
@@ -116,8 +112,7 @@ DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
         sk_sp<SkShader> shaders[] {
             SkShader::MakeColorShader(c4, nullptr),
             SkShader::MakeColorShader(c4, srgb),
-            SkShader::MakeColorShader(c4,
-                    SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, mat)),
+            SkShader::MakeColorShader(c4, spin),
         };
 
         canvas->save();
