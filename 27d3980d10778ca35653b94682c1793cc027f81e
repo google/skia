@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "05e086ec_9aca7871",
+        "filename": "experimental/make_gmkb/make_gmkb.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-11-14T22:25:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b21618e_5fb8bbf7",
+      "range": {
+        "startLine": 22,
+        "startChar": 1,
+        "endLine": 22,
+        "endChar": 8
+      },
+      "revId": "27d3980d10778ca35653b94682c1793cc027f81e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6fd2c0a5_3eadcac5",
         "filename": "experimental/make_gmkb/make_gmkb.go",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "27d3980d10778ca35653b94682c1793cc027f81e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b386546f_d5e388f6",
+        "filename": "experimental/make_gmkb/make_gmkb.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-11-14T22:25:52Z",
+      "side": 1,
+      "message": "That was my idea.  This has been refactored away.",
+      "parentUuid": "6fd2c0a5_3eadcac5",
+      "range": {
+        "startLine": 71,
+        "startChar": 14,
+        "endLine": 71,
+        "endChar": 27
+      },
+      "revId": "27d3980d10778ca35653b94682c1793cc027f81e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -95,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "1ff46c45_9eab4eda",
+        "filename": "experimental/make_gmkb/make_gmkb.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-11-14T22:25:52Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "27e70800_2f7d4c96",
+      "range": {
+        "startLine": 75,
+        "startChar": 13,
+        "endLine": 75,
+        "endChar": 23
+      },
+      "revId": "27d3980d10778ca35653b94682c1793cc027f81e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8f57eec5_b7ea7d9b",
         "filename": "experimental/make_gmkb/make_gmkb.go",
         "patchSetId": 5
@@ -115,6 +187,30 @@
       "revId": "27d3980d10778ca35653b94682c1793cc027f81e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55df6a54_a78d104f",
+        "filename": "experimental/make_gmkb/make_gmkb.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-11-14T22:25:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f57eec5_b7ea7d9b",
+      "range": {
+        "startLine": 83,
+        "startChar": 2,
+        "endLine": 83,
+        "endChar": 10
+      },
+      "revId": "27d3980d10778ca35653b94682c1793cc027f81e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
