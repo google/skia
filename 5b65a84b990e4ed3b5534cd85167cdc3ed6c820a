@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "080c6542_77a2cd24",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-11-14T15:54:12Z",
+      "side": 0,
+      "message": "these are used by flutter/turquoise",
+      "range": {
+        "startLine": 318,
+        "startChar": 1,
+        "endLine": 350,
+        "endChar": 75
+      },
+      "revId": "5b65a84b990e4ed3b5534cd85167cdc3ed6c820a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
