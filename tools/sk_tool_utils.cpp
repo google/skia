@@ -22,16 +22,6 @@
 
 namespace sk_tool_utils {
 
-/* these are the default fonts chosen by Chrome for serif, sans-serif, and monospace */
-static const char* gStandardFontNames[][3] = {
-    { "Times", "Helvetica", "Courier" }, // Mac
-    { "Times New Roman", "Helvetica", "Courier" }, // iOS
-    { "Times New Roman", "Arial", "Courier New" }, // Win
-    { "Times New Roman", "Arial", "Monospace" }, // Ubuntu
-    { "serif", "sans-serif", "monospace" }, // Android
-    { "Tinos", "Arimo", "Cousine" } // ChromeOS
-};
-
 static bool starts_with(const char* str, const char* prefix) {
     return 0 == strncmp(str, prefix, strlen(prefix));
 }
@@ -43,41 +33,6 @@ static const char* platform_os_name() {
         }
     }
     return "";
-}
-
-const char* platform_font_name(const char* name) {
-    int index;
-    if (!strcmp(name, "serif")) {
-        index = 0;
-    } else if (!strcmp(name, "san-serif")) {
-        index = 1;
-    } else if (!strcmp(name, "monospace")) {
-        index = 2;
-    } else {
-        return name;
-    }
-
-    const char* platform = platform_os_name();
-
-    if (starts_with(platform, "Mac")) {
-        return gStandardFontNames[0][index];
-    }
-    if (starts_with(platform, "iOS")) {
-        return gStandardFontNames[1][index];
-    }
-    if (starts_with(platform, "Win")) {
-        return gStandardFontNames[2][index];
-    }
-    if (starts_with(platform, "Ubuntu") || starts_with(platform, "Debian")) {
-        return gStandardFontNames[3][index];
-    }
-    if (starts_with(platform, "Android")) {
-        return gStandardFontNames[4][index];
-    }
-    if (starts_with(platform, "ChromeOS")) {
-        return gStandardFontNames[5][index];
-    }
-    return name;
 }
 
 const char* platform_os_emoji() {

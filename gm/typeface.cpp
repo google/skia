@@ -73,28 +73,17 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
     canvas->drawPosText(glyphs, glyphCount * sizeof(uint16_t), pos, glyphPaint);
 }
 
-constexpr struct {
-    const char* fName;
-    SkFontStyle fStyle;
-} gFaceStyles[] = {
-    { "sans-serif", SkFontStyle::Normal() },
-    { "sans-serif", SkFontStyle::Bold() },
-    { "sans-serif", SkFontStyle::Italic() },
-    { "sans-serif", SkFontStyle::BoldItalic() },
-    { "serif", SkFontStyle::Normal() },
-    { "serif", SkFontStyle::Bold() },
-    { "serif", SkFontStyle::Italic() },
-    { "serif", SkFontStyle::BoldItalic() },
-    { "monospace", SkFontStyle::Normal() },
-    { "monospace", SkFontStyle::Bold() },
-    { "monospace", SkFontStyle::Italic() },
-    { "monospace", SkFontStyle::BoldItalic() },
+static constexpr SkFontStyle gStyles[] = {
+    SkFontStyle::Normal(),
+    SkFontStyle::Bold(),
+    SkFontStyle::Italic(),
+    SkFontStyle::BoldItalic(),
 };
 
-constexpr int gFaceStylesCount = SK_ARRAY_COUNT(gFaceStyles);
+constexpr int gStylesCount = SK_ARRAY_COUNT(gStyles);
 
 class TypefaceStylesGM : public skiagm::GM {
-    sk_sp<SkTypeface> fFaces[gFaceStylesCount];
+    sk_sp<SkTypeface> fFaces[gStylesCount];
     bool fApplyKerning;
 
 public:
@@ -105,9 +94,8 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        for (int i = 0; i < gFaceStylesCount; i++) {
-            fFaces[i] = SkTypeface::MakeFromName(
-                    sk_tool_utils::platform_font_name(gFaceStyles[i].fName), gFaceStyles[i].fStyle);
+        for (int i = 0; i < gStylesCount; i++) {
+            fFaces[i] = SkTypeface::MakeFromName(nullptr, gStyles[i]);
         }
     }
 
@@ -141,7 +129,7 @@ protected:
         } else {
             paint.setLinearText(true);
         }
-        for (int i = 0; i < gFaceStylesCount; i++) {
+        for (int i = 0; i < gStylesCount; i++) {
             paint.setTypeface(fFaces[i]);
             canvas->drawText(text, textLen, x, y, paint);
             if (fApplyKerning) {

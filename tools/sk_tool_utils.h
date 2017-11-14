@@ -57,11 +57,6 @@ namespace sk_tool_utils {
     const char* platform_font_manager();
 
     /**
-     * Map serif, san-serif, and monospace to the platform-specific font name.
-     */
-    const char* platform_font_name(const char* name);
-
-    /**
      * Sets the paint to use a platform-independent text renderer
      */
     void set_portable_typeface(SkPaint* paint, const char* name = nullptr,
