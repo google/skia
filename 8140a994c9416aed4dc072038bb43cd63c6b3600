@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "72ba5eba_1eccc5c8",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-14T19:34:27Z",
+      "side": 1,
+      "message": "I betcha we\u0027ll also make the Chromecast bots work if we make kNo nullptr and switch this to \n\n   fValue(yesOrNo !\u003d kNo)",
+      "range": {
+        "startLine": 329,
+        "startChar": 60,
+        "endLine": 329,
+        "endChar": 75
+      },
+      "revId": "8140a994c9416aed4dc072038bb43cd63c6b3600",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "22701e28_b01ab76a",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 15
