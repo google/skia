@@ -106,8 +106,7 @@ public:
 protected:
     void onOnceBeforeDraw() override {
         for (int i = 0; i < gFaceStylesCount; i++) {
-            fFaces[i] = SkTypeface::MakeFromName(
-                    sk_tool_utils::platform_font_name(gFaceStyles[i].fName), gFaceStyles[i].fStyle);
+            fFaces[i] = SkTypeface::MakeFromName(gFaceStyles[i].fName, gFaceStyles[i].fStyle);
         }
     }
 
