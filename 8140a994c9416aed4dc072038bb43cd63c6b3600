@@ -22,6 +22,30 @@
       "revId": "8140a994c9416aed4dc072038bb43cd63c6b3600",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bb17d5c_ef55d261",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-14T19:08:46Z",
+      "side": 1,
+      "message": "Er, had that comment hanging around from last week.  I\u0027m mildly interested, but it\u0027s not important.",
+      "parentUuid": "22701e28_b01ab76a",
+      "range": {
+        "startLine": 333,
+        "startChar": 4,
+        "endLine": 333,
+        "endChar": 18
+      },
+      "revId": "8140a994c9416aed4dc072038bb43cd63c6b3600",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
