@@ -145,6 +145,24 @@
     },
     {
       "key": {
+        "uuid": "6f8cb721_c04cca34",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-14T18:58:08Z",
+      "side": 1,
+      "message": "Not well. The thought was it could wrap an enum class. But I\u0027m finding some compilers give me an undefined symbol when I say:\n\n  static constexpr SomeEnum kValue \u003d SomeEnum::kValue;\n\nSo function pointers so far are the only way to have strongly-typed kYes/kNo static members without requiring a separate definition.",
+      "parentUuid": "aa384862_36d65e74",
+      "revId": "b119c5e98c347f26770cef5636348563019e9c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a12666e6_8547b0da",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 14
