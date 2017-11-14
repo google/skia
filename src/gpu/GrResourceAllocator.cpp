@@ -9,6 +9,7 @@
 
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
+#include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrSurfacePriv.h"
 #include "GrSurfaceProxy.h"
@@ -36,11 +37,8 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
 
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
-        // TODO: this assert is failing on the copy_on_write_retain GM!
-        SkASSERT(intvl->end() <= start);
-        if (intvl->end() < end) {
-            intvl->extendEnd(end);
-        }
+        SkASSERT(intvl->end() <= start && intvl->end() <= end);
+        intvl->extendEnd(end);
         return;
     }
 
@@ -122,7 +120,6 @@ void GrResourceAllocator::freeUpSurface(sk_sp<GrSurface> surface) {
 
 // First try to reuse one of the recently allocated/used GrSurfaces in the free pool.
 // If we can't find a useable one, create a new one.
-// TODO: handle being overbudget
 sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy) {
     // First look in the free pool
     GrScratchKey key;
@@ -164,8 +161,9 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     }
 }
 
-void GrResourceAllocator::assign() {
-    fIntvlHash.reset(); // we don't need this anymore
+bool GrResourceAllocator::assign(int* startIndex, int* stopIndex) {
+#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+    fIntvlHash.reset(); // we don't need the interval hash anymore
     SkDEBUGCODE(fAssigned = true;)
 
     while (Interval* cur = fIntvlList.popHead()) {
@@ -176,7 +174,6 @@ void GrResourceAllocator::assign() {
             continue;
         }
 
-        // TODO: add over budget handling here?
         sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy());
         if (surface) {
             // TODO: make getUniqueKey virtual on GrSurfaceProxy
@@ -188,11 +185,17 @@ void GrResourceAllocator::assign() {
 
             cur->assign(std::move(surface));
         }
-        // TODO: handle resouce allocation failure upstack
+        // TODO: handle resource allocation failure upstack
         fActiveIntvls.insertByIncreasingEnd(cur);
+
+        if (fResourceCache->overBudget()) {
+            return true;
+        }
     }
 
     // expire all the remaining intervals to drain the active interval list
     this->expire(std::numeric_limits<unsigned int>::max());
+#endif
+    return false;
 }
 
