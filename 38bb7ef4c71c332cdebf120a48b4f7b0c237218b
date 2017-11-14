@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54800fd3_c4974f52",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1328,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-14T15:38:32Z",
+      "side": 1,
+      "message": "While we\u0027re at it, can you make this\n\n   gSkFontMgr_DefaultFactory \u003d \u0026SkFontMgr_New_GDI;\n\n?",
+      "revId": "38bb7ef4c71c332cdebf120a48b4f7b0c237218b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "831a0238_2f6b06ad",
+        "filename": "dm/DMFontMgr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-14T15:38:32Z",
+      "side": 1,
+      "message": "If we\u0027re going to move this stuff here, I think some of it would read more clearly inlined.\n\nCan you take a pass at that?",
+      "revId": "38bb7ef4c71c332cdebf120a48b4f7b0c237218b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
