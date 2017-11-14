@@ -193,6 +193,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Win":        "Windows-2008ServerR2-SP1",
 			"Win10":      "Windows-10-15063",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
+			"Win2016":    "Windows-2016Server-14393",
 			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
 			"iOS":        "iOS-10.3.1",
