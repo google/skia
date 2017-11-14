@@ -16,6 +16,7 @@
 #include "SkTDynamicHash.h"
 #include "SkTMultiMap.h"
 
+class GrResourceCache;
 class GrResourceProvider;
 
 /*
@@ -35,8 +36,9 @@ class GrResourceProvider;
  */
 class GrResourceAllocator {
 public:
-    GrResourceAllocator(GrResourceProvider* resourceProvider)
-            : fResourceProvider(resourceProvider) {
+    GrResourceAllocator(GrResourceProvider* resourceProvider, GrResourceCache* cache)
+            : fResourceProvider(resourceProvider)
+            , fResourceCache(cache) {
     }
 
     ~GrResourceAllocator();
@@ -55,7 +57,10 @@ public:
         this->addInterval(proxy, fNumOps, fNumOps);
     }
 
-    void assign();
+    // Returns true when an intermediate execution is required; false when all the remaining ops
+    // can just be executed at once. This is used to execute a portion of the queued opLists in
+    // order to reduce the total amount of GPU resources required.
+    bool assign(int* startIndex, int* stopIndex);
 
 private:
     class Interval;
@@ -161,6 +166,7 @@ private:
     static const int kInitialArenaSize = 12 * sizeof(Interval);
 
     GrResourceProvider* fResourceProvider;
+    GrResourceCache*    fResourceCache;
     FreePoolMultiMap    fFreePool;          // Recently created/used GrSurfaces
     IntvlHash           fIntvlHash;         // All the intervals, hashed by proxyID
 
