@@ -1320,9 +1320,7 @@ int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
     if (!FLAGS_nativeFonts) {
-        gSkFontMgr_DefaultFactory = []() -> sk_sp<SkFontMgr> {
-            return sk_make_sp<DM::FontMgr>();
-        };
+        gSkFontMgr_DefaultFactory = &DM::MakeFontMgr;
     }
 
 #if defined(SK_BUILD_FOR_WIN)
