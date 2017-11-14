@@ -24,10 +24,8 @@ protected:
     void onOnceBeforeDraw() override {
         const int pointSize = 24;
         textHeight = SkIntToScalar(pointSize);
-        fProp = SkTypeface::MakeFromName(sk_tool_utils::platform_font_name("sans-serif"),
-                SkFontStyle());
-        fMono = SkTypeface::MakeFromName(sk_tool_utils::platform_font_name("monospace"),
-                SkFontStyle());
+        fProp = SkTypeface::MakeFromName("sans-serif", SkFontStyle());
+        fMono = SkTypeface::MakeFromName("monospace",  SkFontStyle());
     }
 
     SkString onShortName() override {
