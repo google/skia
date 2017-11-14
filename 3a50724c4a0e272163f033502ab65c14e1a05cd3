@@ -34,6 +34,24 @@
       "revId": "3a50724c4a0e272163f033502ab65c14e1a05cd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f497005_271526b5",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-14T20:23:58Z",
+      "side": 1,
+      "message": "Maybe it\u0027s best to just not do anything. Looking at the code changes other than SkTypes.h, there isn\u0027t much that gets a whole lot better. And by making the underlying types of the enum classes be bool we probably can keep some of the changes.",
+      "parentUuid": "96a8e91a_fa773ba2",
+      "revId": "3a50724c4a0e272163f033502ab65c14e1a05cd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
