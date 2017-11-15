@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5020e5d6_50044b35",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-15T15:28:19Z",
+      "side": 1,
+      "message": "Minor but this should probably look something like this:\n\n GrDraw OpAtlas::AllowMultitexturing allowMultitexturing;\n switch (options.fAllowMultipleGlyphCacheTextures) {\n     case GrContextOptions::Enable::kDefault:\n #ifdef SK_BUILD_FOR_IOS\n         allowMultitexturing \u003d GrDrawOpAtlas::kNo;\n #else\n         allowMultitexturing \u003d GrDrawOpAtlas::kYes;\n #endif\n         break;\n     case GrContextOptions::Enable::kNo:\n         allowMultitexturing \u003d GrDrawOpAtlas::kNo;\n         break;\n     case GrContextOptions::Enable::kYes\n        allowMultitexturing \u003d GrDrawOpAtlas::kYes; \n        break;\n }\n\nThe options is supposed to allow the client to use our default or override it in either direction.",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 222,
+        "endChar": 6
+      },
+      "revId": "5495456db3ae583d3e3c6ff7de9d9f7abd90032d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
