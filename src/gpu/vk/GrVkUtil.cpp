@@ -42,12 +42,9 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             // store the data is if it was B4G4R4A4 and swizzle in shaders
             *format = VK_FORMAT_B4G4R4A4_UNORM_PACK16;
             return true;
-        case kAlpha_8_GrPixelConfig: // fall through
-        case kAlpha_8_as_Red_GrPixelConfig:
+        case kAlpha_8_GrPixelConfig:
             *format = VK_FORMAT_R8_UNORM;
             return true;
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-            return false;
         case kGray_8_GrPixelConfig:
             *format = VK_FORMAT_R8_UNORM;
             return true;
@@ -60,12 +57,9 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
         case kRGBA_half_GrPixelConfig:
             *format = VK_FORMAT_R16G16B16A16_SFLOAT;
             return true;
-        case kAlpha_half_GrPixelConfig: // fall through
-        case kAlpha_half_as_Red_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
             *format = VK_FORMAT_R16_SFLOAT;
             return true;
-        case kAlpha_half_as_Alpha_GrPixelConfig:
-            return false;
     }
     SK_ABORT("Unexpected config");
     return false;
