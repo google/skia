@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f12aac5_36eb6ae9",
+        "filename": "src/gpu/GrReducedClip.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-15T19:35:47Z",
+      "side": 1,
+      "message": "nit: align the other members to this or just have them all be staggered. (If it was me I\u0027d stagger since that\u0027s what clang-format does).",
+      "range": {
+        "startLine": 127,
+        "startChar": 3,
+        "endLine": 127,
+        "endChar": 68
+      },
+      "revId": "a6df5b6df12a0cc63c848f62144895cbcca6b1e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
