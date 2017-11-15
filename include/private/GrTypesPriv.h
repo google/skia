@@ -801,15 +801,6 @@ enum class  GrMipMapsStatus {
 GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
 
 /**
- * We want to extend the GrPixelConfig enum to add cases for dealing with alpha_8 which is
- * internally either alpha8 or red8
- */
-static constexpr GrPixelConfig kAlpha_8_as_Alpha_GrPixelConfig = kPrivateConfig1_GrPixelConfig;
-static constexpr GrPixelConfig kAlpha_8_as_Red_GrPixelConfig = kPrivateConfig2_GrPixelConfig;
-static constexpr GrPixelConfig kAlpha_half_as_Alpha_GrPixelConfig = kPrivateConfig3_GrPixelConfig;
-static constexpr GrPixelConfig kAlpha_half_as_Red_GrPixelConfig = kPrivateConfig4_GrPixelConfig;
-
-/**
  * Utility functions for GrPixelConfig
  */
 // Returns true if the pixel config is 32 bits per pixel
@@ -822,8 +813,6 @@ static inline bool GrPixelConfigIs8888Unorm(GrPixelConfig config) {
             return true;
         case kUnknown_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
@@ -831,8 +820,6 @@ static inline bool GrPixelConfigIs8888Unorm(GrPixelConfig config) {
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Alpha_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
             return false;
     }
@@ -849,8 +836,6 @@ static inline bool GrPixelConfigIsSRGB(GrPixelConfig config) {
             return true;
         case kUnknown_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
@@ -860,8 +845,6 @@ static inline bool GrPixelConfigIsSRGB(GrPixelConfig config) {
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Alpha_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
             return false;
     }
@@ -883,8 +866,6 @@ static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {
             return kSBGRA_8888_GrPixelConfig;
         case kUnknown_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
@@ -892,8 +873,6 @@ static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Alpha_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
             return kUnknown_GrPixelConfig;
     }
@@ -904,15 +883,11 @@ static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {
 static inline size_t GrBytesPerPixel(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
             return 1;
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Alpha_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
             return 2;
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
@@ -940,12 +915,8 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
         case kRG_float_GrPixelConfig:
             return true;
         case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Alpha_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
@@ -963,11 +934,7 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
 static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Alpha_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
             return true;
         case kUnknown_GrPixelConfig:
         case kGray_8_GrPixelConfig:
@@ -992,14 +959,10 @@ static inline bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Alpha_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
             return true;
         case kUnknown_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
@@ -1021,8 +984,6 @@ static inline bool GrPixelConfigIsSint(GrPixelConfig config) {
 static inline bool GrPixelConfigIsUnorm(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-        case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
@@ -1033,8 +994,6 @@ static inline bool GrPixelConfigIsUnorm(GrPixelConfig config) {
             return true;
         case kUnknown_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
-        case kAlpha_half_as_Alpha_GrPixelConfig:
-        case kAlpha_half_as_Red_GrPixelConfig:
         case kRGBA_8888_sint_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
@@ -1049,5 +1008,6 @@ static inline GrPixelConfigIsClamped GrGetPixelConfigIsClamped(GrPixelConfig con
     return GrPixelConfigIsFloatingPoint(config) ? GrPixelConfigIsClamped::kNo
                                                 : GrPixelConfigIsClamped::kYes;
 }
+
 
 #endif
