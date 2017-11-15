@@ -246,6 +246,8 @@ public:
     /** Purge all resources not used since the passed in time. */
     void purgeResourcesNotUsedSince(GrStdSteadyClock::time_point);
 
+    bool overBudget() const { return fBudgetedBytes > fMaxBytes || fBudgetedCount > fMaxCount; }
+
     /**
      * Purge unlocked resources from the cache until the the provided byte count has been reached
      * or we have purged all unlocked resources. The default policy is to purge in LRU order, but
@@ -343,7 +345,6 @@ private:
     void processFreedGpuResources();
     void addToNonpurgeableArray(GrGpuResource*);
     void removeFromNonpurgeableArray(GrGpuResource*);
-    bool overBudget() const { return fBudgetedBytes > fMaxBytes || fBudgetedCount > fMaxCount; }
 
     bool wouldFit(size_t bytes) {
         return fBudgetedBytes+bytes <= fMaxBytes && fBudgetedCount+1 <= fMaxCount;
