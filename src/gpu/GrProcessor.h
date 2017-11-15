@@ -65,7 +65,6 @@ private:
 class GrProcessor {
 public:
     enum ClassID {
-        kAARectEffect_ClassID,
         kBigKeyProcessor_ClassID,
         kBlockInputFragmentProcessor_ClassID,
         kCircleGeometryProcessor_ClassID,
@@ -89,6 +88,7 @@ public:
         kFocalInside2PtConicalEffect_ClassID,
         kFocalOutside2PtConicalEffect_ClassID,
         kGP_ClassID,
+        kGrAARectEffect_ClassID,
         kGrAlphaThresholdFragmentProcessor_ClassID,
         kGrArithmeticFP_ClassID,
         kGrBicubicEffect_ClassID,
