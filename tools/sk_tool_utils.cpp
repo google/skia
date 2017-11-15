@@ -35,65 +35,6 @@ static const char* platform_os_name() {
     return "";
 }
 
-const char* platform_os_emoji() {
-    const char* osName = platform_os_name();
-    if (starts_with(osName, "Android") ||
-        starts_with(osName, "Ubuntu")  ||
-        starts_with(osName, "Debian")) {
-        return "CBDT";
-    }
-    if (starts_with(osName, "Mac") || starts_with(osName, "iOS")) {
-        return "SBIX";
-    }
-    if (starts_with(osName, "Win")) {
-        return "COLR";
-    }
-    return "";
-}
-
-sk_sp<SkTypeface> emoji_typeface() {
-    if (!strcmp(sk_tool_utils::platform_os_emoji(), "CBDT")) {
-        return MakeResourceAsTypeface("/fonts/Funkster.ttf");
-    }
-    if (!strcmp(sk_tool_utils::platform_os_emoji(), "SBIX")) {
-        return SkTypeface::MakeFromName("Apple Color Emoji", SkFontStyle());
-    }
-    if (!strcmp(sk_tool_utils::platform_os_emoji(), "COLR")) {
-        sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
-        const char *colorEmojiFontName = "Segoe UI Emoji";
-        sk_sp<SkTypeface> typeface(fm->matchFamilyStyle(colorEmojiFontName, SkFontStyle()));
-        if (typeface) {
-            return typeface;
-        }
-        sk_sp<SkTypeface> fallback(fm->matchFamilyStyleCharacter(
-            colorEmojiFontName, SkFontStyle(), nullptr /* bcp47 */, 0 /* bcp47Count */,
-            0x1f4b0 /* character: 💰 */));
-        if (fallback) {
-            return fallback;
-        }
-        // If we don't have Segoe UI Emoji and can't find a fallback, try Segoe UI Symbol.
-        // Windows 7 does not have Segoe UI Emoji; Segoe UI Symbol has the (non - color) emoji.
-        return SkTypeface::MakeFromName("Segoe UI Symbol", SkFontStyle());
-    }
-    return nullptr;
-}
-
-const char* emoji_sample_text() {
-    if (!strcmp(sk_tool_utils::platform_os_emoji(), "CBDT")) {
-        return "Hamburgefons";
-    }
-    if (!strcmp(sk_tool_utils::platform_os_emoji(), "SBIX") ||
-        !strcmp(sk_tool_utils::platform_os_emoji(), "COLR"))
-    {
-        return "\xF0\x9F\x92\xB0" "\xF0\x9F\x8F\xA1" "\xF0\x9F\x8E\x85"  // 💰🏡🎅
-               "\xF0\x9F\x8D\xAA" "\xF0\x9F\x8D\x95" "\xF0\x9F\x9A\x80"  // 🍪🍕🚀
-               "\xF0\x9F\x9A\xBB" "\xF0\x9F\x92\xA9" "\xF0\x9F\x93\xB7" // 🚻💩📷
-               "\xF0\x9F\x93\xA6" // 📦
-               "\xF0\x9F\x87\xBA" "\xF0\x9F\x87\xB8" "\xF0\x9F\x87\xA6"; // 🇺🇸🇦
-    }
-    return "";
-}
-
 static bool extra_config_contains(const char* substring) {
     for (int index = 0; index < FLAGS_key.count(); index += 2) {
         if (0 == strcmp("extra_config", FLAGS_key[index])
@@ -102,6 +43,51 @@ static bool extra_config_contains(const char* substring) {
         }
     }
     return false;
+}
+
+sk_sp<SkTypeface> emoji_typeface() {
+    if (!extra_config_contains("NativeFonts")) {
+        return nullptr;
+    }
+#if defined(SK_BUILD_FOR_WIN)
+    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+    const char *colorEmojiFontName = "Segoe UI Emoji";
+    sk_sp<SkTypeface> typeface(fm->matchFamilyStyle(colorEmojiFontName, SkFontStyle()));
+    if (typeface) {
+        return typeface;
+    }
+    sk_sp<SkTypeface> fallback(fm->matchFamilyStyleCharacter(
+        colorEmojiFontName, SkFontStyle(), nullptr /* bcp47 */, 0 /* bcp47Count */,
+        0x1f4b0 /* character: 💰 */));
+    if (fallback) {
+        return fallback;
+    }
+    // If we don't have Segoe UI Emoji and can't find a fallback, try Segoe UI Symbol.
+    // Windows 7 does not have Segoe UI Emoji; Segoe UI Symbol has the (non - color) emoji.
+    return SkTypeface::MakeFromName("Segoe UI Symbol", SkFontStyle());
+
+#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+    return SkTypeface::MakeFromName("Apple Color Emoji", SkFontStyle());
+
+#else
+    return MakeResourceAsTypeface("/fonts/Funkster.ttf");
+
+#endif
+}
+
+const char* emoji_sample_text() {
+    if (!extra_config_contains("NativeFonts")) {
+        return "";
+    }
+#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+    return "\xF0\x9F\x92\xB0" "\xF0\x9F\x8F\xA1" "\xF0\x9F\x8E\x85"  // 💰🏡🎅
+           "\xF0\x9F\x8D\xAA" "\xF0\x9F\x8D\x95" "\xF0\x9F\x9A\x80"  // 🍪🍕🚀
+           "\xF0\x9F\x9A\xBB" "\xF0\x9F\x92\xA9" "\xF0\x9F\x93\xB7"  // 🚻💩📷
+           "\xF0\x9F\x93\xA6"                                        // 📦
+           "\xF0\x9F\x87\xBA" "\xF0\x9F\x87\xB8" "\xF0\x9F\x87\xA6"; // 🇺🇸🇦
+#else
+    return "Hamburgefons";
+#endif
 }
 
 const char* platform_font_manager() {
