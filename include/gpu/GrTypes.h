@@ -343,7 +343,12 @@ enum GrPixelConfig {
     */
     kRGBA_half_GrPixelConfig,
 
-    kLast_GrPixelConfig = kRGBA_half_GrPixelConfig
+    kPrivateConfig1_GrPixelConfig,
+    kPrivateConfig2_GrPixelConfig,
+    kPrivateConfig3_GrPixelConfig,
+    kPrivateConfig4_GrPixelConfig,
+
+    kLast_GrPixelConfig = kPrivateConfig4_GrPixelConfig
 };
 static const int kGrPixelConfigCnt = kLast_GrPixelConfig + 1;
 
