@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "efefe2f2_e53104e8",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-15T20:05:09Z",
+      "side": 1,
+      "message": "Have you found some advantage to passing these buffers in to load() and store(), rather than just putting them on the stack inside each function?  They\u0027re on the stack either way right?",
+      "range": {
+        "startLine": 550,
+        "startChar": 66,
+        "endLine": 550,
+        "endChar": 83
+      },
+      "revId": "cd459bd6789ef68a51d541041ba653f3b992b9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c790d6dd_df479eba",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 1082,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-15T20:05:09Z",
+      "side": 1,
+      "message": "Do you really want to leave these in?  Seems harmless in practice for them to inline if the compiler wants to.",
+      "range": {
+        "startLine": 1082,
+        "startChar": 0,
+        "endLine": 1082,
+        "endChar": 21
+      },
+      "revId": "cd459bd6789ef68a51d541041ba653f3b992b9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d0318de_077fda27",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 1113,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-15T20:05:09Z",
+      "side": 1,
+      "message": "Is it really important that we abort?  That seems kind of drastic... couldn\u0027t we just (debug-only) assert instead?",
+      "revId": "cd459bd6789ef68a51d541041ba653f3b992b9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2eecf1a7_9617126e",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 1117,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-15T20:05:09Z",
+      "side": 1,
+      "message": "Is it crazy to move prepare_destination() way up to before the #if guards?  Or I guess you plan to move it hear once you flip the flag?",
+      "revId": "cd459bd6789ef68a51d541041ba653f3b992b9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b567006f_5dc1f256",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 1131,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-15T20:05:09Z",
+      "side": 1,
+      "message": "I think it might be clearer if you don\u0027t add filterUint16() at all, but instead grab the existing double filter values and convert them here.  That kind of keeps the small-blur optimization pieces all together, and would soften the need for such careful documentation about what filterUint16() expects and returns.",
+      "revId": "cd459bd6789ef68a51d541041ba653f3b992b9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
