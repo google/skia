@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47c035db_f0ba0203",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-15T15:58:06Z",
+      "side": 1,
+      "message": "Skolo bots are still 9.1, correct?",
+      "range": {
+        "startLine": 190,
+        "startChar": 4,
+        "endLine": 190,
+        "endChar": 11
+      },
+      "revId": "aa7eb70e0aff93c70bdb9e9aa739d32429ec2529",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
