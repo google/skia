@@ -484,31 +484,25 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
     return true;    // success
 }
 
-static const SkImage* create_image_from_buffer(SkReadBuffer& buffer) {
-    return buffer.readImage().release();
+static sk_sp<SkImage> create_image_from_buffer(SkReadBuffer& buffer) {
+    return buffer.readImage();
 }
-static const SkVertices* create_vertices_from_buffer(SkReadBuffer& buffer) {
+static sk_sp<SkVertices> create_vertices_from_buffer(SkReadBuffer& buffer) {
     auto data = buffer.readByteArrayAsData();
-    return data ? SkVertices::Decode(data->data(), data->size()).release() : nullptr;
+    return data ? SkVertices::Decode(data->data(), data->size()) : nullptr;
 }
 
-static const SkImage* create_bitmap_image_from_buffer(SkReadBuffer& buffer) {
-    return buffer.readBitmapAsImage().release();
+static sk_sp<SkImage> create_bitmap_image_from_buffer(SkReadBuffer& buffer) {
+    return buffer.readBitmapAsImage();
 }
 
-// Need a shallow wrapper to return const SkPicture* to match the other factories,
-// as SkPicture::CreateFromBuffer() returns SkPicture*
-static const SkPicture* create_picture_from_buffer(SkReadBuffer& buffer) {
-    return SkPicture::MakeFromBuffer(buffer).release();
-}
-
-static const SkDrawable* create_drawable_from_buffer(SkReadBuffer& buffer) {
-    return (SkDrawable*) buffer.readFlattenable(SkFlattenable::kSkDrawable_Type);
+static sk_sp<SkDrawable> create_drawable_from_buffer(SkReadBuffer& buffer) {
+    return sk_sp<SkDrawable>((SkDrawable*)buffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
 }
 
 template <typename T>
 bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
-                           const T*** array, int* outCount, const T* (*factory)(SkReadBuffer&)) {
+                           const T*** array, int* outCount, sk_sp<T> (*factory)(SkReadBuffer&)) {
     if (!buffer.validate((0 == *outCount) && (nullptr == *array))) {
         return false;
     }
@@ -524,7 +518,7 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
     bool success = true;
     int i = 0;
     for (; i < *outCount; i++) {
-        (*array)[i] = factory(buffer);
+        (*array)[i] = factory(buffer).release();
         if (nullptr == (*array)[i]) {
             success = false;
             break;
@@ -572,7 +566,7 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
             } break;
         case SK_PICT_TEXTBLOB_BUFFER_TAG:
             if (!new_array_from_buffer(buffer, size, &fTextBlobRefs, &fTextBlobCount,
-                                       SkTextBlob::CreateFromBuffer)) {
+                                       SkTextBlob::MakeFromBuffer)) {
                 return false;
             }
             break;
@@ -599,7 +593,7 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
         } break;
         case SK_PICT_PICTURE_TAG:
             if (!new_array_from_buffer(buffer, size, &fPictureRefs, &fPictureCount,
-                                       create_picture_from_buffer)) {
+                                       SkPicture::MakeFromBuffer)) {
                 return false;
             }
             break;
