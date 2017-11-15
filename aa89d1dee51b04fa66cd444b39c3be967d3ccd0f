@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e1e6765_3a93bd22",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-15T19:48:53Z",
+      "side": 1,
+      "message": "I\u0027m assuming this job could be interestingly different between Win7 and Win2016; same for Test job below. However, not adding Release because we don\u0027t really care about performance.",
+      "revId": "aa89d1dee51b04fa66cd444b39c3be967d3ccd0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
