@@ -211,10 +211,20 @@ bool GrContext::init(const GrContextOptions& options) {
             new GrDrawingManager(this, prcOptions, atlasTextContextOptions, &fSingleOwner));
 
     GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
-    if (options.fAllowMultipleGlyphCacheTextures == GrContextOptions::Enable::kNo) {
-        allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kNo;
-    } else {
-        allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
+    switch (options.fAllowMultipleGlyphCacheTextures) {
+        case GrContextOptions::Enable::kDefault:
+#ifdef SK_BUILD_FOR_IOS
+            allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kNo;
+#else
+            allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
+#endif
+            break;
+        case GrContextOptions::Enable::kNo:
+            allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kNo;
+            break;
+        case GrContextOptions::Enable::kYes:
+            allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
+            break;
     }
     fAtlasGlyphCache = new GrAtlasGlyphCache(this, options.fGlyphCacheTextureMaximumBytes,
                                              allowMultitexturing);
