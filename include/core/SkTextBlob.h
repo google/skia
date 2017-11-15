@@ -50,10 +50,6 @@ public:
      */
     static sk_sp<SkTextBlob> MakeFromBuffer(SkReadBuffer&);
 
-    static const SkTextBlob* CreateFromBuffer(SkReadBuffer& buffer) {
-        return MakeFromBuffer(buffer).release();
-    }
-
     enum GlyphPositioning : uint8_t {
         kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
         kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
