@@ -102,7 +102,6 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         return GrSemaphoresSubmitted::kNo;
     }
     fFlushing = true;
-    bool flushed = false;
 
     for (int i = 0; i < fOpLists.count(); ++i) {
         // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
@@ -136,9 +135,9 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 #endif
 
     GrOnFlushResourceProvider onFlushProvider(this);
+    GrOpFlushState flushState(fContext->getGpu(), fContext->resourceProvider());
 
     // Prepare any onFlush op lists (e.g. atlases).
-    SkSTArray<8, sk_sp<GrOpList>> onFlushOpLists;
     if (!fOnFlushCBObjects.empty()) {
         // MDB TODO: pre-MDB '1' is the correct pre-allocated size. Post-MDB it will need
         // to be larger.
@@ -157,8 +156,8 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                     continue;   // Odd - but not a big deal
                 }
                 onFlushOpList->makeClosed(*fContext->caps());
-                onFlushOpList->prepare(&fFlushState);
-                onFlushOpLists.push_back(std::move(onFlushOpList));
+                onFlushOpList->prepare(&flushState);
+                fOnFlushOpLists.push_back(std::move(onFlushOpList));
             }
             renderTargetContexts.reset();
         }
@@ -171,71 +170,26 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     }
 #endif
 
+    int startIndex, stopIndex;
+    bool flushed = false;
+
     {
-        GrResourceAllocator alloc(fContext->resourceProvider());
+        GrResourceAllocator alloc(fContext->resourceProvider(), fContext->getResourceCache());
         for (int i = 0; i < fOpLists.count(); ++i) {
             fOpLists[i]->gatherProxyIntervals(&alloc);
+            alloc.markEndOfOpList(i);
         }
 
-#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-        alloc.assign();
+        while (alloc.assign(&startIndex, &stopIndex)) {
+#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+            SkASSERT(0 == startIndex && fOpLists.count() == stopIndex);
 #endif
-    }
-
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        if (!fOpLists[i]->instantiate(fContext->resourceProvider())) {
-            SkDebugf("OpList failed to instantiate.\n");
-            fOpLists[i] = nullptr;
-            continue;
-        }
-
-        // Instantiate all deferred proxies (being built on worker threads) so we can upload them
-        fOpLists[i]->instantiateDeferredProxies(fContext->resourceProvider());
-        fOpLists[i]->prepare(&fFlushState);
-    }
-
-    // Upload all data to the GPU
-    fFlushState.preExecuteDraws();
-
-    // Execute the onFlush op lists first, if any.
-    for (sk_sp<GrOpList>& onFlushOpList : onFlushOpLists) {
-        if (!onFlushOpList->execute(&fFlushState)) {
-            SkDebugf("WARNING: onFlushOpList failed to execute.\n");
-        }
-        SkASSERT(onFlushOpList->unique());
-        onFlushOpList = nullptr;
-    }
-    onFlushOpLists.reset();
-
-    // Execute the normal op lists.
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        if (!fOpLists[i]) {
-            continue;
-        }
-
-        if (fOpLists[i]->execute(&fFlushState)) {
-            flushed = true;
+            if (this->executeOpLists(startIndex, stopIndex, &flushState)) {
+                flushed = true;
+            }
         }
     }
 
-    SkASSERT(fFlushState.nextDrawToken() == fFlushState.nextTokenToFlush());
-
-    // We reset the flush state before the OpLists so that the last resources to be freed are those
-    // that are written to in the OpLists. This helps to make sure the most recently used resources
-    // are the last to be purged by the resource cache.
-    fFlushState.reset();
-
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        if (!fOpLists[i]) {
-            continue;
-        }
-        if (!fOpLists[i]->unique()) {
-            // TODO: Eventually this should be guaranteed unique.
-            // https://bugs.chromium.org/p/skia/issues/detail?id=7111
-            fOpLists[i]->endFlush();
-        }
-        fOpLists[i] = nullptr;
-    }
     fOpLists.reset();
 
     GrSemaphoresSubmitted result = fContext->getGpu()->finishFlush(numSemaphores,
@@ -246,11 +200,83 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         fContext->getResourceCache()->notifyFlushOccurred(type);
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush(fFlushState.nextTokenToFlush());
+        onFlushCBObject->postFlush(flushState.nextTokenToFlush());
     }
     fFlushing = false;
 
     return result;
+}
+
+bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushState* flushState) {
+    SkASSERT(startIndex <= stopIndex && stopIndex <= fOpLists.count());
+
+    bool anyOpListsExecuted = false;
+
+    for (int i = startIndex; i < stopIndex; ++i) {
+        if (!fOpLists[i]) {
+             continue;
+        }
+
+#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+        if (!fOpLists[i]->instantiate(fContext->resourceProvider())) {
+            SkDebugf("OpList failed to instantiate.\n");
+            fOpLists[i] = nullptr;
+            continue;
+        }
+#else
+        SkASSERT(fOpLists[i]->isInstantiated());
+#endif
+
+        // TODO: handle this instantiation via lazy surface proxies?
+        // Instantiate all deferred proxies (being built on worker threads) so we can upload them
+        fOpLists[i]->instantiateDeferredProxies(fContext->resourceProvider());
+        fOpLists[i]->prepare(flushState);
+    }
+
+    // Upload all data to the GPU
+    flushState->preExecuteDraws();
+
+    // Execute the onFlush op lists first, if any.
+    for (sk_sp<GrOpList>& onFlushOpList : fOnFlushOpLists) {
+        if (!onFlushOpList->execute(flushState)) {
+            SkDebugf("WARNING: onFlushOpList failed to execute.\n");
+        }
+        SkASSERT(onFlushOpList->unique());
+        onFlushOpList = nullptr;
+    }
+    fOnFlushOpLists.reset();
+
+    // Execute the normal op lists.
+    for (int i = startIndex; i < stopIndex; ++i) {
+        if (!fOpLists[i]) {
+            continue;
+        }
+
+        if (fOpLists[i]->execute(flushState)) {
+            anyOpListsExecuted = true;
+        }
+    }
+
+    SkASSERT(flushState->nextDrawToken() == flushState->nextTokenToFlush());
+
+    // We reset the flush state before the OpLists so that the last resources to be freed are those
+    // that are written to in the OpLists. This helps to make sure the most recently used resources
+    // are the last to be purged by the resource cache.
+    flushState->reset();
+
+    for (int i = startIndex; i < stopIndex; ++i) {
+        if (!fOpLists[i]) {
+            continue;
+        }
+        if (!fOpLists[i]->unique()) {
+            // TODO: Eventually this should be guaranteed unique.
+            // https://bugs.chromium.org/p/skia/issues/detail?id=7111
+            fOpLists[i]->endFlush();
+        }
+        fOpLists[i] = nullptr;
+    }
+
+    return anyOpListsExecuted;
 }
 
 GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
