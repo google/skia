@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1040e3a5_01cf2170",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-15T23:03:06Z",
+      "side": 1,
+      "message": "(except in high quality filtering, real fix tbd.)",
+      "revId": "3323aaa29a1b483c97172ff03c2f048306ffaa65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
