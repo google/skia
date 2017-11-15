@@ -131,8 +131,10 @@ bool GrGLExtensions::remove(const char ext[]) {
     // This is not terribly effecient but we really only expect this function to be called at
     // most a handful of times when our test programs start.
     fStrings->removeShuffle(idx);
-    SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
-    SkTInsertionSort(&(fStrings->operator[](idx)), &fStrings->back(), cmp);
+    if (idx != fStrings->count()) {
+        SkTLessFunctionToFunctorAdaptor<SkString, extension_compare> cmp;
+        SkTInsertionSort(&(fStrings->operator[](idx)), &fStrings->back(), cmp);
+    }
     return true;
 }
 
