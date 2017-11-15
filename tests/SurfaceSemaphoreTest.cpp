@@ -169,7 +169,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     draw_child(reporter, childInfo2, backendImage, semaphores[1]);
 }
 
-DEF_GPUTEST(SurfaceSemaphores, reporter, factory) {
+DEF_GPUTEST(SurfaceSemaphores, reporter, options) {
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
     static constexpr auto kNativeGLType = sk_gpu_test::GrContextFactory::kGL_ContextType;
 #else
@@ -188,7 +188,8 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, factory) {
                     continue;
                 }
             }
-            sk_gpu_test::ContextInfo ctxInfo = factory->getContextInfo(
+            sk_gpu_test::GrContextFactory factory(options);
+            sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(
                     contextType, sk_gpu_test::GrContextFactory::ContextOverrides::kDisableNVPR);
             if (!sk_gpu_test::GrContextFactory::IsRenderingContext(contextType)) {
                 continue;
@@ -196,10 +197,10 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, factory) {
             skiatest::ReporterContext ctx(
                    reporter, SkString(sk_gpu_test::GrContextFactory::ContextTypeName(contextType)));
             if (ctxInfo.grContext()) {
-                sk_gpu_test::ContextInfo child1 = factory->getSharedContextInfo(ctxInfo.grContext(),
-                                                                                0);
-                sk_gpu_test::ContextInfo child2 = factory->getSharedContextInfo(ctxInfo.grContext(),
-                                                                                1);
+                sk_gpu_test::ContextInfo child1 =
+                        factory.getSharedContextInfo(ctxInfo.grContext(), 0);
+                sk_gpu_test::ContextInfo child2 =
+                        factory.getSharedContextInfo(ctxInfo.grContext(), 1);
                 if (!child1.grContext() || !child2.grContext()) {
                     continue;
                 }
