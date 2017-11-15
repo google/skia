@@ -244,14 +244,6 @@ public:
 
     int maxCombinedSamplers() const { return fMaxCombinedSamplers; }
 
-    int maxVertexImageStorages() const { return fMaxVertexImageStorages; }
-
-    int maxGeometryImageStorages() const { return fMaxGeometryImageStorages; }
-
-    int maxFragmentImageStorages() const { return fMaxFragmentImageStorages; }
-
-    int maxCombinedImageStorages() const { return fMaxCombinedImageStorages; }
-
     bool disableImageMultitexturingSupport() const { return fDisableImageMultitexturing; }
 
     /**
@@ -341,11 +333,6 @@ private:
     int fMaxGeometrySamplers;
     int fMaxFragmentSamplers;
     int fMaxCombinedSamplers;
-
-    int fMaxVertexImageStorages;
-    int fMaxGeometryImageStorages;
-    int fMaxFragmentImageStorages;
-    int fMaxCombinedImageStorages;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 

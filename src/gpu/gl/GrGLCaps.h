@@ -134,9 +134,6 @@ public:
         return this->isConfigRenderable(config, false);
     }
 
-    bool canConfigBeImageStorage(GrPixelConfig config) const override {
-        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseAsImageStorage_Flag);
-    }
     bool canConfigBeFBOColorAttachment(GrPixelConfig config) const {
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kFBOColorAttachment_Flag);
     }
@@ -568,7 +565,6 @@ private:
             kFBOColorAttachment_Flag      = 0x10,
             kCanUseTexStorage_Flag        = 0x20,
             kCanUseWithTexelBuffer_Flag   = 0x40,
-            kCanUseAsImageStorage_Flag    = 0x80,
         };
         uint32_t fFlags;
 

@@ -140,8 +140,6 @@ enum GrSLType {
     kBufferSampler_GrSLType,
     kTexture2D_GrSLType,
     kSampler_GrSLType,
-    kImageStorage2D_GrSLType,
-    kIImageStorage2D_GrSLType,
 };
 
 enum GrShaderType {
@@ -225,8 +223,6 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
         case kUint2_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
-        case kImageStorage2D_GrSLType:
-        case kIImageStorage2D_GrSLType:
             return false;
     }
     SK_ABORT("Unexpected type");
@@ -274,8 +270,6 @@ static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
         case kUShort4_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
-        case kImageStorage2D_GrSLType:
-        case kIImageStorage2D_GrSLType:
             return false;
     }
     SK_ABORT("Unexpected type");
@@ -323,57 +317,6 @@ static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kUShort4_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
-        case kImageStorage2D_GrSLType:
-        case kIImageStorage2D_GrSLType:
-            return false;
-    }
-    SK_ABORT("Unexpected type");
-    return false;
-}
-
-static inline bool GrSLTypeIsImageStorage(GrSLType type) {
-    switch (type) {
-        case kImageStorage2D_GrSLType:
-        case kIImageStorage2D_GrSLType:
-            return true;
-
-        case kVoid_GrSLType:
-        case kFloat_GrSLType:
-        case kFloat2_GrSLType:
-        case kFloat3_GrSLType:
-        case kFloat4_GrSLType:
-        case kFloat2x2_GrSLType:
-        case kFloat3x3_GrSLType:
-        case kFloat4x4_GrSLType:
-        case kHalf_GrSLType:
-        case kHalf2_GrSLType:
-        case kHalf3_GrSLType:
-        case kHalf4_GrSLType:
-        case kHalf2x2_GrSLType:
-        case kHalf3x3_GrSLType:
-        case kHalf4x4_GrSLType:
-        case kInt_GrSLType:
-        case kInt2_GrSLType:
-        case kInt3_GrSLType:
-        case kInt4_GrSLType:
-        case kUint_GrSLType:
-        case kUint2_GrSLType:
-        case kBool_GrSLType:
-        case kShort_GrSLType:
-        case kShort2_GrSLType:
-        case kShort3_GrSLType:
-        case kShort4_GrSLType:
-        case kUShort_GrSLType:
-        case kUShort2_GrSLType:
-        case kUShort3_GrSLType:
-        case kUShort4_GrSLType:
-        case kTexture2D_GrSLType:
-        case kSampler_GrSLType:
-        case kTexture2DSampler_GrSLType:
-        case kITexture2DSampler_GrSLType:
-        case kTextureExternalSampler_GrSLType:
-        case kTexture2DRectSampler_GrSLType:
-        case kBufferSampler_GrSLType:
             return false;
     }
     SK_ABORT("Unexpected type");
@@ -389,8 +332,6 @@ static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {
         case kBufferSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
-        case kImageStorage2D_GrSLType:
-        case kIImageStorage2D_GrSLType:
             return true;
 
         case kVoid_GrSLType:
@@ -462,8 +403,6 @@ static inline bool GrSLTypeTemporarilyAcceptsPrecision(GrSLType type) {
         case kBufferSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
-        case kImageStorage2D_GrSLType:
-        case kIImageStorage2D_GrSLType:
             return true;
 
         case kVoid_GrSLType:
@@ -602,40 +541,6 @@ static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
     SK_ABORT("Unsupported type conversion");
     return kVoid_GrSLType;
 }
-
-//////////////////////////////////////////////////////////////////////////////
-
-enum class GrImageStorageFormat {
-    kRGBA8,
-    kRGBA8i,
-    kRGBA16f,
-    kRGBA32f,
-};
-
-/**
- * Describes types of caching and compiler optimizations allowed for certain variable types
- * (currently only image storages).
- **/
-enum class GrSLMemoryModel {
-    /** No special restrctions on memory accesses or compiler optimizations */
-    kNone,
-    /** Cache coherent across shader invocations */
-    kCoherent,
-    /**
-     * Disallows compiler from eliding loads or stores that appear redundant in a single
-     * invocation. Implies coherent.
-     */
-    kVolatile
-};
-
-/**
- * If kYes then the memory backing the varialble is only accessed via the variable. This is
- * currently only used with image storages.
- */
-enum class GrSLRestrict {
-    kYes,
-    kNo,
-};
 
 //////////////////////////////////////////////////////////////////////////////
 

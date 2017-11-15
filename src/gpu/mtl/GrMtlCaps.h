@@ -43,8 +43,6 @@ public:
         return true;
     }
 
-    bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
-
 #if 0
     /**
      * Returns both a supported and most prefered stencil format to use in draws.

@@ -209,8 +209,6 @@ static void append_texture_bindings(
         const GrResourceIOProcessor& processor,
         SkTArray<const GrResourceIOProcessor::TextureSampler*>* textureBindings,
         SkTArray<const GrResourceIOProcessor::BufferAccess*>* bufferAccesses) {
-    // We don't support image storages in VK.
-    SkASSERT(!processor.numImageStorages());
     if (int numTextureSamplers = processor.numTextureSamplers()) {
         const GrResourceIOProcessor::TextureSampler** bindings =
                 textureBindings->push_back_n(numTextureSamplers);

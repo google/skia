@@ -72,8 +72,6 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
         case kBufferSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
-        case kImageStorage2D_GrSLType:
-        case kIImageStorage2D_GrSLType:
             break;
     }
     SK_ABORT("Unexpected type");
@@ -144,8 +142,6 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
         case kBufferSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
-        case kImageStorage2D_GrSLType:
-        case kIImageStorage2D_GrSLType:
             break;
     }
     SK_ABORT("Unexpected type");

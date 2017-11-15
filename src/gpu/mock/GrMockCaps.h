@@ -45,7 +45,6 @@ public:
         return false;
     }
 
-    bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override {
         return false;

@@ -67,18 +67,12 @@ private:
  */
 class TestFP : public GrFragmentProcessor {
 public:
-    struct Image {
-        Image(sk_sp<GrTextureProxy> proxy, GrIOType ioType) : fProxy(proxy), fIOType(ioType) {}
-        sk_sp<GrTextureProxy> fProxy;
-        GrIOType fIOType;
-    };
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child) {
         return std::unique_ptr<GrFragmentProcessor>(new TestFP(std::move(child)));
     }
     static std::unique_ptr<GrFragmentProcessor> Make(const SkTArray<sk_sp<GrTextureProxy>>& proxies,
-                                                     const SkTArray<sk_sp<GrBuffer>>& buffers,
-                                                     const SkTArray<Image>& images) {
-        return std::unique_ptr<GrFragmentProcessor>(new TestFP(proxies, buffers, images));
+                                                     const SkTArray<sk_sp<GrBuffer>>& buffers) {
+        return std::unique_ptr<GrFragmentProcessor>(new TestFP(proxies, buffers));
     }
 
     const char* name() const override { return "test"; }
@@ -94,33 +88,23 @@ public:
     }
 
 private:
-    TestFP(const SkTArray<sk_sp<GrTextureProxy>>& proxies,
-           const SkTArray<sk_sp<GrBuffer>>& buffers,
-           const SkTArray<Image>& images)
-            : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4), fBuffers(4),
-                        fImages(4) {
+    TestFP(const SkTArray<sk_sp<GrTextureProxy>>& proxies, const SkTArray<sk_sp<GrBuffer>>& buffers)
+            : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4), fBuffers(4) {
         for (const auto& proxy : proxies) {
             this->addTextureSampler(&fSamplers.emplace_back(proxy));
         }
         for (const auto& buffer : buffers) {
             this->addBufferAccess(&fBuffers.emplace_back(kRGBA_8888_GrPixelConfig, buffer.get()));
         }
-        for (const Image& image : images) {
-            fImages.emplace_back(image.fProxy, image.fIOType,
-                                 GrSLMemoryModel::kNone, GrSLRestrict::kNo);
-            this->addImageStorageAccess(&fImages.back());
-        }
     }
 
     TestFP(std::unique_ptr<GrFragmentProcessor> child)
-            : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4), fBuffers(4),
-                        fImages(4) {
+            : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4), fBuffers(4) {
         this->registerChildProcessor(std::move(child));
     }
 
     explicit TestFP(const TestFP& that)
-            : INHERITED(kTestFP_ClassID, that.optimizationFlags()), fSamplers(4), fBuffers(4),
-                        fImages(4) {
+            : INHERITED(kTestFP_ClassID, that.optimizationFlags()), fSamplers(4), fBuffers(4) {
         for (int i = 0; i < that.fSamplers.count(); ++i) {
             fSamplers.emplace_back(that.fSamplers[i]);
             this->addTextureSampler(&fSamplers.back());
@@ -128,10 +112,6 @@ private:
         for (int i = 0; i < that.fBuffers.count(); ++i) {
             fBuffers.emplace_back(that.fBuffers[i]);
             this->addBufferAccess(&fBuffers.back());
-        }
-        for (int i = 0; i < that.fImages.count(); ++i) {
-            fImages.emplace_back(that.fImages[i]);
-            this->addImageStorageAccess(&fImages.back());
         }
         for (int i = 0; i < that.numChildProcessors(); ++i) {
             this->registerChildProcessor(that.childProcessor(i).clone());
@@ -156,7 +136,6 @@ private:
 
     GrTAllocator<TextureSampler> fSamplers;
     GrTAllocator<BufferAccess> fBuffers;
-    GrTAllocator<ImageStorageAccess> fImages;
     typedef GrFragmentProcessor INHERITED;
 };
 }
@@ -190,7 +169,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                                                               kRGBA_8888_GrPixelConfig, nullptr));
             {
                 bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
-                bool imageLoadStoreSupport = context->caps()->shaderCaps()->imageLoadStoreSupport();
                 sk_sp<GrTextureProxy> proxy1(
                         GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                      desc, SkBackingFit::kExact,
@@ -215,18 +193,11 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                 {
                     SkTArray<sk_sp<GrTextureProxy>> proxies;
                     SkTArray<sk_sp<GrBuffer>> buffers;
-                    SkTArray<TestFP::Image> images;
                     proxies.push_back(proxy1);
                     if (texelBufferSupport) {
                         buffers.push_back(buffer);
                     }
-                    if (imageLoadStoreSupport) {
-                        images.emplace_back(proxy2, GrIOType::kRead_GrIOType);
-                        images.emplace_back(proxy3, GrIOType::kWrite_GrIOType);
-                        images.emplace_back(proxy4, GrIOType::kRW_GrIOType);
-                    }
-                    auto fp = TestFP::Make(std::move(proxies), std::move(buffers),
-                                           std::move(images));
+                    auto fp = TestFP::Make(std::move(proxies), std::move(buffers));
                     for (int i = 0; i < parentCnt; ++i) {
                         fp = TestFP::Make(std::move(fp));
                     }
@@ -255,23 +226,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     REPORTER_ASSERT(reporter, 1 == refCnt);
                     REPORTER_ASSERT(reporter, ioRefMul * 1 == readCnt);
                     REPORTER_ASSERT(reporter, ioRefMul *  0 == writeCnt);
-                }
-
-                if (imageLoadStoreSupport) {
-                    testingOnly_getIORefCnts(proxy2.get(), &refCnt, &readCnt, &writeCnt);
-                    REPORTER_ASSERT(reporter, 1 == refCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 1 == readCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
-
-                    testingOnly_getIORefCnts(proxy3.get(), &refCnt, &readCnt, &writeCnt);
-                    REPORTER_ASSERT(reporter, 1 == refCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 1 == writeCnt);
-
-                    testingOnly_getIORefCnts(proxy4.get(), &refCnt, &readCnt, &writeCnt);
-                    REPORTER_ASSERT(reporter, 1 == refCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 1 == readCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 1 == writeCnt);
                 }
 
                 context->flush();

@@ -43,8 +43,6 @@ public:
         return true;
     }
 
-    bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
-
     bool isConfigTexturableLinearly(GrPixelConfig config) const {
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fLinearFlags);
     }

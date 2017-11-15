@@ -358,42 +358,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     GR_GL_GetIntegerv(gli, GR_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxSamplers);
     shaderCaps->fMaxCombinedSamplers = SkTMin<GrGLint>(kMaxSaneSamplers, maxSamplers);
 
-    if (kGL_GrGLStandard == standard) {
-        shaderCaps->fImageLoadStoreSupport = ctxInfo.version() >= GR_GL_VER(4, 2);
-        if (!shaderCaps->fImageLoadStoreSupport &&
-            ctxInfo.hasExtension("GL_ARB_shader_image_load_store")) {
-            shaderCaps->fImageLoadStoreSupport = true;
-            shaderCaps->fImageLoadStoreExtensionString = "GL_ARB_shader_image_load_store";
-        }
-    } else {
-        shaderCaps->fImageLoadStoreSupport = ctxInfo.version() >= GR_GL_VER(3, 1);
-    }
-    if (shaderCaps->fImageLoadStoreSupport) {
-        // Protect ourselves against tracking huge amounts of image state.
-        static constexpr int kMaxSaneImages = 4;
-        GrGLint maxUnits;
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_IMAGE_UNITS, &maxUnits);
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_IMAGE_UNIFORMS,
-                          &shaderCaps->fMaxVertexImageStorages);
-        if (shaderCaps->fGeometryShaderSupport) {
-            GR_GL_GetIntegerv(gli, GR_GL_MAX_GEOMETRY_IMAGE_UNIFORMS,
-                              &shaderCaps->fMaxGeometryImageStorages);
-        }
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_IMAGE_UNIFORMS,
-                          &shaderCaps->fMaxFragmentImageStorages);
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_COMBINED_IMAGE_UNIFORMS,
-                          &shaderCaps->fMaxCombinedImageStorages);
-        // We use one unit for every image uniform
-        shaderCaps->fMaxCombinedImageStorages = SkTMin(SkTMin(shaderCaps->fMaxCombinedImageStorages,
-                                                              maxUnits), kMaxSaneImages);
-        shaderCaps->fMaxVertexImageStorages = SkTMin(maxUnits,
-                                                     shaderCaps->fMaxVertexImageStorages);
-        shaderCaps->fMaxGeometryImageStorages = SkTMin(maxUnits,
-                                                       shaderCaps->fMaxGeometryImageStorages);
-        shaderCaps->fMaxFragmentImageStorages =  SkTMin(maxUnits,
-                                                        shaderCaps->fMaxFragmentImageStorages);
-    }
-
     // SGX and Mali GPUs that are based on a tiled-deferred architecture that have trouble with
     // frequently changing VBOs. We've measured a performance increase using non-VBO vertex
     // data for dynamic content on these GPUs. Perhaps we should read the renderer string and
@@ -2240,24 +2204,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                 fConfigTable[i].fFormats.fBaseInternalFormat == GR_GL_RED) {
                 shaderCaps->fConfigOutputSwizzle[i] = GrSwizzle::AAAA();
             }
-        }
-    }
-
-    // We currently only support images on rgba textures formats. We could add additional formats
-    // if desired. The shader builder would have to be updated to add swizzles where appropriate
-    // (e.g. where we use GL_RED textures to implement alpha configs).
-    if (this->shaderCaps()->imageLoadStoreSupport()) {
-        fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFlags |=
-                ConfigInfo::kCanUseAsImageStorage_Flag;
-        // In OpenGL ES a texture may only be used with BindImageTexture if it has been made
-        // immutable via TexStorage. We create non-integer textures as mutable textures using
-        // TexImage because we may lazily add MIP levels. Thus, on ES we currently disable image
-        // storage support for non-integer textures.
-        if (kGL_GrGLStandard == ctxInfo.standard()) {
-            fConfigTable[kRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseAsImageStorage_Flag;
-            fConfigTable[kRGBA_float_GrPixelConfig].fFlags |=
-                    ConfigInfo::kCanUseAsImageStorage_Flag;
-            fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= ConfigInfo::kCanUseAsImageStorage_Flag;
         }
     }
 
