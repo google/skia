@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d950f386_1375600f",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1983,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-15T19:41:23Z",
+      "side": 1,
+      "message": "Can this be folded into line 1979?",
+      "range": {
+        "startLine": 1983,
+        "startChar": 7,
+        "endLine": 1983,
+        "endChar": 40
+      },
+      "revId": "c4ad26985be0ea3a344b30367d3709b00ac806f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
