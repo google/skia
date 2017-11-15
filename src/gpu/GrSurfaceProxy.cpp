@@ -42,8 +42,8 @@ GrSurfaceProxy::~GrSurfaceProxy() {
     SkASSERT(!fLastOpList);
 }
 
-static bool attach_stencil_if_needed(GrResourceProvider* resourceProvider,
-                                     GrSurface* surface, bool needsStencil) {
+bool GrSurfaceProxyPriv::AttachStencilIfNeeded(GrResourceProvider* resourceProvider,
+                                               GrSurface* surface, bool needsStencil) {
     if (needsStencil) {
         GrRenderTarget* rt = surface->asRenderTarget();
         if (!rt) {
@@ -88,7 +88,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
 
     surface->asTexture()->texturePriv().setMipColorMode(mipColorMode);
 
-    if (!attach_stencil_if_needed(resourceProvider, surface.get(), needsStencil)) {
+    if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, surface.get(), needsStencil)) {
         return nullptr;
     }
 
@@ -115,7 +115,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
         if (uniqueKey) {
             SkASSERT(fTarget->getUniqueKey() == *uniqueKey);
         }
-        return attach_stencil_if_needed(resourceProvider, fTarget, needsStencil);
+        return GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, fTarget, needsStencil);
     }
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, needsStencil,
