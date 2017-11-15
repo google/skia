@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f4cf0b8_553332f3",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-15T22:07:06Z",
+      "side": 1,
+      "message": "It seems like overBudget() is the only use for resource cache. Would it make sense to bubble that up through resource provider?",
+      "range": {
+        "startLine": 208,
+        "startChar": 16,
+        "endLine": 208,
+        "endChar": 44
+      },
+      "revId": "118008c88978e00053b2f57152f7e9e2fdf6dadf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae95d96c_13185b3c",
+        "filename": "src/gpu/GrResourceAllocator.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-15T22:07:06Z",
+      "side": 1,
+      "message": "should this be tabbed over?",
+      "range": {
+        "startLine": 175,
+        "startChar": 44,
+        "endLine": 175,
+        "endChar": 73
+      },
+      "revId": "118008c88978e00053b2f57152f7e9e2fdf6dadf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
