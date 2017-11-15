@@ -34,6 +34,24 @@
       "revId": "aa89d1dee51b04fa66cd444b39c3be967d3ccd0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "37d75e70_04bdc4f8",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-15T20:13:38Z",
+      "side": 1,
+      "message": "Rephrasing... the only Windows CPU bots that I specifically don\u0027t want to be GCE Win2016 bots are the NativeFonts bots.  I\u0027d be fine with all the others being Win2016 on GCE.",
+      "parentUuid": "cd9116ef_e9a5c252",
+      "revId": "aa89d1dee51b04fa66cd444b39c3be967d3ccd0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
