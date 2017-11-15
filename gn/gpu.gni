@@ -314,6 +314,8 @@ skia_gpu_sources = [
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
 
+  "$_src/gpu/effects/GrAARectEffect.cpp",
+  "$_src/gpu/effects/GrAARectEffect.h",
   "$_src/gpu/effects/GrArithmeticFP.cpp",
   "$_src/gpu/effects/GrArithmeticFP.h",
   "$_src/gpu/effects/GrBlurredEdgeFragmentProcessor.cpp",

@@ -25,6 +25,10 @@ inline SkPoint float2(float xy) { return SkPoint::Make(xy, xy); }
 
 inline SkPoint float2(float x, float y) { return SkPoint::Make(x, y); }
 
+inline SkRect float4(float ltrb) { return SkRect::MakeLTRB(ltrb, ltrb, ltrb, ltrb); }
+
+inline SkRect float4(float l, float t, float r, float b) { return SkRect::MakeLTRB(l, t, r, b); }
+
 #define half2 float2
 
 #endif
