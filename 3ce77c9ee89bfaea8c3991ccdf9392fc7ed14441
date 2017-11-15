@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "789441f2_17be157f",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2110,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-11-15T16:00:27Z",
+      "side": 1,
+      "message": "These checks here I\u0027m basically just copying from the old code, but I\u0027m not sure if we\u0027ve assumed anywhere that that, for example, texStorageSupported will only be true when textureRedSupport is true. Thus maybe I shouldn\u0027t be setting alphaHalf.fFlags here (or visa versa). So double check how I\u0027m setting the flags to see if they make sense.",
+      "range": {
+        "startLine": 2106,
+        "startChar": 4,
+        "endLine": 2110,
+        "endChar": 28
+      },
+      "revId": "3ce77c9ee89bfaea8c3991ccdf9392fc7ed14441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
