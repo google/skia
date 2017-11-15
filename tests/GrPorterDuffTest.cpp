@@ -1050,8 +1050,8 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     TEST_ASSERT(blendInfo.fWriteColor);
 }
 
-DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
-    GrContextOptions opts;
+DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
+    GrContextOptions opts = options;
     opts.fSuppressDualSourceBlending = true;
     sk_gpu_test::GrContextFactory mockFactory(opts);
     GrContext* ctx = mockFactory.get(sk_gpu_test::GrContextFactory::kNullGL_ContextType);

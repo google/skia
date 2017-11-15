@@ -89,7 +89,7 @@ private:
     Reporter* fReporter;
 };
 
-typedef void (*TestProc)(skiatest::Reporter*, sk_gpu_test::GrContextFactory*);
+typedef void (*TestProc)(skiatest::Reporter*, const GrContextOptions&);
 typedef void (*ContextOptionsProc)(GrContextOptions*);
 
 struct Test {
@@ -106,9 +106,9 @@ struct Test {
         }
     }
 
-    void run(skiatest::Reporter* r, sk_gpu_test::GrContextFactory* factory) const {
+    void run(skiatest::Reporter* r, const GrContextOptions& options) const {
         TRACE_EVENT1("test", TRACE_FUNC, "name", this->name/*these are static*/);
-        this->proc(r, factory);
+        this->proc(r, options);
     }
 };
 
@@ -146,8 +146,8 @@ extern bool IsGLContextType(GrContextFactoryContextType);
 extern bool IsVulkanContextType(GrContextFactoryContextType);
 extern bool IsRenderingGLContextType(GrContextFactoryContextType);
 extern bool IsNullGLContextType(GrContextFactoryContextType);
-void RunWithGPUTestContexts(GrContextTestFn*, GrContextTypeFilterFn*,
-                            Reporter*, sk_gpu_test::GrContextFactory*);
+void RunWithGPUTestContexts(GrContextTestFn*, GrContextTypeFilterFn*, Reporter*,
+                            const GrContextOptions&);
 
 /** Timer provides wall-clock duration since its creation. */
 class Timer {
@@ -197,30 +197,25 @@ private:
         }                            \
     } while (0)
 
-#define DEF_TEST(name, reporter)                                                  \
-    static void test_##name(skiatest::Reporter*, sk_gpu_test::GrContextFactory*); \
-    skiatest::TestRegistry name##TestRegistry(                                    \
-            skiatest::Test(#name, false, test_##name));                           \
-    void test_##name(skiatest::Reporter* reporter, sk_gpu_test::GrContextFactory*)
+#define DEF_TEST(name, reporter)                                                          \
+    static void test_##name(skiatest::Reporter*, const GrContextOptions&);                \
+    skiatest::TestRegistry name##TestRegistry(skiatest::Test(#name, false, test_##name)); \
+    void test_##name(skiatest::Reporter* reporter, const GrContextOptions&)
 
-
-#define DEF_GPUTEST(name, reporter, factory)                                                 \
-    static void test_##name(skiatest::Reporter*, sk_gpu_test::GrContextFactory*);            \
-    skiatest::TestRegistry name##TestRegistry(                                               \
-            skiatest::Test(#name, true, test_##name));                                       \
-    void test_##name(skiatest::Reporter* reporter, sk_gpu_test::GrContextFactory* factory)
+#define DEF_GPUTEST(name, reporter, options)                                             \
+    static void test_##name(skiatest::Reporter*, const GrContextOptions&);               \
+    skiatest::TestRegistry name##TestRegistry(skiatest::Test(#name, true, test_##name)); \
+    void test_##name(skiatest::Reporter* reporter, const GrContextOptions& options)
 
 #define DEF_GPUTEST_FOR_CONTEXTS(name, context_filter, reporter, context_info, options_filter)  \
-    static void test_##name(skiatest::Reporter*,                                                \
-                            const sk_gpu_test::ContextInfo& context_info);                      \
+    static void test_##name(skiatest::Reporter*, const sk_gpu_test::ContextInfo& context_info); \
     static void test_gpu_contexts_##name(skiatest::Reporter* reporter,                          \
-                                         sk_gpu_test::GrContextFactory* factory) {              \
-        skiatest::RunWithGPUTestContexts(test_##name, context_filter, reporter, factory);       \
+                                         const GrContextOptions& options) {                     \
+        skiatest::RunWithGPUTestContexts(test_##name, context_filter, reporter, options);       \
     }                                                                                           \
     skiatest::TestRegistry name##TestRegistry(                                                  \
             skiatest::Test(#name, true, test_gpu_contexts_##name, options_filter));             \
-    void test_##name(skiatest::Reporter* reporter,                                              \
-                     const sk_gpu_test::ContextInfo& context_info)
+    void test_##name(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& context_info)
 
 #define DEF_GPUTEST_FOR_ALL_CONTEXTS(name, reporter, context_info)                          \
         DEF_GPUTEST_FOR_CONTEXTS(name, nullptr, reporter, context_info, nullptr)
