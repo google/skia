@@ -22,6 +22,8 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextFactory.h"
+#else
+struct GrContextOptions {};
 #endif
 
 using namespace skiatest;
@@ -82,10 +84,8 @@ private:
 
 class SkTestRunnable {
 public:
-    SkTestRunnable(const Test& test,
-                   Status* status,
-                   GrContextFactory* grContextFactory = nullptr)
-        : fTest(test), fStatus(status), fGrContextFactory(grContextFactory) {}
+    SkTestRunnable(const Test& test, Status* status)
+        : fTest(test), fStatus(status) {}
 
   void operator()() {
       struct TestReporter : public skiatest::Reporter {
@@ -107,7 +107,7 @@ public:
       } reporter;
 
       const Timer timer;
-      fTest.proc(&reporter, fGrContextFactory);
+      fTest.proc(&reporter, GrContextOptions());
       SkMSec elapsed = timer.elapsedMsInt();
       if (reporter.fError) {
           fStatus->reportFailure();
@@ -233,17 +233,9 @@ int main(int argc, char** argv) {
         }
     }
 
-    GrContextFactory* grContextFactoryPtr = nullptr;
-#if SK_SUPPORT_GPU
-    // Give GPU tests a context factory if that makes sense on this machine.
-    GrContextFactory grContextFactory;
-    grContextFactoryPtr = &grContextFactory;
-
-#endif
-
     // Run GPU tests on this thread.
     for (int i = 0; i < gpuTests.count(); i++) {
-        SkTestRunnable(*gpuTests[i], &status, grContextFactoryPtr)();
+        SkTestRunnable(*gpuTests[i], &status)();
     }
 
     // Block until threaded tests finish.

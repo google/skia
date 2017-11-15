@@ -125,7 +125,7 @@ protected:
 };
 
 #define DEF_CCPR_TEST(name) \
-    DEF_GPUTEST(name, reporter, factory) { \
+    DEF_TEST(name, reporter) { \
         name test; \
         test.run(reporter); \
     }
