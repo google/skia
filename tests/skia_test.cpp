@@ -22,6 +22,8 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextFactory.h"
+#else
+struct GrContextOptions {};
 #endif
 
 using namespace skiatest;
@@ -82,38 +84,32 @@ private:
 
 class SkTestRunnable {
 public:
-    SkTestRunnable(const Test& test,
-                   Status* status,
-                   GrContextFactory* grContextFactory = nullptr)
-        : fTest(test), fStatus(status), fGrContextFactory(grContextFactory) {}
+    SkTestRunnable(const Test& test, Status* status) : fTest(test), fStatus(status) {}
 
-  void operator()() {
-      struct TestReporter : public skiatest::Reporter {
-      public:
-          TestReporter() : fStats(nullptr), fError(false), fTestCount(0) {}
-          void bumpTestCount() override { ++fTestCount; }
-          bool allowExtendedTest() const override {
-              return FLAGS_extendedTest;
-          }
-          bool verbose() const override { return FLAGS_veryVerbose; }
-          void reportFailed(const skiatest::Failure& failure) override {
-              SkDebugf("\nFAILED: %s", failure.toString().c_str());
-              fError = true;
-          }
-          void* stats() const override { return fStats; }
-          void* fStats;
-          bool fError;
-          int fTestCount;
-      } reporter;
+    void operator()() {
+        struct TestReporter : public skiatest::Reporter {
+        public:
+            TestReporter() : fStats(nullptr), fError(false), fTestCount(0) {}
+            void bumpTestCount() override { ++fTestCount; }
+            bool allowExtendedTest() const override { return FLAGS_extendedTest; }
+            bool verbose() const override { return FLAGS_veryVerbose; }
+            void reportFailed(const skiatest::Failure& failure) override {
+                SkDebugf("\nFAILED: %s", failure.toString().c_str());
+                fError = true;
+            }
+            void* stats() const override { return fStats; }
+            void* fStats;
+            bool fError;
+            int fTestCount;
+        } reporter;
 
-      const Timer timer;
-      fTest.proc(&reporter, fGrContextFactory);
-      SkMSec elapsed = timer.elapsedMsInt();
-      if (reporter.fError) {
-          fStatus->reportFailure();
-      }
-      fStatus->endTest(fTest.name, !reporter.fError, elapsed,
-                       reporter.fTestCount);
+        const Timer timer;
+        fTest.proc(&reporter, GrContextOptions());
+        SkMSec elapsed = timer.elapsedMsInt();
+        if (reporter.fError) {
+            fStatus->reportFailure();
+        }
+        fStatus->endTest(fTest.name, !reporter.fError, elapsed, reporter.fTestCount);
   }
 
 private:
@@ -233,17 +229,9 @@ int main(int argc, char** argv) {
         }
     }
 
-    GrContextFactory* grContextFactoryPtr = nullptr;
-#if SK_SUPPORT_GPU
-    // Give GPU tests a context factory if that makes sense on this machine.
-    GrContextFactory grContextFactory;
-    grContextFactoryPtr = &grContextFactory;
-
-#endif
-
     // Run GPU tests on this thread.
     for (int i = 0; i < gpuTests.count(); i++) {
-        SkTestRunnable(*gpuTests[i], &status, grContextFactoryPtr)();
+        SkTestRunnable(*gpuTests[i], &status)();
     }
 
     // Block until threaded tests finish.
