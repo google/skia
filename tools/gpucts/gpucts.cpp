@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkGraphics.h"
 #include "gm_runner.h"
 
 #ifdef __clang__
@@ -25,7 +26,6 @@
 struct GMTestCase {
     gm_runner::GMFactory fGMFactory;
     gm_runner::SkiaBackend fBackend;
-    sk_gpu_test::GrContextFactory* fGrContextFactory;
 };
 
 struct GMTest : public testing::Test {
@@ -33,12 +33,11 @@ struct GMTest : public testing::Test {
     GMTest(GMTestCase t) : fTest(t) {}
     void TestBody() override {
         if (!fTest.fGMFactory) {
-            EXPECT_TRUE(gm_runner::BackendSupported(fTest.fBackend, fTest.fGrContextFactory));
+            EXPECT_TRUE(gm_runner::BackendSupported(fTest.fBackend));
             return;
         }
         std::vector<uint32_t> pixels;
-        GMK_ImageData imgData = gm_runner::Evaluate(
-                fTest.fBackend, fTest.fGMFactory, fTest.fGrContextFactory, &pixels);
+        GMK_ImageData imgData = gm_runner::Evaluate(fTest.fBackend, fTest.fGMFactory, &pixels);
         EXPECT_TRUE(imgData.pix);
         if (!imgData.pix) {
             return;
@@ -57,14 +56,13 @@ struct GMTestFactory : public testing::internal::TestFactoryBase {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct UnitTestData {
-    gm_runner::SkiaContext* fContext;
-    skiatest::TestProc fProc;
-};
+#if !SK_SUPPORT_GPU
+struct GrContextOptions {};
+#endif
 
 struct UnitTest : public testing::Test {
-    UnitTestData fUnitTestData;
-    UnitTest(UnitTestData d) : fUnitTestData(d) {}
+    skiatest::TestProc fProc;
+    UnitTest(skiatest::TestProc proc) : fProc(proc) {}
     void TestBody() override {
         struct : skiatest::Reporter {
             void reportFailed(const skiatest::Failure& failure) override {
@@ -73,15 +71,14 @@ struct UnitTest : public testing::Test {
                 GTEST_NONFATAL_FAILURE_(desc.c_str());
             }
         } r;
-        fUnitTestData.fContext->resetContextFactory();
-        fUnitTestData.fProc(&r, fUnitTestData.fContext->fGrContextFactory.get());
+        fProc(&r, GrContextOptions());
     }
 };
 
 struct UnitTestFactory : testing::internal::TestFactoryBase {
-    UnitTestData fUnitTestData;
-    UnitTestFactory(UnitTestData d) : fUnitTestData(d) {}
-    testing::Test* CreateTest() override { return new UnitTest(fUnitTestData); }
+    skiatest::TestProc fProc;
+    UnitTestFactory(skiatest::TestProc proc) : fProc(proc) {}
+    testing::Test* CreateTest() override { return new UnitTest(fProc); }
 };
 
 std::vector<const skiatest::Test*> GetUnitTests() {
@@ -117,8 +114,7 @@ static void reg_test(const char* test, const char* testCase,
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
-    gm_runner::SkiaContext context;
-    sk_gpu_test::GrContextFactory* grContextFactory = context.fGrContextFactory.get();
+    SkGraphics::Init();
 
     // Rendering Tests
     gm_runner::SkiaBackend backends[] = {
@@ -132,10 +128,9 @@ int main(int argc, char** argv) {
     for (auto backend : backends) {
         const char* backendName = GetBackendName(backend);
         std::string test = std::string("SkiaGM_") + backendName;
-        reg_test(test.c_str(), "BackendSupported",
-                 new GMTestFactory(GMTestCase{nullptr, backend, grContextFactory}));
+        reg_test(test.c_str(), "BackendSupported", new GMTestFactory(GMTestCase{nullptr, backend}));
 
-        if (!gm_runner::BackendSupported(backend, context.fGrContextFactory.get())) {
+        if (!gm_runner::BackendSupported(backend)) {
             continue;
         }
         for (auto gmFactory : gms) {
@@ -151,14 +146,13 @@ int main(int argc, char** argv) {
                     continue;
                 }
             #endif
-            reg_test(test.c_str(), gmName.c_str(),
-                     new GMTestFactory(GMTestCase{gmFactory, backend, grContextFactory}));
+                reg_test(test.c_str(), gmName.c_str(),
+                         new GMTestFactory(GMTestCase{gmFactory, backend}));
       }
     }
 
     for (const skiatest::Test* test : GetUnitTests()) {
-            reg_test("Skia_Unit_Tests", test->name,
-                new UnitTestFactory(UnitTestData{&context, test->proc}));
+        reg_test("Skia_Unit_Tests", test->name, new UnitTestFactory(test->proc));
     }
     return RUN_ALL_TESTS();
 }
