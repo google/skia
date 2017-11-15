@@ -7,7 +7,7 @@
 
 #include "SkTextBlobRunIterator.h"
 
-#include "SkReadBuffer.h"
+#include "SkValidatingReadBuffer.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 
@@ -840,11 +840,11 @@ sk_sp<SkData> SkTextBlob::serialize(SkTypefaceCatalogerProc proc, void* ctx) con
     return data;
 }
 
-class SkTypefaceResolverReadBuffer : public SkReadBuffer {
+class SkTypefaceResolverReadBuffer : public SkValidatingReadBuffer {
 public:
     SkTypefaceResolverReadBuffer(const void* data, size_t size, SkTypefaceResolverProc proc,
                                  void* ctx)
-        : SkReadBuffer(data, size)
+        : SkValidatingReadBuffer(data, size)
         , fResolverProc(proc)
         , fResolverCtx(ctx)
     {}
