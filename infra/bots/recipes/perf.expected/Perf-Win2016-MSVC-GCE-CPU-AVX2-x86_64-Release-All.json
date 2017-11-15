@@ -91,7 +91,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-All\\data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All\\data"
     ],
     "infra_step": true,
     "name": "rmtree data"
@@ -106,7 +106,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-All\\data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All\\data"
     ],
     "infra_step": true,
     "name": "makedirs data"
@@ -182,7 +182,7 @@
       "~inc0.webp",
       "~inc1.webp",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-All\\data\\nanobench_abc123_1337000001.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All\\data\\nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -202,7 +202,7 @@
       "model",
       "GCE",
       "os",
-      "Win2k8"
+      "Win2016"
     ],
     "env": {
       "BUILDTYPE": "Release_x64",
@@ -222,7 +222,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"

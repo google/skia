@@ -468,7 +468,7 @@ def dm_flags(api, bot):
       blacklist('_ image _ .%s' % raw_ext)
 
   # Blacklist memory intensive tests on 32-bit bots.
-  if ('Win2k8' in bot or 'Win8' in bot or 'Win2016' in bot) and 'x86-' in bot:
+  if ('Win8' in bot or 'Win2016' in bot) and 'x86-' in bot:
     blacklist('_ image f16 _')
     blacklist('_ image _ abnormal.wbmp')
     blacklist('_ image _ interlaced1.png')
@@ -932,6 +932,8 @@ TEST_BUILDERS = [
   'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-Vulkan',
   ('Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-ReleaseAndAbandonGpuContext'),
+  'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts',
+  'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI',
   'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-ANGLE',
   'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan',
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
@@ -944,8 +946,6 @@ TEST_BUILDERS = [
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
   'Test-Win8-MSVC-Golo-CPU-AVX-x86-Debug-All',
   'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All',
-  'Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts',
-  'Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI',
 ]
 
 
