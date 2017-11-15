@@ -82,6 +82,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     GrPixelConfig configs[] = {
         kUnknown_GrPixelConfig,
         kAlpha_8_GrPixelConfig,
+        kAlpha_8_as_Alpha_GrPixelConfig,
+        kAlpha_8_as_Red_GrPixelConfig,
         kGray_8_GrPixelConfig,
         kRGB_565_GrPixelConfig,
         kRGBA_4444_GrPixelConfig,
@@ -93,6 +95,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         kRGBA_float_GrPixelConfig,
         kRG_float_GrPixelConfig,
         kAlpha_half_GrPixelConfig,
+        kAlpha_half_as_Alpha_GrPixelConfig,
+        kAlpha_half_as_Red_GrPixelConfig,
         kRGBA_half_GrPixelConfig,
     };
     SkASSERT(kGrPixelConfigCnt == SK_ARRAY_COUNT(configs));

@@ -368,7 +368,9 @@ GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& c
 bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
     SkColorType ct;
     switch (config) {
-        case kAlpha_8_GrPixelConfig:
+        case kAlpha_8_GrPixelConfig: // fall through
+        case kAlpha_8_as_Alpha_GrPixelConfig: // fall through
+        case kAlpha_8_as_Red_GrPixelConfig:
             ct = kAlpha_8_SkColorType;
             break;
         case kGray_8_GrPixelConfig:
