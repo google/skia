@@ -100,6 +100,10 @@ private:
 
     void abandon();
     void cleanup();
+
+    // return true if any opLists were actually executed; false otherwise
+    bool executeOpLists(int startIndex, int stopIndex, GrOpFlushState*);
+
     GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
                                 int numSemaphores = 0,
                                 GrBackendSemaphore backendSemaphores[] = nullptr) {
@@ -127,13 +131,14 @@ private:
 
     bool                              fAbandoned;
     SkTArray<sk_sp<GrOpList>>         fOpLists;
+    SkSTArray<8, sk_sp<GrOpList>>     fOnFlushOpLists;
+    GrOpFlushState                    fFlushState;
 
     std::unique_ptr<GrAtlasTextContext> fAtlasTextContext;
 
     GrPathRendererChain*              fPathRendererChain;
     GrSoftwarePathRenderer*           fSoftwarePathRenderer;
 
-    GrOpFlushState                    fFlushState;
     bool                              fFlushing;
 
     SkTArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;
