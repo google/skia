@@ -47,11 +47,6 @@ namespace sk_tool_utils {
     const char* emoji_sample_text();
 
     /**
-     * If the platform supports color emoji, return the type (i.e. "CBDT", "SBIX", "").
-     */
-    const char* platform_os_emoji();
-
-    /**
      * Returns a string describing the platform font manager, if we're using one, otherwise "".
      */
     const char* platform_font_manager();
