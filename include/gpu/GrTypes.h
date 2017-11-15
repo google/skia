@@ -342,10 +342,7 @@ enum GrPixelConfig {
     * Byte order is r, g, b, a.  This color format is 16 bits per channel
     */
     kRGBA_half_GrPixelConfig,
-
-    kLast_GrPixelConfig = kRGBA_half_GrPixelConfig
 };
-static const int kGrPixelConfigCnt = kLast_GrPixelConfig + 1;
 
 // Aliases for pixel configs that match skia's byte order.
 #ifndef SK_CPU_LENDIAN

@@ -61,6 +61,21 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             *format = VK_FORMAT_R16_SFLOAT;
             return true;
     }
+    if (kPriv_Alpha_8_as_Red_GrPixelConfig == config) {
+        *format = VK_FORMAT_R8_UNORM;
+        return true;
+    }
+    if (kPriv_Alpha_half_as_Red_GrPixelConfig == config) {
+        *format = VK_FORMAT_R16_SFLOAT;
+        return true;
+    }
+    if (kPriv_Alpha_8_as_Alpha_GrPixelConfig == config) {
+        return false;
+    }
+    if (kPriv_Alpha_half_as_Alpha_GrPixelConfig == config) {
+        return false;
+    }
+
     SK_ABORT("Unexpected config");
     return false;
 }

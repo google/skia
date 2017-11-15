@@ -803,6 +803,14 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
         case kUnknown_GrPixelConfig:
             return 0;
     }
+    if (kPriv_Alpha_8_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_8_as_Red_GrPixelConfig == config) {
+        return 1;
+    }
+    if (kPriv_Alpha_half_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Red_GrPixelConfig == config) {
+        return 2;
+    }
     SK_ABORT("Invalid pixel config");
     return 0;
 }

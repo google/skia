@@ -27,6 +27,18 @@ static const char* pixel_config_name(GrPixelConfig config) {
         case kAlpha_half_GrPixelConfig: return "AlphaHalf";
         case kRGBA_half_GrPixelConfig: return "RGBAHalf";
     }
+    if (kPriv_Alpha_8_as_Alpha_GrPixelConfig == config) {
+        return "Alpha8_asAlpha";
+    }
+    if (kPriv_Alpha_8_as_Red_GrPixelConfig == config) {
+        return "Alpha8_asRed";
+    }
+    if (kPriv_Alpha_half_as_Alpha_GrPixelConfig == config) {
+        return "AlphaHalf_asAlpha";
+    }
+    if (kPriv_Alpha_half_as_Red_GrPixelConfig == config) {
+        return "AlphaHalf_asRed";
+    }
     SK_ABORT("Invalid pixel config");
     return "<invalid>";
 }

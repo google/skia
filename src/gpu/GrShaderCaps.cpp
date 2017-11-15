@@ -222,6 +222,8 @@ void GrShaderCaps::initSamplerPrecisionTable() {
         uint8_t* table = fSamplerPrecisions[visibility];
         table[kUnknown_GrPixelConfig]        = lowp;
         table[kAlpha_8_GrPixelConfig]        = lowp;
+        table[kPriv_Alpha_8_as_Alpha_GrPixelConfig] = lowp;
+        table[kPriv_Alpha_8_as_Red_GrPixelConfig] = lowp;
         table[kGray_8_GrPixelConfig]         = lowp;
         table[kRGB_565_GrPixelConfig]        = lowp;
         table[kRGBA_4444_GrPixelConfig]      = lowp;
@@ -233,9 +235,9 @@ void GrShaderCaps::initSamplerPrecisionTable() {
         table[kRGBA_float_GrPixelConfig]     = kHigh_GrSLPrecision;
         table[kRG_float_GrPixelConfig]       = kHigh_GrSLPrecision;
         table[kAlpha_half_GrPixelConfig]     = mediump;
+        table[kPriv_Alpha_half_as_Alpha_GrPixelConfig] = mediump;
+        table[kPriv_Alpha_half_as_Red_GrPixelConfig] = mediump;
         table[kRGBA_half_GrPixelConfig]      = mediump;
-
-        GR_STATIC_ASSERT(14 == kGrPixelConfigCnt);
     }
 }
 

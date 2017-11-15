@@ -367,6 +367,7 @@ GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& c
 
 bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
     SkColorType ct;
+    bool valid = true;
     switch (config) {
         case kAlpha_8_GrPixelConfig:
             ct = kAlpha_8_SkColorType;
@@ -396,12 +397,17 @@ bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
             ct = kRGBA_F16_SkColorType;
             break;
         default:
-            return false;
+            valid = false;
     }
-    if (ctOut) {
+    if (kPriv_Alpha_8_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_8_as_Red_GrPixelConfig == config) {
+        ct = kAlpha_8_SkColorType;
+        valid = true;
+    }
+    if (ctOut && valid) {
         *ctOut = ct;
     }
-    return true;
+    return valid;
 }
 
 GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace* colorSpace) {

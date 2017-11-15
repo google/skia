@@ -801,6 +801,22 @@ enum class  GrMipMapsStatus {
 GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
 
 /**
+ * We want to extend the GrPixelConfig enum to add cases for dealing with alpha_8 which is
+ * internally either alpha8 or red8
+ */
+static constexpr GrPixelConfig kPriv_Alpha_8_as_Alpha_GrPixelConfig =
+        (GrPixelConfig)(kRGBA_half_GrPixelConfig + 1);
+static constexpr GrPixelConfig kPriv_Alpha_8_as_Red_GrPixelConfig =
+        (GrPixelConfig)(kPriv_Alpha_8_as_Alpha_GrPixelConfig + 1);
+static constexpr GrPixelConfig kPriv_Alpha_half_as_Alpha_GrPixelConfig =
+        (GrPixelConfig)(kPriv_Alpha_8_as_Red_GrPixelConfig + 1);
+static constexpr GrPixelConfig kPriv_Alpha_half_as_Red_GrPixelConfig =
+        (GrPixelConfig)(kPriv_Alpha_half_as_Alpha_GrPixelConfig + 1);
+
+static constexpr GrPixelConfig kLast_GrPixelConfig = kPriv_Alpha_half_as_Red_GrPixelConfig;
+static const int kGrPixelConfigCnt = kLast_GrPixelConfig + 1;
+
+/**
  * Utility functions for GrPixelConfig
  */
 // Returns true if the pixel config is 32 bits per pixel
@@ -823,6 +839,13 @@ static inline bool GrPixelConfigIs8888Unorm(GrPixelConfig config) {
         case kRGBA_half_GrPixelConfig:
             return false;
     }
+    if (kPriv_Alpha_8_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_8_as_Red_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Red_GrPixelConfig == config) {
+        return false;
+    }
+
     SK_ABORT("Invalid pixel config");
     return false;
 }
@@ -847,6 +870,12 @@ static inline bool GrPixelConfigIsSRGB(GrPixelConfig config) {
         case kAlpha_half_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
             return false;
+    }
+    if (kPriv_Alpha_8_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_8_as_Red_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Red_GrPixelConfig == config) {
+        return false;
     }
     SK_ABORT("Invalid pixel config");
     return false;
@@ -876,6 +905,12 @@ static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {
         case kRGBA_half_GrPixelConfig:
             return kUnknown_GrPixelConfig;
     }
+    if (kPriv_Alpha_8_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_8_as_Red_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Red_GrPixelConfig == config) {
+        return kUnknown_GrPixelConfig;
+    }
     SK_ABORT("Invalid pixel config");
     return kUnknown_GrPixelConfig;
 }
@@ -904,6 +939,14 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
         case kUnknown_GrPixelConfig:
             return 0;
     }
+    if (kPriv_Alpha_8_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_8_as_Red_GrPixelConfig == config) {
+        return 1;
+    }
+    if (kPriv_Alpha_half_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Red_GrPixelConfig == config) {
+        return 2;
+    }
     SK_ABORT("Invalid pixel config");
     return 0;
 }
@@ -926,6 +969,12 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
         case kRGBA_float_GrPixelConfig:
         case kUnknown_GrPixelConfig:
             return false;
+    }
+    if (kPriv_Alpha_8_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_8_as_Red_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Red_GrPixelConfig == config) {
+        return false;
     }
     SK_ABORT("Invalid pixel config");
     return false;
@@ -950,6 +999,12 @@ static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
         case kRGBA_half_GrPixelConfig:
             return false;
     }
+    if (kPriv_Alpha_8_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_8_as_Red_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Red_GrPixelConfig == config) {
+        return true;
+    }
     SK_ABORT("Invalid pixel config.");
     return false;
 }
@@ -972,6 +1027,14 @@ static inline bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
         case kSBGRA_8888_GrPixelConfig:
         case kRGBA_8888_sint_GrPixelConfig:
             return false;
+    }
+    if (kPriv_Alpha_8_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_8_as_Red_GrPixelConfig == config) {
+        return false;
+    }
+    if (kPriv_Alpha_half_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Red_GrPixelConfig == config) {
+        return true;
     }
     SK_ABORT("Invalid pixel config");
     return false;
@@ -1000,6 +1063,14 @@ static inline bool GrPixelConfigIsUnorm(GrPixelConfig config) {
         case kRGBA_half_GrPixelConfig:
             return false;
     }
+    if (kPriv_Alpha_8_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_8_as_Red_GrPixelConfig == config) {
+        return true;
+    }
+    if (kPriv_Alpha_half_as_Alpha_GrPixelConfig == config ||
+        kPriv_Alpha_half_as_Red_GrPixelConfig == config) {
+        return false;
+    }
     SK_ABORT("Invalid pixel config.");
     return false;
 }
@@ -1008,6 +1079,5 @@ static inline GrPixelConfigIsClamped GrGetPixelConfigIsClamped(GrPixelConfig con
     return GrPixelConfigIsFloatingPoint(config) ? GrPixelConfigIsClamped::kNo
                                                 : GrPixelConfigIsClamped::kYes;
 }
-
 
 #endif
