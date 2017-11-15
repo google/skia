@@ -22,6 +22,30 @@
       "revId": "a6df5b6df12a0cc63c848f62144895cbcca6b1e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d627dde_e6f3153b",
+        "filename": "src/gpu/GrReducedClip.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-15T19:47:01Z",
+      "side": 1,
+      "message": "Done. Can we always stagger now?",
+      "parentUuid": "6f12aac5_36eb6ae9",
+      "range": {
+        "startLine": 127,
+        "startChar": 3,
+        "endLine": 127,
+        "endChar": 68
+      },
+      "revId": "a6df5b6df12a0cc63c848f62144895cbcca6b1e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
