@@ -18,11 +18,10 @@ DEF_TEST(TestNormal, reporter) {
     REPORTER_ASSERT(reporter, reporter);
 }
 
-// This is an example of a GPU test that uses common GrContextFactory factory to do the test.
+// This is an example of a GPU test that uses GrContextOptions to do the test.
 #if SK_SUPPORT_GPU
 DEF_GPUTEST(TestGpuFactory, reporter, factory) {
     REPORTER_ASSERT(reporter, reporter);
-    REPORTER_ASSERT(reporter, factory);
 }
 #endif
 

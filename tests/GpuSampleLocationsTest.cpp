@@ -184,7 +184,7 @@ private:
     SamplePattern                               fSamplePattern;
 };
 
-DEF_GPUTEST(GLSampleLocations, reporter, /*factory*/) {
+DEF_TEST(GLSampleLocations, reporter) {
     GLTestSampleLocationsInterface testInterface;
     sk_sp<GrContext> ctx(GrContext::MakeGL(&testInterface));
 
