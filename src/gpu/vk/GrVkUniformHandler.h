@@ -88,19 +88,6 @@ private:
         return fTexelBuffers[handle.toIndex()].fVisibility;
     }
 
-    ImageStorageHandle addImageStorage(uint32_t visibility, GrSLType,  GrImageStorageFormat,
-                                       GrSLMemoryModel, GrSLRestrict, GrIOType,
-                                       const char* name) override {
-        SK_ABORT("Image storages not implemented for Vulkan.");
-        return 0;
-    }
-
-    const GrShaderVar& imageStorageVariable(ImageStorageHandle handle) const override {
-        SK_ABORT("Image storages not implemented for Vulkan.");
-        static const GrShaderVar* gVar = nullptr;
-        return *gVar;
-    }
-
     void appendUniformDecls(GrShaderFlags, SkString*) const override;
 
     bool hasGeometryUniforms() const { return fCurrentGeometryUBOOffset > 0; }

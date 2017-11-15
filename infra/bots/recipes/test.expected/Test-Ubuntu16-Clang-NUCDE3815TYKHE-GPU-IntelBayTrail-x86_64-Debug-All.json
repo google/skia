@@ -376,8 +376,6 @@
       "image",
       "_",
       ".SRW",
-      "--match",
-      "~ImageStorageLoad",
       "--nonativeFonts",
       "--verbose"
     ],

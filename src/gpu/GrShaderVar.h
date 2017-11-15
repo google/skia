@@ -283,12 +283,6 @@ public:
         }
     }
 
-    void setImageStorageFormat(GrImageStorageFormat format);
-
-    void setMemoryModel(GrSLMemoryModel);
-
-    void setRestrict(GrSLRestrict);
-
     void setIOType(GrIOType);
 
     void addModifier(const char* modifier) {

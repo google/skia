@@ -227,7 +227,6 @@ class GrResourceIOProcessor : public GrProcessor {
 public:
     class TextureSampler;
     class BufferAccess;
-    class ImageStorageAccess;
 
     int numTextureSamplers() const { return fTextureSamplers.count(); }
 
@@ -241,14 +240,6 @@ public:
         numBuffers(). */
     const BufferAccess& bufferAccess(int index) const { return *fBufferAccesses[index]; }
 
-    int numImageStorages() const { return fImageStorageAccesses.count(); }
-
-    /** Returns the access object for the image at index. index must be valid according to
-        numImages(). */
-    const ImageStorageAccess& imageStorageAccess(int index) const {
-        return *fImageStorageAccesses[index];
-    }
-
     bool instantiate(GrResourceProvider* resourceProvider) const;
 
 protected:
@@ -256,14 +247,13 @@ protected:
     : INHERITED(classID) {}
 
     /**
-     * Subclasses call these from their constructor to register sampler/image sources. The processor
+     * Subclasses call these from their constructor to register sampler sources. The processor
      * subclass manages the lifetime of the objects (these functions only store pointers). The
      * TextureSampler and/or BufferAccess instances are typically member fields of the GrProcessor
      * subclass. These must only be called from the constructor because GrProcessors are immutable.
      */
     void addTextureSampler(const TextureSampler*);
     void addBufferAccess(const BufferAccess*);
-    void addImageStorageAccess(const ImageStorageAccess*);
 
     bool hasSameSamplersAndAccesses(const GrResourceIOProcessor&) const;
 
@@ -275,7 +265,6 @@ protected:
 private:
     SkSTArray<4, const TextureSampler*, true> fTextureSamplers;
     SkSTArray<1, const BufferAccess*, true> fBufferAccesses;
-    SkSTArray<1, const ImageStorageAccess*, true> fImageStorageAccesses;
 
     typedef GrProcessor INHERITED;
 };
@@ -405,67 +394,6 @@ private:
     GrTGpuResourceRef<GrBuffer> fBuffer;
     GrShaderFlags fVisibility;
 
-    typedef SkNoncopyable INHERITED;
-};
-
-/**
- * This is used by a GrProcessor to access a texture using image load/store in its shader code.
- * ImageStorageAccesses don't perform any coord manipulation to account for texture origin.
- * Currently the format of the load/store data in the shader is inferred from the texture config,
- * though it could be made explicit.
- */
-class GrResourceIOProcessor::ImageStorageAccess {
-public:
-    ImageStorageAccess(sk_sp<GrTextureProxy>, GrIOType, GrSLMemoryModel, GrSLRestrict,
-                       GrShaderFlags visibility = kFragment_GrShaderFlag);
-    /**
-     * This copy constructor is used by GrFragmentProcessor::clone() implementations. The copy
-     * always takes a new ref on the surface proxy as the new fragment processor will not yet be
-     * in pending execution state.
-     */
-    explicit ImageStorageAccess(const ImageStorageAccess& that)
-            : fProxyRef(sk_ref_sp(that.fProxyRef.get()), that.fProxyRef.ioType())
-            , fVisibility(that.fVisibility)
-            , fFormat(that.fFormat)
-            , fMemoryModel(that.fMemoryModel)
-            , fRestrict(that.fRestrict) {}
-
-    ImageStorageAccess& operator=(const ImageStorageAccess&) = delete;
-
-    bool operator==(const ImageStorageAccess& that) const {
-        return this->proxy() == that.proxy() && fVisibility == that.fVisibility;
-    }
-
-    bool operator!=(const ImageStorageAccess& that) const { return !(*this == that); }
-
-    GrTextureProxy* proxy() const { return fProxyRef.get()->asTextureProxy(); }
-    GrShaderFlags visibility() const { return fVisibility; }
-    GrIOType ioType() const { return fProxyRef.ioType(); }
-    GrImageStorageFormat format() const { return fFormat; }
-    GrSLMemoryModel memoryModel() const { return fMemoryModel; }
-    GrSLRestrict restrict() const { return fRestrict; }
-
-    // 'instantiate' should only ever be called at flush time.
-    bool instantiate(GrResourceProvider* resourceProvider) const {
-        return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
-    }
-    // 'peekTexture' should only ever be called after a successful 'instantiate' call
-    GrTexture* peekTexture() const {
-        SkASSERT(fProxyRef.get()->priv().peekTexture());
-        return fProxyRef.get()->priv().peekTexture();
-    }
-
-    /**
-     * For internal use by GrProcessor.
-     */
-    const GrSurfaceProxyRef* programProxy() const { return &fProxyRef; }
-
-private:
-    GrSurfaceProxyRef    fProxyRef;
-    GrShaderFlags        fVisibility;
-    GrImageStorageFormat fFormat;
-    GrSLMemoryModel      fMemoryModel;
-    GrSLRestrict         fRestrict;
     typedef SkNoncopyable INHERITED;
 };
 

@@ -687,9 +687,6 @@ def dm_flags(api, bot):
     # skia:6857
     blacklist(['angle_d3d9_es2', 'gm', '_', 'lighting'])
 
-  if 'IntelBayTrail' in bot and api.vars.is_linux:
-    match.append('~ImageStorageLoad') # skia:6358
-
   if 'PowerVRGX6250' in bot:
     match.append('~gradients_view_perspective_nodither') #skia:6972
 

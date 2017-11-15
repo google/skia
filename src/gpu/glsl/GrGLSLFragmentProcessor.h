@@ -31,7 +31,6 @@ public:
     using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
     using TexelBufferHandle  = GrGLSLUniformHandler::TexelBufferHandle;
-    using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
 private:
     /**
@@ -75,8 +74,6 @@ public:
                                                  &GrResourceIOProcessor::numTextureSamplers>;
     using TexelBuffers = BuilderInputProvider<TexelBufferHandle, GrResourceIOProcessor,
                                                 &GrResourceIOProcessor::numBuffers>;
-    using ImageStorages = BuilderInputProvider<ImageStorageHandle, GrResourceIOProcessor,
-                                               &GrResourceIOProcessor::numImageStorages>;
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
@@ -102,9 +99,6 @@ public:
         @param bufferSamplers    Contains one entry for each BufferAccess of the GrProcessor. These
                                  can be passed to the builder to emit buffer reads in the generated
                                  code.
-        @param imageStorages     Contains one entry for each ImageStorageAccess of the GrProcessor.
-                                 These can be passed to the builder to emit image loads and stores
-                                 in the generated code.
      */
     struct EmitArgs {
         EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,
@@ -115,8 +109,7 @@ public:
                  const char* inputColor,
                  const TransformedCoordVars& transformedCoordVars,
                  const TextureSamplers& textureSamplers,
-                 const TexelBuffers& texelBuffers,
-                 const ImageStorages& imageStorages)
+                 const TexelBuffers& texelBuffers)
                 : fFragBuilder(fragBuilder)
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
@@ -125,8 +118,7 @@ public:
                 , fInputColor(inputColor)
                 , fTransformedCoords(transformedCoordVars)
                 , fTexSamplers(textureSamplers)
-                , fTexelBuffers(texelBuffers)
-                , fImageStorages(imageStorages) {}
+                , fTexelBuffers(texelBuffers) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
@@ -136,7 +128,6 @@ public:
         const TransformedCoordVars& fTransformedCoords;
         const TextureSamplers& fTexSamplers;
         const TexelBuffers& fTexelBuffers;
-        const ImageStorages& fImageStorages;
     };
 
     virtual void emitCode(EmitArgs&) = 0;

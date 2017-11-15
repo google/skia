@@ -24,7 +24,6 @@ public:
     virtual ~GrGLSLXferProcessor() {}
 
     using SamplerHandle = GrGLSLUniformHandler::SamplerHandle;
-    using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
     struct EmitArgs {
         EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,
