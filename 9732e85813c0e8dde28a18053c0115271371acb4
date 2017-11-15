@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7867c7b7_f0e04e34",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-15T16:50:13Z",
+      "side": 1,
+      "message": "This is *257.\n\nCan we try *256 to spread to [0,255*256]?  That\u0027d be reversed by the shift in store().",
+      "range": {
+        "startLine": 558,
+        "startChar": 10,
+        "endLine": 558,
+        "endChar": 11
+      },
+      "revId": "9732e85813c0e8dde28a18053c0115271371acb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df129ec9_120deeaa",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-15T16:50:13Z",
+      "side": 1,
+      "message": "This is /256.",
+      "range": {
+        "startLine": 562,
+        "startChar": 32,
+        "endLine": 562,
+        "endChar": 38
+      },
+      "revId": "9732e85813c0e8dde28a18053c0115271371acb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9382a9d3_9be8fc07",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-15T16:50:13Z",
+      "side": 1,
+      "message": "Excellent thank you!",
+      "revId": "9732e85813c0e8dde28a18053c0115271371acb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ff74dbe_1249199b",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-15T16:50:13Z",
+      "side": 1,
+      "message": "might want to take a line-wrap pass over all this?",
+      "revId": "9732e85813c0e8dde28a18053c0115271371acb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8460ae7a_3ca4fb4f",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-15T16:50:13Z",
+      "side": 1,
+      "message": "I\u0027d find these all more readable with close-binding * and wider +.",
+      "revId": "9732e85813c0e8dde28a18053c0115271371acb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0ad9111_8afb257a",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-15T16:50:13Z",
+      "side": 1,
+      "message": "Might want to use /* and */ instead of -- for comments within the comments.\n\n-- looks like a decrement.",
+      "range": {
+        "startLine": 646,
+        "startChar": 3,
+        "endLine": 646,
+        "endChar": 5
+      },
+      "revId": "9732e85813c0e8dde28a18053c0115271371acb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "583e7105_52be41e7",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-15T16:50:13Z",
+      "side": 1,
+      "message": "Is this where we\u0027d start at 0x80 to bake in rounding?",
+      "revId": "9732e85813c0e8dde28a18053c0115271371acb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
