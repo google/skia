@@ -22,6 +22,30 @@
       "revId": "aa7eb70e0aff93c70bdb9e9aa739d32429ec2529",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34163f69_7a3ab157",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-11-15T16:29:31Z",
+      "side": 1,
+      "message": "Ah, good catch. I think I fixed it, although this function is really confusing, and the CT bots are unaffected.",
+      "parentUuid": "47c035db_f0ba0203",
+      "range": {
+        "startLine": 190,
+        "startChar": 4,
+        "endLine": 190,
+        "endChar": 11
+      },
+      "revId": "aa7eb70e0aff93c70bdb9e9aa739d32429ec2529",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
