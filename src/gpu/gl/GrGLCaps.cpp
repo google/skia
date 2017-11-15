@@ -527,6 +527,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         GR_GL_GetIntegerv(gli, GR_GL_MAX_WINDOW_RECTANGLES, &fMaxWindowRectangles);
     }
 
+    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+        // Temporarily disabling clip analytic fragments processors on Nexus player while we work
+        // around a driver bug related to gl_FragCoord.
+        // https://bugs.chromium.org/p/skia/issues/detail?id=7286
+        fMaxClipAnalyticFPs = 0;
+    }
+
 #ifndef SK_BUILD_FOR_IOS
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer() ||
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
