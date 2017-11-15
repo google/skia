@@ -1596,7 +1596,7 @@ static void test_tags(skiatest::Reporter* reporter) {
 #endif
 }
 
-DEF_GPUTEST(ResourceCacheMisc, reporter, factory) {
+DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     // The below tests create their own mock contexts.
     test_no_key(reporter);
     test_budgeting(reporter);

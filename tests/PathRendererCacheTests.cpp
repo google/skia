@@ -109,7 +109,7 @@ static void test_path(skiatest::Reporter* reporter,
 }
 
 // Test that deleting the original path invalidates the VBs cached by the tessellating path renderer
-DEF_GPUTEST(TessellatingPathRendererCacheTest, reporter, factory) {
+DEF_GPUTEST(TessellatingPathRendererCacheTest, reporter, /* options */) {
     auto createPR = [](GrContext*) {
         return new GrTessellatingPathRenderer();
     };
@@ -130,9 +130,7 @@ DEF_GPUTEST(TessellatingPathRendererCacheTest, reporter, factory) {
 }
 
 // Test that deleting the original path invalidates the textures cached by the SW path renderer
-DEF_GPUTEST(SoftwarePathRendererCacheTest, reporter, factory) {
-// Currently disabled since the test is only passing thanks to uninteded behavior in deleting a
-// resource since we are over budget. If we increase the cache budget the test will fail
+DEF_GPUTEST(SoftwarePathRendererCacheTest, reporter, /* options */) {
     auto createPR = [](GrContext* ctx) {
         return new GrSoftwarePathRenderer(ctx->resourceProvider(), true);
     };
