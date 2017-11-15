@@ -165,9 +165,9 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
     fRadiusPlusHalfUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                         "radiusPlusHalf", &radiusPlusHalfName);
 
-    // If we're on a device with a "real" mediump then the length calculation could overflow.
+    // If we're on a device where float != fp32 then the length calculation could overflow.
     SkString clampedCircleDistance;
-    if (args.fShaderCaps->floatPrecisionVaries()) {
+    if (!args.fShaderCaps->floatIs32Bits()) {
         clampedCircleDistance.printf("clamp(%s.x * (1.0 - length(dxy * %s.y)), 0.0, 1.0);",
                                      radiusPlusHalfName, radiusPlusHalfName);
     } else {
@@ -192,13 +192,13 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
     // alphas together.
     switch (crre.getCircularCornerFlags()) {
         case CircularRRectEffect::kAll_CornerFlags:
-            fragBuilder->codeAppendf("half2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
-            fragBuilder->codeAppendf("half2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
-            fragBuilder->codeAppend("half2 dxy = max(max(dxy0, dxy1), 0.0);");
+            fragBuilder->codeAppendf("float2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
+            fragBuilder->codeAppendf("float2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
+            fragBuilder->codeAppend("float2 dxy = max(max(dxy0, dxy1), 0.0);");
             fragBuilder->codeAppendf("half alpha = %s;", clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kTopLeft_CornerFlag:
-            fragBuilder->codeAppendf("half2 dxy = max(%s.xy - sk_FragCoord.xy, 0.0);",
+            fragBuilder->codeAppendf("float2 dxy = max(%s.xy - sk_FragCoord.xy, 0.0);",
                                      rectName);
             fragBuilder->codeAppendf("half rightAlpha = clamp(%s.z - sk_FragCoord.x, 0.0, 1.0);",
                                      rectName);
@@ -208,8 +208,8 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kTopRight_CornerFlag:
-            fragBuilder->codeAppendf("half2 dxy = max(half2(sk_FragCoord.x - %s.z, "
-                                                           "%s.y - sk_FragCoord.y), 0.0);",
+            fragBuilder->codeAppendf("float2 dxy = max(float2(sk_FragCoord.x - %s.z, "
+                                                             "%s.y - sk_FragCoord.y), 0.0);",
                                      rectName, rectName);
             fragBuilder->codeAppendf("half leftAlpha = clamp(sk_FragCoord.x - %s.x, 0.0, 1.0);",
                                      rectName);
@@ -219,7 +219,7 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kBottomRight_CornerFlag:
-            fragBuilder->codeAppendf("half2 dxy = max(sk_FragCoord.xy - %s.zw, 0.0);",
+            fragBuilder->codeAppendf("float2 dxy = max(sk_FragCoord.xy - %s.zw, 0.0);",
                                      rectName);
             fragBuilder->codeAppendf("half leftAlpha = clamp(sk_FragCoord.x - %s.x, 0.0, 1.0);",
                                      rectName);
@@ -229,8 +229,8 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kBottomLeft_CornerFlag:
-            fragBuilder->codeAppendf("half2 dxy = max(half2(%s.x - sk_FragCoord.x, sk_FragCoord.y - "
-                                     "%s.w), 0.0);",
+            fragBuilder->codeAppendf("float2 dxy = max(float2(%s.x - sk_FragCoord.x, "
+                                                             "sk_FragCoord.y - %s.w), 0.0);",
                                      rectName, rectName);
             fragBuilder->codeAppendf("half rightAlpha = clamp(%s.z - sk_FragCoord.x, 0.0, 1.0);",
                                      rectName);
@@ -240,36 +240,36 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kLeft_CornerFlags:
-            fragBuilder->codeAppendf("half2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
-            fragBuilder->codeAppendf("half dy1 = sk_FragCoord.y - %s.w;", rectName);
-            fragBuilder->codeAppend("half2 dxy = max(half2(dxy0.x, max(dxy0.y, dy1)), 0.0);");
+            fragBuilder->codeAppendf("float2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
+            fragBuilder->codeAppendf("float dy1 = sk_FragCoord.y - %s.w;", rectName);
+            fragBuilder->codeAppend("float2 dxy = max(float2(dxy0.x, max(dxy0.y, dy1)), 0.0);");
             fragBuilder->codeAppendf("half rightAlpha = clamp(%s.z - sk_FragCoord.x, 0.0, 1.0);",
                                      rectName);
             fragBuilder->codeAppendf("half alpha = rightAlpha * %s;",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kTop_CornerFlags:
-            fragBuilder->codeAppendf("half2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
-            fragBuilder->codeAppendf("half dx1 = sk_FragCoord.x - %s.z;", rectName);
-            fragBuilder->codeAppend("half2 dxy = max(half2(max(dxy0.x, dx1), dxy0.y), 0.0);");
+            fragBuilder->codeAppendf("float2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
+            fragBuilder->codeAppendf("float dx1 = sk_FragCoord.x - %s.z;", rectName);
+            fragBuilder->codeAppend("float2 dxy = max(float2(max(dxy0.x, dx1), dxy0.y), 0.0);");
             fragBuilder->codeAppendf("half bottomAlpha = clamp(%s.w - sk_FragCoord.y, 0.0, 1.0);",
                                      rectName);
             fragBuilder->codeAppendf("half alpha = bottomAlpha * %s;",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kRight_CornerFlags:
-            fragBuilder->codeAppendf("half dy0 = %s.y - sk_FragCoord.y;", rectName);
-            fragBuilder->codeAppendf("half2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
-            fragBuilder->codeAppend("half2 dxy = max(half2(dxy1.x, max(dy0, dxy1.y)), 0.0);");
+            fragBuilder->codeAppendf("float dy0 = %s.y - sk_FragCoord.y;", rectName);
+            fragBuilder->codeAppendf("float2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
+            fragBuilder->codeAppend("float2 dxy = max(float2(dxy1.x, max(dy0, dxy1.y)), 0.0);");
             fragBuilder->codeAppendf("half leftAlpha = clamp(sk_FragCoord.x - %s.x, 0.0, 1.0);",
                                      rectName);
             fragBuilder->codeAppendf("half alpha = leftAlpha * %s;",
                                      clampedCircleDistance.c_str());
             break;
         case CircularRRectEffect::kBottom_CornerFlags:
-            fragBuilder->codeAppendf("half dx0 = %s.x - sk_FragCoord.x;", rectName);
-            fragBuilder->codeAppendf("half2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
-            fragBuilder->codeAppend("half2 dxy = max(half2(max(dx0, dxy1.x), dxy1.y), 0.0);");
+            fragBuilder->codeAppendf("float dx0 = %s.x - sk_FragCoord.x;", rectName);
+            fragBuilder->codeAppendf("float2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
+            fragBuilder->codeAppend("float2 dxy = max(float2(max(dx0, dxy1.x), dxy1.y), 0.0);");
             fragBuilder->codeAppendf("half topAlpha = clamp(sk_FragCoord.y - %s.y, 0.0, 1.0);",
                                      rectName);
             fragBuilder->codeAppendf("half alpha = topAlpha * %s;",
@@ -523,14 +523,14 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     // The code below is a simplified version of the above that performs maxs on the vector
     // components before computing distances and alpha values so that only one distance computation
     // need be computed to determine the min alpha.
-    fragBuilder->codeAppendf("half2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
-    fragBuilder->codeAppendf("half2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
+    fragBuilder->codeAppendf("float2 dxy0 = %s.xy - sk_FragCoord.xy;", rectName);
+    fragBuilder->codeAppendf("float2 dxy1 = sk_FragCoord.xy - %s.zw;", rectName);
 
-    // If we're on a device with a "real" mediump then we'll do the distance computation in a space
+    // If we're on a device where float != fp32 then we'll do the distance computation in a space
     // that is normalized by the largest radius. The scale uniform will be scale, 1/scale. The
     // radii uniform values are already in this normalized space.
     const char* scaleName = nullptr;
-    if (args.fShaderCaps->floatPrecisionVaries()) {
+    if (!args.fShaderCaps->floatIs32Bits()) {
         fScaleUniform = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType, "scale",
                                                    &scaleName);
     }
@@ -543,12 +543,12 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
                                                              kHalf2_GrSLType,
                                                              "invRadiiXY",
                                                              &invRadiiXYSqdName);
-            fragBuilder->codeAppend("half2 dxy = max(max(dxy0, dxy1), 0.0);");
+            fragBuilder->codeAppend("float2 dxy = max(max(dxy0, dxy1), 0.0);");
             if (scaleName) {
                 fragBuilder->codeAppendf("dxy *= %s.y;", scaleName);
             }
             // Z is the x/y offsets divided by squared radii.
-            fragBuilder->codeAppendf("half2 Z = dxy * %s.xy;", invRadiiXYSqdName);
+            fragBuilder->codeAppendf("float2 Z = dxy * %s.xy;", invRadiiXYSqdName);
             break;
         }
         case SkRRect::kNinePatch_Type: {
@@ -561,11 +561,11 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
                 fragBuilder->codeAppendf("dxy0 *= %s.y;", scaleName);
                 fragBuilder->codeAppendf("dxy1 *= %s.y;", scaleName);
             }
-            fragBuilder->codeAppend("half2 dxy = max(max(dxy0, dxy1), 0.0);");
+            fragBuilder->codeAppend("float2 dxy = max(max(dxy0, dxy1), 0.0);");
             // Z is the x/y offsets divided by squared radii. We only care about the (at most) one
             // corner where both the x and y offsets are positive, hence the maxes. (The inverse
             // squared radii will always be positive.)
-            fragBuilder->codeAppendf("half2 Z = max(max(dxy0 * %s.xy, dxy1 * %s.zw), 0.0);",
+            fragBuilder->codeAppendf("float2 Z = max(max(dxy0 * %s.xy, dxy1 * %s.zw), 0.0);",
                                      invRadiiLTRBSqdName, invRadiiLTRBSqdName);
 
             break;
@@ -574,12 +574,12 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
             SK_ABORT("RRect should always be simple or nine-patch.");
     }
     // implicit is the evaluation of (x/a)^2 + (y/b)^2 - 1.
-    fragBuilder->codeAppend("half implicit = dot(Z, dxy) - 1.0;");
+    fragBuilder->codeAppend("float implicit = dot(Z, dxy) - 1.0;");
     // grad_dot is the squared length of the gradient of the implicit.
-    fragBuilder->codeAppend("half grad_dot = 4.0 * dot(Z, Z);");
+    fragBuilder->codeAppend("float grad_dot = 4.0 * dot(Z, Z);");
     // avoid calling inversesqrt on zero.
     fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
-    fragBuilder->codeAppend("half approx_dist = implicit * inversesqrt(grad_dot);");
+    fragBuilder->codeAppend("float approx_dist = implicit * inversesqrt(grad_dot);");
     if (scaleName) {
         fragBuilder->codeAppendf("approx_dist *= %s.x;", scaleName);
     }
