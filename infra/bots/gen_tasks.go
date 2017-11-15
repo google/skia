@@ -35,10 +35,11 @@ const (
 	ISOLATE_SKP_NAME     = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME     = "Housekeeper-PerCommit-IsolateSVG"
 
-	DEFAULT_OS_DEBIAN = "Debian-9.1"
-	DEFAULT_OS_MAC    = "Mac-10.12"
-	DEFAULT_OS_UBUNTU = "Ubuntu-14.04"
-	DEFAULT_OS_WIN    = "Windows-2016Server-14393"
+	DEFAULT_OS_DEBIAN    = "Debian-9.1"
+	DEFAULT_OS_LINUX_GCE = "Debian-9.2"
+	DEFAULT_OS_MAC       = "Mac-10.12"
+	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
+	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
 
 	// Name prefix for upload jobs.
 	PREFIX_UPLOAD = "Upload"
@@ -106,7 +107,7 @@ func linuxGceDimensions() []string {
 		// Specify CPU to avoid running builds on bots with a more unique CPU.
 		"cpu:x86-64-Haswell_GCE",
 		"gpu:none",
-		fmt.Sprintf("os:%s", DEFAULT_OS_DEBIAN),
+		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 		fmt.Sprintf("pool:%s", CONFIG.Pool),
 	}
 }
@@ -271,6 +272,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				glog.Fatalf("Entry %q not found in %q model mapping.", parts["model"], parts["cpu_or_gpu_value"])
 			}
 			d["cpu"] = cpu
+			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_DEBIAN {
+				d["os"] = DEFAULT_OS_LINUX_GCE
+			}
 		} else {
 			if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
