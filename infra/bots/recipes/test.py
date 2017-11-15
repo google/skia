@@ -569,6 +569,8 @@ def dm_flags(api, bot):
     # skia:6132
     match.append('~^tilemodes$')
     match.append('~tilemodes_npot$')
+    match.append('~scaled_tilemodes$')
+    match.append('~emboss')
     match.append('~^bitmapfilters$')
     match.append('~^shadertext$')
     match.append('~^FullScreenClearWithLayers$') #skia:7191
