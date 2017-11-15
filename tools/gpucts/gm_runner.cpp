@@ -9,7 +9,6 @@
 
 #include <algorithm>
 
-#include "SkGraphics.h"
 #include "SkSurface.h"
 #include "gm.h"
 
@@ -34,23 +33,23 @@ const char* GetBackendName(SkiaBackend backend) {
     return GrContextFactory::ContextTypeName(to_context_type(backend));
 }
 
-bool BackendSupported(SkiaBackend backend, GrContextFactory* contextFactory) {
-    return contextFactory->get(to_context_type(backend)) != nullptr;
+bool BackendSupported(SkiaBackend backend) {
+    GrContextFactory factory;
+    return factory.get(to_context_type(backend)) != nullptr;
 }
 
 
 GMK_ImageData Evaluate(SkiaBackend backend,
                        GMFactory gmFact,
-                       GrContextFactory* contextFactory,
                        std::vector<uint32_t>* storage) {
-    SkASSERT(contextFactory);
     SkASSERT(gmFact);
     SkASSERT(storage);
     std::unique_ptr<skiagm::GM> gm(gmFact(nullptr));
     SkASSERT(gm.get());
     int w = SkScalarRoundToInt(gm->width());
     int h = SkScalarRoundToInt(gm->height());
-    GrContext* context = contextFactory->get(to_context_type(backend));
+    GrContextFactory contextFactory;
+    GrContext* context = contextFactory.get(to_context_type(backend));
     if (!context) {
         return GMK_ImageData{nullptr, w, h};
     }
@@ -72,21 +71,6 @@ GMK_ImageData Evaluate(SkiaBackend backend,
     return GMK_ImageData{pix, w, h};
 }
 
-std::unique_ptr<GrContextFactory> make_gr_context_factory() {
-    GrContextOptions grContextOptions; // TODO: change options?
-    return std::unique_ptr<GrContextFactory>(new GrContextFactory(grContextOptions));
-}
-
-SkiaContext::SkiaContext() : fGrContextFactory(make_gr_context_factory()) {
-    SkGraphics::Init();
-}
-
-void SkiaContext::resetContextFactory() {
-    fGrContextFactory->destroyContexts();
-}
-
-SkiaContext::~SkiaContext() {}
-
 }  // namespace gm_runner
 
 #else
@@ -94,12 +78,8 @@ namespace sk_gpu_test {
     class GrContextFactory {};
 }
 namespace gm_runner {
-SkiaContext::SkiaContext() {}
-SkiaContext::~SkiaContext() {}
-void SkiaContext::resetContextFactory() {}
-bool BackendSupported(SkiaBackend, sk_gpu_test::GrContextFactory*) { return false; }
-GMK_ImageData Evaluate(SkiaBackend, GMFactory,
-                       sk_gpu_test::GrContextFactory*, std::vector<uint32_t>*) {
+bool BackendSupported(SkiaBackend) { return false; }
+GMK_ImageData Evaluate(SkiaBackend, GMFactory, std::vector<uint32_t>*) {
     return GMK_ImageData{nullptr, 0, 0};
 }
 const char* GetBackendName(SkiaBackend backend) { return "Unknown"; }

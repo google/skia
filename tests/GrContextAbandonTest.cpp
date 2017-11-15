@@ -14,10 +14,10 @@
 
 using namespace sk_gpu_test;
 
-DEF_GPUTEST(GrContext_abandonContext, reporter, /*factory*/) {
+DEF_GPUTEST(GrContext_abandonContext, reporter, options) {
     for (int testType = 0; testType < 6; ++testType) {
         for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
-            GrContextFactory testFactory;
+            GrContextFactory testFactory(options);
             GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType) i;
             ContextInfo info = testFactory.getContextInfo(ctxType);
             if (GrContext* context = info.grContext()) {

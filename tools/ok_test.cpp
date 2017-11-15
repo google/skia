@@ -10,6 +10,8 @@
 
 #if SK_SUPPORT_GPU
     #include "GrContextFactory.h"
+#else
+struct GrContextOptions {};
 #endif
 
 struct TestStream : Stream {
@@ -46,14 +48,8 @@ struct TestStream : Stream {
             reporter.extended = extended;
             reporter.verbose_ = verbose;
 
-            sk_gpu_test::GrContextFactory* factory = nullptr;
-        #if SK_SUPPORT_GPU
             GrContextOptions options;
-            sk_gpu_test::GrContextFactory a_real_factory(options);
-            factory = &a_real_factory;
-        #endif
-
-            test.run(&reporter, factory);
+            test.run(&reporter, options);
             return reporter.status;
         }
     };
@@ -95,7 +91,7 @@ namespace skiatest {
 #endif
 
     void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contextTypeFilter,
-                                Reporter* reporter, sk_gpu_test::GrContextFactory* factory) {
+                                Reporter* reporter, const GrContextOptions& options) {
         // TODO(bsalomon)
     }
 }

@@ -36,7 +36,7 @@ bool IsNullGLContextType(int) { return false; }
 #endif
 
 void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contextTypeFilter,
-                            Reporter* reporter, GrContextFactory* factory) {
+                            Reporter* reporter, const GrContextOptions& options) {
 #if SK_SUPPORT_GPU
 
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
@@ -55,8 +55,13 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
                 continue;
             }
         }
-        ContextInfo ctxInfo = factory->getContextInfo(contextType,
-                                                  GrContextFactory::ContextOverrides::kDisableNVPR);
+        // We destroy the factory and its associated contexts after each test. This is due to the
+        // fact that the command buffer sits on top of the native GL windowing (cgl, wgl, ...) but
+        // also tracks which of its contexts is current above that API and gets tripped up if the
+        // native windowing API is used directly outside of the command buffer code.
+        GrContextFactory factory(options);
+        ContextInfo ctxInfo = factory.getContextInfo(
+                contextType, GrContextFactory::ContextOverrides::kDisableNVPR);
         if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
             continue;
         }
@@ -66,8 +71,8 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
             (*test)(reporter, ctxInfo);
             ctxInfo.grContext()->flush();
         }
-        ctxInfo = factory->getContextInfo(contextType,
-                                          GrContextFactory::ContextOverrides::kRequireNVPRSupport);
+        ctxInfo = factory.getContextInfo(contextType,
+                                         GrContextFactory::ContextOverrides::kRequireNVPRSupport);
         if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
             ctxInfo.grContext()->flush();

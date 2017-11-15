@@ -91,7 +91,7 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GpuDrawPath, reporter, ctxInfo) {
     }
 }
 
-DEF_GPUTEST(GrPathKeys, reporter, /*factory*/) {
+DEF_GPUTEST(GrPathKeys, reporter, /* options */) {
     SkPaint strokePaint;
     strokePaint.setStyle(SkPaint::kStroke_Style);
     strokePaint.setStrokeWidth(10.f);

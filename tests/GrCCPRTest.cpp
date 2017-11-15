@@ -124,10 +124,10 @@ protected:
     SkPath             fPath;
 };
 
-#define DEF_CCPR_TEST(name) \
-    DEF_GPUTEST(name, reporter, factory) { \
-        name test; \
-        test.run(reporter); \
+#define DEF_CCPR_TEST(name)                      \
+    DEF_GPUTEST(name, reporter, /* options */) { \
+        name test;                               \
+        test.run(reporter);                      \
     }
 
 class GrCCPRTest_cleanup : public CCPRTest {

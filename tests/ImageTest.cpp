@@ -810,11 +810,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     ctxInfo.grContext()->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
 }
 
-static void test_cross_context_image(skiatest::Reporter* reporter,
+static void test_cross_context_image(skiatest::Reporter* reporter, const GrContextOptions& options,
                                      std::function<sk_sp<SkImage>(GrContext*)> imageMaker) {
-    GrContextFactory testFactory;
-
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
+        GrContextFactory testFactory(options);
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
         ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
         GrContext* ctx = ctxInfo.grContext();
@@ -958,21 +957,21 @@ static void test_cross_context_image(skiatest::Reporter* reporter,
     }
 }
 
-DEF_GPUTEST(SkImage_MakeCrossContextFromEncodedRelease, reporter, /*factory*/) {
+DEF_GPUTEST(SkImage_MakeCrossContextFromEncodedRelease, reporter, options) {
     sk_sp<SkData> data = GetResourceAsData("mandrill_128.png");
     SkASSERT(data.get());
 
-    test_cross_context_image(reporter, [&data](GrContext* ctx) {
+    test_cross_context_image(reporter, options, [&data](GrContext* ctx) {
         return SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr);
     });
 }
 
-DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, /*factory*/) {
+DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, options) {
     SkBitmap bitmap;
     SkPixmap pixmap;
     SkAssertResult(GetResourceAsBitmap("mandrill_128.png", &bitmap) && bitmap.peekPixels(&pixmap));
 
-    test_cross_context_image(reporter, [&pixmap](GrContext* ctx) {
+    test_cross_context_image(reporter, options, [&pixmap](GrContext* ctx) {
         return SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false, nullptr);
     });
 }
