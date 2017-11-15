@@ -1976,11 +1976,10 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
 
     if (this->textureRedSupport()) {
-        redInfo.fFlags = ConfigInfo::kTextureable_Flag;
+        redInfo.fFlags = ConfigInfo::kTextureable_Flag | allRenderFlags;
         if (texelBufferSupport) {
             redInfo.fFlags |= ConfigInfo::kCanUseWithTexelBuffer_Flag;
         }
-        redInfo.fFlags |= allRenderFlags;
 
         fConfigTable[kAlpha_8_GrPixelConfig] = redInfo;
     } else {
