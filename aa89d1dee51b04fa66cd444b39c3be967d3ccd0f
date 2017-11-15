@@ -16,6 +16,24 @@
       "revId": "aa89d1dee51b04fa66cd444b39c3be967d3ccd0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd9116ef_e9a5c252",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-15T20:09:15Z",
+      "side": 1,
+      "message": "I\u0027d be fine to have every Win CPU bot that\u0027s not a NativeFonts bot in GCE on any Windows version, whether Debug, Release, Test, or Perf.",
+      "parentUuid": "9e1e6765_3a93bd22",
+      "revId": "aa89d1dee51b04fa66cd444b39c3be967d3ccd0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
