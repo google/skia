@@ -359,8 +359,8 @@ TEST_BUILDERS = [
   'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan',
   'Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE',
-  'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug-All',
-  'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-All',
+  'Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All',
+  'Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All',
   'Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All',
 ]
 
