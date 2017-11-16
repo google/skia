@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkFixedAlloc_DEFINED
-#define SkFixedAlloc_DEFINED
+#ifndef SkArenaAlloc_DEFINED
+#define SkArenaAlloc_DEFINED
 
 #include "SkRefCnt.h"
 #include "SkTFitsIn.h"
@@ -240,4 +240,4 @@ private:
     using INHERITED = SkArenaAlloc;
 };
 
-#endif//SkFixedAlloc_DEFINED
+#endif  // SkArenaAlloc_DEFINED
