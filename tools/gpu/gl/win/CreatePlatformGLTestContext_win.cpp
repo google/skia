@@ -16,6 +16,12 @@
 
 namespace {
 
+std::function<void()> context_restorer() {
+    auto glrc = wglGetCurrentContext();
+    auto dc = wglGetCurrentDC();
+    return [glrc, dc] { wglMakeCurrent(dc, glrc); };
+}
+
 class WinGLTestContext : public sk_gpu_test::GLTestContext {
 public:
     WinGLTestContext(GrGLStandard forcedGpuAPI, WinGLTestContext* shareContext);
@@ -25,6 +31,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char* name) const override;
 
@@ -113,6 +120,7 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI, WinGLTestContext* 
         glrc = fPbufferContext->getGLRC();
     }
 
+    SkScopeExit restorer(context_restorer());
     if (!(wglMakeCurrent(dc, glrc))) {
         SkDebugf("Could not set the context.\n");
         this->destroyGLContext();
@@ -142,6 +150,7 @@ WinGLTestContext::~WinGLTestContext() {
 void WinGLTestContext::destroyGLContext() {
     SkSafeSetNull(fPbufferContext);
     if (fGlRenderContext) {
+        // This deletes the context immediately even if it is current.
         wglDeleteContext(fGlRenderContext);
         fGlRenderContext = 0;
     }
@@ -170,6 +179,13 @@ void WinGLTestContext::onPlatformMakeCurrent() const {
     if (!wglMakeCurrent(dc, glrc)) {
         SkDebugf("Could not create rendering context.\n");
     }
+}
+
+std::function<void()> WinGLTestContext::onPlatformGetAutoContextRestore() const {
+    if (wglGetCurrentContext() == fGlRenderContext) {
+        return nullptr;
+    }
+    return context_restorer();
 }
 
 void WinGLTestContext::onPlatformSwapBuffers() const {
