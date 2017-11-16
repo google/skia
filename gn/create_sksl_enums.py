@@ -11,10 +11,10 @@ import sys
 
 src = open(sys.argv[1], 'r')
 dst = open(sys.argv[2], 'w')
-dst.write('STRINGIFY(')
+dst.write('R"(')
 for line in src.readlines():
     if not line.startswith("#"):
         dst.write(line)
-dst.write(')\n')
+dst.write(')"\n')
 src.close()
 dst.close()
