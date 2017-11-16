@@ -150,7 +150,8 @@ public:
             current_y = config->line_spacing_ratio.value * config->font_size.value;
         }
         SkTextBlobBuilder textBlobBuilder;
-        shaper.shape(&textBlobBuilder, glyph_paint, text, textBytes, true, SkPoint{0, 0});
+        shaper.shape(&textBlobBuilder, glyph_paint, text, textBytes, true, SkPoint{0, 0},
+                     config->page_width.value - 2*config->left_margin.value);
         sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
         pageCanvas->drawTextBlob(
                 blob.get(), SkDoubleToScalar(current_x),
@@ -205,6 +206,7 @@ int main(int argc, char **argv) {
     SkShaper shaper(typeface);
     assert(shaper.good());
     //SkString line("This is هذا هو الخط a line.");
+    //SkString line("⁧This is a line هذا هو الخط.⁩");
     for (std::string line; std::getline(std::cin, line);) {
         placement.WriteLine(shaper, line.c_str(), line.size());
     }

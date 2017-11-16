@@ -34,7 +34,8 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
                          const char* utf8text,
                          size_t textBytes,
                          bool leftToRight,
-                         SkPoint point) const {
+                         SkPoint point,
+                         SkScalar width) const {
     sk_ignore_unused_variable(leftToRight);
 
     SkPaint paint(srcPaint);
