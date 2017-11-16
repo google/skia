@@ -16,6 +16,24 @@
       "revId": "dcfca431e3c350e17eedb3402cc63577cea8d4ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c21b63f7_d972f353",
+        "filename": "tools/gpucts/gm_runner.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-16T17:51:08Z",
+      "side": 1,
+      "message": "Yep, I think so.",
+      "parentUuid": "4d9a380b_7757867a",
+      "revId": "dcfca431e3c350e17eedb3402cc63577cea8d4ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
