@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f34ce88a_cd48503c",
+        "filename": "BUILD.gn",
+        "patchSetId": 12
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-16T18:31:25Z",
+      "side": 1,
+      "message": "The logic here is we build and run the new GM on the bots but clients don\u0027t build unless they explicitly set skia_enabled_atlas_test\u003dtrue in their gn args.",
+      "range": {
+        "startLine": 55,
+        "startChar": 2,
+        "endLine": 55,
+        "endChar": 63
+      },
+      "revId": "179c6329152ab9b4ae5defec4e620d007304de09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
