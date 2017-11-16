@@ -68,6 +68,8 @@ public:
     // Don't. Just don't.
     void exactify();
 
+    static bool AttachStencilIfNeeded(GrResourceProvider*, GrSurface*, bool needsStencil);
+
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}
     GrSurfaceProxyPriv(const GrSurfaceProxyPriv&) {} // unimpl
