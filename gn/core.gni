@@ -272,7 +272,6 @@ skia_core_sources = [
   "$_src/core/SkScan_Antihair.cpp",
   "$_src/core/SkScan_Hairline.cpp",
   "$_src/core/SkScan_Path.cpp",
-  "$_src/core/SkScopeExit.h",
   "$_src/core/SkSemaphore.cpp",
   "$_src/core/SkSharedMutex.cpp",
   "$_src/core/SkSharedMutex.h",

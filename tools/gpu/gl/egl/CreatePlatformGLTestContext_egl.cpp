@@ -39,16 +39,6 @@ private:
     typedef sk_gpu_test::FenceSync INHERITED;
 };
 
-std::function<void()> context_restorer() {
-    auto display = eglGetCurrentDisplay();
-    auto dsurface = eglGetCurrentSurface(EGL_DRAW);
-    auto rsurface = eglGetCurrentSurface(EGL_READ);
-    auto context = eglGetCurrentContext();
-    return [display, dsurface, rsurface, context] {
-        eglMakeCurrent(display, dsurface, rsurface, context);
-    };
-}
-
 class EGLGLTestContext : public sk_gpu_test::GLTestContext {
 public:
     EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* shareContext);
@@ -63,7 +53,6 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
-    std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
@@ -179,7 +168,6 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
             continue;
         }
 
-        SkScopeExit restorer(context_restorer());
         if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
             SkDebugf("eglMakeCurrent failed.  EGL Error: 0x%08x\n", eglGetError());
             this->destroyGLContext();
@@ -211,11 +199,9 @@ EGLGLTestContext::~EGLGLTestContext() {
 
 void EGLGLTestContext::destroyGLContext() {
     if (fDisplay) {
+        eglMakeCurrent(fDisplay, 0, 0, 0);
+
         if (fContext) {
-            if (eglGetCurrentContext() == fContext) {
-                // This will ensure that the context is immediately deleted.
-                eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-            }
             eglDestroyContext(fDisplay, fContext);
             fContext = EGL_NO_CONTEXT;
         }
@@ -296,13 +282,6 @@ void EGLGLTestContext::onPlatformMakeCurrent() const {
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Could not set the context.\n");
     }
-}
-
-std::function<void()> EGLGLTestContext::onPlatformGetAutoContextRestore() const {
-    if (eglGetCurrentContext() == fContext) {
-        return nullptr;
-    }
-    return context_restorer();
 }
 
 void EGLGLTestContext::onPlatformSwapBuffers() const {

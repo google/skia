@@ -154,7 +154,6 @@ private:
     }
 
     void onPlatformMakeCurrent() const override {}
-    std::function<void()> onPlatformGetAutoContextRestore() const override  { return nullptr; }
     void onPlatformSwapBuffers() const override {}
 
     typedef sk_gpu_test::VkTestContext INHERITED;

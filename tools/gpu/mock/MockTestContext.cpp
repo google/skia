@@ -34,7 +34,6 @@ public:
 protected:
     void teardown() override {}
     void onPlatformMakeCurrent() const override {}
-    std::function<void()> onPlatformGetAutoContextRestore() const override { return nullptr; }
     void onPlatformSwapBuffers() const override {}
 
 private:

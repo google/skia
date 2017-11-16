@@ -34,16 +34,6 @@ struct Libs {
     void* fEGLLib;
 };
 
-std::function<void()> context_restorer() {
-    auto display = eglGetCurrentDisplay();
-    auto dsurface = eglGetCurrentSurface(EGL_DRAW);
-    auto rsurface = eglGetCurrentSurface(EGL_READ);
-    auto context = eglGetCurrentContext();
-    return [display, dsurface, rsurface, context] {
-        eglMakeCurrent(display, dsurface, rsurface, context);
-    };
-}
-
 static GrGLFuncPtr angle_get_gl_proc(void* ctx, const char name[]) {
     const Libs* libs = reinterpret_cast<const Libs*>(ctx);
     GrGLFuncPtr proc = (GrGLFuncPtr) GetProcedureAddress(libs->fGLLib, name);
@@ -97,7 +87,6 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
-    std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char* name) const override;
 
@@ -225,7 +214,6 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
 
     fSurface = eglCreatePbufferSurface(fDisplay, surfaceConfig, surfaceAttribs);
 
-    SkScopeExit restorer(context_restorer());
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Could not set the context.");
         this->destroyGLContext();
@@ -332,10 +320,7 @@ std::unique_ptr<sk_gpu_test::GLTestContext> ANGLEGLContext::makeNew() const {
 
 void ANGLEGLContext::destroyGLContext() {
     if (EGL_NO_DISPLAY != fDisplay) {
-        if (eglGetCurrentContext() == fContext) {
-            // This will ensure that the context is immediately deleted.
-            eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        }
+        eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
         if (EGL_NO_CONTEXT != fContext) {
             eglDestroyContext(fDisplay, fContext);
@@ -368,13 +353,6 @@ void ANGLEGLContext::onPlatformMakeCurrent() const {
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         SkDebugf("Could not set the context 0x%x.\n", eglGetError());
     }
-}
-
-std::function<void()> ANGLEGLContext::onPlatformGetAutoContextRestore() const {
-    if (eglGetCurrentContext() == fContext) {
-        return nullptr;
-    }
-    return context_restorer();
 }
 
 void ANGLEGLContext::onPlatformSwapBuffers() const {
