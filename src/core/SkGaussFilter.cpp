@@ -143,9 +143,10 @@ SkGaussFilter::SkGaussFilter(double sigma, Type type) {
     }
 }
 
-int SkGaussFilter::filterDouble(double values[5]) const {
+int SkGaussFilter::filterDouble(double* values) const {
     for (int i = 0; i < fN; i++) {
         values[i] = fBasis[i];
     }
     return fN;
 }
+
