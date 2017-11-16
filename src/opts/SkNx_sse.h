@@ -502,7 +502,7 @@ public:
 
     AI SkNx() {}
     AI SkNx(uint8_t val) : fVec(_mm_set1_epi8(val)) {}
-    AI static SkNx Load(const void* ptr) { return _mm_loadu_si128((const __m128i*)ptr); }
+    AI static SkNx Load(const void* ptr) { return _mm_loadl_epi64((const __m128i*)ptr); }
     AI SkNx(uint8_t a, uint8_t b, uint8_t c, uint8_t d,
             uint8_t e, uint8_t f, uint8_t g, uint8_t h)
             : fVec(_mm_setr_epi8(a,b,c,d, e,f,g,h, 0,0,0,0, 0,0,0,0)) {}
