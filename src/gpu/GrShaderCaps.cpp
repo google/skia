@@ -13,6 +13,32 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+static const char* shader_type_to_string(GrShaderType type) {
+    switch (type) {
+    case kVertex_GrShaderType:
+        return "vertex";
+    case kGeometry_GrShaderType:
+        return "geometry";
+    case kFragment_GrShaderType:
+        return "fragment";
+    }
+    return "";
+}
+
+static const char* precision_to_string(GrSLPrecision p) {
+    switch (p) {
+    case kLow_GrSLPrecision:
+        return "low";
+    case kMedium_GrSLPrecision:
+        return "medium";
+    case kHigh_GrSLPrecision:
+        return "high";
+    default:
+        SK_ABORT("Unexpected precision type.");
+        return "";
+    }
+}
+
 GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fGLSLGeneration = k330_GrGLSLGeneration;
     fShaderDerivativeSupport = false;
@@ -24,6 +50,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fIntegerSupport = false;
     fTexelBufferSupport = false;
     fImageLoadStoreSupport = false;
+    fShaderPrecisionVaries = false;
     fDropsTileOnZeroDivide = false;
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
@@ -46,8 +73,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fExternalTextureSupport = false;
     fTexelFetchSupport = false;
     fVertexIDSupport = false;
-    fFloatIs32Bits = true;
-    fHalfIs32Bits = false;
 
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;
@@ -88,6 +113,26 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Texel Buffer Support", fTexelBufferSupport);
     writer->appendBool("Image Load Store Support", fImageLoadStoreSupport);
 
+    writer->appendBool("Variable Precision", fShaderPrecisionVaries);
+
+    for (int s = 0; s < kGrShaderTypeCount; ++s) {
+        GrShaderType shaderType = static_cast<GrShaderType>(s);
+        writer->beginArray(SkStringPrintf("%s precisions",
+                                          shader_type_to_string(shaderType)).c_str());
+        for (int p = 0; p < kGrSLPrecisionCount; ++p) {
+            if (fFloatPrecisions[s][p].supported()) {
+                GrSLPrecision precision = static_cast<GrSLPrecision>(p);
+                writer->beginObject(nullptr, false);
+                writer->appendString("precision", precision_to_string(precision));
+                writer->appendS32("log_low", fFloatPrecisions[s][p].fLogRangeLow);
+                writer->appendS32("log_high", fFloatPrecisions[s][p].fLogRangeHigh);
+                writer->appendS32("bits", fFloatPrecisions[s][p].fBits);
+                writer->endObject();
+            }
+        }
+        writer->endArray();
+    }
+
     static const char* kAdvBlendEqInteractionStr[] = {
         "Not Supported",
         "Automatic",
@@ -121,8 +166,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("External texture support", fExternalTextureSupport);
     writer->appendBool("texelFetch support", fTexelFetchSupport);
     writer->appendBool("sk_VertexID support", fVertexIDSupport);
-    writer->appendBool("float == fp32", fFloatIs32Bits);
-    writer->appendBool("half == fp32", fHalfIs32Bits);
 
     writer->appendS32("Max VS Samplers", fMaxVertexSamplers);
     writer->appendS32("Max GS Samplers", fMaxGeometrySamplers);
@@ -133,6 +176,59 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Disable image multitexturing", fDisableImageMultitexturing);
 
     writer->endObject();
+}
+
+void GrShaderCaps::initSamplerPrecisionTable() {
+    // Determine the largest precision qualifiers that are effectively the same as lowp/mediump.
+    //   e.g. if lowp == mediump, then use mediump instead of lowp.
+    GrSLPrecision effectiveMediumP[kGrShaderTypeCount];
+    GrSLPrecision effectiveLowP[kGrShaderTypeCount];
+    for (int s = 0; s < kGrShaderTypeCount; ++s) {
+        const PrecisionInfo* info = fFloatPrecisions[s];
+        effectiveMediumP[s] = info[kHigh_GrSLPrecision] == info[kMedium_GrSLPrecision] ?
+                                  kHigh_GrSLPrecision : kMedium_GrSLPrecision;
+        effectiveLowP[s] = info[kMedium_GrSLPrecision] == info[kLow_GrSLPrecision] ?
+                               effectiveMediumP[s] : kLow_GrSLPrecision;
+    }
+
+    // Determine which precision qualifiers should be used with samplers.
+    for (int visibility = 0; visibility < (1 << kGrShaderTypeCount); ++visibility) {
+        GrSLPrecision mediump = kHigh_GrSLPrecision;
+        GrSLPrecision lowp = kHigh_GrSLPrecision;
+        for (int s = 0; s < kGrShaderTypeCount; ++s) {
+            if (visibility & (1 << s)) {
+                mediump = SkTMin(mediump, effectiveMediumP[s]);
+                lowp = SkTMin(lowp, effectiveLowP[s]);
+            }
+
+            GR_STATIC_ASSERT(0 == kLow_GrSLPrecision);
+            GR_STATIC_ASSERT(1 == kMedium_GrSLPrecision);
+            GR_STATIC_ASSERT(2 == kHigh_GrSLPrecision);
+
+            GR_STATIC_ASSERT((1 << kVertex_GrShaderType) == kVertex_GrShaderFlag);
+            GR_STATIC_ASSERT((1 << kGeometry_GrShaderType) == kGeometry_GrShaderFlag);
+            GR_STATIC_ASSERT((1 << kFragment_GrShaderType) == kFragment_GrShaderFlag);
+            GR_STATIC_ASSERT(3 == kGrShaderTypeCount);
+        }
+
+        uint8_t* table = fSamplerPrecisions[visibility];
+        table[kUnknown_GrPixelConfig]        = lowp;
+        table[kAlpha_8_GrPixelConfig]        = lowp;
+        table[kGray_8_GrPixelConfig]         = lowp;
+        table[kRGB_565_GrPixelConfig]        = lowp;
+        table[kRGBA_4444_GrPixelConfig]      = lowp;
+        table[kRGBA_8888_GrPixelConfig]      = lowp;
+        table[kBGRA_8888_GrPixelConfig]      = lowp;
+        table[kSRGBA_8888_GrPixelConfig]     = lowp;
+        table[kSBGRA_8888_GrPixelConfig]     = lowp;
+        table[kRGBA_8888_sint_GrPixelConfig] = lowp;
+        table[kRGBA_float_GrPixelConfig]     = kHigh_GrSLPrecision;
+        table[kRG_float_GrPixelConfig]       = kHigh_GrSLPrecision;
+        table[kAlpha_half_GrPixelConfig]     = mediump;
+        table[kRGBA_half_GrPixelConfig]      = mediump;
+
+        GR_STATIC_ASSERT(14 == kGrPixelConfigCnt);
+    }
 }
 
 void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {

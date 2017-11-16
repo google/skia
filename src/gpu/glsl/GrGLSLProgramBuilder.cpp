@@ -303,7 +303,7 @@ GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(GrSLType s
                                                                       const char* name,
                                                                       GrShaderFlags visibility) {
     this->updateSamplerCounts(visibility);
-    GrSLPrecision precision = GrSLSamplerPrecision(config);
+    GrSLPrecision precision = this->shaderCaps()->samplerPrecision(config, visibility);
     GrSwizzle swizzle = this->shaderCaps()->configTextureSwizzle(config);
     return this->uniformHandler()->addSampler(visibility, swizzle, samplerType, precision, name);
 }
@@ -311,7 +311,7 @@ GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(GrSLType s
 GrGLSLProgramBuilder::TexelBufferHandle GrGLSLProgramBuilder::emitTexelBuffer(
         GrPixelConfig config, const char* name, GrShaderFlags visibility) {
     this->updateSamplerCounts(visibility);
-    GrSLPrecision precision = GrSLSamplerPrecision(config);
+    GrSLPrecision precision = this->shaderCaps()->samplerPrecision(config, visibility);
     return this->uniformHandler()->addTexelBuffer(visibility, precision, name);
 }
 

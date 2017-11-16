@@ -184,14 +184,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
             return;
         }
 
-        float error = context->caps()->shaderCaps()->halfIs32Bits() ? 0.5f : 1.2f;
+        float error = context->caps()->shaderCaps()->floatPrecisionVaries() ? 1.2f  : 0.5f;
 
         // Write srgba data and read as srgba and then as rgba
         if (sContext->writePixels(iiSRGBA, origData, 0, 0, 0)) {
             // For the all-srgba case, we allow a small error only for devices that have
             // precision variation because the srgba data gets converted to linear and back in
             // the shader.
-            float smallError = context->caps()->shaderCaps()->halfIs32Bits() ? 0.0f : 1.f;
+            float smallError = context->caps()->shaderCaps()->floatPrecisionVaries() ? 1.f : 0.0f;
             read_and_check_pixels(reporter, sContext.get(), origData, iiSRGBA,
                                   check_srgb_to_linear_to_srgb_conversion, smallError,
                                   "write/read srgba to srgba texture");

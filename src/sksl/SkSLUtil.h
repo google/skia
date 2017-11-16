@@ -135,8 +135,8 @@ public:
         return false;
     }
 
-    bool floatIs32Bits() const {
-        return true;
+    bool floatPrecisionVaries() const {
+        return false;
     }
 
     bool integerSupport() const {
