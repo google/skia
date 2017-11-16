@@ -6,6 +6,12 @@
         "Build-Debian9-Clang-arm-Debug-Android"
       ]
     },
+    "Build-Debian9-Clang-arm-Debug-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-Clang-arm-Debug-Android_Vulkan"
+      ]
+    },
     "Build-Debian9-Clang-arm-Debug-Chromebook_GLES": {
       "priority": 0.8,
       "tasks": [
@@ -1701,6 +1707,12 @@
         "Upload-Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-All-Android"
       ]
     },
+    "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-All-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-All-Android_Vulkan"
+      ]
+    },
     "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-All-Android": {
       "priority": 0.8,
       "tasks": [
@@ -1713,6 +1725,12 @@
         "Upload-Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android"
       ]
     },
+    "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android_Vulkan"
+      ]
+    },
     "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android": {
       "priority": 0.8,
       "tasks": [
@@ -1723,6 +1741,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-All-Android"
+      ]
+    },
+    "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-All-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-All-Android_Vulkan"
       ]
     },
     "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Release-All-Android": {
@@ -2955,6 +2979,36 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Debian9-Clang-arm-Debug-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-Clang-arm-Debug-Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:10"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-arm-Debug-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -13540,6 +13594,40 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-All-Android_Vulkan": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm64-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:NRD90M_G930AUCS4BQC2",
+        "device_type:heroqlteatt",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-All-Android": {
       "dependencies": [
         "Build-Debian9-Clang-arm64-Release-Android",
@@ -13608,6 +13696,40 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android_Vulkan": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm64-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:NRD90M_G930FXXU1DQAS",
+        "device_type:herolte",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android": {
       "dependencies": [
         "Build-Debian9-Clang-arm64-Release-Android",
@@ -13664,6 +13786,40 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-All-Android_Vulkan": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:NPJ25.93-14",
+        "device_type:athene",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-All-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -25476,6 +25632,33 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-All-Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-All-Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-All-Android": {
       "dependencies": [
         "Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Release-All-Android"
@@ -25530,6 +25713,33 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android": {
       "dependencies": [
         "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android"
@@ -25573,6 +25783,33 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-All-Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-All-Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-MotoG4-GPU-Adreno405-arm-Debug-All-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
