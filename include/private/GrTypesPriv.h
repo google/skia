@@ -909,6 +909,33 @@ static inline bool GrPixelConfigIsUnorm(GrPixelConfig config) {
     return false;
 }
 
+/**
+ * Precision qualifier that should be used with a sampler.
+ */
+static inline GrSLPrecision GrSLSamplerPrecision(GrPixelConfig config) {
+    switch (config) {
+        case kUnknown_GrPixelConfig:
+        case kAlpha_8_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+        case kRGBA_8888_sint_GrPixelConfig:
+            return kLow_GrSLPrecision;
+        case kRGBA_float_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
+            return kHigh_GrSLPrecision;
+        case kAlpha_half_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+            return kMedium_GrSLPrecision;
+    }
+    SK_ABORT("Unexpected type");
+    return kHigh_GrSLPrecision;
+}
+
 static inline GrPixelConfigIsClamped GrGetPixelConfigIsClamped(GrPixelConfig config) {
     return GrPixelConfigIsFloatingPoint(config) ? GrPixelConfigIsClamped::kNo
                                                 : GrPixelConfigIsClamped::kYes;
