@@ -32,9 +32,12 @@ DEF_TEST(SkGaussFilterCommon, r) {
         double sigma; SkGaussFilter::Type type; std::vector<double> golden;
         std::tie(sigma, type, golden) = test;
         SkGaussFilter filter{sigma, type};
-        double result[5];
-        size_t n = filter.filterDouble(result);
-        REPORTER_ASSERT(r, n == golden.size());
+        double result[SkGaussFilter::kGaussArrayMax];
+        int n = 0;
+        for (auto d : filter) {
+            result[n++] = d;
+        }
+        REPORTER_ASSERT(r, static_cast<size_t>(n) == golden.size());
         double sum = careful_add(n, result);
         REPORTER_ASSERT(r, sum == 1.0);
         for (size_t i = 0; i < golden.size(); i++) {
@@ -70,9 +73,12 @@ DEF_TEST(SkGaussFilterSweep, r) {
     const double maxSigma = nextafter(2.0, 0.0);
     auto check = [&](double sigma, SkGaussFilter::Type type) {
         SkGaussFilter filter{sigma, type};
-        double result[5];
-        int n = filter.filterDouble(result);
-        REPORTER_ASSERT(r, n <= 5);
+        double result[SkGaussFilter::kGaussArrayMax];
+        int n = 0;
+        for (auto d : filter) {
+            result[n++] = d;
+        }
+        REPORTER_ASSERT(r, n <= SkGaussFilter::kGaussArrayMax);
         double sum = careful_add(n, result);
         REPORTER_ASSERT(r, sum == 1.0);
     };
