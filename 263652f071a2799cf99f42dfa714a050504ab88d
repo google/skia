@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5adaf99b_a847ffc5",
+        "filename": "tools/gpu/GrContextFactory.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-16T14:02:00Z",
+      "side": 1,
+      "message": "This is like this because of failure cases below.",
+      "range": {
+        "startLine": 259,
+        "startChar": 0,
+        "endLine": 260,
+        "endChar": 50
+      },
+      "revId": "263652f071a2799cf99f42dfa714a050504ab88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ab9a560_5f4f24b3",
+        "filename": "tools/gpu/GrContextFactory.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-16T14:02:00Z",
+      "side": 1,
+      "message": "This is part of the GrContextFactory\u0027s current contract. I\u0027d like to change that in the future, though, so that the various get() methods don\u0027t make the context current.",
+      "range": {
+        "startLine": 291,
+        "startChar": 4,
+        "endLine": 291,
+        "endChar": 40
+      },
+      "revId": "263652f071a2799cf99f42dfa714a050504ab88d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

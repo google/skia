@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d3b02e7_ffeb63a1",
+        "filename": "tools/gpu/TestContext.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-16T14:02:00Z",
+      "side": 1,
+      "message": "I went back and forth on whether this should return a SkScopeExit or just return the std::function() and leave it up to the caller to invoke it directly or put it in a SkScopeExit.",
+      "range": {
+        "startLine": 59,
+        "startChar": 4,
+        "endLine": 59,
+        "endChar": 15
+      },
+      "revId": "3ff00af19f3fdb187d382345573c14a82a319caf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
