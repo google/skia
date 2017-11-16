@@ -1203,6 +1203,7 @@ public:
 
 private:
     void onPlatformMakeCurrent() const override {}
+    std::function<void()> onPlatformGetAutoContextRestore() const override { return nullptr; }
     void onPlatformSwapBuffers() const override {}
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override { return nullptr; }
 };
