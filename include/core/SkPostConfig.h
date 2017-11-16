@@ -89,6 +89,12 @@
 #  define SK_SUPPORT_GPU 1
 #endif
 
+#if !defined(SK_SUPPORT_ATLAS_TEXT)
+#  define SK_SUPPORT_ATLAS_TEXT 0
+#elif SK_SUPPORT_ATLAS_TEXT && !SK_SUPPORT_GPU
+#  error "SK_SUPPORT_ATLAS_TEXT requires SK_SUPPORT_GPU"
+#endif
+
 /**
  * The clang static analyzer likes to know that when the program is not
  * expected to continue (crash, assertion failure, etc). It will notice that
