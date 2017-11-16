@@ -22,6 +22,9 @@
 
 #include <sstream>
 
+extern GrBackendTexture backEndTexture;
+extern GrBackendRenderTarget backEndRenderTarget;
+extern GrBackendTexture backEndTextureRenderTarget;
 extern SkBitmap source;
 extern sk_sp<SkImage> image;
 extern double duration; // The total duration of the animation in seconds.
