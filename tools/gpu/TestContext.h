@@ -9,11 +9,10 @@
 #ifndef TestContext_DEFINED
 #define TestContext_DEFINED
 
-#include "../private/SkTemplates.h"
 #include "FenceSync.h"
 #include "GrTypes.h"
 #include "SkRefCnt.h"
-#include "SkScopeExit.h"
+#include "../private/SkTemplates.h"
 
 class GrContext;
 struct GrContextOptions;
@@ -45,18 +44,6 @@ public:
     }
 
     void makeCurrent() const;
-
-    /**
-     * Like makeCurrent() but this returns an object that will restore the previous current
-     * context in its destructor. Useful to undo the effect making this current before returning to
-     * a caller that doesn't expect the current context to be changed underneath it.
-     *
-     * The returned object restores the current context of the same type (e.g. egl, glx, ...) in its
-     * destructor. It is undefined behavior if that context is destroyed before the destructor
-     * executes. If the concept of a current context doesn't make sense for this context type then
-     * the returned object's destructor is a no-op.
-     */
-    SkScopeExit SK_WARN_UNUSED_RESULT makeCurrentAndAutoRestore() const;
 
     virtual GrBackend backend() = 0;
     virtual GrBackendContext backendContext() = 0;
@@ -107,14 +94,6 @@ protected:
     virtual void teardown();
 
     virtual void onPlatformMakeCurrent() const = 0;
-    /**
-     * Subclasses should implement such that the returned function will cause the current context
-     * of this type to be made current again when it is called. It should additionally be the
-     * case that if "this" is already current when this is called, then "this" is destroyed (thereby
-     * setting the null context as current), and then the std::function is called the null context
-     * should remain current.
-     */
-    virtual std::function<void()> onPlatformGetAutoContextRestore() const = 0;
     virtual void onPlatformSwapBuffers() const = 0;
 
 private:

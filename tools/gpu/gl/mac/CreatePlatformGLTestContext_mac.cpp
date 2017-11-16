@@ -14,12 +14,6 @@
 #include <dlfcn.h>
 
 namespace {
-
-std::function<void()> context_restorer() {
-    auto context = CGLGetCurrentContext();
-    return [context] { CGLSetCurrentContext(context); };
-}
-
 class MacGLTestContext : public sk_gpu_test::GLTestContext {
 public:
     MacGLTestContext(MacGLTestContext* shareContext);
@@ -29,7 +23,6 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
-    std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
@@ -65,7 +58,6 @@ MacGLTestContext::MacGLTestContext(MacGLTestContext* shareContext)
         return;
     }
 
-    SkScopeExit restorer(context_restorer());
     CGLSetCurrentContext(fContext);
 
     sk_sp<const GrGLInterface> gl(GrGLCreateNativeInterface());
@@ -94,10 +86,6 @@ MacGLTestContext::~MacGLTestContext() {
 
 void MacGLTestContext::destroyGLContext() {
     if (fContext) {
-        if (CGLGetCurrentContext() == fContext) {
-            // This will ensure that the context is immediately deleted.
-            CGLSetCurrentContext(nullptr);
-        }
         CGLReleaseContext(fContext);
         fContext = nullptr;
     }
@@ -108,13 +96,6 @@ void MacGLTestContext::destroyGLContext() {
 
 void MacGLTestContext::onPlatformMakeCurrent() const {
     CGLSetCurrentContext(fContext);
-}
-
-std::function<void()> MacGLTestContext::onPlatformGetAutoContextRestore() const {
-    if (CGLGetCurrentContext() == fContext) {
-        return nullptr;
-    }
-    return context_restorer();
 }
 
 void MacGLTestContext::onPlatformSwapBuffers() const {

@@ -436,10 +436,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
         // Create a texture image.
         [context] { return create_gpu_image(context); },
         // Create a texture image in a another GrContext.
-        [otherContextInfo] {
-            auto restore = otherContextInfo.testContext()->makeCurrentAndAutoRestore();
+        [testContext, otherContextInfo] {
+            otherContextInfo.testContext()->makeCurrent();
             sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
-            otherContextInfo.grContext()->flush();
+            testContext->makeCurrent();
             return otherContextImage;
         }
     };
@@ -487,6 +487,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
             }
         }
 
+        testContext->makeCurrent();
         context->flush();
     }
 }
@@ -1196,10 +1197,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
         { create_picture_image, true, false },
         { [context] { return create_gpu_image(context); }, true, true },
         // Create a texture image in a another GrContext.
-        { [otherContextInfo] {
-            auto restore = otherContextInfo.testContext()->makeCurrentAndAutoRestore();
+        { [testContext, otherContextInfo] {
+            otherContextInfo.testContext()->makeCurrent();
             sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
-            otherContextInfo.grContext()->flush();
+            testContext->makeCurrent();
             return otherContextImage;
           }, false, false },
         // Create an image that is too large to be texture backed.
@@ -1231,6 +1232,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture, reporter, ctxInfo) {
             kExpectedState[testCase.fCanTakeDirectly]);
         }
 
+        testContext->makeCurrent();
         context->flush();
     }
 }
