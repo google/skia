@@ -10,6 +10,7 @@
 
 #include "GrBuffer.h"
 #include "GrPathRange.h"
+#include "GrResourceCache.h"
 #include "SkImageInfo.h"
 #include "SkScalerContext.h"
 
@@ -259,6 +260,7 @@ public:
     static bool IsFunctionallyExact(GrSurfaceProxy* proxy);
 
     const GrCaps* caps() const { return fCaps.get(); }
+    bool overBudget() const { return fCache->overBudget(); }
 
 private:
     sk_sp<GrGpuResource> findResourceByUniqueKey(const GrUniqueKey&);

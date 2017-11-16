@@ -9,6 +9,8 @@
 
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
+#include "GrRenderTargetProxy.h"
+#include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrSurfacePriv.h"
 #include "GrSurfaceProxy.h"
@@ -19,6 +21,18 @@ void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
     SkASSERT(!fAssignedSurface);
     fAssignedSurface = s;
     fProxy->priv().assign(std::move(s));
+}
+
+
+void GrResourceAllocator::markEndOfOpList(int opListIndex) {
+    SkASSERT(!fAssigned);      // We shouldn't be adding any opLists after (or during) assignment
+
+    SkASSERT(fEndOfOpListOpIndices.count() == opListIndex);
+    if (!fEndOfOpListOpIndices.empty()) {
+        SkASSERT(fEndOfOpListOpIndices.back() < this->curOp());
+    }
+
+    fEndOfOpListOpIndices.push_back(this->curOp()); // This is the first op index of the next opList
 }
 
 GrResourceAllocator::~GrResourceAllocator() {
@@ -36,11 +50,8 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
 
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
-        // TODO: this assert is failing on the copy_on_write_retain GM!
-        SkASSERT(intvl->end() <= start);
-        if (intvl->end() < end) {
-            intvl->extendEnd(end);
-        }
+        SkASSERT(intvl->end() <= start && intvl->end() <= end);
+        intvl->extendEnd(end);
         return;
     }
 
@@ -122,8 +133,8 @@ void GrResourceAllocator::freeUpSurface(sk_sp<GrSurface> surface) {
 
 // First try to reuse one of the recently allocated/used GrSurfaces in the free pool.
 // If we can't find a useable one, create a new one.
-// TODO: handle being overbudget
-sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy) {
+sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy,
+                                                     bool needsStencil) {
     // First look in the free pool
     GrScratchKey key;
 
@@ -141,6 +152,7 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
             surface->resourcePriv().makeBudgeted();
         }
 
+        GrSurfaceProxyPriv::AttachStencilIfNeeded(fResourceProvider, surface.get(), needsStencil);
         return surface;
     }
 
@@ -164,20 +176,48 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     }
 }
 
-void GrResourceAllocator::assign() {
-    fIntvlHash.reset(); // we don't need this anymore
+bool GrResourceAllocator::assign(int* startIndex, int* stopIndex) {
+    fIntvlHash.reset(); // we don't need the interval hash anymore
+    if (fIntvlList.empty()) {
+        return false;          // nothing to render
+    }
+
+    *startIndex = fCurOpListIndex;
+    *stopIndex = fEndOfOpListOpIndices.count();
+
     SkDEBUGCODE(fAssigned = true;)
 
     while (Interval* cur = fIntvlList.popHead()) {
+        if (fEndOfOpListOpIndices[fCurOpListIndex] < cur->start()) {
+            fCurOpListIndex++;
+        }
+
         this->expire(cur->start());
 
+        bool needsStencil = cur->proxy()->asRenderTargetProxy()
+                                            ? cur->proxy()->asRenderTargetProxy()->needsStencil()
+                                            : false;
+
         if (cur->proxy()->priv().isInstantiated()) {
+            GrSurfaceProxyPriv::AttachStencilIfNeeded(fResourceProvider,
+                                                      cur->proxy()->priv().peekSurface(),
+                                                      needsStencil);
+
             fActiveIntvls.insertByIncreasingEnd(cur);
+
+            if (fResourceProvider->overBudget()) {
+                // Only force intermediate draws on opList boundaries
+                if (!fIntvlList.empty() &&
+                    fEndOfOpListOpIndices[fCurOpListIndex] < fIntvlList.peekHead()->start()) {
+                    *stopIndex = fCurOpListIndex+1;
+                    return true;
+                }
+            }
+
             continue;
         }
 
-        // TODO: add over budget handling here?
-        sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy());
+        sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy(), needsStencil);
         if (surface) {
             // TODO: make getUniqueKey virtual on GrSurfaceProxy
             GrTextureProxy* tex = cur->proxy()->asTextureProxy();
@@ -188,11 +228,21 @@ void GrResourceAllocator::assign() {
 
             cur->assign(std::move(surface));
         }
-        // TODO: handle resouce allocation failure upstack
+
+        // TODO: handle resource allocation failure upstack
         fActiveIntvls.insertByIncreasingEnd(cur);
+
+        if (fResourceProvider->overBudget()) {
+            // Only force intermediate draws on opList boundaries
+            if (!fIntvlList.empty() &&
+                fEndOfOpListOpIndices[fCurOpListIndex] < fIntvlList.peekHead()->start()) {
+                *stopIndex = fCurOpListIndex+1;
+                return true;
+            }
+        }
     }
 
     // expire all the remaining intervals to drain the active interval list
     this->expire(std::numeric_limits<unsigned int>::max());
+    return true;
 }
-
