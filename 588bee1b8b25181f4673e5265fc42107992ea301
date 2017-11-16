@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5b853da8_94ec6329",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-16T20:23:46Z",
+      "side": 1,
+      "message": "Indeed. I\u0027ll follow up with a separate CL.",
+      "parentUuid": "1828d456_4f3d41b9",
+      "revId": "588bee1b8b25181f4673e5265fc42107992ea301",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a8b07524_0cc3b73b",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 3
@@ -30,6 +48,30 @@
       "writtenOn": "2017-11-16T17:31:14Z",
       "side": 1,
       "message": "This is kind of..... challenging.",
+      "range": {
+        "startLine": 547,
+        "startChar": 19,
+        "endLine": 549,
+        "endChar": 52
+      },
+      "revId": "588bee1b8b25181f4673e5265fc42107992ea301",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f24c3884_43bc08da",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-16T20:23:46Z",
+      "side": 1,
+      "message": "Agreed. At first I lined this up like you suggested for the statement down below, but I think this might be better as a lambda expression. WDYT?",
+      "parentUuid": "a8b07524_0cc3b73b",
       "range": {
         "startLine": 547,
         "startChar": 19,
@@ -62,6 +104,30 @@
       "revId": "588bee1b8b25181f4673e5265fc42107992ea301",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "434889c6_2d63d7d6",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-16T20:23:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a41d03f6_6357f6f1",
+      "range": {
+        "startLine": 603,
+        "startChar": 36,
+        "endLine": 604,
+        "endChar": 74
+      },
+      "revId": "588bee1b8b25181f4673e5265fc42107992ea301",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
