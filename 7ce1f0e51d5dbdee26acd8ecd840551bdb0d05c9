@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a05949d9_8764f1a2",
+        "filename": "src/gpu/effects/GrAARectEffect.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-16T16:41:27Z",
+      "side": 1,
+      "message": "I\u0027ve been curious: can you have a purely C++ input? e.g. pointer to a class?",
+      "range": {
+        "startLine": 3,
+        "startChar": 7,
+        "endLine": 3,
+        "endChar": 19
+      },
+      "revId": "7ce1f0e51d5dbdee26acd8ecd840551bdb0d05c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a6aa6d5_7e139185",
+        "filename": "src/gpu/effects/GrAARectEffect.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-16T16:41:27Z",
+      "side": 1,
+      "message": "I\u0027ve been wondering if I should have written this as:\n\n  all(lessThan(abs(sk_FragCoord.xy - center), radii)) ? 1 : 0;\n\nProbably for a different change, but I\u0027m curious which you prefer?",
+      "revId": "7ce1f0e51d5dbdee26acd8ecd840551bdb0d05c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
