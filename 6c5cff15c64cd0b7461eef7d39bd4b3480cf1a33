@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "d152bfed_23720f32",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 14
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-16T21:12:19Z",
+      "side": 1,
+      "message": "built",
+      "range": {
+        "startLine": 9,
+        "startChar": 16,
+        "endLine": 9,
+        "endChar": 21
+      },
+      "revId": "6c5cff15c64cd0b7461eef7d39bd4b3480cf1a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "295c8dba_b2b43546",
         "filename": "gm/atlastext.cpp",
         "patchSetId": 14
