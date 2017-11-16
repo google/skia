@@ -78,6 +78,27 @@ GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
     }
 }
 
+GrBackendRenderTarget CreateBackendRenderTarget(GrBackend backend, int width, int height,
+                                                int sampleCnt, int stencilBits,
+                                                GrPixelConfig config,
+                                                GrBackendObject handle) {
+    switch (backend) {
+#ifdef SK_VULKAN
+        case kVulkan_GrBackend: {
+            GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
+            return GrBackendRenderTarget(width, height, sampleCnt, stencilBits, *vkInfo);
+        }
+#endif
+        case kOpenGL_GrBackend: {
+            GrGLFramebufferInfo* glInfo = (GrGLFramebufferInfo*)(handle);
+            return GrBackendRenderTarget(width, height, sampleCnt, stencilBits, config, *glInfo);
+        }
+        case kMock_GrBackend: // fall through
+        default:
+            return GrBackendRenderTarget();
+    }
+}
+
 }  // namespace GrTest
 
 bool GrSurfaceProxy::isWrapped_ForTesting() const {
