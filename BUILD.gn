@@ -904,6 +904,7 @@ if (skia_enable_tools) {
       testonly = true
       deps = [
         ":flags",
+        ":gpu_tool_utils",
         ":skia",
         ":skia.h",
       ]
