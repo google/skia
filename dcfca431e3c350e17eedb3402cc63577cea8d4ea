@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d9a380b_7757867a",
+        "filename": "tools/gpucts/gm_runner.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-11-16T16:53:10Z",
+      "side": 1,
+      "message": "By the way, Brian, is this the best way to determine at runtime whether a GPU backend will work?",
+      "revId": "dcfca431e3c350e17eedb3402cc63577cea8d4ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
