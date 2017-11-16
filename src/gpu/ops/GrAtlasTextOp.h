@@ -12,6 +12,8 @@
 #include "text/GrAtlasTextContext.h"
 #include "text/GrDistanceFieldAdjustTable.h"
 
+class SkAtlasTextTarget;
+
 class GrAtlasTextOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
@@ -116,6 +118,20 @@ public:
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                 GrPixelConfigIsClamped dstIsClamped) override;
 
+    enum MaskType {
+        kGrayscaleCoverageMask_MaskType,
+        kLCDCoverageMask_MaskType,
+        kColorBitmapMask_MaskType,
+        kAliasedDistanceField_MaskType,
+        kGrayscaleDistanceField_MaskType,
+        kLCDDistanceField_MaskType,
+        kLCDBGRDistanceField_MaskType,
+    };
+
+    MaskType maskType() const { return fMaskType; }
+
+    void executeForTextTarget(SkAtlasTextTarget*, uint32_t color);
+
 private:
     // The minimum number of Geometry we will try to allocate.
     static constexpr auto kMinGeometryAllocated = 12;
@@ -179,16 +195,6 @@ private:
     static constexpr auto kMaxTextures = 4;
 
     sk_sp<GrGeometryProcessor> setupDfProcessor() const;
-
-    enum MaskType {
-        kGrayscaleCoverageMask_MaskType,
-        kLCDCoverageMask_MaskType,
-        kColorBitmapMask_MaskType,
-        kAliasedDistanceField_MaskType,
-        kGrayscaleDistanceField_MaskType,
-        kLCDDistanceField_MaskType,
-        kLCDBGRDistanceField_MaskType,
-    };
 
     SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
     int fGeoDataAllocSize;
