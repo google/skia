@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "541d1cc4_c7e4d01d",
+        "filename": "src/core/SkScopeExit.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-11-16T15:05:50Z",
+      "side": 1,
+      "message": "Ah, I was about to suggest removing the semi-colon at the end of the macro, but I realize you just moved this...",
+      "revId": "c8c47834389e579b650faa601f8661b63aa85c43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae59bd1e_6e4a225e",
+        "filename": "tools/gpu/TestContext.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-11-16T15:05:50Z",
+      "side": 1,
+      "message": "nit: remove \u0027make\u0027",
+      "revId": "c8c47834389e579b650faa601f8661b63aa85c43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
