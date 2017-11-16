@@ -52,7 +52,7 @@ static uint16_t sampler_key(GrSLType samplerType, GrPixelConfig config, GrShader
     GR_STATIC_ASSERT(1 == sizeof(caps.configTextureSwizzle(config).asKey()));
     return SkToU16(samplerTypeKey |
                    caps.configTextureSwizzle(config).asKey() << kSamplerOrImageTypeKeyBits |
-                   (caps.samplerPrecision(config, visibility) << (8 + kSamplerOrImageTypeKeyBits)));
+                   (GrSLSamplerPrecision(config) << (8 + kSamplerOrImageTypeKeyBits)));
 }
 
 static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrResourceIOProcessor& proc,

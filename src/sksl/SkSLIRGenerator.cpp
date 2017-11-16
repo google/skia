@@ -140,7 +140,7 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
     CAP(mustEnableSpecificAdvBlendEqs);
     CAP(mustDeclareFragmentShaderOutput);
     CAP(canUseAnyFunctionInShader);
-    CAP(floatPrecisionVaries);
+    CAP(floatIs32Bits);
     CAP(integerSupport);
 #undef CAP
 }
