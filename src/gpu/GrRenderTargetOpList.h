@@ -156,7 +156,6 @@ private:
 
     uint32_t                       fLastClipStackGenID;
     SkIRect                        fLastDevClipBounds;
-    int                            fLastClipNumAnalyticFPs;
 
     // For ops/opList we have mean: 5 stdDev: 28
     SkSTArray<5, RecordedOp, true> fRecordedOps;

@@ -21,8 +21,6 @@
 #include "GrStyle.h"
 #include "GrUserStencilSettings.h"
 #include "SkClipOpPriv.h"
-#include "effects/GrConvexPolyEffect.h"
-#include "effects/GrRRectEffect.h"
 
 /**
  * There are plenty of optimizations that could be added here. Maybe flips could be folded into
@@ -32,11 +30,8 @@
  * take a rect in case the caller knows a bound on what is to be drawn through this clip.
  */
 GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds,
-                             int maxWindowRectangles, int maxAnalyticFPs)
-        : fMaxWindowRectangles(maxWindowRectangles)
-        , fMaxAnalyticFPs(maxAnalyticFPs) {
+                             int maxWindowRectangles) {
     SkASSERT(!queryBounds.isEmpty());
-    SkASSERT(fMaxWindowRectangles <= GrWindowRectangles::kMaxWindows);
     fHasScissor = false;
     fAAClipRectGenID = SK_InvalidGenID;
 
@@ -102,13 +97,12 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         }
         fHasScissor = true;
 
-        // Now that we have determined the bounds to use and filtered out the trivial cases, call
-        // the helper that actually walks the stack.
-        this->walkStack(stack, tighterQuery);
+        // Now that we have determined the bounds to use and filtered out the trivial cases, call the
+        // helper that actually walks the stack.
+        this->walkStack(stack, tighterQuery, maxWindowRectangles);
     }
 
-    if (SK_InvalidGenID != fAAClipRectGenID && // Is there an AA clip rect?
-        ClipResult::kNotClipped == this->addAnalyticFP(fAAClipRect, Invert::kNo, true)) {
+    if (SK_InvalidGenID != fAAClipRectGenID) { // Is there an AA clip rect?
         if (fMaskElements.isEmpty()) {
             // Use a replace since it is faster than intersect.
             fMaskElements.addToHead(fAAClipRect, SkMatrix::I(), kReplace_SkClipOp, true /*doAA*/);
@@ -118,10 +112,12 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         }
         fMaskRequiresAA = true;
         fMaskGenID = fAAClipRectGenID;
+        fAAClipRectGenID = SK_InvalidGenID;
     }
 }
 
-void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBounds) {
+void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBounds,
+                              int maxWindowRectangles) {
     // walk backwards until we get to:
     //  a) the beginning
     //  b) an operation that is known to make the bounds all inside/outside
@@ -184,7 +180,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         skippable = true;
                     } else if (!embiggens) {
-                        ClipResult result = this->clipOutsideElement(element);
+                        ClipResult result = this->clipOutsideElement(element, maxWindowRectangles);
                         if (ClipResult::kMadeEmpty == result) {
                             return;
                         }
@@ -484,43 +480,34 @@ GrReducedClip::ClipResult GrReducedClip::clipInsideElement(const Element* elemen
             return ClipResult::kClipped;
 
         case Element::DeviceSpaceType::kRRect:
-            return this->addAnalyticFP(element->getDeviceSpaceRRect(), Invert::kNo,
-                                       element->isAA());
-
         case Element::DeviceSpaceType::kPath:
-            return this->addAnalyticFP(element->getDeviceSpacePath(), Invert::kNo, element->isAA());
+            return ClipResult::kNotClipped;
     }
 
     SK_ABORT("Unexpected DeviceSpaceType");
     return ClipResult::kNotClipped;
 }
 
-GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* element) {
+GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* element,
+                                                            int maxWindowRectangles) {
+    if (fWindowRects.count() >= maxWindowRectangles) {
+        return ClipResult::kNotClipped;
+    }
+
     switch (element->getDeviceSpaceType()) {
         case Element::DeviceSpaceType::kEmpty:
             return ClipResult::kMadeEmpty;
 
         case Element::DeviceSpaceType::kRect:
-            if (fWindowRects.count() < fMaxWindowRectangles) {
-                // Clip out the inside of every rect. We won't be able to entirely skip the AA ones,
-                // but it saves processing time.
-                this->addWindowRectangle(element->getDeviceSpaceRect(), element->isAA());
-                if (!element->isAA()) {
-                    return ClipResult::kClipped;
-                }
-            }
-            return this->addAnalyticFP(element->getDeviceSpaceRect(), Invert::kYes,
-                                       element->isAA());
+            // Clip out the inside of every rect. We won't be able to entirely skip the AA ones, but
+            // it saves processing time.
+            this->addWindowRectangle(element->getDeviceSpaceRect(), element->isAA());
+            return !element->isAA() ? ClipResult::kClipped : ClipResult::kNotClipped;
 
         case Element::DeviceSpaceType::kRRect: {
-            const SkRRect& clipRRect = element->getDeviceSpaceRRect();
-            ClipResult clipResult = this->addAnalyticFP(clipRRect, Invert::kYes, element->isAA());
-            if (fWindowRects.count() >= fMaxWindowRectangles) {
-                return clipResult;
-            }
-
             // Clip out the interiors of round rects with two window rectangles in the shape of a
-            // "plus". This doesn't let us skip the clip element, but still saves processing time.
+            // plus. It doesn't allow us to skip the clip element, but still saves processing time.
+            const SkRRect& clipRRect = element->getDeviceSpaceRRect();
             SkVector insetTL = clipRRect.radii(SkRRect::kUpperLeft_Corner);
             SkVector insetBR = clipRRect.radii(SkRRect::kLowerRight_Corner);
             if (SkRRect::kComplex_Type == clipRRect.getType()) {
@@ -534,25 +521,24 @@ GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* eleme
             const SkRect& bounds = clipRRect.getBounds();
             if (insetTL.x() + insetBR.x() >= bounds.width() ||
                 insetTL.y() + insetBR.y() >= bounds.height()) {
-                return clipResult; // The interior "plus" is empty.
+                return ClipResult::kNotClipped; // The interior "plus" is empty.
             }
 
             SkRect horzRect = SkRect::MakeLTRB(bounds.left(), bounds.top() + insetTL.y(),
                                                bounds.right(), bounds.bottom() - insetBR.y());
             this->addWindowRectangle(horzRect, element->isAA());
-
-            if (fWindowRects.count() < fMaxWindowRectangles) {
-                SkRect vertRect = SkRect::MakeLTRB(bounds.left() + insetTL.x(), bounds.top(),
-                                                   bounds.right() - insetBR.x(), bounds.bottom());
-                this->addWindowRectangle(vertRect, element->isAA());
+            if (fWindowRects.count() >= maxWindowRectangles) {
+                return ClipResult::kNotClipped;
             }
 
-            return clipResult;
+            SkRect vertRect = SkRect::MakeLTRB(bounds.left() + insetTL.x(), bounds.top(),
+                                               bounds.right() - insetBR.x(), bounds.bottom());
+            this->addWindowRectangle(vertRect, element->isAA());
+            return ClipResult::kNotClipped;
         }
 
         case Element::DeviceSpaceType::kPath:
-            return this->addAnalyticFP(element->getDeviceSpacePath(), Invert::kYes,
-                                       element->isAA());
+            return ClipResult::kNotClipped;
     }
 
     SK_ABORT("Unexpected DeviceSpaceType");
@@ -569,43 +555,6 @@ inline void GrReducedClip::addWindowRectangle(const SkRect& elementInteriorRect,
     if (!window.isEmpty()) { // Skip very thin windows that round to zero or negative dimensions.
         fWindowRects.addWindow(window);
     }
-}
-
-template<typename T>
-inline GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const T& deviceSpaceShape,
-                                                              Invert invert, bool aa) {
-    if (fAnalyticFPs.count() >= fMaxAnalyticFPs) {
-        return ClipResult::kNotClipped;
-    }
-
-    GrClipEdgeType edgeType;
-    if (Invert::kNo == invert) {
-        edgeType = aa ? GrClipEdgeType::kFillAA : GrClipEdgeType::kFillBW;
-    } else {
-        edgeType = aa ? GrClipEdgeType::kInverseFillAA : GrClipEdgeType::kInverseFillBW;
-    }
-
-    if (auto fp = make_analytic_clip_fp(edgeType, deviceSpaceShape)) {
-        fAnalyticFPs.push_back(std::move(fp));
-        return ClipResult::kClipped;
-    }
-
-    return ClipResult::kNotClipped;
-}
-
-std::unique_ptr<GrFragmentProcessor> make_analytic_clip_fp(GrClipEdgeType edgeType,
-                                                           const SkRect& deviceSpaceRect) {
-    return GrConvexPolyEffect::Make(edgeType, deviceSpaceRect);
-}
-
-std::unique_ptr<GrFragmentProcessor> make_analytic_clip_fp(GrClipEdgeType edgeType,
-                                                           const SkRRect& deviceSpaceRRect) {
-    return GrRRectEffect::Make(edgeType, deviceSpaceRRect);
-}
-
-std::unique_ptr<GrFragmentProcessor> make_analytic_clip_fp(GrClipEdgeType edgeType,
-                                                           const SkPath& deviceSpacePath) {
-    return GrConvexPolyEffect::Make(edgeType, deviceSpacePath);
 }
 
 void GrReducedClip::makeEmpty() {
