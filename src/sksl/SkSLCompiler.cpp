@@ -31,6 +31,8 @@
 
 // include the built-in shader symbols as static strings
 
+#define STRINGIFY(x) #x
+
 static const char* SKSL_INCLUDE =
 #include "sksl.include"
 ;
