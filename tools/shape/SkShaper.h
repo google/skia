@@ -33,7 +33,8 @@ public:
                    const char* utf8text,
                    size_t textBytes,
                    bool leftToRight,
-                   SkPoint point) const;
+                   SkPoint point,
+                   SkScalar width) const;
 
 private:
     SkShaper(const SkShaper&) = delete;
