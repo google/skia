@@ -668,7 +668,8 @@ def dm_flags(api, bot):
     match.append('~GrDefaultPathRendererTest') #skia:7244
     match.append('~GrMSAAPathRendererTest') #skia:7244
 
-  if 'AlphaR2' in bot and 'ANGLE' in bot:
+  if (('RadeonR9M470X' in bot or 'AMDHD7770' in bot) and
+      'Release' in bot and 'ANGLE' in bot):
     # skia:7096
     match.append('~PinnedImageTest')
 
@@ -928,8 +929,8 @@ TEST_BUILDERS = [
    '-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_SK_CPU_LIMIT_SSE41'),
-  'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-ANGLE',
   'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-Vulkan',
+  'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE',
   ('Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-ReleaseAndAbandonGpuContext'),
   'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts',
