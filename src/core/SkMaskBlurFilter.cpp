@@ -1159,8 +1159,8 @@ static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMa
         }
     };
 
-    uint16_t gaussFactorsX[5],
-             gaussFactorsY[5];
+    uint16_t gaussFactorsX[SkGaussFilter::kGaussArrayMax],
+             gaussFactorsY[SkGaussFilter::kGaussArrayMax];
 
     prepareGauss(filterX, gaussFactorsX);
     prepareGauss(filterY, gaussFactorsY);
