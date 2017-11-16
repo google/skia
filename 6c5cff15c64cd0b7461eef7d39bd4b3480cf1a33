@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "295c8dba_b2b43546",
+        "filename": "gm/atlastext.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-16T20:26:42Z",
+      "side": 1,
+      "message": "It is unfortunate that there isn\u0027t a lighter weight way to measure text",
+      "revId": "6c5cff15c64cd0b7461eef7d39bd4b3480cf1a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2f15da0_f8911e24",
+        "filename": "gm/atlastext.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-16T20:26:42Z",
+      "side": 1,
+      "message": "this can\u0027t be an int ?",
+      "revId": "6c5cff15c64cd0b7461eef7d39bd4b3480cf1a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3946d55_80961113",
+        "filename": "include/atlastext/SkAtlasTextRenderer.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-16T20:26:42Z",
+      "side": 1,
+      "message": "\u0027texture\u0027 -\u003e \u0027textureHandle\u0027 ?",
+      "revId": "6c5cff15c64cd0b7461eef7d39bd4b3480cf1a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ed96170_ea6c676a",
+        "filename": "include/atlastext/SkAtlasTextTarget.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-16T20:26:42Z",
+      "side": 1,
+      "message": "First sentence garbled ?",
+      "revId": "6c5cff15c64cd0b7461eef7d39bd4b3480cf1a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
