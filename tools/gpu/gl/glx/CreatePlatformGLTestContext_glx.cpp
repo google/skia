@@ -103,6 +103,12 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
     , fDisplay(nullptr)
     , fPixmap(0)
     , fGlxPixmap(0) {
+
+    // Hopefully this is the first X call in the program. Also, we hope this succeeds if the
+    // application is actually threaded.
+    static SkOnce gOnce;
+    gOnce([] { XInitThreads(); });
+
     fDisplay = get_display();
 
     GLXContext glxShareContext = shareContext ? shareContext->fContext : nullptr;
