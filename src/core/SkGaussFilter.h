@@ -27,9 +27,15 @@ public:
     int radius() const { return fN - 1; }
     int width() const { return 2 * this->radius() + 1; }
 
+    // TODO: remove filterDouble and use the ranged-for loop interface.
+
     // Take an array of values where the gaussian factors will be placed. Return the number of
     // values filled.
     int filterDouble(double values[5]) const;
+
+    // Allow a filter to be used in a C++ ranged-for loop.
+    const double* begin() const { return &fBasis[0];  }
+    const double* end()   const { return &fBasis[fN]; }
 
 private:
     double fBasis[5];
