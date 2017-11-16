@@ -11,13 +11,30 @@
 #include <string>
 
 #include "SkCommandLineFlags.h"
+#include "SkUtils.h"
 
 #include "fiddle_main.h"
 
 DEFINE_double(duration, 1.0, "The total duration, in seconds, of the animation we are drawing.");
 DEFINE_double(frame, 1.0, "A double value in [0, 1] that specifies the point in animation to draw.");
 
+#include "GrBackendSurface.h"
+#include "GrContextPriv.h"
+#include "GrGpu.h"
+
+#include "GrTest.h"
+
+
 // Globals externed in fiddle_main.h
+sk_sp<GrTexture>      backingTexture;  // not externed
+GrBackendTexture      backEndTexture;
+
+sk_sp<GrRenderTarget> backingRenderTarget; // not externed
+GrBackendRenderTarget backEndRenderTarget;
+
+sk_sp<GrTexture>      backingTextureRenderTarget;  // not externed
+GrBackendTexture      backEndTextureRenderTarget;
+
 SkBitmap source;
 sk_sp<SkImage> image;
 double duration; // The total duration of the animation in seconds.
@@ -98,6 +115,103 @@ static SkCanvas* prepare_canvas(SkCanvas * canvas) {
     return canvas;
 }
 
+static bool setup_backend_objects(GrContext* context, const SkBitmap& bm,
+                                  int width, int height, int sampleCnt) {
+    if (!context) {
+        return false;
+    }
+
+    GrBackend backend = context->contextPriv().getBackend();
+    const GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
+
+    GrSurfaceDesc backingDesc;
+    backingDesc.fFlags = kNone_GrSurfaceFlags;
+    backingDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
+    backingDesc.fWidth = bm.width();
+    backingDesc.fHeight = bm.height();
+    backingDesc.fConfig = kConfig;
+    backingDesc.fSampleCnt = 0;
+
+    if (!bm.empty()) {
+        GrMipLevel level0 = { bm.getPixels(), bm.rowBytes() };
+
+        backingTexture = context->resourceProvider()->createTexture(
+                                                        backingDesc, SkBudgeted::kNo,
+                                                        &level0, 1,
+                                                        SkDestinationSurfaceColorMode::kLegacy);
+        if (!backingTexture) {
+            return false;
+        }
+
+        backEndTexture = GrTest::CreateBackendTexture(backend,
+                                                      backingDesc.fWidth,
+                                                      backingDesc.fHeight,
+                                                      kConfig,
+                                                      GrMipMapped::kNo,
+                                                      backingTexture->getTextureHandle());
+        if (!backEndTexture.isValid()) {
+            return false;
+        }
+    }
+
+    backingDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    backingDesc.fWidth = width;
+    backingDesc.fHeight = height;
+    backingDesc.fSampleCnt = sampleCnt;
+
+    SkAutoTMalloc<uint32_t> data(width * height);
+    sk_memset32(data.get(), 0, width * height);
+
+    GrMipLevel level0 = { data.get(), width*sizeof(uint32_t) };
+
+    {
+        sk_sp<GrTexture> tmp = context->resourceProvider()->createTexture(
+                                                            backingDesc, SkBudgeted::kNo,
+                                                            &level0, 1,
+                                                            SkDestinationSurfaceColorMode::kLegacy);
+        if (!tmp || !tmp->asRenderTarget()) {
+            return false;
+        }
+
+        backingRenderTarget = sk_ref_sp(tmp->asRenderTarget());
+
+        backEndRenderTarget = GrTest::CreateBackendRenderTarget(
+                                                    backend,
+                                                    backingDesc.fWidth,
+                                                    backingDesc.fHeight,
+                                                    backingDesc.fSampleCnt, 0,
+                                                    kConfig,
+                                                    backingRenderTarget->getRenderTargetHandle());
+        if (!backEndRenderTarget.isValid()) {
+            return false;
+        }
+    }
+
+    {
+        backingTextureRenderTarget = context->resourceProvider()->createTexture(
+                                                            backingDesc, SkBudgeted::kNo,
+                                                            &level0, 1,
+                                                            SkDestinationSurfaceColorMode::kLegacy);
+        if (!backingTextureRenderTarget || !backingTextureRenderTarget->asRenderTarget()) {
+            return false;
+        }
+
+        backEndTextureRenderTarget = GrTest::CreateBackendTexture(
+                                                    backend,
+                                                    backingDesc.fWidth,
+                                                    backingDesc.fHeight,
+                                                    kConfig,
+                                                    GrMipMapped::kNo,
+                                                    backingTextureRenderTarget->getTextureHandle());
+        if (!backEndTextureRenderTarget.isValid()) {
+            return false;
+        }
+    }
+
+
+    return true;
+}
+
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
     duration = FLAGS_duration;
@@ -122,8 +236,7 @@ int main(int argc, char** argv) {
                 perror("Unable to decode the source image.");
                 return 1;
             }
-            SkAssertResult(image->asLegacyBitmap(
-                                   &source, SkImage::kRO_LegacyBitmapMode));
+            SkAssertResult(image->asLegacyBitmap(&source, SkImage::kRO_LegacyBitmapMode));
         }
     }
     sk_sp<SkData> rasterData, gpuData, pdfData, skpData;
@@ -145,10 +258,16 @@ int main(int argc, char** argv) {
         rasterData = encode_snapshot(rasterSurface);
     }
     if (options.gpu) {
-        auto grContext = create_grcontext(gGLDriverInfo);
+        sk_sp<GrContext> grContext = create_grcontext(gGLDriverInfo);
         if (!grContext) {
             fputs("Unable to get GrContext.\n", stderr);
         } else {
+            if (!setup_backend_objects(grContext.get(), source,
+                                       options.size.width(), options.size.height(), 0)) {
+                fputs("Unable to create backend objects.\n", stderr);
+                exit(1);
+            }
+
             auto surface = SkSurface::MakeRenderTarget(grContext.get(), SkBudgeted::kNo, info);
             if (!surface) {
                 fputs("Unable to get render surface.\n", stderr);

@@ -96,6 +96,9 @@ private:
 
 class SK_API GrBackendRenderTarget {
 public:
+    // Creates an invalid backend texture.
+    GrBackendRenderTarget() : fConfig(kUnknown_GrPixelConfig) {}
+
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
@@ -126,6 +129,9 @@ public:
     // it returns nullptr
     const GrVkImageInfo* getVkImageInfo() const;
 #endif
+
+    // Returns true if the backend texture has been initialized.
+    bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
 
 private:
     // Friending for access to the GrPixelConfig

@@ -43,7 +43,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
             // so we don't send any. However, we pretend there is data for the checks below which is
             // fine since we are never actually using these textures for any work on the gpu.
             GrBackendObject backendHandle = context->getGpu()->createTestingOnlyBackendTexture(
-                    nullptr, 8, 8, kRGBA_8888_GrPixelConfig, isRT, mipMapped);
+                    nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig, isRT, mipMapped);
 
             GrBackend backend = context->contextPriv().getBackend();
             GrBackendTexture backendTex = GrTest::CreateBackendTexture(backend,
