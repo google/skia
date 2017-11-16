@@ -22,6 +22,30 @@
       "revId": "2c7c064dcb653b0704b91a8658dbf8602e683356",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8560b53a_9020f4e5",
+        "filename": "src/core/SkGaussFilter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-16T17:39:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e20de519_cc1dd2ea",
+      "range": {
+        "startLine": 30,
+        "startChar": 48,
+        "endLine": 30,
+        "endChar": 49
+      },
+      "revId": "2c7c064dcb653b0704b91a8658dbf8602e683356",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
