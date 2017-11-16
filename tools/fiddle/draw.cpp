@@ -26,4 +26,30 @@ void draw(SkCanvas* canvas) {
                                       &matrix));
     canvas->drawPaint(paint);
     SkDebugf("This is text output: %d", 2);
+
+    GrContext* context = canvas->getGrContext();
+    if (context) {
+        sk_sp<SkImage> tmp = SkImage::MakeFromTexture(context,
+                                                      backEndTexture,
+                                                      kTopLeft_GrSurfaceOrigin,
+                                                      kOpaque_SkAlphaType,
+                                                      nullptr);
+
+        sk_sp<SkSurface> tmp2 = SkSurface::MakeFromBackendTexture(context,
+                                                                  backEndTextureRenderTarget,
+                                                                  kTopLeft_GrSurfaceOrigin,
+                                                                  0, nullptr, nullptr);
+
+        sk_sp<SkSurface> tmp3 = SkSurface::MakeFromBackendRenderTarget(context,
+                                                                       backEndRenderTarget,
+                                                                       kTopLeft_GrSurfaceOrigin,
+                                                                       nullptr, nullptr);
+
+        sk_sp<SkSurface> tmp4 = SkSurface::MakeFromBackendTextureAsRenderTarget(
+                                                                context,
+                                                                backEndTextureRenderTarget,
+                                                                kTopLeft_GrSurfaceOrigin,
+                                                                0, nullptr, nullptr);
+    }
+
 }
