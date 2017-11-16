@@ -421,7 +421,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     if (quality > kLow_SkFilterQuality) {
         // Bicubic filtering naturally produces out of range values on both sides.
         p->append(SkRasterPipeline::clamp_0);
-        p->append(SkRasterPipeline::clamp_a);
+        p->append(SkRasterPipeline::clamp_1);
     }
     append_gamut_transform(p, alloc, info.colorSpace(), rec.fDstCS, kPremul_SkAlphaType);
     return true;
