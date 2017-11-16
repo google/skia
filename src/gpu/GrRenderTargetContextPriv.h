@@ -29,22 +29,18 @@ public:
 
     // called to note the last clip drawn to the stencil buffer.
     // TODO: remove after clipping overhaul.
-    void setLastClip(uint32_t clipStackGenID, const SkIRect& devClipBounds,
-                     int numClipAnalyticFPs) {
+    void setLastClip(uint32_t clipStackGenID, const SkIRect& devClipBounds) {
         GrRenderTargetOpList* opList = fRenderTargetContext->getRTOpList();
         opList->fLastClipStackGenID = clipStackGenID;
         opList->fLastDevClipBounds = devClipBounds;
-        opList->fLastClipNumAnalyticFPs = numClipAnalyticFPs;
     }
 
     // called to determine if we have to render the clip into SB.
     // TODO: remove after clipping overhaul.
-    bool mustRenderClip(uint32_t clipStackGenID, const SkIRect& devClipBounds,
-                        int numClipAnalyticFPs) const {
+    bool mustRenderClip(uint32_t clipStackGenID, const SkIRect& devClipBounds) const {
         GrRenderTargetOpList* opList = fRenderTargetContext->getRTOpList();
         return opList->fLastClipStackGenID != clipStackGenID ||
-               !opList->fLastDevClipBounds.contains(devClipBounds) ||
-               opList->fLastClipNumAnalyticFPs != numClipAnalyticFPs;
+               !opList->fLastDevClipBounds.contains(devClipBounds);
     }
 
     void clear(const GrFixedClip&, const GrColor, bool canIgnoreClip);

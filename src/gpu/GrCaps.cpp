@@ -69,14 +69,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMaxRasterSamples = 0;
     fMaxWindowRectangles = 0;
 
-    // An default count of 4 was chosen because of the common pattern in Blink of:
-    //   isect RR
-    //   diff  RR
-    //   isect convex_poly
-    //   isect convex_poly
-    // when drawing rounded div borders.
-    fMaxClipAnalyticFPs = 4;
-
     fSuppressPrints = options.fSuppressPrints;
 #if GR_TEST_UTILS
     fWireframeMode = options.fWireframeMode;
@@ -169,7 +161,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max Stencil Sample Count", fMaxStencilSampleCount);
     writer->appendS32("Max Raster Samples", fMaxRasterSamples);
     writer->appendS32("Max Window Rectangles", fMaxWindowRectangles);
-    writer->appendS32("Max Clip Analytic Fragment Processors", fMaxClipAnalyticFPs);
 
     static const char* kInstancedSupportNames[] = {
         "None",
