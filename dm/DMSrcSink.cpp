@@ -1530,25 +1530,23 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
 
     src.modifyGrContextOptions(&grOptions);
 
-    GrContextFactory factory(grOptions);
+    sk_sp<GrContext> grContext;
     const SkISize size = src.size();
     SkImageInfo info =
             SkImageInfo::Make(size.width(), size.height(), fColorType, fAlphaType, fColorSpace);
 #if SK_SUPPORT_GPU
-    GrContext* context = factory.getContextInfo(fContextType, fContextOverrides).grContext();
-    const int maxDimension = context->caps()->maxTextureSize();
+    grContext = sk_gpu_test::GrMakeContext(grOptions, fContextType, fContextOverrides);
+    const int maxDimension = grContext->caps()->maxTextureSize();
     if (maxDimension < SkTMax(size.width(), size.height())) {
         return Error::Nonfatal("Src too large to create a texture.\n");
     }
 #endif
-
-    auto surface(
-        NewGpuSurface(&factory, fContextType, fContextOverrides, info, fSampleCount, fUseDIText));
+    auto surface = NewGpuSurface(grContext.get(), info, fSampleCount, fUseDIText);
     if (!surface) {
         return "Could not create a surface.";
     }
     if (FLAGS_preAbandonGpuContext) {
-        factory.abandonContexts();
+        grContext = nullptr;
     }
     SkCanvas* canvas = surface->getCanvas();
     Error err = src.draw(canvas);
@@ -1568,11 +1566,6 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     }
     dst->allocPixels(info);
     canvas->readPixels(*dst, 0, 0);
-    if (FLAGS_abandonGpuContext) {
-        factory.abandonContexts();
-    } else if (FLAGS_releaseAndAbandonGpuContext) {
-        factory.releaseResourcesAndAbandonContexts();
-    }
     return "";
 }
 

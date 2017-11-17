@@ -203,6 +203,10 @@ private:
     friend class GrContextFactory;
 };
 
+sk_sp<GrContext> GrMakeContext(const GrContextOptions& opts,
+                               GrContextFactory::ContextType type,
+                               GrContextFactory::ContextOverrides overrides =
+                                       GrContextFactory::ContextOverrides::kNone);
 }  // namespace sk_gpu_test
 
 GR_MAKE_BITFIELD_CLASS_OPS(sk_gpu_test::GrContextFactory::ContextOverrides);
