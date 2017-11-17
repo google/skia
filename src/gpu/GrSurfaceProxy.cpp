@@ -332,17 +332,22 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
         if (texels) {
             return nullptr;
         }
+        SkDebugf("make deferred mipmap no levels before\n");
         return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, budgeted, nullptr, 0);
+        SkDebugf("make deferred mipmap no levels after\n");
     }
     if (!texels) {
         return nullptr;
     }
 
     if (1 == mipLevelCount) {
+        SkDebugf("make deferred mipmap 1 level before\n");
         return resourceProvider->createTextureProxy(desc, budgeted, texels[0]);
+        SkDebugf("make deferred mipmap 1 level after\n");
     }
 
 #ifdef SK_DEBUG
+    SkDebugf("start debug section in deferred mipmapped\n");
     // There are only three states we want to be in when uploading data to a mipped surface.
     // 1) We have data to upload to all layers
     // 2) We are not uploading data to any layers
@@ -357,17 +362,23 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
             allOtherLevelsHaveData = false;
         }
     }
+    SkDebugf("middle debug section in deferred mipmapped\n");
     SkASSERT((firstLevelHasData && allOtherLevelsHaveData) || allOtherLevelsLackData);
+    SkDebugf("end debug section in deferred mipmapped\n");
 #endif
 
+    SkDebugf("create texture in deferred mip map before\n");
     sk_sp<GrTexture> tex(resourceProvider->createTexture(desc, budgeted,
                                                          texels, mipLevelCount,
                                                          mipColorMode));
+    SkDebugf("create texture in deferred mip map after\n");
     if (!tex) {
         return nullptr;
     }
 
+    SkDebugf("make wrapped in deferred mip map before\n");
     return GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
+    SkDebugf("make wrapped in deferred mip map after\n");
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
