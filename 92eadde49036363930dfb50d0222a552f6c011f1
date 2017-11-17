@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12c80d41_aceb3a90",
+        "filename": "src/atlastext/SkAtlasTextTarget.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-17T14:08:12Z",
+      "side": 1,
+      "message": "Isn\u0027t this already a global ?",
+      "revId": "92eadde49036363930dfb50d0222a552f6c011f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b6e404f_0d87bf9a",
+        "filename": "src/atlastext/SkAtlasTextTarget.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-17T14:08:12Z",
+      "side": 1,
+      "message": "Can we provider kUnknown_SkPixelGeometry then ?",
+      "revId": "92eadde49036363930dfb50d0222a552f6c011f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d004573_3625fc90",
+        "filename": "src/atlastext/SkInternalAtlasTextContext.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-17T14:08:12Z",
+      "side": 1,
+      "message": "Already #included ?",
+      "revId": "92eadde49036363930dfb50d0222a552f6c011f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
