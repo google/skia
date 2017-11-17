@@ -866,8 +866,7 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         if (const SkCommandLineConfigGpu* gpuConfig = config->asConfigGpu()) {
             GrContextFactory::ContextType contextType = gpuConfig->getContextType();
             GrContextFactory::ContextOverrides contextOverrides = gpuConfig->getContextOverrides();
-            GrContextFactory testFactory(grCtxOptions);
-            if (!testFactory.get(contextType, contextOverrides)) {
+            if (!sk_gpu_test::GrMakeContext(grCtxOptions, contextType, contextOverrides)) {
                 info("WARNING: can not create GPU context for config '%s'. "
                      "GM tests will be skipped.\n", gpuConfig->getTag().c_str());
                 return nullptr;

@@ -28,17 +28,13 @@ namespace DM {
 
 static const bool kGPUDisabled = false;
 
-static inline sk_sp<SkSurface> NewGpuSurface(
-        sk_gpu_test::GrContextFactory* grFactory,
-        sk_gpu_test::GrContextFactory::ContextType type,
-        sk_gpu_test::GrContextFactory::ContextOverrides overrides,
-        SkImageInfo info,
-        int samples,
-        bool useDIText) {
+inline sk_sp<SkSurface> NewGpuSurface(GrContext* grContext,
+                                      SkImageInfo info,
+                                      int samples,
+                                      bool useDIText) {
     uint32_t flags = useDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-    return SkSurface::MakeRenderTarget(grFactory->get(type, overrides), SkBudgeted::kNo,
-                                       info, samples, &props);
+    return SkSurface::MakeRenderTarget(grContext, SkBudgeted::kNo, info, samples, &props);
 }
 
 }  // namespace DM
@@ -93,14 +89,7 @@ namespace DM {
 
 static const bool kGPUDisabled = true;
 
-static inline SkSurface* NewGpuSurface(sk_gpu_test::GrContextFactory*,
-                                       sk_gpu_test::GrContextFactory::ContextType,
-                                       sk_gpu_test::GrContextFactory::ContextOverrides,
-                                       SkImageInfo,
-                                       int,
-                                       bool) {
-    return nullptr;
-}
+inline sk_sp<SkSurface> NewGpuSurface(GrContext*, SkImageInfo, int, bool) { return nullptr; }
 
 }  // namespace DM
 
