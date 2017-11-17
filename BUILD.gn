@@ -1389,54 +1389,6 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (is_linux || is_win || is_mac) {
-    test_app("SampleApp") {
-      sources = [
-        "samplecode/SampleApp.cpp",
-        "samplecode/SamplePictFile.cpp",
-      ]
-      if (is_mac) {
-        sources += [ "src/views/mac/skia_mac.mm" ]
-      } else if (is_win) {
-        sources += [ "src/views/win/skia_win.cpp" ]
-      } else if (is_linux) {
-        sources += [ "src/views/unix/skia_unix.cpp" ]
-      }
-      deps = [
-        ":flags",
-        ":gm",
-        ":gpu_tool_utils",
-        ":samples",
-        ":skia",
-        ":tool_utils",
-        ":views",
-      ]
-      if (skia_use_angle) {
-        deps += [ "//third_party/angle2" ]
-      }
-    }
-  }
-
-  if (skia_enable_gpu && !skia_use_angle && (is_linux || is_win || is_mac)) {
-    test_app("HelloWorld") {
-      sources = [
-        "example/HelloWorld.cpp",
-      ]
-      if (is_mac) {
-        sources += [ "src/views/mac/skia_mac.mm" ]
-      } else if (is_win) {
-        sources += [ "src/views/win/skia_win.cpp" ]
-      } else if (is_linux) {
-        sources += [ "src/views/unix/skia_unix.cpp" ]
-      }
-      deps = [
-        ":gpu_tool_utils",
-        ":skia",
-        ":views",
-      ]
-    }
-  }
-
   if (skia_enable_gpu) {
     test_app("skpbench") {
       sources = [
@@ -1728,6 +1680,62 @@ if (skia_enable_tools) {
       }
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
+      }
+    }
+  }
+
+  if (skia_enable_gpu && !skia_use_angle && (is_linux || is_win || is_mac)) {
+    test_app("HelloWorld") {
+      sources = [
+        "tools/viewer/HelloWorld.cpp",
+        "tools/viewer/sk_app/GLWindowContext.cpp",
+        "tools/viewer/sk_app/Window.cpp",
+      ]
+      libs = []
+
+      if (is_linux) {
+        sources += [
+          "tools/viewer/sk_app/unix/GLWindowContext_unix.cpp",
+          "tools/viewer/sk_app/unix/RasterWindowContext_unix.cpp",
+          "tools/viewer/sk_app/unix/Window_unix.cpp",
+          "tools/viewer/sk_app/unix/main_unix.cpp",
+        ]
+      } else if (is_win) {
+        sources += [
+          "tools/viewer/sk_app/win/GLWindowContext_win.cpp",
+          "tools/viewer/sk_app/win/RasterWindowContext_win.cpp",
+          "tools/viewer/sk_app/win/Window_win.cpp",
+          "tools/viewer/sk_app/win/main_win.cpp",
+        ]
+      } else if (is_mac) {
+        sources += [
+          "tools/viewer/sk_app/mac/GLWindowContext_mac.cpp",
+          "tools/viewer/sk_app/mac/RasterWindowContext_mac.cpp",
+          "tools/viewer/sk_app/mac/Window_mac.cpp",
+          "tools/viewer/sk_app/mac/main_mac.cpp",
+        ]
+      }
+
+      if (skia_use_vulkan) {
+        sources += [ "tools/viewer/sk_app/VulkanWindowContext.cpp" ]
+        if (is_linux) {
+          sources += [ "tools/viewer/sk_app/unix/VulkanWindowContext_unix.cpp" ]
+          libs += [ "X11-xcb" ]
+        } else if (is_win) {
+          sources += [ "tools/viewer/sk_app/win/VulkanWindowContext_win.cpp" ]
+        }
+      }
+
+      include_dirs = []
+      deps = [
+        ":flags",
+        ":gpu_tool_utils",
+        ":skia",
+        ":tool_utils",
+        ":views",
+      ]
+      if (is_mac) {
+        deps += [ "//third_party/libsdl" ]
       }
     }
   }
