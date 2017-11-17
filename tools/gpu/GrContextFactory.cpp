@@ -157,10 +157,12 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                     glCtx = MakeANGLETestContext(ANGLEBackend::kD3D11, ANGLEContextVersion::kES3,
                                                  glShareContext).release();
                     break;
+                    #if 0
                 case kANGLE_GL_ES2_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES2,
                                                  glShareContext).release();
                     break;
+                    #endif
                 case kANGLE_GL_ES3_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES3,
                                                  glShareContext).release();

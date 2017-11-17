@@ -780,11 +780,14 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
 static inline GrGLint config_alignment(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
+        case kAlpha_8_as_Alpha_GrPixelConfig:
+        case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
             return 1;
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
+        case kAlpha_half_as_Red_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
             return 2;
         case kRGBA_8888_GrPixelConfig:
@@ -902,7 +905,9 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                                           int baseWidth, int baseHeight) {
     CLEAR_ERROR_BEFORE_ALLOC(&interface);
 
+    SkDebugf("start of allocate_and_populate_texture\n");
     bool useTexStorage = caps.isConfigTexSupportEnabled(config);
+    SkDebugf("useTexStorage: %d\n", useTexStorage);
     // We can only use TexStorage if we know we will not later change the storage requirements.
     // This means if we may later want to add mipmaps, we cannot use TexStorage.
     // Right now, we cannot know if we will later add mipmaps or not.
@@ -910,15 +915,20 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
     // mipmaps or are using a format incompatible with MIP maps.
     useTexStorage &= mipLevelCount > 1 || GrPixelConfigIsSint(config);
 
+    SkDebugf("useTexStorage 2: %d, mipLevelCount: %d, Sint: %d\n", useTexStorage, mipLevelCount, GrPixelConfigIsSint(config));
     if (useTexStorage) {
         // We never resize or change formats of textures.
+        SkDebugf("a_and_p 1\n");
         GL_ALLOC_CALL(&interface,
                       TexStorage2D(target, SkTMax(mipLevelCount, 1), internalFormatForTexStorage,
                                    baseWidth, baseHeight));
+        SkDebugf("a_and_p 2\n");
         GrGLenum error = CHECK_ALLOC_ERROR(&interface);
         if (error != GR_GL_NO_ERROR) {
+        SkDebugf("a_and_p 3\n");
             return  false;
         } else {
+        SkDebugf("a_and_p 4\n");
             for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
                 const void* currentMipData = texels[currentMipLevel].fPixels;
                 if (currentMipData == nullptr) {
@@ -928,6 +938,7 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                 int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
                 int currentHeight = SkTMax(1, baseHeight / twoToTheMipLevel);
 
+        SkDebugf("tex sub image call: %d\n", currentMipLevel);
                 GR_GL_CALL(&interface,
                            TexSubImage2D(target,
                                          currentMipLevel,
@@ -938,10 +949,12 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                                          externalFormat, externalType,
                                          currentMipData));
             }
+        SkDebugf("a_and_p 5\n");
             return true;
         }
     } else {
         if (!mipLevelCount) {
+        SkDebugf("a_and_p 6\n");
             GL_ALLOC_CALL(&interface,
                           TexImage2D(target,
                                      0,
@@ -952,10 +965,12 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                                      externalFormat, externalType,
                                      nullptr));
             GrGLenum error = CHECK_ALLOC_ERROR(&interface);
+        SkDebugf("a_and_p 7\n");
             if (error != GR_GL_NO_ERROR) {
                 return false;
             }
         } else {
+        SkDebugf("a_and_p 8\n");
             for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
                 int twoToTheMipLevel = 1 << currentMipLevel;
                 int currentWidth = SkTMax(1, baseWidth / twoToTheMipLevel);
@@ -963,6 +978,7 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                 const void* currentMipData = texels[currentMipLevel].fPixels;
                 // Even if curremtMipData is nullptr, continue to call TexImage2D.
                 // This will allocate texture memory which we can later populate.
+                SkDebugf("tex image: %d\n", currentMipLevel);
                 GL_ALLOC_CALL(&interface,
                               TexImage2D(target,
                                          currentMipLevel,
@@ -974,11 +990,13 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
                                          currentMipData));
                 GrGLenum error = CHECK_ALLOC_ERROR(&interface);
                 if (error != GR_GL_NO_ERROR) {
+        SkDebugf("a_and_p 9\n");
                     return false;
                 }
             }
         }
     }
+        SkDebugf("a_and_p 10\n");
     return true;
 }
 
@@ -1016,14 +1034,17 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
                             int left, int top, int width, int height, GrPixelConfig dataConfig,
                             const GrMipLevel texels[], int mipLevelCount,
                             GrMipMapsStatus* mipMapsStatus) {
+    SkDebugf("upload texdata 1\n");
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
     SkDEBUGCODE(
         SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
         SkIRect bounds = SkIRect::MakeWH(texWidth, texHeight);
         SkASSERT(bounds.contains(subRect));
+    SkDebugf("upload texdata 2\n");
     )
     SkASSERT(1 == mipLevelCount ||
              (0 == left && 0 == top && width == texWidth && height == texHeight));
+    SkDebugf("upload texdata 3\n");
 
     this->unbindCpuToGpuXferBuffer();
 
@@ -1034,9 +1055,13 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     // This means we need to make a non-const shallow copy of texels.
     SkAutoTMalloc<GrMipLevel> texelsShallowCopy;
 
+    SkDebugf("upload texdata 4\n");
     if (mipLevelCount) {
+    SkDebugf("upload texdata 5\n");
         texelsShallowCopy.reset(mipLevelCount);
+    SkDebugf("upload texdata 6\n");
         memcpy(texelsShallowCopy.get(), texels, mipLevelCount*sizeof(GrMipLevel));
+    SkDebugf("upload texdata 7\n");
     }
 
     const GrGLInterface* interface = this->glInterface();
@@ -1053,12 +1078,16 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     // External format and type come from the upload data.
     GrGLenum externalFormat;
     GrGLenum externalType;
+    SkDebugf("upload texdata 8\n");
     if (!this->glCaps().getTexImageFormats(texConfig, dataConfig, &internalFormat, &externalFormat,
                                            &externalType)) {
+    SkDebugf("upload texdata 9\n");
         return false;
     }
     // TexStorage requires a sized format, and internalFormat may or may not be
     GrGLenum internalFormatForTexStorage = this->glCaps().configSizedInternalFormat(texConfig);
+    SkDebugf("internal format: %d, %x\n", internalFormatForTexStorage, internalFormatForTexStorage);
+    SkDebugf("upload texdata 10\n");
 
     /*
      *  Check whether to allocate a temporary buffer for flipping y or
@@ -1092,6 +1121,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     bool willNeedData = false;
     size_t combinedBufferSize = 0;
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
+    SkDebugf("upload texdata 11\n");
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         if (texelsShallowCopy[currentMipLevel].fPixels) {
             int twoToTheMipLevel = 1 << currentMipLevel;
@@ -1124,9 +1154,11 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     }
     char* buffer = nullptr;
     if (willNeedData) {
+    SkDebugf("upload texdata 12\n");
         buffer = (char*)tempStorage.reset(combinedBufferSize);
     }
 
+    SkDebugf("upload texdata 13\n");
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         if (!texelsShallowCopy[currentMipLevel].fPixels) {
             continue;
@@ -1181,20 +1213,26 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         }
     }
 
+    SkDebugf("upload texdata 14\n");
     if (mipLevelCount) {
         if (glFlipY) {
+    SkDebugf("upload texdata 15\n");
             GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_FLIP_Y, GR_GL_TRUE));
         }
+    SkDebugf("upload texdata 16\n");
         GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_ALIGNMENT, config_alignment(texConfig)));
     }
 
+    SkDebugf("upload texdata 17\n");
     bool succeeded = true;
     if (kNewTexture_UploadType == uploadType) {
+    SkDebugf("upload texdata 18\n");
         if (0 == left && 0 == top && texWidth == width && texHeight == height) {
             succeeded = allocate_and_populate_texture(
                     texConfig, *interface, caps, target, internalFormat,
                     internalFormatForTexStorage, externalFormat, externalType,
                     texelsShallowCopy, mipLevelCount, width, height);
+    SkDebugf("upload texdata 19\n");
         } else {
             succeeded = false;
         }
@@ -1202,6 +1240,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         if (swFlipY || glFlipY) {
             top = texHeight - (top + height);
         }
+    SkDebugf("upload texdata 20\n");
         for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
             if (!texelsShallowCopy[currentMipLevel].fPixels) {
                 continue;
@@ -1220,7 +1259,9 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         }
     }
 
+    SkDebugf("upload texdata 21\n");
     restore_pixelstore_state(*interface, caps, restoreGLRowLength, glFlipY);
+    SkDebugf("upload texdata 22\n");
 
     return succeeded;
 }
@@ -1421,6 +1462,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     // TODO: remove the GrPixelConfigIsSint test. This is here because we have yet to add support
     // for glClearBuffer* which must be used instead of glClearColor/glClear for integer FBO
     // attachments.
+    SkDebugf("GL onCreateTexture 1\n");
     if (performClear && !this->glCaps().clearTextureSupport() &&
         (!this->glCaps().canConfigBeFBOColorAttachment(desc.fConfig) ||
          GrPixelConfigIsSint(desc.fConfig))) {
@@ -1441,25 +1483,32 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     GrMipMapsStatus mipMapsStatus;
     GrGLTexture::TexParams initialTexParams;
+    SkDebugf("GL onCreateTexture 2\n");
     if (!this->createTextureImpl(desc, &idDesc.fInfo, isRenderTarget, &initialTexParams,
                                  texels, mipLevelCount, &mipMapsStatus)) {
+    SkDebugf("GL onCreateTexture 3\n");
         return return_null_texture();
     }
 
     sk_sp<GrGLTexture> tex;
     if (isRenderTarget) {
+    SkDebugf("GL onCreateTexture 4\n");
         // unbind the texture from the texture unit before binding it to the frame buffer
         GL_CALL(BindTexture(idDesc.fInfo.fTarget, 0));
         GrGLRenderTarget::IDDesc rtIDDesc;
 
+    SkDebugf("GL onCreateTexture 5\n");
         if (!this->createRenderTargetObjects(desc, idDesc.fInfo, &rtIDDesc)) {
             GL_CALL(DeleteTextures(1, &idDesc.fInfo.fID));
             return return_null_texture();
         }
+    SkDebugf("GL onCreateTexture 6\n");
         tex = sk_make_sp<GrGLTextureRenderTarget>(this, budgeted, desc, idDesc, rtIDDesc,
                                                   mipMapsStatus);
+    SkDebugf("GL onCreateTexture 7\n");
         tex->baseLevelWasBoundToFBO();
     } else {
+    SkDebugf("GL onCreateTexture 8\n");
         tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, idDesc, mipMapsStatus);
     }
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
@@ -1469,24 +1518,32 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
 #endif
     if (tex && performClear) {
         if (this->glCaps().clearTextureSupport()) {
+    SkDebugf("GL onCreateTexture 9\n");
             GrGLenum format = GrPixelConfigIsSint(tex->config()) ? GR_GL_RGBA_INTEGER : GR_GL_RGBA;
             static constexpr uint32_t kZero = 0;
             GL_CALL(ClearTexImage(tex->textureID(), 0, format, GR_GL_UNSIGNED_BYTE, &kZero));
+    SkDebugf("GL onCreateTexture 10\n");
         } else {
             SkASSERT(!GrPixelConfigIsSint(desc.fConfig));
             GrGLIRect viewport;
+    SkDebugf("GL onCreateTexture 11\n");
             this->bindSurfaceFBOForPixelOps(tex.get(), GR_GL_FRAMEBUFFER, &viewport,
                                             kDst_TempFBOTarget);
+    SkDebugf("GL onCreateTexture 12\n");
             this->disableScissor();
             this->disableWindowRectangles();
             GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
             fHWWriteToColor = kYes_TriState;
             GL_CALL(ClearColor(0, 0, 0, 0));
+    SkDebugf("GL onCreateTexture 13\n");
             GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
+    SkDebugf("GL onCreateTexture 14\n");
             this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, tex.get());
             fHWBoundRenderTargetUniqueID.makeInvalid();
+    SkDebugf("GL onCreateTexture 15\n");
         }
     }
+    SkDebugf("GL onCreateTexture 16\n");
     return tex;
 }
 
@@ -1633,34 +1690,43 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
                                 bool renderTarget, GrGLTexture::TexParams* initialTexParams,
                                 const GrMipLevel texels[], int mipLevelCount,
                                 GrMipMapsStatus* mipMapsStatus) {
+    SkDebugf("impl 1\n");
     info->fID = 0;
     info->fTarget = GR_GL_TEXTURE_2D;
     GL_CALL(GenTextures(1, &(info->fID)));
 
+    SkDebugf("impl 2\n");
     if (!info->fID) {
         return false;
     }
 
     this->setScratchTextureUnit();
+    SkDebugf("impl 3\n");
     GL_CALL(BindTexture(info->fTarget, info->fID));
 
+    SkDebugf("impl 4\n");
     if (renderTarget && this->glCaps().textureUsageSupport()) {
         // provides a hint about how this texture will be used
+    SkDebugf("impl 5\n");
         GL_CALL(TexParameteri(info->fTarget,
                               GR_GL_TEXTURE_USAGE,
                               GR_GL_FRAMEBUFFER_ATTACHMENT));
     }
 
     if (info) {
+    SkDebugf("impl 5.5\n");
         set_initial_texture_params(this->glInterface(), *info, initialTexParams);
     }
+    SkDebugf("impl 6\n");
     if (!this->uploadTexData(desc.fConfig, desc.fWidth, desc.fHeight, desc.fOrigin, info->fTarget,
                              kNewTexture_UploadType, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                              texels, mipLevelCount, mipMapsStatus)) {
         GL_CALL(DeleteTextures(1, &(info->fID)));
+    SkDebugf("impl 7\n");
         return false;
     }
     return true;
+    SkDebugf("impl 8\n");
 }
 
 GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
