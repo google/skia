@@ -129,7 +129,6 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     // coded center and compare that to some hard-coded circle radius to compute a coverage.
     // Then, this coverage is mixed with the coverage from the previous stage and passed to the
     // next stage.
-    GrShaderVar oFragColor("o_FragColor", kHalf4_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
     oPosition.setTypeModifier(GrShaderVar::kIn_TypeModifier);
     oPosition.appendDecl(shaderCaps, &fshaderTxt);
@@ -137,16 +136,6 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     oColor.setTypeModifier(GrShaderVar::kIn_TypeModifier);
     oColor.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";\n");
-
-    const char* fsOutName;
-    if (shaderCaps->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(shaderCaps, &fshaderTxt);
-        fshaderTxt.append(";\n");
-        fsOutName = oFragColor.c_str();
-    } else {
-        fsOutName = "sk_FragColor";
-    }
-
 
     fshaderTxt.appendf(
             "void main()\n"
@@ -176,12 +165,11 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
             );
         radius *= 0.8f;
     }
-    fshaderTxt.appendf(
+    fshaderTxt.append(
             "    {\n"
-            "        %s = outputColor * outputCoverage;\n"
+            "        sk_FragColor = outputColor * outputCoverage;\n"
             "    }\n"
-            "}\n",
-            fsOutName);
+            "}\n");
 
     return CreateProgram(ctx, vshaderTxt.c_str(), fshaderTxt.c_str());
 }
