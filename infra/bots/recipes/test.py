@@ -594,6 +594,18 @@ def dm_flags(api, bot):
       ('IntelIris540' in bot or 'IntelIris640' in bot)):
     match.extend(['~VkHeapTests']) # skia:6245
 
+  if 'Vulkan' in bot and api.vars.is_linux and 'IntelHD405' in bot:
+    # TODO(benjaminwagner) skia:
+    blacklist(['vk', 'gm', '_', 'skbug_257'])
+    match.append('~^ClearOp$')
+    match.append('~^InitialTextureClear$')
+    match.append('~^ReadPixels_Gpu$')
+    match.append('~^ReadPixels_Texture$')
+    match.append('~^VkUploadPixelsTests$')
+    match.append('~^WritePixelsNonTexture_Gpu$')
+    match.append('~^WritePixels_Gpu$')
+    match.append('~^skbug6653$')
+
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
     # skia:6398
     blacklist(['vk', 'gm', '_', 'aarectmodes'])
@@ -918,6 +930,7 @@ TEST_BUILDERS = [
   'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All',
   'Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer',
   'Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All',
+  'Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan',
   'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan',
   ('Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan'
    '_Coverage'),
