@@ -36,7 +36,9 @@ skia_gpu_processor_sources = [
   "$_src/gpu/effects/GrDitherEffect.fp",
   "$_src/gpu/effects/GrEllipseEffect.fp",
   "$_src/gpu/effects/GrLumaColorFilterEffect.fp",
+  "$_src/gpu/effects/GrPremulInputFragmentProcessor.fp",
   "$_src/gpu/effects/GrRectBlurEffect.fp",
   "$_src/gpu/effects/GrOverdrawFragmentProcessor.fp",
   "$_src/gpu/effects/GrSimpleTextureEffect.fp",
+  "$_src/gpu/effects/GrUnpremulInputFragmentProcessor.fp",
 ]
