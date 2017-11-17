@@ -14,6 +14,11 @@
 
 namespace {
 
+std::function<void()> context_restorer() {
+    EAGLContext* context = [EAGLContext currentContext];
+    return [context] { [EAGLContext setCurrentContext:context]; };
+}
+
 class IOSGLTestContext : public sk_gpu_test::GLTestContext {
 public:
     IOSGLTestContext(IOSGLTestContext* shareContext);
@@ -23,6 +28,7 @@ private:
     void destroyGLContext();
 
     void onPlatformMakeCurrent() const override;
+    std::function<void()> onPlatformGetAutoContextRestore() const override;
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
@@ -41,6 +47,7 @@ IOSGLTestContext::IOSGLTestContext(IOSGLTestContext* shareContext)
     } else {
         fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     }
+    SkScopeExit restorer(context_restorer());
     [EAGLContext setCurrentContext:fEAGLContext];
 
     sk_sp<const GrGLInterface> gl(GrGLCreateNativeInterface());
@@ -70,6 +77,7 @@ IOSGLTestContext::~IOSGLTestContext() {
 void IOSGLTestContext::destroyGLContext() {
     if (fEAGLContext) {
         if ([EAGLContext currentContext] == fEAGLContext) {
+            // This will ensure that the context is immediately deleted.
             [EAGLContext setCurrentContext:nil];
         }
         fEAGLContext = nil;
@@ -84,6 +92,13 @@ void IOSGLTestContext::onPlatformMakeCurrent() const {
     if (![EAGLContext setCurrentContext:fEAGLContext]) {
         SkDebugf("Could not set the context.\n");
     }
+}
+
+std::function<void()> IOSGLTestContext::onPlatformGetAutoContextRestore() const {
+    if ([EAGLContext currentContext] == fEAGLContext) {
+		return nullptr;
+	}
+    return context_restorer();
 }
 
 void IOSGLTestContext::onPlatformSwapBuffers() const { }
