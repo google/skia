@@ -628,3 +628,14 @@ skia_native_gpu_sources = [
   "$_src/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp",
   "$_src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp",
 ]
+
+skia_atlas_text_sources = [
+  "$_include/atlastext/SkAtlasTextContext.h",
+  "$_include/atlastext/SkAtlasTextFont.h",
+  "$_include/atlastext/SkAtlasTextRenderer.h",
+  "$_include/atlastext/SkAtlasTextTarget.h",
+
+  "$_src/atlastext/SkAtlasTextContext.cpp",
+  "$_src/atlastext/SkAtlasTextTarget.cpp",
+  "$_src/atlastext/SkInternalAtlasTextContext.cpp",
+]
