@@ -115,8 +115,11 @@ static SkCanvas* prepare_canvas(SkCanvas * canvas) {
     return canvas;
 }
 
-static bool setup_backend_objects(GrContext* context, const SkBitmap& bm,
-                                  int width, int height, int sampleCnt) {
+#include "SkMipMap.h"
+
+static bool setup_backend_objects(GrContext* context,
+                                  const SkBitmap& bm,
+                                  const DrawOptions& options) {
     if (!context) {
         return false;
     }
@@ -133,11 +136,22 @@ static bool setup_backend_objects(GrContext* context, const SkBitmap& bm,
     backingDesc.fSampleCnt = 0;
 
     if (!bm.empty()) {
-        GrMipLevel level0 = { bm.getPixels(), bm.rowBytes() };
+        int mipLevelCount = GrMipMapped::kYes == options.fMipMapping
+                                    ? SkMipMap::ComputeLevelCount(bm.width(), bm.height())
+                                    : 1;
+        std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
+
+        texels[0].fPixels = bm.getPixels();
+        texels[0].fRowBytes = bm.rowBytes();
+
+        for (int i = 01; i < mipLevelCount; i++) {
+            texels[i].fPixels = nullptr;
+            texels[i].fRowBytes = 0;
+        }
 
         backingTexture = context->resourceProvider()->createTexture(
                                                         backingDesc, SkBudgeted::kNo,
-                                                        &level0, 1,
+                                                        texels.get(), mipLevelCount,
                                                         SkDestinationSurfaceColorMode::kLegacy);
         if (!backingTexture) {
             return false;
@@ -147,7 +161,7 @@ static bool setup_backend_objects(GrContext* context, const SkBitmap& bm,
                                                       backingDesc.fWidth,
                                                       backingDesc.fHeight,
                                                       kConfig,
-                                                      GrMipMapped::kNo,
+                                                      options.fMipMapping,
                                                       backingTexture->getTextureHandle());
         if (!backEndTexture.isValid()) {
             return false;
@@ -155,16 +169,20 @@ static bool setup_backend_objects(GrContext* context, const SkBitmap& bm,
     }
 
     backingDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    backingDesc.fWidth = width;
-    backingDesc.fHeight = height;
-    backingDesc.fSampleCnt = sampleCnt;
+    backingDesc.fWidth = options.fOffScreenWidth;
+    backingDesc.fHeight = options.fOffScreenHeight;
+    backingDesc.fSampleCnt = options.fOffScreenSampleCount;
 
-    SkAutoTMalloc<uint32_t> data(width * height);
-    sk_memset32(data.get(), 0, width * height);
+    SkAutoTMalloc<uint32_t> data(backingDesc.fWidth * backingDesc.fHeight);
+    sk_memset32(data.get(), 0, backingDesc.fWidth * backingDesc.fHeight);
 
-    GrMipLevel level0 = { data.get(), width*sizeof(uint32_t) };
 
     {
+        // This backend object should be renderable but not textureable. Given the limitations
+        // of how we're creating it though it will wind up being secretly textureable.
+        // We use this fact to initialize it with data but don't allow mipmaps
+        GrMipLevel level0 = { data.get(), backingDesc.fWidth*sizeof(uint32_t) };
+
         sk_sp<GrTexture> tmp = context->resourceProvider()->createTexture(
                                                             backingDesc, SkBudgeted::kNo,
                                                             &level0, 1,
@@ -188,9 +206,22 @@ static bool setup_backend_objects(GrContext* context, const SkBitmap& bm,
     }
 
     {
+        int mipLevelCount = GrMipMapped::kYes == options.fOffScreenMipMapping
+                                    ? SkMipMap::ComputeLevelCount(bm.width(), bm.height())
+                                    : 1;
+        std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
+
+        texels[0].fPixels = bm.getPixels();
+        texels[0].fRowBytes = bm.rowBytes();
+
+        for (int i = 01; i < mipLevelCount; i++) {
+            texels[i].fPixels = nullptr;
+            texels[i].fRowBytes = 0;
+        }
+
         backingTextureRenderTarget = context->resourceProvider()->createTexture(
                                                             backingDesc, SkBudgeted::kNo,
-                                                            &level0, 1,
+                                                            texels.get(), mipLevelCount,
                                                             SkDestinationSurfaceColorMode::kLegacy);
         if (!backingTextureRenderTarget || !backingTextureRenderTarget->asRenderTarget()) {
             return false;
@@ -201,7 +232,7 @@ static bool setup_backend_objects(GrContext* context, const SkBitmap& bm,
                                                     backingDesc.fWidth,
                                                     backingDesc.fHeight,
                                                     kConfig,
-                                                    GrMipMapped::kNo,
+                                                    options.fOffScreenMipMapping,
                                                     backingTextureRenderTarget->getTextureHandle());
         if (!backEndTextureRenderTarget.isValid()) {
             return false;
@@ -219,7 +250,7 @@ int main(int argc, char** argv) {
     DrawOptions options = GetDrawOptions();
     // If textOnly then only do one type of image, otherwise the text
     // output is duplicated for each type.
-    if (options.textOnly) {
+    if (options.textOnly1) {
         options.raster = true;
         options.gpu = false;
         options.pdf = false;
@@ -262,8 +293,7 @@ int main(int argc, char** argv) {
         if (!grContext) {
             fputs("Unable to get GrContext.\n", stderr);
         } else {
-            if (!setup_backend_objects(grContext.get(), source,
-                                       options.size.width(), options.size.height(), 0)) {
+            if (!setup_backend_objects(grContext.get(), source, options)) {
                 fputs("Unable to create backend objects.\n", stderr);
                 exit(1);
             }
@@ -301,7 +331,7 @@ int main(int argc, char** argv) {
     }
 
     printf("{\n");
-    if (!options.textOnly) {
+    if (!options.textOnly1) {
         dump_output(rasterData, "Raster", false);
         dump_output(gpuData, "Gpu", false);
         dump_output(pdfData, "Pdf", false);

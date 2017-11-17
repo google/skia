@@ -31,7 +31,13 @@ extern double duration; // The total duration of the animation in seconds.
 extern double frame;    // A value in [0, 1] of where we are in the animation.
 
 struct DrawOptions {
-    DrawOptions(int w, int h, bool r, bool g, bool p, bool k, bool srgb, bool f16, bool textOnly, const char* s)
+    DrawOptions(int w, int h, bool r, bool g, bool p, bool k, bool srgb, bool f16,
+                bool textOnly, const char* s,
+                GrMipMapped mipMapping,
+                int offScreenWidth,
+                int offScreenHeight,
+                int offScreenSampleCount,
+                GrMipMapped offScreenMipMapping)
         : size(SkISize::Make(w, h))
         , raster(r)
         , gpu(g)
@@ -39,9 +45,13 @@ struct DrawOptions {
         , skp(k)
         , srgb(srgb)
         , f16(f16)
-        , textOnly(textOnly)
+        , textOnly1(textOnly)
         , source(s)
-    {
+        , fMipMapping(mipMapping)
+        , fOffScreenWidth(offScreenWidth)
+        , fOffScreenHeight(offScreenHeight)
+        , fOffScreenSampleCount(offScreenSampleCount)
+        , fOffScreenMipMapping(offScreenMipMapping) {
         // F16 mode is only valid for color correct backends.
         SkASSERT(srgb || !f16);
     }
@@ -52,8 +62,21 @@ struct DrawOptions {
     bool skp;
     bool srgb;
     bool f16;
-    bool textOnly;
+    bool textOnly1;
     const char* source;
+
+    // This flag is used when a GPU texture resource is created (exposed either as an SkImage
+    // or as a GrBackendTexture). In both cases the resource is created with extra room to
+    // accomodate mipmaps.
+    GrMipMapped fMipMapping;
+
+    // Parameters for an GPU offscreen resource exposed as a GrBackendRenderTarget
+    int         fOffScreenWidth;
+    int         fOffScreenHeight;
+    int         fOffScreenSampleCount;
+    // TODO: should we also expose stencilBits here? How about the config?
+
+    GrMipMapped fOffScreenMipMapping; // only applicable if the offscreen is also textureable
 };
 
 extern DrawOptions GetDrawOptions();
