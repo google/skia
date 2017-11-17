@@ -1853,33 +1853,53 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
     fConfigTable[kRGBA_4444_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
-    fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    fConfigTable[kAlpha_8_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kAlpha_8_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-    if (this->textureRedSupport()) {
-        fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RED;
-        fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_R8;
-        fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
-            GR_GL_RED;
-        fConfigTable[kAlpha_8_GrPixelConfig].fSwizzle = GrSwizzle::RRRR();
-        if (texelBufferSupport) {
-            fConfigTable[kAlpha_8_GrPixelConfig].fFlags |= ConfigInfo::kCanUseWithTexelBuffer_Flag;
-        }
-        fConfigTable[kAlpha_8_GrPixelConfig].fFlags |= allRenderFlags;
-    } else {
-        fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_ALPHA;
-        fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_ALPHA8;
-        fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
-            GR_GL_ALPHA;
-        fConfigTable[kAlpha_8_GrPixelConfig].fSwizzle = GrSwizzle::AAAA();
-        if (fAlpha8IsRenderable) {
-            fConfigTable[kAlpha_8_GrPixelConfig].fFlags |= allRenderFlags;
-        }
+    bool alpha8IsValidForGL = kGL_GrGLStandard == standard &&
+            (!fIsCoreProfile || version <= GR_GL_VER(3, 0));
+
+    ConfigInfo& alphaInfo = fConfigTable[kAlpha_8_as_Alpha_GrPixelConfig];
+    alphaInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+    alphaInfo.fFormatType = kNormalizedFixedPoint_FormatType;
+    if (alpha8IsValidForGL || (kGL_GrGLStandard != standard && version < GR_GL_VER(3, 0))) {
+        alphaInfo.fFlags = ConfigInfo::kTextureable_Flag;
     }
+    alphaInfo.fFormats.fBaseInternalFormat = GR_GL_ALPHA;
+    alphaInfo.fFormats.fSizedInternalFormat = GR_GL_ALPHA8;
+    alphaInfo.fFormats.fExternalFormat[kOther_ExternalFormatUsage] = GR_GL_ALPHA;
+    alphaInfo.fSwizzle = GrSwizzle::AAAA();
+    if (fAlpha8IsRenderable && alpha8IsValidForGL) {
+        alphaInfo.fFlags |= allRenderFlags;
+    }
+
+    ConfigInfo& redInfo = fConfigTable[kAlpha_8_as_Red_GrPixelConfig];
+    redInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+    redInfo.fFormatType = kNormalizedFixedPoint_FormatType;
+    redInfo.fFormats.fBaseInternalFormat = GR_GL_RED;
+    redInfo.fFormats.fSizedInternalFormat = GR_GL_R8;
+    redInfo.fFormats.fExternalFormat[kOther_ExternalFormatUsage] = GR_GL_RED;
+    redInfo.fSwizzle = GrSwizzle::RRRR();
 
     // ES2 Command Buffer does not allow TexStorage with R8_EXT (so Alpha_8 and Gray_8)
     if (texStorageSupported && !isCommandBufferES2) {
-        fConfigTable[kAlpha_8_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+        // Angle with es2->GL has a bug where it will hang trying to call TexSubImage on Alpha8
+        // formats on miplevels > 0. We already disable texturing on gles > 2.0 so just need to
+        // check that we are not going to OpenGL.
+        if (GrGLANGLEBackend::kOpenGL != ctxInfo.angleBackend()) {
+            alphaInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+        }
+        redInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
+
+    if (this->textureRedSupport()) {
+        redInfo.fFlags |= ConfigInfo::kTextureable_Flag | allRenderFlags;
+        if (texelBufferSupport) {
+            redInfo.fFlags |= ConfigInfo::kCanUseWithTexelBuffer_Flag;
+        }
+
+        fConfigTable[kAlpha_8_GrPixelConfig] = redInfo;
+    } else {
+        redInfo.fFlags = 0;
+
+        fConfigTable[kAlpha_8_GrPixelConfig] = alphaInfo;
     }
 
     fConfigTable[kGray_8_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
@@ -1926,13 +1946,13 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     uint32_t fpRenderFlags = (kGL_GrGLStandard == standard) ? allRenderFlags : nonMSAARenderFlags;
 
     if (kGL_GrGLStandard == standard) {
-        if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_texture_float")) {
+        if (version >= GR_GL_VER(3, 0)) {
             hasFPTextures = true;
             hasHalfFPTextures = true;
             rgIsTexturable = true;
         }
     } else {
-        if (version >= GR_GL_VER(3, 1)) {
+        if (version >= GR_GL_VER(3, 0)) {
             hasFPTextures = true;
             hasHalfFPTextures = true;
             rgIsTexturable = true;
@@ -1974,43 +1994,37 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[fpconfig].fSwizzle = GrSwizzle::RGBA();
     }
 
-    if (this->textureRedSupport()) {
-        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RED;
-        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_R16F;
-        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage]
-            = GR_GL_RED;
-        fConfigTable[kAlpha_half_GrPixelConfig].fSwizzle = GrSwizzle::RRRR();
-        if (texelBufferSupport) {
-            fConfigTable[kAlpha_half_GrPixelConfig].fFlags |=
-                ConfigInfo::kCanUseWithTexelBuffer_Flag;
-        }
-    } else {
-        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_ALPHA;
-        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_ALPHA16F;
-        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage]
-            = GR_GL_ALPHA;
-        fConfigTable[kAlpha_half_GrPixelConfig].fSwizzle = GrSwizzle::AAAA();
-    }
-
+    GrGLenum redHalfExternalType;
     if (kGL_GrGLStandard == ctxInfo.standard() || ctxInfo.version() >= GR_GL_VER(3, 0)) {
-        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fExternalType = GR_GL_HALF_FLOAT;
+        redHalfExternalType = GR_GL_HALF_FLOAT;
     } else {
-        fConfigTable[kAlpha_half_GrPixelConfig].fFormats.fExternalType = GR_GL_HALF_FLOAT_OES;
+        redHalfExternalType = GR_GL_HALF_FLOAT_OES;
     }
-    fConfigTable[kAlpha_half_GrPixelConfig].fFormatType = kFloat_FormatType;
-    if (texStorageSupported) {
-        fConfigTable[kAlpha_half_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
-    }
-    if (hasHalfFPTextures) {
-        fConfigTable[kAlpha_half_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-        // ES requires either 3.2 or the combination of EXT_color_buffer_half_float and support for
-        // GL_RED internal format.
+    ConfigInfo& redHalf = fConfigTable[kAlpha_half_as_Red_GrPixelConfig];
+    redHalf.fFormats.fExternalType = redHalfExternalType;
+    redHalf.fFormatType = kFloat_FormatType;
+    redHalf.fFormats.fBaseInternalFormat = GR_GL_RED;
+    redHalf.fFormats.fSizedInternalFormat = GR_GL_R16F;
+    redHalf.fFormats.fExternalFormat[kOther_ExternalFormatUsage] = GR_GL_RED;
+    redHalf.fSwizzle = GrSwizzle::RRRR();
+    if (this->textureRedSupport() && hasHalfFPTextures) {
+        redHalf.fFlags = ConfigInfo::kTextureable_Flag;
+
         if (kGL_GrGLStandard == standard || version >= GR_GL_VER(3, 2) ||
             (this->textureRedSupport() &&
              ctxInfo.hasExtension("GL_EXT_color_buffer_half_float"))) {
-            fConfigTable[kAlpha_half_GrPixelConfig].fFlags |= fpRenderFlags;
+            redHalf.fFlags |= fpRenderFlags;
+        }
+
+        if (texStorageSupported) {
+            redHalf.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+        }
+
+        if (texelBufferSupport) {
+            redHalf.fFlags |= ConfigInfo::kCanUseWithTexelBuffer_Flag;
         }
     }
+    fConfigTable[kAlpha_half_GrPixelConfig] = redHalf;
 
     fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
     fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA16F;
@@ -2063,8 +2077,12 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     // kAlpha_8_GrPixelConfig. Alpha8 is not a valid signed internal format so we must use the base
     // internal format for that config when doing TexImage calls.
     if(kGalliumLLVM_GrGLRenderer == ctxInfo.renderer()) {
+        SkASSERT(fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat ==
+                 fConfigTable[kAlpha_8_as_Alpha_GrPixelConfig].fFormats.fBaseInternalFormat);
         fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fInternalFormatTexImage =
             fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat;
+        fConfigTable[kAlpha_8_as_Alpha_GrPixelConfig].fFormats.fInternalFormatTexImage =
+            fConfigTable[kAlpha_8_as_Alpha_GrPixelConfig].fFormats.fBaseInternalFormat;
     }
 
     // OpenGL ES 2.0 + GL_EXT_sRGB allows GL_SRGB_ALPHA to be specified as the <format>

@@ -780,11 +780,14 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
 static inline GrGLint config_alignment(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
+        case kAlpha_8_as_Alpha_GrPixelConfig:
+        case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
             return 1;
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
+        case kAlpha_half_as_Red_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
             return 2;
         case kRGBA_8888_GrPixelConfig:
