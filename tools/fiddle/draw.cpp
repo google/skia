@@ -13,7 +13,8 @@
 DrawOptions GetDrawOptions() {
     // path *should* be absolute.
     static const char path[] = "resources/color_wheel.png";
-    return DrawOptions(256, 256, true, true, true, true, true, false, false, path);
+    return DrawOptions(256, 256, true, true, true, true, true, false, false, path,
+                       GrMipMapped::kYes, 64, 64, 0, GrMipMapped::kYes);
 }
 void draw(SkCanvas* canvas) {
     canvas->clear(SK_ColorWHITE);
@@ -35,21 +36,17 @@ void draw(SkCanvas* canvas) {
                                                       kOpaque_SkAlphaType,
                                                       nullptr);
 
+        // TODO: this sampleCnt parameter here should match that set in the options!
         sk_sp<SkSurface> tmp2 = SkSurface::MakeFromBackendTexture(context,
                                                                   backEndTextureRenderTarget,
                                                                   kTopLeft_GrSurfaceOrigin,
                                                                   0, nullptr, nullptr);
 
+        // Note: this surface should only be renderable (i.e., not textureable)
         sk_sp<SkSurface> tmp3 = SkSurface::MakeFromBackendRenderTarget(context,
                                                                        backEndRenderTarget,
                                                                        kTopLeft_GrSurfaceOrigin,
                                                                        nullptr, nullptr);
-
-        sk_sp<SkSurface> tmp4 = SkSurface::MakeFromBackendTextureAsRenderTarget(
-                                                                context,
-                                                                backEndTextureRenderTarget,
-                                                                kTopLeft_GrSurfaceOrigin,
-                                                                0, nullptr, nullptr);
     }
 
 }
