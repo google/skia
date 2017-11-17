@@ -216,7 +216,7 @@ def dm_flags(api, bot):
     if 'ANGLE' in bot:
       configs = ['angle_d3d11_es2',
                  'angle_d3d9_es2',
-                 'angle_gl_es2',
+                 #'angle_gl_es2',
                  'angle_d3d11_es3']
       if sample_count is not '':
         configs.append('angle_d3d11_es2_msaa' + sample_count)
@@ -694,6 +694,8 @@ def dm_flags(api, bot):
     args.append('--blacklist')
     args.extend(blacklisted)
 
+  match = []
+  match.append('GrSurfaceRender')
   if match:
     args.append('--match')
     args.extend(match)

@@ -82,6 +82,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     GrPixelConfig configs[] = {
         kUnknown_GrPixelConfig,
         kAlpha_8_GrPixelConfig,
+        kAlpha_8_as_Alpha_GrPixelConfig,
+        kAlpha_8_as_Red_GrPixelConfig,
         kGray_8_GrPixelConfig,
         kRGB_565_GrPixelConfig,
         kRGBA_4444_GrPixelConfig,
@@ -93,6 +95,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         kRGBA_float_GrPixelConfig,
         kRG_float_GrPixelConfig,
         kAlpha_half_GrPixelConfig,
+        kAlpha_half_as_Red_GrPixelConfig,
         kRGBA_half_GrPixelConfig,
     };
     SkASSERT(kGrPixelConfigCnt == SK_ARRAY_COUNT(configs));
@@ -118,30 +121,44 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             desc.fConfig = config;
             desc.fSampleCnt = 0;
 
+            SkDebugf("before create texture 1\n");
             sk_sp<GrSurface> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+            SkDebugf("after create texture 1\n");
             REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigTexturable(desc.fConfig));
+            SkDebugf("config: %d, tex: %d, texurablity: %d\n",
+                     config, SkToBool(tex.get()), caps->isConfigTexturable(config));
 
             size_t rowBytes = desc.fWidth * GrBytesPerPixel(desc.fConfig);
             for (int i = 0; i < levelCount; ++i) {
                 texels[i].fPixels = pixelData.get();
                 texels[i].fRowBytes = rowBytes >> i;
             }
+            SkDebugf("before deferred mipmap\n");
             sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferredMipMap(resourceProvider,
                                                                              desc, SkBudgeted::kNo,
                                                                              texels.get(),
                                                                              levelCount);
+            SkDebugf("after deferred mipmap\n");
             REPORTER_ASSERT(reporter, SkToBool(proxy.get()) ==
                             (caps->isConfigTexturable(desc.fConfig) &&
                              caps->mipMapSupport() &&
                              !GrPixelConfigIsSint(desc.fConfig)));
 
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
+            SkDebugf("before create texture 2\n");
             tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+            SkDebugf("after create texture 2\n");
             REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigRenderable(config, false));
+            SkDebugf("config: %d, tex: %d, renderable: %d\n",
+                     config, SkToBool(tex.get()), caps->isConfigRenderable(config, false));
 
             desc.fSampleCnt = 4;
+            SkDebugf("before create texture 3\n");
             tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+            SkDebugf("after create texture 3\n");
             REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigRenderable(config, true));
+            SkDebugf("config: %d, tex: %d, renderable: %d\n",
+                     config, SkToBool(tex.get()), caps->isConfigRenderable(config, true));
         }
     }
 }
