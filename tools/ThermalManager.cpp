@@ -56,6 +56,8 @@ ThermalManager::ThermalManager(int32_t threshold, uint32_t sleepIntervalMs, uint
             fTripPoints.push_back(TripPoint(fullPath, filename, threshold));
         }
     }
+
+    SkDebugf("ThermalManager got %d trip points\n", fTripPoints.count());
 }
 
 bool ThermalManager::coolOffIfNecessary() {
@@ -69,6 +71,9 @@ bool ThermalManager::coolOffIfNecessary() {
         }
     }
 
+    if (totalTimeSleptMs) {
+        SkDebugf("ThermalManager slept %d ms\n", totalTimeSleptMs);
+    }
     return totalTimeSleptMs < fTimeoutMs;
 }
 
