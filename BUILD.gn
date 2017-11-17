@@ -549,7 +549,7 @@ optional("gpu") {
     }
   } else if (skia_use_egl) {
     sources += [ "src/gpu/gl/egl/GrGLCreateNativeInterface_egl.cpp" ]
-    libs += [ "EGL" ]
+    libs += [ "EGL", "GL" ]
   } else if (is_linux) {
     sources += [ "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp" ]
     libs += [
