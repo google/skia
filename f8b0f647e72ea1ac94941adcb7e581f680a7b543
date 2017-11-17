@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f231dd37_9e6ec09a",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-17T17:39:25Z",
+      "side": 1,
+      "message": "This is just mimicking what GrBackendTexture does. They should be updated together.",
+      "parentUuid": "0073b452_f2448217",
+      "revId": "f8b0f647e72ea1ac94941adcb7e581f680a7b543",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f3c2e6de_9ab8edea",
         "filename": "tools/fiddle/draw.cpp",
         "patchSetId": 5
