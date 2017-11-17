@@ -228,6 +228,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"NVIDIA_Shield":   {"foster", "NRD90M"},
 				"Nexus10":         {"manta", "LMY49J"},
 				"Nexus5":          {"hammerhead", "M4B30Z"},
+				"Nexus5x":         {"bullhead", "OPR6.170623.023"},
 				"Nexus6":          {"shamu", "M"},
 				"Nexus6p":         {"angler", "OPR5.170623.007"},
 				"Nexus7":          {"grouper", "LMY47V"},
