@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8f0b0fe9_a8199a5f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 14
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-17T19:19:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d152bfed_23720f32",
+      "range": {
+        "startLine": 9,
+        "startChar": 16,
+        "endLine": 9,
+        "endChar": 21
+      },
+      "revId": "6c5cff15c64cd0b7461eef7d39bd4b3480cf1a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "295c8dba_b2b43546",
         "filename": "gm/atlastext.cpp",
         "patchSetId": 14
@@ -59,6 +83,24 @@
     },
     {
       "key": {
+        "uuid": "996424a7_c9ddb625",
+        "filename": "gm/atlastext.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-17T19:19:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2f15da0_f8911e24",
+      "revId": "6c5cff15c64cd0b7461eef7d39bd4b3480cf1a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c3946d55_80961113",
         "filename": "include/atlastext/SkAtlasTextRenderer.h",
         "patchSetId": 14
@@ -76,6 +118,24 @@
     },
     {
       "key": {
+        "uuid": "38214251_9f2c9a5a",
+        "filename": "include/atlastext/SkAtlasTextRenderer.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-17T19:19:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3946d55_80961113",
+      "revId": "6c5cff15c64cd0b7461eef7d39bd4b3480cf1a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6ed96170_ea6c676a",
         "filename": "include/atlastext/SkAtlasTextTarget.h",
         "patchSetId": 14
@@ -90,6 +150,24 @@
       "revId": "6c5cff15c64cd0b7461eef7d39bd4b3480cf1a33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94393289_893c6e4e",
+        "filename": "include/atlastext/SkAtlasTextTarget.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-17T19:19:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ed96170_ea6c676a",
+      "revId": "6c5cff15c64cd0b7461eef7d39bd4b3480cf1a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
