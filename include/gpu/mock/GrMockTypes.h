@@ -9,7 +9,6 @@
 #define GrMockOptions_DEFINED
 
 #include "GrTypes.h"
-#include "../private/GrTypesPriv.h"
 
 struct GrMockTextureInfo {
     int fID;
@@ -26,8 +25,6 @@ struct GrMockOptions {
         fConfigOptions[kRGBA_8888_GrPixelConfig].fRenderable[0] = true;
         fConfigOptions[kRGBA_8888_GrPixelConfig].fTexturable = true;
         fConfigOptions[kAlpha_8_GrPixelConfig].fTexturable = true;
-        fConfigOptions[kAlpha_8_as_Alpha_GrPixelConfig].fTexturable = true;
-        fConfigOptions[kAlpha_8_as_Red_GrPixelConfig].fTexturable = true;
         fConfigOptions[kRGB_565_GrPixelConfig].fTexturable = true;
     }
 
