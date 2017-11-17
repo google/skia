@@ -115,17 +115,7 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
     vshaderTxt.append("}\n");
 
     // setup fragment shader
-    GrShaderVar oFragColor("o_FragColor", kHalf4_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
-
-    const char* fsOutName;
-    if (shaderCaps->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(shaderCaps, &fshaderTxt);
-        fshaderTxt.append(";\n");
-        fsOutName = oFragColor.c_str();
-    } else {
-        fsOutName = "sk_FragColor";
-    }
 
     for (uint32_t i = 0; i < maxAttribs; i++) {
         oVars[i].setTypeModifier(GrShaderVar::kIn_TypeModifier);
@@ -133,10 +123,10 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
         fshaderTxt.append(";\n");
     }
 
-    fshaderTxt.appendf(
+    fshaderTxt.append(
             "void main()\n"
             "{\n"
-               "%s = ", fsOutName);
+               "sk_FragColor = ");
 
     fshaderTxt.appendf("%s", oVars[0].c_str());
     for (uint32_t i = 1; i < maxAttribs; i++) {

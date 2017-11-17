@@ -131,26 +131,16 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
             "}\n");
 
     // setup fragment shader
-    GrShaderVar oFragColor("o_FragColor", kHalf4_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
     oColor.setTypeModifier(GrShaderVar::kIn_TypeModifier);
     oColor.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";\n");
 
-    const char* fsOutName;
-    if (shaderCaps->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(shaderCaps, &fshaderTxt);
-        fshaderTxt.append(";\n");
-        fsOutName = oFragColor.c_str();
-    } else {
-        fsOutName = "sk_FragColor";
-    }
-
-    fshaderTxt.appendf(
+    fshaderTxt.append(
             "void main()\n"
             "{\n"
-                "%s = float4(o_color, 1.0);\n"
-            "}\n", fsOutName);
+                "sk_FragColor = float4(o_color, 1.0);\n"
+            "}\n");
 
     return CreateProgram(ctx, vshaderTxt.c_str(), fshaderTxt.c_str());
 }
