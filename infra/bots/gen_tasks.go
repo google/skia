@@ -204,7 +204,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
 		}
-		if os == "Win2016" {
+		if d["os"] == DEFAULT_OS_WIN {
 			// Temporarily specify image name during transition.
 			d["image"] = "windows-server-2016-dc-internal-v20171010"
 		}

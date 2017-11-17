@@ -4911,6 +4911,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -4946,6 +4947,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -4981,6 +4983,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5021,6 +5024,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5056,6 +5060,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5091,6 +5096,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5131,6 +5137,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5161,6 +5168,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5191,6 +5199,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5221,6 +5230,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5251,6 +5261,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5281,6 +5292,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5311,6 +5323,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5341,6 +5354,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5376,6 +5390,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5406,6 +5421,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5436,6 +5452,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
@@ -5471,6 +5488,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
+        "image:windows-server-2016-dc-internal-v20171010",
         "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
