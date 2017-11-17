@@ -83,11 +83,16 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return nullptr;
     }
 
+    SkDebugf("Res PRov create texture, before validate\n");
     if (!validate_desc(desc, *fCaps, mipLevelCount)) {
+    SkDebugf("Res PRov create texture, fail validate\n");
         return nullptr;
     }
+    SkDebugf("Res PRov create texture, after validate\n");
 
+    SkDebugf("Res PRov create texture, bfore create texture\n");
     sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texels, mipLevelCount));
+    SkDebugf("Res PRov create texture, after create texture\n");
     if (tex) {
         tex->texturePriv().setMipColorMode(mipColorMode);
     }
