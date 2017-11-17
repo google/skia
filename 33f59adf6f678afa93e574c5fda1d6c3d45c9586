@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68c9a590_5971cc8d",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 1738,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-17T18:21:28Z",
+      "side": 1,
+      "message": "should we have a sk_app target that is shared by helloworld and viewer?",
+      "range": {
+        "startLine": 1688,
+        "startChar": 0,
+        "endLine": 1738,
+        "endChar": 42
+      },
+      "revId": "33f59adf6f678afa93e574c5fda1d6c3d45c9586",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
