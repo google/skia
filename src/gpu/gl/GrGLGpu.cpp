@@ -780,11 +780,14 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
 static inline GrGLint config_alignment(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
+        case kAlpha_8_as_Alpha_GrPixelConfig:
+        case kAlpha_8_as_Red_GrPixelConfig:
         case kGray_8_GrPixelConfig:
             return 1;
         case kRGB_565_GrPixelConfig:
         case kRGBA_4444_GrPixelConfig:
         case kAlpha_half_GrPixelConfig:
+        case kAlpha_half_as_Red_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
             return 2;
         case kRGBA_8888_GrPixelConfig:
@@ -1421,6 +1424,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     // TODO: remove the GrPixelConfigIsSint test. This is here because we have yet to add support
     // for glClearBuffer* which must be used instead of glClearColor/glClear for integer FBO
     // attachments.
+    SkDebugf("GL onCreateTexture 1\n");
     if (performClear && !this->glCaps().clearTextureSupport() &&
         (!this->glCaps().canConfigBeFBOColorAttachment(desc.fConfig) ||
          GrPixelConfigIsSint(desc.fConfig))) {
@@ -1441,25 +1445,32 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     GrMipMapsStatus mipMapsStatus;
     GrGLTexture::TexParams initialTexParams;
+    SkDebugf("GL onCreateTexture 2\n");
     if (!this->createTextureImpl(desc, &idDesc.fInfo, isRenderTarget, &initialTexParams,
                                  texels, mipLevelCount, &mipMapsStatus)) {
+    SkDebugf("GL onCreateTexture 3\n");
         return return_null_texture();
     }
 
     sk_sp<GrGLTexture> tex;
     if (isRenderTarget) {
+    SkDebugf("GL onCreateTexture 4\n");
         // unbind the texture from the texture unit before binding it to the frame buffer
         GL_CALL(BindTexture(idDesc.fInfo.fTarget, 0));
         GrGLRenderTarget::IDDesc rtIDDesc;
 
+    SkDebugf("GL onCreateTexture 5\n");
         if (!this->createRenderTargetObjects(desc, idDesc.fInfo, &rtIDDesc)) {
             GL_CALL(DeleteTextures(1, &idDesc.fInfo.fID));
             return return_null_texture();
         }
+    SkDebugf("GL onCreateTexture 6\n");
         tex = sk_make_sp<GrGLTextureRenderTarget>(this, budgeted, desc, idDesc, rtIDDesc,
                                                   mipMapsStatus);
+    SkDebugf("GL onCreateTexture 7\n");
         tex->baseLevelWasBoundToFBO();
     } else {
+    SkDebugf("GL onCreateTexture 8\n");
         tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, idDesc, mipMapsStatus);
     }
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
@@ -1469,24 +1480,32 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
 #endif
     if (tex && performClear) {
         if (this->glCaps().clearTextureSupport()) {
+    SkDebugf("GL onCreateTexture 9\n");
             GrGLenum format = GrPixelConfigIsSint(tex->config()) ? GR_GL_RGBA_INTEGER : GR_GL_RGBA;
             static constexpr uint32_t kZero = 0;
             GL_CALL(ClearTexImage(tex->textureID(), 0, format, GR_GL_UNSIGNED_BYTE, &kZero));
+    SkDebugf("GL onCreateTexture 10\n");
         } else {
             SkASSERT(!GrPixelConfigIsSint(desc.fConfig));
             GrGLIRect viewport;
+    SkDebugf("GL onCreateTexture 11\n");
             this->bindSurfaceFBOForPixelOps(tex.get(), GR_GL_FRAMEBUFFER, &viewport,
                                             kDst_TempFBOTarget);
+    SkDebugf("GL onCreateTexture 12\n");
             this->disableScissor();
             this->disableWindowRectangles();
             GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
             fHWWriteToColor = kYes_TriState;
             GL_CALL(ClearColor(0, 0, 0, 0));
+    SkDebugf("GL onCreateTexture 13\n");
             GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
+    SkDebugf("GL onCreateTexture 14\n");
             this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, tex.get());
             fHWBoundRenderTargetUniqueID.makeInvalid();
+    SkDebugf("GL onCreateTexture 15\n");
         }
     }
+    SkDebugf("GL onCreateTexture 16\n");
     return tex;
 }
 
