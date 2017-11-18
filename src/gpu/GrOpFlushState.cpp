@@ -12,6 +12,25 @@
 #include "GrResourceProvider.h"
 #include "GrTexture.h"
 
+template <typename T>
+template <typename... Args>
+T& GrOpFlushState::List<T>::append(SkArenaAlloc* arena, Args... args) {
+    SkASSERT(!fHead == !fTail);
+    auto* n = arena->make<Node>(std::forward<Args>(args)...);
+    if (!fTail) {
+        fHead = fTail = n;
+    } else {
+        fTail = fTail->fNext = n;
+    }
+    return fTail->fT;
+}
+
+template <typename T>
+typename GrOpFlushState::List<T>::Iter& GrOpFlushState::List<T>::Iter::operator++() {
+    fCurr = fCurr->fNext;
+    return *this;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)

@@ -22,7 +22,6 @@ gm_sources = [
   "$_gm/arcofzorro.cpp",
   "$_gm/arcto.cpp",
   "$_gm/arithmode.cpp",
-  "$_gm/atlastext.cpp",
   "$_gm/badpaint.cpp",
   "$_gm/beziereffects.cpp",
   "$_gm/beziers.cpp",
