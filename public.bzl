@@ -473,6 +473,7 @@ DM_SRCS_ALL = struct(
         "tests/skia_test.cpp",  # Old main.
         "tests/SkpSkGrTest.cpp",  # Alternate main.
         "tests/SVGDeviceTest.cpp",
+        "tools/gpu/atlastext/*",
         "tools/gpu/gl/angle/*",
         "tools/gpu/gl/egl/*",
         "tools/gpu/gl/glx/*",
