@@ -13,6 +13,7 @@
 #include "GrBufferAllocPool.h"
 #include "GrDeferredUpload.h"
 #include "SkArenaAlloc.h"
+#include "SkArenaAllocList.h"
 #include "ops/GrMeshDrawOp.h"
 
 class GrGpu;
@@ -110,53 +111,6 @@ private:
         uint32_t fOpID;
     };
 
-    /**
-     * A singly linked list of Ts stored in a SkArenaAlloc. The arena rather than the list owns
-     * the elements. This supports forward iteration and range based for loops.
-     */
-    template <typename T>
-    class List {
-    private:
-        struct Node;
-
-    public:
-        List() = default;
-
-        void reset() { fHead = fTail = nullptr; }
-
-        template <typename... Args>
-        T& append(SkArenaAlloc* arena, Args... args);
-
-        class Iter {
-        public:
-            Iter() = default;
-            Iter& operator++();
-            T& operator*() const { return fCurr->fT; }
-            T* operator->() const { return &fCurr->fT; }
-            bool operator==(const Iter& that) const { return fCurr == that.fCurr; }
-            bool operator!=(const Iter& that) const { return !(*this == that); }
-
-        private:
-            friend class List;
-            explicit Iter(Node* node) : fCurr(node) {}
-            Node* fCurr = nullptr;
-        };
-
-        Iter begin() { return Iter(fHead); }
-        Iter end() { return Iter(); }
-        Iter tail() { return Iter(fTail); }
-
-    private:
-        struct Node {
-            template <typename... Args>
-            Node(Args... args) : fT(std::forward<Args>(args)...) {}
-            T fT;
-            Node* fNext = nullptr;
-        };
-        Node* fHead = nullptr;
-        Node* fTail = nullptr;
-    };
-
     // Storage for ops' pipelines, draws, and inline uploads.
     SkArenaAlloc fArena{sizeof(GrPipeline) * 100};
 
@@ -165,9 +119,9 @@ private:
     GrIndexBufferAllocPool fIndexPool;
 
     // Data stored on behalf of the ops being flushed.
-    List<GrDeferredTextureUploadFn> fAsapUploads;
-    List<InlineUpload> fInlineUploads;
-    List<Draw> fDraws;
+    SkArenaAllocList<GrDeferredTextureUploadFn> fAsapUploads;
+    SkArenaAllocList<InlineUpload> fInlineUploads;
+    SkArenaAllocList<Draw> fDraws;
     // TODO: These should go in the arena. However, GrGpuCommandBuffer and other classes currently
     // accept contiguous arrays of meshes.
     SkSTArray<16, GrMesh> fMeshes;
@@ -185,9 +139,9 @@ private:
     GrGpuCommandBuffer* fCommandBuffer = nullptr;
 
     // Variables that are used to track where we are in lists as ops are executed
-    List<Draw>::Iter fCurrDraw;
+    SkArenaAllocList<Draw>::Iter fCurrDraw;
     int fCurrMesh;
-    List<InlineUpload>::Iter fCurrUpload;
+    SkArenaAllocList<InlineUpload>::Iter fCurrUpload;
 };
 
 #endif

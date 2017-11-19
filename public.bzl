@@ -255,6 +255,9 @@ BASE_SRCS_ALL = struct(
 
         # Only used to regenerate the lexer
         "src/sksl/lex/*",
+
+        # Atlas text
+        "src/atlastext/*",
     ],
 )
 
