@@ -596,10 +596,13 @@ bool SkTextBlobBuilder::mergeRun(const SkPaint &font, SkTextBlob::GlyphPositioni
 
 void SkTextBlobBuilder::allocInternal(const SkPaint &font,
                                       SkTextBlob::GlyphPositioning positioning,
-                                      int count, int textSize, SkPoint offset, const SkRect* bounds) {
-    SkASSERT(count > 0);
-    SkASSERT(textSize >= 0);
-    SkASSERT(SkPaint::kGlyphID_TextEncoding == font.getTextEncoding());
+                                      int count, int textSize, SkPoint offset,
+                                      const SkRect* bounds) {
+    if (count <= 0 || textSize < 0 || font.getTextEncoding() != SkPaint::kGlyphID_TextEncoding) {
+        fCurrentRunBuffer = { nullptr, nullptr, nullptr, nullptr };
+        return;
+    }
+
     if (textSize != 0 || !this->mergeRun(font, positioning, count, offset)) {
         this->updateDeferredBounds();
 
@@ -772,12 +775,19 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
         if (glyphCount <= 0 || pos > kFull_Positioning) {
             return nullptr;
         }
-        uint32_t textSize = pe.extended ? (uint32_t)reader.read32() : 0;
+        int textSize = pe.extended ? reader.read32() : 0;
+        if (textSize < 0) {
+            return nullptr;
+        }
 
         SkPoint offset;
         reader.readPoint(&offset);
         SkPaint font;
         reader.readPaint(&font);
+
+        if (!reader.isValid()) {
+            return nullptr;
+        }
 
         const SkTextBlobBuilder::RunBuffer* buf = nullptr;
         switch (pos) {
@@ -850,7 +860,8 @@ public:
     {}
 
     sk_sp<SkTypeface> readTypeface() override {
-        return fResolverProc(this->read32(), fResolverCtx);
+        auto id = this->readUInt();
+        return this->isValid() ? fResolverProc(id, fResolverCtx) : nullptr;
     }
 
     SkTypefaceResolverProc  fResolverProc;
