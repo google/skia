@@ -52,6 +52,7 @@ declare_args() {
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
   skia_use_sfntly = skia_use_icu
+  skia_enable_atlas_text = is_skia_dev_build && skia_enable_gpu
 
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
@@ -92,6 +93,7 @@ skia_public_includes = [
   "include/encode",
   "include/gpu",
   "include/gpu/gl",
+  "include/atlastext",
   "include/pathops",
   "include/ports",
   "include/svg",
@@ -101,6 +103,9 @@ skia_public_includes = [
 
 if (skia_use_vulkan) {
   skia_public_includes += [ "include/gpu/vk" ]
+}
+if (skia_enable_atlas_text) {
+  skia_public_includes += [ "include/atlastext" ]
 }
 if (skia_use_metal) {
   skia_public_includes += [ "include/gpu/mtl" ]
@@ -124,6 +129,9 @@ config("skia_public") {
   }
   if (!skia_enable_gpu) {
     defines += [ "SK_SUPPORT_GPU=0" ]
+  }
+  if (skia_enable_atlas_text) {
+    defines += [ "SK_SUPPORT_ATLAS_TEXT=1" ]
   }
 }
 
@@ -586,6 +594,10 @@ optional("gpu") {
     libs += [ "Metal.framework" ]
     cflags_objcc += [ "-fobjc-arc" ]
   }
+
+  if (skia_enable_atlas_text) {
+    sources += skia_atlas_text_sources
+  }
 }
 
 optional("heif") {
@@ -992,6 +1004,7 @@ if (skia_enable_tools) {
         "tools/gpu/GrContextFactory.cpp",
         "tools/gpu/GrTest.cpp",
         "tools/gpu/TestContext.cpp",
+        "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
         "tools/gpu/gl/GLTestContext.cpp",
         "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
         "tools/gpu/gl/debug/DebugGLTestContext.cpp",
