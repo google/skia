@@ -186,6 +186,12 @@ def nanobench_flags(api, bot):
   if ('Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot):
     # TODO(dogben): Track down what's causing bots to die.
     verbose = True
+  if 'IntelHD405' in bot and api.vars.is_linux and 'Vulkan' in bot:
+    match.append('~desk_tiger8svg.skp_1')
+    match.append('~keymobi_techcrunch_com.skp_1.1')
+    match.append('~tabl_gamedeksiam.skp_1.1')
+    match.append('~tabl_pravda.skp_1')
+    match.append('~top25desk_ebay_com.skp_1.1')
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~blendmode_') # skia:6691
   if 'float_cast_overflow' in bot and 'CPU' in bot:
@@ -349,6 +355,7 @@ TEST_BUILDERS = [
   'Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All',
   ('Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
    'CommandBuffer'),
+  'Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan',
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan',
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All',
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
