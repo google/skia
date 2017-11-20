@@ -22,6 +22,30 @@
       "revId": "bdab17d5da39158c4512a979ba1aea3d2d19a849",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33f8862e_c9f1e83d",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-11-20T20:33:08Z",
+      "side": 1,
+      "message": "I first figured I\u0027d just allow prevColor \u003d GrColor4f::kIllegalConstructor in the .fp file. That\u0027s ugly, though, because sksl has to understand at least enough C++ syntax and tokens to handle that, and inevitably I\u0027ll have to extend it for every such value we end up needing.\n\nMy next attempt was to use @initializers { prevColor(GrColor4f::kIllegalConstructor) }, but the problem is that prevColor isn\u0027t defined in the class because it\u0027s a private variable, so that doesn\u0027t actually work. I spent a few hours trying to move private variables into the class before deciding it was more trouble than it was worth, and ultimately settled on this as a quick inoffensive hack to at least get it working for now.\n\nI am not proud of this and completely agree we\u0027re going to need a better solution, but I wanted to let it simmer for a while.",
+      "parentUuid": "04026498_c13c5ae9",
+      "range": {
+        "startLine": 131,
+        "startChar": 16,
+        "endLine": 131,
+        "endChar": 46
+      },
+      "revId": "bdab17d5da39158c4512a979ba1aea3d2d19a849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
