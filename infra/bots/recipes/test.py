@@ -615,6 +615,7 @@ def dm_flags(api, bot):
     blacklist(['vk', 'gm', '_', 'composeshader_alpha'])
     blacklist(['vk', 'gm', '_', 'composeshader_bitmap'])
     blacklist(['vk', 'gm', '_', 'composeshader_bitmap2'])
+    blacklist(['vk', 'gm', '_', 'dont_clip_to_layer'])
     blacklist(['vk', 'gm', '_', 'dftext'])
     blacklist(['vk', 'gm', '_', 'drawregionmodes'])
     blacklist(['vk', 'gm', '_', 'filterfastbounds'])
