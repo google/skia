@@ -680,7 +680,7 @@ def dm_flags(api, bot):
     match.append('~GrDefaultPathRendererTest') #skia:7244
     match.append('~GrMSAAPathRendererTest') #skia:7244
 
-  if 'AlphaR2' in bot and 'ANGLE' in bot:
+  if (('RadeonR9M470X' in bot or 'AMDHD7770' in bot) and 'ANGLE' in bot):
     # skia:7096
     match.append('~PinnedImageTest')
 
