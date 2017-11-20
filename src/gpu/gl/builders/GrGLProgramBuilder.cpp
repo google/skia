@@ -263,24 +263,25 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     this->cleanupShaders(shadersToDelete);
     if (!cached && this->gpu()->getContext()->getPersistentCache() &&
         fGpu->glCaps().programBinarySupport()) {
-        // store shader in cache
-        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc()->asKey(), desc()->keyLength());
         GrGLsizei length = 0;
-        GrGLenum binaryFormat;
         GL_CALL(GetProgramiv(programID, GL_PROGRAM_BINARY_LENGTH, &length));
-        std::unique_ptr<char> binary(new char[length]);
-        GL_CALL(GetProgramBinary(programID, length, &length, &binaryFormat, binary.get()));
-        size_t dataLength = sizeof(inputs) + sizeof(binaryFormat) + length;
-        std::unique_ptr<uint8_t> data((uint8_t*) malloc(dataLength));
-        size_t offset = 0;
-        memcpy(data.get() + offset, &inputs, sizeof(inputs));
-        offset += sizeof(inputs);
-        memcpy(data.get() + offset, &binaryFormat, sizeof(binaryFormat));
-        offset += sizeof(binaryFormat);
-        memcpy(data.get() + offset, binary.get(), length);
-        this->gpu()->getContext()->getPersistentCache()->store(*key,
-                                                               *SkData::MakeWithoutCopy(data.get(),
-                                                                                       dataLength));
+        if (length > 0) {
+            // store shader in cache
+            sk_sp<SkData> key = SkData::MakeWithoutCopy(desc()->asKey(), desc()->keyLength());
+            GrGLenum binaryFormat;
+            std::unique_ptr<char> binary(new char[length]);
+            GL_CALL(GetProgramBinary(programID, length, &length, &binaryFormat, binary.get()));
+            size_t dataLength = sizeof(inputs) + sizeof(binaryFormat) + length;
+            std::unique_ptr<uint8_t> data((uint8_t*) malloc(dataLength));
+            size_t offset = 0;
+            memcpy(data.get() + offset, &inputs, sizeof(inputs));
+            offset += sizeof(inputs);
+            memcpy(data.get() + offset, &binaryFormat, sizeof(binaryFormat));
+            offset += sizeof(binaryFormat);
+            memcpy(data.get() + offset, binary.get(), length);
+            this->gpu()->getContext()->getPersistentCache()->store(*key,
+                                                  *SkData::MakeWithoutCopy(data.get(), dataLength));
+        }
     }
     return this->createProgram(programID);
 }
