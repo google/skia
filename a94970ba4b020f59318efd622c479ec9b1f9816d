@@ -22,6 +22,30 @@
       "revId": "a94970ba4b020f59318efd622c479ec9b1f9816d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03179512_b29562e2",
+        "filename": "example/HelloWorld.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-11-20T19:01:18Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "790d6d8f_27628c23",
+      "range": {
+        "startLine": 1,
+        "startChar": 2,
+        "endLine": 1,
+        "endChar": 0
+      },
+      "revId": "a94970ba4b020f59318efd622c479ec9b1f9816d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
