@@ -64,6 +64,7 @@ protected:
             canvas->clear(SK_ColorRED);
             return;
         }
+        fRenderer->clearTarget(fTarget->handle(), 0xFF808080);
         auto bmp = this->drawText();
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
