@@ -22,6 +22,30 @@
       "revId": "eef0fc35f7734a8a244231227da83de3172c81b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a785b88a_2fc54952",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-20T18:47:45Z",
+      "side": 1,
+      "message": "Summary of offline conversation: the reason for checking integerSupport() here is that if it\u0027s an int varying then it must be flat interpolated.",
+      "parentUuid": "50b774ac_556e15bb",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 43,
+        "endChar": 42
+      },
+      "revId": "eef0fc35f7734a8a244231227da83de3172c81b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
