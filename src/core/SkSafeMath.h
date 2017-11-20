@@ -28,6 +28,8 @@ public:
         return result;
     }
 
+    void fail() { fOK = false; }
+
 private:
     uint32_t mul32(uint32_t x, uint32_t y) {
         uint64_t bx = x;
