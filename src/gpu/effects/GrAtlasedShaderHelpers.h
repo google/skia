@@ -40,11 +40,7 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
     args.fVaryingHandler->addVarying("TextureCoords", uv);
     args.fVertBuilder->codeAppendf("%s = intCoords * %s;", uv->vsOut(), atlasSizeInvName);
 
-    if (args.fShaderCaps->integerSupport()) {
-        args.fVaryingHandler->addFlatVarying("TexIndex", texIdx);
-    } else {
-        args.fVaryingHandler->addVarying("TexIndex", texIdx);
-    }
+    args.fVaryingHandler->addFlatVarying("TexIndex", texIdx);
     args.fVertBuilder->codeAppendf("%s = texIdx;", texIdx->vsOut());
 
     if (st) {
