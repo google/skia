@@ -27,6 +27,9 @@ public:
 
     /** Makes a SkBitmap of the target handle's contents. */
     virtual SkBitmap readTargetHandle(void* targetHandle) = 0;
+
+    /** Clears the target to the specified color, encoded as RGBA (low to high byte order) */
+    virtual void clearTarget(void* targetHandle, uint32_t color) = 0;
 };
 
 }  // namespace sk_gpu_test

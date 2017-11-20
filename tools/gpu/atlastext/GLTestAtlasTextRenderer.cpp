@@ -31,9 +31,11 @@ public:
 
     void* makeTargetHandle(int width, int height) override;
 
-    void targetDeleted(void* target) override;
+    void targetDeleted(void* targetHandle) override;
 
-    SkBitmap readTargetHandle(void* target) override;
+    SkBitmap readTargetHandle(void* targetHandle) override;
+
+    void clearTarget(void* targetHandle, uint32_t color) override;
 
     bool initialized() const { return 0 != fProgram; }
 
@@ -381,7 +383,7 @@ void* GLTestAtlasTextRenderer::makeTargetHandle(int width, int height) {
         return nullptr;
     }
     callgl(Disable, GR_GL_SCISSOR_TEST);
-    callgl(ClearColor, 0.5, 0.5, 0.5, 1.0);
+    callgl(ClearColor, 0, 0, 0, 0.0);
     callgl(Clear, GR_GL_COLOR_BUFFER_BIT);
     checkgl();
     Target* target = new Target;
@@ -392,31 +394,45 @@ void* GLTestAtlasTextRenderer::makeTargetHandle(int width, int height) {
     return target;
 }
 
-void GLTestAtlasTextRenderer::targetDeleted(void* target) {
+void GLTestAtlasTextRenderer::targetDeleted(void* targetHandle) {
     auto restore = fContext->makeCurrentAndAutoRestore();
 
-    Target* t = reinterpret_cast<Target*>(target);
-    callgl(DeleteFramebuffers, 1, &t->fFBOID);
-    callgl(DeleteRenderbuffers, 1, &t->fRBID);
-    delete t;
+    Target* target = reinterpret_cast<Target*>(targetHandle);
+    callgl(DeleteFramebuffers, 1, &target->fFBOID);
+    callgl(DeleteRenderbuffers, 1, &target->fRBID);
+    delete target;
 }
 
-SkBitmap GLTestAtlasTextRenderer::readTargetHandle(void* target) {
+SkBitmap GLTestAtlasTextRenderer::readTargetHandle(void* targetHandle) {
     auto restore = fContext->makeCurrentAndAutoRestore();
 
-    Target* t = reinterpret_cast<Target*>(target);
+    Target* target = reinterpret_cast<Target*>(targetHandle);
 
     auto info =
-            SkImageInfo::Make(t->fWidth, t->fHeight, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+            SkImageInfo::Make(target->fWidth, target->fHeight, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkBitmap bmp;
-    bmp.setInfo(info, sizeof(uint32_t) * t->fWidth);
+    bmp.setInfo(info, sizeof(uint32_t) * target->fWidth);
     bmp.allocPixels();
 
-    callgl(BindFramebuffer, GR_GL_FRAMEBUFFER, t->fFBOID);
-    callgl(ReadPixels, 0, 0, t->fWidth, t->fHeight, GR_GL_RGBA, GR_GL_UNSIGNED_BYTE,
+    callgl(BindFramebuffer, GR_GL_FRAMEBUFFER, target->fFBOID);
+    callgl(ReadPixels, 0, 0, target->fWidth, target->fHeight, GR_GL_RGBA, GR_GL_UNSIGNED_BYTE,
            bmp.getPixels());
     checkgl();
     return bmp;
+}
+
+void GLTestAtlasTextRenderer::clearTarget(void* targetHandle, uint32_t color) {
+    auto restore = fContext->makeCurrentAndAutoRestore();
+
+    Target* target = reinterpret_cast<Target*>(targetHandle);
+    callgl(BindFramebuffer, GR_GL_FRAMEBUFFER, target->fFBOID);
+    callgl(Disable, GR_GL_SCISSOR_TEST);
+    float r = ((color >>  0) & 0xff) / 255.f;
+    float g = ((color >>  8) & 0xff) / 255.f;
+    float b = ((color >> 16) & 0xff) / 255.f;
+    float a = ((color >> 24) & 0xff) / 255.f;
+    callgl(ClearColor, r, g, b, a);
+    callgl(Clear, GR_GL_COLOR_BUFFER_BIT);
 }
 
 }  // anonymous namespace
