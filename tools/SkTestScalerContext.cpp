@@ -151,7 +151,9 @@ int SkTestTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
             case kUTF16_Encoding: ch = SkUTF16_NextUnichar(&utf16); break;
             case kUTF32_Encoding: ch =                    *utf32++; break;
         }
-        glyphs[i] = fTestFont->codeToIndex(ch);
+        if (glyphs) {
+            glyphs[i] = fTestFont->codeToIndex(ch);
+        }
     }
     return glyphCount;
 }

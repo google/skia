@@ -50,7 +50,7 @@ public:
 
     /** SkAtlasTextTarget overrides */
 
-    void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y, uint32_t color,
+    void drawText(const SkGlyphID*, int glyphCnt, SkScalar x, SkScalar y, uint32_t color,
                   const SkAtlasTextFont&) override;
     void flush() override;
 
@@ -78,16 +78,14 @@ std::unique_ptr<SkAtlasTextTarget> SkAtlasTextTarget::Make(sk_sp<SkAtlasTextCont
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 
-void SkInternalAtlasTextTarget::drawText(const void* text, size_t byteLength, SkScalar x,
+void SkInternalAtlasTextTarget::drawText(const SkGlyphID* glyphs, int glyphCnt, SkScalar x,
                                          SkScalar y, uint32_t color, const SkAtlasTextFont& font) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTypeface(font.refTypeface());
     paint.setTextSize(font.size());
     paint.setStyle(SkPaint::kFill_Style);
-
-    // TODO: Figure out what if anything to do with these:
-    // Paint setTextEncoding? Font isEnableByteCodeHints()? Font isUseNonLinearMetrics()?
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
     // The atlas text context does munging of the paint color. We store the client's color here
     // and the context will write it into the final vertices given to the client's renderer.
@@ -98,8 +96,9 @@ void SkInternalAtlasTextTarget::drawText(const void* text, size_t byteLength, Sk
     auto* grContext = this->context()->internal().grContext();
     auto bounds = SkIRect::MakeWH(fWidth, fHeight);
     auto atlasTextContext = grContext->contextPriv().drawingManager()->getAtlasTextContext();
+    size_t byteLength = sizeof(SkGlyphID) * glyphCnt;
     atlasTextContext->drawText(grContext, this, GrNoClip(), paint, SkMatrix::I(), props,
-                               (const char*)text, byteLength, x, y, bounds);
+                               (const char*)glyphs, byteLength, x, y, bounds);
 }
 
 void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<GrAtlasTextOp> op) {
