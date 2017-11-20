@@ -303,6 +303,33 @@ public:
         return *loc;
     }
 
+    const char* doubleLF() const {
+        int count = 0;
+        const char* ptr = fChar;
+        const char* doubleStart = nullptr;
+        while (ptr < fEnd) {
+            if ('\n' == ptr[0]) {
+                if (++count == 1) {
+                    doubleStart = ptr;
+                } else {
+                    return doubleStart;
+                }
+            } else if (' ' < ptr[0]) {
+                count = 0;
+            }
+            ++ptr;
+        }
+        return nullptr;
+    }
+
+    bool endsWith(const char* match) {
+        int matchLen = strlen(match);
+        if (matchLen > fChar - fLine) {
+            return false;
+        }
+        return !strncmp(fChar - matchLen, match, matchLen);
+    }
+
     bool eof() const { return fChar >= fEnd; }
 
     const char* lineEnd() const {
@@ -431,7 +458,7 @@ public:
     // since a.b can't be found as a named definition
     void skipFullName() {
         while (fChar < fEnd && (isalnum(fChar[0])
-                || '_' == fChar[0] || '-' == fChar[0]
+                || '_' == fChar[0]  /* || '-' == fChar[0] */
                 || (':' == fChar[0] && fChar +1 < fEnd && ':' == fChar[1]))) {
             if (':' == fChar[0] && fChar +1 < fEnd && ':' == fChar[1]) {
                 fChar++;
@@ -464,6 +491,12 @@ public:
 
     void skipToSpace() {
         while (fChar < fEnd && ' ' != fChar[0]) {
+            fChar++;
+        }
+    }
+
+    void skipToWhiteSpace() {
+        while (fChar < fEnd && ' ' < fChar[0]) {
             fChar++;
         }
     }
@@ -637,10 +670,11 @@ public:
                     for (int i = 0; i < 4; ++i) {
                         unicode <<= 4;
                         SkASSERT((reader[0] >= '0' && reader[0] <= '9') ||
-                            (reader[0] >= 'A' && reader[0] <= 'F'));
+                            (reader[0] >= 'A' && reader[0] <= 'F') ||
+                            (reader[0] >= 'a' && reader[0] <= 'f'));
                         int nibble = *reader++ - '0';
                         if (nibble > 9) {
-                            nibble = 'A'- '9' + 1;
+                            nibble = (nibble & ~('a' - 'A')) - 'A' + '9' + 1;
                         }
                         unicode |= nibble;
                     }
@@ -693,6 +727,26 @@ public:
         kConstructor,
         kDestructor,
         kOperator,
+    };
+
+    enum class Operator {
+        kUnknown,
+        kAdd,
+        kAddTo,
+        kArray,
+        kCast,
+        kCopy,
+        kDelete,
+        kDereference,
+        kEqual,
+        kMinus,
+        kMove,
+        kMultiply,
+        kMultiplyBy,
+        kNew,
+        kNotEqual,
+        kSubtract,
+        kSubtractFrom,
     };
 
     Definition() {}
@@ -881,7 +935,9 @@ public:
     string methodName() const;
     bool nextMethodParam(TextParser* methodParser, const char** nextEndPtr,
                          string* paramName) const;
+    static string NormalizedName(string name);
     bool paramsMatch(const string& fullRef, const string& name) const;
+    bool parseOperator(size_t doubleColons, string& result);
 
     string printableName() const {
         string result(fName);
@@ -920,9 +976,11 @@ public:
     Bracket fBracket = Bracket::kNone;
     Punctuation fPunctuation = Punctuation::kNone;
     MethodType fMethodType = MethodType::kNone;
+    Operator fOperator = Operator::kUnknown;
     Type fType = Type::kNone;
     bool fClone = false;
     bool fCloned = false;
+    bool fOperatorConst = false;
     bool fPrivate = false;
     bool fShort = false;
     bool fMemberStart = false;
@@ -957,7 +1015,7 @@ public:
     RootDefinition* asRoot() override { return this; }
     const RootDefinition* asRoot() const override { return this; }
     void clearVisited();
-    bool dumpUnVisited();
+    bool dumpUnVisited(bool skip);
     const Definition* find(const string& ref, AllowParens ) const;
     bool isRoot() const override { return true; }
     RootDefinition* rootParent() override { return fRootParent; }
@@ -1190,7 +1248,7 @@ public:
 #define E_N Exemplary::kNo
 #define E_O Exemplary::kOptional
 
-    BmhParser() : ParserCommon()
+    BmhParser(bool skip) : ParserCommon()
         , fMaps {
 // names without formal definitions (e.g. Column) aren't included
 // fill in other names once they're actually used
@@ -1247,10 +1305,11 @@ public:
 , { "ToDo",        nullptr,      MarkType::kToDo,         R_N, E_N, 0 }
 , { "Topic",       nullptr,      MarkType::kTopic,        R_Y, E_Y, M_CS | M(Root) | M(Topic) }
 , { "Track",       nullptr,      MarkType::kTrack,        R_Y, E_N, M_E | M_ST }
-, { "Typedef",     &fTypedefMap, MarkType::kTypedef,      R_Y, E_N, M(Subtopic) | M(Topic) }
+, { "Typedef",     &fTypedefMap, MarkType::kTypedef,      R_Y, E_N, M(Class) | M_ST }
 , { "",            nullptr,      MarkType::kUnion,        R_Y, E_N, 0 }
 , { "Volatile",    nullptr,      MarkType::kVolatile,     R_N, E_N, M(StdOut) }
 , { "Width",       nullptr,      MarkType::kWidth,        R_N, E_N, M(Example) } }
+, fSkip(skip)
         {
             this->reset();
         }
@@ -1325,6 +1384,7 @@ public:
     void spellCheck(const char* match, SkCommandLineFlags::StringArray report) const;
     vector<string> topicName();
     vector<string> typeName(MarkType markType, bool* expectEnd);
+    string typedefName();
     string uniqueName(const string& base, MarkType markType);
     string uniqueRootName(const string& base, MarkType markType);
     void validate() const;
@@ -1366,6 +1426,7 @@ public:
     bool fInComment;
     bool fInString;
     bool fCheckMethods;
+    bool fSkip = false;
     bool fWroteOut = false;
 private:
     typedef ParserCommon INHERITED;
@@ -1707,6 +1768,7 @@ protected:
     unordered_map<string, IClassDefinition> fIClassMap;
     unordered_map<string, Definition> fIDefineMap;
     unordered_map<string, Definition> fIEnumMap;
+    unordered_map<string, Definition> fIFunctionMap;
     unordered_map<string, Definition> fIStructMap;
     unordered_map<string, Definition> fITemplateMap;
     unordered_map<string, Definition> fITypedefMap;
@@ -2054,10 +2116,11 @@ public:
                 }
             }
             if (this->startsWith(fClassName.c_str()) || this->startsWith("operator")) {
-                const char* ptr = this->anyOf(" (");
+                const char* ptr = this->anyOf("\n (");
                 if (ptr && '(' ==  *ptr) {
                     this->skipToEndBracket(')');
                     SkAssertResult(')' == this->next());
+                    this->skipExact("_const");
                     return;
                 }
             }
@@ -2066,6 +2129,14 @@ public:
             this->skipToNonAlphaNum();
         } else {
             this->skipFullName();
+            if (this->endsWith("operator")) {
+                const char* ptr = this->anyOf("\n (");
+                if (ptr && '(' ==  *ptr) {
+                    this->skipToEndBracket(')');
+                    SkAssertResult(')' == this->next());
+                    this->skipExact("_const");
+                }
+            }
         }
     }
 

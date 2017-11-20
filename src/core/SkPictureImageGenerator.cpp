@@ -113,7 +113,7 @@ sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(
     //
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     SkImageInfo surfaceInfo = useXformCanvas ? info.makeColorSpace(nullptr) : info;
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, surfaceInfo,
+    sk_sp<SkSurface> surface(SkSurface::xMakeRenderTarget(ctx, SkBudgeted::kYes, surfaceInfo,
                                                          0, kTopLeft_GrSurfaceOrigin, &props,
                                                          willNeedMipMaps));
     if (!surface) {

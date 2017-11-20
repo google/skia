@@ -7,10 +7,38 @@
 
 #include "bookmaker.h"
 
+#include "SkOSFile.h"
+#include "SkOSPath.h"
+
 static void debug_out(int len, const char* data) {
     // convenient place to intercept arbitrary output
     SkDebugf("%.*s", len, data);
 }
+
+bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix) {
+//    this->reset();
+    if (!sk_isdir(fileOrPath)) {
+        if (!this->parseFromFile(fileOrPath)) {
+            SkDebugf("failed to parse %s\n", fileOrPath);
+            return false;
+        }
+    } else {
+        SkOSFile::Iter it(fileOrPath, suffix);
+        for (SkString file; it.next(&file); ) {
+            SkString p = SkOSPath::Join(fileOrPath, file.c_str());
+            const char* hunk = p.c_str();
+            if (!SkStrEndsWith(hunk, suffix)) {
+                continue;
+            }
+            if (!this->parseFromFile(hunk)) {
+                SkDebugf("failed to parse %s\n", hunk);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 
 bool ParserCommon::parseSetup(const char* path) {
 //    this->reset();

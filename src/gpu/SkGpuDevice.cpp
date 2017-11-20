@@ -1721,7 +1721,7 @@ sk_sp<SkSurface> SkGpuDevice::makeSurface(const SkImageInfo& info, const SkSurfa
     ASSERT_SINGLE_OWNER
     // TODO: Change the signature of newSurface to take a budgeted parameter.
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
-    return SkSurface::MakeRenderTarget(fContext.get(), kBudgeted, info,
+    return SkSurface::xMakeRenderTarget(fContext.get(), kBudgeted, info,
                                        fRenderTargetContext->numStencilSamples(),
                                        fRenderTargetContext->origin(), &props);
 }

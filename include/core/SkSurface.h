@@ -125,7 +125,7 @@ public:
      *  that this surface may be snapped to an SkImage which will be used with mip maps so we should
      *  create the backend gpu RenderTarget with mips to avoid a copy later on.
      */
-    static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
+    static sk_sp<SkSurface> xMakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo,
                                              int sampleCount, GrSurfaceOrigin surfaceOrigin,
                                              const SkSurfaceProps* surfaceProps,
@@ -134,7 +134,7 @@ public:
     static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo, int sampleCount,
                                              const SkSurfaceProps* props) {
-        return MakeRenderTarget(context, budgeted, imageInfo, sampleCount,
+        return xMakeRenderTarget(context, budgeted, imageInfo, sampleCount,
                                 kBottomLeft_GrSurfaceOrigin, props);
     }
 
@@ -143,7 +143,7 @@ public:
         if (!imageInfo.width() || !imageInfo.height()) {
             return nullptr;
         }
-        return MakeRenderTarget(context, budgeted, imageInfo, 0, kBottomLeft_GrSurfaceOrigin,
+        return xMakeRenderTarget(context, budgeted, imageInfo, 0, kBottomLeft_GrSurfaceOrigin,
                                 nullptr);
     }
 
