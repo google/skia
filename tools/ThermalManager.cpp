@@ -37,8 +37,10 @@ ThermalManager::ThermalManager(int32_t threshold, uint32_t sleepIntervalMs, uint
     , fTimeoutMs(timeoutMs) {
     static const char* kThermalZonePath = "/sys/class/thermal/";
     SkOSFile::Iter it(kThermalZonePath);
+    SkDebugf("In TermalManager");
     SkString path;
     while (it.next(&path, true)) {
+        SkDebugf("Path: %s", path.c_str());
         if (!path.contains("thermal_zone")) {
             continue;
         }
@@ -52,7 +54,7 @@ ThermalManager::ThermalManager(int32_t threshold, uint32_t sleepIntervalMs, uint
             if (!(filename.contains("trip_point") && filename.contains("temp"))) {
                 continue;
             }
-
+            SkDebugf("Making trip point: %s, %s, %d", fullPath.c_str(), filename.c_str(), threshold);
             fTripPoints.push_back(TripPoint(fullPath, filename, threshold));
         }
     }
@@ -95,6 +97,7 @@ ThermalManager::TripPoint::TripPoint(SkString thermalZoneRoot, SkString pointNam
     fPoint = OpenFileAndReadInt32(fullPath.c_str());
     fBase = GetTemp(fThermalZoneRoot);
     fThreshold = threshold;
+    SkDebugf("fpoint: %d, fbase: %d", fBase, fThreshold);
     fDisabled = fBase + fThreshold >= fPoint;  // We disable any trip point which start off
                                                // triggered
 }
