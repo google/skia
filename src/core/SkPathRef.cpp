@@ -11,7 +11,7 @@
 #include "SkPath.h"
 #include "SkPathRef.h"
 #include "SkPathPriv.h"
-#include <limits>
+#include "SkSafeMath.h"
 
 //////////////////////////////////////////////////////////////////////////////
 SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
@@ -201,25 +201,30 @@ static bool deduce_pts_conics(const uint8_t verbs[], int vCount, int* ptCountPtr
     int ptCount = 0;
     int conicCount = 0;
     for (int i = 0; i < vCount; ++i) {
+        int ptDelta = 0;
         switch (verbs[i]) {
             case SkPath::kMove_Verb:
             case SkPath::kLine_Verb:
-                ptCount += 1;
+                ptDelta = 1;
                 break;
             case SkPath::kConic_Verb:
                 conicCount += 1;
                 // fall-through
             case SkPath::kQuad_Verb:
-                ptCount += 2;
+                ptDelta = 2;
                 break;
             case SkPath::kCubic_Verb:
-                ptCount += 3;
+                ptDelta = 3;
                 break;
             case SkPath::kClose_Verb:
                 break;
             default:
                 return false;
         }
+        if (!SkSafeMath::CanAddS32(ptCount, ptDelta)) {
+            return false;
+        }
+        ptCount += ptDelta;
     }
     *ptCountPtr = ptCount;
     *conicCountPtr = conicCount;
@@ -553,6 +558,9 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
             SkDEBUGFAIL("default is not reached");
             dirtyAfterEdit = false;
             pCnt = 0;
+    }
+    if (!SkSafeMath::CanAddS32(fPointCnt, pCnt) || !SkSafeMath::CanAddS32(fVerbCnt, 1)) {
+        SK_ABORT("cannot grow path");
     }
     size_t space = sizeof(uint8_t) + pCnt * sizeof (SkPoint);
     this->makeSpace(space);

@@ -28,6 +28,11 @@ public:
         return result;
     }
 
+    static bool CanAddS32(int a, int b) {
+        SkASSERT(a >= 0 && b >= 0);
+        return a <= 0x7FFFFFFF - b;
+    }
+
 private:
     uint32_t mul32(uint32_t x, uint32_t y) {
         uint64_t bx = x;
