@@ -143,7 +143,7 @@ If a Skia CL changes layout tests, but the new images look good, the tests need 
 
 * First create a Chromium bug:
   * goto [crbug.com](https://crbug.com)
-  * Make sure you’re logged in with your Chromium credentials
+  * Make sure you're logged in with your Chromium credentials
   * Click “New Issue”
   * Summary: “Skia image rebaseline”
   * Description:

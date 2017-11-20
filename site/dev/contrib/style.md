@@ -2,7 +2,7 @@ Coding Style Guidelines
 =======================
 
 These conventions have evolved over time. Some of the earlier code in both
-projects doesn’t strictly adhere to the guidelines. However, as the code evolves
+projects doesn't strictly adhere to the guidelines. However, as the code evolves
 we hope to make the existing code conform to the guildelines.
 
 Files
@@ -11,8 +11,8 @@ Files
 We use .cpp and .h as extensions for c++ source and header files. We use
 foo_impl.h for headers with inline definitions for class foo.
 
-Headers that aren’t meant for public consumption should be placed in src
-directories so that they aren’t in a client’s search path.
+Headers that aren't meant for public consumption should be placed in src
+directories so that they aren't in a client's search path.
 
 We prefer to minimize includes. If forward declaring a name in a header is
 sufficient then that is preferred to an include.
@@ -41,7 +41,7 @@ Naming
 ------
 
 Both projects use a prefix to designate that they are Skia prefix for classes,
-enums, structs, typedefs etc is Sk. Ganesh’s is Gr. Nested types should not be
+enums, structs, typedefs etc is Sk. Ganesh's is Gr. Nested types should not be
 prefixed.
 
 <!--?prettify?-->
@@ -184,7 +184,7 @@ Skia tends to use #ifdef SK_MACRO for boolean flags.
 Braces
 ------
 
-Open braces don’t get a newline. “else” and “else if” appear on same line as
+Open braces don't get a newline. “else” and “else if” appear on same line as
 opening and closing braces unless preprocessor conditional compilation
 interferes. Braces are always used with if, else, while, for, and do.
 
