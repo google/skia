@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7eecc28a_4d46fc9a",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.expected/Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-20T22:01:56Z",
+      "side": 1,
+      "message": "Is this what you expected?",
+      "range": {
+        "startLine": 834,
+        "startChar": 0,
+        "endLine": 839,
+        "endChar": 3
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab3d60ee_2995d084",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-20T22:01:56Z",
+      "side": 1,
+      "message": "I\u0027d feel better if we had a \"blacklist\" of devices where we expect this to fail. If failure is not expected, instead abort. Then, at least we know when _lock_cpu is failing and we can either blacklist the device or fix the flakiness.\n\nIMO, flakily setting the frequency is worse than not setting it at all.",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 12
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74816e66_98dd06cd",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-20T22:01:56Z",
+      "side": 1,
+      "message": "nit: ditto",
+      "range": {
+        "startLine": 101,
+        "startChar": 8,
+        "endLine": 102,
+        "endChar": 14
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7f6c4d0_1536a773",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-20T22:01:56Z",
+      "side": 1,
+      "message": "nit: I think it would be better for each script to call lock_cpu explicitly, so we\u0027re making a conscious decision about it. E.g. what do we want to happen for SkpBench or Calmbench?",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 216,
+        "endChar": 25
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34f4e3d6_fcb20842",
+        "filename": "infra/bots/recipes/perf.expected/Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 716,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-20T22:01:56Z",
+      "side": 1,
+      "message": "Same Q here: is this what you expected to happen?",
+      "range": {
+        "startLine": 711,
+        "startChar": 0,
+        "endLine": 716,
+        "endChar": 3
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bc5ded4_62953de7",
+        "filename": "infra/bots/recipes/perf.expected/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-20T22:01:56Z",
+      "side": 1,
+      "message": "Is this retry what you intended?",
+      "range": {
+        "startLine": 612,
+        "startChar": 0,
+        "endLine": 660,
+        "endChar": 4
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c14c211_1c08795a",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1153,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-20T22:01:56Z",
+      "side": 1,
+      "message": "nit: I slightly prefer adding a new test case so we\u0027re not testing too many things at once.",
+      "range": {
+        "startLine": 1151,
+        "startChar": 5,
+        "endLine": 1153,
+        "endChar": 51
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
