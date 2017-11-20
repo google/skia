@@ -129,7 +129,7 @@ std::unique_ptr<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(
         SkASSERT(fMode != SkBlendMode::kSrc && fMode != SkBlendMode::kDst); // caught in factory
         if (fMode == SkBlendMode::kClear) {
             return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
-                                               GrConstColorProcessor::kIgnore_InputMode);
+                                               GrConstColorProcessor::InputMode::kIgnore);
         }
     }
 

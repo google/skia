@@ -124,7 +124,7 @@ private:
 
         pdman.set1f(profileSize, SkScalarCeilToScalar(6 * sigma));
     }
-    bool highPrecision;
+    bool highPrecision = false;
     UniformHandle fProxyRectHalfVar;
     UniformHandle fProxyRectFloatVar;
     UniformHandle fProfileSizeVar;

@@ -75,8 +75,8 @@ private:
             prevRadius = radius;
         }
     }
-    SkPoint prevCenter;
-    float prevRadius;
+    SkPoint prevCenter = half2(0);
+    float prevRadius = 0;
     UniformHandle fCircleVar;
 };
 GrGLSLFragmentProcessor* GrCircleEffect::onCreateGLSLInstance() const {

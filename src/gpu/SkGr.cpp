@@ -479,7 +479,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                 // color channels. It's value should be treated as the same in ANY color space.
                 grPaint->addColorFragmentProcessor(GrConstColorProcessor::Make(
                     GrColor4f::FromGrColor(paintAlpha),
-                    GrConstColorProcessor::kModulateRGBA_InputMode));
+                    GrConstColorProcessor::InputMode::kModulateRGBA));
             }
         } else {
             // The shader's FP sees the paint unpremul color
@@ -491,7 +491,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             // There is a blend between the primitive color and the paint color. The blend considers
             // the opaque paint color. The paint's alpha is applied to the post-blended color.
             auto processor = GrConstColorProcessor::Make(origColor.opaque(),
-                                                         GrConstColorProcessor::kIgnore_InputMode);
+                                                         GrConstColorProcessor::InputMode::kIgnore);
             processor = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(processor),
                                                                           *primColorMode);
             if (processor) {
@@ -507,7 +507,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                 // color channels. It's value should be treated as the same in ANY color space.
                 grPaint->addColorFragmentProcessor(GrConstColorProcessor::Make(
                     GrColor4f::FromGrColor(paintAlpha),
-                    GrConstColorProcessor::kModulateRGBA_InputMode));
+                    GrConstColorProcessor::InputMode::kModulateRGBA));
             }
         } else {
             // No shader, no primitive color.
