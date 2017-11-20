@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "f2bbfca6_cf9bf2da",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-11-20T20:47:58Z",
+      "side": 1,
+      "message": "Okay. I have a feeling we\u0027ll see the next ADB command fail sporadically, but I guess we can cross that bridge when we come to it.",
+      "parentUuid": "1016202d_76653e01",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 72
+      },
+      "revId": "d3ff495b3729ca8ddb63cb12443720332b5625ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "03afb71e_92df44a7",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 5
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "Except I set abort_on_failure to false, so the exception is not thrown.",
       "parentUuid": "03afb71e_92df44a7",
+      "range": {
+        "startLine": 72,
+        "startChar": 7,
+        "endLine": 72,
+        "endChar": 28
+      },
+      "revId": "d3ff495b3729ca8ddb63cb12443720332b5625ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "768e5bea_23193d3a",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-11-20T20:47:58Z",
+      "side": 1,
+      "message": "Ah, sorry. I missed that.  Why not try/except?",
+      "parentUuid": "4c4c3c2a_29e95ecf",
       "range": {
         "startLine": 72,
         "startChar": 7,
