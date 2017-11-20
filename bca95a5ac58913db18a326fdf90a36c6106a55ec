@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a9f04cd_3d215adf",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.expected/Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-20T22:53:11Z",
+      "side": 1,
+      "message": "Yep - I modified the tests/expectations to do what happens IRL.",
+      "parentUuid": "7eecc28a_4d46fc9a",
+      "range": {
+        "startLine": 834,
+        "startChar": 0,
+        "endLine": 839,
+        "endChar": 3
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab3d60ee_2995d084",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-20T22:01:56Z",
       "side": 1,
       "message": "I\u0027d feel better if we had a \"blacklist\" of devices where we expect this to fail. If failure is not expected, instead abort. Then, at least we know when _lock_cpu is failing and we can either blacklist the device or fix the flakiness.\n\nIMO, flakily setting the frequency is worse than not setting it at all.",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 12
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21eca891_4418af1f",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-20T22:53:11Z",
+      "side": 1,
+      "message": "\u003e Flakily setting the frequency is worse than not setting it at all.\n\nI agree with that statement.  Not sure if a blacklist of types is the *best* way to do it, but it works.  I can address this in a follow up CL.",
+      "parentUuid": "ab3d60ee_2995d084",
       "range": {
         "startLine": 72,
         "startChar": 0,
@@ -117,6 +165,30 @@
     },
     {
       "key": {
+        "uuid": "05488cc5_e3cfb9f5",
+        "filename": "infra/bots/recipes/perf.expected/Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 716,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-20T22:53:11Z",
+      "side": 1,
+      "message": "Yes, for same reason.",
+      "parentUuid": "34f4e3d6_fcb20842",
+      "range": {
+        "startLine": 711,
+        "startChar": 0,
+        "endLine": 716,
+        "endChar": 3
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6bc5ded4_62953de7",
         "filename": "infra/bots/recipes/perf.expected/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android.json",
         "patchSetId": 7
@@ -140,6 +212,30 @@
     },
     {
       "key": {
+        "uuid": "0041a7cf_0a84e959",
+        "filename": "infra/bots/recipes/perf.expected/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-20T22:53:11Z",
+      "side": 1,
+      "message": "Yes, I would hope it accounts for any flakes we have. (failure is induced)",
+      "parentUuid": "6bc5ded4_62953de7",
+      "range": {
+        "startLine": 612,
+        "startChar": 0,
+        "endLine": 660,
+        "endChar": 4
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c14c211_1c08795a",
         "filename": "infra/bots/recipes/test.py",
         "patchSetId": 7
@@ -151,6 +247,30 @@
       "writtenOn": "2017-11-20T22:01:56Z",
       "side": 1,
       "message": "nit: I slightly prefer adding a new test case so we\u0027re not testing too many things at once.",
+      "range": {
+        "startLine": 1151,
+        "startChar": 5,
+        "endLine": 1153,
+        "endChar": 51
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "911ec1c8_6e6649cc",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1153,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-20T22:53:11Z",
+      "side": 1,
+      "message": "I didn\u0027t mean to keep this in, so I can remove it on a follow up CL.",
+      "parentUuid": "3c14c211_1c08795a",
       "range": {
         "startLine": 1151,
         "startChar": 5,
