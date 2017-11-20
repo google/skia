@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50b774ac_556e15bb",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-20T18:37:04Z",
+      "side": 1,
+      "message": "We have flatInterpolationSupport(), however you probably want perferFlatInterpolationSupport() which will return false on GPUs where we found flat interpolation is actually more expensive.",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 43,
+        "endChar": 42
+      },
+      "revId": "eef0fc35f7734a8a244231227da83de3172c81b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
