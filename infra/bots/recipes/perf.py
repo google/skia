@@ -187,6 +187,7 @@ def nanobench_flags(api, bot):
     # TODO(dogben): Track down what's causing bots to die.
     verbose = True
   if 'IntelHD405' in bot and api.vars.is_linux and 'Vulkan' in bot:
+    # skia:7322
     match.append('~desk_tiger8svg.skp_1')
     match.append('~keymobi_techcrunch_com.skp_1.1')
     match.append('~tabl_gamedeksiam.skp_1.1')
