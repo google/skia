@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f3af3456_dda5fd79",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-20T20:43:27Z",
+      "side": 1,
+      "message": "Not quite large pieces are, but I needed to smush it into recipes from the swarming bot_config.",
+      "parentUuid": "40bbe0d8_918ea699",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 38
+      },
+      "revId": "d3ff495b3729ca8ddb63cb12443720332b5625ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "413ddfa5_4bc641a5",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "1016202d_76653e01",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-20T20:43:27Z",
+      "side": 1,
+      "message": "I did not notice that being required.  I tried it on every android bot we have in PS4.",
+      "parentUuid": "413ddfa5_4bc641a5",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 72
+      },
+      "revId": "d3ff495b3729ca8ddb63cb12443720332b5625ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "03afb71e_92df44a7",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 5
@@ -59,6 +107,30 @@
       "writtenOn": "2017-11-20T20:31:49Z",
       "side": 1,
       "message": "An exception should be raised on failure, so checking the return code shouldn\u0027t be necessary.",
+      "range": {
+        "startLine": 72,
+        "startChar": 7,
+        "endLine": 72,
+        "endChar": 28
+      },
+      "revId": "d3ff495b3729ca8ddb63cb12443720332b5625ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c4c3c2a_29e95ecf",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-20T20:43:27Z",
+      "side": 1,
+      "message": "Except I set abort_on_failure to false, so the exception is not thrown.",
+      "parentUuid": "03afb71e_92df44a7",
       "range": {
         "startLine": 72,
         "startChar": 7,
