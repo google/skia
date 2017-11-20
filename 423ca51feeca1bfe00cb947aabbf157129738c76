@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5bb131d0_329378c7",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-20T20:33:29Z",
+      "side": 1,
+      "message": "SkSafeMath safe;",
+      "range": {
+        "startLine": 201,
+        "startChar": 0,
+        "endLine": 201,
+        "endChar": 20
+      },
+      "revId": "423ca51feeca1bfe00cb947aabbf157129738c76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cf4a773_41ee9066",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-20T20:33:29Z",
+      "side": 1,
+      "message": "ptCount \u003d safe.add(ptCount, 1);",
+      "range": {
+        "startLine": 208,
+        "startChar": 0,
+        "endLine": 208,
+        "endChar": 28
+      },
+      "revId": "423ca51feeca1bfe00cb947aabbf157129738c76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b23e72f3_d9dd12de",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-20T20:33:29Z",
+      "side": 1,
+      "message": "if (!safe) {",
+      "range": {
+        "startLine": 224,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 55
+      },
+      "revId": "423ca51feeca1bfe00cb947aabbf157129738c76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b238a4c_50ea7254",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-20T20:33:29Z",
+      "side": 1,
+      "message": "fPointCnt \u003d safe.add(fPointCnt, pCnt)\n   fVerbCnt \u003d safe.add(fVerbCnt, 1)\n   if (!safe) {\n      SK_ABORT...\n   }",
+      "range": {
+        "startLine": 562,
+        "startChar": 0,
+        "endLine": 562,
+        "endChar": 89
+      },
+      "revId": "423ca51feeca1bfe00cb947aabbf157129738c76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af31ff38_c3eca9a4",
+        "filename": "src/core/SkSafeMath.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-20T20:33:29Z",
+      "side": 1,
+      "message": "int add(int a, int b) {\n    bool safety;\n    if (b \u003c 0 \u0026\u0026 a \u003c std::numeric_limit\u003cint\u003e::min() - b) {\n       fOk \u003d false;\n       return std::numeric_limit\u003cint\u003e::min();\n    } else if (b \u003e 0 \u0026\u0026 a \u003e std::numeric_limit\u003cint\u003e::max() - b) {\n       fOk \u003d false;\n       return std::numeric_limit\u003cint\u003e::max();\n    }\n    return a + b;\n}",
+      "range": {
+        "startLine": 33,
+        "startChar": 20,
+        "endLine": 33,
+        "endChar": 30
+      },
+      "revId": "423ca51feeca1bfe00cb947aabbf157129738c76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
