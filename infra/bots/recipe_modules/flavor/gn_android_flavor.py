@@ -64,6 +64,51 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
                                    cmd=[ADB_BINARY]+list(cmd),
                                    between_attempts_fn=wait_for_device,
                                    **kwargs)
+
+  def _lock_cpu(self, target_percent):
+    # adb root
+    d = self._adb('root (to set cpu frequency)', 'root',
+                  abort_on_failure=False)
+    if not d or d.retcode:
+      # ADB root failed
+      return
+    # get potential freqencies
+    available_frequencies = self._adb(
+        'fetch available frequencies', 'cat',
+        '/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies',
+        stdout=self.m.raw_io.output()).stdout
+    if available_frequencies:
+      available_frequencies = sorted(
+          int(i) for i in available_frequencies.strip().split())
+    else:
+      return
+    # else:
+    #   # It's possibly an older kernel. In that case, query the min/max instead.
+    #   scaling_min_freq = device.PullContent(
+    #       '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq')
+    #   scaling_max_freq = device.PullContent(
+    #       '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq')
+    #   if scaling_min_freq and scaling_max_freq:
+    #     # In practice there's more CPU speeds than this but there's no way (?)
+    #     # to query this information.
+    #     available_frequencies = [int(scaling_min_freq), int(scaling_max_freq)]
+
+    # find the one closest to target percent
+    maxfreq = available_frequencies[-1]
+    target = int(round(maxfreq * target_percent))
+    freq = maxfreq
+    for f in reversed(available_frequencies[:-1]):
+      if f <= target:
+        freq = f
+        break
+
+    # set governer to userspace first, so frequency "takes"
+    gov_path = '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'
+    self._adb('Set cpu governer to userspace', 'shell', 'echo "userspace" > '
+              '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor')
+    self._adb('Set frequency to %d' % freq, 'shell', 'echo %d > '
+              '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq)
+
   def compile(self, unused_target):
     compiler      = self.m.vars.builder_cfg.get('compiler')
     configuration = self.m.vars.builder_cfg.get('configuration')
@@ -155,6 +200,10 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       self._adb('kill adb server', 'kill-server')
 
   def step(self, name, cmd, **kwargs):
+    if (cmd[0] == 'nanobench'):
+      self._lock_cpu(0.6)
+    else:
+      self._lock_cpu(1.0)
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     self._adb('push %s' % cmd[0],
               'push', app, self.m.vars.android_bin_dir)
