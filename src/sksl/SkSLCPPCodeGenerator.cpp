@@ -115,12 +115,22 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
 }
 
 static String default_value(const Type& type) {
+    if (type.fName == "bool") {
+        return "false";
+    }
     switch (type.kind()) {
         case Type::kScalar_Kind: return "0";
         case Type::kVector_Kind: return type.name() + "(0)";
         case Type::kMatrix_Kind: return type.name() + "(1)";
         default: ABORT("unsupported default_value type\n");
     }
+}
+
+static String default_value(const Variable& var) {
+    if (var.fModifiers.fLayout.fCType == "GrColor4f") {
+        return "GrColor4f::kIllegalConstructor";
+    }
+    return default_value(var.fType);
 }
 
 static bool is_private(const Variable& var) {
@@ -152,6 +162,11 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
             fFormatArgs.push_back("SkGetPackedG32(" + cppCode + ") / 255.0");
             fFormatArgs.push_back("SkGetPackedB32(" + cppCode + ") / 255.0");
             fFormatArgs.push_back("SkGetPackedA32(" + cppCode + ") / 255.0");
+        } else if (layout.fCType == "GrColor4f") {
+            fFormatArgs.push_back(cppCode + ".fRGBA[0]");
+            fFormatArgs.push_back(cppCode + ".fRGBA[1]");
+            fFormatArgs.push_back(cppCode + ".fRGBA[2]");
+            fFormatArgs.push_back(cppCode + ".fRGBA[3]");
         } else {
             fFormatArgs.push_back(cppCode + ".left()");
             fFormatArgs.push_back(cppCode + ".top()");
@@ -424,10 +439,11 @@ void CPPCodeGenerator::writePrivateVars() {
                                       "fragmentProcessor variables must be declared 'in'");
                         return;
                     }
-                    this->writef("%s %s;\n",
+                    this->writef("%s %s = %s;\n",
                                  HCodeGenerator::FieldType(fContext, decl.fVar->fType,
                                                            decl.fVar->fModifiers.fLayout).c_str(),
-                                 String(decl.fVar->fName).c_str());
+                                 String(decl.fVar->fName).c_str(),
+                                 default_value(*decl.fVar).c_str());
                 }
             }
         }

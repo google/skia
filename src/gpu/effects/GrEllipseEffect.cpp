@@ -98,9 +98,9 @@ private:
             prevRadii = radii;
         }
     }
-    SkPoint prevCenter;
-    SkPoint prevRadii;
-    bool useScale;
+    SkPoint prevCenter = float2(0);
+    SkPoint prevRadii = float2(0);
+    bool useScale = false;
     UniformHandle fEllipseVar;
     UniformHandle fScaleVar;
 };

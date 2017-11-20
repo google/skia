@@ -1426,12 +1426,12 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
             // the destination.
             auto inner =
                     GrConstColorProcessor::Make(GrColor4f::FromGrColor(0x80404040),
-                                                GrConstColorProcessor::kModulateRGBA_InputMode);
+                                                GrConstColorProcessor::InputMode::kModulateRGBA);
             return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
         }
         // Emit zero.
         return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
-                                           GrConstColorProcessor::kIgnore_InputMode);
+                                           GrConstColorProcessor::InputMode::kIgnore);
     }
 
     sk_sp<GrTextureProxy> permutationsProxy = GrMakeCachedBitmapProxy(
