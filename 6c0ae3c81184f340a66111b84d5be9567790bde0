@@ -16,6 +16,24 @@
       "revId": "6c0ae3c81184f340a66111b84d5be9567790bde0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d0e7966_877c69a5",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 1677,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-11-20T19:04:07Z",
+      "side": 1,
+      "message": "... actually, I think I can change the signature of setUIState to just take a JSON-formatted const char*, and this can go away.",
+      "parentUuid": "e5b9921d_dc1dd95f",
+      "revId": "6c0ae3c81184f340a66111b84d5be9567790bde0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
