@@ -519,7 +519,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     bool tiltZPlane = tilted(rec.fZPlaneParams);
     bool transparent = SkToBool(rec.fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
     bool uncached = tiltZPlane || path.isVolatile();
-    bool useTonalColor = SkToBool(rec.fFlags & kTonalColor_ShadowFlag);
+    bool useTonalColor = !SkToBool(rec.fFlags & kDisableTonalColor_ShadowFlag);
 
     SkColor color = rec.fColor;
     SkPoint3 zPlaneParams = rec.fZPlaneParams;

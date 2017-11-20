@@ -112,6 +112,7 @@ protected:
         }
 
         if (fTwoPassColor) {
+            flags |= SkShadowFlags::kDisableTonalColor_ShadowFlag;
             SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
                                       lightPos, lightWidth,
                                       ambientAlpha, 0, SK_ColorBLACK, flags);
@@ -136,7 +137,6 @@ protected:
                                       lightPos, lightWidth,
                                       0, spotAlpha, SK_ColorBLACK, flags);
         } else {
-            flags |= SkShadowFlags::kTonalColor_ShadowFlag;
             SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
                                       lightPos, lightWidth,
                                       ambientAlpha, spotAlpha, paint.getColor(), flags);
