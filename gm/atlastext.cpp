@@ -31,14 +31,24 @@ static SkScalar draw_string(SkAtlasTextTarget* target, const SkString& text, SkS
     std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[cnt]);
     typeface->charsToGlyphs(text.c_str(), SkTypeface::Encoding::kUTF8_Encoding, glyphs.get(),
                             (int)text.size());
-    target->drawText(glyphs.get(), cnt, x, y, color, *font);
 
-    // Using a paint just to perform a measure to let the caller know how much space to skip in x.
+    // Using a paint to get the positions for each glyph.
     SkPaint paint;
     paint.setTextSize(size);
     paint.setTypeface(std::move(typeface));
-    paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
-    return x + paint.measureText(text.c_str(), text.size());
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    std::unique_ptr<SkScalar[]> widths(new SkScalar[cnt]);
+    paint.getTextWidths(glyphs.get(), cnt * sizeof(SkGlyphID), widths.get(), nullptr);
+
+    std::unique_ptr<SkPoint[]> positions(new SkPoint[cnt]);
+    positions[0] = {x, y};
+    for (int i = 1; i < cnt; ++i) {
+        positions[i] = {positions[i - 1].fX + widths[i - 1], y};
+    }
+
+    target->drawText(glyphs.get(), positions.get(), cnt, color, *font);
+
+    return positions[cnt - 1].fX;
 }
 
 class AtlasTextGM : public skiagm::GM {
