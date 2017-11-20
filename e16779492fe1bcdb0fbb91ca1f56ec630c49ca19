@@ -22,6 +22,30 @@
       "revId": "e16779492fe1bcdb0fbb91ca1f56ec630c49ca19",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef5f3c4c_d06b6092",
+        "filename": "gm/atlastext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-20T18:13:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9088eb5e_2c6ee577",
+      "range": {
+        "startLine": 30,
+        "startChar": 43,
+        "endLine": 30,
+        "endChar": 55
+      },
+      "revId": "e16779492fe1bcdb0fbb91ca1f56ec630c49ca19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
