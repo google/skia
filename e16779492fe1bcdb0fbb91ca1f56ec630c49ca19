@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9088eb5e_2c6ee577",
+        "filename": "gm/atlastext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-11-20T17:59:12Z",
+      "side": 1,
+      "message": "This is only really correct if you stay in 7-bit ascii, which is fine I suppose, but I\u0027d hate for anyone to copy-paste this without knowing that. I think this would be better as\n\nint cnt \u003d SkUTF8_CountUnichars(test.c_str());\nstd::unique_ptr\u003cSkGlyphID[]\u003e glyphs(new SkGlyphID[cnt]);\ntypeface-\u003echarsToGlyphs(text.c_str(), SkTypeface::Encoding::kUTF8_Encoding, glyphs.get(), cnt);",
+      "range": {
+        "startLine": 30,
+        "startChar": 43,
+        "endLine": 30,
+        "endChar": 55
+      },
+      "revId": "e16779492fe1bcdb0fbb91ca1f56ec630c49ca19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
