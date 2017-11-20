@@ -89,6 +89,8 @@ TEST_BUILDERS = [
   ('Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-'
    'UBSAN_float_cast_overflow'),
   'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs',
+  'Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android',
+  'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android',
   'Test-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Coverage',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
@@ -120,6 +122,14 @@ def GenTests(api):
       test += api.step_data(
           'read chromecast ip',
           stdout=api.raw_io.output('192.168.1.2:5555'))
+    if 'Nexus' in buildername:
+      test += api.step_data(
+          'fetch available frequencies',
+          stdout=api.raw_io.output('51000 102000 204000 340000 475000 '
+            '640000 760000 860000 1000000 1100000 1200000 1300000'))
+    elif 'GalaxyS7' in buildername:
+       test += api.step_data(
+          'root (to set cpu frequency)', retcode=1)
     yield test
 
   builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All'
