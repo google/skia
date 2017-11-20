@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d53befa_bbc41b46",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-20T16:11:54Z",
+      "side": 1,
+      "message": "Maybe we should check the caps here for either integer or 32 bit float support?",
+      "range": {
+        "startLine": 217,
+        "startChar": 8,
+        "endLine": 217,
+        "endChar": 70
+      },
+      "revId": "be5a377a8c7e2d8f6ab8cea868bb28fc394c51f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
