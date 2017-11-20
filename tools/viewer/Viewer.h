@@ -8,9 +8,10 @@
 #ifndef Viewer_DEFINED
 #define Viewer_DEFINED
 
-#include "sk_app/Application.h"
-#include "sk_app/CommandSet.h"
-#include "sk_app/Window.h"
+#include "Application.h"
+#include "CommandSet.h"
+#include "Window.h"
+
 #include "gm.h"
 #include "SkAnimTimer.h"
 #include "SkTouchGesture.h"

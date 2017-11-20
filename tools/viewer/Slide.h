@@ -11,7 +11,7 @@
 #include "SkRefCnt.h"
 #include "SkSize.h"
 #include "SkString.h"
-#include "sk_app/Window.h"
+#include "Window.h"
 
 class SkCanvas;
 class SkAnimTimer;
