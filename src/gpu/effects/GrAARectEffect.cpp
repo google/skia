@@ -74,7 +74,7 @@ private:
             prevRect = newRect;
         }
     }
-    SkRect prevRect;
+    SkRect prevRect = float4(0);
     UniformHandle fRectUniformVar;
 };
 GrGLSLFragmentProcessor* GrAARectEffect::onCreateGLSLInstance() const {

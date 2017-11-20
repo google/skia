@@ -316,7 +316,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                                              bgConfig, outputProperties.colorSpace());
     } else {
         bgFP = GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
-                                           GrConstColorProcessor::kIgnore_InputMode);
+                                           GrConstColorProcessor::InputMode::kIgnore);
     }
 
     if (foregroundProxy) {

@@ -450,7 +450,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
     int leadingFPsToEliminate = info.initialProcessorsToEliminate(&knownColor);
     if (leadingFPsToEliminate) {
         std::unique_ptr<GrFragmentProcessor> colorFP(
-                GrConstColorProcessor::Make(knownColor, GrConstColorProcessor::kIgnore_InputMode));
+                GrConstColorProcessor::Make(knownColor, GrConstColorProcessor::InputMode::kIgnore));
         if (leadingFPsToEliminate == cnt) {
             return colorFP;
         }

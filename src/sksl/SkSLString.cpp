@@ -148,11 +148,21 @@ bool StringFragment::operator!=(StringFragment s) const {
 }
 
 bool StringFragment::operator==(const char* s) const {
-    return !strncmp(fChars, s, fLength);
+    for (size_t i = 0; i < fLength; ++i) {
+        if (fChars[i] != s[i]) {
+            return false;
+        }
+    }
+    return 0 == s[fLength];
 }
 
 bool StringFragment::operator!=(const char* s) const {
-    return strncmp(fChars, s, fLength);
+    for (size_t i = 0; i < fLength; ++i) {
+        if (fChars[i] != s[i]) {
+            return true;
+        }
+    }
+    return 0 != s[fLength];
 }
 
 bool operator==(const char* s1, StringFragment s2) {

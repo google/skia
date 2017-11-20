@@ -249,7 +249,7 @@ std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromTwoPro
     switch (mode) {
         case SkBlendMode::kClear:
             return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
-                                               GrConstColorProcessor::kIgnore_InputMode);
+                                               GrConstColorProcessor::InputMode::kIgnore);
         case SkBlendMode::kSrc:
             return src;
         case SkBlendMode::kDst:
@@ -516,7 +516,7 @@ std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromDstPro
     switch (mode) {
         case SkBlendMode::kClear:
             return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
-                                               GrConstColorProcessor::kIgnore_InputMode);
+                                               GrConstColorProcessor::InputMode::kIgnore);
         case SkBlendMode::kSrc:
             return nullptr;
         default:
@@ -530,7 +530,7 @@ std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromSrcPro
     switch (mode) {
         case SkBlendMode::kClear:
             return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
-                                               GrConstColorProcessor::kIgnore_InputMode);
+                                               GrConstColorProcessor::InputMode::kIgnore);
         case SkBlendMode::kDst:
             return nullptr;
         default:
