@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf021212_a16023e9",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-20T20:52:51Z",
+      "side": 1,
+      "message": "Instead of this, just write a safe align.\n\nsize_t alignUp(size_t base, size_t alignTo) {\n   // assert alignTo is a positive power of 2\n   size_t adjustedBase \u003d add(base, alignTo - 1);\n   return adjustedBase \u0026 ~(alignTo - 1);\n}",
+      "range": {
+        "startLine": 206,
+        "startChar": 36,
+        "endLine": 206,
+        "endChar": 41
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48f24894_175df0c7",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-20T20:52:51Z",
+      "side": 1,
+      "message": "Should this fail?",
+      "range": {
+        "startLine": 266,
+        "startChar": 8,
+        "endLine": 266,
+        "endChar": 23
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3590b5a5_da5faa3d",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-20T20:52:51Z",
+      "side": 1,
+      "message": "Should this fail?",
+      "range": {
+        "startLine": 281,
+        "startChar": 8,
+        "endLine": 281,
+        "endChar": 23
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a15bc12_80f6095a",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-20T20:52:51Z",
+      "side": 1,
+      "message": "FYI: This is counting on the underlying realloc to throw when passed max().",
+      "range": {
+        "startLine": 571,
+        "startChar": 0,
+        "endLine": 571,
+        "endChar": 79
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec3b5453_48c739cf",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-20T20:52:51Z",
+      "side": 1,
+      "message": "This could overflow?",
+      "range": {
+        "startLine": 608,
+        "startChar": 43,
+        "endLine": 608,
+        "endChar": 68
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf5bfccd_f1c338ae",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-20T20:52:51Z",
+      "side": 1,
+      "message": "Shouldn\u0027t you fail here? This will allow an unsafe validateSize?",
+      "range": {
+        "startLine": 744,
+        "startChar": 8,
+        "endLine": 744,
+        "endChar": 23
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
