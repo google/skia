@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b60a9f2_20063e86",
+        "filename": "BUILD.gn",
+        "patchSetId": 7
+      },
+      "lineNbr": 1717,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-20T19:58:12Z",
+      "side": 1,
+      "message": "HelloWorld should work with iOS now, and maybe Android as well. No need to put that in this patch, though.",
+      "range": {
+        "startLine": 1717,
+        "startChar": 45,
+        "endLine": 1717,
+        "endChar": 73
+      },
+      "revId": "957c3cbc1469f4a832c1fc089a6d3355d9635379",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c46a43d9_0451267b",
+        "filename": "example/HelloWorld.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-20T19:58:12Z",
+      "side": 1,
+      "message": "We could potentially enable Vulkan here, too. Again, not for this patch.",
+      "range": {
+        "startLine": 127,
+        "startChar": 77,
+        "endLine": 127,
+        "endChar": 98
+      },
+      "revId": "957c3cbc1469f4a832c1fc089a6d3355d9635379",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7af6be80_c50dc9e7",
+        "filename": "tools/viewer/Viewer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-20T19:58:12Z",
+      "side": 1,
+      "message": "Part of the reason I left the sk_app prefix on the #includes was so it didn\u0027t inadvertently drag in some other generic OS header. I don\u0027t know how much of a concern that is in these demo apps, though.",
+      "range": {
+        "startLine": 11,
+        "startChar": 10,
+        "endLine": 11,
+        "endChar": 21
+      },
+      "revId": "957c3cbc1469f4a832c1fc089a6d3355d9635379",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
