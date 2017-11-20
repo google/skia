@@ -14,6 +14,7 @@
 
 class SkAtlasTextContext;
 class SkAtlasTextFont;
+struct SkPoint;
 
 /** Represents a client-created renderable surface and is used to draw text into the surface. */
 class SK_API SkAtlasTextTarget {
@@ -28,11 +29,12 @@ public:
                                                    void* handle);
 
     /**
-     * Enqueues a text draw in the target. The meaning of 'color' here is interpreted by the
-     * client's SkAtlasTextRenderer when it actually renders the text.
+     * Enqueues a text draw in the target. The caller provides an array of glyphs and their
+     * positions. The meaning of 'color' here is interpreted by the client's SkAtlasTextRenderer
+     * when it actually renders the text.
      */
-    virtual void drawText(const SkGlyphID*, int glyphCnt, SkScalar x, SkScalar y, uint32_t color,
-                          const SkAtlasTextFont& font) = 0;
+    virtual void drawText(const SkGlyphID[], const SkPoint[], int glyphCnt, uint32_t color,
+                          const SkAtlasTextFont&) = 0;
 
     /** Issues all queued text draws to SkAtlasTextRenderer. */
     virtual void flush() = 0;
