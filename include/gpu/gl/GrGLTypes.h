@@ -111,6 +111,7 @@ typedef unsigned int GrEGLBoolean;
 struct GrGLTextureInfo {
     GrGLenum fTarget;
     GrGLuint fID;
+    GrGLenum fFormat = 0;
 };
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLTextureInfo*));

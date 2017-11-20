@@ -32,6 +32,15 @@ public:
                      GrMipMapped,
                      const GrGLTextureInfo& glInfo);
 
+    GrBackendTexture(int width,
+                     int height,
+                     const GrGLTextureInfo& glInfo);
+
+    GrBackendTexture(int width,
+                     int height,
+                     GrMipMapped,
+                     const GrGLTextureInfo& glInfo);
+
 #ifdef SK_VULKAN
     GrBackendTexture(int width,
                      int height,
