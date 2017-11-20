@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "d05b1c1f_68391619",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 1691,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-20T17:52:50Z",
+      "side": 1,
+      "message": "Since this is now shared with HelloWorld, this directory should probably be promoted out of tools/viewer. Maybe tools/sk_app?",
+      "range": {
+        "startLine": 1691,
+        "startChar": 9,
+        "endLine": 1691,
+        "endChar": 28
+      },
+      "revId": "33f59adf6f678afa93e574c5fda1d6c3d45c9586",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "68c9a590_5971cc8d",
         "filename": "BUILD.gn",
         "patchSetId": 5

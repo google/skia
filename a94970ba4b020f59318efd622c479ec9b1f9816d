@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "790d6d8f_27628c23",
+        "filename": "example/HelloWorld.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-20T17:52:50Z",
+      "side": 0,
+      "message": "I don\u0027t know that this should be moved out of example -- putting it in tools/viewer makes it harder to find. See my other comment.",
+      "range": {
+        "startLine": 1,
+        "startChar": 2,
+        "endLine": 1,
+        "endChar": 0
+      },
+      "revId": "a94970ba4b020f59318efd622c479ec9b1f9816d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
