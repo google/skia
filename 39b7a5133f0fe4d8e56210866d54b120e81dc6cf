@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d3233a7_0e31f409",
+        "filename": "tools/gpu/GrContextFactory.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-20T19:21:06Z",
+      "side": 1,
+      "message": "unindent?",
+      "range": {
+        "startLine": 136,
+        "startChar": 8,
+        "endLine": 136,
+        "endChar": 20
+      },
+      "revId": "39b7a5133f0fe4d8e56210866d54b120e81dc6cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bae6abd_26edb65b",
+        "filename": "tools/gpu/GrContextFactory.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-20T19:21:06Z",
+      "side": 1,
+      "message": "We\u0027re already in a sk_gpu_test namespace so I don\u0027t think we need \"Gr\" prefixing. Could call either \"MakeContext\" or \"MakeGrContext\".",
+      "range": {
+        "startLine": 206,
+        "startChar": 17,
+        "endLine": 206,
+        "endChar": 30
+      },
+      "revId": "39b7a5133f0fe4d8e56210866d54b120e81dc6cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
