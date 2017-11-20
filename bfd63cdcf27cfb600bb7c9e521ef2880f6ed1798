@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "de3341ac_e39c6013",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-20T21:01:57Z",
+      "side": 1,
+      "message": "Will do.",
+      "parentUuid": "bf021212_a16023e9",
+      "range": {
+        "startLine": 206,
+        "startChar": 36,
+        "endLine": 206,
+        "endChar": 41
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "48f24894_175df0c7",
         "filename": "src/core/SkTextBlob.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-20T20:52:51Z",
       "side": 1,
       "message": "Should this fail?",
+      "range": {
+        "startLine": 266,
+        "startChar": 8,
+        "endLine": 266,
+        "endChar": 23
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1221d536_c2f33292",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-20T21:01:57Z",
+      "side": 1,
+      "message": "This is used post-allocation, to iterate over existing runs.  If the allocation succeeded, this is guaranteed to succeed also.",
+      "parentUuid": "48f24894_175df0c7",
       "range": {
         "startLine": 266,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "f3734cff_665a9c53",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-20T21:01:57Z",
+      "side": 1,
+      "message": "Ditto.",
+      "parentUuid": "3590b5a5_da5faa3d",
+      "range": {
+        "startLine": 281,
+        "startChar": 8,
+        "endLine": 281,
+        "endChar": 23
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3a15bc12_80f6095a",
         "filename": "src/core/SkTextBlob.cpp",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2017-11-20T20:52:51Z",
       "side": 1,
       "message": "FYI: This is counting on the underlying realloc to throw when passed max().",
+      "range": {
+        "startLine": 571,
+        "startChar": 0,
+        "endLine": 571,
+        "endChar": 79
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9861a052_2e31875a",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-20T21:01:57Z",
+      "side": 1,
+      "message": "Will do.",
+      "parentUuid": "3a15bc12_80f6095a",
       "range": {
         "startLine": 571,
         "startChar": 0,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "ff1b5f50_165772ae",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-20T21:01:57Z",
+      "side": 1,
+      "message": "I\u0027m not sure it can, if both counts are supposed to be positive ints?  But it\u0027s trivial to use safe math here also, will do.",
+      "parentUuid": "ec3b5453_48c739cf",
+      "range": {
+        "startLine": 608,
+        "startChar": 43,
+        "endLine": 608,
+        "endChar": 68
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bf5bfccd_f1c338ae",
         "filename": "src/core/SkTextBlob.cpp",
         "patchSetId": 2
@@ -128,6 +248,30 @@
       "writtenOn": "2017-11-20T20:52:51Z",
       "side": 1,
       "message": "Shouldn\u0027t you fail here? This will allow an unsafe validateSize?",
+      "range": {
+        "startLine": 744,
+        "startChar": 8,
+        "endLine": 744,
+        "endChar": 23
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc3fe4ae_f95dcb28",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-20T21:01:57Z",
+      "side": 1,
+      "message": "This is again used post run allocation, so at this point it should never fail.",
+      "parentUuid": "bf5bfccd_f1c338ae",
       "range": {
         "startLine": 744,
         "startChar": 8,
