@@ -459,45 +459,35 @@ static sk_sp<SkSpecialImage> combined_pass_blur(
     SkSTArenaAlloc<1024> alloc;
     Sk4u* buffer = alloc.makeArrayDefault<Sk4u>(std::max(bufferSizeW, bufferSizeH));
 
-    if (windowW > 1 && windowH > 1) {
-        // Blur both directions.
+    if (windowW > 1 || windowH > 1) {
+        auto intermediateSrc = static_cast<uint32_t *>(src.getPixels());
+        auto intermediateRowBytesAsPixels = src.rowBytesAsPixels();
+        auto intermediateWidth = srcW;
 
-        auto tmpW = srcH,
-             tmpH = dstW;
+        if (windowW > 1) {
+            // For the horizontal blur, start part way down in anticipation of the vertical blur.
+            // If this is a horizontal only blur, then shift will be zero.
+            auto shift = (srcBounds.top() - dstBounds.top());
+            intermediateSrc = static_cast<uint32_t *>(dst.getPixels())
+                              + (shift > 0 ? shift * dst.rowBytesAsPixels() : 0);
+            intermediateRowBytesAsPixels = dst.rowBytesAsPixels();
+            intermediateWidth = dstW;
 
-        auto tmp = alloc.makeArrayDefault<uint32_t>(tmpW * tmpH);
+            blur_one_direction(
+                    buffer, windowW,
+                    srcBounds.left(), srcBounds.right(), dstBounds.right(),
+                    static_cast<uint32_t *>(src.getPixels()), 1, src.rowBytesAsPixels(), srcH,
+                    intermediateSrc, 1, intermediateRowBytesAsPixels);
+        }
 
-        // Blur horizontally, and transpose.
-        blur_one_direction(
-                buffer, windowW,
-                srcBounds.left(), srcBounds.right(), dstBounds.right(),
-                static_cast<uint32_t*>(src.getPixels()), 1, src.rowBytesAsPixels(), srcH,
-                tmp, tmpW, 1);
-
-        // Blur vertically (scan in memory order because of the transposition),
-        // and transpose back to the original orientation.
-        blur_one_direction(
-                buffer, windowH,
-                srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
-                tmp, 1, tmpW, tmpH,
-                static_cast<uint32_t*>(dst.getPixels()), dst.rowBytesAsPixels(), 1);
-    } else if (windowW > 1) {
-        // Blur only horizontally.
-
-        blur_one_direction(
-                buffer, windowW,
-                srcBounds.left(), srcBounds.right(), dstBounds.right(),
-                static_cast<uint32_t*>(src.getPixels()), 1, src.rowBytesAsPixels(), srcH,
-                static_cast<uint32_t*>(dst.getPixels()), 1, dst.rowBytesAsPixels());
-    } else if (windowH > 1) {
-        // Blur only vertically.
-
-        blur_one_direction(
-                buffer, windowH,
-                srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
-                static_cast<uint32_t*>(src.getPixels()), src.rowBytesAsPixels(), 1, srcW,
-                static_cast<uint32_t*>(dst.getPixels()), dst.rowBytesAsPixels(), 1);
-    } else {
+        if (windowH > 1) {
+            blur_one_direction(
+                    buffer, windowH,
+                    srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
+                    intermediateSrc, intermediateRowBytesAsPixels, 1, intermediateWidth,
+                    static_cast<uint32_t *>(dst.getPixels()), dst.rowBytesAsPixels(), 1);
+        }
+    }  else {
         // There is no blurring to do, but we still need to copy the source while accounting for the
         // dstBounds. Remember that the src was intersected with the dst.
         int y = 0;
