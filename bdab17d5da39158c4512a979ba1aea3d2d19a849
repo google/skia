@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04026498_c13c5ae9",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-20T19:05:03Z",
+      "side": 1,
+      "message": "I see what you did here... what do you think of a future language extension that allows the fp file to indicate the initial value?",
+      "range": {
+        "startLine": 131,
+        "startChar": 16,
+        "endLine": 131,
+        "endChar": 46
+      },
+      "revId": "bdab17d5da39158c4512a979ba1aea3d2d19a849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
