@@ -29,9 +29,10 @@ public:
 
     /**
      * Enqueues a text draw in the target. The meaning of 'color' here is interpreted by the
-     * client's SkAtlasTextRenderer when it actually renders the text.
+     * client's SkAtlasTextRenderer when it actually renders the text. 'text' is interpretted
+     * as glyph ids.
      */
-    virtual void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
+    virtual void drawText(const SkGlyphID*, size_t byteLength, SkScalar x, SkScalar y,
                           uint32_t color, const SkAtlasTextFont& font) = 0;
 
     /** Issues all queued text draws to SkAtlasTextRenderer. */

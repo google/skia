@@ -24,10 +24,21 @@
 
 static SkScalar draw_string(SkAtlasTextTarget* target, const SkString& text, SkScalar x, SkScalar y,
                             uint32_t color, sk_sp<SkTypeface> typeface, float size) {
-    auto font = SkAtlasTextFont::Make(std::move(typeface), size);
-    target->drawText(text.c_str(), text.size(), x, y, color, *font);
+    auto font = SkAtlasTextFont::Make(typeface, size);
+
+
+    int cnt = typeface->charsToGlyphs(text.c_str(), SkTypeface::Encoding::kUTF8_Encoding, nullptr,
+                                      (int) text.size());
+    std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[cnt]);
+    typeface->charsToGlyphs(text.c_str(), SkTypeface::Encoding::kUTF8_Encoding, glyphs.get(),
+                           (int) text.size());
+    target->drawText(glyphs.get(), cnt * sizeof(SkGlyphID), x, y, color, *font);
+
+    // Using a paint to perform a measure to let the caller know how much space to skip in x.
     SkPaint paint;
     paint.setTextSize(size);
+    paint.setTypeface(std::move(typeface));
+    paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
     return x + paint.measureText(text.c_str(), text.size());
 }
 
