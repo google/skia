@@ -1,73 +1,35 @@
 /*
- * Copyright 2015 Google Inc.
- *
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
- *
- */
+* Copyright 2017 Google Inc.
+*
+* Use of this source code is governed by a BSD-style license that can be
+* found in the LICENSE file.
+*/
 
 #ifndef HelloWorld_DEFINED
 #define HelloWorld_DEFINED
 
-#include "SkSurface.h"
-#include "SkWindow.h"
+#include "sk_app/Application.h"
+#include "sk_app/Window.h"
 
-class GrContext;
-struct GrGLInterface;
-class GrRenderTarget;
 class SkCanvas;
 
-class HelloWorldWindow : public SkOSWindow {
+class HelloWorld : public sk_app::Application {
 public:
-    enum DeviceType {
-        kRaster_DeviceType,
-        kGPU_DeviceType,
-    };
-    HelloWorldWindow(void* hwnd);
-    virtual ~HelloWorldWindow() override;
+    HelloWorld(int argc, char** argv, void* platformData);
+    ~HelloWorld() override;
 
-    // Changes the device type of the object.
-    bool setUpBackend();
-
-    DeviceType getDeviceType() const { return fType; }
-
-protected:
-    sk_sp<SkSurface> makeSurface() override {
-        SkSurfaceProps props(INHERITED::getSurfaceProps());
-        if (kGPU_DeviceType == fType) {
-            return fGpuSurface;
-        }
-        const SkImageInfo info = SkImageInfo::MakeN32Premul(SkScalarRoundToInt(this->width()),
-                                                            SkScalarRoundToInt(this->height()));
-        fRasterSurface = SkSurface::MakeRaster(info, &props);
-        return fRasterSurface;
-    }
-
-    void draw(SkCanvas* canvas) override;
-    void drawContents(SkCanvas* canvas);
-
-    void onSizeChange() override;
+    void onBackendCreated();
+    void onPaint(SkCanvas* canvas);
+    void onIdle() override;
+    bool onChar(SkUnichar c, uint32_t modifiers);
 
 private:
-    bool findNextMatch();  // Set example to the first one that matches FLAGS_match.
-    void setTitle();
-    void setUpGpuBackedSurface();
-    bool onHandleChar(SkUnichar unichar) override;
-    void tearDownBackend();
+    void updateTitle();
 
-    // draw contents
+    sk_app::Window* fWindow;
+    sk_app::Window::BackendType fBackendType;
+
     SkScalar fRotationAngle;
-
-    // support framework
-    DeviceType fType;
-    sk_sp<SkSurface> fRasterSurface;
-    sk_sp<GrContext> fContext;
-    sk_sp<SkSurface> fGpuSurface;
-    AttachmentInfo fAttachmentInfo;
-    sk_sp<const GrGLInterface> fInterface;
-
-    typedef SkOSWindow INHERITED;
 };
 
 #endif
