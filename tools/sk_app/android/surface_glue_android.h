@@ -57,7 +57,7 @@ struct SkiaAndroidApp {
 
     // These must be called in SkiaAndroidApp's own pthread because the JNIEnv is thread sensitive
     void setTitle(const char* title) const;
-    void setUIState(const Json::Value& state) const;
+    void setUIState(const char* state) const;
 
 private:
     pthread_t fThread;

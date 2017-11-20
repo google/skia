@@ -1564,7 +1564,7 @@ void Viewer::updateUIState() {
     state.append(softkeyState);
     state.append(fpsState);
 
-    fWindow->setUIState(state);
+    fWindow->setUIState(state.toStyledString().c_str());
 }
 
 void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateValue) {
