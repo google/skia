@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "bc57175b_b0d632c8",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-20T20:54:39Z",
+      "side": 1,
+      "message": ":)",
+      "parentUuid": "f3af3456_dda5fd79",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 38
+      },
+      "revId": "d3ff495b3729ca8ddb63cb12443720332b5625ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "413ddfa5_4bc641a5",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 5
@@ -120,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "d07b0922_02218fe5",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-20T20:54:39Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f2bbfca6_cf9bf2da",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 72
+      },
+      "revId": "d3ff495b3729ca8ddb63cb12443720332b5625ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03afb71e_92df44a7",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 5
@@ -188,6 +236,30 @@
       "revId": "d3ff495b3729ca8ddb63cb12443720332b5625ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f89f6f2_6a223123",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-20T20:54:39Z",
+      "side": 1,
+      "message": "This seems cleaner.",
+      "parentUuid": "768e5bea_23193d3a",
+      "range": {
+        "startLine": 72,
+        "startChar": 7,
+        "endLine": 72,
+        "endChar": 28
+      },
+      "revId": "d3ff495b3729ca8ddb63cb12443720332b5625ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
