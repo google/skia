@@ -62,7 +62,10 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             lineStart = false;
         } else {
             leadingSpaces = string(base, wordStart - base);
-         }
+        }
+        if (!strncmp("SkPoint::operator-()", start, 20)) {
+            SkDebugf("");
+        }
         t.skipToMethodEnd();
         if (base == t.fChar) {
             break;
