@@ -38,9 +38,6 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
                            bool useDistanceFields, SkScalar transX, SkScalar transY,
                            GrColor color) {
     uint16_t u0, v0, u1, v1;
-#ifdef DISPLAY_PAGE_INDEX
-    SkColor hackColor;
-#endif
     if (regenTexCoords) {
         SkASSERT(glyph);
         int width = glyph->fBounds.width();
@@ -70,25 +67,6 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
         u1 |= uBit;
         v1 <<= 1;
         v1 |= vBit;
-#ifdef DISPLAY_PAGE_INDEX
-        switch (pageIndex) {
-            case 0:
-                hackColor = SK_ColorGREEN;
-                break;
-            case 1:
-                hackColor = SK_ColorRED;
-                break;
-            case 2:
-                hackColor = SK_ColorMAGENTA;
-                break;
-            case 3:
-                hackColor = SK_ColorCYAN;
-                break;
-            default:
-                hackColor = SK_ColorBLACK;
-                break;
-        }
-#endif
     }
 
     // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color
@@ -112,10 +90,6 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
         uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
         textureCoords[0] = u0;
         textureCoords[1] = v0;
-#ifdef DISPLAY_PAGE_INDEX
-        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
-        *vcolor = hackColor;
-#endif
     }
     vertex += vertexStride;
 
@@ -135,10 +109,6 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
         uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
         textureCoords[0] = u0;
         textureCoords[1] = v1;
-#ifdef DISPLAY_PAGE_INDEX
-        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
-        *vcolor = hackColor;
-#endif
     }
     vertex += vertexStride;
 
@@ -158,10 +128,6 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
         uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
         textureCoords[0] = u1;
         textureCoords[1] = v0;
-#ifdef DISPLAY_PAGE_INDEX
-        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
-        *vcolor = hackColor;
-#endif
     }
     vertex += vertexStride;
 
@@ -181,10 +147,6 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
         uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
         textureCoords[0] = u1;
         textureCoords[1] = v1;
-#ifdef DISPLAY_PAGE_INDEX
-        SkColor* vcolor = reinterpret_cast<SkColor*>(vertex + colorOffset);
-        *vcolor = hackColor;
-#endif
     }
 }
 
