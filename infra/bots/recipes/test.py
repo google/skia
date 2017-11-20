@@ -595,7 +595,7 @@ def dm_flags(api, bot):
     match.extend(['~VkHeapTests']) # skia:6245
 
   if 'Vulkan' in bot and api.vars.is_linux and 'IntelHD405' in bot:
-    # TODO(benjaminwagner) skia:
+    # skia:7322
     blacklist(['vk', 'gm', '_', 'skbug_257'])
     match.append('~^ClearOp$')
     match.append('~^InitialTextureClear$')
