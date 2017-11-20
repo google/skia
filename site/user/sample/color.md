@@ -164,7 +164,7 @@ Opting In To Color Correct Skia
 -------------------------------
 
 By itself, **adding a color space tag to a source will not change draw behavior**.  In fact,
-tagging sources with color spaces is always a best practice, regardless of whether we want Skia’s
+tagging sources with color spaces is always a best practice, regardless of whether we want Skia's
 color correct behavior.
 
 Adding a color space tag to the **destination is the trigger that turns on Skia color correct

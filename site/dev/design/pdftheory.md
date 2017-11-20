@@ -62,7 +62,7 @@ in the document (the cross-reference table). The table of contents
 lists the specific byte position for each object. The objects may have
 references to other objects and the ASCII size of those references is
 dependent on the object number assigned to the referenced object;
-therefore we can’t calculate the table of contents until the size of
+therefore we can't calculate the table of contents until the size of
 objects is known, which requires assignment of object numbers.  The
 document uses SkWStream::bytesWritten() to query the offsets of each
 object and build the cross-reference table.
@@ -336,9 +336,9 @@ specified in the ContentEntry, similarly the Matrix and drawing state
 Certain objects have specific properties that need to be dealt
 with. Images, layers (see below), and fonts assume the standard PDF
 coordinate system, so we have to undo any flip to the Skia coordinate
-system before drawing these entities. We don’t currently support
+system before drawing these entities. We don't currently support
 inverted paths, so filling an inverted path will give the wrong result
-([issue 241](https://bug.skia.org/241)). PDF doesn’t draw zero length
+([issue 241](https://bug.skia.org/241)). PDF doesn't draw zero length
 lines that have butt of square caps, so that is emulated.
 
 ### <span id="Layers">Layers</span> ###
@@ -367,7 +367,7 @@ There are many details for dealing with fonts, so this document will
 only talk about some of the more important ones. A couple short
 details:
 
-*   We can’t assume that an arbitrary font will be available at PDF view
+*   We can't assume that an arbitrary font will be available at PDF view
     time, so we embed all fonts in accordance with modern PDF
     guidelines.
 *   Most fonts these days are TrueType fonts, so this is where most of
@@ -408,7 +408,7 @@ subsetting support to Skia for TrueType fonts.
 Skia has two types of predefined shaders, image shaders and gradient
 shaders. In both cases, shaders are effectively positioned absolutely,
 so the initial position and bounds of where they are visible is part
-of the immutable state of the shader object. Each of the Skia’s tile
+of the immutable state of the shader object. Each of the Skia's tile
 modes needs to be considered and handled explicitly. The image shader
 we generate will be tiled, so tiling is handled by default. To support
 mirroring, we draw the image, reversed, on the appropriate axis, or on
@@ -452,8 +452,8 @@ modes](https://codereview.appspot.com/4631078/).
 I will describe the system with this change applied.
 
 First, a bit of terminology and definition. When drawing something
-with an emulated xfer mode, what’s already drawn to the device is
-called the destination or Dst, and what’s about to be drawn is the
+with an emulated xfer mode, what's already drawn to the device is
+called the destination or Dst, and what's about to be drawn is the
 source or Src. Src (and Dst) can have regions where it is transparent
 (alpha equals zero), but it also has an inherent shape. For most kinds
 of drawn objects, the shape is the same as where alpha is not
@@ -464,11 +464,11 @@ has a shape that is 10x10. The xfermodes gm test demonstrates the
 interaction between shape and alpha in combination with the port-duff
 xfer modes.
 
-The clear xfer mode removes any part of Dst that is within Src’s
+The clear xfer mode removes any part of Dst that is within Src's
 shape. This is accomplished by bundling the current content of the
 device (Dst) into a single entity and then drawing that with the
-inverse of Src’s shape used as a mask (we want Dst where Src
-isn’t). The implementation of that takes a couple more steps. You may
+inverse of Src's shape used as a mask (we want Dst where Src
+isn't). The implementation of that takes a couple more steps. You may
 have to refer back to [the content stream section](#Generating_a_content_stream). For any draw call, a
 ContentEntry is created through a method called
 SkPDFDevice::setUpContentEntry(). This method examines the xfer modes
@@ -486,17 +486,17 @@ x-object, an invert function, and the Dst form x-object to draw Dst
 with the inverse shape of Src as a mask. This works well when the
 shape of Src is the same as the opaque part of the drawing, since PDF
 uses the alpha channel of the mask form x-object to do masking. When
-shape doesn’t match the alpha channel, additional action is
-required. The drawing routines where shape and alpha don’t match, set
+shape doesn't match the alpha channel, additional action is
+required. The drawing routines where shape and alpha don't match, set
 state to indicate the shape (always rectangular), which
 finishContentEntry uses. The clear xfer mode is a special case; if
-shape is needed, then Src isn’t used, so there is code to not bother
+shape is needed, then Src isn't used, so there is code to not bother
 drawing Src if shape is required and the xfer mode is clear.
 
 SrcMode is clear plus Src being drawn afterward. DstMode simply omits
 drawing Src. DstOver is the same as SrcOver with Src and Dst swapped -
 this is accomplished by inserting the new ContentEntry at the
-beginning of the list of ContentEntry’s in setUpContentEntry instead
+beginning of the list of ContentEntry's in setUpContentEntry instead
 of at the end. SrcIn, SrcOut, DstIn, DstOut are similar to each, the
 difference being an inverted or non-inverted mask and swapping Src and
 Dst (or not). SrcIn is SrcMode with Src drawn with Dst as a
