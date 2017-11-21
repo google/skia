@@ -20,7 +20,6 @@
 #include "ccpr/GrCCPRPathProcessor.h"
 
 using DrawPathsOp = GrCoverageCountingPathRenderer::DrawPathsOp;
-using ScissorMode = GrCCPRCoverageOpsBuilder::ScissorMode;
 
 bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
@@ -88,11 +87,8 @@ GrCoverageCountingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const
 
 bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!fFlushing);
-    SkASSERT(!args.fShape->isEmpty());
-
     auto op = skstd::make_unique<DrawPathsOp>(this, args, args.fPaint.getColor());
     args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
-
     return true;
 }
 
@@ -126,12 +122,9 @@ GrCoverageCountingPathRenderer::DrawPathsOp::DrawPathsOp(GrCoverageCountingPathR
             fHeadDraw.fPath.reset();
         }
         devBounds = fHeadDraw.fPath.getBounds();
-        fHeadDraw.fScissorMode = ScissorMode::kNonScissored;
     } else {
         fHeadDraw.fMatrix = *args.fViewMatrix;
         args.fShape->asPath(&fHeadDraw.fPath);
-        fHeadDraw.fScissorMode = fHeadDraw.fClipBounds.contains(devBounds) ?
-                                 ScissorMode::kNonScissored : ScissorMode::kScissored;
     }
     fHeadDraw.fColor = color; // Can't call args.fPaint.getColor() because it has been std::move'd.
 
@@ -215,6 +208,7 @@ void GrCoverageCountingPathRenderer::setupPerFlushResources(GrOnFlushResourcePro
                                                   const uint32_t* opListIDs,
                                                   int numOpListIDs,
                                                   SkTArray<sk_sp<GrRenderTargetContext>>* results) {
+    using ScissorMode = GrCCPRCoverageOpsBuilder::ScissorMode;
     using PathInstance = GrCCPRPathProcessor::Instance;
 
     SkASSERT(!fPerFlushIndexBuffer);
@@ -225,7 +219,7 @@ void GrCoverageCountingPathRenderer::setupPerFlushResources(GrOnFlushResourcePro
     fPerFlushResourcesAreValid = false;
 
     // Gather the Ops that are being flushed.
-    int maxTotalPaths = 0, numSkPoints = 0, numSkVerbs = 0;
+    int maxTotalPaths = 0, maxPathPoints = 0, numSkPoints = 0, numSkVerbs = 0;
     SkTInternalLList<DrawPathsOp> flushingOps;
     for (int i = 0; i < numOpListIDs; ++i) {
         auto it = fRTPendingOpsMap.find(opListIDs[i]);
@@ -238,6 +232,7 @@ void GrCoverageCountingPathRenderer::setupPerFlushResources(GrOnFlushResourcePro
         while (DrawPathsOp* flushingOp = iter.get()) {
             for (const auto* draw = &flushingOp->fHeadDraw; draw; draw = draw->fNext) {
                 ++maxTotalPaths;
+                maxPathPoints = SkTMax(draw->fPath.countPoints(), maxPathPoints);
                 numSkPoints += draw->fPath.countPoints();
                 numSkVerbs += draw->fPath.countVerbs();
             }
@@ -274,7 +269,7 @@ void GrCoverageCountingPathRenderer::setupPerFlushResources(GrOnFlushResourcePro
     SkASSERT(pathInstanceData);
     int pathInstanceIdx = 0;
 
-    GrCCPRCoverageOpsBuilder atlasOpsBuilder(maxTotalPaths, numSkPoints, numSkVerbs);
+    GrCCPRCoverageOpsBuilder atlasOpsBuilder(maxTotalPaths, maxPathPoints, numSkPoints, numSkVerbs);
     GrCCPRAtlas* atlas = nullptr;
     SkDEBUGCODE(int skippedTotalPaths = 0;)
 
@@ -292,19 +287,21 @@ void GrCoverageCountingPathRenderer::setupPerFlushResources(GrOnFlushResourcePro
             SkRect devBounds, devBounds45;
             atlasOpsBuilder.parsePath(draw->fMatrix, draw->fPath, &devBounds, &devBounds45);
 
-            SkRect clippedDevBounds = devBounds;
-            if (ScissorMode::kScissored == draw->fScissorMode &&
-                !clippedDevBounds.intersect(devBounds, SkRect::Make(draw->fClipBounds))) {
+            ScissorMode scissorMode;
+            SkIRect clippedDevIBounds;
+            devBounds.roundOut(&clippedDevIBounds);
+            if (draw->fClipBounds.contains(clippedDevIBounds)) {
+                scissorMode = ScissorMode::kNonScissored;
+            } else if (clippedDevIBounds.intersect(draw->fClipBounds)) {
+                scissorMode = ScissorMode::kScissored;
+            } else {
                 SkDEBUGCODE(++drawPathOp->fDebugSkippedInstances);
                 atlasOpsBuilder.discardParsedPath();
                 continue;
             }
 
-            SkIRect clippedDevIBounds;
-            clippedDevBounds.roundOut(&clippedDevIBounds);
-            const int h = clippedDevIBounds.height(), w = clippedDevIBounds.width();
-
             SkIPoint16 atlasLocation;
+            const int h = clippedDevIBounds.height(), w = clippedDevIBounds.width();
             if (atlas && !atlas->addRect(w, h, &atlasLocation)) {
                 // The atlas is out of room and can't grow any bigger.
                 atlasOpsBuilder.emitOp(atlas->drawBounds());
@@ -332,7 +329,7 @@ void GrCoverageCountingPathRenderer::setupPerFlushResources(GrOnFlushResourcePro
                 draw->fColor
             };
 
-            atlasOpsBuilder.saveParsedPath(draw->fScissorMode, clippedDevIBounds, offsetX, offsetY);
+            atlasOpsBuilder.saveParsedPath(scissorMode, clippedDevIBounds, offsetX, offsetY);
         }
 
         SkASSERT(pathInstanceIdx == drawPathOp->fBaseInstance + drawPathOp->fDebugInstanceCount -
