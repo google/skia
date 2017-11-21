@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c0b28d9d_d716955c",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-21T21:48:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9d97192_8c216ce5",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 9
+      },
+      "revId": "99f5af1483a85375ed0cdb732767446f9d83fc02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ec7ed38a_5f1bae37",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "99f5af1483a85375ed0cdb732767446f9d83fc02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82c14bdf_e62229da",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-21T21:48:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec7ed38a_5f1bae37",
+      "range": {
+        "startLine": 123,
+        "startChar": 3,
+        "endLine": 123,
+        "endChar": 11
+      },
+      "revId": "99f5af1483a85375ed0cdb732767446f9d83fc02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
