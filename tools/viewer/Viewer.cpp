@@ -1343,7 +1343,9 @@ void Viewer::drawImGui(SkCanvas* canvas) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
             if (fLastImage->readPixels(info, &pixel, info.minRowBytes(), mousePos.x, mousePos.y)) {
                 ImGui::SameLine();
-                ImGui::Text("RGBA: %x %x %x %x", SkGetPackedR32(pixel), SkGetPackedG32(pixel),
+                ImGui::Text("(X, Y): %d, %d RGBA: %x %x %x %x",
+                            sk_float_round2int(mousePos.x), sk_float_round2int(mousePos.y),
+                            SkGetPackedR32(pixel), SkGetPackedG32(pixel),
                             SkGetPackedB32(pixel), SkGetPackedA32(pixel));
             }
 
