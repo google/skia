@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "635a321b_7d96f144",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-11-21T19:47:41Z",
+      "side": 1,
+      "message": "Diffs intended?",
+      "revId": "ae0db114b903d9eceab76637ca6b48c24149bb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3145f3fb_53f61186",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-11-21T19:47:41Z",
+      "side": 1,
+      "message": "If this gets any more complicated, it may be worth moving to a standalone script, either in platform_tools/android/bin, or as a resource inside this recipe module.",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 19
+      },
+      "revId": "ae0db114b903d9eceab76637ca6b48c24149bb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
