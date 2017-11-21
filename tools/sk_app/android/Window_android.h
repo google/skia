@@ -27,7 +27,7 @@ public:
 
     bool attach(BackendType) override;
     void onInval() override;
-    void setUIState(const Json::Value& state) override;
+    void setUIState(const char* state) override;
 
     void paintIfNeeded();
 

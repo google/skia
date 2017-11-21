@@ -12,7 +12,6 @@
 #include "SkRect.h"
 #include "SkTouchGesture.h"
 #include "SkTypes.h"
-#include "SkJSONCPP.h"
 
 class GrContext;
 class SkCanvas;
@@ -30,7 +29,9 @@ public:
 
     virtual void setTitle(const char*) = 0;
     virtual void show() = 0;
-    virtual void setUIState(const Json::Value& state) {}  // do nothing in default
+
+    // JSON-formatted UI state for Android. Do nothing by default
+    virtual void setUIState(const char*) {}
 
     // Shedules an invalidation event for window if one is not currently pending.
     // Make sure that either onPaint or markInvalReceived is called when the client window consumes

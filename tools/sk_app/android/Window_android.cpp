@@ -31,7 +31,7 @@ void Window_android::setTitle(const char* title) {
     fSkiaAndroidApp->setTitle(title);
 }
 
-void Window_android::setUIState(const Json::Value& state) {
+void Window_android::setUIState(const char* state) {
     fSkiaAndroidApp->setUIState(state);
 }
 
