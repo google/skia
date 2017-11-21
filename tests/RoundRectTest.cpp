@@ -786,6 +786,8 @@ static void test_read(skiatest::Reporter* reporter) {
     test_read_rrect(reporter, rrect, false);
     *innerRadius = SK_ScalarNaN;
     test_read_rrect(reporter, rrect, false);
+    *innerRadius = -10.f;
+    test_read_rrect(reporter, rrect, false);
 }
 
 DEF_TEST(RoundRect, reporter) {
