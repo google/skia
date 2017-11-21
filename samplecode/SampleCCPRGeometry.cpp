@@ -223,7 +223,7 @@ void CCPRGeometryView::updateGpuData() {
 
         GrCCPRGeometry geometry;
         geometry.beginContour(fPoints[0]);
-        geometry.cubicTo(fPoints[1], fPoints[2], fPoints[3], kDebugBloat/2, kDebugBloat/2);
+        geometry.cubicTo(fPoints, kDebugBloat/2, kDebugBloat/2);
         geometry.endContour();
         fGpuPoints.push_back_n(geometry.points().count(), geometry.points().begin());
         int ptsIdx = 0;
@@ -246,9 +246,10 @@ void CCPRGeometryView::updateGpuData() {
             }
         }
     } else if (is_quadratic(fRenderPass)) {
+        SkPoint quadraticPts[3] = {fPoints[0], fPoints[1], fPoints[3]};
         GrCCPRGeometry geometry;
         geometry.beginContour(fPoints[0]);
-        geometry.quadraticTo(fPoints[1], fPoints[3]);
+        geometry.quadraticTo(quadraticPts);
         geometry.endContour();
         fGpuPoints.push_back_n(geometry.points().count(), geometry.points().begin());
         for (GrCCPRGeometry::Verb verb : geometry.verbs()) {
