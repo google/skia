@@ -23,8 +23,6 @@ DEPS = [
 
 def build_targets_from_builder_dict(builder_dict):
   """Return a list of targets to build, depending on the builder type."""
-  if builder_dict.get('extra_config') == 'iOS':
-    return ['iOSShell']
   return ['most']
 
 
