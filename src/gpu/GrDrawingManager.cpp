@@ -140,16 +140,14 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 
     // Prepare any onFlush op lists (e.g. atlases).
     if (!fOnFlushCBObjects.empty()) {
-        // MDB TODO: pre-MDB '1' is the correct pre-allocated size. Post-MDB it will need
-        // to be larger.
-        SkAutoSTArray<1, uint32_t> opListIds(fOpLists.count());
+        fFlushingOpListIds.reset(fOpLists.count());
         for (int i = 0; i < fOpLists.count(); ++i) {
-            opListIds[i] = fOpLists[i]->uniqueID();
+            fFlushingOpListIds[i] = fOpLists[i]->uniqueID();
         }
         SkSTArray<4, sk_sp<GrRenderTargetContext>> renderTargetContexts;
         for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
             onFlushCBObject->preFlush(&onFlushProvider,
-                                      opListIds.get(), opListIds.count(),
+                                      fFlushingOpListIds.get(), fFlushingOpListIds.count(),
                                       &renderTargetContexts);
             for (const sk_sp<GrRenderTargetContext>& rtc : renderTargetContexts) {
                 sk_sp<GrOpList> onFlushOpList = sk_ref_sp(rtc->getOpList());
@@ -162,6 +160,8 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
             }
             renderTargetContexts.reset();
         }
+    } else {
+        fFlushingOpListIds.reset(0);
     }
 
 #if 0
@@ -204,8 +204,10 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         fContext->getResourceCache()->notifyFlushOccurred(type);
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush(fFlushState.nextTokenToFlush());
+        onFlushCBObject->postFlush(fFlushState.nextTokenToFlush(), fFlushingOpListIds.get(),
+                                   fFlushingOpListIds.count());
     }
+    // Keep fFlushingOpListIds's buffer around for the next frame.
     fFlushing = false;
 
     return result;
