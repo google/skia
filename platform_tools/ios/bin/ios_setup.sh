@@ -17,9 +17,6 @@ fi
 # relative to the mount point.
 IOS_DOCS_DIR="Documents"
 
-# Temporary location to assemble the app into an .ipa package.
-IOS_PCKG_DIR="/tmp/ios_pckg"
-
 # Directory with the Skia source.
 SKIA_SRC_DIR=$(cd "${SCRIPT_DIR}/../../.."; pwd)
 
@@ -45,33 +42,6 @@ fi
 if [[ -z "$XCODEBUILD" ]]; then
   XCODEBUILD="${SKIA_SRC_DIR}/xcodebuild"
 fi
-
-# Name of the iOS app.
-IOS_APP=iOSShell.ipa
-
-# Location of the compiled iOS code.
-IOS_OUT=${XCODEBUILD}/${BUILDTYPE}-iphoneos
-
-# Location of the compiled iOS app.
-IOS_APP_PATH=${IOS_OUT}/${IOS_APP}
-
-ios_uninstall_app() {
-  ideviceinstaller -U "$IOS_BUNDLE_ID"
-}
-
-ios_package_app() {
-  rm -rf $IOS_PCKG_DIR
-  mkdir -p $IOS_PCKG_DIR/Payload  # this directory must be named 'Payload'
-  cp -rf "${IOS_OUT}/iOSShell.app" "${IOS_PCKG_DIR}/Payload/"
-  pushd $IOS_PCKG_DIR
-  zip -r ${IOS_APP} Payload
-  cp ${IOS_APP} ${IOS_APP_PATH}
-  popd
-}
-
-ios_install_app() {
-  ideviceinstaller -i ${IOS_APP_PATH}
-}
 
 ios_rm() {
   local TARGET="$IOS_MOUNT_POINT/$IOS_DOCS_DIR/$1"
