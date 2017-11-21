@@ -123,25 +123,6 @@ def GenTests(api):
       test += api.step_data(
           'read chromecast ip',
           stdout=api.raw_io.output('192.168.1.2:5555'))
-    if 'Nexus10' in buildername:
-      test += api.step_data(
-          'fetch available frequencies',
-          stdout=api.raw_io.output('/system/bin/sh: cat: '
-              ' No such file or directory'))
-      test += api.step_data(
-          'fetch min frequency',
-          stdout=api.raw_io.output('200000'))
-      test += api.step_data(
-          'fetch max frequency',
-          stdout=api.raw_io.output('800000'))
-    elif 'Nexus' in buildername:
-      test += api.step_data(
-          'fetch available frequencies',
-          stdout=api.raw_io.output('51000 102000 204000 340000 475000 '
-            '640000 760000 860000 1000000 1100000 1200000 1300000'))
-    elif 'GalaxyS7' in buildername:
-      test += api.step_data(
-          'root (to set cpu frequency)', retcode=1)
     yield test
 
   builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All'
@@ -202,4 +183,14 @@ def GenTests(api):
       api.step_data(fail_step_name, retcode=1) +
       api.step_data(fail_step_name + ' (attempt 2)', retcode=1) +
       api.step_data(fail_step_name + ' (attempt 3)', retcode=1)
+  )
+
+  yield (
+      api.test('cpu_scale_failed') +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data('Scale CPU to 0.600000', retcode=1)
   )
