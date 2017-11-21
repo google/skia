@@ -1307,10 +1307,6 @@ if (skia_enable_tools) {
       public_include_dirs = [ "samplecode" ]
       include_dirs = [ "experimental" ]
       sources = samples_sources + [
-                  "experimental/SkSetPoly3To3.cpp",
-                  "experimental/SkSetPoly3To3_A.cpp",
-                  "experimental/SkSetPoly3To3_D.cpp",
-
                   # Relocating these files here, so that clients don't try to build them while they're
                   # still in active development. Clang's thread safety analysis gets tripped up by
                   # conditional locks.
