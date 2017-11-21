@@ -12,8 +12,6 @@
 #include "SkRandom.h"
 #include "SkTime.h"
 
-extern bool SkSetPoly3To3(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3]);
-
 class PolyToPolyView : public SampleView {
 public:
     PolyToPolyView() {
@@ -63,10 +61,6 @@ public:
 
                 SkMatrix m0;
                 m0.setPolyToPoly(src, dst, 3);
-              //  SkMatrix m1;
-              //  SkSetPoly3To3(&m1, src, dst);
-              //  m0.dump();
-              //  m1.dump();
             }
         }
     }
