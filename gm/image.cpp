@@ -395,6 +395,12 @@ static void slam_ff(const SkPixmap& pm) {
 }
 
 DEF_SIMPLE_GM(scalepixels_unpremul, canvas, 1080, 280) {
+    {
+        SkPath path;
+        for (int i = 0; i < 1024*1024*1024; ++i) {
+            path.cubicTo(1, 2, 3, 4, 5, 6);
+        }
+    }
     SkImageInfo info = SkImageInfo::MakeN32(16, 16, kUnpremul_SkAlphaType);
     SkAutoPixmapStorage pm;
     pm.alloc(info);

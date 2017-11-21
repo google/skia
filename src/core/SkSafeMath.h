@@ -28,6 +28,11 @@ public:
         return result;
     }
 
+    int add31(int a, int b) {
+        fOK &= a <= 0x7FFFFFFF - b;
+        return a + b;
+    }
+
 private:
     uint32_t mul32(uint32_t x, uint32_t y) {
         uint64_t bx = x;
