@@ -71,8 +71,8 @@ void SkiaAndroidApp::setTitle(const char* title) const {
     fPThreadEnv->DeleteLocalRef(titleString);
 }
 
-void SkiaAndroidApp::setUIState(const Json::Value& state) const {
-    jstring jstr = fPThreadEnv->NewStringUTF(state.toStyledString().c_str());
+void SkiaAndroidApp::setUIState(const char* state) const {
+    jstring jstr = fPThreadEnv->NewStringUTF(state);
     fPThreadEnv->CallVoidMethod(fAndroidApp, fSetStateMethodID, jstr);
     fPThreadEnv->DeleteLocalRef(jstr);
 }

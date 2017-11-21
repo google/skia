@@ -1399,54 +1399,6 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (is_linux || is_win || is_mac) {
-    test_app("SampleApp") {
-      sources = [
-        "samplecode/SampleApp.cpp",
-        "samplecode/SamplePictFile.cpp",
-      ]
-      if (is_mac) {
-        sources += [ "src/views/mac/skia_mac.mm" ]
-      } else if (is_win) {
-        sources += [ "src/views/win/skia_win.cpp" ]
-      } else if (is_linux) {
-        sources += [ "src/views/unix/skia_unix.cpp" ]
-      }
-      deps = [
-        ":flags",
-        ":gm",
-        ":gpu_tool_utils",
-        ":samples",
-        ":skia",
-        ":tool_utils",
-        ":views",
-      ]
-      if (skia_use_angle) {
-        deps += [ "//third_party/angle2" ]
-      }
-    }
-  }
-
-  if (skia_enable_gpu && !skia_use_angle && (is_linux || is_win || is_mac)) {
-    test_app("HelloWorld") {
-      sources = [
-        "example/HelloWorld.cpp",
-      ]
-      if (is_mac) {
-        sources += [ "src/views/mac/skia_mac.mm" ]
-      } else if (is_win) {
-        sources += [ "src/views/win/skia_win.cpp" ]
-      } else if (is_linux) {
-        sources += [ "src/views/unix/skia_unix.cpp" ]
-      }
-      deps = [
-        ":gpu_tool_utils",
-        ":skia",
-        ":views",
-      ]
-    }
-  }
-
   if (skia_enable_gpu) {
     test_app("skpbench") {
       sources = [
@@ -1650,86 +1602,74 @@ if (skia_enable_tools) {
   }
 
   if (skia_enable_gpu) {
-    test_app("viewer") {
-      is_shared_library = is_android
+    test_lib("sk_app") {
+      public_include_dirs = [ "tools/sk_app" ]
       sources = [
-        "tools/viewer/GMSlide.cpp",
-        "tools/viewer/ImageSlide.cpp",
-        "tools/viewer/SKPSlide.cpp",
-        "tools/viewer/SampleSlide.cpp",
-        "tools/viewer/Viewer.cpp",
-        "tools/viewer/sk_app/CommandSet.cpp",
-        "tools/viewer/sk_app/GLWindowContext.cpp",
-        "tools/viewer/sk_app/Window.cpp",
+        "tools/sk_app/CommandSet.cpp",
+        "tools/sk_app/GLWindowContext.cpp",
+        "tools/sk_app/Window.cpp",
       ]
       libs = []
 
       if (is_android) {
         sources += [
-          "tools/viewer/sk_app/android/GLWindowContext_android.cpp",
-          "tools/viewer/sk_app/android/RasterWindowContext_android.cpp",
-          "tools/viewer/sk_app/android/Window_android.cpp",
-          "tools/viewer/sk_app/android/main_android.cpp",
-          "tools/viewer/sk_app/android/surface_glue_android.cpp",
+          "tools/sk_app/android/GLWindowContext_android.cpp",
+          "tools/sk_app/android/RasterWindowContext_android.cpp",
+          "tools/sk_app/android/Window_android.cpp",
+          "tools/sk_app/android/main_android.cpp",
+          "tools/sk_app/android/surface_glue_android.cpp",
         ]
         libs += [ "android" ]
       } else if (is_linux) {
         sources += [
-          "tools/viewer/sk_app/unix/GLWindowContext_unix.cpp",
-          "tools/viewer/sk_app/unix/RasterWindowContext_unix.cpp",
-          "tools/viewer/sk_app/unix/Window_unix.cpp",
-          "tools/viewer/sk_app/unix/main_unix.cpp",
+          "tools/sk_app/unix/GLWindowContext_unix.cpp",
+          "tools/sk_app/unix/RasterWindowContext_unix.cpp",
+          "tools/sk_app/unix/Window_unix.cpp",
+          "tools/sk_app/unix/main_unix.cpp",
         ]
       } else if (is_win) {
         sources += [
-          "tools/viewer/sk_app/win/GLWindowContext_win.cpp",
-          "tools/viewer/sk_app/win/RasterWindowContext_win.cpp",
-          "tools/viewer/sk_app/win/Window_win.cpp",
-          "tools/viewer/sk_app/win/main_win.cpp",
+          "tools/sk_app/win/GLWindowContext_win.cpp",
+          "tools/sk_app/win/RasterWindowContext_win.cpp",
+          "tools/sk_app/win/Window_win.cpp",
+          "tools/sk_app/win/main_win.cpp",
         ]
         if (skia_use_angle) {
-          sources += [ "tools/viewer/sk_app/win/ANGLEWindowContext_win.cpp" ]
+          sources += [ "tools/sk_app/win/ANGLEWindowContext_win.cpp" ]
         }
       } else if (is_mac) {
         sources += [
-          "tools/viewer/sk_app/mac/GLWindowContext_mac.cpp",
-          "tools/viewer/sk_app/mac/RasterWindowContext_mac.cpp",
-          "tools/viewer/sk_app/mac/Window_mac.cpp",
-          "tools/viewer/sk_app/mac/main_mac.cpp",
+          "tools/sk_app/mac/GLWindowContext_mac.cpp",
+          "tools/sk_app/mac/RasterWindowContext_mac.cpp",
+          "tools/sk_app/mac/Window_mac.cpp",
+          "tools/sk_app/mac/main_mac.cpp",
         ]
       } else if (is_ios) {
         sources += [
-          "tools/viewer/sk_app/ios/GLWindowContext_ios.cpp",
-          "tools/viewer/sk_app/ios/RasterWindowContext_ios.cpp",
-          "tools/viewer/sk_app/ios/Window_ios.cpp",
-          "tools/viewer/sk_app/ios/main_ios.cpp",
+          "tools/sk_app/ios/GLWindowContext_ios.cpp",
+          "tools/sk_app/ios/RasterWindowContext_ios.cpp",
+          "tools/sk_app/ios/Window_ios.cpp",
+          "tools/sk_app/ios/main_ios.cpp",
         ]
       }
 
       if (skia_use_vulkan) {
-        sources += [ "tools/viewer/sk_app/VulkanWindowContext.cpp" ]
+        sources += [ "tools/sk_app/VulkanWindowContext.cpp" ]
         if (is_android) {
-          sources +=
-              [ "tools/viewer/sk_app/android/VulkanWindowContext_android.cpp" ]
+          sources += [ "tools/sk_app/android/VulkanWindowContext_android.cpp" ]
         } else if (is_linux) {
-          sources += [ "tools/viewer/sk_app/unix/VulkanWindowContext_unix.cpp" ]
+          sources += [ "tools/sk_app/unix/VulkanWindowContext_unix.cpp" ]
           libs += [ "X11-xcb" ]
         } else if (is_win) {
-          sources += [ "tools/viewer/sk_app/win/VulkanWindowContext_win.cpp" ]
+          sources += [ "tools/sk_app/win/VulkanWindowContext_win.cpp" ]
         }
       }
 
-      include_dirs = []
       deps = [
-        ":flags",
-        ":gm",
         ":gpu_tool_utils",
-        ":samples",
         ":skia",
         ":tool_utils",
         ":views",
-        "//third_party/imgui",
-        "//third_party/jsoncpp",
       ]
       if (is_android) {
         deps += [ "//third_party/native_app_glue" ]
@@ -1739,6 +1679,53 @@ if (skia_enable_tools) {
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
       }
+    }
+  }
+
+  if (skia_enable_gpu) {
+    test_app("viewer") {
+      is_shared_library = is_android
+      sources = [
+        "tools/viewer/GMSlide.cpp",
+        "tools/viewer/ImageSlide.cpp",
+        "tools/viewer/SKPSlide.cpp",
+        "tools/viewer/SampleSlide.cpp",
+        "tools/viewer/Viewer.cpp",
+      ]
+      libs = []
+
+      include_dirs = []
+      deps = [
+        ":flags",
+        ":gm",
+        ":gpu_tool_utils",
+        ":samples",
+        ":sk_app",
+        ":skia",
+        ":tool_utils",
+        ":views",
+        "//third_party/imgui",
+        "//third_party/jsoncpp",
+      ]
+    }
+  }
+
+  if (skia_enable_gpu && !skia_use_angle && (is_linux || is_win || is_mac)) {
+    test_app("HelloWorld") {
+      sources = [
+        "example/HelloWorld.cpp",
+      ]
+      libs = []
+
+      include_dirs = []
+      deps = [
+        ":flags",
+        ":gpu_tool_utils",
+        ":sk_app",
+        ":skia",
+        ":tool_utils",
+        ":views",
+      ]
     }
   }
 
