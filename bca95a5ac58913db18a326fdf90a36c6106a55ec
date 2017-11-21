@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "25b69623_f4a8bf00",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.expected/Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-21T00:16:32Z",
+      "side": 1,
+      "message": "It doesn\u0027t really make sense to me that if \u0027adb root\u0027 fails, we would run dm anyway, then fail the recipe.",
+      "parentUuid": "7a9f04cd_3d215adf",
+      "range": {
+        "startLine": 834,
+        "startChar": 0,
+        "endLine": 839,
+        "endChar": 3
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab3d60ee_2995d084",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 7
@@ -189,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "9146204b_90ecbd01",
+        "filename": "infra/bots/recipes/perf.expected/Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 716,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-21T00:16:32Z",
+      "side": 1,
+      "message": "Ok, but Nexus7 doesn\u0027t seem to be among the test cases you added to perf.py. It seems like the default behavior would be to fail before running nanobench. That means we don\u0027t actually see the expected arguments to nanobench, which is most of the point of adding tests for specific devices.",
+      "parentUuid": "05488cc5_e3cfb9f5",
+      "range": {
+        "startLine": 711,
+        "startChar": 0,
+        "endLine": 716,
+        "endChar": 3
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6bc5ded4_62953de7",
         "filename": "infra/bots/recipes/perf.expected/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android.json",
         "patchSetId": 7
@@ -229,6 +277,29 @@
         "startChar": 0,
         "endLine": 660,
         "endChar": 4
+      },
+      "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d8b404a_35b56165",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-21T00:16:32Z",
+      "side": 1,
+      "message": "I think it would be better to add a default of successfully setting the CPU frequency, like in test.py, and move these special cases that test different error cases to be separate test cases.",
+      "range": {
+        "startLine": 410,
+        "startChar": 0,
+        "endLine": 433,
+        "endChar": 51
       },
       "revId": "bca95a5ac58913db18a326fdf90a36c6106a55ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
