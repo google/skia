@@ -36,7 +36,7 @@ Here are some real world examples:
 
     CQ_INCLUDE_TRYBOTS=master.tryserver.chromium.linux:linux_chromium_asan_rel_ng
 
-    CQ_INCLUDE_TRYBOTS=skia.primary:Test-Win-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE
+    CQ_INCLUDE_TRYBOTS=skia.primary:Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE
 
 
 No-Tree-Checks
