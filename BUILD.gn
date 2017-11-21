@@ -909,6 +909,7 @@ if (skia_enable_tools) {
       ]
 
       if (skia_use_egl) {
+        defines = [ "EGL_NO_IMAGE_EXTERNAL"]
         sources += [ "tools/fiddle/egl_context.cpp" ]
       } else {
         sources += [ "tools/fiddle/null_context.cpp" ]
