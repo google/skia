@@ -22,6 +22,30 @@
       "revId": "e492e6ea9bf728838746027e3246cf42f971bdcf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36be787b_a495d34a",
+        "filename": "src/core/SkSafeMath.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5648
+      },
+      "writtenOn": "2017-11-21T18:34:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f9788dd_0ccf8fca",
+      "range": {
+        "startLine": 32,
+        "startChar": 42,
+        "endLine": 32,
+        "endChar": 44
+      },
+      "revId": "e492e6ea9bf728838746027e3246cf42f971bdcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
