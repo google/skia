@@ -185,6 +185,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
 void GrRenderTargetOpList::endFlush() {
     fLastClipStackGenID = SK_InvalidUniqueID;
     fRecordedOps.reset();
+    fClipAllocator.reset();
     if (fInstancedRendering) {
         fInstancedRendering->endFlush();
         fInstancedRendering = nullptr;
