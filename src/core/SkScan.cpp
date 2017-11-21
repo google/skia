@@ -13,7 +13,7 @@
 std::atomic<bool> gSkUseAnalyticAA{true};
 std::atomic<bool> gSkForceAnalyticAA{false};
 
-#if defined(SK_SUPPORT_LEGACY_DELTA_AA) || (defined(_MSC_VER) && !defined(__clang__))
+#if defined(SK_SUPPORT_LEGACY_DELTA_AA)
     std::atomic<bool> gSkUseDeltaAA{false};
 #else
     std::atomic<bool> gSkUseDeltaAA{true};
