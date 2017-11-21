@@ -23,6 +23,7 @@
 #include "SkRegion.h"
 #include "SkStream.h"
 #include "SkSurface.h"
+#include "SkTextBlob.h"
 #include "SkValidatingReadBuffer.h"
 
 #if SK_SUPPORT_GPU
@@ -54,12 +55,13 @@ static uint8_t calculate_option(SkData*);
 
 static void fuzz_api(sk_sp<SkData>);
 static void fuzz_color_deserialize(sk_sp<SkData>);
+static void fuzz_filter_fuzz(sk_sp<SkData>);
 static void fuzz_icc(sk_sp<SkData>);
 static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static void fuzz_path_deserialize(sk_sp<SkData>);
 static void fuzz_region_deserialize(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
-static void fuzz_filter_fuzz(sk_sp<SkData>);
+static void fuzz_textblob_deserialize(sk_sp<SkData>);
 
 #if SK_SUPPORT_GPU
 static void fuzz_sksl2glsl(sk_sp<SkData>);
@@ -130,6 +132,10 @@ static int fuzz_file(const char* path) {
         }
         if (0 == strcmp("filter_fuzz", FLAGS_type[0])) {
             fuzz_filter_fuzz(bytes);
+            return 0;
+        }
+        if (0 == strcmp("textblob", FLAGS_type[0])) {
+            fuzz_textblob_deserialize(bytes);
             return 0;
         }
 #if SK_SUPPORT_GPU
@@ -503,6 +509,19 @@ static void fuzz_region_deserialize(sk_sp<SkData> bytes) {
     s->getCanvas()->drawRegion(region, SkPaint());
     SkDEBUGCODE(region.validate());
     SkDebugf("[terminated] Success! Initialized SkRegion.\n");
+}
+
+static void fuzz_textblob_deserialize(sk_sp<SkData> bytes) {
+    SkValidatingReadBuffer buf(bytes->data(), bytes->size());
+    auto tb = SkTextBlob::MakeFromBuffer(buf);
+    if (!buf.isValid()) {
+        SkDebugf("[terminated] Couldn't deserialize SkTextBlob.\n");
+        return;
+    }
+
+    auto s = SkSurface::MakeRasterN32Premul(512, 512);
+    s->getCanvas()->drawTextBlob(tb, 200, 200, SkPaint());
+    SkDebugf("[terminated] Success! Initialized SkTextBlob.\n");
 }
 
 static void fuzz_filter_fuzz(sk_sp<SkData> bytes) {
