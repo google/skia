@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f9788dd_0ccf8fca",
+        "filename": "src/core/SkSafeMath.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-21T18:07:43Z",
+      "side": 1,
+      "message": "is",
+      "range": {
+        "startLine": 32,
+        "startChar": 42,
+        "endLine": 32,
+        "endChar": 44
+      },
+      "revId": "e492e6ea9bf728838746027e3246cf42f971bdcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
