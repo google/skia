@@ -73,8 +73,8 @@ public:
 
     void beginPath();
     void beginContour(const SkPoint& devPt);
-    void lineTo(const SkPoint& devPt);
-    void quadraticTo(const SkPoint& devP1, const SkPoint& devP2);
+    void lineTo(const SkPoint devPts[2]);
+    void quadraticTo(const SkPoint devPts[3]);
 
     // We pass through inflection points and loop intersections using a line and quadratic(s)
     // respectively. 'inflectPad' and 'loopIntersectPad' specify how close (in pixels) cubic
@@ -87,8 +87,7 @@ public:
     //       through the loop intersection can be approximated with a single quadratic anyway,
     //       regardless of whether we are use one pixel of pad or two (1.622 avg. quads per loop
     //       intersection vs. 1.489 on the tiger).
-    void cubicTo(const SkPoint& devP1, const SkPoint& devP2, const SkPoint& devP3,
-                 float inflectPad = 0.55f, float loopIntersectPad = 2);
+    void cubicTo(const SkPoint devPts[4], float inflectPad = 0.55f, float loopIntersectPad = 2);
 
     PrimitiveTallies endContour(); // Returns the numbers of primitives needed to draw the contour.
 

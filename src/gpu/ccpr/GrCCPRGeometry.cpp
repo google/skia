@@ -38,11 +38,12 @@ void GrCCPRGeometry::beginContour(const SkPoint& devPt) {
     SkDEBUGCODE(fBuildingContour = true;)
 }
 
-void GrCCPRGeometry::lineTo(const SkPoint& devPt) {
+void GrCCPRGeometry::lineTo(const SkPoint devPts[2]) {
     SkASSERT(fBuildingContour);
+    SkASSERT(fCurrFanPoint == devPts[0]);
     SkASSERT(fCurrFanPoint == fPoints.back());
-    fCurrFanPoint = devPt;
-    fPoints.push_back(devPt);
+    fPoints.push_back(devPts[1]);
+    fCurrFanPoint = devPts[1];
     fVerbs.push_back(Verb::kLineTo);
 }
 
@@ -90,14 +91,15 @@ static inline Sk2f lerp(const Sk2f& a, const Sk2f& b, const Sk2f& t) {
     return SkNx_fma(t, b - a, a);
 }
 
-void GrCCPRGeometry::quadraticTo(const SkPoint& devP0, const SkPoint& devP1) {
+void GrCCPRGeometry::quadraticTo(const SkPoint devPts[3]) {
     SkASSERT(fBuildingContour);
+    SkASSERT(fCurrFanPoint == devPts[0]);
     SkASSERT(fCurrFanPoint == fPoints.back());
 
     Sk2f p0 = Sk2f::Load(&fCurrFanPoint);
-    Sk2f p1 = Sk2f::Load(&devP0);
-    Sk2f p2 = Sk2f::Load(&devP1);
-    fCurrFanPoint = devP1;
+    Sk2f p1 = Sk2f::Load(&devPts[1]);
+    Sk2f p2 = Sk2f::Load(&devPts[2]);
+    fCurrFanPoint = devPts[2];
 
     // Don't send curves to the GPU if we know they are flat (or just very small).
     if (are_collinear(p0, p1, p2)) {
@@ -283,17 +285,16 @@ static inline bool is_cubic_nearly_quadratic(const Sk2f& p0, const Sk2f& p1, con
     return ((c1 - c2).abs() <= 1).allTrue();
 }
 
-void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const SkPoint& devP3,
-                             float inflectPad, float loopIntersectPad) {
+void GrCCPRGeometry::cubicTo(const SkPoint devPts[4], float inflectPad, float loopIntersectPad) {
     SkASSERT(fBuildingContour);
+    SkASSERT(fCurrFanPoint == devPts[0]);
     SkASSERT(fCurrFanPoint == fPoints.back());
 
-    SkPoint devPts[4] = {fCurrFanPoint, devP1, devP2, devP3};
-    Sk2f p0 = Sk2f::Load(&fCurrFanPoint);
-    Sk2f p1 = Sk2f::Load(&devP1);
-    Sk2f p2 = Sk2f::Load(&devP2);
-    Sk2f p3 = Sk2f::Load(&devP3);
-    fCurrFanPoint = devP3;
+    Sk2f p0 = Sk2f::Load(&devPts[0]);
+    Sk2f p1 = Sk2f::Load(&devPts[1]);
+    Sk2f p2 = Sk2f::Load(&devPts[2]);
+    Sk2f p3 = Sk2f::Load(&devPts[3]);
+    fCurrFanPoint = devPts[3];
 
     // Don't crunch on the curve and inflate geometry if it is already flat (or just very small).
     if (are_collinear(p0, p1, p2) &&
