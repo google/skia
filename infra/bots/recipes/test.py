@@ -994,10 +994,6 @@ def GenTests(api):
       test += api.step_data(
           'read chromeos ip',
           stdout=api.raw_io.output('{"user_ip":"foo@127.0.0.1"}'))
-    if 'Android' in builder:
-      test += api.step_data(
-          'fetch available frequencies',
-          stdout=api.raw_io.output('100000 1300000'))
 
     yield test
 
@@ -1145,7 +1141,5 @@ def GenTests(api):
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    api.step_data(
-          'root (to set cpu frequency)', retcode=1)
+    )
   )
