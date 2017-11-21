@@ -11,7 +11,7 @@
 #include "SkPath.h"
 #include "SkPathRef.h"
 #include "SkPathPriv.h"
-#include <limits>
+#include "SkSafeMath.h"
 
 //////////////////////////////////////////////////////////////////////////////
 SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
@@ -198,28 +198,32 @@ static bool deduce_pts_conics(const uint8_t verbs[], int vCount, int* ptCountPtr
         return false;
     }
 
+    SkSafeMath safe;
     int ptCount = 0;
     int conicCount = 0;
     for (int i = 0; i < vCount; ++i) {
         switch (verbs[i]) {
             case SkPath::kMove_Verb:
             case SkPath::kLine_Verb:
-                ptCount += 1;
+                ptCount = safe.addInt(ptCount, 1);
                 break;
             case SkPath::kConic_Verb:
                 conicCount += 1;
                 // fall-through
             case SkPath::kQuad_Verb:
-                ptCount += 2;
+                ptCount = safe.addInt(ptCount, 2);
                 break;
             case SkPath::kCubic_Verb:
-                ptCount += 3;
+                ptCount = safe.addInt(ptCount, 3);
                 break;
             case SkPath::kClose_Verb:
                 break;
             default:
                 return false;
         }
+    }
+    if (!safe) {
+        return false;
     }
     *ptCountPtr = ptCount;
     *conicCountPtr = conicCount;
@@ -554,12 +558,18 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
             dirtyAfterEdit = false;
             pCnt = 0;
     }
+    SkSafeMath safe;
+    int newPointCnt = safe.addInt(fPointCnt, pCnt);
+    int newVerbCnt  = safe.addInt(fVerbCnt, 1);
+    if (!safe) {
+        SK_ABORT("cannot grow path");
+    }
     size_t space = sizeof(uint8_t) + pCnt * sizeof (SkPoint);
     this->makeSpace(space);
     this->fVerbs[~fVerbCnt] = verb;
     SkPoint* ret = fPoints + fPointCnt;
-    fVerbCnt += 1;
-    fPointCnt += pCnt;
+    fVerbCnt = newVerbCnt;
+    fPointCnt = newPointCnt;
     fFreeSpace -= space;
     fBoundsIsDirty = true;  // this also invalidates fIsFinite
     if (dirtyAfterEdit) {

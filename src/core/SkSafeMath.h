@@ -28,6 +28,21 @@ public:
         return result;
     }
 
+    /**
+     *  Return a + b, unless this result is an overflow/underflow. In those cases, fOK will
+     *  be set to false, and it is undefined what this returns.
+     */
+    int addInt(int a, int b) {
+        if (b < 0 && a < std::numeric_limits<int>::min() - b) {
+            fOK = false;
+            return a;
+        } else if (b > 0 && a > std::numeric_limits<int>::max() - b) {
+            fOK = false;
+            return a;
+        }
+        return a + b;
+    }
+
 private:
     uint32_t mul32(uint32_t x, uint32_t y) {
         uint64_t bx = x;
