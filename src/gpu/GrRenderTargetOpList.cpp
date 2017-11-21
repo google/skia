@@ -274,10 +274,16 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
     auto gather = [ alloc ] (GrSurfaceProxy* p) {
         alloc->addInterval(p);
     };
-    for (int i = 0; i < fRecordedOps.count(); ++i) {
-        const GrOp* op = fRecordedOps[i].fOp.get(); // only diff from the GrTextureOpList version
-        if (op) {
-            op->visitProxies(gather);
+    for (const RecordedOp& recordedOp : fRecordedOps) {
+        // only diffs from the GrTextureOpList version
+        if (recordedOp.fOp) {
+            recordedOp.fOp->visitProxies(gather);
+        }
+        if (recordedOp.fDstProxy.proxy()) {
+            gather(recordedOp.fDstProxy.proxy());
+        }
+        if (recordedOp.fAppliedClip) {
+            recordedOp.fAppliedClip->visitProxies(gather);
         }
 
         // Even though the op may have been moved we still need to increment the op count to
