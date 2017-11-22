@@ -10,39 +10,24 @@
 
 #include "SkColor.h"
 #include "SkEvent.h"
-#include "SkKey.h"
 #include "SkView.h"
 
-class GrContext;
 class SkAnimTimer;
 
 #define DEF_SAMPLE(code) \
     static SkView*          SK_MACRO_APPEND_LINE(F_)() { code } \
     static SkViewRegister   SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
 
-#define MAX_ZOOM_LEVEL  8
-#define MIN_ZOOM_LEVEL  -8
-
 static const char gCharEvtName[] = "SampleCode_Char_Event";
-static const char gKeyEvtName[] = "SampleCode_Key_Event";
 static const char gTitleEvtName[] = "SampleCode_Title_Event";
-static const char gPrefSizeEvtName[] = "SampleCode_PrefSize_Event";
-static const char gFastTextEvtName[] = "SampleCode_FastText_Event";
-static const char gUpdateWindowTitleEvtName[] = "SampleCode_UpdateWindowTitle";
 
 class SampleCode {
 public:
-    static bool KeyQ(const SkEvent&, SkKey* outKey);
     static bool CharQ(const SkEvent&, SkUnichar* outUni);
 
     static bool TitleQ(const SkEvent&);
     static void TitleR(SkEvent*, const char title[]);
     static bool RequestTitle(SkView* view, SkString* title);
-
-    static bool PrefSizeQ(const SkEvent&);
-    static void PrefSizeR(SkEvent*, SkScalar width, SkScalar height);
-
-    static bool FastTextQ(const SkEvent&);
 
     friend class SampleWindow;
 };
@@ -67,29 +52,10 @@ private:
     SkViewCreateFunc fCreateFunc;
 };
 
-namespace skiagm {
-class GM;
-}
-
-// factory function that creates a skiagm::GM
-typedef skiagm::GM* (*GMFactoryFunc)(void*);
-
-// Takes a GM factory function and implements the SkViewFactory interface
-// by making the GM and wrapping it in a GMSampleView. GMSampleView bridges
-// the SampleView interface to skiagm::GM.
-class SkGMSampleViewFactory : public SkViewFactory {
-public:
-    SkGMSampleViewFactory(GMFactoryFunc func);
-    SkView* operator() () const override;
-private:
-    GMFactoryFunc fFunc;
-};
-
 class SkViewRegister : public SkRefCnt {
 public:
     explicit SkViewRegister(SkViewFactory*);
     explicit SkViewRegister(SkViewCreateFunc);
-    explicit SkViewRegister(GMFactoryFunc);
 
     ~SkViewRegister() {
         fFact->unref();
@@ -113,7 +79,6 @@ class SampleView : public SkView {
 public:
     SampleView()
         : fBGColor(SK_ColorWHITE)
-        , fRepeatCount(1)
         , fHaveCalledOnceBeforeDraw(false)
     {}
 
@@ -129,14 +94,12 @@ protected:
     virtual void onOnceBeforeDraw() {}
 
     // overrides
-    virtual bool onEvent(const SkEvent& evt);
     virtual bool onQuery(SkEvent* evt);
     virtual void onDraw(SkCanvas*);
 
     SkColor fBGColor;
 
 private:
-    int fRepeatCount;
     bool fHaveCalledOnceBeforeDraw;
     typedef SkView INHERITED;
 };

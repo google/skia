@@ -19,7 +19,6 @@
 #include "SkOSPath.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "SkSystemEventTypes.h"
 #include "SkTypes.h"
 #include "SkUtils.h"
 #include "SkView.h"
