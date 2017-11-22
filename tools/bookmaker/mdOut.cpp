@@ -62,7 +62,10 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             lineStart = false;
         } else {
             leadingSpaces = string(base, wordStart - base);
-         }
+        }
+        if (!strncmp("SkPoint::operator-()", start, 20)) {
+            SkDebugf("");
+        }
         t.skipToMethodEnd();
         if (base == t.fChar) {
             break;
@@ -74,6 +77,9 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             continue;
         }
         ref = string(start, t.fChar - start);
+        if (412 == t.fLineCount) {
+            SkDebugf("");
+        }
         if (const Definition* def = this->isDefined(t, ref,
                 BmhParser::Resolvable::kOut != resolvable)) {
             SkASSERT(def->fFiddle.length());
@@ -105,7 +111,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                     return result;
                 }
                 if (!foundMatch) {
-                    if (!(def = this->isDefined(t, fullRef, true))) {
+                    if (!(def = this->isDefined(t, fullRef,
+                            BmhParser::Resolvable::kOut != resolvable))) {
                         if (!result.size()) {
                             t.reportError("missing method");
                         }
@@ -705,13 +712,26 @@ void MdOut::markTypeOut(Definition* def) {
             fprintf(fOut, "Example\n"
                             "\n");
             fHasFiddle = true;
+            bool showGpu = false;
+            bool gpuAndCpu = false;
             const Definition* platform = def->hasChild(MarkType::kPlatform);
             if (platform) {
                 TextParser platParse(platform);
                 fHasFiddle = !platParse.strnstr("!fiddle", platParse.fEnd);
+                showGpu = !platParse.strnstr("gpu", platParse.fEnd);
+                if (showGpu) {
+                    gpuAndCpu = !platParse.strnstr("cpu", platParse.fEnd);
+                }
             }
             if (fHasFiddle) {
-                fprintf(fOut, "<div><fiddle-embed name=\"%s\">", def->fHash.c_str());
+                fprintf(fOut, "<div><fiddle-embed name=\"%s\"", def->fHash.c_str());
+                if (showGpu) {
+                    fprintf(fOut, "gpu=\"true\"");
+                    if (gpuAndCpu) {
+                        fprintf(fOut, "cpu=\"true\"");
+                    }
+                }
+                fprintf(fOut, ">", def->fHash.c_str());
             } else {
                 fprintf(fOut, "<pre style=\"padding: 1em 1em 1em 1em;"
                         "width: 50em; background-color: #f0f0f0\">");
