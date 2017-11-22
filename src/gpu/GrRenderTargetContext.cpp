@@ -646,8 +646,8 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
 
     // Setup clip
     GrAppliedHardClip appliedClip;
-    if (!clip.apply(fRenderTargetContext->width(), fRenderTargetContext->height(), &appliedClip,
-                    &bounds)) {
+    if (!clip.apply(fRenderTargetContext->width(), fRenderTargetContext->height(), bounds,
+                    &appliedClip)) {
         return;
     }
 
@@ -662,7 +662,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
     if (!op) {
         return;
     }
-    op->setClippedBounds(bounds);
+    op->setClippedBounds(bounds, appliedClip.scissorState());
     fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
@@ -1796,9 +1796,10 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     op_bounds(&bounds, op.get());
     GrAppliedClip appliedClip;
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags = op->fixedFunctionFlags();
-    if (!clip.apply(fContext, this, fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA,
-                    fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil, &appliedClip,
-                    &bounds)) {
+    if (!clip.apply(fContext, this, bounds,
+                    fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA,
+                    fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil,
+                    &appliedClip)) {
         return SK_InvalidUniqueID;
     }
 
@@ -1819,7 +1820,7 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
         }
     }
 
-    op->setClippedBounds(bounds);
+    op->setClippedBounds(bounds, appliedClip.scissorState());
     return this->getRTOpList()->addOp(std::move(op), *this->caps(),
                                       std::move(appliedClip), dstProxy);
 }

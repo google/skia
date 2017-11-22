@@ -152,8 +152,8 @@ public:
     AlphaOnlyClip(sk_sp<GrTextureProxy> mask, int x, int y) : fMask(mask), fX(x), fY(y) {}
 
 private:
-    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
-               SkRect* bounds) const override {
+    bool apply(GrContext*, GrRenderTargetContext*, const SkRect&, bool, bool,
+               GrAppliedClip* out) const override {
         int w = fMask->width();
         int h = fMask->height();
         out->addCoverageFP(GrDeviceSpaceTextureDecalFragmentProcessor::Make(
@@ -181,7 +181,7 @@ void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas
         return;
     }
 
-    const GrReducedClip reducedClip(stack, SkRect::Make(kCoverRect), kNumWindows);
+    GrReducedClip reducedClip(stack, SkRect::Make(kCoverRect), kNumWindows, 0);
 
     GrPaint paint;
     if (GrFSAAType::kNone == rtc->fsaaType()) {

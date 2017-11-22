@@ -167,7 +167,7 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
         bool needsStencil = invert ||
                             kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op;
 
-        if (PathNeedsSWRenderer(context, reducedClip.scissor(), hasUserStencilSettings,
+        if (PathNeedsSWRenderer(context, reducedClip.ibounds(), hasUserStencilSettings,
                                 renderTargetContext, translate, element, nullptr, needsStencil)) {
             return true;
         }
@@ -179,10 +179,10 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
 bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTargetContext,
-                            bool useHWAA, bool hasUserStencilSettings, GrAppliedClip* out,
-                            SkRect* bounds) const {
+                            const SkRect& drawBounds, bool useHWAA, bool hasUserStencilSettings,
+                            GrAppliedClip* out) const {
     SkRect devBounds = SkRect::MakeIWH(renderTargetContext->width(), renderTargetContext->height());
-    if (!devBounds.intersect(*bounds)) {
+    if (!devBounds.intersect(drawBounds)) {
         return false;
     }
 
@@ -202,31 +202,18 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     }
 
     GrReducedClip reducedClip(*fStack, devBounds, renderTargetContext->priv().maxWindowRectangles(),
-                              maxAnalyticFPs);
-
-    if (reducedClip.hasScissor() && !GrClip::IsInsideClip(reducedClip.scissor(), devBounds)) {
-        out->hardClip().addScissor(reducedClip.scissor(), bounds);
-    }
-
-    if (!reducedClip.windowRectangles().empty()) {
-        out->hardClip().addWindowRectangles(reducedClip.windowRectangles(),
-                                            GrWindowRectsState::Mode::kExclusive);
-    }
-
-    if (std::unique_ptr<GrFragmentProcessor> clipFPs = reducedClip.detachAnalyticFPs()) {
-        out->addCoverageFP(std::move(clipFPs));
-    }
+                              maxAnalyticFPs, out);
 
     if (reducedClip.maskElements().isEmpty()) {
         return InitialState::kAllIn == reducedClip.initialState();
     }
 
 #ifdef SK_DEBUG
-    SkASSERT(reducedClip.hasScissor());
+    // Mask shouldn't be larger than the RT.
+    SkASSERT(reducedClip.hasIBounds());
     SkIRect rtIBounds = SkIRect::MakeWH(renderTargetContext->width(),
                                         renderTargetContext->height());
-    const SkIRect& scissor = reducedClip.scissor();
-    SkASSERT(rtIBounds.contains(scissor)); // Mask shouldn't be larger than the RT.
+    SkASSERT(rtIBounds.contains(reducedClip.ibounds()));
 #endif
 
     // If the stencil buffer is multisampled we can use it to do everything.
@@ -244,7 +231,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         if (result) {
             // The mask's top left coord should be pinned to the rounded-out top left corner of
             // the clip's device space bounds.
-            out->addCoverageFP(create_fp_for_mask(std::move(result), reducedClip.scissor()));
+            out->addCoverageFP(create_fp_for_mask(std::move(result), reducedClip.ibounds()));
             return true;
         }
 
@@ -262,10 +249,10 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     // This relies on the property that a reduced sub-rect of the last clip will contain all the
     // relevant window rectangles that were in the last clip. This subtle requirement will go away
     // after clipping is overhauled.
-    if (renderTargetContext->priv().mustRenderClip(reducedClip.maskGenID(), reducedClip.scissor(),
+    if (renderTargetContext->priv().mustRenderClip(reducedClip.maskGenID(), reducedClip.ibounds(),
                                                    reducedClip.numAnalyticFPs())) {
         reducedClip.drawStencilClipMask(context, renderTargetContext);
-        renderTargetContext->priv().setLastClip(reducedClip.maskGenID(), reducedClip.scissor(),
+        renderTargetContext->priv().setLastClip(reducedClip.maskGenID(), reducedClip.ibounds(),
                                                 reducedClip.numAnalyticFPs());
     }
     // GrAppliedClip doesn't need to figure numAnalyticFPs into its key (used by operator==) because
@@ -307,7 +294,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
                                                            const GrReducedClip& reducedClip) const {
     GrResourceProvider* resourceProvider = context->resourceProvider();
     GrUniqueKey key;
-    create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
+    create_clip_mask_key(reducedClip.maskGenID(), reducedClip.ibounds(),
                          reducedClip.numAnalyticFPs(), &key);
 
     sk_sp<GrTextureProxy> proxy(resourceProvider->findOrCreateProxyByUniqueKey(
@@ -353,7 +340,7 @@ namespace {
 class ClipMaskData {
 public:
     ClipMaskData(const GrReducedClip& reducedClip)
-            : fScissor(reducedClip.scissor())
+            : fScissor(reducedClip.ibounds())
             , fInitialState(reducedClip.initialState()) {
         for (ElementList::Iter iter(reducedClip.maskElements()); iter.get(); iter.next()) {
             fElements.addToTail(*iter.get());
@@ -420,7 +407,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         GrContext* context, const GrReducedClip& reducedClip,
         GrRenderTargetContext* renderTargetContext) const {
     GrUniqueKey key;
-    create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
+    create_clip_mask_key(reducedClip.maskGenID(), reducedClip.ibounds(),
                          reducedClip.numAnalyticFPs(), &key);
 
     sk_sp<GrTextureProxy> proxy(context->resourceProvider()->findOrCreateProxyByUniqueKey(
@@ -470,8 +457,8 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
             return nullptr;
         }
 
-        draw_clip_elements_to_mask_helper(helper, reducedClip.maskElements(), reducedClip.scissor(),
-                                          reducedClip.initialState());
+        draw_clip_elements_to_mask_helper(helper, reducedClip.maskElements(),
+                                          reducedClip.ibounds(), reducedClip.initialState());
 
         proxy = helper.toTextureProxy(context, SkBackingFit::kApprox);
     }
