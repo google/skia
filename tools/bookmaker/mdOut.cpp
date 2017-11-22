@@ -62,7 +62,10 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             lineStart = false;
         } else {
             leadingSpaces = string(base, wordStart - base);
-         }
+        }
+        if (!strncmp("SkPoint::operator-()", start, 20)) {
+            SkDebugf("");
+        }
         t.skipToMethodEnd();
         if (base == t.fChar) {
             break;
@@ -74,6 +77,9 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             continue;
         }
         ref = string(start, t.fChar - start);
+        if (412 == t.fLineCount) {
+            SkDebugf("");
+        }
         if (const Definition* def = this->isDefined(t, ref,
                 BmhParser::Resolvable::kOut != resolvable)) {
             SkASSERT(def->fFiddle.length());
@@ -105,7 +111,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                     return result;
                 }
                 if (!foundMatch) {
-                    if (!(def = this->isDefined(t, fullRef, true))) {
+                    if (!(def = this->isDefined(t, fullRef,
+                            BmhParser::Resolvable::kOut != resolvable))) {
                         if (!result.size()) {
                             t.reportError("missing method");
                         }
