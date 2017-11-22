@@ -43,6 +43,13 @@ public:
         return a + b;
     }
 
+    size_t alignUp(size_t x, size_t alignment) {
+        SkASSERT(alignment && !(alignment & (alignment - 1)));
+        return add(x, alignment - 1) & ~(alignment - 1);
+    }
+
+    void fail() { fOK = false; }
+
 private:
     uint32_t mul32(uint32_t x, uint32_t y) {
         uint64_t bx = x;
