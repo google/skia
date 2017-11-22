@@ -242,7 +242,7 @@ private:
     void allocInternal(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
                        int count, int textBytes, SkPoint offset, const SkRect* bounds);
     bool mergeRun(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
-                  int count, SkPoint offset);
+                  uint32_t count, SkPoint offset);
     void updateDeferredBounds();
 
     static SkRect ConservativeRunBounds(const SkTextBlob::RunRecord&);
