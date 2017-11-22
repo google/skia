@@ -7,9 +7,6 @@
 
 #include "bookmaker.h"
 
-#include "SkOSFile.h"
-#include "SkOSPath.h"
-
 DEFINE_string2(bmh, b, "", "Path to a *.bmh file or a directory.");
 DEFINE_bool2(catalog, c, false, "Write example catalog.htm. (Requires -b -f -r)");
 DEFINE_string2(examples, e, "", "File of fiddlecli input, usually fiddle.json (For now, disables -r -f -s)");
@@ -20,7 +17,7 @@ DEFINE_bool2(stdout, o, false, "Write file out to standard out.");
 DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
 DEFINE_string2(ref, r, "", "Resolve refs and write bmh_*.md files to path. (Requires -b -f)");
 DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispelling]. (Requires -b)");
-DEFINE_string2(tokens, t, "", "Directory to write bmh from include. (Requires -i)");
+DEFINE_bool2(tokens, t, false, "Write bmh from include. (Requires -b -i)");
 DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
 DEFINE_bool2(skip, z, false, "Skip degenerate missed in legacy preprocessor.");
 
@@ -42,853 +39,6 @@ trouble with aliases, plurals
     Quad -> quad, Quads -> quads
 check for summary containing all methods
  */
-
-static string normalized_name(string name) {
-    string normalizedName = name;
-    std::replace(normalizedName.begin(), normalizedName.end(), '-', '_');
-    do {
-        size_t doubleColon = normalizedName.find("::", 0);
-        if (string::npos == doubleColon) {
-            break;
-        }
-        normalizedName = normalizedName.substr(0, doubleColon)
-            + '_' + normalizedName.substr(doubleColon + 2);
-    } while (true);
-    return normalizedName;
-}
-
-static size_t count_indent(const string& text, size_t test, size_t end) {
-    size_t result = test;
-    while (test < end) {
-        if (' ' != text[test]) {
-            break;
-        }
-        ++test;
-    }
-    return test - result;
-}
-
-static void add_code(const string& text, int pos, int end,
-        size_t outIndent, size_t textIndent, string& example) {
-    do {
-         // fix this to move whole paragraph in, out, but preserve doc indent
-        int nextIndent = count_indent(text, pos, end);
-        size_t len = text.find('\n', pos);
-        if (string::npos == len) {
-            len = end;
-        }
-        if ((size_t) (pos + nextIndent) < len) {
-            size_t indent = outIndent + nextIndent;
-            SkASSERT(indent >= textIndent);
-            indent -= textIndent;
-            for (size_t index = 0; index < indent; ++index) {
-                example += ' ';
-            }
-            pos += nextIndent;
-            while ((size_t) pos < len) {
-                example += '"' == text[pos] ? "\\\"" :
-                    '\\' == text[pos] ? "\\\\" :
-                    text.substr(pos, 1);
-                ++pos;
-            }
-            example += "\\n";
-        } else {
-            pos += nextIndent;
-        }
-        if ('\n' == text[pos]) {
-            ++pos;
-        }
-    } while (pos < end);
-}
-
-// fixme: this will need to be more complicated to handle all of Skia
-// for now, just handle paint -- maybe fiddle will loosen naming restrictions
-void Definition::setCanonicalFiddle() {
-    fMethodType = Definition::MethodType::kNone;
-    size_t doubleColons = fName.find("::", 0);
-    SkASSERT(string::npos != doubleColons);
-    string base = fName.substr(0, doubleColons);
-    string result = base + "_";
-    doubleColons += 2;
-    if (string::npos != fName.find('~', doubleColons)) {
-        fMethodType = Definition::MethodType::kDestructor;
-        result += "destructor";
-    } else {
-        bool isMove = string::npos != fName.find("&&", doubleColons);
-        const char operatorStr[] = "operator";
-        size_t opPos = fName.find(operatorStr, doubleColons);
-        if (string::npos != opPos) {
-            fMethodType = Definition::MethodType::kOperator;
-            opPos += sizeof(operatorStr) - 1;
-            if ('!' == fName[opPos]) {
-                SkASSERT('=' == fName[opPos + 1]);
-                result += "not_equal_operator";
-            } else if ('=' == fName[opPos]) {
-                if ('(' == fName[opPos + 1]) {
-                    result += isMove ? "move_" : "copy_";
-                    result += "assignment_operator";
-                } else {
-                    SkASSERT('=' == fName[opPos + 1]);
-                    result += "equal_operator";
-                }
-            } else if ('[' == fName[opPos]) {
-                result += "subscript_operator";
-                const char* end = fContentStart;
-                while (end > fStart && ' ' >= end[-1]) {
-                    --end;
-                }
-                string constCheck(fStart, end - fStart);
-                size_t constPos = constCheck.rfind("const");
-                if (constCheck.length() == constPos + 5) {
-                    result += "_const";
-                }
-            } else {
-                SkASSERT(0);  // todo: incomplete
-            }
-        } else {
-            size_t parens = fName.find("()", doubleColons);
-            if (string::npos != parens) {
-                string methodName = fName.substr(doubleColons, parens - doubleColons);
-                do {
-                    size_t nextDouble = methodName.find("::");
-                    if (string::npos == nextDouble) {
-                        break;
-                    }
-                    base = methodName.substr(0, nextDouble);
-                    result += base + '_';
-                    methodName = methodName.substr(nextDouble + 2);
-                    doubleColons += nextDouble + 2;
-                } while (true);
-                if (base == methodName) {
-                    fMethodType = Definition::MethodType::kConstructor;
-                    result += "empty_constructor";
-                } else {
-                    result += fName.substr(doubleColons, fName.length() - doubleColons - 2);
-                }
-            } else {
-                size_t openParen = fName.find('(', doubleColons);
-                if (string::npos == openParen) {
-                    result += fName.substr(doubleColons);
-                } else {
-                    size_t comma = fName.find(',', doubleColons);
-                    if (string::npos == comma) {
-                        result += isMove ? "move_" : "copy_";
-                    }
-                    fMethodType = Definition::MethodType::kConstructor;
-                    // name them by their param types,
-                    //   e.g. SkCanvas__int_int_const_SkSurfaceProps_star
-                    // TODO: move forward until parens are balanced and terminator =,)
-                    TextParser params("", &fName[openParen] + 1, &*fName.end(), 0);
-                    bool underline = false;
-                    while (!params.eof()) {
-    //                    SkDEBUGCODE(const char* end = params.anyOf("(),="));  // unused for now
-    //                    SkASSERT(end[0] != '(');  // fixme: put off handling nested parentheseses
-                        if (params.startsWith("const") || params.startsWith("int")
-                                || params.startsWith("Sk")) {
-                            const char* wordStart = params.fChar;
-                            params.skipToNonAlphaNum();
-                            if (underline) {
-                                result += '_';
-                            } else {
-                                underline = true;
-                            }
-                            result += string(wordStart, params.fChar - wordStart);
-                        } else {
-                            params.skipToNonAlphaNum();
-                        }
-                        if (!params.eof() && '*' == params.peek()) {
-                            if (underline) {
-                                result += '_';
-                            } else {
-                                underline = true;
-                            }
-                            result += "star";
-                            params.next();
-                            params.skipSpace();
-                        }
-                        params.skipToAlpha();
-                    }
-                }
-            }
-        }
-    }
-    fFiddle = normalized_name(result);
-}
-
-bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) const {
-    bool hasFiddle = true;
-    const Definition* platform = this->hasChild(MarkType::kPlatform);
-    if (platform) {
-        TextParser platParse(platform);
-        hasFiddle = !platParse.strnstr("!fiddle", platParse.fEnd);
-    }
-    if (!hasFiddle) {
-        *result = "";
-        return true;
-    }
-    string text = this->extractText(Definition::TrimExtract::kNo);
-    const char drawWrapper[] = "void draw(SkCanvas* canvas) {";
-    const char drawNoCanvas[] = "void draw(SkCanvas* ) {";
-    size_t nonSpace = 0;
-    while (nonSpace < text.length() && ' ' >= text[nonSpace]) {
-        ++nonSpace;
-    }
-    bool hasFunc = !text.compare(nonSpace, sizeof(drawWrapper) - 1, drawWrapper);
-    bool noCanvas = !text.compare(nonSpace, sizeof(drawNoCanvas) - 1, drawNoCanvas);
-    bool hasCanvas = string::npos != text.find("SkCanvas canvas");
-    SkASSERT(!hasFunc || !noCanvas);
-    bool textOut = string::npos != text.find("SkDebugf(")
-            || string::npos != text.find("dump(")
-            || string::npos != text.find("dumpHex(");
-    string heightStr = "256";
-    string widthStr = "256";
-    bool preprocessor = text[0] == '#';
-    string normalizedName(fFiddle);
-    string code;
-    string imageStr = "0";
-    for (auto const& iter : fChildren) {
-        switch (iter->fMarkType) {
-            case MarkType::kError:
-                result->clear();
-                return true;
-            case MarkType::kHeight:
-                heightStr = string(iter->fContentStart, iter->fContentEnd - iter->fContentStart);
-                break;
-            case MarkType::kWidth:
-                widthStr = string(iter->fContentStart, iter->fContentEnd - iter->fContentStart);
-                break;
-            case MarkType::kDescription:
-                // ignore for now
-                break;
-            case MarkType::kFunction: {
-                // emit this, but don't wrap this in draw()
-                string funcText(iter->fContentStart, iter->fContentEnd - iter->fContentStart - 1);
-                size_t pos = 0;
-                while (pos < funcText.length() && ' ' > funcText[pos]) {
-                    ++pos;
-                }
-                size_t indent = count_indent(funcText, pos, funcText.length());
-                add_code(funcText, pos, funcText.length(), 0, indent, code);
-                code += "\\n";
-                } break;
-            case MarkType::kComment:
-                break;
-            case MarkType::kImage:
-                imageStr = string(iter->fContentStart, iter->fContentEnd - iter->fContentStart);
-                break;
-            case MarkType::kToDo:
-                break;
-            case MarkType::kMarkChar:
-            case MarkType::kPlatform:
-                // ignore for now
-                break;
-            case MarkType::kStdOut:
-                textOut = true;
-                break;
-            default:
-                SkASSERT(0);  // more coding to do
-        }
-    }
-    string textOutStr = textOut ? "true" : "false";
-    size_t pos = 0;
-    while (pos < text.length() && ' ' > text[pos]) {
-        ++pos;
-    }
-    size_t end = text.length();
-    size_t outIndent = 0;
-    size_t textIndent = count_indent(text, pos, end);
-    bool wrapCode = !hasFunc && !noCanvas && !preprocessor;
-    if (wrapCode) {
-        code += hasCanvas ? drawNoCanvas : drawWrapper;
-        code += "\\n";
-        outIndent = 4;
-    }
-    add_code(text, pos, end, outIndent, textIndent, code);
-    if (wrapCode) {
-        code += "}";
-    }
-    string example = "\"" + normalizedName + "\": {\n";
-
-    string baseFile = [this]() {
-        string baseNameExt = fFileName.substr(fFileName.find_last_of("/\\") + 1);
-        size_t p = baseNameExt.find_last_of('.');
-        return (p > 0 && p != string::npos) ? baseNameExt.substr(0, p) : baseNameExt;
-    }();
-    if (ExampleOptions::kText == exampleOptions) {
-        example += "    \"code\": \"" + code + "\",\n";
-        example += "    \"hash\": \"" + fHash + "\",\n";
-        example += "    \"file\": \"" + baseFile + "\",\n";
-        example += "    \"name\": \"" + fName + "\",";
-    } else {
-        example += "    \"code\": \"" + code + "\",\n";
-        if (ExampleOptions::kPng == exampleOptions) {
-            example += "    \"width\": " + widthStr + ",\n";
-            example += "    \"height\": " + heightStr + ",\n";
-            example += "    \"hash\": \"" + fHash + "\",\n";
-            example += "    \"file\": \"" + baseFile + "\",\n";
-            example += "    \"name\": \"" + fName + "\"\n";
-            example += "}";
-       } else {
-            example += "    \"options\": {\n";
-            example += "        \"width\": " + widthStr + ",\n";
-            example += "        \"height\": " + heightStr + ",\n";
-            example += "        \"source\": " + imageStr + ",\n";
-            example += "        \"srgb\": false,\n";
-            example += "        \"f16\": false,\n";
-            example += "        \"textOnly\": " + textOutStr + ",\n";
-            example += "        \"animated\": false,\n";
-            example += "        \"duration\": 0\n";
-            example += "    },\n";
-            example += "    \"fast\": true";
-        }
-    }
-    *result = example;
-    return true;
-}
-
-static void space_pad(string* str) {
-    size_t len = str->length();
-    if (len == 0) {
-        return;
-    }
-    char last = (*str)[len - 1];
-    if ('~' == last || ' ' >= last) {
-        return;
-    }
-    *str += ' ';
-}
-
-//start here;
-// see if it possible to abstract this a little bit so it can
-// additionally be used to find params and return in method prototype that
-// does not have corresponding doxygen comments
-bool Definition::checkMethod() const {
-    SkASSERT(MarkType::kMethod == fMarkType);
-    // if method returns a value, look for a return child
-    // for each parameter, look for a corresponding child
-    const char* end = fContentStart;
-    while (end > fStart && ' ' >= end[-1]) {
-        --end;
-    }
-    TextParser methodParser(fFileName, fStart, end, fLineCount);
-    methodParser.skipWhiteSpace();
-    SkASSERT(methodParser.startsWith("#Method"));
-    methodParser.skipName("#Method");
-    methodParser.skipSpace();
-    string name = this->methodName();
-    if (MethodType::kNone == fMethodType && name.length() > 2 &&
-            "()" == name.substr(name.length() - 2)) {
-        name = name.substr(0, name.length() - 2);
-    }
-    bool expectReturn = this->methodHasReturn(name, &methodParser);
-    bool foundReturn = false;
-    bool foundException = false;
-    for (auto& child : fChildren) {
-        foundException |= MarkType::kDeprecated == child->fMarkType
-                || MarkType::kExperimental == child->fMarkType;
-        if (MarkType::kReturn != child->fMarkType) {
-            if (MarkType::kParam == child->fMarkType) {
-                child->fVisited = false;
-            }
-            continue;
-        }
-        if (!expectReturn) {
-            return methodParser.reportError<bool>("no #Return expected");
-        }
-        if (foundReturn) {
-            return methodParser.reportError<bool>("multiple #Return markers");
-        }
-        foundReturn = true;
-    }
-    if (expectReturn && !foundReturn && !foundException) {
-        return methodParser.reportError<bool>("missing #Return marker");
-    }
-    const char* paren = methodParser.strnchr('(', methodParser.fEnd);
-    if (!paren) {
-        return methodParser.reportError<bool>("missing #Method function definition");
-    }
-    const char* nextEnd = paren;
-    do {
-        string paramName;
-        methodParser.fChar = nextEnd + 1;
-        methodParser.skipSpace();
-        if (!this->nextMethodParam(&methodParser, &nextEnd, &paramName)) {
-            continue;
-        }
-        bool foundParam = false;
-        for (auto& child : fChildren) {
-            if (MarkType::kParam != child->fMarkType) {
-                continue;
-            }
-            if (paramName != child->fName) {
-                continue;
-            }
-            if (child->fVisited) {
-                return methodParser.reportError<bool>("multiple #Method param with same name");
-            }
-            child->fVisited = true;
-            if (foundParam) {
-                TextParser paramError(child);
-                return methodParser.reportError<bool>("multiple #Param with same name");
-            }
-            foundParam = true;
-
-        }
-        if (!foundParam && !foundException) {
-            return methodParser.reportError<bool>("no #Param found");
-        }
-        if (')' == nextEnd[0]) {
-            break;
-        }
-    } while (')' != nextEnd[0]);
-    for (auto& child : fChildren) {
-        if (MarkType::kParam != child->fMarkType) {
-            continue;
-        }
-        if (!child->fVisited) {
-            TextParser paramError(child);
-            return paramError.reportError<bool>("#Param without param in #Method");
-        }
-    }
-    return true;
-}
-
-bool Definition::crossCheck2(const Definition& includeToken) const {
-    TextParser parser(fFileName, fStart, fContentStart, fLineCount);
-    parser.skipExact("#");
-    bool isMethod = parser.skipName("Method");
-    const char* contentEnd;
-    if (isMethod) {
-        contentEnd = fContentStart;
-    } else if (parser.skipName("DefinedBy")) {
-        contentEnd = fContentEnd;
-        while (parser.fChar < contentEnd && ' ' >= contentEnd[-1]) {
-            --contentEnd;
-        }
-        if (parser.fChar < contentEnd - 1 && ')' == contentEnd[-1] && '(' == contentEnd[-2]) {
-            contentEnd -= 2;
-        }
-    } else {
-        return parser.reportError<bool>("unexpected crosscheck marktype");
-    }
-    return crossCheckInside(parser.fChar, contentEnd, includeToken);
-}
-
-bool Definition::crossCheck(const Definition& includeToken) const {
-    return crossCheckInside(fContentStart, fContentEnd, includeToken);
-}
-
-bool Definition::crossCheckInside(const char* start, const char* end,
-        const Definition& includeToken) const {
-    TextParser def(fFileName, start, end, fLineCount);
-    TextParser inc("", includeToken.fContentStart, includeToken.fContentEnd, 0);
-    if (inc.startsWith("SK_API")) {
-        inc.skipWord("SK_API");
-    }
-    if (inc.startsWith("friend")) {
-        inc.skipWord("friend");
-    }
-    if (inc.startsWith("SK_API")) {
-        inc.skipWord("SK_API");
-    }
-    do {
-        bool defEof;
-        bool incEof;
-        do {
-            defEof = def.eof() || !def.skipWhiteSpace();
-            incEof = inc.eof() || !inc.skipWhiteSpace();
-            if (!incEof && '/' == inc.peek() && (defEof || '/' != def.peek())) {
-                inc.next();
-                if ('*' == inc.peek()) {
-                    inc.skipToEndBracket("*/");
-                    inc.next();
-                } else if ('/' == inc.peek()) {
-                    inc.skipToEndBracket('\n');
-                }
-            } else if (!incEof && '#' == inc.peek() && (defEof || '#' != def.peek())) {
-                inc.next();
-                if (inc.startsWith("if")) {
-                    inc.skipToEndBracket("\n");
-                } else if (inc.startsWith("endif")) {
-                    inc.skipToEndBracket("\n");
-                } else {
-                    SkASSERT(0); // incomplete
-                    return false;
-                }
-            } else {
-                break;
-            }
-            inc.next();
-        } while (true);
-        if (defEof || incEof) {
-            if (defEof == incEof || (!defEof && ';' == def.peek())) {
-                return true;
-            }
-            return false;  // allow setting breakpoint on failure
-        }
-        char defCh;
-        do {
-            defCh = def.next();
-            char incCh = inc.next();
-            if (' ' >= defCh && ' ' >= incCh) {
-                break;
-            }
-            if (defCh != incCh) {
-                return false;
-            }
-            if (';' == defCh) {
-                return true;
-            }
-        } while (!def.eof() && !inc.eof());
-    } while (true);
-    return false;
-}
-
-string Definition::formatFunction() const {
-    const char* end = fContentStart;
-    while (end > fStart && ' ' >= end[-1]) {
-        --end;
-    }
-    TextParser methodParser(fFileName, fStart, end, fLineCount);
-    methodParser.skipWhiteSpace();
-    SkASSERT(methodParser.startsWith("#Method"));
-    methodParser.skipName("#Method");
-    methodParser.skipSpace();
-    const char* lastStart = methodParser.fChar;
-    const int limit = 80;  // todo: allow this to be set by caller or in global or something
-    string methodStr;
-    string name = this->methodName();
-    const char* nameInParser = methodParser.strnstr(name.c_str(), methodParser.fEnd);
-    methodParser.skipTo(nameInParser);
-    const char* lastEnd = methodParser.fChar;
-    const char* paren = methodParser.strnchr('(', methodParser.fEnd);
-    size_t indent;
-    if (paren) {
-        indent = (size_t) (paren - lastStart) + 1;
-    } else {
-        indent = (size_t) (lastEnd - lastStart);
-    }
-    int written = 0;
-    do {
-        const char* nextStart = lastEnd;
-        SkASSERT(written < limit);
-        const char* delimiter = methodParser.anyOf(",)");
-        const char* nextEnd = delimiter ? delimiter : methodParser.fEnd;
-        if (delimiter) {
-            while (nextStart < nextEnd && ' ' >= nextStart[0]) {
-                ++nextStart;
-            }
-        }
-        while (nextEnd > nextStart && ' ' >= nextEnd[-1]) {
-            --nextEnd;
-        }
-        if (delimiter) {
-            nextEnd += 1;
-            delimiter += 1;
-        }
-        if (lastEnd > lastStart) {
-            if (lastStart[0] != ' ') {
-                space_pad(&methodStr);
-            }
-            methodStr += string(lastStart, (size_t) (lastEnd - lastStart));
-            written += (size_t) (lastEnd - lastStart);
-        }
-        if (delimiter) {
-            if (nextEnd - nextStart >= (ptrdiff_t) (limit - written)) {
-                written = indent;
-                methodStr += '\n';
-                methodStr += string(indent, ' ');
-            }
-            methodParser.skipTo(delimiter);
-        }
-        lastStart = nextStart;
-        lastEnd = nextEnd;
-    } while (lastStart < lastEnd);
-    return methodStr;
-}
-
-string Definition::fiddleName() const {
-    string result;
-    size_t start = 0;
-    string parent;
-    const Definition* parentDef = this;
-    while ((parentDef = parentDef->fParent)) {
-        if (MarkType::kClass == parentDef->fMarkType || MarkType::kStruct == parentDef->fMarkType) {
-            parent = parentDef->fFiddle;
-            break;
-        }
-    }
-    if (parent.length() && 0 == fFiddle.compare(0, parent.length(), parent)) {
-        start = parent.length();
-        while (start < fFiddle.length() && '_' == fFiddle[start]) {
-            ++start;
-        }
-    }
-    size_t end = fFiddle.find_first_of('(', start);
-    return fFiddle.substr(start, end - start);
-}
-
-const Definition* Definition::hasChild(MarkType markType) const {
-    for (auto iter : fChildren) {
-        if (markType == iter->fMarkType) {
-            return iter;
-        }
-    }
-    return nullptr;
-}
-
-const Definition* Definition::hasParam(const string& ref) const {
-    SkASSERT(MarkType::kMethod == fMarkType);
-    for (auto iter : fChildren) {
-        if (MarkType::kParam != iter->fMarkType) {
-            continue;
-        }
-        if (iter->fName == ref) {
-            return &*iter;
-        }
-
-    }
-    return nullptr;
-}
-
-bool Definition::methodHasReturn(const string& name, TextParser* methodParser) const {
-    if (methodParser->skipExact("static")) {
-        methodParser->skipWhiteSpace();
-    }
-    const char* lastStart = methodParser->fChar;
-    const char* nameInParser = methodParser->strnstr(name.c_str(), methodParser->fEnd);
-    methodParser->skipTo(nameInParser);
-    const char* lastEnd = methodParser->fChar;
-    const char* returnEnd = lastEnd;
-    while (returnEnd > lastStart && ' ' == returnEnd[-1]) {
-        --returnEnd;
-    }
-    bool expectReturn = 4 != returnEnd - lastStart || strncmp("void", lastStart, 4);
-    if (MethodType::kNone != fMethodType && !expectReturn) {
-        return methodParser->reportError<bool>("unexpected void");
-    }
-    switch (fMethodType) {
-        case MethodType::kNone:
-        case MethodType::kOperator:
-            // either is fine
-            break;
-        case MethodType::kConstructor:
-            expectReturn = true;
-            break;
-        case MethodType::kDestructor:
-            expectReturn = false;
-            break;
-    }
-    return expectReturn;
-}
-
-string Definition::methodName() const {
-    string result;
-    size_t start = 0;
-    string parent;
-    const Definition* parentDef = this;
-    while ((parentDef = parentDef->fParent)) {
-        if (MarkType::kClass == parentDef->fMarkType || MarkType::kStruct == parentDef->fMarkType) {
-            parent = parentDef->fName;
-            break;
-        }
-    }
-    if (parent.length() && 0 == fName.compare(0, parent.length(), parent)) {
-        start = parent.length();
-        while (start < fName.length() && ':' == fName[start]) {
-            ++start;
-        }
-    }
-    if (fClone) {
-        int lastUnder = fName.rfind('_');
-        return fName.substr(start, (size_t) (lastUnder - start));
-    }
-    size_t end = fName.find_first_of('(', start);
-    if (string::npos == end) {
-        return fName.substr(start);
-    }
-    return fName.substr(start, end - start);
-}
-
-bool Definition::nextMethodParam(TextParser* methodParser, const char** nextEndPtr,
-        string* paramName) const {
-    int parenCount = 0;
-    TextParser::Save saveState(methodParser);
-    while (true) {
-        if (methodParser->eof()) {
-            return methodParser->reportError<bool>("#Method function missing close paren");
-        }
-        char ch = methodParser->peek();
-        if ('(' == ch) {
-            ++parenCount;
-        }
-        if (parenCount == 0 && (')' == ch || ',' == ch)) {
-            *nextEndPtr = methodParser->fChar;
-            break;
-        }
-        if (')' == ch) {
-            if (0 > --parenCount) {
-                return this->reportError<bool>("mismatched parentheses");
-            }
-        }
-        methodParser->next();
-    }
-    saveState.restore();
-    const char* nextEnd = *nextEndPtr;
-    const char* paramEnd = nextEnd;
-    const char* assign = methodParser->strnstr(" = ", paramEnd);
-    if (assign) {
-        paramEnd = assign;
-    }
-    const char* closeBracket = methodParser->strnstr("]", paramEnd);
-    if (closeBracket) {
-        const char* openBracket = methodParser->strnstr("[", paramEnd);
-        if (openBracket && openBracket < closeBracket) {
-            while (openBracket < --closeBracket && isdigit(closeBracket[0]))
-                ;
-            if (openBracket == closeBracket) {
-                paramEnd = openBracket;
-            }
-        }
-    }
-    const char* function = methodParser->strnstr(")(", paramEnd);
-    if (function) {
-        paramEnd = function;
-    }
-    while (paramEnd > methodParser->fChar && ' ' == paramEnd[-1]) {
-        --paramEnd;
-    }
-    const char* paramStart = paramEnd;
-    while (paramStart > methodParser->fChar && isalnum(paramStart[-1])) {
-        --paramStart;
-    }
-    if (paramStart > methodParser->fChar && paramStart >= paramEnd) {
-        return methodParser->reportError<bool>("#Method missing param name");
-    }
-    *paramName = string(paramStart, paramEnd - paramStart);
-    if (!paramName->length()) {
-        if (')' != nextEnd[0]) {
-            return methodParser->reportError<bool>("#Method malformed param");
-        }
-        return false;
-    }
-    return true;
-}
-
-    bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix) {
-//    this->reset();
-    if (!sk_isdir(fileOrPath)) {
-        if (!this->parseFromFile(fileOrPath)) {
-            SkDebugf("failed to parse %s\n", fileOrPath);
-            return false;
-        }
-    } else {
-        SkOSFile::Iter it(fileOrPath, suffix);
-        for (SkString file; it.next(&file); ) {
-            SkString p = SkOSPath::Join(fileOrPath, file.c_str());
-            const char* hunk = p.c_str();
-            if (!SkStrEndsWith(hunk, suffix)) {
-                continue;
-            }
-            if (!this->parseFromFile(hunk)) {
-                SkDebugf("failed to parse %s\n", hunk);
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-bool Definition::paramsMatch(const string& match, const string& name) const {
-    TextParser def(fFileName, fStart, fContentStart, fLineCount);
-    const char* dName = def.strnstr(name.c_str(), fContentStart);
-    if (!dName) {
-        return false;
-    }
-    def.skipTo(dName);
-    TextParser m(fFileName, &match.front(), &match.back() + 1, fLineCount);
-    const char* mName = m.strnstr(name.c_str(), m.fEnd);
-    if (!mName) {
-        return false;
-    }
-    m.skipTo(mName);
-    while (!def.eof() && ')' != def.peek() && !m.eof() && ')' != m.peek()) {
-        const char* ds = def.fChar;
-        const char* ms = m.fChar;
-        const char* de = def.anyOf(") \n");
-        const char* me = m.anyOf(") \n");
-        def.skipTo(de);
-        m.skipTo(me);
-        if (def.fChar - ds != m.fChar - ms) {
-            return false;
-        }
-        if (strncmp(ds, ms, (int) (def.fChar - ds))) {
-            return false;
-        }
-        def.skipWhiteSpace();
-        m.skipWhiteSpace();
-    }
-    return !def.eof() && ')' == def.peek() && !m.eof() && ')' == m.peek();
-}
-
-void RootDefinition::clearVisited() {
-    fVisited = false;
-    for (auto& leaf : fLeaves) {
-        leaf.second.fVisited = false;
-    }
-    for (auto& branch : fBranches) {
-        branch.second->clearVisited();
-    }
-}
-
-bool RootDefinition::dumpUnVisited() {
-    bool allStructElementsFound = true;
-    for (auto& leaf : fLeaves) {
-        if (!leaf.second.fVisited) {
-            // TODO: parse embedded struct in includeParser phase, then remove this condition
-            if (FLAGS_skip) {
-                const Definition& def = leaf.second;
-                if (def.fChildren.size() > 0 &&
-                        MarkType::kDeprecated == def.fChildren[0]->fMarkType) {
-                    continue;
-                }
-            }
-            SkDebugf("defined in bmh but missing in include: %s\n", leaf.first.c_str());
-        }
-    }
-    for (auto& branch : fBranches) {
-        allStructElementsFound &= branch.second->dumpUnVisited();
-    }
-    return allStructElementsFound;
-}
-
-const Definition* RootDefinition::find(const string& ref, AllowParens allowParens) const {
-    const auto leafIter = fLeaves.find(ref);
-    if (leafIter != fLeaves.end()) {
-        return &leafIter->second;
-    }
-    if (AllowParens::kYes == allowParens && string::npos == ref.find("()")) {
-        string withParens = ref + "()";
-        const auto parensIter = fLeaves.find(withParens);
-        if (parensIter != fLeaves.end()) {
-            return &parensIter->second;
-        }
-    }
-    const auto branchIter = fBranches.find(ref);
-    if (branchIter != fBranches.end()) {
-        const RootDefinition* rootDef = branchIter->second;
-        return rootDef;
-    }
-    const Definition* result = nullptr;
-    for (const auto& branch : fBranches) {
-        const RootDefinition* rootDef = branch.second;
-        result = rootDef->find(ref, allowParens);
-        if (result) {
-            break;
-        }
-    }
-    return result;
-}
 
 /*
   class contains named struct, enum, enum-member, method, topic, subtopic
@@ -1008,7 +158,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                         definition->fFiddle = name;
                     }
                 } else {
-                    definition->fFiddle = normalized_name(name);
+                    definition->fFiddle = Definition::NormalizedName(name);
                 }
                 definition->fMarkType = markType;
                 definition->fAnonymous = fAnonymous;
@@ -1034,7 +184,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     parent = parent->fParent;
                 }
                 definition->fFiddle = parent ? parent->fFiddle + '_' : "";
-                definition->fFiddle += normalized_name(typeNameBuilder[0]);
+                definition->fFiddle += Definition::NormalizedName(typeNameBuilder[0]);
                 this->setAsParent(definition);
             }
             {
@@ -1075,7 +225,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             definition->fStart = defStart;
             definition->fContentStart = start;
             definition->fName = name;
-            definition->fFiddle = normalized_name(name);
+            definition->fFiddle = Definition::NormalizedName(name);
             definition->fContentEnd = fChar;
             this->skipToEndBracket('\n');
             definition->fTerminator = fChar;
@@ -1147,6 +297,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                             return this->reportError<bool>("missing example body");
                         }
                     }
+                    definition->setWrapper();
                 }
             } else {
                 fMarkup.emplace_front(markType, defStart, fLineCount, fParent);
@@ -1202,7 +353,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             fMarkup.emplace_front(markType, defStart, fLineCount, fParent);
             definition = &fMarkup.front();
             definition->fName = typeNameBuilder[0];
-            definition->fFiddle = normalized_name(typeNameBuilder[0]);
+            definition->fFiddle = Definition::NormalizedName(typeNameBuilder[0]);
             definition->fContentStart = fChar;
             definition->fContentEnd = this->trimmedBracketEnd('\n');
             definition->fTerminator = this->lineEnd() - 1;
@@ -1412,7 +563,7 @@ bool BmhParser::collectExternals() {
             RootDefinition* definition = &fExternals.front();
             definition->fFileName = fFileName;
             definition->fName = string(wordStart ,fChar - wordStart);
-            definition->fFiddle = normalized_name(definition->fName);
+            definition->fFiddle = Definition::NormalizedName(definition->fName);
         }
     } while (!this->eof());
     return true;
@@ -1631,7 +782,7 @@ bool BmhParser::findDefinitions() {
         }
     }
     if (fParent) {
-        return this->reportError<bool>("mismatched end");
+        return fParent->reportError<bool>("mismatched end");
     }
     return true;
 }
@@ -1799,10 +950,20 @@ string BmhParser::methodName() {
         }
         builder = parent->fName + "::";
     }
+    bool addConst = false;
     if (isConstructor || expectOperator) {
         paren = this->strnchr(')', end) + 1;
+        TextParser::Save saveState(this);
+        this->skipTo(paren);
+        if (this->skipExact("_const")) {
+            addConst = true;
+        }
+        saveState.restore();
     }
     builder.append(nameStart, paren - nameStart);
+    if (addConst) {
+        builder.append("_const");
+    }
     if (!expectOperator && allLower) {
         builder.append("()");
     }
@@ -1998,7 +1159,6 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kEnumClass:
         case MarkType::kClass:
         case MarkType::kStruct:
-        case MarkType::kTypedef:
             // expect name
             builder = this->className(markType);
             break;
@@ -2052,6 +1212,9 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kMethod:
             builder = this->methodName();
             break;
+        case MarkType::kTypedef:
+            builder = this->typedefName();
+            break;
         case MarkType::kParam:
            // fixme: expect camelCase
             builder = this->word("", "");
@@ -2076,6 +1239,82 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
     }
     result.push_back(builder);
     return result;
+}
+
+string BmhParser::typedefName() {
+    if (this->hasEndToken()) {
+        if (!fParent || !fParent->fName.length()) {
+            return this->reportError<string>("missing parent typedef name");
+        }
+        SkASSERT(fMC == this->peek());
+        this->next();
+        SkASSERT(fMC == this->peek());
+        this->next();
+        SkASSERT(fMC != this->peek());
+        return fParent->fName;
+    }
+    // look for typedef as one of three forms:
+    // typedef return-type (*NAME)(params);
+    // typedef alias NAME;
+    // typedef std::function<alias> NAME;
+    string builder;
+    const char* end = this->doubleLF();
+    if (!end) {
+       end = fEnd;
+    }
+    const char* altEnd = this->strnstr("#Typedef ##", end);
+    if (altEnd) {
+        end = this->strnchr('\n', end);
+    }
+    if (!end) {
+        return this->reportError<string>("missing typedef std::function end bracket >");
+    }
+
+    if (this->startsWith("std::function")) {
+        if (!this->skipToEndBracket('>')) {
+            return this->reportError<string>("missing typedef std::function end bracket >");
+        }
+        this->next();
+        this->skipWhiteSpace();
+        builder = string(fChar, end - fChar);
+    } else {
+        const char* paren = this->strnchr('(', end);
+        if (!paren) {
+            const char* lastWord = nullptr;
+            do {
+                this->skipToWhiteSpace();
+                if (fChar < end && isspace(fChar[0])) {
+                    this->skipWhiteSpace();
+                    lastWord = fChar;
+                } else {
+                    break;
+                }
+            } while (true);
+            if (!lastWord) {
+                return this->reportError<string>("missing typedef name");
+            }
+            builder = string(lastWord, end - lastWord);
+        } else {
+            this->skipTo(paren);
+            this->next();
+            if ('*' != this->next()) {
+                return this->reportError<string>("missing typedef function asterisk");
+            }
+            const char* nameStart = fChar;
+            if (!this->skipToEndBracket(')')) {
+                return this->reportError<string>("missing typedef function )");
+            }
+            builder = string(nameStart, fChar - nameStart);
+            if (!this->skipToEndBracket('(')) {
+                return this->reportError<string>("missing typedef params (");
+            }
+            if (! this->skipToEndBracket(')')) {
+                return this->reportError<string>("missing typedef params )");
+            }
+            this->skipTo(end);
+        }
+    }
+    return uniqueRootName(builder, MarkType::kTypedef);
 }
 
 string BmhParser::uniqueName(const string& base, MarkType markType) {
@@ -2109,6 +1348,9 @@ string BmhParser::uniqueRootName(const string& base, MarkType markType) {
         return markType == def.fMarkType && def.fName == numBuilder;
     };
 
+        if (string::npos != base.find("SkMatrix::operator")) {
+            SkDebugf("");
+        }
     string builder(base);
     if (!builder.length()) {
         builder = fParent->fName;
@@ -2147,6 +1389,9 @@ tryNext: ;
             cloned->fCloned = true;
         }
         fCloned = true;
+        if (string::npos != builder.find("operator")) {
+            SkDebugf("");
+        }
         numBuilder = builder + '_' + to_string(number);
     } while (++number);
     return numBuilder;
@@ -2232,11 +1477,11 @@ static int count_children(const Definition& def, MarkType markType) {
 }
 
 int main(int argc, char** const argv) {
-    BmhParser bmhParser;
+    BmhParser bmhParser(FLAGS_skip);
     bmhParser.validate();
 
     SkCommandLineFlags::SetUsage(
-        "Common Usage: bookmaker -i path/to/include.h -t\n"
+        "Common Usage: bookmaker -b path/to/bmh_files -i path/to/include.h -t\n"
         "              bookmaker -b path/to/bmh_files -e fiddle.json\n"
         "              ~/go/bin/fiddlecli --input fiddle.json --output fiddleout.json\n"
         "              bookmaker -b path/to/bmh_files -f fiddleout.json -r path/to/md_files\n"
@@ -2308,8 +1553,8 @@ int main(int argc, char** const argv) {
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
-    if (FLAGS_include.isEmpty() && !FLAGS_tokens.isEmpty()) {
-        SkDebugf("-t requires -i\n");
+    if ((FLAGS_include.isEmpty() || FLAGS_bmh.isEmpty()) && FLAGS_tokens) {
+        SkDebugf("-t requires -b -i\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
@@ -2326,15 +1571,15 @@ int main(int argc, char** const argv) {
     }
     bool done = false;
     if (!FLAGS_include.isEmpty()) {
-        if (!FLAGS_tokens.isEmpty() || FLAGS_crosscheck) {
+        if (FLAGS_tokens || FLAGS_crosscheck) {
             IncludeParser includeParser;
             includeParser.validate();
             if (!includeParser.parseFile(FLAGS_include[0], ".h")) {
                 return -1;
             }
-            if (!FLAGS_tokens.isEmpty()) {
+            if (FLAGS_tokens) {
                 includeParser.fDebugOut = FLAGS_stdout;
-                if (includeParser.dumpTokens(FLAGS_tokens[0])) {
+                if (includeParser.dumpTokens(FLAGS_bmh[0])) {
                     bmhParser.fWroteOut = true;
                 }
                 done = true;
