@@ -1485,40 +1485,40 @@
         "Upload-Perf-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE"
       ]
     },
-    "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug"
+        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug"
       ]
     },
-    "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI": {
+    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI"
+        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI"
       ]
     },
-    "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Upload-Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release"
       ]
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug": {
+    "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug"
+        "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug"
       ]
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug"
+        "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug"
       ]
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
+    "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release"
+        "Upload-Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release"
       ]
     },
     "Perf-Win7-Clang-Golo-CPU-AVX-x86_64-Debug": {
@@ -2585,52 +2585,52 @@
         "Upload-Test-Win10-MSVC-ZBOX-GPU-GTX1070-x86_64-Release-ANGLE"
       ]
     },
-    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug"
+        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug"
       ]
     },
-    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI": {
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI"
+        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI"
       ]
     },
-    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release"
       ]
     },
-    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-GDI": {
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-GDI": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-GDI"
+        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-GDI"
       ]
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug": {
+    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug"
+        "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug"
       ]
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release": {
+    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release"
+        "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release"
       ]
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug"
+        "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug"
       ]
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
+    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release"
+        "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release"
       ]
     },
     "Test-Win7-Clang-Golo-CPU-AVX-x86_64-Debug": {
@@ -2754,7 +2754,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -2794,7 +2794,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -2824,7 +2824,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -2854,7 +2854,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -2894,7 +2894,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -2924,7 +2924,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -2954,7 +2954,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -2984,7 +2984,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3014,7 +3014,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3044,7 +3044,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3074,7 +3074,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3104,7 +3104,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3134,7 +3134,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3164,7 +3164,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3194,7 +3194,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3224,7 +3224,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3254,7 +3254,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3284,7 +3284,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3314,7 +3314,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3344,7 +3344,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3374,7 +3374,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3404,7 +3404,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3434,7 +3434,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3464,7 +3464,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3494,7 +3494,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3524,7 +3524,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3559,7 +3559,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3594,7 +3594,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3624,7 +3624,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3654,7 +3654,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3684,7 +3684,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3714,7 +3714,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3744,7 +3744,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3774,7 +3774,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3804,7 +3804,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3834,7 +3834,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3864,7 +3864,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3894,7 +3894,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3929,7 +3929,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3959,7 +3959,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -3994,7 +3994,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4029,7 +4029,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4052,7 +4052,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4075,7 +4075,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4098,7 +4098,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4121,7 +4121,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4144,7 +4144,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4167,7 +4167,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4197,7 +4197,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4220,7 +4220,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4243,7 +4243,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4266,7 +4266,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4289,7 +4289,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4312,7 +4312,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4335,7 +4335,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4648,7 +4648,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4683,7 +4683,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4718,7 +4718,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4758,7 +4758,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4793,7 +4793,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4828,7 +4828,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4868,7 +4868,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4898,7 +4898,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4928,7 +4928,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4958,7 +4958,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4988,7 +4988,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5018,7 +5018,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5048,7 +5048,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5078,7 +5078,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5108,7 +5108,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5138,7 +5138,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5173,7 +5173,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5203,7 +5203,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5233,7 +5233,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5268,7 +5268,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5298,7 +5298,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -5323,7 +5323,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5356,7 +5356,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5391,7 +5391,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5408,7 +5408,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5438,7 +5438,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -5468,7 +5468,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "isolate": "isolate_skp.isolate",
@@ -5485,7 +5485,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "isolate": "isolate_svg.isolate",
@@ -5502,7 +5502,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "isolate": "isolate_skimage.isolate",
@@ -5519,7 +5519,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7345,7 +7345,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 21600000000000,
@@ -7393,7 +7393,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7446,7 +7446,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7499,7 +7499,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 32400000000000,
@@ -7547,7 +7547,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7600,7 +7600,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7648,7 +7648,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7701,7 +7701,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7749,7 +7749,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7797,7 +7797,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7850,7 +7850,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7898,7 +7898,7 @@
       "dimensions": [
         "cpu:x86-64-Skylake_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7946,7 +7946,7 @@
       "dimensions": [
         "cpu:x86-64-Skylake_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -8182,7 +8182,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 21600000000000,
@@ -8230,7 +8230,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -8278,7 +8278,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11961,7 +11961,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -11986,7 +11986,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -11996,7 +11996,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12009,7 +12009,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI": {
+    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12034,7 +12034,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12044,7 +12044,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI",
+        "buildername=Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12057,7 +12057,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12082,7 +12082,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12092,7 +12092,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12105,7 +12105,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug": {
+    "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12130,7 +12130,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 21600000000000,
@@ -12140,7 +12140,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
+        "buildername=Perf-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12153,7 +12153,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12178,7 +12178,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12188,7 +12188,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12201,7 +12201,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
+    "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12226,7 +12226,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -12236,7 +12236,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14674,7 +14674,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 21600000000000,
@@ -14722,7 +14722,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -14775,7 +14775,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -14823,7 +14823,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -14876,7 +14876,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 32400000000000,
@@ -14924,7 +14924,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -14977,7 +14977,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15025,7 +15025,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15078,7 +15078,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15126,7 +15126,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15174,7 +15174,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15222,7 +15222,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15270,7 +15270,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15318,7 +15318,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15371,7 +15371,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15424,7 +15424,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15472,7 +15472,7 @@
       "dimensions": [
         "cpu:x86-64-Skylake_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15520,7 +15520,7 @@
       "dimensions": [
         "cpu:x86-64-Skylake_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15756,7 +15756,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 21600000000000,
@@ -15804,7 +15804,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15852,7 +15852,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -19913,7 +19913,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19938,7 +19938,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -19948,7 +19948,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19961,7 +19961,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI": {
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19986,7 +19986,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -19996,7 +19996,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI",
+        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20009,7 +20009,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -20034,7 +20034,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -20044,7 +20044,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20057,7 +20057,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-GDI": {
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-GDI": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -20082,7 +20082,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -20092,7 +20092,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-GDI",
+        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20105,7 +20105,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug": {
+    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -20130,7 +20130,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 21600000000000,
@@ -20140,7 +20140,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
+        "buildername=Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20153,7 +20153,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release": {
+    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -20178,7 +20178,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -20188,7 +20188,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release",
+        "buildername=Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20201,7 +20201,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -20226,7 +20226,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -20236,7 +20236,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20249,7 +20249,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
+    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -20274,7 +20274,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Windows-2008ServerR2-SP1",
+        "os:Windows-2016Server-14393",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -20284,7 +20284,7 @@
         "../../..",
         "test",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -21078,7 +21078,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21105,7 +21105,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21132,7 +21132,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21159,7 +21159,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21186,7 +21186,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21213,7 +21213,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21240,7 +21240,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21267,7 +21267,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21294,7 +21294,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21321,7 +21321,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21348,7 +21348,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21375,7 +21375,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21402,7 +21402,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21429,7 +21429,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21456,7 +21456,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21483,7 +21483,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21510,7 +21510,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21537,7 +21537,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21564,7 +21564,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21591,7 +21591,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21618,7 +21618,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21645,7 +21645,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21672,7 +21672,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21699,7 +21699,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21726,7 +21726,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21753,7 +21753,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21780,7 +21780,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21807,7 +21807,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21834,7 +21834,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21861,7 +21861,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21888,7 +21888,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21915,7 +21915,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21942,7 +21942,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21969,7 +21969,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -21996,7 +21996,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22023,7 +22023,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22050,7 +22050,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22077,7 +22077,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22104,7 +22104,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22131,7 +22131,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22158,7 +22158,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22185,7 +22185,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22212,7 +22212,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22239,7 +22239,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22266,7 +22266,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22293,7 +22293,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22320,7 +22320,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22347,7 +22347,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22374,7 +22374,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22401,7 +22401,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22428,7 +22428,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22455,7 +22455,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22482,7 +22482,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22509,7 +22509,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22536,7 +22536,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22563,7 +22563,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22590,7 +22590,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22617,7 +22617,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22644,7 +22644,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22671,7 +22671,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22698,7 +22698,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22725,7 +22725,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22752,7 +22752,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22779,7 +22779,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22806,7 +22806,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22833,7 +22833,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22860,7 +22860,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22887,7 +22887,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22914,7 +22914,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22934,14 +22934,14 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Upload-Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
-        "Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22949,7 +22949,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22961,14 +22961,14 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
+    "Upload-Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
-        "Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release"
+        "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -22976,7 +22976,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22995,7 +22995,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23022,7 +23022,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23049,7 +23049,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23076,7 +23076,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23103,7 +23103,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23130,7 +23130,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23157,7 +23157,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23184,7 +23184,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23211,7 +23211,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23238,7 +23238,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23265,7 +23265,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23292,7 +23292,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23319,7 +23319,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23346,7 +23346,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23373,7 +23373,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23400,7 +23400,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23427,7 +23427,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23454,7 +23454,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23481,7 +23481,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23508,7 +23508,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23535,7 +23535,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23562,7 +23562,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23589,7 +23589,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23616,7 +23616,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23643,7 +23643,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23670,7 +23670,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23697,7 +23697,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23724,7 +23724,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23751,7 +23751,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23778,7 +23778,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23805,7 +23805,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23832,7 +23832,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23859,7 +23859,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23886,7 +23886,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23913,7 +23913,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23940,7 +23940,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23967,7 +23967,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -23994,7 +23994,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24021,7 +24021,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24048,7 +24048,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24075,7 +24075,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24102,7 +24102,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24129,7 +24129,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24156,7 +24156,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24183,7 +24183,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24210,7 +24210,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24237,7 +24237,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24264,7 +24264,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24291,7 +24291,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24318,7 +24318,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24345,7 +24345,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24372,7 +24372,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24399,7 +24399,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24426,7 +24426,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24453,7 +24453,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24480,7 +24480,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24507,7 +24507,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24534,7 +24534,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24561,7 +24561,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24588,7 +24588,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24615,7 +24615,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24650,7 +24650,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24677,7 +24677,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24704,7 +24704,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24731,7 +24731,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24758,7 +24758,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24785,7 +24785,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24812,7 +24812,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24839,7 +24839,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24866,7 +24866,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24893,7 +24893,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24920,7 +24920,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24947,7 +24947,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -24974,7 +24974,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25001,7 +25001,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25028,7 +25028,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25055,7 +25055,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25082,7 +25082,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25109,7 +25109,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25136,7 +25136,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25163,7 +25163,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25190,7 +25190,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25217,7 +25217,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25244,7 +25244,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25271,7 +25271,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25298,7 +25298,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25325,7 +25325,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25352,7 +25352,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25379,7 +25379,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25406,7 +25406,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25441,7 +25441,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25468,7 +25468,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25503,7 +25503,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25530,7 +25530,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25557,7 +25557,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25584,7 +25584,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25611,7 +25611,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25638,7 +25638,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25665,7 +25665,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25692,7 +25692,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25719,7 +25719,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25746,7 +25746,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25773,7 +25773,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25800,7 +25800,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25827,7 +25827,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25854,7 +25854,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25881,7 +25881,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25908,7 +25908,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25935,7 +25935,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25962,7 +25962,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -25989,7 +25989,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26016,7 +26016,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26043,7 +26043,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26070,7 +26070,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26097,7 +26097,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26124,7 +26124,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26151,7 +26151,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26178,7 +26178,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26205,7 +26205,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26232,7 +26232,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26259,7 +26259,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26286,7 +26286,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26313,7 +26313,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26340,7 +26340,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26367,7 +26367,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26394,7 +26394,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26421,7 +26421,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26448,7 +26448,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26475,7 +26475,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26502,7 +26502,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26529,7 +26529,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26556,7 +26556,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26583,7 +26583,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26610,7 +26610,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26637,7 +26637,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26664,7 +26664,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26691,7 +26691,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26718,7 +26718,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26745,7 +26745,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26772,7 +26772,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26799,7 +26799,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26826,7 +26826,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26853,7 +26853,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26880,7 +26880,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26907,7 +26907,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26934,7 +26934,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26961,7 +26961,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26981,14 +26981,14 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug": {
+    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug": {
       "dependencies": [
-        "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug"
+        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -26996,7 +26996,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -27008,14 +27008,14 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI": {
+    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI": {
       "dependencies": [
-        "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI"
+        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27023,7 +27023,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI",
+        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -27035,14 +27035,14 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release": {
+    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
-        "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release"
+        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27050,7 +27050,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -27062,14 +27062,14 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-GDI": {
+    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-GDI": {
       "dependencies": [
-        "Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-GDI"
+        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-GDI"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27077,7 +27077,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-Clang-GCE-CPU-AVX2-x86_64-Release-GDI",
+        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-GDI",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -27089,14 +27089,14 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug": {
+    "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug": {
       "dependencies": [
-        "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug"
+        "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27104,7 +27104,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Debug",
+        "buildername=Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -27116,14 +27116,14 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release": {
+    "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release": {
       "dependencies": [
-        "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release"
+        "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27131,7 +27131,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86-Release",
+        "buildername=Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -27143,14 +27143,14 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
+    "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug": {
       "dependencies": [
-        "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug"
+        "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27158,7 +27158,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug",
+        "buildername=Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -27170,14 +27170,14 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release": {
+    "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
-        "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release"
+        "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27185,7 +27185,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release",
+        "buildername=Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -27204,7 +27204,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27231,7 +27231,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27258,7 +27258,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27285,7 +27285,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27312,7 +27312,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27339,7 +27339,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27366,7 +27366,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27393,7 +27393,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27420,7 +27420,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27447,7 +27447,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27474,7 +27474,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27501,7 +27501,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27528,7 +27528,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27555,7 +27555,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27582,7 +27582,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27609,7 +27609,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27636,7 +27636,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -27663,7 +27663,7 @@
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
-        "os:Debian-9.1",
+        "os:Debian-9.2",
         "pool:Skia"
       ],
       "extra_args": [
