@@ -16,6 +16,24 @@
       "revId": "64e1fdc4425fd109c45dff15c4fc3fd992235a40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60472477_8b8b49e5",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-22T17:08:37Z",
+      "side": 1,
+      "message": "Done. Thanks for spotting it!",
+      "parentUuid": "36716530_f09daaca",
+      "revId": "64e1fdc4425fd109c45dff15c4fc3fd992235a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
