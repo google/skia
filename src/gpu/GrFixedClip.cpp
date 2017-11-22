@@ -45,17 +45,18 @@ bool GrFixedClip::isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const {
     return false;
 };
 
-bool GrFixedClip::apply(int rtWidth, int rtHeight, GrAppliedHardClip* out, SkRect* bounds) const {
+bool GrFixedClip::apply(int rtWidth, int rtHeight, const SkRect& drawBounds,
+                        GrAppliedHardClip* out) const {
     if (fScissorState.enabled()) {
         SkIRect tightScissor = SkIRect::MakeWH(rtWidth, rtHeight);
         if (!tightScissor.intersect(fScissorState.rect())) {
             return false;
         }
-        if (IsOutsideClip(tightScissor, *bounds)) {
+        if (IsOutsideClip(tightScissor, drawBounds)) {
             return false;
         }
-        if (!IsInsideClip(fScissorState.rect(), *bounds)) {
-            out->addScissor(tightScissor, bounds);
+        if (!IsInsideClip(fScissorState.rect(), drawBounds)) {
+            out->addScissor(tightScissor);
         }
     }
 

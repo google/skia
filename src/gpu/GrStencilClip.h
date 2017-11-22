@@ -39,8 +39,9 @@ public:
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const override {
         return !this->hasStencilClip() && fFixedClip.isRRect(rtBounds, rr, aa);
     }
-    bool apply(int rtWidth, int rtHeight, GrAppliedHardClip* out, SkRect* bounds) const override {
-        if (!fFixedClip.apply(rtWidth, rtHeight, out, bounds)) {
+    bool apply(int rtWidth, int rtHeight, const SkRect& drawBounds,
+               GrAppliedHardClip* out) const override {
+        if (!fFixedClip.apply(rtWidth, rtHeight, drawBounds, out)) {
             return false;
         }
         if (this->hasStencilClip()) {

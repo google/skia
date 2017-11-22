@@ -21,7 +21,11 @@ public:
             this->set(rect);
             return true;
         }
-        return fRect.intersect(rect);
+        if (!fRect.intersect(rect)) {
+            fRect.setEmpty();
+            return false;
+        }
+        return true;
     }
     bool operator==(const GrScissorState& other) const {
         return fEnabled == other.fEnabled &&

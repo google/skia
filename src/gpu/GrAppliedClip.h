@@ -31,12 +31,11 @@ public:
     bool hasStencilClip() const { return SkClipStack::kInvalidGenID != fStencilStackID; }
 
     /**
-     * Intersects the applied clip with the provided rect. Returns false if the draw became empty.
-     * 'clippedDrawBounds' will be intersected with 'irect'. This returns false if the clip becomes
-     * empty or the draw no longer intersects the clip. In either case the draw can be skipped.
+     * Intersects the applied clip's scissor with the provided rect. Returns false if the clip
+     * became empty.
      */
-    bool addScissor(const SkIRect& irect, SkRect* clippedDrawBounds) {
-        return fScissorState.intersect(irect) && clippedDrawBounds->intersect(SkRect::Make(irect));
+    bool addScissor(const SkIRect& irect) {
+        return fScissorState.intersect(irect);
     }
 
     void addWindowRectangles(const GrWindowRectsState& windowState) {
