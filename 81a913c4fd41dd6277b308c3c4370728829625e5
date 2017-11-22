@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "86670313_b1a85e37",
+        "filename": "src/gpu/ccpr/GrCCPRGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-22T17:24:07Z",
+      "side": 1,
+      "message": "This was the reason for taking an array that also contains P0.",
+      "range": {
+        "startLine": 316,
+        "startChar": 37,
+        "endLine": 316,
+        "endChar": 43
+      },
+      "revId": "81a913c4fd41dd6277b308c3c4370728829625e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "286d54cb_f463deb6",
         "filename": "src/gpu/ccpr/GrCCPRGeometry.h",
         "patchSetId": 4
@@ -13,6 +36,30 @@
       "writtenOn": "2017-11-22T13:16:59Z",
       "side": 1,
       "message": "This API is different from how most of skia treats paths with *To() functions. Maybe these should all be addQuadratic, addCubic, etc. if they are not going to be relative to the previous point.\n\nOr actually after reading the cpp files, it seems like you don\u0027t have a choice on what the first point of all these arrays are (we assert it equals the previous point). Thus I don\u0027t see the need to adding the start point in any of these.",
+      "range": {
+        "startLine": 77,
+        "startChar": 22,
+        "endLine": 77,
+        "endChar": 44
+      },
+      "revId": "81a913c4fd41dd6277b308c3c4370728829625e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8feef743_9629ae0e",
+        "filename": "src/gpu/ccpr/GrCCPRGeometry.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-22T17:24:07Z",
+      "side": 1,
+      "message": "Now that you bring it up I see how this is awkward.\n\nThe point of passing in all points was because we can now, and because SkClassifyCubic requires an array of all 4. So this saves us the need to create an intermediate array that contains P0 inside of cubicTo.\n\nDo you think it would be better for code clarity to just take the three and accept the cost of making an intermediate array?",
+      "parentUuid": "286d54cb_f463deb6",
       "range": {
         "startLine": 77,
         "startChar": 22,

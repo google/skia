@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8644725e_9998964b",
+        "filename": "src/gpu/ccpr/GrCCPRGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-22T17:24:07Z",
+      "side": 0,
+      "message": "No need to make this anymore.",
+      "range": {
+        "startLine": 291,
+        "startChar": 24,
+        "endLine": 291,
+        "endChar": 60
+      },
+      "revId": "61170a07191f0483ff405afc620cb0d554063375",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
