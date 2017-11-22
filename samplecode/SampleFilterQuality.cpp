@@ -296,11 +296,6 @@ protected:
         return true;
     }
 
-    virtual bool handleKey(SkKey key) {
-        this->inval(nullptr);
-        return true;
-    }
-
 private:
     typedef SampleView INHERITED;
 };

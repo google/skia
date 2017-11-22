@@ -8,8 +8,6 @@ _samplecode = get_path_info("../samplecode", "abspath")
 
 samples_sources = [
   "$_samplecode/ClockFaceView.cpp",
-  "$_samplecode/GMSampleView.cpp",
-  "$_samplecode/OverView.cpp",
   "$_samplecode/PerlinPatch.cpp",
   "$_samplecode/Sample2PtRadial.cpp",
   "$_samplecode/SampleAAClip.cpp",

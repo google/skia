@@ -8,7 +8,6 @@
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkShader.h"
-#include "SkKey.h"
 
 static void make_bitmap(SkBitmap* bm) {
     const int W = 100;
@@ -72,11 +71,6 @@ protected:
 
     bool onClick(Click* click) override {
         return this->INHERITED::onClick(click);
-    }
-
-    virtual bool handleKey(SkKey) {
-        this->inval(nullptr);
-        return true;
     }
 
 private:
