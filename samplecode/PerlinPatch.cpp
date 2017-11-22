@@ -119,7 +119,7 @@ protected:
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
             switch (uni) {
-                case 'g': fShowGrid = !fShowGrid; this->inval(nullptr); return true;
+                case 'g': fShowGrid = !fShowGrid; return true;
                 default: break;
             }
         }
@@ -207,7 +207,6 @@ protected:
             fTexScale += yDiff / 10.0f;
             fTexScale = SkTMax(0.1f, SkTMin(20.f, fTexScale));
         }
-        this->inval(nullptr);
         return true;
     }
 

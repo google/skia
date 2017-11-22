@@ -79,8 +79,6 @@ protected:
         // now "fling" a random amount
         fIndex += fRand.nextRangeU(5, 20);
         fIndex %= fBlobs.count();
-
-        this->inval(nullptr);
     }
 
 private:

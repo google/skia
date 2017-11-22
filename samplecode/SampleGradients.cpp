@@ -160,7 +160,6 @@ protected:
         if (false) { // avoid bit rot, suppress warning
             test_alphagradients(canvas);
         }
-        this->inval(nullptr);
     }
 
 private:

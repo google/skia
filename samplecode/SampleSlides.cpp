@@ -702,7 +702,6 @@ protected:
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
         this->init();
         fIndex = (fIndex + 1) % SK_ARRAY_COUNT(gProc);
-        this->inval(nullptr);
         return nullptr;
     }
 

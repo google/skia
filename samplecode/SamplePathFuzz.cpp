@@ -686,7 +686,6 @@ protected:
             path_fuzz_stroker(&offscreen, fIndex += 100);
             canvas->drawBitmap(offscreen, 0, 0);
         }
-        this->inval(nullptr);
     }
 
 private:

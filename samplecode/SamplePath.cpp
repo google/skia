@@ -197,7 +197,6 @@ protected:
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         fShowHairline = !fShowHairline;
-        this->inval(nullptr);
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
@@ -248,7 +247,6 @@ public:
 
     void toggle(bool& value) {
         value = !value;
-        this->inval(nullptr);
     }
 
 protected:
@@ -298,7 +296,6 @@ protected:
         if (click->fMeta.findS32("index", &index)) {
             SkASSERT((unsigned)index < N);
             fPts[index] = click->fCurr;
-            this->inval(nullptr);
             return true;
         }
         return false;
@@ -364,12 +361,10 @@ public:
 
     void toggle(bool& value) {
         value = !value;
-        this->inval(nullptr);
     }
 
     void toggle3(int& value) {
         value = (value + 1) % 3;
-        this->inval(nullptr);
     }
 
 protected:
@@ -388,8 +383,8 @@ protected:
                 case '4': this->toggle3(fJoinType); return true;
                 case '5': this->toggle3(fCapType); return true;
                 case '6': this->toggle(fClosed); return true;
-                case '-': fWidth -= 5; this->inval(nullptr); return true;
-                case '=': fWidth += 5; this->inval(nullptr); return true;
+                case '-': fWidth -= 5; return true;
+                case '=': fWidth += 5; return true;
                 default: break;
             }
         }
@@ -435,7 +430,6 @@ protected:
         if (click->fMeta.findS32("index", &index)) {
             SkASSERT((unsigned)index < N);
             fPts[index] = click->fCurr;
-            this->inval(nullptr);
             return true;
         }
         return false;

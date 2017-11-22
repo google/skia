@@ -26,16 +26,6 @@ bool SampleCode::CharQ(const SkEvent& evt, SkUnichar* outUni) {
     return false;
 }
 
-bool SampleCode::KeyQ(const SkEvent& evt, SkKey* outKey) {
-    if (evt.isType(gKeyEvtName, sizeof(gKeyEvtName) - 1)) {
-        if (outKey) {
-            *outKey = (SkKey)evt.getFast32();
-        }
-        return true;
-    }
-    return false;
-}
-
 bool SampleCode::TitleQ(const SkEvent& evt) {
     return evt.isType(gTitleEvtName, sizeof(gTitleEvtName) - 1);
 }
@@ -52,22 +42,6 @@ bool SampleCode::RequestTitle(SkView* view, SkString* title) {
         return true;
     }
     return false;
-}
-
-bool SampleCode::PrefSizeQ(const SkEvent& evt) {
-    return evt.isType(gPrefSizeEvtName, sizeof(gPrefSizeEvtName) - 1);
-}
-
-void SampleCode::PrefSizeR(SkEvent* evt, SkScalar width, SkScalar height) {
-    SkASSERT(evt && PrefSizeQ(*evt));
-    SkScalar size[2];
-    size[0] = width;
-    size[1] = height;
-    evt->setScalars(gPrefSizeEvtName, 2, size);
-}
-
-bool SampleCode::FastTextQ(const SkEvent& evt) {
-    return evt.isType(gFastTextEvtName, sizeof(gFastTextEvtName) - 1);
 }
 
 SkViewRegister* SkViewRegister::gHead;
@@ -87,26 +61,8 @@ SkView* SkFuncViewFactory::operator() () const {
     return (*fCreateFunc)();
 }
 
-#include "GMSampleView.h"
-
-SkGMSampleViewFactory::SkGMSampleViewFactory(GMFactoryFunc func)
-    : fFunc(func) {
-}
-
-SkView* SkGMSampleViewFactory::operator() () const {
-    skiagm::GM* gm = fFunc(nullptr);
-    gm->setMode(skiagm::GM::kSample_Mode);
-    return new GMSampleView(gm);
-}
-
 SkViewRegister::SkViewRegister(SkViewCreateFunc func) {
     fFact = new SkFuncViewFactory(func);
-    fChain = gHead;
-    gHead = this;
-}
-
-SkViewRegister::SkViewRegister(GMFactoryFunc func) {
-    fFact = new SkGMSampleViewFactory(func);
     fChain = gHead;
     gHead = this;
 }
@@ -114,19 +70,10 @@ SkViewRegister::SkViewRegister(GMFactoryFunc func) {
 ///////////////////////////////////////////////////////////////////////////////
 
 static const char is_sample_view_tag[] = "sample-is-sample-view";
-static const char repeat_count_tag[] = "sample-set-repeat-count";
 
 bool SampleView::IsSampleView(SkView* view) {
     SkEvent evt(is_sample_view_tag);
     return view->doQuery(&evt);
-}
-
-bool SampleView::onEvent(const SkEvent& evt) {
-    if (evt.isType(repeat_count_tag)) {
-        fRepeatCount = evt.getFast32();
-        return true;
-    }
-    return this->INHERITED::onEvent(evt);
 }
 
 bool SampleView::onQuery(SkEvent* evt) {
@@ -143,16 +90,14 @@ void SampleView::onDraw(SkCanvas* canvas) {
     }
     this->onDrawBackground(canvas);
 
-    for (int i = 0; i < fRepeatCount; i++) {
-        SkAutoCanvasRestore acr(canvas, true);
-        this->onDrawContent(canvas);
+    SkAutoCanvasRestore acr(canvas, true);
+    this->onDrawContent(canvas);
 #if SK_SUPPORT_GPU
-        // Ensure the GrContext doesn't combine GrDrawOps across draw loops.
-        if (GrContext* context = canvas->getGrContext()) {
-            context->flush();
-        }
-#endif
+    // Ensure the GrContext doesn't combine GrDrawOps across draw loops.
+    if (GrContext* context = canvas->getGrContext()) {
+        context->flush();
     }
+#endif
 }
 
 void SampleView::onDrawBackground(SkCanvas* canvas) {

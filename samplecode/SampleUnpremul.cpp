@@ -19,7 +19,6 @@
 #include "SkOSPath.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "SkSystemEventTypes.h"
 #include "SkTypes.h"
 #include "SkUtils.h"
 #include "SkView.h"
@@ -164,7 +163,6 @@ private:
             return;
         }
         fDecodeSucceeded = decode_file(fCurrFile.c_str(), &fBitmap, kN32_SkColorType, !fPremul);
-        this->inval(nullptr);
     }
 
     void togglePremul() {
