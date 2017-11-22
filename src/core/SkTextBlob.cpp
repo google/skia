@@ -310,14 +310,18 @@ SkTextBlob::~SkTextBlob() {
 }
 
 namespace {
+
 union PositioningAndExtended {
     int32_t intValue;
     struct {
         SkTextBlob::GlyphPositioning positioning;
-        bool extended;
+        uint8_t  extended;
         uint16_t padding;
     };
 };
+
+static_assert(sizeof(PositioningAndExtended) == sizeof(int32_t), "");
+
 } // namespace
 
 unsigned SkTextBlob::ScalarsPerGlyph(GlyphPositioning pos) {
@@ -804,6 +808,12 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
                 break;
             default:
                 return nullptr;
+        }
+
+        if (!buf->glyphs ||
+            !buf->pos ||
+            (pe.extended && (!buf->clusters || !buf->utf8text))) {
+            return nullptr;
         }
 
         if (!reader.readByteArray(buf->glyphs, glyphCount * sizeof(uint16_t)) ||
