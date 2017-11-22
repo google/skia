@@ -85,9 +85,7 @@ public:
         }
 
         struct SingleDraw  {
-            using ScissorMode = GrCCPRCoverageOpsBuilder::ScissorMode;
-            SkIRect       fClipBounds;
-            ScissorMode   fScissorMode;
+            SkIRect       fClipIBounds;
             SkMatrix      fMatrix;
             SkPath        fPath;
             GrColor       fColor;
