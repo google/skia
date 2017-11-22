@@ -121,12 +121,6 @@ bool SampleView::IsSampleView(SkView* view) {
     return view->doQuery(&evt);
 }
 
-bool SampleView::SetRepeatDraw(SkView* view, int count) {
-    SkEvent evt(repeat_count_tag);
-    evt.setFast32(count);
-    return view->doEvent(evt);
-}
-
 bool SampleView::onEvent(const SkEvent& evt) {
     if (evt.isType(repeat_count_tag)) {
         fRepeatCount = evt.getFast32();

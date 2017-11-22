@@ -89,11 +89,3 @@ bool SampleSlide::onMouse(SkScalar x, SkScalar y, Window::InputState state,
 
     return handled;
 }
-
-#if defined(SK_BUILD_FOR_ANDROID)
-// these are normally defined in SkOSWindow_unix, but we don't
-// want to include that
-void SkEvent::SignalNonEmptyQueue() {}
-
-void SkEvent::SignalQueueTimer(SkMSec delay) {}
-#endif

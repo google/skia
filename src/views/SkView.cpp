@@ -70,7 +70,6 @@ void SkView::setSize(SkScalar width, SkScalar height) {
         fHeight = height;
         this->inval(nullptr);
         this->onSizeChange();
-        this->invokeLayout();
     }
 }
 
@@ -444,21 +443,7 @@ void SkView::DoClickUp(Click* click, int x, int y, unsigned modi) {
 
 //////////////////////////////////////////////////////////////////////
 
-void SkView::invokeLayout() {
-    SkView::Layout* layout = this->getLayout();
-
-    if (layout) {
-        layout->layoutChildren(this);
-    }
-}
-
-void SkView::onDraw(SkCanvas* canvas) {
-    Artist* artist = this->getArtist();
-
-    if (artist) {
-        artist->draw(this, canvas);
-    }
-}
+void SkView::onDraw(SkCanvas* canvas) {}
 
 void SkView::onSizeChange() {}
 
@@ -525,7 +510,6 @@ void SkView::detachFromParent() {
 
     if (parent) {
         this->detachFromParent_NoLayout();
-        parent->invokeLayout();
     }
 }
 
@@ -554,7 +538,6 @@ SkView* SkView::attachChildToBack(SkView* child) {
     child->inval(nullptr);
 
     this->validate();
-    this->invokeLayout();
 DONE:
     return child;
 }
@@ -584,7 +567,6 @@ SkView* SkView::attachChildToFront(SkView* child) {
     child->inval(nullptr);
 
     this->validate();
-    this->invokeLayout();
 DONE:
     return child;
 }

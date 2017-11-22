@@ -1202,43 +1202,24 @@ if (skia_enable_tools) {
       sources = [
         "src/views/SkEvent.cpp",
         "src/views/SkEventSink.cpp",
-        "src/views/SkOSMenu.cpp",
-        "src/views/SkTagList.cpp",
         "src/views/SkTouchGesture.cpp",
         "src/views/SkView.cpp",
-        "src/views/SkViewPriv.cpp",
       ]
       libs = []
       deps = []
-      if (!is_android) {
-        sources += [ "src/views/SkWindow.cpp" ]
-      }
       if (is_linux) {
         public_include_dirs += [ "src/views/unix" ]
-        sources += [
-          "src/views/unix/SkOSWindow_Unix.cpp",
-          "src/views/unix/keysym2ucs.c",
-        ]
+        sources += [ "src/views/unix/keysym2ucs.c" ]
         libs += [
           "GL",
           "X11",
         ]
       } else if (is_mac) {
-        sources += [
-          "src/views/mac/SkEventNotifier.mm",
-          "src/views/mac/SkNSView.mm",
-          "src/views/mac/SkOSWindow_Mac.mm",
-          "src/views/mac/SkTextFieldCell.m",
-        ]
         libs += [
           "QuartzCore.framework",
           "Cocoa.framework",
           "Foundation.framework",
         ]
-      } else if (is_win) {
-        sources += [ "src/views/win/SkOSWindow_win.cpp" ]
-      } else if (is_ios) {
-        sources += [ "src/views/mac/SkEventNotifier.mm" ]
       }
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]

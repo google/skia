@@ -148,7 +148,6 @@ class XferDemo : public SampleView {
             v->setLoc(x, y);
             v->setVisibleP(true);
             v->setEnabledP(true);
-            v->addListenerID(this->getSinkID());
             this->attachChildToFront(v.get());
             fModeRect[i] = SkRect::MakeXYWH(x, y + 28, 70, 2);
             x += 80;
