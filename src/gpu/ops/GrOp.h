@@ -11,6 +11,7 @@
 #include "../private/SkAtomics.h"
 #include "GrGpuResource.h"
 #include "GrNonAtomicRef.h"
+#include "GrScissorState.h"
 #include "GrXferProcessor.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
@@ -84,8 +85,13 @@ public:
         return fBounds;
     }
 
-    void setClippedBounds(const SkRect& clippedBounds) {
-        fBounds = clippedBounds;
+    void setClippedBounds(const SkRect& clippedBounds, const GrScissorState& scissorState) {
+        if (scissorState.enabled()) {
+            // Caller should abort the draw if bounds are completely outside the scissor.
+            SkAssertResult(fBounds.intersect(clippedBounds, SkRect::Make(scissorState.rect())));
+        } else {
+            fBounds = clippedBounds;
+        }
         // The clipped bounds already incorporate any effect of the bounds flags.
         fBoundsFlags = 0;
     }

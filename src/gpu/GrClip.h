@@ -30,13 +30,11 @@ public:
     /**
      * This computes a GrAppliedClip from the clip which in turn can be used to build a GrPipeline.
      * To determine the appropriate clipping implementation the GrClip subclass must know whether
-     * the draw will enable HW AA or uses the stencil buffer. On input 'bounds' is a conservative
-     * bounds of the draw that is to be clipped. After return 'bounds' has been intersected with a
-     * conservative bounds of the clip. A return value of false indicates that the draw can be
-     * skipped as it is fully clipped out.
+     * the draw will enable HW AA or uses the stencil buffer. A return value of false indicates
+     * that the draw can be skipped as it is fully clipped out.
      */
-    virtual bool apply(GrContext*, GrRenderTargetContext*, bool useHWAA,
-                       bool hasUserStencilSettings, GrAppliedClip*, SkRect* bounds) const = 0;
+    virtual bool apply(GrContext*, GrRenderTargetContext*, const SkRect& drawBounds,
+                       bool useHWAA, bool hasUserStencilSettings, GrAppliedClip* out) const = 0;
 
     virtual ~GrClip() {}
 
@@ -140,16 +138,16 @@ class GrHardClip : public GrClip {
 public:
     /**
      * Sets the appropriate hardware state modifications on GrAppliedHardClip that will implement
-     * the clip. On input 'bounds' is a conservative bounds of the draw that is to be clipped. After
-     * return 'bounds' has been intersected with a conservative bounds of the clip. A return value
-     * of false indicates that the draw can be skipped as it is fully clipped out.
+     * the clip. A return value of false indicates that the draw can be skipped as it is fully
+     * clipped out.
      */
-    virtual bool apply(int rtWidth, int rtHeight, GrAppliedHardClip* out, SkRect* bounds) const = 0;
+    virtual bool apply(int rtWidth, int rtHeight, const SkRect& drawBounds,
+                       GrAppliedHardClip* out) const = 0;
 
 private:
-    bool apply(GrContext*, GrRenderTargetContext* rtc, bool useHWAA, bool hasUserStencilSettings,
-               GrAppliedClip* out, SkRect* bounds) const final {
-        return this->apply(rtc->width(), rtc->height(), &out->hardClip(), bounds);
+    bool apply(GrContext*, GrRenderTargetContext* rtc, const SkRect& drawBounds, bool useHWAA,
+               bool hasUserStencilSettings, GrAppliedClip* out) const final {
+        return this->apply(rtc->width(), rtc->height(), drawBounds, &out->hardClip());
     }
 };
 
@@ -167,7 +165,9 @@ private:
             *isIntersectionOfRects = true;
         }
     }
-    bool apply(int rtWidth, int rtHeight, GrAppliedHardClip*, SkRect*) const final { return true; }
+    bool apply(int rtWidth, int rtHeight, const SkRect&, GrAppliedHardClip* out) const final {
+        return true;
+    }
     bool isRRect(const SkRect&, SkRRect*, GrAA*) const override { return false; }
 };
 

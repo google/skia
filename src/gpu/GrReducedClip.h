@@ -13,6 +13,7 @@
 #include "SkClipStack.h"
 #include "SkTLList.h"
 
+class GrAppliedClip;
 class GrContext;
 class GrRenderTargetContext;
 
@@ -25,48 +26,44 @@ public:
     using Element = SkClipStack::Element;
     using ElementList = SkTLList<SkClipStack::Element, 16>;
 
-    GrReducedClip(const SkClipStack&, const SkRect& queryBounds,
-                  int maxWindowRectangles = 0, int maxAnalyticFPs = 0);
+    GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds, GrAppliedClip* out = nullptr)
+            : GrReducedClip(stack, queryBounds, 0, 0, out) {}
 
-    /**
-     * If hasScissor() is true, the clip mask is not valid outside this rect and the caller must
-     * enforce this scissor during draw.
-     */
-    const SkIRect& scissor() const { SkASSERT(fHasScissor); return fScissor; }
-    int left() const { return this->scissor().left(); }
-    int top() const { return this->scissor().top(); }
-    int width() const { return this->scissor().width(); }
-    int height() const { return this->scissor().height(); }
+    GrReducedClip(const SkClipStack&, const SkRect& queryBounds, int maxWindowRectangles,
+                  int maxAnalyticFPs, GrAppliedClip* out = nullptr);
 
-    /**
-     * Indicates whether scissor() is defined. It will always be defined if the maskElements() are
+   /**
+     * Indicates whether ibounds() is defined. It will always be defined if the maskElements() are
      * nonempty.
      */
-    bool hasScissor() const { return fHasScissor; }
+    bool hasIBounds() const { return fHasIBounds; }
 
     /**
-     * If nonempty, the clip mask is not valid inside these windows and the caller must clip them
-     * out using the window rectangles GPU extension.
+     * If hasIBonds() is true, this is the rect within which the caller must create and apply the
+     * clip mask. It will also be the GrAppliedClip's scissor if the queryBounds are not completely
+     * contained within.
      */
-    const GrWindowRectangles& windowRectangles() const { return fWindowRects; }
+    const SkIRect& ibounds() const { SkASSERT(fHasIBounds); return fIBounds; }
+    int left() const { return this->ibounds().left(); }
+    int top() const { return this->ibounds().top(); }
+    int width() const { return this->ibounds().width(); }
+    int height() const { return this->ibounds().height(); }
 
-    int numAnalyticFPs() const { return fAnalyticFPs.count(); }
-
-    std::unique_ptr<GrFragmentProcessor> detachAnalyticFPs() {
-        SkDEBUGCODE(for (const auto& fp : fAnalyticFPs) { SkASSERT(fp); })
-        return GrFragmentProcessor::RunInSeries(fAnalyticFPs.begin(), fAnalyticFPs.count());
-    }
+    /**
+     * Returns the number of analytic clip fragment processors that were added to the GrAppliedClip.
+     */
+    int numAnalyticFPs() const { return fNumAnalyticFPs; }
 
     /**
      * An ordered list of clip elements that could not be skipped or implemented by other means. If
-     * nonempty, the caller must create an alpha and/or stencil mask for these elements and apply it
-     * during draw.
+     * nonempty, the caller is responsible to create an alpha and/or stencil mask for these elements
+     * and add it to the GrAppliedClip.
      */
     const ElementList& maskElements() const { return fMaskElements; }
 
     /**
      * If maskElements() are nonempty, uniquely identifies the region of the clip mask that falls
-     * inside of scissor().
+     * inside of ibounds().
      * NOTE: since clip elements might fall outside the query bounds, different regions of the same
      * clip stack might have more or less restrictive IDs.
      * FIXME: this prevents us from reusing a sub-rect of a perfectly good mask when that rect has
@@ -90,6 +87,7 @@ public:
     bool drawStencilClipMask(GrContext*, GrRenderTargetContext*) const;
 
 private:
+    void init(const SkClipStack&, const SkRect& queryBounds);
     void walkStack(const SkClipStack&, const SkRect& queryBounds);
 
     enum class ClipResult {
@@ -117,14 +115,15 @@ private:
 
     void makeEmpty();
 
+    GrAppliedClip* const fAppliedClip;
     const int fMaxWindowRectangles;
     const int fMaxAnalyticFPs;
-    SkIRect fScissor;
-    bool fHasScissor;
+    SkIRect fIBounds;
+    bool fHasIBounds;
     SkRect fAAClipRect;
     uint32_t fAAClipRectGenID; // GenID the mask will have if includes the AA clip rect.
     GrWindowRectangles fWindowRects;
-    SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fAnalyticFPs;
+    int fNumAnalyticFPs;
     ElementList fMaskElements;
     uint32_t fMaskGenID;
     bool fMaskRequiresAA;
