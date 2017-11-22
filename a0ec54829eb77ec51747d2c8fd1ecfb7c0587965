@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5e72a8d_ffd4b441",
+        "filename": "src/gpu/GrReducedClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-22T00:51:34Z",
+      "side": 0,
+      "message": "Did this have a purpose other than condensing the FPs into one?",
+      "range": {
+        "startLine": 57,
+        "startChar": 36,
+        "endLine": 57,
+        "endChar": 47
+      },
+      "revId": "a0ec54829eb77ec51747d2c8fd1ecfb7c0587965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
